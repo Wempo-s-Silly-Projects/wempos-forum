@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#f7efdc">
+    <title>Wempo's Forum</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/js/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="/" data-app-link aria-label="Wempo's Forum home">
+          <span class="brand-mark" aria-hidden="true">W</span>
+          <span>Wempo's Forum</span>
+        </a>
+        <search class="header-search">
+          <form id="site-search" data-form="site-search" action="/" method="get">
+            <label class="visually-hidden" for="search-query">Search posts and people</label>
+            <input id="search-query" type="search" name="q" maxlength="100" placeholder="Search posts or people">
+            <button class="button button-secondary" type="submit">Search</button>
+          </form>
+        </search>
+        <nav class="account-nav" aria-label="Account navigation" id="account-actions"></nav>
+      </div>
+    </header>
+    <div class="status-bar">
+      <p id="status-message" role="status" aria-live="polite"></p>
+      <p id="error-message" role="alert" aria-live="assertive"></p>
+    </div>
+    <main id="main-content" class="main-content" tabindex="-1">
+      <h1 class="visually-hidden">Wempo's Forum</h1>
+      <p>Getting the forum ready…</p>
+    </main>
+    <footer class="site-footer">
+      <p>Made by ItsWempo. Be chill, be kind, and have fun :3</p>
+    </footer>
+    <dialog id="report-dialog" aria-labelledby="report-title">
+      <form data-form="report">
+        <h2 id="report-title">Report this post</h2>
+        <p>Tell moderators what needs their attention.</p>
+        <label for="report-reason">Reason</label>
+        <textarea id="report-reason" name="reason" rows="4" maxlength="500" required></textarea>
+        <div class="form-actions">
+          <button class="button button-secondary" type="button" data-action="close-report">Cancel</button>
+          <button class="button button-danger" type="submit">Send report</button>
+        </div>
+      </form>
+    </dialog>
+    <noscript><p class="noscript-note">This forum needs JavaScript to load posts and account actions.</p></noscript>
+  </body>
+</html>
