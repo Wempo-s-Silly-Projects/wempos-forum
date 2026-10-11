@@ -17,7 +17,7 @@ let currentUser = null;
 let activeRoute = { name: "home" };
 let renderVersion = 0;
 
-function element(tagName, className = "", text) {
+const element = (tagName, className = "", text) => {
   const node = document.createElement(tagName);
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
