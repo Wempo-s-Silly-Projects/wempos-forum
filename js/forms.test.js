@@ -18,7 +18,7 @@ class FakeElement {
   }
 }
 
-function fakeDocument() {
+const fakeDocument = () => {
   const created = [];
   return {
     created,

@@ -1,11 +1,11 @@
-function createElement(document, tagName, className, text) {
+const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
   if (className) element.className = className;
   if (text !== undefined) element.textContent = text;
   return element;
-}
+};
 
-export function createPostCard(post, document, currentUser = null) {
+export const createPostCard = (post, document, currentUser = null) => {
   const article = createElement(document, "article", "post-card");
   article.dataset.postId = String(post.id);
   if (post.visibility === "hidden") article.classList.add("post-hidden");

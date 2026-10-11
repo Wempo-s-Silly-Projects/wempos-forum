@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { api, setCsrfToken } from "./api.js";
 
-async function withFetch(fetchImplementation, run) {
+const withFetch = async (fetchImplementation, run) => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = fetchImplementation;
   try {

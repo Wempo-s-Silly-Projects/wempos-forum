@@ -1,6 +1,6 @@
 import { createForm, createInput, addText } from "./forms.js";
 
-export function createReportQueue(reports, document) {
+export const createReportQueue = (reports, document) => {
   const list = document.createElement("div");
   list.className = "report-list";
   if (!reports.length) {

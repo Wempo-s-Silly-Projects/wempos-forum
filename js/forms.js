@@ -10,10 +10,10 @@ export function createForm(document, name, fields, submitLabel) {
   return form;
 }
 
-export function createInput(document, {
+export const createInput = (document, {
   id, name = id, label, type = "text", autoComplete, required = false,
   minLength, maxLength, accept, description,
-}) {
+}) => {
   const wrapper = document.createElement("div");
   wrapper.className = "form-field";
   const inputLabel = document.createElement("label");

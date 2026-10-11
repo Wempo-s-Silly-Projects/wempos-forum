@@ -1,4 +1,4 @@
-export function routeForPath(pathname, search = "") {
+export const routeForPath = (pathname, search = "") => {
   if (pathname === "/setup") return { name: "setup" };
   if (pathname === "/admin/reports") return { name: "admin" };
   const post = pathname.match(/^\/posts\/(\d+)$/);
@@ -19,7 +19,7 @@ export function routeForPath(pathname, search = "") {
   return { name: "not-found" };
 }
 
-export function startRouter(onRoute) {
+export const startRouter = (onRoute) => {
   const dispatch = () => onRoute(routeForPath(location.pathname, location.search));
   window.addEventListener("popstate", dispatch);
   dispatch();
