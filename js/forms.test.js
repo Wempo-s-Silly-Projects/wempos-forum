@@ -22,7 +22,7 @@ const fakeDocument = () => {
   const created = [];
   return {
     created,
-    createElement(tagName) {
+    createElement: (tagName) => {
       const element = new FakeElement(tagName);
       created.push(element);
       return element;
