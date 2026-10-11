@@ -25,6 +25,7 @@ class FakeElement {
   setAttribute(name, value) {
     this.attributes[name] = String(value);
   }
+  }
 
   set textContent(value) {
     this._textContent = String(value);

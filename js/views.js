@@ -21,7 +21,7 @@ function panel(document, title, description = "") {
   return section;
 }
 
-function submitButton(document, form, label) {
+const submitButton = (document, form, label) => {
   const button = element(document, "button", "button button-primary", label);
   button.type = "submit";
   form.append(button);

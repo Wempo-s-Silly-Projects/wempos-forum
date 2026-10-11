@@ -1,10 +1,10 @@
 let csrfToken = "";
 
-export function setCsrfToken(token) {
+export const setCsrfToken = (token) => {
   csrfToken = typeof token === "string" ? token : "";
-}
+};
 
-export async function api(path, { method = "GET", body } = {}) {
+export const api = async (path, { method = "GET", body } = {}) => {
   const headers = { Accept: "application/json" };
   const mutating = !["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase());
   if (body !== undefined && !(body instanceof FormData)) {

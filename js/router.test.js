@@ -25,6 +25,7 @@ test("routeForPath recognizes setup and moderation pages", () => {
 test("routeForPath parses numeric post identifiers", () => {
   assert.deepEqual(routeForPath("/posts/42"), { name: "post", id: 42 });
 });
+});
   assert.deepEqual(routeForPath("/posts/nope"), { name: "not-found" });
 });
 
