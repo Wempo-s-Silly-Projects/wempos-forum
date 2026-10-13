@@ -27,6 +27,7 @@ test("routeForPath parses numeric post identifiers", () => {
 });
 });
 });
+});
   assert.deepEqual(routeForPath("/posts/nope"), { name: "not-found" });
 });
 
