@@ -94,7 +94,6 @@ function setupForm(document) {
       autoComplete: "off",
       required: true,
       minLength: 32,
-      maxLength: 128,
       description: "Provided by the site owner through Wrangler. Never share it.",
     }),
   ], "Create administrator"));

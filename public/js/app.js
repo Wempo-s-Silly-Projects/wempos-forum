@@ -90,7 +90,7 @@ function setupForm() {
     }),
     createInput(document, {
       id: "setup-key", name: "setupKey", label: "Setup secret", type: "password",
-      autoComplete: "off", required: true, minLength: 32, maxLength: 128,
+      autoComplete: "off", required: true, minLength: 32,
       description: "Provided by the site owner through Wrangler. Never share it.",
     }),
   ], "Create administrator"));

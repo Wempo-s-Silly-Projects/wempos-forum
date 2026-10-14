@@ -618,6 +618,15 @@ async function handlePostRoutes(request, env, url, path, method) {
     if (!row || (row.visibility !== "public" && (!viewer || (viewer.id !== Number(row.author_id) && viewer.role !== "admin")))) {
       throw new HttpError(404, "Post not found.");
     }
+    if (row.parent_id !== null && row.parent_id !== undefined) {
+      const parent = await db.prepare("SELECT id, author_id, visibility FROM posts WHERE id = ? LIMIT 1")
+        .bind(Number(row.parent_id)).first();
+      const canViewHiddenParent = parent && viewer &&
+        (viewer.role === "admin" || Number(parent.author_id) === viewer.id);
+      if (!parent || (parent.visibility !== "public" && !canViewHiddenParent)) {
+        throw new HttpError(404, "Post not found.");
+      }
+    }
     const post = publicPost(row);
     const replyPage = await listReplies(env, postId, viewer ? viewer.id : null, Boolean(viewer && viewer.role === "admin"));
     post.replies = replyPage.replies;
@@ -629,11 +638,14 @@ async function handlePostRoutes(request, env, url, path, method) {
   if (replyMatch && method === "POST") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
+    await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
     const parentId = Number(replyMatch[1]);
     if (!Number.isSafeInteger(parentId) || parentId < 1) throw new HttpError(404, "Post not found.");
     const parent = await postById(env, parentId, session.user.id);
-    if (!parent || parent.visibility !== "public") throw new HttpError(404, "Post not found.");
+    if (!parent || parent.visibility !== "public" || parent.parent_id !== null) {
+      throw new HttpError(400, "Replies must be attached to a public conversation, not another reply.");
+    }
     const body = await readJson(request);
     const message = requiredText(body.body, "reply", 2000);
     const result = await db.prepare(
@@ -645,6 +657,7 @@ async function handlePostRoutes(request, env, url, path, method) {
   if (path === "/api/posts" && method === "POST") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
+    await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
     const body = await readJson(request);
     const message = requiredText(body.body, "post", 2000);
