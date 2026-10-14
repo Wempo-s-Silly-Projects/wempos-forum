@@ -24,9 +24,8 @@ function panel(document, title, description = "") {
 const submitButton = (document, form, label) => {
   const button = element(document, "button", "button button-primary", label);
   button.type = "submit";
-}
   form.append(button);
-}
+};
 
 function authForm(document, name, title, buttonLabel) {
   const section = element(document, "section", "auth-card");
@@ -41,7 +40,7 @@ function authForm(document, name, title, buttonLabel) {
       required: true,
       minLength: 3,
       maxLength: 24,
-      description: "Use 3–24 letters, numbers, underscores, or hyphens.",
+      description: "Use 3–24 letters, numbers, or underscores.",
     }),
     createInput(document, {
       id: `${name}-password`,
@@ -73,7 +72,7 @@ function setupForm(document) {
       required: true,
       minLength: 3,
       maxLength: 24,
-      description: "Use 3–24 letters, numbers, underscores, or hyphens.",
+      description: "Use 3–24 letters, numbers, or underscores.",
     }),
     createInput(document, {
       id: "setup-password",
