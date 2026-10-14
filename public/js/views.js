@@ -252,11 +252,22 @@ export function createPostView(document, post, session) {
   const view = element(document, "div", "post-page");
   heading(document, view, "Conversation");
   view.append(createPostCard(post, document, session.user));
+  heading(document, view, "Replies", 2);
   if (post.replies.length) {
-    heading(document, view, "Replies", 2);
-    appendPostList(view, post.replies, document, session.user);
+    const replyList = element(document, "div", "post-list replies-list");
+    replyList.dataset.repliesFor = String(post.id);
+    for (const reply of post.replies) replyList.append(createPostCard(reply, document, session.user));
+    view.append(replyList);
   } else {
     addText(document, view, "p", "No replies yet.", "empty-state");
+  }
+  if (post.repliesNextBefore) {
+    const olderReplies = element(document, "button", "button button-secondary", "Load older replies");
+    olderReplies.type = "button";
+    olderReplies.dataset.action = "load-older-replies";
+    olderReplies.dataset.postId = String(post.id);
+    olderReplies.dataset.before = String(post.repliesNextBefore);
+    view.append(olderReplies);
   }
   if (session.user && post.visibility !== "hidden") {
     view.append(composer(document, "reply", "Write a thoughtful reply", "Reply", post.id));

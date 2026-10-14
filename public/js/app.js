@@ -308,8 +308,23 @@ async function renderRoute(route) {
     if (version !== renderVersion) return;
     addHeading(main, "Conversation", 1);
     main.append(createPostCard(post, document, session.user));
-    if (post.replies.length) appendPostList(main, post.replies, document, session.user);
-    else addText(document, main, "p", "No replies yet.", "empty-state");
+    addHeading(main, "Replies", 2);
+    if (post.replies.length) {
+      const replyList = element("div", "post-list replies-list");
+      replyList.dataset.repliesFor = String(post.id);
+      for (const reply of post.replies) replyList.append(createPostCard(reply, document, session.user));
+      main.append(replyList);
+    } else {
+      addText(document, main, "p", "No replies yet.", "empty-state");
+    }
+    if (post.repliesNextBefore) {
+      const olderReplies = element("button", "button button-secondary", "Load older replies");
+      olderReplies.type = "button";
+      olderReplies.dataset.action = "load-older-replies";
+      olderReplies.dataset.postId = String(post.id);
+      olderReplies.dataset.before = String(post.repliesNextBefore);
+      main.append(olderReplies);
+    }
     if (session.user && post.visibility !== "hidden") {
       main.append(createComposer("reply", "Write a thoughtful reply", "Reply", post.id));
     }
@@ -477,6 +492,16 @@ async function handleClick(event) {
         next.dataset.before = String(older.nextBefore);
         main.append(next);
       }
+    } else if (action === "load-older-replies") {
+      const postId = button.dataset.postId;
+      const older = await api(`/api/posts/${postId}/replies?before=${button.dataset.before}`);
+      const replyList = main.querySelector(`.replies-list[data-replies-for="${postId}"]`);
+      if (!replyList) throw new Error("The reply list is no longer available. Reload the conversation.");
+      const fragment = document.createDocumentFragment();
+      for (const reply of older.replies) fragment.append(createPostCard(reply, document, currentUser));
+      replyList.prepend(fragment);
+      if (older.nextBefore) button.dataset.before = String(older.nextBefore);
+      else button.remove();
     }
   } catch (error) {
     setMessage(error.message, true);

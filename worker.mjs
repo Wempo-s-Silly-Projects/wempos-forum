@@ -63,6 +63,10 @@ export function isValidPassword(value) {
   return typeof value === "string" && value.length >= 12 && value.length <= 128;
 }
 
+export function createAvatarVersion() {
+  return randomToken(12);
+}
+
 export function sniffImageMime(bytes) {
   if (!(bytes instanceof Uint8Array) || bytes.length < 12) return null;
   if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
@@ -170,7 +174,7 @@ async function readSession(request, env) {
   const tokenHash = await sha256Hex(token);
   const row = await env.FORUM_DB.prepare(
     "SELECT s.token_hash, s.user_id, s.csrf_token, s.expires_at, " +
-      "u.username, u.role, u.bio, u.avatar_mime, u.avatar_updated_at " +
+      "u.username, u.role, u.bio, u.avatar_mime, u.avatar_updated_at, u.avatar_version " +
       "FROM sessions s LEFT JOIN users u ON u.id = s.user_id " +
       "WHERE s.token_hash = ? AND s.expires_at > ? LIMIT 1",
   ).bind(tokenHash, nowSeconds()).first();
@@ -183,7 +187,7 @@ async function readSession(request, env) {
       username: row.username,
       role: row.role,
       bio: row.bio || "",
-      avatarUrl: row.avatar_mime ? "/api/avatars/" + row.user_id + "?v=" + row.avatar_updated_at : null,
+      avatarUrl: row.avatar_mime ? "/api/avatars/" + row.user_id + "?v=" + row.avatar_version : null,
     };
   }
   return { tokenHash: row.token_hash, csrfToken: row.csrf_token, expiresAt: Number(row.expires_at), user };
@@ -258,27 +262,30 @@ async function assertNotBanned(env, userId) {
   if (activeBan) throw new HttpError(403, "This account is currently banned.");
 }
 
-async function rateLimit(request, env, scope, maximum, windowSeconds) {
-  const now = nowSeconds();
-  const bucket = Math.floor(now / windowSeconds) * windowSeconds;
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  const key = scope + ":" + await sha256Hex(ip);
-  await env.FORUM_DB.prepare(
-    "INSERT INTO rate_limits (key, window_start, count) VALUES (?, ?, 1) " +
-      "ON CONFLICT(key) DO UPDATE SET " +
-      "count = CASE WHEN rate_limits.window_start < ? THEN 1 ELSE rate_limits.count + 1 END, " +
-      "window_start = CASE WHEN rate_limits.window_start < ? THEN excluded.window_start ELSE rate_limits.window_start END",
-  ).bind(key, bucket, bucket, bucket).run();
-  const row = await env.FORUM_DB.prepare(
-    "SELECT count, window_start FROM rate_limits WHERE key = ?",
-  ).bind(key).first();
-  if (now % 600 < 2) {
-    await env.FORUM_DB.prepare("DELETE FROM rate_limits WHERE window_start < ?").bind(now - 86400).run();
+const RATE_LIMIT_BINDINGS = Object.freeze({
+  read: "READ_RATE_LIMITER",
+  write: "WRITE_RATE_LIMITER",
+  "guest-session": "GUEST_SESSION_RATE_LIMITER",
+  register: "REGISTER_RATE_LIMITER",
+  login: "LOGIN_RATE_LIMITER",
+  setup: "SETUP_RATE_LIMITER",
+  "post-write": "POST_WRITE_RATE_LIMITER",
+  "password-change": "PASSWORD_CHANGE_RATE_LIMITER",
+});
+
+async function rateLimit(request, env, scope, actor = "") {
+  const bindingName = RATE_LIMIT_BINDINGS[scope];
+  const limiter = bindingName ? env[bindingName] : null;
+  if (!limiter || typeof limiter.limit !== "function") {
+    throw new HttpError(503, "Rate limiting is not configured for this endpoint.");
   }
-  if (row && Number(row.count) > maximum) {
-    const retryAfter = Math.max(1, Number(row.window_start) + windowSeconds - now);
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const identity = actor ? scope + ":" + actor : scope + ":" + ip;
+  const key = await sha256Hex(identity);
+  const { success } = await limiter.limit({ key });
+  if (!success) {
     throw new HttpError(429, "Too many requests. Please wait a little and try again.", {
-      "Retry-After": String(retryAfter),
+      "Retry-After": "60",
     });
   }
 }
@@ -349,7 +356,7 @@ function validateNewCredentials(body) {
 
 async function userByUsernameKey(env, key) {
   return env.FORUM_DB.prepare(
-    "SELECT id, username, username_key, password_salt, password_hash, role, bio, avatar_mime, avatar_updated_at " +
+    "SELECT id, username, username_key, password_salt, password_hash, role, bio, avatar_mime, avatar_updated_at, avatar_version " +
       "FROM users WHERE username_key = ? LIMIT 1",
   ).bind(key).first();
 }
@@ -360,14 +367,14 @@ function publicUser(row) {
     username: row.username,
     role: row.role,
     bio: row.bio || "",
-    avatarUrl: row.avatar_mime ? "/api/avatars/" + row.id + "?v=" + row.avatar_updated_at : null,
+    avatarUrl: row.avatar_mime ? "/api/avatars/" + row.id + "?v=" + row.avatar_version : null,
   };
 }
 
 const POST_SELECT =
   "SELECT p.id, p.author_id, p.parent_id, p.body, p.visibility, p.created_at, " +
   "u.username AS author_username, u.avatar_mime AS author_avatar_mime, " +
-  "u.avatar_updated_at AS author_avatar_updated_at, " +
+  "u.avatar_updated_at AS author_avatar_updated_at, u.avatar_version AS author_avatar_version, " +
   "(SELECT parent.body FROM posts parent WHERE parent.id = p.parent_id) AS parent_body, " +
   "(SELECT COUNT(*) FROM reactions r WHERE r.post_id = p.id AND r.value = 'like') AS like_count, " +
   "(SELECT COUNT(*) FROM reactions r WHERE r.post_id = p.id AND r.value = 'dislike') AS dislike_count, " +
@@ -384,7 +391,7 @@ function publicPost(row) {
       id: Number(row.author_id),
       username: row.author_username,
       avatarUrl: row.author_avatar_mime
-        ? "/api/avatars/" + row.author_id + "?v=" + row.author_avatar_updated_at
+        ? "/api/avatars/" + row.author_id + "?v=" + row.author_avatar_version
         : null,
     },
     parent: row.parent_id ? { id: Number(row.parent_id), body: row.parent_body || "" } : null,
@@ -423,13 +430,20 @@ async function listRootPosts(env, viewerId, options = {}) {
   return { posts: shown, nextBefore: hasMore && shown.length ? shown[shown.length - 1].id : null };
 }
 
-async function listReplies(env, postId, viewerId, showAll = false) {
-  const filter = showAll ? "" : "AND (p.visibility = 'public' OR p.author_id = ?) ";
-  const sql = POST_SELECT + "WHERE p.parent_id = ? " + filter + "ORDER BY p.id ASC LIMIT 100";
+async function listReplies(env, postId, viewerId, showAll = false, before = null) {
+  const visibilityFilter = showAll ? "" : "AND (p.visibility = 'public' OR p.author_id = ?) ";
+  const cursorFilter = before === null ? "" : "AND p.id < ? ";
+  const sql = POST_SELECT + "WHERE p.parent_id = ? " + cursorFilter +
+    visibilityFilter + "ORDER BY p.id DESC LIMIT 101";
   const values = [viewerId || -1, postId];
+  if (before !== null) values.push(before);
   if (!showAll) values.push(viewerId || -1);
   const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
-  return (result.results || []).map(publicPost);
+  const rows = result.results || [];
+  const hasMore = rows.length > 100;
+  const shown = rows.slice(0, 100);
+  const nextBefore = hasMore && shown.length ? Number(shown[shown.length - 1].id) : null;
+  return { replies: shown.map(publicPost).reverse(), nextBefore };
 }
 
 async function setupRequired(env) {
@@ -446,7 +460,7 @@ async function storeUser(env, credentials, role = "member") {
         "VALUES (?, ?, ?, ?, ?, '', ?)",
     ).bind(credentials.username, credentials.usernameKey, password.salt, password.hash, role, now).run();
     return await env.FORUM_DB.prepare(
-      "SELECT id, username, username_key, password_salt, password_hash, role, bio, avatar_mime, avatar_updated_at " +
+      "SELECT id, username, username_key, password_salt, password_hash, role, bio, avatar_mime, avatar_updated_at, avatar_version " +
         "FROM users WHERE id = ? LIMIT 1",
     ).bind(Number(result.meta.last_row_id)).first();
   } catch (error) {
@@ -456,20 +470,12 @@ async function storeUser(env, credentials, role = "member") {
   }
 }
 
-async function routeApi(request, env) {
-  const url = new URL(request.url);
-  const path = url.pathname;
-  const method = request.method.toUpperCase();
+async function handleAuthRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
-  if (!db) throw new HttpError(503, "The forum database is not configured.");
-
-  await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write",
-    method === "GET" || method === "HEAD" ? 180 : 45, 60);
-
   if (path === "/api/session" && method === "GET") {
     const existing = await readSession(request, env);
     if (existing) return json({ user: existing.user, csrfToken: existing.csrfToken });
-    await rateLimit(request, env, "guest-session", 120, 900);
+    await rateLimit(request, env, "guest-session");
     const created = await createSession(request, env);
     return json({ user: null, csrfToken: created.csrfToken }, 200, { "Set-Cookie": created.setCookie });
   }
@@ -493,7 +499,7 @@ async function routeApi(request, env) {
 
   if (path === "/api/setup" && method === "POST") {
     const guest = await requireCsrf(request, env);
-    await rateLimit(request, env, "setup", 5, 3600);
+    await rateLimit(request, env, "setup");
     if (!(await setupRequired(env))) throw new HttpError(409, "First-time setup has already been completed.");
     if (!env.SETUP_SECRET || env.SETUP_SECRET.length < 32) {
       throw new HttpError(503, "First-time setup is locked. Configure SETUP_SECRET using Wrangler before creating the administrator.");
@@ -511,6 +517,9 @@ async function routeApi(request, env) {
       user = await storeUser(env, credentials, "admin");
     } catch (error) {
       if (error instanceof HttpError) throw error;
+      if (!(await setupRequired(env))) {
+        throw new HttpError(409, "First-time setup has already been completed.");
+      }
       throw error;
     }
     const session = await createSession(request, env, Number(user.id), guest.tokenHash);
@@ -519,7 +528,7 @@ async function routeApi(request, env) {
 
   if (path === "/api/auth/register" && method === "POST") {
     const guest = await requireCsrf(request, env);
-    await rateLimit(request, env, "register", 5, 3600);
+    await rateLimit(request, env, "register");
     const body = await readJson(request);
     const credentials = validateNewCredentials(body);
     const user = await storeUser(env, credentials, "member");
@@ -529,7 +538,7 @@ async function routeApi(request, env) {
 
   if (path === "/api/auth/login" && method === "POST") {
     const guest = await requireCsrf(request, env);
-    await rateLimit(request, env, "login", 10, 900);
+    await rateLimit(request, env, "login");
     const body = await readJson(request);
     const username = typeof body.username === "string" ? body.username.trim() : "";
     const password = typeof body.password === "string" ? body.password : "";
@@ -560,7 +569,11 @@ async function routeApi(request, env) {
       headers: securityHeaders(new Headers({ "Cache-Control": "no-store", "Set-Cookie": expiredCookie(request) })),
     });
   }
+  return null;
+}
 
+async function handlePostRoutes(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/posts" && method === "GET") {
     const session = await readSession(request, env);
     const beforeRaw = url.searchParams.get("before");
@@ -571,6 +584,28 @@ async function routeApi(request, env) {
     }
     const feed = await listRootPosts(env, session && session.user ? session.user.id : null, { before });
     return json(feed);
+  }
+
+  const repliesReadMatch = path.match(/^\/api\/posts\/([0-9]+)\/replies$/);
+  if (repliesReadMatch && method === "GET") {
+    const postId = Number(repliesReadMatch[1]);
+    if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
+    const session = await readSession(request, env);
+    const viewer = session && session.user ? session.user : null;
+    const parent = await postById(env, postId, viewer ? viewer.id : null);
+    if (!parent || (parent.visibility !== "public" && (!viewer ||
+      (viewer.id !== Number(parent.author_id) && viewer.role !== "admin")))) {
+      throw new HttpError(404, "Post not found.");
+    }
+    const beforeRaw = url.searchParams.get("before");
+    let before = null;
+    if (beforeRaw !== null) {
+      if (!/^[1-9][0-9]{0,14}$/.test(beforeRaw)) throw new HttpError(400, "That reply cursor is invalid.");
+      before = Number(beforeRaw);
+    }
+    const page = await listReplies(env, postId, viewer ? viewer.id : null,
+      Boolean(viewer && viewer.role === "admin"), before);
+    return json(page);
   }
 
   const postMatch = path.match(/^\/api\/posts\/([0-9]+)$/);
@@ -584,7 +619,9 @@ async function routeApi(request, env) {
       throw new HttpError(404, "Post not found.");
     }
     const post = publicPost(row);
-    post.replies = await listReplies(env, postId, viewer ? viewer.id : null, Boolean(viewer && viewer.role === "admin"));
+    const replyPage = await listReplies(env, postId, viewer ? viewer.id : null, Boolean(viewer && viewer.role === "admin"));
+    post.replies = replyPage.replies;
+    post.repliesNextBefore = replyPage.nextBefore;
     return json(post);
   }
 
@@ -592,7 +629,7 @@ async function routeApi(request, env) {
   if (replyMatch && method === "POST") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
-    await rateLimit(request, env, "post-write", 20, 60);
+    await rateLimit(request, env, "post-write", String(session.user.id));
     const parentId = Number(replyMatch[1]);
     if (!Number.isSafeInteger(parentId) || parentId < 1) throw new HttpError(404, "Post not found.");
     const parent = await postById(env, parentId, session.user.id);
@@ -608,7 +645,7 @@ async function routeApi(request, env) {
   if (path === "/api/posts" && method === "POST") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
-    await rateLimit(request, env, "post-write", 20, 60);
+    await rateLimit(request, env, "post-write", String(session.user.id));
     const body = await readJson(request);
     const message = requiredText(body.body, "post", 2000);
     const result = await db.prepare(
@@ -654,7 +691,11 @@ async function routeApi(request, env) {
       posts: posts.posts,
     });
   }
+  return null;
+}
 
+async function handleProfileRoutes(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   const userMatch = path.match(/^\/api\/users\/([^/]+)$/);
   if (userMatch && method === "GET") {
     let username;
@@ -673,7 +714,7 @@ async function routeApi(request, env) {
       username: user.username,
       role: user.role,
       bio: user.bio || "",
-      avatarUrl: user.avatar_mime ? "/api/avatars/" + user.id + "?v=" + user.avatar_updated_at : null,
+      avatarUrl: user.avatar_mime ? "/api/avatars/" + user.id + "?v=" + user.avatar_version : null,
       posts: posts.posts,
     });
   }
@@ -715,20 +756,22 @@ async function routeApi(request, env) {
     const mime = sniffImageMime(bytes);
     if (!mime) throw new HttpError(415, "Only JPEG, PNG, and WebP images are supported.");
     const updatedAt = nowSeconds();
+    const avatarVersion = createAvatarVersion();
     await db.prepare(
-      "UPDATE users SET avatar_mime = ?, avatar_data = ?, avatar_updated_at = ? WHERE id = ?",
-    ).bind(mime, bytes, updatedAt, session.user.id).run();
-    return json({ avatarUrl: "/api/avatars/" + session.user.id + "?v=" + updatedAt });
+      "UPDATE users SET avatar_mime = ?, avatar_data = ?, avatar_updated_at = ?, avatar_version = ? WHERE id = ?",
+    ).bind(mime, bytes, updatedAt, avatarVersion, session.user.id).run();
+    return json({ avatarUrl: "/api/avatars/" + session.user.id + "?v=" + avatarVersion });
   }
 
   if (path === "/api/me/password" && method === "PATCH") {
     const session = await requireUser(request, env);
+    await assertNotBanned(env, session.user.id);
     const body = await readJson(request);
     if (typeof body.currentPassword !== "string" || typeof body.newPassword !== "string" ||
       body.currentPassword.length > 128 || !isValidPassword(body.newPassword)) {
       throw new HttpError(400, "Enter your current password and a new password of 12–128 characters.");
     }
-    await rateLimit(request, env, "password-change", 6, 3600);
+    await rateLimit(request, env, "password-change", String(session.user.id));
     const row = await userByUsernameKey(env, session.user.username.toLowerCase());
     if (!row || !(await verifyPassword(body.currentPassword, row.password_salt, row.password_hash))) {
       throw new HttpError(401, "Your current password is incorrect.");
@@ -742,10 +785,15 @@ async function routeApi(request, env) {
     ]);
     return json({ ok: true });
   }
+  return null;
+}
 
+async function handleModerationRoutes(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   const reportMatch = path.match(/^\/api\/posts\/([0-9]+)\/reports$/);
   if (reportMatch && method === "POST") {
     const session = await requireUser(request, env);
+    await assertNotBanned(env, session.user.id);
     const postId = Number(reportMatch[1]);
     if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
     const post = await postById(env, postId, session.user.id);
@@ -808,9 +856,15 @@ async function routeApi(request, env) {
         .bind(body.action === "dismiss" ? "dismissed" : "actioned", nowSeconds(), session.user.id, reportId),
     ];
     if (body.action === "hide_post") {
-      statements.push(db.prepare("UPDATE posts SET visibility = 'hidden' WHERE id = ?").bind(Number(report.post_id)));
+      statements.push(db.prepare(
+        "UPDATE posts SET visibility = 'hidden' WHERE id = (" +
+          "SELECT post_id FROM reports WHERE id = ? AND status = 'actioned' AND resolved_by = ?)",
+      ).bind(reportId, session.user.id));
     }
-    await db.batch(statements);
+    const results = await db.batch(statements);
+    if (Number(results[0]?.meta?.changes) !== 1) {
+      throw new HttpError(409, "This report was already resolved by another moderator.");
+    }
     return json({ ok: true });
   }
 
@@ -845,17 +899,23 @@ async function routeApi(request, env) {
     if (method === "POST") {
       const body = await readJson(request);
       const reason = requiredText(body.reason, "ban reason", 500);
-      const active = await db.prepare(
-        "SELECT id FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
-          "AND (expires_at IS NULL OR expires_at > ?) LIMIT 1",
-      ).bind(targetId, nowSeconds()).first();
-      if (active) throw new HttpError(409, "This member is already banned.");
-      await db.batch([
+      const now = nowSeconds();
+      const results = await db.batch([
         db.prepare(
-          "INSERT INTO bans (user_id, reason, created_at, created_by) VALUES (?, ?, ?, ?)",
-        ).bind(targetId, reason, nowSeconds(), session.user.id),
-        db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(targetId),
+          "UPDATE bans SET revoked_at = ?, revoked_by = ?, revocation_reason = 'Expired automatically' " +
+            "WHERE user_id = ? AND revoked_at IS NULL AND expires_at IS NOT NULL AND expires_at <= ?",
+        ).bind(now, session.user.id, targetId, now),
+        db.prepare(
+          "INSERT INTO bans (user_id, reason, created_at, created_by) " +
+            "SELECT ?, ?, ?, ? WHERE NOT EXISTS (" +
+            "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+            "AND (expires_at IS NULL OR expires_at > ?))",
+        ).bind(targetId, reason, now, session.user.id, targetId, now),
       ]);
+      if (Number(results[1]?.meta?.changes) !== 1) {
+        throw new HttpError(409, "This member is already banned.");
+      }
+      await db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(targetId).run();
       return json({ ok: true }, 201);
     }
     const body = await readJson(request);
@@ -868,6 +928,22 @@ async function routeApi(request, env) {
     await db.prepare("UPDATE bans SET revoked_at = ?, revoked_by = ?, revocation_reason = ? WHERE id = ?")
       .bind(nowSeconds(), session.user.id, revocationReason, Number(active.id)).run();
     return json({ ok: true });
+  }
+  return null;
+}
+
+async function routeApi(request, env) {
+  const url = new URL(request.url);
+  const path = url.pathname;
+  const method = request.method.toUpperCase();
+  if (!env.FORUM_DB) throw new HttpError(503, "The forum database is not configured.");
+
+  await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
+
+  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes];
+  for (const handler of handlers) {
+    const response = await handler(request, env, url, path, method);
+    if (response) return response;
   }
 
   if (path.startsWith("/api/")) throw new HttpError(404, "That API endpoint does not exist.");

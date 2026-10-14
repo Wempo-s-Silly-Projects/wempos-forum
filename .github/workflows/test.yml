@@ -24,4 +24,4 @@ jobs:
       - name: Run unit tests
         run: npm test
       - name: Check Worker syntax
-        run: node --check worker.js
+        run: node --check worker.mjs

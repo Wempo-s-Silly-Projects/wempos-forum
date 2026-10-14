@@ -1,6 +1,6 @@
 # Wempo's Forum
 
-A small, server-backed forum using Cloudflare Workers, D1, and static assets. The existing frontend calls the same-origin `/api/*` endpoints handled by `worker.js`; posts, replies, reactions, profiles, sessions, reports, and bans persist in D1.
+A small, server-backed forum using Cloudflare Workers, D1, and static assets. The existing frontend calls the same-origin `/api/*` endpoints handled by `worker.mjs`; posts, replies, reactions, profiles, sessions, reports, and bans persist in D1.
 
 ## Requirements
 
@@ -20,10 +20,10 @@ A small, server-backed forum using Cloudflare Workers, D1, and static assets. Th
 2. Create a long random setup secret (at least 32 characters) with a password manager. For local-only development, create a `.dev.vars` file in the repository root:
 
    ```dotenv
-   SETUP_SECRET=replace-this-with-a-long-random-secret-of-at-least-32-characters
+   SETUP_SECRET=
    ```
 
-   Replace the example value with your own random secret. `.dev.vars` is ignored by Git and must never be committed.
+   Paste your own randomly generated value after the equals sign. `.dev.vars` is ignored by Git and must never be committed.
 
 3. Apply the schema to the local D1 database and run the app:
 
@@ -78,9 +78,10 @@ Never run the remote migration against a database that contains data you do not 
 - Passwords use per-account random salts and PBKDF2-HMAC-SHA-256 hashes; plaintext passwords are never persisted.
 - Session IDs are cryptographically random, only their SHA-256 hashes are stored, and browser cookies are HttpOnly and SameSite=Lax. HTTPS responses set Secure.
 - State-changing requests require the exact same Origin plus a CSRF token tied to the session.
-- The first administrator requires the out-of-band `SETUP_SECRET`; later visitors cannot claim admin setup.
+- The first administrator requires the out-of-band `SETUP_SECRET`; a database uniqueness constraint prevents duplicate administrator accounts.
+- Cloudflare rate-limit bindings are location-local and eventually consistent, so limits are abuse controls rather than exact accounting.
 - SQL values are parameterized, roles are checked server-side, and hidden posts/moderator endpoints enforce access checks.
-- API body sizes, username/password/post/bio/report limits, image magic bytes, and per-IP request rates are checked server-side.
+- API body sizes, username/password/post/bio/report limits, image magic bytes, and request rates are checked server-side. Cloudflare Rate Limiting bindings enforce limits without a D1 write for every request.
 - JSON/API responses and static assets include security headers and a restrictive Content Security Policy.
 
 ### Avatar storage

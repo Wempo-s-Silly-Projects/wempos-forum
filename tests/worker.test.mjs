@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { isValidPassword, isValidUsername, sniffImageMime } from "../worker.js";
+import { createAvatarVersion, isValidPassword, isValidUsername, sniffImageMime } from "../worker.mjs";
 
 test("usernames follow the documented ASCII rules", () => {
   for (const value of ["abc", "ItsWempo", "test_user", "123456789012345678901234"]) {
@@ -26,4 +26,13 @@ test("avatar sniffing accepts supported signatures, not claimed MIME labels", ()
   assert.equal(sniffImageMime(Uint8Array.from([0x3c, 0x73, 0x76, 0x67, 0x3e, 0, 0, 0, 0, 0, 0, 0])), null);
   assert.equal(sniffImageMime(new Uint8Array([0xff, 0xd8])), null);
   assert.equal(sniffImageMime("not bytes"), null);
+});
+
+
+test("avatar versions are unique, URL-safe cache busters", () => {
+  const first = createAvatarVersion();
+  const second = createAvatarVersion();
+  assert.match(first, /^[A-Za-z0-9_-]{16}$/);
+  assert.match(second, /^[A-Za-z0-9_-]{16}$/);
+  assert.notEqual(first, second);
 });
