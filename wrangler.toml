@@ -71,3 +71,10 @@ namespace_id = "614202610141008"
 [ratelimits.simple]
 limit = 6
 period = 60
+
+[[ratelimits]]
+name = "REPORT_RATE_LIMITER"
+namespace_id = "614202610141009"
+[ratelimits.simple]
+limit = 5
+period = 60

@@ -325,7 +325,7 @@ async function renderRoute(route) {
       olderReplies.dataset.before = String(post.repliesNextBefore);
       main.append(olderReplies);
     }
-    if (session.user && post.visibility !== "hidden") {
+    if (session.user && post.visibility !== "hidden" && !post.parent) {
       main.append(createComposer("reply", "Write a thoughtful reply", "Reply", post.id));
     }
     return;

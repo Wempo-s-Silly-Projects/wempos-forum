@@ -268,7 +268,7 @@ export function createPostView(document, post, session) {
     olderReplies.dataset.before = String(post.repliesNextBefore);
     view.append(olderReplies);
   }
-  if (session.user && post.visibility !== "hidden") {
+  if (session.user && post.visibility !== "hidden" && !post.parent) {
     view.append(composer(document, "reply", "Write a thoughtful reply", "Reply", post.id));
   }
   return view;

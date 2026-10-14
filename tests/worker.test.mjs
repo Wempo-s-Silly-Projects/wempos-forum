@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createAvatarVersion, isValidPassword, isValidUsername, sniffImageMime } from "../worker.mjs";
+import { createAvatarVersion, isValidPassword, isValidUsername, SEARCH_USERS_SQL, sniffImageMime } from "../worker.mjs";
 
 test("usernames follow the documented ASCII rules", () => {
   for (const value of ["abc", "ItsWempo", "test_user", "123456789012345678901234"]) {
@@ -35,4 +35,9 @@ test("avatar versions are unique, URL-safe cache busters", () => {
   assert.match(first, /^[A-Za-z0-9_-]{16}$/);
   assert.match(second, /^[A-Za-z0-9_-]{16}$/);
   assert.notEqual(first, second);
+});
+
+test("search user rows include avatar_version for cache-busted avatar URLs", () => {
+  assert.match(SEARCH_USERS_SQL, /avatar_version/);
+  assert.match(SEARCH_USERS_SQL, /LIMIT 20$/);
 });

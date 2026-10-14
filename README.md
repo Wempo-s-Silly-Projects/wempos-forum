@@ -79,7 +79,7 @@ Never run the remote migration against a database that contains data you do not 
 - Session IDs are cryptographically random, only their SHA-256 hashes are stored, and browser cookies are HttpOnly and SameSite=Lax. HTTPS responses set Secure.
 - State-changing requests require the exact same Origin plus a CSRF token tied to the session.
 - The first administrator requires the out-of-band `SETUP_SECRET`; a database uniqueness constraint prevents duplicate administrator accounts.
-- Cloudflare rate-limit bindings are location-local and eventually consistent, so limits are abuse controls rather than exact accounting.
+- Cloudflare rate-limit bindings are location-local and eventually consistent, so limits are abuse controls rather than exact accounting. Reports also have a per-account limit.
 - SQL values are parameterized, roles are checked server-side, and hidden posts/moderator endpoints enforce access checks.
 - API body sizes, username/password/post/bio/report limits, image magic bytes, and request rates are checked server-side. Cloudflare Rate Limiting bindings enforce limits without a D1 write for every request.
 - JSON/API responses and static assets include security headers and a restrictive Content Security Policy.
@@ -91,7 +91,9 @@ R2 is not enabled on the connected Cloudflare account right now, so this first v
 ## Checks
 
 ```sh
+npm run db:migrate:local
 npm test
+npx wrangler deploy --dry-run
 ```
 
 Run local browser smoke tests for registration/login, posting/replies, reactions, reports, banning/unbanning, password changes, avatar uploads, logout, and reload persistence before opening this to other users. Do not consider the forum production-ready solely because unit tests pass.

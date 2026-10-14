@@ -271,6 +271,7 @@ const RATE_LIMIT_BINDINGS = Object.freeze({
   setup: "SETUP_RATE_LIMITER",
   "post-write": "POST_WRITE_RATE_LIMITER",
   "password-change": "PASSWORD_CHANGE_RATE_LIMITER",
+  report: "REPORT_RATE_LIMITER",
 });
 
 async function rateLimit(request, env, scope, actor = "") {
@@ -371,6 +372,10 @@ function publicUser(row) {
   };
 }
 
+export const SEARCH_USERS_SQL =
+  "SELECT id, username, role, bio, avatar_mime, avatar_updated_at, avatar_version FROM users " +
+  "WHERE instr(username_key, ?) > 0 OR instr(lower(bio), ?) > 0 ORDER BY username_key LIMIT 20";
+
 const POST_SELECT =
   "SELECT p.id, p.author_id, p.parent_id, p.body, p.visibility, p.created_at, " +
   "u.username AS author_username, u.avatar_mime AS author_avatar_mime, " +
@@ -405,6 +410,23 @@ async function postById(env, postId, viewerId) {
   const row = await env.FORUM_DB.prepare(POST_SELECT + "WHERE p.id = ? LIMIT 1")
     .bind(viewerId || -1, postId).first();
   return row || null;
+}
+
+async function canViewPost(env, row, viewer) {
+  if (!row) return false;
+  if (row.visibility !== "public" &&
+      (!viewer || (viewer.id !== Number(row.author_id) && viewer.role !== "admin"))) {
+    return false;
+  }
+  if (row.parent_id !== null && row.parent_id !== undefined) {
+    const parent = await env.FORUM_DB.prepare(
+      "SELECT id, author_id, visibility FROM posts WHERE id = ? LIMIT 1",
+    ).bind(Number(row.parent_id)).first();
+    const canViewHiddenParent = parent && viewer &&
+      (viewer.role === "admin" || Number(parent.author_id) === viewer.id);
+    if (!parent || (parent.visibility !== "public" && !canViewHiddenParent)) return false;
+  }
+  return true;
 }
 
 async function listRootPosts(env, viewerId, options = {}) {
@@ -593,8 +615,7 @@ async function handlePostRoutes(request, env, url, path, method) {
     const session = await readSession(request, env);
     const viewer = session && session.user ? session.user : null;
     const parent = await postById(env, postId, viewer ? viewer.id : null);
-    if (!parent || (parent.visibility !== "public" && (!viewer ||
-      (viewer.id !== Number(parent.author_id) && viewer.role !== "admin")))) {
+    if (!(await canViewPost(env, parent, viewer))) {
       throw new HttpError(404, "Post not found.");
     }
     const beforeRaw = url.searchParams.get("before");
@@ -615,18 +636,7 @@ async function handlePostRoutes(request, env, url, path, method) {
     const session = await readSession(request, env);
     const viewer = session && session.user ? session.user : null;
     const row = await postById(env, postId, viewer ? viewer.id : null);
-    if (!row || (row.visibility !== "public" && (!viewer || (viewer.id !== Number(row.author_id) && viewer.role !== "admin")))) {
-      throw new HttpError(404, "Post not found.");
-    }
-    if (row.parent_id !== null && row.parent_id !== undefined) {
-      const parent = await db.prepare("SELECT id, author_id, visibility FROM posts WHERE id = ? LIMIT 1")
-        .bind(Number(row.parent_id)).first();
-      const canViewHiddenParent = parent && viewer &&
-        (viewer.role === "admin" || Number(parent.author_id) === viewer.id);
-      if (!parent || (parent.visibility !== "public" && !canViewHiddenParent)) {
-        throw new HttpError(404, "Post not found.");
-      }
-    }
+    if (!(await canViewPost(env, row, viewer))) throw new HttpError(404, "Post not found.");
     const post = publicPost(row);
     const replyPage = await listReplies(env, postId, viewer ? viewer.id : null, Boolean(viewer && viewer.role === "admin"));
     post.replies = replyPage.replies;
@@ -674,7 +684,7 @@ async function handlePostRoutes(request, env, url, path, method) {
     const postId = Number(reactionMatch[1]);
     if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
     const post = await postById(env, postId, session.user.id);
-    if (!post || post.visibility !== "public") throw new HttpError(404, "Post not found.");
+    if (!(await canViewPost(env, post, session.user))) throw new HttpError(404, "Post not found.");
     const body = await readJson(request);
     if (body.value !== "like" && body.value !== "dislike") {
       throw new HttpError(400, "Choose like or dislike.");
@@ -694,10 +704,7 @@ async function handlePostRoutes(request, env, url, path, method) {
     }
     const session = await readSession(request, env);
     const viewerId = session && session.user ? session.user.id : null;
-    const users = await db.prepare(
-      "SELECT id, username, role, bio, avatar_mime, avatar_updated_at, avatar_version FROM users " +
-        "WHERE instr(username_key, ?) > 0 OR instr(lower(bio), ?) > 0 ORDER BY username_key LIMIT 20",
-    ).bind(query, query).all();
+    const users = await db.prepare(SEARCH_USERS_SQL).bind(query, query).all();
     const posts = await listRootPosts(env, viewerId, { searchTerm: query });
     return json({
       users: (users.results || []).map(publicUser),
@@ -807,10 +814,11 @@ async function handleModerationRoutes(request, env, url, path, method) {
   if (reportMatch && method === "POST") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
+    await rateLimit(request, env, "report", String(session.user.id));
     const postId = Number(reportMatch[1]);
     if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
     const post = await postById(env, postId, session.user.id);
-    if (!post || post.visibility !== "public") throw new HttpError(404, "Post not found.");
+    if (!(await canViewPost(env, post, session.user))) throw new HttpError(404, "Post not found.");
     if (Number(post.author_id) === session.user.id) throw new HttpError(400, "You cannot report your own post.");
     const body = await readJson(request);
     const reason = requiredText(body.reason, "report reason", 500);
@@ -864,19 +872,29 @@ async function handleModerationRoutes(request, env, url, path, method) {
     const report = await db.prepare("SELECT id, post_id FROM reports WHERE id = ? AND status = 'open' LIMIT 1")
       .bind(reportId).first();
     if (!report) throw new HttpError(404, "Open report not found.");
-    const statements = [
-      db.prepare("UPDATE reports SET status = ?, resolved_at = ?, resolved_by = ? WHERE id = ? AND status = 'open'")
-        .bind(body.action === "dismiss" ? "dismissed" : "actioned", nowSeconds(), session.user.id, reportId),
-    ];
+    const now = nowSeconds();
     if (body.action === "hide_post") {
-      statements.push(db.prepare(
-        "UPDATE posts SET visibility = 'hidden' WHERE id = (" +
-          "SELECT post_id FROM reports WHERE id = ? AND status = 'actioned' AND resolved_by = ?)",
-      ).bind(reportId, session.user.id));
-    }
-    const results = await db.batch(statements);
-    if (Number(results[0]?.meta?.changes) !== 1) {
-      throw new HttpError(409, "This report was already resolved by another moderator.");
+      const results = await db.batch([
+        db.prepare(
+          "UPDATE posts SET visibility = 'hidden' WHERE id = (" +
+            "SELECT post_id FROM reports WHERE id = ? AND status = 'open')",
+        ).bind(reportId),
+        db.prepare(
+          "UPDATE reports SET status = 'actioned', resolved_at = ?, resolved_by = ? " +
+            "WHERE id = ? AND status = 'open'",
+        ).bind(now, session.user.id, reportId),
+      ]);
+      if (Number(results[1]?.meta?.changes) !== 1) {
+        throw new HttpError(409, "This report was already resolved by another moderator.");
+      }
+    } else {
+      const result = await db.prepare(
+        "UPDATE reports SET status = 'dismissed', resolved_at = ?, resolved_by = ? " +
+          "WHERE id = ? AND status = 'open'",
+      ).bind(now, session.user.id, reportId).run();
+      if (Number(result.meta?.changes) !== 1) {
+        throw new HttpError(409, "This report was already resolved by another moderator.");
+      }
     }
     return json({ ok: true });
   }

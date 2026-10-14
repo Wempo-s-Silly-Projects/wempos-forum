@@ -21,6 +21,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Apply schema to an isolated local D1 database
+        run: npm run db:migrate:local
       - name: Run unit tests
         run: npm test
       - name: Check Worker syntax
