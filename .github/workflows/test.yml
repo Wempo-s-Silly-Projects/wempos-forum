@@ -25,7 +25,11 @@ jobs:
         run: npm run db:migrate:local
       - name: Run unit tests
         run: npm test
-      - name: Check Worker syntax
-        run: node --check worker.mjs
+      - name: Check Worker and frontend syntax
+        run: |
+          node --check worker.mjs
+          for file in public/js/*.js; do
+            node --check "$file"
+          done
       - name: Validate Cloudflare deployment configuration
         run: npx wrangler deploy --dry-run

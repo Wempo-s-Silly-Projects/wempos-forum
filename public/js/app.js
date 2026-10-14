@@ -387,159 +387,197 @@ function readForm(form) {
   return new FormData(form);
 }
 
+async function submitSiteSearch(text) {
+  router.navigate("/?q=" + encodeURIComponent(text("q").trim()));
+}
+
+async function submitAuthForm(type, text) {
+  const endpoint = type === "login" ? "/api/auth/login" :
+    type === "register" ? "/api/auth/register" : "/api/setup";
+  const credentials = { username: text("username"), password: text("password") };
+  if (type === "setup") credentials.setupKey = text("setupKey");
+  const result = await api(endpoint, { method: "POST", body: credentials });
+  setCsrfToken(result.csrfToken);
+  router.navigate("/");
+  setMessage(type === "setup" ? "Administrator account created." : "You're signed in.");
+}
+
+async function submitNewPost(text) {
+  const post = await api("/api/posts", { method: "POST", body: { body: text("body") } });
+  router.navigate("/posts/" + post.id);
+  setMessage("Your post is live.");
+}
+
+async function submitReplyForm(form, text) {
+  const postId = Number(form.dataset.postId);
+  await api("/api/posts/" + postId + "/replies", {
+    method: "POST",
+    body: { body: text("body") },
+  });
+  await renderRoute({ name: "post", id: postId });
+  setMessage("Your reply was added.");
+}
+
+async function submitBioForm(text) {
+  await api("/api/me", { method: "PATCH", body: { bio: text("bio") } });
+  await renderRoute({ name: "profile", username: currentUser.username });
+  setMessage("Your profile was updated.");
+}
+
+async function submitAvatarForm(values) {
+  const upload = new FormData();
+  upload.append("avatar", values.get("avatar"));
+  await api("/api/me/avatar", { method: "POST", body: upload });
+  await renderRoute({ name: "profile", username: currentUser.username });
+  setMessage("Your profile picture was updated.");
+}
+
+async function submitPasswordForm(text) {
+  await api("/api/me/password", {
+    method: "PATCH",
+    body: { currentPassword: text("currentPassword"), newPassword: text("newPassword") },
+  });
+  await renderRoute({ name: "home" });
+  setMessage("Your password was changed. Other signed-in sessions were revoked.");
+}
+
+async function submitReportForm(text) {
+  await api("/api/posts/" + reportForm.dataset.postId + "/reports", {
+    method: "POST",
+    body: { reason: text("reason") },
+  });
+  reportDialog.close();
+  reportForm.reset();
+  setMessage("Your report was sent to the moderators.");
+}
+
+async function submitReportResolution(form) {
+  await api("/api/admin/reports/" + form.dataset.reportId + "/resolve", {
+    method: "POST",
+    body: { action: form.dataset.action },
+  });
+  await renderRoute({ name: "admin" });
+  setMessage("The report was updated.");
+}
+
+async function submitBanForm(form, text) {
+  await api("/api/admin/users/" + form.dataset.userId + "/bans", {
+    method: "POST",
+    body: { reason: text("reason") },
+  });
+  await renderRoute({ name: "admin" });
+  setMessage("The user was banned and their sessions revoked.");
+}
+
+async function submitUnbanForm(form, text) {
+  await api("/api/admin/users/" + form.dataset.userId + "/bans", {
+    method: "DELETE",
+    body: { reason: text("reason") },
+  });
+  await renderRoute({ name: "admin" });
+  setMessage("The ban was lifted.");
+}
+
 async function submitForm(form) {
   const values = readForm(form);
   const type = form.dataset.form;
   const text = (name) => String(values.get(name) ?? "");
   setMessage("Saving…");
 
-  if (type === "site-search") {
-    router.navigate(`/?q=${encodeURIComponent(text("q").trim())}`);
-    return;
-  }
-  if (type === "login" || type === "register" || type === "setup") {
-    const endpoint = type === "login" ? "/api/auth/login" :
-      type === "register" ? "/api/auth/register" : "/api/setup";
-    const credentials = { username: text("username"), password: text("password") };
-    if (type === "setup") credentials.setupKey = text("setupKey");
-    const result = await api(endpoint, { method: "POST", body: credentials });
-    setCsrfToken(result.csrfToken);
-    router.navigate("/");
-    setMessage(type === "setup" ? "Administrator account created." : "You're signed in.");
-    return;
-  }
-  if (type === "post-create") {
-    const post = await api("/api/posts", { method: "POST", body: { body: text("body") } });
-    router.navigate(`/posts/${post.id}`);
-    setMessage("Your post is live.");
-    return;
-  }
-  if (type === "reply") {
-    await api(`/api/posts/${form.dataset.postId}/replies`, {
-      method: "POST",
-      body: { body: text("body") },
-    });
-    await renderRoute({ name: "post", id: Number(form.dataset.postId) });
-    setMessage("Your reply was added.");
-    return;
-  }
-  if (type === "bio") {
-    await api("/api/me", { method: "PATCH", body: { bio: text("bio") } });
-    await renderRoute({ name: "profile", username: currentUser.username });
-    setMessage("Your profile was updated.");
-    return;
-  }
-  if (type === "avatar") {
-    const upload = new FormData();
-    upload.append("avatar", values.get("avatar"));
-    await api("/api/me/avatar", { method: "POST", body: upload });
-    await renderRoute({ name: "profile", username: currentUser.username });
-    setMessage("Your profile picture was updated.");
-    return;
-  }
-  if (type === "password") {
-    await api("/api/me/password", {
-      method: "PATCH",
-      body: { currentPassword: text("currentPassword"), newPassword: text("newPassword") },
-    });
-    await renderRoute({ name: "home" });
-    setMessage("Your password was changed. Other signed-in sessions were revoked.");
-    return;
-  }
-  if (type === "report") {
-    await api(`/api/posts/${reportForm.dataset.postId}/reports`, {
-      method: "POST",
-      body: { reason: text("reason") },
-    });
-    reportDialog.close();
-    reportForm.reset();
-    setMessage("Your report was sent to the moderators.");
-    return;
-  }
-  if (type === "admin-resolve") {
-    await api(`/api/admin/reports/${form.dataset.reportId}/resolve`, {
-      method: "POST",
-      body: { action: form.dataset.action },
-    });
-    await renderRoute({ name: "admin" });
-    setMessage("The report was updated.");
-    return;
-  }
-  if (type === "admin-ban") {
-    await api(`/api/admin/users/${form.dataset.userId}/bans`, {
-      method: "POST",
-      body: { reason: text("reason") },
-    });
-    await renderRoute({ name: "admin" });
-    setMessage("The user was banned and their sessions revoked.");
-    return;
-  }
-  if (type === "admin-unban") {
-    await api(`/api/admin/users/${form.dataset.userId}/bans`, {
-      method: "DELETE",
-      body: { reason: text("reason") },
-    });
-    await renderRoute({ name: "admin" });
-    setMessage("The ban was lifted.");
-  }
+  const handlers = {
+    "site-search": () => submitSiteSearch(text),
+    login: () => submitAuthForm("login", text),
+    register: () => submitAuthForm("register", text),
+    setup: () => submitAuthForm("setup", text),
+    "post-create": () => submitNewPost(text),
+    reply: () => submitReplyForm(form, text),
+    bio: () => submitBioForm(text),
+    avatar: () => submitAvatarForm(values),
+    password: () => submitPasswordForm(text),
+    report: () => submitReportForm(text),
+    "admin-resolve": () => submitReportResolution(form),
+    "admin-ban": () => submitBanForm(form, text),
+    "admin-unban": () => submitUnbanForm(form, text),
+  };
+  const handler = handlers[type];
+  if (handler) await handler();
 }
 
-async function handleClick(event) {
+function handleInternalNavigation(event) {
   const anchor = event.target.closest("a");
-  if (anchor && anchor.origin === location.origin && anchor.pathname.startsWith("/") &&
-      !anchor.hash && !anchor.hasAttribute("download")) {
-    event.preventDefault();
-    router.navigate(`${anchor.pathname}${anchor.search}`);
-    return;
-  }
-  const button = event.target.closest("button[data-action]");
-  if (!button) return;
-  const action = button.dataset.action;
-  try {
-    if (action === "logout") {
+  if (!anchor || anchor.origin !== location.origin || !anchor.pathname.startsWith("/") ||
+      anchor.hash || anchor.hasAttribute("download")) return false;
+  event.preventDefault();
+  router.navigate(anchor.pathname + anchor.search);
+  return true;
+}
+
+async function submitReaction(button) {
+  await api("/api/posts/" + button.dataset.postId + "/reaction", {
+    method: "PUT",
+    body: { value: button.dataset.value },
+  });
+  await renderRoute(activeRoute);
+}
+
+function openReportDialog(button) {
+  reportForm.dataset.postId = button.dataset.postId;
+  reportDialog.showModal();
+  reportForm.querySelector("textarea").focus();
+}
+
+async function loadMorePosts(button) {
+  const older = await api("/api/posts?before=" + button.dataset.before);
+  appendPostList(main, older.posts, document, currentUser);
+  button.remove();
+  if (older.posts.length !== 20 || !older.nextBefore) return;
+  const next = element("button", "button button-secondary", "Load older posts");
+  next.type = "button";
+  next.dataset.action = "load-more";
+  next.dataset.before = String(older.nextBefore);
+  main.append(next);
+}
+
+async function loadOlderReplies(button) {
+  const postId = button.dataset.postId;
+  const older = await api("/api/posts/" + postId + "/replies?before=" + button.dataset.before);
+  const replyList = main.querySelector('.replies-list[data-replies-for="' + postId + '"]');
+  if (!replyList) throw new Error("The reply list is no longer available. Reload the conversation.");
+  const fragment = document.createDocumentFragment();
+  for (const reply of older.replies) fragment.append(createPostCard(reply, document, currentUser));
+  replyList.prepend(fragment);
+  if (older.nextBefore) button.dataset.before = String(older.nextBefore);
+  else button.remove();
+}
+
+async function handleButtonAction(button) {
+  const handlers = {
+    logout: async () => {
       await api("/api/auth/logout", { method: "POST" });
       setCsrfToken("");
       router.navigate("/");
       setMessage("You are signed out.");
-    } else if (action === "reaction") {
-      await api(`/api/posts/${button.dataset.postId}/reaction`, {
-        method: "PUT",
-        body: { value: button.dataset.value },
-      });
-      await renderRoute(activeRoute);
-    } else if (action === "report") {
-      reportForm.dataset.postId = button.dataset.postId;
-      reportDialog.showModal();
-      reportForm.querySelector("textarea").focus();
-    } else if (action === "close-report") {
-      reportDialog.close();
-    } else if (action === "load-more") {
-      const older = await api(`/api/posts?before=${button.dataset.before}`);
-      appendPostList(main, older.posts, document, currentUser);
-      button.remove();
-      if (older.posts.length === 20 && older.nextBefore) {
-        const next = element("button", "button button-secondary", "Load older posts");
-        next.type = "button";
-        next.dataset.action = "load-more";
-        next.dataset.before = String(older.nextBefore);
-        main.append(next);
-      }
-    } else if (action === "load-older-replies") {
-      const postId = button.dataset.postId;
-      const older = await api(`/api/posts/${postId}/replies?before=${button.dataset.before}`);
-      const replyList = main.querySelector(`.replies-list[data-replies-for="${postId}"]`);
-      if (!replyList) throw new Error("The reply list is no longer available. Reload the conversation.");
-      const fragment = document.createDocumentFragment();
-      for (const reply of older.replies) fragment.append(createPostCard(reply, document, currentUser));
-      replyList.prepend(fragment);
-      if (older.nextBefore) button.dataset.before = String(older.nextBefore);
-      else button.remove();
-    }
+    },
+    reaction: () => submitReaction(button),
+    report: () => openReportDialog(button),
+    "close-report": () => reportDialog.close(),
+    "load-more": () => loadMorePosts(button),
+    "load-older-replies": () => loadOlderReplies(button),
+  };
+  const handler = handlers[button.dataset.action];
+  if (handler) await handler();
+}
+
+async function handleClick(event) {
+  if (handleInternalNavigation(event)) return;
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
+  try {
+    await handleButtonAction(button);
   } catch (error) {
     setMessage(error.message, true);
   }
 }
-
 document.addEventListener("click", handleClick);
 document.addEventListener("submit", async (event) => {
   const form = event.target;
