@@ -163,8 +163,8 @@ test("password hashing stays within the Workers PBKDF2 iteration limit", () => {
 
 test("password hashes use the pepper and verify only with the matching pepper", async () => {
   const password = "a-long-password-for-tests";
-  const pepper = "deployment-pepper-that-is-long-enough-123456";
-  const otherPepper = "a-different-deployment-pepper-value-123456";
+  const pepper = "p".repeat(40);
+  const otherPepper = "q".repeat(40);
   const stored = await hashPassword(password, pepper);
 
   assert.notEqual(stored.hash, password);
