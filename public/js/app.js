@@ -133,73 +133,81 @@ function renderAccountNavigation(user) {
   accountActions.append(logout);
 }
 
-function renderHome(session, setupRequired, data, route) {
+function renderIntroduction() {
   const intro = element("section", "personal-intro");
   addHeading(intro, "Wempo's Forum", 1);
   addText(document, intro, "p", homepageIntro, "personal-intro-copy");
   const interests = element("ul", "personal-tags");
-  for (const interest of homepageInterests) {
-    interests.append(element("li", "", interest));
-  }
+  for (const interest of homepageInterests) interests.append(element("li", "", interest));
   intro.append(interests);
   const doodle = element("span", "intro-doodle", ":3");
   doodle.setAttribute("aria-hidden", "true");
   intro.append(doodle);
   main.append(intro);
-
-  if (setupRequired) {
-    main.append(setupForm());
-  } else if (!session.user) {
-    const panel = createPanel("Join the conversation", "Accounts use a username and password. There is no email collection or email-based recovery.");
-    panel.id = "join";
-    const grid = element("div", "auth-grid");
-    grid.append(
-      authForm("login", "Welcome back", "Sign in"),
-      authForm("register", "New around here?", "Create account"),
-    );
-    panel.append(grid);
-    main.append(panel);
-  }
-
-  if (session.user) {
-    main.append(createComposer("post-create", "What's on your mind?", "Post message"));
-  }
-  addHeading(main, route.name === "search" ? "Search results" : "Recent conversations", 2);
-  if (route.name === "search") {
-    addText(document, main, "p", `Results for “${route.query}”`, "muted");
-    renderSearchResults(main, data.search);
-  } else {
-    appendPostList(main, data.feed.posts, document, session.user);
-    if (data.feed.nextBefore && data.feed.posts.length === 20) {
-      const older = element("button", "button button-secondary", "Load older posts");
-      older.type = "button";
-      older.dataset.action = "load-more";
-      older.dataset.before = String(data.feed.nextBefore);
-      main.append(older);
-    }
-  }
-
-  if (session.user) {
-    const account = document.createElement("details");
-    account.className = "panel";
-    const summary = element("summary", "", "Account settings");
-    account.append(summary);
-    const passwordPanel = createPanel("Change password", "There is no email-based recovery; choose a password you can keep safe.");
-    passwordPanel.append(createForm(document, "password", [
-      createInput(document, {
-        id: "current-password", name: "currentPassword", label: "Current password",
-        type: "password", autoComplete: "current-password", required: true, minLength: 12, maxLength: 128,
-      }),
-      createInput(document, {
-        id: "new-password", name: "newPassword", label: "New password",
-        type: "password", autoComplete: "new-password", required: true, minLength: 12, maxLength: 128,
-      }),
-    ], "Update password"));
-    account.append(passwordPanel);
-    main.append(account);
-  }
 }
 
+function renderJoinPanel() {
+  const panel = createPanel("Join the conversation", "Accounts use a username and password. There is no email collection or email-based recovery.");
+  panel.id = "join";
+  const grid = element("div", "auth-grid");
+  grid.append(
+    authForm("login", "Welcome back", "Sign in"),
+    authForm("register", "New around here?", "Create account"),
+  );
+  panel.append(grid);
+  main.append(panel);
+}
+
+function renderHomeAccess(session, setupRequired) {
+  if (setupRequired) {
+    main.append(setupForm());
+    return;
+  }
+  if (!session.user) renderJoinPanel();
+}
+
+function renderHomeContent(session, data, route) {
+  if (session.user) main.append(createComposer("post-create", "What's on your mind?", "Post message"));
+  addHeading(main, route.name === "search" ? "Search results" : "Recent conversations", 2);
+  if (route.name === "search") {
+    addText(document, main, "p", \`Results for “\${route.query}”\`, "muted");
+    renderSearchResults(main, data.search);
+    return;
+  }
+  appendPostList(main, data.feed.posts, document, session.user);
+  if (!data.feed.nextBefore || data.feed.posts.length !== 20) return;
+  const older = element("button", "button button-secondary", "Load older posts");
+  older.type = "button";
+  older.dataset.action = "load-more";
+  older.dataset.before = String(data.feed.nextBefore);
+  main.append(older);
+}
+
+function renderAccountSettings() {
+  const account = document.createElement("details");
+  account.className = "panel";
+  account.append(element("summary", "", "Account settings"));
+  const passwordPanel = createPanel("Change password", "There is no email-based recovery; choose a password you can keep safe.");
+  passwordPanel.append(createForm(document, "password", [
+    createInput(document, {
+      id: "current-password", name: "currentPassword", label: "Current password",
+      type: "password", autoComplete: "current-password", required: true, minLength: 12, maxLength: 128,
+    }),
+    createInput(document, {
+      id: "new-password", name: "newPassword", label: "New password",
+      type: "password", autoComplete: "new-password", required: true, minLength: 12, maxLength: 128,
+    }),
+  ], "Update password"));
+  account.append(passwordPanel);
+  main.append(account);
+}
+
+function renderHome(session, setupRequired, data, route) {
+  renderIntroduction();
+  renderHomeAccess(session, setupRequired);
+  renderHomeContent(session, data, route);
+  if (session.user) renderAccountSettings();
+}
 function renderSearchResults(container, results) {
   const people = createPanel("People");
   if (results.users.length) {
@@ -262,21 +270,19 @@ function renderAdmin(reportData, banData) {
   main.append(createActiveBanList(banData.bans, document));
 }
 
-async function renderRoute(route) {
-  const version = ++renderVersion;
-  activeRoute = route;
-  main.classList.toggle("home-page", route.name === "home");
-  main.replaceChildren();
-  setMessage();
+async function prepareRouteContext(version) {
   const [session, setup] = await Promise.all([
     api("/api/session"),
     api("/api/setup/status"),
   ]);
-  if (version !== renderVersion) return;
+  if (version !== renderVersion) return null;
   currentUser = session.user;
   setCsrfToken(session.csrfToken);
   renderAccountNavigation(session.user);
-  const setupRequired = setup.required;
+  return { session, setupRequired: setup.required };
+}
+
+function setRouteTitle(route) {
   const pageNames = {
     home: "Wempo's Forum",
     search: "Search",
@@ -288,69 +294,95 @@ async function renderRoute(route) {
   };
   document.title = route.name === "home"
     ? "Wempo's Forum"
-    : `${pageNames[route.name] || pageNames.home} · Wempo's Forum`;
+    : \`\${pageNames[route.name] || pageNames.home} · Wempo's Forum\`;
+}
 
-  if (route.name === "setup") {
-    if (setupRequired) main.append(setupForm());
-    else addText(document, main, "p", "First-time setup has already been completed.", "empty-state");
+function renderSetupRoute(context) {
+  if (context.setupRequired) {
+    main.append(setupForm());
     return;
   }
-  if (route.name === "home" || route.name === "search") {
-    const data = route.name === "search"
-      ? { search: await api(`/api/search?q=${encodeURIComponent(route.query)}`) }
-      : { feed: await api("/api/posts") };
-    if (version !== renderVersion) return;
-    renderHome(session, setupRequired, data, route);
-    return;
+  addText(document, main, "p", "First-time setup has already been completed.", "empty-state");
+}
+
+async function renderHomeRoute(route, context, version) {
+  const data = route.name === "search"
+    ? { search: await api(\`/api/search?q=\${encodeURIComponent(route.query)}\`) }
+    : { feed: await api("/api/posts") };
+  if (version !== renderVersion) return;
+  renderHome(context.session, context.setupRequired, data, route);
+}
+
+async function renderPostRoute(route, context, version) {
+  const post = await api(\`/api/posts/\${route.id}\`);
+  if (version !== renderVersion) return;
+  addHeading(main, "Conversation", 1);
+  main.append(createPostCard(post, document, context.session.user));
+  addHeading(main, "Replies", 2);
+  if (post.replies.length) {
+    const replyList = element("div", "post-list replies-list");
+    replyList.dataset.repliesFor = String(post.id);
+    for (const reply of post.replies) replyList.append(createPostCard(reply, document, context.session.user));
+    main.append(replyList);
+  } else {
+    addText(document, main, "p", "No replies yet.", "empty-state");
   }
-  if (route.name === "post") {
-    const post = await api(`/api/posts/${route.id}`);
-    if (version !== renderVersion) return;
-    addHeading(main, "Conversation", 1);
-    main.append(createPostCard(post, document, session.user));
-    addHeading(main, "Replies", 2);
-    if (post.replies.length) {
-      const replyList = element("div", "post-list replies-list");
-      replyList.dataset.repliesFor = String(post.id);
-      for (const reply of post.replies) replyList.append(createPostCard(reply, document, session.user));
-      main.append(replyList);
-    } else {
-      addText(document, main, "p", "No replies yet.", "empty-state");
-    }
-    if (post.repliesNextBefore) {
-      const olderReplies = element("button", "button button-secondary", "Load older replies");
-      olderReplies.type = "button";
-      olderReplies.dataset.action = "load-older-replies";
-      olderReplies.dataset.postId = String(post.id);
-      olderReplies.dataset.before = String(post.repliesNextBefore);
-      main.append(olderReplies);
-    }
-    if (session.user && post.visibility !== "hidden" && !post.parent) {
-      main.append(createComposer("reply", "Write a thoughtful reply", "Reply", post.id));
-    }
-    return;
+  if (post.repliesNextBefore) {
+    const olderReplies = element("button", "button button-secondary", "Load older replies");
+    olderReplies.type = "button";
+    olderReplies.dataset.action = "load-older-replies";
+    olderReplies.dataset.postId = String(post.id);
+    olderReplies.dataset.before = String(post.repliesNextBefore);
+    main.append(olderReplies);
   }
-  if (route.name === "profile") {
-    const profile = await api(`/api/users/${encodeURIComponent(route.username)}`);
-    if (version !== renderVersion) return;
-    renderProfile(profile, session);
-    return;
-  }
-  if (route.name === "admin") {
-    const [reports, bans] = await Promise.all([
-      api("/api/admin/reports"),
-      api("/api/admin/bans"),
-    ]);
-    if (version !== renderVersion) return;
-    renderAdmin(reports, bans);
-    return;
-  }
-  if (route.name === "not-found") {
-    addHeading(main, "Page not found", 1);
-    addText(document, main, "p", "That page isn't available.", "muted");
+  if (context.session.user && post.visibility !== "hidden" && !post.parent) {
+    main.append(createComposer("reply", "Write a thoughtful reply", "Reply", post.id));
   }
 }
 
+async function renderProfileRoute(route, context, version) {
+  const profile = await api(\`/api/users/\${encodeURIComponent(route.username)}\`);
+  if (version !== renderVersion) return;
+  renderProfile(profile, context.session);
+}
+
+async function renderAdminRoute(context, version) {
+  const [reports, bans] = await Promise.all([
+    api("/api/admin/reports"),
+    api("/api/admin/bans"),
+  ]);
+  if (version !== renderVersion) return;
+  renderAdmin(reports, bans);
+}
+
+function renderNotFoundRoute() {
+  addHeading(main, "Page not found", 1);
+  addText(document, main, "p", "That page isn't available.", "muted");
+}
+
+async function renderRoute(route) {
+  const version = ++renderVersion;
+  activeRoute = route;
+  main.classList.toggle("home-page", route.name === "home");
+  main.replaceChildren();
+  setMessage();
+
+  const context = await prepareRouteContext(version);
+  if (!context) return;
+  setRouteTitle(route);
+
+  const renderers = {
+    setup: () => renderSetupRoute(context),
+    home: () => renderHomeRoute(route, context, version),
+    search: () => renderHomeRoute(route, context, version),
+    post: () => renderPostRoute(route, context, version),
+    profile: () => renderProfileRoute(route, context, version),
+    admin: () => renderAdminRoute(context, version),
+    "not-found": () => renderNotFoundRoute(),
+  };
+  const renderPage = renderers[route.name] || renderNotFoundRoute;
+  await renderPage();
+}
 function readForm(form) {
   return new FormData(form);
 }
