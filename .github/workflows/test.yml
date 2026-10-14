@@ -25,3 +25,5 @@ jobs:
         run: npm test
       - name: Check Worker syntax
         run: node --check worker.mjs
+      - name: Validate Cloudflare deployment configuration
+        run: npx wrangler deploy --dry-run

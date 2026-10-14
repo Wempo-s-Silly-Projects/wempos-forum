@@ -682,7 +682,7 @@ async function handlePostRoutes(request, env, url, path, method) {
     const session = await readSession(request, env);
     const viewerId = session && session.user ? session.user.id : null;
     const users = await db.prepare(
-      "SELECT id, username, role, bio, avatar_mime, avatar_updated_at FROM users " +
+      "SELECT id, username, role, bio, avatar_mime, avatar_updated_at, avatar_version FROM users " +
         "WHERE instr(username_key, ?) > 0 OR instr(lower(bio), ?) > 0 ORDER BY username_key LIMIT 20",
     ).bind(query, query).all();
     const posts = await listRootPosts(env, viewerId, { searchTerm: query });
