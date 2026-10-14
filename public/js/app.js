@@ -170,7 +170,7 @@ function renderHomeContent(session, data, route) {
   if (session.user) main.append(createComposer("post-create", "What's on your mind?", "Post message"));
   addHeading(main, route.name === "search" ? "Search results" : "Recent conversations", 2);
   if (route.name === "search") {
-    addText(document, main, "p", \`Results for “\${route.query}”\`, "muted");
+    addText(document, main, "p", `Results for “${route.query}”`, "muted");
     renderSearchResults(main, data.search);
     return;
   }
@@ -294,7 +294,7 @@ function setRouteTitle(route) {
   };
   document.title = route.name === "home"
     ? "Wempo's Forum"
-    : \`\${pageNames[route.name] || pageNames.home} · Wempo's Forum\`;
+    : `${pageNames[route.name] || pageNames.home} · Wempo's Forum`;
 }
 
 function renderSetupRoute(context) {
@@ -307,14 +307,14 @@ function renderSetupRoute(context) {
 
 async function renderHomeRoute(route, context, version) {
   const data = route.name === "search"
-    ? { search: await api(\`/api/search?q=\${encodeURIComponent(route.query)}\`) }
+    ? { search: await api(`/api/search?q=${encodeURIComponent(route.query)}`) }
     : { feed: await api("/api/posts") };
   if (version !== renderVersion) return;
   renderHome(context.session, context.setupRequired, data, route);
 }
 
 async function renderPostRoute(route, context, version) {
-  const post = await api(\`/api/posts/\${route.id}\`);
+  const post = await api(`/api/posts/${route.id}`);
   if (version !== renderVersion) return;
   addHeading(main, "Conversation", 1);
   main.append(createPostCard(post, document, context.session.user));
@@ -341,7 +341,7 @@ async function renderPostRoute(route, context, version) {
 }
 
 async function renderProfileRoute(route, context, version) {
-  const profile = await api(\`/api/users/\${encodeURIComponent(route.username)}\`);
+  const profile = await api(`/api/users/${encodeURIComponent(route.username)}`);
   if (version !== renderVersion) return;
   renderProfile(profile, context.session);
 }
