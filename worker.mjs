@@ -412,7 +412,7 @@ async function postById(env, postId, viewerId) {
   return row || null;
 }
 
-async function canViewPost(env, row, viewer) {
+export async function canViewPost(env, row, viewer) {
   if (!row) return false;
   if (row.visibility !== "public" &&
       (!viewer || (viewer.id !== Number(row.author_id) && viewer.role !== "admin"))) {

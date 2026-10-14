@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createAvatarVersion, isValidPassword, isValidUsername, SEARCH_USERS_SQL, sniffImageMime } from "../worker.mjs";
+import { canViewPost, createAvatarVersion, isValidPassword, isValidUsername, SEARCH_USERS_SQL, sniffImageMime } from "../worker.mjs";
 
 test("usernames follow the documented ASCII rules", () => {
   for (const value of ["abc", "ItsWempo", "test_user", "123456789012345678901234"]) {
@@ -40,4 +40,43 @@ test("avatar versions are unique, URL-safe cache busters", () => {
 test("search user rows include avatar_version for cache-busted avatar URLs", () => {
   assert.match(SEARCH_USERS_SQL, /avatar_version/);
   assert.match(SEARCH_USERS_SQL, /LIMIT 20$/);
+});
+
+
+function envWithParent(parent) {
+  return {
+    FORUM_DB: {
+      prepare() {
+        return {
+          bind() {
+            return { first: async () => parent };
+          },
+        };
+      },
+    },
+  };
+}
+
+test("hidden root posts are visible only to their author and an administrator", async () => {
+  const hiddenRoot = { id: 1, author_id: 7, parent_id: null, visibility: "hidden" };
+  assert.equal(await canViewPost({ FORUM_DB: null }, hiddenRoot, null), false);
+  assert.equal(await canViewPost({ FORUM_DB: null }, hiddenRoot, { id: 8, role: "member" }), false);
+  assert.equal(await canViewPost({ FORUM_DB: null }, hiddenRoot, { id: 7, role: "member" }), true);
+  assert.equal(await canViewPost({ FORUM_DB: null }, hiddenRoot, { id: 8, role: "admin" }), true);
+});
+
+test("public replies cannot reveal a hidden parent to unrelated members", async () => {
+  const reply = { id: 2, author_id: 8, parent_id: 1, visibility: "public" };
+  const env = envWithParent({ id: 1, author_id: 7, visibility: "hidden" });
+  assert.equal(await canViewPost(env, reply, null), false);
+  assert.equal(await canViewPost(env, reply, { id: 8, role: "member" }), false);
+  assert.equal(await canViewPost(env, reply, { id: 7, role: "member" }), true);
+  assert.equal(await canViewPost(env, reply, { id: 9, role: "admin" }), true);
+});
+
+test("replies remain visible when their parent is public", async () => {
+  const reply = { id: 2, author_id: 8, parent_id: 1, visibility: "public" };
+  const env = envWithParent({ id: 1, author_id: 7, visibility: "public" });
+  assert.equal(await canViewPost(env, reply, null), true);
+  assert.equal(await canViewPost(env, reply, { id: 9, role: "member" }), true);
 });
