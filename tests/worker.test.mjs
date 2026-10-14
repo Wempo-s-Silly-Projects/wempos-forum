@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, isValidPassword, isValidUsername, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, UNBAN_ACTIVE_UPDATE_SQL, sniffImageMime } from "../worker.mjs";
+import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, hashPassword, isValidPassword, isValidPasswordPepper, isValidUsername, PBKDF2_ITERATIONS, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, UNBAN_ACTIVE_UPDATE_SQL, sniffImageMime, verifyPassword } from "../worker.mjs";
 
 test("usernames follow the documented ASCII rules", () => {
   for (const value of ["abc", "ItsWempo", "test_user", "123456789012345678901234"]) {
@@ -151,4 +151,24 @@ test("unban updates require the selected ban to remain active and belong to the 
   assert.match(UNBAN_ACTIVE_UPDATE_SQL, /WHERE id = \? AND user_id = \?/);
   assert.match(UNBAN_ACTIVE_UPDATE_SQL, /revoked_at IS NULL/);
   assert.match(UNBAN_ACTIVE_UPDATE_SQL, /expires_at IS NULL OR expires_at > \?/);
+});
+
+
+test("password hashing stays within the Workers PBKDF2 iteration limit", () => {
+  assert.equal(PBKDF2_ITERATIONS, 100000);
+  assert.equal(isValidPasswordPepper("p".repeat(32)), true);
+  assert.equal(isValidPasswordPepper("short"), false);
+  assert.equal(isValidPasswordPepper("p".repeat(257)), false);
+});
+
+test("password hashes use the pepper and verify only with the matching pepper", async () => {
+  const password = "a-long-password-for-tests";
+  const pepper = "deployment-pepper-that-is-long-enough-123456";
+  const otherPepper = "a-different-deployment-pepper-value-123456";
+  const stored = await hashPassword(password, pepper);
+
+  assert.notEqual(stored.hash, password);
+  assert.equal(await verifyPassword(password, stored.salt, stored.hash, pepper), true);
+  assert.equal(await verifyPassword(password, stored.salt, stored.hash, otherPepper), false);
+  assert.equal(await verifyPassword("another-password", stored.salt, stored.hash, pepper), false);
 });

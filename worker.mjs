@@ -1,5 +1,5 @@
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
-const PBKDF2_ITERATIONS = 210000;
+export const PBKDF2_ITERATIONS = 100000;
 const MAX_JSON_BYTES = 16 * 1024;
 const MAX_AVATAR_BYTES = 1024 * 1024;
 const MAX_AVATAR_REQUEST_BYTES = MAX_AVATAR_BYTES + 64 * 1024;
@@ -93,10 +93,30 @@ export function sniffImageMime(bytes) {
   return null;
 }
 
-async function derivePassword(password, saltHex) {
+export function isValidPasswordPepper(value) {
+  return typeof value === "string" && value.length >= 32 && value.length <= 256;
+}
+
+async function derivePassword(password, saltHex, pepper) {
+  if (!isValidPasswordPepper(pepper)) {
+    throw new HttpError(503, "Password security is not configured. Set PASSWORD_PEPPER using Wrangler.");
+  }
+
+  const pepperKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(pepper),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const pepperedPassword = await crypto.subtle.sign(
+    "HMAC",
+    pepperKey,
+    encoder.encode(password),
+  );
   const key = await crypto.subtle.importKey(
     "raw",
-    encoder.encode(password),
+    pepperedPassword,
     "PBKDF2",
     false,
     ["deriveBits"],
@@ -109,13 +129,13 @@ async function derivePassword(password, saltHex) {
   return hex(new Uint8Array(bits));
 }
 
-async function hashPassword(password) {
+export async function hashPassword(password, pepper) {
   const saltHex = hex(crypto.getRandomValues(new Uint8Array(16)));
-  return { salt: saltHex, hash: await derivePassword(password, saltHex) };
+  return { salt: saltHex, hash: await derivePassword(password, saltHex, pepper) };
 }
 
-async function verifyPassword(password, salt, expectedHash) {
-  return equalConstantTime(await derivePassword(password, salt), expectedHash);
+export async function verifyPassword(password, salt, expectedHash, pepper) {
+  return equalConstantTime(await derivePassword(password, salt, pepper), expectedHash);
 }
 
 function securityHeaders(headers = new Headers()) {
@@ -509,7 +529,7 @@ async function setupRequired(env) {
 }
 
 async function storeUser(env, credentials, role = "member") {
-  const password = await hashPassword(credentials.password);
+  const password = await hashPassword(credentials.password, env.PASSWORD_PEPPER);
   const now = nowSeconds();
   try {
     const result = await env.FORUM_DB.prepare(
@@ -540,9 +560,12 @@ async function handleSessionRoute(request, env, url, path, method) {
 }
 
 async function handleSetupStatusRoute(request, env, url, path, method) {
-  const db = env.FORUM_DB;
   if (path === "/api/setup/status" && method === "GET") {
-    return json({ required: await setupRequired(env), secretConfigured: Boolean(env.SETUP_SECRET) });
+    return json({
+      required: await setupRequired(env),
+      secretConfigured: Boolean(env.SETUP_SECRET),
+      passwordSecurityConfigured: isValidPasswordPepper(env.PASSWORD_PEPPER),
+    });
   }
   return null;
 }
@@ -629,6 +652,7 @@ async function handleLoginRoute(request, env, url, path, method) {
       password,
       user ? user.password_salt : DUMMY_SALT,
       user ? user.password_hash : DUMMY_HASH,
+      env.PASSWORD_PEPPER,
     );
     if (!user || !valid) throw new HttpError(401, "The username or password is incorrect.");
     const activeBan = await db.prepare(
@@ -916,10 +940,10 @@ async function handlePasswordChangeRoute(request, env, url, path, method) {
     }
     await rateLimit(request, env, "password-change", String(session.user.id));
     const row = await userByUsernameKey(env, session.user.username.toLowerCase());
-    if (!row || !(await verifyPassword(body.currentPassword, row.password_salt, row.password_hash))) {
+    if (!row || !(await verifyPassword(body.currentPassword, row.password_salt, row.password_hash, env.PASSWORD_PEPPER))) {
       throw new HttpError(401, "Your current password is incorrect.");
     }
-    const password = await hashPassword(body.newPassword);
+    const password = await hashPassword(body.newPassword, env.PASSWORD_PEPPER);
     await db.batch([
       db.prepare("UPDATE users SET password_salt = ?, password_hash = ? WHERE id = ?")
         .bind(password.salt, password.hash, session.user.id),

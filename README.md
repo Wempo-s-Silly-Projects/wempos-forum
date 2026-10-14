@@ -21,9 +21,10 @@ A small, server-backed forum using Cloudflare Workers, D1, and static assets. Th
 
    ```dotenv
    SETUP_SECRET=
+   PASSWORD_PEPPER=
    ```
 
-   Paste your own randomly generated value after the equals sign. `.dev.vars` is ignored by Git and must never be committed.
+   Paste separate, randomly generated values after each equals sign. Use at least 32 characters for each. `.dev.vars` is ignored by Git and must never be committed. Keep a secure backup of `PASSWORD_PEPPER`; changing or losing it prevents existing accounts from authenticating because it is part of each password hash.
 
 3. Apply the schema to the local D1 database and run the app:
 
@@ -40,13 +41,14 @@ Local development uses a local D1 database by default. The migration does not to
 
 The Wrangler configuration is already pointed at the account's existing D1 database, `wempo-forum-data`. Before deployment, confirm that the database ID in `wrangler.toml` matches the database you intend to use.
 
-1. Set the secret for the deployed Worker (Wrangler prompts for the secret value):
+1. Set both secrets for the deployed Worker (Wrangler prompts for each value):
 
    ```sh
    npx wrangler secret put SETUP_SECRET
+   npx wrangler secret put PASSWORD_PEPPER
    ```
 
-   Keep the production secret safe. Separate random secrets for local and production are recommended.
+   Use separate random values for local and production. Back up `PASSWORD_PEPPER` securely and never rotate it after accounts exist without a password-hash migration; losing it prevents those accounts from authenticating.
 
 2. Apply the migration to the remote database only after reviewing it:
 
@@ -75,7 +77,7 @@ Never run the remote migration against a database that contains data you do not 
 
 ## Security notes
 
-- Passwords use per-account random salts and PBKDF2-HMAC-SHA-256 hashes; plaintext passwords are never persisted.
+- Passwords use per-account random salts, a deployment-held HMAC pepper, and PBKDF2-HMAC-SHA-256; plaintext passwords are never persisted. PBKDF2 is capped at 100,000 iterations to stay within the Cloudflare Workers Web Crypto implementation's iteration ceiling. This is a platform-constrained tradeoff versus higher PBKDF2 work factors on traditional servers, partially offset by the pepper and rate limits.
 - Session IDs are cryptographically random, only their SHA-256 hashes are stored, and browser cookies are HttpOnly and SameSite=Lax. HTTPS responses set Secure.
 - State-changing requests require the exact same Origin plus a CSRF token tied to the session.
 - The first administrator requires the out-of-band `SETUP_SECRET`; a database uniqueness constraint prevents duplicate administrator accounts.
