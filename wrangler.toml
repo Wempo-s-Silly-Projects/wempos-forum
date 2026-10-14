@@ -1,0 +1,16 @@
+name = "wempos-forum"
+main = "worker.js"
+compatibility_date = "2026-10-14"
+workers_dev = true
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "FORUM_DB"
+database_name = "wempo-forum-data"
+database_id = "e648d306-2c2b-4ddc-aaf1-cef2e023a88c"
+migrations_dir = "migrations"

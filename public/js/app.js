@@ -78,7 +78,7 @@ function authForm(name, title, buttonLabel) {
 }
 
 function setupForm() {
-  const panel = createPanel("Set up Wempo's Forum", "Create the first administrator account. This setup form disappears after the first admin is created.");
+  const panel = createPanel("Set up Wempo's Forum", "The first administrator requires a setup secret configured by the site owner.");
   panel.append(createForm(document, "setup", [
     createInput(document, {
       id: "setup-username", name: "username", label: "Administrator username",
@@ -87,6 +87,11 @@ function setupForm() {
     createInput(document, {
       id: "setup-password", name: "password", label: "Password",
       type: "password", autoComplete: "new-password", required: true, minLength: 12, maxLength: 128,
+    }),
+    createInput(document, {
+      id: "setup-key", name: "setupKey", label: "Setup secret", type: "password",
+      autoComplete: "off", required: true, minLength: 32, maxLength: 128,
+      description: "Provided by the site owner through Wrangler. Never share it.",
     }),
   ], "Create administrator"));
   return panel;
@@ -237,7 +242,7 @@ function renderProfile(profile, session) {
     const avatarForm = document.createElement("form");
     avatarForm.dataset.form = "avatar";
     avatarForm.append(createInput(document, {
-      id: "profile-avatar", name: "avatar", label: "Profile picture (JPEG, PNG, or WebP; up to 2 MiB)",
+      id: "profile-avatar", name: "avatar", label: "Profile picture (JPEG, PNG, or WebP; up to 1 MiB)",
       type: "file", accept: "image/jpeg,image/png,image/webp", required: true,
     }));
     addSubmit(avatarForm, "Upload picture");
@@ -348,10 +353,9 @@ async function submitForm(form) {
   if (type === "login" || type === "register" || type === "setup") {
     const endpoint = type === "login" ? "/api/auth/login" :
       type === "register" ? "/api/auth/register" : "/api/setup";
-    const result = await api(endpoint, {
-      method: "POST",
-      body: { username: text("username"), password: text("password") },
-    });
+    const credentials = { username: text("username"), password: text("password") };
+    if (type === "setup") credentials.setupKey = text("setupKey");
+    const result = await api(endpoint, { method: "POST", body: credentials });
     setCsrfToken(result.csrfToken);
     router.navigate("/");
     setMessage(type === "setup" ? "Administrator account created." : "You're signed in.");

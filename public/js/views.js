@@ -62,7 +62,7 @@ function setupForm(document) {
   const setup = panel(
     document,
     "Set up Wempo's Forum",
-    "Create the first administrator account. This setup form disappears after the first admin is created.",
+    "The first administrator requires a setup secret configured by the site owner.",
   );
   setup.append(createForm(document, "setup", [
     createInput(document, {
@@ -85,6 +85,17 @@ function setupForm(document) {
       minLength: 12,
       maxLength: 128,
       description: "Use 12–128 characters.",
+    }),
+    createInput(document, {
+      id: "setup-key",
+      name: "setupKey",
+      label: "Setup secret",
+      type: "password",
+      autoComplete: "off",
+      required: true,
+      minLength: 32,
+      maxLength: 128,
+      description: "Provided by the site owner through Wrangler. Never share it.",
     }),
   ], "Create administrator"));
   return setup;
@@ -287,7 +298,7 @@ export function createProfileView(document, profile, session) {
       type: "file",
       accept: "image/jpeg,image/png,image/webp",
       required: true,
-      description: "JPEG, PNG, or WebP; up to 2 MiB.",
+      description: "JPEG, PNG, or WebP; up to 1 MiB.",
     }));
     submitButton(document, avatarForm, "Upload picture");
     edit.append(avatarForm);
