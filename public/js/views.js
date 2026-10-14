@@ -273,6 +273,27 @@ export function createPostView(document, post, session) {
   return view;
 }
 
+function profilePostsSection(document, parent, profile, currentUser) {
+  heading(document, parent, "Posts", 2);
+  if (!profile.posts.length) {
+    addText(document, parent, "p", "No posts yet.", "empty-state");
+    return;
+  }
+
+  const list = element(document, "div", "post-list profile-post-list");
+  list.dataset.profileUsername = profile.username;
+  for (const post of profile.posts) list.append(createPostCard(post, document, currentUser));
+  parent.append(list);
+
+  if (!profile.postsNextBefore) return;
+  const older = element(document, "button", "button button-secondary", "Load older posts");
+  older.type = "button";
+  older.dataset.action = "load-more-profile-posts";
+  older.dataset.username = profile.username;
+  older.dataset.before = String(profile.postsNextBefore);
+  parent.append(older);
+}
+
 export function createProfileView(document, profile, session) {
   const view = element(document, "div", "profile-page");
   const header = element(document, "section", "profile-heading");
@@ -314,8 +335,7 @@ export function createProfileView(document, profile, session) {
     view.append(edit);
   }
 
-  heading(document, view, "Posts", 2);
-  appendPostList(view, profile.posts, document, session.user);
+  profilePostsSection(document, view, profile, session.user);
   return view;
 }
 

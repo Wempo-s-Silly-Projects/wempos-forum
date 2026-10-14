@@ -67,6 +67,16 @@ export function createAvatarVersion() {
   return randomToken(12);
 }
 
+export function blobToUint8Array(value) {
+  if (value instanceof Uint8Array) return value;
+  if (value instanceof ArrayBuffer) return new Uint8Array(value);
+  if (ArrayBuffer.isView(value)) {
+    return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+  }
+  if (Array.isArray(value)) return Uint8Array.from(value);
+  throw new HttpError(500, "Stored picture data is invalid.");
+}
+
 export function sniffImageMime(bytes) {
   if (!(bytes instanceof Uint8Array) || bytes.length < 12) return null;
   if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
@@ -524,7 +534,8 @@ async function handleAvatarReadRoute(request, env, url, path, method) {
     headers.set("Content-Type", row.avatar_mime);
     headers.set("Cache-Control", "public, max-age=3600");
     headers.set("X-Content-Type-Options", "nosniff");
-    return new Response(row.avatar_data, { status: 200, headers });
+    const imageBytes = blobToUint8Array(row.avatar_data);
+    return new Response(imageBytes, { status: 200, headers });
   }
   return null;
 }
@@ -795,7 +806,13 @@ async function handleUserProfileRoute(request, env, url, path, method) {
     if (!user) throw new HttpError(404, "Member not found.");
     const session = await readSession(request, env);
     const viewerId = session && session.user ? session.user.id : null;
-    const posts = await listRootPosts(env, viewerId, { authorId: Number(user.id) });
+    const beforeRaw = url.searchParams.get("before");
+    let before = null;
+    if (beforeRaw !== null) {
+      if (!/^[1-9][0-9]{0,14}$/.test(beforeRaw)) throw new HttpError(400, "That page cursor is invalid.");
+      before = Number(beforeRaw);
+    }
+    const posts = await listRootPosts(env, viewerId, { authorId: Number(user.id), before });
     return json({
       id: Number(user.id),
       username: user.username,
@@ -803,6 +820,7 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       bio: user.bio || "",
       avatarUrl: user.avatar_mime ? "/api/avatars/" + user.id + "?v=" + user.avatar_version : null,
       posts: posts.posts,
+      postsNextBefore: posts.nextBefore,
     });
   }
   return null;

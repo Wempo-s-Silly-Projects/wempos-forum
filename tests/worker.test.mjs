@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { canViewPost, createAvatarVersion, isValidPassword, isValidUsername, SEARCH_USERS_SQL, sniffImageMime } from "../worker.mjs";
+import { blobToUint8Array, canViewPost, createAvatarVersion, isValidPassword, isValidUsername, SEARCH_USERS_SQL, sniffImageMime } from "../worker.mjs";
 
 test("usernames follow the documented ASCII rules", () => {
   for (const value of ["abc", "ItsWempo", "test_user", "123456789012345678901234"]) {
@@ -79,4 +79,11 @@ test("replies remain visible when their parent is public", async () => {
   const env = envWithParent({ id: 1, author_id: 7, visibility: "public" });
   assert.equal(await canViewPost(env, reply, null), true);
   assert.equal(await canViewPost(env, reply, { id: 9, role: "member" }), true);
+});
+
+test("D1 BLOB values are converted to binary bytes before serving images", () => {
+  const expected = [137, 80, 78, 71, 13, 10, 26, 10];
+  assert.deepEqual(Array.from(blobToUint8Array(expected)), expected);
+  assert.deepEqual(Array.from(blobToUint8Array(Uint8Array.from(expected))), expected);
+  assert.deepEqual(Array.from(blobToUint8Array(Uint8Array.from(expected).buffer)), expected);
 });

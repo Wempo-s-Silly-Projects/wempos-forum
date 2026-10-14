@@ -229,6 +229,27 @@ function renderSearchResults(container, results) {
   appendPostList(container, results.posts, document, currentUser);
 }
 
+function renderProfilePosts(profile, user) {
+  addHeading(main, "Posts", 2);
+  if (!profile.posts.length) {
+    addText(document, main, "p", "No posts yet.", "empty-state");
+    return;
+  }
+
+  const list = element("div", "post-list profile-post-list");
+  list.dataset.profileUsername = profile.username;
+  for (const post of profile.posts) list.append(createPostCard(post, document, user));
+  main.append(list);
+
+  if (!profile.postsNextBefore) return;
+  const older = element("button", "button button-secondary", "Load older posts");
+  older.type = "button";
+  older.dataset.action = "load-more-profile-posts";
+  older.dataset.username = profile.username;
+  older.dataset.before = String(profile.postsNextBefore);
+  main.append(older);
+}
+
 function renderProfile(profile, session) {
   const heading = element("section", "profile-heading");
   if (profile.avatarUrl) {
@@ -257,8 +278,7 @@ function renderProfile(profile, session) {
     edit.append(avatarForm);
     main.append(edit);
   }
-  addHeading(main, "Posts", 2);
-  appendPostList(main, profile.posts, document, session.user);
+  renderProfilePosts(profile, session.user);
 }
 
 function renderAdmin(reportData, banData) {
@@ -538,6 +558,16 @@ async function loadMorePosts(button) {
   main.append(next);
 }
 
+async function loadMoreProfilePosts(button) {
+  const username = button.dataset.username;
+  const page = await api("/api/users/" + encodeURIComponent(username) + "?before=" + button.dataset.before);
+  const list = main.querySelector(".profile-post-list");
+  if (!list) throw new Error("The profile post list is no longer available. Reload the profile.");
+  for (const post of page.posts) list.append(createPostCard(post, document, currentUser));
+  if (page.postsNextBefore) button.dataset.before = String(page.postsNextBefore);
+  else button.remove();
+}
+
 async function loadOlderReplies(button) {
   const postId = button.dataset.postId;
   const older = await api("/api/posts/" + postId + "/replies?before=" + button.dataset.before);
@@ -562,6 +592,7 @@ async function handleButtonAction(button) {
     report: () => openReportDialog(button),
     "close-report": () => reportDialog.close(),
     "load-more": () => loadMorePosts(button),
+    "load-more-profile-posts": () => loadMoreProfilePosts(button),
     "load-older-replies": () => loadOlderReplies(button),
   };
   const handler = handlers[button.dataset.action];
