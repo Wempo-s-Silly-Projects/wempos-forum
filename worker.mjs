@@ -492,7 +492,7 @@ async function storeUser(env, credentials, role = "member") {
   }
 }
 
-async function handleAuthRoutes(request, env, url, path, method) {
+async function handleSessionRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/session" && method === "GET") {
     const existing = await readSession(request, env);
@@ -501,11 +501,19 @@ async function handleAuthRoutes(request, env, url, path, method) {
     const created = await createSession(request, env);
     return json({ user: null, csrfToken: created.csrfToken }, 200, { "Set-Cookie": created.setCookie });
   }
+  return null;
+}
 
+async function handleSetupStatusRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/setup/status" && method === "GET") {
     return json({ required: await setupRequired(env), secretConfigured: Boolean(env.SETUP_SECRET) });
   }
+  return null;
+}
 
+async function handleAvatarReadRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   const avatarMatch = path.match(/^\/api\/avatars\/([0-9]+)$/);
   if (avatarMatch) {
     if (method !== "GET") throw new HttpError(405, "That method is not supported.");
@@ -518,7 +526,11 @@ async function handleAuthRoutes(request, env, url, path, method) {
     headers.set("X-Content-Type-Options", "nosniff");
     return new Response(row.avatar_data, { status: 200, headers });
   }
+  return null;
+}
 
+async function handleFirstAdminSetupRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/setup" && method === "POST") {
     const guest = await requireCsrf(request, env);
     await rateLimit(request, env, "setup");
@@ -547,7 +559,11 @@ async function handleAuthRoutes(request, env, url, path, method) {
     const session = await createSession(request, env, Number(user.id), guest.tokenHash);
     return json({ user: publicUser(user), csrfToken: session.csrfToken }, 201, { "Set-Cookie": session.setCookie });
   }
+  return null;
+}
 
+async function handleRegistrationRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/auth/register" && method === "POST") {
     const guest = await requireCsrf(request, env);
     await rateLimit(request, env, "register");
@@ -557,7 +573,11 @@ async function handleAuthRoutes(request, env, url, path, method) {
     const session = await createSession(request, env, Number(user.id), guest.tokenHash);
     return json({ user: publicUser(user), csrfToken: session.csrfToken }, 201, { "Set-Cookie": session.setCookie });
   }
+  return null;
+}
 
+async function handleLoginRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/auth/login" && method === "POST") {
     const guest = await requireCsrf(request, env);
     await rateLimit(request, env, "login");
@@ -583,7 +603,11 @@ async function handleAuthRoutes(request, env, url, path, method) {
     const session = await createSession(request, env, Number(user.id), guest.tokenHash);
     return json({ user: publicUser(user), csrfToken: session.csrfToken }, 200, { "Set-Cookie": session.setCookie });
   }
+  return null;
+}
 
+async function handleLogoutRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/auth/logout" && method === "POST") {
     const session = await requireUser(request, env);
     await db.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(session.tokenHash).run();
@@ -595,7 +619,16 @@ async function handleAuthRoutes(request, env, url, path, method) {
   return null;
 }
 
-async function handlePostRoutes(request, env, url, path, method) {
+async function handleAuthRoutes(request, env, url, path, method) {
+  const handlers = [handleSessionRoute, handleSetupStatusRoute, handleAvatarReadRoute, handleFirstAdminSetupRoute, handleRegistrationRoute, handleLoginRoute, handleLogoutRoute];
+  for (const handler of handlers) {
+    const response = await handler(request, env, url, path, method);
+    if (response) return response;
+  }
+  return null;
+}
+
+async function handlePostFeedRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/posts" && method === "GET") {
     const session = await readSession(request, env);
@@ -608,7 +641,11 @@ async function handlePostRoutes(request, env, url, path, method) {
     const feed = await listRootPosts(env, session && session.user ? session.user.id : null, { before });
     return json(feed);
   }
+  return null;
+}
 
+async function handleRepliesReadRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   const repliesReadMatch = path.match(/^\/api\/posts\/([0-9]+)\/replies$/);
   if (repliesReadMatch && method === "GET") {
     const postId = Number(repliesReadMatch[1]);
@@ -629,7 +666,11 @@ async function handlePostRoutes(request, env, url, path, method) {
       Boolean(viewer && viewer.role === "admin"), before);
     return json(page);
   }
+  return null;
+}
 
+async function handlePostDetailRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   const postMatch = path.match(/^\/api\/posts\/([0-9]+)$/);
   if (postMatch && method === "GET") {
     const postId = Number(postMatch[1]);
@@ -644,7 +685,11 @@ async function handlePostRoutes(request, env, url, path, method) {
     post.repliesNextBefore = replyPage.nextBefore;
     return json(post);
   }
+  return null;
+}
 
+async function handleReplyCreateRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   const replyMatch = path.match(/^\/api\/posts\/([0-9]+)\/replies$/);
   if (replyMatch && method === "POST") {
     const session = await requireUser(request, env);
@@ -664,7 +709,11 @@ async function handlePostRoutes(request, env, url, path, method) {
     ).bind(session.user.id, parentId, message, nowSeconds()).run();
     return json({ id: Number(result.meta.last_row_id) }, 201);
   }
+  return null;
+}
 
+async function handlePostCreateRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/posts" && method === "POST") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
@@ -677,7 +726,11 @@ async function handlePostRoutes(request, env, url, path, method) {
     ).bind(session.user.id, message, nowSeconds()).run();
     return json({ id: Number(result.meta.last_row_id) }, 201);
   }
+  return null;
+}
 
+async function handleReactionRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   const reactionMatch = path.match(/^\/api\/posts\/([0-9]+)\/reaction$/);
   if (reactionMatch && method === "PUT") {
     const session = await requireUser(request, env);
@@ -696,7 +749,11 @@ async function handlePostRoutes(request, env, url, path, method) {
     ).bind(postId, session.user.id, body.value, nowSeconds()).run();
     return json({ ok: true });
   }
+  return null;
+}
 
+async function handleSearchRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/search" && method === "GET") {
     const query = (url.searchParams.get("q") || "").trim().toLowerCase();
     if (!query || query.length > 100) {
@@ -715,7 +772,16 @@ async function handlePostRoutes(request, env, url, path, method) {
   return null;
 }
 
-async function handleProfileRoutes(request, env, url, path, method) {
+async function handlePostRoutes(request, env, url, path, method) {
+  const handlers = [handlePostFeedRoute, handleRepliesReadRoute, handlePostDetailRoute, handleReplyCreateRoute, handlePostCreateRoute, handleReactionRoute, handleSearchRoute];
+  for (const handler of handlers) {
+    const response = await handler(request, env, url, path, method);
+    if (response) return response;
+  }
+  return null;
+}
+
+async function handleUserProfileRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   const userMatch = path.match(/^\/api\/users\/([^/]+)$/);
   if (userMatch && method === "GET") {
@@ -739,7 +805,11 @@ async function handleProfileRoutes(request, env, url, path, method) {
       posts: posts.posts,
     });
   }
+  return null;
+}
 
+async function handleBioUpdateRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/me" && method === "PATCH") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
@@ -751,7 +821,11 @@ async function handleProfileRoutes(request, env, url, path, method) {
     await db.prepare("UPDATE users SET bio = ? WHERE id = ?").bind(bio, session.user.id).run();
     return json({ bio });
   }
+  return null;
+}
 
+async function handleAvatarUploadRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/me/avatar" && method === "POST") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
@@ -783,7 +857,11 @@ async function handleProfileRoutes(request, env, url, path, method) {
     ).bind(mime, bytes, updatedAt, avatarVersion, session.user.id).run();
     return json({ avatarUrl: "/api/avatars/" + session.user.id + "?v=" + avatarVersion });
   }
+  return null;
+}
 
+async function handlePasswordChangeRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/me/password" && method === "PATCH") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
@@ -809,7 +887,16 @@ async function handleProfileRoutes(request, env, url, path, method) {
   return null;
 }
 
-async function handleModerationRoutes(request, env, url, path, method) {
+async function handleProfileRoutes(request, env, url, path, method) {
+  const handlers = [handleUserProfileRoute, handleBioUpdateRoute, handleAvatarUploadRoute, handlePasswordChangeRoute];
+  for (const handler of handlers) {
+    const response = await handler(request, env, url, path, method);
+    if (response) return response;
+  }
+  return null;
+}
+
+async function handleReportCreateRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   const reportMatch = path.match(/^\/api\/posts\/([0-9]+)\/reports$/);
   if (reportMatch && method === "POST") {
@@ -836,7 +923,11 @@ async function handleModerationRoutes(request, env, url, path, method) {
     }
     return json({ ok: true }, 201);
   }
+  return null;
+}
 
+async function handleReportQueueRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/admin/reports" && method === "GET") {
     await requireAdmin(request, env, false);
     const result = await db.prepare(
@@ -860,7 +951,11 @@ async function handleModerationRoutes(request, env, url, path, method) {
       })),
     });
   }
+  return null;
+}
 
+async function handleReportResolveRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   const resolveMatch = path.match(/^\/api\/admin\/reports\/([0-9]+)\/resolve$/);
   if (resolveMatch && method === "POST") {
     const session = await requireAdmin(request, env);
@@ -899,7 +994,11 @@ async function handleModerationRoutes(request, env, url, path, method) {
     }
     return json({ ok: true });
   }
+  return null;
+}
 
+async function handleBanListRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   if (path === "/api/admin/bans" && method === "GET") {
     await requireAdmin(request, env, false);
     const result = await db.prepare(
@@ -917,7 +1016,11 @@ async function handleModerationRoutes(request, env, url, path, method) {
       })),
     });
   }
+  return null;
+}
 
+async function handleBanMutationRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
   const banMatch = path.match(/^\/api\/admin\/users\/([0-9]+)\/bans$/);
   if (banMatch && (method === "POST" || method === "DELETE")) {
     const session = await requireAdmin(request, env);
@@ -960,6 +1063,15 @@ async function handleModerationRoutes(request, env, url, path, method) {
     await db.prepare("UPDATE bans SET revoked_at = ?, revoked_by = ?, revocation_reason = ? WHERE id = ?")
       .bind(nowSeconds(), session.user.id, revocationReason, Number(active.id)).run();
     return json({ ok: true });
+  }
+  return null;
+}
+
+async function handleModerationRoutes(request, env, url, path, method) {
+  const handlers = [handleReportCreateRoute, handleReportQueueRoute, handleReportResolveRoute, handleBanListRoute, handleBanMutationRoute];
+  for (const handler of handlers) {
+    const response = await handler(request, env, url, path, method);
+    if (response) return response;
   }
   return null;
 }
