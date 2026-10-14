@@ -567,6 +567,7 @@ async function handleAuthRoutes(request, env, url, path, method) {
     if (!isValidUsername(username) || password.length < 1 || password.length > 128) {
       throw new HttpError(400, "Enter your username and password.");
     }
+    await rateLimit(request, env, "login", "account:" + username.toLowerCase());
     const user = await userByUsernameKey(env, username.toLowerCase());
     const valid = await verifyPassword(
       password,
