@@ -24,6 +24,7 @@ function panel(document, title, description = "") {
 const submitButton = (document, form, label) => {
   const button = element(document, "button", "button button-primary", label);
   button.type = "submit";
+}
   form.append(button);
 }
 
