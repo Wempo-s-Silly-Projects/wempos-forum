@@ -203,24 +203,42 @@ async function readSession(request, env) {
   return { tokenHash: row.token_hash, csrfToken: row.csrf_token, expiresAt: Number(row.expires_at), user };
 }
 
-async function createSession(request, env, userId = null, oldTokenHash = null) {
+async function createSession(request, env, userId = null, oldTokenHash = null, requireUnbanned = false) {
   const token = randomToken();
   const tokenHash = await sha256Hex(token);
   const csrfToken = randomToken(24);
   const now = nowSeconds();
   const expiresAt = now + SESSION_TTL_SECONDS;
-  const insert = env.FORUM_DB.prepare(
-    "INSERT INTO sessions (token_hash, user_id, csrf_token, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
-  ).bind(tokenHash, userId, csrfToken, now, expiresAt);
+  const insert = requireUnbanned
+    ? env.FORUM_DB.prepare(
+      "INSERT INTO sessions (token_hash, user_id, csrf_token, created_at, expires_at) " +
+        "SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
+        "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+        "AND (expires_at IS NULL OR expires_at > ?))",
+    ).bind(tokenHash, userId, csrfToken, now, expiresAt, userId, now)
+    : env.FORUM_DB.prepare(
+      "INSERT INTO sessions (token_hash, user_id, csrf_token, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
+    ).bind(tokenHash, userId, csrfToken, now, expiresAt);
 
-  if (oldTokenHash) {
+  if (oldTokenHash && requireUnbanned) {
+    const results = await env.FORUM_DB.batch([
+      insert,
+      env.FORUM_DB.prepare(
+        "DELETE FROM sessions WHERE token_hash = ? AND EXISTS (" +
+          "SELECT 1 FROM sessions WHERE token_hash = ?)",
+      ).bind(oldTokenHash, tokenHash),
+    ]);
+    if (Number(results[0]?.meta?.changes) !== 1) return null;
+  } else if (oldTokenHash) {
     await env.FORUM_DB.batch([
       env.FORUM_DB.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(oldTokenHash),
       insert,
     ]);
   } else {
-    await insert.run();
+    const result = await insert.run();
+    if (requireUnbanned && Number(result.meta?.changes) !== 1) return null;
   }
+
   await env.FORUM_DB.prepare("DELETE FROM sessions WHERE expires_at <= ?").bind(now).run();
   return { tokenHash, csrfToken, setCookie: setCookie(request, token) };
 }
@@ -611,7 +629,8 @@ async function handleLoginRoute(request, env, url, path, method) {
         "AND (expires_at IS NULL OR expires_at > ?) LIMIT 1",
     ).bind(Number(user.id), nowSeconds()).first();
     if (activeBan) throw new HttpError(403, "This account is currently banned.");
-    const session = await createSession(request, env, Number(user.id), guest.tokenHash);
+    const session = await createSession(request, env, Number(user.id), guest.tokenHash, true);
+    if (!session) throw new HttpError(403, "This account is currently banned.");
     return json({ user: publicUser(user), csrfToken: session.csrfToken }, 200, { "Set-Cookie": session.setCookie });
   }
   return null;
@@ -1079,9 +1098,15 @@ async function revokeUserBan(db, targetId, moderatorId, request) {
       "AND (expires_at IS NULL OR expires_at > ?) ORDER BY created_at DESC LIMIT 1",
   ).bind(targetId, nowSeconds()).first();
   if (!active) throw new HttpError(404, "No active ban was found for this member.");
-  await db.prepare(
-    "UPDATE bans SET revoked_at = ?, revoked_by = ?, revocation_reason = ? WHERE id = ?",
-  ).bind(nowSeconds(), moderatorId, reason, Number(active.id)).run();
+  const now = nowSeconds();
+  const result = await db.prepare(
+    "UPDATE bans SET revoked_at = ?, revoked_by = ?, revocation_reason = ? " +
+      "WHERE id = ? AND user_id = ? AND revoked_at IS NULL " +
+      "AND (expires_at IS NULL OR expires_at > ?)",
+  ).bind(now, moderatorId, reason, Number(active.id), targetId, now).run();
+  if (Number(result.meta?.changes) !== 1) {
+    throw new HttpError(409, "This ban was already revoked by another moderator.");
+  }
   return json({ ok: true });
 }
 
