@@ -203,19 +203,26 @@ async function readSession(request, env) {
   return { tokenHash: row.token_hash, csrfToken: row.csrf_token, expiresAt: Number(row.expires_at), user };
 }
 
-async function createSession(request, env, userId = null, oldTokenHash = null, requireUnbanned = false) {
+export const SESSION_INSERT_IF_UNBANNED_SQL =
+  "INSERT INTO sessions (token_hash, user_id, csrf_token, created_at, expires_at) " +
+    "SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
+    "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+    "AND (expires_at IS NULL OR expires_at > ?))";
+
+export const UNBAN_ACTIVE_UPDATE_SQL =
+  "UPDATE bans SET revoked_at = ?, revoked_by = ?, revocation_reason = ? " +
+    "WHERE id = ? AND user_id = ? AND revoked_at IS NULL " +
+    "AND (expires_at IS NULL OR expires_at > ?)";
+
+export async function createSession(request, env, userId = null, oldTokenHash = null, requireUnbanned = false) {
   const token = randomToken();
   const tokenHash = await sha256Hex(token);
   const csrfToken = randomToken(24);
   const now = nowSeconds();
   const expiresAt = now + SESSION_TTL_SECONDS;
   const insert = requireUnbanned
-    ? env.FORUM_DB.prepare(
-      "INSERT INTO sessions (token_hash, user_id, csrf_token, created_at, expires_at) " +
-        "SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
-        "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
-        "AND (expires_at IS NULL OR expires_at > ?))",
-    ).bind(tokenHash, userId, csrfToken, now, expiresAt, userId, now)
+    ? env.FORUM_DB.prepare(SESSION_INSERT_IF_UNBANNED_SQL)
+      .bind(tokenHash, userId, csrfToken, now, expiresAt, userId, now)
     : env.FORUM_DB.prepare(
       "INSERT INTO sessions (token_hash, user_id, csrf_token, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
     ).bind(tokenHash, userId, csrfToken, now, expiresAt);
@@ -1099,11 +1106,8 @@ async function revokeUserBan(db, targetId, moderatorId, request) {
   ).bind(targetId, nowSeconds()).first();
   if (!active) throw new HttpError(404, "No active ban was found for this member.");
   const now = nowSeconds();
-  const result = await db.prepare(
-    "UPDATE bans SET revoked_at = ?, revoked_by = ?, revocation_reason = ? " +
-      "WHERE id = ? AND user_id = ? AND revoked_at IS NULL " +
-      "AND (expires_at IS NULL OR expires_at > ?)",
-  ).bind(now, moderatorId, reason, Number(active.id), targetId, now).run();
+  const result = await db.prepare(UNBAN_ACTIVE_UPDATE_SQL)
+    .bind(now, moderatorId, reason, Number(active.id), targetId, now).run();
   if (Number(result.meta?.changes) !== 1) {
     throw new HttpError(409, "This ban was already revoked by another moderator.");
   }

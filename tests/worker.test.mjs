@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { blobToUint8Array, canViewPost, createAvatarVersion, isValidPassword, isValidUsername, SEARCH_USERS_SQL, sniffImageMime } from "../worker.mjs";
+import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, isValidPassword, isValidUsername, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, UNBAN_ACTIVE_UPDATE_SQL, sniffImageMime } from "../worker.mjs";
 
 test("usernames follow the documented ASCII rules", () => {
   for (const value of ["abc", "ItsWempo", "test_user", "123456789012345678901234"]) {
@@ -86,4 +86,69 @@ test("D1 BLOB values are converted to binary bytes before serving images", () =>
   assert.deepEqual(Array.from(blobToUint8Array(expected)), expected);
   assert.deepEqual(Array.from(blobToUint8Array(Uint8Array.from(expected))), expected);
   assert.deepEqual(Array.from(blobToUint8Array(Uint8Array.from(expected).buffer)), expected);
+});
+
+
+function mockD1Batch(changes) {
+  const batches = [];
+  const calls = [];
+  const db = {
+    prepare(sql) {
+      return {
+        sql,
+        bind(...values) {
+          return {
+            sql,
+            values,
+            async run() {
+              calls.push({ sql, values });
+              return { meta: { changes: 1 } };
+            },
+          };
+        },
+      };
+    },
+    async batch(statements) {
+      batches.push(statements);
+      return changes.map((count) => ({ meta: { changes: count } }));
+    },
+  };
+  return { db, batches, calls };
+}
+
+test("login sessions are inserted only when the account is not actively banned", async () => {
+  assert.match(SESSION_INSERT_IF_UNBANNED_SQL, /WHERE NOT EXISTS/);
+  assert.match(SESSION_INSERT_IF_UNBANNED_SQL, /FROM bans WHERE user_id = \?/);
+  assert.match(SESSION_INSERT_IF_UNBANNED_SQL, /revoked_at IS NULL/);
+  assert.match(SESSION_INSERT_IF_UNBANNED_SQL, /expires_at IS NULL OR expires_at > \?/);
+
+  const mock = mockD1Batch([0, 0]);
+  const request = new Request("https://forum.example/api/auth/login");
+  const session = await createSession(request, { FORUM_DB: mock.db }, 42, "old-guest-session", true);
+
+  assert.equal(session, null);
+  assert.equal(mock.batches.length, 1);
+  assert.match(mock.batches[0][0].sql, /WHERE NOT EXISTS/);
+  assert.match(mock.batches[0][1].sql, /DELETE FROM sessions/);
+  assert.match(mock.batches[0][1].sql, /EXISTS/);
+  assert.equal(mock.calls.length, 0);
+});
+
+test("a successful guarded login creates the new session and removes the guest session", async () => {
+  const mock = mockD1Batch([1, 1]);
+  const request = new Request("https://forum.example/api/auth/login");
+  const session = await createSession(request, { FORUM_DB: mock.db }, 42, "old-guest-session", true);
+
+  assert.ok(session);
+  assert.match(session.setCookie, /HttpOnly/);
+  assert.match(session.setCookie, /Secure/);
+  assert.equal(mock.batches.length, 1);
+  assert.equal(mock.calls.length, 1);
+  assert.match(mock.calls[0].sql, /DELETE FROM sessions WHERE expires_at <= \?/);
+});
+
+test("unban updates require the selected ban to remain active and belong to the target", () => {
+  assert.match(UNBAN_ACTIVE_UPDATE_SQL, /WHERE id = \? AND user_id = \?/);
+  assert.match(UNBAN_ACTIVE_UPDATE_SQL, /revoked_at IS NULL/);
+  assert.match(UNBAN_ACTIVE_UPDATE_SQL, /expires_at IS NULL OR expires_at > \?/);
 });
