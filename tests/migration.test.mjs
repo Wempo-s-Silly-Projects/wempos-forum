@@ -12,6 +12,7 @@ import { fileURLToPath } from "node:url";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const MIGRATION_0001 = readFileSync(path.join(repoRoot, "migrations", "0001_initial.sql"), "utf8");
 const MIGRATION_0002 = readFileSync(path.join(repoRoot, "migrations", "0002_forum_v2.sql"), "utf8");
+const MIGRATION_0003 = readFileSync(path.join(repoRoot, "migrations", "0003_attachments.sql"), "utf8");
 
 const T = 1_700_000_000;
 
@@ -65,6 +66,17 @@ function expectSqlRejection(db, sql, ...params) {
 
 function objectNamesForType(db, type) {
   return objectNames(db, type);
+}
+
+function applyAttachments(db) {
+  db.exec("BEGIN");
+  try {
+    db.exec(MIGRATION_0003);
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
 }
 
 test("migration 0002 preserves child rows across the users table rebuild", () => {
@@ -310,4 +322,187 @@ test("avatar consistency CHECKs enforce avatar_status against both avatar sets",
   expectSqlRejection(db, insertUser, nextKey(), nextKey(), T, null, null, null, null, "rejected", mime, png, at, version);
   // Empty sets labeled approved: rejected.
   expectSqlRejection(db, insertUser, nextKey(), nextKey(), T, null, null, null, null, "approved", null, null, null, null);
+});
+
+// Migration 0003 tests: apply 0001 + 0002 first (attachments FKs target posts and
+// users as rebuilt by 0002), then apply 0003 inside an explicit transaction
+// (mirroring how D1 batches execute atomically) and assert the attachments
+// table's columns, CHECKs, indexes, and post-delete cascade.
+function openV2Db() {
+  const db = openFixtureDb();
+  applyForumV2(db);
+  return db;
+}
+
+const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const gif = Buffer.from([0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x00, 0x00]);
+const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x00, 0x00, 0x00]);
+const webp = Buffer.from([0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50]);
+const version = "aaaabbbbccccdddd";
+
+const insertAttachment = `
+  INSERT INTO attachments (id, post_id, created_by, created_at, mime, data, updated_at,
+    status, version, pending_mime, pending_data, pending_updated_at)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
+
+test("migration 0003 creates the attachments table with the expected columns and indexes", () => {
+  const db = openV2Db();
+
+  const before = objectNamesForType(db, "table");
+  assert.ok(!before.includes("attachments"), "attachments must not exist before 0003");
+
+  applyAttachments(db);
+
+  const tables = objectNamesForType(db, "table");
+  assert.ok(tables.includes("attachments"), "attachments table must exist after 0003");
+
+  const columns = columnsOf(db, "attachments");
+  for (const name of [
+    "id",
+    "post_id",
+    "created_by",
+    "created_at",
+    "mime",
+    "data",
+    "updated_at",
+    "status",
+    "version",
+    "pending_mime",
+    "pending_data",
+    "pending_updated_at",
+  ]) {
+    assert.ok(columns.includes(name), `missing column attachments.${name}`);
+  }
+
+  const indexes = objectNamesForType(db, "index");
+  assert.ok(indexes.includes("idx_attachments_post"), "missing index idx_attachments_post");
+  assert.ok(indexes.includes("idx_attachments_pending"), "missing index idx_attachments_pending");
+
+  const parents = db.prepare("PRAGMA foreign_key_list(attachments)").all();
+  const postRef = parents.find((fk) => fk.table === "posts");
+  assert.ok(postRef, "attachments must reference posts");
+  assert.equal(postRef.on_delete, "CASCADE", "post deletion must cascade to attachments");
+  assert.ok(parents.some((fk) => fk.table === "users"), "attachments must reference users");
+});
+
+test("migration 0003 accepts a valid pending attachment row", () => {
+  const db = openV2Db();
+  applyAttachments(db);
+
+  db.prepare(insertAttachment).run(
+    "att-pending", 1, 1, T + 80, null, null, null,
+    "pending", version, "image/png", png, T + 80,
+  );
+  const row = db.prepare(
+    "SELECT id, post_id, created_by, created_at, status, version, pending_mime FROM attachments WHERE id = ?",
+  ).get("att-pending");
+  assert.equal(row.id, "att-pending");
+  assert.equal(row.post_id, 1);
+  assert.equal(row.created_by, 1);
+  assert.equal(row.created_at, T + 80);
+  assert.equal(row.status, "pending");
+  assert.equal(row.version, version);
+  assert.equal(row.pending_mime, "image/png");
+});
+
+test("attachments mime CHECK accepts the four sniffed types and rejects everything else", () => {
+  const db = openV2Db();
+  applyAttachments(db);
+
+  let n = 0;
+  for (const mime of ["image/jpeg", "image/png", "image/webp", "image/gif"]) {
+    db.prepare(insertAttachment).run(
+      `att-${(n += 1)}`, 1, 1, T + 80, null, null, null,
+      "pending", version, mime, png, T + 80,
+    );
+  }
+  // Approved-set mime is checked the same way.
+  db.prepare(insertAttachment).run(
+    "att-approved-gif", 1, 1, T + 80, "image/gif", gif, T + 80,
+    "approved", version, null, null, null,
+  );
+  expectSqlRejection(db, insertAttachment, "att-bmp", 1, 1, T + 80, null, null, null, "pending", version, "image/bmp", png, T + 80);
+  expectSqlRejection(db, insertAttachment, "att-bmp-approved", 1, 1, T + 80, "image/bmp", png, T + 80, "approved", version, null, null, null);
+});
+
+test("attachments status CHECK rejects unknown values and defaults to pending", () => {
+  const db = openV2Db();
+  applyAttachments(db);
+
+  const insertNoStatus = `
+    INSERT INTO attachments (id, post_id, created_by, created_at, version, pending_mime, pending_data, pending_updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+  db.prepare(insertNoStatus).run("att-default", 1, 1, T + 80, version, "image/png", png, T + 80);
+  assert.equal(db.prepare("SELECT status FROM attachments WHERE id = ?").get("att-default").status, "pending");
+
+  expectSqlRejection(db, insertAttachment, "att-weird", 1, 1, T + 80, null, null, null, "weird", version, "image/png", png, T + 80);
+  expectSqlRejection(db, insertAttachment, "att-open", 1, 1, T + 80, null, null, null, "open", version, "image/png", png, T + 80);
+});
+
+test("attachments consistency CHECKs pin status against both byte sets", () => {
+  const db = openV2Db();
+  applyAttachments(db);
+
+  const at = T + 80;
+  // Approved pair populated, status approved, pending empty: valid.
+  db.prepare(insertAttachment).run("att-a", 1, 1, at, "image/png", png, at, "approved", version, null, null, null);
+  // Pending pair populated, status pending, approved empty: valid.
+  db.prepare(insertAttachment).run("att-b", 1, 1, at, null, null, null, "pending", version, "image/png", png, at);
+  // Transient rejected state with both sets empty: valid.
+  db.prepare(insertAttachment).run("att-c", 1, 1, at, null, null, null, "rejected", version, null, null, null);
+
+  // Half-populated pending pair (bytes without mime or timestamp): rejected.
+  expectSqlRejection(db, insertAttachment, "att-d", 1, 1, at, null, null, null, "pending", version, null, png, null);
+  expectSqlRejection(db, insertAttachment, "att-e", 1, 1, at, null, null, null, "pending", version, "image/png", null, at);
+  // Half-populated approved pair: rejected.
+  expectSqlRejection(db, insertAttachment, "att-f", 1, 1, at, null, png, null, "approved", version, null, null, null);
+  expectSqlRejection(db, insertAttachment, "att-g", 1, 1, at, "image/png", null, at, "approved", version, null, null, null);
+  // Status pending without a pending pair: rejected.
+  expectSqlRejection(db, insertAttachment, "att-h", 1, 1, at, null, null, null, "pending", version, null, null, null);
+  // Status approved without an approved pair: rejected.
+  expectSqlRejection(db, insertAttachment, "att-i", 1, 1, at, null, null, null, "approved", version, null, null, null);
+  // Approved with a pending pair still present: rejected.
+  expectSqlRejection(db, insertAttachment, "att-j", 1, 1, at, "image/png", png, at, "approved", version, "image/png", png, at);
+  // Pending with an approved pair present: rejected.
+  expectSqlRejection(db, insertAttachment, "att-k", 1, 1, at, "image/png", png, at, "pending", version, "image/png", png, at);
+  // Rejected with either set populated: rejected.
+  expectSqlRejection(db, insertAttachment, "att-l", 1, 1, at, null, null, null, "rejected", version, "image/png", png, at);
+  expectSqlRejection(db, insertAttachment, "att-m", 1, 1, at, "image/png", png, at, "rejected", version, null, null, null);
+});
+
+test("attachment blobs are capped at 1 MiB like avatar blobs", () => {
+  const db = openV2Db();
+  applyAttachments(db);
+
+  const at = T + 80;
+  const tooBig = Buffer.alloc(1_048_577, 0x42);
+  const max = Buffer.alloc(1_048_576, 0x42);
+  expectSqlRejection(db, insertAttachment, "att-big", 1, 1, at, null, null, null, "pending", version, "image/jpeg", tooBig, at);
+  db.prepare(insertAttachment).run("att-max", 1, 1, at, null, null, null, "pending", version, "image/jpeg", max, at);
+  expectSqlRejection(db, insertAttachment, "att-big-approved", 1, 1, at, "image/jpeg", tooBig, at, "approved", version, null, null, null);
+});
+
+test("attachment FKs are enforced and deleting a post cascades its attachments", () => {
+  const db = openV2Db();
+  applyAttachments(db);
+
+  const at = T + 80;
+  db.prepare(insertAttachment).run("att-cascade", 3, 1, at, null, null, null, "pending", version, "image/png", png, at);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM attachments").get().n, 1);
+
+  // Unknown author: rejected.
+  expectSqlRejection(db, insertAttachment, "att-orphan-user", 3, 999, at, null, null, null, "pending", version, "image/png", png, at);
+  // Unknown post: rejected.
+  expectSqlRejection(db, insertAttachment, "att-orphan-post", 999, 1, at, null, null, null, "pending", version, "image/png", png, at);
+
+  db.prepare("DELETE FROM posts WHERE id = 3").run();
+  assert.equal(
+    db.prepare("SELECT COUNT(*) AS n FROM attachments WHERE id = ?").get("att-cascade").n,
+    0,
+    "attachment must be cascade-deleted with its post",
+  );
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM attachments").get().n, 0);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM posts").get().n, 2);
 });
