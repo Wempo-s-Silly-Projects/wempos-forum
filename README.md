@@ -33,7 +33,7 @@ A small, server-backed forum using Cloudflare Workers, D1, and static assets. Th
    npm run dev
    ```
 
-4. Open the local URL printed by Wrangler. The first-admin setup page is disabled until `SETUP_SECRET` is configured. Use the configured value only in the setup form, then sign in normally.
+4. Open the local URL printed by Wrangler. The first-admin setup form stays locked until both `SETUP_SECRET` and `PASSWORD_PEPPER` are configured with valid values. Use the setup secret only in the setup form, then sign in normally.
 
 Local development uses a local D1 database by default. The migration does not touch production unless you explicitly use the remote migration command.
 

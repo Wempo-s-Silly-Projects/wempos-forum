@@ -158,9 +158,18 @@ function renderJoinPanel() {
   main.append(panel);
 }
 
-function renderHomeAccess(session, setupRequired) {
+function renderSetupLocked() {
+  const panel = createPanel(
+    "First-time setup is locked",
+    "The site owner must configure valid SETUP_SECRET and PASSWORD_PEPPER values in Wrangler before the first administrator can be created.",
+  );
+  main.append(panel);
+}
+
+function renderHomeAccess(session, setupRequired, setupConfigured) {
   if (setupRequired) {
-    main.append(setupForm());
+    if (setupConfigured) main.append(setupForm());
+    else renderSetupLocked();
     return;
   }
   if (!session.user) renderJoinPanel();
@@ -202,9 +211,9 @@ function renderAccountSettings() {
   main.append(account);
 }
 
-function renderHome(session, setupRequired, data, route) {
+function renderHome(session, setupRequired, setupConfigured, data, route) {
   renderIntroduction();
-  renderHomeAccess(session, setupRequired);
+  renderHomeAccess(session, setupRequired, setupConfigured);
   renderHomeContent(session, data, route);
   if (session.user) renderAccountSettings();
 }
@@ -299,7 +308,11 @@ async function prepareRouteContext(version) {
   currentUser = session.user;
   setCsrfToken(session.csrfToken);
   renderAccountNavigation(session.user);
-  return { session, setupRequired: setup.required };
+  return {
+    session,
+    setupRequired: setup.required,
+    setupConfigured: setup.secretConfigured && setup.passwordSecurityConfigured,
+  };
 }
 
 function setRouteTitle(route) {
@@ -319,7 +332,8 @@ function setRouteTitle(route) {
 
 function renderSetupRoute(context) {
   if (context.setupRequired) {
-    main.append(setupForm());
+    if (context.setupConfigured) main.append(setupForm());
+    else renderSetupLocked();
     return;
   }
   addText(document, main, "p", "First-time setup has already been completed.", "empty-state");
@@ -330,7 +344,7 @@ async function renderHomeRoute(route, context, version) {
     ? { search: await api(`/api/search?q=${encodeURIComponent(route.query)}`) }
     : { feed: await api("/api/posts") };
   if (version !== renderVersion) return;
-  renderHome(context.session, context.setupRequired, data, route);
+  renderHome(context.session, context.setupRequired, context.setupConfigured, data, route);
 }
 
 async function renderPostRoute(route, context, version) {

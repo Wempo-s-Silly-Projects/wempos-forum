@@ -97,6 +97,10 @@ export function isValidPasswordPepper(value) {
   return typeof value === "string" && value.length >= 32 && value.length <= 256;
 }
 
+export function isValidSetupSecret(value) {
+  return typeof value === "string" && value.length >= 32;
+}
+
 async function derivePassword(password, saltHex, pepper) {
   if (!isValidPasswordPepper(pepper)) {
     throw new HttpError(503, "Password security is not configured. Set PASSWORD_PEPPER using Wrangler.");
@@ -572,7 +576,7 @@ async function handleSetupStatusRoute(request, env, url, path, method) {
   if (path === "/api/setup/status" && method === "GET") {
     return json({
       required: await setupRequired(env),
-      secretConfigured: Boolean(env.SETUP_SECRET),
+      secretConfigured: isValidSetupSecret(env.SETUP_SECRET),
       passwordSecurityConfigured: isValidPasswordPepper(env.PASSWORD_PEPPER),
     });
   }
@@ -603,7 +607,7 @@ async function handleFirstAdminSetupRoute(request, env, url, path, method) {
     const guest = await requireCsrf(request, env);
     await rateLimit(request, env, "setup");
     if (!(await setupRequired(env))) throw new HttpError(409, "First-time setup has already been completed.");
-    if (!env.SETUP_SECRET || env.SETUP_SECRET.length < 32) {
+    if (!isValidSetupSecret(env.SETUP_SECRET)) {
       throw new HttpError(503, "First-time setup is locked. Configure SETUP_SECRET using Wrangler before creating the administrator.");
     }
     const body = await readJson(request);
