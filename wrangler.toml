@@ -1,0 +1,94 @@
+name = "wempos-forum"
+main = "worker.mjs"
+compatibility_date = "2026-10-13"
+workers_dev = true
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "FORUM_DB"
+database_name = "wempo-forum-data"
+database_id = "e648d306-2c2b-4ddc-aaf1-cef2e023a88c"
+migrations_dir = "migrations"
+
+
+[[ratelimits]]
+name = "READ_RATE_LIMITER"
+namespace_id = "614202610141001"
+[ratelimits.simple]
+limit = 180
+period = 60
+
+[[ratelimits]]
+name = "WRITE_RATE_LIMITER"
+namespace_id = "614202610141002"
+[ratelimits.simple]
+limit = 45
+period = 60
+
+[[ratelimits]]
+name = "GUEST_SESSION_RATE_LIMITER"
+namespace_id = "614202610141003"
+[ratelimits.simple]
+limit = 120
+period = 60
+
+[[ratelimits]]
+name = "REGISTER_RATE_LIMITER"
+namespace_id = "614202610141004"
+[ratelimits.simple]
+limit = 5
+period = 60
+
+[[ratelimits]]
+name = "LOGIN_RATE_LIMITER"
+namespace_id = "614202610141005"
+[ratelimits.simple]
+limit = 10
+period = 60
+
+[[ratelimits]]
+name = "SETUP_RATE_LIMITER"
+namespace_id = "614202610141006"
+[ratelimits.simple]
+limit = 5
+period = 60
+
+[[ratelimits]]
+name = "POST_WRITE_RATE_LIMITER"
+namespace_id = "614202610141007"
+[ratelimits.simple]
+limit = 20
+period = 60
+
+[[ratelimits]]
+name = "PASSWORD_CHANGE_RATE_LIMITER"
+namespace_id = "614202610141008"
+[ratelimits.simple]
+limit = 6
+period = 60
+
+[[ratelimits]]
+name = "REPORT_RATE_LIMITER"
+namespace_id = "614202610141009"
+[ratelimits.simple]
+limit = 5
+period = 60
+
+[[ratelimits]]
+name = "AVATAR_UPLOAD_RATE_LIMITER"
+namespace_id = "614202610141010"
+[ratelimits.simple]
+limit = 5
+period = 60
+
+[[ratelimits]]
+name = "REACTION_RATE_LIMITER"
+namespace_id = "614202610141011"
+[ratelimits.simple]
+limit = 30
+period = 60
