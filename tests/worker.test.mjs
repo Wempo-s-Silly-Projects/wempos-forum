@@ -342,7 +342,7 @@ test("registration rejects an untrusted Origin before reading session state", as
       Origin: "https://attacker.example",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ username: "origin_test", password: "correct-horse-battery-staple" }),
+    body: "{}",
   }), originGuardTestEnv());
 
   assert.equal(response.status, 403);
@@ -354,7 +354,7 @@ test("registration rejects requests without an Origin header", async () => {
   const response = await worker.fetch(new Request("https://forum.example/api/auth/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: "origin_test", password: "correct-horse-battery-staple" }),
+    body: "{}",
   }), originGuardTestEnv());
 
   assert.equal(response.status, 403);
