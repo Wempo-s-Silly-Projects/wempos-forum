@@ -24,7 +24,7 @@ A small, server-backed forum using Cloudflare Workers, D1, and static assets. Th
    PASSWORD_PEPPER=
    ```
 
-   Paste separate, randomly generated values after each equals sign. Use at least 32 characters for each. `.dev.vars` is ignored by Git and must never be committed. Keep a secure backup of `PASSWORD_PEPPER`; changing or losing it prevents existing accounts from authenticating because it is part of each password hash.
+   Paste separate, randomly generated values after each equals sign. Use 32–4096 characters for each. `.dev.vars` is ignored by Git and must never be committed. Keep a secure backup of `PASSWORD_PEPPER`; changing or losing it prevents existing accounts from authenticating because it is part of each password hash.
 
 3. Apply the schema to the local D1 database and run the app:
 
