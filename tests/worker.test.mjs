@@ -232,9 +232,11 @@ test("banning and session revocation are committed in one D1 batch", async () =>
 });
 
 
-test("first-admin setup secrets require at least 32 characters", () => {
+test("first-admin setup secrets are bounded to the documented UI limit", () => {
   assert.equal(isValidSetupSecret("s".repeat(32)), true);
+  assert.equal(isValidSetupSecret("s".repeat(4096)), true);
   assert.equal(isValidSetupSecret("s".repeat(31)), false);
+  assert.equal(isValidSetupSecret("s".repeat(4097)), false);
   assert.equal(isValidSetupSecret(""), false);
   assert.equal(isValidSetupSecret(null), false);
 });
