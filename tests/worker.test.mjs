@@ -326,3 +326,37 @@ test("post creation remains blocked if a ban lands after the initial ban check",
   assert.match((await response.json()).error, /banned/i);
   assert.ok(calls.some(({ sql, operation }) => operation === "run" && sql.startsWith("INSERT INTO posts")));
 });
+
+
+function originGuardTestEnv() {
+  return {
+    FORUM_DB: {},
+    WRITE_RATE_LIMITER: { async limit() { return { success: true }; } },
+  };
+}
+
+test("registration rejects an untrusted Origin before reading session state", async () => {
+  const response = await worker.fetch(new Request("https://forum.example/api/auth/register", {
+    method: "POST",
+    headers: {
+      Origin: "https://attacker.example",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username: "origin_test", password: "correct-horse-battery-staple" }),
+  }), originGuardTestEnv());
+
+  assert.equal(response.status, 403);
+  assert.match((await response.json()).error, /origin/i);
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
+});
+
+test("registration rejects requests without an Origin header", async () => {
+  const response = await worker.fetch(new Request("https://forum.example/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: "origin_test", password: "correct-horse-battery-staple" }),
+  }), originGuardTestEnv());
+
+  assert.equal(response.status, 403);
+  assert.match((await response.json()).error, /origin/i);
+});
