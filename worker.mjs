@@ -321,6 +321,13 @@ async function assertNotBanned(env, userId) {
   if (activeBan) throw new HttpError(403, "This account is currently banned.");
 }
 
+function requireMutationApplied(result) {
+  if (Number(result?.meta?.changes) !== 1) {
+    throw new HttpError(403, "This account is currently banned.");
+  }
+  return result;
+}
+
 export const RATE_LIMIT_BINDINGS = Object.freeze({
   read: "READ_RATE_LIMITER",
   write: "WRITE_RATE_LIMITER",
@@ -642,7 +649,8 @@ async function handleRegistrationRoute(request, env, url, path, method) {
     const body = await readJson(request);
     const credentials = validateNewCredentials(body);
     const user = await storeUser(env, credentials, "member");
-    const session = await createSession(request, env, Number(user.id), guest.tokenHash);
+    const session = await createSession(request, env, Number(user.id), guest.tokenHash, true);
+    if (!session) throw new HttpError(403, "This account is currently banned.");
     return json({ user: publicUser(user), csrfToken: session.csrfToken }, 201, { "Set-Cookie": session.setCookie });
   }
   return null;
@@ -779,8 +787,12 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const body = await readJson(request);
     const message = requiredText(body.body, "reply", 2000);
     const result = await db.prepare(
-      "INSERT INTO posts (author_id, parent_id, body, visibility, created_at) VALUES (?, ?, ?, 'public', ?)",
-    ).bind(session.user.id, parentId, message, nowSeconds()).run();
+      "INSERT INTO posts (author_id, parent_id, body, visibility, created_at) " +
+        "SELECT ?, ?, ?, 'public', ? WHERE NOT EXISTS (" +
+        "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+        "AND (expires_at IS NULL OR expires_at > ?))",
+    ).bind(session.user.id, parentId, message, nowSeconds(), session.user.id, nowSeconds()).run();
+    requireMutationApplied(result);
     return json({ id: Number(result.meta.last_row_id) }, 201);
   }
   return null;
@@ -796,8 +808,12 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     const body = await readJson(request);
     const message = requiredText(body.body, "post", 2000);
     const result = await db.prepare(
-      "INSERT INTO posts (author_id, parent_id, body, visibility, created_at) VALUES (?, NULL, ?, 'public', ?)",
-    ).bind(session.user.id, message, nowSeconds()).run();
+      "INSERT INTO posts (author_id, parent_id, body, visibility, created_at) " +
+        "SELECT ?, NULL, ?, 'public', ? WHERE NOT EXISTS (" +
+        "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+        "AND (expires_at IS NULL OR expires_at > ?))",
+    ).bind(session.user.id, message, nowSeconds(), session.user.id, nowSeconds()).run();
+    requireMutationApplied(result);
     return json({ id: Number(result.meta.last_row_id) }, 201);
   }
   return null;
@@ -818,10 +834,14 @@ async function handleReactionRoute(request, env, url, path, method) {
     if (body.value !== "like" && body.value !== "dislike") {
       throw new HttpError(400, "Choose like or dislike.");
     }
-    await db.prepare(
-      "INSERT INTO reactions (post_id, user_id, value, created_at) VALUES (?, ?, ?, ?) " +
+    const result = await db.prepare(
+      "INSERT INTO reactions (post_id, user_id, value, created_at) " +
+        "SELECT ?, ?, ?, ? WHERE NOT EXISTS (" +
+        "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+        "AND (expires_at IS NULL OR expires_at > ?)) " +
         "ON CONFLICT(post_id, user_id) DO UPDATE SET value = excluded.value, created_at = excluded.created_at",
-    ).bind(postId, session.user.id, body.value, nowSeconds()).run();
+    ).bind(postId, session.user.id, body.value, nowSeconds(), session.user.id, nowSeconds()).run();
+    requireMutationApplied(result);
     return json({ ok: true });
   }
   return null;
@@ -900,7 +920,12 @@ async function handleBioUpdateRoute(request, env, url, path, method) {
       throw new HttpError(400, "Your bio must be 280 characters or fewer.");
     }
     const bio = body.bio.trim();
-    await db.prepare("UPDATE users SET bio = ? WHERE id = ?").bind(bio, session.user.id).run();
+    const result = await db.prepare(
+      "UPDATE users SET bio = ? WHERE id = ? AND NOT EXISTS (" +
+        "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+        "AND (expires_at IS NULL OR expires_at > ?))",
+    ).bind(bio, session.user.id, session.user.id, nowSeconds()).run();
+    requireMutationApplied(result);
     return json({ bio });
   }
   return null;
@@ -935,9 +960,13 @@ async function handleAvatarUploadRoute(request, env, url, path, method) {
     if (!mime) throw new HttpError(415, "Only JPEG, PNG, and WebP images are supported.");
     const updatedAt = nowSeconds();
     const avatarVersion = createAvatarVersion();
-    await db.prepare(
-      "UPDATE users SET avatar_mime = ?, avatar_data = ?, avatar_updated_at = ?, avatar_version = ? WHERE id = ?",
-    ).bind(mime, bytes, updatedAt, avatarVersion, session.user.id).run();
+    const result = await db.prepare(
+      "UPDATE users SET avatar_mime = ?, avatar_data = ?, avatar_updated_at = ?, avatar_version = ? " +
+        "WHERE id = ? AND NOT EXISTS (" +
+        "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+        "AND (expires_at IS NULL OR expires_at > ?))",
+    ).bind(mime, bytes, updatedAt, avatarVersion, session.user.id, session.user.id, nowSeconds()).run();
+    requireMutationApplied(result);
     return json({ avatarUrl: "/api/avatars/" + session.user.id + "?v=" + avatarVersion });
   }
   return null;
@@ -959,12 +988,18 @@ async function handlePasswordChangeRoute(request, env, url, path, method) {
       throw new HttpError(401, "Your current password is incorrect.");
     }
     const password = await hashPassword(body.newPassword, env.PASSWORD_PEPPER);
-    await db.batch([
-      db.prepare("UPDATE users SET password_salt = ?, password_hash = ? WHERE id = ?")
-        .bind(password.salt, password.hash, session.user.id),
-      db.prepare("DELETE FROM sessions WHERE user_id = ? AND token_hash != ?")
-        .bind(session.user.id, session.tokenHash),
+    const results = await db.batch([
+      db.prepare(
+        "UPDATE users SET password_salt = ?, password_hash = ? WHERE id = ? AND NOT EXISTS (" +
+          "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+          "AND (expires_at IS NULL OR expires_at > ?))",
+      ).bind(password.salt, password.hash, session.user.id, session.user.id, nowSeconds()),
+      db.prepare(
+        "DELETE FROM sessions WHERE user_id = ? AND token_hash != ? AND EXISTS (" +
+          "SELECT 1 FROM users WHERE id = ? AND password_salt = ? AND password_hash = ?)",
+      ).bind(session.user.id, session.tokenHash, session.user.id, password.salt, password.hash),
     ]);
+    requireMutationApplied(results[0]);
     return json({ ok: true });
   }
   return null;
@@ -994,9 +1029,13 @@ async function handleReportCreateRoute(request, env, url, path, method) {
     const body = await readJson(request);
     const reason = requiredText(body.reason, "report reason", 500);
     try {
-      await db.prepare(
-        "INSERT INTO reports (post_id, reporter_id, reason, status, created_at) VALUES (?, ?, ?, 'open', ?)",
-      ).bind(postId, session.user.id, reason, nowSeconds()).run();
+      const result = await db.prepare(
+        "INSERT INTO reports (post_id, reporter_id, reason, status, created_at) " +
+          "SELECT ?, ?, ?, 'open', ? WHERE NOT EXISTS (" +
+          "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+          "AND (expires_at IS NULL OR expires_at > ?))",
+      ).bind(postId, session.user.id, reason, nowSeconds(), session.user.id, nowSeconds()).run();
+      requireMutationApplied(result);
     } catch (error) {
       const duplicate = await db.prepare(
         "SELECT id FROM reports WHERE post_id = ? AND reporter_id = ? AND status = 'open' LIMIT 1",
