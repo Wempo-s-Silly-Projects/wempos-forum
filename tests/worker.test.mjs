@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, hashPassword, isValidPassword, isValidPasswordPepper, isValidUsername, PBKDF2_ITERATIONS, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, UNBAN_ACTIVE_UPDATE_SQL, sniffImageMime, verifyPassword } from "../worker.mjs";
+import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, hashPassword, isValidPassword, isValidPasswordPepper, isValidUsername, PBKDF2_ITERATIONS, RATE_LIMIT_BINDINGS, rateLimit, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, UNBAN_ACTIVE_UPDATE_SQL, sniffImageMime, verifyPassword } from "../worker.mjs";
 
 test("usernames follow the documented ASCII rules", () => {
   for (const value of ["abc", "ItsWempo", "test_user", "123456789012345678901234"]) {
@@ -171,4 +171,41 @@ test("password hashes use the pepper and verify only with the matching pepper", 
   assert.equal(await verifyPassword(password, stored.salt, stored.hash, pepper), true);
   assert.equal(await verifyPassword(password, stored.salt, stored.hash, otherPepper), false);
   assert.equal(await verifyPassword("another-password", stored.salt, stored.hash, pepper), false);
+});
+
+
+test("avatar and reaction rate limits are configured as separate account-scoped bindings", () => {
+  assert.equal(RATE_LIMIT_BINDINGS["avatar-upload"], "AVATAR_UPLOAD_RATE_LIMITER");
+  assert.equal(RATE_LIMIT_BINDINGS.reaction, "REACTION_RATE_LIMITER");
+});
+
+test("rate limiting fails closed when a required binding is missing", async () => {
+  await assert.rejects(
+    rateLimit(new Request("https://forum.example/api/me/avatar"), {}, "avatar-upload", "42"),
+    (error) => error.status === 503,
+  );
+});
+
+test("rate limiting rejects blocked requests and hashes actor-scoped keys", async () => {
+  const receivedKeys = [];
+  const env = {
+    AVATAR_UPLOAD_RATE_LIMITER: {
+      async limit({ key }) {
+        receivedKeys.push(key);
+        return { success: receivedKeys.length === 1 };
+      },
+    },
+  };
+  const request = new Request("https://forum.example/api/me/avatar", {
+    headers: { "CF-Connecting-IP": "192.0.2.1" },
+  });
+
+  await rateLimit(request, env, "avatar-upload", "42");
+  await assert.rejects(
+    rateLimit(request, env, "avatar-upload", "42"),
+    (error) => error.status === 429,
+  );
+  assert.equal(receivedKeys.length, 2);
+  assert.match(receivedKeys[0], /^[a-f0-9]{64}$/);
+  assert.equal(receivedKeys[0], receivedKeys[1]);
 });

@@ -317,7 +317,7 @@ async function assertNotBanned(env, userId) {
   if (activeBan) throw new HttpError(403, "This account is currently banned.");
 }
 
-const RATE_LIMIT_BINDINGS = Object.freeze({
+export const RATE_LIMIT_BINDINGS = Object.freeze({
   read: "READ_RATE_LIMITER",
   write: "WRITE_RATE_LIMITER",
   "guest-session": "GUEST_SESSION_RATE_LIMITER",
@@ -327,9 +327,11 @@ const RATE_LIMIT_BINDINGS = Object.freeze({
   "post-write": "POST_WRITE_RATE_LIMITER",
   "password-change": "PASSWORD_CHANGE_RATE_LIMITER",
   report: "REPORT_RATE_LIMITER",
+  "avatar-upload": "AVATAR_UPLOAD_RATE_LIMITER",
+  reaction: "REACTION_RATE_LIMITER",
 });
 
-async function rateLimit(request, env, scope, actor = "") {
+export async function rateLimit(request, env, scope, actor = "") {
   const bindingName = RATE_LIMIT_BINDINGS[scope];
   const limiter = bindingName ? env[bindingName] : null;
   if (!limiter || typeof limiter.limit !== "function") {
@@ -796,6 +798,7 @@ async function handleReactionRoute(request, env, url, path, method) {
   if (reactionMatch && method === "PUT") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
+    await rateLimit(request, env, "reaction", String(session.user.id));
     const postId = Number(reactionMatch[1]);
     if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
     const post = await postById(env, postId, session.user.id);
@@ -897,6 +900,7 @@ async function handleAvatarUploadRoute(request, env, url, path, method) {
   if (path === "/api/me/avatar" && method === "POST") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
+    await rateLimit(request, env, "avatar-upload", String(session.user.id));
     const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
     if (!contentType.startsWith("multipart/form-data;")) {
       throw new HttpError(415, "Upload a JPEG, PNG, or WebP image.");

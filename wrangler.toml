@@ -78,3 +78,17 @@ namespace_id = "614202610141009"
 [ratelimits.simple]
 limit = 5
 period = 60
+
+[[ratelimits]]
+name = "AVATAR_UPLOAD_RATE_LIMITER"
+namespace_id = "614202610141010"
+[ratelimits.simple]
+limit = 5
+period = 60
+
+[[ratelimits]]
+name = "REACTION_RATE_LIMITER"
+namespace_id = "614202610141011"
+[ratelimits.simple]
+limit = 30
+period = 60
