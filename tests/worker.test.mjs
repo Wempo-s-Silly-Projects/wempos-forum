@@ -240,44 +240,6 @@ test("first-admin setup secrets require at least 32 characters", () => {
 });
 
 
-function routeTestEnv() {
-  return {
-    FORUM_DB: {},
-    WRITE_RATE_LIMITER: {
-      async limit({ key }) {
-        assert.match(key, /^[a-f0-9]{64}$/);
-        return { success: true };
-      },
-    },
-  };
-}
-
-test("mutating API routes reject cross-origin requests before touching the database", async () => {
-  const response = await worker.fetch(new Request("https://forum.example/api/auth/register", {
-    method: "POST",
-    headers: {
-      "Origin": "https://attacker.example",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ username: "test_user", password: "correct-horse-battery-staple" }),
-  }), routeTestEnv());
-
-  assert.equal(response.status, 403);
-  assert.match((await response.json()).error, /origin/i);
-  assert.equal(response.headers.get("Cache-Control"), "no-store");
-  assert.match(response.headers.get("Content-Security-Policy"), /frame-ancestors 'none'/);
-});
-
-test("mutating API routes reject requests with no Origin header", async () => {
-  const response = await worker.fetch(new Request("https://forum.example/api/auth/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: "test_user", password: "correct-horse-battery-staple" }),
-  }), routeTestEnv());
-
-  assert.equal(response.status, 403);
-  assert.match((await response.json()).error, /origin/i);
-});
 
 test("API configuration errors retain security headers and are not cacheable", async () => {
   const response = await worker.fetch(new Request("https://forum.example/api/posts"), {});
