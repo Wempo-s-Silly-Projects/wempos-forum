@@ -1,5 +1,6 @@
 // Post feed, post detail, replies, reactions, and search routes.
 import { REPLY_BUMP_SQL, SEARCH_USERS_SQL, THREAD_REPLY_INSERT_SQL } from "../constants.mjs";
+import { insertAttachments, MAX_ATTACHMENT_FILES, readComposedBody } from "./attachments.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { notificationBatchStatements } from "./notifications.mjs";
 import {
@@ -223,9 +224,17 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
       }
       bumpTargetId = Number(parent.id);
     }
-    const body = await readJson(request);
-    await requireTurnstile(request, env, body, "reply");
-    const message = applyWordFilter(requiredText(body.body, "reply", 2000), env.FILTERED_WORDS);
+    const { fields, files } = await readComposedBody(request, env);
+    // Image-heavy posts pay a per-account image-upload limit before any
+    // validation or insert work happens (ordering constraint).
+    if (files.length > 0) {
+      await rateLimit(request, env, "image-upload", String(session.user.id));
+    }
+    if (files.length > MAX_ATTACHMENT_FILES) {
+      throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images.");
+    }
+    await requireTurnstile(request, env, fields, "reply");
+    const message = applyWordFilter(requiredText(fields.body, "reply", 2000), env.FILTERED_WORDS);
     const now = nowSeconds();
     const recipientId = target.author_id === null || target.author_id === undefined
       ? null
@@ -239,6 +248,8 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
       throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
     }
     const replyId = Number(results[0].meta.last_row_id);
+    // Attachments bind the reply's own row id, never the bump target's.
+    await insertAttachments(db, replyId, session.user.id, files);
     try {
       // Best-effort fan-out in a second batch: the reply id only exists after
       // the insert above, and a failed notification must never fail the reply.
@@ -261,9 +272,17 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     await assertNotBanned(env, session.user.id);
     await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
-    const body = await readJson(request);
-    await requireTurnstile(request, env, body, "post");
-    const message = applyWordFilter(requiredText(body.body, "post", 2000), env.FILTERED_WORDS);
+    const { fields, files } = await readComposedBody(request, env);
+    // Image-heavy posts pay a per-account image-upload limit before any
+    // validation or insert work happens (ordering constraint).
+    if (files.length > 0) {
+      await rateLimit(request, env, "image-upload", String(session.user.id));
+    }
+    if (files.length > MAX_ATTACHMENT_FILES) {
+      throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images.");
+    }
+    await requireTurnstile(request, env, fields, "post");
+    const message = applyWordFilter(requiredText(fields.body, "post", 2000), env.FILTERED_WORDS);
     const now = nowSeconds();
     // A fresh root starts its activity clock at creation time.
     const result = await db.prepare(
@@ -273,7 +292,9 @@ async function handlePostCreateRoute(request, env, url, path, method) {
         "AND (expires_at IS NULL OR expires_at > ?))",
     ).bind(session.user.id, message, now, now, session.user.id, now).run();
     requireMutationApplied(result);
-    return json({ id: Number(result.meta.last_row_id) }, 201);
+    const postId = Number(result.meta.last_row_id);
+    await insertAttachments(db, postId, session.user.id, files);
+    return json({ id: postId }, 201);
   }
   return null;
 }

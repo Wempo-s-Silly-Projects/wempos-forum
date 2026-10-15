@@ -43,6 +43,7 @@ export const RATE_LIMIT_BINDINGS = Object.freeze({
   "password-change": "PASSWORD_CHANGE_RATE_LIMITER",
   report: "REPORT_RATE_LIMITER",
   "avatar-upload": "AVATAR_UPLOAD_RATE_LIMITER",
+  "image-upload": "IMAGE_UPLOAD_RATE_LIMITER",
   reaction: "REACTION_RATE_LIMITER",
 });
 

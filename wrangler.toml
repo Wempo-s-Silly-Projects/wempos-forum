@@ -95,3 +95,10 @@ namespace_id = "614202610141011"
 [ratelimits.simple]
 limit = 30
 period = 60
+
+[[ratelimits]]
+name = "IMAGE_UPLOAD_RATE_LIMITER"
+namespace_id = "614202610141012"
+[ratelimits.simple]
+limit = 5
+period = 60
