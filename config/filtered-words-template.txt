@@ -1,0 +1,31 @@
+Word filter list for posts and replies.
+
+The filtered-words list is PRIVATE and must never be committed to the public
+repository. It is provided at runtime by the FILTERED_WORDS secret:
+
+  * Format: a single comma-separated string of lowercase words or fragments
+    (spaces inside entries are allowed), e.g.:
+
+        badword,bad phrase
+
+  * Matching: entries are matched CASE-INSENSITIVELY anywhere in a post or
+    reply body (substring matching, not whole-word matching). A short
+    fragment such as "bad" is therefore also masked inside a longer word
+    like "badword". Entries are treated literally (no regex).
+  * Masking: every matched character is replaced with "*", so a filtered
+    body keeps the exact length of the original. An empty or whitespace-only
+    value (or an unset secret) disables filtering entirely: bodies pass
+    through unchanged.
+
+Production (set or update once per deployment; the value is private and is
+written straight into the Worker's secret store, not into this repo):
+
+    wrangler secret put FILTERED_WORDS
+
+Local development: add a FILTERED_WORDS entry with the same format to your
+.dev.vars file (which is Git-ignored and must never be committed), e.g.:
+
+    FILTERED_WORDS=badword,bad phrase
+
+Note: comma-separated entries cannot themselves contain a comma; entries are
+trimmed, lowercased, and deduplicated at use time.

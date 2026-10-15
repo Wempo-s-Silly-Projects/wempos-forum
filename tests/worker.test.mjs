@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PBKDF2_ITERATIONS, RATE_LIMIT_BINDINGS, REPLY_INSERT_IF_ALLOWED_SQL, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, TURNSTILE_SITEVERIFY_URL, UNBAN_ACTIVE_UPDATE_SQL } from "../constants.mjs";
+import { PBKDF2_ITERATIONS, RATE_LIMIT_BINDINGS, REPLY_BUMP_SQL, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, THREAD_REPLY_INSERT_SQL, TURNSTILE_SITEVERIFY_URL, UNBAN_ACTIVE_UPDATE_SQL } from "../constants.mjs";
 import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, createUserBan, hashPassword, isValidPassword, isValidPasswordPepper, isValidSetupSecret, isValidUsername, rateLimit, requireTurnstile, sniffImageMime, verifyPassword } from "../worker.mjs";
 import worker from "../worker.mjs";
 
@@ -149,11 +149,16 @@ test("a successful guarded login creates the new session and removes the guest s
   assert.match(mock.calls[0].sql, /DELETE FROM sessions WHERE expires_at <= \?/);
 });
 
-test("reply insertion atomically requires a public root and an unbanned author", () => {
-  assert.ok(REPLY_INSERT_IF_ALLOWED_SQL.includes("SELECT ?, ?, ?, 'public', ? WHERE EXISTS"));
-  assert.ok(REPLY_INSERT_IF_ALLOWED_SQL.includes("FROM posts WHERE id = ? AND parent_id IS NULL AND visibility = 'public'"));
-  assert.ok(REPLY_INSERT_IF_ALLOWED_SQL.includes("NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ?"));
-  assert.ok(REPLY_INSERT_IF_ALLOWED_SQL.includes("expires_at IS NULL OR expires_at > ?"));
+test("threaded reply insertion atomically requires a viewable conversation and an unbanned author", () => {
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at)"));
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("SELECT ?, ?, ?, 'public', ?, ? WHERE EXISTS"));
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("FROM posts WHERE id = ? AND visibility = 'public' AND ("));
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("parent_id IS NULL OR EXISTS"));
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("SELECT 1 FROM posts root WHERE root.id = posts.parent_id"));
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("AND root.parent_id IS NULL AND root.visibility = 'public'"));
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ?"));
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("expires_at IS NULL OR expires_at > ?"));
+  assert.match(REPLY_BUMP_SQL, /^UPDATE posts SET last_activity_at = \? WHERE id = \?$/);
 });
 
 test("unban updates require the selected ban to remain active and belong to the target", () => {

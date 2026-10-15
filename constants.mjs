@@ -13,12 +13,24 @@ export const UNBAN_ACTIVE_UPDATE_SQL =
     "WHERE id = ? AND user_id = ? AND revoked_at IS NULL " +
     "AND (expires_at IS NULL OR expires_at > ?)";
 
-export const REPLY_INSERT_IF_ALLOWED_SQL =
-  "INSERT INTO posts (author_id, parent_id, body, visibility, created_at) " +
-    "SELECT ?, ?, ?, 'public', ? WHERE EXISTS (" +
-    "SELECT 1 FROM posts WHERE id = ? AND parent_id IS NULL AND visibility = 'public') " +
+// Threaded reply insert. The guard requires the target post to exist and be
+// public, and to be either a root or the direct child of a public root
+// (replies only go one level deep); the ban check stays atomic with the insert.
+// Bind order: author_id, parent_id, body, created_at, last_activity_at, target
+// id, ban user_id, ban now.
+export const THREAD_REPLY_INSERT_SQL =
+  "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at) " +
+    "SELECT ?, ?, ?, 'public', ?, ? WHERE EXISTS (" +
+    "SELECT 1 FROM posts WHERE id = ? AND visibility = 'public' AND (" +
+    "parent_id IS NULL OR EXISTS (" +
+    "SELECT 1 FROM posts root WHERE root.id = posts.parent_id " +
+    "AND root.parent_id IS NULL AND root.visibility = 'public'))) " +
     "AND NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
     "AND (expires_at IS NULL OR expires_at > ?))";
+
+// Reply replies bump their conversation root: last_activity_at = now on the
+// root row (id resolved in JS as the target root or the target's parent).
+export const REPLY_BUMP_SQL = "UPDATE posts SET last_activity_at = ? WHERE id = ?";
 
 export const RATE_LIMIT_BINDINGS = Object.freeze({
   read: "READ_RATE_LIMITER",
