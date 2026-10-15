@@ -1,9 +1,26 @@
 import { api, setCsrfToken } from "./api.js";
-import { createActiveBanList, createReportQueue } from "./admin.js";
+import {
+  createActiveBanList,
+  createAvatarQueue,
+  createReportQueue,
+} from "./admin.js";
 import { addText, createForm, createInput, createTextarea } from "./forms.js";
 import { appendPostList, createPostCard } from "./render.js";
 import { isPlainLeftClick, startRouter } from "./router.js";
 import { homepageInterests, homepageIntro } from "./home-intro.js";
+import {
+  createNotificationBell,
+  renderNotificationsPage,
+  updateBell,
+} from "./notifications.js";
+import { renderBannedScreen } from "./banned.js";
+import {
+  SOCIAL_LABELS,
+  SOCIAL_PLATFORM_ORDER,
+  buildSocialLinks,
+  invalidSocialKeys,
+  renderProfileEditor,
+} from "./profile-editor.js";
 import {
   addTurnstileSlot,
   refreshTurnstile,
@@ -105,21 +122,28 @@ function setupForm() {
   return panel;
 }
 
-function createComposer(name, label, buttonLabel, postID = null) {
+// Every composer is Turnstile-gated now: root posts use action "post", every
+// reply composer (the detail-route root reply and reply-to-reply mini
+// composers) uses action "reply".
+function createComposer(name, label, buttonLabel, postID = null, turnstileAction = null) {
   const panel = createPanel(name === "post-create" ? "Start a conversation" : "Reply");
   const form = document.createElement("form");
   form.dataset.form = name;
   if (postID !== null) form.dataset.postId = String(postID);
+  // The reply-to-reply mini composer shares the "reply" form name with the
+  // detail route's root composer, so the textarea id carries the target id to
+  // keep label/for pairs unique in the document.
   form.append(createTextarea(document, {
-    id: `${name}-body`, name: "body", label, rows: 4, maxLength: 2000, required: true,
+    id: `${name}-${postID ?? "new"}-body`, name: "body", label,
+    rows: 4, maxLength: 2000, required: true,
   }));
-  if (name === "post-create") addTurnstileSlot(form, "post");
+  addTurnstileSlot(form, turnstileAction ?? (name === "post-create" ? "post" : "reply"));
   addSubmit(form, buttonLabel);
   panel.append(form);
   return panel;
 }
 
-function renderAccountNavigation(user) {
+function renderAccountNavigation(user, unreadNotifications = 0) {
   accountActions.replaceChildren();
   if (!user) {
     const signIn = element("a", "button button-secondary", "Sign in");
@@ -131,7 +155,8 @@ function renderAccountNavigation(user) {
   const profile = element("a", "button button-secondary", user.username);
   profile.href = `/users/${encodeURIComponent(user.username)}`;
   accountActions.append(profile);
-  if (user.role === "admin") {
+  accountActions.append(createNotificationBell(unreadNotifications, document));
+  if (user.role === "admin" || user.role === "moderator") {
     const reports = element("a", "button button-secondary", "Moderation");
     reports.href = "/admin/reports";
     accountActions.append(reports);
@@ -268,6 +293,45 @@ function renderProfilePosts(profile, user) {
   main.append(older);
 }
 
+function appendProfileSocials(profile) {
+  const links = buildSocialLinks(profile.socials, profile.polytoriaUsername);
+  if (!links.length) return;
+  const list = element("ul", "profile-socials");
+  for (const link of links) {
+    const item = element("li", "profile-social");
+    item.append(element("span", "social-label", `${link.label}: `));
+    if (link.url) {
+      const anchor = element("a", "social-handle", link.text);
+      anchor.href = link.url;
+      item.append(anchor);
+    } else {
+      item.append(element("span", "social-handle", link.text));
+    }
+    list.append(item);
+  }
+  main.append(list);
+}
+
+// Spec §8: promote/demote is admin-only, so admins get the control on member
+// profiles too. The payload's role selects the single correct form (members →
+// promote, moderators → demote); admins get nothing (server 403s anyway), and
+// the viewer's own profile never needs one. Handlers re-render the current
+// route, so both the desk and this surface refresh after a role change.
+function appendProfileRoleControls(profile, session, container) {
+  if (!session.user || session.user.role !== "admin") return;
+  if (session.user.id === profile.id || profile.role === "admin") return;
+  const [formName, label] = profile.role === "member"
+    ? ["admin-promote", "Promote to moderator"]
+    : ["admin-demote", "Demote to member"];
+  const form = document.createElement("form");
+  form.dataset.form = formName;
+  form.dataset.userId = String(profile.id);
+  const button = element("button", "button button-secondary", label);
+  button.type = "submit";
+  form.append(button);
+  container.append(form);
+}
+
 function renderProfile(profile, session) {
   const heading = element("section", "profile-heading");
   if (profile.avatarUrl) {
@@ -277,15 +341,22 @@ function renderProfile(profile, session) {
     heading.append(image);
   }
   addHeading(heading, profile.username, 1);
+  // The pending-upload status comes from the session payload (the profile
+  // payload does not carry avatarStatus), so only the owner sees the badge —
+  // everyone else just sees the currently approved avatar.
+  if (session.user?.id === profile.id && session.user.avatarStatus === "pending") {
+    heading.append(element("span", "avatar-pending-badge", "Avatar awaiting review"));
+  }
+  appendProfileRoleControls(profile, session, heading);
   main.append(heading);
   addText(document, main, "p", profile.bio || "This member hasn't added a bio yet.", "profile-bio");
+  appendProfileSocials(profile);
   if (session.user?.id === profile.id) {
-    const edit = createPanel("Edit your profile");
-    edit.append(createForm(document, "bio", [
-      createTextarea(document, {
-        id: "profile-bio", name: "bio", label: "Bio", rows: 3, maxLength: 280,
-      }),
-    ], "Save bio"));
+    // Bio (10,000 chars) plus the ten social fields; submission re-fetches the
+    // profile instead of trusting the asymmetric PATCH echo.
+    renderProfileEditor(main, profile);
+    const pictures = createPanel("Profile picture",
+      "Uploads are reviewed by moderators before they appear publicly.");
     const avatarForm = document.createElement("form");
     avatarForm.dataset.form = "avatar";
     avatarForm.append(createInput(document, {
@@ -293,17 +364,19 @@ function renderProfile(profile, session) {
       type: "file", accept: "image/jpeg,image/png,image/webp", required: true,
     }));
     addSubmit(avatarForm, "Upload picture");
-    edit.append(avatarForm);
-    main.append(edit);
+    pictures.append(avatarForm);
+    main.append(pictures);
   }
   renderProfilePosts(profile, session.user);
 }
 
-function renderAdmin(reportData, banData) {
+function renderAdmin(reportData, banData, avatarData, user) {
   addHeading(main, "Moderation desk", 1);
   addText(document, main, "p", "Review reports, hide inappropriate posts, and manage active bans.", "page-lede");
   addHeading(main, "Open reports", 2);
-  main.append(createReportQueue(reportData.reports, document));
+  main.append(createReportQueue(reportData.reports, document, user));
+  addHeading(main, "Avatars awaiting review", 2);
+  main.append(createAvatarQueue(avatarData.avatars, document));
   addHeading(main, "Active bans", 2);
   main.append(createActiveBanList(banData.bans, document));
 }
@@ -316,7 +389,7 @@ async function prepareRouteContext(version) {
   if (version !== renderVersion) return null;
   currentUser = session.user;
   setCsrfToken(session.csrfToken);
-  renderAccountNavigation(session.user);
+  renderAccountNavigation(session.user, session.unreadNotifications ?? 0);
   return {
     session,
     setupRequired: setup.required,
@@ -331,6 +404,7 @@ function setRouteTitle(route) {
     post: "Post",
     profile: "Profile",
     admin: "Moderation",
+    notifications: "Notifications",
     setup: "First-time setup",
     "not-found": "Not found",
   };
@@ -390,12 +464,27 @@ async function renderProfileRoute(route, context, version) {
 }
 
 async function renderAdminRoute(context, version) {
-  const [reports, bans] = await Promise.all([
+  const [reports, bans, avatars] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/bans"),
+    api("/api/admin/avatars"),
   ]);
   if (version !== renderVersion) return;
-  renderAdmin(reports, bans);
+  renderAdmin(reports, bans, avatars, context.session.user);
+}
+
+async function renderNotificationsRoute(context, version) {
+  if (!context.session.user) {
+    addHeading(main, "Notifications", 1);
+    addText(document, main, "p", "Sign in to see your notifications.", "muted");
+    const signIn = element("a", "button button-secondary", "Sign in");
+    signIn.href = "/#join";
+    main.append(signIn);
+    return;
+  }
+  const data = await api("/api/me/notifications");
+  if (version !== renderVersion) return;
+  renderNotificationsPage(main, data.notifications);
 }
 
 function renderNotFoundRoute() {
@@ -422,6 +511,7 @@ async function renderRoute(route) {
     post: () => renderPostRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
     admin: () => renderAdminRoute(context, version),
+    notifications: () => renderNotificationsRoute(context, version),
     "not-found": () => renderNotFoundRoute(),
   };
   const renderPage = renderers[route.name] || renderNotFoundRoute;
@@ -446,7 +536,21 @@ async function submitAuthForm(type, form, text) {
     credentials["cf-turnstile-response"] = takeTurnstileToken(form);
     refreshTurnstile(form);
   }
-  const result = await api(endpoint, { method: "POST", body: credentials });
+  let result;
+  try {
+    result = await api(endpoint, { method: "POST", body: credentials });
+  } catch (error) {
+    // Banned accounts get a dedicated screen (spec §13): api.js copies the 403
+    // body's banned/reason/expiresAt onto the error object. Credentials were
+    // verified server-side before this payload exists, so showing it is safe.
+    if (error.banned === true) {
+      main.replaceChildren();
+      renderBannedScreen(main, { reason: error.reason, expiresAt: error.expiresAt });
+      setMessage();
+      return;
+    }
+    throw error;
+  }
   setCsrfToken(result.csrfToken);
   router.navigate("/");
   setMessage(type === "setup" ? "Administrator account created." : "You're signed in.");
@@ -463,16 +567,38 @@ async function submitNewPost(form, text) {
 
 async function submitReplyForm(form, text) {
   const postId = Number(form.dataset.postId);
+  const reply = { body: text("body") };
+  // Replies are Turnstile-gated server-side with action "reply".
+  reply["cf-turnstile-response"] = takeTurnstileToken(form);
+  refreshTurnstile(form);
   await api("/api/posts/" + postId + "/replies", {
     method: "POST",
-    body: { body: text("body") },
+    body: reply,
   });
-  await renderRoute({ name: "post", id: postId });
+  // Reply-to-reply composers remember the thread root so the rerender lands
+  // back on the conversation, not on the level-1 reply's detail page.
+  const threadId = form.dataset.threadId ?? postId;
+  await renderRoute({ name: "post", id: Number(threadId) });
   setMessage("Your reply was added.");
 }
 
-async function submitBioForm(text) {
-  await api("/api/me", { method: "PATCH", body: { bio: text("bio") } });
+async function submitProfileEditorForm(form, text) {
+  const socials = {};
+  for (const key of SOCIAL_PLATFORM_ORDER) {
+    const value = text(key).trim();
+    socials[key] = value === "" ? null : value;
+  }
+  const invalid = invalidSocialKeys(socials);
+  if (invalid.length) {
+    throw new Error(`Enter a valid ${SOCIAL_LABELS[invalid[0]]} handle.`);
+  }
+  // bio + socials in one PATCH /api/me (64 KB route cap covers a 10000-char
+  // bio). The PATCH echo is asymmetric, so the rerender below re-fetches the
+  // profile from GET /api/users/:username rather than trusting the response.
+  await api("/api/me", {
+    method: "PATCH",
+    body: { bio: text("bio"), socials },
+  });
   await renderRoute({ name: "profile", username: currentUser.username });
   setMessage("Your profile was updated.");
 }
@@ -544,13 +670,17 @@ async function submitForm(form) {
     setup: () => submitAuthForm("setup", form, text),
     "post-create": () => submitNewPost(form, text),
     reply: () => submitReplyForm(form, text),
-    bio: () => submitBioForm(text),
+    "profile-editor": () => submitProfileEditorForm(form, text),
     avatar: () => submitAvatarForm(values),
     password: () => submitPasswordForm(text),
     report: () => submitReportForm(text),
     "admin-resolve": () => submitReportResolution(form),
     "admin-ban": () => submitBanForm(form, text),
     "admin-unban": () => submitUnbanForm(form, text),
+    "admin-promote": () => submitRoleChange(form, "promote", text),
+    "admin-demote": () => submitRoleChange(form, "demote", text),
+    "admin-avatar-approve": () => submitAvatarModeration(form, "approve"),
+    "admin-avatar-reject": () => submitAvatarModeration(form, "reject"),
   };
   const handler = handlers[type];
   if (handler) await handler();
@@ -567,11 +697,116 @@ function handleInternalNavigation(event) {
 }
 
 async function submitReaction(button) {
-  await api("/api/posts/" + button.dataset.postId + "/reaction", {
-    method: "PUT",
-    body: { value: button.dataset.value },
-  });
+  // Stateful toggle: an "active" button carries the viewer's own reaction, so
+  // clicking it retracts (DELETE); otherwise it sets the value (PUT).
+  if (button.dataset.state === "active") {
+    await api("/api/posts/" + button.dataset.postId + "/reaction", { method: "DELETE" });
+  } else {
+    await api("/api/posts/" + button.dataset.postId + "/reaction", {
+      method: "PUT",
+      body: { value: button.dataset.value },
+    });
+  }
   await renderRoute(activeRoute);
+}
+
+async function toggleReplyComposer(button) {
+  const postId = button.dataset.postId;
+  const article = main.querySelector(`article[data-post-id="${postId}"]`);
+  if (!article) return;
+  const existing = main.querySelector(`[data-reply-composer-for="${postId}"]`);
+  if (existing) {
+    existing.remove();
+    return;
+  }
+  // Mini composer under the level-1 reply; replies go to /api/posts/:thatId
+  // with Turnstile action "reply".
+  const panel = createComposer("reply", "Write a reply", "Reply", postId, "reply");
+  panel.dataset.replyComposerFor = postId;
+  if (activeRoute.name === "post") panel.dataset.threadId = String(activeRoute.id);
+  article.after(panel);
+  await renderTurnstileSlots(panel);
+}
+
+async function toggleSubReplies(button) {
+  // Double-click guard: one fetch per expand; a stale in-flight request never
+  // builds a duplicate container (the old one is orphaned by re-render).
+  if (button.dataset.loading === "1") return;
+  const postId = button.dataset.postId;
+  const existing = main.querySelector(`[data-sub-replies-for="${postId}"]`);
+  if (existing) {
+    const hidden = existing.hasAttribute("hidden");
+    if (hidden) existing.removeAttribute("hidden");
+    else existing.setAttribute("hidden", "");
+    button.setAttribute("aria-expanded", String(hidden));
+    button.textContent = hidden
+      ? `Hide ${button.dataset.replyCount} replies`
+      : `Show ${button.dataset.replyCount} replies`;
+    return;
+  }
+  button.dataset.loading = "1";
+  button.disabled = true;
+  try {
+    const page = await api("/api/posts/" + postId + "/replies");
+    const container = element("div", "sub-replies");
+    container.dataset.subRepliesFor = postId;
+    if (!page.replies.length) {
+      addText(document, container, "p", "No replies to show yet.", "empty-state");
+    }
+    // Children arrive with publicLevel 2, so createPostCard renders them without
+    // further reply buttons (server forbids level-2 targets).
+    for (const reply of page.replies) {
+      container.append(createPostCard(reply, document, currentUser));
+    }
+    const article = main.querySelector(`article[data-post-id="${postId}"]`);
+    if (article) article.after(container);
+    button.dataset.replyCount = String(page.replies.length);
+    button.setAttribute("aria-expanded", "true");
+    if (page.replies.length) button.textContent = `Hide ${page.replies.length} replies`;
+  } finally {
+    delete button.dataset.loading;
+    button.disabled = false;
+  }
+}
+
+async function openNotification(button) {
+  // Mark-first is idempotent server-side; navigation then re-renders the bell
+  // with a fresh unread count from GET /api/session.
+  await api("/api/me/notifications/" + button.dataset.notificationId + "/read", {
+    method: "POST",
+  });
+  router.navigate("/posts/" + button.dataset.postId);
+}
+
+async function markAllNotificationsRead() {
+  await api("/api/me/notifications/read-all", { method: "POST" });
+  // The rerender refetches the list (and the session's unread count); the
+  // local update keeps the header honest even if the route render is slowed.
+  updateBell(0);
+  await renderRoute({ name: "notifications" });
+  setMessage("All notifications were marked read.");
+}
+
+async function submitRoleChange(form, action, text) {
+  const reason = text("reason").trim();
+  await api("/api/admin/users/" + form.dataset.userId + "/" + action, {
+    method: "POST",
+    body: reason ? { reason } : {},
+  });
+  // Role-change forms live on the moderation desk and on member profiles;
+  // re-rendering the current route refreshes whichever surface is showing.
+  await renderRoute(activeRoute);
+  setMessage(action === "promote"
+    ? "The member was promoted to moderator."
+    : "The member was demoted to member.");
+}
+
+async function submitAvatarModeration(form, action) {
+  await api("/api/admin/avatars/" + form.dataset.userId + "/" + action, {
+    method: "POST",
+  });
+  await renderRoute({ name: "admin" });
+  setMessage(action === "approve" ? "The avatar was approved." : "The avatar was rejected.");
 }
 
 function openReportDialog(button) {
@@ -628,6 +863,10 @@ async function handleButtonAction(button) {
     "load-more": () => loadMorePosts(button),
     "load-more-profile-posts": () => loadMoreProfilePosts(button),
     "load-older-replies": () => loadOlderReplies(button),
+    "reply-to": () => toggleReplyComposer(button),
+    "expand-sub-replies": () => toggleSubReplies(button),
+    "open-notification": () => openNotification(button),
+    "mark-notifications-read": () => markAllNotificationsRead(),
   };
   const handler = handlers[button.dataset.action];
   if (handler) await handler();

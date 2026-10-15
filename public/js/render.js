@@ -5,6 +5,17 @@ const createElement = (document, tagName, className, text) => {
   return element;
 };
 
+// Pure, DOM-free. publicLevel: 0 = root post, 1 = level-1 reply, 2 = level-2
+// reply-to-reply. A missing publicLevel is treated conservatively: replying is
+// only offered when a card is explicitly a level-1 row, so stale or
+// un-upgraded payloads can never surface a button for a level-2 target
+// (server-side forbidden). subReplyCount is only supplied for level-1 rows.
+export const replyAffordances = (post, currentUser = null) => {
+  const canReply = Boolean(currentUser) && Boolean(post.parent) && post.publicLevel === 1;
+  const expandCount = post.subReplyCount > 0 ? post.subReplyCount : 0;
+  return { canReply, canExpand: expandCount > 0, expandCount };
+};
+
 export const createPostCard = (post, document, currentUser = null) => {
   const article = createElement(document, "article", "post-card");
   article.dataset.postId = String(post.id);
@@ -26,7 +37,9 @@ export const createPostCard = (post, document, currentUser = null) => {
     author.append(createElement(document, "span", "author-name", "Removed account"));
   }
   const time = createElement(document, "time", "post-time");
-  time.dateTime = post.createdAt;
+  // lastActivityAt (bump activity, spec §4) is exposed machine-readably; the
+  // visible label intentionally stays the creation time.
+  time.dateTime = post.lastActivityAt ?? post.createdAt;
   time.textContent = new Date(post.createdAt).toLocaleString();
   header.append(author, time);
   article.append(header);
@@ -50,6 +63,8 @@ export const createPostCard = (post, document, currentUser = null) => {
     button.dataset.postId = String(post.id);
     button.dataset.value = value;
     button.setAttribute("aria-pressed", String(post.viewerReaction === value));
+    // Stateful toggle: app.js sends DELETE when active, PUT when not.
+    if (post.viewerReaction === value) button.dataset.state = "active";
     if (!currentUser) button.disabled = true;
     actions.append(button);
   }
@@ -62,6 +77,29 @@ export const createPostCard = (post, document, currentUser = null) => {
     report.dataset.action = "report";
     report.dataset.postId = String(post.id);
     actions.append(report);
+  }
+  // Reply affordance: same strict rule as replyAffordances — signed-in users
+  // on explicitly level-1 rows only (publicLevel 2 and undefined publicLevel
+  // never show it; replying to level-2 targets is server-forbidden).
+  if (replyAffordances(post, currentUser).canReply) {
+    const replyButton = createElement(document, "button", "button button-quiet", "Reply");
+    replyButton.type = "button";
+    replyButton.dataset.action = "reply-to";
+    replyButton.dataset.postId = String(post.id);
+    actions.append(replyButton);
+  }
+  if (post.subReplyCount > 0) {
+    const expandButton = createElement(
+      document,
+      "button",
+      "button button-quiet",
+      `Show ${post.subReplyCount} replies`,
+    );
+    expandButton.type = "button";
+    expandButton.dataset.action = "expand-sub-replies";
+    expandButton.dataset.postId = String(post.id);
+    expandButton.setAttribute("aria-expanded", "false");
+    actions.append(expandButton);
   }
   article.append(actions);
   return article;

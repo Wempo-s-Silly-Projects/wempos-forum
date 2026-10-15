@@ -42,7 +42,8 @@ async function listRootPosts(env, viewerId, options = {}) {
     const shown = rows.slice(0, 20);
     const last = shown.length ? shown[shown.length - 1] : null;
     return {
-      posts: shown.map(publicPost),
+      // Root queries only (parent_id IS NULL): every shown row is a level-0 root.
+      posts: shown.map((row) => publicPost(row, 0)),
       nextBefore: hasMore && last
         ? Number(last.last_activity_at) + "_" + Number(last.id)
         : null,
@@ -64,11 +65,12 @@ async function listRootPosts(env, viewerId, options = {}) {
   const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
   const rows = result.results || [];
   const hasMore = rows.length > 20;
-  const shown = rows.slice(0, 20).map(publicPost);
+  const shown = rows.slice(0, 20).map((row) => publicPost(row, 0));
   return { posts: shown, nextBefore: hasMore && shown.length ? shown[shown.length - 1].id : null };
 }
 
-async function listReplies(env, postId, viewerId, showAll = false, before = null) {
+async function listReplies(env, postId, viewerId, showAll = false, before = null,
+  childPublicLevel) {
   const visibilityFilter = showAll ? "" : "AND (p.visibility = 'public' OR p.author_id = ?) ";
   const cursorFilter = before === null ? "" : "AND p.id < ? ";
   const sql = POST_SELECT + "WHERE p.parent_id = ? " + cursorFilter +
@@ -81,7 +83,10 @@ async function listReplies(env, postId, viewerId, showAll = false, before = null
   const hasMore = rows.length > 100;
   const shown = rows.slice(0, 100);
   const nextBefore = hasMore && shown.length ? Number(shown[shown.length - 1].id) : null;
-  return { replies: shown.map(publicPost).reverse(), nextBefore };
+  // Children of a known-depth target are target depth + 1 (root children are
+  // level-1 replies, level-1 children are level-2 replies). When the caller
+  // does not pass a level the field is omitted, keeping clients conservative.
+  return { replies: shown.map((row) => publicPost(row, childPublicLevel)).reverse(), nextBefore };
 }
 
 async function handlePostFeedRoute(request, env, url, path, method) {
@@ -103,6 +108,29 @@ async function handlePostFeedRoute(request, env, url, path, method) {
   return null;
 }
 
+// Per-reply sub-reply counts go out as ONE D1 batch (one subrequest) — a
+// per-reply query loop can exceed the Workers subrequest cap on busy roots.
+// Viewer visibility mirrors listReplies: admins see every child, everyone else
+// counts only public or their own. Results map back by statement order.
+async function attachSubReplyCounts(env, replies, { showAll, viewerId }) {
+  if (!replies.length) return replies;
+  const countSql = "SELECT COUNT(*) AS sub_reply_count FROM posts WHERE parent_id = ?" +
+    (showAll ? "" : " AND (visibility = 'public' OR author_id = ?)");
+  const countResults = await env.FORUM_DB.batch(
+    replies.map((reply) => env.FORUM_DB.prepare(countSql)
+      .bind(...(showAll ? [reply.id] : [reply.id, viewerId || -1]))),
+  );
+  return replies.map((reply, index) => {
+    const countRow = countResults[index] && countResults[index].results
+      ? countResults[index].results[0]
+      : null;
+    return {
+      ...reply,
+      subReplyCount: countRow ? Number(countRow.sub_reply_count || 0) : 0,
+    };
+  });
+}
+
 async function handleRepliesReadRoute(request, env, url, path, method) {
   const repliesReadMatch = path.match(/^\/api\/posts\/([0-9]+)\/replies$/);
   if (repliesReadMatch && method === "GET") {
@@ -120,9 +148,22 @@ async function handleRepliesReadRoute(request, env, url, path, method) {
       if (!/^[1-9][0-9]{0,14}$/.test(beforeRaw)) throw new HttpError(400, "That reply cursor is invalid.");
       before = Number(beforeRaw);
     }
+    // Each returned child is one level below the target: target is a root when
+    // its parent_id is null (children are level-1), else a level-1 reply
+    // (children are level-2).
+    const targetDepth = parent.parent_id ? 1 : 0;
+    const showAll = Boolean(viewer && viewer.role === "admin");
     const page = await listReplies(env, postId, viewer ? viewer.id : null,
-      Boolean(viewer && viewer.role === "admin"), before);
-    return json(page);
+      showAll, before, targetDepth + 1);
+    // Level-1 rows can be replied to, so they need expand-counts; level-2 rows
+    // never do (replying to them is server-forbidden), so no batch runs.
+    const replies = targetDepth === 0
+      ? await attachSubReplyCounts(env, page.replies, {
+        showAll,
+        viewerId: viewer ? viewer.id : null,
+      })
+      : page.replies;
+    return json({ replies, nextBefore: page.nextBefore });
   }
   return null;
 }
@@ -138,24 +179,16 @@ async function handlePostDetailRoute(request, env, url, path, method) {
     const showAll = Boolean(viewer && viewer.role === "admin");
     const row = await postById(env, postId, viewerId);
     if (!(await canViewPost(env, row, viewer))) throw new HttpError(404, "Post not found.");
-    const post = publicPost(row);
-    const replyPage = await listReplies(env, postId, viewerId, showAll);
-    // Sub-reply counts mirror listReplies' visibility rule per level-1 reply:
-    // admins see every child, everyone else sees public or their own. All
-    // counts go out as ONE D1 batch (one subrequest) — a per-reply query loop
-    // can exceed the Workers subrequest cap on busy roots.
-    const countSql = "SELECT COUNT(*) AS sub_reply_count FROM posts WHERE parent_id = ?" +
-      (showAll ? "" : " AND (visibility = 'public' OR author_id = ?)");
-    const countStatements = replyPage.replies.map((reply) =>
-      env.FORUM_DB.prepare(countSql).bind(...(showAll ? [reply.id] : [reply.id, viewerId || -1])));
-    const countResults = countStatements.length > 0
-      ? await env.FORUM_DB.batch(countStatements)
-      : [];
-    post.replies = replyPage.replies.map((reply, index) => {
-      const countRow = countResults[index] && countResults[index].results
-        ? countResults[index].results[0]
-        : null;
-      return { ...reply, subReplyCount: countRow ? Number(countRow.sub_reply_count || 0) : 0 };
+    // Depth annotation: this post is a root when parent_id is null, else a
+    // level-1 reply; its direct replies are one level deeper.
+    const detailDepth = row.parent_id ? 1 : 0;
+    const post = publicPost(row, detailDepth);
+    const replyPage = await listReplies(env, postId, viewerId, showAll, null,
+      detailDepth + 1);
+    // Same batched count pattern as the replies page (attachSubReplyCounts).
+    post.replies = await attachSubReplyCounts(env, replyPage.replies, {
+      showAll,
+      viewerId,
     });
     post.repliesNextBefore = replyPage.nextBefore;
     return json(post);

@@ -501,8 +501,12 @@ function publicUser(row) {
   };
 }
 
-function publicPost(row) {
-  return {
+// publicLevel (optional, JSON-only annotation — never touches SQL or binds):
+// 0 = root post, 1 = level-1 reply, 2 = level-2 reply. Routes that know each
+// row's depth pass it in; when omitted the field is left off so clients fall
+// back to their conservative (non-reply) handling.
+function publicPost(row, publicLevel) {
+  const post = {
     id: Number(row.id),
     body: row.body,
     visibility: row.visibility,
@@ -522,6 +526,8 @@ function publicPost(row) {
     dislikeCount: Number(row.dislike_count || 0),
     viewerReaction: row.viewer_reaction || null,
   };
+  if (publicLevel !== undefined) post.publicLevel = publicLevel;
+  return post;
 }
 
 async function postById(env, postId, viewerId) {

@@ -1,6 +1,6 @@
 import { createForm, createInput, addText } from "./forms.js";
 
-export const createReportQueue = (reports, document) => {
+export const createReportQueue = (reports, document, currentUser = null) => {
   const list = document.createElement("div");
   list.className = "report-list";
   if (!reports.length) {
@@ -42,6 +42,31 @@ export const createReportQueue = (reports, document) => {
     ], "Ban author");
     banForm.dataset.userId = String(report.post.author.id);
     actions.append(banForm);
+    // Role changes are strictly admin-only (the report queue itself is open to
+    // moderators); target start roles are not known from the payload, so both
+    // forms are offered and the server reports a stale-role 409 if the target
+    // is already in that role.
+    if (currentUser && currentUser.role === "admin") {
+      const promoteForm = createForm(document, "admin-promote", [
+        createInput(document, {
+          id: `promote-reason-${report.id}`,
+          name: "reason",
+          label: `Reason to promote ${report.post.author.username} (optional)`,
+          maxLength: 500,
+        }),
+      ], "Promote to moderator");
+      promoteForm.dataset.userId = String(report.post.author.id);
+      const demoteForm = createForm(document, "admin-demote", [
+        createInput(document, {
+          id: `demote-reason-${report.id}`,
+          name: "reason",
+          label: `Reason to demote ${report.post.author.username} (optional)`,
+          maxLength: 500,
+        }),
+      ], "Demote to member");
+      demoteForm.dataset.userId = String(report.post.author.id);
+      actions.append(promoteForm, demoteForm);
+    }
     card.append(actions);
     list.append(card);
   }
@@ -74,6 +99,49 @@ export function createActiveBanList(bans, document) {
     ], "Unban user");
     form.dataset.userId = String(ban.user.id);
     card.append(form);
+    list.append(card);
+  }
+  return list;
+}
+
+// Pending avatar moderation queue (spec §9): oldest uploads first from
+// GET /api/admin/avatars. The preview URL can 404 (serving is gated), so the
+// <img> hides itself on error instead of showing a broken image.
+export function createAvatarQueue(avatars, document) {
+  const list = document.createElement("div");
+  list.className = "avatar-queue";
+  if (!avatars.length) {
+    addText(document, list, "p", "No avatars are awaiting review.", "empty-state");
+    return list;
+  }
+  for (const avatar of avatars) {
+    const card = document.createElement("article");
+    card.className = "avatar-card";
+    addText(document, card, "h3", avatar.username);
+    addText(document, card, "p", `Uploaded ${new Date(avatar.uploadedAt).toLocaleString()}`);
+    const image = document.createElement("img");
+    image.className = "avatar avatar-preview";
+    image.src = avatar.avatarUrl;
+    image.alt = `Pending avatar of ${avatar.username}`;
+    image.addEventListener("error", () => image.remove());
+    card.append(image);
+    const actions = document.createElement("div");
+    actions.className = "form-actions";
+    for (const [formName, label, className] of [
+      ["admin-avatar-approve", "Approve", "button button-primary"],
+      ["admin-avatar-reject", "Reject", "button button-danger"],
+    ]) {
+      const form = document.createElement("form");
+      form.dataset.form = formName;
+      form.dataset.userId = String(avatar.userId);
+      const button = document.createElement("button");
+      button.type = "submit";
+      button.className = className;
+      button.textContent = label;
+      form.append(button);
+      actions.append(form);
+    }
+    card.append(actions);
     list.append(card);
   }
   return list;

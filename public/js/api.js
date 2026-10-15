@@ -35,6 +35,15 @@ export const api = async (path, { method = "GET", body } = {}) => {
       : `Request failed (${response.status})`;
     const error = new Error(message);
     error.status = response.status;
+    // Copy the JSON body's extra fields onto the error (banned/reason/expiresAt
+    // for the login ban screen, but additive for every response). "error" is
+    // already the message, "message" would overwrite Error.message, and
+    // "status" stays the HTTP status — all three are skipped.
+    if (result && typeof result === "object") {
+      for (const [key, value] of Object.entries(result)) {
+        if (key !== "error" && key !== "message" && key !== "status") error[key] = value;
+      }
+    }
     throw error;
   }
   return result;

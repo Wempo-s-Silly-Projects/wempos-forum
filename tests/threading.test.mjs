@@ -686,3 +686,210 @@ test("missing ancestors make a reply invisible", async () => {
   assert.equal(await canViewPost(orphan, level2, null), false);
   assert.equal(await canViewPost(orphan, level2, { id: 44, role: "admin" }), false);
 });
+
+// publicLevel depth annotation: every publicPost payload carries publicLevel
+// (0 = root, 1 = level-1 reply, 2 = level-2 reply) so the renderer can offer
+// reply affordances only on explicitly level-1 rows — JSON-only, no SQL change.
+test("feed, search, and profile post lists annotate roots with publicLevel 0", async () => {
+  const rootRows = [postRow({ id: "1", created_at: 1700000000, last_activity_at: 1700000005 })];
+  const feed = mockDb([{ sql: /FROM posts p JOIN users u/, rows: rootRows }, { sql: /./ }]);
+  const feedResponse = await route(
+    new Request("https://forum.example/api/posts", { headers: { "CF-Connecting-IP": "192.0.2.9" } }),
+    envFor(feed.db),
+  );
+  assert.equal(feedResponse.status, 200);
+  const feedBody = await feedResponse.json();
+  assert.equal(feedBody.posts.length, 1);
+  assert.equal(feedBody.posts[0].publicLevel, 0, "feed posts are roots");
+
+  const search = mockDb([
+    { sql: /FROM posts p JOIN users u/, rows: rootRows },
+    { sql: /FROM users u/, rows: [] },
+    { sql: /./ },
+  ]);
+  const searchResponse = await route(
+    new Request("https://forum.example/api/search?q=wempo", {
+      headers: { "CF-Connecting-IP": "192.0.2.9" },
+    }),
+    envFor(search.db),
+  );
+  assert.equal(searchResponse.status, 200);
+  const searchBody = await searchResponse.json();
+  assert.equal(searchBody.posts.length, 1);
+  assert.equal(searchBody.posts[0].publicLevel, 0, "search results are roots");
+
+  // profiles.mjs reuses listRootPosts for an author's post list; the shared
+  // annotation must already mark those rows as roots too.
+  const profile = [];
+  for (let i = 0; i < 3; i++) profile.push(postRow({ id: String(9 - i), parent_id: null }));
+  const profileMock = mockDb([{ sql: /FROM posts p JOIN users u/, rows: profile }, { sql: /./ }]);
+  const profileList = await listRootPosts({ FORUM_DB: profileMock.db }, null, { authorId: 5 });
+  assert.deepEqual(
+    profileList.posts.map((post) => post.publicLevel),
+    [0, 0, 0],
+    "profile post lists are roots",
+  );
+});
+
+test("detail replies carry publicLevel 1 and level-1 children carry publicLevel 2", async () => {
+  // root 1 <- level-1 reply 10 <- level-2 reply 20.
+  const root = postRow({ id: "1", parent_id: null, created_at: 1700000000, last_activity_at: 1700000005 });
+  const level1 = postRow({
+    id: "10",
+    author_id: "5",
+    parent_id: "1",
+    body: "level one",
+    parent_body: "root body",
+    last_activity_at: null,
+  });
+  const level2 = postRow({
+    id: "20",
+    author_id: "8",
+    parent_id: "10",
+    body: "level two",
+    parent_body: "level one",
+    last_activity_at: null,
+  });
+
+  // Detail of the root: each direct reply is a level-1 row.
+  const detailMock = mockDb([
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: (values) => (values[1] === 1 ? root : null) },
+    { sql: /WHERE p\.parent_id = \?/, rows: [level1] },
+    { sql: /./ },
+  ], { batchResult: () => ({ results: [{ sub_reply_count: 1 }] }) });
+  const detailResponse = await route(
+    new Request("https://forum.example/api/posts/1", { headers: { "CF-Connecting-IP": "192.0.2.9" } }),
+    envFor(detailMock.db),
+  );
+  assert.equal(detailResponse.status, 200);
+  const detailBody = await detailResponse.json();
+  assert.equal(detailBody.publicLevel, 0, "the detail post itself is a root here");
+  assert.equal(detailBody.replies[0].id, 10);
+  assert.equal(detailBody.replies[0].publicLevel, 1, "direct replies of a root are level-1");
+
+  // GET /api/posts/:level1Id/replies returns the level-2 children of reply 10.
+  const childMock = mockDb([
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: (values) => (values[1] === 10 ? level1 : null) },
+    { sql: /FROM posts WHERE id = \? LIMIT 1/, result: { id: 1, author_id: 3, visibility: "public", parent_id: null } },
+    { sql: /WHERE p\.parent_id = \?/, rows: [level2] },
+    { sql: /./ },
+  ]);
+  const childResponse = await route(
+    new Request("https://forum.example/api/posts/10/replies", {
+      headers: { "CF-Connecting-IP": "192.0.2.9" },
+    }),
+    envFor(childMock.db),
+  );
+  assert.equal(childResponse.status, 200);
+  const childBody = await childResponse.json();
+  assert.equal(childBody.replies.length, 1);
+  assert.equal(childBody.replies[0].id, 20);
+  assert.equal(childBody.replies[0].publicLevel, 2, "children of a level-1 reply are level-2");
+});
+
+test("the replies page carries batched subReplyCounts per level-1 reply like the detail route", async () => {
+  // Guest viewer of GET /api/posts/1/replies where 1 is a root: its direct
+  // replies (10, 11) are level-1 rows and need counts; only public sub-replies
+  // count for guests.
+  const root = postRow({ id: "1", parent_id: null, last_activity_at: 1700000005 });
+  const reply10 = postRow({
+    id: "10", author_id: "5", parent_id: "1", body: "first",
+    parent_body: "root body", last_activity_at: null,
+  });
+  const reply11 = postRow({ id: "11", author_id: "9", parent_id: "1", body: "second", last_activity_at: null });
+  const mock = mockDb([
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: (values) => (values[1] === 1 ? root : null) },
+    { sql: /WHERE p\.parent_id = \?/, rows: [reply11, reply10] },
+    { sql: /./ },
+  ], {
+    batchResult: (statement) => ({
+      results: [{ sub_reply_count: statement.values[0] === 10 ? 2 : 0 }],
+    }),
+  });
+  const response = await route(
+    new Request("https://forum.example/api/posts/1/replies", {
+      headers: { "CF-Connecting-IP": "192.0.2.9" },
+    }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.replies.length, 2);
+  assert.deepEqual(
+    body.replies.map((reply) => [reply.id, reply.publicLevel, reply.subReplyCount]),
+    [[10, 1, 2], [11, 1, 0]],
+  );
+  assert.equal(body.nextBefore, null);
+  // One batched subrequest; per-row guest visibility semantics match detail.
+  assert.equal(mock.batches.length, 1, "sub-reply counts must use exactly one D1 batch");
+  assert.equal(mock.batches[0].length, 2);
+  assert.deepEqual(mock.batches[0].map((statement) => statement.values), [[10, -1], [11, -1]]);
+  const asCall = (statement) => ({ sql: statement.sql, values: statement.values });
+  assert.deepEqual(
+    mock.calls.filter((call) => call.sql.includes("AS sub_reply_count")).map(asCall),
+    mock.batches[0].map(asCall),
+    "no count may run outside the single batch",
+  );
+  // Shapes match the detail route's rows: spread preserves publicLevel/parent.
+  assert.equal(body.replies[0].parent.body, "root body");
+});
+
+test("the replies page skips count batches entirely for level-2 rows", async () => {
+  // Target 10 is itself a level-1 reply: its children are level-2 rows that
+  // can never be replied to, so no counts (and no batch) may run.
+  const level1 = postRow({
+    id: "10", author_id: "5", parent_id: "1",
+    body: "level one", parent_body: "root body", last_activity_at: null,
+  });
+  const level2 = postRow({
+    id: "20", author_id: "8", parent_id: "10",
+    body: "level two", parent_body: "level one", last_activity_at: null,
+  });
+  const mock = mockDb([
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: (values) => (values[1] === 10 ? level1 : null) },
+    { sql: /FROM posts WHERE id = \? LIMIT 1/, result: { id: 1, author_id: 3, visibility: "public", parent_id: null } },
+    { sql: /WHERE p\.parent_id = \?/, rows: [level2] },
+    { sql: /./ },
+  ]);
+  const response = await route(
+    new Request("https://forum.example/api/posts/10/replies", {
+      headers: { "CF-Connecting-IP": "192.0.2.9" },
+    }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.replies.length, 1);
+  assert.equal(body.replies[0].publicLevel, 2);
+  assert.equal("subReplyCount" in body.replies[0], false, "level-2 rows need no counts");
+  assert.equal(mock.batches.length, 0, "no count batch may run for level-2 rows");
+});
+
+test("admin viewers get counts without the visibility clause on the replies page", async () => {
+  const root = postRow({ id: "1", parent_id: null, last_activity_at: 1700000005 });
+  const reply10 = postRow({ id: "10", author_id: "5", parent_id: "1", body: "first", last_activity_at: null });
+  const adminMock = mockDb([
+    { sql: /FROM sessions s LEFT JOIN users u/, result: signedInSessionRow({ role: "admin" }) },
+    banCheckRoute,
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: (values) => (values[1] === 1 ? root : null) },
+    { sql: /WHERE p\.parent_id = \?/, rows: [reply10] },
+    { sql: /./ },
+  ], {
+    batchResult: () => ({ results: [{ sub_reply_count: 4 }] }),
+  });
+  const response = await route(
+    new Request("https://forum.example/api/posts/1/replies", {
+      headers: { "CF-Connecting-IP": "192.0.2.9", Cookie: "wempo_session=" + "s".repeat(43) },
+    }),
+    envFor(adminMock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.replies[0].subReplyCount, 4);
+  assert.equal(adminMock.batches.length, 1);
+  // Admin sees every child: parent_id = ? alone, no visibility bind.
+  assert.deepEqual(adminMock.batches[0].map((statement) => statement.values), [[10]]);
+});
