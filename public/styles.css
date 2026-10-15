@@ -704,3 +704,132 @@ dialog h2 {
     outline: 3px solid Highlight;
   }
 }
+
+/* ---- forum v2 additions (threads, notifications, moderation, ban screen) ---- */
+
+.notification-bell {
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  min-width: 1.5rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--ink);
+  background: var(--yellow);
+  border: 2px solid var(--ink);
+}
+
+.notification-item {
+  display: block;
+  width: 100%;
+  margin: 0.2rem 0;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  text-align: left;
+  color: var(--ink);
+  background: var(--paper);
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.notification-item:hover {
+  background: var(--blue);
+}
+
+.notification-item.notification-unread {
+  border-width: 2px;
+  border-color: var(--green);
+  background: var(--paper);
+  font-weight: 700;
+}
+
+.sub-replies {
+  margin: 0.5rem 0 0.5rem 1.4rem;
+  padding-left: 0.6rem;
+  border-left: 3px solid var(--line);
+  display: grid;
+  gap: 0.7rem;
+}
+
+.profile-socials {
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+}
+
+.profile-social .social-label {
+  color: var(--muted);
+  margin-right: 0.25rem;
+}
+
+.avatar-pending-badge {
+  display: inline-block;
+  margin-left: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: var(--yellow);
+  border: 1.5px solid var(--ink);
+}
+
+.banned-screen {
+  max-width: 34rem;
+  margin-inline: auto;
+  text-align: center;
+  border: 2px solid var(--coral);
+}
+
+.banned-screen .page-heading {
+  color: var(--coral);
+}
+
+.banned-countdown {
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.avatar-queue {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.avatar-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--paper);
+}
+
+.avatar-card .avatar-preview {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--paper-shadow);
+}
+
+.avatar-card .form-field {
+  flex: 1 1 14rem;
+}
+
+.role-controls {
+  display: inline-flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}

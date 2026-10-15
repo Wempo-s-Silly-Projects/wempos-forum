@@ -67,11 +67,23 @@ Never run the remote migration against a database that contains data you do not 
 - `GET /api/session`, `GET /api/setup/status`
 - `POST /api/setup`, `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`
 - `GET /api/posts`, `GET /api/posts/:id`, `POST /api/posts`, `POST /api/posts/:id/replies`
-- `PUT /api/posts/:id/reaction`, `GET /api/search`, `GET /api/users/:username`
+- `PUT /api/posts/:id/reaction`, `DELETE /api/posts/:id/reaction`, `GET /api/search`, `GET /api/users/:username`
 - `PATCH /api/me`, `POST /api/me/avatar`, `PATCH /api/me/password`
+- `GET /api/me/notifications`, `POST /api/me/notifications/:id/read`, `POST /api/me/notifications/read-all`
 - `POST /api/posts/:id/reports`, `GET /api/admin/reports`, `POST /api/admin/reports/:id/resolve`
 - `GET /api/admin/bans`, `POST /api/admin/users/:id/bans`, `DELETE /api/admin/users/:id/bans`
+- `POST /api/admin/users/:id/promote`, `POST /api/admin/users/:id/demote` (admin only)
+- `GET /api/admin/avatars`, `POST /api/admin/avatars/:userId/approve`, `POST /api/admin/avatars/:userId/reject`
 - `GET /api/avatars/:userId`
+
+The backend is split into `api/*.mjs` modules (shared, session, posts, profiles, moderation, notifications, filter) imported by `worker.mjs`; keep that split when editing — each topic lives in its module.
+
+## Forum behavior notes
+
+- Replies nest one level (root → reply → reply-to-reply); the feed is sorted by `last_activity_at` (replies bump, reactions do not) with composite `before=<seconds>_<id>` cursors.
+- Avatars are moderated: uploads go to a pending set; the previously approved avatar keeps serving until a moderator approves/rejects from the `/api/admin/avatars` queue.
+- A curated word filter runs on posts and replies from the `FILTERED_WORDS` secret (comma-separated; `wrangler secret put FILTERED_WORDS` in production, an entry in `.dev.vars` locally; unset = filter off). See `config/filtered-words-template.txt`.
+- Banned accounts see a dedicated ban screen on failed sign-in with the ban reason and (for temporary bans) a reactivation countdown.
 
 ## Security notes
 

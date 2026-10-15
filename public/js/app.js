@@ -723,7 +723,13 @@ async function toggleReplyComposer(button) {
   // with Turnstile action "reply".
   const panel = createComposer("reply", "Write a reply", "Reply", postId, "reply");
   panel.dataset.replyComposerFor = postId;
-  if (activeRoute.name === "post") panel.dataset.threadId = String(activeRoute.id);
+  // submitReplyForm reads the FORM's dataset (the thread root it should
+  // re-render after a successful reply), not the marker panel's — so the
+  // thread id must ride on the form itself or the rerender would land on the
+  // level-1 reply's own detail page instead of the conversation.
+  if (activeRoute.name === "post") {
+    panel.querySelector("form").dataset.threadId = String(activeRoute.id);
+  }
   article.after(panel);
   await renderTurnstileSlots(panel);
 }
