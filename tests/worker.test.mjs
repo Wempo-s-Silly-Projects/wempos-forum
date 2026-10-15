@@ -304,3 +304,63 @@ test("static asset responses receive the common security headers", async () => {
   assert.equal(response.headers.get("X-Frame-Options"), "DENY");
   assert.match(response.headers.get("Content-Security-Policy"), /frame-ancestors 'none'/);
 });
+
+
+test("post creation remains blocked if a ban lands after the initial ban check", async () => {
+  const calls = [];
+  const env = {
+    WRITE_RATE_LIMITER: { async limit() { return { success: true }; } },
+    POST_WRITE_RATE_LIMITER: { async limit() { return { success: true }; } },
+    FORUM_DB: {
+      prepare(sql) {
+        return {
+          bind(...values) {
+            return {
+              async first() {
+                calls.push({ sql, values, operation: "first" });
+                if (sql.includes("FROM sessions s LEFT JOIN users u")) {
+                  return {
+                    token_hash: "stored-session-hash",
+                    user_id: 7,
+                    csrf_token: "csrf-test",
+                    expires_at: 9999999999,
+                    username: "member",
+                    role: "member",
+                    bio: "",
+                    avatar_mime: null,
+                    avatar_version: null,
+                  };
+                }
+                if (sql.includes("FROM bans WHERE user_id = ?")) return null;
+                return null;
+              },
+              async run() {
+                calls.push({ sql, values, operation: "run" });
+                if (sql.startsWith("INSERT INTO posts")) {
+                  assert.match(sql, /WHERE NOT EXISTS/);
+                  return { meta: { changes: 0, last_row_id: 0 } };
+                }
+                return { meta: { changes: 1 } };
+              },
+            };
+          },
+        };
+      },
+    },
+  };
+
+  const response = await worker.fetch(new Request("https://forum.example/api/posts", {
+    method: "POST",
+    headers: {
+      "Origin": "https://forum.example",
+      "Cookie": "wempo_session=" + "A".repeat(43),
+      "X-CSRF-Token": "csrf-test",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ body: "This should not be published after a ban." }),
+  }), env);
+
+  assert.equal(response.status, 403);
+  assert.match((await response.json()).error, /banned/i);
+  assert.ok(calls.some(({ sql, operation }) => operation === "run" && sql.startsWith("INSERT INTO posts")));
+});
