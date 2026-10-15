@@ -2,7 +2,7 @@ import { api, setCsrfToken } from "./api.js";
 import { createActiveBanList, createReportQueue } from "./admin.js";
 import { addText, createForm, createInput, createTextarea } from "./forms.js";
 import { appendPostList, createPostCard } from "./render.js";
-import { startRouter } from "./router.js";
+import { isPlainLeftClick, startRouter } from "./router.js";
 import { homepageInterests, homepageIntro } from "./home-intro.js";
 import {
   addTurnstileSlot,
@@ -64,7 +64,7 @@ function authForm(name, title, buttonLabel) {
       id: `${name}-username`,
       name: "username",
       label: "Username",
-      autoComplete: name === "login" ? "username" : "username",
+      autoComplete: "username",
       required: true,
       minLength: 3,
       maxLength: 24,
@@ -557,6 +557,7 @@ async function submitForm(form) {
 }
 
 function handleInternalNavigation(event) {
+  if (!isPlainLeftClick(event)) return false;
   const anchor = event.target.closest("a");
   if (!anchor || anchor.origin !== location.origin || !anchor.pathname.startsWith("/") ||
       anchor.hash || anchor.hasAttribute("download")) return false;

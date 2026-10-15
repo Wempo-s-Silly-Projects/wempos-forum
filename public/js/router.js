@@ -1,3 +1,7 @@
+export const isPlainLeftClick = (event) =>
+  event.button === 0 && !event.metaKey && !event.ctrlKey &&
+  !event.shiftKey && !event.altKey;
+
 export const routeForPath = (pathname, search = "") => {
   if (pathname === "/setup") return { name: "setup" };
   if (pathname === "/admin/reports") return { name: "admin" };

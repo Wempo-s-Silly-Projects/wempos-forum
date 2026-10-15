@@ -587,7 +587,6 @@ async function storeUser(env, credentials, role = "member") {
 }
 
 async function handleSessionRoute(request, env, url, path, method) {
-  const db = env.FORUM_DB;
   if (path === "/api/session" && method === "GET") {
     const existing = await readSession(request, env);
     if (existing) return json({ user: existing.user, csrfToken: existing.csrfToken });
@@ -628,7 +627,6 @@ async function handleAvatarReadRoute(request, env, url, path, method) {
 }
 
 async function handleFirstAdminSetupRoute(request, env, url, path, method) {
-  const db = env.FORUM_DB;
   if (path === "/api/setup" && method === "POST") {
     const guest = await requireCsrf(request, env);
     await rateLimit(request, env, "setup");
@@ -661,7 +659,6 @@ async function handleFirstAdminSetupRoute(request, env, url, path, method) {
 }
 
 async function handleRegistrationRoute(request, env, url, path, method) {
-  const db = env.FORUM_DB;
   if (path === "/api/auth/register" && method === "POST") {
     const guest = await requireCsrf(request, env);
     await rateLimit(request, env, "register");
@@ -732,7 +729,6 @@ async function handleAuthRoutes(request, env, url, path, method) {
 }
 
 async function handlePostFeedRoute(request, env, url, path, method) {
-  const db = env.FORUM_DB;
   if (path === "/api/posts" && method === "GET") {
     const session = await readSession(request, env);
     const beforeRaw = url.searchParams.get("before");
@@ -748,7 +744,6 @@ async function handlePostFeedRoute(request, env, url, path, method) {
 }
 
 async function handleRepliesReadRoute(request, env, url, path, method) {
-  const db = env.FORUM_DB;
   const repliesReadMatch = path.match(/^\/api\/posts\/([0-9]+)\/replies$/);
   if (repliesReadMatch && method === "GET") {
     const postId = Number(repliesReadMatch[1]);
@@ -773,7 +768,6 @@ async function handleRepliesReadRoute(request, env, url, path, method) {
 }
 
 async function handlePostDetailRoute(request, env, url, path, method) {
-  const db = env.FORUM_DB;
   const postMatch = path.match(/^\/api\/posts\/([0-9]+)$/);
   if (postMatch && method === "GET") {
     const postId = Number(postMatch[1]);
@@ -897,7 +891,6 @@ async function handlePostRoutes(request, env, url, path, method) {
 }
 
 async function handleUserProfileRoute(request, env, url, path, method) {
-  const db = env.FORUM_DB;
   const userMatch = path.match(/^\/api\/users\/([^/]+)$/);
   if (userMatch && method === "GET") {
     let username;

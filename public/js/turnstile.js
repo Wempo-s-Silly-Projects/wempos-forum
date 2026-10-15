@@ -4,7 +4,7 @@ const TURNSTILE_SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js"
 const widgets = new Map();
 let loadPromise = null;
 
-async function ensureTurnstile(timeoutMs = 15_000) {
+export async function ensureTurnstile(timeoutMs = 15_000) {
   if (!loadPromise) {
     loadPromise = (async () => {
       const script = document.createElement("script");
@@ -21,6 +21,10 @@ async function ensureTurnstile(timeoutMs = 15_000) {
       }
       return window.turnstile;
     })();
+    const attempt = loadPromise;
+    attempt.catch(() => {
+      if (loadPromise === attempt) loadPromise = null;
+    });
   }
   return loadPromise;
 }
