@@ -1,23 +1,21 @@
 # Wempo's Forum
-
-A small, server-backed forum using Cloudflare Workers, D1, and static assets. The existing frontend calls the same-origin `/api/*` endpoints handled by `worker.mjs`; posts, replies, reactions, profiles, sessions, reports, and bans persist in D1.
-
+This is my forum code:3 Yeah anyways heres how it was made: Cloudflare Workers, Cloudflare D1, and Static Assets. The frontend calls the same-origin `/api/*` endpoints which are handled by `worker.mjs`; posts, replies, reactions, profiles, sessions, reports, and bans stay and persist in D1 store.
 ## Requirements
 
-- Node.js 22 or newer
-- Access to the Cloudflare account that owns the D1 database `wempo-forum-data`
-- Wrangler login (`npx wrangler login`)
+- Node.js 22 or newer (preferably the latest LTS version or latest non-LTS version)
+- Access to a Cloudflare account that owns the D1 store `wempo-forum-data`
+- Cloudflare Wrangler is installed.
 
 ## Local development
 
 1. Install dependencies:
 
-   ```sh
+   ```bash
    npm install
-   npx wrangler login
+   wrangler login
    ```
 
-2. Create a long random setup secret (at least 32 characters) with a password manager. For local-only development, create a `.dev.vars` file in the repository root:
+2. Create a long random setup secret (at least 32 characters) with this command: `openssl rand -hex 32`. For local-only development, create a `.dev.vars` file in the repository root:
 
    ```dotenv
    SETUP_SECRET=
@@ -26,16 +24,16 @@ A small, server-backed forum using Cloudflare Workers, D1, and static assets. Th
 
    Paste separate, randomly generated values after each equals sign. Use 32–4096 characters for `SETUP_SECRET` and 32–256 for `PASSWORD_PEPPER`. `.dev.vars` is ignored by Git and must never be committed. Keep a secure backup of `PASSWORD_PEPPER`; changing or losing it prevents existing accounts from authenticating because it is part of each password hash.
 
-3. Apply the schema to the local D1 database and run the app:
+3. Apply the schema to the local D1 store and run the app:
 
-   ```sh
+   ```bash
    npm run db:migrate:local
    npm run dev
    ```
 
 4. Open the local URL printed by Wrangler. The first-admin setup form stays locked until both `SETUP_SECRET` and `PASSWORD_PEPPER` are configured with valid values. Use the setup secret only in the setup form, then sign in normally.
 
-Local development uses a local D1 database by default. The migration does not touch production unless you explicitly use the remote migration command.
+Local development uses a local D1 store by default. The migration does not touch production unless you explicitly use the remote migration command.
 
 ## Deploy
 
@@ -43,22 +41,22 @@ The Wrangler configuration is already pointed at the account's existing D1 datab
 
 1. Set both secrets for the deployed Worker (Wrangler prompts for each value):
 
-   ```sh
-   npx wrangler secret put SETUP_SECRET
-   npx wrangler secret put PASSWORD_PEPPER
+   ```bash
+   wrangler secret put SETUP_SECRET
+   wrangler secret put PASSWORD_PEPPER
    ```
 
    Use separate random values for local and production. Back up `PASSWORD_PEPPER` securely and never rotate it after accounts exist without a password-hash migration; losing it prevents those accounts from authenticating.
 
 2. Apply the migration to the remote database only after reviewing it:
 
-   ```sh
+   ```bash
    npm run db:migrate:remote
    ```
 
 3. Deploy:
 
-   ```sh
+   ```bash
    npm run deploy
    ```
 
@@ -92,10 +90,10 @@ R2 is not enabled on the connected Cloudflare account right now, so this first v
 
 ## Checks
 
-```sh
+```bash
 npm run db:migrate:local
 npm test
-npx wrangler deploy --dry-run
+wrangler deploy --dry-run
 ```
 
 Run local browser smoke tests for registration/login, posting/replies, reactions, reports, banning/unbanning, password changes, avatar uploads, logout, and reload persistence before opening this to other users. Do not consider the forum production-ready solely because unit tests pass.
