@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, createUserBan, hashPassword, isValidPassword, isValidPasswordPepper, isValidSetupSecret, isValidUsername, PBKDF2_ITERATIONS, RATE_LIMIT_BINDINGS, rateLimit, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, UNBAN_ACTIVE_UPDATE_SQL, sniffImageMime, verifyPassword } from "../worker.mjs";
+import worker from "../worker.mjs";
 
 test("usernames follow the documented ASCII rules", () => {
   for (const value of ["abc", "ItsWempo", "test_user", "123456789012345678901234"]) {
@@ -236,4 +237,70 @@ test("first-admin setup secrets require at least 32 characters", () => {
   assert.equal(isValidSetupSecret("s".repeat(31)), false);
   assert.equal(isValidSetupSecret(""), false);
   assert.equal(isValidSetupSecret(null), false);
+});
+
+
+function routeTestEnv() {
+  return {
+    FORUM_DB: {},
+    WRITE_RATE_LIMITER: {
+      async limit({ key }) {
+        assert.match(key, /^[a-f0-9]{64}$/);
+        return { success: true };
+      },
+    },
+  };
+}
+
+test("mutating API routes reject cross-origin requests before touching the database", async () => {
+  const response = await worker.fetch(new Request("https://forum.example/api/auth/register", {
+    method: "POST",
+    headers: {
+      "Origin": "https://attacker.example",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username: "test_user", password: "correct-horse-battery-staple" }),
+  }), routeTestEnv());
+
+  assert.equal(response.status, 403);
+  assert.match((await response.json()).error, /origin/i);
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
+  assert.match(response.headers.get("Content-Security-Policy"), /frame-ancestors 'none'/);
+});
+
+test("mutating API routes reject requests with no Origin header", async () => {
+  const response = await worker.fetch(new Request("https://forum.example/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: "test_user", password: "correct-horse-battery-staple" }),
+  }), routeTestEnv());
+
+  assert.equal(response.status, 403);
+  assert.match((await response.json()).error, /origin/i);
+});
+
+test("API configuration errors retain security headers and are not cacheable", async () => {
+  const response = await worker.fetch(new Request("https://forum.example/api/posts"), {});
+
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
+  assert.equal(response.headers.get("X-Content-Type-Options"), "nosniff");
+  assert.equal(response.headers.get("X-Frame-Options"), "DENY");
+  assert.match(response.headers.get("Content-Security-Policy"), /default-src 'self'/);
+});
+
+test("static asset responses receive the common security headers", async () => {
+  const response = await worker.fetch(new Request("https://forum.example/"), {
+    ASSETS: {
+      async fetch() {
+        return new Response("ok", { headers: { "Content-Type": "text/plain" } });
+      },
+    },
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(await response.text(), "ok");
+  assert.equal(response.headers.get("X-Content-Type-Options"), "nosniff");
+  assert.equal(response.headers.get("X-Frame-Options"), "DENY");
+  assert.match(response.headers.get("Content-Security-Policy"), /frame-ancestors 'none'/);
 });
