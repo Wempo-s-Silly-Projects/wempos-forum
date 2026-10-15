@@ -360,7 +360,14 @@ async function readLimitedBody(request, maximum) {
     if (part.done) break;
     total += part.value.byteLength;
     if (total > maximum) {
-      try { await reader.cancel(); } catch {}
+      try {
+        await reader.cancel();
+      } catch (cancelError) {
+        console.warn(
+          "Request body cancellation failed:",
+          cancelError && cancelError.name ? cancelError.name : "UnknownError",
+        );
+      }
       throw new HttpError(413, "That upload is too large.");
     }
     chunks.push(part.value);
