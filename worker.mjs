@@ -1176,6 +1176,21 @@ async function handleBanMutationRoute(request, env, url, path, method) {
   return revokeUserBan(db, targetId, session.user.id, request);
 }
 
+async function handleModerationRoutes(request, env, url, path, method) {
+  const handlers = [
+    handleReportCreateRoute,
+    handleReportQueueRoute,
+    handleReportResolveRoute,
+    handleBanListRoute,
+    handleBanMutationRoute,
+  ];
+  for (const handler of handlers) {
+    const response = await handler(request, env, url, path, method);
+    if (response) return response;
+  }
+  return null;
+}
+
 async function routeApi(request, env) {
   const url = new URL(request.url);
   const path = url.pathname;
