@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, hashPassword, isValidPassword, isValidPasswordPepper, isValidUsername, PBKDF2_ITERATIONS, RATE_LIMIT_BINDINGS, rateLimit, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, UNBAN_ACTIVE_UPDATE_SQL, sniffImageMime, verifyPassword } from "../worker.mjs";
+import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, createUserBan, hashPassword, isValidPassword, isValidPasswordPepper, isValidUsername, PBKDF2_ITERATIONS, RATE_LIMIT_BINDINGS, rateLimit, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, UNBAN_ACTIVE_UPDATE_SQL, sniffImageMime, verifyPassword } from "../worker.mjs";
 
 test("usernames follow the documented ASCII rules", () => {
   for (const value of ["abc", "ItsWempo", "test_user", "123456789012345678901234"]) {
@@ -208,4 +208,24 @@ test("rate limiting rejects blocked requests and hashes actor-scoped keys", asyn
   assert.equal(receivedKeys.length, 2);
   assert.match(receivedKeys[0], /^[a-f0-9]{64}$/);
   assert.equal(receivedKeys[0], receivedKeys[1]);
+});
+
+test("banning and session revocation are committed in one D1 batch", async () => {
+  const mock = mockD1Batch([0, 1, 2]);
+  const request = new Request("https://forum.example/api/admin/users/42/bans", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ reason: "Repeated abuse" }),
+  });
+
+  const response = await createUserBan(mock.db, 42, 7, request);
+
+  assert.equal(response.status, 201);
+  assert.equal(mock.batches.length, 1);
+  assert.equal(mock.batches[0].length, 3);
+  assert.match(mock.batches[0][0].sql, /UPDATE bans SET revoked_at/);
+  assert.match(mock.batches[0][1].sql, /INSERT INTO bans/);
+  assert.match(mock.batches[0][2].sql, /DELETE FROM sessions WHERE user_id = \?/);
+  assert.match(mock.batches[0][2].sql, /EXISTS \(SELECT 1 FROM bans WHERE user_id = \?/);
+  assert.match(mock.batches[0][2].sql, /revoked_at IS NULL/);
 });

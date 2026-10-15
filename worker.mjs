@@ -1102,7 +1102,7 @@ async function handleBanListRoute(request, env, url, path, method) {
   return null;
 }
 
-async function createUserBan(db, targetId, moderatorId, request) {
+export async function createUserBan(db, targetId, moderatorId, request) {
   const body = await readJson(request);
   const reason = requiredText(body.reason, "ban reason", 500);
   const now = nowSeconds();
@@ -1117,11 +1117,15 @@ async function createUserBan(db, targetId, moderatorId, request) {
         "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
         "AND (expires_at IS NULL OR expires_at > ?))",
     ).bind(targetId, reason, now, moderatorId, targetId, now),
+    db.prepare(
+      "DELETE FROM sessions WHERE user_id = ? AND EXISTS (" +
+        "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+        "AND (expires_at IS NULL OR expires_at > ?))",
+    ).bind(targetId, targetId, now),
   ]);
   if (Number(results[1]?.meta?.changes) !== 1) {
     throw new HttpError(409, "This member is already banned.");
   }
-  await db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(targetId).run();
   return json({ ok: true }, 201);
 }
 
