@@ -98,7 +98,7 @@ export function isValidPasswordPepper(value) {
 }
 
 export function isValidSetupSecret(value) {
-  return typeof value === "string" && value.length >= 32;
+  return typeof value === "string" && value.length >= 32 && value.length <= 4096;
 }
 
 async function derivePassword(password, saltHex, pepper) {
