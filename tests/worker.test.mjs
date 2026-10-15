@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, createUserBan, hashPassword, isValidPassword, isValidPasswordPepper, isValidSetupSecret, isValidUsername, PBKDF2_ITERATIONS, RATE_LIMIT_BINDINGS, rateLimit, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, UNBAN_ACTIVE_UPDATE_SQL, sniffImageMime, verifyPassword } from "../worker.mjs";
+import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, createUserBan, hashPassword, isValidPassword, isValidPasswordPepper, isValidSetupSecret, isValidUsername, PBKDF2_ITERATIONS, RATE_LIMIT_BINDINGS, rateLimit, REPLY_INSERT_IF_ALLOWED_SQL, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, UNBAN_ACTIVE_UPDATE_SQL, sniffImageMime, verifyPassword } from "../worker.mjs";
 import worker from "../worker.mjs";
 
 test("usernames follow the documented ASCII rules", () => {
@@ -148,6 +148,13 @@ test("a successful guarded login creates the new session and removes the guest s
   assert.match(mock.calls[0].sql, /DELETE FROM sessions WHERE expires_at <= \?/);
 });
 
+test("reply insertion atomically requires a public root and an unbanned author", () => {
+  assert.ok(REPLY_INSERT_IF_ALLOWED_SQL.includes("SELECT ?, ?, ?, 'public', ? WHERE EXISTS"));
+  assert.ok(REPLY_INSERT_IF_ALLOWED_SQL.includes("FROM posts WHERE id = ? AND parent_id IS NULL AND visibility = 'public'"));
+  assert.ok(REPLY_INSERT_IF_ALLOWED_SQL.includes("NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ?"));
+  assert.ok(REPLY_INSERT_IF_ALLOWED_SQL.includes("expires_at IS NULL OR expires_at > ?"));
+});
+
 test("unban updates require the selected ban to remain active and belong to the target", () => {
   assert.match(UNBAN_ACTIVE_UPDATE_SQL, /WHERE id = \? AND user_id = \?/);
   assert.match(UNBAN_ACTIVE_UPDATE_SQL, /revoked_at IS NULL/);
@@ -251,6 +258,12 @@ test("API configuration errors retain security headers and are not cacheable", a
   assert.equal(response.headers.get("X-Content-Type-Options"), "nosniff");
   assert.equal(response.headers.get("X-Frame-Options"), "DENY");
   assert.match(response.headers.get("Content-Security-Policy"), /default-src 'self'/);
+});
+
+test("HTTPS API responses advertise HSTS", async () => {
+  const response = await worker.fetch(new Request("https://forum.example/api/posts"), {});
+
+  assert.equal(response.headers.get("Strict-Transport-Security"), "max-age=31536000");
 });
 
 test("static asset responses receive the common security headers", async () => {
