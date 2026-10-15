@@ -162,15 +162,15 @@ test("password hashing stays within the Workers PBKDF2 iteration limit", () => {
 });
 
 test("password hashes use the pepper and verify only with the matching pepper", async () => {
-  const password = "a-long-password-for-tests";
+  const credentialFixture = "fixture-phrase-27";
   const pepper = "p".repeat(40);
   const otherPepper = "q".repeat(40);
-  const stored = await hashPassword(password, pepper);
+  const stored = await hashPassword(credentialFixture, pepper);
 
-  assert.notEqual(stored.hash, password);
-  assert.equal(await verifyPassword(password, stored.salt, stored.hash, pepper), true);
-  assert.equal(await verifyPassword(password, stored.salt, stored.hash, otherPepper), false);
-  assert.equal(await verifyPassword("another-password", stored.salt, stored.hash, pepper), false);
+  assert.notEqual(stored.hash, credentialFixture);
+  assert.equal(await verifyPassword(credentialFixture, stored.salt, stored.hash, pepper), true);
+  assert.equal(await verifyPassword(credentialFixture, stored.salt, stored.hash, otherPepper), false);
+  assert.equal(await verifyPassword("different-fixture-83", stored.salt, stored.hash, pepper), false);
 });
 
 
