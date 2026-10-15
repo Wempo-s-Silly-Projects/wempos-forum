@@ -3,6 +3,9 @@ main = "worker.mjs"
 compatibility_date = "2026-10-13"
 workers_dev = true
 
+[vars]
+TURNSTILE_HOSTNAMES = "wempos-forum.itswempo.workers.dev"
+
 [assets]
 directory = "./public"
 binding = "ASSETS"

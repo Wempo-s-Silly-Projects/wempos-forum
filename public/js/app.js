@@ -4,6 +4,13 @@ import { addText, createForm, createInput, createTextarea } from "./forms.js";
 import { appendPostList, createPostCard } from "./render.js";
 import { startRouter } from "./router.js";
 import { homepageInterests, homepageIntro } from "./home-intro.js";
+import {
+  addTurnstileSlot,
+  refreshTurnstile,
+  renderTurnstileSlots,
+  takeTurnstileToken,
+  teardownTurnstile,
+} from "./turnstile.js";
 
 const main = document.querySelector("#main-content");
 const accountActions = document.querySelector("#account-actions");
@@ -73,6 +80,7 @@ function authForm(name, title, buttonLabel) {
       maxLength: 128,
     }),
   ], buttonLabel);
+  addTurnstileSlot(form, name === "login" ? "login" : "signup");
   section.append(form);
   return section;
 }
@@ -105,6 +113,7 @@ function createComposer(name, label, buttonLabel, postID = null) {
   form.append(createTextarea(document, {
     id: `${name}-body`, name: "body", label, rows: 4, maxLength: 2000, required: true,
   }));
+  if (name === "post-create") addTurnstileSlot(form, "post");
   addSubmit(form, buttonLabel);
   panel.append(form);
   return panel;
@@ -398,6 +407,7 @@ async function renderRoute(route) {
   const version = ++renderVersion;
   activeRoute = route;
   main.classList.toggle("home-page", route.name === "home");
+  teardownTurnstile();
   main.replaceChildren();
   setMessage();
 
@@ -416,6 +426,7 @@ async function renderRoute(route) {
   };
   const renderPage = renderers[route.name] || renderNotFoundRoute;
   await renderPage();
+  await renderTurnstileSlots(main);
 }
 function readForm(form) {
   return new FormData(form);
@@ -425,19 +436,27 @@ async function submitSiteSearch(text) {
   router.navigate("/?q=" + encodeURIComponent(text("q").trim()));
 }
 
-async function submitAuthForm(type, text) {
+async function submitAuthForm(type, form, text) {
   const endpoint = type === "login" ? "/api/auth/login" :
     type === "register" ? "/api/auth/register" : "/api/setup";
   const credentials = { username: text("username"), password: text("password") };
-  if (type === "setup") credentials.setupKey = text("setupKey");
+  if (type === "setup") {
+    credentials.setupKey = text("setupKey");
+  } else {
+    credentials["cf-turnstile-response"] = takeTurnstileToken(form);
+    refreshTurnstile(form);
+  }
   const result = await api(endpoint, { method: "POST", body: credentials });
   setCsrfToken(result.csrfToken);
   router.navigate("/");
   setMessage(type === "setup" ? "Administrator account created." : "You're signed in.");
 }
 
-async function submitNewPost(text) {
-  const post = await api("/api/posts", { method: "POST", body: { body: text("body") } });
+async function submitNewPost(form, text) {
+  const credentials = { body: text("body") };
+  credentials["cf-turnstile-response"] = takeTurnstileToken(form);
+  refreshTurnstile(form);
+  const post = await api("/api/posts", { method: "POST", body: credentials });
   router.navigate("/posts/" + post.id);
   setMessage("Your post is live.");
 }
@@ -520,10 +539,10 @@ async function submitForm(form) {
 
   const handlers = {
     "site-search": () => submitSiteSearch(text),
-    login: () => submitAuthForm("login", text),
-    register: () => submitAuthForm("register", text),
-    setup: () => submitAuthForm("setup", text),
-    "post-create": () => submitNewPost(text),
+    login: () => submitAuthForm("login", form, text),
+    register: () => submitAuthForm("register", form, text),
+    setup: () => submitAuthForm("setup", form, text),
+    "post-create": () => submitNewPost(form, text),
     reply: () => submitReplyForm(form, text),
     bio: () => submitBioForm(text),
     avatar: () => submitAvatarForm(values),

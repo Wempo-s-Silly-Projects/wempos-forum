@@ -465,6 +465,16 @@ textarea {
   resize: vertical;
 }
 
+.turnstile-slot {
+  display: flex;
+  justify-content: center;
+  margin-block: 0.85rem;
+}
+
+.turnstile-slot:empty {
+  display: none;
+}
+
 .form-note,
 .muted,
 .empty-state {

@@ -1,5 +1,14 @@
+import {
+  PBKDF2_ITERATIONS,
+  RATE_LIMIT_BINDINGS,
+  REPLY_INSERT_IF_ALLOWED_SQL,
+  SEARCH_USERS_SQL,
+  SESSION_INSERT_IF_UNBANNED_SQL,
+  TURNSTILE_SITEVERIFY_URL,
+  UNBAN_ACTIVE_UPDATE_SQL,
+} from "./constants.mjs";
+
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
-export const PBKDF2_ITERATIONS = 100000;
 const MAX_JSON_BYTES = 16 * 1024;
 const MAX_AVATAR_BYTES = 1024 * 1024;
 const MAX_AVATAR_REQUEST_BYTES = MAX_AVATAR_BYTES + 64 * 1024;
@@ -153,8 +162,10 @@ function securityHeaders(headers = new Headers()) {
   result.set("Cross-Origin-Opener-Policy", "same-origin");
   result.set(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; " +
-      "connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+    "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self'; " +
+      "img-src 'self' data:; connect-src 'self' https://challenges.cloudflare.com; " +
+      "frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; " +
+      "form-action 'self'; frame-ancestors 'none'",
   );
   return result;
 }
@@ -227,24 +238,6 @@ async function readSession(request, env) {
   }
   return { tokenHash: row.token_hash, csrfToken: row.csrf_token, expiresAt: Number(row.expires_at), user };
 }
-
-export const SESSION_INSERT_IF_UNBANNED_SQL =
-  "INSERT INTO sessions (token_hash, user_id, csrf_token, created_at, expires_at) " +
-    "SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
-    "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
-    "AND (expires_at IS NULL OR expires_at > ?))";
-
-export const UNBAN_ACTIVE_UPDATE_SQL =
-  "UPDATE bans SET revoked_at = ?, revoked_by = ?, revocation_reason = ? " +
-    "WHERE id = ? AND user_id = ? AND revoked_at IS NULL " +
-    "AND (expires_at IS NULL OR expires_at > ?)";
-
-export const REPLY_INSERT_IF_ALLOWED_SQL =
-  "INSERT INTO posts (author_id, parent_id, body, visibility, created_at) " +
-    "SELECT ?, ?, ?, 'public', ? WHERE EXISTS (" +
-    "SELECT 1 FROM posts WHERE id = ? AND parent_id IS NULL AND visibility = 'public') " +
-    "AND NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
-    "AND (expires_at IS NULL OR expires_at > ?))";
 
 export async function createSession(request, env, userId = null, oldTokenHash = null, requireUnbanned = false) {
   const token = randomToken();
@@ -336,20 +329,6 @@ function requireMutationApplied(result) {
   return result;
 }
 
-export const RATE_LIMIT_BINDINGS = Object.freeze({
-  read: "READ_RATE_LIMITER",
-  write: "WRITE_RATE_LIMITER",
-  "guest-session": "GUEST_SESSION_RATE_LIMITER",
-  register: "REGISTER_RATE_LIMITER",
-  login: "LOGIN_RATE_LIMITER",
-  setup: "SETUP_RATE_LIMITER",
-  "post-write": "POST_WRITE_RATE_LIMITER",
-  "password-change": "PASSWORD_CHANGE_RATE_LIMITER",
-  report: "REPORT_RATE_LIMITER",
-  "avatar-upload": "AVATAR_UPLOAD_RATE_LIMITER",
-  reaction: "REACTION_RATE_LIMITER",
-});
-
 export async function rateLimit(request, env, scope, actor = "") {
   const bindingName = RATE_LIMIT_BINDINGS[scope];
   const limiter = bindingName ? env[bindingName] : null;
@@ -364,6 +343,42 @@ export async function rateLimit(request, env, scope, actor = "") {
     throw new HttpError(429, "Too many requests. Please wait a little and try again.", {
       "Retry-After": "60",
     });
+  }
+}
+
+const TURNSTILE_TOKEN_MAX_LENGTH = 2048;
+
+export async function requireTurnstile(request, env, body, expectedAction) {
+  const secret = env.TURNSTILE_SECRET;
+  const hostnames = String(env.TURNSTILE_HOSTNAMES || "")
+    .split(",")
+    .map((hostname) => hostname.trim())
+    .filter(Boolean);
+  const token = typeof body["cf-turnstile-response"] === "string" ? body["cf-turnstile-response"] : "";
+  if (!secret || hostnames.length === 0 || !token || token.length > TURNSTILE_TOKEN_MAX_LENGTH) {
+    throw new HttpError(403, "Human verification is required.");
+  }
+  let result;
+  try {
+    const response = await fetch(TURNSTILE_SITEVERIFY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      signal: AbortSignal.timeout(10_000),
+      body: new URLSearchParams({
+        secret,
+        response: token,
+        remoteip: request.headers.get("CF-Connecting-IP") || "",
+      }),
+    });
+    if (!response.ok) throw new Error("siteverify responded with " + response.status);
+    result = await response.json();
+  } catch (error) {
+    if (error instanceof HttpError) throw error;
+    console.error("Turnstile siteverify request failed:", error && error.name ? error.name : "UnknownError");
+    throw new HttpError(403, "Human verification could not be completed. Please try again.");
+  }
+  if (!result.success || result.action !== expectedAction || !hostnames.includes(result.hostname)) {
+    throw new HttpError(403, "Human verification failed. Please try again.");
   }
 }
 
@@ -454,10 +469,6 @@ function publicUser(row) {
     avatarUrl: row.avatar_mime ? "/api/avatars/" + row.id + "?v=" + row.avatar_version : null,
   };
 }
-
-export const SEARCH_USERS_SQL =
-  "SELECT id, username, role, bio, avatar_mime, avatar_updated_at, avatar_version FROM users " +
-  "WHERE instr(username_key, ?) > 0 OR instr(lower(bio), ?) > 0 ORDER BY username_key LIMIT 20";
 
 const POST_SELECT =
   "SELECT p.id, p.author_id, p.parent_id, p.body, p.visibility, p.created_at, " +
@@ -655,6 +666,7 @@ async function handleRegistrationRoute(request, env, url, path, method) {
     const guest = await requireCsrf(request, env);
     await rateLimit(request, env, "register");
     const body = await readJson(request);
+    await requireTurnstile(request, env, body, "signup");
     const credentials = validateNewCredentials(body);
     const user = await storeUser(env, credentials, "member");
     const session = await createSession(request, env, Number(user.id), guest.tokenHash, true);
@@ -670,6 +682,7 @@ async function handleLoginRoute(request, env, url, path, method) {
     const guest = await requireCsrf(request, env);
     await rateLimit(request, env, "login");
     const body = await readJson(request);
+    await requireTurnstile(request, env, body, "login");
     const username = typeof body.username === "string" ? body.username.trim() : "";
     const password = typeof body.password === "string" ? body.password : "";
     if (!isValidUsername(username) || password.length < 1 || password.length > 128) {
@@ -812,6 +825,7 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
     const body = await readJson(request);
+    await requireTurnstile(request, env, body, "post");
     const message = requiredText(body.body, "post", 2000);
     const result = await db.prepare(
       "INSERT INTO posts (author_id, parent_id, body, visibility, created_at) " +

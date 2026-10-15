@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, createUserBan, hashPassword, isValidPassword, isValidPasswordPepper, isValidSetupSecret, isValidUsername, PBKDF2_ITERATIONS, RATE_LIMIT_BINDINGS, rateLimit, REPLY_INSERT_IF_ALLOWED_SQL, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, UNBAN_ACTIVE_UPDATE_SQL, sniffImageMime, verifyPassword } from "../worker.mjs";
+import { PBKDF2_ITERATIONS, RATE_LIMIT_BINDINGS, REPLY_INSERT_IF_ALLOWED_SQL, SEARCH_USERS_SQL, SESSION_INSERT_IF_UNBANNED_SQL, TURNSTILE_SITEVERIFY_URL, UNBAN_ACTIVE_UPDATE_SQL } from "../constants.mjs";
+import { blobToUint8Array, canViewPost, createAvatarVersion, createSession, createUserBan, hashPassword, isValidPassword, isValidPasswordPepper, isValidSetupSecret, isValidUsername, rateLimit, requireTurnstile, sniffImageMime, verifyPassword } from "../worker.mjs";
 import worker from "../worker.mjs";
 
 test("usernames follow the documented ASCII rules", () => {
@@ -285,7 +286,23 @@ test("static asset responses receive the common security headers", async () => {
 
 test("post creation remains blocked if a ban lands after the initial ban check", async () => {
   const calls = [];
+  const siteverifyCalls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    if (typeof url === "string" && url.includes("challenges.cloudflare.com/turnstile/v0/siteverify")) {
+      siteverifyCalls.push({
+        body: String(init?.body ?? ""),
+      });
+      return new Response(JSON.stringify({ success: true, action: "post", hostname: "forum.example" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(url, init);
+  };
   const env = {
+    TURNSTILE_SECRET: "turnstile-secret-fixture",
+    TURNSTILE_HOSTNAMES: "forum.example",
     WRITE_RATE_LIMITER: { async limit() { return { success: true }; } },
     POST_WRITE_RATE_LIMITER: { async limit() { return { success: true }; } },
     FORUM_DB: {
@@ -326,7 +343,7 @@ test("post creation remains blocked if a ban lands after the initial ban check",
     },
   };
 
-  const response = await worker.fetch(new Request("https://forum.example/api/posts", {
+  const request = new Request("https://forum.example/api/posts", {
     method: "POST",
     headers: {
       "Origin": "https://forum.example",
@@ -334,9 +351,23 @@ test("post creation remains blocked if a ban lands after the initial ban check",
       "X-CSRF-Token": "csrf-test",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ body: "This should not be published after a ban." }),
-  }), env);
+    body: JSON.stringify({
+      body: "This should not be published after a ban.",
+      "cf-turnstile-response": "turnstile-token-fixture",
+    }),
+  });
 
+  let response;
+  try {
+    response = await worker.fetch(request, env);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  assert.equal(siteverifyCalls.length, 1);
+  assert.match(siteverifyCalls[0].body, /secret=turnstile-secret-fixture/);
+  assert.match(siteverifyCalls[0].body, /response=turnstile-token-fixture/);
+  assert.match(siteverifyCalls[0].body, /remoteip=/);
   assert.equal(response.status, 403);
   assert.match((await response.json()).error, /banned/i);
   assert.ok(calls.some(({ sql, operation }) => operation === "run" && sql.startsWith("INSERT INTO posts")));
@@ -374,4 +405,137 @@ test("registration rejects requests without an Origin header", async () => {
 
   assert.equal(response.status, 403);
   assert.match((await response.json()).error, /origin/i);
+});
+
+
+
+function turnstileEnv(overrides = {}) {
+  return {
+    TURNSTILE_SECRET: "turnstile-secret-fixture",
+    TURNSTILE_HOSTNAMES: "forum.example",
+    ...overrides,
+  };
+}
+
+const turnstileRequest = (token = "turnstile-token-fixture") => {
+  const headers = { "CF-Connecting-IP": "192.0.2.8" };
+  return new Request("https://forum.example/api/auth/login", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ username: "test_user", password: "correct-horse-battery", "cf-turnstile-response": token }),
+  });
+};
+
+function withMockedSiteverify(payload, status = 200) {
+  const originalFetch = globalThis.fetch;
+  const seen = [];
+  globalThis.fetch = async (url, init) => {
+    seen.push({ url, body: String(init?.body ?? "") });
+    return new Response(JSON.stringify(payload), { status });
+  };
+  return {
+    seen,
+    done() {
+      globalThis.fetch = originalFetch;
+    },
+  };
+}
+
+test("human verification requires a bounded token before calling siteverify", async () => {
+  for (const token of [undefined, "", "x".repeat(2049)]) {
+    const request = turnstileRequest(token);
+    const body = await request.json();
+    const env = turnstileEnv();
+    await assert.rejects(
+      requireTurnstile(request, env, body, "login"),
+      (error) => error.status === 403,
+    );
+  }
+  // No local siteverify traffic should occur without a syntactically valid token.
+  const siteverify = withMockedSiteverify({ success: true, action: "login", hostname: "forum.example" });
+  assert.equal(siteverify.seen.length, 0);
+  siteverify.done();
+});
+
+test("human verification is enforced only against configured hostnames", async () => {
+  const request = turnstileRequest();
+  const body = await request.json();
+
+  await assert.rejects(
+    requireTurnstile(request, turnstileEnv({ TURNSTILE_HOSTNAMES: "" }), body, "login"),
+    (error) => error.status === 403,
+  );
+  await assert.rejects(
+    requireTurnstile(request, turnstileEnv({ TURNSTILE_SECRET: "" }), body, "login"),
+    (error) => error.status === 403,
+  );
+});
+
+test("siteverify failures fail closed with a 403", async () => {
+  const request = turnstileRequest();
+  const body = await request.json();
+
+  for (const payload of [
+    { success: false },
+    { success: true, action: "signup", hostname: "forum.example" },
+    { success: true, action: "login", hostname: "attacker.example" },
+  ]) {
+    const siteverify = withMockedSiteverify(payload);
+    try {
+      await assert.rejects(
+        requireTurnstile(request, turnstileEnv(), body, "login"),
+        (error) => error.status === 403,
+      );
+      assert.equal(siteverify.seen.length, 1);
+    } finally {
+      siteverify.done();
+    }
+  }
+});
+
+test("siteverify network failures are recorded and fail closed", async () => {
+  const request = turnstileRequest();
+  const body = await request.json();
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("network unreachable");
+  };
+  try {
+    await assert.rejects(
+      requireTurnstile(request, turnstileEnv(), body, "login"),
+      (error) => error.status === 403,
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("human verification succeeds before the existing handler logic runs", async () => {
+  const request = turnstileRequest();
+  const body = await request.json();
+  const siteverify = withMockedSiteverify({ success: true, action: "login", hostname: "forum.example" });
+  try {
+    await requireTurnstile(request, turnstileEnv(), body, "login");
+    assert.equal(siteverify.seen.length, 1);
+    assert.ok(siteverify.seen[0].url.includes(TURNSTILE_SITEVERIFY_URL));
+    assert.match(siteverify.seen[0].body, /secret=turnstile-secret-fixture/);
+    assert.match(siteverify.seen[0].body, /response=turnstile-token-fixture/);
+    assert.match(siteverify.seen[0].body, /remoteip=192\.0\.2\.8/);
+  } finally {
+    siteverify.done();
+  }
+});
+
+test("non-2xx siteverify responses fail closed instead of redeeming the handler", async () => {
+  const request = turnstileRequest();
+  const body = await request.json();
+  const siteverify = withMockedSiteverify({ success: true, action: "login", hostname: "forum.example" }, 500);
+  try {
+    await assert.rejects(
+      requireTurnstile(request, turnstileEnv(), body, "login"),
+      (error) => error.status === 403,
+    );
+  } finally {
+    siteverify.done();
+  }
 });
