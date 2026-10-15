@@ -145,6 +145,7 @@ export async function verifyPassword(password, salt, expectedHash, pepper) {
 function securityHeaders(headers = new Headers()) {
   const result = new Headers(headers);
   result.set("X-Content-Type-Options", "nosniff");
+  result.set("Strict-Transport-Security", "max-age=31536000");
   result.set("X-Frame-Options", "DENY");
   result.set("Referrer-Policy", "strict-origin-when-cross-origin");
   result.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
@@ -237,6 +238,13 @@ export const UNBAN_ACTIVE_UPDATE_SQL =
   "UPDATE bans SET revoked_at = ?, revoked_by = ?, revocation_reason = ? " +
     "WHERE id = ? AND user_id = ? AND revoked_at IS NULL " +
     "AND (expires_at IS NULL OR expires_at > ?)";
+
+export const REPLY_INSERT_IF_ALLOWED_SQL =
+  "INSERT INTO posts (author_id, parent_id, body, visibility, created_at) " +
+    "SELECT ?, ?, ?, 'public', ? WHERE EXISTS (" +
+    "SELECT 1 FROM posts WHERE id = ? AND parent_id IS NULL AND visibility = 'public') " +
+    "AND NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+    "AND (expires_at IS NULL OR expires_at > ?))";
 
 export async function createSession(request, env, userId = null, oldTokenHash = null, requireUnbanned = false) {
   const token = randomToken();
@@ -786,13 +794,11 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     }
     const body = await readJson(request);
     const message = requiredText(body.body, "reply", 2000);
-    const result = await db.prepare(
-      "INSERT INTO posts (author_id, parent_id, body, visibility, created_at) " +
-        "SELECT ?, ?, ?, 'public', ? WHERE NOT EXISTS (" +
-        "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
-        "AND (expires_at IS NULL OR expires_at > ?))",
-    ).bind(session.user.id, parentId, message, nowSeconds(), session.user.id, nowSeconds()).run();
-    requireMutationApplied(result);
+    const result = await db.prepare(REPLY_INSERT_IF_ALLOWED_SQL)
+      .bind(session.user.id, parentId, message, nowSeconds(), parentId, session.user.id, nowSeconds()).run();
+    if (Number(result.meta?.changes) !== 1) {
+      throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
+    }
     return json({ id: Number(result.meta.last_row_id) }, 201);
   }
   return null;
