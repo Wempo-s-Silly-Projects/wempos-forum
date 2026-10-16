@@ -195,14 +195,16 @@ export async function insertAttachments(db, postId, createdBy, files, gifEntries
       ).bind(id, postId, createdBy, now,
         preApproved ? "approved" : "pending", createAvatarVersion(), file.mime, file.hash),
     );
-    if (!preApproved) {
-      for (let seq = 0, offset = 0; offset < file.bytes.length; seq += 1, offset += MAX_ATTACHMENT_CHUNK_BYTES) {
-        statements.push(
-          db.prepare(
-            "INSERT INTO attachment_chunks (attachment_id, kind, seq, data) VALUES (?, 'pending', ?, ?)",
-          ).bind(id, seq, file.bytes.subarray(offset, offset + MAX_ATTACHMENT_CHUNK_BYTES)),
-        );
-      }
+    // Keep an independent byte set for every attachment, even when identical
+    // bytes were approved before. The hash grants approval, not shared storage
+    // lifetime: the original post or GIF may later be removed.
+    const chunkKind = preApproved ? "approved" : "pending";
+    for (let seq = 0, offset = 0; offset < file.bytes.length; seq += 1, offset += MAX_ATTACHMENT_CHUNK_BYTES) {
+      statements.push(
+        db.prepare(
+          "INSERT INTO attachment_chunks (attachment_id, kind, seq, data) VALUES (?, '" + chunkKind + "', ?, ?)",
+        ).bind(id, seq, file.bytes.subarray(offset, offset + MAX_ATTACHMENT_CHUNK_BYTES)),
+      );
     }
   }
   for (const gif of gifEntries) {
