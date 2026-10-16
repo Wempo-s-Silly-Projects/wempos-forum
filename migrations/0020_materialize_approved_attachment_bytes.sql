@@ -25,6 +25,12 @@ JOIN attachment_chunks AS source_chunk
   ON source_chunk.attachment_id = source.id AND source_chunk.kind = 'approved'
 WHERE target.status = 'approved'
   AND target.hash <> ''
+  -- A matching approved GIF may mean this row is a library selection. Historical
+  -- rows have no source marker, so preserve by-reference behavior conservatively.
+  AND NOT EXISTS (
+    SELECT 1 FROM gifs AS library_gif
+    WHERE library_gif.hash = target.hash AND library_gif.status = 'approved'
+  )
   AND NOT EXISTS (
     SELECT 1 FROM attachment_chunks AS own
     WHERE own.attachment_id = target.id AND own.kind = 'approved'
