@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import forumWorker, { canViewPost } from "../worker.mjs";
-import { THREAD_REPLY_INSERT_SQL, REPLY_BUMP_SQL } from "../constants.mjs";
+import { THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL, REPLY_BUMP_SQL } from "../constants.mjs";
 import { listRootPosts } from "../api/posts.mjs";
 
 // D1 mock: routes are { sql: RegExp, result? , rows?, runMeta? }. prepare() picks
@@ -193,6 +193,14 @@ test("threaded reply insert requires a public target that is a root or has a pub
 test("the reply bump updates one row's activity stamp", () => {
   assert.match(REPLY_BUMP_SQL, /^UPDATE posts SET last_activity_at = \? WHERE id = \?$/);
 });
+test("staged reply insertion accepts a bound hidden visibility without weakening the thread guard", () => {
+  assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /SELECT \?, \?, \?, \?, \?, \?, \? WHERE EXISTS/);
+  assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /FROM posts WHERE id = \? AND visibility = 'public'/);
+  assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /parent_id IS NULL OR EXISTS/);
+  assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /NOT EXISTS \(SELECT 1 FROM bans WHERE user_id = \?/);
+  assert.equal((THREAD_REPLY_INSERT_STAGED_SQL.match(/\?/g) || []).length, 10);
+});
+
 
 test("replies to a level-1 reply insert under the guard and bump the root, not the reply", async () => {
   // root 1 <- level-1 reply 2 (author 5). Signed-in user 7 replies to 2.
