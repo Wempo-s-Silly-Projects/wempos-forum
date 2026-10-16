@@ -533,6 +533,16 @@ async function existingIdempotentPost(db, authorId, key) {
   return archived ? { ...archived, archived: true } : null;
 }
 
+async function throwIfArchivedIdempotencyKey(db, authorId, key) {
+  if (!key) return;
+  const archived = await db.prepare(
+    "SELECT 1 FROM post_archive WHERE author_id = ? AND idempotency_key = ? LIMIT 1",
+  ).bind(authorId, key).first();
+  if (archived) {
+    throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
+  }
+}
+
 async function storedPostFingerprint(db, existing, fingerprint) {
   if (existing.idempotency_fingerprint || !fingerprint || existing.archived) {
     return existing.idempotency_fingerprint || null;
@@ -748,6 +758,7 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     try {
       results = await db.batch(insertStatements);
     } catch (error) {
+      await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
       const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
       if (replay) return replay;
       throw error;
@@ -755,6 +766,7 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     if (Number(results[0]?.meta?.changes) !== 1) {
       // The atomic archive guard can reject a retry whose original post was
       // deleted after the earlier lookup. Re-read the archive to return 410.
+      await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
       const archivedReplay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
       if (archivedReplay) return archivedReplay;
       throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
@@ -863,6 +875,7 @@ async function handlePostCreateRoute(request, env, url, path, method) {
           "WHERE archived.author_id = ? AND archived.idempotency_key = ?))",
       ).bind(session.user.id, message, now, now, board, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, session.user.id, now, idempotencyKey, session.user.id, idempotencyKey).run();
     } catch (error) {
+      await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
       const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
       if (replay) return replay;
       throw error;
@@ -871,6 +884,7 @@ async function handlePostCreateRoute(request, env, url, path, method) {
       // A concurrent delete may archive the same author/key after the replay
       // lookup. The INSERT guard prevents resurrection; surface the archived
       // request as gone rather than a generic mutation failure.
+      await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
       const archivedReplay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
       if (archivedReplay) return archivedReplay;
       requireMutationApplied(result);
