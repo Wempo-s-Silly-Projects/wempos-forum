@@ -220,18 +220,34 @@ export async function insertAttachments(db, postId, createdBy, files, gifEntries
     statements.push(
       db.prepare(
         "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash, source_kind) " +
-          "SELECT ?, ?, ?, ?, 'approved', ?, ?, ?, 'gif' WHERE EXISTS (" +
+          "SELECT ?, ?, ?, ?, CASE WHEN EXISTS (" +
           "SELECT 1 FROM gifs g WHERE g.id = ? AND g.hash = ? AND g.mime = ? AND g.status = 'approved' " +
-          "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = g.hash))",
-      ).bind(id, postId, createdBy, now, createAvatarVersion(), gif.mime, gif.hash,
-        gif.id, gif.hash, gif.mime),
+          "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = g.hash)) " +
+          "THEN 'approved' ELSE 'invalid' END, ?, ?, ?, 'gif'",
+      ).bind(id, postId, createdBy, now, gif.id, gif.hash, gif.mime,
+        createAvatarVersion(), gif.mime, gif.hash),
     );
   }
   // One all-or-nothing batch: a failure partway through intake can never leave
   // a partial set of attachment metadata or orphaned chunk rows behind.
-  const results = await db.batch(statements);
+  let results;
+  try {
+    results = await db.batch(statements);
+  } catch (error) {
+    // A selected library GIF may be revoked or rejected after validation but
+    // before this batch runs. The reference INSERT deliberately emits an
+    // invalid status in that case, tripping the attachments.status CHECK and
+    // forcing D1 to roll back the entire batch (including direct-upload chunks).
+    // Translate that specific guard failure to a retryable client conflict.
+    if (/CHECK constraint failed: status IN/i.test(String(error?.message || error))) {
+      throw new HttpError(409, "One of the selected GIFs is no longer available.");
+    }
+    throw error;
+  }
   for (const index of referenceInsertIndexes) {
     if (Number(results[index]?.meta?.changes) !== 1) {
+      // Defensive fallback for DB adapters that don't enforce the schema's
+      // status CHECK. Real D1 should fail the batch above, atomically.
       throw new HttpError(409, "One of the selected GIFs is no longer available.");
     }
   }
