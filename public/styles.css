@@ -33,66 +33,84 @@
   --error-ink: #842f27;
   --error-soft: #f5d5c5;
   --success-ink: #215b41;
+  /* The error status chip keeps its own trio so its exact literals survive
+     the dark work; --error-ink/--error-soft stay merged elsewhere. */
+  --error-chip-bg: #fff0e8;
+  --error-chip-border: #b86353;
+  --error-chip-ink: #742c25;
+  /* Text sitting on --yellow surfaces (secondary button, badges, tag chip):
+     dark navy in light mode, dark brown once --ink becomes cream in dark. */
+  --on-yellow: #24364a;
 }
 
 /* Dark re-weighting of the same tokens: manual choice via [data-theme], or
    the OS preference when no data-theme attribute decision could be made.
    Values are duplicated between the two blocks by design. */
 :root[data-theme="dark"] {
-  --paper: #1d2836;
-  --paper-shadow: #0c1219;
-  --desk: #131b27;
-  --desk-dot: #26344a;
-  --ink: #e8e4d8;
-  --muted: #a4aeba;
-  --line: #3d4d61;
-  --green: #2f7d55;
-  --green-dark: #20543a;
-  --coral: #bb5542;
-  --yellow: #815b16;
-  --blue: #2a3d52;
+  /* Warm "night paper": every value flips the weight of its light hue
+     (browns/creams/tans) instead of switching to a slate family. */
+  --paper: #2b2216;
+  --paper-shadow: #150f07;
+  --desk: #1d160d;
+  --desk-dot: #4e4126;
+  --ink: #ece4d2;
+  --muted: #b1a48c;
+  --line: #605134;
+  --green: #378255;
+  --green-dark: #2d6543;
+  --coral: #c45744;
+  --yellow: #f3cf67;
+  --blue: #3d4a58;
   --focus: #8ab6ff;
   --link: #7fd0a2;
   --link-hover: #f0a893;
-  --field: #232f40;
-  --field-line: #4e5e74;
+  --field: #332a1a;
+  --field-line: #6d5e40;
   --green-title: #d7ecd9;
   --green-ink: #c9e4cd;
-  --soft-green: #253c30;
-  --yellow-hover: #6a4b12;
-  --coral-dark: #a03d2c;
+  --soft-green: #31402a;
+  --yellow-hover: #d3a928;
+  --coral-dark: #a54532;
   --error-ink: #f4b0a4;
-  --error-soft: #41201f;
+  --error-soft: #40211a;
   --success-ink: #8ecfab;
+  --error-chip-bg: #3d2018;
+  --error-chip-border: #b26252;
+  --error-chip-ink: #f4b0a4;
+  --on-yellow: #33240d;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="dark"]) {
-    --paper: #1d2836;
-    --paper-shadow: #0c1219;
-    --desk: #131b27;
-    --desk-dot: #26344a;
-    --ink: #e8e4d8;
-    --muted: #a4aeba;
-    --line: #3d4d61;
-    --green: #2f7d55;
-    --green-dark: #20543a;
-    --coral: #bb5542;
-    --yellow: #815b16;
-    --blue: #2a3d52;
+    --paper: #2b2216;
+    --paper-shadow: #150f07;
+    --desk: #1d160d;
+    --desk-dot: #4e4126;
+    --ink: #ece4d2;
+    --muted: #b1a48c;
+    --line: #605134;
+    --green: #378255;
+    --green-dark: #2d6543;
+    --coral: #c45744;
+    --yellow: #f3cf67;
+    --blue: #3d4a58;
     --focus: #8ab6ff;
     --link: #7fd0a2;
     --link-hover: #f0a893;
-    --field: #232f40;
-    --field-line: #4e5e74;
+    --field: #332a1a;
+    --field-line: #6d5e40;
     --green-title: #d7ecd9;
     --green-ink: #c9e4cd;
-    --soft-green: #253c30;
-    --yellow-hover: #6a4b12;
-    --coral-dark: #a03d2c;
+    --soft-green: #31402a;
+    --yellow-hover: #d3a928;
+    --coral-dark: #a54532;
     --error-ink: #f4b0a4;
-    --error-soft: #41201f;
+    --error-soft: #40211a;
     --success-ink: #8ecfab;
+    --error-chip-bg: #3d2018;
+    --error-chip-border: #b26252;
+    --error-chip-ink: #f4b0a4;
+    --on-yellow: #33240d;
   }
 }
 
@@ -192,7 +210,7 @@ a:hover {
   place-items: center;
   border: 2px solid var(--ink);
   border-radius: 44% 56% 51% 49%;
-  color: var(--ink);
+  color: var(--on-yellow);
   background: var(--yellow);
   font-family: Georgia, serif;
   font-size: 1.25rem;
@@ -328,6 +346,7 @@ a:hover {
 }
 
 .personal-tags li:nth-child(3) {
+  color: var(--on-yellow);
   background: var(--yellow);
   transform: rotate(-1deg);
 }
@@ -485,7 +504,7 @@ img {
 }
 
 .button-secondary {
-  color: var(--ink);
+  color: var(--on-yellow);
   background: var(--yellow);
 }
 
@@ -633,9 +652,9 @@ textarea {
 }
 
 #error-message:not(:empty) {
-  border-color: var(--coral);
-  color: var(--error-ink);
-  background: var(--error-soft);
+  border-color: var(--error-chip-border);
+  color: var(--error-chip-ink);
+  background: var(--error-chip-bg);
 }
 
 .site-footer {
@@ -806,7 +825,7 @@ dialog h2 {
   font-size: 0.8rem;
   font-weight: 700;
   text-align: center;
-  color: var(--ink);
+  color: var(--on-yellow);
   background: var(--yellow);
   border: 2px solid var(--ink);
 }
@@ -864,7 +883,7 @@ dialog h2 {
   padding: 0.15rem 0.5rem;
   border-radius: 0.35rem;
   font-size: 0.85rem;
-  color: var(--ink);
+  color: var(--on-yellow);
   background: var(--yellow);
   border: 1.5px solid var(--ink);
 }

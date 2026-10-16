@@ -5,17 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7efdc">
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#131b27">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1d160d">
     <title>Wempo's Forum</title>
     <script>
-      // No-flash pin: only a manually stored choice is applied here; the OS
-      // case is handled by the prefers-color-scheme rules in styles.css.
+      // No-flash pin: a manually stored choice (either direction) is applied
+      // before paint; the OS-only case is handled by the prefers-color-scheme
+      // rules in styles.css.
+      let storedTheme = null;
       try {
-        if (localStorage.getItem("forum-theme") === "dark") {
-          document.documentElement.dataset.theme = "dark";
-        }
+        storedTheme = localStorage.getItem("forum-theme");
       } catch (error) {
         // Storage unavailable: the stylesheet's OS preference handles the look.
+      }
+      if (storedTheme === "dark" || storedTheme === "light") {
+        document.documentElement.dataset.theme = storedTheme;
       }
     </script>
     <link rel="stylesheet" href="/styles.css">
