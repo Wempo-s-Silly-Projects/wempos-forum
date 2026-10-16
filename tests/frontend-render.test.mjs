@@ -20,6 +20,7 @@ import {
   renderEditHistoryPanel,
 } from "../public/js/render.js";
 import { renderProfileSocials } from "../public/js/profile-editor.js";
+import { createNotificationBell } from "../public/js/notifications.js";
 
 const rootPost = { id: 1, publicLevel: 0, subReplyCount: 0 };
 const level1Reply = { id: 2, parent: { id: 1 }, publicLevel: 1, subReplyCount: 0 };
@@ -708,4 +709,21 @@ test("(e) renderEditHistoryPanel renders past versions as text, newest first", (
   assert.ok(text.includes("2026"), "each version carries its timestamp");
   const empty = renderEditHistoryPanel(mockDocument(), []);
   assert.ok(empty, "an empty lineage still renders (placeholder shape)");
+});
+
+// --- v2.4.1: the notification bell is an icon button -----------------------------
+// The bell is hand-built in notifications.js rather than through icons.js's
+// iconButton() — so it must add the icon-button class ITSELF, or the shared
+// icon sizing/stroke CSS (which scopes to .icon-button) never applies and the
+// glyph renders unsized/unstyled (invisible).
+test("the notification bell renders as a styled icon button with badge and aria-label", () => {
+  const bell = createNotificationBell(0, mockDocument());
+  assert.ok(bell.className.includes("icon-button"),
+    "the bell carries the icon-button class so the shared icon CSS applies");
+  assert.equal([...walk(bell)].some((node) => node.tagName === "SVG"), true,
+    "bell glyph is an inline SVG");
+  assert.equal(bell.getAttribute("aria-label"), "Notifications");
+  const badge = selectByClass(bell, "notification-badge");
+  assert.ok(badge, "the unread badge stays in the DOM");
+  assert.equal(badge.hidden, true, "hidden at zero unread");
 });

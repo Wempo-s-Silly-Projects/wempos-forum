@@ -26,7 +26,8 @@ import { createIcon } from "./icons.js";
 export const createNotificationBell = (unreadCount, document) => {
   const bell = document.createElement("a");
   bell.id = "notification-bell";
-  bell.className = "button button-secondary notification-bell";
+  // icon-button is required: the shared icon sizing/stroke CSS scopes to it.
+  bell.className = "button button-secondary notification-bell icon-button";
   bell.href = "/notifications";
   const count = Number(unreadCount) || 0;
   bell.setAttribute("aria-label",
