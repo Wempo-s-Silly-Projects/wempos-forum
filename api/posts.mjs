@@ -574,7 +574,7 @@ async function postCreationFingerprint({ kind, targetId = null, message, board =
 // the D1 attachment batch is atomic and deleting the hidden post removes any
 // dependent rows; the client receives an error without a live duplicate on retry.
 async function persistStagedPostAttachments(db, postId, authorId, files, gifEntries, options = {}) {
-  const { bumpTargetId = null, now = null } = options;
+  const { bumpTargetId = null } = options;
   try {
     await insertAttachments(db, postId, authorId, files, gifEntries);
     const publish = db.prepare(
@@ -650,38 +650,38 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
       : null;
     const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
     if (replay) return replay;
-        const target = await postById(env, targetId, session.user.id);
-        if (!target || target.visibility !== "public") {
-          throw new HttpError(400, "Replies must be attached to a public conversation, not another reply.");
-        }
-        // The bump lands on the conversation root: the target itself, or the
-        // target's parent (a public root) when replying to a level-1 reply.
-        let bumpTargetId = Number(target.id);
-        // Boards (v2.4.1): replies carry their thread ROOT's board, resolved from
-        // the same rows the bump logic already fetched (the target when it is a
-        // root, else its parent). The || normalization keeps rows from pre-board
-        // projections at 'general'.
-        let threadBoard = target.board || GENERAL_BOARD_DEFAULT;
-        if (target.parent_id !== null && target.parent_id !== undefined) {
-          const parent = await postById(env, Number(target.parent_id), session.user.id);
-          if (!parent || parent.visibility !== "public") {
-            throw new HttpError(400, "Replies must be attached to a public conversation, not another reply.");
-          }
-          if (parent.parent_id !== null && parent.parent_id !== undefined) {
-            throw new HttpError(400, "Replies only go one level deep.");
-          }
-          bumpTargetId = Number(parent.id);
-          threadBoard = parent.board || GENERAL_BOARD_DEFAULT;
-        }
-        // Banning auto-hides posts (v2.4.1): a reply into a banned author's thread
-        // would create content nobody can see while the ban holds (hidden-post
-        // parity — hidden roots already refuse replies via the visibility check
-        // above). The viewer's exemptions mirror canViewPost: their own threads
-        // and admins still pass. The depth refusal above stays authoritative; this
-        // check runs after it so its own message is not shadowed.
-        if (!(await canViewPost(env, target, session.user))) {
-          throw new HttpError(400, "Replies are closed while this conversation's author is banned.");
-        }
+    const target = await postById(env, targetId, session.user.id);
+    if (!target || target.visibility !== "public") {
+      throw new HttpError(400, "Replies must be attached to a public conversation, not another reply.");
+    }
+    // The bump lands on the conversation root: the target itself, or the
+    // target's parent (a public root) when replying to a level-1 reply.
+    let bumpTargetId = Number(target.id);
+    // Boards (v2.4.1): replies carry their thread ROOT's board, resolved from
+    // the same rows the bump logic already fetched (the target when it is a
+    // root, else its parent). The || normalization keeps rows from pre-board
+    // projections at 'general'.
+    let threadBoard = target.board || GENERAL_BOARD_DEFAULT;
+    if (target.parent_id !== null && target.parent_id !== undefined) {
+      const parent = await postById(env, Number(target.parent_id), session.user.id);
+      if (!parent || parent.visibility !== "public") {
+        throw new HttpError(400, "Replies must be attached to a public conversation, not another reply.");
+      }
+      if (parent.parent_id !== null && parent.parent_id !== undefined) {
+        throw new HttpError(400, "Replies only go one level deep.");
+      }
+      bumpTargetId = Number(parent.id);
+      threadBoard = parent.board || GENERAL_BOARD_DEFAULT;
+    }
+    // Banning auto-hides posts (v2.4.1): a reply into a banned author's thread
+    // would create content nobody can see while the ban holds (hidden-post
+    // parity — hidden roots already refuse replies via the visibility check
+    // above). The viewer's exemptions mirror canViewPost: their own threads
+    // and admins still pass. The depth refusal above stays authoritative; this
+    // check runs after it so its own message is not shadowed.
+    if (!(await canViewPost(env, target, session.user))) {
+      throw new HttpError(400, "Replies are closed while this conversation's author is banned.");
+    }
     await requireTurnstile(request, env, fields, "reply");
     const now = nowSeconds();
     const recipientId = target.author_id === null || target.author_id === undefined
@@ -710,7 +710,7 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     // succeeds. The row id is always the new reply, not its bump target.
     if (hasAttachments) {
       await persistStagedPostAttachments(db, replyId, session.user.id, files, gifEntries, {
-        bumpTargetId, now,
+        bumpTargetId,
       });
     } else {
       await insertAttachments(db, replyId, session.user.id, files, gifEntries);
