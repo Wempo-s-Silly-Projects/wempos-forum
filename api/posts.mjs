@@ -201,7 +201,8 @@ async function listRootPosts(env, viewer, options = {}) {
     // Pagination walks the composite key (last_activity_at, id) so a shared
     // timestamp cannot skip or duplicate rows.
     const cursor = options.before;
-    if (cursor) {
+    if (cursor && cursor.rank === undefined) {
+      // Legacy 2-part cursor from an already-open tab.
       sql += "AND (p.last_activity_at < ? OR (p.last_activity_at = ? AND p.id < ?)) ";
       values.push(cursor.seconds, cursor.seconds, cursor.id);
     }
@@ -211,9 +212,6 @@ async function listRootPosts(env, viewer, options = {}) {
       values.push(cursor.seconds, cursor.seconds, cursor.id);
     } else if (cursor && cursor.rank === 1) {
       sql += "AND p.pinned_at IS NULL AND (p.last_activity_at < ? OR (p.last_activity_at = ? AND p.id < ?)) ";
-      values.push(cursor.seconds, cursor.seconds, cursor.id);
-    } else if (cursor) {
-      sql += "AND (p.last_activity_at < ? OR (p.last_activity_at = ? AND p.id < ?)) ";
       values.push(cursor.seconds, cursor.seconds, cursor.id);
     }
     sql += "ORDER BY (p.pinned_at IS NULL) ASC, p.last_activity_at DESC, p.id DESC LIMIT 21";
