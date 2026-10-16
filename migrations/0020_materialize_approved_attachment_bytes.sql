@@ -2,8 +2,8 @@
 -- Older versions approved hash-matching attachment rows without storing their
 -- own chunks, relying on another attachment or marketplace GIF as the canonical
 -- byte source. That source can later be deleted, which would break the alias.
--- Copy from an approved attachment with bytes first; if none exists, copy from
--- an approved GIF. Each target has a distinct attachment id and chunk ownership.
+-- Copy only from another approved attachment with bytes. Library GIF selections
+-- are intentionally by-reference and must not be materialized into duplicate blobs.
 
 INSERT INTO attachment_chunks (attachment_id, kind, seq, data)
 SELECT target.id, 'approved', source_chunk.seq, source_chunk.data
