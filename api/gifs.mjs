@@ -12,6 +12,7 @@ import {
   json,
   nowSeconds,
   rateLimit,
+  readLimitedBody,
   readSession,
   requireModerator,
   requireUser,
@@ -34,7 +35,7 @@ export async function handleGifRoutes(request, env, url, path, method) {
   if (upload) return upload;
   const list = await handleGifListRoute(request, env, path, method);
   if (list) return list;
-  const admin = await handleGifAdminRoutes(request, env, path, method);
+  const admin = await handleGifAdminRoutes(request, env, url, path, method);
   if (admin) return admin;
   return null;
 }
@@ -91,16 +92,14 @@ export async function handleGifUploadRoute(request, env, path, method) {
   await rateLimit(request, env, "write");
   await rateLimit(request, env, "image-upload", String(session.user.id));
   const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
+  const raw = await readLimitedBody(request, MAX_GIF_BYTES + 512 * 1024);
   let bytes;
   if (contentType.startsWith("multipart/form-data")) {
-    // Framing-backed parse when declared (the attachments path's convention).
-    const declaredLength = Number(request.headers.get("Content-Length") || 0);
-    if (declaredLength > MAX_GIF_BYTES + 512 * 1024) {
-      throw new HttpError(413, "GIFs must be 10 MiB or smaller.");
-    }
     let form;
     try {
-      form = await request.formData();
+      const headers = new Headers(request.headers);
+      headers.delete("Content-Length");
+      form = await new Request(request.url, { method: "POST", headers, body: raw }).formData();
     } catch {
       throw new HttpError(400, "The upload could not be read.");
     }
@@ -110,7 +109,7 @@ export async function handleGifUploadRoute(request, env, path, method) {
     }
     bytes = new Uint8Array(await file.arrayBuffer());
   } else {
-    bytes = new Uint8Array(await readLimitedBody(request, MAX_GIF_BYTES + 512 * 1024));
+    bytes = raw;
   }
   if (bytes.length > MAX_GIF_BYTES) {
     throw new HttpError(413, "GIFs must be 10 MiB or smaller.");
@@ -141,6 +140,18 @@ export async function handleGifUploadRoute(request, env, path, method) {
     );
   }
   await db.batch(statements);
+  // Close the race where an approved twin appears between the first lookup
+  // and the pending insert. Approval itself also handles the remaining race.
+  const approvedAfterInsert = await db.prepare(
+    "SELECT id FROM gifs WHERE hash = ? AND status = 'approved' LIMIT 1",
+  ).bind(hash).first();
+  if (approvedAfterInsert) {
+    await db.batch([
+      db.prepare("DELETE FROM gif_chunks WHERE gif_id = ?").bind(id),
+      db.prepare("DELETE FROM gifs WHERE id = ? AND status = 'pending'").bind(id),
+    ]);
+    return json({ id: approvedAfterInsert.id, reuse: true });
+  }
   return json({ id, reuse: false }, 201);
 }
 
@@ -211,9 +222,25 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
     if (decision === "approve") {
       // The UNIQUE(hash) index enforces one approved row per hash: a racing
       // approval shows 0 changes, then converges on the approved twin.
-      const approved = await db.batch([
-        db.prepare("UPDATE gifs SET status = 'approved' WHERE id = ? AND status = 'pending'").bind(gifId),
-      ]);
+      let approved;
+      try {
+        approved = await db.batch([
+          db.prepare("UPDATE gifs SET status = 'approved' WHERE id = ? AND status = 'pending'").bind(gifId),
+        ]);
+      } catch (error) {
+        // Concurrent uploads can create pending rows after the upload-side
+        // dedupe check. A competing approval may win the UNIQUE approved-hash
+        // index; converge on that winner instead of leaving a stuck queue item.
+        const twin = await db.prepare(
+          "SELECT id FROM gifs WHERE status = 'approved' " +
+          "AND hash = (SELECT hash FROM gifs WHERE id = ?) LIMIT 1",
+        ).bind(gifId).first();
+        if (!twin) throw error;
+        await db.batch([
+          db.prepare("DELETE FROM gifs WHERE id = ? AND status = 'pending'").bind(gifId),
+        ]);
+        return json({ approved: true, id: twin.id, merged: true });
+      }
       if (Number(approved[0]?.meta?.changes) !== 1) {
         const twin = await db.prepare(
           "SELECT id FROM gifs WHERE status = 'approved' " +

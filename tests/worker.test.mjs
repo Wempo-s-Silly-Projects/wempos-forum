@@ -653,6 +653,34 @@ test("human verification is enforced only against configured hostnames", async (
   );
 });
 
+test("configured Turnstile wildcards allow only actual subdomains", async () => {
+  const request = turnstileRequest();
+  const body = await request.json();
+  const configured = turnstileEnv({ TURNSTILE_HOSTNAMES: "*.preview.example" });
+  const allowed = withMockedSiteverify({ success: true, action: "login", hostname: "branch.preview.example" });
+  try {
+    await requireTurnstile(request, configured, body, "login");
+  } finally {
+    allowed.done();
+  }
+  for (const hostname of [
+    "preview.example",
+    "branch.preview.example.attacker.test",
+    "attackerpreview.example",
+    "unrelated.test",
+  ]) {
+    const mocked = withMockedSiteverify({ success: true, action: "login", hostname });
+    try {
+      await assert.rejects(
+        requireTurnstile(request, configured, body, "login"),
+        (error) => error.status === 403,
+      );
+    } finally {
+      mocked.done();
+    }
+  }
+});
+
 test("siteverify failures fail closed with a 403", async () => {
   const request = turnstileRequest();
   const body = await request.json();

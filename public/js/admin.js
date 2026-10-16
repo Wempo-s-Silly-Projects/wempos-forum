@@ -196,3 +196,37 @@ export function createAvatarQueue(avatars, document) {
   }
   return list;
 }
+
+
+export function createGifQueue(gifs, document) {
+  const list = document.createElement("div");
+  list.className = "gif-review-queue";
+  if (!gifs.length) {
+    addText(document, list, "p", "No GIFs are awaiting review.", "empty-state");
+    return list;
+  }
+  for (const gif of gifs) {
+    const card = document.createElement("article");
+    card.className = "attachment-card gif-review-card";
+    addText(document, card, "p", `${gif.uploader} · uploaded ${new Date(gif.createdAt).toLocaleString()}`);
+    const image = document.createElement("img");
+    image.src = gif.previewUrl;
+    image.alt = "GIF submitted for moderation";
+    image.loading = "lazy";
+    image.addEventListener("error", () => { image.hidden = true; });
+    const actions = document.createElement("div");
+    actions.className = "form-actions";
+    for (const [decision, label] of [["approve", "Approve GIF"], ["reject", "Reject GIF"]]) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = decision === "approve" ? "button" : "button button-danger";
+      button.dataset.action = decision === "approve" ? "gif-approve" : "gif-reject";
+      button.dataset.gifId = String(gif.id);
+      button.textContent = label;
+      actions.append(button);
+    }
+    card.append(image, actions);
+    list.append(card);
+  }
+  return list;
+}

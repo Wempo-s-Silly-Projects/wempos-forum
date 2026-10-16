@@ -393,7 +393,16 @@ export async function requireTurnstile(request, env, body, expectedAction) {
     console.error("Turnstile siteverify request failed:", error && error.name ? error.name : "UnknownError");
     throw new HttpError(403, "Human verification could not be completed. Please try again.");
   }
-  if (!result.success || result.action !== expectedAction || !hostnames.includes(result.hostname)) {
+  const verifiedHostname = typeof result.hostname === "string" ? result.hostname.trim().toLowerCase() : "";
+  const hostnameAllowed = hostnames.some((configured) => {
+    const expected = configured.toLowerCase();
+    if (expected.startsWith("*.")) {
+      const suffix = expected.slice(1);
+      return verifiedHostname.length > suffix.length && verifiedHostname.endsWith(suffix);
+    }
+    return verifiedHostname === expected;
+  });
+  if (!result.success || result.action !== expectedAction || !hostnameAllowed) {
     throw new HttpError(403, "Human verification failed. Please try again.");
   }
 }
@@ -491,7 +500,7 @@ function socialsFromRow(row) {
 
 async function userByUsernameKey(env, key) {
   return env.FORUM_DB.prepare(
-    "SELECT id, username, username_key, password_salt, password_hash, role, bio, profile_accent, banner_color, banner_text, flair, approved_css, " +
+    "SELECT id, username, username_key, password_salt, password_hash, role, bio, profile_accent, banner_color, banner_text, flair, pending_css, approved_css, " +
       SOCIAL_SELECT_COLUMNS +
       "avatar_status, avatar_mime, avatar_updated_at, avatar_version " +
       "FROM users WHERE username_key = ? LIMIT 1",

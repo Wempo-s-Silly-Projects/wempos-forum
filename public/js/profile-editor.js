@@ -165,6 +165,18 @@ export function renderProfileEditor(main, user) {
         ? "Your Polytoria username (shown as plain text)."
         : SOCIAL_PATTERNS[key] ? `Just the ${SOCIAL_LABELS[key]} handle, not the whole URL.` : "",
     })),
+    createInput(document, {
+      id: "profile-banner-color", name: "bannerColor", label: "Banner color",
+      maxLength: 10, description: "green, rust, gold, slate, plum, or blank to clear.",
+    }),
+    createInput(document, {
+      id: "profile-banner-text", name: "bannerText", label: "Banner text",
+      maxLength: 80, description: "Optional text displayed in your profile banner.",
+    }),
+    createInput(document, {
+      id: "profile-flair", name: "flair", label: "Profile flair",
+      maxLength: 32, description: "A short label shown below your name.",
+    }),
   ];
   const form = createForm(document, "profile-editor", fields, "Save profile");
   form.querySelector("#profile-bio").value =
@@ -173,11 +185,11 @@ export function renderProfileEditor(main, user) {
     const input = form.querySelector(`#profile-social-${key}`);
     const value = socials[key];
     input.value = typeof value === "string" ? value : "";
-    // Native client-side pattern check mirrors the server's regex; the submit
-    // handler re-checks with invalidSocialKeys so the message lands in the
-    // status bar too.
     input.pattern = SOCIAL_PATTERNS[key].source;
   }
+  form.querySelector("#profile-banner-color").value = user?.bannerColor || "";
+  form.querySelector("#profile-banner-text").value = user?.bannerText || "";
+  form.querySelector("#profile-flair").value = user?.flair || "";
   panel.append(form);
   if (user) {
     const cssPanel = renderProfileCssEditor(document, user);
@@ -216,6 +228,7 @@ export function renderProfileAccentPicker(document, currentAccent = "") {
     swatch.type = "button";
     swatch.className = "accent-swatch" + (key ? " accent-" + key : " accent-default");
     swatch.dataset.accent = key;
+    swatch.dataset.action = "set-profile-accent";
     swatch.setAttribute("aria-label", "Profile color: " + PROFILE_ACCENT_LABELS[key]);
     swatch.setAttribute("title", PROFILE_ACCENT_LABELS[key]);
     swatch.setAttribute("aria-pressed", key === currentAccent ? "true" : "false");

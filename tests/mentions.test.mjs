@@ -251,8 +251,8 @@ test("a root post mentioning a member fans out a notification for that member", 
     .flat()
     .filter((statement) => /INSERT INTO notifications/.test(statement.sql));
   assert.ok(mentionInserts.length >= 1, "a mention insert runs");
-  assert.deepEqual(mentionInserts[0].values.slice(0, 3), [3, 900, null],
-    "the mention targets the fresh root with no reply id (replyId null)");
+  assert.deepEqual(mentionInserts[0].values.slice(0, 3), [3, 900, 900],
+    "the root post id satisfies notifications.reply_id NOT NULL");
 });
 
 test("a reply mentioning a member who is ALSO the reply target notifies them exactly once", async () => {

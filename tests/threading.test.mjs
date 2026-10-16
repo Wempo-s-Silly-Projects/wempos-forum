@@ -451,7 +451,7 @@ test("the activity feed uses the composite keyset and both cursor parts must be 
   assert.match(pageOne.calls[0].sql, /ORDER BY \(p\.pinned_at IS NULL\) ASC, p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
   assert.deepEqual(pageOne.calls[0].values, [-1]);
   // hasMore (21 rows) emits the 20th shown row as composite seconds_id cursor.
-  assert.equal(pageOneBody.nextBefore, "1700100081_81");
+  assert.equal(pageOneBody.nextBefore, "1_1700100081_81");
 });
 
 test("cursor-driven feed pages walk the composite key", async () => {
@@ -484,7 +484,7 @@ test("cursor-driven feed pages walk the composite key", async () => {
   assert.deepEqual(mock.calls[0].values, [-1, 1700100080, 1700100080, 80]);
   assert.equal(body.nextBefore, null);
 
-  for (const invalid of ["12", "1_2_3", "x_2", "1_x", "1_2x", "-1_2", "", "99999999999_1", "1_99999999999"]) {
+  for (const invalid of ["12", "2_2_3", "1_2_3_4", "x_2", "1_x", "1_2x", "-1_2", "", "99999999999_1", "1_99999999999"]) {
     const rejected = mockDb(feedRoutes([]));
     const failResponse = await route(
       new Request("https://forum.example/api/posts?before=" + encodeURIComponent(invalid), {
@@ -518,7 +518,7 @@ test("equal last_activity_at across a page boundary skips or duplicates no rows"
   assert.equal(pageOneResponse.status, 200);
   const pageOneBody = await pageOneResponse.json();
   assert.equal(pageOneBody.posts.length, 20);
-  assert.equal(pageOneBody.nextBefore, "1700100090_81",
+  assert.equal(pageOneBody.nextBefore, "1_1700100090_81",
     "the cursor must carry the last SHOWN row's id at a shared timestamp");
 
   // Page two starts strictly below (activity, id) = (1700100090, 81): the
@@ -570,7 +570,7 @@ test("search keeps id-DESC ordering and never orders by activity by default", as
   assert.match(mock.calls[0].sql, /ORDER BY \(p\.pinned_at IS NULL\) ASC, p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
   assert.match(mock.calls[0].sql, /AND \(p\.last_activity_at < \? OR \(p\.last_activity_at = \? AND p\.id < \?\)\)/);
   assert.deepEqual(mock.calls[0].values, [-1, 1700000000, 1700000000, 1]);
-  assert.equal(feed.nextBefore, "1700000019_881", "activity cursors are composite seconds_id strings");
+  assert.equal(feed.nextBefore, "1_1700000019_881", "activity cursors are composite seconds_id strings");
 });
 
 test("post detail exposes subReplyCount per level-1 reply obeying viewer visibility", async () => {

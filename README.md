@@ -62,6 +62,19 @@ The Wrangler configuration is already pointed at the account's existing D1 datab
 
 Never run the remote migration against a database that contains data you do not intend this forum to use. The migration creates tables and indexes but does not create or promote an account by itself.
 
+## Preview environment secrets
+
+Preview has its own D1 database and rate-limit namespaces. It must also have its own secrets configured in the Cloudflare dashboard; Wrangler's `[previews.vars]` block is for non-secret values and must never contain password peppers or setup secrets.
+
+In the Cloudflare dashboard, open the forum Worker/Preview environment's **Settings → Variables and Secrets** and add these as **Secret** values (not plain-text variables):
+
+- `SETUP_SECRET`: generate a unique random value of at least 32 characters.
+- `PASSWORD_PEPPER`: generate a separate random value of 32–256 characters.
+
+Use Preview-only values. Do not reuse production secrets, paste secret values into GitHub, or commit them to `wrangler.toml`. Back up the Preview pepper securely if Preview accounts need to remain usable. After setting both secrets, redeploy Preview and verify `GET /api/setup/status` plus first-admin setup against the Preview database only. Production continues to use its separately configured secrets.
+
+The Preview Turnstile hostname is intentionally the single exact hostname `wempos-forum-preview.itswempo.workers.dev`, not a wildcard. If Cloudflare assigns a different hostname to the Preview deployment, update `previews.vars.TURNSTILE_HOSTNAMES` to that exact hostname and add that hostname to the matching Turnstile widget's allowed hostnames.
+
 ## API coverage
 
 - `GET /api/session`, `GET /api/setup/status`

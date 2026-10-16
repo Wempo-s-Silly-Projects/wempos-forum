@@ -8,6 +8,7 @@ import {
 import {
   createActiveBanList,
   createAttachmentQueue,
+  createGifQueue,
   createAvatarQueue,
   createReportQueue,
 } from "./admin.js";
@@ -32,7 +33,7 @@ import {
   updateBell,
 } from "./notifications.js";
 import { renderBannedScreen } from "./banned.js";
-import { initTheme } from "./theme.js";
+import { applyCornerPreference, initTheme } from "./theme.js";
 import {
   SOCIAL_LABELS,
   SOCIAL_PLATFORM_ORDER,
@@ -92,6 +93,8 @@ function profileBadgeFor(totalContributions) {
 let activeProfileAccentClass = null;
 let bannerColorClass = null;
 let activeProfileStyleNode = null;
+let activeGifComposerForm = null;
+let activePollComposerForm = null;
 function applyProfileTheme(profile) {
   const themeId = Number(profile.id || 0);
   if (activeProfileStyleNode) {
@@ -314,18 +317,18 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   accountActions.replaceChildren();
   // The mobile bar's last item mirrors the session: Profile (signed in) --
   // the static markup ships a Sign-in item for guests; the id marks it.
-  const mobileSignIn = document.querySelector("#mobile-signin");
+  const mobileSignIn = document.querySelector("#mobile-signin") ||
+    document.querySelector("#mobile-profile") ||
+    document.querySelector(".mobile-bar .mobile-bar-item:last-child");
   if (mobileSignIn) {
-    const item = mobileSignIn;
-    if (user) {
-      item.removeAttribute("id");
-      item.href = "/users/" + encodeURIComponent(user.username);
-      item.setAttribute("aria-label", "Profile");
-      item.title = "Profile";
-      const span = item.querySelector("span:last-of-type");
-      if (span) span.textContent = "Profile";
-      item.dataset.appLink = "";
-    }
+    const span = mobileSignIn.querySelector("span:last-of-type");
+    mobileSignIn.id = user ? "mobile-profile" : "mobile-signin";
+    mobileSignIn.href = user ? "/users/" + encodeURIComponent(user.username) : "/#join";
+    mobileSignIn.setAttribute("aria-label", user ? "Profile" : "Sign in");
+    mobileSignIn.title = user ? "Profile" : "Sign in";
+    if (span) span.textContent = user ? "Profile" : "Sign in";
+    if (user) mobileSignIn.dataset.appLink = "";
+    else mobileSignIn.removeAttribute("data-app-link");
   }
   // Suggestions board link (v2.4.1): the header's site-section link, styled
   // exactly like the links around it and visible to guests and signed-in
@@ -627,7 +630,7 @@ function renderProfile(profile, session) {
     image.alt = `Avatar of ${profile.username}`;
     heading.append(image);
   }
-  addHeading(heading, profile.username, 1);
+  addHeading(heading, profile.username, 1).classList.add("profile-name");
   // Flair (v2.5): a short filtered label under the name; next to it the
   // milestone badge (v2.5, display-only, computed from the counter).
   const flairRow = element("p", "profile-flair-row");
@@ -646,6 +649,7 @@ function renderProfile(profile, session) {
   }
   const banner = element("div", "profile-banner");
   if (profile.bannerText) banner.append(element("span", "profile-banner-text", profile.bannerText));
+  banner.hidden = !profile.bannerColor && !profile.bannerText;
   // The heading is appended AFTER this block — insertBefore on a not-yet-
   // attached node throws (the owner hit exactly that on the live site);
   // appending the banner first yields the same above-the-heading order.
@@ -688,7 +692,7 @@ function renderProfile(profile, session) {
   renderProfilePosts(profile, session.user);
 }
 
-function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, user) {
+function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, gifData, user) {
   addHeading(main, "Moderation desk", 1);
   addText(document, main, "p", "Review reports, hide inappropriate posts, and manage active bans.", "page-lede");
   addHeading(main, "Open reports", 2);
@@ -701,6 +705,8 @@ function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, p
   main.append(createCssQueue(cssData.cssSubmissions, document));
   addHeading(main, "Profile reports", 2);
   main.append(createProfileReportQueue(profileReportData.profileReports, document));
+  addHeading(main, "GIFs awaiting review", 2);
+  main.append(createGifQueue(gifData.gifs, document));
   addHeading(main, "Active bans", 2);
   main.append(createActiveBanList(banData.bans, document));
 }
@@ -1001,10 +1007,12 @@ function createCssQueue(submissions, document) {
     approve.type = "button";
     approve.dataset.action = "css-approve";
     approve.dataset.userId = String(submission.userId);
+    approve.dataset.version = String(submission.version || "");
     const reject = element("button", "button button-quiet", "Reject");
     reject.type = "button";
     reject.dataset.action = "css-reject";
     reject.dataset.userId = String(submission.userId);
+    reject.dataset.version = String(submission.version || "");
     item.append(head, preview, approve, reject);
     container.append(item);
   }
@@ -1012,16 +1020,17 @@ function createCssQueue(submissions, document) {
 }
 
 async function renderAdminRoute(context, version) {
-  const [reports, bans, avatars, attachments, css, profileReports] = await Promise.all([
+  const [reports, bans, avatars, attachments, css, profileReports, gifs] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/bans"),
     api("/api/admin/avatars"),
     api("/api/admin/attachments"),
     api("/api/admin/css"),
     api("/api/admin/profile-reports"),
+    api("/api/admin/gifs"),
   ]);
   if (version !== renderVersion) return;
-  renderAdmin(reports, bans, avatars, attachments, css, profileReports, context.session.user);
+  renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, context.session.user);
 }
 
 async function renderNotificationsRoute(context, version) {
@@ -1199,7 +1208,13 @@ async function submitProfileEditorForm(form, text) {
   // profile from GET /api/users/:username rather than trusting the response.
   await api("/api/me", {
     method: "PATCH",
-    body: { bio: text("bio"), socials },
+    body: {
+      bio: text("bio"),
+      socials,
+      bannerColor: text("bannerColor").trim().toLowerCase(),
+      bannerText: text("bannerText").trim(),
+      flair: text("flair").trim(),
+    },
   });
   await renderRoute({ name: "profile", username: currentUser.username });
   setMessage("Your profile was updated.");
@@ -1272,12 +1287,17 @@ function openDeleteAccountDialog() {
 }
 
 async function submitReportForm(text) {
-  await api("/api/posts/" + reportForm.dataset.postId + "/reports", {
-    method: "POST",
-    body: { reason: text("reason") },
-  });
+  const targetType = reportForm.dataset.targetType || "post";
+  const targetId = encodeURIComponent(reportForm.dataset.targetId || "");
+  const endpoint = targetType === "profile"
+    ? "/api/users/" + targetId + "/reports"
+    : "/api/posts/" + targetId + "/reports";
+  await api(endpoint, { method: "POST", body: { reason: text("reason") } });
   reportDialog.close();
   reportForm.reset();
+  delete reportForm.dataset.targetType;
+  delete reportForm.dataset.targetId;
+  document.querySelector("#report-title").textContent = "Report this post";
   setMessage("Your report was sent to the moderators.");
 }
 
@@ -1511,7 +1531,7 @@ async function openGifPicker(button) {
   if (!form) return;
   const dialog = gifPickerDialog();
   if (!dialog) return;
-  dialog.dataset.activeFormSelector = cssSelectorOfForm(form);
+  activeGifComposerForm = form;
   const grid = dialog.querySelector("#gif-grid");
   const data = await api("/api/gifs");
   grid.replaceChildren();
@@ -1544,7 +1564,8 @@ async function openGifPicker(button) {
 function confirmGifPicker(button) {
   const dialog = gifPickerDialog();
   if (!dialog) return;
-  const form = document.querySelector(dialog.dataset.activeFormSelector || "#nonexistent");
+  const form = connectedComposer(activeGifComposerForm);
+  activeGifComposerForm = null;
   const grid = dialog.querySelector("#gif-grid");
   const selected = [...grid.children].filter((node) => node.getAttribute("aria-pressed") === "true").map((node) => node.dataset.gifId);
   dialog.close();
@@ -1555,9 +1576,36 @@ function confirmGifPicker(button) {
   }
   renderComposerGifStrip(form);
 }
-function cssSelectorOfForm(form) {
-  const forms = [...document.querySelectorAll("form")];
-  return "form:nth-of-type(" + (forms.indexOf(form) + 1) + ")";
+async function uploadCommunityGif(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const upload = new FormData();
+    upload.append("gif", file, file.name);
+    const result = await api("/api/gifs", { method: "POST", body: upload });
+    const form = connectedComposer(activeGifComposerForm);
+    if (result.reuse && form) {
+      const { added } = addGifsToComposer(form, [result.id]);
+      renderComposerGifStrip(form);
+      if (added.length) {
+        gifPickerDialog()?.close();
+        activeGifComposerForm = null;
+        setMessage("That GIF is already approved and has been attached.");
+      } else {
+        setMessage("That GIF is approved, but this composer has no free attachment slots.", true);
+      }
+    } else {
+      setMessage(result.reuse
+        ? "That GIF is already in the approved library."
+        : "GIF submitted for moderator review.");
+    }
+  } finally {
+    input.value = "";
+  }
+}
+
+function connectedComposer(form) {
+  return form && form.isConnected ? form : null;
 }
 
 // Poll dialog (C3): open stashes the calling composer; confirm reads the
@@ -1569,16 +1617,19 @@ function openPollDialog(button) {
   const form = button.closest("form");
   const dialog = pollDialog();
   if (!form || !dialog) return;
-  dialog.dataset.activeFormSelector = cssSelectorOfForm(form);
+  activePollComposerForm = form;
   dialog.showModal();
 }
 
 function confirmPollDialog() {
   const dialog = pollDialog();
-  const form = dialog
-    ? document.querySelector(dialog.dataset.activeFormSelector || "#nonexistent")
-    : null;
-  if (!form || !dialog) return;
+  const form = connectedComposer(activePollComposerForm);
+  if (!form || !dialog) {
+    activePollComposerForm = null;
+    if (dialog) dialog.close();
+    setMessage("That composer is no longer on the page. Open the poll tool again.", true);
+    return;
+  }
   const question = dialog.querySelector("#poll-question").value.trim();
   const options = [1, 2, 3, 4]
     .map((slot) => dialog.querySelector("#poll-option-" + slot)?.value.trim() ?? "")
@@ -1588,6 +1639,7 @@ function confirmPollDialog() {
     return;
   }
   form.composerPoll = { question, options };
+  activePollComposerForm = null;
   dialog.querySelector("form").reset();
   dialog.close();
   setMessage("Poll attached — it posts with your message.");
@@ -1613,8 +1665,17 @@ function removeComposerFile(button) {
   renderComposerFileStrip(form);
 }
 
-function openReportDialog(button) {
-  reportForm.dataset.postId = button.dataset.postId;
+function openReportDialog(target) {
+  const isButton = target instanceof HTMLButtonElement;
+  const targetType = isButton ? "post" : target.type;
+  const targetId = isButton ? target.dataset.postId : target.id;
+  if (!["post", "profile"].includes(targetType) || !targetId) {
+    throw new Error("That report target is no longer available.");
+  }
+  reportForm.dataset.targetType = targetType;
+  reportForm.dataset.targetId = String(targetId);
+  document.querySelector("#report-title").textContent =
+    targetType === "profile" ? "Report this profile" : "Report this post";
   reportDialog.showModal();
   reportForm.querySelector("textarea").focus();
 }
@@ -1685,6 +1746,7 @@ async function loadMorePosts(button) {
   next.dataset.action = "load-more";
   next.dataset.before = String(older.nextBefore);
   if (board) next.dataset.board = board;
+  if (mine) next.dataset.mine = mine;
   main.append(next);
 }
 
@@ -1795,7 +1857,7 @@ async function handleButtonAction(button) {
     },
     "open-poll-dialog": () => openPollDialog(button),
     "confirm-poll-dialog": () => confirmPollDialog(),
-    "cancel-poll-dialog": () => pollDialog()?.close(),
+    "cancel-poll-dialog": () => { activePollComposerForm = null; pollDialog()?.close(); },
     // Polls (C3): the vote PUT (one changeable vote per member) and the
     // re-render refetches the payload's fresh counts.
     "poll-vote": async () => {
@@ -1808,7 +1870,18 @@ async function handleButtonAction(button) {
       await renderRoute(activeRoute);
     },
     "confirm-gif-picker": () => confirmGifPicker(button),
-    "cancel-gif-picker": () => gifPickerDialog()?.close(),
+    "cancel-gif-picker": () => { activeGifComposerForm = null; gifPickerDialog()?.close(); },
+    "choose-gif-upload": () => document.querySelector("#gif-marketplace-file")?.click(),
+    "gif-approve": async () => {
+      await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/approve", { method: "POST" });
+      await renderRoute(activeRoute);
+      setMessage("GIF approved and added to the public library.");
+    },
+    "gif-reject": async () => {
+      await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/reject", { method: "POST" });
+      await renderRoute(activeRoute);
+      setMessage("GIF submission rejected.");
+    },
     "remove-gif": () => {
       const form = button.closest("form");
       if (!form) return;
@@ -1842,29 +1915,32 @@ async function handleButtonAction(button) {
     },
     "clear-profile-css": async () => {
       await api("/api/me/css", { method: "DELETE" });
+      await renderRoute({ name: "profile", username: currentUser.username });
       setMessage("Custom CSS removed.");
     },
-    "report-profile": () => openReportDialog("profile", button.dataset.profileId),
+    "report-profile": () => openReportDialog({ type: "profile", id: button.dataset.profileId }),
     "resolve-profile-report": async (button) => {
       await api("/api/admin/profile-reports/" + encodeURIComponent(button.dataset.reportId) + "/resolve", { method: "POST" });
       button.closest(".report-queue-item")?.remove();
       setMessage("Report resolved.");
     },
     "css-approve": async (button) => {
-      await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/approve", { method: "POST" });
-      button.closest(".css-queue-item")?.remove();
+      const version = encodeURIComponent(button.dataset.version || "");
+      await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/approve?version=" + version, { method: "POST" });
+      await renderRoute(activeRoute);
       setMessage("CSS approved.");
     },
     "css-reject": async (button) => {
-      await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/reject", { method: "POST" });
-      button.closest(".css-queue-item")?.remove();
+      const version = encodeURIComponent(button.dataset.version || "");
+      await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/reject?version=" + version, { method: "POST" });
+      await renderRoute(activeRoute);
       setMessage("CSS rejected.");
     },
     "set-profile-accent": async () => {
       // Profile themes (v2.5): the swatch's data-accent is a whitelisted KEY
       // ("" = clear). The server re-validates; success re-renders the route.
       await api("/api/me", { method: "PATCH", body: { profileAccent: button.dataset.accent || "" } });
-      await renderRoute();
+      await renderRoute(activeRoute);
     },
     "edit-history": async () => {
       // Toggle: an open panel for this card closes; otherwise the past
@@ -1923,8 +1999,11 @@ attachmentLightbox?.addEventListener("click", () => attachmentLightbox.close());
 // chosen list at change time (cap + size messages surface on the status bar).
 document.addEventListener("change", (event) => {
   const input = event.target;
-  if (input instanceof HTMLInputElement && input.dataset.composerInput === "images") {
+  if (!(input instanceof HTMLInputElement)) return;
+  if (input.dataset.composerInput === "images") {
     handleComposerFileSelection(input);
+  } else if (input.dataset.composerInput === "gif-marketplace") {
+    uploadCommunityGif(input).catch((error) => setMessage(error.message, true));
   }
 });
 document.addEventListener("submit", async (event) => {
@@ -1938,16 +2017,9 @@ document.addEventListener("submit", async (event) => {
   }
 });
 
-// Theme resolution and the header toggle come first, before the router mounts
-// the page, so the manual-choice/OS-preference decision lands with the initial
-// render (the inline no-flash script already pinned a stored "dark" pre-paint).
-initTheme(document, localStorage);
-  applyCornerPreference(document, window.localStorage);
-
-// Footer version stamp: "v2.2 · <short sha>", straight from /api/version.
-// Both halves are server-generated and only ever reach the DOM through
-// textContent. A missing half renders as nothing, and a failed fetch (offline,
-// endpoint gone) leaves the tag empty — silent by design, never an error.
+// Theme storage may be unavailable in private/restricted contexts. That should
+// never prevent the application router from running or leave the HTML shell
+// stuck at its initial placeholder.
 async function fillVersionTag() {
   const info = await api("/api/version");
   const version = typeof info?.version === "string" ? info.version.split(".") : [];
@@ -1957,13 +2029,26 @@ async function fillVersionTag() {
     [shortVersion, commit].filter(Boolean).join(" · ");
 }
 
-fillVersionTag().catch(() => {});
-
-router = startRouter((route) => {
-  renderRoute(route).catch((error) => {
-    setMessage(error.message, true);
-    main.replaceChildren();
-    addHeading(main, "Something went wrong", 1);
-    addText(document, main, "p", error.message, "error-copy");
+try {
+  let storage;
+  try { storage = window.localStorage; }
+  catch { storage = { getItem: () => null, setItem: () => {} }; }
+  initTheme(document, storage);
+  applyCornerPreference(document, storage);
+  fillVersionTag().catch(() => {});
+  router = startRouter((route) => {
+    renderRoute(route).catch((error) => {
+      setMessage(error.message, true);
+      main.replaceChildren();
+      addHeading(main, "Something went wrong", 1);
+      addText(document, main, "p", error.message, "error-copy");
+    });
   });
-});
+} catch (error) {
+  console.error("Forum startup failed:", error);
+  main.replaceChildren();
+  addHeading(main, "The forum could not start", 1);
+  addText(document, main, "p",
+    "A startup error interrupted the forum. Refresh after the site is updated.",
+    "error-copy");
+}
