@@ -1320,3 +1320,26 @@ test("insertAttachments persists all files and their chunks in ONE all-or-nothin
   assert.equal(empty.batches.length, 0);
   assert.equal(empty.calls.length, 0);
 });
+
+
+test("a stale GIF reference aborts the whole attachment batch with a conflict", async () => {
+  const mock = mockDb([{ sql: /./ }], {
+    batchError: new Error("CHECK constraint failed: status IN ('pending', 'approved', 'rejected')"),
+  });
+
+  await assert.rejects(
+    () => insertAttachments(mock.db, 42, 7, [], [{
+      id: "gif-library-row",
+      hash: "a".repeat(64),
+      mime: "image/gif",
+    }]),
+    (error) => error instanceof HttpError && error.status === 409,
+  );
+
+  assert.equal(mock.batches.length, 1, "the metadata insert uses a single D1 batch");
+  const referenceInsert = mock.calls.find((call) => call.sql.startsWith("INSERT INTO attachments"));
+  assert.ok(referenceInsert);
+  assert.match(referenceInsert.sql, /CASE WHEN EXISTS/);
+  assert.match(referenceInsert.sql, /THEN 'approved' ELSE 'invalid' END/);
+  assert.doesNotMatch(referenceInsert.sql, /WHERE EXISTS/, "missing/revoked GIFs must trip the CHECK instead of silently inserting zero rows");
+});
