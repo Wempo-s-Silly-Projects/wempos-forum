@@ -582,7 +582,10 @@ async function persistStagedPostAttachments(db, postId, authorId, files, gifEntr
       "AND (parent_id IS NULL OR EXISTS (" +
       "SELECT 1 FROM posts target WHERE target.id = posts.parent_id AND target.visibility = 'public' AND (" +
       "target.parent_id IS NULL OR EXISTS (SELECT 1 FROM posts root WHERE root.id = target.parent_id " +
-      "AND root.parent_id IS NULL AND root.visibility = 'public'))))",
+      "AND root.parent_id IS NULL AND root.visibility = 'public')))) " +
+      "AND NOT EXISTS (SELECT 1 FROM attachments a WHERE a.post_id = posts.id AND a.source_kind = 'gif' " +
+      "AND NOT EXISTS (SELECT 1 FROM gifs g WHERE g.hash = a.hash AND g.status = 'approved' " +
+      "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = g.hash)))",
     ).bind(postId, authorId);
     if (bumpTargetId !== null) {
       // Publish and bump together so the root activity clock does not advance
@@ -626,47 +629,10 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
     const idempotencyKey = getPostIdempotencyKey(request);
-    const existing = await existingIdempotentPost(db, session.user.id, idempotencyKey);
-    if (existing) {
-      if (existing.visibility !== "public") throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
-      return json({ id: Number(existing.id) }, 200);
-    }
     await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
     const targetId = Number(replyMatch[1]);
     if (!Number.isSafeInteger(targetId) || targetId < 1) throw new HttpError(404, "Post not found.");
-    const target = await postById(env, targetId, session.user.id);
-    if (!target || target.visibility !== "public") {
-      throw new HttpError(400, "Replies must be attached to a public conversation, not another reply.");
-    }
-    // The bump lands on the conversation root: the target itself, or the
-    // target's parent (a public root) when replying to a level-1 reply.
-    let bumpTargetId = Number(target.id);
-    // Boards (v2.4.1): replies carry their thread ROOT's board, resolved from
-    // the same rows the bump logic already fetched (the target when it is a
-    // root, else its parent). The || normalization keeps rows from pre-board
-    // projections at 'general'.
-    let threadBoard = target.board || GENERAL_BOARD_DEFAULT;
-    if (target.parent_id !== null && target.parent_id !== undefined) {
-      const parent = await postById(env, Number(target.parent_id), session.user.id);
-      if (!parent || parent.visibility !== "public") {
-        throw new HttpError(400, "Replies must be attached to a public conversation, not another reply.");
-      }
-      if (parent.parent_id !== null && parent.parent_id !== undefined) {
-        throw new HttpError(400, "Replies only go one level deep.");
-      }
-      bumpTargetId = Number(parent.id);
-      threadBoard = parent.board || GENERAL_BOARD_DEFAULT;
-    }
-    // Banning auto-hides posts (v2.4.1): a reply into a banned author's thread
-    // would create content nobody can see while the ban holds (hidden-post
-    // parity — hidden roots already refuse replies via the visibility check
-    // above). The viewer's exemptions mirror canViewPost: their own threads
-    // and admins still pass. The depth refusal above stays authoritative; this
-    // check runs after it so its own message is not shadowed.
-    if (!(await canViewPost(env, target, session.user))) {
-      throw new HttpError(400, "Replies are closed while this conversation's author is banned.");
-    }
     const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
       .startsWith("multipart/form-data");
     // Charge multipart composer requests before parsing, hashing, sniffing, or duplicate lookup.
@@ -678,8 +644,45 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
-    await requireTurnstile(request, env, fields, "reply");
     const message = applyWordFilter(requiredText(fields.body, "reply", MAX_COMPOSER_BODY_CHARS), env.FILTERED_WORDS);
+    const idempotencyFingerprint = idempotencyKey
+      ? await postCreationFingerprint({ kind: "reply", targetId, message, files, gifEntries })
+      : null;
+    const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
+    if (replay) return replay;
+        const target = await postById(env, targetId, session.user.id);
+        if (!target || target.visibility !== "public") {
+          throw new HttpError(400, "Replies must be attached to a public conversation, not another reply.");
+        }
+        // The bump lands on the conversation root: the target itself, or the
+        // target's parent (a public root) when replying to a level-1 reply.
+        let bumpTargetId = Number(target.id);
+        // Boards (v2.4.1): replies carry their thread ROOT's board, resolved from
+        // the same rows the bump logic already fetched (the target when it is a
+        // root, else its parent). The || normalization keeps rows from pre-board
+        // projections at 'general'.
+        let threadBoard = target.board || GENERAL_BOARD_DEFAULT;
+        if (target.parent_id !== null && target.parent_id !== undefined) {
+          const parent = await postById(env, Number(target.parent_id), session.user.id);
+          if (!parent || parent.visibility !== "public") {
+            throw new HttpError(400, "Replies must be attached to a public conversation, not another reply.");
+          }
+          if (parent.parent_id !== null && parent.parent_id !== undefined) {
+            throw new HttpError(400, "Replies only go one level deep.");
+          }
+          bumpTargetId = Number(parent.id);
+          threadBoard = parent.board || GENERAL_BOARD_DEFAULT;
+        }
+        // Banning auto-hides posts (v2.4.1): a reply into a banned author's thread
+        // would create content nobody can see while the ban holds (hidden-post
+        // parity — hidden roots already refuse replies via the visibility check
+        // above). The viewer's exemptions mirror canViewPost: their own threads
+        // and admins still pass. The depth refusal above stays authoritative; this
+        // check runs after it so its own message is not shadowed.
+        if (!(await canViewPost(env, target, session.user))) {
+          throw new HttpError(400, "Replies are closed while this conversation's author is banned.");
+        }
+    await requireTurnstile(request, env, fields, "reply");
     const now = nowSeconds();
     const recipientId = target.author_id === null || target.author_id === undefined
       ? null
@@ -687,17 +690,16 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const hasAttachments = files.length > 0 || gifEntries.length > 0;
     const insertSql = hasAttachments ? THREAD_REPLY_INSERT_STAGED_SQL : THREAD_REPLY_INSERT_SQL;
     const insertValues = hasAttachments
-      ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, targetId, session.user.id, now]
-      : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, targetId, session.user.id, now];
+      ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, idempotencyFingerprint, targetId, session.user.id, now]
+      : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, idempotencyFingerprint, targetId, session.user.id, now];
     const insertStatements = [db.prepare(insertSql).bind(...insertValues)];
     if (!hasAttachments) insertStatements.push(db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId));
     let results;
     try {
       results = await db.batch(insertStatements);
     } catch (error) {
-      const raced = await existingIdempotentPost(db, session.user.id, idempotencyKey);
-      if (raced?.visibility === "public") return json({ id: Number(raced.id) }, 200);
-      if (raced) throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
+      const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
+      if (replay) return replay;
       throw error;
     }
     if (Number(results[0]?.meta?.changes) !== 1) {
@@ -759,11 +761,6 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
     const idempotencyKey = getPostIdempotencyKey(request);
-    const existing = await existingIdempotentPost(db, session.user.id, idempotencyKey);
-    if (existing) {
-      if (existing.visibility !== "public") throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
-      return json({ id: Number(existing.id) }, 200);
-    }
     await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
     const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
@@ -777,12 +774,17 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
-    await requireTurnstile(request, env, fields, "post");
     const message = applyWordFilter(requiredText(fields.body, "post", MAX_COMPOSER_BODY_CHARS), env.FILTERED_WORDS);
     // The board rides the same fields object in both wire formats (JSON field
     // or multipart text part); absent/empty defaults to 'general', unknown
     // values 400 before any insert.
     const board = boardField(fields.board);
+    const idempotencyFingerprint = idempotencyKey
+      ? await postCreationFingerprint({ kind: "post", message, board, files, gifEntries })
+      : null;
+    const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
+    if (replay) return replay;
+    await requireTurnstile(request, env, fields, "post");
     const now = nowSeconds();
     // A fresh root starts its activity clock at creation time. When it carries
     // attachments it stays hidden until their batch is durable, so a failed
@@ -794,15 +796,14 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     let result;
     try {
       result = await db.prepare(
-        "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key) " +
-          "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ? WHERE NOT EXISTS (" +
+        "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint) " +
+          "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
           "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
           "AND (expires_at IS NULL OR expires_at > ?))",
-      ).bind(session.user.id, message, now, now, board, idempotencyKey, session.user.id, now).run();
+      ).bind(session.user.id, message, now, now, board, idempotencyKey, idempotencyFingerprint, session.user.id, now).run();
     } catch (error) {
-      const raced = await existingIdempotentPost(db, session.user.id, idempotencyKey);
-      if (raced?.visibility === "public") return json({ id: Number(raced.id) }, 200);
-      if (raced) throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
+      const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
+      if (replay) return replay;
       throw error;
     }
     requireMutationApplied(result);
