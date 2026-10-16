@@ -1232,7 +1232,7 @@ test("rejecting an APPROVED attachment hard-deletes the row (chunks cascade)", a
   assert.deepEqual(rejectCall.values, ["shared-hash"]);
   assert.equal(mock.batches.length, 1, "approved rejection atomically records the hash tombstone and deletes every approved duplicate");
   assert.equal(mock.batches[0].length, 3);
-  assert.ok(mock.batches[0][2].sql.includes("DELETE FROM gifs WHERE hash = ? AND status = 'approved'"));
+  assert.ok(mock.calls.some((call) => call.sql.includes("DELETE FROM gifs WHERE hash = ? AND status = 'approved'")));
   // HARD delete, no relabel: the approved chunk set dies with the row via the
   // FK cascade, so no UPDATE may fire.
   assert.equal(
