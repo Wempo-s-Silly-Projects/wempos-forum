@@ -3,9 +3,21 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light">
-    <meta name="theme-color" content="#f7efdc">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7efdc">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#131b27">
     <title>Wempo's Forum</title>
+    <script>
+      // No-flash pin: only a manually stored choice is applied here; the OS
+      // case is handled by the prefers-color-scheme rules in styles.css.
+      try {
+        if (localStorage.getItem("forum-theme") === "dark") {
+          document.documentElement.dataset.theme = "dark";
+        }
+      } catch (error) {
+        // Storage unavailable: the stylesheet's OS preference handles the look.
+      }
+    </script>
     <link rel="stylesheet" href="/styles.css">
     <script type="module" src="/js/app.js"></script>
   </head>
@@ -24,6 +36,7 @@
             <button class="button button-secondary" type="submit">Search</button>
           </form>
         </search>
+        <button id="theme-toggle" class="button button-secondary" type="button" aria-label="Switch to dark theme">Theme</button>
         <nav class="account-nav" aria-label="Account navigation" id="account-actions"></nav>
       </div>
     </header>

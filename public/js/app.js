@@ -21,6 +21,7 @@ import {
   updateBell,
 } from "./notifications.js";
 import { renderBannedScreen } from "./banned.js";
+import { initTheme } from "./theme.js";
 import {
   SOCIAL_LABELS,
   SOCIAL_PLATFORM_ORDER,
@@ -1022,6 +1023,11 @@ document.addEventListener("submit", async (event) => {
     setMessage(error.message, true);
   }
 });
+
+// Theme resolution and the header toggle come first, before the router mounts
+// the page, so the manual-choice/OS-preference decision lands with the initial
+// render (the inline no-flash script already pinned a stored "dark" pre-paint).
+initTheme(document, localStorage);
 
 router = startRouter((route) => {
   renderRoute(route).catch((error) => {

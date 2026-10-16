@@ -9,6 +9,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildSocialLinks, invalidSocialKeys, SOCIAL_LABELS } from "../public/js/profile-editor.js";
+import { resolveTheme } from "../public/js/theme.js";
 import { notificationItemView } from "../public/js/notifications.js";
 import { formatBanCountdown } from "../public/js/banned.js";
 
@@ -214,4 +215,23 @@ test("a mixed selection keeps the acceptable files and reports the rest", () => 
   // One over-cap notice per file the cap refused, never a silent truncation.
   assert.equal(result.notices.filter((notice) => /3 images/.test(notice)).length, 2);
   assert.equal(result.notices.filter((notice) => /1 MiB/.test(notice)).length, 1);
+});
+
+// --- Task 8: theme resolution ------------------------------------------------
+// resolveTheme is pure and DOM-free: a manually stored "dark"/"light" choice
+// always wins; anything else (null, empty, garbage) defers to the OS setting.
+
+test("a stored manual choice beats the OS preference, both directions", () => {
+  assert.equal(resolveTheme("dark", false), "dark");
+  assert.equal(resolveTheme("light", true), "light");
+});
+
+test("a null preference follows the OS setting", () => {
+  assert.equal(resolveTheme(null, true), "dark");
+  assert.equal(resolveTheme(null, false), "light");
+});
+
+test("garbage and empty preferences are ignored in favor of the OS setting", () => {
+  assert.equal(resolveTheme("bogus", true), "dark");
+  assert.equal(resolveTheme("", false), "light");
 });
