@@ -653,6 +653,41 @@ test("human verification is enforced only against configured hostnames", async (
   );
 });
 
+test("Turnstile hostname wildcards match only subdomains of the configured suffix", async () => {
+  const cases = [
+    { hostname: "pr-18-wempos-forum.itswempo.workers.dev", allowed: true },
+    { hostname: "itswempo.workers.dev", allowed: false },
+    { hostname: "notitswempo.workers.dev", allowed: false },
+    { hostname: "itswempo.workers.dev.attacker.example", allowed: false },
+    { hostname: "wempos-forum.workers.dev", allowed: false },
+  ];
+
+  for (const scenario of cases) {
+    const request = turnstileRequest();
+    const body = await request.json();
+    const siteverify = withMockedSiteverify({
+      success: true,
+      action: "login",
+      hostname: scenario.hostname,
+    });
+    try {
+      const verification = requireTurnstile(
+        request,
+        turnstileEnv({ TURNSTILE_HOSTNAMES: "*.itswempo.workers.dev" }),
+        body,
+        "login",
+      );
+      if (scenario.allowed) {
+        await verification;
+      } else {
+        await assert.rejects(verification, (error) => error.status === 403);
+      }
+    } finally {
+      siteverify.done();
+    }
+  }
+});
+
 test("siteverify failures fail closed with a 403", async () => {
   const request = turnstileRequest();
   const body = await request.json();
