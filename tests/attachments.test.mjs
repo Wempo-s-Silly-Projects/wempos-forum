@@ -1141,11 +1141,11 @@ test("approving flips the pending chunks to approved, marks the row approved, an
   assert.ok(mock.calls.some((call) => /^SELECT id FROM bans WHERE user_id = \?/.test(call.sql)));
 });
 
-test("rejecting deletes the attachments row so its chunks cascade away", async () => {
+test("rejecting deletes a still-pending attachment so its chunks cascade away", async () => {
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /SELECT hash, status FROM attachments WHERE id = \? AND status IN \('pending', 'approved'\)/, result: { hash: "", status: "pending" } },
+    { sql: /SELECT hash, status FROM attachments WHERE id = \\? AND status IN \\('pending', 'approved'\\)/, result: { hash: "", status: "pending" } },
     { sql: /^DELETE FROM attachments/, runMeta: { meta: { changes: 1 } } },
     { sql: /./ },
   ]);
@@ -1160,8 +1160,8 @@ test("rejecting deletes the attachments row so its chunks cascade away", async (
   const rejectCall = mock.calls.find((call) => call.sql.startsWith("DELETE FROM attachments"));
   assert.ok(rejectCall, "the reject DELETE must run");
   assert.ok(
-    rejectCall.sql.includes("DELETE FROM attachments WHERE id = ? AND status IN ('pending', 'approved')"),
-    "a hard delete is offered for BOTH pending and (wrongly) approved rows",
+    rejectCall.sql.includes("DELETE FROM attachments WHERE id = ? AND status = 'pending'"),
+    "the delete must not remove a row that became approved after the initial read",
   );
   assert.deepEqual(rejectCall.values, [ATTACHMENT_ID]);
   // No chunk relabel may fire on reject — the FK cascade removes the bytes.
@@ -1171,42 +1171,22 @@ test("rejecting deletes the attachments row so its chunks cascade away", async (
   );
 });
 
-test("after approval the row is gone from the queue on re-listing", async () => {
-  let pendingQueueRows = [QUEUE_ROW];
-  const queueRoute = {
-    sql: ATTACHMENT_QUEUE_SQL,
-    get rows() {
-      return pendingQueueRows;
-    },
-  };
+test("a pending attachment that becomes approved during rejection is not deleted without revocation", async () => {
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /SELECT hash FROM attachments WHERE id = \? AND status = 'pending'/, result: { hash: null } },
-    { sql: /^UPDATE attachments SET/, runMeta: { meta: { changes: 1 } } },
-    queueRoute,
+    { sql: /SELECT hash, status FROM attachments WHERE id = \\? AND status IN \\('pending', 'approved'\\)/, result: { hash: "shared-hash", status: "pending" } },
+    { sql: /^DELETE FROM attachments/, runMeta: { meta: { changes: 0 } } },
     { sql: /./ },
   ]);
-
-  const approveResponse = await forumWorker.fetch(
-    adminActionRequest(ATTACHMENT_ID, "approve"),
+  const response = await forumWorker.fetch(
+    adminActionRequest(ATTACHMENT_ID, "reject"),
     envFor(mock.db),
   );
-  assert.equal(approveResponse.status, 200);
-  pendingQueueRows = [];
-
-  const listResponse = await forumWorker.fetch(
-    new Request("https://forum.example/api/admin/attachments", {
-      headers: { Cookie: "wempo_session=" + "s".repeat(43) },
-    }),
-    envFor(mock.db),
-  );
-  assert.equal(listResponse.status, 200);
-  const body = await listResponse.json();
-  assert.deepEqual(body.attachments, []);
+  assert.equal(response.status, 409);
+  assert.match((await response.json()).error, /changed while moderation was in progress/);
+  assert.equal(mock.batches.length, 0, "the stale pending decision must not revoke or delete approved content");
 });
-
-const NOT_PENDING_META = { meta: { changes: 0 } };
 
 // Remediation path for a misclicked approval: the hard delete must admit an
 // 'approved' status too (chunks cascade with the row), while a 'rejected' or
