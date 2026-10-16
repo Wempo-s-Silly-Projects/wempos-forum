@@ -1633,3 +1633,10 @@ dialog h2 {
   border-color: var(--green);
   color: var(--green-dark);
 }
+
+/* Pinning (C5): the pinned chip sits in the card header, token-styled. */
+.post-pinned {
+  color: var(--yellow-hover);
+  display: inline-flex;
+  align-items: center;
+}

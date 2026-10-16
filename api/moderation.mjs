@@ -344,6 +344,53 @@ async function handleAvatarModerationRoute(request, env, url, path, method) {
   return json({ ok: true });
 }
 
+// Thread pinning (C5): POST /api/admin/threads/:id/pin|unpin — moderators or
+// admin, the desk idiom (requireModerator mutating + changes-checked UPDATE
+// with a SQL guard). Root-only like boards/subscriptions; the write-time WHERE
+// clauses are also the idempotency-conflict detector, turning a double pin or
+// an unpin of an unpinned thread into a 409 instead of a silent no-op.
+const THREAD_PIN_ROUTE = /^\/api\/admin\/threads\/([0-9]+)\/(pin|unpin)$/;
+
+async function handleThreadPinRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
+  const match = path.match(THREAD_PIN_ROUTE);
+  if (!match || method !== "POST") return null;
+
+  const session = await requireModerator(request, env);
+  await assertNotBanned(env, session.user.id);
+  const threadId = Number(match[1]);
+  if (!Number.isSafeInteger(threadId) || threadId < 1) {
+    throw new HttpError(404, "Thread not found.");
+  }
+  const thread = await db.prepare(
+    "SELECT id, parent_id, pinned_at FROM posts WHERE id = ? LIMIT 1",
+  ).bind(threadId).first();
+  if (!thread) throw new HttpError(404, "Thread not found.");
+  // Root-only: a reply has no pin of its own.
+  if (thread.parent_id !== null && thread.parent_id !== undefined) {
+    throw new HttpError(400, "Only thread roots can be pinned.");
+  }
+  const now = nowSeconds();
+  if (match[2] === "pin") {
+    // The pinned_at guard turns an already-pinned thread (or a thread deleted
+    // between the read and the write) into a 0-change update → 409/404.
+    const result = await db.prepare(
+      "UPDATE posts SET pinned_at = ? WHERE id = ? AND parent_id IS NULL AND pinned_at IS NULL",
+    ).bind(now, threadId).run();
+    if (Number(result.meta?.changes) !== 1) {
+      throw new HttpError(thread ? 409 : 404, "This thread is already pinned.");
+    }
+    return json({ ok: true, pinned: true });
+  }
+  const result = await db.prepare(
+    "UPDATE posts SET pinned_at = NULL WHERE id = ? AND parent_id IS NULL AND pinned_at IS NOT NULL",
+  ).bind(threadId).run();
+  if (Number(result.meta?.changes) !== 1) {
+    throw new HttpError(409, "This thread is not pinned.");
+  }
+  return json({ ok: true, pinned: false });
+}
+
 async function handleModerationRoutes(request, env, url, path, method) {
   const handlers = [
     handleReportCreateRoute,
@@ -354,6 +401,7 @@ async function handleModerationRoutes(request, env, url, path, method) {
     handleRoleChangeRoute,
     handleAvatarQueueRoute,
     handleAvatarModerationRoute,
+    handleThreadPinRoute,
   ];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method);

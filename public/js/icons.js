@@ -21,6 +21,8 @@ const ICON_PATHS = {
   image: ["M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z", "M3 15l5-5 6 6", "M12.5 14.5l3.5-3.5 5 5", "M9 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"],
   eye: ["M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z", "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"],
   lightbulb: ["M9 18h6", "M10 22h4", "M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z"],
+  // Pinning (C5): the pushpin — pinned threads.
+  pin: ["M12 17v5", "M9 10.5V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6.5l2.5 2.5H6.5z", "M6.5 13h11"],
   // Polls (C3): a bar chart — the composer's Poll button.
   poll: ["M5 20V11", "M12 20V4", "M19 20v-5", "M2 20h20"],
   // Bookmarks (C4): the ribbon — save/unsave a post.

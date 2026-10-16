@@ -587,6 +587,11 @@ function publicPost(row, publicLevel) {
     likeCount: Number(row.like_count || 0),
     dislikeCount: Number(row.dislike_count || 0),
     viewerReaction: row.viewer_reaction || null,
+    // Pinning (C5): the stamp (epoch seconds) as ISO, null never-pinned. Rows
+    // from pre-migration projections normalize to null like editedAt.
+    pinnedAt: row.pinned_at === null || row.pinned_at === undefined || Number(row.pinned_at) === 0
+      ? null
+      : new Date(Number(row.pinned_at) * 1000).toISOString(),
   };
   if (publicLevel !== undefined) post.publicLevel = publicLevel;
   return post;

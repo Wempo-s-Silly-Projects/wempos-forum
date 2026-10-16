@@ -983,9 +983,11 @@ test("migration 0009 adds a NOT NULL view_count defaulting to zero", () => {
 
 const MIGRATION_0013 = readFileSync(path.join(repoRoot, "migrations", "0013_subscriptions.sql"), "utf8");
 const MIGRATION_0015 = readFileSync(path.join(repoRoot, "migrations", "0015_bookmarks.sql"), "utf8");
+const MIGRATION_0016 = readFileSync(path.join(repoRoot, "migrations", "0016_pinning.sql"), "utf8");
 
 const apply0013 = (db) => applyFile(db, MIGRATION_0013);
 const apply0015 = (db) => applyFile(db, MIGRATION_0015);
+const apply0016 = (db) => applyFile(db, MIGRATION_0016);
 
 function applyFile(db, sql) {
   db.exec("BEGIN");
@@ -1076,4 +1078,30 @@ test("migration 0015 creates bookmarks with the composite PK, cascade FKs, and a
   // Cascades with the thread.
   db.prepare("DELETE FROM posts WHERE id = 1").run();
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM bookmarks").get().n, 0);
+});
+
+// --- 0016: posts.pinned_at (C5) --------------------------------------------------
+
+test("migration 0016 adds a nullable pinned_at column in place", () => {
+  const db = openLatestDb();
+  const before = columnsOf(db, "posts");
+  assert.ok(!before.includes("pinned_at"), "pinned_at must not exist before 0016");
+  apply0016(db);
+  const columns = columnsOf(db, "posts");
+  assert.ok(columns.includes("pinned_at"), "missing posts.pinned_at");
+  assert.deepEqual(
+    columns.filter((name) => name !== "pinned_at"),
+    before,
+    "0016 must not disturb any existing posts column",
+  );
+  // Pre-migration rows (and inserts omitting it) read unpinned; a stamp is
+  // writable and readable, and unpinning returns to NULL.
+  assert.equal(db.prepare("SELECT pinned_at FROM posts WHERE id = 1").get().pinned_at, null);
+  db.prepare("INSERT INTO posts (author_id, parent_id, body, created_at) VALUES (?, NULL, ?, ?)")
+    .run(1, "post after 0016", T + 600);
+  const id = db.prepare("SELECT id FROM posts ORDER BY id DESC LIMIT 1").get().id;
+  db.prepare("UPDATE posts SET pinned_at = ? WHERE id = ?").run(T + 700, id);
+  assert.equal(db.prepare("SELECT pinned_at FROM posts WHERE id = ?").get(id).pinned_at, T + 700);
+  db.prepare("UPDATE posts SET pinned_at = NULL WHERE id = ?").run(id);
+  assert.equal(db.prepare("SELECT pinned_at FROM posts WHERE id = ?").get(id).pinned_at, null);
 });

@@ -448,7 +448,7 @@ test("the activity feed uses the composite keyset and both cursor parts must be 
     pageOneBody.posts[0].lastActivityAt,
     new Date(1700100100 * 1000).toISOString(),
   );
-  assert.match(pageOne.calls[0].sql, /ORDER BY p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
+  assert.match(pageOne.calls[0].sql, /ORDER BY \(p\.pinned_at IS NULL\) ASC, p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
   assert.deepEqual(pageOne.calls[0].values, [-1]);
   // hasMore (21 rows) emits the 20th shown row as composite seconds_id cursor.
   assert.equal(pageOneBody.nextBefore, "1700100081_81");
@@ -480,7 +480,7 @@ test("cursor-driven feed pages walk the composite key", async () => {
   assert.equal(body.posts.length, 4);
   assert.match(mock.calls[0].sql,
     /AND \(p\.last_activity_at < \? OR \(p\.last_activity_at = \? AND p\.id < \?\)\) /);
-  assert.match(mock.calls[0].sql, /ORDER BY p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
+  assert.match(mock.calls[0].sql, /ORDER BY \(p\.pinned_at IS NULL\) ASC, p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
   assert.deepEqual(mock.calls[0].values, [-1, 1700100080, 1700100080, 80]);
   assert.equal(body.nextBefore, null);
 
@@ -567,7 +567,7 @@ test("search keeps id-DESC ordering and never orders by activity by default", as
     byActivity: true,
     before: { seconds: 1700000000, id: 1 },
   });
-  assert.match(mock.calls[0].sql, /ORDER BY p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
+  assert.match(mock.calls[0].sql, /ORDER BY \(p\.pinned_at IS NULL\) ASC, p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
   assert.match(mock.calls[0].sql, /AND \(p\.last_activity_at < \? OR \(p\.last_activity_at = \? AND p\.id < \?\)\)/);
   assert.deepEqual(mock.calls[0].values, [-1, 1700000000, 1700000000, 1]);
   assert.equal(feed.nextBefore, "1700000019_881", "activity cursors are composite seconds_id strings");
@@ -1139,7 +1139,7 @@ test("each feed page pays exactly one counts query and one latest-replies query,
   assert.equal(feedCall.sql.includes("reply_count"), false);
   assert.equal(feedCall.sql.includes("latest"), false);
   assert.match(feedCall.sql, /WHERE p\.parent_id IS NULL AND p\.visibility = 'public' /);
-  assert.match(feedCall.sql, /ORDER BY p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
+  assert.match(feedCall.sql, /ORDER BY \(p\.pinned_at IS NULL\) ASC, p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
   assert.equal(feedCall.values.length, 1);
 
   // Detail and replies read paths gain nothing (unchanged payloads).

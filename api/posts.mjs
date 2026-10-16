@@ -204,7 +204,12 @@ async function listRootPosts(env, viewer, options = {}) {
       sql += "AND (p.last_activity_at < ? OR (p.last_activity_at = ? AND p.id < ?)) ";
       values.push(cursor.seconds, cursor.seconds, cursor.id);
     }
-    sql += "ORDER BY p.last_activity_at DESC, p.id DESC LIMIT 21";
+    // Pinning (C5): moderator-pinned roots float FIRST in the home feed, ahead
+    // of the by-activity ordering. The pagination cursor keeps walking the
+    // unchanged (last_activity_at, id) keyset — a pinned root whose activity
+    // sits below a cursor boundary therefore re-appears on later pages (it
+    // still sorts first); a documented rough edge of the simple stamp.
+    sql += "ORDER BY (p.pinned_at IS NULL) ASC, p.last_activity_at DESC, p.id DESC LIMIT 21";
     const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
     const rows = result.results || [];
     const hasMore = rows.length > 20;

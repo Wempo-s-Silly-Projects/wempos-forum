@@ -167,7 +167,7 @@ test("a missing board param keeps the general feed SQL unchanged (pin)", async (
   assert.equal(feedCall.sql.includes("AND p.board"), false);
   assert.equal(feedCall.sql.includes("SUM(CASE"), false, "no score expression");
   assert.match(feedCall.sql, /WHERE p\.parent_id IS NULL AND p\.visibility = 'public' /);
-  assert.match(feedCall.sql, /ORDER BY p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
+  assert.match(feedCall.sql, /ORDER BY \(p\.pinned_at IS NULL\) ASC, p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
   assert.deepEqual(feedCall.values, [-1]);
   assert.equal(body.nextBefore, null);
 });

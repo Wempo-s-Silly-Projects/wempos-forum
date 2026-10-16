@@ -212,6 +212,14 @@ export const createPostCard = (post, document, currentUser = null) => {
     historyToggle.dataset.postId = String(post.id);
     header.append(historyToggle);
   }
+  // Pinning (C5): the chip rides the payload's pinnedAt (null until pinned).
+  // Root cards only — a reply row never carries its own pin.
+  if (post.pinnedAt && !post.parent) {
+    const chip = createElement(document, "span", "post-pinned icon-inline");
+    chip.append(createIcon(document, "pin"));
+    chip.append(createElement(document, "span", "visually-hidden", "Pinned"));
+    header.append(chip);
+  }
   article.append(header);
 
   renderBodyBlocks(post, document, article);
@@ -383,6 +391,20 @@ export const createPostCard = (post, document, currentUser = null) => {
     expandButton.dataset.postId = String(post.id);
     expandButton.setAttribute("aria-expanded", "false");
     actions.append(expandButton);
+  }
+  // Pinning (C5): moderators and admins get the pin/unpin control on ROOT
+  // cards only (the server's gate is the desk idiom; the same roles and the
+  // same root-only rule the client mirrors). The payload's pinnedAt picks the
+  // label: a pinned root shows Unpin, everything else shows Pin.
+  if (currentUser && !post.parent &&
+      (currentUser.role === "admin" || currentUser.role === "moderator")) {
+    const isPinned = Boolean(post.pinnedAt);
+    const pinButton = createElement(document, "button", "button button-quiet",
+      isPinned ? "Unpin" : "Pin");
+    pinButton.type = "button";
+    pinButton.dataset.action = isPinned ? "thread-unpin" : "thread-pin";
+    pinButton.dataset.postId = String(post.id);
+    actions.append(pinButton);
   }
   article.append(actions);
   return article;

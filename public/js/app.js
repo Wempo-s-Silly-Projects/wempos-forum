@@ -1638,6 +1638,18 @@ async function handleButtonAction(button) {
     "mark-notifications-read": () => markAllNotificationsRead(),
     "composer-attach": () => attachComposerImages(button),
     "open-gif-picker": () => openGifPicker(button),
+    // Pinned (C5): the moderator desk's pin/unpin — POST to the admin route and
+    // re-render; the payload's pinnedAt decides which control each card shows.
+    "thread-pin": async () => {
+      await api("/api/admin/threads/" + button.dataset.postId + "/pin", { method: "POST" });
+      await renderRoute(activeRoute);
+      setMessage("Thread pinned.");
+    },
+    "thread-unpin": async () => {
+      await api("/api/admin/threads/" + button.dataset.postId + "/unpin", { method: "POST" });
+      await renderRoute(activeRoute);
+      setMessage("Thread unpinned.");
+    },
     "open-poll-dialog": () => openPollDialog(button),
     "confirm-poll-dialog": () => confirmPollDialog(),
     "cancel-poll-dialog": () => pollDialog()?.close(),
