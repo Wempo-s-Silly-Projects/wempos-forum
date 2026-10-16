@@ -13,8 +13,7 @@ test("theme prepaint runs from a same-origin script allowed by the strict CSP", 
 });
 
 test("theme prepaint only applies recognized stored values", async () => {
-  const source = await readFile(preloadPath, "utf8");
-  const originalDocument = globalThis.document;
+    const originalDocument = globalThis.document;
   const originalStorage = globalThis.localStorage;
   try {
     for (const [stored, expected] of [["dark", "dark"], ["light", "light"], ["unknown", undefined], [null, undefined]]) {
