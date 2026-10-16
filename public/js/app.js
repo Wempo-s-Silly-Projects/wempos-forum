@@ -1139,6 +1139,7 @@ async function submitAuthForm(type, form, text) {
 }
 
 async function submitNewPost(form, text) {
+  const idempotencyKey = form.dataset.idempotencyKey || (form.dataset.idempotencyKey = crypto.randomUUID());
   // buildComposerBody picks the wire format: FormData (repeatable "images"
   // parts) when files were chosen, otherwise the exact pre-attachment JSON
   // payload. api() passes FormData straight through without a Content-Type.
@@ -1153,7 +1154,8 @@ async function submitNewPost(form, text) {
     board: form.dataset.board,
   });
   refreshTurnstile(form);
-  const post = await api("/api/posts", { method: "POST", body: submission.body });
+  const post = await api("/api/posts", { method: "POST", body: submission.body, idempotencyKey });
+  delete form.dataset.idempotencyKey;
   // Polls (C3): a stashed poll attaches to the fresh thread BEFORE the
   // navigation; a failed attach never loses the (already live) post.
   let pollNote = "";
@@ -1172,6 +1174,7 @@ async function submitNewPost(form, text) {
 }
 
 async function submitReplyForm(form, text) {
+  const idempotencyKey = form.dataset.idempotencyKey || (form.dataset.idempotencyKey = crypto.randomUUID());
   const postId = Number(form.dataset.postId);
   const threadId = form.dataset.threadId ?? postId;
   // Same dual wire format as posts; replies are Turnstile-gated server-side
@@ -1186,7 +1189,9 @@ async function submitReplyForm(form, text) {
   await api("/api/posts/" + postId + "/replies", {
     method: "POST",
     body: submission.body,
+    idempotencyKey,
   });
+  delete form.dataset.idempotencyKey;
   // Reply-to-reply composers remember the thread root (declared above) so the
   // rerender lands back on the conversation, not on the level-1 reply's page.
   await renderRoute({ name: "post", id: Number(threadId) });
