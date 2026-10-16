@@ -1940,7 +1940,7 @@ document.addEventListener("submit", async (event) => {
 
 // Theme resolution and the header toggle come first, before the router mounts
 // the page, so the manual-choice/OS-preference decision lands with the initial
-// render (the external theme-preload.js already applied a valid stored theme before paint).
+// render (the inline no-flash script already pinned a stored "dark" pre-paint).
 initTheme(document, localStorage);
   applyCornerPreference(document, window.localStorage);
 

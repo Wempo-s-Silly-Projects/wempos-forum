@@ -2,7 +2,7 @@
 // under "forum-theme" ("dark" | "light") always beats the OS preference;
 // with no valid manual choice the OS `prefers-color-scheme` decides.
 // styles.css consumes the result as a `data-theme` attribute on <html> and
-// index.html loads /js/theme-preload.js before styles.css to apply a stored theme before paint.
+// the index.html inline no-flash script applies a stored "dark" before paint.
 
 export const THEME_STORAGE_KEY = "forum-theme";
 
