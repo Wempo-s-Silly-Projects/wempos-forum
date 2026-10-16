@@ -187,7 +187,8 @@ test("threaded reply insert requires a public target that is a root or has a pub
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("expires_at IS NULL OR expires_at > ?"));
   // Bind order: author, parent, body, created, last_activity, root board,
   // idempotency key, fingerprint, staged_at, target, ban user, ban time.
-  assert.equal((THREAD_REPLY_INSERT_SQL.match(/\?/g) || []).length, 12);
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("FROM post_archive archived"));
+  assert.equal((THREAD_REPLY_INSERT_SQL.match(/\?/g) || []).length, 15);
 });
 
 test("the reply bump updates one row's activity stamp", () => {
@@ -200,7 +201,7 @@ test("staged reply insertion accepts a bound hidden visibility without weakening
   assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /FROM posts WHERE id = \? AND visibility = 'public'/);
   assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /parent_id IS NULL OR EXISTS/);
   assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /NOT EXISTS \(SELECT 1 FROM bans WHERE user_id = \?/);
-  assert.equal((THREAD_REPLY_INSERT_STAGED_SQL.match(/\?/g) || []).length, 13);
+  assert.equal((THREAD_REPLY_INSERT_STAGED_SQL.match(/\?/g) || []).length, 16);
 });
 
 
@@ -428,8 +429,8 @@ test("new root posts stamp last_activity_at equal to created_at", async () => {
   assert.equal(insert.values[3], insert.values[2], "last_activity_at binds the same timestamp as created_at");
   // No board field submitted: the root defaults to the general board.
   assert.equal(insert.values[4], "general");
-  assert.deepEqual(insert.values.slice(5), [null, null, null, 7, insert.values[2]],
-    "the ban guard binds follow the board (user id, then the ban check's now)");
+  assert.deepEqual(insert.values.slice(5), [null, null, null, 7, insert.values[2], null, 7, null],
+    "the ban guard and null-key archive guard bind after the idempotency fields");
 });
 
 test("the activity feed uses the composite keyset and both cursor parts must be integers", async () => {
