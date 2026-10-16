@@ -868,8 +868,9 @@ async function renderArchiveListFragment(entries) {
     const header = element("p", "archive-header");
     header.append(element("span", "archive-author", "post by " + entry.authorName));
     header.append(element("span", "archive-meta",
-      "deleted " + new Date(entry.deletedAt).toLocaleString() + " — " +
-      (entry.deletedBecause === "account-delete" ? "account deleted" : "post deleted")));
+      "deleted " + new Date(entry.deletedAt).toLocaleString() + " · " +
+      (entry.deletedBecause === "account-delete" ? "account deleted" : "post deleted") +
+      " · deleted by " + (entry.deletedByName || "unknown")));
     card.append(header);
     const bodyBlock = element("p", "archive-body");
     bodyBlock.textContent = entry.body;
