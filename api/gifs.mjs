@@ -210,9 +210,25 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
     if (decision === "approve") {
       // The UNIQUE(hash) index enforces one approved row per hash: a racing
       // approval shows 0 changes, then converges on the approved twin.
-      const approved = await db.batch([
-        db.prepare("UPDATE gifs SET status = 'approved' WHERE id = ? AND status = 'pending'").bind(gifId),
-      ]);
+      let approved;
+      try {
+        approved = await db.batch([
+          db.prepare("UPDATE gifs SET status = 'approved' WHERE id = ? AND status = 'pending'").bind(gifId),
+        ]);
+      } catch (error) {
+        // Concurrent uploads can create pending rows after the upload-side
+        // dedupe check. A competing approval may win the UNIQUE approved-hash
+        // index; converge on that winner instead of leaving a stuck queue item.
+        const twin = await db.prepare(
+          "SELECT id FROM gifs WHERE status = 'approved' " +
+          "AND hash = (SELECT hash FROM gifs WHERE id = ?) LIMIT 1",
+        ).bind(gifId).first();
+        if (!twin) throw error;
+        await db.batch([
+          db.prepare("DELETE FROM gifs WHERE id = ? AND status = 'pending'").bind(gifId),
+        ]);
+        return json({ approved: true, id: twin.id, merged: true });
+      }
       if (Number(approved[0]?.meta?.changes) !== 1) {
         const twin = await db.prepare(
           "SELECT id FROM gifs WHERE status = 'approved' " +
