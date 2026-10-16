@@ -411,6 +411,7 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
         "ON CONFLICT(hash) DO UPDATE SET revoked_at = excluded.revoked_at, revoked_by = excluded.revoked_by",
       ).bind(target.hash, nowSeconds(), session.user.id),
       db.prepare("DELETE FROM attachments WHERE hash = ? AND status = 'approved'").bind(target.hash),
+      db.prepare("DELETE FROM gifs WHERE hash = ? AND status = 'approved'").bind(target.hash),
     ]);
   } else {
     await db.prepare(
