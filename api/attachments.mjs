@@ -116,7 +116,7 @@ export async function readComposedBody(request, env, options = {}) {
       fields[name] = value;
     }
   }
-  const gifEntries = await gifReferenceEntries(env.FORUM_DB, gifIds);
+  const gifEntries = await gifReferenceEntries(env.FORUM_DB, gifIds, options.replayPostId);
   return { fields, files, gifIds, gifEntries };
 }
 
