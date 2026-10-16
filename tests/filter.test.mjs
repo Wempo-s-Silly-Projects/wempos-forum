@@ -46,6 +46,14 @@ test("whole-word: stand-alone occurrences are still masked in every position", (
   assert.equal(applyWordFilter("that ass", "ass"), "that ***");
   assert.equal(applyWordFilter("ass that", "ass"), "*** that");
   assert.equal(applyWordFilter("Ass", "ass"), "***");
+  // "class" holds an occurrence the whole-word gate rejects, while the
+  // stand-alone "ass" in the same body is accepted — pinning that a rejected
+  // candidate does not misalign later accepted matches.
+  assert.equal(applyWordFilter("class ass", "ass"), "class ***");
+  // Same shape with fold-lengthening prefixes (U+0130 folds to 2 units):
+  // the origIndexMap alignment must hold across both the rejected hit and
+  // the accepted one.
+  assert.equal(applyWordFilter("İclass İ ass", "ass"), "İclass İ ***");
 });
 
 test("whole-word: innocent words containing the entry survive untouched", () => {

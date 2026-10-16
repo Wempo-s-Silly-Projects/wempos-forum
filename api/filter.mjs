@@ -85,6 +85,10 @@ export function applyWordFilter(text, wordsRaw) {
       // string) keeps the boundary correct for fold-lengthening characters,
       // and inspecting only the two outer neighbors means multi-word entries
       // match their interiors literally, exactly as before.
+      // Tail-fold edge: an entry beginning with U+0307 could match the tail
+      // (second folded unit) of a U+0130 'İ' and pass the edge checks as a
+      // string-edge match — over-masking only (the safe direction), and
+      // unreachable via the curated word-list template.
       const beforeOk = start === 0 || !isWordUnit(text[start - 1]);
       const afterOk = end === text.length || !isWordUnit(text[end]);
       if (beforeOk && afterOk) {
