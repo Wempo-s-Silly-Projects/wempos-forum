@@ -30,6 +30,7 @@ import {
   requireTurnstile,
   requireUser,
   requiredText,
+  sha256Hex,
   userByUsernameKey,
   VIEW_INCREMENT_SQL,
 } from "./shared.mjs";
@@ -515,11 +516,57 @@ function getPostIdempotencyKey(request) {
   return key;
 }
 
+const STAGED_IDEMPOTENCY_TTL_SECONDS = 30 * 60;
+
 async function existingIdempotentPost(db, authorId, key) {
   if (!key) return null;
-  return db.prepare(
-    "SELECT id, visibility FROM posts WHERE author_id = ? AND idempotency_key = ? LIMIT 1",
+  const live = await db.prepare(
+    "SELECT id, visibility, created_at, idempotency_key, idempotency_fingerprint " +
+    "FROM posts WHERE author_id = ? AND idempotency_key = ? LIMIT 1",
   ).bind(authorId, key).first();
+  if (live) return { ...live, archived: false };
+  const archived = await db.prepare(
+    "SELECT original_post_id AS id, 'archived' AS visibility, deleted_at AS created_at, " +
+    "idempotency_key, idempotency_fingerprint FROM post_archive " +
+    "WHERE author_id = ? AND idempotency_key = ? ORDER BY id DESC LIMIT 1",
+  ).bind(authorId, key).first();
+  return archived ? { ...archived, archived: true } : null;
+}
+
+async function replayIdempotentPost(db, authorId, key, fingerprint) {
+  if (!key) return null;
+  let existing = await existingIdempotentPost(db, authorId, key);
+  if (existing && !existing.archived && existing.visibility === "hidden" &&
+      Number(existing.created_at) <= nowSeconds() - STAGED_IDEMPOTENCY_TTL_SECONDS) {
+    await db.prepare(
+      "DELETE FROM posts WHERE id = ? AND author_id = ? AND idempotency_key = ? " +
+      "AND visibility = 'hidden' AND created_at <= ?",
+    ).bind(Number(existing.id), authorId, key, nowSeconds() - STAGED_IDEMPOTENCY_TTL_SECONDS).run();
+    existing = await existingIdempotentPost(db, authorId, key);
+  }
+  if (!existing) return null;
+  if (existing.idempotency_fingerprint && fingerprint &&
+      existing.idempotency_fingerprint !== fingerprint) {
+    throw new HttpError(409, "Idempotency-Key was already used for a different submission. Submit again to create the changed content.");
+  }
+  if (existing.archived) {
+    throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
+  }
+  if (existing.visibility !== "public") {
+    throw new HttpError(409, "Your post is still being processed. Retry shortly.");
+  }
+  return json({ id: Number(existing.id) }, 200);
+}
+
+async function postCreationFingerprint({ kind, targetId = null, message, board = null, files = [], gifEntries = [] }) {
+  return sha256Hex(JSON.stringify({
+    kind,
+    targetId,
+    message,
+    board: kind === "post" ? board : null,
+    files: files.map((file) => ({ hash: file.hash, mime: file.mime })),
+    gifs: gifEntries.map((gif) => ({ id: gif.id, hash: gif.hash, mime: gif.mime })),
+  }));
 }
 
 // Attachment rows reference a post id, so they are written after the post INSERT.
