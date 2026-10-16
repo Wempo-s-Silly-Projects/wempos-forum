@@ -1,11 +1,11 @@
 -- READ-ONLY preflight for the known production schema/ledger divergence.
 -- Run only after confirming the database ID in wrangler.toml. This file performs SELECTs only.
 -- Do not run the normal Wrangler migration command if the schema-ready flags are false.
+-- If has_0019_column is 1, run preflight-css-submission-version.sql separately.
+-- Keeping that query separate lets this preflight run when the column is absent.
 SELECT
   EXISTS (SELECT 1 FROM pragma_table_info('users')
     WHERE name = 'pending_css_version' AND type = 'TEXT' AND "notnull" = 0) AS has_0019_column,
-  (SELECT COUNT(*) FROM users WHERE pending_css IS NOT NULL AND css_status = 'pending'
-    AND (pending_css_version IS NULL OR pending_css_version = '')) AS pending_css_missing_version,
   EXISTS (SELECT 1 FROM pragma_table_info('posts') WHERE name = 'idempotency_key')
     AND EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'index'
       AND name = 'idx_posts_author_idempotency_key') AS has_0021_effects,
