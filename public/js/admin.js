@@ -122,7 +122,9 @@ export function createAttachmentQueue(attachments, document) {
     addText(document, card, "p",
       `Image for post #${attachment.postId} · uploaded ${new Date(attachment.createdAt).toLocaleString()}`);
     addText(document, card, "p",
-      `${attachment.mime} · ${Math.max(1, Math.ceil(attachment.sizeBytes / 1024))} KB`, "muted");
+      // sizeBytes/chunkCount come from SQL aggregation over the attachment's
+      // D1 chunks (display-only; size is what moderation acts on).
+      `${attachment.mime} · ${Math.max(1, Math.ceil(attachment.sizeBytes / 1024))} KB · ${attachment.chunkCount} chunk${attachment.chunkCount === 1 ? "" : "s"}`, "muted");
     const image = document.createElement("img");
     image.className = "attachment-preview";
     image.src = `/api/attachments/${attachment.id}`;

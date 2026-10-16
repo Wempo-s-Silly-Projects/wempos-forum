@@ -174,7 +174,7 @@ function createComposerAttachmentRow() {
   const description = element("span", "form-note");
   description.textContent =
     `Images are reviewed before they show publicly. Up to ${MAX_COMPOSER_FILES}, ` +
-    "1 MiB or less each (JPEG, PNG, WebP, or GIF).";
+    "10 MiB or less each (JPEG, PNG, WebP, or GIF).";
   const strip = element("div", "composer-files");
   strip.dataset.composerStrip = "images";
   strip.hidden = true;

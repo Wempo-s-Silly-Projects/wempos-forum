@@ -6,6 +6,8 @@ import assert from "node:assert/strict";
 import forumWorker from "../worker.mjs";
 import { sniffImageMime } from "../api/shared.mjs";
 import {
+  MAX_ATTACHMENT_BYTES,
+  MAX_ATTACHMENT_CHUNK_BYTES,
   MAX_ATTACHMENT_FILES,
   MAX_ATTACHMENT_REQUEST_BYTES,
   insertAttachments,
@@ -59,9 +61,19 @@ function sniffedBytes(n, header) {
 
 const GIF_BYTES = sniffedBytes(64, [0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 1, 0, 1, 0, 0, 0]);
 const PNG_BYTES = sniffedBytes(64, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13]);
-const JPEG_ONE_MIB = sniffedBytes(1024 * 1024, JPEG_BYTES);
-const GIF_ONE_MIB = sniffedBytes(1024 * 1024, [0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 1, 0, 1, 0, 0, 0]);
-const GIF_OVER_ONE_MIB = sniffedBytes(1024 * 1024 + 51200, [0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 1, 0, 1, 0, 0, 0]);
+const GIF_FOUR_MIB = sniffedBytes(4 * 1024 * 1024, [0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 1, 0, 1, 0, 0, 0]);
+const JPEG_TEN_MIB = sniffedBytes(10 * 1024 * 1024, JPEG_BYTES);
+const GIF_OVER_TEN_MIB = sniffedBytes(10 * 1024 * 1024 + 1, [0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 1, 0, 1, 0, 0, 0]);
+
+// Mirrors insertAttachments: fills each chunk with a distinct fill byte so a
+// mixed-up order (or a dropped chunk) can never pass a byte-exactness check.
+function chunkFixture(bytes, chunkSize = MAX_ATTACHMENT_CHUNK_BYTES) {
+  const chunks = [];
+  for (let offset = 0, seq = 0; offset < bytes.length; offset += chunkSize, seq += 1) {
+    chunks.push({ seq, data: bytes.slice(offset, offset + chunkSize) });
+  }
+  return chunks;
+}
 
 // D1 mock: routes are { sql: RegExp, result?, rows?, runMeta? }. prepare()
 // picks the first route whose regex matches the SQL (last route is the
@@ -318,7 +330,7 @@ test("more than MAX_ATTACHMENT_FILES files is a 400 before any insert", async ()
   assert.equal(attachmentCalls(mock.calls).length, 0);
 });
 
-test("a single file above MAX_ATTACHMENT_BYTES is a 413", async () => {
+test("a single file above MAX_ATTACHMENT_BYTES (10 MiB) is a 413", async () => {
   const mock = mockDb([sessionRoute, banCheckRoute, postInsertRoute, { sql: /./ }]);
   const siteverify = withMockedSiteverify({ success: true, action: "post", hostname: "forum.example" });
   let response;
@@ -326,7 +338,7 @@ test("a single file above MAX_ATTACHMENT_BYTES is a 413", async () => {
     ({ response } = await multipartPost(
       mock,
       envFor(mock.db),
-      [{ bytes: GIF_OVER_ONE_MIB, name: "huge.gif" }],
+      [{ bytes: GIF_OVER_TEN_MIB, name: "huge.gif" }],
     ));
   } finally {
     siteverify.done();
@@ -334,18 +346,84 @@ test("a single file above MAX_ATTACHMENT_BYTES is a 413", async () => {
 
   assert.equal(response.status, 413);
   assert.equal(mock.calls.filter((entry) => entry.sql.startsWith("INSERT INTO posts")).length, 0);
+  assert.equal(attachmentCalls(mock.calls).length, 0);
+});
+
+// Task 9: a file within the per-file cap but over one D1 chunk is split into
+// attachment_chunks rows inside the intake batch, in seq order, each chunk at
+// or below MAX_ATTACHMENT_CHUNK_BYTES, and reassembling the bound bytes is
+// byte-identical to the upload. 4 MiB → ceil(4194304 / 1900000) = 3 chunks.
+function chunkInsertCalls(calls) {
+  return calls.filter((entry) => entry.sql.startsWith("INSERT INTO attachment_chunks"));
+}
+
+async function chunkedIntakePost(files) {
+  const mock = mockDb([sessionRoute, banCheckRoute, postInsertRoute, { sql: /./ }]);
+  const siteverify = withMockedSiteverify({ success: true, action: "post", hostname: "forum.example" });
+  let response;
+  try {
+    ({ response } = await multipartPost(mock, envFor(mock.db), files));
+  } finally {
+    siteverify.done();
+  }
+  return { response, mock };
+}
+
+test("a 4 MiB multipart post chunks its bytes into seq 0..2 of the intake batch", async () => {
+  const { response, mock } = await chunkedIntakePost([{ bytes: GIF_FOUR_MIB, name: "wide.gif" }]);
+
+  assert.equal(response.status, 201);
+  const metadataInserts = attachmentCalls(mock.calls);
+  assert.equal(metadataInserts.length, 1);
+  assert.equal(metadataInserts[0].values[5], "image/gif");
+
+  const chunkInserts = chunkInsertCalls(mock.calls);
+  assert.equal(chunkInserts.length, 3, "4 MiB must fill three chunks at 1,900,000 bytes each");
+  assert.equal(mock.batches.length, 1, "metadata and chunk inserts ride in ONE batch");
+  assert.equal(mock.batches[0].length, 4, "the batch carries the metadata INSERT plus every chunk INSERT");
+  assert.deepEqual(chunkInserts.map((call) => call.values[1]), [0, 1, 2], "chunks bind seq 0..2");
+  assert.ok(chunkInserts[0].sql.includes("kind"), "the chunk insert names the kind column");
+  assert.ok(chunkInserts[0].sql.includes("'pending'"), "intake bytes are always pending");
+  for (const call of chunkInserts) {
+    assert.ok(call.values[2].length > 0 && call.values[2].length <= MAX_ATTACHMENT_CHUNK_BYTES);
+    assert.equal(call.values[0], metadataInserts[0].values[0], "chunks bind their attachment's id");
+  }
+  // Chunks fill to the cap in order; only the tail chunk can be short.
+  assert.deepEqual(
+    chunkInserts.slice(0, 2).map((call) => call.values[2].length),
+    [MAX_ATTACHMENT_CHUNK_BYTES, MAX_ATTACHMENT_CHUNK_BYTES],
+  );
+  assert.equal(chunkInserts[2].values[2].length, GIF_FOUR_MIB.length - 2 * MAX_ATTACHMENT_CHUNK_BYTES);
+});
+
+test("reassembling a 10 MiB file's bound chunk bytes is byte-identical to the upload", async () => {
+  const { response, mock } = await chunkedIntakePost([{ bytes: JPEG_TEN_MIB, name: "big.jpg" }]);
+
+  assert.equal(response.status, 201);
+  const chunkInserts = chunkInsertCalls(mock.calls);
+  const expectedChunks = chunkFixture(JPEG_TEN_MIB);
+  assert.equal(chunkInserts.length, expectedChunks.length);
+  const assembled = new Uint8Array(JPEG_TEN_MIB.length);
+  let offset = 0;
+  for (const [expected, call] of expectedChunks.map((expected, index) => [expected, chunkInserts[index]])) {
+    assert.deepEqual(call.values[2], expected.data, `chunk seq ${expected.seq} must hold the right byte range`);
+    assembled.set(call.values[2], offset);
+    offset += call.values[2].length;
+  }
+  assert.equal(offset, JPEG_TEN_MIB.length);
+  assert.deepEqual(assembled, JPEG_TEN_MIB);
 });
 
 // Review Focus #1: the per-file gate cannot catch a request whose TOTAL body
-// (files + multipart overhead) exceeds MAX_ATTACHMENT_REQUEST_BYTES, so all
-// three valid 1 MiB files ride at the edge — a fourth one must trip the
-// request ceiling with 413 BEFORE any post INSERT exists.
-test("a request body at/above the attachment ceiling is a 413 with no posts INSERT", async () => {
+// (files + multipart overhead) exceeds MAX_ATTACHMENT_REQUEST_BYTES, so three
+// valid 10 MiB files ride at the edge — a fourth one must trip the request
+// ceiling with 413 BEFORE the count check (or any post INSERT) exists.
+test("a request body at/above the attachment ceiling (~30.5 MiB) is a 413 with no posts INSERT", async () => {
   const files = [
-    { bytes: JPEG_ONE_MIB, name: "one.jpg" },
-    { bytes: JPEG_ONE_MIB, name: "two.jpg" },
-    { bytes: JPEG_ONE_MIB, name: "three.jpg" },
-    { bytes: GIF_ONE_MIB, name: "four.gif" },
+    { bytes: JPEG_TEN_MIB, name: "one.jpg" },
+    { bytes: JPEG_TEN_MIB, name: "two.jpg" },
+    { bytes: JPEG_TEN_MIB, name: "three.jpg" },
+    { bytes: JPEG_TEN_MIB, name: "four.gif" },
   ];
   const mock = mockDb([sessionRoute, banCheckRoute, postInsertRoute, { sql: /./ }]);
   const siteverify = withMockedSiteverify({ success: true, action: "post", hostname: "forum.example" });
@@ -363,7 +441,8 @@ test("a request body at/above the attachment ceiling is a 413 with no posts INSE
     "no posts INSERT may run when the request body exceeds the ceiling",
   );
   assert.equal(attachmentCalls(mock.calls).length, 0);
-  assert.ok(MAX_ATTACHMENT_REQUEST_BYTES >= 3 * 1024 * 1024);
+  assert.ok(MAX_ATTACHMENT_REQUEST_BYTES >= 3 * MAX_ATTACHMENT_BYTES);
+  assert.ok(MAX_ATTACHMENT_REQUEST_BYTES < 3 * MAX_ATTACHMENT_BYTES + 1024 * 1024);
 });
 
 test("a JSON post body without files still creates a post (backward compat)", async () => {
@@ -431,21 +510,33 @@ test("multipart reply creation attaches to the REPLY's own row id", async () => 
 
 const ATTACHMENT_ID = "3f2a7c94-9b1e-4d58-8c1a-7e0d5b9f2a41";
 
+// Metadata-only serving state after migration 0004: the attachments row has no
+// blob columns — the bytes live in attachment_chunks of the row's status kind.
 function attachmentRow(overrides = {}) {
   return {
     id: ATTACHMENT_ID,
     status: "pending",
     created_by: 7,
-    mime: null,
-    data: null,
-    pending_mime: "image/gif",
-    pending_data: GIF_BYTES,
+    mime: "image/gif",
     ...overrides,
   };
 }
 
 function attachmentRoute(row) {
   return { sql: /FROM attachments WHERE id = \?/, result: row };
+}
+
+const CHUNK_SELECT_SQL = /FROM attachment_chunks WHERE/;
+// 6 chunks at the 1,900,000-byte cap (5 full + one short tail): large enough to
+// prove multi-chunk ordering and Content-Length, small enough to stay fast.
+const CHUNK_PAYLOAD_BYTES = sniffedBytes(
+  5 * 1_900_000 + 985_760,
+  [0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 1, 0, 1, 0, 0, 0],
+);
+const CHUNK_PAYLOAD_ROWS = chunkFixture(CHUNK_PAYLOAD_BYTES).map((chunk) => ({ data: chunk.data }));
+
+function chunksRoute(rows) {
+  return { sql: CHUNK_SELECT_SQL, rows };
 }
 
 function attachmentGetRequest(id, { cookie = false } = {}) {
@@ -458,50 +549,47 @@ async function bodyBytes(response) {
   return new Uint8Array(await response.arrayBuffer());
 }
 
-test("an approved attachment serves its stored bytes and mime publicly with an immutable cache", async () => {
-  const row = attachmentRow({
-    status: "approved",
-    mime: "image/png",
-    data: PNG_BYTES,
-    pending_mime: null,
-    pending_data: null,
-  });
-  const mock = mockDb([sessionRoute, attachmentRoute(row), { sql: /./ }]);
+test("an approved attachment serves its chunked bytes and mime publicly with an immutable cache", async () => {
+  const row = attachmentRow({ status: "approved", mime: "image/png" });
+  const mock = mockDb([sessionRoute, attachmentRoute(row), chunksRoute(CHUNK_PAYLOAD_ROWS), { sql: /./ }]);
   const response = await forumWorker.fetch(
     attachmentGetRequest(ATTACHMENT_ID),
     envFor(mock.db),
   );
 
   assert.equal(response.status, 200);
-  assert.deepEqual(await bodyBytes(response), PNG_BYTES);
+  assert.deepEqual(await bodyBytes(response), CHUNK_PAYLOAD_BYTES);
   assert.equal(response.headers.get("Content-Type"), "image/png");
   assert.equal(response.headers.get("Cache-Control"), "public, max-age=31536000, immutable");
   assert.equal(response.headers.get("X-Content-Type-Options"), "nosniff");
+  // Bytes assemble from the chunk table in seq order; Content-Length is the
+  // full concatenated size, not the last chunk's size.
+  const chunkCall = mock.calls.find((call) => CHUNK_SELECT_SQL.test(call.sql));
+  assert.ok(chunkCall, "serving must read the chunk table");
+  assert.ok(chunkCall.sql.includes("ORDER BY seq"), "chunks assemble in seq order");
+  assert.ok(chunkCall.sql.includes("kind = ?"));
+  assert.deepEqual(chunkCall.values, [ATTACHMENT_ID, "approved"], "approved rows read the approved chunk kind");
+  assert.equal(response.headers.get("Content-Length"), String(CHUNK_PAYLOAD_BYTES.length));
 });
 
 test("an approved attachment serves the same bytes regardless of the ?v= cache buster", async () => {
-  const row = attachmentRow({
-    status: "approved",
-    mime: "image/png",
-    data: PNG_BYTES,
-    pending_mime: null,
-    pending_data: null,
-  });
-  const mock = mockDb([sessionRoute, attachmentRoute(row), { sql: /./ }]);
+  const row = attachmentRow({ status: "approved", mime: "image/png" });
+  const mock = mockDb([sessionRoute, attachmentRoute(row), chunksRoute(CHUNK_PAYLOAD_ROWS), { sql: /./ }]);
   const response = await forumWorker.fetch(
     attachmentGetRequest(ATTACHMENT_ID + "?v=version-stale-or-absent"),
     envFor(mock.db),
   );
 
   assert.equal(response.status, 200);
-  assert.deepEqual(await bodyBytes(response), PNG_BYTES);
+  assert.deepEqual(await bodyBytes(response), CHUNK_PAYLOAD_BYTES);
   assert.equal(response.headers.get("Cache-Control"), "public, max-age=31536000, immutable");
 });
 
-test("an author can read their own pending attachment with the pending pair and private cache", async () => {
+test("an author can read their own pending attachment's pending chunks with a private cache", async () => {
   const mock = mockDb([
     sessionRoute, // sessionRow() is user_id 7 / member — the attachment's author
     attachmentRoute(attachmentRow()),
+    chunksRoute(CHUNK_PAYLOAD_ROWS),
     { sql: /./ },
   ]);
   const response = await forumWorker.fetch(
@@ -510,10 +598,12 @@ test("an author can read their own pending attachment with the pending pair and 
   );
 
   assert.equal(response.status, 200);
-  assert.deepEqual(await bodyBytes(response), GIF_BYTES);
-  assert.equal(response.headers.get("Content-Type"), "image/gif", "the pending pair's sniffed mime is served");
+  assert.deepEqual(await bodyBytes(response), CHUNK_PAYLOAD_BYTES);
+  assert.equal(response.headers.get("Content-Type"), "image/gif", "the pending row's sniffed mime is served");
   assert.equal(response.headers.get("Cache-Control"), "private, max-age=300");
   assert.equal(response.headers.get("X-Content-Type-Options"), "nosniff");
+  const chunkCall = mock.calls.find((call) => CHUNK_SELECT_SQL.test(call.sql));
+  assert.deepEqual(chunkCall.values, [ATTACHMENT_ID, "pending"], "pending rows read the pending chunk kind");
 });
 
 test("a second member gets a 404 for someone else's pending attachment", async () => {
@@ -528,6 +618,11 @@ test("a second member gets a 404 for someone else's pending attachment", async (
   );
 
   assert.equal(response.status, 404);
+  assert.equal(
+    mock.calls.filter((call) => CHUNK_SELECT_SQL.test(call.sql)).length,
+    0,
+    "no chunk read may run for an unauthorized viewer",
+  );
 });
 
 test("a guest gets a 404 for a pending attachment", async () => {
@@ -544,6 +639,7 @@ test("a moderator can read a pending attachment", async () => {
   const mock = mockDb([
     { sql: /FROM sessions s LEFT JOIN users u/, result: sessionRow({ user_id: 8, role: "moderator" }) },
     attachmentRoute(attachmentRow()),
+    chunksRoute(CHUNK_PAYLOAD_ROWS),
     { sql: /./ },
   ]);
   const response = await forumWorker.fetch(
@@ -552,19 +648,47 @@ test("a moderator can read a pending attachment", async () => {
   );
 
   assert.equal(response.status, 200);
-  assert.deepEqual(await bodyBytes(response), GIF_BYTES);
+  assert.deepEqual(await bodyBytes(response), CHUNK_PAYLOAD_BYTES);
   assert.equal(response.headers.get("Content-Type"), "image/gif");
   assert.equal(response.headers.get("Cache-Control"), "private, max-age=300");
+});
+
+// Fail-safe: a status whose required chunk set is missing must never serve —
+// the bytes are the only authorization-irrelevant part, so empty chunks 404.
+test("a pending attachment with an empty pending chunk set is a 404 even for its author", async () => {
+  const mock = mockDb([
+    sessionRoute,
+    attachmentRoute(attachmentRow()),
+    chunksRoute([]),
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    attachmentGetRequest(ATTACHMENT_ID, { cookie: true }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 404);
+});
+
+test("an approved attachment with an empty approved chunk set is a 404 (fail-safe)", async () => {
+  const mock = mockDb([
+    sessionRoute,
+    attachmentRoute(attachmentRow({ status: "approved", mime: "image/png" })),
+    chunksRoute([]),
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    attachmentGetRequest(ATTACHMENT_ID),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 404);
 });
 
 test("a rejected attachment is a 404 even for its author", async () => {
   const mock = mockDb([
     sessionRoute,
-    attachmentRoute(attachmentRow({
-      status: "rejected",
-      pending_mime: null,
-      pending_data: null,
-    })),
+    attachmentRoute(attachmentRow({ status: "rejected" })),
     { sql: /./ },
   ]);
   const response = await forumWorker.fetch(
@@ -659,8 +783,10 @@ function attachmentMetaRow(overrides = {}) {
     status: "pending",
     created_by: 7,
     version: ATTACHMENT_VERSION,
-    mime: null,
-    pending_mime: "image/gif",
+    // Post-0004 the sniffed mime lives in `mime` for both pending and approved
+    // rows (mock rows may still carry irrelevant extra keys; the SQL selects a
+    // fixed metadata-only column list).
+    mime: "image/gif",
     ...overrides,
   };
 }
@@ -835,22 +961,27 @@ function adminActionRequest(id, action) {
   });
 }
 
-// Queue row shape: size has NO column — the controller ruling is that
-// sizeBytes comes from length(pending_data), computed in SQL.
+// Queue row shape (post-0004): there is no size column and no pending_updated_at
+// timestamp — sizeBytes aggregates SUM(length(c.data)) over the pending chunks
+// via a LEFT JOIN, chunkCount counts them, and ordering uses the surviving
+// created_at column (intake writes the pending rows at creation time, so it
+// carries the old oldest-first rationale over).
+const QUEUE_PENDING_ID = ATTACHMENT_ID;
 const QUEUE_ROW = {
-  id: ATTACHMENT_ID,
+  id: QUEUE_PENDING_ID,
   post_id: 5,
-  pending_mime: "image/gif",
-  pending_updated_at: 1700000000,
+  mime: "image/gif",
+  created_at: 1700000000,
   uploader: "uploader_one",
-  size_bytes: GIF_BYTES.length,
+  size_bytes: GIF_BYTES.length * 3,
+  chunk_count: 3,
 };
 
 const ATTACHMENT_QUEUE_SQL =
   /FROM attachments a JOIN users u .* WHERE a\.status = 'pending'/s;
 
 test(
-  "the moderation queue lists pending attachments oldest-first with uploader, mime, and blob size",
+  "the moderation queue lists pending attachments oldest-first with uploader, mime, chunked size, and chunk count",
   async () => {
     const mock = mockDb([moderatorSessionRoute, { sql: ATTACHMENT_QUEUE_SQL, rows: [QUEUE_ROW] }, { sql: /./ }]);
     const response = await forumWorker.fetch(
@@ -863,10 +994,13 @@ test(
     assert.equal(response.status, 200);
     const queueCall = mock.calls.find((call) => ATTACHMENT_QUEUE_SQL.test(call.sql));
     assert.ok(queueCall, "the queue lookup must run");
-    // Oldest first, capped at 100, size computed from the pending blob.
-    assert.ok(queueCall.sql.includes("ORDER BY a.pending_updated_at ASC"));
+    // Oldest first on the surviving created_at column, capped at 100, size and
+    // chunk count computed in SQL from the pending chunks.
+    assert.ok(queueCall.sql.includes("ORDER BY a.created_at ASC"));
     assert.ok(queueCall.sql.includes("LIMIT 100"));
-    assert.ok(queueCall.sql.includes("length(a.pending_data) AS size_bytes"));
+    assert.ok(queueCall.sql.includes("SUM(length(c.data)) AS size_bytes"));
+    assert.ok(queueCall.sql.includes("COUNT(c.seq) AS chunk_count"));
+    assert.ok(queueCall.sql.includes("LEFT JOIN attachment_chunks c ON c.attachment_id = a.id AND c.kind = 'pending'"));
     assert.ok(queueCall.values.length === 0, "the queue lookup binds no values");
     const body = await response.json();
     assert.deepEqual(body.attachments, [
@@ -875,7 +1009,8 @@ test(
         postId: 5,
         uploader: "uploader_one",
         mime: "image/gif",
-        sizeBytes: GIF_BYTES.length,
+        sizeBytes: GIF_BYTES.length * 3,
+        chunkCount: 3,
         createdAt: new Date(1700000000 * 1000).toISOString(),
       },
     ]);
@@ -934,11 +1069,12 @@ test("a guest gets a 401 from attachment approve", async () => {
 
 const OLD_VERSION = ATTACHMENT_VERSION;
 
-test("approving copies the pending pair into the approved pair, clears pending, and bumps the version", async () => {
+test("approving flips the pending chunks to approved, marks the row approved, and bumps the version", async () => {
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /^UPDATE attachments SET/, runMeta: { meta: { changes: 1 } } },
+    { sql: /^UPDATE attachments/, runMeta: { meta: { changes: 1 } } },
+    { sql: /^UPDATE attachment_chunks/, runMeta: { meta: { changes: 6 } } },
     { sql: /./ },
   ]);
   const response = await forumWorker.fetch(
@@ -949,34 +1085,35 @@ test("approving copies the pending pair into the approved pair, clears pending, 
   assert.equal(response.status, 200);
   const body = await response.json();
   assert.deepEqual(body, { approved: true, id: ATTACHMENT_ID });
-  const approveCall = mock.calls.find((call) => call.sql.startsWith("UPDATE attachments"));
-  assert.ok(approveCall, "the approve UPDATE must run");
-  // Mirrors the avatar approve: pending pair copies into the approved pair and
-  // pending clears in ONE statement evaluated against the pre-update row.
-  assert.ok(approveCall.sql.includes("mime = pending_mime"));
-  assert.ok(approveCall.sql.includes("data = pending_data"));
-  assert.ok(approveCall.sql.includes("updated_at = pending_updated_at"));
-  assert.ok(approveCall.sql.includes("pending_mime = NULL"));
-  assert.ok(approveCall.sql.includes("pending_data = NULL"));
-  assert.ok(approveCall.sql.includes("pending_updated_at = NULL"));
-  assert.ok(approveCall.sql.includes("status = 'approved'"));
+  assert.equal(mock.batches.length, 1, "the approve runs its two statements in ONE all-or-nothing batch");
+  assert.equal(mock.batches[0].length, 2, "approve = the status flip plus the chunk relabel");
+  const metadataUpdate = mock.calls.find((call) => call.sql.startsWith("UPDATE attachments"));
+  const chunkUpdate = mock.calls.find((call) => call.sql.startsWith("UPDATE attachment_chunks"));
+  assert.ok(metadataUpdate, "the approve UPDATE must run");
+  assert.ok(chunkUpdate, "the chunk relabel UPDATE must run");
+
+  assert.ok(metadataUpdate.sql.includes("SET status = 'approved', version = ?"), "statement one flips the attachment row");
   // Guarded so a non-pending id can never be double-approved.
-  assert.ok(approveCall.sql.includes("WHERE id = ? AND status = 'pending'"));
-  // Unlike the avatar approve (which keeps the pending version), attachments
-  // bump to a fresh random version — the approved URL's cache buster moves.
-  const [newVersion, boundId] = approveCall.values;
+  assert.ok(metadataUpdate.sql.includes("WHERE id = ? AND status = 'pending'"));
+  const [newVersion, boundId] = metadataUpdate.values;
   assert.notEqual(newVersion, OLD_VERSION, "approval must bump the version");
   assert.match(newVersion, /^[A-Za-z0-9_-]{16}$/, "the new version is a random 12-byte token");
   assert.equal(boundId, ATTACHMENT_ID);
+
+  assert.ok(
+    chunkUpdate.sql.startsWith("UPDATE attachment_chunks SET kind = 'approved' WHERE attachment_id = ? AND kind = 'pending'"),
+    "statement two relabels only this row's pending chunks",
+  );
+  assert.deepEqual(chunkUpdate.values, [ATTACHMENT_ID]);
   // A moderator action must be gated against active bans, like the avatar desk.
   assert.ok(mock.calls.some((call) => /^SELECT id FROM bans WHERE user_id = \?/.test(call.sql)));
 });
 
-test("rejecting clears the pending bytes and marks the row rejected", async () => {
+test("rejecting deletes the attachments row so its chunks cascade away", async () => {
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /^UPDATE attachments SET/, runMeta: { meta: { changes: 1 } } },
+    { sql: /^DELETE FROM attachments/, runMeta: { meta: { changes: 1 } } },
     { sql: /./ },
   ]);
   const response = await forumWorker.fetch(
@@ -987,14 +1124,18 @@ test("rejecting clears the pending bytes and marks the row rejected", async () =
   assert.equal(response.status, 200);
   const body = await response.json();
   assert.deepEqual(body, { rejected: true, id: ATTACHMENT_ID });
-  const rejectCall = mock.calls.find((call) => call.sql.startsWith("UPDATE attachments"));
-  assert.ok(rejectCall, "the reject UPDATE must run");
-  assert.ok(rejectCall.sql.includes("pending_mime = NULL"));
-  assert.ok(rejectCall.sql.includes("pending_data = NULL"));
-  assert.ok(rejectCall.sql.includes("pending_updated_at = NULL"));
-  assert.ok(rejectCall.sql.includes("status = 'rejected'"));
-  assert.ok(rejectCall.sql.includes("WHERE id = ? AND status = 'pending'"));
+  const rejectCall = mock.calls.find((call) => call.sql.startsWith("DELETE FROM attachments"));
+  assert.ok(rejectCall, "the reject DELETE must run");
+  assert.ok(
+    rejectCall.sql.includes("DELETE FROM attachments WHERE id = ? AND status = 'pending'"),
+    "only a pending row may be rejected away",
+  );
   assert.deepEqual(rejectCall.values, [ATTACHMENT_ID]);
+  // No chunk relabel may fire on reject — the FK cascade removes the bytes.
+  assert.equal(
+    mock.calls.filter((call) => /UPDATE attachment_chunks/.test(call.sql)).length,
+    0,
+  );
 });
 
 test("after approval the row is gone from the queue on re-listing", async () => {
@@ -1033,11 +1174,11 @@ test("after approval the row is gone from the queue on re-listing", async () => 
 
 const NOT_PENDING_META = { meta: { changes: 0 } };
 
-test("rejecting an already-rejected (non-pending) attachment id is a 404", async () => {
+test("rejecting an already-gone (non-pending) attachment id is a 404", async () => {
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /^UPDATE attachments SET/, runMeta: NOT_PENDING_META },
+    { sql: /^DELETE FROM attachments/, runMeta: { meta: { changes: 0 } } },
     { sql: /./ },
   ]);
   const response = await forumWorker.fetch(
@@ -1047,13 +1188,13 @@ test("rejecting an already-rejected (non-pending) attachment id is a 404", async
   assert.equal(response.status, 404);
 });
 
-test("approving an unknown attachment id is a 404", async () => {
+test("approving an unknown or non-pending attachment id is a 404", async () => {
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /^UPDATE attachments SET/, runMeta: NOT_PENDING_META },
+    { sql: /^UPDATE attachments/, runMeta: { meta: { changes: 0 } } },
     { sql: /./ },
-  ]);
+  ], { batchMeta: [{ meta: { changes: 0 } }, { meta: { changes: 0 } }] });
   const response = await forumWorker.fetch(
     adminActionRequest("0e1f2a3b-4c5d-4e6f-8a9b-1c2d3e4f5a6b", "approve"),
     envFor(mock.db),
@@ -1061,7 +1202,7 @@ test("approving an unknown attachment id is a 404", async () => {
   assert.equal(response.status, 404);
 });
 
-test("insertAttachments persists all files in ONE all-or-nothing batch", async () => {
+test("insertAttachments persists all files and their chunks in ONE all-or-nothing batch", async () => {
   const files = [
     { mime: "image/gif", bytes: GIF_BYTES },
     { mime: "image/jpeg", bytes: JPEG_BYTES },
@@ -1073,8 +1214,18 @@ test("insertAttachments persists all files in ONE all-or-nothing batch", async (
   assert.equal(ids.length, 3);
   for (const id of ids) assert.match(id, /^[0-9a-f-]{36}$/, "ids are UUID-shaped");
   assert.equal(mock.batches.length, 1, "all inserts ride in one db.batch call");
-  assert.equal(mock.batches[0].length, 3, "the batch carries one INSERT per file");
-  const inserts = attachmentCalls(mock.calls);
-  assert.equal(inserts.length, 3);
-  assert.ok(inserts.every((insert) => insert.values[1] === 42 && insert.values[2] === 7));
+  // Three small files → one metadata INSERT plus one seq-0 chunk INSERT each.
+  assert.equal(mock.batches[0].length, 6, "the batch carries every metadata and chunk INSERT");
+  assert.equal(attachmentCalls(mock.calls).length, 3);
+  assert.equal(chunkInsertCalls(mock.calls).length, 3);
+  assert.ok(attachmentCalls(mock.calls).every((insert) => insert.values[1] === 42 && insert.values[2] === 7));
+  for (const call of chunkInsertCalls(mock.calls)) {
+    assert.ok(call.values[2].length <= MAX_ATTACHMENT_CHUNK_BYTES);
+    assert.ok(ids.includes(call.values[0]), "each chunk binds its own attachment's id");
+  }
+  // Empty file lists still write nothing.
+  const empty = mockDb([{ sql: /./ }]);
+  assert.deepEqual(await insertAttachments(empty.db, 42, 7, []), []);
+  assert.equal(empty.batches.length, 0);
+  assert.equal(empty.calls.length, 0);
 });

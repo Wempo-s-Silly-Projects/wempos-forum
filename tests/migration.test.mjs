@@ -13,6 +13,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 const MIGRATION_0001 = readFileSync(path.join(repoRoot, "migrations", "0001_initial.sql"), "utf8");
 const MIGRATION_0002 = readFileSync(path.join(repoRoot, "migrations", "0002_forum_v2.sql"), "utf8");
 const MIGRATION_0003 = readFileSync(path.join(repoRoot, "migrations", "0003_attachments.sql"), "utf8");
+const MIGRATION_0004 = readFileSync(path.join(repoRoot, "migrations", "0004_attachment_chunks.sql"), "utf8");
 
 const T = 1_700_000_000;
 
@@ -505,4 +506,211 @@ test("attachment FKs are enforced and deleting a post cascades its attachments",
   );
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM attachments").get().n, 0);
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM posts").get().n, 2);
+});
+
+// Migration 0004 tests: 0003's single-BLOB attachments table cannot hold the
+// revised 10 MiB per-image limit (D1 caps one BLOB/row at 2,000,000 bytes), so
+// 0004 DROPs and recreates the table metadata-only and adds the
+// attachment_chunks byte table. Tests apply 0001 → 0002 → 0003 → 0004 exactly
+// like the real chain (D1 applies each file in its own transaction).
+function openV3Db() {
+  const db = openV2Db();
+  applyAttachments(db);
+  return db;
+}
+
+function applyAttachmentChunks(db) {
+  db.exec("BEGIN");
+  try {
+    db.exec(MIGRATION_0004);
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
+
+const insertMetadataOnly = `
+  INSERT INTO attachments (id, post_id, created_by, created_at, mime, version)
+  VALUES (?, ?, ?, ?, ?, ?)
+`;
+const insertChunk = `
+  INSERT INTO attachment_chunks (attachment_id, kind, seq, data)
+  VALUES (?, ?, ?, ?)
+`;
+
+test("migration 0004 rebuilds attachments metadata-only and creates attachment_chunks", () => {
+  const db = openV3Db();
+  applyAttachmentChunks(db);
+
+  // 0003's blob columns are gone; the rebuilt table carries metadata + state only.
+  assert.deepEqual(columnsOf(db, "attachments"), [
+    "id",
+    "post_id",
+    "created_by",
+    "created_at",
+    "mime",
+    "version",
+    "status",
+  ]);
+
+  assert.deepEqual(columnsOf(db, "attachment_chunks"), [
+    "attachment_id",
+    "kind",
+    "seq",
+    "data",
+  ]);
+
+  const indexes = objectNamesForType(db, "index");
+  assert.ok(indexes.includes("idx_attachments_post"), "missing index idx_attachments_post");
+  assert.ok(indexes.includes("idx_attachments_pending"), "missing index idx_attachments_pending");
+
+  // Composite chunk PK: (attachment_id, kind, seq) in exactly that order.
+  const pkColumns = columnsOf(db, "attachment_chunks")
+    .map((name, index) => ({ name, index }))
+    .filter(({ name }) => ["attachment_id", "kind", "seq"].includes(name));
+  const pkInfo = db.prepare("PRAGMA table_info(attachment_chunks)").all()
+    .filter((column) => column.pk > 0)
+    .sort((a, b) => a.pk - b.pk)
+    .map((column) => column.name);
+  assert.deepEqual(pkInfo, ["attachment_id", "kind", "seq"], "chunk PK must be (attachment_id, kind, seq)");
+
+  // Child FK chunks → attachments with ON DELETE CASCADE.
+  const chunkParents = db.prepare("PRAGMA foreign_key_list(attachment_chunks)").all();
+  const attachmentRef = chunkParents.find((fk) => fk.table === "attachments");
+  assert.ok(attachmentRef, "attachment_chunks must reference attachments");
+  assert.equal(attachmentRef.on_delete, "CASCADE", "chunk deletion cascades from its attachments row");
+
+  // The rebuilt attachments table still cascades from posts and references users.
+  const parents = db.prepare("PRAGMA foreign_key_list(attachments)").all();
+  assert.equal(parents.find((fk) => fk.table === "posts")?.on_delete, "CASCADE");
+  assert.ok(parents.some((fk) => fk.table === "users"));
+
+  // D1's 2,000,000-byte cap is pinned in the chunk CHECK.
+  const [chunkSql] = db
+    .prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'attachment_chunks'")
+    .all()
+    .map((row) => row.sql);
+  assert.ok(chunkSql.includes("length(data) <= 2000000"), "chunk data CHECK must pin the 2,000,000-byte cap");
+});
+
+test("migration 0004 accepts metadata rows and enforces the rebuilt mime/status CHECKs", () => {
+  const db = openV3Db();
+  applyAttachmentChunks(db);
+
+  db.prepare(insertMetadataOnly).run("att-meta", 1, 1, T + 80, "image/png", version);
+  assert.equal(
+    db.prepare("SELECT status FROM attachments WHERE id = ?").get("att-meta").status,
+    "pending",
+    "status defaults to pending",
+  );
+
+  let n = 0;
+  for (const mime of ["image/jpeg", "image/png", "image/webp", "image/gif"]) {
+    db.prepare(insertMetadataOnly).run(`att-mime-${(n += 1)}`, 1, 1, T + 80, mime, version);
+  }
+  expectSqlRejection(db, insertMetadataOnly, "att-bmp", 1, 1, T + 80, "image/bmp", version);
+
+  const insertWithStatus = `
+    INSERT INTO attachments (id, post_id, created_by, created_at, mime, version, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
+  db.prepare(insertWithStatus).run("att-approved", 1, 1, T + 80, "image/png", version, "approved");
+  expectSqlRejection(db, insertWithStatus, "att-weird", 1, 1, T + 80, "image/png", version, "weird");
+  expectSqlRejection(db, insertWithStatus, "att-open", 1, 1, T + 80, "image/png", version, "open");
+});
+
+const CHUNK_MAX = Buffer.alloc(2_000_000, 0x42);
+const CHUNK_OVER = Buffer.alloc(2_000_001, 0x42);
+
+function seedAttachment(db, id) {
+  db.prepare(insertMetadataOnly).run(id, 1, 1, T + 80, "image/png", version);
+}
+
+test("attachment_chunks accepts a 2,000,000-byte chunk and rejects 2,000,001", () => {
+  const db = openV3Db();
+  applyAttachmentChunks(db);
+
+  seedAttachment(db, "att-chunk-max");
+  db.prepare(insertChunk).run("att-chunk-max", "pending", 0, CHUNK_MAX);
+  assert.equal(db.prepare("SELECT length(data) AS n FROM attachment_chunks WHERE attachment_id = ? AND seq = 0").get("att-chunk-max").n, 2_000_000);
+
+  seedAttachment(db, "att-chunk-over");
+  expectSqlRejection(db, insertChunk, "att-chunk-over", "pending", 0, CHUNK_OVER);
+});
+
+test("attachment_chunks enforces the kind CHECK and the (attachment_id, kind, seq) PK", () => {
+  const db = openV3Db();
+  applyAttachmentChunks(db);
+
+  seedAttachment(db, "att-kind");
+  db.prepare(insertChunk).run("att-kind", "pending", 0, png);
+  db.prepare(insertChunk).run("att-kind", "approved", 0, png);
+  expectSqlRejection(db, insertChunk, "att-kind", "weird", 0, png);
+  expectSqlRejection(db, insertChunk, "att-kind", null, 0, png);
+
+  // PK collisions: the same (attachment_id, kind, seq) triple is rejected...
+  expectSqlRejection(db, insertChunk, "att-kind", "pending", 0, gif);
+  // ...but (attachment_id, kind, seq) is only unique per triple — a new seq or
+  // kind coexists, and two DIFFERENT attachments share seq numbering freely.
+  db.prepare(insertChunk).run("att-kind", "pending", 1, gif);
+  seedAttachment(db, "att-kind-two");
+  db.prepare(insertChunk).run("att-kind-two", "pending", 0, gif);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM attachment_chunks").get().n, 4);
+});
+
+test("attachment bytes are NULL-less: a chunk row cannot omit data", () => {
+  const db = openV3Db();
+  applyAttachmentChunks(db);
+
+  seedAttachment(db, "att-null-chunk");
+  expectSqlRejection(db, insertChunk, "att-null-chunk", "pending", 0, null);
+});
+
+test("a 10 MiB attachment is representable as six chunks under the D1 row cap", () => {
+  const db = openV3Db();
+  applyAttachmentChunks(db);
+
+  seedAttachment(db, "att-ten-mib");
+  const sizeTen = 10 * 1024 * 1024;
+  let seq = 0;
+  for (let offset = 0; offset < sizeTen; offset += 1_900_000, seq += 1) {
+    const n = Math.min(1_900_000, sizeTen - offset);
+    db.prepare(insertChunk).run("att-ten-mib", "pending", seq, Buffer.alloc(n, 0x42));
+  }
+  assert.equal(seq, 6, "six chunks at 1,900,000 bytes carry 10 MiB");
+  const assembled = db
+    .prepare(
+      "SELECT length(data) AS n FROM attachment_chunks WHERE attachment_id = ? AND kind = 'pending' ORDER BY seq",
+    )
+    .all("att-ten-mib");
+  assert.equal(assembled.reduce((sum, row) => sum + row.n, 0), sizeTen);
+});
+
+test("attachment chunks cascade away with their attachments row and their post", () => {
+  const db = openV3Db();
+  applyAttachmentChunks(db);
+
+  for (const id of ["att-cascade-a", "att-cascade-b"]) {
+    seedAttachment(db, id);
+    db.prepare(insertChunk).run(id, "pending", 0, png);
+    db.prepare(insertChunk).run(id, "pending", 1, gif);
+  }
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM attachment_chunks").get().n, 4);
+
+  // Unknown parent attachment: rejected.
+  expectSqlRejection(db, insertChunk, "att-unknown", "pending", 0, png);
+
+  db.prepare("DELETE FROM attachments WHERE id = ?").run("att-cascade-a");
+  assert.equal(
+    db.prepare("SELECT COUNT(*) AS n FROM attachment_chunks WHERE attachment_id = ?").get("att-cascade-b").n,
+    2,
+    "the untouched attachment's chunks must survive",
+  );
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM attachment_chunks").get().n, 2, "the deleted row's chunks must cascade away");
+
+  // Post deletion takes the whole group: attachments and their chunks.
+  db.prepare("DELETE FROM posts WHERE id = 1").run();
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM attachments").get().n, 0);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM attachment_chunks").get().n, 0);
 });

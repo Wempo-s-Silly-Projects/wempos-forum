@@ -149,7 +149,7 @@ const makeFile = (name, size, type = "image/png") =>
 test("the composer accept list covers exactly the mime types the server sniffs", () => {
   assert.equal(COMPOSER_ACCEPT, "image/jpeg,image/png,image/webp,image/gif");
   assert.equal(MAX_COMPOSER_FILES, 3);
-  assert.equal(MAX_COMPOSER_FILE_BYTES, 1024 * 1024);
+  assert.equal(MAX_COMPOSER_FILE_BYTES, 10 * 1024 * 1024);
 });
 
 test("two chosen files switch create-post submission to FormData with an images part per file", () => {
@@ -181,12 +181,12 @@ test("zero chosen files keeps the pre-attachment JSON payload byte-identical", (
   }
 });
 
-test("a file over 1 MiB is refused client-side with a message, never sent", () => {
+test("a file over 10 MiB is refused client-side with a message, never sent", () => {
   const oversized = makeFile("big.png", MAX_COMPOSER_FILE_BYTES + 1);
   const result = addComposerFiles([], [oversized]);
   assert.equal(result.files.length, 0);
   assert.equal(result.notices.length, 1);
-  assert.match(result.notices[0], /1 MiB/);
+  assert.match(result.notices[0], /10 MiB/);
   assert.match(result.notices[0], /big\.png/);
 });
 
@@ -214,7 +214,7 @@ test("a mixed selection keeps the acceptable files and reports the rest", () => 
   assert.equal(result.notices.length, 3);
   // One over-cap notice per file the cap refused, never a silent truncation.
   assert.equal(result.notices.filter((notice) => /3 images/.test(notice)).length, 2);
-  assert.equal(result.notices.filter((notice) => /1 MiB/.test(notice)).length, 1);
+  assert.equal(result.notices.filter((notice) => /10 MiB/.test(notice)).length, 1);
 });
 
 // --- Task 8: theme resolution ------------------------------------------------

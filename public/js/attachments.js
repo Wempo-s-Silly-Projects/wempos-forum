@@ -3,12 +3,14 @@
 // Node 22 (like every browser) ships File and FormData globals.
 
 // Matches the server contract readComposedBody enforces (MAX_ATTACHMENT_FILES /
-// MAX_ATTACHMENT_BYTES in api/attachments.mjs) so the client can reject bad
-// choices up front instead of discovering them in a 400/413 round trip. The
-// server still validates everything; these are convenience limits only.
+// MAX_ATTACHMENT_BYTES in api/attachments.mjs — 10 MiB since attachment bytes
+// are chunked in D1) so the client can reject bad choices up front instead of
+// discovering them in a 400/413 round trip. The server still validates
+// everything; these are convenience limits only.
 export const COMPOSER_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
 export const MAX_COMPOSER_FILES = 3;
-export const MAX_COMPOSER_FILE_BYTES = 1024 * 1024;
+export const MAX_COMPOSER_FILE_BYTES = 10 * 1024 * 1024;
+export const MAX_COMPOSER_FILE_BYTES_LABEL = "10 MiB";
 
 // Folds a picker selection into the composer's chosen list. Oversized choices
 // are refused (with a per-file notice) and the 3-file cap is enforced with a
@@ -20,7 +22,7 @@ export function addComposerFiles(currentFiles, pickedFiles) {
   for (const picked of pickedFiles ?? []) {
     if (picked.size > MAX_COMPOSER_FILE_BYTES) {
       notices.push(
-        `"${picked.name}" is larger than 1 MiB and was not added.`,
+        `"${picked.name}" is larger than ${MAX_COMPOSER_FILE_BYTES_LABEL} and was not added.`,
       );
     } else if (files.length >= MAX_COMPOSER_FILES) {
       notices.push(
