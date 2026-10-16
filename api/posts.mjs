@@ -620,7 +620,8 @@ async function persistStagedPostAttachments(db, postId, authorId, files, gifEntr
   try {
     await insertAttachments(db, postId, authorId, files, gifEntries);
     const publish = db.prepare(
-      "UPDATE posts SET visibility = 'public' WHERE id = ? AND author_id = ? AND visibility = 'hidden' " +
+      "UPDATE posts SET visibility = 'public', staged_at = NULL WHERE id = ? AND author_id = ? AND visibility = 'hidden' " +
+      "AND staged_at IS NOT NULL " +
       "AND (parent_id IS NULL OR EXISTS (" +
       "SELECT 1 FROM posts target WHERE target.id = posts.parent_id AND target.visibility = 'public' AND (" +
       "target.parent_id IS NULL OR EXISTS (SELECT 1 FROM posts root WHERE root.id = target.parent_id " +
@@ -647,7 +648,7 @@ async function persistStagedPostAttachments(db, postId, authorId, files, gifEntr
   } catch (error) {
     try {
       const cleanup = await db.prepare(
-        "DELETE FROM posts WHERE id = ? AND author_id = ? AND visibility = 'hidden'",
+        "DELETE FROM posts WHERE id = ? AND author_id = ? AND visibility = 'hidden' AND staged_at IS NOT NULL",
       ).bind(postId, authorId).run();
       if (Number(cleanup?.meta?.changes) !== 1) {
         console.error("Could not remove a staged post after attachment failure:", {
@@ -731,8 +732,8 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const hasAttachments = files.length > 0 || gifEntries.length > 0;
     const insertSql = hasAttachments ? THREAD_REPLY_INSERT_STAGED_SQL : THREAD_REPLY_INSERT_SQL;
     const insertValues = hasAttachments
-      ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, idempotencyFingerprint, targetId, session.user.id, now]
-      : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, idempotencyFingerprint, targetId, session.user.id, now];
+      ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, targetId, session.user.id, now]
+      : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, idempotencyFingerprint, null, targetId, session.user.id, now];
     const insertStatements = [db.prepare(insertSql).bind(...insertValues)];
     if (!hasAttachments) insertStatements.push(db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId));
     let results;
@@ -837,11 +838,11 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     let result;
     try {
       result = await db.prepare(
-        "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint) " +
-          "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
+        "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint, staged_at) " +
+          "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
           "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
           "AND (expires_at IS NULL OR expires_at > ?))",
-      ).bind(session.user.id, message, now, now, board, idempotencyKey, idempotencyFingerprint, session.user.id, now).run();
+      ).bind(session.user.id, message, now, now, board, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, session.user.id, now).run();
     } catch (error) {
       const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
       if (replay) return replay;
