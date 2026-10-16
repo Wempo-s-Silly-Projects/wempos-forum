@@ -29,23 +29,3 @@ WHERE target.status = 'approved'
     SELECT 1 FROM attachment_chunks AS own
     WHERE own.attachment_id = target.id AND own.kind = 'approved'
   );
-
-INSERT INTO attachment_chunks (attachment_id, kind, seq, data)
-SELECT target.id, 'approved', gif_chunk.seq, gif_chunk.data
-FROM attachments AS target
-JOIN gifs AS canonical
-  ON canonical.hash = target.hash AND canonical.status = 'approved'
-JOIN gif_chunks AS gif_chunk ON gif_chunk.gif_id = canonical.id
-WHERE target.status = 'approved'
-  AND target.hash <> ''
-  AND NOT EXISTS (
-    SELECT 1 FROM attachment_chunks AS own
-    WHERE own.attachment_id = target.id AND own.kind = 'approved'
-  )
-  AND NOT EXISTS (
-    SELECT 1
-    FROM attachments AS source
-    JOIN attachment_chunks AS source_chunk
-      ON source_chunk.attachment_id = source.id AND source_chunk.kind = 'approved'
-    WHERE source.hash = target.hash AND source.status = 'approved'
-  );
