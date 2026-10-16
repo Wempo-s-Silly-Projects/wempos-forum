@@ -159,7 +159,7 @@ test("a successful guarded login creates the new session and removes the guest s
 });
 
 test("threaded reply insertion atomically requires a viewable conversation and an unbanned author", () => {
-  assert.ok(THREAD_REPLY_INSERT_SQL.includes("INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key)"));
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint, staged_at)"));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("SELECT ?, ?, ?, 'public', ?, ?, ?, ? WHERE EXISTS"));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("FROM posts WHERE id = ? AND visibility = 'public' AND ("));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("parent_id IS NULL OR EXISTS"));
