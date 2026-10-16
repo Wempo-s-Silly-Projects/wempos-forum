@@ -98,8 +98,19 @@ test("post creation retries are content-bound, recover stale staging, and surviv
   assert.match(migration, /ALTER TABLE posts ADD COLUMN idempotency_fingerprint TEXT/);
   assert.match(migration, /ALTER TABLE post_archive ADD COLUMN idempotency_key TEXT/);
   assert.match(app, /function composerSubmissionSignature/);
+  assert.match(app, /form\.dataset\.idempotencySignature !== signature/);
   assert.match(app, /clearComposerKeyForChangedSubmission/);
   assert.match(api, /headers\["Idempotency-Key"\] = idempotencyKey/);
+  assert.match(posts, /AND \(\? IS NULL OR NOT EXISTS \(SELECT 1 FROM post_archive archived/);
+  assert.match(posts, /throwIfArchivedIdempotencyKey/);
+  assert.match(posts, /priorIdempotent \? Number\(priorIdempotent\.id\) : null/);
+  assert.match(posts, /This older creation request cannot be safely verified after edits/);
+  assert.match(posts, /await rateLimit\(request, env, "post-write"/);
+  const attachments = await read("api/attachments.mjs");
+  const gifIdentityMigration = await read("migrations/0025_attachment_gif_identity.sql");
+  assert.match(attachments, /source_gif_id/);
+  assert.match(attachments, /replayPostId/);
+  assert.match(gifIdentityMigration, /ALTER TABLE attachments ADD COLUMN source_gif_id TEXT/);
 });
 
 test("approved attachment and GIF flows use write-time revocation guards", async () => {
