@@ -41,6 +41,9 @@
   /* Text sitting on --yellow surfaces (secondary button, badges, tag chip):
      dark navy in light mode, dark brown once --ink becomes cream in dark. */
   --on-yellow: #24364a;
+  /* Quiet-button hover: same mustard tint as light; in dark it must stay a
+     warm dark tone because quiet's text is light sage there. */
+  --quiet-hover: #e9d9a7;
 }
 
 /* Dark re-weighting of the same tokens: manual choice via [data-theme], or
@@ -78,6 +81,7 @@
   --error-chip-border: #b26252;
   --error-chip-ink: #f4b0a4;
   --on-yellow: #33240d;
+  --quiet-hover: #48391f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -111,6 +115,7 @@
     --error-chip-border: #b26252;
     --error-chip-ink: #f4b0a4;
     --on-yellow: #33240d;
+    --quiet-hover: #48391f;
   }
 }
 
@@ -208,7 +213,7 @@ a:hover {
   aspect-ratio: 1;
   display: grid;
   place-items: center;
-  border: 2px solid var(--ink);
+  border: 2px solid var(--on-yellow);
   border-radius: 44% 56% 51% 49%;
   color: var(--on-yellow);
   background: var(--yellow);
@@ -508,9 +513,13 @@ img {
   background: var(--yellow);
 }
 
-.button-secondary:hover:not(:disabled),
-.button-quiet:hover:not(:disabled) {
+.button-secondary:hover:not(:disabled) {
   background: var(--yellow-hover);
+}
+
+.button-quiet:hover:not(:disabled) {
+  /* Separate token: quiet's dark text must not ride onto the mustard hover. */
+  background: var(--quiet-hover);
 }
 
 .button-quiet {
@@ -827,7 +836,7 @@ dialog h2 {
   text-align: center;
   color: var(--on-yellow);
   background: var(--yellow);
-  border: 2px solid var(--ink);
+  border: 2px solid var(--on-yellow);
 }
 
 .notification-item {
@@ -885,7 +894,7 @@ dialog h2 {
   font-size: 0.85rem;
   color: var(--on-yellow);
   background: var(--yellow);
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid var(--on-yellow);
 }
 
 .banned-screen {
