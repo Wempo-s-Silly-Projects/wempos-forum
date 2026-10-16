@@ -75,8 +75,11 @@ Never run the remote migration against a database that contains data you do not 
 - `POST /api/admin/users/:id/promote`, `POST /api/admin/users/:id/demote` (admin only)
 - `GET /api/admin/avatars`, `POST /api/admin/avatars/:userId/approve`, `POST /api/admin/avatars/:userId/reject`
 - `GET /api/avatars/:userId`
+- `GET /api/attachments/:id`
+- `GET /api/admin/attachments`, `POST /api/admin/attachments/:id/approve`, `POST /api/admin/attachments/:id/reject` (admin only)
+- `POST /api/posts` and `POST /api/posts/:id/replies` also accept multipart with image attachments.
 
-The backend is split into `api/*.mjs` modules (shared, session, posts, profiles, moderation, notifications, filter) imported by `worker.mjs`; keep that split when editing — each topic lives in its module.
+The backend is split into `api/*.mjs` modules (shared, session, posts, profiles, moderation, notifications, filter, attachments) imported by `worker.mjs`; keep that split when editing — each topic lives in its module.
 
 ## Forum behavior notes
 
@@ -84,6 +87,14 @@ The backend is split into `api/*.mjs` modules (shared, session, posts, profiles,
 - Avatars are moderated: uploads go to a pending set; the previously approved avatar keeps serving until a moderator approves/rejects from the `/api/admin/avatars` queue.
 - A curated word filter runs on posts and replies from the `FILTERED_WORDS` secret (comma-separated; `wrangler secret put FILTERED_WORDS` in production, an entry in `.dev.vars` locally; unset = filter off). See `config/filtered-words-template.txt`.
 - Banned accounts see a dedicated ban screen on failed sign-in with the ban reason and (for temporary bans) a reactivation countdown.
+- A theme toggle switches between light and dark; the choice is stored client-side and persists across reloads.
+
+### Image attachments
+
+- Post and reply composers accept up to 3 images, 10 MiB max each; JPEG, PNG, WebP, and GIF are accepted by magic-byte sniffing.
+- The 10 MiB limit is possible because large blobs are chunked across `attachment_chunks` rows (D1 caps a single BLOB/row at ~2 MB).
+- Attachment bytes are stored in D1. Moderation is hybrid: the author always sees their own pending images (with a pending chip); everyone else sees a placeholder until a moderator approves from `/api/admin/attachments`. Rejected images stop serving.
+- The pending-only cache is private (no-store).
 
 ## Security notes
 
@@ -96,9 +107,9 @@ The backend is split into `api/*.mjs` modules (shared, session, posts, profiles,
 - API body sizes, username/password/post/bio/report limits, image magic bytes, and request rates are checked server-side. Cloudflare Rate Limiting bindings enforce limits without a D1 write for every request.
 - JSON/API responses and static assets include security headers and a restrictive Content Security Policy.
 
-### Avatar storage
+### Avatar and attachment storage
 
-R2 is not enabled on the connected Cloudflare account right now, so this first version stores validated JPEG, PNG, and WebP avatar bytes in D1, with a hard 1 MiB per-image limit. This is suitable as a simple initial backend, not an ideal large-scale media store. Move avatar objects to an R2 bucket before growing the forum or accepting larger uploads.
+R2 is not enabled on the connected Cloudflare account right now, so this version stores validated image bytes in D1: avatars (JPEG, PNG, WebP) with a hard 1 MiB per-image limit, and post/reply attachments (JPEG, PNG, WebP, GIF) up to 10 MiB each, chunked across `attachment_chunks` rows because D1 caps a single BLOB/row at ~2 MB. This is suitable as a simple initial backend, not an ideal large-scale media store. Move avatar and attachment objects to an R2 bucket before growing the forum or accepting larger uploads.
 
 ## Checks
 
