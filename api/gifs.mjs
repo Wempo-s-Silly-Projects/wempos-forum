@@ -140,6 +140,18 @@ export async function handleGifUploadRoute(request, env, path, method) {
     );
   }
   await db.batch(statements);
+  // Close the race where an approved twin appears between the first lookup
+  // and the pending insert. Approval itself also handles the remaining race.
+  const approvedAfterInsert = await db.prepare(
+    "SELECT id FROM gifs WHERE hash = ? AND status = 'approved' LIMIT 1",
+  ).bind(hash).first();
+  if (approvedAfterInsert) {
+    await db.batch([
+      db.prepare("DELETE FROM gif_chunks WHERE gif_id = ?").bind(id),
+      db.prepare("DELETE FROM gifs WHERE id = ? AND status = 'pending'").bind(id),
+    ]);
+    return json({ id: approvedAfterInsert.id, reuse: true });
+  }
   return json({ id, reuse: false }, 201);
 }
 
