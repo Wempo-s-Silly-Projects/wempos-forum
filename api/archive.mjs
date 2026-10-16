@@ -20,7 +20,7 @@ async function handleArchiveRoute(request, env, url, path, method) {
       throw new HttpError(400, "A before cursor must be a positive id.");
     }
   }
-  const sql = "SELECT id, original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because " +
+  const sql = "SELECT id, original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because, deleted_by_user_id, deleted_by_name " +
     "FROM post_archive WHERE id < ? ORDER BY id DESC LIMIT " + ARCHIVE_PAGE_SIZE;
   const result = await env.FORUM_DB.prepare(sql).bind(before ?? Number.MAX_SAFE_INTEGER).all();
   const rows = result.results || [];
@@ -36,6 +36,8 @@ async function handleArchiveRoute(request, env, url, path, method) {
       createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
       deletedAt: new Date(Number(row.deleted_at) * 1000).toISOString(),
       deletedBecause: row.deleted_because,
+      deletedByUserId: row.deleted_by_user_id === null || row.deleted_by_user_id === undefined ? null : Number(row.deleted_by_user_id),
+      deletedByName: row.deleted_by_name || null,
     })),
     nextBefore: hasMore && last ? Number(last.id) : null,
   });
