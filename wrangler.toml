@@ -104,6 +104,101 @@ namespace_id = "614202610141012"
 limit = 5
 period = 60
 
+# Named preview environment: never inherit the production D1 or rate-limit bindings.
+[env.preview.vars]
+TURNSTILE_HOSTNAMES = "*.wempos-forum-preview.itswempo.workers.dev"
+VERSION = "3.0.0-preview"
+
+[[env.preview.d1_databases]]
+binding = "FORUM_DB"
+database_name = "wempo-forum-preview"
+database_id = "22968b39-3535-492d-846c-9624c262c37f"
+migrations_dir = "migrations"
+
+[[env.preview.ratelimits]]
+name = "READ_RATE_LIMITER"
+namespace_id = "614202610142001"
+[env.preview.ratelimits.simple]
+limit = 180
+period = 60
+
+[[env.preview.ratelimits]]
+name = "WRITE_RATE_LIMITER"
+namespace_id = "614202610142002"
+[env.preview.ratelimits.simple]
+limit = 45
+period = 60
+
+[[env.preview.ratelimits]]
+name = "GUEST_SESSION_RATE_LIMITER"
+namespace_id = "614202610142003"
+[env.preview.ratelimits.simple]
+limit = 120
+period = 60
+
+[[env.preview.ratelimits]]
+name = "REGISTER_RATE_LIMITER"
+namespace_id = "614202610142004"
+[env.preview.ratelimits.simple]
+limit = 5
+period = 60
+
+[[env.preview.ratelimits]]
+name = "LOGIN_RATE_LIMITER"
+namespace_id = "614202610142005"
+[env.preview.ratelimits.simple]
+limit = 10
+period = 60
+
+[[env.preview.ratelimits]]
+name = "SETUP_RATE_LIMITER"
+namespace_id = "614202610142006"
+[env.preview.ratelimits.simple]
+limit = 5
+period = 60
+
+[[env.preview.ratelimits]]
+name = "POST_WRITE_RATE_LIMITER"
+namespace_id = "614202610142007"
+[env.preview.ratelimits.simple]
+limit = 20
+period = 60
+
+[[env.preview.ratelimits]]
+name = "PASSWORD_CHANGE_RATE_LIMITER"
+namespace_id = "614202610142008"
+[env.preview.ratelimits.simple]
+limit = 6
+period = 60
+
+[[env.preview.ratelimits]]
+name = "REPORT_RATE_LIMITER"
+namespace_id = "614202610142009"
+[env.preview.ratelimits.simple]
+limit = 5
+period = 60
+
+[[env.preview.ratelimits]]
+name = "AVATAR_UPLOAD_RATE_LIMITER"
+namespace_id = "614202610142010"
+[env.preview.ratelimits.simple]
+limit = 5
+period = 60
+
+[[env.preview.ratelimits]]
+name = "REACTION_RATE_LIMITER"
+namespace_id = "614202610142011"
+[env.preview.ratelimits.simple]
+limit = 30
+period = 60
+
+[[env.preview.ratelimits]]
+name = "IMAGE_UPLOAD_RATE_LIMITER"
+namespace_id = "614202610142012"
+[env.preview.ratelimits.simple]
+limit = 5
+period = 60
+
 # Preview uses a dedicated database and isolated rate-limit namespaces.
 [previews.vars]
 TURNSTILE_HOSTNAMES = "wempos-forum-preview.itswempo.workers.dev"
