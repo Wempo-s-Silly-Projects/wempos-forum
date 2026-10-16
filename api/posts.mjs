@@ -674,11 +674,15 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
     const idempotencyKey = getPostIdempotencyKey(request);
+    const priorIdempotent = await existingIdempotentPost(db, session.user.id, idempotencyKey);
+    if (priorIdempotent?.archived) {
+      throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
+    }
     const targetId = Number(replyMatch[1]);
     if (!Number.isSafeInteger(targetId) || targetId < 1) throw new HttpError(404, "Post not found.");
     const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
       .startsWith("multipart/form-data");
-    const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env);
+    const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env, { replayPostId: priorIdempotent ? Number(priorIdempotent.id) : null });
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
@@ -811,9 +815,13 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
     const idempotencyKey = getPostIdempotencyKey(request);
+    const priorIdempotent = await existingIdempotentPost(db, session.user.id, idempotencyKey);
+    if (priorIdempotent?.archived) {
+      throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
+    }
     const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
       .startsWith("multipart/form-data");
-    const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env);
+    const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env, { replayPostId: priorIdempotent ? Number(priorIdempotent.id) : null });
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
