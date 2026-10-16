@@ -132,7 +132,8 @@ async function gifReferenceEntries(db, gifIds) {
     if (seen.has(id)) continue;
     seen.add(id);
     const gif = await db.prepare(
-      "SELECT id, hash, mime FROM gifs WHERE id = ? AND status = 'approved' LIMIT 1",
+      "SELECT id, hash, mime FROM gifs WHERE id = ? AND status = 'approved' " +
+      "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = gifs.hash) LIMIT 1",
     ).bind(id).first();
     if (!gif) throw new HttpError(400, "One of the selected GIFs is not available.");
     entries.push({ id: gif.id, hash: gif.hash, mime: gif.mime, file: false });
