@@ -521,8 +521,8 @@ const STAGED_IDEMPOTENCY_TTL_SECONDS = 30 * 60;
 async function existingIdempotentPost(db, authorId, key) {
   if (!key) return null;
   const live = await db.prepare(
-    "SELECT id, visibility, created_at, idempotency_key, idempotency_fingerprint " +
-    "FROM posts WHERE author_id = ? AND idempotency_key = ? LIMIT 1",
+    "SELECT id, visibility, created_at, idempotency_key, idempotency_fingerprint, " +
+    "parent_id, body, board FROM posts WHERE author_id = ? AND idempotency_key = ? LIMIT 1",
   ).bind(authorId, key).first();
   if (live) return { ...live, archived: false };
   const archived = await db.prepare(
@@ -545,8 +545,23 @@ async function replayIdempotentPost(db, authorId, key, fingerprint) {
     existing = await existingIdempotentPost(db, authorId, key);
   }
   if (!existing) return null;
-  if (existing.idempotency_fingerprint && fingerprint &&
-      existing.idempotency_fingerprint !== fingerprint) {
+  let storedFingerprint = existing.idempotency_fingerprint || null;
+  // Rows created before migration 0024 have no persisted fingerprint. Rebuild
+  // the comparable shape from their immutable body/target/board and attachment
+  // hash list; do not silently replay a legacy key for a different payload.
+  if (!storedFingerprint && !existing.archived && fingerprint) {
+    const storedAttachments = await db.prepare(
+      "SELECT hash, mime FROM attachments WHERE post_id = ? ORDER BY hash, mime",
+    ).bind(Number(existing.id)).all();
+    storedFingerprint = await postCreationFingerprint({
+      kind: existing.parent_id === null || existing.parent_id === undefined ? "post" : "reply",
+      targetId: existing.parent_id === null || existing.parent_id === undefined ? null : Number(existing.parent_id),
+      message: String(existing.body ?? ""),
+      board: existing.board ?? null,
+      attachments: storedAttachments.results || [],
+    });
+  }
+  if (storedFingerprint && fingerprint && storedFingerprint !== fingerprint) {
     throw new HttpError(409, "Idempotency-Key was already used for a different submission. Submit again to create the changed content.");
   }
   if (existing.archived) {
@@ -558,14 +573,23 @@ async function replayIdempotentPost(db, authorId, key, fingerprint) {
   return json({ id: Number(existing.id) }, 200);
 }
 
-async function postCreationFingerprint({ kind, targetId = null, message, board = null, files = [], gifEntries = [] }) {
+async function postCreationFingerprint({
+  kind, targetId = null, message, board = null, files = [], gifEntries = [], attachments = null,
+}) {
+  // Direct uploads and library GIFs have the same visible effect. A sorted
+  // multiset of (hash, MIME) pairs lets older rows be verified even though
+  // source_kind did not exist when those rows were written.
+  const media = (attachments || [
+    ...files.map((file) => ({ hash: file.hash, mime: file.mime })),
+    ...gifEntries.map((gif) => ({ hash: gif.hash, mime: gif.mime })),
+  ]).map((item) => ({ hash: String(item.hash || ""), mime: String(item.mime || "") }))
+    .sort((a, b) => (a.hash + ":" + a.mime).localeCompare(b.hash + ":" + b.mime));
   return sha256Hex(JSON.stringify({
     kind,
     targetId,
     message,
     board: kind === "post" ? board : null,
-    files: files.map((file) => ({ hash: file.hash, mime: file.mime })),
-    gifs: gifEntries.map((gif) => ({ id: gif.id, hash: gif.hash, mime: gif.mime })),
+    attachments: media,
   }));
 }
 
