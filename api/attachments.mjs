@@ -102,9 +102,8 @@ export async function readComposedBody(request, env) {
       if (!mime) {
         throw new HttpError(400, "Only JPEG, PNG, WebP, and GIF images can be attached.");
       }
-      // v2.5 dedup + auto-approve: the hash decides. Identical bytes to a
-      // previously approved upload (or approved marketplace GIF) skip moderation,
-      // but still get their own byte chunks so their lifetime is independent.
+      // v2.5 dedup + auto-approve: identical bytes to previously approved content
+      // skip moderation, but direct file uploads still get their own chunks.
       const hash = await sha256Hex(bytes);
       const canonical = await lookupCanonicalByHash(env.FORUM_DB, hash);
       files.push({ mime, bytes, hash, preApproved: Boolean(canonical) });
@@ -143,9 +142,9 @@ async function gifReferenceEntries(db, gifIds) {
 
 // One metadata INSERT plus one attachment_chunks INSERT per chunk of each
 // validated file, all riding in the same batch. New, unrecognized content is
-// stored as kind='pending'; byte-identical content approved previously is stored
-// as kind='approved'. Every attachment owns a complete byte set so removing
-// another post or source GIF cannot break it. `db` is env.FORUM_DB.
+// stored as kind='pending'; byte-identical direct uploads approved previously
+// are stored as kind='approved' and own their chunks. Library GIF selections
+// remain by-reference rows to the persistent approved GIF library. `db` is env.FORUM_DB.
 // SHA-256 hex of the validated bytes (v2.5): dedup + auto-approve identity.
 // WebCrypto has no blake3; SHA-256 has no practical collision attack at any
 // scale that matters — the owner picked the algorithm by constraint.
@@ -155,9 +154,9 @@ export async function sha256Hex(bytes) {
 }
 
 // Content-addressed lookup (v2.5): finds existing approved content by hash.
-// New rows always store their own chunks, but the serving fallback remains for
-// legacy deduplicated rows created before migration 0020. Returns { mime, id }
-// or null.
+// Direct file uploads now store their own chunks; the serving fallback remains
+// for library-GIF reference rows and legacy duplicates created before migration
+// 0020. Returns { mime, id } or null.
 export async function lookupCanonicalByHash(db, hash) {
   const row = await db.prepare(
     "SELECT a.id, a.mime FROM attachments a WHERE a.hash = ? AND a.status = 'approved' " +
