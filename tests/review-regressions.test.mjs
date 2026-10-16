@@ -64,3 +64,52 @@ test("CSS moderation decisions are tied to the exact reviewed submission", async
   assert.match(app, /reject\?version=/);
   assert.match(app, /console\.error\("Forum startup failed:", error\)/);
 });
+
+test("unexpected Worker failures log the full error but return generic public messages", async () => {
+  const worker = await read("worker.mjs");
+  assert.match(worker, /console\.error\("Forum request failed:", error\)/);
+  assert.match(worker, /console\.error\("Static asset request failed:", error\)/);
+  assert.match(worker, /return json\(/);
+  assert.match(worker, /Something went wrong\. Please try again\./);
+});
+
+test("attachment-bearing post and reply writes stay hidden until media persistence succeeds", async () => {
+  const posts = await read("api/posts.mjs");
+  const constants = await read("constants.mjs");
+  assert.match(posts, /THREAD_REPLY_INSERT_STAGED_SQL/);
+  assert.match(posts, /await persistStagedPostAttachments\(db, replyId/);
+  assert.match(posts, /await persistStagedPostAttachments\(db, postId/);
+  assert.match(posts, /DELETE FROM posts WHERE id = \? AND author_id = \? AND visibility = 'hidden'/);
+  assert.match(constants, /THREAD_REPLY_INSERT_STAGED_SQL = THREAD_REPLY_INSERT_SQL\.replace/);
+});
+
+test("post creation retries reuse durable idempotency keys", async () => {
+  const posts = await read("api/posts.mjs");
+  const app = await read("public/js/app.js");
+  const api = await read("public/js/api.js");
+  assert.match(posts, /existingIdempotentPost\(db, session\.user\.id, idempotencyKey\)/);
+  assert.match(posts, /idempotency_key\)/);
+  assert.match(app, /form\.dataset\.idempotencyKey \|\| \(form\.dataset\.idempotencyKey = crypto\.randomUUID\(\)\)/);
+  assert.match(api, /headers\["Idempotency-Key"\] = idempotencyKey/);
+});
+
+test("staged replies recheck visible ancestors and only monotonically bump public threads", async () => {
+  const posts = await read("api/posts.mjs");
+  const constants = await read("constants.mjs");
+  assert.match(posts, /target\.visibility = 'public'[\s\S]*?root\.visibility = 'public'/);
+  assert.match(constants, /last_activity_at = MAX\(COALESCE\(last_activity_at, 0\), \?\)/);
+  assert.match(constants, /reply\.visibility = 'public'/);
+});
+
+test("attachment hash revocation blocks dedup and deletes approved duplicates", async () => {
+  const attachments = await read("api/attachments.mjs");
+  const migration = await read("migrations/0022_revoked_attachment_hashes.sql");
+  assert.match(attachments, /FROM revoked_attachment_hashes WHERE hash = \?/);
+  assert.match(attachments, /DELETE FROM attachments WHERE hash = \? AND status = 'approved'/);
+  assert.match(migration, /CREATE TABLE revoked_attachment_hashes/);
+});
+
+test("release tooling has a named, isolated Preview migration target", async () => {
+  const pkg = JSON.parse(await read("package.json"));
+  assert.match(pkg.scripts["db:migrate:preview"], /wempo-forum-preview --env preview --remote/);
+});

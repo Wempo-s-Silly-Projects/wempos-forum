@@ -11,7 +11,8 @@
     "deploy": "wrangler deploy --var COMMIT_SHA:$(git rev-parse --short HEAD)",
     "db:migrate:local": "wrangler d1 migrations apply wempo-forum-data --local",
     "db:migrate:remote": "wrangler d1 migrations apply wempo-forum-data --remote",
-    "test": "node --test"
+    "test": "node --test",
+    "db:migrate:preview": "wrangler d1 migrations apply wempo-forum-preview --env preview --remote"
   },
   "devDependencies": {
     "wrangler": "4.151.0"

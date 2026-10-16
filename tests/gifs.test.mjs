@@ -156,7 +156,7 @@ const attachRoutesReal = ({ gifApproved = true, hash = "a".repeat(64) } = {}) =>
   { sql: /WHERE p\.id = \? LIMIT 1/, result: (values) => (values[1] === 2 ? { id: "2", author_id: "3", parent_id: null, visibility: "public", board: "general", body: "thread", created_at: 1, last_activity_at: 2 } : null) },
   { sql: /SELECT 1 FROM bans b WHERE b\.user_id = \?/, result: null },
   { sql: /FROM posts WHERE id = \? LIMIT 1/, result: null },
-  { sql: /SELECT id, hash, mime FROM gifs WHERE id = \? AND status = 'approved' LIMIT 1/, result: () => (gifApproved ? { id: "123e4567-e89b-12d3-a456-426614174000", hash, mime: "image/gif" } : null) },
+  { sql: /SELECT id, hash, mime FROM gifs WHERE id = \? AND status = 'approved'/, result: () => (gifApproved ? { id: "123e4567-e89b-12d3-a456-426614174000", hash, mime: "image/gif" } : null) },
   { sql: /^UPDATE gifs SET use_count = use_count \+ 1 WHERE id = \?$/, runMeta: { meta: { changes: 1 } } },
   { sql: /./ },
 ];
@@ -177,7 +177,6 @@ test("a reply attaching an approved library gif inserts an APPROVED reference ro
       },
       body: JSON.stringify({ body: "here it is", gifIds: ["123e4567-e89b-12d3-a456-426614174000"], "cf-turnstile-response": "turnstile-token-fixture" }),
     }), envFor(mock.db));
-    console.error("ATTACH BODY:", response.status, await response.clone().text());
     assert.equal(response.status, 201);
   } finally {
     globalThis.fetch = originalFetch;

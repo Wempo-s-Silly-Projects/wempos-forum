@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import forumWorker, { canViewPost } from "../worker.mjs";
-import { THREAD_REPLY_INSERT_SQL, REPLY_BUMP_SQL } from "../constants.mjs";
+import { THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL, REPLY_BUMP_SQL, STAGED_REPLY_BUMP_SQL } from "../constants.mjs";
 import { listRootPosts } from "../api/posts.mjs";
 
 // D1 mock: routes are { sql: RegExp, result? , rows?, runMeta? }. prepare() picks
@@ -174,9 +174,9 @@ function threadRoutes(rowForId) {
 
 test("threaded reply insert requires a public target that is a root or has a public root parent, plus an unbanned author", () => {
   assert.ok(THREAD_REPLY_INSERT_SQL.includes(
-    "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board)",
+    "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key)",
   ));
-  assert.ok(THREAD_REPLY_INSERT_SQL.includes("SELECT ?, ?, ?, 'public', ?, ?, ? WHERE EXISTS"));
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("SELECT ?, ?, ?, 'public', ?, ?, ?, ? WHERE EXISTS"));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("FROM posts WHERE id = ? AND visibility = 'public' AND ("));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("parent_id IS NULL OR EXISTS"));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes(
@@ -187,12 +187,22 @@ test("threaded reply insert requires a public target that is a root or has a pub
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("expires_at IS NULL OR expires_at > ?"));
   // Bind order: author, parent, body, created, last_activity, board (the
   // thread root's board, resolved by the route), target, ban user, ban now.
-  assert.equal((THREAD_REPLY_INSERT_SQL.match(/\?/g) || []).length, 9);
+  assert.equal((THREAD_REPLY_INSERT_SQL.match(/\?/g) || []).length, 10);
 });
 
 test("the reply bump updates one row's activity stamp", () => {
-  assert.match(REPLY_BUMP_SQL, /^UPDATE posts SET last_activity_at = \? WHERE id = \?$/);
+  assert.match(REPLY_BUMP_SQL, /last_activity_at = MAX\(COALESCE\(last_activity_at, 0\), \?\)/);
+  assert.match(STAGED_REPLY_BUMP_SQL, /reply\.id = \? AND reply\.visibility = 'public'/);
+  assert.match(STAGED_REPLY_BUMP_SQL, /reply\.parent_id = posts\.id OR target\.parent_id = posts\.id/);
 });
+test("staged reply insertion accepts a bound hidden visibility without weakening the thread guard", () => {
+  assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /SELECT \?, \?, \?, \?, \?, \?, \?, \? WHERE EXISTS/);
+  assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /FROM posts WHERE id = \? AND visibility = 'public'/);
+  assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /parent_id IS NULL OR EXISTS/);
+  assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /NOT EXISTS \(SELECT 1 FROM bans WHERE user_id = \?/);
+  assert.equal((THREAD_REPLY_INSERT_STAGED_SQL.match(/\?/g) || []).length, 11);
+});
+
 
 test("replies to a level-1 reply insert under the guard and bump the root, not the reply", async () => {
   // root 1 <- level-1 reply 2 (author 5). Signed-in user 7 replies to 2.
@@ -233,7 +243,8 @@ test("replies to a level-1 reply insert under the guard and bump the root, not t
   assert.equal(replyInsert.values[4], replyInsert.values[3]);
   // Board and shifted guard binds are pinned below, after the bump assertions.
 
-  assert.match(bump.sql, /^UPDATE posts SET last_activity_at = \? WHERE id = \?$/);
+  assert.match(bump.sql, /last_activity_at = MAX\(COALESCE\(last_activity_at, 0\), \?\)/);
+  assert.match(bump.sql, /reply\.visibility = 'public'/);
   assert.equal(bump.values[0], replyInsert.values[3]);
   assert.equal(bump.values[1], 1, "bump must target the root (target.parent_id), not the target reply");
   assert.notEqual(bump.values[1], 2);
@@ -242,9 +253,10 @@ test("replies to a level-1 reply insert under the guard and bump the root, not t
   // Board inherits the thread root's board (v2.4.1): the root is 'general'
   // here, and the shifted guard binds follow it (target 2, user 7, now).
   assert.equal(replyInsert.values[5], "general", "replies carry their root's board");
-  assert.equal(replyInsert.values[6], 2, "guard checks the level-1 target being replied to");
-  assert.equal(replyInsert.values[7], 7);
-  assert.equal(replyInsert.values[8], replyInsert.values[3]);
+  assert.equal(replyInsert.values[6], null, "idempotency key is null when a client does not supply one");
+  assert.equal(replyInsert.values[7], 2, "guard checks the level-1 target being replied to");
+  assert.equal(replyInsert.values[8], 7);
+  assert.equal(replyInsert.values[9], replyInsert.values[3]);
 
   const [insert, prune] = mock.batches[1];
   assert.match(insert.sql, /INSERT INTO notifications/);
@@ -277,7 +289,7 @@ test("replies to a root insert onto the root and notify the root author", async 
   assert.equal(mock.batches.length, 2);
   const [replyInsert, bump] = mock.batches[0];
   assert.deepEqual(replyInsert.values.slice(0, 3), [7, 1, "a root reply"]);
-  assert.equal(replyInsert.values[6], 1, "guard checks the root target itself");
+  assert.equal(replyInsert.values[7], 1, "guard checks the root target itself");
   assert.equal(replyInsert.values[5], "general", "a root replying target carries the general board");
   assert.equal(bump.values[1], 1, "bumping a root targets the root row itself");
   const [insert] = mock.batches[1];
@@ -382,7 +394,7 @@ test("new root posts stamp last_activity_at equal to created_at", async () => {
     sessionRoute,
     banCheckRoute,
     {
-      sql: /INSERT INTO posts \(author_id, parent_id, body, visibility, created_at, last_activity_at, board\)/,
+      sql: /INSERT INTO posts \(author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key\)/,
       runMeta: { meta: { changes: 1, last_row_id: 42 } },
     },
     { sql: /./ },
@@ -406,15 +418,15 @@ test("new root posts stamp last_activity_at equal to created_at", async () => {
   const insert = mock.calls.find((call) => call.sql.startsWith("INSERT INTO posts"));
   assert.ok(insert, "post creation must run its guarded INSERT");
   assert.ok(insert.sql.includes(
-    "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board)",
+    "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key)",
   ));
-  assert.ok(insert.sql.includes("SELECT ?, NULL, ?, 'public', ?, ?, ? WHERE NOT EXISTS"));
+  assert.ok(insert.sql.includes("SELECT ?, NULL, ?, 'public', ?, ?, ?, ? WHERE NOT EXISTS"));
   assert.deepEqual(insert.values.slice(0, 2), [7, "a brand new root"]);
   assertRecentSeconds(insert.values[2]);
   assert.equal(insert.values[3], insert.values[2], "last_activity_at binds the same timestamp as created_at");
   // No board field submitted: the root defaults to the general board.
   assert.equal(insert.values[4], "general");
-  assert.deepEqual(insert.values.slice(5), [7, insert.values[2]],
+  assert.deepEqual(insert.values.slice(5), [null, 7, insert.values[2]],
     "the ban guard binds follow the board (user id, then the ban check's now)");
 });
 

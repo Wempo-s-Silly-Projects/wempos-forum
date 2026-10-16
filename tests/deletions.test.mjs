@@ -31,6 +31,7 @@ const MIGRATIONS = [
   "0006_add_board.sql",
   "0007_post_edits.sql",
   "0008_post_archive.sql",
+  "0023_post_archive_deleted_by.sql",
 ].map((name) => readFileSync(path.join(repoRoot, "migrations", name), "utf8"));
 
 // --- Worker-route layer (mockDb, post-edit.test.mjs idioms) -------------------
@@ -163,7 +164,7 @@ const fallbackRoute = { sql: /./ };
 // FIRST; its binds are [deletedAt, reason, ...deletionSelectors]. The tests
 // below match it by sql text and verify binds shape/leniency (deletedAt is
 // "recent seconds", reason and selector list are exact).
-const archiveRoute = { sql: /^INSERT INTO post_archive \(original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because\)/ };
+const archiveRoute = { sql: /^INSERT INTO post_archive \(original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because, deleted_by_user_id, deleted_by_name\)/ };
 const ARCHIVE_BATCH_META = { meta: { changes: 1 } };
 
 
@@ -208,7 +209,9 @@ test("the author deletes a root post with ONE author-guarded DELETE, no reparent
   const archiveCall = mock.calls.find((call) => call.sql.startsWith("INSERT INTO post_archive"));
   assert.ok(archiveCall, "the archive INSERT runs");
   assert.equal(archiveCall.values[1], "post-delete");
-  assert.deepEqual(archiveCall.values.slice(2), [50, 50, 50],
+  assert.equal(archiveCall.values[2], 7, "deleting user id is snapshotted");
+  assert.equal(archiveCall.values[3], "test_user", "deleting username is snapshotted");
+  assert.deepEqual(archiveCall.values.slice(4), [50, 50, 50],
     "root delete archives the root, its replies, and its sub-replies");
   assert.ok(Math.abs(Number(archiveCall.values[0]) - Math.floor(Date.now() / 1000)) < 30,
     "deletedAt is epoch seconds");
@@ -275,7 +278,7 @@ test("the author deletes a reply: sub-replies reparent to the thread root before
   const batchArchive = batch[0];
   assert.ok(batchArchive.sql.startsWith("INSERT INTO post_archive"));
   assert.equal(batchArchive.values[1], "post-delete");
-  assert.deepEqual(batchArchive.values.slice(2), [51],
+  assert.deepEqual(batchArchive.values.slice(4), [51],
     "a reply delete archives just the reply (sub-replies reparent, staying live)");
   // The reparent binds (root id, deleted reply id): the deleted reply's
   // children are re-pointed at the THREAD ROOT, not at the reply itself.
@@ -451,7 +454,9 @@ test("account deletion removes owned child rows explicitly, then the user row, i
   // DELETE action), then the owned children, then the user row LAST.
   assert.equal(batch[0].sql.startsWith("INSERT INTO post_archive"), true);
   assert.equal(batch[0].values[1], "account-delete");
-  assert.deepEqual(batch[0].values.slice(2), [7, 7, 7]);
+  assert.equal(batch[0].values[2], 7, "account deletion actor id is recorded");
+  assert.equal(batch[0].values[3], "test_user", "account deletion actor name is recorded");
+  assert.deepEqual(batch[0].values.slice(4), [7, 7, 7]);
   assert.ok(Math.abs(Number(batch[0].values[0]) - Math.floor(Date.now() / 1000)) < 30);
   assert.deepEqual(
     batch.slice(1).map((statement) => statement.sql),
@@ -777,15 +782,15 @@ test("the archiving root delete copies the whole thread — and only the thread 
   const bRoot = fx.post(fx.bob, null, "bob's own thread", "general", 60);
 
   runStatements(db, postDeletionStatements(sqliteAdapter(db), fx.alice, aRoot, null,
-    { archiveReason: "post-delete", deletedAt: 1_770_000_000 }));
+    { archiveReason: "post-delete", deletedAt: 1_770_000_000, deletedByUserId: fx.alice, deletedByName: "alice" }));
 
   const archived = db.prepare(
-    "SELECT original_post_id AS id, author_name AS name, body, deleted_because AS reason FROM post_archive ORDER BY original_post_id",
+    "SELECT original_post_id AS id, author_name AS name, body, deleted_because AS reason, deleted_by_name AS deleted_by FROM post_archive ORDER BY original_post_id",
   ).all();
-  assert.deepEqual(archived.map((row) => [row.id, row.name, row.body, row.reason]), [
-    [aRoot, "alice", "alice root", "post-delete"],
-    [bRep, "bob", "bob replies to alice", "post-delete"],
-    [cSub, "cara", "cara replies to bob", "post-delete"],
+  assert.deepEqual(archived.map((row) => [row.id, row.name, row.body, row.reason, row.deleted_by]), [
+    [aRoot, "alice", "alice root", "post-delete", "alice"],
+    [bRep, "bob", "bob replies to alice", "post-delete", "alice"],
+    [cSub, "cara", "cara replies to bob", "post-delete", "alice"],
   ], "the archive set equals the cascade set — nothing under-archived");
   // Surviving content is NOT archived.
   assert.equal(countWhere(db, "SELECT COUNT(*) AS n FROM post_archive"), 3);
@@ -807,17 +812,17 @@ test("the archiving account wipe captures third-party content the CASCADE takes 
   const bRoot = fx.post(fx.bob, null, "bob's own thread", "general", 60);
 
   runStatements(db, accountDeletionStatements(sqliteAdapter(db), fx.alice,
-    { archiveReason: "account-delete", deletedAt: 1_770_000_000 }));
+    { archiveReason: "account-delete", deletedAt: 1_770_000_000, deletedByUserId: fx.alice, deletedByName: "alice" }));
 
   const archived = db.prepare(
-    "SELECT original_post_id AS id, deleted_because AS reason FROM post_archive ORDER BY original_post_id",
+    "SELECT original_post_id AS id, deleted_because AS reason, deleted_by_name AS deleted_by FROM post_archive ORDER BY original_post_id",
   ).all();
-  assert.deepEqual(archived.map((row) => [row.id, row.reason]), [
-    [aRoot, "account-delete"],
-    [bRep, "account-delete"],
-    [cSub, "account-delete"],
-    [aRep, "account-delete"],
-    [dSub, "account-delete"],
+  assert.deepEqual(archived.map((row) => [row.id, row.reason, row.deleted_by]), [
+    [aRoot, "account-delete", "alice"],
+    [bRep, "account-delete", "alice"],
+    [cSub, "account-delete", "alice"],
+    [aRep, "account-delete", "alice"],
+    [dSub, "account-delete", "alice"],
   ], "own posts + children + grandchildren archived — no scrub hole");
   // Cara's sub-reply off bob's untouched thread (if any) would not archive;
   // bob's own content survives and is not archived.

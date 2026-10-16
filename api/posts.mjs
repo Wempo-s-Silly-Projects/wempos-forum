@@ -1,5 +1,5 @@
 // Post feed, post detail, replies, reactions, and search routes.
-import { REPLY_BUMP_SQL, SEARCH_USERS_SQL, THREAD_REPLY_INSERT_SQL } from "../constants.mjs";
+import { REPLY_BUMP_SQL, SEARCH_USERS_SQL, STAGED_REPLY_BUMP_SQL, THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL } from "../constants.mjs";
 import {
   attachmentRowsForView,
   insertAttachments,
@@ -506,12 +506,84 @@ async function handlePostDetailRoute(request, env, url, path, method) {
   return null;
 }
 
+function getPostIdempotencyKey(request) {
+  const key = request.headers.get("Idempotency-Key");
+  if (key === null || key === "") return null;
+  if (!/^[A-Za-z0-9_-]{16,128}$/.test(key)) {
+    throw new HttpError(400, "Invalid Idempotency-Key header.");
+  }
+  return key;
+}
+
+async function existingIdempotentPost(db, authorId, key) {
+  if (!key) return null;
+  return db.prepare(
+    "SELECT id, visibility FROM posts WHERE author_id = ? AND idempotency_key = ? LIMIT 1",
+  ).bind(authorId, key).first();
+}
+
+// Attachment rows reference a post id, so they are written after the post INSERT.
+// Keep attachment-bearing posts hidden during that interval. If storage fails,
+// the D1 attachment batch is atomic and deleting the hidden post removes any
+// dependent rows; the client receives an error without a live duplicate on retry.
+async function persistStagedPostAttachments(db, postId, authorId, files, gifEntries, options = {}) {
+  const { bumpTargetId = null, now = null } = options;
+  try {
+    await insertAttachments(db, postId, authorId, files, gifEntries);
+    const publish = db.prepare(
+      "UPDATE posts SET visibility = 'public' WHERE id = ? AND author_id = ? AND visibility = 'hidden' " +
+      "AND (parent_id IS NULL OR EXISTS (" +
+      "SELECT 1 FROM posts target WHERE target.id = posts.parent_id AND target.visibility = 'public' AND (" +
+      "target.parent_id IS NULL OR EXISTS (SELECT 1 FROM posts root WHERE root.id = target.parent_id " +
+      "AND root.parent_id IS NULL AND root.visibility = 'public'))))",
+    ).bind(postId, authorId);
+    if (bumpTargetId !== null) {
+      // Publish and bump together so the root activity clock does not advance
+      // for a reply whose attachments failed to commit.
+      const results = await db.batch([
+        publish,
+        db.prepare(STAGED_REPLY_BUMP_SQL).bind(nowSeconds(), bumpTargetId, postId),
+      ]);
+      if (Number(results[0]?.meta?.changes) !== 1) {
+        throw new HttpError(409, "The conversation changed while your reply was being published. Please try again.");
+      }
+    } else {
+      const result = await publish.run();
+      if (Number(result?.meta?.changes) !== 1) {
+        throw new HttpError(409, "Your post could not be published. Please try again.");
+      }
+    }
+  } catch (error) {
+    try {
+      const cleanup = await db.prepare(
+        "DELETE FROM posts WHERE id = ? AND author_id = ? AND visibility = 'hidden'",
+      ).bind(postId, authorId).run();
+      if (Number(cleanup?.meta?.changes) !== 1) {
+        console.error("Could not remove a staged post after attachment failure:", {
+          postId, attachmentError: error, cleanupResult: cleanup,
+        });
+      }
+    } catch (cleanupError) {
+      console.error("Could not remove a staged post after attachment failure:", {
+        postId, attachmentError: error, cleanupError,
+      });
+    }
+    throw error;
+  }
+}
+
 async function handleReplyCreateRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   const replyMatch = path.match(/^\/api\/posts\/([0-9]+)\/replies$/);
   if (replyMatch && method === "POST") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
+    const idempotencyKey = getPostIdempotencyKey(request);
+    const existing = await existingIdempotentPost(db, session.user.id, idempotencyKey);
+    if (existing) {
+      if (existing.visibility !== "public") throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
+      return json({ id: Number(existing.id) }, 200);
+    }
     await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
     const targetId = Number(replyMatch[1]);
@@ -565,19 +637,35 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const recipientId = target.author_id === null || target.author_id === undefined
       ? null
       : Number(target.author_id);
-    const results = await db.batch([
-      db.prepare(THREAD_REPLY_INSERT_SQL)
-        .bind(session.user.id, targetId, message, now, now, threadBoard, targetId,
-          session.user.id, now),
-      db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId),
-    ]);
+    const hasAttachments = files.length > 0 || gifEntries.length > 0;
+    const insertSql = hasAttachments ? THREAD_REPLY_INSERT_STAGED_SQL : THREAD_REPLY_INSERT_SQL;
+    const insertValues = hasAttachments
+      ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, targetId, session.user.id, now]
+      : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, targetId, session.user.id, now];
+    const insertStatements = [db.prepare(insertSql).bind(...insertValues)];
+    if (!hasAttachments) insertStatements.push(db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId));
+    let results;
+    try {
+      results = await db.batch(insertStatements);
+    } catch (error) {
+      const raced = await existingIdempotentPost(db, session.user.id, idempotencyKey);
+      if (raced?.visibility === "public") return json({ id: Number(raced.id) }, 200);
+      if (raced) throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
+      throw error;
+    }
     if (Number(results[0]?.meta?.changes) !== 1) {
       throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
     }
     const replyId = Number(results[0].meta.last_row_id);
-    // Attachments bind the reply's own row id, never the bump target's.
-    // Attachment intake is a separate batch: if it fails, the post row is already committed (retry may duplicate the post); accepted tradeoff.
-    await insertAttachments(db, replyId, session.user.id, files, gifEntries);
+    // Attachment-bearing replies stay hidden until the entire attachment batch
+    // succeeds. The row id is always the new reply, not its bump target.
+    if (hasAttachments) {
+      await persistStagedPostAttachments(db, replyId, session.user.id, files, gifEntries, {
+        bumpTargetId, now,
+      });
+    } else {
+      await insertAttachments(db, replyId, session.user.id, files, gifEntries);
+    }
     try {
       // Best-effort fan-out in a second batch: the reply id only exists after
       // the insert above, and a failed notification must never fail the reply.
@@ -623,6 +711,12 @@ async function handlePostCreateRoute(request, env, url, path, method) {
   if (path === "/api/posts" && method === "POST") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
+    const idempotencyKey = getPostIdempotencyKey(request);
+    const existing = await existingIdempotentPost(db, session.user.id, idempotencyKey);
+    if (existing) {
+      if (existing.visibility !== "public") throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
+      return json({ id: Number(existing.id) }, 200);
+    }
     await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
     const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
@@ -643,17 +737,34 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     // values 400 before any insert.
     const board = boardField(fields.board);
     const now = nowSeconds();
-    // A fresh root starts its activity clock at creation time.
-    const result = await db.prepare(
-      "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board) " +
-        "SELECT ?, NULL, ?, 'public', ?, ?, ? WHERE NOT EXISTS (" +
-        "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
-        "AND (expires_at IS NULL OR expires_at > ?))",
-    ).bind(session.user.id, message, now, now, board, session.user.id, now).run();
+    // A fresh root starts its activity clock at creation time. When it carries
+    // attachments it stays hidden until their batch is durable, so a failed
+    // upload cannot leave a live post that the user unknowingly duplicates.
+    const hasAttachments = files.length > 0 || gifEntries.length > 0;
+    // Both values are fixed server-owned SQL literals; keeping visibility out of
+    // the bind list preserves the established root-post bind order.
+    const visibilitySql = hasAttachments ? "'hidden'" : "'public'";
+    let result;
+    try {
+      result = await db.prepare(
+        "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key) " +
+          "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ? WHERE NOT EXISTS (" +
+          "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+          "AND (expires_at IS NULL OR expires_at > ?))",
+      ).bind(session.user.id, message, now, now, board, idempotencyKey, session.user.id, now).run();
+    } catch (error) {
+      const raced = await existingIdempotentPost(db, session.user.id, idempotencyKey);
+      if (raced?.visibility === "public") return json({ id: Number(raced.id) }, 200);
+      if (raced) throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
+      throw error;
+    }
     requireMutationApplied(result);
     const postId = Number(result.meta.last_row_id);
-    // Attachment intake is a separate batch: if it fails, the post row is already committed (retry may duplicate the post); accepted tradeoff.
-    await insertAttachments(db, postId, session.user.id, files, gifEntries);
+    if (hasAttachments) {
+      await persistStagedPostAttachments(db, postId, session.user.id, files, gifEntries);
+    } else {
+      await insertAttachments(db, postId, session.user.id, files, gifEntries);
+    }
     try {
       // Mentions (C2): @username tokens in the FILTERED body notify their
       // members, best-effort — a failed mention never fails the post. There
@@ -790,7 +901,7 @@ export const REPLY_REPARENT_SQL = "UPDATE posts SET parent_id = ? WHERE parent_i
 // Statement builder shared with the real-SQLite FK tests (tests/deletions.test.mjs
 // runs these exact SQL strings against migrations 0001–0006 to pin the cascade
 // and reparent semantics). parentId null means the target is a thread root.
-export function postDeletionStatements(db, authorId, postId, parentId, { archiveReason, deletedAt } = {}) {
+export function postDeletionStatements(db, authorId, postId, parentId, { archiveReason, deletedAt, deletedByUserId = authorId, deletedByName = null } = {}) {
   // Accountability archive (v2.4.1): the doomed rows are copied into
   // post_archive FIRST, in the same atomic batch. A root delete archives the
   // whole thread — including other members' replies, which cascade away with
@@ -808,6 +919,8 @@ export function postDeletionStatements(db, authorId, postId, parentId, { archive
       isRoot ? [postId, postId, postId] : [postId],
       archiveReason,
       deletedAt,
+      deletedByUserId,
+      deletedByName,
     ));
   }
   const deletePost = db.prepare(POST_DELETE_SQL).bind(postId, authorId);
@@ -837,7 +950,7 @@ async function handlePostDeleteRoute(request, env, url, path, method) {
       : Number(post.parent_id);
     const results = await db.batch(postDeletionStatements(
       db, session.user.id, postId, parentId,
-      { archiveReason: "post-delete", deletedAt: nowSeconds() },
+      { archiveReason: "post-delete", deletedAt: nowSeconds(), deletedByUserId: session.user.id, deletedByName: session.user.username },
     ));
     // The author-guarded DELETE must be the statement that changed exactly one
     // row; a 0-change delete means the post vanished between the read and the

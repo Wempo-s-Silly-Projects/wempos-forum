@@ -576,7 +576,7 @@ async function handlePasswordChangeRoute(request, env, url, path, method) {
 // everything the account owns is removed, then the user row ends the batch so
 // the remaining SET NULL actions (bans the user created, reports they
 // resolved) rewrite those actor columns without the row present.
-export function accountDeletionStatements(db, userId, { archiveReason, deletedAt } = {}) {
+export function accountDeletionStatements(db, userId, { archiveReason, deletedAt, deletedByUserId = userId, deletedByName = null } = {}) {
   // Accountability archive (v2.4.1): everything that will vanish goes to
   // post_archive FIRST, in the same atomic batch — the account's own posts
   // plus every child and grandchild row (other members' replies inside the
@@ -591,6 +591,8 @@ export function accountDeletionStatements(db, userId, { archiveReason, deletedAt
         [userId, userId, userId],
         archiveReason,
         deletedAt,
+        deletedByUserId,
+        deletedByName,
       )]
     : [];
   return [
@@ -616,7 +618,7 @@ async function handleAccountDeleteRoute(request, env, url, path, method) {
     // final user DELETE must change exactly one row — 0 means the account
     // vanished between the session read and the write.
     const results = await db.batch(accountDeletionStatements(
-      db, userId, { archiveReason: "account-delete", deletedAt: nowSeconds() },
+      db, userId, { archiveReason: "account-delete", deletedAt: nowSeconds(), deletedByUserId: userId, deletedByName: session.user.username },
     ));
     if (Number(results[results.length - 1]?.meta?.changes) !== 1) {
       throw new HttpError(404, "Account not found.");

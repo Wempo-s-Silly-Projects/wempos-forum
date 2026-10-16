@@ -47,7 +47,7 @@ function apiError(error) {
   if (error instanceof HttpError) {
     return json(error.payload || { error: error.message }, error.status, error.headers);
   }
-  console.error("Forum request failed:", error && error.name ? error.name : "UnknownError");
+  console.error("Forum request failed:", error);
   return json({ error: "Something went wrong. Please try again." }, 500);
 }
 
@@ -83,7 +83,7 @@ export default {
     try {
       return secureResponse(await env.ASSETS.fetch(request));
     } catch (error) {
-      console.error("Static asset request failed:", error && error.name ? error.name : "UnknownError");
+      console.error("Static asset request failed:", error);
       return json({ error: "The requested page could not be loaded." }, 500);
     }
   },

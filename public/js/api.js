@@ -4,13 +4,14 @@ export const setCsrfToken = (token) => {
   csrfToken = typeof token === "string" ? token : "";
 };
 
-export const api = async (path, { method = "GET", body } = {}) => {
+export const api = async (path, { method = "GET", body, idempotencyKey } = {}) => {
   const headers = { Accept: "application/json" };
   const mutating = !["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase());
   if (body !== undefined && !(body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }
   if (mutating && csrfToken) headers["X-CSRF-Token"] = csrfToken;
+  if (mutating && typeof idempotencyKey === "string" && idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
   const response = await fetch(path, {
     method,
     headers,

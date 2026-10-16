@@ -79,7 +79,7 @@ function chunkFixture(bytes, chunkSize = MAX_ATTACHMENT_CHUNK_BYTES) {
 // D1 mock: routes are { sql: RegExp, result?, rows?, runMeta? }. prepare()
 // picks the first route whose regex matches the SQL (last route is the
 // fallback). Copied from tests/threading.test.mjs.
-function mockDb(routes, { batchMeta = null } = {}) {
+function mockDb(routes, { batchMeta = null, batchError = null } = {}) {
   const calls = [];
   const batches = [];
   const db = {
@@ -110,6 +110,7 @@ function mockDb(routes, { batchMeta = null } = {}) {
     },
     async batch(statements) {
       batches.push(statements);
+      if (batchError) throw batchError;
       return statements.map((statement, index) =>
         (batchMeta && batchMeta[index]) || { meta: { changes: 1 } });
     },
@@ -182,7 +183,7 @@ function postRow(overrides = {}) {
 const sessionRoute = { sql: /FROM sessions s LEFT JOIN users u/, result: sessionRow() };
 const banCheckRoute = { sql: /^SELECT id FROM bans WHERE user_id = \?/, result: null };
 const postInsertRoute = {
-  sql: /INSERT INTO posts \(author_id, parent_id, body, visibility, created_at, last_activity_at, board\)/,
+  sql: /INSERT INTO posts \(author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key\)/,
   runMeta: { meta: { changes: 1, last_row_id: 42 } },
 };
 
@@ -273,6 +274,9 @@ test("a multipart post with one GIF file creates the post and one pending attach
   assert.equal(inserts[0].values[4], "pending", "new (never-approved) attachments are always pending");
   assert.equal(inserts[0].values[1], 42, "attachment binds the inserted post's row id");
   assert.equal(inserts[0].values[2], 7, "attachment records the uploading account");
+  assert.match(postInsert.sql, /SELECT \?, NULL, \?, 'hidden', \?, \?, \?, \? WHERE NOT EXISTS/, "attachment-bearing posts start hidden until their bytes are stored");
+  assert.ok(mock.calls.some((entry) => entry.sql.startsWith("UPDATE posts SET visibility = 'public'")),
+    "the post is published only after its attachment batch commits");
 });
 
 test("a .png-named JPEG binds image/jpeg — the sniff decides, not the filename", async () => {
@@ -1100,6 +1104,7 @@ test("approving flips the pending chunks to approved, marks the row approved, an
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
+    { sql: /SELECT hash FROM attachments WHERE id = \? AND status = 'pending'/, result: { hash: null } },
     { sql: /^UPDATE attachments/, runMeta: { meta: { changes: 1 } } },
     { sql: /^UPDATE attachment_chunks/, runMeta: { meta: { changes: 6 } } },
     { sql: /./ },
@@ -1140,6 +1145,7 @@ test("rejecting deletes the attachments row so its chunks cascade away", async (
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
+    { sql: /SELECT hash, status FROM attachments WHERE id = \? AND status IN \('pending', 'approved'\)/, result: { hash: "", status: "pending" } },
     { sql: /^DELETE FROM attachments/, runMeta: { meta: { changes: 1 } } },
     { sql: /./ },
   ]);
@@ -1176,6 +1182,7 @@ test("after approval the row is gone from the queue on re-listing", async () => 
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
+    { sql: /SELECT hash FROM attachments WHERE id = \? AND status = 'pending'/, result: { hash: null } },
     { sql: /^UPDATE attachments SET/, runMeta: { meta: { changes: 1 } } },
     queueRoute,
     { sql: /./ },
@@ -1208,7 +1215,7 @@ test("rejecting an APPROVED attachment hard-deletes the row (chunks cascade)", a
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /^DELETE FROM attachments/, runMeta: { meta: { changes: 1 } } },
+    { sql: /SELECT hash, status FROM attachments WHERE id = \? AND status IN \('pending', 'approved'\)/, result: { hash: "shared-hash", status: "approved" } },
     { sql: /./ },
   ]);
   const response = await forumWorker.fetch(
@@ -1221,8 +1228,11 @@ test("rejecting an APPROVED attachment hard-deletes the row (chunks cascade)", a
   assert.deepEqual(body, { rejected: true, id: ATTACHMENT_ID });
   const rejectCall = mock.calls.find((call) => call.sql.startsWith("DELETE FROM attachments"));
   assert.ok(rejectCall, "the reject DELETE must run against an approved row too");
-  assert.ok(rejectCall.sql.includes("status IN ('pending', 'approved')"));
-  assert.deepEqual(rejectCall.values, [ATTACHMENT_ID]);
+  assert.ok(rejectCall.sql.includes("DELETE FROM attachments WHERE hash = ? AND status = 'approved'"));
+  assert.deepEqual(rejectCall.values, ["shared-hash"]);
+  assert.equal(mock.batches.length, 1, "approved rejection atomically records the hash tombstone and deletes every approved duplicate");
+  assert.equal(mock.batches[0].length, 3);
+  assert.ok(mock.calls.some((call) => call.sql.includes("DELETE FROM gifs WHERE hash = ? AND status = 'approved'")));
   // HARD delete, no relabel: the approved chunk set dies with the row via the
   // FK cascade, so no UPDATE may fire.
   assert.equal(
@@ -1257,6 +1267,50 @@ test("approving an unknown or non-pending attachment id is a 404", async () => {
     envFor(mock.db),
   );
   assert.equal(response.status, 404);
+});
+
+test("approved hash duplicates store an independent approved chunk set", async () => {
+  const bytes = GIF_BYTES;
+  const file = { mime: "image/gif", bytes, hash: "a".repeat(64), preApproved: true };
+  const mock = mockDb([{ sql: /./ }]);
+  const ids = await insertAttachments(mock.db, 99, 7, [file]);
+
+  assert.equal(ids.length, 1);
+  const metadata = mock.calls.find((entry) => entry.sql.startsWith("INSERT INTO attachments"));
+  assert.equal(metadata.values[4], "approved");
+  const chunks = chunkInsertCalls(mock.calls);
+  assert.equal(chunks.length, 1);
+  assert.match(chunks[0].sql, /VALUES \(\?, 'approved', \?, \?\)/);
+  assert.equal(chunks[0].values[0], ids[0], "the duplicate owns its bytes instead of aliasing the original");
+  assert.deepEqual(chunks[0].values[2], bytes);
+});
+
+test("attachment storage failure removes the staged post before returning an error", async () => {
+  const mock = mockDb(
+    [sessionRoute, banCheckRoute, postInsertRoute, { sql: /./ }],
+    { batchError: new Error("simulated attachment batch failure") },
+  );
+  const siteverify = withMockedSiteverify({ success: true, action: "post", hostname: "forum.example" });
+  const originalError = console.error;
+  console.error = () => {};
+  let response;
+  try {
+    ({ response } = await multipartPost(
+      mock,
+      envFor(mock.db),
+      [{ bytes: GIF_BYTES, name: "broken-upload.gif" }],
+    ));
+  } finally {
+    siteverify.done();
+    console.error = originalError;
+  }
+
+  assert.equal(response.status, 500);
+  const postInsert = mock.calls.find((entry) => entry.sql.startsWith("INSERT INTO posts"));
+  assert.match(postInsert.sql, /SELECT \?, NULL, \?, 'hidden', \?, \?, \?, \? WHERE NOT EXISTS/, "the newly inserted post must not be publicly visible");
+  assert.ok(mock.calls.some((entry) =>
+    entry.sql.startsWith("DELETE FROM posts WHERE id = ? AND author_id = ? AND visibility = 'hidden'")),
+  "failure cleanup removes the hidden post so retrying cannot duplicate it");
 });
 
 test("insertAttachments persists all files and their chunks in ONE all-or-nothing batch", async () => {
