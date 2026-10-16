@@ -30,6 +30,7 @@ import {
   requireTurnstile,
   requireUser,
   requiredText,
+  userByUsernameKey,
   VIEW_INCREMENT_SQL,
 } from "./shared.mjs";
 
@@ -894,16 +895,76 @@ async function handleSearchRoute(request, env, url, path, method) {
       if (!query) return json({ users: [], posts: [] });
       throw new HttpError(400, "Search must be 1–100 characters long.");
     }
+    // Search upgrades (v2.5): `by=<username>` filters to a member's roots;
+    // `in=replies` deep-searches reply text. The classic shape (users+posts)
+    // stays byte-identical when both are absent.
+    const byRaw = url.searchParams.get("by");
+    const inRaw = (url.searchParams.get("in") || "").trim().toLowerCase();
+    if (inRaw && inRaw !== "replies") {
+      throw new HttpError(400, "The in param must be 'replies'.");
+    }
     const session = await readSession(request, env);
+    const viewer = session && session.user ? session.user : null;
+    let authorId = null;
+    if (byRaw !== null) {
+      const author = await userByUsernameKey(env, byRaw.trim().toLowerCase());
+      // An unknown name answers an EMPTY result — search treats it as no
+      // matches, never an error (it also feeds the People panel).
+      authorId = author ? Number(author.id) : -1;
+    }
     const users = await db.prepare(SEARCH_USERS_SQL).bind(query, query).all();
-    const posts = await listRootPosts(env, session && session.user ? session.user : null,
-      { searchTerm: query });
-    return json({
+    const posts = await listRootPosts(env, viewer,
+      authorId !== null ? { searchTerm: query, authorId } : { searchTerm: query });
+    const payload = {
       users: (users.results || []).map(publicUser),
       posts: posts.posts,
-    });
+    };
+    if (inRaw === "replies") {
+      payload.replies = await searchReplies(env, viewer, query, authorId);
+    }
+    return json(payload);
   }
   return null;
+}
+
+// Deep reply search (v2.5): flat matching-reply rows, each gated through
+// canViewPost in JS after the fetch (one gate per candidate — ≤21 small
+// queries — reusing the EXACT hide/ban/ancestor semantics every other read
+// uses; nothing can leak through search's chain checks).
+async function searchReplies(env, viewer, query, authorId) {
+  const viewerId = viewer ? viewer.id : null;
+  const sql =
+    "SELECT r.id, r.author_id, r.parent_id, r.body, r.visibility, r.created_at, r.board, r.view_count, r.pinned_at, r.edited_at, " +
+    "u.username AS author_username, u.avatar_mime AS author_avatar_mime, " +
+    "u.avatar_version AS author_avatar_version " +
+    "FROM posts r JOIN users u ON u.id = r.author_id " +
+    "WHERE r.parent_id IS NOT NULL AND instr(lower(r.body), ?) > 0 " +
+    (authorId !== null ? "AND r.author_id = ? " : "") +
+    "AND ((r.visibility = 'public' AND " + banFilterSql("r") + ") OR r.author_id = ?) " +
+    "ORDER BY r.id DESC LIMIT 21";
+  const values = [];
+  values.push(query);
+  if (authorId !== null) values.push(authorId);
+  values.push(viewerId || -1);
+  const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
+  const rows = [];
+  for (const row of (result.results || [])) {
+    if (!(await canViewPost(env, row, viewer))) continue;
+    rows.push({ ...publicPost(row, 1), threadId: await threadRootId(env, row) });
+  }
+  return rows;
+}
+
+// A searched reply's link target: the THREAD root (its parent, or the
+// parent's parent for a level-2 reply) — the detail page the member can open.
+async function threadRootId(env, row) {
+  const firstParent = await env.FORUM_DB.prepare(
+    "SELECT id, parent_id FROM posts WHERE id = ? LIMIT 1",
+  ).bind(Number(row.parent_id)).first();
+  if (!firstParent || firstParent.parent_id === null || firstParent.parent_id === undefined) {
+    return Number(row.parent_id);
+  }
+  return Number(firstParent.parent_id);
 }
 
 async function handlePostRoutes(request, env, url, path, method) {
