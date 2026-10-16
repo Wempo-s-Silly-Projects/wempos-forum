@@ -392,7 +392,7 @@ async function handleCssStylesheetRoute(request, env, url, path, method) {
 }
 
 async function cssSubmissionVersion(css) {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(css));
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(css)));
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
