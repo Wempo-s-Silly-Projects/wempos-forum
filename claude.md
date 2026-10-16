@@ -76,7 +76,7 @@ Never run the remote migration against a database that contains data you do not 
 - `GET /api/admin/avatars`, `POST /api/admin/avatars/:userId/approve`, `POST /api/admin/avatars/:userId/reject`
 - `GET /api/avatars/:userId`
 - `GET /api/archive`
-- - `GET /api/attachments/:id`
+- `GET /api/attachments/:id`
 - `GET /api/admin/attachments`, `POST /api/admin/attachments/:id/approve`, `POST /api/admin/attachments/:id/reject` (admin only)
 - `POST /api/posts` and `POST /api/posts/:id/replies` also accept multipart with image attachments.
 

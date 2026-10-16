@@ -29,6 +29,8 @@ const MIGRATIONS = [
   "0004_attachment_chunks.sql",
   "0005_edit_at.sql",
   "0006_add_board.sql",
+  "0007_post_edits.sql",
+  "0008_post_archive.sql",
 ].map((name) => readFileSync(path.join(repoRoot, "migrations", name), "utf8"));
 
 // --- Worker-route layer (mockDb, post-edit.test.mjs idioms) -------------------
@@ -760,4 +762,67 @@ test("account deletion throws no FK error even with the pathological created_by 
   assert.equal(countWhere(db, "SELECT COUNT(*) AS n FROM users WHERE id = ?", fx.alice), 0);
   assert.equal(countWhere(db, "SELECT COUNT(*) AS n FROM attachments WHERE id = 'weird'"), 0);
   assert.ok(countWhere(db, "SELECT COUNT(*) AS n FROM posts WHERE id = ?", bRoot));
+});
+// Archival execution test (v2.4.1, review follow-up): the archival
+// INSERT..SELECT is the feature's core invariant — run it against real
+// SQLite with the archived flag ON and pin that the archived row set equals
+// exactly the set that vanishes (and only that set).
+
+test("the archiving root delete copies the whole thread — and only the thread — to post_archive", () => {
+  const db = openForumDb();
+  const fx = insertFixture(db);
+  const aRoot = fx.post(fx.alice, null, "alice root", "suggestions", 10);
+  const bRep = fx.post(fx.bob, aRoot, "bob replies to alice", "suggestions", 20);
+  const cSub = fx.post(fx.cara, bRep, "cara replies to bob", "suggestions", 30);
+  const bRoot = fx.post(fx.bob, null, "bob's own thread", "general", 60);
+
+  runStatements(db, postDeletionStatements(sqliteAdapter(db), fx.alice, aRoot, null,
+    { archiveReason: "post-delete", deletedAt: 1_770_000_000 }));
+
+  const archived = db.prepare(
+    "SELECT original_post_id AS id, author_name AS name, body, deleted_because AS reason FROM post_archive ORDER BY original_post_id",
+  ).all();
+  assert.deepEqual(archived.map((row) => [row.id, row.name, row.body, row.reason]), [
+    [aRoot, "alice", "alice root", "post-delete"],
+    [bRep, "bob", "bob replies to alice", "post-delete"],
+    [cSub, "cara", "cara replies to bob", "post-delete"],
+  ], "the archive set equals the cascade set — nothing under-archived");
+  // Surviving content is NOT archived.
+  assert.equal(countWhere(db, "SELECT COUNT(*) AS n FROM post_archive"), 3);
+  assert.ok(countWhere(db, "SELECT COUNT(*) AS n FROM posts WHERE id = ?", bRoot));
+  assert.equal(countWhere(db, "SELECT COUNT(*) AS n FROM post_archive WHERE original_post_id = ?", bRoot), 0);
+});
+
+test("the archiving account wipe captures third-party content the CASCADE takes with it", () => {
+  const db = openForumDb();
+  const fx = insertFixture(db);
+  // alice wipes: her roots take bob's replies (arm 2) and cara's sub-replies
+  // hanging off BOB's reply (arm 3) — third-party rows vanish too, so they
+  // must be archived. Bob's own thread is untouched.
+  const aRoot = fx.post(fx.alice, null, "alice root", "general", 10);
+  const bRep = fx.post(fx.bob, aRoot, "bob replies to alice", "general", 20);
+  const cSub = fx.post(fx.cara, bRep, "cara replies to bob", "general", 30);
+  const aRep = fx.post(fx.alice, aRoot, "alice replies to her own root", "general", 40);
+  const dSub = fx.post(fx.cara, aRep, "cara replies to alice's own reply", "general", 50);
+  const bRoot = fx.post(fx.bob, null, "bob's own thread", "general", 60);
+
+  runStatements(db, accountDeletionStatements(sqliteAdapter(db), fx.alice,
+    { archiveReason: "account-delete", deletedAt: 1_770_000_000 }));
+
+  const archived = db.prepare(
+    "SELECT original_post_id AS id, deleted_because AS reason FROM post_archive ORDER BY original_post_id",
+  ).all();
+  assert.deepEqual(archived.map((row) => [row.id, row.reason]), [
+    [aRoot, "account-delete"],
+    [bRep, "account-delete"],
+    [cSub, "account-delete"],
+    [aRep, "account-delete"],
+    [dSub, "account-delete"],
+  ], "own posts + children + grandchildren archived — no scrub hole");
+  // Cara's sub-reply off bob's untouched thread (if any) would not archive;
+  // bob's own content survives and is not archived.
+  assert.equal(countWhere(db, "SELECT COUNT(*) AS n FROM post_archive WHERE original_post_id = ?", bRoot), 0);
+  // author_name is captured BEFORE the users row vanishes.
+  assert.equal(db.prepare(
+    "SELECT author_name AS name FROM post_archive WHERE original_post_id = ?").get(aRoot).name, "alice");
 });
