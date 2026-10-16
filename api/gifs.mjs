@@ -48,7 +48,8 @@ export async function handleGifServingRoute(request, env, path, method) {
   if (!gifMatch) return null;
   if (method !== "GET") throw new HttpError(405, "That method is not supported.");
   const row = await env.FORUM_DB.prepare(
-    "SELECT id, status, uploader_id, mime, version FROM gifs WHERE id = ? LIMIT 1",
+    "SELECT id, status, uploader_id, mime, version FROM gifs WHERE id = ? " +
+    "AND (status <> 'approved' OR NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = gifs.hash)) LIMIT 1",
   ).bind(gifMatch[1]).first();
   if (!row) throw new HttpError(404, "GIF not found.");
 
@@ -120,7 +121,8 @@ export async function handleGifUploadRoute(request, env, path, method) {
   }
   const hash = bytesToHex(await crypto.subtle.digest("SHA-256", bytes));
   const existing = await db.prepare(
-    "SELECT id FROM gifs WHERE hash = ? AND status = 'approved' LIMIT 1",
+    "SELECT id FROM gifs WHERE hash = ? AND status = 'approved' " +
+    "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = gifs.hash) LIMIT 1",
   ).bind(hash).first();
   if (existing) {
     return json({ id: existing.id, reuse: true });
@@ -143,7 +145,8 @@ export async function handleGifUploadRoute(request, env, path, method) {
   // Close the race where an approved twin appears between the first lookup
   // and the pending insert. Approval itself also handles the remaining race.
   const approvedAfterInsert = await db.prepare(
-    "SELECT id FROM gifs WHERE hash = ? AND status = 'approved' LIMIT 1",
+    "SELECT id FROM gifs WHERE hash = ? AND status = 'approved' " +
+      "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = gifs.hash) LIMIT 1",
   ).bind(hash).first();
   if (approvedAfterInsert) {
     await db.batch([
@@ -164,6 +167,7 @@ export async function handleGifListRoute(request, env, path, method) {
   if (path !== "/api/gifs" || method !== "GET") return null;
   const result = await env.FORUM_DB.prepare(
     "SELECT id, version, use_count FROM gifs WHERE status = 'approved' " +
+    "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = gifs.hash) " +
     "ORDER BY created_at DESC LIMIT " + GIFS_LIST_LIMIT,
   ).all();
   return json({
@@ -226,6 +230,10 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
       try {
         approved = await db.batch([
           db.prepare("UPDATE gifs SET status = 'approved' WHERE id = ? AND status = 'pending'").bind(gifId),
+          db.prepare(
+            "DELETE FROM revoked_attachment_hashes WHERE hash = " +
+            "(SELECT hash FROM gifs WHERE id = ? AND status = 'approved')",
+          ).bind(gifId),
         ]);
       } catch (error) {
         // Concurrent uploads can create pending rows after the upload-side
@@ -237,6 +245,9 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
         ).bind(gifId).first();
         if (!twin) throw error;
         await db.batch([
+          db.prepare(
+            "DELETE FROM revoked_attachment_hashes WHERE hash = (SELECT hash FROM gifs WHERE id = ?)",
+          ).bind(gifId),
           db.prepare("DELETE FROM gifs WHERE id = ? AND status = 'pending'").bind(gifId),
         ]);
         return json({ approved: true, id: twin.id, merged: true });
@@ -248,6 +259,9 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
         ).bind(gifId).first();
         if (twin) {
           await db.batch([
+            db.prepare(
+              "DELETE FROM revoked_attachment_hashes WHERE hash = (SELECT hash FROM gifs WHERE id = ?)",
+            ).bind(gifId),
             db.prepare("DELETE FROM gifs WHERE id = ? AND status = 'pending'").bind(gifId),
           ]);
           return json({ approved: true, id: twin.id, merged: true });
