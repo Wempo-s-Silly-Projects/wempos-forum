@@ -42,7 +42,7 @@ export function scanMentions(body) {
 // any ids the caller already notified — the ordinary reply target — and the
 // subscription fan-out's recipients via the INSERT's own NOT EXISTS guard).
 export async function mentionFanOutStatements(db, body, {
-  actorId, targetPostId, replyId, now, excludeIds = [],
+  actorId, targetPostId, replyId, now, excludeIds = [], actorUsername,
 }) {
   const names = scanMentions(body);
   if (names.length === 0) return [];
@@ -65,6 +65,10 @@ export async function mentionFanOutStatements(db, body, {
     if (excluded.has(id) || recipients.has(id)) continue;
     recipients.add(id);
   }
-  // Statement assembly: the shared notify idiom (insert + prune per recipient).
-  return fanOutStatements(db, [...recipients], { targetPostId, replyId, now });
+  // Statement assembly: the shared notify idiom (insert + prune per recipient),
+  // self-labelled so a mention never renders as a plain "New reply" row.
+  return fanOutStatements(db, [...recipients], {
+    targetPostId, replyId, now,
+    label: "You were mentioned by " + String(actorUsername ?? "a member"),
+  });
 }

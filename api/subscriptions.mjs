@@ -17,9 +17,22 @@ import {
 import { fanOutStatements } from "./notifications.mjs";
 
 // Subscribers of one thread root. Resolved with ONE query per reply — never a
-// per-subscriber loop (Workers subrequest caps).
+// per-subscriber loop (Workers subrequest caps) — capped at the newest... oldest
+// 100 subscriptions (first-come, so early subscribers keep their notifications
+// when a thread's follower count explodes). The cap is enforced BOTH in the
+// SELECT (LIMIT 100) and again in JS (subscriptionFanOutStatements), so the
+// contract holds even when a caller hands over a wider list.
 export const SUBSCRIBERS_SELECT_SQL =
-  "SELECT user_id FROM thread_subscriptions WHERE post_id = ?";
+  "SELECT user_id FROM thread_subscriptions WHERE post_id = ? ORDER BY created_at ASC LIMIT 100";
+
+// Fan-out cap per reply (mirror of the SELECT's LIMIT, in JS so a widened or
+// mock-supplied list cannot exceed it) and the per-batch statement chunk —
+// 50 statements = 25 recipients per D1 batch. The reply-create route runs the
+// combined fan-out through runFanOutChunks: one CHUNK failing is caught and
+// the later chunks still run, instead of one all-or-nothing batch silently
+// killing every notification for the reply.
+export const MAX_SUBSCRIPTION_FANOUT = 100;
+export const FANOUT_CHUNK_STATEMENTS = 50;
 
 // The detail payload flag read: one (user, thread) row existing means the
 // viewer subscribed. Callers skip it for guests and replies (root-only).
@@ -39,9 +52,30 @@ export function subscriptionFanOutStatements(db, subscriberIds, {
       .filter((id) => id !== null && id !== undefined)
       .map(Number),
   );
+  // Cap AFTER the exclusions: the SELECT already hands back at most
+  // MAX_SUBSCRIPTION_FANOUT rows oldest-first, and members removed here
+  // (already notified) never displace the nextsubscriber in line.
   const recipients = [...new Set(subscriberIds.map(Number))]
-    .filter((id) => !excluded.has(id));
+    .filter((id) => !excluded.has(id))
+    .slice(0, MAX_SUBSCRIPTION_FANOUT);
   return fanOutStatements(db, recipients, { targetPostId, replyId, now });
+}
+
+// Slices a fan-out statements list into ≤FANOUT_CHUNK_STATEMENTS batches and
+// runs each best-effort: a failure inside one chunk (any statement in it)
+// still lets every later chunk deliver. Returns the number of chunks that
+// succeeded — display-only bookkeeping, never thrown to the caller.
+export async function runFanOutChunks(db, statements) {
+  let delivered = 0;
+  for (let index = 0; index < statements.length; index += FANOUT_CHUNK_STATEMENTS) {
+    try {
+      await db.batch(statements.slice(index, index + FANOUT_CHUNK_STATEMENTS));
+      delivered += 1;
+    } catch {
+      // Notifications are a convenience, not a reply precondition (per chunk).
+    }
+  }
+  return delivered;
 }
 
 // Best-effort composition used by the reply-create route: resolves the root's

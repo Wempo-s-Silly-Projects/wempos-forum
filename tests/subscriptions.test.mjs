@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import forumWorker from "../worker.mjs";
 import {
   SUBSCRIBERS_SELECT_SQL,
+  runFanOutChunks,
   subscriptionFanOutStatements,
 } from "../api/subscriptions.mjs";
 
@@ -363,8 +364,74 @@ test("a guest detail payload reads subscribed=false without the subscription que
   );
 });
 
-test("the subscriber SELECT resolves the thread root's readers", () => {
-  assert.equal(SUBSCRIBERS_SELECT_SQL, "SELECT user_id FROM thread_subscriptions WHERE post_id = ?");
+test("the subscriber SELECT resolves the thread root's readers, oldest-first, capped", () => {
+  assert.equal(
+    SUBSCRIBERS_SELECT_SQL,
+    "SELECT user_id FROM thread_subscriptions WHERE post_id = ? ORDER BY created_at ASC LIMIT 100",
+  );
+});
+
+// --- fix round 1: the fan-out cap + chunked batches -----------------------------
+
+test("a 150-subscriber thread fans out to exactly 100 recipients (cap after exclusions)", async () => {
+  const db = { prepare: (sql) => ({ sql, bind: (...v) => ({ sql, values: v }) }) };
+  const ids = Array.from({ length: 150 }, (_v, i) => i + 1);
+  const statements = subscriptionFanOutStatements(db, ids, {
+    replyAuthorId: 900, replyTargetId: 901, targetPostId: 1, replyId: 500, now: 1700000000,
+  });
+  const inserts = statements.filter((statement) => /INSERT INTO notifications/.test(statement.sql));
+  assert.equal(inserts.length, 100, "capped at MAX_SUBSCRIPTION_FANOUT recipients");
+  assert.equal(statements.length, 200, "one prune per recipient rides along");
+  const recipients = inserts.map((statement) => Number(statement.values[0]));
+  assert.equal(new Set(recipients).size, 100, "recipients stay unique");
+  assert.deepEqual(recipients, ids.slice(0, 100), "oldest subscriptions first");
+  // Exclusions never displace the next subscriber in line (cap runs AFTER
+  // the exclusions are removed).
+  const withExclusions = subscriptionFanOutStatements(db, [900, 901, ...ids], {
+    replyAuthorId: 900, replyTargetId: 901, targetPostId: 1, replyId: 500, now: 1700000000,
+  });
+  assert.equal(
+    withExclusions.filter((statement) => /INSERT INTO/.test(statement.sql)).length,
+    100,
+    "the two excluded members do not consume fan-out slots",
+  );
+});
+
+test("runFanOutChunks splits large fan-outs into ≤50-statement best-effort chunks", async () => {
+  const db = { prepare: (sql) => ({ sql, bind: (...v) => ({ sql, values: v }) }) };
+  const statements = subscriptionFanOutStatements(db, Array.from({ length: 150 }, (_v, i) => i + 1), {
+    replyAuthorId: 0, replyTargetId: 0, targetPostId: 1, replyId: 500, now: 1700000000,
+  });
+  const chunks = [];
+  const chunkDb = {
+    async batch(chunk) { chunks.push(chunk); return chunk.map(() => ({ meta: { changes: 1 } })); },
+  };
+  const delivered = await runFanOutChunks(chunkDb, statements);
+  assert.equal(chunks.length, 4, "150 recipients = 300 statements = 4 chunks");
+  for (const chunk of chunks) assert.ok(chunk.length <= 50, "no chunk exceeds 50 statements");
+  assert.equal(delivered, 4);
+  // Statements keep their order across the chunks (a chunk is a contiguous slice).
+  assert.deepEqual(chunks.flat(), statements);
+});
+
+test("a mid-chunk failure does not prevent the later chunks' notifications", async () => {
+  const db = { prepare: (sql) => ({ sql, bind: (...v) => ({ sql, values: v }) }) };
+  const statements = subscriptionFanOutStatements(db, Array.from({ length: 40 }, (_v, i) => i + 1), {
+    replyAuthorId: 0, replyTargetId: 0, targetPostId: 1, replyId: 500, now: 1700000000,
+  });
+  const attempted = [];
+  const failingDb = {
+    async batch(chunk) {
+      attempted.push(chunk);
+      // The FIRST chunk fails outright; every later chunk succeeds.
+      if (attempted.length === 1) throw new Error("simulated chunk failure");
+      return chunk.map(() => ({ meta: { changes: 1 } }));
+    },
+  };
+  const delivered = await runFanOutChunks(failingDb, statements);
+  assert.equal(attempted.length, 2, "40 recipients = 80 statements = 2 chunks attempted");
+  assert.equal(delivered, 1, "the failure is contained: one chunk delivered");
+  assert.deepEqual(attempted[1], statements.slice(50), "the second chunk still ran after the first failed");
 });
 
 // --- app.js source pins (node-unimportable) -----------------------------------
@@ -427,4 +494,66 @@ test("the detail card renders the subscribe toggle for signed-in members only", 
     yield node;
     for (const child of node.children ?? []) yield* walk(child);
   }
+});
+// --- fix round 1: the banned-member gate ----------------------------------------
+
+test("a banned member cannot subscribe (403 before any read or write)", async () => {
+  const mock = mockDb([
+    sessionRoute(),
+    { sql: /^SELECT id FROM bans WHERE user_id = \?/, result: { id: 2 } },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    requestFor("https://forum.example/api/posts/1/subscribe", "POST"),
+    envFor(mock.db),
+  );
+  assert.equal(response.status, 403);
+  assert.match((await response.json()).error, /banned/);
+  // Gate order: the post read (and any INSERT) never runs for a banned member.
+  assert.equal(mock.calls.some((call) => /FROM posts p/.test(call.sql)), false);
+  assert.equal(mock.calls.some((call) => /INSERT INTO thread_subscriptions/.test(call.sql)), false);
+});
+
+test("the live reply route chunks a 150-subscriber fan-out (≤50 statements per batch)", async () => {
+  const root = postRow({ id: "1", author_id: "3", parent_id: null });
+  const subscribers = Array.from({ length: 150 }, (_v, i) => ({ user_id: String(10 + i) }));
+  const mock = mockDb([
+    sessionRoute(),
+    banCheckRoute,
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: () => root },
+    { sql: /FROM posts WHERE id = \? LIMIT 1/, result: () => root },
+    banViewRouteOff,
+    { sql: /SELECT user_id FROM thread_subscriptions/, rows: subscribers },
+    { sql: /./ },
+  ], { batchMeta: [{ meta: { changes: 1, last_row_id: 600 } }] });
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({ success: true, action: "reply", hostname: "forum.example" }), { status: 200 });
+  try {
+    const response = await forumWorker.fetch(requestFor("https://forum.example/api/posts/1/replies", "POST", {
+      body: "big thread",
+      "cf-turnstile-response": "turnstile-token-fixture",
+    }), envFor(mock.db));
+    assert.equal(response.status, 201);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+  // Batch 1: reply insert + bump. Then the fan-out runs as its OWN ≤50-statement
+  // chunks: the author (7) and target (3) are excluded from the 150, leaving 100
+  // capped recipients = 200 statements = 4 chunks (one of which may fail without
+  // killing the rest — see the chunk tests above).
+  assert.equal(mock.batches.length, 6);
+  const fanoutChunks = mock.batches.slice(1);
+  for (const chunk of fanoutChunks) assert.ok(chunk.length <= 50, "every route-level chunk ≤ 50 statements");
+  // 2 (ordinary insert+prune) + 200 (100 capped recipients × 2) = 202 statements.
+  assert.deepEqual(
+    fanoutChunks.map((chunk) => chunk.length), [50, 50, 50, 50, 2],
+  );
+  const recipients = fanoutChunks.flat()
+    .filter((statement) => /INSERT INTO notifications/.test(statement.sql))
+    .map((statement) => Number(statement.values[0]));
+  // 1 ordinary (the root author, id 3, not in the subscriber set) + 100 capped subscribers.
+  assert.equal(recipients.length, 101);
+  assert.equal(recipients.filter((id) => id === 3).length, 1, "the ordinary target notified once");
+  assert.equal(new Set(recipients.filter((id) => id !== 3)).size, 100, "the subscriber cap applies at the route too");
+  assert.ok(!recipients.includes(7), "the author stays excluded");
 });

@@ -373,12 +373,17 @@ async function handleThreadPinRoute(request, env, url, path, method) {
   const now = nowSeconds();
   if (match[2] === "pin") {
     // The pinned_at guard turns an already-pinned thread (or a thread deleted
-    // between the read and the write) into a 0-change update → 409/404.
+    // between the read and the write) into a 0-change update. Fix round 1: the
+    // old `thread ? 409 : 404` was dead (the existence 404 already ran), so the
+    // ambiguous 0-change re-reads the row: gone → 404, still there → 409.
     const result = await db.prepare(
       "UPDATE posts SET pinned_at = ? WHERE id = ? AND parent_id IS NULL AND pinned_at IS NULL",
     ).bind(now, threadId).run();
     if (Number(result.meta?.changes) !== 1) {
-      throw new HttpError(thread ? 409 : 404, "This thread is already pinned.");
+      if (!(await db.prepare("SELECT id FROM posts WHERE id = ? LIMIT 1").bind(threadId).first())) {
+        throw new HttpError(404, "Thread not found.");
+      }
+      throw new HttpError(409, "This thread is already pinned.");
     }
     return json({ ok: true, pinned: true });
   }
@@ -386,6 +391,10 @@ async function handleThreadPinRoute(request, env, url, path, method) {
     "UPDATE posts SET pinned_at = NULL WHERE id = ? AND parent_id IS NULL AND pinned_at IS NOT NULL",
   ).bind(threadId).run();
   if (Number(result.meta?.changes) !== 1) {
+    // Same 0-change ambiguity as the pin above.
+    if (!(await db.prepare("SELECT id FROM posts WHERE id = ? LIMIT 1").bind(threadId).first())) {
+      throw new HttpError(404, "Thread not found.");
+    }
     throw new HttpError(409, "This thread is not pinned.");
   }
   return json({ ok: true, pinned: false });

@@ -75,7 +75,7 @@ test("unknown names are a silent no-op; the mention never notifies the author", 
   assert.equal(statements.length, 0, "unknown names are no-ops and self-mentions never notify");
 });
 
-test("a mention of a real member builds the guarded insert with the actor's target thread", async () => {
+test("a mention of a real member builds the guarded, LABELLED insert", async () => {
   const db = {
     prepare(sql) {
       return {
@@ -92,12 +92,13 @@ test("a mention of a real member builds the guarded insert with the actor's targ
     },
   };
   const statements = await mentionFanOutStatements(db, "ping @wempo", {
-    actorId: 7, targetPostId: 1, replyId: 500, now: 1700000000, excludeIds: [],
+    actorId: 7, actorUsername: "wempo", targetPostId: 1, replyId: 500, now: 1700000000, excludeIds: [],
   });
   assert.equal(statements.length, 2, "insert + prune");
-  assert.match(statements[0].sql, /INSERT INTO notifications/);
+  assert.match(statements[0].sql, /INSERT INTO notifications \(user_id, target_post_id, reply_id, created_at, label\)/, "the labelled variant");
   assert.match(statements[0].sql, /WHERE NOT EXISTS/, "the dedupe guard mirrors the reply fan-out");
-  assert.deepEqual(statements[0].values, [3, 1, 500, 1700000000, 3, 500]);
+  assert.deepEqual(statements[0].values, [3, 1, 500, 1700000000, "You were mentioned by wempo", 3, 500],
+    "the label rides the 5th bind (after now, before the guard)");
   assert.match(statements[1].sql, /DELETE FROM notifications/);
 });
 
@@ -364,4 +365,55 @@ test("an email-shaped token is NOT a mention render; HTML stays literal", async 
   const html = nodes.map(textOfDoc).join("");
   assert.equal(html, "mail hello@example.com <script>x</script>");
   assert.equal(nodes.some((node) => node.tagName === "A"), false);
+});
+// --- fix round 1: the label rides the whole pipe -------------------------------
+
+test("the reply route's mention insert stores the actor-attributed label", async () => {
+  const root = postRow({ id: "1", author_id: "3", parent_id: null });
+  const other = { id: "4", username: "wempo" };
+  const mock = mockDb([
+    sessionRoute({ username: "test_user" }),
+    banCheckRoute,
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: () => root },
+    { sql: /FROM posts WHERE id = \? LIMIT 1/, result: () => root },
+    banViewRouteOff,
+    // Resolution: "@wempo" (id 4) is NOT the reply target (3), so the mention
+    // fan-out inserts for them.
+    { sql: /^SELECT id, username FROM users WHERE username_key = \? LIMIT 1$/, result: other },
+    { sql: /SELECT user_id FROM thread_subscriptions/, rows: [] },
+    { sql: /./ },
+  ], { batchMeta: [{ meta: { changes: 1, last_row_id: 600 } }] });
+  await withSiteverify("reply", () => forumWorker.fetch(
+    requestFor("https://forum.example/api/posts/1/replies", "POST", {
+      body: "cc @wempo",
+      "cf-turnstile-response": "turnstile-token-fixture",
+    }),
+    envFor(mock.db),
+  ));
+  const fanoutBatch = mock.batches[1];
+  const labelled = fanoutBatch.filter((statement) =>
+    /INSERT INTO notifications \(user_id, target_post_id, reply_id, created_at, label\)/.test(statement.sql));
+  assert.equal(labelled.length, 1, "only the MENTION insert is labelled (the ordinary one stays generic)");
+  assert.deepEqual(labelled[0].values[4], "You were mentioned by test_user");
+  assert.deepEqual(labelled[0].values[0], 4);
+  const ordinary = fanoutBatch.filter((statement) =>
+    /INSERT INTO notifications \(user_id, target_post_id, reply_id, created_at\)/.test(statement.sql));
+  assert.equal(ordinary.length, 1, "the ordinary target notification keeps the generic copy");
+});
+
+test("the notifications view copies the stored label; the generic copy stays the fallback", async () => {
+  const { notificationItemView } = await import("../public/js/notifications.js");
+  const mentioned = notificationItemView({
+    id: 20, targetPostId: 2, read: false, postPreview: "hello there",
+    label: "You were mentioned by wempo",
+  });
+  assert.equal(mentioned.label, "You were mentioned by wempo",
+    "a stored label wins over the generic reply copy");
+  // Fallbacks keep the pre-0017 shapes byte-identical.
+  const reply = notificationItemView({
+    id: 21, targetPostId: 2, read: false, postPreview: "hello there", label: null,
+  });
+  assert.equal(reply.label, "New reply on your post: hello there");
+  const plain = notificationItemView({ id: 22, targetPostId: 5, read: true, label: null });
+  assert.equal(plain.label, "New reply on your post");
 });

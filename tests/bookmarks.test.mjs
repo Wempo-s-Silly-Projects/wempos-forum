@@ -309,4 +309,65 @@ test("app.js and the router wire the bookmarks route, nav link, and toggle handl
   assert.match(appJs, /\/api\/posts\/" \+ button\.dataset\.postId \+ "\/bookmark"/);
   // A bookmark nav entry renders for signed-in members only.
   assert.match(appJs, /dataset: { href: "\/bookmarks" }/);
+  // Pagination (fix round 1): the private list loads more through the
+  // composite cursor and re-arms the button.
+  assert.match(appJs, /"load-more-bookmarks": async/);
+  assert.match(appJs, /\?before=" \+ button\.dataset\.before/);
+});
+// --- fix round 1: the list's before cursor ---------------------------------------
+
+test("GET /api/me/bookmarks accepts a composite before cursor and emits the next one", async () => {
+  // 21 rows → 20 shown → nextBefore names the boundary bookmark's stamp.
+  const rows = Array.from({ length: 21 }, (_v, i) => postRow({ id: String(100 - i) }));
+  const routes = mockDb([
+    sessionRoute(),
+    { sql: /JOIN bookmarks b ON b\.post_id = p\.id/, rows },
+    { sql: /SELECT created_at FROM bookmarks WHERE user_id = \? AND post_id = \?/, result: { created_at: 1700000100 } },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    new Request("https://forum.example/api/me/bookmarks", {
+      headers: { Cookie: "wempo_session=" + "s".repeat(43) },
+    }),
+    envFor(routes.db),
+  );
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.bookmarks.length, 20);
+  assert.equal(body.nextBefore, "1700000100_81", "the boundary bookmark's (stamp, id) cursor");
+  // The boundary read targets the CALLER's own bookmark row only.
+  const boundaryCall = routes.calls.find((call) => /SELECT created_at FROM bookmarks/.test(call.sql));
+  assert.deepEqual(boundaryCall.values, [7, 81]);
+
+  // A cursor page rides the keyset: (bookmarked_at, post id), both DESC.
+  const pageTwo = mockDb([
+    sessionRoute(),
+    { sql: /JOIN bookmarks b ON b\.post_id = p\.id/, rows: [] },
+    { sql: /./ },
+  ]);
+  const cursorResponse = await forumWorker.fetch(
+    new Request("https://forum.example/api/me/bookmarks?before=1700000100_81", {
+      headers: { Cookie: "wempo_session=" + "s".repeat(43) },
+    }),
+    envFor(pageTwo.db),
+  );
+  assert.equal(cursorResponse.status, 200);
+  const listCall = pageTwo.calls.find((call) => /JOIN bookmarks b ON/.test(call.sql));
+  assert.match(listCall.sql, /b\.created_at < \? OR \(b\.created_at = \? AND p\.id < \?\)/);
+  assert.deepEqual(listCall.values, [7, 7, 1700000100, 1700000100, 81],
+    "viewer_reaction bind, bookmark-owner bind, then the cursor pair");
+
+  // A malformed cursor is a 400 before any read.
+  const bad = mockDb([
+    sessionRoute(),
+    { sql: /./ },
+  ]);
+  const badResponse = await forumWorker.fetch(
+    new Request("https://forum.example/api/me/bookmarks?before=abc", {
+      headers: { Cookie: "wempo_session=" + "s".repeat(43) },
+    }),
+    envFor(bad.db),
+  );
+  assert.equal(badResponse.status, 400);
+  assert.equal(bad.calls.length, 1, "only the session read runs");
 });

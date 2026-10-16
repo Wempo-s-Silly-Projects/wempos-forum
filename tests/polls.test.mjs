@@ -107,7 +107,7 @@ function requestFor(url, method, body) {
 }
 
 const POLL_OPTION_COUNTS_SQL = /FROM polls p JOIN poll_options o ON o\.poll_id = p\.id/;
-const POLL_LOOKUP_SQL = /SELECT id, closed_at FROM polls WHERE post_id = \? LIMIT 1/;
+const POLL_LOOKUP_SQL = /SELECT id, question, closed_at FROM polls WHERE post_id = \? LIMIT 1/;
 const VIEWER_OPTION_SQL = /SELECT option_id FROM poll_votes WHERE poll_id = \? AND user_id = \?/;
 const POLL_EXISTS_SQL = /FROM polls WHERE post_id = \? LIMIT 1/;
 const POLL_INSERT_SQL = /^INSERT INTO polls \(post_id/;
@@ -421,4 +421,43 @@ test("the composer Poll button, dialog inputs, and vote handler are wired in app
   // The vote handler PUTts the chosen option and re-renders the route.
   assert.match(appJs, /"poll-vote": async/);
   assert.match(appJs, /method: "PUT"/);
+});
+// --- fix round 1: the poll-read SELECT must project the question ---------------
+
+test("the poll-read SELECT explicitly projects question (the payload renders it verbatim)", async () => {
+  const { POLL_BY_POST_SQL } = await import("../api/polls.mjs");
+  // CRITICAL 1 regression pin: id alone left the payload's question undefined
+  // (the mocks' generous rows hid the missing projection in round 1).
+  assert.match(POLL_BY_POST_SQL, /SELECT id, question, closed_at FROM polls WHERE post_id = \? LIMIT 1/);
+});
+
+test("the detail payload maps ONLY the projected columns honestly (question included)", async () => {
+  const root = postRow({ id: "1", author_id: "3" });
+  // The mock row mimics the EXACT projected shape of POLL_BY_POST_SQL — no
+  // extra columns. If the projection loses question again, this payload reads
+  // "undefined" in the real UI.
+  const mock = mockDb([
+    sessionRoute(),
+    banCheckRoute,
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: () => root },
+    { sql: /SELECT 1 FROM bans b WHERE b\.user_id = \?/, result: null },
+    { sql: /FROM polls WHERE post_id = \? LIMIT 1/, result: { id: 2, question: "Best snack?", closed_at: null } },
+    {
+      sql: POLL_OPTION_COUNTS_SQL,
+      rows: [{ id: 30, label: "biscuits", position: 0, vote_count: 3 }],
+    },
+    { sql: VIEWER_OPTION_SQL, result: { option_id: 30 } },
+    { sql: /./ },
+  ]);
+  const detail = await forumWorker.fetch(
+    new Request("https://forum.example/api/posts/1", {
+      headers: { Cookie: "wempo_session=" + "s".repeat(43) },
+    }),
+    envFor(mock.db),
+  );
+  assert.equal(detail.status, 200);
+  const poll = (await detail.json()).poll;
+  assert.equal(poll.question, "Best snack?", "the question rides the projection, not the mock's generosity");
+  assert.equal(poll.totalVotes, 3);
+  assert.equal(poll.viewerOption, 30);
 });

@@ -24,7 +24,7 @@ const MIN_POLL_OPTIONS = 2;
 // The detail payload's reads. One query per need, all keyed by the ROOT id:
 // the poll row (existence + close state), one options-with-counts page, and
 // the viewer's own vote (only when a member is asking).
-const POLL_BY_POST_SQL = "SELECT id, closed_at FROM polls WHERE post_id = ? LIMIT 1";
+const POLL_BY_POST_SQL = "SELECT id, question, closed_at FROM polls WHERE post_id = ? LIMIT 1";
 const POLL_OPTION_COUNTS_SQL =
   "SELECT o.id, o.label, o.position, " +
     "(SELECT COUNT(*) FROM poll_votes v WHERE v.option_id = o.id) AS vote_count " +
@@ -32,6 +32,15 @@ const POLL_OPTION_COUNTS_SQL =
   "WHERE p.post_id = ? ORDER BY o.position ASC";
 const VIEWER_OPTION_SQL =
   "SELECT option_id FROM poll_votes WHERE poll_id = ? AND user_id = ?";
+
+// Tests pin the poll-read SELECT text (the question column is load-bearing:
+// the payload renders it verbatim — see tests/polls.test.mjs's honest-mapping
+// fixture, which mocks ONLY the projected columns).
+export {
+  POLL_BY_POST_SQL,
+  POLL_OPTION_COUNTS_SQL,
+  VIEWER_OPTION_SQL,
+};
 
 // The payload shape (null when the thread has no poll): results are always
 // visible, guests included; viewerOption is null for guests and non-voters.

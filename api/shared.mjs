@@ -16,7 +16,7 @@ const encoder = new TextEncoder();
 const TURNSTILE_TOKEN_MAX_LENGTH = 2048;
 
 export const POST_SELECT =
-  "SELECT p.id, p.author_id, p.parent_id, p.body, p.visibility, p.created_at, p.last_activity_at, p.edited_at, p.board, p.view_count, " +
+  "SELECT p.id, p.author_id, p.parent_id, p.body, p.visibility, p.created_at, p.last_activity_at, p.edited_at, p.board, p.view_count, p.pinned_at, " +
   "u.username AS author_username, u.avatar_mime AS author_avatar_mime, " +
   "u.avatar_updated_at AS author_avatar_updated_at, u.avatar_version AS author_avatar_version, " +
   "(SELECT parent.body FROM posts parent WHERE parent.id = p.parent_id) AS parent_body, " +

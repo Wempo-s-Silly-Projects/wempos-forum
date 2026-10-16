@@ -822,6 +822,13 @@ async function renderBookmarksRoute(context, version) {
   addText(document, main, "p", "Your saved list is private to you.", "muted");
   appendPostList(main, data.bookmarks, document, context.session.user,
     BOOKMARKS_EMPTY_TEXT);
+  // Pagination (fix round 1): the composite (bookmarked_at, id) cursor.
+  if (!data.nextBefore || data.bookmarks.length !== 20) return;
+  const older = element("button", "button button-secondary", "Load older saved posts");
+  older.type = "button";
+  older.dataset.action = "load-more-bookmarks";
+  older.dataset.before = String(data.nextBefore);
+  main.append(older);
 }
 
 async function renderPostRoute(route, context, version) {
@@ -1617,6 +1624,18 @@ async function handleButtonAction(button) {
     // (dataset.subscribed) picks the direction — POST to follow, DELETE to
     // stop — and the route re-render refetches the post, so the payload's
     // subscribed state comes back from the server, never from the echo.
+    "load-more-bookmarks": async () => {
+      const older = await api("/api/me/bookmarks?before=" + button.dataset.before);
+      appendPostList(main, older.bookmarks, document, currentUser,
+        BOOKMARKS_EMPTY_TEXT);
+      button.remove();
+      if (!older.nextBefore || older.bookmarks.length !== 20) return;
+      const next = element("button", "button button-secondary", "Load older saved posts");
+      next.type = "button";
+      next.dataset.action = "load-more-bookmarks";
+      next.dataset.before = String(older.nextBefore);
+      main.append(next);
+    },
     "toggle-bookmark": async () => {
       // Bookmarks (C4): both directions are idempotent server-side; the
       // route re-render refetches the payload's fresh state.

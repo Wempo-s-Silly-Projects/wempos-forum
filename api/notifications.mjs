@@ -26,12 +26,20 @@ const INSERT_NOTIFICATION_SQL =
     "SELECT ?, ?, ?, ? WHERE NOT EXISTS (" +
     "SELECT 1 FROM notifications WHERE user_id = ? AND reply_id = ? LIMIT 1)";
 
+// The labelled variant (fix round C): the only fan-out source that
+// self-describes is the mention scan — "You were mentioned by <username>".
+// Everything else inserts with no label (NULL) and keeps the generic copy.
+const INSERT_NOTIFICATION_WITH_LABEL_SQL =
+  "INSERT INTO notifications (user_id, target_post_id, reply_id, created_at, label) " +
+    "SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
+    "SELECT 1 FROM notifications WHERE user_id = ? AND reply_id = ? LIMIT 1)";
+
 const PRUNE_NOTIFICATIONS_SQL =
   "DELETE FROM notifications WHERE user_id = ? AND id NOT IN (" +
     "SELECT id FROM notifications WHERE user_id = ? ORDER BY id DESC LIMIT " + NOTIFICATIONS_PER_USER + ")";
 
 const NOTIFICATION_SELECT =
-  "SELECT n.id, n.target_post_id, n.reply_id, n.created_at, n.read_at, " +
+  "SELECT n.id, n.target_post_id, n.reply_id, n.created_at, n.read_at, n.label, " +
     "(SELECT body FROM posts WHERE id = n.reply_id) AS reply_body " +
   "FROM notifications n WHERE n.user_id = ? ORDER BY n.id DESC LIMIT " + NOTIFICATIONS_PER_USER;
 
@@ -43,6 +51,10 @@ function publicNotification(row) {
     createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
     read: row.read_at !== null && row.read_at !== undefined,
     postPreview: String(row.reply_body || "").slice(0, 80),
+    // The fan-out source's own copy (mentions C2/fix round 1); null keeps the
+    // generic reply copy. Only ever set by the server — user text reaches the
+    // DOM through textContent in the renderer.
+    label: row.label !== null && row.label !== undefined ? String(row.label) : null,
   };
 }
 
@@ -61,7 +73,14 @@ function notificationBatchStatements(db, recipientId, replyAuthorId, targetPostI
 // list. Caller-side exclusions (reply author, ordinary target, self-mention)
 // are applied BEFORE this runs; the INSERT's own NOT EXISTS guard remains the
 // last line of defense against duplicate notifications for one (member, reply).
-export function fanOutStatements(db, recipientIds, { targetPostId, replyId, now }) {
+export function fanOutStatements(db, recipientIds, { targetPostId, replyId, now, label }) {
+  const hasLabel = typeof label === "string" && label.length > 0;
+  if (hasLabel && label.length > 200) {
+    // Labels are server-computed copy (never user text beyond the actor's own
+    // 24-char username); a runaway label is a caller bug — refuse loudly.
+    throw new HttpError(500, "Notification label too long.");
+  }
+  const insertSql = hasLabel ? INSERT_NOTIFICATION_WITH_LABEL_SQL : INSERT_NOTIFICATION_SQL;
   const statements = [];
   const seen = new Set();
   for (const rawId of recipientIds || []) {
@@ -69,8 +88,11 @@ export function fanOutStatements(db, recipientIds, { targetPostId, replyId, now 
     if (!Number.isSafeInteger(recipientId) || recipientId < 1 || seen.has(recipientId)) continue;
     seen.add(recipientId);
     statements.push(
-      db.prepare(INSERT_NOTIFICATION_SQL)
-        .bind(recipientId, targetPostId, replyId, now, recipientId, replyId),
+      hasLabel
+        ? db.prepare(insertSql)
+          .bind(recipientId, targetPostId, replyId, now, label, recipientId, replyId)
+        : db.prepare(insertSql)
+          .bind(recipientId, targetPostId, replyId, now, recipientId, replyId),
       db.prepare(PRUNE_NOTIFICATIONS_SQL).bind(recipientId, recipientId),
     );
   }

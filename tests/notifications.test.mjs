@@ -122,8 +122,8 @@ test("notification lists are newest-first, recipient-only, and carry an 80-char 
     {
       sql: /FROM notifications n WHERE n\.user_id = \?/,
       rows: [
-        { id: "20", target_post_id: "2", reply_id: "11", created_at: 1700000200, read_at: null, reply_body: longBody },
-        { id: "10", target_post_id: "1", reply_id: "9", created_at: 1700000100, read_at: 1700000500, reply_body: null },
+        { id: "20", target_post_id: "2", reply_id: "11", created_at: 1700000200, read_at: null, reply_body: longBody, label: "You were mentioned by wempo" },
+        { id: "10", target_post_id: "1", reply_id: "9", created_at: 1700000100, read_at: 1700000500, reply_body: null, label: null },
       ],
     },
     { sql: /./ },
@@ -141,6 +141,7 @@ test("notification lists are newest-first, recipient-only, and carry an 80-char 
       createdAt: new Date(1700000200 * 1000).toISOString(),
       read: false,
       postPreview: "x".repeat(80),
+      label: "You were mentioned by wempo",
     },
     {
       id: 10,
@@ -149,9 +150,11 @@ test("notification lists are newest-first, recipient-only, and carry an 80-char 
       createdAt: new Date(1700000100 * 1000).toISOString(),
       read: true,
       postPreview: "",
+      label: null,
     },
   ]);
   assert.match(routes.calls[1].sql, /FROM notifications n WHERE n\.user_id = \? ORDER BY n\.id DESC LIMIT 50/);
+  assert.match(routes.calls[1].sql, /n\.label/, "the payload carries the stored label");
   assert.deepEqual(routes.calls[1].values, [7]);
 });
 

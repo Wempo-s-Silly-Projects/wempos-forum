@@ -50,15 +50,41 @@ async function handleBookmarkListRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/me/bookmarks" && method === "GET") {
     const user = (await requireSignedInRead(request, env)).user;
-    // Saved-list cards ride the POST_SELECT payloads (plus attachments) but NO
-    // reply metadata: a saved row may be a reply, so depth-aware chips are
-    // meaningless; the cards render conservatively without them.
-    const result = await db.prepare(
-      POST_SELECT + "JOIN bookmarks b ON b.post_id = p.id " +
-      "WHERE b.user_id = ? AND p.visibility = 'public' AND " + banFilterSql("p") + " " +
-      "ORDER BY b.created_at DESC, p.id DESC LIMIT 100",
-    ).bind(user.id, user.id).all();
-    const posts = (result.results || []).map((row) => ({
+    // Pagination (fix round 1): a `before` cursor walks the list's OWN sort key
+    // — (bookmarked_at, post id) — in the composite seconds_id format the
+    // activity feed established (both keys DESC, strictly exclusive). The
+    // cursor's seconds half is the BOOKMARK stamp, so the response's nextBefore
+    // resolves it from the boundary bookmark's row (POST_SELECT projections
+    // don't carry b.created_at; one tiny follow-up read, only when a next page
+    // exists).
+    const beforeRaw = url.searchParams.get("before");
+    let before = null;
+    if (beforeRaw !== null) {
+      const cursorMatch = /^([0-9]{1,10})_([0-9]{1,10})$/.exec(beforeRaw);
+      if (!cursorMatch) throw new HttpError(400, "That page cursor is invalid.");
+      before = { seconds: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
+    }
+    let sql = POST_SELECT + "JOIN bookmarks b ON b.post_id = p.id " +
+      "WHERE b.user_id = ? AND p.visibility = 'public' AND " + banFilterSql("p") + " ";
+    const values = [user.id, user.id];
+    if (before) {
+      sql += "AND (b.created_at < ? OR (b.created_at = ? AND p.id < ?)) ";
+      values.push(before.seconds, before.seconds, before.id);
+    }
+    sql += "ORDER BY b.created_at DESC, p.id DESC LIMIT 21";
+    const result = await db.prepare(sql).bind(...values).all();
+    const rows = result.results || [];
+    const hasMore = rows.length > 20;
+    const shown = rows.slice(0, 20);
+    let nextBefore = null;
+    if (hasMore && shown.length) {
+      const boundaryId = Number(shown[shown.length - 1].id);
+      const stamp = await db.prepare(
+        "SELECT created_at FROM bookmarks WHERE user_id = ? AND post_id = ? LIMIT 1",
+      ).bind(user.id, boundaryId).first();
+      nextBefore = stamp ? Number(stamp.created_at) + "_" + boundaryId : null;
+    }
+    const posts = shown.map((row) => ({
       ...publicPost(row, undefined),
       viewerBookmarked: true,
     }));
@@ -67,6 +93,7 @@ async function handleBookmarkListRoute(request, env, url, path, method) {
     );
     return json({
       bookmarks: posts.map((post) => ({ ...post, attachments: attachments.get(post.id) || [] })),
+      nextBefore,
     });
   }
   return null;

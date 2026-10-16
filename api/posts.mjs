@@ -11,7 +11,7 @@ import { notificationBatchStatements } from "./notifications.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
 import { pollPayload } from "./polls.mjs";
 import { bookmarkFlagForViewer, withBookmarkFlags } from "./bookmarks.mjs";
-import { subscriberFlagForViewer, subscriptionReplyFanOut } from "./subscriptions.mjs";
+import { runFanOutChunks, subscriberFlagForViewer, subscriptionReplyFanOut } from "./subscriptions.mjs";
 import {
   archivePostRowsStatement,
   assertNotBanned,
@@ -579,6 +579,7 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
       // above (deduped; the INSERT's NOT EXISTS guard is the second net).
       statements.push(...await mentionFanOutStatements(db, message, {
         actorId: session.user.id,
+        actorUsername: session.user.username,
         targetPostId: targetId,
         replyId,
         now,
@@ -592,7 +593,9 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
         replyId,
         now,
       }));
-      if (statements.length > 0) await db.batch(statements);
+      // Chunked best-effort (fix round 1): ≤50-statement batches, one chunk
+      // failing never killing the later chunks' notifications.
+      await runFanOutChunks(db, statements);
     } catch {
       // Ignore: notifications are a convenience, not a reply precondition.
     }
@@ -641,6 +644,7 @@ async function handlePostCreateRoute(request, env, url, path, method) {
       // is no reply id yet, and the fresh root's own id is the target.
       const mentionStatements = await mentionFanOutStatements(db, message, {
         actorId: session.user.id,
+        actorUsername: session.user.username,
         targetPostId: postId,
         replyId: null,
         now,

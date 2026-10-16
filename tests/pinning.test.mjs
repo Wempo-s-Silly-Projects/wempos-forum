@@ -173,12 +173,13 @@ test("pin gates: member 403, guest 401, unknown thread 404, non-root 400, double
   assert.equal(replyResponse.status, 400);
   assert.equal(reply.calls.some((call) => /UPDATE posts/.test(call.sql)), false);
 
-  // Already-pinned → 409.
+  // Already-pinned → 409 (the 0-change ambiguity re-reads: the thread still exists).
   const twice = mockDb([
     sessionRoute({ role: "moderator" }),
     banCheckRoute,
     threadRoute({ id: 5, parent_id: null, pinned_at: 1700000000 }),
     pinUpdate(0),
+    { sql: /SELECT id FROM posts WHERE id = \? LIMIT 1/, result: () => ({ id: 5 }) },
   ]);
   const twiceResponse = await forumWorker.fetch(
     requestFor("https://forum.example/api/admin/threads/5/pin", "POST"),
@@ -192,12 +193,28 @@ test("pin gates: member 403, guest 401, unknown thread 404, non-root 400, double
     banCheckRoute,
     threadRoute({ id: 5, parent_id: null, pinned_at: null }),
     unpinUpdate(0),
+    { sql: /SELECT id FROM posts WHERE id = \? LIMIT 1/, result: () => ({ id: 5 }) },
   ]);
   const notPinnedResponse = await forumWorker.fetch(
     requestFor("https://forum.example/api/admin/threads/5/unpin", "POST"),
     envFor(notPinned.db),
   );
   assert.equal(notPinnedResponse.status, 409);
+
+  // A thread DELETED between the read and the write is a 404, never a 409
+  // (fix round 1: the dead ternary became an honest re-read).
+  const vanished = mockDb([
+    sessionRoute({ role: "moderator" }),
+    banCheckRoute,
+    threadRoute({ id: 5, parent_id: null, pinned_at: null }),
+    pinUpdate(0),
+    { sql: /SELECT id FROM posts WHERE id = \? LIMIT 1/, result: () => null },
+  ]);
+  const vanishedResponse = await forumWorker.fetch(
+    requestFor("https://forum.example/api/admin/threads/5/pin", "POST"),
+    envFor(vanished.db),
+  );
+  assert.equal(vanishedResponse.status, 404);
 });
 
 // --- the feed order ----------------------------------------------------------------
@@ -340,4 +357,20 @@ test("app.js wires thread-pin/thread-unpin behind the shared click delegation", 
   assert.match(appJs, /api\("\/api\/admin\/threads\/" \+ button\.dataset\.postId \+ "\/unpin"/);
   assert.match(appJs, /"thread-pin": async/);
   assert.match(appJs, /"thread-unpin": async/);
+});
+// --- fix round 1: POST_SELECT projects pinned_at --------------------------------
+
+test("POST_SELECT explicitly projects p.pinned_at and publicPost maps it to pinnedAt", async () => {
+  const { POST_SELECT, publicPost } = await import("../api/shared.mjs");
+  // CRITICAL 2 regression pin: without the column, publicPost's pinnedAt was
+  // permanently null — the chip never rendered and mods saw a stale Pin button
+  // that 409'd server-side.
+  assert.match(POST_SELECT, /p\.pinned_at, /);
+  const stamped = publicPost({ id: "1", author_id: "3", pinned_at: 1700000000,
+    body: "x", created_at: 1700000000, last_activity_at: 1700000005 }, 0);
+  assert.equal(stamped.pinnedAt, new Date(1700000000 * 1000).toISOString());
+  // Honest mapping: rows without the projected column (pre-migration fixtures)
+  // normalize to null, never undefined.
+  const unstamped = publicPost({ id: "1", author_id: "3", body: "x", created_at: 1 }, 0);
+  assert.equal(unstamped.pinnedAt, null);
 });

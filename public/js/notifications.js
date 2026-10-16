@@ -14,7 +14,11 @@ export const notificationItemView = (item) => {
     targetPostId,
     read: Boolean(item?.read),
     href: `/posts/${targetPostId}`,
-    label: preview ? `New reply on your post: ${preview}` : "New reply on your post",
+    // The server-stored label wins (mentions: "You were mentioned by X");
+    // every other (or pre-0017) row keeps the generic reply copy.
+    label: item.label
+      ? String(item.label)
+      : (preview ? `New reply on your post: ${preview}` : "New reply on your post"),
   };
 };
 

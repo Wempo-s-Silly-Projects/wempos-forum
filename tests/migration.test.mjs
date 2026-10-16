@@ -1149,3 +1149,21 @@ test("migration 0014 creates polls, poll_options, and poll_votes with the pinned
   db.prepare("DELETE FROM posts WHERE id = 3").run();
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM polls").get().n, 0);
 });
+
+// --- 0017: notifications.label (fix round 1) -------------------------------------
+
+const MIGRATION_0017 = readFileSync(path.join(repoRoot, "migrations", "0017_notify_labels.sql"), "utf8");
+const apply0017 = (db) => applyFile(db, MIGRATION_0017);
+
+test("migration 0017 adds a nullable notifications.label column in place", () => {
+  const db = (() => { const d = openLatestDb(); apply0013(d); apply0017(d); return d; })();
+  const columns = db.prepare("PRAGMA table_info(notifications)").all().map((row) => row.name);
+  assert.ok(columns.includes("label"), "missing notifications.label");
+  // Pre-0017 rows (and the ordinary fan-out) read label NULL; the mention
+  // fan-out's stored copy reads back.
+  db.prepare("INSERT INTO notifications (user_id, target_post_id, reply_id, created_at) VALUES (?, ?, ?, ?)")
+    .run(1, 1, 2, T + 600);
+  assert.equal(db.prepare("SELECT label FROM notifications LIMIT 1").get().label, null);
+  db.prepare("UPDATE notifications SET label = ? WHERE user_id = 1").run("You were mentioned by wempo");
+  assert.equal(db.prepare("SELECT label FROM notifications LIMIT 1").get().label, "You were mentioned by wempo");
+});
