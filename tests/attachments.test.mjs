@@ -1307,7 +1307,7 @@ test("attachment storage failure removes the staged post before returning an err
 
   assert.equal(response.status, 500);
   const postInsert = mock.calls.find((entry) => entry.sql.startsWith("INSERT INTO posts"));
-  assert.match(postInsert.sql, /SELECT \?, NULL, \?, 'hidden', \?, \?, \?, \? WHERE NOT EXISTS/, "the newly inserted post must not be publicly visible");
+  assert.match(postInsert.sql, /SELECT \?, NULL, \?, 'hidden', \?, \?, \?, \?, \?, \? WHERE NOT EXISTS/, "the newly inserted post must not be publicly visible");
   assert.ok(mock.calls.some((entry) =>
     entry.sql.startsWith("DELETE FROM posts WHERE id = ? AND author_id = ? AND visibility = 'hidden'")),
   "failure cleanup removes the hidden post so retrying cannot duplicate it");
