@@ -385,10 +385,13 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
       db.prepare(
         "UPDATE attachment_chunks SET kind = 'approved' WHERE attachment_id = ? AND kind = 'pending'",
       ).bind(attachmentId),
-      ...(pending.hash ? [db.prepare("DELETE FROM revoked_attachment_hashes WHERE hash = ?").bind(pending.hash)] : []),
     ]);
     if (Number(results[0]?.meta?.changes) !== 1) {
       throw new HttpError(404, "Attachment not found.");
+    }
+    // Only clear a hash tombstone after the guarded approval actually committed.
+    if (pending.hash) {
+      await db.prepare("DELETE FROM revoked_attachment_hashes WHERE hash = ?").bind(pending.hash).run();
     }
     return json({ approved: true, id: attachmentId });
   }
