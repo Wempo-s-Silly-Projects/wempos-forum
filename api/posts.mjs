@@ -701,13 +701,15 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     // attachments it stays hidden until their batch is durable, so a failed
     // upload cannot leave a live post that the user unknowingly duplicates.
     const hasAttachments = files.length > 0 || gifEntries.length > 0;
-    const initialVisibility = hasAttachments ? "hidden" : "public";
+    // Both values are fixed server-owned SQL literals; keeping visibility out of
+    // the bind list preserves the established root-post bind order.
+    const visibilitySql = hasAttachments ? "'hidden'" : "'public'";
     const result = await db.prepare(
       "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board) " +
-        "SELECT ?, NULL, ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
+        "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ? WHERE NOT EXISTS (" +
         "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
         "AND (expires_at IS NULL OR expires_at > ?))",
-    ).bind(session.user.id, message, initialVisibility, now, now, board, session.user.id, now).run();
+    ).bind(session.user.id, message, now, now, board, session.user.id, now).run();
     requireMutationApplied(result);
     const postId = Number(result.meta.last_row_id);
     if (hasAttachments) {
