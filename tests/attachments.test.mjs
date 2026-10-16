@@ -183,7 +183,7 @@ function postRow(overrides = {}) {
 const sessionRoute = { sql: /FROM sessions s LEFT JOIN users u/, result: sessionRow() };
 const banCheckRoute = { sql: /^SELECT id FROM bans WHERE user_id = \?/, result: null };
 const postInsertRoute = {
-  sql: /INSERT INTO posts \(author_id, parent_id, body, visibility, created_at, last_activity_at, board\)/,
+  sql: /INSERT INTO posts \(author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key\)/,
   runMeta: { meta: { changes: 1, last_row_id: 42 } },
 };
 
