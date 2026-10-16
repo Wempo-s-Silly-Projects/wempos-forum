@@ -4,13 +4,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import forumWorker from "../worker.mjs";
-import { sniffImageMime } from "../api/shared.mjs";
+import { HttpError, sniffImageMime } from "../api/shared.mjs";
 import {
   MAX_ATTACHMENT_BYTES,
   MAX_ATTACHMENT_CHUNK_BYTES,
   MAX_ATTACHMENT_FILES,
   MAX_ATTACHMENT_REQUEST_BYTES,
   insertAttachments,
+readComposedBody,
 } from "../api/attachments.mjs";
 
 test("accepts a GIF89a header as image/gif", () => {
@@ -443,6 +444,30 @@ test("a request body at/above the attachment ceiling (~30.5 MiB) is a 413 with n
   assert.equal(attachmentCalls(mock.calls).length, 0);
   assert.ok(MAX_ATTACHMENT_REQUEST_BYTES >= 3 * MAX_ATTACHMENT_BYTES);
   assert.ok(MAX_ATTACHMENT_REQUEST_BYTES < 3 * MAX_ATTACHMENT_BYTES + 1024 * 1024);
+});
+
+// Intake hardening: a DECLARED Content-Length above the request ceiling is a
+// 413 before a single body byte is buffered. The multipart intake no longer
+// buffers the whole body up front when a Content-Length is declared; the two
+// gates are this pre-check plus the per-file size cap (and when no
+// Content-Length is declared the old counted reader still caps the body).
+test("a declared Content-Length above the request ceiling is a 413 before any body is read", async () => {
+  const request = {
+    headers: new Headers({
+      "Content-Type": "multipart/form-data; boundary=----wempo",
+      "Content-Length": String(MAX_ATTACHMENT_REQUEST_BYTES + 1),
+    }),
+    get body() {
+      throw new Error("the body stream must not be touched for an over-ceiling Content-Length");
+    },
+    formData() {
+      throw new Error("formData must not run for an over-ceiling Content-Length");
+    },
+  };
+  await assert.rejects(
+    readComposedBody(request, {}),
+    (error) => error instanceof HttpError && error.status === 413,
+  );
 });
 
 test("a JSON post body without files still creates a post (backward compat)", async () => {
@@ -1127,8 +1152,8 @@ test("rejecting deletes the attachments row so its chunks cascade away", async (
   const rejectCall = mock.calls.find((call) => call.sql.startsWith("DELETE FROM attachments"));
   assert.ok(rejectCall, "the reject DELETE must run");
   assert.ok(
-    rejectCall.sql.includes("DELETE FROM attachments WHERE id = ? AND status = 'pending'"),
-    "only a pending row may be rejected away",
+    rejectCall.sql.includes("DELETE FROM attachments WHERE id = ? AND status IN ('pending', 'approved')"),
+    "a hard delete is offered for BOTH pending and (wrongly) approved rows",
   );
   assert.deepEqual(rejectCall.values, [ATTACHMENT_ID]);
   // No chunk relabel may fire on reject — the FK cascade removes the bytes.
@@ -1174,7 +1199,37 @@ test("after approval the row is gone from the queue on re-listing", async () => 
 
 const NOT_PENDING_META = { meta: { changes: 0 } };
 
-test("rejecting an already-gone (non-pending) attachment id is a 404", async () => {
+// Remediation path for a misclicked approval: the hard delete must admit an
+// 'approved' status too (chunks cascade with the row), while a 'rejected' or
+// unknown id stays a 404. A lying changes-count of 0 stands in for those.
+test("rejecting an APPROVED attachment hard-deletes the row (chunks cascade)", async () => {
+  const mock = mockDb([
+    moderatorSessionRoute,
+    banCheckRoute,
+    { sql: /^DELETE FROM attachments/, runMeta: { meta: { changes: 1 } } },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    adminActionRequest(ATTACHMENT_ID, "reject"),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.deepEqual(body, { rejected: true, id: ATTACHMENT_ID });
+  const rejectCall = mock.calls.find((call) => call.sql.startsWith("DELETE FROM attachments"));
+  assert.ok(rejectCall, "the reject DELETE must run against an approved row too");
+  assert.ok(rejectCall.sql.includes("status IN ('pending', 'approved')"));
+  assert.deepEqual(rejectCall.values, [ATTACHMENT_ID]);
+  // HARD delete, no relabel: the approved chunk set dies with the row via the
+  // FK cascade, so no UPDATE may fire.
+  assert.equal(
+    mock.calls.filter((call) => /UPDATE attachment_chunks/.test(call.sql)).length,
+    0,
+  );
+});
+
+test("rejecting an already-rejected (unchangeable) attachment id is a 404", async () => {
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,

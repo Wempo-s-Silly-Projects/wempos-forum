@@ -289,6 +289,7 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     }
     const replyId = Number(results[0].meta.last_row_id);
     // Attachments bind the reply's own row id, never the bump target's.
+    // Attachment intake is a separate batch: if it fails, the post row is already committed (retry may duplicate the post); accepted tradeoff.
     await insertAttachments(db, replyId, session.user.id, files);
     try {
       // Best-effort fan-out in a second batch: the reply id only exists after
@@ -333,6 +334,7 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     ).bind(session.user.id, message, now, now, session.user.id, now).run();
     requireMutationApplied(result);
     const postId = Number(result.meta.last_row_id);
+    // Attachment intake is a separate batch: if it fails, the post row is already committed (retry may duplicate the post); accepted tradeoff.
     await insertAttachments(db, postId, session.user.id, files);
     return json({ id: postId }, 201);
   }

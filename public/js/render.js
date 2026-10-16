@@ -22,26 +22,26 @@ export const replyAffordances = (post, currentUser = null) => {
 // { id, status, mime, version, awaiting }. Approved rows serve publicly under
 // a versioned URL — safe for a lazy <img> with an empty alt. Pending rows
 // (awaiting: true) are only ever present in payloads the viewer authored or
-// can moderate; they render a placeholder chip instead of an <img>, because
-// the pending bytes 404 for everyone else and the moderation outcome is not
-// ours to imply. Post payloads without attachments (or with an empty array)
-// render nothing extra at all.
+// can moderate (the backend omits them for everyone else), so the pending URL
+// resolves for exactly the viewers who receive one: the author and mods see
+// the actual image inline, followed by the "awaiting review" chip; other
+// users get the row — and this code path — never. Post payloads without
+// attachments (or with an empty array) render nothing extra at all.
 const renderAttachments = (post, document, article) => {
   const attachments = Array.isArray(post.attachments) ? post.attachments : [];
   if (!attachments.length) return;
   const strip = createElement(document, "div", "post-attachments");
   for (const attachment of attachments) {
-    if (attachment.awaiting) {
-      strip.append(
-        createElement(document, "p", "attachment-pending", "🖼️ image awaiting review"),
-      );
-      continue;
-    }
     const image = createElement(document, "img", "post-attachment");
     image.src = attachmentUrl(attachment);
     image.alt = "";
     image.loading = "lazy";
     strip.append(image);
+    if (attachment.awaiting) {
+      strip.append(
+        createElement(document, "p", "attachment-pending", "🖼️ image awaiting review"),
+      );
+    }
   }
   article.append(strip);
 };

@@ -32,26 +32,53 @@ const ATTACHMENT_FIELD = "images";
 // uniform { fields, files } shape the routes consume:
 // - application/json: the pre-attachment behavior — the parsed object becomes
 //   `fields`, `files` is empty.
-// - multipart/form-data: buffered under the request ceiling, repeatable
-//   `images` file parts validated per file (per-file size cap, then a magic-
-//   byte sniff — the client's declared filename/type is never trusted), all
-//   remaining text parts returned as string fields.
+// - multipart/form-data: `images` file parts validated per file (per-file size
+//   cap, then a magic-byte sniff — the client's declared filename/type is
+//   never trusted), all remaining text parts returned as string fields.
+//
+// Peak-buffering policy: a declared Content-Length above the request ceiling is
+// rejected 413 BEFORE any body buffering. When a Content-Length is declared
+// (every real browser/fetch client sends one, and the runtime's HTTP framing
+// delivers exactly that many bytes, so the ceiling holds), formData() runs
+// DIRECTLY on the request stream — no full-body copy first, cutting the old
+// worst case from ~3x the upload (buffer + form + per-file bytes) to ~2x. When
+// NO Content-Length is declared (chunked transfer, hostile or exotic), the
+// ceiling cannot be asserted from framing, request.formData() would buffer the
+// stream unbounded, and a 128 MiB isolate is not a safe place for that — so
+// that branch keeps readLimitedBody's counted buffering as the cap. The JSON
+// branch is unchanged.
 export async function readComposedBody(request, env) {
   const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
   if (!contentType.startsWith("multipart/form-data")) {
     return { fields: await readJson(request), files: [] };
   }
 
-  const bufferedBody = await readLimitedBody(request, MAX_ATTACHMENT_REQUEST_BYTES);
+  const declaredLength = Number(request.headers.get("Content-Length") || 0);
+  if (declaredLength > MAX_ATTACHMENT_REQUEST_BYTES) {
+    throw new HttpError(413, "That upload is too large.");
+  }
+
   let form;
-  try {
-    form = await new Request(request.url, {
-      method: "POST",
-      headers: request.headers,
-      body: bufferedBody,
-    }).formData();
-  } catch {
-    throw new HttpError(400, "The upload could not be read.");
+  if (declaredLength > 0) {
+    // The common, framing-backed path: parse straight off the request stream.
+    try {
+      form = await request.formData();
+    } catch {
+      throw new HttpError(400, "The upload could not be read.");
+    }
+  } else {
+    // No declared length (chunked body): only the counted reader enforces the
+    // ceiling, so buffer under it before parsing.
+    const bufferedBody = await readLimitedBody(request, MAX_ATTACHMENT_REQUEST_BYTES);
+    try {
+      form = await new Request(request.url, {
+        method: "POST",
+        headers: request.headers,
+        body: bufferedBody,
+      }).formData();
+    } catch {
+      throw new HttpError(400, "The upload could not be read.");
+    }
   }
 
   const fields = {};
@@ -246,10 +273,14 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
   }
 
   // Reject: 'rejected' is terminal with no bytes left behind — the row is
-  // DELETEd and the FK cascade removes its chunks. Guarded by the pending
-  // status; a non-pending or unknown id is a 404.
+  // DELETEd and the FK cascade removes its chunks. The guard admits BOTH
+  // pending AND approved statuses: an approved row also needs a removal path
+  // when a moderator reconsiders an approval (rejected ids are terminal and
+  // unknown ids never existed → both are the same 404). Browser/CDN caches
+  // that already hold the previously served bytes keep them until they expire;
+  // that is a documented out of scope here.
   const result = await db.prepare(
-    "DELETE FROM attachments WHERE id = ? AND status = 'pending'",
+    "DELETE FROM attachments WHERE id = ? AND status IN ('pending', 'approved')",
   ).bind(attachmentId).run();
   if (Number(result.meta?.changes) !== 1) {
     throw new HttpError(404, "Attachment not found.");
@@ -283,7 +314,12 @@ export async function attachmentRowsForView(db, postIds, viewer) {
   const placeholders = ids.map(() => "?").join(", ");
   const result = await db.prepare(
     "SELECT id, post_id, status, created_by, version, mime " +
-      "FROM attachments WHERE post_id IN (" + placeholders + ")",
+      "FROM attachments WHERE post_id IN (" + placeholders + ") " +
+      // Deterministic strip order: attachments carry created_at (intake sets
+      // it; several uploads in one post share the same intake second, so id
+      // UUID breaks ties — stable even as row ordering never matters to
+      // correctness but must not shuffle between reads).
+      "ORDER BY created_at ASC, id ASC",
   ).bind(...ids).all();
   const isModerator = Boolean(viewer) &&
     (viewer.role === "admin" || viewer.role === "moderator");

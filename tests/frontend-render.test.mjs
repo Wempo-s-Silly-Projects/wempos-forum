@@ -145,7 +145,7 @@ test("a post with an approved attachment renders a lazy, empty-alt image", () =>
   assert.equal(image.alt, "");
 });
 
-test("an awaiting attachment renders the pending placeholder instead of an img", () => {
+test("an awaiting attachment renders the pending image INLINE plus the awaiting chip", () => {
   const post = {
     ...basePost,
     attachments: [
@@ -156,12 +156,25 @@ test("an awaiting attachment renders the pending placeholder instead of an img",
   const card = createPostCard(post, mockDocument(), null);
   const strip = selectByClass(card, "post-attachments");
   const pending = selectByClass(strip, "attachment-pending");
-  assert.ok(pending, "renders an .attachment-pending placeholder");
+  assert.ok(pending, "still renders the .attachment-pending chip");
   assert.equal(pending.textContent, "🖼️ image awaiting review");
-  // Only the approved row becomes an <img>; the pending row never leaks one.
+  // Both rows become <img>s now: pending rows reach ONLY the author and mods
+  // (the backend omits them from everyone else's payload), and for those
+  // viewers the pending URL resolves, so the author sees the real image with
+  // the chip under it. Images keep payload order; the chip follows its image.
   const images = selectAllByTag(strip, "img");
-  assert.equal(images.length, 1);
-  assert.equal(images[0].src, "/api/attachments/a1?v=ver-1");
+  assert.equal(images.length, 2);
+  assert.equal(images[0].src, "/api/attachments/p1?v=ver-2");
+  assert.equal(images[0].loading, "lazy");
+  assert.equal(images[0].alt, "");
+  assert.equal(images[1].src, "/api/attachments/a1?v=ver-1");
+  const stripChildren = strip.children.filter(Boolean);
+  const pendingIndex = stripChildren.indexOf(pending);
+  const pendingImageIndex = stripChildren.indexOf(images[0]);
+  assert.ok(
+    pendingImageIndex >= 0 && pendingIndex === pendingImageIndex + 1,
+    "the awaiting chip sits directly under its pending image",
+  );
 });
 
 test("a post without attachments renders no .post-attachments node at all", () => {
