@@ -192,7 +192,8 @@ test("threaded reply insert requires a public target that is a root or has a pub
 
 test("the reply bump updates one row's activity stamp", () => {
   assert.match(REPLY_BUMP_SQL, /last_activity_at = MAX\(COALESCE\(last_activity_at, 0\), \?\)/);
-  assert.match(STAGED_REPLY_BUMP_SQL, /reply\.id = \? AND reply\.parent_id = posts\.id AND reply\.visibility = 'public'/);
+  assert.match(STAGED_REPLY_BUMP_SQL, /reply\.id = \? AND reply\.visibility = 'public'/);
+  assert.match(STAGED_REPLY_BUMP_SQL, /reply\.parent_id = posts\.id OR target\.parent_id = posts\.id/);
 });
 test("staged reply insertion accepts a bound hidden visibility without weakening the thread guard", () => {
   assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /SELECT \?, \?, \?, \?, \?, \?, \?, \? WHERE EXISTS/);
