@@ -506,6 +506,22 @@ async function handlePostDetailRoute(request, env, url, path, method) {
   return null;
 }
 
+function getPostIdempotencyKey(request) {
+  const key = request.headers.get("Idempotency-Key");
+  if (key === null || key === "") return null;
+  if (!/^[A-Za-z0-9_-]{16,128}$/.test(key)) {
+    throw new HttpError(400, "Invalid Idempotency-Key header.");
+  }
+  return key;
+}
+
+async function existingIdempotentPost(db, authorId, key) {
+  if (!key) return null;
+  return db.prepare(
+    "SELECT id, visibility FROM posts WHERE author_id = ? AND idempotency_key = ? LIMIT 1",
+  ).bind(authorId, key).first();
+}
+
 // Attachment rows reference a post id, so they are written after the post INSERT.
 // Keep attachment-bearing posts hidden during that interval. If storage fails,
 // the D1 attachment batch is atomic and deleting the hidden post removes any
@@ -515,14 +531,18 @@ async function persistStagedPostAttachments(db, postId, authorId, files, gifEntr
   try {
     await insertAttachments(db, postId, authorId, files, gifEntries);
     const publish = db.prepare(
-      "UPDATE posts SET visibility = 'public' WHERE id = ? AND author_id = ? AND visibility = 'hidden'",
+      "UPDATE posts SET visibility = 'public' WHERE id = ? AND author_id = ? AND visibility = 'hidden' " +
+      "AND (parent_id IS NULL OR EXISTS (" +
+      "SELECT 1 FROM posts target WHERE target.id = posts.parent_id AND target.visibility = 'public' AND (" +
+      "target.parent_id IS NULL OR EXISTS (SELECT 1 FROM posts root WHERE root.id = target.parent_id " +
+      "AND root.parent_id IS NULL AND root.visibility = 'public'))))",
     ).bind(postId, authorId);
     if (bumpTargetId !== null) {
       // Publish and bump together so the root activity clock does not advance
       // for a reply whose attachments failed to commit.
       const results = await db.batch([
         publish,
-        db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId),
+        db.prepare(REPLY_BUMP_SQL).bind(nowSeconds(), bumpTargetId),
       ]);
       if (Number(results[0]?.meta?.changes) !== 1) {
         throw new HttpError(409, "The conversation changed while your reply was being published. Please try again.");
@@ -558,6 +578,12 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
   if (replyMatch && method === "POST") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
+    const idempotencyKey = getPostIdempotencyKey(request);
+    const existing = await existingIdempotentPost(db, session.user.id, idempotencyKey);
+    if (existing) {
+      if (existing.visibility !== "public") throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
+      return json({ id: Number(existing.id) }, 200);
+    }
     await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
     const targetId = Number(replyMatch[1]);
@@ -614,8 +640,8 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const hasAttachments = files.length > 0 || gifEntries.length > 0;
     const insertSql = hasAttachments ? THREAD_REPLY_INSERT_STAGED_SQL : THREAD_REPLY_INSERT_SQL;
     const insertValues = hasAttachments
-      ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, targetId, session.user.id, now]
-      : [session.user.id, targetId, message, now, now, threadBoard, targetId, session.user.id, now];
+      ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, targetId, session.user.id, now]
+      : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, targetId, session.user.id, now];
     const insertStatements = [db.prepare(insertSql).bind(...insertValues)];
     if (!hasAttachments) insertStatements.push(db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId));
     const results = await db.batch(insertStatements);
@@ -677,6 +703,12 @@ async function handlePostCreateRoute(request, env, url, path, method) {
   if (path === "/api/posts" && method === "POST") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
+    const idempotencyKey = getPostIdempotencyKey(request);
+    const existing = await existingIdempotentPost(db, session.user.id, idempotencyKey);
+    if (existing) {
+      if (existing.visibility !== "public") throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
+      return json({ id: Number(existing.id) }, 200);
+    }
     await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
     const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
@@ -705,11 +737,11 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     // the bind list preserves the established root-post bind order.
     const visibilitySql = hasAttachments ? "'hidden'" : "'public'";
     const result = await db.prepare(
-      "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board) " +
-        "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ? WHERE NOT EXISTS (" +
+      "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key) " +
+        "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ? WHERE NOT EXISTS (" +
         "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
         "AND (expires_at IS NULL OR expires_at > ?))",
-    ).bind(session.user.id, message, now, now, board, session.user.id, now).run();
+    ).bind(session.user.id, message, now, now, board, idempotencyKey, session.user.id, now).run();
     requireMutationApplied(result);
     const postId = Number(result.meta.last_row_id);
     if (hasAttachments) {
