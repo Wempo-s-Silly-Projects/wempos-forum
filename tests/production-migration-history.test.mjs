@@ -85,6 +85,7 @@ test("production preflight is read-only and covers ledger, CSS, schema, and byte
   assert.match(preflight, /approved_uploads_without_bytes_or_source/);
   assert.match(preflight, /gif_backed_aliases_keep_by_reference/);
   assert.match(preflight, /0024_idempotency_fingerprints_and_attachment_sources\.sql/);
+  assert.match(preflight, /0025_attachment_gif_identity\.sql/);
   assert.doesNotMatch(
     preflight,
     /pending_css_version IS NULL/,
