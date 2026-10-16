@@ -16,6 +16,9 @@
   --yellow: #f3cf67;
   --blue: #c8e2e9;
   --focus: #0758c9;
+  /* Attachment images render at natural aspect ratio capped by height; rem so
+     it scales with root font size. */
+  --attachment-max-height: 22rem;
   /* Surfaces and semantics extracted from former hardcoded literals so the
      dark blocks below can re-weight them. Light values are the originals
      (a few intentionally merged near-duplicates; see the task report). */
@@ -962,21 +965,28 @@ dialog h2 {
 }
 
 /* Post image attachments (plan Task 7): the strip under a post/reply body and
-   the composer's chosen-file chips. Rendered images are capped so cards stay
-   uniform in the feed; the paper-card border idiom matches the rest. */
+   the composer's chosen-file chips. Images render at their NATURAL aspect
+   ratio (no crop), capped by width (never wider than the card they live in —
+   including the narrower .cascade-replies cards) and by height so a tall
+   upload can't dominate the feed; max-width: 100% is relative to the strip,
+   which is a full-width block inside whatever card holds it. Spacing keeps a
+   half-line of air below the strip before the preview box/actions.
+   Token-only colors, so both themes inherit for free. */
 
 .post-attachments {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   gap: 0.5rem;
-  margin: 0.6rem 0 0;
+  margin: 0.6rem 0;
 }
 
 .post-attachment {
-  width: clamp(6rem, 14vw, 9rem);
-  height: 9rem;
-  object-fit: cover;
+  display: block;
+  max-width: 100%;
+  max-height: var(--attachment-max-height);
+  width: auto;
+  height: auto;
   border: 2px solid var(--line);
   border-radius: 0.5rem;
   background: var(--paper);
@@ -990,6 +1000,40 @@ dialog h2 {
   font-size: 0.85rem;
   color: var(--ink);
   align-self: center;
+}
+
+/* Click-to-expand (micro-batch): each strip image sits in a chrome-free
+   button — zoom cursor hints the affordance, and the button (not the img)
+   carries the a11y label. The lightbox is the app's native <dialog> idiom,
+   stripped of the report dialog's card styling so the image shows at natural
+   size; only the viewport caps it, so nothing can overflow. Escape and any
+   click on the dialog or backdrop close it. Both themes share the existing
+   dialog backdrop rule for free. */
+.attachment-expand {
+  display: block;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+}
+
+.attachment-lightbox {
+  width: fit-content;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.attachment-lightbox img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
 }
 
 .composer-attach-row {
@@ -1077,7 +1121,8 @@ dialog h2 {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  margin: 0.6rem 0 0;
+  /* Bottom margin keeps the box off the action buttons below it. */
+  margin: 0.6rem 0;
   padding: 0.55rem 0.75rem;
   border: 1.5px solid var(--line);
   border-radius: 0.55rem;

@@ -66,6 +66,12 @@
         </div>
       </form>
     </dialog>
+    <!-- Click-to-expand attachments (micro-batch): a chrome-free native dialog
+         that app.js fills with the same uncapped attachment URL. Escape and a
+         click on the dialog or backdrop close it. -->
+    <dialog id="attachment-lightbox" class="attachment-lightbox" aria-label="Full image view">
+      <img id="attachment-lightbox-image" alt="">
+    </dialog>
     <noscript><p class="noscript-note">This forum needs JavaScript to load posts and account actions.</p></noscript>
   </body>
 </html>

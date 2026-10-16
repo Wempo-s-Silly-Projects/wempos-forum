@@ -45,6 +45,7 @@ const statusMessage = document.querySelector("#status-message");
 const errorMessage = document.querySelector("#error-message");
 const reportDialog = document.querySelector("#report-dialog");
 const reportForm = reportDialog.querySelector('[data-form="report"]');
+const attachmentLightbox = document.querySelector("#attachment-lightbox");
 
 let router;
 let currentUser = null;
@@ -940,7 +941,28 @@ function quoteIntoComposer(button) {
   const textarea = form.querySelector("textarea");
   if (!textarea) return;
   prefillQuote(textarea, button.dataset.quoteUsername ?? "", button.dataset.quoteSnippet ?? "");
+  // prefillQuote assigns .value programmatically, which fires no `input`
+  // event — so the composer's live character counter (wired in forms.js to the
+  // input event) would keep showing the stale pre-quote count. Dispatch the
+  // event it listens for so the counter reflects the post-prefill value.
+  // No truncation here: programmatic assignment can exceed the textarea's
+  // maxLength, and submitting is blocked by form validity / the server 400.
+  textarea.dispatchEvent(new Event("input", { bubbles: true }));
   form.scrollIntoView({ block: "nearest" });
+}
+
+// Click-to-expand attachments (micro-batch): the strip caps render size with
+// CSS, but the stored bytes are full-size — the lightbox just swaps in the
+// same versioned URL uncapped (capped only by the viewport in CSS). The
+// native <dialog> supplies Escape and focus handling for free; a click
+// anywhere on the dialog or its backdrop closes it (wired once at load).
+function openAttachmentLightbox(button) {
+  const stripImage = button.querySelector("img.post-attachment");
+  if (!stripImage || !attachmentLightbox) return;
+  const fullImage = attachmentLightbox.querySelector("img");
+  if (!fullImage) return;
+  fullImage.src = stripImage.src;
+  attachmentLightbox.showModal();
 }
 
 async function loadMorePosts(button) {
@@ -998,6 +1020,7 @@ async function handleButtonAction(button) {
     "mark-notifications-read": () => markAllNotificationsRead(),
     "composer-attach": () => attachComposerImages(button),
     "remove-composer-file": () => removeComposerFile(button),
+    "expand-attachment": () => openAttachmentLightbox(button),
   };
   const handler = handlers[button.dataset.action];
   if (handler) await handler();
@@ -1014,6 +1037,9 @@ async function handleClick(event) {
   }
 }
 document.addEventListener("click", handleClick);
+// The attachment lightbox closes on any click inside it (image included) or on
+// its backdrop; Escape is native to <dialog>.
+attachmentLightbox?.addEventListener("click", () => attachmentLightbox.close());
 // Composer file inputs: folder/picker selections are folded into the form's
 // chosen list at change time (cap + size messages surface on the status bar).
 document.addEventListener("change", (event) => {

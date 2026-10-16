@@ -27,7 +27,11 @@ export const replyAffordances = (post, currentUser = null) => {
 // resolves for exactly the viewers who receive one: the author and mods see
 // the actual image inline, followed by the "awaiting review" chip; other
 // users get the row — and this code path — never. Post payloads without
-// attachments (or with an empty array) render nothing extra at all.
+// attachments (or with an empty array) render nothing extra at all. Each image
+// is wrapped in a chrome-free .attachment-expand button (micro-batch): the
+// strip only CSS-caps the rendering, the stored bytes are full-size, so the
+// button's data-action opens #attachment-lightbox (app.js) with the same URL
+// uncapped.
 const renderAttachments = (post, document, article) => {
   const attachments = Array.isArray(post.attachments) ? post.attachments : [];
   if (!attachments.length) return;
@@ -37,7 +41,12 @@ const renderAttachments = (post, document, article) => {
     image.src = attachmentUrl(attachment);
     image.alt = "";
     image.loading = "lazy";
-    strip.append(image);
+    const expand = createElement(document, "button", "attachment-expand");
+    expand.type = "button";
+    expand.dataset.action = "expand-attachment";
+    expand.setAttribute("aria-label", "View full image");
+    expand.append(image);
+    strip.append(expand);
     if (attachment.awaiting) {
       strip.append(
         createElement(document, "p", "attachment-pending", "🖼️ image awaiting review"),

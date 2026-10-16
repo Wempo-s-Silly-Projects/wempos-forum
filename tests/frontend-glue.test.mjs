@@ -417,3 +417,27 @@ test("a textarea without the counter option stays counter-free (bio keeps its 10
   const textarea = [...walkTree(wrapper)].find((node) => node.tagName === "TEXTAREA");
   assert.equal(textarea.maxLength, 10000);
 });
+
+// Micro-batch (item 4): quote prefill goes through prefillQuote's PROGRAMMATIC
+// .value assignment, which fires no `input` event — so the counter stays stale
+// unless the app.js quote handler dispatches one after prefillQuote (quotes.js
+// stays DOM-free; the dispatch is the handler's job). This pins the wiring the
+// handler relies on: prefill alone leaves the old label, one input dispatch
+// re-syncs it to the post-prefill value.
+test("an input dispatch after quote prefill re-syncs the counter to the post-prefill value", () => {
+  const document = counterMockDocument();
+  const wrapper = createTextarea(document, {
+    id: "reply-42-body", label: "Reply", maxLength: COMPOSER_MAX_CHARS, counter: true,
+  });
+  const textarea = [...walkTree(wrapper)].find((node) => node.tagName === "TEXTAREA");
+  const counter = [...walkTree(wrapper)].find((node) => node.className === "char-counter");
+  textarea.focus = () => {}; // prefillQuote focuses its textarea
+  assert.equal(counter.textContent, "1,000 chars left");
+
+  const prefill = prefillQuote(textarea, "bob", "Look at this");
+  assert.equal(prefill, "> @bob: Look at this\n");
+  assert.equal(counter.textContent, "1,000 chars left", "value assignment alone fires no input event");
+
+  textarea.dispatchInput();
+  assert.equal(counter.textContent, charsLeftLabel(COMPOSER_MAX_CHARS, prefill));
+});

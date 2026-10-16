@@ -173,12 +173,17 @@ test("an awaiting attachment renders the pending image INLINE plus the awaiting 
   assert.equal(images[0].loading, "lazy");
   assert.equal(images[0].alt, "");
   assert.equal(images[1].src, "/api/attachments/a1?v=ver-1");
+  // Micro-batch (item 6): each image is wrapped in an .attachment-expand
+  // button, and the awaiting chip follows that wrapper. Each image's wrapper
+  // is the button directly before it in strip order (1:1).
+  const expandButtons = selectAllByTag(strip, "button");
+  assert.equal(expandButtons.length, 2);
   const stripChildren = strip.children.filter(Boolean);
   const pendingIndex = stripChildren.indexOf(pending);
-  const pendingImageIndex = stripChildren.indexOf(images[0]);
+  const pendingImageIndex = stripChildren.indexOf(expandButtons[0]);
   assert.ok(
     pendingImageIndex >= 0 && pendingIndex === pendingImageIndex + 1,
-    "the awaiting chip sits directly under its pending image",
+    "the awaiting chip sits directly under its pending image's expand button",
   );
 });
 
@@ -187,6 +192,28 @@ test("a post without attachments renders no .post-attachments node at all", () =
     const card = createPostCard({ ...basePost, attachments }, mockDocument(), null);
     assert.equal(selectByClass(card, "post-attachments"), undefined);
   }
+});
+
+// Micro-batch (item 6, click-to-expand): the strip image is wrapped in a
+// chrome-free button carrying the a11y label and the data-action app.js's
+// lightbox handler resolves; the img itself keeps src/loading/alt as before.
+test("each strip attachment image is wrapped in an expand button for the full-size view", () => {
+  const post = {
+    ...basePost,
+    attachments: [{ id: "a1", status: "approved", mime: "image/png", version: "ver-1", awaiting: false }],
+  };
+  const card = createPostCard(post, mockDocument(), null);
+  const strip = selectByClass(card, "post-attachments");
+  const expand = selectByClass(strip, "attachment-expand");
+  assert.ok(expand, "renders an .attachment-expand wrapper around the image");
+  assert.equal(expand.tagName, "BUTTON");
+  assert.equal(expand.type, "button");
+  assert.equal(expand.dataset.action, "expand-attachment");
+  assert.equal(expand.getAttribute("aria-label"), "View full image");
+  const wrapped = selectAllByTag(expand, "img");
+  assert.equal(wrapped.length, 1, "the expand button wraps exactly one image");
+  assert.equal(wrapped[0].src, "/api/attachments/a1?v=ver-1");
+  assert.equal(wrapped[0].className, "post-attachment");
 });
 
 test("a level-1 reply renders its attachments strip like a root post", () => {
