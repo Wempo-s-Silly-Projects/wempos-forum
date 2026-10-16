@@ -650,6 +650,7 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     } catch (error) {
       const raced = await existingIdempotentPost(db, session.user.id, idempotencyKey);
       if (raced?.visibility === "public") return json({ id: Number(raced.id) }, 200);
+      if (raced) throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
       throw error;
     }
     if (Number(results[0]?.meta?.changes) !== 1) {
@@ -754,6 +755,7 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     } catch (error) {
       const raced = await existingIdempotentPost(db, session.user.id, idempotencyKey);
       if (raced?.visibility === "public") return json({ id: Number(raced.id) }, 200);
+      if (raced) throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
       throw error;
     }
     requireMutationApplied(result);
