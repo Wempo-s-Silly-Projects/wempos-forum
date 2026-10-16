@@ -656,6 +656,15 @@ function renderProfile(profile, session) {
   if (session.user?.id === profile.id && session.user.avatarStatus === "pending") {
     heading.append(element("span", "avatar-pending-badge", "Avatar awaiting review"));
   }
+  if (session.user && session.user.id !== profile.id) {
+    // Report-a-profile (v2.5): the bio/flair/banner/css surface is
+    // reportable like post content — same desk, same resolve flow.
+    const reportProfile = element("button", "button button-quiet", "Report profile");
+    reportProfile.type = "button";
+    reportProfile.dataset.action = "report-profile";
+    reportProfile.dataset.profileId = String(profile.id);
+    heading.append(reportProfile);
+  }
   appendProfileRoleControls(profile, session, heading);
   main.append(heading);
   addText(document, main, "p", profile.bio || "This member hasn't added a bio yet.", "profile-bio");
@@ -679,7 +688,7 @@ function renderProfile(profile, session) {
   renderProfilePosts(profile, session.user);
 }
 
-function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, user) {
+function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, user) {
   addHeading(main, "Moderation desk", 1);
   addText(document, main, "p", "Review reports, hide inappropriate posts, and manage active bans.", "page-lede");
   addHeading(main, "Open reports", 2);
@@ -690,6 +699,8 @@ function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, u
   main.append(createAttachmentQueue(attachmentData.attachments, document));
   addHeading(main, "Profile CSS awaiting review", 2);
   main.append(createCssQueue(cssData.cssSubmissions, document));
+  addHeading(main, "Profile reports", 2);
+  main.append(createProfileReportQueue(profileReportData.profileReports, document));
   addHeading(main, "Active bans", 2);
   main.append(createActiveBanList(banData.bans, document));
 }
@@ -950,6 +961,31 @@ async function renderProfileRoute(route, context, version) {
   renderProfile(profile, context.session);
 }
 
+function createProfileReportQueue(reports, document) {
+  const container = element("div", "profile-report-queue");
+  if (!reports.length) {
+    addText(document, container, "p", "No profile reports.", "empty-state");
+    return container;
+  }
+  for (const report of reports) {
+    const item = element("div", "report-queue-item");
+    const head = element("p", "report-queue-head",
+      report.profileUsername + " (reported by " + report.reporter + ")");
+    const reason = element("p", "report-queue-reason");
+    reason.textContent = report.reason;
+    const resolve = element("button", "button", "Resolve");
+    resolve.type = "button";
+    resolve.dataset.action = "resolve-profile-report";
+    resolve.dataset.reportId = String(report.id);
+    const visit = element("a", "button button-quiet", "View profile");
+    visit.href = "/users/" + encodeURIComponent(report.profileUsername);
+    visit.setAttribute("data-app-link", "");
+    item.append(head, reason, resolve, visit);
+    container.append(item);
+  }
+  return container;
+}
+
 function createCssQueue(submissions, document) {
   const container = element("div", "css-queue");
   if (!submissions.length) {
@@ -976,15 +1012,16 @@ function createCssQueue(submissions, document) {
 }
 
 async function renderAdminRoute(context, version) {
-  const [reports, bans, avatars, attachments, css] = await Promise.all([
+  const [reports, bans, avatars, attachments, css, profileReports] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/bans"),
     api("/api/admin/avatars"),
     api("/api/admin/attachments"),
     api("/api/admin/css"),
+    api("/api/admin/profile-reports"),
   ]);
   if (version !== renderVersion) return;
-  renderAdmin(reports, bans, avatars, attachments, css, context.session.user);
+  renderAdmin(reports, bans, avatars, attachments, css, profileReports, context.session.user);
 }
 
 async function renderNotificationsRoute(context, version) {
@@ -1806,6 +1843,12 @@ async function handleButtonAction(button) {
     "clear-profile-css": async () => {
       await api("/api/me/css", { method: "DELETE" });
       setMessage("Custom CSS removed.");
+    },
+    "report-profile": () => openReportDialog("profile", button.dataset.profileId),
+    "resolve-profile-report": async (button) => {
+      await api("/api/admin/profile-reports/" + encodeURIComponent(button.dataset.reportId) + "/resolve", { method: "POST" });
+      button.closest(".report-queue-item")?.remove();
+      setMessage("Report resolved.");
     },
     "css-approve": async (button) => {
       await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/approve", { method: "POST" });
