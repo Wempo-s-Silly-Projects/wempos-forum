@@ -137,3 +137,15 @@ test("release tooling has a named, isolated Preview migration target", async () 
   const pkg = JSON.parse(await read("package.json"));
   assert.match(pkg.scripts["db:migrate:preview"], /wempo-forum-preview --env preview --remote/);
 });
+
+test("first-admin creation is guarded inside the INSERT against concurrent setup requests", async () => {
+  const session = await read("api/session.mjs");
+  assert.match(
+    session,
+    /role === "admin"[\\s\\S]*?INSERT INTO users[\\s\\S]*?SELECT \\?, \\?, \\?, \\?, \\?, '', \\? WHERE NOT EXISTS \\(SELECT 1 FROM users WHERE role = 'admin'\\)/,
+  );
+  assert.match(
+    session,
+    /if \\(role === "admin" && Number\\(result\\.meta\\?\\.changes\\) !== 1\\)[\\s\\S]*?First-time setup has already been completed/,
+  );
+});
