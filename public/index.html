@@ -14,20 +14,7 @@
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7efdc">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#131b27">
     <title>Wempo's Forum</title>
-    <script>
-      // No-flash pin: a manually stored choice (either direction) is applied
-      // before paint; the OS-only case is handled by the prefers-color-scheme
-      // rules in styles.css.
-      let storedTheme = null;
-      try {
-        storedTheme = localStorage.getItem("forum-theme");
-      } catch (error) {
-        // Storage unavailable: the stylesheet's OS preference handles the look.
-      }
-      if (storedTheme === "dark" || storedTheme === "light") {
-        document.documentElement.dataset.theme = storedTheme;
-      }
-    </script>
+    <script src="/js/theme-preload.js"></script>
     <link rel="stylesheet" href="/styles.css">
     <script type="module" src="/js/app.js"></script>
   </head>
