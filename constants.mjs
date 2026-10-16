@@ -36,7 +36,7 @@ export const THREAD_REPLY_INSERT_SQL =
 // and ban predicates below while allowing the caller to bind 'hidden'.
 export const THREAD_REPLY_INSERT_STAGED_SQL = THREAD_REPLY_INSERT_SQL.replace(
   "SELECT ?, ?, ?, 'public', ?, ?, ?, ?, ? WHERE EXISTS (",
-  "SELECT ?, ?, ?, ?, ?, ?, ?, ? WHERE EXISTS (",
+  "SELECT ?, ?, ?, ?, ?, ?, ?, ?, ? WHERE EXISTS (",
 );
 
 // Reply replies bump their conversation root: last_activity_at = now on the
