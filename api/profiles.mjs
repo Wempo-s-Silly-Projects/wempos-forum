@@ -272,10 +272,11 @@ async function handleCssSetRoute(request, env, url, path, method) {
   const hasApproved = await env.FORUM_DB.prepare(
     "SELECT approved_css FROM users WHERE id = ? LIMIT 1",
   ).bind(session.user.id).first();
+  const submissionVersion = crypto.randomUUID();
   await env.FORUM_DB.batch([
     env.FORUM_DB.prepare(
-      "UPDATE users SET pending_css = ?, css_status = 'pending' WHERE id = ?",
-    ).bind(cssText, session.user.id),
+      "UPDATE users SET pending_css = ?, pending_css_version = ?, css_status = 'pending' WHERE id = ?",
+    ).bind(cssText, submissionVersion, session.user.id),
   ]);
   return json({
     pending: cssText,
@@ -290,7 +291,7 @@ async function handleCssClearRoute(request, env, url, path, method) {
   await rateLimit(request, env, "write");
   await env.FORUM_DB.batch([
     env.FORUM_DB.prepare(
-      "UPDATE users SET pending_css = NULL, approved_css = '', css_status = 'none' WHERE id = ?",
+      "UPDATE users SET pending_css = NULL, pending_css_version = NULL, approved_css = '', css_status = 'none' WHERE id = ?",
     ).bind(session.user.id),
   ]);
   return json({ cleared: true });
@@ -391,11 +392,6 @@ async function handleCssStylesheetRoute(request, env, url, path, method) {
   return null;
 }
 
-async function cssSubmissionVersion(css) {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(css)));
-  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
 async function handleCssAdminRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/css" && method === "GET") {
@@ -412,7 +408,7 @@ async function handleCssAdminRoutes(request, env, url, path, method) {
           username: row.username,
           css,
           bytes: css.length,
-          version: await cssSubmissionVersion(css),
+          version: String(row.pending_css_version ?? ""),
         };
       })),
     });
@@ -424,23 +420,23 @@ async function handleCssAdminRoutes(request, env, url, path, method) {
     const userId = Number(cssMatch[1]);
     if (!Number.isSafeInteger(userId) || userId < 1) throw new HttpError(404, "Not found.");
     const expectedVersion = url.searchParams.get("version") || "";
-    if (!/^[a-f0-9]{64}$/.test(expectedVersion)) {
+    if (!/^[0-9a-f-]{36}$/i.test(expectedVersion)) {
       throw new HttpError(409, "This CSS submission is stale. Refresh the moderation queue.");
     }
     const current = await db.prepare(
-      "SELECT pending_css, css_status FROM users WHERE id = ? LIMIT 1",
+      "SELECT pending_css, pending_css_version, css_status FROM users WHERE id = ? LIMIT 1",
     ).bind(userId).first();
     if (!current || current.css_status !== "pending" || current.pending_css === null ||
-        await cssSubmissionVersion(current.pending_css) !== expectedVersion) {
+        String(current.pending_css_version ?? "") !== expectedVersion) {
       throw new HttpError(409, "This CSS submission changed after it was loaded. Refresh the moderation queue.");
     }
     if (cssMatch[2] === "approve") {
       const reviewedCss = String(current.pending_css);
       const approved = await db.batch([
         db.prepare(
-          "UPDATE users SET approved_css = ?, pending_css = NULL, css_status = 'approved' " +
-          "WHERE id = ? AND css_status = 'pending' AND pending_css = ?",
-        ).bind(reviewedCss, userId, reviewedCss),
+          "UPDATE users SET approved_css = ?, pending_css = NULL, pending_css_version = NULL, css_status = 'approved' " +
+          "WHERE id = ? AND css_status = 'pending' AND pending_css = ? AND pending_css_version = ?",
+        ).bind(reviewedCss, userId, reviewedCss, expectedVersion),
       ]);
       if (Number(approved[0]?.meta?.changes) !== 1) {
         throw new HttpError(409, "This CSS submission changed while being approved. Refresh the moderation queue.");
@@ -450,9 +446,9 @@ async function handleCssAdminRoutes(request, env, url, path, method) {
     const reviewedCss = String(current.pending_css);
     const rejected = await db.batch([
       db.prepare(
-        "UPDATE users SET pending_css = NULL, css_status = 'none' " +
-        "WHERE id = ? AND css_status = 'pending' AND pending_css = ?",
-      ).bind(userId, reviewedCss),
+        "UPDATE users SET pending_css = NULL, pending_css_version = NULL, css_status = 'none' " +
+        "WHERE id = ? AND css_status = 'pending' AND pending_css = ? AND pending_css_version = ?",
+      ).bind(userId, reviewedCss, expectedVersion),
     ]);
     if (Number(rejected[0]?.meta?.changes) !== 1) {
       throw new HttpError(409, "This CSS submission changed while being rejected. Refresh the moderation queue.");
