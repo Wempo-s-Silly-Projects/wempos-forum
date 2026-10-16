@@ -8,6 +8,7 @@ import { sniffImageMime } from "../api/shared.mjs";
 import {
   MAX_ATTACHMENT_FILES,
   MAX_ATTACHMENT_REQUEST_BYTES,
+  insertAttachments,
 } from "../api/attachments.mjs";
 
 test("accepts a GIF89a header as image/gif", () => {
@@ -806,4 +807,274 @@ test("feed rows carry an approved attachment's id, version, and awaiting flag", 
     mock.calls.filter((call) => ATTACHMENTS_FOR_POSTS_SQL.test(call.sql))[0].sql.includes("(?)"),
     "the IN list has one placeholder per shown post id",
   );
+});
+
+// ---------------------------------------------------------------------------
+// Task 6: the moderator queue — GET /api/admin/attachments, then POST
+// /api/admin/attachments/:id/approve and .../reject. Same mock-Db pattern as
+// above; role gates mirror the avatar moderation routes in api/moderation.mjs.
+// ---------------------------------------------------------------------------
+
+function moderatorRow(overrides = {}) {
+  return sessionRow({ user_id: 8, role: "moderator", ...overrides });
+}
+
+const moderatorSessionRoute = {
+  sql: /FROM sessions s LEFT JOIN users u/,
+  result: moderatorRow(),
+};
+
+function adminActionRequest(id, action) {
+  return new Request("https://forum.example/api/admin/attachments/" + id + "/" + action, {
+    method: "POST",
+    headers: {
+      Origin: "https://forum.example",
+      "X-CSRF-Token": "expected-csrf-token",
+      Cookie: "wempo_session=" + "s".repeat(43),
+    },
+  });
+}
+
+// Queue row shape: size has NO column — the controller ruling is that
+// sizeBytes comes from length(pending_data), computed in SQL.
+const QUEUE_ROW = {
+  id: ATTACHMENT_ID,
+  post_id: 5,
+  pending_mime: "image/gif",
+  pending_updated_at: 1700000000,
+  uploader: "uploader_one",
+  size_bytes: GIF_BYTES.length,
+};
+
+const ATTACHMENT_QUEUE_SQL =
+  /FROM attachments a JOIN users u .* WHERE a\.status = 'pending'/s;
+
+test(
+  "the moderation queue lists pending attachments oldest-first with uploader, mime, and blob size",
+  async () => {
+    const mock = mockDb([moderatorSessionRoute, { sql: ATTACHMENT_QUEUE_SQL, rows: [QUEUE_ROW] }, { sql: /./ }]);
+    const response = await forumWorker.fetch(
+      new Request("https://forum.example/api/admin/attachments", {
+        headers: { Cookie: "wempo_session=" + "s".repeat(43) },
+      }),
+      envFor(mock.db),
+    );
+
+    assert.equal(response.status, 200);
+    const queueCall = mock.calls.find((call) => ATTACHMENT_QUEUE_SQL.test(call.sql));
+    assert.ok(queueCall, "the queue lookup must run");
+    // Oldest first, capped at 100, size computed from the pending blob.
+    assert.ok(queueCall.sql.includes("ORDER BY a.pending_updated_at ASC"));
+    assert.ok(queueCall.sql.includes("LIMIT 100"));
+    assert.ok(queueCall.sql.includes("length(a.pending_data) AS size_bytes"));
+    assert.ok(queueCall.values.length === 0, "the queue lookup binds no values");
+    const body = await response.json();
+    assert.deepEqual(body.attachments, [
+      {
+        id: ATTACHMENT_ID,
+        postId: 5,
+        uploader: "uploader_one",
+        mime: "image/gif",
+        sizeBytes: GIF_BYTES.length,
+        createdAt: new Date(1700000000 * 1000).toISOString(),
+      },
+    ]);
+  },
+);
+
+test("a member gets a 403 from the moderation queue", async () => {
+  const mock = mockDb([
+    { sql: /FROM sessions s LEFT JOIN users u/, result: sessionRow({ user_id: 8, role: "member" }) },
+    { sql: ATTACHMENT_QUEUE_SQL, rows: [QUEUE_ROW] },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    new Request("https://forum.example/api/admin/attachments", {
+      headers: { Cookie: "wempo_session=" + "s".repeat(43) },
+    }),
+    envFor(mock.db),
+  );
+  assert.equal(response.status, 403);
+});
+
+test("a guest gets a 401 from the moderation queue", async () => {
+  const mock = mockDb([{ sql: ATTACHMENT_QUEUE_SQL, rows: [QUEUE_ROW] }, { sql: /./ }]);
+  const response = await forumWorker.fetch(
+    new Request("https://forum.example/api/admin/attachments"),
+    envFor(mock.db),
+  );
+  assert.equal(response.status, 401);
+});
+
+test("a member gets a 403 from attachment approve and no UPDATE runs", async () => {
+  const mock = mockDb([
+    { sql: /FROM sessions s LEFT JOIN users u/, result: sessionRow({ user_id: 8, role: "member" }) },
+    { sql: /^UPDATE attachments SET/, runMeta: { meta: { changes: 1 } } },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    adminActionRequest(ATTACHMENT_ID, "approve"),
+    envFor(mock.db),
+  );
+  assert.equal(response.status, 403);
+  assert.equal(mock.calls.filter((call) => call.sql.startsWith("UPDATE attachments")).length, 0);
+});
+
+test("a guest gets a 401 from attachment approve", async () => {
+  const mock = mockDb([
+    { sql: /^UPDATE attachments SET/, runMeta: { meta: { changes: 1 } } },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    adminActionRequest(ATTACHMENT_ID, "approve"),
+    envFor(mock.db),
+  );
+  assert.equal(response.status, 401);
+});
+
+const OLD_VERSION = ATTACHMENT_VERSION;
+
+test("approving copies the pending pair into the approved pair, clears pending, and bumps the version", async () => {
+  const mock = mockDb([
+    moderatorSessionRoute,
+    banCheckRoute,
+    { sql: /^UPDATE attachments SET/, runMeta: { meta: { changes: 1 } } },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    adminActionRequest(ATTACHMENT_ID, "approve"),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.deepEqual(body, { approved: true, id: ATTACHMENT_ID });
+  const approveCall = mock.calls.find((call) => call.sql.startsWith("UPDATE attachments"));
+  assert.ok(approveCall, "the approve UPDATE must run");
+  // Mirrors the avatar approve: pending pair copies into the approved pair and
+  // pending clears in ONE statement evaluated against the pre-update row.
+  assert.ok(approveCall.sql.includes("mime = pending_mime"));
+  assert.ok(approveCall.sql.includes("data = pending_data"));
+  assert.ok(approveCall.sql.includes("updated_at = pending_updated_at"));
+  assert.ok(approveCall.sql.includes("pending_mime = NULL"));
+  assert.ok(approveCall.sql.includes("pending_data = NULL"));
+  assert.ok(approveCall.sql.includes("pending_updated_at = NULL"));
+  assert.ok(approveCall.sql.includes("status = 'approved'"));
+  // Guarded so a non-pending id can never be double-approved.
+  assert.ok(approveCall.sql.includes("WHERE id = ? AND status = 'pending'"));
+  // Unlike the avatar approve (which keeps the pending version), attachments
+  // bump to a fresh random version — the approved URL's cache buster moves.
+  const [newVersion, boundId] = approveCall.values;
+  assert.notEqual(newVersion, OLD_VERSION, "approval must bump the version");
+  assert.match(newVersion, /^[A-Za-z0-9_-]{16}$/, "the new version is a random 12-byte token");
+  assert.equal(boundId, ATTACHMENT_ID);
+  // A moderator action must be gated against active bans, like the avatar desk.
+  assert.ok(mock.calls.some((call) => /^SELECT id FROM bans WHERE user_id = \?/.test(call.sql)));
+});
+
+test("rejecting clears the pending bytes and marks the row rejected", async () => {
+  const mock = mockDb([
+    moderatorSessionRoute,
+    banCheckRoute,
+    { sql: /^UPDATE attachments SET/, runMeta: { meta: { changes: 1 } } },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    adminActionRequest(ATTACHMENT_ID, "reject"),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.deepEqual(body, { rejected: true, id: ATTACHMENT_ID });
+  const rejectCall = mock.calls.find((call) => call.sql.startsWith("UPDATE attachments"));
+  assert.ok(rejectCall, "the reject UPDATE must run");
+  assert.ok(rejectCall.sql.includes("pending_mime = NULL"));
+  assert.ok(rejectCall.sql.includes("pending_data = NULL"));
+  assert.ok(rejectCall.sql.includes("pending_updated_at = NULL"));
+  assert.ok(rejectCall.sql.includes("status = 'rejected'"));
+  assert.ok(rejectCall.sql.includes("WHERE id = ? AND status = 'pending'"));
+  assert.deepEqual(rejectCall.values, [ATTACHMENT_ID]);
+});
+
+test("after approval the row is gone from the queue on re-listing", async () => {
+  let pendingQueueRows = [QUEUE_ROW];
+  const queueRoute = {
+    sql: ATTACHMENT_QUEUE_SQL,
+    get rows() {
+      return pendingQueueRows;
+    },
+  };
+  const mock = mockDb([
+    moderatorSessionRoute,
+    banCheckRoute,
+    { sql: /^UPDATE attachments SET/, runMeta: { meta: { changes: 1 } } },
+    queueRoute,
+    { sql: /./ },
+  ]);
+
+  const approveResponse = await forumWorker.fetch(
+    adminActionRequest(ATTACHMENT_ID, "approve"),
+    envFor(mock.db),
+  );
+  assert.equal(approveResponse.status, 200);
+  pendingQueueRows = [];
+
+  const listResponse = await forumWorker.fetch(
+    new Request("https://forum.example/api/admin/attachments", {
+      headers: { Cookie: "wempo_session=" + "s".repeat(43) },
+    }),
+    envFor(mock.db),
+  );
+  assert.equal(listResponse.status, 200);
+  const body = await listResponse.json();
+  assert.deepEqual(body.attachments, []);
+});
+
+const NOT_PENDING_META = { meta: { changes: 0 } };
+
+test("rejecting an already-rejected (non-pending) attachment id is a 404", async () => {
+  const mock = mockDb([
+    moderatorSessionRoute,
+    banCheckRoute,
+    { sql: /^UPDATE attachments SET/, runMeta: NOT_PENDING_META },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    adminActionRequest(ATTACHMENT_ID, "reject"),
+    envFor(mock.db),
+  );
+  assert.equal(response.status, 404);
+});
+
+test("approving an unknown attachment id is a 404", async () => {
+  const mock = mockDb([
+    moderatorSessionRoute,
+    banCheckRoute,
+    { sql: /^UPDATE attachments SET/, runMeta: NOT_PENDING_META },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    adminActionRequest("0e1f2a3b-4c5d-4e6f-8a9b-1c2d3e4f5a6b", "approve"),
+    envFor(mock.db),
+  );
+  assert.equal(response.status, 404);
+});
+
+test("insertAttachments persists all files in ONE all-or-nothing batch", async () => {
+  const files = [
+    { mime: "image/gif", bytes: GIF_BYTES },
+    { mime: "image/jpeg", bytes: JPEG_BYTES },
+    { mime: "image/png", bytes: PNG_BYTES },
+  ];
+  const mock = mockDb([{ sql: /INSERT INTO attachments/, runMeta: { meta: { changes: 1 } } }]);
+  const ids = await insertAttachments(mock.db, 42, 7, files);
+
+  assert.equal(ids.length, 3);
+  for (const id of ids) assert.match(id, /^[0-9a-f-]{36}$/, "ids are UUID-shaped");
+  assert.equal(mock.batches.length, 1, "all inserts ride in one db.batch call");
+  assert.equal(mock.batches[0].length, 3, "the batch carries one INSERT per file");
+  const inserts = attachmentCalls(mock.calls);
+  assert.equal(inserts.length, 3);
+  assert.ok(inserts.every((insert) => insert.values[1] === 42 && insert.values[2] === 7));
 });

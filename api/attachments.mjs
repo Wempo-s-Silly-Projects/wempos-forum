@@ -4,12 +4,15 @@
 // enabled on this account).
 import {
   HttpError,
+  assertNotBanned,
   blobToUint8Array,
   createAvatarVersion,
+  json,
   nowSeconds,
   readLimitedBody,
   readJson,
   readSession,
+  requireModerator,
   securityHeaders,
   sniffImageMime,
 } from "./shared.mjs";
@@ -72,17 +75,21 @@ export async function readComposedBody(request, env) {
 // state; the approved pair stays empty until a moderator approves. `db` is
 // env.FORUM_DB; postId is the freshly inserted post/reply row id.
 export async function insertAttachments(db, postId, createdBy, files) {
+  if (files.length === 0) return [];
   const ids = [];
   const now = nowSeconds();
-  for (const file of files) {
+  const statements = files.map((file) => {
     const id = crypto.randomUUID();
-    await db.prepare(
+    ids.push(id);
+    return db.prepare(
       "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, " +
         "pending_mime, pending_data, pending_updated_at) " +
         "VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?)",
-    ).bind(id, postId, createdBy, now, createAvatarVersion(), file.mime, file.bytes, now).run();
-    ids.push(id);
-  }
+    ).bind(id, postId, createdBy, now, createAvatarVersion(), file.mime, file.bytes, now);
+  });
+  // One all-or-nothing batch: a failure partway through intake can never leave
+  // a partial set of attachment rows behind.
+  await db.batch(statements);
   return ids;
 }
 
@@ -94,9 +101,9 @@ export async function insertAttachments(db, postId, createdBy, files) {
 // gate. Pending attachments serve the pending pair only to the author or to a
 // moderator/admin, with a private five-minute cache. Rejected and unknown ids
 // are a plain 404 — the endpoint never confirms an attachment's existence.
-const ATTACHMENT_ID_ROUTE = /^\/api\/attachments\/([A-Za-z0-9-]{10,64})$/;
+const ATTACHMENT_ID_ROUTE = /^\/api\/attachments\/([0-9a-f-]{36})$/;
 
-export async function handleAttachmentRoutes(request, env, url, path, method) {
+async function handleAttachmentServingRoute(request, env, path, method) {
   const attachmentMatch = path.match(ATTACHMENT_ID_ROUTE);
   if (!attachmentMatch) return null;
   if (method !== "GET") throw new HttpError(405, "That method is not supported.");
@@ -129,6 +136,87 @@ export async function handleAttachmentRoutes(request, env, url, path, method) {
   throw new HttpError(404, "Attachment not found.");
 }
 
+// Moderator desk for pending attachments: the oldest-first queue, then the
+// approve/reject decisions. Role gates and the ban check mirror the avatar
+// moderation routes in api/moderation.mjs. There is no size column; the queue
+// computes sizeBytes in SQL from length(pending_data). Unlike the avatar desk,
+// a non-pending or unknown id is a 404 (the endpoint never confirms whether a
+// rejected/unknown attachment exists), and approval bumps to a NEW random
+// version so the approved attachment's public URL cache-busts away from the
+// pending version it had been serving under.
+const ATTACHMENT_MODERATION_ROUTE =
+  /^\/api\/admin\/attachments\/([0-9a-f-]{36})\/(approve|reject)$/;
+
+async function handleAttachmentAdminRoutes(request, env, path, method) {
+  const db = env.FORUM_DB;
+  if (path === "/api/admin/attachments" && method === "GET") {
+    await requireModerator(request, env, false);
+    const result = await db.prepare(
+      "SELECT a.id, a.post_id, a.pending_mime, a.pending_updated_at, " +
+        "u.username AS uploader, length(a.pending_data) AS size_bytes " +
+        "FROM attachments a JOIN users u ON u.id = a.created_by " +
+        "WHERE a.status = 'pending' ORDER BY a.pending_updated_at ASC LIMIT 100",
+    ).bind().all();
+    return json({
+      attachments: (result.results || []).map((row) => ({
+        id: row.id,
+        postId: Number(row.post_id),
+        uploader: row.uploader,
+        mime: row.pending_mime,
+        sizeBytes: Number(row.size_bytes),
+        createdAt: new Date(Number(row.pending_updated_at) * 1000).toISOString(),
+      })),
+    });
+  }
+
+  const moderationMatch = path.match(ATTACHMENT_MODERATION_ROUTE);
+  if (!moderationMatch || method !== "POST") return null;
+
+  const session = await requireModerator(request, env);
+  await assertNotBanned(env, session.user.id);
+  const attachmentId = moderationMatch[1];
+  if (moderationMatch[2] === "approve") {
+    // Mirrors the avatar approve: SQLite evaluates every RHS against the
+    // pre-update row, so copying pending into the approved pair and clearing
+    // pending in one statement keeps both mirror-set CHECKs (and the
+    // status CHECK) satisfied atomically.
+    const result = await db.prepare(
+      "UPDATE attachments SET " +
+        "mime = pending_mime, data = pending_data, " +
+        "updated_at = pending_updated_at, version = ?, " +
+        "pending_mime = NULL, pending_data = NULL, pending_updated_at = NULL, " +
+        "status = 'approved' " +
+        "WHERE id = ? AND status = 'pending'",
+    ).bind(createAvatarVersion(), attachmentId).run();
+    if (Number(result.meta?.changes) !== 1) {
+      throw new HttpError(404, "Attachment not found.");
+    }
+    return json({ approved: true, id: attachmentId });
+  }
+
+  // Reject: attachment rows are per-post, not a replaceable profile pair, so
+  // 'rejected' is terminal with both pairs empty (the status CHECK requires
+  // exactly that; on pending rows the approved pair is already NULL).
+  const result = await db.prepare(
+    "UPDATE attachments SET " +
+      "pending_mime = NULL, pending_data = NULL, pending_updated_at = NULL, " +
+      "status = 'rejected' " +
+      "WHERE id = ? AND status = 'pending'",
+  ).bind(attachmentId).run();
+  if (Number(result.meta?.changes) !== 1) {
+    throw new HttpError(404, "Attachment not found.");
+  }
+  return json({ rejected: true, id: attachmentId });
+}
+
+export async function handleAttachmentRoutes(request, env, url, path, method) {
+  const serving = await handleAttachmentServingRoute(request, env, path, method);
+  if (serving) return serving;
+  const admin = await handleAttachmentAdminRoutes(request, env, path, method);
+  if (admin) return admin;
+  return null;
+}
+
 // Read-side metadata for serialized posts, shared by the feed, replies, and
 // detail paths in api/posts.mjs. ONE batched lookup (post_id IN (…)) resolves
 // a whole page — never a per-post query. Viewer semantics mirror
@@ -154,7 +242,7 @@ export async function attachmentRowsForView(db, postIds, viewer) {
   for (const row of result.results || []) {
     if (row.status === "rejected") continue;
     const visible = row.status === "approved" ||
-      Boolean(viewer) && (isModerator || Number(row.created_by) === viewerId);
+      (Boolean(viewer) && (isModerator || Number(row.created_by) === viewerId));
     if (!visible) continue;
     const postId = Number(row.post_id);
     const rows = byPost.get(postId) || [];
