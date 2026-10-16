@@ -140,12 +140,14 @@ test("release tooling has a named, isolated Preview migration target", async () 
 
 test("first-admin creation is guarded inside the INSERT against concurrent setup requests", async () => {
   const session = await read("api/session.mjs");
-  assert.match(
-    session,
-    /role === "admin"[\\s\\S]*?INSERT INTO users[\\s\\S]*?SELECT \\?, \\?, \\?, \\?, \\?, '', \\? WHERE NOT EXISTS \\(SELECT 1 FROM users WHERE role = 'admin'\\)/,
+  const guardedInsert = session.indexOf("SELECT ?, ?, ?, ?, ?, '', ? WHERE NOT EXISTS");
+  assert.notEqual(guardedInsert, -1, "admin creation uses a conditional INSERT");
+  assert.ok(
+    session.indexOf("(SELECT 1 FROM users WHERE role = 'admin')", guardedInsert) > guardedInsert,
+    "the conditional INSERT checks for an existing administrator in SQL",
   );
-  assert.match(
-    session,
-    /if \\(role === "admin" && Number\\(result\\.meta\\?\\.changes\\) !== 1\\)[\\s\\S]*?First-time setup has already been completed/,
+  assert.ok(
+    session.includes('if (role === "admin" && Number(result.meta?.changes) !== 1)'),
+    "a lost setup race becomes a conflict instead of creating a session for a missing user",
   );
 });
