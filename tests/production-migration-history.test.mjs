@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const preflight = readFileSync(path.join(root, "docs/sql/preflight-production-migration-history.sql"), "utf8");
+const cssPreflight = readFileSync(path.join(root, "docs/sql/preflight-css-submission-version.sql"), "utf8");
 const reconcile = readFileSync(path.join(root, "docs/sql/reconcile-production-migration-history.sql"), "utf8");
 
 function fixture() {
@@ -84,6 +85,13 @@ test("production preflight is read-only and covers ledger, CSS, schema, and byte
   assert.match(preflight, /approved_uploads_without_bytes_or_source/);
   assert.match(preflight, /gif_backed_aliases_keep_by_reference/);
   assert.match(preflight, /0024_idempotency_fingerprints_and_attachment_sources\.sql/);
+  assert.doesNotMatch(
+    preflight,
+    /pending_css_version IS NULL/,
+    "the base preflight must not reference a column that may not exist yet",
+  );
+  assert.match(cssPreflight, /pending_css_version IS NULL/);
+  assert.match(cssPreflight, /Run only when .*has_0019_column = 1/);
 });
 
 test("manual production reconciliation is idempotent and preserves GIF references", () => {
