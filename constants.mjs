@@ -22,8 +22,8 @@ export const UNBAN_ACTIVE_UPDATE_SQL =
 // parent_id, body, created_at, last_activity_at, board, target id, ban
 // idempotency_key, target id, ban user_id, ban now.
 export const THREAD_REPLY_INSERT_SQL =
-  "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key) " +
-    "SELECT ?, ?, ?, 'public', ?, ?, ?, ? WHERE EXISTS (" +
+  "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint) " +
+    "SELECT ?, ?, ?, 'public', ?, ?, ?, ?, ? WHERE EXISTS (" +
     "SELECT 1 FROM posts WHERE id = ? AND visibility = 'public' AND (" +
     "parent_id IS NULL OR EXISTS (" +
     "SELECT 1 FROM posts root WHERE root.id = posts.parent_id " +
@@ -35,7 +35,7 @@ export const THREAD_REPLY_INSERT_SQL =
 // commits. Replacing only the first visibility literal preserves the public-root
 // and ban predicates below while allowing the caller to bind 'hidden'.
 export const THREAD_REPLY_INSERT_STAGED_SQL = THREAD_REPLY_INSERT_SQL.replace(
-  "SELECT ?, ?, ?, 'public', ?, ?, ?, ? WHERE EXISTS (",
+  "SELECT ?, ?, ?, 'public', ?, ?, ?, ?, ? WHERE EXISTS (",
   "SELECT ?, ?, ?, ?, ?, ?, ?, ? WHERE EXISTS (",
 );
 
