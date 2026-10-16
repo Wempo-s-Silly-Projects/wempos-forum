@@ -57,8 +57,8 @@ test("CSS moderation decisions are tied to the exact reviewed submission", async
   const migration = await read("migrations/0019_css_submission_version.sql");
   assert.match(migration, /ALTER TABLE users ADD COLUMN pending_css_version TEXT/);
   assert.match(migration, /randomblob\(16\)/);
-  assert.match(profiles, /approved_css = \\?, pending_css = NULL, pending_css_version = NULL, css_status = 'approved'/);
-  assert.match(profiles, /WHERE id = \\? AND css_status = 'pending' AND pending_css = \\? AND pending_css_version = \\?/);
+  assert.match(profiles, /approved_css = \?, pending_css = NULL, pending_css_version = NULL, css_status = 'approved'/);
+  assert.match(profiles, /WHERE id = \? AND css_status = 'pending' AND pending_css = \? AND pending_css_version = \?/);
   assert.match(profiles, /changed after it was loaded/);
   assert.match(app, /approve\?version=/);
   assert.match(app, /reject\?version=/);
