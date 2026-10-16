@@ -71,3 +71,18 @@ test("unexpected Worker failures log the full error but return generic public me
   assert.match(worker, /console\\.error\\("Static asset request failed:", error\\)/);
   assert.match(worker, /return json\\(\\{ error: "Something went wrong\\. Please try again\\." \\}, 500\\)/);
 });
+
+test("attachment-bearing post and reply writes stay hidden until media persistence succeeds", async () => {
+  const posts = await read("api/posts.mjs");
+  const constants = await read("constants.mjs");
+  assert.match(posts, /THREAD_REPLY_INSERT_STAGED_SQL/);
+  assert.match(posts, /await persistStagedPostAttachments\(db, replyId/);
+  assert.match(posts, /await persistStagedPostAttachments\(db, postId/);
+  assert.match(posts, /DELETE FROM posts WHERE id = \? AND author_id = \? AND visibility = 'hidden'/);
+  assert.match(constants, /THREAD_REPLY_INSERT_STAGED_SQL = THREAD_REPLY_INSERT_SQL\.replace/);
+});
+
+test("release tooling has a named, isolated Preview migration target", async () => {
+  const pkg = JSON.parse(await read("package.json"));
+  assert.match(pkg.scripts["db:migrate:preview"], /wempo-forum-preview --env preview --remote/);
+});
