@@ -94,14 +94,11 @@ test("migration materializes legacy approved attachment aliases from an approved
   assert.deepEqual(alias.map((row) => [...row.data]), source.map((row) => [...row.data]));
 });
 
-test("migration uses an approved GIF when no approved attachment owns the bytes", () => {
+test("migration leaves GIF-backed library references by-reference", () => {
   const db = fixtureDb();
   db.exec(migration);
 
-  const alias = chunksFor(db, "gif-backed-alias");
-  assert.equal(alias.length, 1);
-  assert.equal(alias[0].seq, 0);
-  assert.deepEqual([...alias[0].data], [7, 8, 9, 10]);
+  assert.deepEqual(chunksFor(db, "gif-backed-alias"), []);
 });
 
 test("migration preserves existing chunks and leaves unresolved or pending rows alone", () => {
