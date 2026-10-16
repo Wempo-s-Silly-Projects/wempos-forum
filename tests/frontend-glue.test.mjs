@@ -235,3 +235,72 @@ test("garbage and empty preferences are ignored in favor of the OS setting", () 
   assert.equal(resolveTheme("bogus", true), "dark");
   assert.equal(resolveTheme("", false), "light");
 });
+
+// --- Task 3 (v2.3): quote prefill utilities (public/js/quotes.js) -------------
+// DOM-free like the helpers above; prefillQuote only touches the textarea the
+// caller passes, and the quote text reaches the composer through the .value
+// property — never HTML — so user content cannot be parsed as markup.
+
+import {
+  QUOTE_SNIPPET_LIMIT,
+  collapseWhitespace,
+  quoteLine,
+  prefillQuote,
+} from "../public/js/quotes.js";
+
+const mockTextarea = () => {
+  const area = { value: "", focus: undefined };
+  area.focus = () => { area.focused = true; };
+  area.focused = false;
+  return area;
+};
+
+test("the quote snippet limit is pinned at 120 characters", () => {
+  assert.equal(QUOTE_SNIPPET_LIMIT, 120);
+});
+
+test("collapseWhitespace single-lines raw post text including newlines", () => {
+  assert.equal(collapseWhitespace("hey\nthere\tmany   spaces\n"), "hey there many spaces");
+  assert.equal(collapseWhitespace("\n\n  \n"), "");
+  assert.equal(collapseWhitespace(undefined), "");
+});
+
+test("a quote click prefills an empty composer with '> @user: snippet\\n' and focuses it", () => {
+  const textarea = mockTextarea();
+  prefillQuote(textarea, "bob", "Look at this");
+  assert.equal(textarea.value, "> @bob: Look at this\n");
+  assert.equal(textarea.focused, true, "the composer textarea is focused");
+});
+
+test("the quote line is prepended BEFORE any existing composer value", () => {
+  const textarea = mockTextarea();
+  textarea.value = "my draft";
+  prefillQuote(textarea, "bob", "hi");
+  assert.equal(textarea.value, "> @bob: hi\nmy draft");
+});
+
+test("the quote snippet truncates at the 120-char variant with an ellipsis", () => {
+  const line = quoteLine("bob", "y".repeat(300));
+  assert.ok(line.startsWith("> @bob: " + "y".repeat(120) + "…\n"));
+  // Same truncation shape the backend snippets use (>limit → slice + "…").
+  const snippet = line.slice(8, line.length - 1);
+  assert.equal(snippet.length, 121);
+});
+
+test("quotable text is always single-line even with embedded newlines", () => {
+  const line = quoteLine("bob", "line one\nline two\n\tline three");
+  assert.equal(line, "> @bob: line one line two line three\n");
+});
+
+test("quote prefill inserts as a VALUE only, never HTML-parsed user content", () => {
+  const hostile = '<img src=x onerror="alert(1)">\n<script>boom</script>';
+  const textarea = mockTextarea();
+  prefillQuote(textarea, "<u>evil</u>", hostile);
+  // The value string is the literal text byte-for-byte; nothing was parsed,
+  // re-encoded, or wrapped in markup by the prefill path.
+  assert.equal(
+    textarea.value,
+    "> @<u>evil</u>: <img src=x onerror=\"alert(1)\"> <script>boom</script>\n",
+  );
+  assert.equal(typeof textarea.value, "string");
+});

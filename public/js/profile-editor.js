@@ -95,6 +95,50 @@ export const invalidSocialKeys = (socials = {}) => {
   return invalid;
 };
 
+// Collapsible public socials (plan v2.3, luuuuuu): the profile's link list
+// renders inside <details class="socials-details"> whose summary carries the
+// link count; the existing list markup lives inside. Single rule, documented:
+// details.open = isOwnProfile — the owner's own profile renders the section
+// OPEN, every other visitor gets it CLOSED. Returns null when the profile has
+// no links at all (callers render nothing, as before). textContent-only
+// building, no innerHTML.
+export function renderProfileSocials(document, profile, isOwnProfile = false) {
+  const links = buildSocialLinks(profile?.socials, profile?.polytoriaUsername);
+  if (!links.length) return null;
+  const container = document.createElement("details");
+  container.className = "socials-details";
+  container.open = isOwnProfile;
+  const summary = document.createElement("summary");
+  summary.className = "socials-summary";
+  summary.textContent = links.length === 1 ? "1 link" : `${links.length} links`;
+  container.append(summary);
+  const list = document.createElement("ul");
+  list.className = "profile-socials";
+  for (const link of links) {
+    const item = document.createElement("li");
+    item.className = "profile-social";
+    const label = document.createElement("span");
+    label.className = "social-label";
+    label.textContent = `${link.label}: `;
+    item.append(label);
+    if (link.url) {
+      const anchor = document.createElement("a");
+      anchor.className = "social-handle";
+      anchor.textContent = link.text;
+      anchor.href = link.url;
+      item.append(anchor);
+    } else {
+      const handle = document.createElement("span");
+      handle.className = "social-handle";
+      handle.textContent = link.text;
+      item.append(handle);
+    }
+    list.append(item);
+  }
+  container.append(list);
+  return container;
+}
+
 // Owner profile editor: bio textarea (10,000-char limit, spec §11) plus the
 // ten social inputs prefilled from the profile payload. Submission is handled
 // by app.js's data-form="profile-editor" handler, which re-fetches the profile

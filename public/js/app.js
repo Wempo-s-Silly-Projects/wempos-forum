@@ -12,7 +12,8 @@ import {
   createReportQueue,
 } from "./admin.js";
 import { addText, createForm, createInput, createTextarea } from "./forms.js";
-import { appendPostList, createPostCard } from "./render.js";
+import { appendPostList, createPostCard, createSubReplyContainer } from "./render.js";
+import { prefillQuote } from "./quotes.js";
 import { isPlainLeftClick, startRouter } from "./router.js";
 import { homepageInterests, homepageIntro } from "./home-intro.js";
 import {
@@ -25,9 +26,9 @@ import { initTheme } from "./theme.js";
 import {
   SOCIAL_LABELS,
   SOCIAL_PLATFORM_ORDER,
-  buildSocialLinks,
   invalidSocialKeys,
   renderProfileEditor,
+  renderProfileSocials,
 } from "./profile-editor.js";
 import {
   addTurnstileSlot,
@@ -361,23 +362,13 @@ function renderProfilePosts(profile, user) {
   main.append(older);
 }
 
-function appendProfileSocials(profile) {
-  const links = buildSocialLinks(profile.socials, profile.polytoriaUsername);
-  if (!links.length) return;
-  const list = element("ul", "profile-socials");
-  for (const link of links) {
-    const item = element("li", "profile-social");
-    item.append(element("span", "social-label", `${link.label}: `));
-    if (link.url) {
-      const anchor = element("a", "social-handle", link.text);
-      anchor.href = link.url;
-      item.append(anchor);
-    } else {
-      item.append(element("span", "social-handle", link.text));
-    }
-    list.append(item);
-  }
-  main.append(list);
+// Collapsible socials (plan v2.3): the details/summary wrapper lives in
+// profile-editor.js (renderProfileSocials, glue-testable); open state is a
+// plain `details.open = isOwnProfile` assignment — owner's own profile OPEN,
+// visitors CLOSED.
+function appendProfileSocials(profile, isOwnProfile) {
+  const details = renderProfileSocials(document, profile, isOwnProfile);
+  if (details) main.append(details);
 }
 
 // Spec §8: promote/demote is admin-only, so admins get the control on member
@@ -418,7 +409,7 @@ function renderProfile(profile, session) {
   appendProfileRoleControls(profile, session, heading);
   main.append(heading);
   addText(document, main, "p", profile.bio || "This member hasn't added a bio yet.", "profile-bio");
-  appendProfileSocials(profile);
+  appendProfileSocials(profile, session.user?.id === profile.id);
   if (session.user?.id === profile.id) {
     // Bio (10,000 chars) plus the ten social fields; submission re-fetches the
     // profile instead of trusting the asymmetric PATCH echo.
@@ -837,16 +828,10 @@ async function toggleSubReplies(button) {
   button.disabled = true;
   try {
     const page = await api("/api/posts/" + postId + "/replies");
-    const container = element("div", "sub-replies");
-    container.dataset.subRepliesFor = postId;
-    if (!page.replies.length) {
-      addText(document, container, "p", "No replies to show yet.", "empty-state");
-    }
     // Children arrive with publicLevel 2, so createPostCard renders them without
-    // further reply buttons (server forbids level-2 targets).
-    for (const reply of page.replies) {
-      container.append(createPostCard(reply, document, currentUser));
-    }
+    // further reply buttons (server forbids level-2 targets). The wrapper div
+    // (grouping class + cascade treatment) is render.js's createSubReplyContainer.
+    const container = createSubReplyContainer(postId, page.replies, document, currentUser);
     const article = main.querySelector(`article[data-post-id="${postId}"]`);
     if (article) article.after(container);
     button.dataset.replyCount = String(page.replies.length);
@@ -935,6 +920,28 @@ function openReportDialog(button) {
   reportForm.querySelector("textarea").focus();
 }
 
+// Quote button (plan v2.3): prefill the CURRENT thread's reply composer. The
+// composer is resolved with the same convention toggleReplyComposer's
+// submitReplyForm path relies on — the root composer's form carries the thread
+// id in data-post-id (its reply target), while an open reply-to-reply mini
+// composer carries it in data-thread-id — so both spellings resolve the same
+// thread composer on the detail route. On routes without a composer
+// (home/search/profile) a Quote click is a silent no-op. The snippet lands
+// through quotes.js's prefillQuote: textarea .value property assignment only,
+// never HTML.
+function quoteIntoComposer(button) {
+  if (activeRoute.name !== "post") return;
+  const rootId = String(activeRoute.id);
+  const form =
+    main.querySelector(`form[data-form="reply"][data-thread-id="${rootId}"]`) ??
+    main.querySelector(`form[data-form="reply"][data-post-id="${rootId}"]`);
+  if (!form) return;
+  const textarea = form.querySelector("textarea");
+  if (!textarea) return;
+  prefillQuote(textarea, button.dataset.quoteUsername ?? "", button.dataset.quoteSnippet ?? "");
+  form.scrollIntoView({ block: "nearest" });
+}
+
 async function loadMorePosts(button) {
   const older = await api("/api/posts?before=" + button.dataset.before);
   appendPostList(main, older.posts, document, currentUser);
@@ -985,6 +992,7 @@ async function handleButtonAction(button) {
     "load-older-replies": () => loadOlderReplies(button),
     "reply-to": () => toggleReplyComposer(button),
     "expand-sub-replies": () => toggleSubReplies(button),
+    quote: () => quoteIntoComposer(button),
     "open-notification": () => openNotification(button),
     "mark-notifications-read": () => markAllNotificationsRead(),
     "composer-attach": () => attachComposerImages(button),

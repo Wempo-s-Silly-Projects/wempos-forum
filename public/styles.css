@@ -1047,3 +1047,122 @@ dialog h2 {
   border-radius: 0.5rem;
   background: var(--paper);
 }
+
+/* Thread presentation (plan v2.3): the 💬 reply-count chip, latest-replies
+   preview rows on feed cards, the cascade treatment inside .sub-replies,
+   "> " line blockquotes in bodies, and the collapsible profile socials.
+   Token-only colors (paper/ink/muted/line/soft-green/green-title/green-ink),
+   so both themes inherit the treatment for free. */
+
+.reply-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border: 1.5px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--soft-green);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-replies {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0.6rem 0 0;
+  padding: 0.55rem 0.75rem;
+  border: 1.5px solid var(--line);
+  border-radius: 0.55rem;
+  background: var(--paper);
+}
+
+.preview-caption {
+  align-self: flex-start;
+  padding-right: 0.5rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.preview-reply {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  color: var(--ink);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.preview-reply:hover .preview-snippet {
+  text-decoration: underline;
+}
+
+.preview-avatar {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1.5px solid var(--line);
+}
+
+.preview-author {
+  flex: 0 0 auto;
+  color: var(--green-title);
+  font-weight: 700;
+}
+
+.preview-snippet {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.preview-time {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.post-quote {
+  margin: 0.75rem 0;
+  padding: 0.35rem 0.9rem;
+  border-left: 4px solid var(--line);
+  border-radius: 0 0.55rem 0.55rem 0;
+  background: var(--soft-green);
+}
+
+.post-quote .quote-line {
+  margin: 0.3rem 0;
+  color: var(--green-ink);
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+
+/* Cascade sub-replies on the detail page: the existing .sub-replies grouping
+   already supplies the left-indent spine (border-left on --line); the wrapper
+   refines the cards inside — reduced padding and a thinner spine stroke so a
+   parent + children stack reads as one thread. */
+.cascade-replies .post-card {
+  padding: clamp(0.6rem, 3vw, 0.85rem);
+  border-left-width: 3px;
+}
+
+.socials-details {
+  margin: 0.4rem 0 0;
+}
+
+.socials-details > .socials-summary {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.socials-details > .profile-socials {
+  margin-top: 0.5rem;
+}
