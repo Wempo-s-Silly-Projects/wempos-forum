@@ -143,6 +143,9 @@ async function handlePollVoteRoute(request, env, url, path, method) {
     if (!(await canViewPost(env, post, session.user))) throw new HttpError(404, "Post not found.");
     const poll = await db.prepare(POLL_BY_POST_SQL).bind(postId).first();
     if (!poll) throw new HttpError(404, "That thread has no poll.");
+    if (poll.closed_at !== null && poll.closed_at !== undefined) {
+      throw new HttpError(409, "This poll is closed.");
+    }
     const body = await readJson(request);
     const optionId = Number(body.optionId);
     if (!Number.isSafeInteger(optionId) || optionId < 1) {

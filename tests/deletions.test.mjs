@@ -31,7 +31,11 @@ const MIGRATIONS = [
   "0006_add_board.sql",
   "0007_post_edits.sql",
   "0008_post_archive.sql",
+  "0021_post_creation_idempotency.sql",
+  "0022_revoked_attachment_hashes.sql",
   "0023_post_archive_deleted_by.sql",
+  "0024_idempotency_fingerprints_and_attachment_sources.sql",
+  "0025_attachment_gif_identity.sql",
 ].map((name) => readFileSync(path.join(repoRoot, "migrations", name), "utf8"));
 
 // --- Worker-route layer (mockDb, post-edit.test.mjs idioms) -------------------
@@ -164,7 +168,7 @@ const fallbackRoute = { sql: /./ };
 // FIRST; its binds are [deletedAt, reason, ...deletionSelectors]. The tests
 // below match it by sql text and verify binds shape/leniency (deletedAt is
 // "recent seconds", reason and selector list are exact).
-const archiveRoute = { sql: /^INSERT INTO post_archive \(original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because, deleted_by_user_id, deleted_by_name\)/ };
+const archiveRoute = { sql: /^INSERT INTO post_archive \(original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because, deleted_by_user_id, deleted_by_name, idempotency_key, idempotency_fingerprint\)/ };
 const ARCHIVE_BATCH_META = { meta: { changes: 1 } };
 
 

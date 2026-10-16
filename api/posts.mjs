@@ -30,6 +30,7 @@ import {
   requireTurnstile,
   requireUser,
   requiredText,
+  sha256Hex,
   userByUsernameKey,
   VIEW_INCREMENT_SQL,
 } from "./shared.mjs";
@@ -515,11 +516,120 @@ function getPostIdempotencyKey(request) {
   return key;
 }
 
+const STAGED_IDEMPOTENCY_TTL_SECONDS = 30 * 60;
+
 async function existingIdempotentPost(db, authorId, key) {
   if (!key) return null;
-  return db.prepare(
-    "SELECT id, visibility FROM posts WHERE author_id = ? AND idempotency_key = ? LIMIT 1",
+  const live = await db.prepare(
+    "SELECT id, visibility, created_at, staged_at, idempotency_key, idempotency_fingerprint, " +
+    "parent_id, body, board FROM posts WHERE author_id = ? AND idempotency_key = ? LIMIT 1",
   ).bind(authorId, key).first();
+  if (live) return { ...live, archived: false };
+  const archived = await db.prepare(
+    "SELECT original_post_id AS id, 'archived' AS visibility, deleted_at AS created_at, " +
+    "idempotency_key, idempotency_fingerprint FROM post_archive " +
+    "WHERE author_id = ? AND idempotency_key = ? ORDER BY id DESC LIMIT 1",
+  ).bind(authorId, key).first();
+  return archived ? { ...archived, archived: true } : null;
+}
+
+async function throwIfArchivedIdempotencyKey(db, authorId, key) {
+  if (!key) return;
+  const archived = await db.prepare(
+    "SELECT 1 FROM post_archive WHERE author_id = ? AND idempotency_key = ? LIMIT 1",
+  ).bind(authorId, key).first();
+  if (archived) {
+    throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
+  }
+}
+
+async function storedPostFingerprint(db, existing, fingerprint) {
+  if (existing.idempotency_fingerprint || !fingerprint || existing.archived) {
+    return existing.idempotency_fingerprint || null;
+  }
+  // Legacy rows predate persisted fingerprints. The current body is mutable:
+  // the earliest post_edits snapshot is the original body (the edit route
+  // snapshots the replaced version atomically with its first update).
+  const originalEdit = await db.prepare(
+    "SELECT body FROM post_edits WHERE post_id = ? ORDER BY id ASC LIMIT 1",
+  ).bind(Number(existing.id)).first();
+  if (originalEdit) {
+    // The earliest edit snapshot establishes the original text, but legacy
+    // rows have no creation-time media snapshot. Moderation may have removed
+    // one or more attachments since creation, so combining that body with the
+    // current attachment rows could falsely accept a changed payload. Fail
+    // closed rather than claim a reliable full fingerprint we cannot prove.
+    throw new HttpError(409, "This older creation request cannot be safely verified after edits. Submit again with a new Idempotency-Key.");
+  }
+  const storedAttachments = await db.prepare(
+    "SELECT hash, mime FROM attachments WHERE post_id = ? ORDER BY hash, mime",
+  ).bind(Number(existing.id)).all();
+  return postCreationFingerprint({
+    kind: existing.parent_id === null || existing.parent_id === undefined ? "post" : "reply",
+    targetId: existing.parent_id === null || existing.parent_id === undefined ? null : Number(existing.parent_id),
+    message: String(existing.body ?? ""),
+    board: existing.board ?? null,
+    attachments: storedAttachments.results || [],
+  });
+}
+
+function assertIdempotencyFingerprint(existingFingerprint, fingerprint) {
+  if (existingFingerprint && fingerprint && existingFingerprint !== fingerprint) {
+    throw new HttpError(409, "Idempotency-Key was already used for a different submission. Submit again to create the changed content.");
+  }
+}
+
+async function replayIdempotentPost(db, authorId, key, fingerprint) {
+  if (!key) return null;
+  let existing = await existingIdempotentPost(db, authorId, key);
+  if (!existing) return null;
+  let storedFingerprint = await storedPostFingerprint(db, existing, fingerprint);
+  assertIdempotencyFingerprint(storedFingerprint, fingerprint);
+  if (existing.archived) {
+    throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
+  }
+
+  // Only explicit staged submissions are eligible for expiry. Moderator-hidden
+  // posts have staged_at=NULL and must never be deleted by retry cleanup.
+  if (existing.visibility === "hidden" && existing.staged_at !== null &&
+      existing.staged_at !== undefined &&
+      Number(existing.staged_at) <= nowSeconds() - STAGED_IDEMPOTENCY_TTL_SECONDS) {
+    await db.prepare(
+      "DELETE FROM posts WHERE id = ? AND author_id = ? AND idempotency_key = ? " +
+      "AND visibility = 'hidden' AND staged_at IS NOT NULL AND staged_at <= ?",
+    ).bind(Number(existing.id), authorId, key, nowSeconds() - STAGED_IDEMPOTENCY_TTL_SECONDS).run();
+    existing = await existingIdempotentPost(db, authorId, key);
+    if (!existing) return null;
+    storedFingerprint = await storedPostFingerprint(db, existing, fingerprint);
+    assertIdempotencyFingerprint(storedFingerprint, fingerprint);
+    if (existing.archived) {
+      throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
+    }
+  }
+
+  if (existing.visibility !== "public") {
+    throw new HttpError(409, "Your post is still being processed. Retry shortly.");
+  }
+  return json({ id: Number(existing.id) }, 200);
+}
+async function postCreationFingerprint({
+  kind, targetId = null, message, board = null, files = [], gifEntries = [], attachments = null,
+}) {
+  // Direct uploads and library GIFs have the same visible effect. A sorted
+  // multiset of (hash, MIME) pairs lets older rows be verified even though
+  // source_kind did not exist when those rows were written.
+  const media = (attachments || [
+    ...files.map((file) => ({ hash: file.hash, mime: file.mime })),
+    ...gifEntries.map((gif) => ({ hash: gif.hash, mime: gif.mime })),
+  ]).map((item) => ({ hash: String(item.hash || ""), mime: String(item.mime || "") }))
+    .sort((a, b) => (a.hash + ":" + a.mime).localeCompare(b.hash + ":" + b.mime));
+  return sha256Hex(JSON.stringify({
+    kind,
+    targetId,
+    message,
+    board: kind === "post" ? board : null,
+    attachments: media,
+  }));
 }
 
 // Attachment rows reference a post id, so they are written after the post INSERT.
@@ -527,15 +637,18 @@ async function existingIdempotentPost(db, authorId, key) {
 // the D1 attachment batch is atomic and deleting the hidden post removes any
 // dependent rows; the client receives an error without a live duplicate on retry.
 async function persistStagedPostAttachments(db, postId, authorId, files, gifEntries, options = {}) {
-  const { bumpTargetId = null, now = null } = options;
+  const { bumpTargetId = null } = options;
   try {
     await insertAttachments(db, postId, authorId, files, gifEntries);
     const publish = db.prepare(
-      "UPDATE posts SET visibility = 'public' WHERE id = ? AND author_id = ? AND visibility = 'hidden' " +
+      "UPDATE posts SET visibility = 'public', staged_at = NULL WHERE id = ? AND author_id = ? AND visibility = 'hidden' " +
+      "AND staged_at IS NOT NULL " +
       "AND (parent_id IS NULL OR EXISTS (" +
       "SELECT 1 FROM posts target WHERE target.id = posts.parent_id AND target.visibility = 'public' AND (" +
       "target.parent_id IS NULL OR EXISTS (SELECT 1 FROM posts root WHERE root.id = target.parent_id " +
-      "AND root.parent_id IS NULL AND root.visibility = 'public'))))",
+      "AND root.parent_id IS NULL AND root.visibility = 'public')))) " +
+      "AND NOT EXISTS (SELECT 1 FROM attachments a WHERE a.post_id = posts.id AND a.status = 'approved' " +
+      "AND EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = a.hash))",
     ).bind(postId, authorId);
     if (bumpTargetId !== null) {
       // Publish and bump together so the root activity clock does not advance
@@ -556,7 +669,7 @@ async function persistStagedPostAttachments(db, postId, authorId, files, gifEntr
   } catch (error) {
     try {
       const cleanup = await db.prepare(
-        "DELETE FROM posts WHERE id = ? AND author_id = ? AND visibility = 'hidden'",
+        "DELETE FROM posts WHERE id = ? AND author_id = ? AND visibility = 'hidden' AND staged_at IS NOT NULL",
       ).bind(postId, authorId).run();
       if (Number(cleanup?.meta?.changes) !== 1) {
         console.error("Could not remove a staged post after attachment failure:", {
@@ -579,15 +692,32 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
     const idempotencyKey = getPostIdempotencyKey(request);
-    const existing = await existingIdempotentPost(db, session.user.id, idempotencyKey);
-    if (existing) {
-      if (existing.visibility !== "public") throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
-      return json({ id: Number(existing.id) }, 200);
+    const priorIdempotent = await existingIdempotentPost(db, session.user.id, idempotencyKey);
+    if (priorIdempotent?.archived) {
+      throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
     }
-    await rateLimit(request, env, "write");
-    await rateLimit(request, env, "post-write", String(session.user.id));
     const targetId = Number(replyMatch[1]);
     if (!Number.isSafeInteger(targetId) || targetId < 1) throw new HttpError(404, "Post not found.");
+    const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
+      .startsWith("multipart/form-data");
+    const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env, { replayPostId: priorIdempotent ? Number(priorIdempotent.id) : null });
+    if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
+      throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
+    }
+    const message = applyWordFilter(requiredText(fields.body, "reply", MAX_COMPOSER_BODY_CHARS), env.FILTERED_WORDS);
+    const idempotencyFingerprint = idempotencyKey
+      ? await postCreationFingerprint({ kind: "reply", targetId, message, files, gifEntries })
+      : null;
+    const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
+    if (replay) return replay;
+    // Idempotent replays are checked before quota-consuming limits. Body parsing
+    // is bounded; only a genuinely new submission consumes write/upload quota.
+    await rateLimit(request, env, "write");
+    await rateLimit(request, env, "post-write", String(session.user.id));
+    if (isMultipart || files.length > 0 || gifIds.length > 0) {
+      await rateLimit(request, env, "image-upload", String(session.user.id));
+    }
+
     const target = await postById(env, targetId, session.user.id);
     if (!target || target.visibility !== "public") {
       throw new HttpError(400, "Replies must be attached to a public conversation, not another reply.");
@@ -620,19 +750,7 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     if (!(await canViewPost(env, target, session.user))) {
       throw new HttpError(400, "Replies are closed while this conversation's author is banned.");
     }
-    const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
-      .startsWith("multipart/form-data");
-    // Charge multipart composer requests before parsing, hashing, sniffing, or duplicate lookup.
-    if (isMultipart) await rateLimit(request, env, "image-upload", String(session.user.id));
-    const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env);
-    if (!isMultipart && (files.length > 0 || gifIds.length > 0)) {
-      await rateLimit(request, env, "image-upload", String(session.user.id));
-    }
-    if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
-      throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
-    }
     await requireTurnstile(request, env, fields, "reply");
-    const message = applyWordFilter(requiredText(fields.body, "reply", MAX_COMPOSER_BODY_CHARS), env.FILTERED_WORDS);
     const now = nowSeconds();
     const recipientId = target.author_id === null || target.author_id === undefined
       ? null
@@ -640,20 +758,25 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const hasAttachments = files.length > 0 || gifEntries.length > 0;
     const insertSql = hasAttachments ? THREAD_REPLY_INSERT_STAGED_SQL : THREAD_REPLY_INSERT_SQL;
     const insertValues = hasAttachments
-      ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, targetId, session.user.id, now]
-      : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, targetId, session.user.id, now];
+      ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, targetId, session.user.id, now, idempotencyKey, session.user.id, idempotencyKey]
+      : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, idempotencyFingerprint, null, targetId, session.user.id, now, idempotencyKey, session.user.id, idempotencyKey];
     const insertStatements = [db.prepare(insertSql).bind(...insertValues)];
     if (!hasAttachments) insertStatements.push(db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId));
     let results;
     try {
       results = await db.batch(insertStatements);
     } catch (error) {
-      const raced = await existingIdempotentPost(db, session.user.id, idempotencyKey);
-      if (raced?.visibility === "public") return json({ id: Number(raced.id) }, 200);
-      if (raced) throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
+      await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
+      const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
+      if (replay) return replay;
       throw error;
     }
     if (Number(results[0]?.meta?.changes) !== 1) {
+      // The atomic archive guard can reject a retry whose original post was
+      // deleted after the earlier lookup. Re-read the archive to return 410.
+      await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
+      const archivedReplay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
+      if (archivedReplay) return archivedReplay;
       throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
     }
     const replyId = Number(results[0].meta.last_row_id);
@@ -661,7 +784,7 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     // succeeds. The row id is always the new reply, not its bump target.
     if (hasAttachments) {
       await persistStagedPostAttachments(db, replyId, session.user.id, files, gifEntries, {
-        bumpTargetId, now,
+        bumpTargetId,
       });
     } else {
       await insertAttachments(db, replyId, session.user.id, files, gifEntries);
@@ -712,30 +835,35 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
     const idempotencyKey = getPostIdempotencyKey(request);
-    const existing = await existingIdempotentPost(db, session.user.id, idempotencyKey);
-    if (existing) {
-      if (existing.visibility !== "public") throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
-      return json({ id: Number(existing.id) }, 200);
+    const priorIdempotent = await existingIdempotentPost(db, session.user.id, idempotencyKey);
+    if (priorIdempotent?.archived) {
+      throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
     }
-    await rateLimit(request, env, "write");
-    await rateLimit(request, env, "post-write", String(session.user.id));
     const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
       .startsWith("multipart/form-data");
-    // Charge multipart composer requests before parsing, hashing, sniffing, or duplicate lookup.
-    if (isMultipart) await rateLimit(request, env, "image-upload", String(session.user.id));
-    const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env);
-    if (!isMultipart && (files.length > 0 || gifIds.length > 0)) {
-      await rateLimit(request, env, "image-upload", String(session.user.id));
-    }
+    const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env, { replayPostId: priorIdempotent ? Number(priorIdempotent.id) : null });
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
-    await requireTurnstile(request, env, fields, "post");
     const message = applyWordFilter(requiredText(fields.body, "post", MAX_COMPOSER_BODY_CHARS), env.FILTERED_WORDS);
     // The board rides the same fields object in both wire formats (JSON field
     // or multipart text part); absent/empty defaults to 'general', unknown
     // values 400 before any insert.
     const board = boardField(fields.board);
+    const idempotencyFingerprint = idempotencyKey
+      ? await postCreationFingerprint({ kind: "post", message, board, files, gifEntries })
+      : null;
+    const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
+    if (replay) return replay;
+    // Idempotent replays are checked before quota-consuming limits. Body parsing
+    // is bounded; only a genuinely new submission consumes write/upload quota.
+    await rateLimit(request, env, "write");
+    await rateLimit(request, env, "post-write", String(session.user.id));
+    if (isMultipart || files.length > 0 || gifIds.length > 0) {
+      await rateLimit(request, env, "image-upload", String(session.user.id));
+    }
+
+    await requireTurnstile(request, env, fields, "post");
     const now = nowSeconds();
     // A fresh root starts its activity clock at creation time. When it carries
     // attachments it stays hidden until their batch is durable, so a failed
@@ -747,18 +875,28 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     let result;
     try {
       result = await db.prepare(
-        "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key) " +
-          "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ? WHERE NOT EXISTS (" +
+        "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint, staged_at) " +
+          "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
           "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
-          "AND (expires_at IS NULL OR expires_at > ?))",
-      ).bind(session.user.id, message, now, now, board, idempotencyKey, session.user.id, now).run();
+          "AND (expires_at IS NULL OR expires_at > ?)) " +
+          "AND (? IS NULL OR NOT EXISTS (SELECT 1 FROM post_archive archived " +
+          "WHERE archived.author_id = ? AND archived.idempotency_key = ?))",
+      ).bind(session.user.id, message, now, now, board, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, session.user.id, now, idempotencyKey, session.user.id, idempotencyKey).run();
     } catch (error) {
-      const raced = await existingIdempotentPost(db, session.user.id, idempotencyKey);
-      if (raced?.visibility === "public") return json({ id: Number(raced.id) }, 200);
-      if (raced) throw new HttpError(409, "Your post is still being processed. Please retry shortly.");
+      await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
+      const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
+      if (replay) return replay;
       throw error;
     }
-    requireMutationApplied(result);
+    if (Number(result?.meta?.changes) !== 1) {
+      // A concurrent delete may archive the same author/key after the replay
+      // lookup. The INSERT guard prevents resurrection; surface the archived
+      // request as gone rather than a generic mutation failure.
+      await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
+      const archivedReplay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
+      if (archivedReplay) return archivedReplay;
+      requireMutationApplied(result);
+    }
     const postId = Number(result.meta.last_row_id);
     if (hasAttachments) {
       await persistStagedPostAttachments(db, postId, session.user.id, files, gifEntries);

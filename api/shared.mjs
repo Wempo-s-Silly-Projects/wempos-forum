@@ -737,8 +737,8 @@ export function archivePostRowsStatement(
   db, whereSql, binds, reason, deletedAt, deletedByUserId = null, deletedByName = null,
 ) {
   return db.prepare(
-    "INSERT INTO post_archive (original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because, deleted_by_user_id, deleted_by_name) " +
-    "SELECT p.id, p.author_id, COALESCE(u.username, 'removed'), p.body, p.board, p.created_at, ?, ?, ?, ? " +
+    "INSERT INTO post_archive (original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because, deleted_by_user_id, deleted_by_name, idempotency_key, idempotency_fingerprint) " +
+    "SELECT p.id, p.author_id, COALESCE(u.username, 'removed'), p.body, p.board, p.created_at, ?, ?, ?, ?, p.idempotency_key, p.idempotency_fingerprint " +
     "FROM posts p LEFT JOIN users u ON u.id = p.author_id " +
     "WHERE (" + whereSql + ") AND NOT EXISTS (SELECT 1 FROM post_archive a WHERE a.original_post_id = p.id)",
   ).bind(deletedAt, reason, deletedByUserId, deletedByName, ...binds);

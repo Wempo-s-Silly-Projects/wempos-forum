@@ -38,10 +38,23 @@ async function storeUser(env, credentials, role = "member") {
   const password = await hashPassword(credentials.password, env.PASSWORD_PEPPER);
   const now = nowSeconds();
   try {
-    const result = await env.FORUM_DB.prepare(
-      "INSERT INTO users (username, username_key, password_salt, password_hash, role, bio, created_at) " +
-        "VALUES (?, ?, ?, ?, ?, '', ?)",
-    ).bind(credentials.username, credentials.usernameKey, password.salt, password.hash, role, now).run();
+    // First-admin setup is a one-time privilege boundary. Keep the "no admin
+    // exists" check inside the INSERT itself so two concurrent setup requests
+    // cannot both pass setupRequired() and create separate administrators.
+    const insert = role === "admin"
+      ? env.FORUM_DB.prepare(
+        "INSERT INTO users (username, username_key, password_salt, password_hash, role, bio, created_at) " +
+          "SELECT ?, ?, ?, ?, ?, '', ? WHERE NOT EXISTS " +
+          "(SELECT 1 FROM users WHERE role = 'admin')",
+      ).bind(credentials.username, credentials.usernameKey, password.salt, password.hash, role, now)
+      : env.FORUM_DB.prepare(
+        "INSERT INTO users (username, username_key, password_salt, password_hash, role, bio, created_at) " +
+          "VALUES (?, ?, ?, ?, ?, '', ?)",
+      ).bind(credentials.username, credentials.usernameKey, password.salt, password.hash, role, now);
+    const result = await insert.run();
+    if (role === "admin" && Number(result.meta?.changes) !== 1) {
+      throw new HttpError(409, "First-time setup has already been completed.");
+    }
     return await env.FORUM_DB.prepare(
       "SELECT id, username, username_key, password_salt, password_hash, role, bio, " +
         "social_youtube, social_x, social_reddit, social_github, social_discord, " +

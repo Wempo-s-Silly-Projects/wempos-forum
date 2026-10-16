@@ -19,24 +19,27 @@ export const UNBAN_ACTIVE_UPDATE_SQL =
 // Replies carry their thread ROOT's board (v2.4.1): the value is resolved from
 // the already-fetched root row in api/posts.mjs, so replies across board moves
 // stay consistent with their root at write time. Bind order: author_id,
-// parent_id, body, created_at, last_activity_at, board, target id, ban
-// idempotency_key, target id, ban user_id, ban now.
+// parent_id, body, created_at, last_activity_at, board, idempotency_key,
+// idempotency_fingerprint, staged_at, target id, ban user_id, ban now,
+// archive-guard key, archive-guard author_id, archive-guard key.
 export const THREAD_REPLY_INSERT_SQL =
-  "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key) " +
-    "SELECT ?, ?, ?, 'public', ?, ?, ?, ? WHERE EXISTS (" +
+  "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint, staged_at) " +
+    "SELECT ?, ?, ?, 'public', ?, ?, ?, ?, ?, ? WHERE EXISTS (" +
     "SELECT 1 FROM posts WHERE id = ? AND visibility = 'public' AND (" +
     "parent_id IS NULL OR EXISTS (" +
     "SELECT 1 FROM posts root WHERE root.id = posts.parent_id " +
     "AND root.parent_id IS NULL AND root.visibility = 'public'))) " +
     "AND NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
-    "AND (expires_at IS NULL OR expires_at > ?))";
+    "AND (expires_at IS NULL OR expires_at > ?)) " +
+    "AND (? IS NULL OR NOT EXISTS (SELECT 1 FROM post_archive archived " +
+    "WHERE archived.author_id = ? AND archived.idempotency_key = ?))";
 
 // Replies with attachments are inserted as hidden until their attachment batch
 // commits. Replacing only the first visibility literal preserves the public-root
 // and ban predicates below while allowing the caller to bind 'hidden'.
 export const THREAD_REPLY_INSERT_STAGED_SQL = THREAD_REPLY_INSERT_SQL.replace(
-  "SELECT ?, ?, ?, 'public', ?, ?, ?, ? WHERE EXISTS (",
-  "SELECT ?, ?, ?, ?, ?, ?, ?, ? WHERE EXISTS (",
+  "SELECT ?, ?, ?, 'public', ?, ?, ?, ?, ?, ? WHERE EXISTS (",
+  "SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ? WHERE EXISTS (",
 );
 
 // Reply replies bump their conversation root: last_activity_at = now on the

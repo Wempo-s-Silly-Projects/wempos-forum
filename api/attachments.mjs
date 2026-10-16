@@ -48,14 +48,14 @@ const ATTACHMENT_FIELD = "images";
 // stream unbounded, and a 128 MiB isolate is not a safe place for that — so
 // that branch keeps readLimitedBody's counted buffering as the cap. The JSON
 // branch is unchanged.
-export async function readComposedBody(request, env) {
+export async function readComposedBody(request, env, options = {}) {
   const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
   if (!contentType.startsWith("multipart/form-data")) {
     // JSON bodies carry library-gif references as an array; the multipart
     // path carries repeatable gifIds text fields — both resolve the same.
     const parsed = await readJson(request);
     const gifIds = Array.isArray(parsed.gifIds) ? parsed.gifIds.map(String) : [];
-    const gifEntries = await gifReferenceEntries(env.FORUM_DB, gifIds);
+    const gifEntries = await gifReferenceEntries(env.FORUM_DB, gifIds, options.replayPostId);
     return { fields: parsed, files: [], gifIds, gifEntries };
   }
 
@@ -116,14 +116,14 @@ export async function readComposedBody(request, env) {
       fields[name] = value;
     }
   }
-  const gifEntries = await gifReferenceEntries(env.FORUM_DB, gifIds);
+  const gifEntries = await gifReferenceEntries(env.FORUM_DB, gifIds, options.replayPostId);
   return { fields, files, gifIds, gifEntries };
 }
 
 // Resolves library-gif ids to their approved rows ({ id, hash, mime } each):
 // duplicates collapse, unknown/not-approved ids 400, and the count cap lives
 // with the files' cap at the call site.
-async function gifReferenceEntries(db, gifIds) {
+async function gifReferenceEntries(db, gifIds, replayPostId = null) {
   const entries = [];
   const seen = new Set();
   for (const raw of gifIds) {
@@ -135,7 +135,22 @@ async function gifReferenceEntries(db, gifIds) {
       "SELECT id, hash, mime FROM gifs WHERE id = ? AND status = 'approved' " +
       "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = gifs.hash) LIMIT 1",
     ).bind(id).first();
-    if (!gif) throw new HttpError(400, "One of the selected GIFs is not available.");
+    if (!gif) {
+      // Exact retries are identified before this parser runs. If the library
+      // GIF was since revoked or removed, recover its immutable media identity
+      // from the attachment row already committed to that same post. This is
+      // only for fingerprint verification; the normal read path still filters
+      // revoked media and no new post can use this fallback.
+      const prior = replayPostId
+        ? await db.prepare(
+          "SELECT source_gif_id AS id, hash, mime FROM attachments " +
+          "WHERE post_id = ? AND source_gif_id = ? AND source_kind = 'gif' LIMIT 1",
+        ).bind(Number(replayPostId), id).first()
+        : null;
+      if (!prior) throw new HttpError(400, "One of the selected GIFs is not available.");
+      entries.push({ id: prior.id, hash: prior.hash, mime: prior.mime, file: false });
+      continue;
+    }
     entries.push({ id: gif.id, hash: gif.hash, mime: gif.mime, file: false });
   }
   return entries;
@@ -181,6 +196,7 @@ export async function insertAttachments(db, postId, createdBy, files, gifEntries
   if (files.length === 0 && gifEntries.length === 0) return [];
   const ids = [];
   const useStats = [];
+  const referenceInsertIndexes = [];
   const now = nowSeconds();
   const statements = [];
   for (const file of files) {
@@ -192,20 +208,22 @@ export async function insertAttachments(db, postId, createdBy, files, gifEntries
     const preApproved = Boolean(file.preApproved);
     statements.push(
       db.prepare(
-        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash) " +
-          "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      ).bind(id, postId, createdBy, now,
-        preApproved ? "approved" : "pending", createAvatarVersion(), file.mime, file.hash),
+        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash, source_kind) " +
+          "SELECT ?, ?, ?, ?, CASE WHEN ? = 1 AND NOT EXISTS (" +
+          "SELECT 1 FROM revoked_attachment_hashes WHERE hash = ?) THEN 'approved' ELSE 'pending' END, ?, ?, ?, 'upload'",
+      ).bind(id, postId, createdBy, now, preApproved ? 1 : 0, file.hash,
+        createAvatarVersion(), file.mime, file.hash),
     );
     // Keep an independent byte set for every attachment, even when identical
     // bytes were approved before. The hash grants approval, not shared storage
     // lifetime: the original post or GIF may later be removed.
-    const chunkKind = preApproved ? "approved" : "pending";
     for (let seq = 0, offset = 0; offset < file.bytes.length; seq += 1, offset += MAX_ATTACHMENT_CHUNK_BYTES) {
       statements.push(
         db.prepare(
-          "INSERT INTO attachment_chunks (attachment_id, kind, seq, data) VALUES (?, '" + chunkKind + "', ?, ?)",
-        ).bind(id, seq, file.bytes.subarray(offset, offset + MAX_ATTACHMENT_CHUNK_BYTES)),
+          "INSERT INTO attachment_chunks (attachment_id, kind, seq, data) " +
+          "SELECT ?, CASE WHEN EXISTS (SELECT 1 FROM attachments WHERE id = ? AND status = 'approved') " +
+          "THEN 'approved' ELSE 'pending' END, ?, ?",
+        ).bind(id, id, seq, file.bytes.subarray(offset, offset + MAX_ATTACHMENT_CHUNK_BYTES)),
       );
     }
   }
@@ -213,16 +231,41 @@ export async function insertAttachments(db, postId, createdBy, files, gifEntries
     const id = crypto.randomUUID();
     ids.push(id);
     useStats.push(gif.id);
+    referenceInsertIndexes.push(statements.length);
     statements.push(
       db.prepare(
-        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash) " +
-          "VALUES (?, ?, ?, ?, 'approved', ?, ?, ?)",
-      ).bind(id, postId, createdBy, now, createAvatarVersion(), gif.mime, gif.hash),
+        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash, source_kind, source_gif_id) " +
+          "SELECT ?, ?, ?, ?, CASE WHEN EXISTS (" +
+          "SELECT 1 FROM gifs g WHERE g.id = ? AND g.hash = ? AND g.mime = ? AND g.status = 'approved' " +
+          "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = g.hash)) " +
+          "THEN 'approved' ELSE 'invalid' END, ?, ?, ?, 'gif', ?",
+      ).bind(id, postId, createdBy, now, gif.id, gif.hash, gif.mime,
+        createAvatarVersion(), gif.mime, gif.hash, gif.id),
     );
   }
   // One all-or-nothing batch: a failure partway through intake can never leave
   // a partial set of attachment metadata or orphaned chunk rows behind.
-  await db.batch(statements);
+  let results;
+  try {
+    results = await db.batch(statements);
+  } catch (error) {
+    // A selected library GIF may be revoked or rejected after validation but
+    // before this batch runs. The reference INSERT deliberately emits an
+    // invalid status in that case, tripping the attachments.status CHECK and
+    // forcing D1 to roll back the entire batch (including direct-upload chunks).
+    // Translate that specific guard failure to a retryable client conflict.
+    if (/CHECK constraint failed: status IN/i.test(String(error?.message || error))) {
+      throw new HttpError(409, "One of the selected GIFs is no longer available.");
+    }
+    throw error;
+  }
+  for (const index of referenceInsertIndexes) {
+    if (Number(results[index]?.meta?.changes) !== 1) {
+      // Defensive fallback for DB adapters that don't enforce the schema's
+      // status CHECK. Real D1 should fail the batch above, atomically.
+      throw new HttpError(409, "One of the selected GIFs is no longer available.");
+    }
+  }
   for (const gifId of useStats) {
     // Best-effort popularity counter; never a post precondition.
     try {
@@ -272,7 +315,8 @@ async function handleAttachmentServingRoute(request, env, path, method) {
   if (method !== "GET") throw new HttpError(405, "That method is not supported.");
 
   const row = await env.FORUM_DB.prepare(
-    "SELECT id, status, created_by, mime, hash FROM attachments WHERE id = ? LIMIT 1",
+    "SELECT id, status, created_by, mime, hash FROM attachments WHERE id = ? " +
+    "AND (status <> 'approved' OR NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = attachments.hash)) LIMIT 1",
   ).bind(attachmentMatch[1]).first();
   if (!row) throw new HttpError(404, "Attachment not found.");
 
@@ -375,7 +419,7 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
     // chunk relabel succeed or fail together. The changes guard reads back the
     // batch's first result, 404-ing a non-pending or unknown id.
     const pending = await db.prepare(
-      "SELECT hash FROM attachments WHERE id = ? AND status = 'pending'",
+      "SELECT id FROM attachments WHERE id = ? AND status = 'pending'",
     ).bind(attachmentId).first();
     if (!pending) throw new HttpError(404, "Attachment not found.");
     const results = await db.batch([
@@ -385,13 +429,13 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
       db.prepare(
         "UPDATE attachment_chunks SET kind = 'approved' WHERE attachment_id = ? AND kind = 'pending'",
       ).bind(attachmentId),
+      db.prepare(
+        "DELETE FROM revoked_attachment_hashes WHERE hash = " +
+        "(SELECT hash FROM attachments WHERE id = ? AND status = 'approved')",
+      ).bind(attachmentId),
     ]);
     if (Number(results[0]?.meta?.changes) !== 1) {
       throw new HttpError(404, "Attachment not found.");
-    }
-    // Only clear a hash tombstone after the guarded approval actually committed.
-    if (pending.hash) {
-      await db.prepare("DELETE FROM revoked_attachment_hashes WHERE hash = ?").bind(pending.hash).run();
     }
     return json({ approved: true, id: attachmentId });
   }
@@ -417,9 +461,15 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
       db.prepare("DELETE FROM gifs WHERE hash = ? AND status = 'approved'").bind(target.hash),
     ]);
   } else {
-    await db.prepare(
-      "DELETE FROM attachments WHERE id = ? AND status IN ('pending', 'approved')",
+    // The row was pending when read above. Fence the delete to that exact
+    // state: if a concurrent approval wins first, do not silently delete an
+    // approved row without recording a hash tombstone and removing duplicates.
+    const deleted = await db.prepare(
+      "DELETE FROM attachments WHERE id = ? AND status = 'pending'",
     ).bind(attachmentId).run();
+    if (Number(deleted?.meta?.changes) !== 1) {
+      throw new HttpError(409, "That attachment changed while moderation was in progress. Reload the queue and try again.");
+    }
   }
   return json({ rejected: true, id: attachmentId });
 }
@@ -451,6 +501,7 @@ export async function attachmentRowsForView(db, postIds, viewer) {
   const result = await db.prepare(
     "SELECT id, post_id, status, created_by, version, mime " +
       "FROM attachments WHERE post_id IN (" + placeholders + ") " +
+      "AND (status <> 'approved' OR NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = attachments.hash)) " +
       // Deterministic strip order: attachments carry created_at (intake sets
       // it; several uploads in one post share the same intake second, so id
       // UUID breaks ties — stable even as row ordering never matters to

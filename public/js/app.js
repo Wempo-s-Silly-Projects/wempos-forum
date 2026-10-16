@@ -1139,8 +1139,42 @@ async function submitAuthForm(type, form, text) {
   setMessage(type === "setup" ? "Administrator account created." : "You're signed in.");
 }
 
+function composerSubmissionSignature({ body, files = [], gifs = [], board = null, targetId = null }) {
+  return JSON.stringify({
+    body,
+    board: board || null,
+    targetId,
+    files: files.map((file) => [file.name, file.size, file.type, file.lastModified]),
+    gifs: gifs.map((gif) => String(gif?.id ?? gif?.gifId ?? gif)),
+  });
+}
+
+function composerIdempotencyKey(form, signature) {
+  // Keep a key only while the draft is unchanged. Ambiguous/network failures
+  // retry with the same key; editing the draft starts a distinct submission.
+  if (!form.dataset.idempotencyKey || form.dataset.idempotencySignature !== signature) {
+    form.dataset.idempotencyKey = crypto.randomUUID();
+    form.dataset.idempotencySignature = signature;
+  }
+  return form.dataset.idempotencyKey;
+}
+
+function clearComposerKeyForChangedSubmission(form, error) {
+  if (error.status === 410 ||
+      (error.status === 409 && /Idempotency-Key was already used for a different submission/i.test(error.message))) {
+    delete form.dataset.idempotencyKey;
+    delete form.dataset.idempotencySignature;
+  }
+  throw error;
+}
+
 async function submitNewPost(form, text) {
-  const idempotencyKey = form.dataset.idempotencyKey || (form.dataset.idempotencyKey = crypto.randomUUID());
+  const body = text("body");
+  const files = form.composerFiles ?? [];
+  const gifs = form.composerGifs ?? [];
+  const board = form.dataset.board ?? null;
+  const signature = composerSubmissionSignature({ body, files, gifs, board });
+  const idempotencyKey = composerIdempotencyKey(form, signature);
   // buildComposerBody picks the wire format: FormData (repeatable "images"
   // parts) when files were chosen, otherwise the exact pre-attachment JSON
   // payload. api() passes FormData straight through without a Content-Type.
@@ -1148,15 +1182,21 @@ async function submitNewPost(form, text) {
   // the body in whichever format wins; the home composer has no dataset flag,
   // keeping its payload exactly as before.
   const submission = buildComposerBody({
-    body: text("body"),
+    body,
     turnstileToken: takeTurnstileToken(form),
-    files: form.composerFiles ?? [],
-    gifs: form.composerGifs ?? [],
-    board: form.dataset.board,
+    files,
+    gifs,
+    board,
   });
   refreshTurnstile(form);
-  const post = await api("/api/posts", { method: "POST", body: submission.body, idempotencyKey });
+  let post;
+  try {
+    post = await api("/api/posts", { method: "POST", body: submission.body, idempotencyKey });
+  } catch (error) {
+    clearComposerKeyForChangedSubmission(form, error);
+  }
   delete form.dataset.idempotencyKey;
+  delete form.dataset.idempotencySignature;
   // Polls (C3): a stashed poll attaches to the fresh thread BEFORE the
   // navigation; a failed attach never loses the (already live) post.
   let pollNote = "";
@@ -1175,24 +1215,33 @@ async function submitNewPost(form, text) {
 }
 
 async function submitReplyForm(form, text) {
-  const idempotencyKey = form.dataset.idempotencyKey || (form.dataset.idempotencyKey = crypto.randomUUID());
   const postId = Number(form.dataset.postId);
   const threadId = form.dataset.threadId ?? postId;
+  const body = text("body");
+  const files = form.composerFiles ?? [];
+  const gifs = form.composerGifs ?? [];
+  const signature = composerSubmissionSignature({ body, files, gifs, targetId: postId });
+  const idempotencyKey = composerIdempotencyKey(form, signature);
   // Same dual wire format as posts; replies are Turnstile-gated server-side
   // with action "reply".
   const submission = buildComposerBody({
-    body: text("body"),
+    body,
     turnstileToken: takeTurnstileToken(form),
-    files: form.composerFiles ?? [],
-    gifs: form.composerGifs ?? [],
+    files,
+    gifs,
   });
   refreshTurnstile(form);
-  await api("/api/posts/" + postId + "/replies", {
-    method: "POST",
-    body: submission.body,
-    idempotencyKey,
-  });
+  try {
+    await api("/api/posts/" + postId + "/replies", {
+      method: "POST",
+      body: submission.body,
+      idempotencyKey,
+    });
+  } catch (error) {
+    clearComposerKeyForChangedSubmission(form, error);
+  }
   delete form.dataset.idempotencyKey;
+  delete form.dataset.idempotencySignature;
   // Reply-to-reply composers remember the thread root (declared above) so the
   // rerender lands back on the conversation, not on the level-1 reply's page.
   await renderRoute({ name: "post", id: Number(threadId) });

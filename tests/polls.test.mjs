@@ -461,3 +461,21 @@ test("the detail payload maps ONLY the projected columns honestly (question incl
   assert.equal(poll.totalVotes, 3);
   assert.equal(poll.viewerOption, 30);
 });
+
+
+test("voting on a closed poll returns a conflict without writing a vote", async () => {
+  const root = postRow({ id: "1", author_id: "3" });
+  const mock = mockDb([
+    sessionRoute(), banCheckRoute,
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: () => root }, banViewRouteOff,
+    { sql: POLL_LOOKUP_SQL, result: { id: 2, question: "Best snack?", closed_at: 123456 } },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    requestFor("https://forum.example/api/posts/1/poll", "PUT", { optionId: 3 }),
+    envFor(mock.db),
+  );
+  assert.equal(response.status, 409);
+  assert.match((await response.json()).error, /poll is closed/i);
+  assert.equal(mock.calls.some((call) => /INSERT INTO poll_votes/.test(call.sql)), false);
+});

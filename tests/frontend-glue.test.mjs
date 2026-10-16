@@ -749,3 +749,16 @@ test("the CSS sandbox scopes selectors, keeps keyframes, drops @import/position 
   assert.equal(out.includes("position:fixed"), false);
   assert.equal(out.includes("z-index"), false);
 });
+
+
+test("composer idempotency keys rotate when the draft signature changes", () => {
+  const appSource = readFileSync(
+    path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../public/js/app.js"),
+    "utf8",
+  );
+  assert.match(
+    appSource,
+    /if \(!form\.dataset\.idempotencyKey \|\| form\.dataset\.idempotencySignature !== signature\)/,
+  );
+  assert.match(appSource, /form\.dataset\.idempotencySignature = signature/);
+});

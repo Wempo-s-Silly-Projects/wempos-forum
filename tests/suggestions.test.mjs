@@ -373,15 +373,18 @@ test("a create with board=suggestions writes the board column value", async () =
   assert.deepEqual(await response.json(), { id: 900 });
   const insert = mock.calls.find((call) => /INSERT INTO posts/.test(call.sql));
   assert.ok(insert.sql.includes(
-    "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key)",
+    "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint, staged_at)",
   ));
-  // Bind order: author, body, created, last_activity, BOARD, ban user, now.
+  // Bind order: author, body, timestamps, board, idempotency key/fingerprint,
+  // staged_at, then the atomic active-ban guard's user and clock.
   assert.equal(insert.values[0], 7);
   assert.equal(insert.values[1], "a suggestion post");
   assert.equal(insert.values[4], "suggestions", "the composer-chosen board lands on the root");
   assert.equal(insert.values[5], null, "no idempotency key is sent in this fixture");
-  assert.equal(insert.values[6], 7);
-  assert.equal(insert.values[7], insert.values[2], "the ban check's now matches the stamps");
+  assert.equal(insert.values[6], null, "no fingerprint is sent without an idempotency key");
+  assert.equal(insert.values[7], null, "a text-only post is not staged");
+  assert.equal(insert.values[8], 7);
+  assert.equal(insert.values[9], insert.values[2], "the ban check's now matches the stamps");
   return null;
 });
 
@@ -447,7 +450,9 @@ test("a reply to a suggestions root carries the root's board", async () => {
   // Board sits after the timestamps, before the guard binds.
   assert.equal(replyInsert.values[5], "suggestions", "replies inherit the root's board");
   assert.equal(replyInsert.values[6], null, "no idempotency key is sent in this fixture");
-  assert.equal(replyInsert.values[7], 1, "guard checks the root target itself");
+  assert.equal(replyInsert.values[7], null, "no fingerprint is sent without an idempotency key");
+  assert.equal(replyInsert.values[8], null, "text-only replies are not staged");
+  assert.equal(replyInsert.values[9], 1, "guard checks the root target itself");
 });
 
 test("a reply to a level-1 comment of a suggestions thread inherits the thread root's board", async () => {
@@ -516,7 +521,8 @@ test("the frontend wires the Suggestions route, header link, composer board, and
   assert.match(appJs, /SUGGESTIONS_EMPTY_TEXT = "No suggestions yet — be the first!";/);
   // The payload boundary: submitNewPost is the only post-create submit path
   // and always forwards the form's board dataset to buildComposerBody.
-  assert.match(appJs, /board: form\.dataset\.board,/);
+  assert.match(appJs, /const board = form\.dataset\.board \?\? null;/);
+  assert.match(appJs, /buildComposerBody\(\{[\s\S]*?board,/);
   // The router registry knows the path.
   const routerJs = readFileSync(path.join(repoRoot, "public", "js", "router.js"), "utf8");
   assert.match(routerJs, /pathname === "\/suggestions"\) return \{ name: "suggestions" \}/);

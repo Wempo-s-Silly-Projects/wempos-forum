@@ -83,14 +83,49 @@ test("attachment-bearing post and reply writes stay hidden until media persisten
   assert.match(constants, /THREAD_REPLY_INSERT_STAGED_SQL = THREAD_REPLY_INSERT_SQL\.replace/);
 });
 
-test("post creation retries reuse durable idempotency keys", async () => {
+test("post creation retries are content-bound, recover stale staging, and survive deletion", async () => {
   const posts = await read("api/posts.mjs");
   const app = await read("public/js/app.js");
   const api = await read("public/js/api.js");
-  assert.match(posts, /existingIdempotentPost\(db, session\.user\.id, idempotencyKey\)/);
-  assert.match(posts, /idempotency_key\)/);
-  assert.match(app, /form\.dataset\.idempotencyKey \|\| \(form\.dataset\.idempotencyKey = crypto\.randomUUID\(\)\)/);
+  const shared = await read("api/shared.mjs");
+  const migration = await read("migrations/0024_idempotency_fingerprints_and_attachment_sources.sql");
+  assert.match(posts, /replayIdempotentPost\(db, session\.user\.id, idempotencyKey, idempotencyFingerprint\)/);
+  assert.match(posts, /idempotency_fingerprint/);
+  assert.match(posts, /FROM post_archive[\s\S]*?idempotency_key/);
+  assert.match(posts, /STAGED_IDEMPOTENCY_TTL_SECONDS/);
+  assert.match(posts, /Idempotency-Key was already used for a different submission/);
+  assert.match(shared, /p\.idempotency_key, p\.idempotency_fingerprint/);
+  assert.match(migration, /ALTER TABLE posts ADD COLUMN idempotency_fingerprint TEXT/);
+  assert.match(migration, /ALTER TABLE post_archive ADD COLUMN idempotency_key TEXT/);
+  assert.match(app, /function composerSubmissionSignature/);
+  assert.match(app, /form\.dataset\.idempotencySignature !== signature/);
+  assert.match(app, /clearComposerKeyForChangedSubmission/);
   assert.match(api, /headers\["Idempotency-Key"\] = idempotencyKey/);
+  assert.match(posts, /AND \(\? IS NULL OR NOT EXISTS \(SELECT 1 FROM post_archive archived/);
+  assert.match(posts, /throwIfArchivedIdempotencyKey/);
+  assert.match(posts, /priorIdempotent \? Number\(priorIdempotent\.id\) : null/);
+  assert.match(posts, /This older creation request cannot be safely verified after edits/);
+  assert.match(posts, /await rateLimit\(request, env, "post-write"/);
+  const attachments = await read("api/attachments.mjs");
+  const gifIdentityMigration = await read("migrations/0025_attachment_gif_identity.sql");
+  assert.match(attachments, /source_gif_id/);
+  assert.match(attachments, /replayPostId/);
+  assert.match(gifIdentityMigration, /ALTER TABLE attachments ADD COLUMN source_gif_id TEXT/);
+});
+
+test("approved attachment and GIF flows use write-time revocation guards", async () => {
+  const attachments = await read("api/attachments.mjs");
+  const gifs = await read("api/gifs.mjs");
+  const posts = await read("api/posts.mjs");
+  const migration = await read("migrations/0024_idempotency_fingerprints_and_attachment_sources.sql");
+  assert.match(attachments, /CASE WHEN \? = 1 AND NOT EXISTS \([\s\S]*?revoked_attachment_hashes/);
+  assert.match(attachments, /CASE WHEN EXISTS \(SELECT 1 FROM attachments WHERE id = \? AND status = 'approved'\)/);
+  assert.match(attachments, /source_kind/);
+  assert.match(gifs, /status <> 'approved' OR NOT EXISTS \(SELECT 1 FROM revoked_attachment_hashes/);
+  assert.match(gifs, /DELETE FROM revoked_attachment_hashes WHERE hash = /);
+  assert.match(gifs, /WHERE status = 'approved'[\s\S]*?NOT EXISTS \(SELECT 1 FROM revoked_attachment_hashes/);
+  assert.match(posts, /a\.status = 'approved'[\s\S]*?revoked_attachment_hashes/);
+  assert.match(migration, /source_kind TEXT NOT NULL DEFAULT 'legacy'/);
 });
 
 test("staged replies recheck visible ancestors and only monotonically bump public threads", async () => {
@@ -112,4 +147,18 @@ test("attachment hash revocation blocks dedup and deletes approved duplicates", 
 test("release tooling has a named, isolated Preview migration target", async () => {
   const pkg = JSON.parse(await read("package.json"));
   assert.match(pkg.scripts["db:migrate:preview"], /wempo-forum-preview --env preview --remote/);
+});
+
+test("first-admin creation is guarded inside the INSERT against concurrent setup requests", async () => {
+  const session = await read("api/session.mjs");
+  const guardedInsert = session.indexOf("SELECT ?, ?, ?, ?, ?, '', ? WHERE NOT EXISTS");
+  assert.notEqual(guardedInsert, -1, "admin creation uses a conditional INSERT");
+  assert.ok(
+    session.indexOf("(SELECT 1 FROM users WHERE role = 'admin')", guardedInsert) > guardedInsert,
+    "the conditional INSERT checks for an existing administrator in SQL",
+  );
+  assert.ok(
+    session.includes('if (role === "admin" && Number(result.meta?.changes) !== 1)'),
+    "a lost setup race becomes a conflict instead of creating a session for a missing user",
+  );
 });
