@@ -463,6 +463,8 @@ test("a reply to a level-1 comment of a suggestions thread inherits the thread r
       sql: /WHERE p\.id = \? LIMIT 1/,
       result: (values) => (values[1] === 1 ? root : values[1] === 2 ? level1 : null),
     },
+    { sql: /FROM posts WHERE id = \? LIMIT 1/, result: (values) => (values[0] === 1 ? root : null) },
+    { sql: /SELECT 1 FROM bans b WHERE b\.user_id = \?/, result: null },
     { sql: /./ },
   ], { batchMeta: [replyInsertResult] });
   const originalFetch = globalThis.fetch;

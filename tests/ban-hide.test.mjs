@@ -175,6 +175,40 @@ test("functional: banned authors' replies vanish from reply lists and thread met
   assert.equal(db.prepare(replySql).all().length, 2, "unban restores replies");
 });
 
+test("replying into a banned author's thread is refused (no black-hole content)", async () => {
+  // The target root's author is banned; a member with the old link can't add
+  // never-visible content. The target stays public, so this is the canViewPost
+  // ban arm that refuses — the reply path pays an extra canViewPost read.
+  const bannedRoot = { id: "40", author_id: "3", parent_id: null, body: "thread", visibility: "public", created_at: 1700000000, last_activity_at: 1700000005, board: "general", edited_at: null };
+  const mock = mockDb([
+    sessionRoute(),
+    { sql: /^SELECT id FROM bans WHERE user_id = \?/, result: null },
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: () => bannedRoot },
+    { sql: /^SELECT id FROM bans WHERE user_id = \?/, result: null },
+    { sql: /SELECT 1 FROM bans b WHERE b\.user_id = \?/, result: { ok: 1 } },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    new Request("https://forum.example/api/posts/40/replies", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Origin: "https://forum.example",
+        "X-CSRF-Token": "expected-csrf-token",
+        Cookie: "wempo_session=" + "s".repeat(43),
+      },
+      body: JSON.stringify({ body: "into the void" }),
+    }),
+    envFor(mock.db),
+  );
+  assert.equal(response.status, 400);
+  assert.match((await response.json()).error, /banned/);
+  assert.ok(!mock.calls.some((call) => call.sql.startsWith("INSERT INTO posts")),
+    "no reply row is created");
+  assert.ok(!mock.calls.some((call) => call.sql.startsWith("INSERT INTO notifications")),
+    "no notification fans out");
+});
+
 test("functionally through the worker: a banned author's thread is a 404 for members and guests, an admin passes, and history follows", async () => {
   const own = { id: "1", author_id: "3", parent_id: null, body: "banned post", visibility: "public", created_at: 1700000000, last_activity_at: 1700000005, author_username: "banned", avatar_mime: null, avatar_updated_at: null, avatar_version: null, parent_body: null, like_count: 0, dislike_count: 0, viewer_reaction: null, board: "general", edited_at: null };
   // canViewPost's new ban check hits its own query; this route mocks it as

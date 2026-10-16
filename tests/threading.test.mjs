@@ -165,8 +165,9 @@ function threadRoutes(rowForId) {
       sql: /WHERE p\.id = \? LIMIT 1/,
       result: (values) => rowForId(values[1]),
     },
+    // canViewPost (v2.4.1) also resolves ancestors by id and checks bans.
+    { sql: /FROM posts WHERE id = \? LIMIT 1/, result: (values) => rowForId(values[0]) },
     banViewRouteOff,
-    banCheckRoute,
     { sql: /./ },
   ];
 }
@@ -285,6 +286,7 @@ test("replies to a root insert onto the root and notify the root author", async 
 
 test("replies to a level-2 reply are refused and never touch the database write path", async () => {
   // root 1 <- level-1 reply 2 <- level-2 reply 3 (author 8).
+  const root = postRow({ id: "1", author_id: "3", parent_id: null });
   const level1 = postRow({ id: "2", author_id: "5", parent_id: "1", body: "level one" });
   const level2 = postRow({
     id: "3",
@@ -294,7 +296,7 @@ test("replies to a level-2 reply are refused and never touch the database write 
     parent_body: "level one",
     last_activity_at: null,
   });
-  const mock = mockDb(threadRoutes((id) => (id === 2 ? level1 : id === 3 ? level2 : null)));
+  const mock = mockDb(threadRoutes((id) => (id === 1 ? root : id === 2 ? level1 : id === 3 ? level2 : null)));
   const siteverify = withMockedSiteverify({ success: true, action: "reply", hostname: "forum.example" });
   let response;
   try {

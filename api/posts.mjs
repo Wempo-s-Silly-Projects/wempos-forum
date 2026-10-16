@@ -469,6 +469,15 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
       bumpTargetId = Number(parent.id);
       threadBoard = parent.board || GENERAL_BOARD_DEFAULT;
     }
+    // Banning auto-hides posts (v2.4.1): a reply into a banned author's thread
+    // would create content nobody can see while the ban holds (hidden-post
+    // parity — hidden roots already refuse replies via the visibility check
+    // above). The viewer's exemptions mirror canViewPost: their own threads
+    // and admins still pass. The depth refusal above stays authoritative; this
+    // check runs after it so its own message is not shadowed.
+    if (!(await canViewPost(env, target, session.user))) {
+      throw new HttpError(400, "Replies are closed while this conversation's author is banned.");
+    }
     const { fields, files } = await readComposedBody(request, env);
     // Image-heavy posts pay a per-account image-upload limit before any
     // validation or insert work happens (ordering constraint).
