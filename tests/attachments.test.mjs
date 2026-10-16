@@ -423,6 +423,178 @@ test("multipart reply creation attaches to the REPLY's own row id", async () => 
   assert.equal(inserts[0].values[5], "image/png");
 });
 
+// ---------------------------------------------------------------------------
+// Task 4: GET /api/attachments/:id serving with hybrid visibility, driven
+// through forumWorker.fetch with the mock-Db pattern from Task 3 above.
+// ---------------------------------------------------------------------------
+
+const ATTACHMENT_ID = "3f2a7c94-9b1e-4d58-8c1a-7e0d5b9f2a41";
+
+function attachmentRow(overrides = {}) {
+  return {
+    id: ATTACHMENT_ID,
+    status: "pending",
+    created_by: 7,
+    mime: null,
+    data: null,
+    pending_mime: "image/gif",
+    pending_data: GIF_BYTES,
+    ...overrides,
+  };
+}
+
+function attachmentRoute(row) {
+  return { sql: /FROM attachments WHERE id = \?/, result: row };
+}
+
+function attachmentGetRequest(id, { cookie = false } = {}) {
+  const headers = {};
+  if (cookie) headers.Cookie = "wempo_session=" + "s".repeat(43);
+  return new Request("https://forum.example/api/attachments/" + id, { headers });
+}
+
+async function bodyBytes(response) {
+  return new Uint8Array(await response.arrayBuffer());
+}
+
+test("an approved attachment serves its stored bytes and mime publicly with an immutable cache", async () => {
+  const row = attachmentRow({
+    status: "approved",
+    mime: "image/png",
+    data: PNG_BYTES,
+    pending_mime: null,
+    pending_data: null,
+  });
+  const mock = mockDb([sessionRoute, attachmentRoute(row), { sql: /./ }]);
+  const response = await forumWorker.fetch(
+    attachmentGetRequest(ATTACHMENT_ID),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await bodyBytes(response), PNG_BYTES);
+  assert.equal(response.headers.get("Content-Type"), "image/png");
+  assert.equal(response.headers.get("Cache-Control"), "public, max-age=31536000, immutable");
+  assert.equal(response.headers.get("X-Content-Type-Options"), "nosniff");
+});
+
+test("an approved attachment serves the same bytes regardless of the ?v= cache buster", async () => {
+  const row = attachmentRow({
+    status: "approved",
+    mime: "image/png",
+    data: PNG_BYTES,
+    pending_mime: null,
+    pending_data: null,
+  });
+  const mock = mockDb([sessionRoute, attachmentRoute(row), { sql: /./ }]);
+  const response = await forumWorker.fetch(
+    attachmentGetRequest(ATTACHMENT_ID + "?v=version-stale-or-absent"),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await bodyBytes(response), PNG_BYTES);
+  assert.equal(response.headers.get("Cache-Control"), "public, max-age=31536000, immutable");
+});
+
+test("an author can read their own pending attachment with the pending pair and private cache", async () => {
+  const mock = mockDb([
+    sessionRoute, // sessionRow() is user_id 7 / member — the attachment's author
+    attachmentRoute(attachmentRow()),
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    attachmentGetRequest(ATTACHMENT_ID, { cookie: true }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await bodyBytes(response), GIF_BYTES);
+  assert.equal(response.headers.get("Content-Type"), "image/gif", "the pending pair's sniffed mime is served");
+  assert.equal(response.headers.get("Cache-Control"), "private, max-age=300");
+  assert.equal(response.headers.get("X-Content-Type-Options"), "nosniff");
+});
+
+test("a second member gets a 404 for someone else's pending attachment", async () => {
+  const mock = mockDb([
+    { sql: /FROM sessions s LEFT JOIN users u/, result: sessionRow({ user_id: 8, role: "member" }) },
+    attachmentRoute(attachmentRow()),
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    attachmentGetRequest(ATTACHMENT_ID, { cookie: true }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 404);
+});
+
+test("a guest gets a 404 for a pending attachment", async () => {
+  const mock = mockDb([sessionRoute, attachmentRoute(attachmentRow()), { sql: /./ }]);
+  const response = await forumWorker.fetch(
+    attachmentGetRequest(ATTACHMENT_ID),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 404);
+});
+
+test("a moderator can read a pending attachment", async () => {
+  const mock = mockDb([
+    { sql: /FROM sessions s LEFT JOIN users u/, result: sessionRow({ user_id: 8, role: "moderator" }) },
+    attachmentRoute(attachmentRow()),
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    attachmentGetRequest(ATTACHMENT_ID, { cookie: true }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await bodyBytes(response), GIF_BYTES);
+  assert.equal(response.headers.get("Content-Type"), "image/gif");
+  assert.equal(response.headers.get("Cache-Control"), "private, max-age=300");
+});
+
+test("a rejected attachment is a 404 even for its author", async () => {
+  const mock = mockDb([
+    sessionRoute,
+    attachmentRoute(attachmentRow({
+      status: "rejected",
+      pending_mime: null,
+      pending_data: null,
+    })),
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    attachmentGetRequest(ATTACHMENT_ID, { cookie: true }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 404);
+});
+
+test("an unknown attachment id is a 404", async () => {
+  const mock = mockDb([sessionRoute, attachmentRoute(null), { sql: /./ }]);
+  const response = await forumWorker.fetch(
+    attachmentGetRequest("0e1f2a3b-4c5d-4e6f-8a9b-1c2d3e4f5a6b"),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 404);
+});
+
+test("non-GET methods on the attachment route are a 405 before any database read", async () => {
+  const mock = mockDb([{ sql: /./ }]);
+  const response = await forumWorker.fetch(
+    new Request("https://forum.example/api/attachments/" + ATTACHMENT_ID, { method: "POST" }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 405);
+  assert.equal(mock.calls.length, 0, "no attachment lookup may run for a non-GET method");
+});
+
 test("image-upload limiter runs once per multipart post and never for JSON posts", async () => {
   const multipartMock = mockDb([sessionRoute, banCheckRoute, postInsertRoute, { sql: /./ }]);
   const imageCounter = { count: 0 };

@@ -8,6 +8,7 @@ import { handlePostRoutes } from "./api/posts.mjs";
 import { handleProfileRoutes } from "./api/profiles.mjs";
 import { handleModerationRoutes } from "./api/moderation.mjs";
 import { handleNotificationsRoutes } from "./api/notifications.mjs";
+import { handleAttachmentRoutes } from "./api/attachments.mjs";
 
 export {
   blobToUint8Array,
@@ -52,7 +53,7 @@ async function routeApi(request, env) {
 
   await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
 
-  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes];
+  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleAttachmentRoutes];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method);
     if (response) return response;

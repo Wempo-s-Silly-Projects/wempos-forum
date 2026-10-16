@@ -5,6 +5,11 @@ import forumWorker from "../worker.mjs";
 function envWithLimiter(db) {
   return {
     FORUM_DB: db,
+    READ_RATE_LIMITER: {
+      async limit() {
+        return { success: true };
+      },
+    },
     WRITE_RATE_LIMITER: {
       async limit() {
         return { success: true };
@@ -122,4 +127,32 @@ test("same-origin state-changing API requests reject a missing CSRF token", asyn
 
   assert.equal(response.status, 403);
   assert.match((await response.json()).error, /security token/i);
+});
+
+test("GET /api/attachments/:id reaches the attachment serving route, not the worker fallback", async () => {
+  const db = {
+    prepare(sql) {
+      assert.match(sql, /FROM attachments WHERE id = \?/);
+      return {
+        bind() {
+          return {
+            async first() {
+              return null;
+            },
+          };
+        },
+      };
+    },
+  };
+
+  const response = await forumWorker.fetch(
+    new Request("https://forum.example/api/attachments/3f2a7c94-9b1e-4d58-8c1a-7e0d5b9f2a41"),
+    envWithLimiter(db),
+  );
+
+  // A 404 from the attachment handler (unknown id) proves the route group is
+  // registered; the worker fallback would say "That API endpoint does not
+  // exist." without ever querying the database.
+  assert.equal(response.status, 404);
+  assert.match((await response.json()).error, /attachment/i);
 });
