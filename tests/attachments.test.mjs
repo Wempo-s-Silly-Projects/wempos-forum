@@ -1104,7 +1104,7 @@ test("approving flips the pending chunks to approved, marks the row approved, an
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /SELECT hash FROM attachments WHERE id = \\? AND status = 'pending'/, result: { hash: null } },
+    { sql: /SELECT hash FROM attachments WHERE id = \? AND status = 'pending'/, result: { hash: null } },
     { sql: /^UPDATE attachments/, runMeta: { meta: { changes: 1 } } },
     { sql: /^UPDATE attachment_chunks/, runMeta: { meta: { changes: 6 } } },
     { sql: /./ },
@@ -1145,7 +1145,7 @@ test("rejecting deletes the attachments row so its chunks cascade away", async (
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /SELECT hash, status FROM attachments WHERE id = \\? AND status IN \\('pending', 'approved'\\)/, result: { hash: "", status: "pending" } },
+    { sql: /SELECT hash, status FROM attachments WHERE id = \? AND status IN \('pending', 'approved'\)/, result: { hash: "", status: "pending" } },
     { sql: /^DELETE FROM attachments/, runMeta: { meta: { changes: 1 } } },
     { sql: /./ },
   ]);
@@ -1182,7 +1182,7 @@ test("after approval the row is gone from the queue on re-listing", async () => 
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /SELECT hash FROM attachments WHERE id = \\? AND status = 'pending'/, result: { hash: null } },
+    { sql: /SELECT hash FROM attachments WHERE id = \? AND status = 'pending'/, result: { hash: null } },
     { sql: /^UPDATE attachments SET/, runMeta: { meta: { changes: 1 } } },
     queueRoute,
     { sql: /./ },
@@ -1215,7 +1215,7 @@ test("rejecting an APPROVED attachment hard-deletes the row (chunks cascade)", a
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /SELECT hash, status FROM attachments WHERE id = \\? AND status IN \\('pending', 'approved'\\)/, result: { hash: "shared-hash", status: "approved" } },
+    { sql: /SELECT hash, status FROM attachments WHERE id = \? AND status IN \('pending', 'approved'\)/, result: { hash: "shared-hash", status: "approved" } },
     { sql: /./ },
   ]);
   const response = await forumWorker.fetch(
