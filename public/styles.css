@@ -1138,7 +1138,7 @@ dialog h2 {
   background: var(--paper);
   box-shadow: 3px 4px 0 var(--paper-shadow);
 }
-/* Profile themes (v2.4.4): accent applied from the container's CSSOM-set
+/* Profile themes (v2.5): accent applied from the container's CSSOM-set
    custom property (never inline style parsing — CSP-safe; values come from a
    server-side whitelist). */
 .profile-section {

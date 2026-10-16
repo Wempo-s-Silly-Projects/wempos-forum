@@ -349,13 +349,12 @@ function renderHomeAccess(session, setupRequired, setupConfigured) {
 }
 
 function renderHomeContent(session, data, route) {
-  if (session.user) {
+  if (session.user && route.name === "home") {
     // My posts (v2.5): a tab pair right above the composer (owner spec — NOT
-    // a top-bar item). Real routes (/ and /mine) so tabs are anchors —
-    // internal navigation, shareable URLs, and a working back button.
+    // a top-bar item, and home only: the search route shares this builder but
+    // gets no tabs, per the review). Real routes (/ and /mine) so tabs are
+    // anchors — internal navigation, shareable URLs, working back button.
     main.append(renderFeedTabs("all"));
-    // Load-more carries the mine flag when the mine list paginates.
-    main.append(createComposer("post-create", "What's on your mind?", "Post message"));
     main.append(createComposer("post-create", "What's on your mind?", "Post message"));
   }
   addHeading(main, route.name === "search" ? "Search results" : "Recent conversations", 2);
@@ -618,6 +617,16 @@ function renderFeedTabs(active) {
 }
 
 async function renderMineRoute(context, version) {
+  if (!context.session.user) {
+    // A hand-typed /mine URL while signed out: a sign-in prompt, not an error.
+    addHeading(main, "My posts", 2);
+    addText(document, main, "p", "Sign in to see your posts.", "muted");
+    const signIn = element("a", "button button-secondary", "Sign in");
+    signIn.href = "/#join";
+    signIn.setAttribute("data-app-link", "");
+    main.append(signIn);
+    return;
+  }
   const data = { feed: await api("/api/posts?mine=1") };
   if (version !== renderVersion) return;
   main.append(renderFeedTabs("mine"));
@@ -762,6 +771,13 @@ async function renderRoute(route) {
   const version = ++renderVersion;
   activeRoute = route;
   main.classList.toggle("home-page", route.name === "home");
+  // Profile themes (v2.5): main outlives routes — a member's accent class
+  // must never tint another route (the review caught exactly that).
+  main.classList.remove("profile-section");
+  if (activeProfileAccentClass) {
+    main.classList.remove(activeProfileAccentClass);
+    activeProfileAccentClass = null;
+  }
   teardownTurnstile();
   main.replaceChildren();
   setMessage();

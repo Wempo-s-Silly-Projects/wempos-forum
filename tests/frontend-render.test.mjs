@@ -726,4 +726,11 @@ test("the notification bell renders as a styled icon button with badge and aria-
   const badge = selectByClass(bell, "notification-badge");
   assert.ok(badge, "the unread badge stays in the DOM");
   assert.equal(badge.hidden, true, "hidden at zero unread");
+
+  const unread = createNotificationBell(3, mockDocument());
+  assert.equal(unread.getAttribute("aria-label"), "Notifications, 3 unread",
+    "the count lives in the bell's aria-label");
+  const unreadBadge = selectByClass(unread, "notification-badge");
+  assert.equal(unreadBadge.hidden, false, "the dot shows when unread");
+  assert.equal(unreadBadge.textContent, "", "a dot, not a number pill");
 });
