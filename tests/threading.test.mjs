@@ -251,9 +251,10 @@ test("replies to a level-1 reply insert under the guard and bump the root, not t
   // Board inherits the thread root's board (v2.4.1): the root is 'general'
   // here, and the shifted guard binds follow it (target 2, user 7, now).
   assert.equal(replyInsert.values[5], "general", "replies carry their root's board");
-  assert.equal(replyInsert.values[6], 2, "guard checks the level-1 target being replied to");
-  assert.equal(replyInsert.values[7], 7);
-  assert.equal(replyInsert.values[8], replyInsert.values[3]);
+  assert.equal(replyInsert.values[6], null, "idempotency key is null when a client does not supply one");
+  assert.equal(replyInsert.values[7], 2, "guard checks the level-1 target being replied to");
+  assert.equal(replyInsert.values[8], 7);
+  assert.equal(replyInsert.values[9], replyInsert.values[3]);
 
   const [insert, prune] = mock.batches[1];
   assert.match(insert.sql, /INSERT INTO notifications/);
@@ -286,7 +287,7 @@ test("replies to a root insert onto the root and notify the root author", async 
   assert.equal(mock.batches.length, 2);
   const [replyInsert, bump] = mock.batches[0];
   assert.deepEqual(replyInsert.values.slice(0, 3), [7, 1, "a root reply"]);
-  assert.equal(replyInsert.values[6], 1, "guard checks the root target itself");
+  assert.equal(replyInsert.values[7], 1, "guard checks the root target itself");
   assert.equal(replyInsert.values[5], "general", "a root replying target carries the general board");
   assert.equal(bump.values[1], 1, "bumping a root targets the root row itself");
   const [insert] = mock.batches[1];
@@ -391,7 +392,7 @@ test("new root posts stamp last_activity_at equal to created_at", async () => {
     sessionRoute,
     banCheckRoute,
     {
-      sql: /INSERT INTO posts \(author_id, parent_id, body, visibility, created_at, last_activity_at, board\)/,
+      sql: /INSERT INTO posts \(author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key\)/,
       runMeta: { meta: { changes: 1, last_row_id: 42 } },
     },
     { sql: /./ },
@@ -415,7 +416,7 @@ test("new root posts stamp last_activity_at equal to created_at", async () => {
   const insert = mock.calls.find((call) => call.sql.startsWith("INSERT INTO posts"));
   assert.ok(insert, "post creation must run its guarded INSERT");
   assert.ok(insert.sql.includes(
-    "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board)",
+    "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key)",
   ));
   assert.ok(insert.sql.includes("SELECT ?, NULL, ?, 'public', ?, ?, ?, ? WHERE NOT EXISTS"));
   assert.deepEqual(insert.values.slice(0, 2), [7, "a brand new root"]);
@@ -423,7 +424,7 @@ test("new root posts stamp last_activity_at equal to created_at", async () => {
   assert.equal(insert.values[3], insert.values[2], "last_activity_at binds the same timestamp as created_at");
   // No board field submitted: the root defaults to the general board.
   assert.equal(insert.values[4], "general");
-  assert.deepEqual(insert.values.slice(5), [7, insert.values[2]],
+  assert.deepEqual(insert.values.slice(5), [null, 7, insert.values[2]],
     "the ban guard binds follow the board (user id, then the ban check's now)");
 });
 
