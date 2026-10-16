@@ -181,6 +181,48 @@ test("zero chosen files keeps the pre-attachment JSON payload byte-identical", (
   }
 });
 
+// Suggestions board (v2.4.1): the composer payload boundary gains an OPTIONAL
+// board field — only the Suggestions composer sets one (home composer payload
+// never changes shape), and it rides BOTH wire formats.
+test("a suggestions composer submits the board field in the JSON payload", () => {
+  const submission = buildComposerBody({
+    body: "hello",
+    turnstileToken: "tok-1",
+    files: [],
+    board: "suggestions",
+  });
+  assert.equal(submission.multipart, false);
+  assert.deepEqual(submission.body, {
+    body: "hello",
+    "cf-turnstile-response": "tok-1",
+    board: "suggestions",
+  });
+});
+
+test("a board-tagged multipart submission carries board as a text part", () => {
+  const submission = buildComposerBody({
+    body: "hello",
+    turnstileToken: "tok-1",
+    files: [makeFile("pic.png", 30)],
+    board: "suggestions",
+  });
+  assert.equal(submission.multipart, true);
+  assert.equal(submission.body.get("board"), "suggestions");
+  assert.equal(submission.body.get("body"), "hello");
+});
+
+test("an unset board never appears in either wire format", () => {
+  const json = buildComposerBody({ body: "hello", turnstileToken: "tok-1", files: [], board: undefined });
+  assert.equal("board" in json.body, false);
+  const multipart = buildComposerBody({
+    body: "hello", turnstileToken: "tok-1", files: [makeFile("pic.png", 30)],
+  });
+  assert.equal(multipart.body.has("board"), false);
+  // An empty-string board is treated the same as absent (server default).
+  const empty = buildComposerBody({ body: "hello", turnstileToken: "tok-1", files: [], board: "" });
+  assert.equal("board" in empty.body, false);
+});
+
 test("a file over 10 MiB is refused client-side with a message, never sent", () => {
   const oversized = makeFile("big.png", MAX_COMPOSER_FILE_BYTES + 1);
   const result = addComposerFiles([], [oversized]);

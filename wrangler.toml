@@ -5,7 +5,7 @@ workers_dev = true
 
 [vars]
 TURNSTILE_HOSTNAMES = "wempos-forum.itswempo.workers.dev"
-VERSION = "2.4.0"
+VERSION = "2.4.1"
 
 [assets]
 directory = "./public"

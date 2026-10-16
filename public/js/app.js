@@ -58,6 +58,12 @@ let currentUser = null;
 let activeRoute = { name: "home" };
 let renderVersion = 0;
 
+// Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
+// its composer tags root posts with board=suggestions (form dataset flag read
+// by submitNewPost) and its empty state speaks the board's copy.
+const SUGGESTIONS_BOARD = "suggestions";
+const SUGGESTIONS_EMPTY_TEXT = "No suggestions yet — be the first!";
+
 const element = (tagName, className = "", text) => {
   const node = document.createElement(tagName);
   if (className) node.className = className;
@@ -141,12 +147,19 @@ function setupForm() {
 
 // Every composer is Turnstile-gated now: root posts use action "post", every
 // reply composer (the detail-route root reply and reply-to-reply mini
-// composers) uses action "reply".
-function createComposer(name, label, buttonLabel, postID = null, turnstileAction = null) {
-  const panel = createPanel(name === "post-create" ? "Start a conversation" : "Reply");
+// composers) uses action "reply". board (v2.4.1): the Suggestions composer
+// carries its board value on the form's dataset — the ONLY caller-driven
+// difference; submitNewPost reads the dataset flag so the payload picks the
+// board up in the same wire format the rest of the body uses.
+function createComposer(name, label, buttonLabel, postID = null,
+  turnstileAction = null, board = null) {
+  const panel = createPanel(board === "suggestions"
+    ? "Share a suggestion"
+    : name === "post-create" ? "Start a conversation" : "Reply");
   const form = document.createElement("form");
   form.dataset.form = name;
   if (postID !== null) form.dataset.postId = String(postID);
+  if (board) form.dataset.board = board;
   // The reply-to-reply mini composer shares the "reply" form name with the
   // detail route's root composer, so the textarea id carries the target id to
   // keep label/for pairs unique in the document.
@@ -222,6 +235,14 @@ function handleComposerFileSelection(input) {
 
 function renderAccountNavigation(user, unreadNotifications = 0) {
   accountActions.replaceChildren();
+  // Suggestions board link (v2.4.1): the header's site-section link, styled
+  // exactly like the links around it and visible to guests and signed-in
+  // members alike; internal navigation handles it like every other header
+  // anchor. The brand stays Home.
+  const suggestions = element("a", "button button-secondary", "Suggestions");
+  suggestions.href = "/suggestions";
+  suggestions.setAttribute("data-app-link", "");
+  accountActions.append(suggestions);
   if (!user) {
     const signIn = element("a", "button button-secondary", "Sign in");
     signIn.href = "/#join";
@@ -470,6 +491,7 @@ function setRouteTitle(route) {
   const pageNames = {
     home: "Wempo's Forum",
     search: "Search",
+    suggestions: "Suggestions",
     post: "Post",
     profile: "Profile",
     admin: "Moderation",
@@ -497,6 +519,32 @@ async function renderHomeRoute(route, context, version) {
     : { feed: await api("/api/posts") };
   if (version !== renderVersion) return;
   renderHome(context.session, context.setupRequired, context.setupConfigured, data, route);
+}
+
+// Suggestions board route (v2.4.1): the existing feed UI, pointed at
+// /api/posts?board=suggestions — same post cards, same decorators, same
+// pagination pattern, with the board's composer flag and empty-state copy.
+// The general feed route is untouched; the server treats a missing board as
+// 'general', so Home never changes shape.
+async function renderSuggestionsRoute(context, version) {
+  const data = await api("/api/posts?board=suggestions");
+  if (version !== renderVersion) return;
+  if (context.session.user) {
+    main.append(createComposer(
+      "post-create", "Share a suggestion", "Post suggestion", null, null,
+      SUGGESTIONS_BOARD,
+    ));
+  }
+  addHeading(main, "Suggestions", 2);
+  appendPostList(main, data.feed.posts, document, context.session.user,
+    SUGGESTIONS_EMPTY_TEXT);
+  if (!data.feed.nextBefore || data.feed.posts.length !== 20) return;
+  const older = element("button", "button button-secondary", "Load older suggestions");
+  older.type = "button";
+  older.dataset.action = "load-more";
+  older.dataset.before = String(data.feed.nextBefore);
+  older.dataset.board = SUGGESTIONS_BOARD;
+  main.append(older);
 }
 
 async function renderPostRoute(route, context, version) {
@@ -578,6 +626,7 @@ async function renderRoute(route) {
     setup: () => renderSetupRoute(context),
     home: () => renderHomeRoute(route, context, version),
     search: () => renderHomeRoute(route, context, version),
+    suggestions: () => renderSuggestionsRoute(context, version),
     post: () => renderPostRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
     admin: () => renderAdminRoute(context, version),
@@ -630,10 +679,14 @@ async function submitNewPost(form, text) {
   // buildComposerBody picks the wire format: FormData (repeatable "images"
   // parts) when files were chosen, otherwise the exact pre-attachment JSON
   // payload. api() passes FormData straight through without a Content-Type.
+  // The Suggestions composer's form dataset carries board=suggestions, riding
+  // the body in whichever format wins; the home composer has no dataset flag,
+  // keeping its payload exactly as before.
   const submission = buildComposerBody({
     body: text("body"),
     turnstileToken: takeTurnstileToken(form),
     files: form.composerFiles ?? [],
+    board: form.dataset.board,
   });
   refreshTurnstile(form);
   const post = await api("/api/posts", { method: "POST", body: submission.body });
@@ -1002,14 +1055,23 @@ function openAttachmentLightbox(button) {
 }
 
 async function loadMorePosts(button) {
-  const older = await api("/api/posts?before=" + button.dataset.before);
-  appendPostList(main, older.posts, document, currentUser);
+  // Board-aware (v2.4.1): the suggestions route's button carries dataset.board
+  // and adds the board param; the home button keeps the original URL shape.
+  // The emitted cursor is board-native (score_id for suggestions), so pages
+  // keep walking the same keyset they started on.
+  const board = button.dataset.board;
+  const older = await api("/api/posts?before=" + button.dataset.before +
+    (board ? "&board=" + board : ""));
+  appendPostList(main, older.posts, document, currentUser,
+    board === SUGGESTIONS_BOARD ? SUGGESTIONS_EMPTY_TEXT : undefined);
   button.remove();
   if (older.posts.length !== 20 || !older.nextBefore) return;
-  const next = element("button", "button button-secondary", "Load older posts");
+  const next = element("button", "button button-secondary",
+    board === SUGGESTIONS_BOARD ? "Load older suggestions" : "Load older posts");
   next.type = "button";
   next.dataset.action = "load-more";
   next.dataset.before = String(older.nextBefore);
+  if (board) next.dataset.board = board;
   main.append(next);
 }
 

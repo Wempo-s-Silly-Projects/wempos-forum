@@ -55,6 +55,34 @@ const REPLY_SNIPPET_MAX = 80;
 // maxLength and the live counter).
 const MAX_COMPOSER_BODY_CHARS = 1000;
 
+// Boards (v2.4.1): a root-only dimension. Root posts carry the board their
+// composer chose; replies inherit their thread root's board at creation (the
+// create route resolves the root anyway for the bump), and every pre-migration
+// row is 'general' (migration 0006's DEFAULT backfill). The whitelist lives
+// here — SQLite cannot gain a CHECK via ALTER TABLE ADD COLUMN — and the feeds
+// read it before any SQL runs.
+const BOARD_VALUES = ["general", "suggestions"];
+const SUGGESTIONS_BOARD = "suggestions";
+const GENERAL_BOARD_DEFAULT = "general";
+
+// Net reaction score for the Suggestions feed: likes minus dislikes, computed
+// from the reactions rows themselves (reactions.value CHECK-constrains to
+// 'like'/'dislike'; one row per post+user, so the score is the net of both
+// directions — dislikes count against). A zero-score thread is a real page
+// row: COALESCE keeps every thread visible even with no reactions at all.
+const SUGGESTION_SCORE_SQL =
+  "(SELECT COALESCE(SUM(CASE r.value WHEN 'like' THEN 1 ELSE -1 END), 0) " +
+  "FROM reactions r WHERE r.post_id = p.id)";
+
+// Single whitelist gate for the create routes' board field: absent/empty →
+// 'general', whitelisted strings pass, everything else is a 400 before any
+// body validation or database work.
+function boardField(value) {
+  if (value === undefined || value === null || value === "") return GENERAL_BOARD_DEFAULT;
+  if (BOARD_VALUES.includes(value)) return value;
+  throw new HttpError(400, "That board is not available.");
+}
+
 function replySnippet(body) {
   const text = typeof body === "string" ? body : "";
   return text.length > REPLY_SNIPPET_MAX ? text.slice(0, REPLY_SNIPPET_MAX) + "…" : text;
@@ -168,6 +196,42 @@ async function listRootPosts(env, viewer, options = {}) {
         : null,
     };
   }
+  if (options.board === SUGGESTIONS_BOARD) {
+    // Suggestions feed (v2.4.1): most-upvoted first. The sort key is the net
+    // reaction score; the id is the tiebreak, and the pagination cursor walks
+    // the composite (score, id) keyset in the established activity-feed style
+    // (both keys DESC, `score_id` cursor), so a shared score can neither skip
+    // nor repeat a row. Score instability while paginating is accepted on
+    // owner instruction. Zero-reaction threads stay visible: they all tie at
+    // score 0 and order newest-first, exactly like the general feed's tiebreak.
+    const cursor = options.before;
+    if (cursor) {
+      sql += "AND (" + SUGGESTION_SCORE_SQL + " < ? OR (" + SUGGESTION_SCORE_SQL +
+        " = ? AND p.id < ?)) ";
+      values.push(cursor.score, cursor.score, cursor.id);
+    }
+    sql += "AND p.board = 'suggestions' ORDER BY " + SUGGESTION_SCORE_SQL +
+      " DESC, p.id DESC LIMIT 21";
+    const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
+    const rows = result.results || [];
+    const hasMore = rows.length > 20;
+    const shown = rows.slice(0, 20);
+    const last = shown.length ? shown[shown.length - 1] : null;
+    return {
+      // The suggestions feed rides the same decorator path as the activity
+      // feed (root queries only, publicPost level 0), so replyCount,
+      // latestReplies, attachments, and publicLevel annotate every card
+      // unchanged — the board filter never touches the decoration SQL.
+      posts: await withReplyMetadata(env.FORUM_DB, viewer,
+        await withAttachments(env.FORUM_DB, viewer, shown.map((row) => publicPost(row, 0)))),
+      // The cursor's score half comes from the row's own like/dislike counts —
+      // the identical tally the ORDER BY expression computes, so the emitted
+      // cursor always sorts exactly where the row was shown.
+      nextBefore: hasMore && last
+        ? (Number(last.like_count) - Number(last.dislike_count)) + "_" + Number(last.id)
+        : null,
+    };
+  }
   if (options.before !== null && options.before !== undefined) {
     sql += "AND p.id < ? ";
     values.push(options.before);
@@ -231,17 +295,31 @@ async function listReplies(env, postId, viewer, showAll = false, before = null,
 async function handlePostFeedRoute(request, env, url, path, method) {
   if (path === "/api/posts" && method === "GET") {
     const session = await readSession(request, env);
+    // Board param (v2.4.1): absent or 'general' keeps the general feed's SQL,
+    // binds, and cursor format byte-identical; 'suggestions' selects the
+    // suggestions board. Unknown values hit boardField's whitelist 400 before
+    // any database work.
+    const boardRaw = url.searchParams.get("board");
+    const isSuggestions = boardRaw !== null && boardField(boardRaw) === SUGGESTIONS_BOARD;
     const beforeRaw = url.searchParams.get("before");
     let before = null;
     if (beforeRaw !== null) {
-      const cursorMatch = /^([0-9]{1,10})_([0-9]{1,10})$/.exec(beforeRaw);
-      if (!cursorMatch) throw new HttpError(400, "That page cursor is invalid.");
-      before = { seconds: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
+      if (isSuggestions) {
+        // Score cursors carry a signed integer half: a thread disliked below
+        // zero sorts at a negative score, so its cursor can be "-3_12".
+        const cursorMatch = /^(-?[0-9]{1,10})_([0-9]{1,10})$/.exec(beforeRaw);
+        if (!cursorMatch) throw new HttpError(400, "That page cursor is invalid.");
+        before = { score: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
+      } else {
+        const cursorMatch = /^([0-9]{1,10})_([0-9]{1,10})$/.exec(beforeRaw);
+        if (!cursorMatch) throw new HttpError(400, "That page cursor is invalid.");
+        before = { seconds: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
+      }
     }
-    const feed = await listRootPosts(env, session && session.user ? session.user : null, {
-      before,
-      byActivity: true,
-    });
+    // The general call passes exactly the options object it always passed, so
+    // listRootPosts compiles the unchanged SQL for it.
+    const feed = await listRootPosts(env, session && session.user ? session.user : null,
+      isSuggestions ? { before, board: SUGGESTIONS_BOARD } : { before, byActivity: true });
     return json(feed);
   }
   return null;
@@ -355,6 +433,11 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     // The bump lands on the conversation root: the target itself, or the
     // target's parent (a public root) when replying to a level-1 reply.
     let bumpTargetId = Number(target.id);
+    // Boards (v2.4.1): replies carry their thread ROOT's board, resolved from
+    // the same rows the bump logic already fetched (the target when it is a
+    // root, else its parent). The || normalization keeps rows from pre-board
+    // projections at 'general'.
+    let threadBoard = target.board || GENERAL_BOARD_DEFAULT;
     if (target.parent_id !== null && target.parent_id !== undefined) {
       const parent = await postById(env, Number(target.parent_id), session.user.id);
       if (!parent || parent.visibility !== "public") {
@@ -364,6 +447,7 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
         throw new HttpError(400, "Replies only go one level deep.");
       }
       bumpTargetId = Number(parent.id);
+      threadBoard = parent.board || GENERAL_BOARD_DEFAULT;
     }
     const { fields, files } = await readComposedBody(request, env);
     // Image-heavy posts pay a per-account image-upload limit before any
@@ -382,7 +466,8 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
       : Number(target.author_id);
     const results = await db.batch([
       db.prepare(THREAD_REPLY_INSERT_SQL)
-        .bind(session.user.id, targetId, message, now, now, targetId, session.user.id, now),
+        .bind(session.user.id, targetId, message, now, now, threadBoard, targetId,
+          session.user.id, now),
       db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId),
     ]);
     if (Number(results[0]?.meta?.changes) !== 1) {
@@ -425,14 +510,18 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     }
     await requireTurnstile(request, env, fields, "post");
     const message = applyWordFilter(requiredText(fields.body, "post", MAX_COMPOSER_BODY_CHARS), env.FILTERED_WORDS);
+    // The board rides the same fields object in both wire formats (JSON field
+    // or multipart text part); absent/empty defaults to 'general', unknown
+    // values 400 before any insert.
+    const board = boardField(fields.board);
     const now = nowSeconds();
     // A fresh root starts its activity clock at creation time.
     const result = await db.prepare(
-      "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at) " +
-        "SELECT ?, NULL, ?, 'public', ?, ? WHERE NOT EXISTS (" +
+      "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board) " +
+        "SELECT ?, NULL, ?, 'public', ?, ?, ? WHERE NOT EXISTS (" +
         "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
         "AND (expires_at IS NULL OR expires_at > ?))",
-    ).bind(session.user.id, message, now, now, session.user.id, now).run();
+    ).bind(session.user.id, message, now, now, board, session.user.id, now).run();
     requireMutationApplied(result);
     const postId = Number(result.meta.last_row_id);
     // Attachment intake is a separate batch: if it fails, the post row is already committed (retry may duplicate the post); accepted tradeoff.

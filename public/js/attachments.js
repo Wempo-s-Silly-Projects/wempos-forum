@@ -41,13 +41,19 @@ export function addComposerFiles(currentFiles, pickedFiles) {
 //   leaves FormData bodies alone (no JSON Content-Type).
 // - no files → the exact pre-attachment JSON payload, byte-identical to what
 //   the composers produced before attachments existed.
-export function buildComposerBody({ body, turnstileToken, files = [] }) {
+// - board (v2.4.1): the Suggestions composer tags root posts with their board
+//   (JSON key / multipart text part, only when set). Replies never send one —
+//   the server derives their board from the thread root.
+export function buildComposerBody({ body, turnstileToken, files = [], board }) {
   if (!Array.isArray(files) || files.length === 0) {
-    return { multipart: false, body: { body, "cf-turnstile-response": turnstileToken } };
+    const payload = { body, "cf-turnstile-response": turnstileToken };
+    if (board) payload.board = board;
+    return { multipart: false, body: payload };
   }
   const form = new FormData();
   form.append("body", body);
   form.append("cf-turnstile-response", turnstileToken);
+  if (board) form.append("board", board);
   for (const file of files) form.append("images", file, file.name);
   return { multipart: true, body: form };
 }

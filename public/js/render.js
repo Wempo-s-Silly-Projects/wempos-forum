@@ -267,9 +267,13 @@ export const createPostCard = (post, document, currentUser = null) => {
   return article;
 }
 
-export function appendPostList(container, posts, document, currentUser = null) {
+// emptyText (v2.4.1): the suggestions route passes its own message ("No
+// suggestions yet — be the first!"); every existing caller omits it and keeps
+// the general feed's copy byte-identical.
+export function appendPostList(container, posts, document, currentUser = null,
+  emptyText = "No posts to show yet. Start the conversation.") {
   if (!posts.length) {
-    container.append(createElement(document, "p", "empty-state", "No posts to show yet. Start the conversation."));
+    container.append(createElement(document, "p", "empty-state", emptyText));
     return;
   }
   const list = createElement(document, "div", "post-list");

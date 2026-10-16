@@ -16,11 +16,14 @@ export const UNBAN_ACTIVE_UPDATE_SQL =
 // Threaded reply insert. The guard requires the target post to exist and be
 // public, and to be either a root or the direct child of a public root
 // (replies only go one level deep); the ban check stays atomic with the insert.
-// Bind order: author_id, parent_id, body, created_at, last_activity_at, target
-// id, ban user_id, ban now.
+// Replies carry their thread ROOT's board (v2.4.1): the value is resolved from
+// the already-fetched root row in api/posts.mjs, so replies across board moves
+// stay consistent with their root at write time. Bind order: author_id,
+// parent_id, body, created_at, last_activity_at, board, target id, ban
+// user_id, ban now.
 export const THREAD_REPLY_INSERT_SQL =
-  "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at) " +
-    "SELECT ?, ?, ?, 'public', ?, ? WHERE EXISTS (" +
+  "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board) " +
+    "SELECT ?, ?, ?, 'public', ?, ?, ? WHERE EXISTS (" +
     "SELECT 1 FROM posts WHERE id = ? AND visibility = 'public' AND (" +
     "parent_id IS NULL OR EXISTS (" +
     "SELECT 1 FROM posts root WHERE root.id = posts.parent_id " +

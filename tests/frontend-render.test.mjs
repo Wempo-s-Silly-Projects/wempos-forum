@@ -16,6 +16,7 @@ import {
   createEditComposer,
   openEditForm,
   closeEditForm,
+  appendPostList,
 } from "../public/js/render.js";
 import { renderProfileSocials } from "../public/js/profile-editor.js";
 
@@ -585,4 +586,23 @@ test("(c) the edit composer builds the same textarea contract as the create comp
   const counter = [...walk(form)].find((node) => node.className === "char-counter");
   assert.ok(counter, "the counter element exists");
   assert.equal(counter.getAttribute("aria-live"), "polite");
+});
+
+// Suggestions board (v2.4.1): the shared post list's empty state accepts the
+// board's copy while every existing caller keeps the default message.
+test("appendPostList keeps its default empty state for the general feed", () => {
+  const document = mockDocument();
+  const container = new MockElement("div");
+  appendPostList(container, [], document);
+  const empty = selectByClass(container, "empty-state");
+  assert.ok(empty);
+  assert.equal(empty.textContent, "No posts to show yet. Start the conversation.");
+});
+
+test("appendPostList renders the suggestions board's empty-state copy", () => {
+  const document = mockDocument();
+  const container = new MockElement("div");
+  appendPostList(container, [], document, null, "No suggestions yet — be the first!");
+  const empty = selectByClass(container, "empty-state");
+  assert.equal(empty.textContent, "No suggestions yet — be the first!");
 });

@@ -15,6 +15,7 @@ const MIGRATION_0002 = readFileSync(path.join(repoRoot, "migrations", "0002_foru
 const MIGRATION_0003 = readFileSync(path.join(repoRoot, "migrations", "0003_attachments.sql"), "utf8");
 const MIGRATION_0004 = readFileSync(path.join(repoRoot, "migrations", "0004_attachment_chunks.sql"), "utf8");
 const MIGRATION_0005 = readFileSync(path.join(repoRoot, "migrations", "0005_edit_at.sql"), "utf8");
+const MIGRATION_0006 = readFileSync(path.join(repoRoot, "migrations", "0006_add_board.sql"), "utf8");
 
 const T = 1_700_000_000;
 
@@ -772,4 +773,76 @@ test("migration 0005 adds a nullable edited_at column to posts in place", () => 
   // Nullability: a never-edited stamp stays writable after edits exist.
   db.prepare("UPDATE posts SET edited_at = NULL WHERE id = ?").run(fresh.id);
   assert.equal(db.prepare("SELECT edited_at FROM posts WHERE id = ?").get(fresh.id).edited_at, null);
+});
+// Migration 0006 tests: the Suggestions board lands on posts as an in-place
+// ADD COLUMN (a single ALTER — SQLite allows NOT NULL DEFAULT on ALTER TABLE),
+// every pre-migration row reads 'general', and fresh rows default to it when
+// the column is omitted. Value restriction deliberately lives at the handler
+// layer (api/posts.mjs), because ALTER TABLE cannot add a CHECK. Applied on
+// top of the full chain (0001 → 0002 → 0003 → 0004 → 0005 → 0006), exactly
+// like the real run.
+function openV5Db() {
+  const db = openV4Db();
+  applyEditAt(db);
+  return db;
+}
+
+function applyAddBoard(db) {
+  db.exec("BEGIN");
+  try {
+    db.exec(MIGRATION_0006);
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
+
+function openV6Db() {
+  const db = openV5Db();
+  applyAddBoard(db);
+  return db;
+}
+
+test("migration 0006 adds a NOT NULL board column defaulting to general", () => {
+  const db = openV6Db();
+
+  const columns = columnsOf(db, "posts");
+  assert.ok(columns.includes("board"), "missing column posts.board");
+  // The single-statement ALTER keeps the other 0001–0005 columns untouched.
+  assert.deepEqual(
+    columns.filter((name) => name !== "board"),
+    columnsOf(openV5Db(), "posts"),
+    "0006 must not disturb any existing posts column",
+  );
+
+  // Pre-migration rows backfill to 'general' through the column's DEFAULT.
+  const pre = db.prepare("SELECT board FROM posts WHERE id = 1").get();
+  assert.equal(pre.board, "general", "pre-migration rows read as general");
+
+  // Fresh inserts that omit the column default to 'general' too.
+  db.prepare("INSERT INTO posts (author_id, parent_id, body, created_at) VALUES (?, NULL, ?, ?)")
+    .run(1, "post after 0006", T + 100);
+  const fresh = db.prepare("SELECT board FROM posts ORDER BY id DESC LIMIT 1").get();
+  assert.equal(fresh.board, "general", "new rows default to general");
+
+  // A composer choosing the Suggestions board stores and reads back.
+  db.prepare("INSERT INTO posts (author_id, parent_id, body, created_at, board) VALUES (?, NULL, ?, ?, ?)")
+    .run(1, "suggestion", T + 110, "suggestions");
+  const suggestion = db.prepare("SELECT board FROM posts ORDER BY id DESC LIMIT 1").get();
+  assert.equal(suggestion.board, "suggestions");
+  db.prepare("UPDATE posts SET board = ? WHERE id = ?").run("suggestions", 1);
+  assert.equal(db.prepare("SELECT board FROM posts WHERE id = 1").get().board, "suggestions");
+});
+
+test("migration 0006 constrains nothing at the SQL layer — the board whitelist is handler-side", () => {
+  // ALTER TABLE ADD COLUMN cannot attach a CHECK, and the spec's DECISION puts
+  // the whitelist in api/posts.mjs. This pins that expectation in both
+  // directions: the SQL layer accepts out-of-whitelist values (so a future
+  // CHECK would be a NEW migration, not a silent assumption), and the column
+  // refuses NULL because the handlers always write a string.
+  const db = openV6Db();
+  db.prepare("UPDATE posts SET board = ? WHERE id = 1").run("not-a-board");
+  assert.equal(db.prepare("SELECT board FROM posts WHERE id = 1").get().board, "not-a-board");
+  assert.throws(() => db.prepare("UPDATE posts SET board = NULL WHERE id = 1").run());
 });
