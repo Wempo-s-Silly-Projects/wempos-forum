@@ -462,7 +462,21 @@ function renderHomeContent(session, data, route) {
 function renderAccountSettings() {
   const account = document.createElement("details");
   account.className = "panel";
-  account.append(element("summary", "", "Account settings"));
+  // Appearance: the square-corners pref (v2.5) - a checkbox in the account
+  // settings panel; stored client-side like the theme choice.
+  const corners = document.createElement("label");
+  corners.className = "corner-pref";
+  const cornersBox = document.createElement("input");
+  cornersBox.type = "checkbox";
+  try { cornersBox.checked = window.localStorage.getItem("forum-corners") === "square"; } catch {}
+  cornersBox.dataset.actionPref = "corners";
+  corners.append(cornersBox, document.createTextNode(" Square corners"));
+  cornersBox.addEventListener("change", () => {
+    const square = cornersBox.checked;
+    try { window.localStorage.setItem("forum-corners", square ? "square" : "round"); } catch {}
+    document.documentElement.dataset.corners = square ? "square" : "round";
+  });
+
   const passwordPanel = createPanel("Change password", "There is no email-based recovery; choose a password you can keep safe.");
   passwordPanel.append(createForm(document, "password", [
     createInput(document, {
@@ -498,6 +512,28 @@ function renderHome(session, setupRequired, setupConfigured, data, route) {
   if (session.user) renderAccountSettings();
 }
 function renderSearchResults(container, results) {
+  // Deep reply results (v2.5): a Replies section under the Posts one.
+  if (Array.isArray(results.replies)) {
+    addHeading(container, "Replies", 2);
+    if (!results.replies.length) {
+      addText(document, container, "p", "No matching replies.", "empty-state");
+    } else {
+      const replyList = element("div", "reply-search-results");
+      for (const reply of results.replies) {
+        const miniCard = element("article", "reply-search-card");
+        miniCard.append(element("a", "reply-search-thread",
+          "in a conversation by " + (reply.parent ? "…" : "someone")));
+        const bodyBlock = element("p", "reply-search-body");
+        bodyBlock.textContent = reply.body;
+        const link = element("a", "button button-quiet", "Open thread");
+        link.href = "/posts/" + reply.threadId;
+        link.setAttribute("data-app-link", "");
+        miniCard.append(bodyBlock, link);
+        replyList.append(miniCard);
+      }
+      container.append(replyList);
+    }
+  }
   const people = createPanel("People");
   if (results.users.length) {
     const list = element("ul", "result-list");
@@ -610,7 +646,10 @@ function renderProfile(profile, session) {
   }
   const banner = element("div", "profile-banner");
   if (profile.bannerText) banner.append(element("span", "profile-banner-text", profile.bannerText));
-  main.insertBefore(banner, heading);
+  // The heading is appended AFTER this block — insertBefore on a not-yet-
+  // attached node throws (the owner hit exactly that on the live site);
+  // appending the banner first yields the same above-the-heading order.
+  main.append(banner);
   // The pending-upload status comes from the session payload (the profile
   // payload does not carry avatarStatus), so only the owner sees the badge —
   // everyone else just sees the currently approved avatar.
@@ -703,7 +742,7 @@ function renderSetupRoute(context) {
 
 async function renderHomeRoute(route, context, version) {
   const data = route.name === "search"
-    ? { search: await api(`/api/search?q=${encodeURIComponent(route.query)}`) }
+    ? { search: await api(`/api/search?q=${encodeURIComponent(route.query)}&in=replies`) }
     : { feed: await api("/api/posts") };
   if (version !== renderVersion) return;
   renderHome(context.session, context.setupRequired, context.setupConfigured, data, route);
@@ -1860,6 +1899,7 @@ document.addEventListener("submit", async (event) => {
 // the page, so the manual-choice/OS-preference decision lands with the initial
 // render (the inline no-flash script already pinned a stored "dark" pre-paint).
 initTheme(document, localStorage);
+  applyCornerPreference(document, window.localStorage);
 
 // Footer version stamp: "v2.2 · <short sha>", straight from /api/version.
 // Both halves are server-generated and only ever reach the DOM through

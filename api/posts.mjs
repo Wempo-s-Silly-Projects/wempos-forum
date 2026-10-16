@@ -935,6 +935,11 @@ async function searchReplies(env, viewer, query, authorId) {
   const viewerId = viewer ? viewer.id : null;
   const sql =
     "SELECT r.id, r.author_id, r.parent_id, r.body, r.visibility, r.created_at, r.board, r.view_count, r.pinned_at, r.edited_at, " +
+    "(SELECT COUNT(*) FROM reactions rx WHERE rx.post_id = r.id AND rx.value = 'like') AS like_count, " +
+    "(SELECT COUNT(*) FROM reactions rx WHERE rx.post_id = r.id AND rx.value = 'dislike') AS dislike_count, " +
+    "(SELECT rx.value FROM reactions rx WHERE rx.post_id = r.id AND rx.user_id = ?) AS viewer_reaction, " +
+    "(SELECT parent.body FROM posts parent WHERE parent.id = r.parent_id) AS parent_body, " +
+    "r.last_activity_at, " +
     "u.username AS author_username, u.avatar_mime AS author_avatar_mime, " +
     "u.avatar_version AS author_avatar_version " +
     "FROM posts r JOIN users u ON u.id = r.author_id " +
@@ -943,6 +948,7 @@ async function searchReplies(env, viewer, query, authorId) {
     "AND ((r.visibility = 'public' AND " + banFilterSql("r") + ") OR r.author_id = ?) " +
     "ORDER BY r.id DESC LIMIT 21";
   const values = [];
+  values.push(viewerId || -1); // viewer_reaction's subselect first
   values.push(query);
   if (authorId !== null) values.push(authorId);
   values.push(viewerId || -1);

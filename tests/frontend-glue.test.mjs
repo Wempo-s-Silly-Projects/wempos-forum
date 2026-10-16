@@ -726,3 +726,26 @@ test("the accent picker renders one swatch per whitelisted key with pressed stat
   assert.ok(swatches.some((node) => node.getAttribute("aria-label") === "Profile color: Coral"));
   assert.ok(swatches.every((node) => node.getAttribute("title")));
 });
+
+test("the CSS sandbox scopes selectors, keeps keyframes, drops @import/position fixed", async () => {
+  const { scopeProfileCss } = await import("../api/shared.mjs");
+  const out = scopeProfileCss(
+    "p{color:red} .a,.b{margin:0} @media (max-width:600px){.x{background:#123}} " +
+    "@keyframes spin{from{opacity:0} to{opacity:1}} " +
+    "@import url(https://evil.example/x.css) .nope{color:red} " +
+    ".hijack{position:fixed; z-index:999; top:0; left:0;}",
+  );
+  // Prefixing: every top rule scoped.
+  assert.match(out, /\.profile-theme-scope p\{color:red\}/);
+  assert.match(out, /\.profile-theme-scope \.a, \.profile-theme-scope \.b\{margin:0\}/);
+  // @media keeps its condition + BOTH inner rules scoped INSIDE the block.
+  assert.match(out, /@media \(max-width:600px\)\{\.profile-theme-scope \.x\{background:#123\}\}/);
+  // Keyframes keep from/to and lose nothing.
+  assert.match(out, /@keyframes spin\{from\{opacity:0\}\nto\{opacity:1\}\}/);
+  // @import + unknown rules dropped.
+  assert.equal(out.includes("evil.example"), false);
+  assert.equal(out.includes("nope"), false);
+  // The hijack: fixed positioning + z-index dropped, harmless leftovers kept?
+  assert.equal(out.includes("position:fixed"), false);
+  assert.equal(out.includes("z-index"), false);
+});

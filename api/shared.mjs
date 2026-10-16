@@ -762,6 +762,35 @@ const PROFILE_CSS_PROPERTY_ALLOW = new Set([
 
 export const CUSTOM_CSS_MAX_BYTES = 20 * 1024;
 
+// A depth-tracking brace scanner: finds the block whose opening brace is at
+// `open` and returns the index just past its MATCHING close (handles nesting
+// — @media bodies contain full rule blocks).
+function blockEnd(text, openAt) {
+  let depth = 0;
+  let inString = null;
+  for (let at = openAt; at < text.length; at++) {
+    const ch = text[at];
+    if (inString) {
+      if (ch === "\\") at += 1;
+      else if (ch === inString) inString = null;
+      continue;
+    }
+    if (ch === '"' || ch === "'") inString = ch;
+    else if (ch === "{") depth += 1;
+    else if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) return at;
+    }
+  }
+  return text.length;
+}
+
+// The at-rule's NAME: everything before the first non-name char (space,
+// paren... — "@media(min-width:1px)" extracts cleanly).
+function atRuleName(selectorText) {
+  return selectorText.replace(/^\s+/, "").split(/[^@a-zA-Z-]/)[0].toLowerCase();
+}
+
 export function scopeProfileCss(rawCss) {
   const text = String(rawCss ?? "");
   if (!text.trim()) return "";
@@ -770,22 +799,21 @@ export function scopeProfileCss(rawCss) {
   while (index < text.length) {
     const open = text.indexOf("{", index);
     if (open === -1) break;
-    const close = text.indexOf("}", open);
-    if (close === -1) break;
+    const close = blockEnd(text, open);
     const selectorText = text.slice(index, open).trim();
     const bodyText = text.slice(open + 1, close);
     index = close + 1;
     if (selectorText.startsWith("@")) {
-      const atName = selectorText.slice(0, selectorText.match(/\s|\{/)?.index ?? selectorText.length).toLowerCase();
+      const atName = atRuleName(selectorText);
       if (atName === "@media") {
-        // Media blocks recurse one level: scope the inner rules.
-        const inner = scopeProfileCss(bodyText);
-        sanitizedRules.push("@media" + selectorText.slice("@media".length) + "{" + inner + "}");
+        // Media blocks recurse: scope the INNER rules, keep the condition.
+        const condition = selectorText.slice("@media".length).trim();
+        sanitizedRules.push("@media" + " " + condition + "{" + scopeProfileCss(bodyText) + "}");
       } else if (atName === "@keyframes" || atName === "@-webkit-keyframes") {
-        // Keyframes pass through but only their percentage selectors + allow-
-        // listed properties; the wrapper class prefix must NOT apply (keyframe
-        // selectors are percentages).
-        sanitizedRules.push(selectorText + "{" + sanitizeDeclarationBody(bodyText) + "}");
+        // Keyframes: the inner blocks are step selectors (from/to/percentage
+        // — never scoped), and each step's body passes the allow-list.
+        const inner = scopeKeyframeBody(bodyText);
+        sanitizedRules.push(selectorText + "{" + inner + "}");
       }
       // Everything else (@import, @font-face, @supports…) is dropped.
       continue;
@@ -798,6 +826,23 @@ export function scopeProfileCss(rawCss) {
     if (body) sanitizedRules.push(scoped + "{" + body + "}");
   }
   return sanitizedRules.join("\n");
+}
+
+// Keyframe steps: from/to/percentage selectors in, allow-listed properties
+// per step.
+function scopeKeyframeBody(bodyText) {
+  const steps = [];
+  let index = 0;
+  while (index < bodyText.length) {
+    const open = bodyText.indexOf("{", index);
+    if (open === -1) break;
+    const close = bodyText.indexOf("}", open);
+    if (close === -1) break;
+    const selector = bodyText.slice(index, open).trim();
+    steps.push(selector + "{" + sanitizeDeclarationBody(bodyText.slice(open + 1, close)) + "}");
+    index = close + 1;
+  }
+  return steps.join("\n");
 }
 
 // Property allow-list for one declaration body; url() survives only for the

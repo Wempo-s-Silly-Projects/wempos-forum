@@ -269,7 +269,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // state is data-driven off the payload's viewerBookmarked (guest payloads
   // never carry it, so guests never see the toggle).
   if (currentUser) {
-    const bookmarkButton = createElement(document, "button", "button button-quiet bookmark-toggle");
+    const bookmarkButton = createElement(document, "button", "button button-quiet icon-button bookmark-toggle");
     bookmarkButton.type = "button";
     bookmarkButton.dataset.action = "toggle-bookmark";
     bookmarkButton.dataset.postId = String(post.id);

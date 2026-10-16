@@ -245,7 +245,22 @@ async function handleCssSetRoute(request, env, url, path, method) {
   await rateLimit(request, env, "write");
   await rateLimit(request, env, "avatar-upload", String(session.user.id));
   const raw = await readLimitedBody(request, CUSTOM_CSS_MAX_BYTES + 1024);
-  const cssText = new TextDecoder().decode(raw).trim();
+  const decoded = new TextDecoder().decode(raw);
+  // The client's api() JSON-encodes non-FormData bodies (v2.4-era helper
+  // shape) — a CSS sheet sent that way arrives double-encoded: a leading
+  // quote swallows the whole sheet as one JSON string. Detect and decode.
+  let cssText = decoded.trim();
+  const looksJson = (request.headers.get("Content-Type") || "").includes("application/json") ||
+    (cssText.startsWith("\"") && cssText.endsWith("\"") && cssText.length > 1);
+  if (looksJson) {
+    try {
+      const parsed = JSON.parse(cssText);
+      cssText = typeof parsed === "string" ? parsed : JSON.stringify(parsed);
+    } catch {
+      /* keep the raw text — a CSS string that merely looks quoted stays */
+    }
+  }
+  cssText = cssText.trim();
   if (cssText.length > CUSTOM_CSS_MAX_BYTES) {
     throw new HttpError(413, "Custom CSS must be 20 KiB or smaller.");
   }
@@ -278,6 +293,28 @@ async function handleCssClearRoute(request, env, url, path, method) {
 
 // The css moderation desk (mirrors avatars): pending list oldest first,
 // approve promotes pending→approved in the same single batch, reject clears.
+
+// The approved theme as a STYLESHEET (v2.5): a same-origin css URL stays
+// inside style-src 'self' — no CSP change; the scope prefixing happened at
+// serve time. 404 when the member has no approved theme.
+async function handleCssStylesheetRoute(request, env, url, path, method) {
+  const cssMatch = path.match(/^\/api\/users\/([0-9]+)\/profile\.css$/);
+  if (cssMatch && method === "GET") {
+    const userId = Number(cssMatch[1]);
+    if (!Number.isSafeInteger(userId) || userId < 1) throw new HttpError(404, "Not found.");
+    const row = await env.FORUM_DB.prepare(
+      "SELECT approved_css FROM users WHERE id = ? LIMIT 1",
+    ).bind(userId).first();
+    const scoped = scopeProfileCss(row && row.approved_css ? row.approved_css : "");
+    if (!scoped) throw new HttpError(404, "Not found.");
+    return new Response(scoped, {
+      status: 200,
+      headers: { "Content-Type": "text/css", "Cache-Control": "public, max-age=60" },
+    });
+  }
+  return null;
+}
+
 async function handleCssAdminRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/css" && method === "GET") {
@@ -497,6 +534,7 @@ async function handleProfileRoutes(request, env, url, path, method) {
     handleCssSetRoute,
     handleCssClearRoute,
     handleAvatarUploadRoute,
+    handleCssStylesheetRoute,
     handleCssAdminRoutes,
     handlePasswordChangeRoute,
     handleAccountDeleteRoute,
