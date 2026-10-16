@@ -181,6 +181,7 @@ export async function insertAttachments(db, postId, createdBy, files, gifEntries
   if (files.length === 0 && gifEntries.length === 0) return [];
   const ids = [];
   const useStats = [];
+  const referenceInsertIndexes = [];
   const now = nowSeconds();
   const statements = [];
   for (const file of files) {
@@ -192,20 +193,22 @@ export async function insertAttachments(db, postId, createdBy, files, gifEntries
     const preApproved = Boolean(file.preApproved);
     statements.push(
       db.prepare(
-        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash) " +
-          "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      ).bind(id, postId, createdBy, now,
-        preApproved ? "approved" : "pending", createAvatarVersion(), file.mime, file.hash),
+        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash, source_kind) " +
+          "SELECT ?, ?, ?, ?, CASE WHEN ? = 1 AND NOT EXISTS (" +
+          "SELECT 1 FROM revoked_attachment_hashes WHERE hash = ?) THEN 'approved' ELSE 'pending' END, ?, ?, ?, 'upload'",
+      ).bind(id, postId, createdBy, now, preApproved ? 1 : 0, file.hash,
+        createAvatarVersion(), file.mime, file.hash),
     );
     // Keep an independent byte set for every attachment, even when identical
     // bytes were approved before. The hash grants approval, not shared storage
     // lifetime: the original post or GIF may later be removed.
-    const chunkKind = preApproved ? "approved" : "pending";
     for (let seq = 0, offset = 0; offset < file.bytes.length; seq += 1, offset += MAX_ATTACHMENT_CHUNK_BYTES) {
       statements.push(
         db.prepare(
-          "INSERT INTO attachment_chunks (attachment_id, kind, seq, data) VALUES (?, '" + chunkKind + "', ?, ?)",
-        ).bind(id, seq, file.bytes.subarray(offset, offset + MAX_ATTACHMENT_CHUNK_BYTES)),
+          "INSERT INTO attachment_chunks (attachment_id, kind, seq, data) " +
+          "SELECT ?, CASE WHEN EXISTS (SELECT 1 FROM attachments WHERE id = ? AND status = 'approved') " +
+          "THEN 'approved' ELSE 'pending' END, ?, ?",
+        ).bind(id, id, seq, file.bytes.subarray(offset, offset + MAX_ATTACHMENT_CHUNK_BYTES)),
       );
     }
   }
@@ -213,16 +216,25 @@ export async function insertAttachments(db, postId, createdBy, files, gifEntries
     const id = crypto.randomUUID();
     ids.push(id);
     useStats.push(gif.id);
+    referenceInsertIndexes.push(statements.length);
     statements.push(
       db.prepare(
-        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash) " +
-          "VALUES (?, ?, ?, ?, 'approved', ?, ?, ?)",
-      ).bind(id, postId, createdBy, now, createAvatarVersion(), gif.mime, gif.hash),
+        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash, source_kind) " +
+          "SELECT ?, ?, ?, ?, 'approved', ?, ?, ?, 'gif' WHERE EXISTS (" +
+          "SELECT 1 FROM gifs g WHERE g.id = ? AND g.hash = ? AND g.mime = ? AND g.status = 'approved' " +
+          "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = g.hash))",
+      ).bind(id, postId, createdBy, now, createAvatarVersion(), gif.mime, gif.hash,
+        gif.id, gif.hash, gif.mime),
     );
   }
   // One all-or-nothing batch: a failure partway through intake can never leave
   // a partial set of attachment metadata or orphaned chunk rows behind.
-  await db.batch(statements);
+  const results = await db.batch(statements);
+  for (const index of referenceInsertIndexes) {
+    if (Number(results[index]?.meta?.changes) !== 1) {
+      throw new HttpError(409, "One of the selected GIFs is no longer available.");
+    }
+  }
   for (const gifId of useStats) {
     // Best-effort popularity counter; never a post precondition.
     try {
@@ -385,13 +397,13 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
       db.prepare(
         "UPDATE attachment_chunks SET kind = 'approved' WHERE attachment_id = ? AND kind = 'pending'",
       ).bind(attachmentId),
+      db.prepare(
+        "DELETE FROM revoked_attachment_hashes WHERE hash = " +
+        "(SELECT hash FROM attachments WHERE id = ? AND status = 'approved')",
+      ).bind(attachmentId),
     ]);
     if (Number(results[0]?.meta?.changes) !== 1) {
       throw new HttpError(404, "Attachment not found.");
-    }
-    // Only clear a hash tombstone after the guarded approval actually committed.
-    if (pending.hash) {
-      await db.prepare("DELETE FROM revoked_attachment_hashes WHERE hash = ?").bind(pending.hash).run();
     }
     return json({ approved: true, id: attachmentId });
   }
