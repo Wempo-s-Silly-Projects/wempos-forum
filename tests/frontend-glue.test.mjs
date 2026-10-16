@@ -1,9 +1,11 @@
-// Pure helper tests for the Task 10 frontend glue modules. All three modules
-// are DOM-free at import time and in these helpers, so node --test can load
+// Pure helper tests for the frontend glue modules. All four modules are
+// DOM-free at import time and in these helpers, so node --test can load
 // them without a browser:
 // - profile-editor.js buildSocialLinks() / invalidSocialKeys()
 // - notifications.js notificationItemView()
 // - banned.js formatBanCountdown()
+// - attachments.js addComposerFiles() / buildComposerBody() (Node 22 ships
+//   File and FormData globals, so submission payloads are checkable here too)
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildSocialLinks, invalidSocialKeys, SOCIAL_LABELS } from "../public/js/profile-editor.js";
@@ -126,4 +128,90 @@ test("formatBanCountdown has no time for permanent bans", () => {
 
 test("formatBanCountdown clamps past expiry to zero minutes", () => {
   assert.equal(formatBanCountdown(1000 - 5, 1000), "0m");
+});
+// --- Task 7: composer attachment intake and submission -----------------------
+// DOM-free like the helpers above: Node 22 ships File/FormData globals, so the
+// submission helper can be exercised at the same payload boundary app.js posts
+// through api() (which passes FormData straight to fetch and JSON otherwise).
+
+import {
+  COMPOSER_ACCEPT,
+  MAX_COMPOSER_FILES,
+  MAX_COMPOSER_FILE_BYTES,
+  addComposerFiles,
+  buildComposerBody,
+} from "../public/js/attachments.js";
+
+const makeFile = (name, size, type = "image/png") =>
+  new File([new Uint8Array(size)], name, { type });
+
+test("the composer accept list covers exactly the mime types the server sniffs", () => {
+  assert.equal(COMPOSER_ACCEPT, "image/jpeg,image/png,image/webp,image/gif");
+  assert.equal(MAX_COMPOSER_FILES, 3);
+  assert.equal(MAX_COMPOSER_FILE_BYTES, 1024 * 1024);
+});
+
+test("two chosen files switch create-post submission to FormData with an images part per file", () => {
+  const first = makeFile("first.png", 120);
+  const second = makeFile("second.jpg", 80, "image/jpeg");
+  const submission = buildComposerBody({
+    body: "hello",
+    turnstileToken: "tok-1",
+    files: [first, second],
+  });
+  assert.equal(submission.multipart, true);
+  const form = submission.body;
+  assert.ok(form instanceof FormData);
+  assert.deepEqual(form.getAll("images"), [first, second]);
+  assert.equal(form.get("body"), "hello");
+  assert.equal(form.get("cf-turnstile-response"), "tok-1");
+});
+
+test("zero chosen files keeps the pre-attachment JSON payload byte-identical", () => {
+  for (const files of [[], undefined]) {
+    const submission = buildComposerBody({ body: "hello", turnstileToken: "tok-1", files });
+    assert.equal(submission.multipart, false);
+    assert.deepEqual(submission.body, { body: "hello", "cf-turnstile-response": "tok-1" });
+    // Same wire bytes the old call sites produced via JSON.stringify.
+    assert.equal(
+      JSON.stringify(submission.body),
+      JSON.stringify({ body: "hello", "cf-turnstile-response": "tok-1" }),
+    );
+  }
+});
+
+test("a file over 1 MiB is refused client-side with a message, never sent", () => {
+  const oversized = makeFile("big.png", MAX_COMPOSER_FILE_BYTES + 1);
+  const result = addComposerFiles([], [oversized]);
+  assert.equal(result.files.length, 0);
+  assert.equal(result.notices.length, 1);
+  assert.match(result.notices[0], /1 MiB/);
+  assert.match(result.notices[0], /big\.png/);
+});
+
+test("the 4th chosen file is blocked client-side with a clear message", () => {
+  const current = [
+    makeFile("a.png", 10), makeFile("b.png", 10), makeFile("c.png", 10),
+  ];
+  const result = addComposerFiles(current, [makeFile("four.png", 10)]);
+  assert.equal(result.files.length, 3);
+  assert.equal(result.files.every((f) => f !== undefined), true);
+  assert.equal(result.notices.length, 1);
+  assert.match(result.notices[0], /3/);
+});
+
+test("a mixed selection keeps the acceptable files and reports the rest", () => {
+  // Starting from 1 chosen file there is room for 2 more, so the first two
+  // acceptable picks land and only the leftovers draw cap notices; the
+  // oversized file is refused before it can eat a slot.
+  const result = addComposerFiles(
+    [makeFile("a.png", 10)],
+    [makeFile("big.png", MAX_COMPOSER_FILE_BYTES + 1), makeFile("good.png", 10),
+      makeFile("good-too.png", 10), makeFile("blocked.png", 10), makeFile("blocked-too.png", 10)],
+  );
+  assert.deepEqual(result.files.map((f) => f.name), ["a.png", "good.png", "good-too.png"]);
+  assert.equal(result.notices.length, 3);
+  // One over-cap notice per file the cap refused, never a silent truncation.
+  assert.equal(result.notices.filter((notice) => /3 images/.test(notice)).length, 2);
+  assert.equal(result.notices.filter((notice) => /1 MiB/.test(notice)).length, 1);
 });

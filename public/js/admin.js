@@ -104,6 +104,54 @@ export function createActiveBanList(bans, document) {
   return list;
 }
 
+// Pending image moderation queue (plan Task 6/7): oldest uploads first from
+// GET /api/admin/attachments. Mirrors the avatar queue above, sized down to a
+// small strip preview; the preview URL can 404 (pending bytes serve only to
+// the uploader and moderators), so the <img> hides itself on error.
+export function createAttachmentQueue(attachments, document) {
+  const list = document.createElement("div");
+  list.className = "attachment-queue";
+  if (!attachments.length) {
+    addText(document, list, "p", "No images are awaiting review.", "empty-state");
+    return list;
+  }
+  for (const attachment of attachments) {
+    const card = document.createElement("article");
+    card.className = "attachment-card";
+    addText(document, card, "h3", attachment.uploader);
+    addText(document, card, "p",
+      `Image for post #${attachment.postId} · uploaded ${new Date(attachment.createdAt).toLocaleString()}`);
+    addText(document, card, "p",
+      `${attachment.mime} · ${Math.max(1, Math.ceil(attachment.sizeBytes / 1024))} KB`, "muted");
+    const image = document.createElement("img");
+    image.className = "attachment-preview";
+    image.src = `/api/attachments/${attachment.id}`;
+    image.alt = `Pending image from ${attachment.uploader}`;
+    image.loading = "lazy";
+    image.addEventListener("error", () => image.remove());
+    card.append(image);
+    const actions = document.createElement("div");
+    actions.className = "form-actions";
+    for (const [formName, label, className] of [
+      ["admin-attachment-approve", "Approve", "button button-primary"],
+      ["admin-attachment-reject", "Reject", "button button-danger"],
+    ]) {
+      const form = document.createElement("form");
+      form.dataset.form = formName;
+      form.dataset.attachmentId = attachment.id;
+      const button = document.createElement("button");
+      button.type = "submit";
+      button.className = className;
+      button.textContent = label;
+      form.append(button);
+      actions.append(form);
+    }
+    card.append(actions);
+    list.append(card);
+  }
+  return list;
+}
+
 // Pending avatar moderation queue (spec §9): oldest uploads first from
 // GET /api/admin/avatars. The preview URL can 404 (serving is gated), so the
 // <img> hides itself on error instead of showing a broken image.

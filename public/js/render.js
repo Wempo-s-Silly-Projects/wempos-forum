@@ -1,3 +1,5 @@
+import { attachmentUrl } from "./attachments.js";
+
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
   if (className) element.className = className;
@@ -14,6 +16,34 @@ export const replyAffordances = (post, currentUser = null) => {
   const canReply = Boolean(currentUser) && Boolean(post.parent) && post.publicLevel === 1;
   const expandCount = post.subReplyCount > 0 ? post.subReplyCount : 0;
   return { canReply, canExpand: expandCount > 0, expandCount };
+};
+
+// Attachment rows Task 5 serializes onto every post/reply:
+// { id, status, mime, version, awaiting }. Approved rows serve publicly under
+// a versioned URL — safe for a lazy <img> with an empty alt. Pending rows
+// (awaiting: true) are only ever present in payloads the viewer authored or
+// can moderate; they render a placeholder chip instead of an <img>, because
+// the pending bytes 404 for everyone else and the moderation outcome is not
+// ours to imply. Post payloads without attachments (or with an empty array)
+// render nothing extra at all.
+const renderAttachments = (post, document, article) => {
+  const attachments = Array.isArray(post.attachments) ? post.attachments : [];
+  if (!attachments.length) return;
+  const strip = createElement(document, "div", "post-attachments");
+  for (const attachment of attachments) {
+    if (attachment.awaiting) {
+      strip.append(
+        createElement(document, "p", "attachment-pending", "🖼️ image awaiting review"),
+      );
+      continue;
+    }
+    const image = createElement(document, "img", "post-attachment");
+    image.src = attachmentUrl(attachment);
+    image.alt = "";
+    image.loading = "lazy";
+    strip.append(image);
+  }
+  article.append(strip);
 };
 
 export const createPostCard = (post, document, currentUser = null) => {
@@ -51,6 +81,8 @@ export const createPostCard = (post, document, currentUser = null) => {
     parentLink.href = `/posts/${post.parent.id}`;
     article.append(parentLink);
   }
+
+  renderAttachments(post, document, article);
 
   const actions = createElement(document, "div", "post-actions");
   for (const [value, label, count] of [

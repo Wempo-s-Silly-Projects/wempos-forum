@@ -833,3 +833,97 @@ dialog h2 {
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
+
+/* Post image attachments (plan Task 7): the strip under a post/reply body and
+   the composer's chosen-file chips. Rendered images are capped so cards stay
+   uniform in the feed; the paper-card border idiom matches the rest. */
+
+.post-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.6rem 0 0;
+}
+
+.post-attachment {
+  width: clamp(6rem, 14vw, 9rem);
+  height: 9rem;
+  object-fit: cover;
+  border: 2px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--paper);
+}
+
+.attachment-pending {
+  margin: 0;
+  padding: 0.35rem 0.7rem;
+  border: 1.5px dashed var(--line);
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--ink);
+  align-self: center;
+}
+
+.composer-attach-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.composer-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.composer-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  border: 1.5px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--paper);
+  font-size: 0.85rem;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.composer-file-remove {
+  padding: 0.15rem 0.5rem;
+  min-height: unset;
+  font-size: 0.8rem;
+}
+
+.attachment-queue {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.attachment-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--paper);
+}
+
+.attachment-card h3,
+.attachment-card p {
+  margin: 0;
+  flex: 1 1 12rem;
+}
+
+.attachment-preview {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--paper);
+}

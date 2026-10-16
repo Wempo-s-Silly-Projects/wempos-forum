@@ -1,6 +1,13 @@
 import { api, setCsrfToken } from "./api.js";
 import {
+  COMPOSER_ACCEPT,
+  MAX_COMPOSER_FILES,
+  addComposerFiles,
+  buildComposerBody,
+} from "./attachments.js";
+import {
   createActiveBanList,
+  createAttachmentQueue,
   createAvatarQueue,
   createReportQueue,
 } from "./admin.js";
@@ -137,10 +144,70 @@ function createComposer(name, label, buttonLabel, postID = null, turnstileAction
     id: `${name}-${postID ?? "new"}-body`, name: "body", label,
     rows: 4, maxLength: 2000, required: true,
   }));
+  form.append(createComposerAttachmentRow());
   addTurnstileSlot(form, turnstileAction ?? (name === "post-create" ? "post" : "reply"));
   addSubmit(form, buttonLabel);
   panel.append(form);
   return panel;
+}
+
+// Image attachments on every composer (plan Task 7): a paperclip-style button
+// driving a hidden multi-file input, plus a strip of chosen files rendered by
+// renderComposerFileStrip. The chosen File objects never enter the DOM — they
+// ride on a plain `composerFiles` property of the form, which readForm's
+// FormData knows nothing about; submit handlers fold them into the payload.
+// Uploads land in the moderation-pending state, so the note mirrors the
+// avatar uploader's review-first wording.
+function createComposerAttachmentRow() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = COMPOSER_ACCEPT;
+  input.multiple = true;
+  input.hidden = true;
+  input.setAttribute("aria-hidden", "true");
+  input.tabIndex = -1;
+  input.dataset.composerInput = "images";
+  const attach = element("button", "button button-quiet", "📎 Attach images");
+  attach.type = "button";
+  attach.dataset.action = "composer-attach";
+  const description = element("span", "form-note");
+  description.textContent =
+    `Images are reviewed before they show publicly. Up to ${MAX_COMPOSER_FILES}, ` +
+    "1 MiB or less each (JPEG, PNG, WebP, or GIF).";
+  const strip = element("div", "composer-files");
+  strip.dataset.composerStrip = "images";
+  strip.hidden = true;
+  const row = element("div", "composer-attach-row");
+  row.append(attach, description, strip, input);
+  return row;
+}
+
+function renderComposerFileStrip(form) {
+  const strip = form.querySelector('[data-composer-strip]');
+  if (!strip) return;
+  const files = form.composerFiles ?? [];
+  strip.replaceChildren();
+  strip.hidden = files.length === 0;
+  for (const [index, file] of files.entries()) {
+    const chip = element("span", "composer-file", file.name);
+    const remove = element("button", "button button-quiet composer-file-remove", "Remove");
+    remove.type = "button";
+    remove.dataset.action = "remove-composer-file";
+    remove.dataset.fileIndex = String(index);
+    chip.append(remove);
+    strip.append(chip);
+  }
+}
+
+function handleComposerFileSelection(input) {
+  const form = input.closest("form");
+  if (!form) return;
+  const { files, notices } = addComposerFiles(form.composerFiles ?? [], input.files);
+  form.composerFiles = files;
+  renderComposerFileStrip(form);
+  if (notices.length) setMessage(notices.join(" "), true);
+  // Reset so re-picking the same file fires another change event.
+  input.value = "";
 }
 
 function renderAccountNavigation(user, unreadNotifications = 0) {
@@ -370,13 +437,15 @@ function renderProfile(profile, session) {
   renderProfilePosts(profile, session.user);
 }
 
-function renderAdmin(reportData, banData, avatarData, user) {
+function renderAdmin(reportData, banData, avatarData, attachmentData, user) {
   addHeading(main, "Moderation desk", 1);
   addText(document, main, "p", "Review reports, hide inappropriate posts, and manage active bans.", "page-lede");
   addHeading(main, "Open reports", 2);
   main.append(createReportQueue(reportData.reports, document, user));
   addHeading(main, "Avatars awaiting review", 2);
   main.append(createAvatarQueue(avatarData.avatars, document));
+  addHeading(main, "Images awaiting review", 2);
+  main.append(createAttachmentQueue(attachmentData.attachments, document));
   addHeading(main, "Active bans", 2);
   main.append(createActiveBanList(banData.bans, document));
 }
@@ -464,13 +533,14 @@ async function renderProfileRoute(route, context, version) {
 }
 
 async function renderAdminRoute(context, version) {
-  const [reports, bans, avatars] = await Promise.all([
+  const [reports, bans, avatars, attachments] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/bans"),
     api("/api/admin/avatars"),
+    api("/api/admin/attachments"),
   ]);
   if (version !== renderVersion) return;
-  renderAdmin(reports, bans, avatars, context.session.user);
+  renderAdmin(reports, bans, avatars, attachments, context.session.user);
 }
 
 async function renderNotificationsRoute(context, version) {
@@ -557,27 +627,37 @@ async function submitAuthForm(type, form, text) {
 }
 
 async function submitNewPost(form, text) {
-  const credentials = { body: text("body") };
-  credentials["cf-turnstile-response"] = takeTurnstileToken(form);
+  // buildComposerBody picks the wire format: FormData (repeatable "images"
+  // parts) when files were chosen, otherwise the exact pre-attachment JSON
+  // payload. api() passes FormData straight through without a Content-Type.
+  const submission = buildComposerBody({
+    body: text("body"),
+    turnstileToken: takeTurnstileToken(form),
+    files: form.composerFiles ?? [],
+  });
   refreshTurnstile(form);
-  const post = await api("/api/posts", { method: "POST", body: credentials });
+  const post = await api("/api/posts", { method: "POST", body: submission.body });
   router.navigate("/posts/" + post.id);
   setMessage("Your post is live.");
 }
 
 async function submitReplyForm(form, text) {
   const postId = Number(form.dataset.postId);
-  const reply = { body: text("body") };
-  // Replies are Turnstile-gated server-side with action "reply".
-  reply["cf-turnstile-response"] = takeTurnstileToken(form);
+  const threadId = form.dataset.threadId ?? postId;
+  // Same dual wire format as posts; replies are Turnstile-gated server-side
+  // with action "reply".
+  const submission = buildComposerBody({
+    body: text("body"),
+    turnstileToken: takeTurnstileToken(form),
+    files: form.composerFiles ?? [],
+  });
   refreshTurnstile(form);
   await api("/api/posts/" + postId + "/replies", {
     method: "POST",
-    body: reply,
+    body: submission.body,
   });
-  // Reply-to-reply composers remember the thread root so the rerender lands
-  // back on the conversation, not on the level-1 reply's detail page.
-  const threadId = form.dataset.threadId ?? postId;
+  // Reply-to-reply composers remember the thread root (declared above) so the
+  // rerender lands back on the conversation, not on the level-1 reply's page.
   await renderRoute({ name: "post", id: Number(threadId) });
   setMessage("Your reply was added.");
 }
@@ -681,6 +761,8 @@ async function submitForm(form) {
     "admin-demote": () => submitRoleChange(form, "demote", text),
     "admin-avatar-approve": () => submitAvatarModeration(form, "approve"),
     "admin-avatar-reject": () => submitAvatarModeration(form, "reject"),
+    "admin-attachment-approve": () => submitAttachmentModeration(form, "approve"),
+    "admin-attachment-reject": () => submitAttachmentModeration(form, "reject"),
   };
   const handler = handlers[type];
   if (handler) await handler();
@@ -815,6 +897,37 @@ async function submitAvatarModeration(form, action) {
   setMessage(action === "approve" ? "The avatar was approved." : "The avatar was rejected.");
 }
 
+// Attachment rows are per-post ids, not replaceable profile pairs, and an
+// unknown/stale id 404s (never "already handled") — same rerender-and-report
+// flow as the avatar desk above.
+async function submitAttachmentModeration(form, action) {
+  await api("/api/admin/attachments/" + form.dataset.attachmentId + "/" + action, {
+    method: "POST",
+  });
+  await renderRoute({ name: "admin" });
+  setMessage(action === "approve" ? "The image was approved." : "The image was rejected.");
+}
+
+function attachComposerImages(button) {
+  // The paperclip button lives inside the composer's form, so `.closest("form")`
+  // always resolves the right composer even with several on one page.
+  const form = button.closest("form");
+  const input = form?.querySelector('[data-composer-input]');
+  if (input) input.click();
+}
+
+function removeComposerFile(button) {
+  const form = button.closest("form");
+  if (!form) return;
+  const files = form.composerFiles ?? [];
+  const index = Number(button.dataset.fileIndex);
+  if (Number.isInteger(index) && index >= 0 && index < files.length) {
+    files.splice(index, 1);
+  }
+  form.composerFiles = files;
+  renderComposerFileStrip(form);
+}
+
 function openReportDialog(button) {
   reportForm.dataset.postId = button.dataset.postId;
   reportDialog.showModal();
@@ -873,6 +986,8 @@ async function handleButtonAction(button) {
     "expand-sub-replies": () => toggleSubReplies(button),
     "open-notification": () => openNotification(button),
     "mark-notifications-read": () => markAllNotificationsRead(),
+    "composer-attach": () => attachComposerImages(button),
+    "remove-composer-file": () => removeComposerFile(button),
   };
   const handler = handlers[button.dataset.action];
   if (handler) await handler();
@@ -889,6 +1004,14 @@ async function handleClick(event) {
   }
 }
 document.addEventListener("click", handleClick);
+// Composer file inputs: folder/picker selections are folded into the form's
+// chosen list at change time (cap + size messages surface on the status bar).
+document.addEventListener("change", (event) => {
+  const input = event.target;
+  if (input instanceof HTMLInputElement && input.dataset.composerInput === "images") {
+    handleComposerFileSelection(input);
+  }
+});
 document.addEventListener("submit", async (event) => {
   const form = event.target;
   if (!(form instanceof HTMLFormElement)) return;
