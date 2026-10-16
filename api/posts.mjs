@@ -644,7 +644,14 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
       : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, targetId, session.user.id, now];
     const insertStatements = [db.prepare(insertSql).bind(...insertValues)];
     if (!hasAttachments) insertStatements.push(db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId));
-    const results = await db.batch(insertStatements);
+    let results;
+    try {
+      results = await db.batch(insertStatements);
+    } catch (error) {
+      const raced = await existingIdempotentPost(db, session.user.id, idempotencyKey);
+      if (raced?.visibility === "public") return json({ id: Number(raced.id) }, 200);
+      throw error;
+    }
     if (Number(results[0]?.meta?.changes) !== 1) {
       throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
     }
@@ -736,12 +743,19 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     // Both values are fixed server-owned SQL literals; keeping visibility out of
     // the bind list preserves the established root-post bind order.
     const visibilitySql = hasAttachments ? "'hidden'" : "'public'";
-    const result = await db.prepare(
-      "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key) " +
-        "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ? WHERE NOT EXISTS (" +
-        "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
-        "AND (expires_at IS NULL OR expires_at > ?))",
-    ).bind(session.user.id, message, now, now, board, idempotencyKey, session.user.id, now).run();
+    let result;
+    try {
+      result = await db.prepare(
+        "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key) " +
+          "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ? WHERE NOT EXISTS (" +
+          "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+          "AND (expires_at IS NULL OR expires_at > ?))",
+      ).bind(session.user.id, message, now, now, board, idempotencyKey, session.user.id, now).run();
+    } catch (error) {
+      const raced = await existingIdempotentPost(db, session.user.id, idempotencyKey);
+      if (raced?.visibility === "public") return json({ id: Number(raced.id) }, 200);
+      throw error;
+    }
     requireMutationApplied(result);
     const postId = Number(result.meta.last_row_id);
     if (hasAttachments) {
