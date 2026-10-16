@@ -1104,6 +1104,7 @@ test("approving flips the pending chunks to approved, marks the row approved, an
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
+    { sql: /SELECT hash FROM attachments WHERE id = \\? AND status = 'pending'/, result: { hash: null } },
     { sql: /^UPDATE attachments/, runMeta: { meta: { changes: 1 } } },
     { sql: /^UPDATE attachment_chunks/, runMeta: { meta: { changes: 6 } } },
     { sql: /./ },
@@ -1144,6 +1145,7 @@ test("rejecting deletes the attachments row so its chunks cascade away", async (
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
+    { sql: /SELECT hash, status FROM attachments WHERE id = \\? AND status IN \\('pending', 'approved'\\)/, result: { hash: "", status: "pending" } },
     { sql: /^DELETE FROM attachments/, runMeta: { meta: { changes: 1 } } },
     { sql: /./ },
   ]);
@@ -1180,6 +1182,7 @@ test("after approval the row is gone from the queue on re-listing", async () => 
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
+    { sql: /SELECT hash FROM attachments WHERE id = \\? AND status = 'pending'/, result: { hash: null } },
     { sql: /^UPDATE attachments SET/, runMeta: { meta: { changes: 1 } } },
     queueRoute,
     { sql: /./ },
@@ -1212,7 +1215,7 @@ test("rejecting an APPROVED attachment hard-deletes the row (chunks cascade)", a
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /^DELETE FROM attachments/, runMeta: { meta: { changes: 1 } } },
+    { sql: /SELECT hash, status FROM attachments WHERE id = \\? AND status IN \\('pending', 'approved'\\)/, result: { hash: "shared-hash", status: "approved" } },
     { sql: /./ },
   ]);
   const response = await forumWorker.fetch(
@@ -1225,8 +1228,10 @@ test("rejecting an APPROVED attachment hard-deletes the row (chunks cascade)", a
   assert.deepEqual(body, { rejected: true, id: ATTACHMENT_ID });
   const rejectCall = mock.calls.find((call) => call.sql.startsWith("DELETE FROM attachments"));
   assert.ok(rejectCall, "the reject DELETE must run against an approved row too");
-  assert.ok(rejectCall.sql.includes("status IN ('pending', 'approved')"));
-  assert.deepEqual(rejectCall.values, [ATTACHMENT_ID]);
+  assert.ok(rejectCall.sql.includes("DELETE FROM attachments WHERE hash = ? AND status = 'approved'"));
+  assert.deepEqual(rejectCall.values, ["shared-hash"]);
+  assert.equal(mock.batches.length, 1, "approved rejection atomically records the hash tombstone and deletes every approved duplicate");
+  assert.equal(mock.batches[0].length, 2);
   // HARD delete, no relabel: the approved chunk set dies with the row via the
   // FK cascade, so no UPDATE may fire.
   assert.equal(
