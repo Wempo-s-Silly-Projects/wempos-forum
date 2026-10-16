@@ -8,6 +8,7 @@ import { handlePostRoutes } from "./api/posts.mjs";
 import { handleProfileRoutes } from "./api/profiles.mjs";
 import { handleModerationRoutes } from "./api/moderation.mjs";
 import { handleNotificationsRoutes } from "./api/notifications.mjs";
+import { handleSubscriptionsRoutes } from "./api/subscriptions.mjs";
 import { handleArchiveRoutes } from "./api/archive.mjs";
 import { handleGifRoutes } from "./api/gifs.mjs";
 import { handleAttachmentRoutes } from "./api/attachments.mjs";
@@ -28,7 +29,7 @@ export {
   verifyPassword,
 } from "./api/shared.mjs";
 export { createUserBan } from "./api/moderation.mjs";
-export { notificationBatchStatements, unreadCount } from "./api/notifications.mjs";
+export { fanOutStatements, notificationBatchStatements, unreadCount } from "./api/notifications.mjs";
 
 function secureResponse(response) {
   const headers = securityHeaders(response.headers);
@@ -55,7 +56,7 @@ async function routeApi(request, env) {
 
   await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
 
-  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes];
+  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method);
     if (response) return response;

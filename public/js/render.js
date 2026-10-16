@@ -301,6 +301,25 @@ export const createPostCard = (post, document, currentUser = null) => {
     deleteButton.dataset.deleteScope = post.parent ? "reply" : "thread";
     actions.append(deleteButton);
   }
+  // Subscribe toggle (C1): the detail payload carries `subscribed`, so the
+  // toggle is data-driven and only the detail view's root card can ever show
+  // it (feed cards, reply cards, and un-upgraded payloads have no field).
+  // Guests get no toggle (the server 401s) exactly like the reaction buttons.
+  if (currentUser && post.subscribed !== undefined && !post.parent) {
+    const subscribeButton = createElement(document, "button", "button button-quiet subscribe-toggle");
+    subscribeButton.type = "button";
+    subscribeButton.dataset.action = "toggle-subscribe";
+    subscribeButton.dataset.postId = String(post.id);
+    subscribeButton.dataset.subscribed = post.subscribed ? "1" : "0";
+    subscribeButton.setAttribute("aria-pressed", String(Boolean(post.subscribed)));
+    subscribeButton.setAttribute("aria-label",
+      post.subscribed ? "Unsubscribe from this thread" : "Subscribe to this thread");
+    subscribeButton.append(
+      createIcon(document, "bell-check"),
+      document.createTextNode(post.subscribed ? "Subscribed" : "Subscribe"),
+    );
+    actions.append(subscribeButton);
+  }
   // Reply affordance: same strict rule as replyAffordances — signed-in users
   // on explicitly level-1 rows only (publicLevel 2 and undefined publicLevel
   // never show it; replying to level-2 targets is server-forbidden).

@@ -886,9 +886,12 @@ async function renderRoute(route) {
     main.classList.remove(activeProfileAccentClass);
     activeProfileAccentClass = null;
   }
-    activeProfileStyleNode = null;
-  }
+  // Custom profile CSS (v2.5): the tracked <link> was removed inside
+  // applyProfileTheme (which also owns the null assignment at the top of this
+  // render); the scope class must be dropped here so the class never tints a
+  // non-profile route (the review caught exactly that for the accent).
   main.classList.remove("profile-theme-scope");
+  activeProfileStyleNode = null;
   teardownTurnstile();
   main.replaceChildren();
   setMessage();
@@ -1521,6 +1524,18 @@ async function handleButtonAction(button) {
     "expand-sub-replies": () => toggleSubReplies(button),
     quote: () => quoteIntoComposer(button),
     "open-notification": () => openNotification(button),
+    // Thread subscriptions (C1): the detail card's toggle. The payload flag
+    // (dataset.subscribed) picks the direction — POST to follow, DELETE to
+    // stop — and the route re-render refetches the post, so the payload's
+    // subscribed state comes back from the server, never from the echo.
+    "toggle-subscribe": async () => {
+      const subscribed = button.dataset.subscribed === "1";
+      await api("/api/posts/" + button.dataset.postId + "/subscribe", {
+        method: subscribed ? "DELETE" : "POST",
+      });
+      await renderRoute(activeRoute);
+      setMessage(subscribed ? "You unsubscribed from this thread." : "You will get notifications for replies here.");
+    },
     "mark-notifications-read": () => markAllNotificationsRead(),
     "composer-attach": () => attachComposerImages(button),
     "open-gif-picker": () => openGifPicker(button),

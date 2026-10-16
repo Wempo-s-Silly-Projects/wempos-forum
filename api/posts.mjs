@@ -8,6 +8,7 @@ import {
 } from "./attachments.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { notificationBatchStatements } from "./notifications.mjs";
+import { subscriberFlagForViewer, subscriptionReplyFanOut } from "./subscriptions.mjs";
 import {
   archivePostRowsStatement,
   assertNotBanned,
@@ -465,6 +466,10 @@ async function handlePostDetailRoute(request, env, url, path, method) {
     });
     post.repliesNextBefore = replyPage.nextBefore;
     post.attachments = replyPage.attachments.get(Number(row.id)) || [];
+    // Thread subscriptions (C1): the detail carries the viewer's subscribed
+    // state (root-only dimension — replies read false without a query, like
+    // boards read 'general' on pre-migration rows).
+    post.subscribed = await subscriberFlagForViewer(env.FORUM_DB, viewerId, row);
     return json(post);
   }
   return null;
@@ -543,9 +548,21 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     try {
       // Best-effort fan-out in a second batch: the reply id only exists after
       // the insert above, and a failed notification must never fail the reply.
+      // Thread subscriptions (C1) ride the same batch: every subscriber of the
+      // ROOT is notified except the reply author and the reply's ordinary
+      // target (both excluded in subscriptionReplyFanOut; the INSERT's own
+      // NOT EXISTS guard dedupes both halves regardless).
       const statements = notificationBatchStatements(
         db, recipientId, session.user.id, targetId, replyId, now,
       );
+      statements.push(...await subscriptionReplyFanOut(db, {
+        rootPostId: bumpTargetId,
+        replyAuthorId: session.user.id,
+        replyTargetId: recipientId,
+        targetPostId: targetId,
+        replyId,
+        now,
+      }));
       if (statements.length > 0) await db.batch(statements);
     } catch {
       // Ignore: notifications are a convenience, not a reply precondition.

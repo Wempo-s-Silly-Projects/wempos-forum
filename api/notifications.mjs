@@ -55,6 +55,28 @@ function notificationBatchStatements(db, recipientId, replyAuthorId, targetPostI
   ];
 }
 
+// Statement builder shared by the other fan-out sources (subscriptions C1,
+// mentions C2): one dedupe-guarded INSERT + one cap-pruning DELETE per unique,
+// valid recipient — the exact notificationBatchStatements idiom spread over a
+// list. Caller-side exclusions (reply author, ordinary target, self-mention)
+// are applied BEFORE this runs; the INSERT's own NOT EXISTS guard remains the
+// last line of defense against duplicate notifications for one (member, reply).
+export function fanOutStatements(db, recipientIds, { targetPostId, replyId, now }) {
+  const statements = [];
+  const seen = new Set();
+  for (const rawId of recipientIds || []) {
+    const recipientId = Number(rawId);
+    if (!Number.isSafeInteger(recipientId) || recipientId < 1 || seen.has(recipientId)) continue;
+    seen.add(recipientId);
+    statements.push(
+      db.prepare(INSERT_NOTIFICATION_SQL)
+        .bind(recipientId, targetPostId, replyId, now, recipientId, replyId),
+      db.prepare(PRUNE_NOTIFICATIONS_SQL).bind(recipientId, recipientId),
+    );
+  }
+  return statements;
+}
+
 async function unreadCount(env, userId) {
   const row = await env.FORUM_DB.prepare(
     "SELECT COUNT(*) AS unread FROM notifications WHERE user_id = ? AND read_at IS NULL",

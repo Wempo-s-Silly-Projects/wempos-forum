@@ -976,3 +976,77 @@ test("migration 0009 adds a NOT NULL view_count defaulting to zero", () => {
   assert.equal(db.prepare("SELECT view_count FROM posts WHERE id = 1").get().view_count, 1,
     "the increment (RETURNING) path works on the real column");
 });
+
+// Milestone C migrations: the same per-migration apply-helper pattern, applied
+// on top of the existing chain like the real D1 run (each file in its own
+// transaction, in filename order).
+
+const MIGRATION_0013 = readFileSync(path.join(repoRoot, "migrations", "0013_subscriptions.sql"), "utf8");
+
+const apply0013 = (db) => applyFile(db, MIGRATION_0013);
+
+function applyFile(db, sql) {
+  db.exec("BEGIN");
+  try {
+    db.exec(sql);
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
+
+function openLatestDb() {
+  const db = openV6Db();
+  applyPostEdits(db);
+  applyPostArchive(db);
+  applyViewCount(db);
+  return db;
+}
+
+// --- 0013: thread_subscriptions (C1) ------------------------------------------
+
+test("migration 0013 creates thread_subscriptions with the composite PK and cascades", () => {
+  const db = openLatestDb();
+  const before = objectNamesForType(db, "table");
+  assert.ok(!before.includes("thread_subscriptions"), "thread_subscriptions must not exist before 0013");
+  apply0013(db);
+  const tables = objectNamesForType(db, "table");
+  assert.ok(tables.includes("thread_subscriptions"), "thread_subscriptions table exists");
+  // The (user_id, post_id) PK order.
+  const pkInfo = db.prepare("PRAGMA table_info(thread_subscriptions)").all()
+    .filter((column) => column.pk > 0)
+    .sort((a, b) => a.pk - b.pk)
+    .map((column) => column.name);
+  assert.deepEqual(pkInfo, ["user_id", "post_id"]);
+  assert.ok(objectNamesForType(db, "index").includes("idx_thread_subscriptions_post"),
+    "missing index idx_thread_subscriptions_post");
+
+  db.prepare(
+    "INSERT INTO thread_subscriptions (user_id, post_id, created_at) VALUES (?, ?, ?)",
+  ).run(1, 1, T + 300);
+  // Re-subscribing is a no-op at the SQL layer too (composite PK).
+  assert.throws(() =>
+    db.prepare(
+      "INSERT INTO thread_subscriptions (user_id, post_id, created_at) VALUES (?, ?, ?)",
+    ).run(1, 1, T + 301));
+  // Orphans are refused.
+  assert.throws(() =>
+    db.prepare(
+      "INSERT INTO thread_subscriptions (user_id, post_id, created_at) VALUES (?, ?, ?)",
+    ).run(999, 1, T + 301));
+  assert.throws(() =>
+    db.prepare(
+      "INSERT INTO thread_subscriptions (user_id, post_id, created_at) VALUES (?, ?, ?)",
+    ).run(1, 999, T + 301));
+});
+
+test("migration 0013 cascades with the account and the thread", () => {
+  const db = (() => { const d = openLatestDb(); apply0013(d); return d; })();
+  db.prepare(
+    "INSERT INTO thread_subscriptions (user_id, post_id, created_at) VALUES (?, ?, ?)",
+  ).run(1, 3, T + 300);
+  db.prepare("DELETE FROM posts WHERE id = 3").run();
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM thread_subscriptions").get().n, 0,
+    "the thread's subscriptions cascade away with the thread rows");
+});
