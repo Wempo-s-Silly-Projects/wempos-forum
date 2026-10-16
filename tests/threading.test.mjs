@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import forumWorker, { canViewPost } from "../worker.mjs";
-import { THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL, REPLY_BUMP_SQL } from "../constants.mjs";
+import { THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL, REPLY_BUMP_SQL, STAGED_REPLY_BUMP_SQL } from "../constants.mjs";
 import { listRootPosts } from "../api/posts.mjs";
 
 // D1 mock: routes are { sql: RegExp, result? , rows?, runMeta? }. prepare() picks
@@ -174,9 +174,9 @@ function threadRoutes(rowForId) {
 
 test("threaded reply insert requires a public target that is a root or has a public root parent, plus an unbanned author", () => {
   assert.ok(THREAD_REPLY_INSERT_SQL.includes(
-    "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board)",
+    "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key)",
   ));
-  assert.ok(THREAD_REPLY_INSERT_SQL.includes("SELECT ?, ?, ?, 'public', ?, ?, ? WHERE EXISTS"));
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("SELECT ?, ?, ?, 'public', ?, ?, ?, ? WHERE EXISTS"));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("FROM posts WHERE id = ? AND visibility = 'public' AND ("));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("parent_id IS NULL OR EXISTS"));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes(
@@ -187,18 +187,19 @@ test("threaded reply insert requires a public target that is a root or has a pub
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("expires_at IS NULL OR expires_at > ?"));
   // Bind order: author, parent, body, created, last_activity, board (the
   // thread root's board, resolved by the route), target, ban user, ban now.
-  assert.equal((THREAD_REPLY_INSERT_SQL.match(/\?/g) || []).length, 9);
+  assert.equal((THREAD_REPLY_INSERT_SQL.match(/\?/g) || []).length, 10);
 });
 
 test("the reply bump updates one row's activity stamp", () => {
-  assert.match(REPLY_BUMP_SQL, /^UPDATE posts SET last_activity_at = \? WHERE id = \?$/);
+  assert.match(REPLY_BUMP_SQL, /last_activity_at = MAX\(COALESCE\(last_activity_at, 0\), \?\)/);
+  assert.match(STAGED_REPLY_BUMP_SQL, /reply\.id = \? AND reply\.parent_id = posts\.id AND reply\.visibility = 'public'/);
 });
 test("staged reply insertion accepts a bound hidden visibility without weakening the thread guard", () => {
-  assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /SELECT \?, \?, \?, \?, \?, \?, \? WHERE EXISTS/);
+  assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /SELECT \?, \?, \?, \?, \?, \?, \?, \? WHERE EXISTS/);
   assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /FROM posts WHERE id = \? AND visibility = 'public'/);
   assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /parent_id IS NULL OR EXISTS/);
   assert.match(THREAD_REPLY_INSERT_STAGED_SQL, /NOT EXISTS \(SELECT 1 FROM bans WHERE user_id = \?/);
-  assert.equal((THREAD_REPLY_INSERT_STAGED_SQL.match(/\?/g) || []).length, 10);
+  assert.equal((THREAD_REPLY_INSERT_STAGED_SQL.match(/\?/g) || []).length, 11);
 });
 
 
