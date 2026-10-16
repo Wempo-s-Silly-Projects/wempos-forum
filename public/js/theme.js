@@ -25,17 +25,23 @@ function readOsPreference(doc) {
   return view !== null && !!view.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
+import { createIcon } from "./icons.js";
+import { rethemeTurnstile } from "./turnstile.js";
+
 export function initTheme(doc, storage) {
   const root = doc.documentElement;
 
   const announceNextMode = (theme) => {
     const toggle = doc.querySelector("#theme-toggle");
     if (toggle) {
-      // The label announces the action the NEXT click performs.
+      // The label announces the action the NEXT click performs; the icon
+      // reflects the CURRENT mode — sun in light, moon in dark (owner spec).
       toggle.setAttribute(
         "aria-label",
         theme === "dark" ? "Switch to light theme" : "Switch to dark theme",
       );
+      toggle.replaceChildren(createIcon(doc, theme === "dark" ? "moon" : "sun"));
+      rethemeTurnstile();
     }
   };
 

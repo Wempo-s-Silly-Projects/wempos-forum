@@ -13,6 +13,7 @@ import {
 } from "./admin.js";
 import { addText, createForm, createInput, createTextarea } from "./forms.js";
 import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
+import { iconButton } from "./icons.js";
 import {
   appendPostList,
   closeEditForm,
@@ -261,8 +262,11 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   suggestions.setAttribute("data-app-link", "");
   accountActions.append(suggestions);
   // Accountability archive (v2.4.1): public to guests and members alike.
-  const archiveLink = element("a", "button button-secondary", "Archive");
-  archiveLink.href = "/archive";
+  const archiveLink = iconButton(document, "archive", {
+    tagName: "a",
+    className: "button button-secondary icon-button",
+    dataset: { href: "/archive" },
+  });
   archiveLink.setAttribute("data-app-link", "");
   accountActions.append(archiveLink);
   if (!user) {
@@ -272,8 +276,13 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
     accountActions.append(signIn);
     return;
   }
-  const profile = element("a", "button button-secondary", user.username);
-  profile.href = `/users/${encodeURIComponent(user.username)}`;
+  const profile = iconButton(document, "person", {
+    tagName: "a",
+    className: "button button-secondary icon-button",
+    ariaLabel: "Profile — " + user.username,
+    dataset: { href: "/users/" + encodeURIComponent(user.username) },
+  });
+  profile.setAttribute("data-app-link", "");
   accountActions.append(profile);
   accountActions.append(createNotificationBell(unreadNotifications, document));
   if (user.role === "admin" || user.role === "moderator") {
@@ -281,9 +290,10 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
     reports.href = "/admin/reports";
     accountActions.append(reports);
   }
-  const logout = element("button", "button button-quiet", "Log out");
-  logout.type = "button";
-  logout.dataset.action = "logout";
+  const logout = iconButton(document, "logout", {
+    className: "button button-quiet icon-button",
+    dataset: { action: "logout" },
+  });
   accountActions.append(logout);
 }
 

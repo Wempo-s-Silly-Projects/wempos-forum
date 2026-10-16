@@ -520,7 +520,7 @@ test("the frontend wires the Suggestions route, header link, composer board, and
   assert.match(routerJs, /pathname === "\/suggestions"\) return \{ name: "suggestions" \}/);
   // The account nav renders the link for signed-out viewers too.
   assert.match(appJs, /accountActions\.append\(suggestions\);/);
-  assert.match(appJs, /archiveLink\.href = "\/archive";/);
+  assert.match(appJs, /dataset: { href: "\/archive" }/); // archive link is now an icon button
   assert.match(appJs, /accountActions\.append\(archiveLink\);/);
 });
 test("a shared score across a page boundary skips or duplicates no rows", async () => {

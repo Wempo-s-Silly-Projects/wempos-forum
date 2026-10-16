@@ -21,6 +21,8 @@ export const notificationItemView = (item) => {
 // Header bell: shown for signed-in users only (renderAccountNavigation decides
 // whether to append it). The unread badge is hidden when the count is zero but
 // stays in the DOM so updateBell() can reveal it later without a rebuild.
+import { createIcon } from "./icons.js";
+
 export const createNotificationBell = (unreadCount, document) => {
   const bell = document.createElement("a");
   bell.id = "notification-bell";
@@ -29,7 +31,7 @@ export const createNotificationBell = (unreadCount, document) => {
   const count = Number(unreadCount) || 0;
   bell.setAttribute("aria-label",
     count ? `Notifications, ${count} unread` : "Notifications");
-  bell.append(document.createTextNode("Notifications"));
+  bell.append(createIcon(document, "bell"));
   const badge = document.createElement("span");
   badge.className = "notification-badge";
   badge.dataset.notificationCount = "true";

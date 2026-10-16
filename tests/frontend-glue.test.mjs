@@ -12,6 +12,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildSocialLinks, invalidSocialKeys, SOCIAL_LABELS } from "../public/js/profile-editor.js";
+import { createIcon, iconButton } from "../public/js/icons.js";
 import { resolveTheme } from "../public/js/theme.js";
 import { notificationItemView } from "../public/js/notifications.js";
 import { formatBanCountdown } from "../public/js/banned.js";
@@ -652,4 +653,56 @@ test("the deletion confirm flows are wired in app.js and the shared dialog exist
   // The dialog copy is filled through textContent properties only.
   assert.match(appJs, /confirmTitle\.textContent = title;/);
   assert.match(appJs, /confirmMessage\.textContent = message;/);
+});
+
+// --- v2.4.1: header icon kit -----------------------------------------------------
+// icons.js draws stroke-only inline SVGs via createElementNS (CSP-safe, no
+// icon library, no emoji characters) and packages them into accessible
+// icon-only buttons whose actionable label lives in aria-label.
+
+function stubDocument() {
+  const nodes = [];
+  const make = (tag, ns) => {
+    const node = {
+      tagName: tag.toUpperCase(), namespaceURI: ns || null,
+      attributes: {}, dataset: {}, children: [], href: null,
+      setAttribute(name, value) { this.attributes[name] = value; },
+      append(child) { this.children.push(child); },
+    };
+    nodes.push(node);
+    return node;
+  };
+  return {
+    nodes,
+    createElement(tag) { return make(tag); },
+    createElementNS(ns, tag) { return make(tag, ns); },
+  };
+}
+
+test("createIcon draws stroke-only inline SVG paths from the name registry", () => {
+  const doc = stubDocument();
+  const svg = createIcon(doc, "bell");
+  assert.equal(svg.namespaceURI, "http://www.w3.org/2000/svg");
+  assert.equal(svg.attributes["aria-hidden"], "true");
+  assert.ok(svg.attributes["viewBox"]);
+  assert.equal(svg.children.length, 2, "bell = body + clapper");
+  assert.ok(createIcon(doc, "chat"), "chat bubble icon exists");
+  assert.ok(createIcon(doc, "image"), "image icon exists");
+  assert.throws(() => createIcon(doc, "not-an-icon"), /No such icon/, "unknown names refused");
+});
+
+test("iconButton carries the actionable label in aria-label, never visible text", () => {
+  const doc = stubDocument();
+  const button = iconButton(doc, "logout", { className: "button button-quiet icon-button", dataset: { action: "logout" } });
+  assert.equal(button.attributes["aria-label"], "Log out");
+  assert.equal(button.children[0].tagName, "SVG", "the icon is the only child");
+  assert.equal(button.dataset.action, "logout");
+
+  const link = iconButton(doc, "person", {
+    tagName: "a", className: "icon-button",
+    ariaLabel: "Profile — alice", dataset: { href: "/users/alice" },
+  });
+  assert.equal(link.href, "/users/alice", "anchors take the href");
+  assert.equal(link.attributes["aria-label"], "Profile — alice");
+  assert.throws(() => iconButton(doc, "nonexistent"), /No such icon/);
 });

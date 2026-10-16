@@ -36,10 +36,14 @@
           <form id="site-search" data-form="site-search" action="/" method="get">
             <label class="visually-hidden" for="search-query">Search posts and people</label>
             <input id="search-query" type="search" name="q" maxlength="100" placeholder="Search posts or people">
-            <button class="button button-secondary" type="submit">Search</button>
+            <button class="button button-secondary icon-button" type="submit" aria-label="Search">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/><path d="M21 21l-4.35-4.35"/>
+              </svg>
+            </button>
           </form>
         </search>
-        <button id="theme-toggle" class="button button-secondary" type="button" aria-label="Switch to dark theme">Theme</button>
+        <button id="theme-toggle" class="button button-secondary icon-button" type="button" aria-label="Switch to dark theme"></button>
         <nav class="account-nav" aria-label="Site and account navigation" id="account-actions"></nav>
       </div>
     </header>

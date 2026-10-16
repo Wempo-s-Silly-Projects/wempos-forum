@@ -1,4 +1,5 @@
 import { attachmentUrl } from "./attachments.js";
+import { createIcon } from "./icons.js";
 import { createTextarea } from "./forms.js";
 import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
 import { collapseWhitespace } from "./quotes.js";
@@ -56,9 +57,9 @@ const renderAttachments = (post, document, article) => {
     expand.append(image);
     strip.append(expand);
     if (attachment.awaiting) {
-      strip.append(
-        createElement(document, "p", "attachment-pending", "🖼️ image awaiting review"),
-      );
+      const pending = createElement(document, "p", "attachment-pending icon-inline");
+      pending.append(createIcon(document, "image"), document.createTextNode("image awaiting review"));
+      strip.append(pending);
     }
   }
   article.append(strip);
@@ -208,7 +209,14 @@ export const createPostCard = (post, document, currentUser = null) => {
   // replyCount 0 (or an un-decorated payload) renders no chip at all.
   // Number() on undefined yields NaN, so the guard handles both shapes.
   if (Number(post.replyCount) > 0) {
-    actions.append(createElement(document, "span", "reply-count", `💬 ${post.replyCount}`));
+    const chat = createElement(document, "span", "reply-count icon-inline");
+    chat.append(createIcon(document, "chat"));
+    // The bare number alone is meaningless to a screen reader: "replies" is
+    // supplied via a visually-hidden word, per the modern-web accessibility
+    // guidance (icon-only controls keep an accessible name).
+    const hiddenLabel = createElement(document, "span", "visually-hidden", "replies");
+    chat.append(hiddenLabel, document.createTextNode(String(post.replyCount)));
+    actions.append(chat);
   }
   const threadLink = createElement(document, "a", "button button-quiet", "Open post and replies");
   threadLink.href = `/posts/${post.id}`;

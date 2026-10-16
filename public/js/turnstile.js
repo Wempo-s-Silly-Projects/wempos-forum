@@ -39,6 +39,15 @@ export function addTurnstileSlot(form, action) {
   widgets.set(form, { widgetId: null, token: "" });
 }
 
+// Turnstile follows the site theme (v2.4.1): a manual choice wins, then the
+// widget falls back to the native "auto" (OS preference) like the CSS does.
+function resolvedTurnstileTheme() {
+  const manual = document.documentElement.dataset.theme;
+  if (manual === "dark") return "dark";
+  if (manual === "light") return "light";
+  return "auto";
+}
+
 export async function renderTurnstileSlots(root) {
   const pending = root.querySelectorAll(".turnstile-slot[data-verification-pending]");
   for (const slot of pending) {
@@ -51,6 +60,7 @@ export async function renderTurnstileSlots(root) {
       if (slot.isConnected && !state.widgetId) {
         state.widgetId = turnstile.render(slot, {
           sitekey: TURNSTILE_SITEKEY,
+          theme: resolvedTurnstileTheme(),
           action: slot.dataset.turnstileAction,
           callback: (token) => {
             delete slot.dataset.turnstileError;
@@ -101,6 +111,30 @@ export function takeTurnstileToken(form) {
   const token = state.token;
   state.token = "";
   return token;
+}
+
+// Called by the theme toggle: re-renders every live widget so its color
+// scheme matches the new theme (Turnstile cannot retheme in place). Resets
+// the token too — the old widget is gone, so its token is unusable.
+export function rethemeTurnstile() {
+  for (const [form, state] of widgets) {
+    if (state.widgetId === null) continue;
+    try {
+      window.turnstile?.remove(state.widgetId);
+    } catch {
+      /* widget already gone */
+    }
+    state.widgetId = null;
+    state.token = "";
+    const slot = form.querySelector(".turnstile-slot");
+    if (slot) {
+      delete slot.dataset.turnstileError;
+      slot.dataset.verificationPending = "true";
+    }
+  }
+  renderTurnstileSlots(document).catch(() => {
+    // Best-effort: a failed re-render surfaces through the normal error path.
+  });
 }
 
 export function refreshTurnstile(form) {

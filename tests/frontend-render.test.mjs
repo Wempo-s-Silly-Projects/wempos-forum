@@ -132,6 +132,14 @@ class MockElement {
 
 const mockDocument = () => ({
   createElement: (tagName) => new MockElement(tagName),
+  // Inline SVG icons (v2.4.1): createIcon draws via createElementNS, and the
+  // icon-inline chips append raw text nodes next to the glyph.
+  createElementNS: (_namespace, tagName) => new MockElement(tagName),
+  createTextNode: (text) => {
+    const node = new MockElement("#text");
+    node.textContent = text;
+    return node;
+  },
 });
 
 function* walk(node) {
@@ -181,7 +189,12 @@ test("an awaiting attachment renders the pending image INLINE plus the awaiting 
   const strip = selectByClass(card, "post-attachments");
   const pending = selectByClass(strip, "attachment-pending");
   assert.ok(pending, "still renders the .attachment-pending chip");
-  assert.equal(pending.textContent, "🖼️ image awaiting review");
+  // The pending chip: image icon (decorative) + readable text, per the
+  // modern-web accessibility guidance — no emoji, real stroke SVG.
+  assert.ok(selectByClass(pending, "svg") === undefined || true);
+  const pendingText = [...walk(pending)].map((node) => node.textContent ?? "").join("");
+  assert.ok(pendingText.includes("image awaiting review"));
+  assert.ok([...walk(pending)].some((node) => node.tagName === "SVG"));
   // Both rows become <img>s now: pending rows reach ONLY the author and mods
   // (the backend omits them from everyone else's payload), and for those
   // viewers the pending URL resolves, so the author sees the real image with
@@ -271,12 +284,15 @@ const previewReply = (overrides = {}) => ({
   ...overrides,
 });
 
-test("(a) a feed post with replies renders a 💬 reply-count chip next to the reactions", () => {
+test("(a) a feed post with replies renders a chat-icon reply-count chip next to the reactions", () => {
   const card = createPostCard({ ...basePost, replyCount: 3 }, mockDocument(), null);
   const chip = selectByClass(card, "reply-count");
   assert.ok(chip, "renders a .reply-count element");
   assert.equal(chip.tagName, "SPAN");
-  assert.equal(chip.textContent, "💬 3");
+  assert.ok([...walk(chip)].some((node) => node.tagName === "SVG"), "chat glyph is inline SVG");
+  assert.ok([...walk(chip)].some((node) => node.textContent === "replies"), "visually-hidden label");
+  const chipText = [...walk(chip)].map((node) => node.textContent ?? "").join("");
+  assert.ok(chipText.includes("3"), "the count renders next to the glyph");
 });
 
 test("(a) replyCount 0 or missing renders no reply-count chip", () => {
