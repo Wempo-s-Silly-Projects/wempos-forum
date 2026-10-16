@@ -45,6 +45,7 @@ test("migration 0024 adds replay snapshots and safe attachment provenance defaul
   const attachmentColumns = db.prepare("PRAGMA table_info(attachments)").all();
 
   assert.ok(postColumns.includes("idempotency_fingerprint"));
+  assert.ok(postColumns.includes("staged_at"), "only in-flight attachment writes get an expiry marker");
   assert.ok(archiveColumns.includes("idempotency_key"));
   assert.ok(archiveColumns.includes("idempotency_fingerprint"));
   assert.ok(attachmentColumns.some((row) => row.name === "source_kind" && row.dflt_value === "'legacy'"));
