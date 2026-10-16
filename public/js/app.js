@@ -527,7 +527,11 @@ async function renderHomeRoute(route, context, version) {
 // The general feed route is untouched; the server treats a missing board as
 // 'general', so Home never changes shape.
 async function renderSuggestionsRoute(context, version) {
-  const data = await api("/api/posts?board=suggestions");
+  // api() returns the parsed body UNWRAPPED ({posts, nextBefore}), so the
+  // route wraps it in the exact { feed: ... } shape renderHomeRoute builds —
+  // the two feed routes stay structurally identical, and the shared
+  // data.feed.* reads below are correct.
+  const data = { feed: await api("/api/posts?board=suggestions") };
   if (version !== renderVersion) return;
   if (context.session.user) {
     main.append(createComposer(

@@ -501,9 +501,11 @@ test("the frontend wires the Suggestions route, header link, composer board, and
   // The header link exists for guests and members alike.
   assert.match(appJs, /suggestions\.href = "\/suggestions";/);
   assert.match(appJs, /createComposer\(\s*"post-create",[\s\S]*?SUGGESTIONS_BOARD,\s*\)/);
-  // The route renderer fetches the board feed and rides the same load-more
-  // action with the board tag.
-  assert.match(appJs, /api\("\/api\/posts\?board=suggestions"\)/);
+  // The route renderer fetches the board feed WRAPPED in the exact
+  // { feed: ... } shape renderHomeRoute builds (api() returns the body
+  // unwrapped: {posts, nextBefore}) and rides the same load-more action with
+  // the board tag.
+  assert.match(appJs, /\{ feed: await api\("\/api\/posts\?board=suggestions"\) \}/);
   assert.match(appJs, /older\.dataset\.board = SUGGESTIONS_BOARD;/);
   // loadMorePosts propagates the board onto the follow-up cursor button.
   assert.match(appJs, /if \(board\) next\.dataset\.board = board;/);
@@ -516,4 +518,58 @@ test("the frontend wires the Suggestions route, header link, composer board, and
   assert.match(routerJs, /pathname === "\/suggestions"\) return \{ name: "suggestions" \}/);
   // The account nav renders the link for signed-out viewers too.
   assert.match(appJs, /accountActions\.append\(suggestions\);\s*\n\s*if \(!user\)/);
+});
+test("a shared score across a page boundary skips or duplicates no rows", async () => {
+  // Every fixture thread ties at score 0 (zero reactions on all of them): the
+  // id half of the composite key is the only tiebreak, so the cursor must
+  // carry the last SHOWN row's id and the keyset must be strictly exclusive
+  // on (score, id) — mirroring the equal-activity pins the general feed has.
+  const tiedRows = [];
+  for (let i = 0; i < 21; i++) {
+    tiedRows.push(postRow({
+      id: String(100 - i),
+      board: "suggestions",
+      body: "tied suggestion " + i,
+      created_at: 1700000000 + i,
+      last_activity_at: 1700000000 + i,
+    }));
+  }
+
+  // Page 1 (no cursor): ids 100..81 shown, cursor = (score 0, id 81).
+  const pageOne = mockDb(suggestionFeedRoutes(tiedRows));
+  const pageOneResponse = await route(
+    new Request("https://forum.example/api/posts?board=suggestions",
+      { headers: { "CF-Connecting-IP": "192.0.2.9" } }),
+    envFor(pageOne.db),
+  );
+  assert.equal(pageOneResponse.status, 200);
+  const pageOneBody = await pageOneResponse.json();
+  assert.equal(pageOneBody.posts.length, 20);
+  assert.equal(pageOneBody.nextBefore, "0_81",
+    "the cursor must carry the last SHOWN row's (score, id) at a shared score");
+
+  // Page 2 walks strictly below (0, 81): the keyset binds exclude the shown
+  // boundary row and every row above it, so the tied page-one ids can neither
+  // repeat nor hide the continuation.
+  const pageTwo = mockDb(suggestionFeedRoutes(tiedRows.slice(20)));
+  const pageTwoResponse = await route(
+    new Request("https://forum.example/api/posts?board=suggestions&before=" +
+      encodeURIComponent(pageOneBody.nextBefore),
+    { headers: { "CF-Connecting-IP": "192.0.2.9" } }),
+    envFor(pageTwo.db),
+  );
+  assert.equal(pageTwoResponse.status, 200);
+  const pageTwoBody = await pageTwoResponse.json();
+  const pageTwoFeedCall = pageTwo.calls.find((call) => call.sql.includes("FROM posts p JOIN"));
+  assert.deepEqual(pageTwoFeedCall.values, [-1, 0, 0, 81],
+    "the keyset binds carry the cursor's score twice and the boundary id once");
+  const pageTwoIds = pageTwoBody.posts.map((post) => post.id);
+  assert.deepEqual(pageTwoIds, [80]);
+  assert.deepEqual(
+    pageOneBody.posts.map((post) => post.id).filter((id) => pageTwoIds.includes(id)),
+    [],
+    "no row may repeat across the page turn",
+  );
+  assert.equal(pageOneBody.posts.length + pageTwoBody.posts.length, 21,
+    "every tied row appears exactly once across the walk");
 });
