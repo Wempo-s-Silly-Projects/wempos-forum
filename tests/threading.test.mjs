@@ -396,7 +396,7 @@ test("new root posts stamp last_activity_at equal to created_at", async () => {
     sessionRoute,
     banCheckRoute,
     {
-      sql: /INSERT INTO posts \(author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key\)/,
+      sql: /INSERT INTO posts \(author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint, staged_at\)/,
       runMeta: { meta: { changes: 1, last_row_id: 42 } },
     },
     { sql: /./ },
