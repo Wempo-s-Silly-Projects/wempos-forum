@@ -84,7 +84,8 @@ The backend is split into `api/*.mjs` modules (shared, session, posts, profiles,
 
 ## Forum behavior notes
 
-- View counter (v2.4.3, raw impressions): every detail read by a non-author adds one view (`posts.view_count`, migration 0009; `UPDATE … RETURNING` keeps the payload's count fresh). The eye chip sits in each card's action row; counts are display-only and affect nothing.- Posts and replies are capped at 1,000 characters with a live composer counter.
+- View counter (v2.4.3, raw impressions): every detail read by a non-author adds one view (`posts.view_count`, migration 0009; `UPDATE … RETURNING` keeps the payload's count fresh). The eye chip sits in each card's action row; counts are display-only and affect nothing.
+- Posts and replies are capped at 1,000 characters with a live composer counter.
 - Replies nest one level (root → reply → reply-to-reply); the feed is sorted by `last_activity_at` (replies bump, reactions do not) with composite `before=<seconds>_<id>` cursors.
 - Avatars are moderated: uploads go to a pending set; the previously approved avatar keeps serving until a moderator approves/rejects from the `/api/admin/avatars` queue.
 - Accountability archive (v2.4.1): every post deleted by its author or wiped by an account deletion is copied into `post_archive` first (same atomic batch) and served publicly at `/archive` — deletion is never a way to scrub words (rooman98's ask).
