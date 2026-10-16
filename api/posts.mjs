@@ -323,8 +323,23 @@ async function handlePostFeedRoute(request, env, url, path, method) {
     const boardRaw = url.searchParams.get("board");
     const isSuggestions = boardRaw !== null && boardField(boardRaw) === SUGGESTIONS_BOARD;
     const beforeRaw = url.searchParams.get("before");
+    // My posts (v2.5): decided BEFORE cursor parsing — the authorId branch
+    // paginates a bare id (profile-route convention), not a composite cursor.
+    const mineRaw = url.searchParams.get("mine");
+    if (mineRaw !== null && !/^[01]$/.test(mineRaw)) {
+      throw new HttpError(400, "The mine param must be 0 or 1.");
+    }
+    const mineOnly = mineRaw === "1";
+    if (mineOnly && !(session && session.user)) {
+      throw new HttpError(401, "Sign in to see your posts.");
+    }
     let before = null;
-    if (beforeRaw !== null) {
+    if (mineOnly) {
+      if (beforeRaw !== null) {
+        if (!/^[0-9]{1,15}$/.test(beforeRaw)) throw new HttpError(400, "That page cursor is invalid.");
+        before = Number(beforeRaw);
+      }
+    } else if (beforeRaw !== null) {
       if (isSuggestions) {
         // Score cursors carry a signed integer half: a thread disliked below
         // zero sorts at a negative score, so its cursor can be "-3_12".
@@ -337,10 +352,15 @@ async function handlePostFeedRoute(request, env, url, path, method) {
         before = { seconds: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
       }
     }
-    // The general call passes exactly the options object it always passed, so
-    // listRootPosts compiles the unchanged SQL for it.
-    const feed = await listRootPosts(env, session && session.user ? session.user : null,
-      isSuggestions ? { before, board: SUGGESTIONS_BOARD } : { before, byActivity: true });
+    // My posts (v2.5): `mine=1` filters the feed to the SESSION's own roots —
+    // identity comes from the session only, never a spoofable param. Guests
+    // asking for a private view are refused before any database work.
+    const feed = await listRootPosts(
+      env, session && session.user ? session.user : null,
+      mineOnly
+        ? { before, authorId: Number(session.user.id) }
+        : (isSuggestions ? { before, board: SUGGESTIONS_BOARD } : { before, byActivity: true }),
+    );
     return json(feed);
   }
   return null;

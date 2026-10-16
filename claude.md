@@ -84,6 +84,7 @@ The backend is split into `api/*.mjs` modules (shared, session, posts, profiles,
 
 ## Forum behavior notes
 
+- My posts (v2.5): a tab pair (All posts / My posts) sits right above the home composer — routes (/ and /mine), not a top-bar item. `/mine` filters the feed to the session member's own roots via a server-side `mine=1` param (identity from the session; guests get 401; bare-id cursor pagination).
 - Profile themes (v2.5, migration 0010): profiles may set an accent from a server-side whitelist (`PROFILE_ACCENTS` in api/shared.mjs — forest/coral/gold/sky/violet/rose/teal or default). Values are whitelisted KEYS stored on `users.profile_accent`, applied client-side via per-key CSS classes — no raw CSS, no inline styles. Set via `PATCH /api/me` (`profileAccent`), carried on the profile payload.
 - View counter (v2.4.3, raw impressions): every detail read by a non-author adds one view (`posts.view_count`, migration 0009; `UPDATE … RETURNING` keeps the payload's count fresh). The eye chip sits in each card's action row; counts are display-only and affect nothing.
 - Posts and replies are capped at 1,000 characters with a live composer counter.

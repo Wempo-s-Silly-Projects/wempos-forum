@@ -1443,3 +1443,28 @@ dialog h2 {
   font-size: 0.85rem;
   margin: 0;
 }
+
+
+/* My posts (v2.5): the tab pair above the composer. Anchors styled as tabs. */
+.feed-tabs {
+  display: inline-flex;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+.feed-tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.4rem;
+  padding: 0.45rem 1rem;
+  border: 2px solid var(--line);
+  border-radius: 0.45rem 0.65rem 0.4rem 0.55rem;
+  color: var(--muted);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+.feed-tab[aria-selected="true"] {
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  background: var(--yellow);
+}

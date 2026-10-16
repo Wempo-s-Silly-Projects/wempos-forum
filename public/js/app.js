@@ -349,7 +349,15 @@ function renderHomeAccess(session, setupRequired, setupConfigured) {
 }
 
 function renderHomeContent(session, data, route) {
-  if (session.user) main.append(createComposer("post-create", "What's on your mind?", "Post message"));
+  if (session.user) {
+    // My posts (v2.5): a tab pair right above the composer (owner spec — NOT
+    // a top-bar item). Real routes (/ and /mine) so tabs are anchors —
+    // internal navigation, shareable URLs, and a working back button.
+    main.append(renderFeedTabs("all"));
+    // Load-more carries the mine flag when the mine list paginates.
+    main.append(createComposer("post-create", "What's on your mind?", "Post message"));
+    main.append(createComposer("post-create", "What's on your mind?", "Post message"));
+  }
   addHeading(main, route.name === "search" ? "Search results" : "Recent conversations", 2);
   if (route.name === "search") {
     addText(document, main, "p", `Results for “${route.query}”`, "muted");
@@ -556,6 +564,7 @@ function setRouteTitle(route) {
     search: "Search",
     suggestions: "Suggestions",
     archive: "Archive",
+    mine: "My posts",
     post: "Post",
     profile: "Profile",
     admin: "Moderation",
@@ -590,6 +599,40 @@ async function renderHomeRoute(route, context, version) {
 // pagination pattern, with the board's composer flag and empty-state copy.
 // The general feed route is untouched; the server treats a missing board as
 // 'general', so Home never changes shape.
+// My posts (v2.5): the tab pair above the composer — anchors styled as tabs;
+// the active tab is aria-selected (the owner's "right above the start a
+// conversation box" placement, not a top-bar item).
+function renderFeedTabs(active) {
+  const tabs = element("div", "feed-tabs");
+  const spec = active === "mine"
+    ? [["/", "All posts"], ["/mine", "My posts", true]]
+    : [["/", "All posts", true], ["/mine", "My posts"]];
+  for (const [href, label, isActive] of spec) {
+    const tab = element("a", "feed-tab", label);
+    tab.href = href;
+    tab.setAttribute("data-app-link", "");
+    tab.setAttribute("aria-selected", isActive ? "true" : "false");
+    tabs.append(tab);
+  }
+  return tabs;
+}
+
+async function renderMineRoute(context, version) {
+  const data = { feed: await api("/api/posts?mine=1") };
+  if (version !== renderVersion) return;
+  main.append(renderFeedTabs("mine"));
+  main.append(createComposer("post-create", "What's on your mind?", "Post message"));
+  addHeading(main, "My posts", 2);
+  appendPostList(main, data.feed.posts, document, context.session.user);
+  if (!data.feed.nextBefore || data.feed.posts.length !== 20) return;
+  const older = element("button", "button button-secondary", "Load older posts");
+  older.type = "button";
+  older.dataset.action = "load-more";
+  older.dataset.before = String(data.feed.nextBefore);
+  older.dataset.mine = "1";
+  main.append(older);
+}
+
 async function renderArchiveRoute(context, version) {
   // The accountability archive (v2.4.1): everyone can read what was deleted,
   // so no auth is needed — this route renders for guests too.
@@ -732,6 +775,7 @@ async function renderRoute(route) {
     home: () => renderHomeRoute(route, context, version),
     search: () => renderHomeRoute(route, context, version),
     suggestions: () => renderSuggestionsRoute(context, version),
+    mine: () => renderMineRoute(context, version),
     archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
@@ -1215,8 +1259,9 @@ async function loadMorePosts(button) {
   // The emitted cursor is board-native (score_id for suggestions), so pages
   // keep walking the same keyset they started on.
   const board = button.dataset.board;
+  const mine = button.dataset.mine;
   const older = await api("/api/posts?before=" + button.dataset.before +
-    (board ? "&board=" + board : ""));
+    (board ? "&board=" + board : "") + (mine ? "&mine=" + mine : ""));
   appendPostList(main, older.posts, document, currentUser,
     board === SUGGESTIONS_BOARD ? SUGGESTIONS_EMPTY_TEXT : undefined);
   button.remove();
