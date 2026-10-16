@@ -537,16 +537,19 @@ async function storedPostFingerprint(db, existing, fingerprint) {
   if (existing.idempotency_fingerprint || !fingerprint || existing.archived) {
     return existing.idempotency_fingerprint || null;
   }
-  // Rows created before migration 0024 have no persisted fingerprint. Rebuild
-  // the comparable shape from their immutable body/target/board and attachment
-  // hash list; do not silently replay a legacy key for a different payload.
+  // Legacy rows predate persisted fingerprints. The current body is mutable:
+  // the earliest post_edits snapshot is the original body (the edit route
+  // snapshots the replaced version atomically with its first update).
+  const originalEdit = await db.prepare(
+    "SELECT body FROM post_edits WHERE post_id = ? ORDER BY id ASC LIMIT 1",
+  ).bind(Number(existing.id)).first();
   const storedAttachments = await db.prepare(
     "SELECT hash, mime FROM attachments WHERE post_id = ? ORDER BY hash, mime",
   ).bind(Number(existing.id)).all();
   return postCreationFingerprint({
     kind: existing.parent_id === null || existing.parent_id === undefined ? "post" : "reply",
     targetId: existing.parent_id === null || existing.parent_id === undefined ? null : Number(existing.parent_id),
-    message: String(existing.body ?? ""),
+    message: String(originalEdit ? originalEdit.body : existing.body ?? ""),
     board: existing.board ?? null,
     attachments: storedAttachments.results || [],
   });
