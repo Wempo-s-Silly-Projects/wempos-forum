@@ -50,72 +50,73 @@
    the OS preference when no data-theme attribute decision could be made.
    Values are duplicated between the two blocks by design. */
 :root[data-theme="dark"] {
-  /* Warm "night paper": every value flips the weight of its light hue
-     (browns/creams/tans) instead of switching to a slate family. */
-  --paper: #2b2216;
-  --paper-shadow: #150f07;
-  --desk: #1d160d;
-  --desk-dot: #4e4126;
-  --ink: #ece4d2;
-  --muted: #b1a48c;
-  --line: #605134;
-  --green: #378255;
-  --green-dark: #2d6543;
-  --coral: #c45744;
+  /* Cool "night slate": blue-slate surfaces from the original dark launch,
+     with identity accents (mustard, green, coral) kept bright so
+     --on-yellow labels and white button text stay readable. */
+  --paper: #1d2836;
+  --paper-shadow: #0c1219;
+  --desk: #131b27;
+  --desk-dot: #26344a;
+  --ink: #e8e4d8;
+  --muted: #a4aeba;
+  --line: #3d4d61;
+  --green: #2f7d55;
+  --green-dark: #20543a;
+  --coral: #bb5542;
   --yellow: #f3cf67;
-  --blue: #3d4a58;
+  --blue: #2a3d52;
   --focus: #8ab6ff;
   --link: #7fd0a2;
   --link-hover: #f0a893;
-  --field: #332a1a;
-  --field-line: #6d5e40;
+  --field: #232f40;
+  --field-line: #4e5e74;
   --green-title: #d7ecd9;
   --green-ink: #c9e4cd;
-  --soft-green: #31402a;
-  --yellow-hover: #d3a928;
-  --coral-dark: #a54532;
+  --soft-green: #253c30;
+  --yellow-hover: #d8b74a;
+  --coral-dark: #a03d2c;
   --error-ink: #f4b0a4;
-  --error-soft: #40211a;
+  --error-soft: #41201f;
   --success-ink: #8ecfab;
-  --error-chip-bg: #3d2018;
-  --error-chip-border: #b26252;
+  --error-chip-bg: #402126;
+  --error-chip-border: #b35a61;
   --error-chip-ink: #f4b0a4;
   --on-yellow: #33240d;
-  --quiet-hover: #48391f;
+  --quiet-hover: #31404f;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="dark"]) {
-    --paper: #2b2216;
-    --paper-shadow: #150f07;
-    --desk: #1d160d;
-    --desk-dot: #4e4126;
-    --ink: #ece4d2;
-    --muted: #b1a48c;
-    --line: #605134;
-    --green: #378255;
-    --green-dark: #2d6543;
-    --coral: #c45744;
+    --paper: #1d2836;
+    --paper-shadow: #0c1219;
+    --desk: #131b27;
+    --desk-dot: #26344a;
+    --ink: #e8e4d8;
+    --muted: #a4aeba;
+    --line: #3d4d61;
+    --green: #2f7d55;
+    --green-dark: #20543a;
+    --coral: #bb5542;
     --yellow: #f3cf67;
-    --blue: #3d4a58;
+    --blue: #2a3d52;
     --focus: #8ab6ff;
     --link: #7fd0a2;
     --link-hover: #f0a893;
-    --field: #332a1a;
-    --field-line: #6d5e40;
+    --field: #232f40;
+    --field-line: #4e5e74;
     --green-title: #d7ecd9;
     --green-ink: #c9e4cd;
-    --soft-green: #31402a;
-    --yellow-hover: #d3a928;
-    --coral-dark: #a54532;
+    --soft-green: #253c30;
+    --yellow-hover: #d8b74a;
+    --coral-dark: #a03d2c;
     --error-ink: #f4b0a4;
-    --error-soft: #40211a;
+    --error-soft: #41201f;
     --success-ink: #8ecfab;
-    --error-chip-bg: #3d2018;
-    --error-chip-border: #b26252;
+    --error-chip-bg: #402126;
+    --error-chip-border: #b35a61;
     --error-chip-ink: #f4b0a4;
     --on-yellow: #33240d;
-    --quiet-hover: #48391f;
+    --quiet-hover: #31404f;
   }
 }
 
