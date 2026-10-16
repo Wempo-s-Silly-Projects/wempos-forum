@@ -467,7 +467,7 @@ test("voting on a closed poll returns a conflict without writing a vote", async 
   const root = postRow({ id: "1", author_id: "3" });
   const mock = mockDb([
     sessionRoute(), banCheckRoute,
-    { sql: /WHERE p\\.id = \\? LIMIT 1/, result: () => root }, banViewRouteOff,
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: () => root }, banViewRouteOff,
     { sql: POLL_LOOKUP_SQL, result: { id: 2, question: "Best snack?", closed_at: 123456 } },
     { sql: /./ },
   ]);
