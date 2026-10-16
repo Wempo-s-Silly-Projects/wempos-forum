@@ -732,8 +732,8 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const hasAttachments = files.length > 0 || gifEntries.length > 0;
     const insertSql = hasAttachments ? THREAD_REPLY_INSERT_STAGED_SQL : THREAD_REPLY_INSERT_SQL;
     const insertValues = hasAttachments
-      ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, targetId, session.user.id, now]
-      : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, idempotencyFingerprint, null, targetId, session.user.id, now];
+      ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, targetId, session.user.id, idempotencyKey, session.user.id, now]
+      : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, idempotencyFingerprint, null, targetId, session.user.id, idempotencyKey, session.user.id, now];
     const insertStatements = [db.prepare(insertSql).bind(...insertValues)];
     if (!hasAttachments) insertStatements.push(db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId));
     let results;
@@ -745,6 +745,10 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
       throw error;
     }
     if (Number(results[0]?.meta?.changes) !== 1) {
+      // The archive fence can win after the preflight replay lookup. Resolve
+      // that race through replay so a deleted creation returns 410.
+      const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
+      if (replay) return replay;
       throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
     }
     const replyId = Number(results[0].meta.last_row_id);
@@ -840,13 +844,22 @@ async function handlePostCreateRoute(request, env, url, path, method) {
       result = await db.prepare(
         "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint, staged_at) " +
           "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
+          "SELECT 1 FROM post_archive WHERE author_id = ? AND idempotency_key = ?) " +
+          "AND NOT EXISTS (" +
           "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
           "AND (expires_at IS NULL OR expires_at > ?))",
-      ).bind(session.user.id, message, now, now, board, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, session.user.id, now).run();
+      ).bind(session.user.id, message, now, now, board, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, session.user.id, idempotencyKey, session.user.id, now).run();
     } catch (error) {
       const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
       if (replay) return replay;
       throw error;
+    }
+    if (Number(result?.meta?.changes) !== 1) {
+      // An archived idempotency key fences this insert atomically. Resolve the
+      // race through the normal replay path so retries receive the deleted-post
+      // response rather than creating a replacement.
+      const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
+      if (replay) return replay;
     }
     requireMutationApplied(result);
     const postId = Number(result.meta.last_row_id);

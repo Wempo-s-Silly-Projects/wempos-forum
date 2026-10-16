@@ -15,12 +15,12 @@ export const UNBAN_ACTIVE_UPDATE_SQL =
 
 // Threaded reply insert. The guard requires the target post to exist and be
 // public, and to be either a root or the direct child of a public root
-// (replies only go one level deep); the ban check stays atomic with the insert.
-// Replies carry their thread ROOT's board (v2.4.1): the value is resolved from
-// the already-fetched root row in api/posts.mjs, so replies across board moves
-// stay consistent with their root at write time. Bind order: author_id,
-// parent_id, body, created_at, last_activity_at, board, target id, ban
-// idempotency_key, target id, ban user_id, ban now.
+// (replies only go one level deep); the ban and archive-key checks stay atomic
+// with the insert. Replies carry their thread ROOT's board (v2.4.1): the value
+// is resolved from the already-fetched root row in api/posts.mjs, so replies
+// across board moves stay consistent with their root at write time. Bind order:
+// author_id, parent_id, body, created_at, last_activity_at, board, target id,
+// archive author_id, archive idempotency_key, ban user_id, ban now.
 export const THREAD_REPLY_INSERT_SQL =
   "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint, staged_at) " +
     "SELECT ?, ?, ?, 'public', ?, ?, ?, ?, ?, ? WHERE EXISTS (" +
@@ -28,6 +28,7 @@ export const THREAD_REPLY_INSERT_SQL =
     "parent_id IS NULL OR EXISTS (" +
     "SELECT 1 FROM posts root WHERE root.id = posts.parent_id " +
     "AND root.parent_id IS NULL AND root.visibility = 'public'))) " +
+    "AND NOT EXISTS (SELECT 1 FROM post_archive WHERE author_id = ? AND idempotency_key = ?) " +
     "AND NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
     "AND (expires_at IS NULL OR expires_at > ?))";
 
