@@ -242,7 +242,8 @@ test("replies to a level-1 reply insert under the guard and bump the root, not t
   assert.equal(replyInsert.values[4], replyInsert.values[3]);
   // Board and shifted guard binds are pinned below, after the bump assertions.
 
-  assert.match(bump.sql, /^UPDATE posts SET last_activity_at = \? WHERE id = \?$/);
+  assert.match(bump.sql, /last_activity_at = MAX\(COALESCE\(last_activity_at, 0\), \?\)/);
+  assert.match(bump.sql, /reply\.visibility = 'public'/);
   assert.equal(bump.values[0], replyInsert.values[3]);
   assert.equal(bump.values[1], 1, "bump must target the root (target.parent_id), not the target reply");
   assert.notEqual(bump.values[1], 2);
