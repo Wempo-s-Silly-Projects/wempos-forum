@@ -982,10 +982,12 @@ test("migration 0009 adds a NOT NULL view_count defaulting to zero", () => {
 // transaction, in filename order).
 
 const MIGRATION_0013 = readFileSync(path.join(repoRoot, "migrations", "0013_subscriptions.sql"), "utf8");
+const MIGRATION_0014 = readFileSync(path.join(repoRoot, "migrations", "0014_polls.sql"), "utf8");
 const MIGRATION_0015 = readFileSync(path.join(repoRoot, "migrations", "0015_bookmarks.sql"), "utf8");
 const MIGRATION_0016 = readFileSync(path.join(repoRoot, "migrations", "0016_pinning.sql"), "utf8");
 
 const apply0013 = (db) => applyFile(db, MIGRATION_0013);
+const apply0014 = (db) => applyFile(db, MIGRATION_0014);
 const apply0015 = (db) => applyFile(db, MIGRATION_0015);
 const apply0016 = (db) => applyFile(db, MIGRATION_0016);
 
@@ -1104,4 +1106,46 @@ test("migration 0016 adds a nullable pinned_at column in place", () => {
   assert.equal(db.prepare("SELECT pinned_at FROM posts WHERE id = ?").get(id).pinned_at, T + 700);
   db.prepare("UPDATE posts SET pinned_at = NULL WHERE id = ?").run(id);
   assert.equal(db.prepare("SELECT pinned_at FROM posts WHERE id = ?").get(id).pinned_at, null);
+});
+
+// --- 0014: polls (C3) -------------------------------------------------------------
+
+test("migration 0014 creates polls, poll_options, and poll_votes with the pinned caps", () => {
+  const db = (() => { const d = openLatestDb(); apply0014(d); return d; })();
+
+  const tables = objectNamesForType(db, "table");
+  for (const name of ["polls", "poll_options", "poll_votes"]) {
+    assert.ok(tables.includes(name), `missing table ${name}`);
+  }
+  // One poll per thread root.
+  const [pollsPostIndex] = db
+    .prepare("SELECT sql FROM sqlite_master WHERE type = 'index' AND name = 'idx_polls_post'")
+    .all();
+  assert.ok(pollsPostIndex.sql.includes("UNIQUE"), "polls.post_id must be UNIQUE");
+
+  db.prepare("INSERT INTO polls (post_id, question, created_at) VALUES (?, ?, ?)").run(1, "q", T + 500);
+  db.prepare("INSERT INTO poll_options (poll_id, label, position) VALUES (?, ?, ?)").run(1, "biscuits", 1);
+  db.prepare("INSERT INTO poll_votes (poll_id, user_id, option_id, voted_at) VALUES (?, ?, ?, ?)").run(1, 1, 1, T + 505);
+
+  // Caps pinned at the SQL layer: 200-char question, 80-char label.
+  expectSqlRejection(db, "INSERT INTO polls (post_id, question, created_at) VALUES (?, ?, ?)", 3, "q".repeat(201), T + 500);
+  db.prepare("INSERT INTO polls (post_id, question, created_at) VALUES (?, ?, ?)").run(3, "q".repeat(200), T + 500);
+  expectSqlRejection(db, "INSERT INTO poll_options (poll_id, label, position) VALUES (?, ?, ?)", 1, "l".repeat(81), 2);
+  db.prepare("INSERT INTO poll_options (poll_id, label, position) VALUES (?, ?, ?)").run(1, "l".repeat(80), 2);
+
+  // One vote per member per poll (the composite PK), changeable by upsert.
+  expectSqlRejection(db, "INSERT INTO poll_votes (poll_id, user_id, option_id, voted_at) VALUES (?, ?, ?, ?)", 1, 1, 2, T + 510);
+  db.prepare(
+    "INSERT INTO poll_votes (poll_id, user_id, option_id, voted_at) VALUES (?, ?, ?, ?) " +
+    "ON CONFLICT(poll_id, user_id) DO UPDATE SET option_id = excluded.option_id",
+  ).run(1, 1, 2, T + 515);
+  assert.equal(db.prepare("SELECT option_id FROM poll_votes WHERE poll_id = 1 AND user_id = 1").get().option_id, 2);
+
+  // Everything cascades with the thread (post 3's standalone poll survives).
+  db.prepare("DELETE FROM posts WHERE id = 1").run();
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM polls").get().n, 1);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM poll_options").get().n, 0);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM poll_votes").get().n, 0);
+  db.prepare("DELETE FROM posts WHERE id = 3").run();
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM polls").get().n, 0);
 });
