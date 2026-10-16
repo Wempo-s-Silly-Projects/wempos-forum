@@ -2,7 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="manifest" content="/manifest.json">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Wempo Forum">
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7efdc">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#131b27">
@@ -47,6 +54,23 @@
         <nav class="account-nav" aria-label="Site and account navigation" id="account-actions"></nav>
       </div>
     </header>
+    <nav class="mobile-bar" aria-label="Mobile navigation">
+      <a class="mobile-bar-item" href="/" data-app-link aria-label="Home">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg><span>Home</span>
+      </a>
+      <a class="mobile-bar-item" href="/mine" data-app-link aria-label="My posts">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg><span>My posts</span>
+      </a>
+      <a class="mobile-bar-item" href="/suggestions" data-app-link aria-label="Suggestions">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg><span>Suggest</span>
+      </a>
+      <a class="mobile-bar-item" href="/notifications" data-app-link aria-label="Notifications">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span>Alerts</span>
+      </a>
+      <a class="mobile-bar-item" href="/#join" aria-label="Sign in" id="mobile-signin">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Sign in</span>
+      </a>
+    </nav>
     <div class="status-bar">
       <p id="status-message" role="status" aria-live="polite"></p>
       <p id="error-message" role="alert" aria-live="assertive"></p>

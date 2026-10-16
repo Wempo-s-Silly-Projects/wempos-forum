@@ -312,6 +312,21 @@ function handleComposerFileSelection(input) {
 
 function renderAccountNavigation(user, unreadNotifications = 0) {
   accountActions.replaceChildren();
+  // The mobile bar's last item mirrors the session: Profile (signed in) --
+  // the static markup ships a Sign-in item for guests; the id marks it.
+  const mobileSignIn = document.querySelector("#mobile-signin");
+  if (mobileSignIn) {
+    const item = mobileSignIn;
+    if (user) {
+      item.removeAttribute("id");
+      item.href = "/users/" + encodeURIComponent(user.username);
+      item.setAttribute("aria-label", "Profile");
+      item.title = "Profile";
+      const span = item.querySelector("span:last-of-type");
+      if (span) span.textContent = "Profile";
+      item.dataset.appLink = "";
+    }
+  }
   // Suggestions board link (v2.4.1): the header's site-section link, styled
   // exactly like the links around it and visible to guests and signed-in
   // members alike; internal navigation handles it like every other header

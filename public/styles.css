@@ -1681,3 +1681,69 @@ dialog h2 {
   border-radius: 999px;
   padding: 0.1rem 0.6rem;
 }
+
+
+/* ---- Mobile PWA (v2.5): the exclusive mobile UI ---- */
+/* A bottom app bar at phone widths; the top header's icon nav stops
+   competing, the content clears the fixed bar, and touch targets are big. */
+.mobile-bar {
+  display: none;
+}
+@media (max-width: 640px) {
+  .mobile-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    position: fixed;
+    inset: auto 0 0 0;
+    background: var(--paper);
+    border-top: 2px solid var(--ink);
+    padding: 0.25rem 0.25rem calc(0.25rem + env(safe-area-inset-bottom));
+    z-index: 5;
+  }
+  .mobile-bar-item {
+    display: grid;
+    justify-items: center;
+    gap: 0.1rem;
+    color: var(--muted);
+    font-size: 0.62rem;
+    text-decoration: none;
+    padding: 0.3rem 0;
+    border-radius: var(--button-radius);
+  }
+  .mobile-bar-item svg {
+    width: 1.4rem;
+    height: 1.4rem;
+    display: block;
+  }
+  .mobile-bar-item svg path {
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  /* Room for the bar + the safe-area padding. */
+  body {
+    padding-bottom: calc(4.2rem + env(safe-area-inset-bottom));
+  }
+  /* The top header drops the account icon nav (the bar owns navigation) */
+  .account-nav,
+  #theme-toggle {
+    display: none;
+  }
+  .header-inner {
+    grid-template-columns: auto 1fr;
+    gap: 0.6rem;
+  }
+  /* Comfortable touch targets for the feed's action buttons. */
+  .button,
+  .feed-tab,
+  .view-count,
+  .reply-count {
+    min-height: 2.9rem;
+    padding: 0.6rem 0.95rem;
+  }
+  .main-content {
+    padding-inline: 0.9rem;
+  }
+}
