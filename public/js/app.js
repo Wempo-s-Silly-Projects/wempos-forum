@@ -1007,10 +1007,12 @@ function createCssQueue(submissions, document) {
     approve.type = "button";
     approve.dataset.action = "css-approve";
     approve.dataset.userId = String(submission.userId);
+    approve.dataset.version = String(submission.version || "");
     const reject = element("button", "button button-quiet", "Reject");
     reject.type = "button";
     reject.dataset.action = "css-reject";
     reject.dataset.userId = String(submission.userId);
+    reject.dataset.version = String(submission.version || "");
     item.append(head, preview, approve, reject);
     container.append(item);
   }
@@ -1923,13 +1925,15 @@ async function handleButtonAction(button) {
       setMessage("Report resolved.");
     },
     "css-approve": async (button) => {
-      await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/approve", { method: "POST" });
-      button.closest(".css-queue-item")?.remove();
+      const version = encodeURIComponent(button.dataset.version || "");
+      await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/approve?version=" + version, { method: "POST" });
+      await renderRoute(activeRoute);
       setMessage("CSS approved.");
     },
     "css-reject": async (button) => {
-      await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/reject", { method: "POST" });
-      button.closest(".css-queue-item")?.remove();
+      const version = encodeURIComponent(button.dataset.version || "");
+      await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/reject?version=" + version, { method: "POST" });
+      await renderRoute(activeRoute);
       setMessage("CSS rejected.");
     },
     "set-profile-accent": async () => {
