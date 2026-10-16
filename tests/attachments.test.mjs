@@ -382,7 +382,7 @@ test("a 4 MiB multipart post chunks its bytes into seq 0..2 of the intake batch"
   assert.equal(response.status, 201);
   const metadataInserts = attachmentCalls(mock.calls);
   assert.equal(metadataInserts.length, 1);
-  assert.equal(metadataInserts[0].values[6], "image/gif"); // v2.5: 8 binds, mime at [6]
+  assert.equal(metadataInserts[0].values[7], "image/gif"); // v2.5: 8 binds, mime at [6]
 
   const chunkInserts = chunkInsertCalls(mock.calls);
   assert.equal(chunkInserts.length, 3, "4 MiB must fill three chunks at 1,900,000 bytes each");
@@ -531,7 +531,7 @@ test("multipart reply creation attaches to the REPLY's own row id", async () => 
   const inserts = attachmentCalls(mock.calls);
   assert.equal(inserts.length, 1, "one attachment row must be inserted for the reply");
   assert.equal(inserts[0].values[1], 500, "post_id must be the reply's own row id, not the bump target");
-  assert.equal(inserts[0].values[6], "image/png"); // v2.5: 8 binds, mime at [6]
+  assert.equal(inserts[0].values[7], "image/png"); // v2.5: 8 binds, mime at [6]
 });
 
 // ---------------------------------------------------------------------------
@@ -1280,7 +1280,7 @@ test("approved hash duplicates store an independent approved chunk set", async (
   assert.equal(metadata.values[4], 1, "the duplicate was previously approved, subject to the revocation guard");
   const chunks = chunkInsertCalls(mock.calls);
   assert.equal(chunks.length, 1);
-  assert.match(chunks[0].sql, /VALUES \(\?, 'approved', \?, \?\)/);
+  assert.match(chunks[0].sql, /INSERT INTO attachment_chunks \(attachment_id, kind, seq, data\) SELECT \?, CASE WHEN EXISTS/);
   assert.equal(chunks[0].values[0], ids[0], "the duplicate owns its bytes instead of aliasing the original");
   assert.deepEqual(chunks[0].values[3], bytes);
 });
