@@ -103,8 +103,8 @@ export async function readComposedBody(request, env) {
         throw new HttpError(400, "Only JPEG, PNG, WebP, and GIF images can be attached.");
       }
       // v2.5 dedup + auto-approve: the hash decides. Identical bytes to a
-      // previously approved upload (or an approved marketplace GIF) skip
-      // moderation AND skip byte storage — the canonical byte-set serves.
+      // previously approved upload (or approved marketplace GIF) skip moderation,
+      // but still get their own byte chunks so their lifetime is independent.
       const hash = await sha256Hex(bytes);
       const canonical = await lookupCanonicalByHash(env.FORUM_DB, hash);
       files.push({ mime, bytes, hash, preApproved: Boolean(canonical) });
@@ -154,10 +154,10 @@ export async function sha256Hex(bytes) {
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-// Content-addressed lookup (v2.5): the APPROVED canonical byte-set for a
-// hash — an approved attachment's chunk set first (oldest), else an approved
-// marketplace GIF. Returns { mime, id } or null; serving concatenates the
-// canonical's chunks.
+// Content-addressed lookup (v2.5): finds existing approved content by hash.
+// New rows always store their own chunks, but the serving fallback remains for
+// legacy deduplicated rows created before migration 0020. Returns { mime, id }
+// or null.
 export async function lookupCanonicalByHash(db, hash) {
   const row = await db.prepare(
     "SELECT a.id, a.mime FROM attachments a WHERE a.hash = ? AND a.status = 'approved' " +
@@ -181,12 +181,9 @@ export async function insertAttachments(db, postId, createdBy, files, gifEntries
   for (const file of files) {
     const id = crypto.randomUUID();
     ids.push(id);
-    // Content-addressed dedup (v2.5): bytes identical to a previously
-    // APPROVED upload (or an approved marketplace GIF) store nothing and
-    // auto-approve — moderation passed this exact content before; serving
-    // resolves the canonical byte-set by hash. files carry { mime, bytes,
-    // preApproved } from readComposedBody (preApproved set when the hash
-    // lookup hit).
+    // Content-addressed dedup (v2.5): byte-identical content approved before
+    // bypasses re-moderation, but never storage. files carry { mime, bytes,
+    // preApproved } from readComposedBody after checking the approved hash.
     const preApproved = Boolean(file.preApproved);
     statements.push(
       db.prepare(
