@@ -178,6 +178,10 @@ test("an awaiting attachment renders the pending image INLINE plus the awaiting 
   // is the button directly before it in strip order (1:1).
   const expandButtons = selectAllByTag(strip, "button");
   assert.equal(expandButtons.length, 2);
+  // Fix round: position-aware labels on multi-image posts ("1 of 2"/"2 of 2")
+  // so identical labels never repeat on the same card.
+  assert.equal(expandButtons[0].getAttribute("aria-label"), "View full image 1 of 2");
+  assert.equal(expandButtons[1].getAttribute("aria-label"), "View full image 2 of 2");
   const stripChildren = strip.children.filter(Boolean);
   const pendingIndex = stripChildren.indexOf(pending);
   const pendingImageIndex = stripChildren.indexOf(expandButtons[0]);
@@ -209,6 +213,7 @@ test("each strip attachment image is wrapped in an expand button for the full-si
   assert.equal(expand.tagName, "BUTTON");
   assert.equal(expand.type, "button");
   assert.equal(expand.dataset.action, "expand-attachment");
+  // Singular posts keep the plain label ("1 of 1" adds no information).
   assert.equal(expand.getAttribute("aria-label"), "View full image");
   const wrapped = selectAllByTag(expand, "img");
   assert.equal(wrapped.length, 1, "the expand button wraps exactly one image");

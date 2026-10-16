@@ -36,7 +36,8 @@ const renderAttachments = (post, document, article) => {
   const attachments = Array.isArray(post.attachments) ? post.attachments : [];
   if (!attachments.length) return;
   const strip = createElement(document, "div", "post-attachments");
-  for (const attachment of attachments) {
+  const total = attachments.length;
+  for (const [index, attachment] of attachments.entries()) {
     const image = createElement(document, "img", "post-attachment");
     image.src = attachmentUrl(attachment);
     image.alt = "";
@@ -44,7 +45,12 @@ const renderAttachments = (post, document, article) => {
     const expand = createElement(document, "button", "attachment-expand");
     expand.type = "button";
     expand.dataset.action = "expand-attachment";
-    expand.setAttribute("aria-label", "View full image");
+    // Position-aware labels: identical labels on every image of a multi-image
+    // post tell a screen-reader user nothing about which was activated.
+    expand.setAttribute(
+      "aria-label",
+      total > 1 ? `View full image ${index + 1} of ${total}` : "View full image",
+    );
     expand.append(image);
     strip.append(expand);
     if (attachment.awaiting) {

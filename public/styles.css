@@ -966,11 +966,16 @@ dialog h2 {
 
 /* Post image attachments (plan Task 7): the strip under a post/reply body and
    the composer's chosen-file chips. Images render at their NATURAL aspect
-   ratio (no crop), capped by width (never wider than the card they live in —
-   including the narrower .cascade-replies cards) and by height so a tall
-   upload can't dominate the feed; max-width: 100% is relative to the strip,
-   which is a full-width block inside whatever card holds it. Spacing keeps a
-   half-line of air below the strip before the preview box/actions.
+   ratio (no crop), capped by width and by height so an upload can't dominate
+   the feed. Containment model (fix round): the img's max-width percentage
+   resolves against the shrink-to-fit .attachment-expand button, which is
+   cyclic during intrinsic sizing — so the button ITSELF is clamped as a flex
+   item against the definite-width strip container (max-width: 100%, and
+   min-width: 0 to drop the transferred min-content floor that a wide
+   landscape image would otherwise impose). Width then flows strip → button →
+   img, so an attachment can never exceed its card, including the narrower
+   .cascade-replies cards on the detail route. Spacing keeps a half-line of
+   air below the strip before the preview box/actions.
    Token-only colors, so both themes inherit for free. */
 
 .post-attachments {
@@ -1004,13 +1009,18 @@ dialog h2 {
 
 /* Click-to-expand (micro-batch): each strip image sits in a chrome-free
    button — zoom cursor hints the affordance, and the button (not the img)
-   carries the a11y label. The lightbox is the app's native <dialog> idiom,
-   stripped of the report dialog's card styling so the image shows at natural
-   size; only the viewport caps it, so nothing can overflow. Escape and any
-   click on the dialog or backdrop close it. Both themes share the existing
-   dialog backdrop rule for free. */
+   carries the a11y label. min-width: 0 + max-width: 100% clamp this flex
+   item against the definite-width strip (see the containment model note
+   above) so a wide landscape image cannot push the card open on narrow
+   viewports. The lightbox is the app's native <dialog> idiom, stripped of
+   the report dialog's card styling so the image shows at natural size; only
+   the viewport caps it, so nothing can overflow. Escape and any click on the
+   dialog or backdrop close it. Both themes share the existing dialog
+   backdrop rule for free. */
 .attachment-expand {
   display: block;
+  min-width: 0;
+  max-width: 100%;
   padding: 0;
   border: none;
   background: none;
