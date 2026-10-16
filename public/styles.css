@@ -1285,3 +1285,34 @@ dialog h2 {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+
+/* Accountability archive (v2.4.1): /archive page. Token-only, both themes. */
+.archive-list {
+  display: grid;
+  gap: 0.6rem;
+}
+.archive-card {
+  border: 2px solid var(--line);
+  background: var(--paper);
+  box-shadow: 3px 4px 0 var(--paper-shadow);
+  padding: 0.7rem 0.9rem;
+}
+.archive-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.3rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0 0 0.4rem;
+}
+.archive-author {
+  color: var(--ink);
+  font-weight: 600;
+}
+.archive-body {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

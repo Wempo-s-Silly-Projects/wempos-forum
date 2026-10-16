@@ -7,6 +7,7 @@ export const routeForPath = (pathname, search = "") => {
   if (pathname === "/admin/reports") return { name: "admin" };
   if (pathname === "/notifications") return { name: "notifications" };
   if (pathname === "/suggestions") return { name: "suggestions" };
+  if (pathname === "/archive") return { name: "archive" };
   const post = pathname.match(/^\/posts\/(\d+)$/);
   if (post) return { name: "post", id: Number(post[1]) };
   const user = pathname.match(/^\/users\/([^/]+)$/);

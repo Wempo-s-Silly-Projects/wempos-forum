@@ -665,3 +665,17 @@ export {
   handleAvatarReadRoute,
   MAX_JSON_BYTES,
 };
+// Accountability archive (v2.4.1): builds the INSERT..SELECT that copies the
+// doomed post rows into post_archive — run FIRST in the same atomic batch as
+// the deletion, while the rows are still present. whereSql selects the doomed
+// set (by original post column alias `p`); the NOT EXISTS guard keeps a row
+// from being archived twice (e.g. an own reply that is also a child of an own
+// root). COALESCE keeps the name even when the users row is about to vanish.
+export function archivePostRowsStatement(db, whereSql, binds, reason, deletedAt) {
+  return db.prepare(
+    "INSERT INTO post_archive (original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because) " +
+    "SELECT p.id, p.author_id, COALESCE(u.username, 'removed'), p.body, p.board, p.created_at, ?, ? " +
+    "FROM posts p LEFT JOIN users u ON u.id = p.author_id " +
+    "WHERE (" + whereSql + ") AND NOT EXISTS (SELECT 1 FROM post_archive a WHERE a.original_post_id = p.id)",
+  ).bind(deletedAt, reason, ...binds);
+}

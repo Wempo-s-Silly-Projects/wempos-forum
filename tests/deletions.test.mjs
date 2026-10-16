@@ -157,6 +157,13 @@ const postByIdRoute = (rowForId) => ({
 const reparentRoute = { sql: /^UPDATE posts SET parent_id = \? WHERE parent_id = \?$/ };
 const deletePostRoute = { sql: /^DELETE FROM posts WHERE id = \? AND author_id = \?$/ };
 const fallbackRoute = { sql: /./ };
+// Archive route (v2.4.1): the archival INSERT..SELECT rides the deletion batch
+// FIRST; its binds are [deletedAt, reason, ...deletionSelectors]. The tests
+// below match it by sql text and verify binds shape/leniency (deletedAt is
+// "recent seconds", reason and selector list are exact).
+const archiveRoute = { sql: /^INSERT INTO post_archive \(original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because\)/ };
+const ARCHIVE_BATCH_META = { meta: { changes: 1 } };
+
 
 // --- Author root deletion: one guarded DELETE takes the whole thread ----------
 
@@ -166,6 +173,7 @@ test("the author deletes a root post with ONE author-guarded DELETE, no reparent
     sessionRoute,
     banCheckRoute,
     postByIdRoute((id) => (id === 50 ? root : null)),
+    archiveRoute,
     reparentRoute,
     deletePostRoute,
     fallbackRoute,
@@ -188,10 +196,24 @@ test("the author deletes a root post with ONE author-guarded DELETE, no reparent
     "no reparent may run for a root post",
   );
   assert.equal(mock.batches.length, 1, "the delete runs as one atomic batch");
+  // Archival rides the same batch FIRST (rooman98's accountability ask): the
+  // whole thread's rows are copied to post_archive before the cascade.
   assert.deepEqual(
-    mock.batches[0].map((statement) => statement.sql),
-    [POST_DELETE_SQL],
+    mock.batches[0].map((statement) => statement.sql.startsWith("INSERT INTO post_archive")),
+    [true, false],
   );
+  assert.equal(mock.batches[0][1].sql, POST_DELETE_SQL);
+  const archiveCall = mock.calls.find((call) => call.sql.startsWith("INSERT INTO post_archive"));
+  assert.ok(archiveCall, "the archive INSERT runs");
+  assert.equal(archiveCall.values[1], "post-delete");
+  assert.deepEqual(archiveCall.values.slice(2), [50, 50, 50],
+    "root delete archives the root, its replies, and its sub-replies");
+  assert.ok(Math.abs(Number(archiveCall.values[0]) - Math.floor(Date.now() / 1000)) < 30,
+    "deletedAt is epoch seconds");
+  // The SELECT body excludes the board column from the pinned statement list.
+  for (const statement of mock.batches[0].slice(1)) {
+    assert.equal(statement.sql.includes("board"), false, statement.sql);
+  }
 });
 
 test("a Suggestions-board root deletes through the identical board-blind SQL", async () => {
@@ -200,6 +222,7 @@ test("a Suggestions-board root deletes through the identical board-blind SQL", a
     sessionRoute,
     banCheckRoute,
     postByIdRoute((id) => (id === 60 ? root : null)),
+    archiveRoute,
     reparentRoute,
     deletePostRoute,
     fallbackRoute,
@@ -213,9 +236,11 @@ test("a Suggestions-board root deletes through the identical board-blind SQL", a
   // mention the board column (the read path's POST_SELECT legitimately
   // projects p.board), so the Suggestions feed loses threads exactly like the
   // general one.
-  for (const statement of mock.batches[0]) {
+  for (const statement of mock.batches[0].slice(1)) {
     assert.equal(statement.sql.includes("board"), false, statement.sql);
   }
+  const archiveForBoard = mock.calls.find((call) => call.sql.startsWith("INSERT INTO post_archive"));
+  assert.equal(archiveForBoard.values[1], "post-delete");
   const deleteCall = mock.calls.find((call) => call.sql === POST_DELETE_SQL);
   assert.deepEqual(deleteCall.values, [60, 7]);
 });
@@ -229,6 +254,7 @@ test("the author deletes a reply: sub-replies reparent to the thread root before
     sessionRoute,
     banCheckRoute,
     postByIdRoute((id) => (id === 51 ? reply : null)),
+    archiveRoute,
     reparentRoute,
     deletePostRoute,
     fallbackRoute,
@@ -242,8 +268,13 @@ test("the author deletes a reply: sub-replies reparent to the thread root before
   const batch = mock.batches[0];
   const reparentIndex = batch.findIndex((statement) => statement.sql === REPLY_REPARENT_SQL);
   const deleteIndex = batch.findIndex((statement) => statement.sql === POST_DELETE_SQL);
-  assert.ok(reparentIndex === 0 && deleteIndex === 1,
-    "the reparent must be statement 0 and the delete statement 1");
+  assert.ok(reparentIndex === 1 && deleteIndex === 2,
+    "the archive copy is statement 0, the reparent statement 1, the delete statement 2");
+  const batchArchive = batch[0];
+  assert.ok(batchArchive.sql.startsWith("INSERT INTO post_archive"));
+  assert.equal(batchArchive.values[1], "post-delete");
+  assert.deepEqual(batchArchive.values.slice(2), [51],
+    "a reply delete archives just the reply (sub-replies reparent, staying live)");
   // The reparent binds (root id, deleted reply id): the deleted reply's
   // children are re-pointed at the THREAD ROOT, not at the reply itself.
   assert.deepEqual(batch[reparentIndex].values, [40, 51]);
@@ -256,10 +287,11 @@ test("a reply with no sub-replies still deletes (a 0-change reparent is not an e
     sessionRoute,
     banCheckRoute,
     postByIdRoute((id) => (id === 52 ? reply : null)),
+    archiveRoute,
     reparentRoute,
     deletePostRoute,
     fallbackRoute,
-  ], { batchMeta: [{ meta: { changes: 0 } }, { meta: { changes: 1 } }] });
+  ], { batchMeta: [ARCHIVE_BATCH_META, { meta: { changes: 0 } }, { meta: { changes: 1 } }] });
   const response = await forumWorker.fetch(
     requestFor("https://forum.example/api/posts/52"),
     envFor(mock.db),
@@ -277,7 +309,7 @@ test("an already-gone post reports 404 off the guarded DELETE's 0-change write",
     reparentRoute,
     deletePostRoute,
     fallbackRoute,
-  ], { batchMeta: [{ meta: { changes: 1 } }, { meta: { changes: 0 } }] });
+  ], { batchMeta: [ARCHIVE_BATCH_META, { meta: { changes: 1 } }, { meta: { changes: 0 } }] });
   const response = await forumWorker.fetch(
     requestFor("https://forum.example/api/posts/53"),
     envFor(mock.db),
@@ -368,6 +400,7 @@ test("rate limiting gates the post delete with the write and post-write scopes",
     sessionRoute,
     banCheckRoute,
     postByIdRoute((id) => (id === 50 ? root : null)),
+    archiveRoute,
     reparentRoute,
     deletePostRoute,
     fallbackRoute,
@@ -400,7 +433,7 @@ test("rate limiting gates the post delete with the write and post-write scopes",
 // --- Account deletion routes -----------------------------------------------------
 
 test("account deletion removes owned child rows explicitly, then the user row, in one batch", async () => {
-  const mock = mockDb([sessionRoute, banCheckRoute, fallbackRoute]);
+  const mock = mockDb([sessionRoute, banCheckRoute, archiveRoute, fallbackRoute]);
   const response = await forumWorker.fetch(
     requestFor("https://forum.example/api/me/delete", { method: "POST" }),
     envFor(mock.db),
@@ -410,10 +443,16 @@ test("account deletion removes owned child rows explicitly, then the user row, i
   assert.deepEqual(await response.json(), { deleted: true });
   assert.equal(mock.batches.length, 1, "the wipe runs as one atomic batch");
   const batch = mock.batches[0];
-  // attachments FIRST (the only users FK without an ON DELETE action), then
-  // the owned children the spec names, then the user row LAST.
+  // The accountability archive rides FIRST (rooman98's ask): every doomed row
+  // — the account's own posts and the child rows the CASCADE will take — is
+  // copied before the wipe. attachments THEN (the only users FK without an ON
+  // DELETE action), then the owned children, then the user row LAST.
+  assert.equal(batch[0].sql.startsWith("INSERT INTO post_archive"), true);
+  assert.equal(batch[0].values[1], "account-delete");
+  assert.deepEqual(batch[0].values.slice(2), [7, 7, 7]);
+  assert.ok(Math.abs(Number(batch[0].values[0]) - Math.floor(Date.now() / 1000)) < 30);
   assert.deepEqual(
-    batch.map((statement) => statement.sql),
+    batch.slice(1).map((statement) => statement.sql),
     [
       "DELETE FROM attachments WHERE created_by = ?",
       "DELETE FROM notifications WHERE user_id = ?",
@@ -424,7 +463,7 @@ test("account deletion removes owned child rows explicitly, then the user row, i
       "DELETE FROM users WHERE id = ?",
     ],
   );
-  for (const statement of batch) assert.deepEqual(statement.values, [7]);
+  for (const statement of batch.slice(1)) assert.deepEqual(statement.values, [7]);
 });
 
 test("account deletion is a guest 401 before any write", async () => {
@@ -438,8 +477,9 @@ test("account deletion is a guest 401 before any write", async () => {
 });
 
 test("account deletion whose user row already vanished reports 404", async () => {
-  const mock = mockDb([sessionRoute, banCheckRoute, fallbackRoute], {
+  const mock = mockDb([sessionRoute, banCheckRoute, archiveRoute, fallbackRoute], {
     batchMeta: [
+      ARCHIVE_BATCH_META,
       { meta: { changes: 1 } }, { meta: { changes: 1 } }, { meta: { changes: 1 } },
       { meta: { changes: 1 } }, { meta: { changes: 1 } }, { meta: { changes: 1 } },
       { meta: { changes: 0 } },

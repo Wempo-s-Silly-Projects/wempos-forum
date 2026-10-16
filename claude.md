@@ -75,7 +75,8 @@ Never run the remote migration against a database that contains data you do not 
 - `POST /api/admin/users/:id/promote`, `POST /api/admin/users/:id/demote` (admin only)
 - `GET /api/admin/avatars`, `POST /api/admin/avatars/:userId/approve`, `POST /api/admin/avatars/:userId/reject`
 - `GET /api/avatars/:userId`
-- `GET /api/attachments/:id`
+- `GET /api/archive`
+- - `GET /api/attachments/:id`
 - `GET /api/admin/attachments`, `POST /api/admin/attachments/:id/approve`, `POST /api/admin/attachments/:id/reject` (admin only)
 - `POST /api/posts` and `POST /api/posts/:id/replies` also accept multipart with image attachments.
 
@@ -86,6 +87,7 @@ The backend is split into `api/*.mjs` modules (shared, session, posts, profiles,
 - Posts and replies are capped at 1,000 characters with a live composer counter.
 - Replies nest one level (root → reply → reply-to-reply); the feed is sorted by `last_activity_at` (replies bump, reactions do not) with composite `before=<seconds>_<id>` cursors.
 - Avatars are moderated: uploads go to a pending set; the previously approved avatar keeps serving until a moderator approves/rejects from the `/api/admin/avatars` queue.
+- Accountability archive (v2.4.1): every post deleted by its author or wiped by an account deletion is copied into `post_archive` first (same atomic batch) and served publicly at `/archive` — deletion is never a way to scrub words (rooman98's ask).
 - Banning auto-hides posts (v2.4.1): an active ban hides all of that author's content at read time — feed (both boards), replies, detail (hidden-post visibility semantics: author and admins pass; moderators follow `canViewPost`), and edit history. It is read-time only, so unpinning, expiring, or revoking a ban restores the posts without any write.
 - A curated word filter runs on posts and replies from the `FILTERED_WORDS` secret (comma-separated; `wrangler secret put FILTERED_WORDS` in production, an entry in `.dev.vars` locally; unset = filter off). See `config/filtered-words-template.txt`.
 - Banned accounts see a dedicated ban screen on failed sign-in with the ban reason and (for temporary bans) a reactivation countdown.

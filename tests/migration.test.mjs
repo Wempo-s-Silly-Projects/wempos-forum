@@ -911,3 +911,37 @@ test("migration 0007 requires a body and editor — history rows are never anony
   assert.throws(() =>
     db.prepare("UPDATE post_edits SET editor_id = NULL WHERE post_id = 1").run());
 });
+
+// Migration 0008 tests: the accountability archive (public /api/archive).
+const MIGRATION_0008 = readFileSync(path.join(repoRoot, "migrations", "0008_post_archive.sql"), "utf8");
+
+function applyPostArchive(db) {
+  db.exec("BEGIN");
+  try {
+    db.exec(MIGRATION_0008);
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
+
+test("migration 0008 creates post_archive with a reason CHECK and cascade-free history", () => {
+  const db = (() => { const d = openV7Db(); applyPostArchive(d); return d; })();
+
+  const columns = columnsOf(db, "post_archive");
+  for (const name of ["original_post_id", "author_id", "author_name", "body", "board", "created_at", "deleted_at", "deleted_because"]) {
+    assert.ok(columns.includes(name), "missing post_archive." + name);
+  }
+  // Rows are standalone snapshots: no FK back to posts (a deleted post must
+  // never drag its archive row with it or resurrect on restore), and the
+  // reason is CHECK-constrained to the two deletion paths.
+  db.prepare(
+    "INSERT INTO post_archive (original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+  ).run(999, 1, "wempo", "words to preserve", "general", T + 20, T + 500, "post-delete");
+  assert.equal(db.prepare("SELECT author_name FROM post_archive WHERE original_post_id = 999").get().author_name, "wempo");
+  assert.throws(() =>
+    db.prepare(
+      "INSERT INTO post_archive (original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    ).run(998, 1, "wempo", "x", "general", T + 20, T + 500, "mass-delete"));
+});

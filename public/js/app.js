@@ -260,6 +260,11 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   suggestions.href = "/suggestions";
   suggestions.setAttribute("data-app-link", "");
   accountActions.append(suggestions);
+  // Accountability archive (v2.4.1): public to guests and members alike.
+  const archiveLink = element("a", "button button-secondary", "Archive");
+  archiveLink.href = "/archive";
+  archiveLink.setAttribute("data-app-link", "");
+  accountActions.append(archiveLink);
   if (!user) {
     const signIn = element("a", "button button-secondary", "Sign in");
     signIn.href = "/#join";
@@ -522,6 +527,7 @@ function setRouteTitle(route) {
     home: "Wempo's Forum",
     search: "Search",
     suggestions: "Suggestions",
+    archive: "Archive",
     post: "Post",
     profile: "Profile",
     admin: "Moderation",
@@ -556,6 +562,43 @@ async function renderHomeRoute(route, context, version) {
 // pagination pattern, with the board's composer flag and empty-state copy.
 // The general feed route is untouched; the server treats a missing board as
 // 'general', so Home never changes shape.
+async function renderArchiveRoute(context, version) {
+  // The accountability archive (v2.4.1): everyone can read what was deleted,
+  // so no auth is needed — this route renders for guests too.
+  const data = await api("/api/archive");
+  if (version !== renderVersion) return;
+  addHeading(main, "Archive", 2);
+  if (!data.archive.length) {
+    main.append(element("p", "archive-empty", "Nothing has been deleted yet."));
+    return;
+  }
+  main.append(await renderArchiveListFragment(data.archive));
+  if (!data.nextBefore) return;
+  const older = element("button", "button button-secondary", "Load older archive");
+  older.type = "button";
+  older.dataset.action = "load-more-archive";
+  older.dataset.before = String(data.nextBefore);
+  main.append(older);
+}
+
+async function renderArchiveListFragment(entries) {
+  const list = element("div", "archive-list");
+  for (const entry of entries) {
+    const card = element("article", "archive-card");
+    const header = element("p", "archive-header");
+    header.append(element("span", "archive-author", "post by " + entry.authorName));
+    header.append(element("span", "archive-meta",
+      "deleted " + new Date(entry.deletedAt).toLocaleString() + " — " +
+      (entry.deletedBecause === "account-delete" ? "account deleted" : "post deleted")));
+    card.append(header);
+    const bodyBlock = element("p", "archive-body");
+    bodyBlock.textContent = entry.body;
+    card.append(bodyBlock);
+    list.append(card);
+  }
+  return list;
+}
+
 async function renderSuggestionsRoute(context, version) {
   // api() returns the parsed body UNWRAPPED ({posts, nextBefore}), so the
   // route wraps it in the exact { feed: ... } shape renderHomeRoute builds —
@@ -661,6 +704,7 @@ async function renderRoute(route) {
     home: () => renderHomeRoute(route, context, version),
     search: () => renderHomeRoute(route, context, version),
     suggestions: () => renderSuggestionsRoute(context, version),
+    archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
     admin: () => renderAdminRoute(context, version),
@@ -1158,6 +1202,21 @@ async function loadMorePosts(button) {
   main.append(next);
 }
 
+async function loadMoreArchive(button) {
+  // The accountability archive paginates on the raw row id (newest-first);
+  // each page appends below the previous one like the feed routes.
+  const older = await api("/api/archive?before=" + button.dataset.before);
+  const rendered = await renderArchiveListFragment(older.archive);
+  button.before(rendered);
+  button.remove();
+  if (!older.nextBefore) return;
+  const next = element("button", "button button-secondary", "Load older archive");
+  next.type = "button";
+  next.dataset.action = "load-more-archive";
+  next.dataset.before = String(older.nextBefore);
+  main.append(next);
+}
+
 async function loadMoreProfilePosts(button) {
   const username = button.dataset.username;
   const page = await api("/api/users/" + encodeURIComponent(username) + "?before=" + button.dataset.before);
@@ -1192,6 +1251,7 @@ async function handleButtonAction(button) {
     report: () => openReportDialog(button),
     "close-report": () => reportDialog.close(),
     "load-more": () => loadMorePosts(button),
+    "load-more-archive": () => loadMoreArchive(button),
     "load-more-profile-posts": () => loadMoreProfilePosts(button),
     "load-older-replies": () => loadOlderReplies(button),
     "reply-to": () => toggleReplyComposer(button),

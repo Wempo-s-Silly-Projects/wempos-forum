@@ -9,6 +9,7 @@ import {
 import { applyWordFilter } from "./filter.mjs";
 import { notificationBatchStatements } from "./notifications.mjs";
 import {
+  archivePostRowsStatement,
   assertNotBanned,
   canViewPost,
   HttpError,
@@ -665,10 +666,31 @@ export const REPLY_REPARENT_SQL = "UPDATE posts SET parent_id = ? WHERE parent_i
 // Statement builder shared with the real-SQLite FK tests (tests/deletions.test.mjs
 // runs these exact SQL strings against migrations 0001–0006 to pin the cascade
 // and reparent semantics). parentId null means the target is a thread root.
-export function postDeletionStatements(db, authorId, postId, parentId) {
+export function postDeletionStatements(db, authorId, postId, parentId, { archiveReason, deletedAt } = {}) {
+  // Accountability archive (v2.4.1): the doomed rows are copied into
+  // post_archive FIRST, in the same atomic batch. A root delete archives the
+  // whole thread — including other members' replies, which cascade away with
+  // it. A reply delete archives just that row (its sub-replies are reparented,
+  // so their content stays live). Omit {archiveReason, deletedAt} to delete
+  // without archiving (legacy callers / tests).
+  const archiveStatements = [];
+  if (archiveReason) {
+    const isRoot = parentId === null || parentId === undefined;
+    archiveStatements.push(archivePostRowsStatement(
+      db,
+      isRoot
+        ? "p.id = ? OR p.parent_id = ? OR p.parent_id IN (SELECT id FROM posts WHERE parent_id = ?)"
+        : "p.id = ?",
+      isRoot ? [postId, postId, postId] : [postId],
+      archiveReason,
+      deletedAt,
+    ));
+  }
   const deletePost = db.prepare(POST_DELETE_SQL).bind(postId, authorId);
-  if (parentId === null || parentId === undefined) return [deletePost];
-  return [db.prepare(REPLY_REPARENT_SQL).bind(parentId, postId), deletePost];
+  if (parentId === null || parentId === undefined) {
+    return [...archiveStatements, deletePost];
+  }
+  return [...archiveStatements, db.prepare(REPLY_REPARENT_SQL).bind(parentId, postId), deletePost];
 }
 
 async function handlePostDeleteRoute(request, env, url, path, method) {
@@ -691,6 +713,7 @@ async function handlePostDeleteRoute(request, env, url, path, method) {
       : Number(post.parent_id);
     const results = await db.batch(postDeletionStatements(
       db, session.user.id, postId, parentId,
+      { archiveReason: "post-delete", deletedAt: nowSeconds() },
     ));
     // The author-guarded DELETE must be the statement that changed exactly one
     // row; a 0-change delete means the post vanished between the read and the

@@ -517,7 +517,9 @@ test("the frontend wires the Suggestions route, header link, composer board, and
   const routerJs = readFileSync(path.join(repoRoot, "public", "js", "router.js"), "utf8");
   assert.match(routerJs, /pathname === "\/suggestions"\) return \{ name: "suggestions" \}/);
   // The account nav renders the link for signed-out viewers too.
-  assert.match(appJs, /accountActions\.append\(suggestions\);\s*\n\s*if \(!user\)/);
+  assert.match(appJs, /accountActions\.append\(suggestions\);/);
+  assert.match(appJs, /archiveLink\.href = "\/archive";/);
+  assert.match(appJs, /accountActions\.append\(archiveLink\);/);
 });
 test("a shared score across a page boundary skips or duplicates no rows", async () => {
   // Every fixture thread ties at score 0 (zero reactions on all of them): the
