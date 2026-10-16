@@ -49,7 +49,9 @@ export const REPLY_BUMP_SQL =
 export const STAGED_REPLY_BUMP_SQL =
   "UPDATE posts SET last_activity_at = MAX(COALESCE(last_activity_at, 0), ?) " +
   "WHERE id = ? AND visibility = 'public' AND EXISTS (" +
-  "SELECT 1 FROM posts reply WHERE reply.id = ? AND reply.parent_id = posts.id AND reply.visibility = 'public')";
+  "SELECT 1 FROM posts reply LEFT JOIN posts target ON target.id = reply.parent_id " +
+  "WHERE reply.id = ? AND reply.visibility = 'public' " +
+  "AND (reply.parent_id = posts.id OR target.parent_id = posts.id))";
 
 export const RATE_LIMIT_BINDINGS = Object.freeze({
   read: "READ_RATE_LIMITER",
