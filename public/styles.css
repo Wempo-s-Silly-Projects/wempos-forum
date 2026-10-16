@@ -1,5 +1,7 @@
 :root {
   color-scheme: light dark;
+  /* Corner style (v2.5): round by default; [data-corners="square"] flips it. */
+  --button-radius: 0.45rem 0.65rem 0.4rem 0.55rem;
   accent-color: var(--green);
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   color: var(--ink);
@@ -500,7 +502,7 @@ img {
   gap: 0.35rem;
   padding: 0.55rem 0.9rem;
   border: 2px solid var(--ink);
-  border-radius: 0.45rem 0.65rem 0.4rem 0.55rem;
+  border-radius: var(--button-radius);
   cursor: pointer;
   font-weight: 700;
   line-height: 1.2;
@@ -1134,7 +1136,7 @@ dialog h2 {
   align-items: center;
   padding: 0.55rem 0.9rem;
   border: 2px solid var(--ink);
-  border-radius: 0.45rem 0.65rem 0.4rem 0.55rem;
+  border-radius: var(--button-radius);
   background: var(--paper);
   box-shadow: 3px 4px 0 var(--paper-shadow);
 }
@@ -1457,7 +1459,7 @@ dialog h2 {
   min-height: 2.4rem;
   padding: 0.45rem 1rem;
   border: 2px solid var(--line);
-  border-radius: 0.45rem 0.65rem 0.4rem 0.55rem;
+  border-radius: var(--button-radius);
   color: var(--muted);
   font-weight: 700;
   cursor: pointer;
@@ -1502,4 +1504,72 @@ dialog h2 {
 .post-heading {
   color: var(--ink);
   margin: 0.7rem 0 0.25rem;
+}
+
+
+/* Square corners (v2.5, appearance pref): a data-corners="square" flip on
+   <html> removes the rounding everywhere the token applies. The dot/pill
+   shapes (badges, swatches) are excluded — they are circles by meaning. */
+:root[data-corners="square"] {
+  --button-radius: 0;
+}
+:root[data-corners="square"] .accent-swatch,
+:root[data-corners="square"] .notification-badge {
+  border-radius: 0;
+}
+
+
+/* GIF picker (v2.5): the composer's library dialog + chips. */
+.gif-picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.gif-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.6rem;
+  max-height: 55vh;
+  overflow-y: auto;
+  margin: 0.5rem 0;
+}
+.gif-grid-item {
+  padding: 0;
+  border: 2px solid var(--line);
+  background: var(--field);
+  border-radius: 0.4rem;
+  cursor: pointer;
+  display: block;
+}
+.gif-grid-item img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  display: block;
+}
+.gif-grid-item[aria-pressed="true"] {
+  border: 2px solid var(--green);
+  outline: 2px solid var(--green);
+}
+.gif-picker-foot {
+  text-align: right;
+}
+.gif-thumbs {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+.gif-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1.5px solid var(--line);
+  border-radius: 0.35rem;
+  padding: 0.15rem 0.3rem;
+  background: var(--field);
+}
+.gif-chip img {
+  height: 2.6rem;
+  width: auto;
+  display: block;
 }

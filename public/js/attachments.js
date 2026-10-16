@@ -44,8 +44,10 @@ export function addComposerFiles(currentFiles, pickedFiles) {
 // - board (v2.4.1): the Suggestions composer tags root posts with their board
 //   (JSON key / multipart text part, only when set). Replies never send one —
 //   the server derives their board from the thread root.
-export function buildComposerBody({ body, turnstileToken, files = [], board }) {
-  if (!Array.isArray(files) || files.length === 0) {
+export function buildComposerBody({ body, turnstileToken, files = [], gifs = [], board }) {
+  // GIF references (v2.5): selected library gifs ride EITHER payload shape as
+  // gifIds (repeatable fields in the multipart form; an array in JSON).
+  if ((!Array.isArray(files) || files.length === 0) && (!Array.isArray(gifs) || gifs.length === 0)) {
     const payload = { body, "cf-turnstile-response": turnstileToken };
     if (board) payload.board = board;
     return { multipart: false, body: payload };
@@ -55,6 +57,7 @@ export function buildComposerBody({ body, turnstileToken, files = [], board }) {
   form.append("cf-turnstile-response", turnstileToken);
   if (board) form.append("board", board);
   for (const file of files) form.append("images", file, file.name);
+  for (const gifId of Array.isArray(gifs) ? gifs : []) form.append("gifIds", gifId);
   return { multipart: true, body: form };
 }
 

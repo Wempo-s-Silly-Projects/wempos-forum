@@ -14,6 +14,7 @@ import {
 import { addText, createForm, createInput, createTextarea } from "./forms.js";
 import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
 import { iconButton } from "./icons.js";
+import { addGifsToComposer, removeGifFromComposer, renderGifThumbs, spareComposerSlots } from "./gifs.js";
 import {
   appendPostList,
   closeEditForm,
@@ -214,6 +215,14 @@ function createComposerAttachmentRow() {
   const attach = element("button", "button button-quiet", "📎 Attach images");
   attach.type = "button";
   attach.dataset.action = "composer-attach";
+  // GIF picker (v2.5): the library dialog — approved community GIFs attach
+  // by reference (no re-upload bytes; the marketplace's dedup covers them).
+  const gifButton = element("button", "button button-quiet", "🎬 GIFs");
+  gifButton.type = "button";
+  gifButton.dataset.action = "open-gif-picker";
+  const gifStrip = element("div", "composer-files");
+  gifStrip.dataset.composerStrip = "gifs";
+  gifStrip.hidden = true;
   const description = element("span", "form-note");
   description.textContent =
     `Images are reviewed before they show publicly. Up to ${MAX_COMPOSER_FILES}, ` +
@@ -222,7 +231,7 @@ function createComposerAttachmentRow() {
   strip.dataset.composerStrip = "images";
   strip.hidden = true;
   const row = element("div", "composer-attach-row");
-  row.append(attach, description, strip, input);
+  row.append(attach, gifButton, description, strip, gifStrip, input);
   return row;
 }
 
@@ -232,6 +241,7 @@ function renderComposerFileStrip(form) {
   const files = form.composerFiles ?? [];
   strip.replaceChildren();
   strip.hidden = files.length === 0;
+  renderComposerGifStrip(form);
   for (const [index, file] of files.entries()) {
     const chip = element("span", "composer-file", file.name);
     const remove = element("button", "button button-quiet composer-file-remove", "Remove");
@@ -241,6 +251,14 @@ function renderComposerFileStrip(form) {
     chip.append(remove);
     strip.append(chip);
   }
+}
+
+function renderComposerGifStrip(form) {
+  const gifStrip = form.querySelector('[data-composer-strip="gifs"]');
+  if (!gifStrip) return;
+  const gifs = form.composerGifs ?? [];
+  gifStrip.replaceChildren(...renderGifThumbs(document, form).children);
+  gifStrip.hidden = gifs.length === 0;
 }
 
 function handleComposerFileSelection(input) {
@@ -861,6 +879,7 @@ async function submitNewPost(form, text) {
     body: text("body"),
     turnstileToken: takeTurnstileToken(form),
     files: form.composerFiles ?? [],
+    gifs: form.composerGifs ?? [],
     board: form.dataset.board,
   });
   refreshTurnstile(form);
@@ -878,6 +897,7 @@ async function submitReplyForm(form, text) {
     body: text("body"),
     turnstileToken: takeTurnstileToken(form),
     files: form.composerFiles ?? [],
+    gifs: form.composerGifs ?? [],
   });
   refreshTurnstile(form);
   await api("/api/posts/" + postId + "/replies", {
@@ -1205,6 +1225,67 @@ function editTargetArticle(button) {
   return main.querySelector(`article[data-post-id="${button.dataset.postId}"]`);
 }
 
+// GIF picker functions (v2.5): open renders the approved library into the
+// dialog grid; confirm folds the selection into the composer state; cancel
+// closes. Selected thumbs carry aria-pressed so keyboard/AT state is real.
+const gifPickerActiveForm = () => null;
+function gifPickerDialog() {
+  return document.querySelector("#gif-picker");
+}
+async function openGifPicker(button) {
+  const form = button.closest("form");
+  if (!form) return;
+  const dialog = gifPickerDialog();
+  if (!dialog) return;
+  dialog.dataset.activeFormSelector = cssSelectorOfForm(form);
+  const grid = dialog.querySelector("#gif-grid");
+  const data = await api("/api/gifs");
+  grid.replaceChildren();
+  const spare = spareComposerSlots(form);
+  for (const gif of data.gifs) {
+    const thumb = element("button", "gif-grid-item");
+    thumb.type = "button";
+    thumb.dataset.gifId = gif.id;
+    thumb.setAttribute("role", "option");
+    thumb.setAttribute("aria-pressed", "false");
+    thumb.title = "Use this GIF";
+    const img = element("img");
+    img.src = gif.url;
+    img.loading = "lazy";
+    img.alt = "Library GIF";
+    thumb.append(img);
+    thumb.addEventListener("click", () => {
+      const pressed = thumb.getAttribute("aria-pressed") === "true";
+      const selectedCount = [...grid.children].filter((node) => node.getAttribute("aria-pressed") === "true");
+      if (!pressed && selectedCount.length >= spare) {
+        setMessage("That would exceed your " + MAX_COMPOSER_FILES + " attachment slots.", true);
+        return;
+      }
+      thumb.setAttribute("aria-pressed", pressed ? "false" : "true");
+    });
+    grid.append(thumb);
+  }
+  dialog.showModal();
+}
+function confirmGifPicker(button) {
+  const dialog = gifPickerDialog();
+  if (!dialog) return;
+  const form = document.querySelector(dialog.dataset.activeFormSelector || "#nonexistent");
+  const grid = dialog.querySelector("#gif-grid");
+  const selected = [...grid.children].filter((node) => node.getAttribute("aria-pressed") === "true").map((node) => node.dataset.gifId);
+  dialog.close();
+  if (!form || selected.length === 0) return;
+  const { added } = addGifsToComposer(form, selected);
+  if (added.length < selected.length) {
+    setMessage("Only " + added.length + " GIF(s) fit your attachment slots.", true);
+  }
+  renderComposerGifStrip(form);
+}
+function cssSelectorOfForm(form) {
+  const forms = [...document.querySelectorAll("form")];
+  return "form:nth-of-type(" + (forms.indexOf(form) + 1) + ")";
+}
+
 function attachComposerImages(button) {
   // The paperclip button lives inside the composer's form, so `.closest("form")`
   // always resolves the right composer even with several on one page.
@@ -1358,6 +1439,15 @@ async function handleButtonAction(button) {
     "open-notification": () => openNotification(button),
     "mark-notifications-read": () => markAllNotificationsRead(),
     "composer-attach": () => attachComposerImages(button),
+    "open-gif-picker": () => openGifPicker(button),
+    "confirm-gif-picker": () => confirmGifPicker(button),
+    "cancel-gif-picker": () => gifPickerDialog()?.close(),
+    "remove-gif": () => {
+      const form = button.closest("form");
+      if (!form) return;
+      removeGifFromComposer(form, button.dataset.gifId);
+      renderComposerGifStrip(form);
+    },
     "remove-composer-file": () => removeComposerFile(button),
     "expand-attachment": () => openAttachmentLightbox(button),
     "edit-post": () => {
