@@ -373,14 +373,15 @@ test("a create with board=suggestions writes the board column value", async () =
   assert.deepEqual(await response.json(), { id: 900 });
   const insert = mock.calls.find((call) => /INSERT INTO posts/.test(call.sql));
   assert.ok(insert.sql.includes(
-    "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board)",
+    "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key)",
   ));
   // Bind order: author, body, created, last_activity, BOARD, ban user, now.
   assert.equal(insert.values[0], 7);
   assert.equal(insert.values[1], "a suggestion post");
   assert.equal(insert.values[4], "suggestions", "the composer-chosen board lands on the root");
-  assert.equal(insert.values[5], 7);
-  assert.equal(insert.values[6], insert.values[2], "the ban check's now matches the stamps");
+  assert.equal(insert.values[5], null, "no idempotency key is sent in this fixture");
+  assert.equal(insert.values[6], 7);
+  assert.equal(insert.values[7], insert.values[2], "the ban check's now matches the stamps");
   return null;
 });
 
@@ -445,7 +446,8 @@ test("a reply to a suggestions root carries the root's board", async () => {
   assert.equal(replyInsert.sql, THREAD_REPLY_INSERT_SQL);
   // Board sits after the timestamps, before the guard binds.
   assert.equal(replyInsert.values[5], "suggestions", "replies inherit the root's board");
-  assert.equal(replyInsert.values[6], 1, "guard checks the root target itself");
+  assert.equal(replyInsert.values[6], null, "no idempotency key is sent in this fixture");
+  assert.equal(replyInsert.values[7], 1, "guard checks the root target itself");
 });
 
 test("a reply to a level-1 comment of a suggestions thread inherits the thread root's board", async () => {
