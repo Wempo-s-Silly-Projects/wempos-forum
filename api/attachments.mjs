@@ -48,14 +48,14 @@ const ATTACHMENT_FIELD = "images";
 // stream unbounded, and a 128 MiB isolate is not a safe place for that — so
 // that branch keeps readLimitedBody's counted buffering as the cap. The JSON
 // branch is unchanged.
-export async function readComposedBody(request, env) {
+export async function readComposedBody(request, env, options = {}) {
   const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
   if (!contentType.startsWith("multipart/form-data")) {
     // JSON bodies carry library-gif references as an array; the multipart
     // path carries repeatable gifIds text fields — both resolve the same.
     const parsed = await readJson(request);
     const gifIds = Array.isArray(parsed.gifIds) ? parsed.gifIds.map(String) : [];
-    const gifEntries = await gifReferenceEntries(env.FORUM_DB, gifIds);
+    const gifEntries = await gifReferenceEntries(env.FORUM_DB, gifIds, options.replayPostId);
     return { fields: parsed, files: [], gifIds, gifEntries };
   }
 
@@ -123,7 +123,7 @@ export async function readComposedBody(request, env) {
 // Resolves library-gif ids to their approved rows ({ id, hash, mime } each):
 // duplicates collapse, unknown/not-approved ids 400, and the count cap lives
 // with the files' cap at the call site.
-async function gifReferenceEntries(db, gifIds) {
+async function gifReferenceEntries(db, gifIds, replayPostId = null) {
   const entries = [];
   const seen = new Set();
   for (const raw of gifIds) {
@@ -135,7 +135,22 @@ async function gifReferenceEntries(db, gifIds) {
       "SELECT id, hash, mime FROM gifs WHERE id = ? AND status = 'approved' " +
       "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = gifs.hash) LIMIT 1",
     ).bind(id).first();
-    if (!gif) throw new HttpError(400, "One of the selected GIFs is not available.");
+    if (!gif) {
+      // Exact retries are identified before this parser runs. If the library
+      // GIF was since revoked or removed, recover its immutable media identity
+      // from the attachment row already committed to that same post. This is
+      // only for fingerprint verification; the normal read path still filters
+      // revoked media and no new post can use this fallback.
+      const prior = replayPostId
+        ? await db.prepare(
+          "SELECT source_gif_id AS id, hash, mime FROM attachments " +
+          "WHERE post_id = ? AND source_gif_id = ? AND source_kind = 'gif' LIMIT 1",
+        ).bind(Number(replayPostId), id).first()
+        : null;
+      if (!prior) throw new HttpError(400, "One of the selected GIFs is not available.");
+      entries.push({ id: prior.id, hash: prior.hash, mime: prior.mime, file: false });
+      continue;
+    }
     entries.push({ id: gif.id, hash: gif.hash, mime: gif.mime, file: false });
   }
   return entries;
@@ -219,13 +234,13 @@ export async function insertAttachments(db, postId, createdBy, files, gifEntries
     referenceInsertIndexes.push(statements.length);
     statements.push(
       db.prepare(
-        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash, source_kind) " +
+        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash, source_kind, source_gif_id) " +
           "SELECT ?, ?, ?, ?, CASE WHEN EXISTS (" +
           "SELECT 1 FROM gifs g WHERE g.id = ? AND g.hash = ? AND g.mime = ? AND g.status = 'approved' " +
           "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = g.hash)) " +
-          "THEN 'approved' ELSE 'invalid' END, ?, ?, ?, 'gif'",
+          "THEN 'approved' ELSE 'invalid' END, ?, ?, ?, 'gif', ?",
       ).bind(id, postId, createdBy, now, gif.id, gif.hash, gif.mime,
-        createAvatarVersion(), gif.mime, gif.hash),
+        createAvatarVersion(), gif.mime, gif.hash, gif.id),
     );
   }
   // One all-or-nothing batch: a failure partway through intake can never leave
