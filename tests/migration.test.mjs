@@ -14,6 +14,7 @@ const MIGRATION_0001 = readFileSync(path.join(repoRoot, "migrations", "0001_init
 const MIGRATION_0002 = readFileSync(path.join(repoRoot, "migrations", "0002_forum_v2.sql"), "utf8");
 const MIGRATION_0003 = readFileSync(path.join(repoRoot, "migrations", "0003_attachments.sql"), "utf8");
 const MIGRATION_0004 = readFileSync(path.join(repoRoot, "migrations", "0004_attachment_chunks.sql"), "utf8");
+const MIGRATION_0005 = readFileSync(path.join(repoRoot, "migrations", "0005_edit_at.sql"), "utf8");
 
 const T = 1_700_000_000;
 
@@ -713,4 +714,62 @@ test("attachment chunks cascade away with their attachments row and their post",
   db.prepare("DELETE FROM posts WHERE id = 1").run();
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM attachments").get().n, 0);
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM attachment_chunks").get().n, 0);
+});
+
+// Migration 0005 tests: edited_at lands on posts in place (ALTER ADD COLUMN on
+// a nullable column — no rebuild), every pre-migration row reads as never-
+// edited, and the edit stamp is settable and readable. Applied on top of the
+// full chain (0001 → 0002 → 0003 → 0004 → 0005), exactly like the real run.
+function openV4Db() {
+  const db = openV3Db();
+  applyAttachmentChunks(db);
+  return db;
+}
+
+function applyEditAt(db) {
+  db.exec("BEGIN");
+  try {
+    db.exec(MIGRATION_0005);
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
+
+test("migration 0005 adds a nullable edited_at column to posts in place", () => {
+  const db = openV4Db();
+
+  const before = columnsOf(db, "posts");
+  assert.ok(!before.includes("edited_at"), "edited_at must not exist before 0005");
+  applyEditAt(db);
+  const columns = columnsOf(db, "posts");
+  assert.ok(columns.includes("edited_at"), "missing column posts.edited_at");
+  // ALTER ADD COLUMN keeps everything else untouched — no table rebuild.
+  assert.deepEqual(
+    columns.filter((name) => name !== "edited_at"),
+    before,
+    "0005 must not disturb any existing posts column",
+  );
+
+  // No CHECK/NOT NULL on the new column: rows written before the migration
+  // (and inserts that omit it) read as never-edited. A SELECT naming the
+  // column works for both shapes.
+  const untouched = db.prepare("SELECT id, body, edited_at FROM posts WHERE id = 1").get();
+  assert.equal(untouched.edited_at, null, "pre-migration rows read as never-edited");
+
+  db.prepare("INSERT INTO posts (author_id, parent_id, body, created_at) VALUES (?, NULL, ?, ?)")
+    .run(1, "post after 0005", T + 90);
+  const fresh = db.prepare("SELECT id, edited_at FROM posts ORDER BY id DESC LIMIT 1").get();
+  assert.equal(fresh.edited_at, null, "edited_at defaults to NULL on insert");
+
+  db.prepare("UPDATE posts SET edited_at = ? WHERE id = ? AND author_id = ?")
+    .run(T + 95, fresh.id, 1);
+  const edited = db.prepare("SELECT id, body, edited_at FROM posts WHERE id = ?").get(fresh.id);
+  assert.equal(edited.edited_at, T + 95, "the edit stamp is writable and readable");
+  assert.equal(edited.body, "post after 0005", "the edit update leaves the body alone");
+
+  // Nullability: a never-edited stamp stays writable after edits exist.
+  db.prepare("UPDATE posts SET edited_at = NULL WHERE id = ?").run(fresh.id);
+  assert.equal(db.prepare("SELECT edited_at FROM posts WHERE id = ?").get(fresh.id).edited_at, null);
 });

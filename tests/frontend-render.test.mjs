@@ -13,6 +13,9 @@ import {
   replyAffordances,
   createPostCard,
   createSubReplyContainer,
+  createEditComposer,
+  openEditForm,
+  closeEditForm,
 } from "../public/js/render.js";
 import { renderProfileSocials } from "../public/js/profile-editor.js";
 
@@ -109,6 +112,20 @@ class MockElement {
   getAttribute(name) {
     return name in this.attributes ? this.attributes[name] : null;
   }
+  // Edit-flow (v2.4) DOM ops: openEditForm inserts the form before the first
+  // body block; closeEditForm removes it again. A null/absent ref appends.
+  insertBefore(node, ref) {
+    if (!(node instanceof MockElement)) return;
+    const index = ref ? this.children.indexOf(ref) : -1;
+    if (index < 0) this.children.push(node);
+    else this.children.splice(index, 0, node);
+  }
+  removeChild(child) {
+    const index = this.children.indexOf(child);
+    if (index >= 0) this.children.splice(index, 1);
+  }
+  // The composer counter listens for "input"; recorded for completeness.
+  addEventListener(_type, _handler) {}
 }
 
 const mockDocument = () => ({
@@ -443,4 +460,129 @@ test("anonymous users see quote buttons rendered inert (disabled), like reaction
   // The mock records element properties directly; a real DOM reflects
   // button.disabled = true as the disabled attribute.
   assert.equal(quote.disabled, true);
+});
+
+// --- v2.4: author post editing ------------------------------------------------
+// (a) the "(edited)" marker keyed off editedAt, (b) the author-only Edit
+// button, (c) the inline edit-form swap/restore cycle.
+
+const authorPost = (overrides = {}) => ({
+  ...basePost,
+  author: { username: "alice", id: 5 },
+  ...overrides,
+});
+const sessionUser = (id) => ({ id, username: "alice" });
+const editButtonOf = (root) =>
+  [...walk(root)].find((node) => node.dataset?.action === "edit-post");
+
+test("(a) an edited post renders the (edited) marker and an unedited one does not", () => {
+  const edited = createPostCard(
+    authorPost({ editedAt: "2026-10-16T00:00:00.000Z" }),
+    mockDocument(),
+    null,
+  );
+  const marker = selectByClass(edited, "post-edited");
+  assert.ok(marker, "editedAt present → (edited) marker");
+  assert.equal(marker.tagName, "SPAN");
+  assert.equal(marker.textContent, "(edited)");
+  // It sits in the header next to the creation time.
+  const header = selectByClass(edited, "post-header");
+  assert.ok(selectByClass(header, "post-edited"), "the marker lives in the card header");
+
+  for (const editedAt of [null, undefined]) {
+    const card = createPostCard(authorPost({ editedAt }), mockDocument(), null);
+    assert.equal(selectByClass(card, "post-edited"), undefined, String(editedAt));
+  }
+});
+
+test("(b) the Edit button renders only for the author signed in", () => {
+  const mine = authorPost({ id: 10 });
+  const mineButton = editButtonOf(createPostCard(mine, mockDocument(), sessionUser(5)));
+  assert.ok(mineButton, "the author gets an Edit button");
+  assert.equal(mineButton.tagName, "BUTTON");
+  assert.equal(mineButton.dataset.postId, "10");
+
+  // Other signed-in viewers, guests, and id-less legacy fixtures never do.
+  assert.equal(
+    editButtonOf(createPostCard(mine, mockDocument(), sessionUser(6))), undefined,
+    "a different signed-in member gets no Edit button",
+  );
+  assert.equal(editButtonOf(createPostCard(mine, mockDocument(), null)), undefined,
+    "a guest gets no Edit button");
+  assert.equal(
+    editButtonOf(createPostCard(mine, mockDocument(), "alice")), undefined,
+    "a session without an id can never match the author",
+  );
+  // Removed-account cards have nobody to attribute the edit to.
+  assert.equal(
+    editButtonOf(createPostCard(authorPost({ author: null }), mockDocument(), sessionUser(5))),
+    undefined,
+  );
+  // Moderators get no edit power either (server is author-only) — role alone
+  // must not widen the affordance.
+  assert.equal(
+    editButtonOf(createPostCard(authorPost({ id: 10, author: { username: "bob", id: 9 } }),
+      mockDocument(), { id: 5, username: "mod", role: "moderator" })),
+    undefined,
+  );
+  // Hidden own post keeps its Edit button: the author may edit what they wrote.
+  assert.ok(
+    editButtonOf(createPostCard(authorPost({ visibility: "hidden" }), mockDocument(), sessionUser(5))),
+    "the author's hidden post still offers Edit",
+  );
+});
+
+test("(c) an Edit click swaps the body blocks for the inline edit form and Cancel restores them", () => {
+  const card = createPostCard(
+    authorPost({ id: 10, body: "> quoted line\nplain text" }),
+    mockDocument(),
+    sessionUser(5),
+  );
+  const bodyBlocks = () => card.children.filter(
+    (node) => node.className === "post-body" || node.className === "post-quote",
+  );
+  const before = bodyBlocks();
+  assert.equal(before.length, 2, "a quote block and a text block");
+  assert.ok(card.postBody === "> quoted line\nplain text",
+    "createPostCard stashes the raw body for the edit prefill");
+
+  assert.equal(openEditForm(card, mockDocument()), true);
+  const form = card.children.find((node) => node.dataset?.form === "post-edit");
+  assert.ok(form, "the edit form swapped in");
+  for (const block of before) assert.equal(block.hidden, true, "the body blocks hide while editing");
+  assert.equal(card.children.indexOf(form) < card.children.indexOf(before[0]), true,
+    "the form takes the body's place, before the hidden blocks");
+  const textarea = [...walk(form)].find((node) => node.tagName === "TEXTAREA");
+  assert.equal(textarea.value, "> quoted line\nplain text",
+    "the textarea prefills with the RAW body (newlines and quote markers intact)");
+  assert.equal(textarea.maxLength, 1000, "the edit textarea carries the 1,000-char cap");
+  assert.ok([...walk(form)].find((node) => node.className === "char-counter"),
+    "the live counter is wired on the edit textarea");
+  const save = [...walk(form)].find((node) => node.tagName === "BUTTON" && node.type === "submit");
+  assert.ok(save, "a submit-typed Save button");
+  const cancel = [...walk(form)].find((node) => node.dataset?.action === "cancel-edit");
+  assert.equal(cancel.dataset.postId, "10", "Cancel carries the post id");
+
+  // A second Edit click never stacks a duplicate form.
+  assert.equal(openEditForm(card, mockDocument()), false);
+  assert.equal(card.children.filter((node) => node.dataset?.form === "post-edit").length, 1);
+
+  assert.equal(closeEditForm(card), true, "Cancel restores the card");
+  for (const block of before) assert.equal(block.hidden, false, "the original body blocks return");
+  assert.equal(card.children.find((node) => node.dataset?.form === "post-edit"), undefined,
+    "the form is removed again");
+  assert.equal(closeEditForm(card), false, "closing without an open form is a no-op");
+});
+
+test("(c) the edit composer builds the same textarea contract as the create composers", () => {
+  const document = mockDocument();
+  const form = createEditComposer({ id: 42, body: "current body" }, document);
+  assert.equal(form.dataset.form, "post-edit");
+  assert.equal(form.dataset.postId, "42");
+  const textarea = [...walk(form)].find((node) => node.tagName === "TEXTAREA");
+  assert.equal(textarea.maxLength, 1000);
+  assert.equal(textarea.value, "current body");
+  const counter = [...walk(form)].find((node) => node.className === "char-counter");
+  assert.ok(counter, "the counter element exists");
+  assert.equal(counter.getAttribute("aria-live"), "polite");
 });

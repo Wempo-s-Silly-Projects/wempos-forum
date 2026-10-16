@@ -464,6 +464,20 @@ img {
   overflow-wrap: anywhere;
 }
 
+/* (edited) marker (v2.4): token-styled like .post-time, sitting right next to
+   it in the card header. Pure text, no link, both themes via --muted. */
+.post-edited {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* Inline edit composer swap-in on the card: same breathing room as the body
+   text it temporarily replaces. */
+.edit-composer {
+  margin: 0.5rem 0 0.75rem;
+}
+
 .post-body {
   margin: 1rem 0;
   white-space: pre-wrap;

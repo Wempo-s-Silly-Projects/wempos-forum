@@ -312,6 +312,7 @@ test("quote prefill inserts as a VALUE only, never HTML-parsed user content", ()
 
 import { charsLeftLabel, COMPOSER_MAX_CHARS } from "../public/js/composer-limits.js";
 import { createTextarea } from "../public/js/forms.js";
+import { api, setCsrfToken } from "../public/js/api.js";
 
 test("the composer cap is pinned at 1,000 characters", () => {
   assert.equal(COMPOSER_MAX_CHARS, 1000);
@@ -440,4 +441,71 @@ test("an input dispatch after quote prefill re-syncs the counter to the post-pre
 
   textarea.dispatchInput();
   assert.equal(counter.textContent, charsLeftLabel(COMPOSER_MAX_CHARS, prefill));
+});
+
+// --- v2.4: author post editing glue --------------------------------------------
+// The edit composer reuses createTextarea's value option (prefill) and counter
+// wiring, and the Save path is exactly one api() PATCH call — pinned here at
+// the payload boundary (mocked fetch) so the wire shape can't drift.
+
+test("a prefilled textarea boots its counter at the post-prefill remaining count", () => {
+  const document = counterMockDocument();
+  const wrapper = createTextarea(document, {
+    id: "post-edit-1-body", label: "Edit post", maxLength: COMPOSER_MAX_CHARS,
+    counter: true, value: "hello world",
+  });
+  const textarea = [...walkTree(wrapper)].find((node) => node.tagName === "TEXTAREA");
+  const counter = [...walkTree(wrapper)].find((node) => node.className === "char-counter");
+  assert.equal(textarea.value, "hello world", "the current body prefills as a raw value");
+  assert.equal(counter.textContent, charsLeftLabel(COMPOSER_MAX_CHARS, "hello world"),
+    "the counter is honest about the prefill from first paint");
+  textarea.value = "";
+  textarea.dispatchInput();
+  assert.equal(counter.textContent, "1,000 chars left");
+});
+
+test("an edit save submits {body} JSON to PATCH via api() with the session CSRF token", async () => {
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (path, init) => {
+    calls.push({ path, init });
+    return new Response(
+      JSON.stringify({ id: 42, editedAt: "2026-10-16T00:00:00.000Z" }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  };
+  try {
+    setCsrfToken("csrf-token-fixture");
+    const result = await api("/api/posts/42", { method: "PATCH", body: { body: "the new text" } });
+    assert.deepEqual(result, { id: 42, editedAt: "2026-10-16T00:00:00.000Z" });
+  } finally {
+    globalThis.fetch = originalFetch;
+    setCsrfToken("");
+  }
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].path, "/api/posts/42");
+  assert.equal(calls[0].init.method, "PATCH");
+  assert.equal(calls[0].init.headers["Content-Type"], "application/json");
+  assert.equal(calls[0].init.headers["X-CSRF-Token"], "csrf-token-fixture");
+  assert.equal(calls[0].init.credentials, "same-origin");
+  // No Turnstile field, no FormData: edits are a plain JSON {body} payload.
+  assert.equal(calls[0].init.body, JSON.stringify({ body: "the new text" }));
+});
+
+test("an edit save surfaces a server 400's message through the thrown error", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () =>
+    new Response(JSON.stringify({ error: "Post must be between 1 and 1000 characters." }),
+      { status: 400, headers: { "Content-Type": "application/json" } });
+  try {
+    setCsrfToken("csrf-token-fixture");
+    await assert.rejects(
+      api("/api/posts/7", { method: "PATCH", body: { body: "x".repeat(1001) } }),
+      (error) => error.status === 400 &&
+        error.message === "Post must be between 1 and 1000 characters.",
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+    setCsrfToken("");
+  }
 });

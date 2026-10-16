@@ -66,7 +66,7 @@ Never run the remote migration against a database that contains data you do not 
 
 - `GET /api/session`, `GET /api/setup/status`
 - `POST /api/setup`, `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`
-- `GET /api/posts`, `GET /api/posts/:id`, `POST /api/posts`, `POST /api/posts/:id/replies`
+- `GET /api/posts`, `GET /api/posts/:id`, `POST /api/posts`, `PATCH /api/posts/:id`, `POST /api/posts/:id/replies`
 - `PUT /api/posts/:id/reaction`, `DELETE /api/posts/:id/reaction`, `GET /api/search`, `GET /api/users/:username`
 - `PATCH /api/me`, `POST /api/me/avatar`, `PATCH /api/me/password`
 - `GET /api/me/notifications`, `POST /api/me/notifications/:id/read`, `POST /api/me/notifications/read-all`
@@ -90,6 +90,7 @@ The backend is split into `api/*.mjs` modules (shared, session, posts, profiles,
 - Banned accounts see a dedicated ban screen on failed sign-in with the ban reason and (for temporary bans) a reactivation countdown.
 - A theme toggle switches between light and dark; the choice is stored client-side and persists across reloads.
 - Thread presentation (v2.3): feed cards show a reply-count chip and up to 3 single-line latest-reply previews; sub-replies render cascade-styled on the detail view; a Quote button prefills `> @user: text` into the reply composer and leading `> ` lines render as blockquotes; profile social links collapse into an expandable block.
+- Author post editing (v2.4): `PATCH /api/posts/:id` is author-only (any role, covers roots and replies), reapplies the word filter and the 1,000-character limit, stamps `edited_at` (shown as an "(edited)" marker), and never bumps `last_activity_at`; edits are text-only, so attachments stay as originally posted.
 
 ### Image attachments
 

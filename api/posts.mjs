@@ -442,6 +442,51 @@ async function handlePostCreateRoute(request, env, url, path, method) {
   return null;
 }
 
+// Author post edits (v2.4): PATCH /api/posts/:id covers BOTH roots and replies
+// (both are rows in posts). Access is author-only by session identity — no role
+// path (a moderator gets no edit power here), and the author may edit even a
+// hidden own post. Content gates mirror create exactly: requiredText semantics
+// with MAX_COMPOSER_BODY_CHARS and the word filter REAPPLIED, storing the
+// masked body. last_activity_at is deliberately absent from the UPDATE — an
+// edit must never bump the feed; edited_at (migration 0005) marks the edit
+// instead. Turnstile is deliberately NOT required (owner-approved default):
+// the editor is already session-verified (same-origin + CSRF + session via
+// requireUser) and the content path reuses create's filter/limit gates, so a
+// token would add friction without any new trust decision. Edits are text-only
+// in v1: attachments stay exactly as originally posted.
+async function handlePostEditRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
+  const editMatch = path.match(/^\/api\/posts\/([0-9]+)$/);
+  if (editMatch && method === "PATCH") {
+    const session = await requireUser(request, env);
+    await assertNotBanned(env, session.user.id);
+    await rateLimit(request, env, "write");
+    await rateLimit(request, env, "post-write", String(session.user.id));
+    const postId = Number(editMatch[1]);
+    if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
+    const post = await postById(env, postId, session.user.id);
+    if (!post) throw new HttpError(404, "Post not found.");
+    if (Number(post.author_id) !== session.user.id) {
+      throw new HttpError(403, "Only the author can edit this post.");
+    }
+    const body = await readJson(request);
+    const message = applyWordFilter(
+      requiredText(body.body, "post", MAX_COMPOSER_BODY_CHARS),
+      env.FILTERED_WORDS,
+    );
+    const editedAt = nowSeconds();
+    // The author_id clause re-checks ownership at write time (TOCTOU guard) and
+    // doubles as the no-race 404: a row deleted between the read and the write
+    // changes nothing.
+    const result = await db.prepare(
+      "UPDATE posts SET body = ?, edited_at = ? WHERE id = ? AND author_id = ?",
+    ).bind(message, editedAt, postId, session.user.id).run();
+    if (Number(result.meta?.changes) !== 1) throw new HttpError(404, "Post not found.");
+    return json({ id: postId, editedAt: new Date(editedAt * 1000).toISOString() });
+  }
+  return null;
+}
+
 async function handleReactionRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   const reactionMatch = path.match(/^\/api\/posts\/([0-9]+)\/reaction$/);
@@ -514,7 +559,7 @@ async function handleSearchRoute(request, env, url, path, method) {
 }
 
 async function handlePostRoutes(request, env, url, path, method) {
-  const handlers = [handlePostFeedRoute, handleRepliesReadRoute, handlePostDetailRoute, handleReplyCreateRoute, handlePostCreateRoute, handleReactionRoute, handleReactionDeleteRoute, handleSearchRoute];
+  const handlers = [handlePostFeedRoute, handleRepliesReadRoute, handlePostDetailRoute, handleReplyCreateRoute, handlePostCreateRoute, handlePostEditRoute, handleReactionRoute, handleReactionDeleteRoute, handleSearchRoute];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method);
     if (response) return response;

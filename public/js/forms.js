@@ -43,7 +43,7 @@ export const createInput = (document, {
 }
 
 export function createTextarea(document, {
-  id, name = id, label, rows = 3, maxLength, required = false, description, counter = false,
+  id, name = id, label, rows = 3, maxLength, required = false, description, counter = false, value,
 }) {
   const wrapper = document.createElement("div");
   wrapper.className = "form-field";
@@ -56,16 +56,20 @@ export function createTextarea(document, {
   textarea.rows = rows;
   textarea.required = required;
   if (maxLength !== undefined) textarea.maxLength = maxLength;
+  // Optional prefill (the edit composer seeds the current body). A property
+  // .value assignment only — prefilled values can never parse as markup.
+  if (value !== undefined) textarea.value = value;
   wrapper.append(textareaLabel, textarea);
   // Live character counter (composer textareas only, opt-in via `counter`):
   // always visible and muted via the .char-counter CSS class; the label text
-  // comes from the DOM-free composer-limits.js so tests own the math.
+  // comes from the DOM-free composer-limits.js so tests own the math. The
+  // initial label reflects any prefill so the count is honest from first paint.
   if (counter && maxLength !== undefined) {
     const counterElement = document.createElement("div");
     counterElement.className = "char-counter";
     counterElement.dataset.charCounter = id;
     counterElement.setAttribute("aria-live", "polite");
-    counterElement.textContent = charsLeftLabel(maxLength, "");
+    counterElement.textContent = charsLeftLabel(maxLength, value ?? "");
     textarea.addEventListener("input", () => {
       counterElement.textContent = charsLeftLabel(maxLength, textarea.value);
     });

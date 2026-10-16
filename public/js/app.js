@@ -13,7 +13,13 @@ import {
 } from "./admin.js";
 import { addText, createForm, createInput, createTextarea } from "./forms.js";
 import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
-import { appendPostList, createPostCard, createSubReplyContainer } from "./render.js";
+import {
+  appendPostList,
+  closeEditForm,
+  createPostCard,
+  createSubReplyContainer,
+  openEditForm,
+} from "./render.js";
 import { prefillQuote } from "./quotes.js";
 import { isPlainLeftClick, startRouter } from "./router.js";
 import { homepageInterests, homepageIntro } from "./home-intro.js";
@@ -704,6 +710,22 @@ async function submitReportForm(text) {
   setMessage("Your report was sent to the moderators.");
 }
 
+// Author edit save (v2.4): JSON {body} to PATCH /api/posts/:id (api.js adds the
+// CSRF header). The server reapplies the word filter and 1,000-char cap, stores
+// the masked body, stamps edited_at, and never bumps last_activity_at — over-
+// limit/filter rejections 400 into the shared error bar here, with the form
+// left open so the author can fix the draft. On success the route re-render
+// refetches the post, so the edited body, the (edited) marker, and the closed
+// form all come back from the server — never from trusting the PATCH echo.
+async function submitPostEditForm(form, text) {
+  await api("/api/posts/" + form.dataset.postId, {
+    method: "PATCH",
+    body: { body: text("body") },
+  });
+  await renderRoute(activeRoute);
+  setMessage("Your edit was saved.");
+}
+
 async function submitReportResolution(form) {
   await api("/api/admin/reports/" + form.dataset.reportId + "/resolve", {
     method: "POST",
@@ -748,6 +770,7 @@ async function submitForm(form) {
     avatar: () => submitAvatarForm(values),
     password: () => submitPasswordForm(text),
     report: () => submitReportForm(text),
+    "post-edit": () => submitPostEditForm(form, text),
     "admin-resolve": () => submitReportResolution(form),
     "admin-ban": () => submitBanForm(form, text),
     "admin-unban": () => submitUnbanForm(form, text),
@@ -896,6 +919,15 @@ async function submitAttachmentModeration(form, action) {
   setMessage(action === "approve" ? "The image was approved." : "The image was rejected.");
 }
 
+// Edit-form swap/restore (v2.4): the DOM cycle lives in render.js
+// (openEditForm/closeEditForm), testable against the mock element suite.
+// A second Edit click on an already-open form is a no-op (openEditForm refuses
+// a duplicate), and Cancel restores the exact original body nodes — the patch
+// itself only happens through the form's submit path.
+function editTargetArticle(button) {
+  return main.querySelector(`article[data-post-id="${button.dataset.postId}"]`);
+}
+
 function attachComposerImages(button) {
   // The paperclip button lives inside the composer's form, so `.closest("form")`
   // always resolves the right composer even with several on one page.
@@ -1025,6 +1057,14 @@ async function handleButtonAction(button) {
     "composer-attach": () => attachComposerImages(button),
     "remove-composer-file": () => removeComposerFile(button),
     "expand-attachment": () => openAttachmentLightbox(button),
+    "edit-post": () => {
+      const article = editTargetArticle(button);
+      if (article) openEditForm(article, document);
+    },
+    "cancel-edit": () => {
+      const article = editTargetArticle(button);
+      if (article) closeEditForm(article);
+    },
   };
   const handler = handlers[button.dataset.action];
   if (handler) await handler();

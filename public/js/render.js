@@ -1,4 +1,6 @@
 import { attachmentUrl } from "./attachments.js";
+import { createTextarea } from "./forms.js";
+import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
 import { collapseWhitespace } from "./quotes.js";
 
 const createElement = (document, tagName, className, text) => {
@@ -131,6 +133,12 @@ const renderLatestReplies = (post, document, article) => {
 export const createPostCard = (post, document, currentUser = null) => {
   const article = createElement(document, "article", "post-card");
   article.dataset.postId = String(post.id);
+  // Raw body rides as a plain JS property (never markup — the same convention
+  // as the composer's form.composerFiles) so the author's inline edit form can
+  // prefill the exact original text, newlines and quote markers included —
+  // the rendered .post-body/.post-quote blocks are lossy and must not be
+  // re-parsed back into a draft.
+  article.postBody = String(post.body ?? "");
   if (post.visibility === "hidden") article.classList.add("post-hidden");
 
   const header = createElement(document, "header", "post-header");
@@ -154,6 +162,10 @@ export const createPostCard = (post, document, currentUser = null) => {
   time.dateTime = post.lastActivityAt ?? post.createdAt;
   time.textContent = new Date(post.createdAt).toLocaleString();
   header.append(author, time);
+  // (edited) marker (v2.4): data-driven off editedAt, which every serialized
+  // post carries (null until the author's first edit). A muted token-styled
+  // token next to the creation time; never a link or tooltip markup.
+  if (post.editedAt) header.append(createElement(document, "span", "post-edited", "(edited)"));
   article.append(header);
 
   renderBodyBlocks(post, document, article);
@@ -197,6 +209,19 @@ export const createPostCard = (post, document, currentUser = null) => {
     report.dataset.action = "report";
     report.dataset.postId = String(post.id);
     actions.append(report);
+  }
+  // Edit affordance (v2.4): author-only by session identity. The renderer sees
+  // the session user object (app.js passes session.user), so the id comparison
+  // is exact; guests and any viewer without an id (undefined id → NaN → never
+  // equal) never see the button, and moderators get no edit power either —
+  // mirroring the server's author-only gate. Unlike Report, a hidden own post
+  // keeps its Edit button: the author may edit what they authored.
+  if (currentUser && post.author && Number(currentUser.id) === Number(post.author.id)) {
+    const editButton = createElement(document, "button", "button button-quiet", "Edit");
+    editButton.type = "button";
+    editButton.dataset.action = "edit-post";
+    editButton.dataset.postId = String(post.id);
+    actions.append(editButton);
   }
   // Reply affordance: same strict rule as replyAffordances — signed-in users
   // on explicitly level-1 rows only (publicLevel 2 and undefined publicLevel
@@ -266,4 +291,71 @@ export const createSubReplyContainer = (postId, replies, document, currentUser =
   }
   for (const reply of replies) container.append(createPostCard(reply, document, currentUser));
   return container;
+};
+
+// Inline edit composer (v2.4): the form an author's Edit click swaps into the
+// card. Same textarea contract as the create composers — maxLength 1,000 with
+// the shared live counter (forms.js createTextarea) — prefilled with the
+// post's CURRENT body through the value option. No Turnstile slot (owner-
+// approved default: the editor is session-verified and the server reuses
+// create's filter/limit gates) and no attachment row: edits are text-only in
+// v1, attachments stay exactly as originally posted.
+export const createEditComposer = (post, document) => {
+  const form = createElement(document, "form", "edit-composer");
+  form.dataset.form = "post-edit";
+  form.dataset.postId = String(post.id);
+  form.append(createTextarea(document, {
+    id: `post-edit-${post.id}-body`, name: "body", label: "Edit post",
+    rows: 4, maxLength: COMPOSER_MAX_CHARS, required: true, counter: true,
+    value: post.body,
+  }));
+  const actions = createElement(document, "div", "post-actions form-actions");
+  const save = createElement(document, "button", "button button-primary", "Save");
+  save.type = "submit";
+  const cancel = createElement(document, "button", "button button-quiet", "Cancel");
+  cancel.type = "button";
+  cancel.dataset.action = "cancel-edit";
+  cancel.dataset.postId = String(post.id);
+  actions.append(save, cancel);
+  form.append(actions);
+  return form;
+};
+
+// The card blocks an open edit form replaces: the rendered body paragraphs and
+// quote blockquotes. Attachments, previews, and the action row stay visible —
+// edits are text-only, so everything else is untouched.
+const isEditBodyBlock = (node) =>
+  node.className === "post-body" || node.className === "post-quote";
+
+// Swap (openEditForm) / restore (closeEditForm) are pure DOM-in/DOM-out so the
+// mock-element render suite can pin the whole cycle. The card's raw body must
+// already ride article.postBody (createPostCard sets it); without it there is
+// nothing trustworthy to prefill, so the swap is refused rather than reconstructing
+// a draft from lossy rendered text.
+export const openEditForm = (article, document) => {
+  if (!article || typeof article.postBody !== "string") return false;
+  const children = [...article.children];
+  if (children.some((node) => node.dataset && node.dataset.form === "post-edit")) return false;
+  const blocks = children.filter(isEditBodyBlock);
+  const form = createEditComposer(
+    { id: Number(article.dataset.postId), body: article.postBody },
+    document,
+  );
+  // The hidden blocks ride the form as a plain property so cancel can restore
+  // the exact original nodes.
+  form.editHiddenBlocks = blocks;
+  for (const block of blocks) block.hidden = true;
+  article.insertBefore(form, blocks[0] ?? null);
+  return true;
+};
+
+export const closeEditForm = (article) => {
+  if (!article) return false;
+  const form = [...article.children].find(
+    (node) => node.dataset && node.dataset.form === "post-edit",
+  );
+  if (!form) return false;
+  for (const block of form.editHiddenBlocks ?? []) block.hidden = false;
+  article.removeChild(form);
+  return true;
 };

@@ -16,7 +16,7 @@ const encoder = new TextEncoder();
 const TURNSTILE_TOKEN_MAX_LENGTH = 2048;
 
 export const POST_SELECT =
-  "SELECT p.id, p.author_id, p.parent_id, p.body, p.visibility, p.created_at, p.last_activity_at, " +
+  "SELECT p.id, p.author_id, p.parent_id, p.body, p.visibility, p.created_at, p.last_activity_at, p.edited_at, " +
   "u.username AS author_username, u.avatar_mime AS author_avatar_mime, " +
   "u.avatar_updated_at AS author_avatar_updated_at, u.avatar_version AS author_avatar_version, " +
   "(SELECT parent.body FROM posts parent WHERE parent.id = p.parent_id) AS parent_body, " +
@@ -519,6 +519,12 @@ function publicPost(row, publicLevel) {
     lastActivityAt: row.last_activity_at === null || row.last_activity_at === undefined
       ? null
       : new Date(Number(row.last_activity_at) * 1000).toISOString(),
+    // edited_at (migration 0005) rides POST_SELECT, so every serialized post
+    // carries it: null until the author's first edit, then the epoch-seconds
+    // stamp the edit route wrote. Same ISO-shape convention as createdAt.
+    editedAt: row.edited_at === null || row.edited_at === undefined
+      ? null
+      : new Date(Number(row.edited_at) * 1000).toISOString(),
     author: {
       id: Number(row.author_id),
       username: row.author_username,
