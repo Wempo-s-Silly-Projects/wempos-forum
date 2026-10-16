@@ -167,7 +167,7 @@ export function renderProfileEditor(main, user) {
     })),
     createInput(document, {
       id: "profile-banner-color", name: "bannerColor", label: "Banner color",
-      maxLength: 10, description: "Green, rust, gold, slate, plum, or blank to clear.",
+      maxLength: 10, description: "green, rust, gold, slate, plum, or blank to clear.",
     }),
     createInput(document, {
       id: "profile-banner-text", name: "bannerText", label: "Banner text",
