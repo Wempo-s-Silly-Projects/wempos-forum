@@ -8,6 +8,7 @@ import {
 import {
   createActiveBanList,
   createAttachmentQueue,
+  createGifQueue,
   createAvatarQueue,
   createReportQueue,
 } from "./admin.js";
@@ -690,7 +691,7 @@ function renderProfile(profile, session) {
   renderProfilePosts(profile, session.user);
 }
 
-function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, user) {
+function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, gifData, user) {
   addHeading(main, "Moderation desk", 1);
   addText(document, main, "p", "Review reports, hide inappropriate posts, and manage active bans.", "page-lede");
   addHeading(main, "Open reports", 2);
@@ -703,6 +704,8 @@ function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, p
   main.append(createCssQueue(cssData.cssSubmissions, document));
   addHeading(main, "Profile reports", 2);
   main.append(createProfileReportQueue(profileReportData.profileReports, document));
+  addHeading(main, "GIFs awaiting review", 2);
+  main.append(createGifQueue(gifData.gifs, document));
   addHeading(main, "Active bans", 2);
   main.append(createActiveBanList(banData.bans, document));
 }
@@ -1014,16 +1017,17 @@ function createCssQueue(submissions, document) {
 }
 
 async function renderAdminRoute(context, version) {
-  const [reports, bans, avatars, attachments, css, profileReports] = await Promise.all([
+  const [reports, bans, avatars, attachments, css, profileReports, gifs] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/bans"),
     api("/api/admin/avatars"),
     api("/api/admin/attachments"),
     api("/api/admin/css"),
     api("/api/admin/profile-reports"),
+    api("/api/admin/gifs"),
   ]);
   if (version !== renderVersion) return;
-  renderAdmin(reports, bans, avatars, attachments, css, profileReports, context.session.user);
+  renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, context.session.user);
 }
 
 async function renderNotificationsRoute(context, version) {

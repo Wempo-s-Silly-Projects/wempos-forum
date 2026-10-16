@@ -117,84 +117,84 @@ migrations_dir = "migrations"
 
 [[previews.ratelimits]]
 name = "READ_RATE_LIMITER"
-namespace_id = "614202610142001"
+namespace_id = 614202610142001
 [previews.ratelimits.simple]
 limit = 180
 period = 60
 
 [[previews.ratelimits]]
 name = "WRITE_RATE_LIMITER"
-namespace_id = "614202610142002"
+namespace_id = 614202610142002
 [previews.ratelimits.simple]
 limit = 45
 period = 60
 
 [[previews.ratelimits]]
 name = "GUEST_SESSION_RATE_LIMITER"
-namespace_id = "614202610142003"
+namespace_id = 614202610142003
 [previews.ratelimits.simple]
 limit = 120
 period = 60
 
 [[previews.ratelimits]]
 name = "REGISTER_RATE_LIMITER"
-namespace_id = "614202610142004"
+namespace_id = 614202610142004
 [previews.ratelimits.simple]
 limit = 5
 period = 60
 
 [[previews.ratelimits]]
 name = "LOGIN_RATE_LIMITER"
-namespace_id = "614202610142005"
+namespace_id = 614202610142005
 [previews.ratelimits.simple]
 limit = 10
 period = 60
 
 [[previews.ratelimits]]
 name = "SETUP_RATE_LIMITER"
-namespace_id = "614202610142006"
+namespace_id = 614202610142006
 [previews.ratelimits.simple]
 limit = 5
 period = 60
 
 [[previews.ratelimits]]
 name = "POST_WRITE_RATE_LIMITER"
-namespace_id = "614202610142007"
+namespace_id = 614202610142007
 [previews.ratelimits.simple]
 limit = 20
 period = 60
 
 [[previews.ratelimits]]
 name = "PASSWORD_CHANGE_RATE_LIMITER"
-namespace_id = "614202610142008"
+namespace_id = 614202610142008
 [previews.ratelimits.simple]
 limit = 6
 period = 60
 
 [[previews.ratelimits]]
 name = "REPORT_RATE_LIMITER"
-namespace_id = "614202610142009"
+namespace_id = 614202610142009
 [previews.ratelimits.simple]
 limit = 5
 period = 60
 
 [[previews.ratelimits]]
 name = "AVATAR_UPLOAD_RATE_LIMITER"
-namespace_id = "614202610142010"
+namespace_id = 614202610142010
 [previews.ratelimits.simple]
 limit = 5
 period = 60
 
 [[previews.ratelimits]]
 name = "REACTION_RATE_LIMITER"
-namespace_id = "614202610142011"
+namespace_id = 614202610142011
 [previews.ratelimits.simple]
 limit = 30
 period = 60
 
 [[previews.ratelimits]]
 name = "IMAGE_UPLOAD_RATE_LIMITER"
-namespace_id = "614202610142012"
+namespace_id = 614202610142012
 [previews.ratelimits.simple]
 limit = 5
 period = 60

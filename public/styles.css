@@ -642,6 +642,31 @@ textarea {
   gap: 1rem;
   margin-bottom: 1.25rem;
 }
+.profile-banner {
+  min-height: 0.35rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  border-radius: 0.55rem;
+  overflow-wrap: anywhere;
+}
+.profile-banner:not(:empty):not([hidden]) { padding: 0.65rem 0.8rem; }
+.profile-banner-text { color: #fff; font-weight: 700; }
+.profile-banner-green .profile-banner { background: #397357; }
+.profile-banner-rust .profile-banner { background: #b05334; }
+.profile-banner-gold .profile-banner { background: #8d690f; }
+.profile-banner-slate .profile-banner { background: #4a5a70; }
+.profile-banner-plum .profile-banner { background: #7c5480; }
+.profile-flair-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.2rem 0; }
+.profile-flair, .profile-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--profile-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
 
 .profile-bio {
   white-space: pre-wrap;
@@ -1520,6 +1545,20 @@ dialog h2 {
 
 
 /* GIF picker (v2.5): the composer's library dialog + chips. */
+.gif-upload-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+.gif-review-card img {
+  display: block;
+  max-width: 100%;
+  max-height: 14rem;
+  object-fit: contain;
+  border-radius: 0.5rem;
+}
 .gif-picker-head {
   display: flex;
   align-items: center;
