@@ -266,9 +266,11 @@ test("a multipart post with one GIF file creates the post and one pending attach
   const inserts = attachmentCalls(mock.calls);
   assert.equal(inserts.length, 1, "one attachment row must be inserted");
   // Mime must come from sniffImageMime, not the client's declared type.
-  assert.equal(inserts[0].values[5], "image/gif");
+  assert.equal(inserts[0].values[6], "image/gif"); // v2.5: 8 binds, mime at [6]
   assert.ok(inserts[0].sql.includes("status, version"), "attachment insert sets the schema columns");
-  assert.ok(inserts[0].sql.includes("'pending'"), "new attachments are always pending");
+  // v2.5: status is a BIND (pending for unseen content; 'approved' when the
+  // hash matched a previously-approved upload).
+  assert.equal(inserts[0].values[4], "pending", "new (never-approved) attachments are always pending");
   assert.equal(inserts[0].values[1], 42, "attachment binds the inserted post's row id");
   assert.equal(inserts[0].values[2], 7, "attachment records the uploading account");
 });
@@ -290,7 +292,7 @@ test("a .png-named JPEG binds image/jpeg — the sniff decides, not the filename
   assert.equal(response.status, 201);
   const inserts = attachmentCalls(mock.calls);
   assert.equal(inserts.length, 1);
-  assert.equal(inserts[0].values[5], "image/jpeg");
+  assert.equal(inserts[0].values[6], "image/jpeg"); // v2.5: 8 binds, mime at [6]
 });
 
 test("non-image bytes are refused with 400 and never insert anything", async () => {
@@ -376,7 +378,7 @@ test("a 4 MiB multipart post chunks its bytes into seq 0..2 of the intake batch"
   assert.equal(response.status, 201);
   const metadataInserts = attachmentCalls(mock.calls);
   assert.equal(metadataInserts.length, 1);
-  assert.equal(metadataInserts[0].values[5], "image/gif");
+  assert.equal(metadataInserts[0].values[6], "image/gif"); // v2.5: 8 binds, mime at [6]
 
   const chunkInserts = chunkInsertCalls(mock.calls);
   assert.equal(chunkInserts.length, 3, "4 MiB must fill three chunks at 1,900,000 bytes each");
@@ -525,7 +527,7 @@ test("multipart reply creation attaches to the REPLY's own row id", async () => 
   const inserts = attachmentCalls(mock.calls);
   assert.equal(inserts.length, 1, "one attachment row must be inserted for the reply");
   assert.equal(inserts[0].values[1], 500, "post_id must be the reply's own row id, not the bump target");
-  assert.equal(inserts[0].values[5], "image/png");
+  assert.equal(inserts[0].values[6], "image/png"); // v2.5: 8 binds, mime at [6]
 });
 
 // ---------------------------------------------------------------------------

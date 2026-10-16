@@ -19,6 +19,7 @@ import {
   securityHeaders,
   sniffImageMime,
 } from "./shared.mjs";
+import { assembledGifBytes } from "./gifs.mjs";
 
 export const MAX_ATTACHMENT_FILES = 3;
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
@@ -95,7 +96,12 @@ export async function readComposedBody(request, env) {
       if (!mime) {
         throw new HttpError(400, "Only JPEG, PNG, WebP, and GIF images can be attached.");
       }
-      files.push({ mime, bytes });
+      // v2.5 dedup + auto-approve: the hash decides. Identical bytes to a
+      // previously approved upload (or an approved marketplace GIF) skip
+      // moderation AND skip byte storage — the canonical byte-set serves.
+      const hash = await sha256Hex(bytes);
+      const canonical = await lookupCanonicalByHash(env.FORUM_DB, hash);
+      files.push({ mime, bytes, hash, preApproved: Boolean(canonical) });
     } else if (typeof value === "string") {
       fields[name] = value;
     }
@@ -108,6 +114,32 @@ export async function readComposedBody(request, env) {
 // kind='pending' (the terminal-before-review state); the approved set stays
 // empty until a moderator approves. `db` is env.FORUM_DB; postId is the
 // freshly inserted post/reply row id.
+// SHA-256 hex of the validated bytes (v2.5): dedup + auto-approve identity.
+// WebCrypto has no blake3; SHA-256 has no practical collision attack at any
+// scale that matters — the owner picked the algorithm by constraint.
+export async function sha256Hex(bytes) {
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+// Content-addressed lookup (v2.5): the APPROVED canonical byte-set for a
+// hash — an approved attachment's chunk set first (oldest), else an approved
+// marketplace GIF. Returns { mime, id } or null; serving concatenates the
+// canonical's chunks.
+export async function lookupCanonicalByHash(db, hash) {
+  const row = await db.prepare(
+    "SELECT a.id, a.mime FROM attachments a WHERE a.hash = ? AND a.status = 'approved' " +
+    "AND EXISTS (SELECT 1 FROM attachment_chunks c WHERE c.attachment_id = a.id) " +
+    "ORDER BY a.created_at ASC LIMIT 1",
+  ).bind(hash).first();
+  if (row) return { mime: row.mime, id: row.id, table: "attachments" };
+  const gif = await db.prepare(
+    "SELECT g.id, g.mime FROM gifs g WHERE g.hash = ? AND g.status = 'approved' LIMIT 1",
+  ).bind(hash).first();
+  if (gif) return { mime: gif.mime, id: gif.id, table: "gifs" };
+  return null;
+}
+
 export async function insertAttachments(db, postId, createdBy, files) {
   if (files.length === 0) return [];
   const ids = [];
@@ -116,18 +148,28 @@ export async function insertAttachments(db, postId, createdBy, files) {
   for (const file of files) {
     const id = crypto.randomUUID();
     ids.push(id);
+    // Content-addressed dedup (v2.5): bytes identical to a previously
+    // APPROVED upload (or an approved marketplace GIF) store nothing and
+    // auto-approve — moderation passed this exact content before; serving
+    // resolves the canonical byte-set by hash. files carry { mime, bytes,
+    // preApproved } from readComposedBody (preApproved set when the hash
+    // lookup hit).
+    const preApproved = Boolean(file.preApproved);
     statements.push(
       db.prepare(
-        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime) " +
-          "VALUES (?, ?, ?, ?, 'pending', ?, ?)",
-      ).bind(id, postId, createdBy, now, createAvatarVersion(), file.mime),
+        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      ).bind(id, postId, createdBy, now,
+        preApproved ? "approved" : "pending", createAvatarVersion(), file.mime, file.hash),
     );
-    for (let seq = 0, offset = 0; offset < file.bytes.length; seq += 1, offset += MAX_ATTACHMENT_CHUNK_BYTES) {
-      statements.push(
-        db.prepare(
-          "INSERT INTO attachment_chunks (attachment_id, kind, seq, data) VALUES (?, 'pending', ?, ?)",
-        ).bind(id, seq, file.bytes.subarray(offset, offset + MAX_ATTACHMENT_CHUNK_BYTES)),
-      );
+    if (!preApproved) {
+      for (let seq = 0, offset = 0; offset < file.bytes.length; seq += 1, offset += MAX_ATTACHMENT_CHUNK_BYTES) {
+        statements.push(
+          db.prepare(
+            "INSERT INTO attachment_chunks (attachment_id, kind, seq, data) VALUES (?, 'pending', ?, ?)",
+          ).bind(id, seq, file.bytes.subarray(offset, offset + MAX_ATTACHMENT_CHUNK_BYTES)),
+        );
+      }
     }
   }
   // One all-or-nothing batch: a failure partway through intake can never leave
@@ -172,15 +214,31 @@ async function handleAttachmentServingRoute(request, env, path, method) {
   if (method !== "GET") throw new HttpError(405, "That method is not supported.");
 
   const row = await env.FORUM_DB.prepare(
-    "SELECT id, status, created_by, mime FROM attachments WHERE id = ? LIMIT 1",
+    "SELECT id, status, created_by, mime, hash FROM attachments WHERE id = ? LIMIT 1",
   ).bind(attachmentMatch[1]).first();
   if (!row) throw new HttpError(404, "Attachment not found.");
 
   if (row.status === "approved" && row.mime) {
-    const bytes = await assembledChunkBytes(env.FORUM_DB, row.id, "approved");
+    let bytes = await assembledChunkBytes(env.FORUM_DB, row.id, "approved");
+    let mime = row.mime;
+    if (!bytes) {
+      // Content-addressed dedup (v2.5): a deduplicated approved row stores no
+      // bytes — its hash resolves the canonical byte-set (an older approved
+      // attachment's chunks or an approved marketplace GIF). A vanished
+      // canonical (its source was deleted later) is a 404 below — fail-safe.
+      const canonical = row.hash
+        ? await lookupCanonicalByHash(env.FORUM_DB, row.hash)
+        : null;
+      if (canonical) {
+        bytes = canonical.table === "gifs"
+          ? await assembledGifBytes(env.FORUM_DB, canonical.id)
+          : await assembledChunkBytes(env.FORUM_DB, canonical.id, "approved");
+        mime = canonical.mime;
+      }
+    }
     if (bytes) {
       const headers = securityHeaders();
-      headers.set("Content-Type", row.mime);
+      headers.set("Content-Type", mime);
       headers.set("Cache-Control", "public, max-age=31536000, immutable");
       headers.set("X-Content-Type-Options", "nosniff");
       // Stated explicitly: the chunk-concatenated length is known, and it tells
