@@ -19,7 +19,7 @@ import {
   securityHeaders,
   sniffImageMime,
 } from "./shared.mjs";
-import { assembledGifBytes } from "./gifs.mjs";
+import { assembledGifBytes, GIF_FIELD } from "./gifs.mjs";
 
 export const MAX_ATTACHMENT_FILES = 3;
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
@@ -51,7 +51,12 @@ const ATTACHMENT_FIELD = "images";
 export async function readComposedBody(request, env) {
   const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
   if (!contentType.startsWith("multipart/form-data")) {
-    return { fields: await readJson(request), files: [] };
+    // JSON bodies carry library-gif references as an array; the multipart
+    // path carries repeatable gifIds text fields — both resolve the same.
+    const parsed = await readJson(request);
+    const gifIds = Array.isArray(parsed.gifIds) ? parsed.gifIds.map(String) : [];
+    const gifEntries = await gifReferenceEntries(env.FORUM_DB, gifIds);
+    return { fields: parsed, files: [], gifIds, gifEntries };
   }
 
   const declaredLength = Number(request.headers.get("Content-Length") || 0);
@@ -84,6 +89,7 @@ export async function readComposedBody(request, env) {
 
   const fields = {};
   const files = [];
+  const gifIds = [];
   for (const entry of form.entries()) {
     const [name, value] = entry;
     if (name === ATTACHMENT_FIELD) {
@@ -102,11 +108,37 @@ export async function readComposedBody(request, env) {
       const hash = await sha256Hex(bytes);
       const canonical = await lookupCanonicalByHash(env.FORUM_DB, hash);
       files.push({ mime, bytes, hash, preApproved: Boolean(canonical) });
+    } else if (name === GIF_FIELD) {
+      // Library GIFs attach BY REFERENCE (v2.5): repeatable gifIds text
+      // fields; only ids resolving to an APPROVED gif pass — anything else
+      // is a 400 (a pending/rejected gif cannot be attached).
+      gifIds.push(String(value));
     } else if (typeof value === "string") {
       fields[name] = value;
     }
   }
-  return { fields, files };
+  const gifEntries = await gifReferenceEntries(env.FORUM_DB, gifIds);
+  return { fields, files, gifIds, gifEntries };
+}
+
+// Resolves library-gif ids to their approved rows ({ id, hash, mime } each):
+// duplicates collapse, unknown/not-approved ids 400, and the count cap lives
+// with the files' cap at the call site.
+async function gifReferenceEntries(db, gifIds) {
+  const entries = [];
+  const seen = new Set();
+  for (const raw of gifIds) {
+    const id = String(raw);
+    if (!/^([0-9a-f-]{36})$/.test(id)) throw new HttpError(400, "One of the selected GIFs is not available.");
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const gif = await db.prepare(
+      "SELECT id, hash, mime FROM gifs WHERE id = ? AND status = 'approved' LIMIT 1",
+    ).bind(id).first();
+    if (!gif) throw new HttpError(400, "One of the selected GIFs is not available.");
+    entries.push({ id: gif.id, hash: gif.hash, mime: gif.mime, file: false });
+  }
+  return entries;
 }
 
 // One metadata INSERT plus one attachment_chunks INSERT per chunk of each
@@ -140,9 +172,10 @@ export async function lookupCanonicalByHash(db, hash) {
   return null;
 }
 
-export async function insertAttachments(db, postId, createdBy, files) {
-  if (files.length === 0) return [];
+export async function insertAttachments(db, postId, createdBy, files, gifEntries = []) {
+  if (files.length === 0 && gifEntries.length === 0) return [];
   const ids = [];
+  const useStats = [];
   const now = nowSeconds();
   const statements = [];
   for (const file of files) {
@@ -172,9 +205,30 @@ export async function insertAttachments(db, postId, createdBy, files) {
       }
     }
   }
+  for (const gif of gifEntries) {
+    const id = crypto.randomUUID();
+    ids.push(id);
+    useStats.push(gif.id);
+    statements.push(
+      db.prepare(
+        "INSERT INTO attachments (id, post_id, created_by, created_at, status, version, mime, hash) " +
+          "VALUES (?, ?, ?, ?, 'approved', ?, ?, ?)",
+      ).bind(id, postId, createdBy, now, createAvatarVersion(), gif.mime, gif.hash),
+    );
+  }
   // One all-or-nothing batch: a failure partway through intake can never leave
   // a partial set of attachment metadata or orphaned chunk rows behind.
   await db.batch(statements);
+  for (const gifId of useStats) {
+    // Best-effort popularity counter; never a post precondition.
+    try {
+      await db.batch([
+        db.prepare("UPDATE gifs SET use_count = use_count + 1 WHERE id = ?").bind(gifId),
+      ]);
+    } catch {
+      /* popularity is display-only */
+    }
+  }
   return ids;
 }
 

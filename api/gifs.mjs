@@ -19,9 +19,11 @@ import {
   sniffImageMime,
 } from "./shared.mjs";
 
+export const GIF_FIELD = "gifIds";
+
 export const MAX_GIF_BYTES = 10 * 1024 * 1024;
 const GIFS_LIST_LIMIT = 100;
-const GIF_ID_ROUTE = /^\/api\/gifs\/([0-9a-f-]{36})$/;
+export const GIF_ID_ROUTE = /^\/api\/gifs\/([0-9a-f-]{36})$/;
 const GIF_ADMIN_ROUTE = /^\/api\/admin\/gifs\/([0-9a-f-]{36})\/(approve|reject)$/;
 const GIF_CHUNK_BYTES = 2_000_000 - 100_000;
 
@@ -81,7 +83,7 @@ export async function handleGifServingRoute(request, env, path, method) {
 // hash-dedup: uploading bytes whose hash already has an APPROVED gif returns
 // that gif (reuse: true) instead of storing anything; anything else lands a
 // pending row with its chunks.
-export async function handleGifUploadRoute(request, env, url, path, method) {
+export async function handleGifUploadRoute(request, env, path, method) {
   const db = env.FORUM_DB;
   if (path !== "/api/gifs" || method !== "POST") return null;
   const session = await requireUser(request, env);
@@ -147,7 +149,7 @@ function bytesToHex(buffer) {
 }
 
 // Approved library list (newest first): the picker renders this.
-export async function handleGifListRoute(request, env, url, path, method) {
+export async function handleGifListRoute(request, env, path, method) {
   if (path !== "/api/gifs" || method !== "GET") return null;
   const result = await env.FORUM_DB.prepare(
     "SELECT id, version, use_count FROM gifs WHERE status = 'approved' " +

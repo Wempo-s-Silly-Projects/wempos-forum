@@ -512,14 +512,14 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     if (!(await canViewPost(env, target, session.user))) {
       throw new HttpError(400, "Replies are closed while this conversation's author is banned.");
     }
-    const { fields, files } = await readComposedBody(request, env);
+    const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env);
     // Image-heavy posts pay a per-account image-upload limit before any
     // validation or insert work happens (ordering constraint).
-    if (files.length > 0) {
+    if (files.length > 0 || gifIds.length > 0) {
       await rateLimit(request, env, "image-upload", String(session.user.id));
     }
-    if (files.length > MAX_ATTACHMENT_FILES) {
-      throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images.");
+    if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
+      throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
     await requireTurnstile(request, env, fields, "reply");
     const message = applyWordFilter(requiredText(fields.body, "reply", MAX_COMPOSER_BODY_CHARS), env.FILTERED_WORDS);
@@ -539,7 +539,7 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const replyId = Number(results[0].meta.last_row_id);
     // Attachments bind the reply's own row id, never the bump target's.
     // Attachment intake is a separate batch: if it fails, the post row is already committed (retry may duplicate the post); accepted tradeoff.
-    await insertAttachments(db, replyId, session.user.id, files);
+    await insertAttachments(db, replyId, session.user.id, files, gifEntries);
     try {
       // Best-effort fan-out in a second batch: the reply id only exists after
       // the insert above, and a failed notification must never fail the reply.
@@ -562,14 +562,14 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     await assertNotBanned(env, session.user.id);
     await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
-    const { fields, files } = await readComposedBody(request, env);
+    const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env);
     // Image-heavy posts pay a per-account image-upload limit before any
     // validation or insert work happens (ordering constraint).
-    if (files.length > 0) {
+    if (files.length > 0 || gifIds.length > 0) {
       await rateLimit(request, env, "image-upload", String(session.user.id));
     }
-    if (files.length > MAX_ATTACHMENT_FILES) {
-      throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images.");
+    if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
+      throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
     await requireTurnstile(request, env, fields, "post");
     const message = applyWordFilter(requiredText(fields.body, "post", MAX_COMPOSER_BODY_CHARS), env.FILTERED_WORDS);
@@ -588,7 +588,7 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     requireMutationApplied(result);
     const postId = Number(result.meta.last_row_id);
     // Attachment intake is a separate batch: if it fails, the post row is already committed (retry may duplicate the post); accepted tradeoff.
-    await insertAttachments(db, postId, session.user.id, files);
+    await insertAttachments(db, postId, session.user.id, files, gifEntries);
     return json({ id: postId }, 201);
   }
   return null;
