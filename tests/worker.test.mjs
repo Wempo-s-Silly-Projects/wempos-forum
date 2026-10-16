@@ -159,15 +159,15 @@ test("a successful guarded login creates the new session and removes the guest s
 });
 
 test("threaded reply insertion atomically requires a viewable conversation and an unbanned author", () => {
-  assert.ok(THREAD_REPLY_INSERT_SQL.includes("INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board)"));
-  assert.ok(THREAD_REPLY_INSERT_SQL.includes("SELECT ?, ?, ?, 'public', ?, ?, ? WHERE EXISTS"));
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key)"));
+  assert.ok(THREAD_REPLY_INSERT_SQL.includes("SELECT ?, ?, ?, 'public', ?, ?, ?, ? WHERE EXISTS"));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("FROM posts WHERE id = ? AND visibility = 'public' AND ("));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("parent_id IS NULL OR EXISTS"));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("SELECT 1 FROM posts root WHERE root.id = posts.parent_id"));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("AND root.parent_id IS NULL AND root.visibility = 'public'"));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ?"));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("expires_at IS NULL OR expires_at > ?"));
-  assert.match(REPLY_BUMP_SQL, /^UPDATE posts SET last_activity_at = \? WHERE id = \?$/);
+  assert.match(REPLY_BUMP_SQL, /last_activity_at = MAX\(COALESCE\(last_activity_at, 0\), \?\)/);
 });
 
 test("unban updates require the selected ban to remain active and belong to the target", () => {
