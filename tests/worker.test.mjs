@@ -45,13 +45,21 @@ test("search user rows include avatar_version for cache-busted avatar URLs", () 
 });
 
 
+const BAN_CHECK_SQL = /SELECT 1 FROM bans b WHERE b\.user_id = \?/;
+
 function envWithParent(parent) {
   return {
     FORUM_DB: {
-      prepare() {
+      prepare(sql) {
         return {
           bind() {
-            return { first: async () => parent };
+            return {
+              first: async () =>
+                // canViewPost's active-ban check (v2.4.1) binds the author id;
+                // these fixtures have no ban table, so the check reads "no
+                // active ban" instead of returning the ancestor row.
+                BAN_CHECK_SQL.test(sql) ? null : parent,
+            };
           },
         };
       },
@@ -63,8 +71,9 @@ test("hidden root posts are visible only to their author and an administrator", 
   const hiddenRoot = { id: 1, author_id: 7, parent_id: null, visibility: "hidden" };
   assert.equal(await canViewPost({ FORUM_DB: null }, hiddenRoot, null), false);
   assert.equal(await canViewPost({ FORUM_DB: null }, hiddenRoot, { id: 8, role: "member" }), false);
-  assert.equal(await canViewPost({ FORUM_DB: null }, hiddenRoot, { id: 7, role: "member" }), true);
-  assert.equal(await canViewPost({ FORUM_DB: null }, hiddenRoot, { id: 8, role: "admin" }), true);
+  const noBan = envWithParent(undefined);
+  assert.equal(await canViewPost(noBan, hiddenRoot, { id: 7, role: "member" }), true);
+  assert.equal(await canViewPost(noBan, hiddenRoot, { id: 8, role: "admin" }), true);
 });
 
 test("public replies cannot reveal a hidden parent to unrelated members", async () => {

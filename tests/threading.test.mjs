@@ -150,6 +150,10 @@ function assertRecentSeconds(value) {
 
 const sessionRoute = { sql: /FROM sessions s LEFT JOIN users u/, result: signedInSessionRow() };
 const banCheckRoute = { sql: /^SELECT id FROM bans WHERE user_id = \?/, result: null };
+// canViewPost's active-ban check (v2.4.1) is a distinct query; tests must
+// route it explicitly to "no active ban" so generic fallbacks with truthy
+// results cannot masquerade as one.
+const banViewRouteOff = { sql: /SELECT 1 FROM bans b WHERE b\.user_id = \?/, result: null };
 
 // Threaded-reply reply-flow routes: postById binds (viewerId, postId), so the
 // row is chosen by the second bound value.
@@ -161,6 +165,8 @@ function threadRoutes(rowForId) {
       sql: /WHERE p\.id = \? LIMIT 1/,
       result: (values) => rowForId(values[1]),
     },
+    banViewRouteOff,
+    banCheckRoute,
     { sql: /./ },
   ];
 }
@@ -621,10 +627,12 @@ test("a level-1 reply's detail has no activity stamp and the same visibility mac
   });
   const mock = mockDb([
     { sql: /WHERE p\.id = \? LIMIT 1/, result: (values) => (values[1] === 10 ? level1 : null) },
+    banViewRouteOff,
     {
       sql: /FROM posts WHERE id = \? LIMIT 1/,
       result: { id: 1, author_id: 3, visibility: "public", parent_id: null },
     },
+    banViewRouteOff,
     { sql: /WHERE p\.parent_id = \?/, rows: [] },
     { sql: /./, result: { sub_reply_count: 0 } },
   ]);
@@ -648,6 +656,11 @@ function ancestorEnv(rowsById) {
           bind(...values) {
             return {
               async first() {
+                // canViewPost's active-ban check (v2.4.1) binds an author id;
+                // these unit tests don't fixture bans, so it always reads
+                // "no active ban" here rather than colliding with ancestor
+                // rows keyed by the same numeric ids.
+                if (/SELECT 1 FROM bans b WHERE b\.user_id = \?/.test(sql)) return null;
                 return rowsById[values[0]] === undefined ? null : rowsById[values[0]];
               },
             };
@@ -1020,17 +1033,17 @@ test("hidden replies are excluded from the count and previews per viewer visibil
   assert.ok(countsCall);
   // Level-1 + level-2 both gated by the same member visibility clause listReplies
   // uses, and the level-2 rows additionally require a viewable level-1 parent.
-  assert.ok(countsCall.sql.includes("r.visibility = 'public' OR r.author_id = ?"));
-  assert.ok(countsCall.sql.includes("l1.parent_id IS NULL OR l1.visibility = 'public' OR l1.author_id = ?"));
+  assert.ok(countsCall.sql.includes("((r.visibility = 'public' AND NOT EXISTS (SELECT 1 FROM bans"));
+  assert.ok(countsCall.sql.includes("l1.parent_id IS NULL OR (l1.visibility = 'public' AND NOT EXISTS (SELECT 1 FROM bans"));
   assert.ok(countsCall.sql.includes("JOIN posts l1 ON l1.id = r.parent_id"), "level-2 rows resolve their thread through the level-1 parent");
   assert.deepEqual(countsCall.values, [1, 7, 7], "root ids bound for the IN list, then the viewer id twice");
   assert.deepEqual(countsCall.values.slice(0, 1), [1], "only this page's root ids bound");
 
   const latestCall = mock.calls.find((call) => call.sql.includes("ROW_NUMBER"));
   assert.ok(latestCall);
-  assert.ok(latestCall.sql.includes("r.visibility = 'public' OR r.author_id = ?"),
+  assert.ok(latestCall.sql.includes("((r.visibility = 'public' AND NOT EXISTS (SELECT 1 FROM bans"),
     "previews obey the same visibility clause as the replies page");
-  assert.ok(latestCall.sql.includes("c.visibility = 'public' OR c.author_id = ?"),
+  assert.ok(latestCall.sql.includes("((c.visibility = 'public' AND NOT EXISTS (SELECT 1 FROM bans"),
     "preview subReplyCount respects viewer visibility like the replies page");
   assert.deepEqual(latestCall.values, [7, 1, 7],
     "bind order follows SQL text: sub-count viewer, root ids, level-1 viewer");

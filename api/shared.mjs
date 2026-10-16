@@ -556,6 +556,18 @@ export async function canViewPost(env, row, viewer) {
       (!viewer || (viewer.id !== Number(row.author_id) && viewer.role !== "admin"))) {
     return false;
   }
+  // Banning auto-hides posts (v2.4.1): an ACTIVE ban on the author hides the
+  // content the way a hidden post does — the author themselves and admins
+  // pass, moderators and everyone else do not. "Now" is SQL-computed
+  // (bind-free), so an expired or revoked ban restores the post without any
+  // write. The same check applies per ancestor below.
+  const bannedAuthor = await env.FORUM_DB.prepare(
+    "SELECT 1 FROM bans b WHERE b.user_id = ? AND b.revoked_at IS NULL " +
+    "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1",
+  ).bind(Number(row.author_id)).first();
+  const canViewBannedAuthor = viewer &&
+    (viewer.role === "admin" || viewer.id === Number(row.author_id));
+  if (bannedAuthor && !canViewBannedAuthor) return false;
   // Every ancestor up to the root (parent, and the grandparent root for
   // level-2 replies) must be viewable: hidden ancestors never leak through a
   // public reply chain. Author/admin rules apply per ancestor.
@@ -567,6 +579,13 @@ export async function canViewPost(env, row, viewer) {
     const canViewHiddenAncestor = ancestor && viewer &&
       (viewer.role === "admin" || Number(ancestor.author_id) === viewer.id);
     if (!ancestor || (ancestor.visibility !== "public" && !canViewHiddenAncestor)) return false;
+    const ancestorBanned = await env.FORUM_DB.prepare(
+      "SELECT 1 FROM bans b WHERE b.user_id = ? AND b.revoked_at IS NULL " +
+      "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1",
+    ).bind(Number(ancestor.author_id)).first();
+    const canViewBannedAncestor = viewer &&
+      (viewer.role === "admin" || Number(ancestor.author_id) === viewer.id);
+    if (ancestorBanned && !canViewBannedAncestor) return false;
     ancestorId = ancestor.parent_id;
   }
   return true;

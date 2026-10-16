@@ -91,7 +91,8 @@ function replySnippet(body) {
 // One query for every root on the page. Level-1 replies join their root
 // directly (r.parent_id = root); sub-replies join through their level-1 parent
 // (l1.parent_id = root). Viewer visibility mirrors listReplies +
-// attachSubReplyCounts' member clause (public, or the viewer's own reply), and
+// attachSubReplyCounts' member clause ((public AND not banned), or the
+// viewer's own reply), and
 // the level-2 rows additionally require a viewable level-1 parent — the
 // remaining canViewPost ancestor (the root) is guaranteed public by the feed's
 // own WHERE. Admin viewers (showAll) drop the member clauses, like everywhere
@@ -104,8 +105,8 @@ function replyCountsSql(ids, showAll) {
     "WHERE (l1.parent_id IS NULL OR l1.parent_id IN (" + placeholders + ")) " +
     (showAll
       ? "GROUP BY thread_root"
-      : "AND (r.visibility = 'public' OR r.author_id = ?) " +
-        "AND (l1.parent_id IS NULL OR l1.visibility = 'public' OR l1.author_id = ?) " +
+      : "AND ((r.visibility = 'public' AND " + banFilterSql("r") + ") OR r.author_id = ?) " +
+        "AND (l1.parent_id IS NULL OR (l1.visibility = 'public' AND " + banFilterSql("l1") + ") OR l1.author_id = ?) " +
         "GROUP BY thread_root");
 }
 
@@ -116,10 +117,12 @@ function replyCountsSql(ids, showAll) {
 function latestRepliesSql(ids, showAll) {
   const placeholders = ids.map(() => "?").join(", ");
   const subCountSelect = "(SELECT COUNT(*) FROM posts c WHERE c.parent_id = r.id" +
-    (showAll ? ") AS sub_reply_count" : " AND (c.visibility = 'public' OR c.author_id = ?)) AS sub_reply_count");
+    (showAll
+      ? ") AS sub_reply_count"
+      : " AND ((c.visibility = 'public' AND " + banFilterSql("c") + ") OR c.author_id = ?)) AS sub_reply_count");
   const memberClause = showAll
     ? ""
-    : " AND (r.visibility = 'public' OR r.author_id = ?)";
+    : " AND ((r.visibility = 'public' AND " + banFilterSql("r") + ") OR r.author_id = ?)";
   return "SELECT * FROM (" +
     "SELECT r.id, r.parent_id AS thread_root, r.body, r.created_at, r.author_id, " +
     "u.username AS author_username, u.avatar_mime AS author_avatar_mime, " +
@@ -168,9 +171,23 @@ async function withReplyMetadata(db, viewer, posts) {
   }));
 }
 
+// Active-ban read filter (v2.4.1): an ACTIVE ban — never revoked, and either
+// permanent or not yet expired — hides the author's content at read time. "Now"
+// is computed in SQL (bind-free, CAST(strftime('%s','now') AS INTEGER)), so no
+// read path's bind order changes and a lapse or revocation restores content
+// without any write. Callers exempt the author via their existing `OR
+// <alias>.author_id = ?` arms; visibility semantics mirror hidden posts.
+function banFilterSql(alias) {
+  const prefix = alias ? alias + "." : "";
+  return "NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = " + prefix + "author_id " +
+    "AND b.revoked_at IS NULL AND (b.expires_at IS NULL OR b.expires_at > " +
+    "CAST(strftime('%s','now') AS INTEGER)))";
+}
+
 async function listRootPosts(env, viewer, options = {}) {
   const viewerId = viewer ? viewer.id : null;
-  let sql = POST_SELECT + "WHERE p.parent_id IS NULL AND p.visibility = 'public' ";
+  let sql = POST_SELECT + "WHERE p.parent_id IS NULL AND p.visibility = 'public' AND " +
+    banFilterSql("p") + " ";
   const values = [viewerId || -1];
   if (options.byActivity) {
     // Feed order: most recently bumped conversation first, id as the tiebreaker.
@@ -257,7 +274,9 @@ async function listRootPosts(env, viewer, options = {}) {
 async function listReplies(env, postId, viewer, showAll = false, before = null,
   childPublicLevel, extraAttachmentIds = null) {
   const viewerId = viewer ? viewer.id : null;
-  const visibilityFilter = showAll ? "" : "AND (p.visibility = 'public' OR p.author_id = ?) ";
+  const visibilityFilter = showAll
+    ? ""
+    : "AND ((p.visibility = 'public' AND " + banFilterSql("p") + ") OR p.author_id = ?) ";
   const cursorFilter = before === null ? "" : "AND p.id < ? ";
   const sql = POST_SELECT + "WHERE p.parent_id = ? " + cursorFilter +
     visibilityFilter + "ORDER BY p.id DESC LIMIT 101";
@@ -332,7 +351,7 @@ async function handlePostFeedRoute(request, env, url, path, method) {
 async function attachSubReplyCounts(env, replies, { showAll, viewerId }) {
   if (!replies.length) return replies;
   const countSql = "SELECT COUNT(*) AS sub_reply_count FROM posts WHERE parent_id = ?" +
-    (showAll ? "" : " AND (visibility = 'public' OR author_id = ?)");
+    (showAll ? "" : " AND ((visibility = 'public' AND " + banFilterSql("") + ") OR author_id = ?)");
   const countResults = await env.FORUM_DB.batch(
     replies.map((reply) => env.FORUM_DB.prepare(countSql)
       .bind(...(showAll ? [reply.id] : [reply.id, viewerId || -1]))),

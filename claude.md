@@ -86,6 +86,7 @@ The backend is split into `api/*.mjs` modules (shared, session, posts, profiles,
 - Posts and replies are capped at 1,000 characters with a live composer counter.
 - Replies nest one level (root → reply → reply-to-reply); the feed is sorted by `last_activity_at` (replies bump, reactions do not) with composite `before=<seconds>_<id>` cursors.
 - Avatars are moderated: uploads go to a pending set; the previously approved avatar keeps serving until a moderator approves/rejects from the `/api/admin/avatars` queue.
+- Banning auto-hides posts (v2.4.1): an active ban hides all of that author's content at read time — feed (both boards), replies, detail (hidden-post visibility semantics: author and admins pass; moderators follow `canViewPost`), and edit history. It is read-time only, so unpinning, expiring, or revoking a ban restores the posts without any write.
 - A curated word filter runs on posts and replies from the `FILTERED_WORDS` secret (comma-separated; `wrangler secret put FILTERED_WORDS` in production, an entry in `.dev.vars` locally; unset = filter off). See `config/filtered-words-template.txt`.
 - Banned accounts see a dedicated ban screen on failed sign-in with the ban reason and (for temporary bans) a reactivation countdown.
 - A theme toggle switches between light and dark; the choice is stored client-side and persists across reloads.
