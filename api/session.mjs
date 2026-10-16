@@ -206,8 +206,22 @@ async function handleLogoutRoute(request, env, url, path, method) {
   return null;
 }
 
+// The footer version stamp. Both values come from the deployment itself
+// (wrangler [vars] and the deploy script's --var), never from user input, so
+// they are echoed back verbatim; unset vars fall back to empty strings and
+// the frontend renders the corresponding part as nothing.
+async function handleVersionRoute(request, env, url, path, method) {
+  if (path === "/api/version" && method === "GET") {
+    return json({
+      version: typeof env.VERSION === "string" ? env.VERSION : "",
+      commit: typeof env.COMMIT_SHA === "string" ? env.COMMIT_SHA : "",
+    });
+  }
+  return null;
+}
+
 async function handleAuthRoutes(request, env, url, path, method) {
-  const handlers = [handleSessionRoute, handleSetupStatusRoute, handleFirstAdminSetupRoute, handleRegistrationRoute, handleLoginRoute, handleLogoutRoute];
+  const handlers = [handleSessionRoute, handleSetupStatusRoute, handleVersionRoute, handleFirstAdminSetupRoute, handleRegistrationRoute, handleLoginRoute, handleLogoutRoute];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method);
     if (response) return response;

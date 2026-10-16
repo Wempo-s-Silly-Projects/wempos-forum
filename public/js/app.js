@@ -1029,6 +1029,21 @@ document.addEventListener("submit", async (event) => {
 // render (the inline no-flash script already pinned a stored "dark" pre-paint).
 initTheme(document, localStorage);
 
+// Footer version stamp: "v2.2 · <short sha>", straight from /api/version.
+// Both halves are server-generated and only ever reach the DOM through
+// textContent. A missing half renders as nothing, and a failed fetch (offline,
+// endpoint gone) leaves the tag empty — silent by design, never an error.
+async function fillVersionTag() {
+  const info = await api("/api/version");
+  const version = typeof info?.version === "string" ? info.version.split(".") : [];
+  const shortVersion = version.length > 1 ? `v${version[0]}.${version[1]}` : "";
+  const commit = typeof info?.commit === "string" ? info.commit : "";
+  document.querySelector("#version-tag").textContent =
+    [shortVersion, commit].filter(Boolean).join(" · ");
+}
+
+fillVersionTag().catch(() => {});
+
 router = startRouter((route) => {
   renderRoute(route).catch((error) => {
     setMessage(error.message, true);

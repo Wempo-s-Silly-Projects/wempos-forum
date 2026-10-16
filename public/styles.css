@@ -680,6 +680,12 @@ textarea {
   margin: 0;
 }
 
+#version-tag {
+  color: var(--muted);
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
 dialog {
   width: min(calc(100% - 2rem), 32rem);
   max-height: calc(100dvh - 2rem);
