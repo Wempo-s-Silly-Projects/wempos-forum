@@ -1,5 +1,5 @@
 // Post feed, post detail, replies, reactions, and search routes.
-import { REPLY_BUMP_SQL, SEARCH_USERS_SQL, THREAD_REPLY_INSERT_SQL } from "../constants.mjs";
+import { REPLY_BUMP_SQL, SEARCH_USERS_SQL, THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL } from "../constants.mjs";
 import {
   attachmentRowsForView,
   insertAttachments,
@@ -506,6 +506,52 @@ async function handlePostDetailRoute(request, env, url, path, method) {
   return null;
 }
 
+// Attachment rows reference a post id, so they are written after the post INSERT.
+// Keep attachment-bearing posts hidden during that interval. If storage fails,
+// the D1 attachment batch is atomic and deleting the hidden post removes any
+// dependent rows; the client receives an error without a live duplicate on retry.
+async function persistStagedPostAttachments(db, postId, authorId, files, gifEntries, options = {}) {
+  const { bumpTargetId = null, now = null } = options;
+  try {
+    await insertAttachments(db, postId, authorId, files, gifEntries);
+    const publish = db.prepare(
+      "UPDATE posts SET visibility = 'public' WHERE id = ? AND author_id = ? AND visibility = 'hidden'",
+    ).bind(postId, authorId);
+    if (bumpTargetId !== null) {
+      // Publish and bump together so the root activity clock does not advance
+      // for a reply whose attachments failed to commit.
+      const results = await db.batch([
+        publish,
+        db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId),
+      ]);
+      if (Number(results[0]?.meta?.changes) !== 1) {
+        throw new HttpError(409, "The conversation changed while your reply was being published. Please try again.");
+      }
+    } else {
+      const result = await publish.run();
+      if (Number(result?.meta?.changes) !== 1) {
+        throw new HttpError(409, "Your post could not be published. Please try again.");
+      }
+    }
+  } catch (error) {
+    try {
+      const cleanup = await db.prepare(
+        "DELETE FROM posts WHERE id = ? AND author_id = ? AND visibility = 'hidden'",
+      ).bind(postId, authorId).run();
+      if (Number(cleanup?.meta?.changes) !== 1) {
+        console.error("Could not remove a staged post after attachment failure:", {
+          postId, attachmentError: error, cleanupResult: cleanup,
+        });
+      }
+    } catch (cleanupError) {
+      console.error("Could not remove a staged post after attachment failure:", {
+        postId, attachmentError: error, cleanupError,
+      });
+    }
+    throw error;
+  }
+}
+
 async function handleReplyCreateRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   const replyMatch = path.match(/^\/api\/posts\/([0-9]+)\/replies$/);
@@ -565,19 +611,27 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const recipientId = target.author_id === null || target.author_id === undefined
       ? null
       : Number(target.author_id);
-    const results = await db.batch([
-      db.prepare(THREAD_REPLY_INSERT_SQL)
-        .bind(session.user.id, targetId, message, now, now, threadBoard, targetId,
-          session.user.id, now),
-      db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId),
-    ]);
+    const hasAttachments = files.length > 0 || gifEntries.length > 0;
+    const insertSql = hasAttachments ? THREAD_REPLY_INSERT_STAGED_SQL : THREAD_REPLY_INSERT_SQL;
+    const insertValues = hasAttachments
+      ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, targetId, session.user.id, now]
+      : [session.user.id, targetId, message, now, now, threadBoard, targetId, session.user.id, now];
+    const insertStatements = [db.prepare(insertSql).bind(...insertValues)];
+    if (!hasAttachments) insertStatements.push(db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId));
+    const results = await db.batch(insertStatements);
     if (Number(results[0]?.meta?.changes) !== 1) {
       throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
     }
     const replyId = Number(results[0].meta.last_row_id);
-    // Attachments bind the reply's own row id, never the bump target's.
-    // Attachment intake is a separate batch: if it fails, the post row is already committed (retry may duplicate the post); accepted tradeoff.
-    await insertAttachments(db, replyId, session.user.id, files, gifEntries);
+    // Attachment-bearing replies stay hidden until the entire attachment batch
+    // succeeds. The row id is always the new reply, not its bump target.
+    if (hasAttachments) {
+      await persistStagedPostAttachments(db, replyId, session.user.id, files, gifEntries, {
+        bumpTargetId, now,
+      });
+    } else {
+      await insertAttachments(db, replyId, session.user.id, files, gifEntries);
+    }
     try {
       // Best-effort fan-out in a second batch: the reply id only exists after
       // the insert above, and a failed notification must never fail the reply.
@@ -643,17 +697,24 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     // values 400 before any insert.
     const board = boardField(fields.board);
     const now = nowSeconds();
-    // A fresh root starts its activity clock at creation time.
+    // A fresh root starts its activity clock at creation time. When it carries
+    // attachments it stays hidden until their batch is durable, so a failed
+    // upload cannot leave a live post that the user unknowingly duplicates.
+    const hasAttachments = files.length > 0 || gifEntries.length > 0;
+    const initialVisibility = hasAttachments ? "hidden" : "public";
     const result = await db.prepare(
       "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board) " +
-        "SELECT ?, NULL, ?, 'public', ?, ?, ? WHERE NOT EXISTS (" +
+        "SELECT ?, NULL, ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
         "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
         "AND (expires_at IS NULL OR expires_at > ?))",
-    ).bind(session.user.id, message, now, now, board, session.user.id, now).run();
+    ).bind(session.user.id, message, initialVisibility, now, now, board, session.user.id, now).run();
     requireMutationApplied(result);
     const postId = Number(result.meta.last_row_id);
-    // Attachment intake is a separate batch: if it fails, the post row is already committed (retry may duplicate the post); accepted tradeoff.
-    await insertAttachments(db, postId, session.user.id, files, gifEntries);
+    if (hasAttachments) {
+      await persistStagedPostAttachments(db, postId, session.user.id, files, gifEntries);
+    } else {
+      await insertAttachments(db, postId, session.user.id, files, gifEntries);
+    }
     try {
       // Mentions (C2): @username tokens in the FILTERED body notify their
       // members, best-effort — a failed mention never fails the post. There
