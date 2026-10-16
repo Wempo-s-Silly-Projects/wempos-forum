@@ -1343,3 +1343,46 @@ test("a stale GIF reference aborts the whole attachment batch with a conflict", 
   assert.match(referenceInsert.sql, /THEN 'approved' ELSE 'invalid' END/);
   assert.doesNotMatch(referenceInsert.sql, /WHERE EXISTS/, "missing/revoked GIFs must trip the CHECK instead of silently inserting zero rows");
 });
+
+
+test("an exact retry recovers a revoked GIF fingerprint only from that post's stored source identity", async () => {
+  const gifId = "123e4567-e89b-12d3-a456-426614174000";
+  const hash = "a".repeat(64);
+  const mock = mockDb([
+    { sql: /SELECT id, hash, mime FROM gifs WHERE id = \? AND status = 'approved'/, result: null },
+    { sql: /SELECT source_gif_id AS id, hash, mime FROM attachments/, result: { id: gifId, hash, mime: "image/gif" } },
+  ]);
+
+  const parsed = await readComposedBody(
+    new Request("https://forum.example/api/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ body: "same submission", gifIds: [gifId] }),
+    }),
+    { FORUM_DB: mock.db },
+    { replayPostId: 42 },
+  );
+
+  assert.deepEqual(parsed.gifEntries, [{ id: gifId, hash, mime: "image/gif", file: false }]);
+  assert.deepEqual(mock.calls[1].values, [42, gifId]);
+});
+
+test("a new submission cannot use stored GIF identity as a revocation bypass", async () => {
+  const gifId = "123e4567-e89b-12d3-a456-426614174000";
+  const mock = mockDb([
+    { sql: /SELECT id, hash, mime FROM gifs WHERE id = \? AND status = 'approved'/, result: null },
+    { sql: /./ },
+  ]);
+
+  await assert.rejects(
+    () => readComposedBody(
+      new Request("https://forum.example/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body: "new submission", gifIds: [gifId] }),
+      }),
+      { FORUM_DB: mock.db },
+    ),
+    (error) => error instanceof HttpError && error.status === 400,
+  );
+});
