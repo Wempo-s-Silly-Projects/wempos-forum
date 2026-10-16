@@ -1145,7 +1145,7 @@ test("rejecting deletes a still-pending attachment so its chunks cascade away", 
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /SELECT hash, status FROM attachments WHERE id = \\? AND status IN \\('pending', 'approved'\\)/, result: { hash: "", status: "pending" } },
+    { sql: /SELECT hash, status FROM attachments WHERE id = \? AND status IN \('pending', 'approved'\)/, result: { hash: "", status: "pending" } },
     { sql: /^DELETE FROM attachments/, runMeta: { meta: { changes: 1 } } },
     { sql: /./ },
   ]);
@@ -1175,7 +1175,7 @@ test("a pending attachment that becomes approved during rejection is not deleted
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /SELECT hash, status FROM attachments WHERE id = \\? AND status IN \\('pending', 'approved'\\)/, result: { hash: "shared-hash", status: "pending" } },
+    { sql: /SELECT hash, status FROM attachments WHERE id = \? AND status IN \('pending', 'approved'\)/, result: { hash: "shared-hash", status: "pending" } },
     { sql: /^DELETE FROM attachments/, runMeta: { meta: { changes: 0 } } },
     { sql: /./ },
   ]);
