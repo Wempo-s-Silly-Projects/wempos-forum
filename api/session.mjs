@@ -1,6 +1,7 @@
 // Session, credentials, and first-admin setup routes. The avatar GET reader
 // moved to api/shared.mjs (registered on the profiles group in task 7).
 import { unreadCount } from "./notifications.mjs";
+import { applyWordFilter } from "./filter.mjs";
 import {
   createSession,
   equalConstantTime,
@@ -140,6 +141,14 @@ async function handleRegistrationRoute(request, env, url, path, method) {
     const body = await readJson(request);
     await requireTurnstile(request, env, body, "signup");
     const credentials = validateNewCredentials(body);
+    // Usernames must survive the word filter untouched: unlike bios (and post
+    // bodies), a username is never worth masking, so ANY alteration (masking,
+    // removal, case-insensitive match) rejects registration with a generic
+    // message that never hints at the private word list. An unset or empty
+    // FILTERED_WORDS secret is a strict no-op here, exactly like the posts flow.
+    if (applyWordFilter(credentials.username, env.FILTERED_WORDS) !== credentials.username) {
+      throw new HttpError(400, "That username isn't allowed.");
+    }
     const user = await storeUser(env, credentials, "member");
     const session = await createSession(request, env, Number(user.id), guest.tokenHash, true);
     if (!session) throw new HttpError(403, "This account is currently banned.");

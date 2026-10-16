@@ -413,6 +413,174 @@ test("registration rejects requests without an Origin header", async () => {
 });
 
 
+// Registration with a mocked D1 store and a mocked siteverify (Task 13: the
+// word filter rejects filtered usernames here).
+
+function guestSessionRow() {
+  return {
+    token_hash: "a".repeat(64),
+    user_id: null,
+    csrf_token: "expected-csrf-token",
+    expires_at: Math.floor(Date.now() / 1000) + 60,
+    username: null,
+    role: null,
+    bio: "",
+    avatar_status: null,
+    avatar_mime: null,
+    avatar_updated_at: null,
+    avatar_version: null,
+  };
+}
+
+function freshUserRow(overrides = {}) {
+  return {
+    id: "12",
+    username: "fresh_user",
+    username_key: "fresh_user",
+    password_salt: "s".repeat(32),
+    password_hash: "h".repeat(64),
+    role: "member",
+    bio: "",
+    social_youtube: null,
+    social_x: null,
+    social_reddit: null,
+    social_github: null,
+    social_discord: null,
+    social_gitlab: null,
+    social_instagram: null,
+    social_tiktok: null,
+    social_twitch: null,
+    polytoria_username: null,
+    avatar_status: null,
+    avatar_mime: null,
+    avatar_updated_at: null,
+    avatar_version: null,
+    ...overrides,
+  };
+}
+
+function registerDb() {
+  const calls = [];
+  const db = {
+    prepare(sql) {
+      return {
+        bind(...values) {
+          calls.push({ sql, values });
+          return {
+            async first() {
+              if (sql.includes("FROM sessions s LEFT JOIN users u")) return guestSessionRow();
+              if (sql.includes("FROM users WHERE id = ?")) return freshUserRow({
+                username: String(calls.find(({ sql: seen }) => seen.startsWith("INSERT INTO users"))?.values[0] ?? "fresh_user"),
+              });
+              return null;
+            },
+            async run() {
+              if (sql.startsWith("INSERT INTO users")) {
+                return { meta: { changes: 1, last_row_id: 12 } };
+              }
+              return { meta: { changes: 1 } };
+            },
+          };
+        },
+      };
+    },
+    async batch(statements) {
+      return statements.map(() => ({ meta: { changes: 1 } }));
+    },
+  };
+  return { db, calls };
+}
+
+async function registerRequest(db, overrides = {}, username = "clean_user") {
+  const env = {
+    FORUM_DB: db,
+    WRITE_RATE_LIMITER: { async limit() { return { success: true }; } },
+    REGISTER_RATE_LIMITER: { async limit() { return { success: true }; } },
+    PASSWORD_PEPPER: "pepper-" + "p".repeat(32),
+    TURNSTILE_SECRET: "turnstile-secret-fixture",
+    TURNSTILE_HOSTNAMES: "forum.example",
+    ...overrides,
+  };
+  const request = new Request("https://forum.example/api/auth/register", {
+    method: "POST",
+    headers: {
+      Origin: "https://forum.example",
+      Cookie: "wempo_session=" + "s".repeat(43),
+      "X-CSRF-Token": "expected-csrf-token",
+      "Content-Type": "application/json",
+      "CF-Connecting-IP": "192.0.2.8",
+    },
+    body: JSON.stringify({
+      username,
+      password: "correct-horse-battery",
+      "cf-turnstile-response": "turnstile-token-fixture",
+    }),
+  });
+  const siteverify = withMockedSiteverify({ success: true, action: "signup", hostname: "forum.example" });
+  try {
+    return { response: await worker.fetch(request, env), siteverify: siteverify.seen };
+  } finally {
+    siteverify.done();
+  }
+}
+
+test("registration rejects a username the word filter would alter", async () => {
+  const { db, calls } = registerDb();
+  const { response } = await registerRequest(db, {
+    FILTERED_WORDS: "badword",
+  }, "im_badword_here");
+
+  assert.equal(response.status, 400);
+  assert.equal((await response.json()).error, "That username isn't allowed.");
+  assert.ok(
+    !calls.some(({ sql }) => sql.startsWith("INSERT INTO users")),
+    "a filtered username must never reach the users table",
+  );
+});
+
+test("the filtered-username rejection is identical for a differently cased attempt", async () => {
+  const { db } = registerDb();
+  // The exact same generic message, regardless of where the match lands.
+  const { response } = await registerRequest(db, {
+    FILTERED_WORDS: "clean",
+  }, "Clean_user");
+
+  const payload = await response.json();
+
+  assert.equal(response.status, 400);
+  assert.equal(payload.error, "That username isn't allowed.");
+  assert.ok(!("filteredWord" in payload));
+  assert.ok(!("word" in payload));
+  assert.ok(!("list" in payload));
+});
+
+test("registration still succeeds for a username that passes the filter", async () => {
+  const { db, calls } = registerDb();
+  const { response } = await registerRequest(db, {
+    FILTERED_WORDS: "badword",
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 201);
+  assert.equal(body.user.username, "clean_user");
+  const insert = calls.find(({ sql }) => sql.startsWith("INSERT INTO users"));
+  assert.ok(insert, "the user insert must run");
+  assert.equal(insert.values[0], "clean_user");
+});
+
+test("registration accepts a filtered-looking username when FILTERED_WORDS is unset", async () => {
+  const { db, calls } = registerDb();
+  const { response } = await registerRequest(db, {}, "user_badword");
+  const body = await response.json();
+
+  assert.equal(response.status, 201);
+  assert.equal(body.user.username, "user_badword");
+  const insert = calls.find(({ sql }) => sql.startsWith("INSERT INTO users"));
+  assert.ok(insert, "the user insert must run");
+  assert.equal(insert.values[0], "user_badword");
+});
+
+
 
 function turnstileEnv(overrides = {}) {
   return {

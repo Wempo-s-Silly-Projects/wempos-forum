@@ -22,6 +22,7 @@ import {
   verifyPassword,
 } from "./shared.mjs";
 import { listRootPosts } from "./posts.mjs";
+import { applyWordFilter } from "./filter.mjs";
 
 const MAX_AVATAR_BYTES = 1024 * 1024;
 const MAX_AVATAR_REQUEST_BYTES = MAX_AVATAR_BYTES + 64 * 1024;
@@ -89,6 +90,11 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
       if (bio.length > BIO_MAX_LENGTH) {
         throw new HttpError(400, "Your bio must be 10000 characters or fewer.");
       }
+      // Bios are masked exactly like post bodies: the limit above runs on the
+      // raw trimmed text (the same order the posts flow uses) and applyWordFilter's
+      // mask preserves length, so masking can never push a stored bio over the
+      // limit afterwards. An unset FILTERED_WORDS secret is a strict no-op.
+      bio = applyWordFilter(bio, env.FILTERED_WORDS);
     }
     let socials = null;
     if (hasSocials) {

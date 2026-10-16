@@ -63,7 +63,7 @@ function mockDb(routes) {
   return { db, calls };
 }
 
-async function call(requestUrl, method, routes, { role, body } = {}) {
+async function call(requestUrl, method, routes, { role, body, extras } = {}) {
   const headers = { "Content-Type": "application/json", Origin: "https://forum.example" };
   if (role) {
     headers["X-CSRF-Token"] = "expected-csrf-token";
@@ -74,7 +74,7 @@ async function call(requestUrl, method, routes, { role, body } = {}) {
     headers,
     body: method === "GET" ? undefined : body ?? "{}",
   });
-  const response = await worker.fetch(request, envWithLimiters(routes.db));
+  const response = await worker.fetch(request, envWithLimiters(routes.db, extras));
   return { response, calls: routes.calls, body: await response.json() };
 }
 
@@ -164,6 +164,66 @@ test("a body over the 64 KB per-route cap is rejected on /api/me too", async () 
 
   assert.equal(response.status, 413);
   assert.equal(responseBody.error, "That upload is too large.");
+});
+
+// PATCH /api/me — word-filtered bios (Task 13) ---------------------------------
+
+test("a bio containing a filtered word is masked before it is stored", async () => {
+  const routes = meRoutes();
+  const { response, body, calls } = await call("https://forum.example/api/me", "PATCH", routes, {
+    role: "member",
+    body: JSON.stringify({ bio: "my name is BadWord and I like cheese" }),
+    extras: { FILTERED_WORDS: "badword" },
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(body, { bio: "my name is ******* and I like cheese" });
+  const update = calls[2];
+  assert.match(update.sql, /UPDATE users SET bio = \? WHERE id = \? AND NOT EXISTS/);
+  assert.equal(update.values[0], "my name is ******* and I like cheese");
+});
+
+test("filter masking is case-insensitive and masks every occurrence in a bio", async () => {
+  const routes = meRoutes();
+  const { response, body, calls } = await call("https://forum.example/api/me", "PATCH", routes, {
+    role: "member",
+    body: JSON.stringify({ bio: "BADWORD and badword and badwordish" }),
+    extras: { FILTERED_WORDS: "badword" },
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(body, { bio: "******* and ******* and *******ish" });
+  assert.equal(calls[2].values[0], "******* and ******* and *******ish");
+});
+
+test("a length-boundary bio stays accepted after masking (masking preserves length)", async () => {
+  const routes = meRoutes();
+  // The mask has the same character count as the original, so a 10,000-char
+  // bio that contains a filtered word must still pass the limit check made
+  // before masking, exactly like the posts flow.
+  const paddedBio = "badword " + "a".repeat(10000 - "badword ".length);
+  const { response, body, calls } = await call("https://forum.example/api/me", "PATCH", routes, {
+    role: "member",
+    body: JSON.stringify({ bio: paddedBio }),
+    extras: { FILTERED_WORDS: "badword" },
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(body.bio, "******* " + "a".repeat(10000 - "badword ".length));
+  assert.equal(body.bio.length, 10000);
+  assert.equal(calls[2].values[0], body.bio);
+});
+
+test("an unset FILTERED_WORDS stores the bio unchanged", async () => {
+  const routes = meRoutes();
+  const { response, body, calls } = await call("https://forum.example/api/me", "PATCH", routes, {
+    role: "member",
+    body: JSON.stringify({ bio: "bio with badword inside" }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(body, { bio: "bio with badword inside" });
+  assert.equal(calls[2].values[0], "bio with badword inside");
 });
 
 // PATCH /api/me — socials ---------------------------------------------------------
