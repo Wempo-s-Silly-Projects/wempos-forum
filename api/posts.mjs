@@ -1,6 +1,11 @@
 // Post feed, post detail, replies, reactions, and search routes.
 import { REPLY_BUMP_SQL, SEARCH_USERS_SQL, THREAD_REPLY_INSERT_SQL } from "../constants.mjs";
-import { insertAttachments, MAX_ATTACHMENT_FILES, readComposedBody } from "./attachments.mjs";
+import {
+  attachmentRowsForView,
+  insertAttachments,
+  MAX_ATTACHMENT_FILES,
+  readComposedBody,
+} from "./attachments.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { notificationBatchStatements } from "./notifications.mjs";
 import {
@@ -24,7 +29,19 @@ import {
 
 export { POST_SELECT };
 
-async function listRootPosts(env, viewerId, options = {}) {
+// Attachments metadata rides one batched lookup per page: every serialized
+// post gains an `attachments` array (possibly empty, never null/absent) whose
+// viewer filtering (author/moderator-only pending visibility) lives in
+// attachmentRowsForView. This helper never widens a page's visibility SQL —
+// it decorates rows only after the cursor/visibility SELECTs come back.
+async function withAttachments(db, viewer, posts) {
+  if (!posts.length) return posts;
+  const map = await attachmentRowsForView(db, posts.map((post) => post.id), viewer);
+  return posts.map((post) => ({ ...post, attachments: map.get(post.id) || [] }));
+}
+
+async function listRootPosts(env, viewer, options = {}) {
+  const viewerId = viewer ? viewer.id : null;
   let sql = POST_SELECT + "WHERE p.parent_id IS NULL AND p.visibility = 'public' ";
   const values = [viewerId || -1];
   if (options.byActivity) {
@@ -44,7 +61,8 @@ async function listRootPosts(env, viewerId, options = {}) {
     const last = shown.length ? shown[shown.length - 1] : null;
     return {
       // Root queries only (parent_id IS NULL): every shown row is a level-0 root.
-      posts: shown.map((row) => publicPost(row, 0)),
+      posts: await withAttachments(env.FORUM_DB, viewer,
+        shown.map((row) => publicPost(row, 0))),
       nextBefore: hasMore && last
         ? Number(last.last_activity_at) + "_" + Number(last.id)
         : null,
@@ -67,11 +85,13 @@ async function listRootPosts(env, viewerId, options = {}) {
   const rows = result.results || [];
   const hasMore = rows.length > 20;
   const shown = rows.slice(0, 20).map((row) => publicPost(row, 0));
-  return { posts: shown, nextBefore: hasMore && shown.length ? shown[shown.length - 1].id : null };
+  const posts = await withAttachments(env.FORUM_DB, viewer, shown);
+  return { posts, nextBefore: hasMore && shown.length ? shown[shown.length - 1].id : null };
 }
 
-async function listReplies(env, postId, viewerId, showAll = false, before = null,
-  childPublicLevel) {
+async function listReplies(env, postId, viewer, showAll = false, before = null,
+  childPublicLevel, extraAttachmentIds = null) {
+  const viewerId = viewer ? viewer.id : null;
   const visibilityFilter = showAll ? "" : "AND (p.visibility = 'public' OR p.author_id = ?) ";
   const cursorFilter = before === null ? "" : "AND p.id < ? ";
   const sql = POST_SELECT + "WHERE p.parent_id = ? " + cursorFilter +
@@ -87,7 +107,24 @@ async function listReplies(env, postId, viewerId, showAll = false, before = null
   // Children of a known-depth target are target depth + 1 (root children are
   // level-1 replies, level-1 children are level-2 replies). When the caller
   // does not pass a level the field is omitted, keeping clients conservative.
-  return { replies: shown.map((row) => publicPost(row, childPublicLevel)).reverse(), nextBefore };
+  const replies = shown.map((row) => publicPost(row, childPublicLevel)).reverse();
+  // ONE attachments lookup covers the whole reply page; callers may fold extra
+  // ids in (the detail read folds its parent post in), so a detail response
+  // pays exactly one attachments query for the post and all of its replies.
+  const attachmentIdSet = new Set(replies.map((reply) => reply.id));
+  if (extraAttachmentIds !== null && extraAttachmentIds !== undefined) {
+    for (const id of extraAttachmentIds) attachmentIdSet.add(Number(id));
+  }
+  const attachments = await attachmentRowsForView(
+    env.FORUM_DB,
+    [...attachmentIdSet],
+    viewer,
+  );
+  return {
+    replies: replies.map((reply) => ({ ...reply, attachments: attachments.get(reply.id) || [] })),
+    nextBefore,
+    attachments,
+  };
 }
 
 async function handlePostFeedRoute(request, env, url, path, method) {
@@ -100,7 +137,7 @@ async function handlePostFeedRoute(request, env, url, path, method) {
       if (!cursorMatch) throw new HttpError(400, "That page cursor is invalid.");
       before = { seconds: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
     }
-    const feed = await listRootPosts(env, session && session.user ? session.user.id : null, {
+    const feed = await listRootPosts(env, session && session.user ? session.user : null, {
       before,
       byActivity: true,
     });
@@ -154,8 +191,8 @@ async function handleRepliesReadRoute(request, env, url, path, method) {
     // (children are level-2).
     const targetDepth = parent.parent_id ? 1 : 0;
     const showAll = Boolean(viewer && viewer.role === "admin");
-    const page = await listReplies(env, postId, viewer ? viewer.id : null,
-      showAll, before, targetDepth + 1);
+    const page = await listReplies(env, postId,
+      viewer, showAll, before, targetDepth + 1);
     // Level-1 rows can be replied to, so they need expand-counts; level-2 rows
     // never do (replying to them is server-forbidden), so no batch runs.
     const replies = targetDepth === 0
@@ -184,14 +221,17 @@ async function handlePostDetailRoute(request, env, url, path, method) {
     // level-1 reply; its direct replies are one level deeper.
     const detailDepth = row.parent_id ? 1 : 0;
     const post = publicPost(row, detailDepth);
-    const replyPage = await listReplies(env, postId, viewerId, showAll, null,
-      detailDepth + 1);
+    // The detail post's id folds into the replies page's single attachments
+    // lookup, so the whole detail read pays one attachments query.
+    const replyPage = await listReplies(env, postId, viewer, showAll, null,
+      detailDepth + 1, [Number(row.id)]);
     // Same batched count pattern as the replies page (attachSubReplyCounts).
     post.replies = await attachSubReplyCounts(env, replyPage.replies, {
       showAll,
       viewerId,
     });
     post.repliesNextBefore = replyPage.nextBefore;
+    post.attachments = replyPage.attachments.get(Number(row.id)) || [];
     return json(post);
   }
   return null;
@@ -359,9 +399,9 @@ async function handleSearchRoute(request, env, url, path, method) {
       throw new HttpError(400, "Search must be 1–100 characters long.");
     }
     const session = await readSession(request, env);
-    const viewerId = session && session.user ? session.user.id : null;
     const users = await db.prepare(SEARCH_USERS_SQL).bind(query, query).all();
-    const posts = await listRootPosts(env, viewerId, { searchTerm: query });
+    const posts = await listRootPosts(env, session && session.user ? session.user : null,
+      { searchTerm: query });
     return json({
       users: (users.results || []).map(publicUser),
       posts: posts.posts,

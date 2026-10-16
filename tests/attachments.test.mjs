@@ -639,3 +639,171 @@ test("image-upload limiter runs once per multipart post and never for JSON posts
   assert.equal(jsonResponse.status, 201);
   assert.equal(jsonCounter.count, 0, "file-less JSON posts must skip the image-upload limiter");
 });
+
+// ---------------------------------------------------------------------------
+// Task 5: attachment metadata on post reads. Every serialized post (feed,
+// replies page, detail) carries an `attachments` array — approved rows for
+// everyone, pending rows ONLY for the uploading account or a moderator/admin,
+// rejected rows omitted for everyone. Pending rows a viewer is allowed to see
+// carry awaiting: true; approved rows always carry awaiting: false. Driven
+// through forumWorker.fetch with the same mock-Db pattern as above.
+// ---------------------------------------------------------------------------
+
+const ATTACHMENT_VERSION = "abcdef123456";
+
+function attachmentMetaRow(overrides = {}) {
+  return {
+    id: ATTACHMENT_ID,
+    post_id: 5,
+    status: "pending",
+    created_by: 7,
+    version: ATTACHMENT_VERSION,
+    mime: null,
+    pending_mime: "image/gif",
+    ...overrides,
+  };
+}
+
+// The read-side helper issues ONE batched lookup for the whole page.
+const ATTACHMENTS_FOR_POSTS_SQL = /FROM attachments WHERE post_id IN \(/;
+
+function postRowForDetail() {
+  return postRow({ id: "5" });
+}
+
+function postReadRoutes({ session = sessionRoute, attachmentRows = [] } = {}) {
+  return [
+    session,
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: (values) => (values[1] === 5 ? postRowForDetail() : null) },
+    { sql: /WHERE p\.parent_id = \?/, rows: [] },
+    { sql: ATTACHMENTS_FOR_POSTS_SQL, rows: attachmentRows },
+    { sql: /./ },
+  ];
+}
+
+function postDetailRequest(postId, { cookie = false } = {}) {
+  const headers = {};
+  if (cookie) headers.Cookie = "wempo_session=" + "s".repeat(43);
+  return new Request("https://forum.example/api/posts/" + postId, { headers });
+}
+
+async function postDetailBody(routes, { signedIn = true } = {}) {
+  const response = await forumWorker.fetch(
+    postDetailRequest(5, { cookie: signedIn }),
+    envFor(routes.db),
+  );
+  assert.equal(response.status, 200);
+  return response.json();
+}
+
+test("a detail read as the uploader lists their pending attachment with awaiting true", async () => {
+  // sessionRow() is user_id 7; the attachment's created_by is 7 too.
+  const mock = mockDb(postReadRoutes({
+    attachmentRows: [attachmentMetaRow({ status: "pending", created_by: 7 })],
+  }));
+  const body = await postDetailBody(mock);
+
+  assert.deepEqual(body.attachments, [
+    { id: ATTACHMENT_ID, status: "pending", mime: "image/gif", version: ATTACHMENT_VERSION, awaiting: true },
+  ]);
+});
+
+test("the same detail read as another member shows attachments: [] — pending rows must not leak metadata", async () => {
+  const mock = mockDb(postReadRoutes({
+    session: { sql: /FROM sessions s LEFT JOIN users u/, result: sessionRow({ user_id: 8, role: "member" }) },
+    attachmentRows: [attachmentMetaRow({ status: "pending", created_by: 7 })],
+  }));
+  const body = await postDetailBody(mock);
+
+  assert.deepEqual(body.attachments, []);
+});
+
+test("after approval a non-author sees the row with awaiting false", async () => {
+  const mock = mockDb(postReadRoutes({
+    session: { sql: /FROM sessions s LEFT JOIN users u/, result: sessionRow({ user_id: 8, role: "member" }) },
+    attachmentRows: [attachmentMetaRow({
+      status: "approved",
+      created_by: 7,
+      mime: "image/png",
+      pending_mime: null,
+    })],
+  }));
+  const body = await postDetailBody(mock);
+
+  assert.deepEqual(body.attachments, [
+    { id: ATTACHMENT_ID, status: "approved", mime: "image/png", version: ATTACHMENT_VERSION, awaiting: false },
+  ]);
+});
+
+test("a guest detail read never sees pending metadata", async () => {
+  const mock = mockDb(postReadRoutes({
+    session: { sql: /FROM sessions s LEFT JOIN users u/, result: null },
+    attachmentRows: [attachmentMetaRow({ status: "pending", created_by: 7 })],
+  }));
+  const response = await forumWorker.fetch(postDetailRequest(5), envFor(mock.db));
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.deepEqual(body.attachments, []);
+});
+
+test("a moderator sees someone else's pending attachment with awaiting true", async () => {
+  const mock = mockDb(postReadRoutes({
+    session: { sql: /FROM sessions s LEFT JOIN users u/, result: sessionRow({ user_id: 8, role: "moderator" }) },
+    attachmentRows: [attachmentMetaRow({ status: "pending", created_by: 7 })],
+  }));
+  const body = await postDetailBody(mock);
+
+  assert.deepEqual(body.attachments, [
+    { id: ATTACHMENT_ID, status: "pending", mime: "image/gif", version: ATTACHMENT_VERSION, awaiting: true },
+  ]);
+});
+
+test("rejected attachments are omitted from metadata even for their author", async () => {
+  const mock = mockDb(postReadRoutes({
+    session: { sql: /FROM sessions s LEFT JOIN users u/, result: sessionRow({ user_id: 7, role: "admin" }) },
+    attachmentRows: [attachmentMetaRow({
+      status: "rejected",
+      created_by: 7,
+      pending_mime: null,
+    })],
+  }));
+  const body = await postDetailBody(mock);
+
+  assert.deepEqual(body.attachments, []);
+});
+
+test("feed rows carry an approved attachment's id, version, and awaiting flag", async () => {
+  const feedPost = postRow({ id: "9" });
+  const mock = mockDb([
+    sessionRoute, // never read: the feed request is a guest read
+    { sql: /FROM posts p JOIN users u/, rows: [feedPost] },
+    { sql: ATTACHMENTS_FOR_POSTS_SQL, rows: [attachmentMetaRow({
+      id: ATTACHMENT_ID,
+      post_id: "9",
+      status: "approved",
+      mime: "image/gif",
+      pending_mime: null,
+    })] },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(
+    new Request("https://forum.example/api/posts"),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.posts.length, 1);
+  assert.deepEqual(body.posts[0].attachments, [
+    { id: ATTACHMENT_ID, status: "approved", mime: "image/gif", version: ATTACHMENT_VERSION, awaiting: false },
+  ]);
+  // One batched attachments lookup for the whole feed page — never per post.
+  assert.equal(
+    mock.calls.filter((call) => ATTACHMENTS_FOR_POSTS_SQL.test(call.sql)).length,
+    1,
+  );
+  assert.ok(
+    mock.calls.filter((call) => ATTACHMENTS_FOR_POSTS_SQL.test(call.sql))[0].sql.includes("(?)"),
+    "the IN list has one placeholder per shown post id",
+  );
+});

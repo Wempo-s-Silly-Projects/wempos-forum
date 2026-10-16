@@ -42,14 +42,16 @@ async function handleUserProfileRoute(request, env, url, path, method) {
     const user = await userByUsernameKey(env, username.toLowerCase());
     if (!user) throw new HttpError(404, "Member not found.");
     const session = await readSession(request, env);
-    const viewerId = session && session.user ? session.user.id : null;
     const beforeRaw = url.searchParams.get("before");
     let before = null;
     if (beforeRaw !== null) {
       if (!/^[1-9][0-9]{0,14}$/.test(beforeRaw)) throw new HttpError(400, "That page cursor is invalid.");
       before = Number(beforeRaw);
     }
-    const posts = await listRootPosts(env, viewerId, { authorId: Number(user.id), before });
+    const posts = await listRootPosts(env, session && session.user ? session.user : null, {
+      authorId: Number(user.id),
+      before,
+    });
     return json({
       id: Number(user.id),
       username: user.username,

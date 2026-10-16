@@ -128,3 +128,44 @@ export async function handleAttachmentRoutes(request, env, url, path, method) {
   }
   throw new HttpError(404, "Attachment not found.");
 }
+
+// Read-side metadata for serialized posts, shared by the feed, replies, and
+// detail paths in api/posts.mjs. ONE batched lookup (post_id IN (…)) resolves
+// a whole page — never a per-post query. Viewer semantics mirror
+// handleAttachmentRoutes above: approved rows are visible to everyone
+// (awaiting: false); pending rows are visible ONLY to the uploading account
+// or a moderator/admin (awaiting: true) and are omitted ENTIRELY for everyone
+// else, so a pending upload cannot leak even its existence through metadata;
+// rejected rows are omitted for everyone. Returns a Map<postId, Array<
+// { id, status, mime, version, awaiting }>>; ids without visible rows are
+// simply absent — callers serialize an empty array, never null/undefined.
+export async function attachmentRowsForView(db, postIds, viewer) {
+  const byPost = new Map();
+  if (!Array.isArray(postIds) || postIds.length === 0) return byPost;
+  const ids = [...new Set(postIds.map(Number))];
+  const placeholders = ids.map(() => "?").join(", ");
+  const result = await db.prepare(
+    "SELECT id, post_id, status, created_by, version, mime, pending_mime " +
+      "FROM attachments WHERE post_id IN (" + placeholders + ")",
+  ).bind(...ids).all();
+  const isModerator = Boolean(viewer) &&
+    (viewer.role === "admin" || viewer.role === "moderator");
+  const viewerId = viewer ? Number(viewer.id) : NaN;
+  for (const row of result.results || []) {
+    if (row.status === "rejected") continue;
+    const visible = row.status === "approved" ||
+      Boolean(viewer) && (isModerator || Number(row.created_by) === viewerId);
+    if (!visible) continue;
+    const postId = Number(row.post_id);
+    const rows = byPost.get(postId) || [];
+    rows.push({
+      id: row.id,
+      status: row.status,
+      mime: row.status === "approved" ? row.mime : row.pending_mime,
+      version: row.version,
+      awaiting: row.status === "pending",
+    });
+    byPost.set(postId, rows);
+  }
+  return byPost;
+}
