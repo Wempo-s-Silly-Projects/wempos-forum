@@ -553,13 +553,21 @@ async function storedPostFingerprint(db, existing, fingerprint) {
   const originalEdit = await db.prepare(
     "SELECT body FROM post_edits WHERE post_id = ? ORDER BY id ASC LIMIT 1",
   ).bind(Number(existing.id)).first();
+  if (originalEdit) {
+    // The earliest edit snapshot establishes the original text, but legacy
+    // rows have no creation-time media snapshot. Moderation may have removed
+    // one or more attachments since creation, so combining that body with the
+    // current attachment rows could falsely accept a changed payload. Fail
+    // closed rather than claim a reliable full fingerprint we cannot prove.
+    throw new HttpError(409, "This older creation request cannot be safely verified after edits. Submit again with a new Idempotency-Key.");
+  }
   const storedAttachments = await db.prepare(
     "SELECT hash, mime FROM attachments WHERE post_id = ? ORDER BY hash, mime",
   ).bind(Number(existing.id)).all();
   return postCreationFingerprint({
     kind: existing.parent_id === null || existing.parent_id === undefined ? "post" : "reply",
     targetId: existing.parent_id === null || existing.parent_id === undefined ? null : Number(existing.parent_id),
-    message: String(originalEdit ? originalEdit.body : existing.body ?? ""),
+    message: String(existing.body ?? ""),
     board: existing.board ?? null,
     attachments: storedAttachments.results || [],
   });
