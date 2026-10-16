@@ -106,7 +106,7 @@ period = 60
 
 # Named preview environment: never inherit the production D1 or rate-limit bindings.
 [env.preview.vars]
-TURNSTILE_HOSTNAMES = "*.wempos-forum-preview.itswempo.workers.dev"
+TURNSTILE_HOSTNAMES = "wempos-forum-preview.itswempo.workers.dev"
 VERSION = "3.0.0-preview"
 
 [[env.preview.d1_databases]]
