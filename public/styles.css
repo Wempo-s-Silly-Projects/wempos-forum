@@ -1640,3 +1640,44 @@ dialog h2 {
   display: inline-flex;
   align-items: center;
 }
+
+.leaderboard-list {
+  list-style: none;
+  margin: 0.6rem 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 2px solid var(--line);
+  border-radius: var(--button-radius);
+  background: var(--paper);
+  box-shadow: 3px 4px 0 var(--paper-shadow);
+  padding: 0.55rem 0.9rem;
+}
+.leaderboard-rank {
+  font-weight: 800;
+  min-width: 2.2rem;
+  color: var(--muted);
+}
+.leaderboard-name {
+  color: var(--link);
+  font-weight: 700;
+  text-decoration: none;
+}
+.leaderboard-stats {
+  color: var(--muted);
+  font-size: 0.85rem;
+  flex: 1;
+  text-align: right;
+}
+.leaderboard-score {
+  font-weight: 800;
+  color: var(--green-ink);
+  background: var(--soft-green);
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+}

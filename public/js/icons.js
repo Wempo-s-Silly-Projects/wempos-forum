@@ -27,6 +27,7 @@ const ICON_PATHS = {
   poll: ["M5 20V11", "M12 20V4", "M19 20v-5", "M2 20h20"],
   // Bookmarks (C4): the ribbon — save/unsave a post.
   bookmark: ["M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"],
+  trophy: ["M8 21h8", "M12 17v4", "M17 4h3v1a4 4 0 0 1-4 4V8a4 4 0 0 0-3-4h-4a4 4 0 0 0-3 4v1a4 4 0 0 1-4-4V4h3", "M7 4h10v4a5 5 0 0 1-10 0z"],
   // Saved list (C4): the bookmark with a line set — list of saves.
   bookmarks: ["M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z", "M9 7h6"],
 };
@@ -40,6 +41,7 @@ const ICON_ARIA = {
   shield: "Moderation",
   lightbulb: "Suggestions",
   bookmarks: "Saved posts",
+  trophy: "Leaderboard",
 };
 
 export const ICON_NAMES = Object.keys(ICON_PATHS);

@@ -331,6 +331,13 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   });
   archiveLink.setAttribute("data-app-link", "");
   accountActions.append(archiveLink);
+  const leaderboardLink = iconButton(document, "trophy", {
+    tagName: "a",
+    className: "button button-secondary icon-button",
+    dataset: { href: "/leaderboard" },
+  });
+  leaderboardLink.setAttribute("data-app-link", "");
+  accountActions.append(leaderboardLink);
   if (!user) {
     const signIn = element("a", "button button-secondary", "Sign in");
     signIn.href = "/#join";
@@ -656,6 +663,7 @@ function setRouteTitle(route) {
     suggestions: "Suggestions",
     archive: "Archive",
     mine: "My posts",
+    leaderboard: "Leaderboard",
     post: "Post",
     profile: "Profile",
     admin: "Moderation",
@@ -711,6 +719,30 @@ function renderFeedTabs(active) {
     tabs.append(tab);
   }
   return tabs;
+}
+
+async function renderLeaderboardRoute(context, version) {
+  const data = await api("/api/leaderboard");
+  if (version !== renderVersion) return;
+  addHeading(main, "This week's leaderboard", 2);
+  const rows = data.week.leaderboard;
+  if (!rows.length) {
+    addText(document, main, "p", "Nothing yet this week — be the first!", "empty-state");
+    return;
+  }
+  const list = element("ol", "leaderboard-list");
+  for (const [index, entry] of rows.entries()) {
+    const row = element("li", "leaderboard-row");
+    row.append(element("span", "leaderboard-rank", "#" + (index + 1)));
+    const link = element("a", "leaderboard-name", entry.username);
+    link.href = "/users/" + encodeURIComponent(entry.username);
+    link.setAttribute("data-app-link", "");
+    row.append(link, element("span", "leaderboard-stats",
+      `${entry.threads} threads · ${entry.replies} replies · ${entry.reactionsReceived} reactions received`));
+    row.append(element("span", "leaderboard-score", String(entry.score)));
+    list.append(row);
+  }
+  main.append(list);
 }
 
 async function renderMineRoute(context, version) {
@@ -955,6 +987,7 @@ async function renderRoute(route) {
     search: () => renderHomeRoute(route, context, version),
     suggestions: () => renderSuggestionsRoute(context, version),
     mine: () => renderMineRoute(context, version),
+    leaderboard: () => renderLeaderboardRoute(context, version),
     archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
