@@ -67,9 +67,9 @@ test("CSS moderation decisions are tied to the exact reviewed submission", async
 
 test("unexpected Worker failures log the full error but return generic public messages", async () => {
   const worker = await read("worker.mjs");
-  assert.match(worker, /console\\.error\\("Forum request failed:", error\\)/);
-  assert.match(worker, /console\\.error\\("Static asset request failed:", error\\)/);
-  assert.match(worker, /return json\\(\\{ error: "Something went wrong\\. Please try again\\." \\}, 500\\)/);
+  assert.match(worker, /console\.error\("Forum request failed:", error\)/);
+  assert.match(worker, /console\.error\("Static asset request failed:", error\)/);
+  assert.match(worker, /return json\(\{ error: "Something went wrong\. Please try again\." \}, 500\)/);
 });
 
 test("attachment-bearing post and reply writes stay hidden until media persistence succeeds", async () => {
