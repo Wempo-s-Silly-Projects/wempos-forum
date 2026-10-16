@@ -41,6 +41,7 @@ export function initTheme(doc, storage) {
         theme === "dark" ? "Switch to light theme" : "Switch to dark theme",
       );
       toggle.replaceChildren(createIcon(doc, theme === "dark" ? "moon" : "sun"));
+      toggle.title = theme === "dark" ? "Switch to light theme" : "Switch to dark theme";
       rethemeTurnstile();
     }
   };

@@ -257,8 +257,11 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   // exactly like the links around it and visible to guests and signed-in
   // members alike; internal navigation handles it like every other header
   // anchor. The brand stays Home.
-  const suggestions = element("a", "button button-secondary", "Suggestions");
-  suggestions.href = "/suggestions";
+  const suggestions = iconButton(document, "lightbulb", {
+    tagName: "a",
+    className: "button button-secondary icon-button",
+    dataset: { href: "/suggestions" },
+  });
   suggestions.setAttribute("data-app-link", "");
   accountActions.append(suggestions);
   // Accountability archive (v2.4.1): public to guests and members alike.
@@ -286,8 +289,11 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   accountActions.append(profile);
   accountActions.append(createNotificationBell(unreadNotifications, document));
   if (user.role === "admin" || user.role === "moderator") {
-    const reports = element("a", "button button-secondary", "Moderation");
-    reports.href = "/admin/reports";
+    const reports = iconButton(document, "shield", {
+      tagName: "a",
+      className: "button button-secondary icon-button",
+      dataset: { href: "/admin/reports" },
+    });
     accountActions.append(reports);
   }
   const logout = iconButton(document, "logout", {

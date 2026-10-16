@@ -501,7 +501,7 @@ test("the frontend wires the Suggestions route, header link, composer board, and
   // composer's board dataset flag, and the board's empty-state copy.
   const appJs = readFileSync(path.join(repoRoot, "public", "js", "app.js"), "utf8");
   // The header link exists for guests and members alike.
-  assert.match(appJs, /suggestions\.href = "\/suggestions";/);
+  assert.match(appJs, /dataset: { href: "\/suggestions" }/); // suggestions link is now an icon button
   assert.match(appJs, /createComposer\(\s*"post-create",[\s\S]*?SUGGESTIONS_BOARD,\s*\)/);
   // The route renderer fetches the board feed WRAPPED in the exact
   // { feed: ... } shape renderHomeRoute builds (api() returns the body

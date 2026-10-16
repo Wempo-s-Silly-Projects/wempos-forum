@@ -12,10 +12,12 @@ const ICON_PATHS = {
   person: ["M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2", "M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"],
   magnifier: ["M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z", "M21 21l-4.35-4.35"],
   archive: ["M21 8v13H3V8", "M1 3h22v5H1z", "M10 12h4"],
+  shield: ["M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"],
   sun: ["M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z", "M12 1v2", "M12 21v2", "M4.22 4.22l1.42 1.42", "M18.36 18.36l1.42 1.42", "M1 12h2", "M21 12h2", "M4.22 19.78l1.42-1.42", "M18.36 5.64l1.42-1.42"],
   moon: ["M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"],
   chat: ["M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.5-8.5 8.38 8.38 0 0 1 8.5 8.5z"],
   image: ["M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z", "M3 15l5-5 6 6", "M12.5 14.5l3.5-3.5 5 5", "M9 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"],
+  lightbulb: ["M9 18h6", "M10 22h4", "M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z"],
 };
 
 const ICON_ARIA = {
@@ -24,6 +26,8 @@ const ICON_ARIA = {
   person: "Profile",
   magnifier: "Search",
   archive: "Archive",
+  shield: "Moderation",
+  lightbulb: "Suggestions",
 };
 
 export const ICON_NAMES = Object.keys(ICON_PATHS);
@@ -53,8 +57,11 @@ export function iconButton(document, name, { className, ariaLabel, dataset, tagN
   if (tagName === "a") element.href = dataset?.href || "#";
   element.type = tagName === "a" ? undefined : "button";
   element.className = className || "icon-button";
-  if (ariaLabel || ICON_ARIA[name]) {
-    element.setAttribute("aria-label", ariaLabel || ICON_ARIA[name]);
+  const label = ariaLabel || ICON_ARIA[name];
+  if (label) {
+    element.setAttribute("aria-label", label);
+    // Native hover tooltip: the button's name, per the owner's ask.
+    element.title = label;
   }
   if (dataset) {
     for (const [key, value] of Object.entries(dataset)) {
