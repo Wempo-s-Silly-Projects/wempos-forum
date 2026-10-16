@@ -205,11 +205,17 @@ async function listRootPosts(env, viewer, options = {}) {
       sql += "AND (p.last_activity_at < ? OR (p.last_activity_at = ? AND p.id < ?)) ";
       values.push(cursor.seconds, cursor.seconds, cursor.id);
     }
-    // Pinning (C5): moderator-pinned roots float FIRST in the home feed, ahead
-    // of the by-activity ordering. The pagination cursor keeps walking the
-    // unchanged (last_activity_at, id) keyset — a pinned root whose activity
-    // sits below a cursor boundary therefore re-appears on later pages (it
-    // still sorts first); a documented rough edge of the simple stamp.
+    // The cursor's pinned rank mirrors the leading ORDER BY key.
+    if (cursor && cursor.rank === 0) {
+      sql += "AND ((p.pinned_at IS NOT NULL AND (p.last_activity_at < ? OR (p.last_activity_at = ? AND p.id < ?))) OR p.pinned_at IS NULL) ";
+      values.push(cursor.seconds, cursor.seconds, cursor.id);
+    } else if (cursor && cursor.rank === 1) {
+      sql += "AND p.pinned_at IS NULL AND (p.last_activity_at < ? OR (p.last_activity_at = ? AND p.id < ?)) ";
+      values.push(cursor.seconds, cursor.seconds, cursor.id);
+    } else if (cursor) {
+      sql += "AND (p.last_activity_at < ? OR (p.last_activity_at = ? AND p.id < ?)) ";
+      values.push(cursor.seconds, cursor.seconds, cursor.id);
+    }
     sql += "ORDER BY (p.pinned_at IS NULL) ASC, p.last_activity_at DESC, p.id DESC LIMIT 21";
     const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
     const rows = result.results || [];
@@ -221,7 +227,8 @@ async function listRootPosts(env, viewer, options = {}) {
       posts: await withBookmarkFlags(env.FORUM_DB, viewer, await withReplyMetadata(env.FORUM_DB, viewer,
         await withAttachments(env.FORUM_DB, viewer, shown.map((row) => publicPost(row, 0))))),
       nextBefore: hasMore && last
-        ? Number(last.last_activity_at) + "_" + Number(last.id)
+        ? (last.pinned_at === null || last.pinned_at === undefined ? "1_" : "0_") +
+          Number(last.last_activity_at) + "_" + Number(last.id)
         : null,
     };
   }
@@ -357,9 +364,15 @@ async function handlePostFeedRoute(request, env, url, path, method) {
         if (!cursorMatch) throw new HttpError(400, "That page cursor is invalid.");
         before = { score: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
       } else {
+        const rankedCursor = /^([01])_([0-9]{1,10})_([0-9]{1,10})$/.exec(beforeRaw);
         const cursorMatch = /^([0-9]{1,10})_([0-9]{1,10})$/.exec(beforeRaw);
-        if (!cursorMatch) throw new HttpError(400, "That page cursor is invalid.");
-        before = { seconds: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
+        if (rankedCursor) {
+          before = { rank: Number(rankedCursor[1]), seconds: Number(rankedCursor[2]), id: Number(rankedCursor[3]) };
+        } else if (cursorMatch) {
+          before = { seconds: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
+        } else {
+          throw new HttpError(400, "That page cursor is invalid.");
+        }
       }
     }
     // My posts (v2.5): `mine=1` filters the feed to the SESSION's own roots —
@@ -537,10 +550,12 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     if (!(await canViewPost(env, target, session.user))) {
       throw new HttpError(400, "Replies are closed while this conversation's author is banned.");
     }
+    const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
+      .startsWith("multipart/form-data");
+    // Charge multipart composer requests before parsing, hashing, sniffing, or duplicate lookup.
+    if (isMultipart) await rateLimit(request, env, "image-upload", String(session.user.id));
     const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env);
-    // Image-heavy posts pay a per-account image-upload limit before any
-    // validation or insert work happens (ordering constraint).
-    if (files.length > 0 || gifIds.length > 0) {
+    if (!isMultipart && (files.length > 0 || gifIds.length > 0)) {
       await rateLimit(request, env, "image-upload", String(session.user.id));
     }
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
@@ -612,10 +627,12 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     await assertNotBanned(env, session.user.id);
     await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
+    const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
+      .startsWith("multipart/form-data");
+    // Charge multipart composer requests before parsing, hashing, sniffing, or duplicate lookup.
+    if (isMultipart) await rateLimit(request, env, "image-upload", String(session.user.id));
     const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env);
-    // Image-heavy posts pay a per-account image-upload limit before any
-    // validation or insert work happens (ordering constraint).
-    if (files.length > 0 || gifIds.length > 0) {
+    if (!isMultipart && (files.length > 0 || gifIds.length > 0)) {
       await rateLimit(request, env, "image-upload", String(session.user.id));
     }
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
@@ -647,7 +664,7 @@ async function handlePostCreateRoute(request, env, url, path, method) {
         actorId: session.user.id,
         actorUsername: session.user.username,
         targetPostId: postId,
-        replyId: null,
+        replyId: postId,
         now,
         excludeIds: [],
       });

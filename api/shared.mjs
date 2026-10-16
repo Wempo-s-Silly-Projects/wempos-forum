@@ -491,7 +491,7 @@ function socialsFromRow(row) {
 
 async function userByUsernameKey(env, key) {
   return env.FORUM_DB.prepare(
-    "SELECT id, username, username_key, password_salt, password_hash, role, bio, profile_accent, banner_color, banner_text, flair, approved_css, " +
+    "SELECT id, username, username_key, password_salt, password_hash, role, bio, profile_accent, banner_color, banner_text, flair, pending_css, approved_css, " +
       SOCIAL_SELECT_COLUMNS +
       "avatar_status, avatar_mime, avatar_updated_at, avatar_version " +
       "FROM users WHERE username_key = ? LIMIT 1",

@@ -84,6 +84,9 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       // Custom CSS (v2.5): only the APPROVED css serves, pre-scoped by the
       // sandbox (shared.mjs); pending rewrites stay invisible to the public.
       customCss: scopeProfileCss(user.approved_css || ""),
+      customCssRaw: session?.user?.id === Number(user.id)
+        ? String(user.pending_css ?? user.approved_css ?? "")
+        : undefined,
       bio: user.bio || "",
       socials: socialsFromRow(user),
       polytoriaUsername: user.polytoria_username || null,
@@ -287,7 +290,7 @@ async function handleCssClearRoute(request, env, url, path, method) {
   await rateLimit(request, env, "write");
   await env.FORUM_DB.batch([
     env.FORUM_DB.prepare(
-      "UPDATE users SET pending_css = NULL, css_status = 'none' WHERE id = ?",
+      "UPDATE users SET pending_css = NULL, approved_css = NULL, css_status = 'none' WHERE id = ?"),
     ).bind(session.user.id),
   ]);
   return json({ cleared: true });

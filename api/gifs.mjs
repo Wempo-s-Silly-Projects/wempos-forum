@@ -91,16 +91,14 @@ export async function handleGifUploadRoute(request, env, path, method) {
   await rateLimit(request, env, "write");
   await rateLimit(request, env, "image-upload", String(session.user.id));
   const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
+  const raw = await readLimitedBody(request, MAX_GIF_BYTES + 512 * 1024);
   let bytes;
   if (contentType.startsWith("multipart/form-data")) {
-    // Framing-backed parse when declared (the attachments path's convention).
-    const declaredLength = Number(request.headers.get("Content-Length") || 0);
-    if (declaredLength > MAX_GIF_BYTES + 512 * 1024) {
-      throw new HttpError(413, "GIFs must be 10 MiB or smaller.");
-    }
     let form;
     try {
-      form = await request.formData();
+      const headers = new Headers(request.headers);
+      headers.delete("Content-Length");
+      form = await new Request(request.url, { method: "POST", headers, body: raw }).formData();
     } catch {
       throw new HttpError(400, "The upload could not be read.");
     }
@@ -110,7 +108,7 @@ export async function handleGifUploadRoute(request, env, path, method) {
     }
     bytes = new Uint8Array(await file.arrayBuffer());
   } else {
-    bytes = new Uint8Array(await readLimitedBody(request, MAX_GIF_BYTES + 512 * 1024));
+    bytes = raw;
   }
   if (bytes.length > MAX_GIF_BYTES) {
     throw new HttpError(413, "GIFs must be 10 MiB or smaller.");
