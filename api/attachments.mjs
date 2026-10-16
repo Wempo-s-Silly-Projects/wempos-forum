@@ -284,7 +284,8 @@ async function handleAttachmentServingRoute(request, env, path, method) {
   if (method !== "GET") throw new HttpError(405, "That method is not supported.");
 
   const row = await env.FORUM_DB.prepare(
-    "SELECT id, status, created_by, mime, hash FROM attachments WHERE id = ? LIMIT 1",
+    "SELECT id, status, created_by, mime, hash FROM attachments WHERE id = ? " +
+    "AND (status <> 'approved' OR NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = attachments.hash)) LIMIT 1",
   ).bind(attachmentMatch[1]).first();
   if (!row) throw new HttpError(404, "Attachment not found.");
 
@@ -387,7 +388,7 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
     // chunk relabel succeed or fail together. The changes guard reads back the
     // batch's first result, 404-ing a non-pending or unknown id.
     const pending = await db.prepare(
-      "SELECT hash FROM attachments WHERE id = ? AND status = 'pending'",
+      "SELECT id FROM attachments WHERE id = ? AND status = 'pending'",
     ).bind(attachmentId).first();
     if (!pending) throw new HttpError(404, "Attachment not found.");
     const results = await db.batch([
@@ -463,6 +464,7 @@ export async function attachmentRowsForView(db, postIds, viewer) {
   const result = await db.prepare(
     "SELECT id, post_id, status, created_by, version, mime " +
       "FROM attachments WHERE post_id IN (" + placeholders + ") " +
+      "AND (status <> 'approved' OR NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = attachments.hash)) " +
       // Deterministic strip order: attachments carry created_at (intake sets
       // it; several uploads in one post share the same intake second, so id
       // UUID breaks ties — stable even as row ordering never matters to
