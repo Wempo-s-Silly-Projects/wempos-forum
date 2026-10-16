@@ -4,6 +4,7 @@ import { parseBlocks, parseInline } from "./markdown.js";
 import { createTextarea } from "./forms.js";
 import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
 import { collapseWhitespace } from "./quotes.js";
+import { renderPollBlock } from "./polls.js";
 
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
@@ -222,6 +223,12 @@ export const createPostCard = (post, document, currentUser = null) => {
 
   renderAttachments(post, document, article);
   renderLatestReplies(post, document, article);
+  // Polls (C3): the detail payload's poll renders as result bars under the
+  // body — data-driven, so poll-less payloads (and every reply) look unchanged.
+  if (post.poll) {
+    const pollBlock = renderPollBlock(post.poll, document, currentUser);
+    if (pollBlock) article.append(pollBlock);
+  }
 
   const actions = createElement(document, "div", "post-actions");
   for (const [value, label, count] of [

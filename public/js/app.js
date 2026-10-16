@@ -217,7 +217,7 @@ function createComposer(name, label, buttonLabel, postID = null,
     id: `${name}-${postID ?? "new"}-body`, name: "body", label,
     rows: 4, maxLength: COMPOSER_MAX_CHARS, required: true, counter: true,
   }));
-  form.append(createComposerAttachmentRow());
+  form.append(createComposerAttachmentRow(name === "post-create"));
   addTurnstileSlot(form, turnstileAction ?? (name === "post-create" ? "post" : "reply"));
   addSubmit(form, buttonLabel);
   panel.append(form);
@@ -231,7 +231,7 @@ function createComposer(name, label, buttonLabel, postID = null,
 // FormData knows nothing about; submit handlers fold them into the payload.
 // Uploads land in the moderation-pending state, so the note mirrors the
 // avatar uploader's review-first wording.
-function createComposerAttachmentRow() {
+function createComposerAttachmentRow(withPollButton = false) {
   const input = document.createElement("input");
   input.type = "file";
   input.accept = COMPOSER_ACCEPT;
@@ -248,6 +248,16 @@ function createComposerAttachmentRow() {
   const gifButton = element("button", "button button-quiet", "🎬 GIFs");
   gifButton.type = "button";
   gifButton.dataset.action = "open-gif-picker";
+  // Polls (C3): the Poll button — root composers only. The dialog stashes a
+  // { question, options } draft on the form (composerPoll) and the create
+  // submit posts it to /api/posts/:id/poll once the thread exists.
+  const pollBits = [];
+  if (withPollButton) {
+    const pollButton = element("button", "button button-quiet", "📊 Poll");
+    pollButton.type = "button";
+    pollButton.dataset.action = "open-poll-dialog";
+    pollBits.push(pollButton);
+  }
   const gifStrip = element("div", "composer-files");
   gifStrip.dataset.composerStrip = "gifs";
   gifStrip.hidden = true;
@@ -259,7 +269,7 @@ function createComposerAttachmentRow() {
   strip.dataset.composerStrip = "images";
   strip.hidden = true;
   const row = element("div", "composer-attach-row");
-  row.append(attach, gifButton, description, strip, gifStrip, input);
+  row.append(attach, gifButton, ...pollBits, description, strip, gifStrip, input);
   return row;
 }
 
@@ -971,8 +981,21 @@ async function submitNewPost(form, text) {
   });
   refreshTurnstile(form);
   const post = await api("/api/posts", { method: "POST", body: submission.body });
+  // Polls (C3): a stashed poll attaches to the fresh thread BEFORE the
+  // navigation; a failed attach never loses the (already live) post.
+  let pollNote = "";
+  if (form.composerPoll) {
+    try {
+      await api("/api/posts/" + post.id + "/poll", {
+        method: "POST",
+        body: form.composerPoll,
+      });
+    } catch (error) {
+      pollNote = " (the poll could not be attached)";
+    }
+  }
   router.navigate("/posts/" + post.id);
-  setMessage("Your post is live.");
+  setMessage("Your post is live." + pollNote);
 }
 
 async function submitReplyForm(form, text) {
@@ -1373,6 +1396,39 @@ function cssSelectorOfForm(form) {
   return "form:nth-of-type(" + (forms.indexOf(form) + 1) + ")";
 }
 
+// Poll dialog (C3): open stashes the calling composer; confirm reads the
+// question + up to 4 options (blank slots skipped) and rides the draft on the
+// form as composerPoll until the post's create submit lands the poll.
+const pollDialog = () => document.querySelector("#poll-dialog");
+
+function openPollDialog(button) {
+  const form = button.closest("form");
+  const dialog = pollDialog();
+  if (!form || !dialog) return;
+  dialog.dataset.activeFormSelector = cssSelectorOfForm(form);
+  dialog.showModal();
+}
+
+function confirmPollDialog() {
+  const dialog = pollDialog();
+  const form = dialog
+    ? document.querySelector(dialog.dataset.activeFormSelector || "#nonexistent")
+    : null;
+  if (!form || !dialog) return;
+  const question = dialog.querySelector("#poll-question").value.trim();
+  const options = [1, 2, 3, 4]
+    .map((slot) => dialog.querySelector("#poll-option-" + slot)?.value.trim() ?? "")
+    .filter(Boolean);
+  if (!question || options.length < 2 || options.length > 4) {
+    setMessage("Give the poll a question and 2 to 4 options.", true);
+    return;
+  }
+  form.composerPoll = { question, options };
+  dialog.querySelector("form").reset();
+  dialog.close();
+  setMessage("Poll attached — it posts with your message.");
+}
+
 function attachComposerImages(button) {
   // The paperclip button lives inside the composer's form, so `.closest("form")`
   // always resolves the right composer even with several on one page.
@@ -1539,6 +1595,20 @@ async function handleButtonAction(button) {
     "mark-notifications-read": () => markAllNotificationsRead(),
     "composer-attach": () => attachComposerImages(button),
     "open-gif-picker": () => openGifPicker(button),
+    "open-poll-dialog": () => openPollDialog(button),
+    "confirm-poll-dialog": () => confirmPollDialog(),
+    "cancel-poll-dialog": () => pollDialog()?.close(),
+    // Polls (C3): the vote PUT (one changeable vote per member) and the
+    // re-render refetches the payload's fresh counts.
+    "poll-vote": async () => {
+      if (activeRoute.name !== "post") return;
+      const postId = activeRoute.id;
+      await api("/api/posts/" + postId + "/poll", {
+        method: "PUT",
+        body: { optionId: Number(button.dataset.optionId) },
+      });
+      await renderRoute(activeRoute);
+    },
     "confirm-gif-picker": () => confirmGifPicker(button),
     "cancel-gif-picker": () => gifPickerDialog()?.close(),
     "remove-gif": () => {

@@ -9,6 +9,7 @@ import {
 import { applyWordFilter } from "./filter.mjs";
 import { notificationBatchStatements } from "./notifications.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
+import { pollPayload } from "./polls.mjs";
 import { subscriberFlagForViewer, subscriptionReplyFanOut } from "./subscriptions.mjs";
 import {
   archivePostRowsStatement,
@@ -471,6 +472,12 @@ async function handlePostDetailRoute(request, env, url, path, method) {
     // state (root-only dimension — replies read false without a query, like
     // boards read 'general' on pre-migration rows).
     post.subscribed = await subscriberFlagForViewer(env.FORUM_DB, viewerId, row);
+    // Polls (C3): the poll rides the ROOT's detail read (replies carry none).
+    // Results are always visible; the viewer's own option rides for members.
+    if (!row.parent_id) {
+      const poll = await pollPayload(env.FORUM_DB, postId, viewerId);
+      if (poll) post.poll = poll;
+    }
     return json(post);
   }
   return null;

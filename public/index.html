@@ -99,6 +99,35 @@
         <button class="button button-danger" id="confirm-ok" type="button" data-action="confirm-ok">Delete</button>
       </div>
     </dialog>
+    <dialog id="poll-dialog" aria-labelledby="poll-dialog-title">
+      <form data-form="poll-dialog">
+        <h2 id="poll-dialog-title">Add a poll</h2>
+        <p class="gif-picker-note">One poll per thread, posted together with your message. Members can change their vote.</p>
+        <label class="visually-hidden" for="poll-question">Poll question</label>
+        <input id="poll-question" type="text" maxlength="200" required placeholder="Ask the forum something">
+        <div class="form-field">
+          <label for="poll-option-1">Option 1</label>
+          <input id="poll-option-1" type="text" maxlength="80" required aria-describedby="poll-options-note">
+        </div>
+        <div class="form-field">
+          <label for="poll-option-2">Option 2</label>
+          <input id="poll-option-2" type="text" maxlength="80" required>
+        </div>
+        <div class="form-field">
+          <label for="poll-option-3">Option 3 (optional)</label>
+          <input id="poll-option-3" type="text" maxlength="80">
+        </div>
+        <div class="form-field">
+          <label for="poll-option-4">Option 4 (optional)</label>
+          <input id="poll-option-4" type="text" maxlength="80">
+        </div>
+        <p id="poll-options-note" class="gif-picker-note">Two to four non-duplicate options.</p>
+        <div class="form-actions">
+          <button class="button button-secondary" type="button" data-action="cancel-poll-dialog">Cancel</button>
+          <button class="button button-primary" type="button" data-action="confirm-poll-dialog">Add poll</button>
+        </div>
+      </form>
+    </dialog>
     <noscript><p class="noscript-note">This forum needs JavaScript to load posts and account actions.</p></noscript>
   </body>
 </html>
