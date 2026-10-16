@@ -185,8 +185,8 @@ test("threaded reply insert requires a public target that is a root or has a pub
   ));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ?"));
   assert.ok(THREAD_REPLY_INSERT_SQL.includes("expires_at IS NULL OR expires_at > ?"));
-  // Bind order: author, parent, body, created, last_activity, board (the
-  // thread root's board, resolved by the route), target, ban user, ban now.
+  // Bind order: author, parent, body, created, last_activity, root board,
+  // idempotency key, fingerprint, staged_at, target, ban user, ban time.
   assert.equal((THREAD_REPLY_INSERT_SQL.match(/\?/g) || []).length, 12);
 });
 
