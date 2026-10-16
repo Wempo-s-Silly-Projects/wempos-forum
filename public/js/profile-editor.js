@@ -180,6 +180,8 @@ export function renderProfileEditor(main, user) {
   }
   panel.append(form);
   if (user) {
+    const cssPanel = renderProfileCssEditor(document, user);
+    if (cssPanel) panel.append(cssPanel);
     panel.append(renderProfileAccentPicker(document, user.profileAccent || ""));
   }
   main.append(panel);
@@ -220,4 +222,39 @@ export function renderProfileAccentPicker(document, currentAccent = "") {
     field.append(swatch);
   }
   return field;
+}
+
+// Custom profile CSS (v2.5): a textarea + save/clear; the app-level actions
+// (save-profile-css / clear-profile-css) do the POST/DELETE to /api/me/css,
+// mirroring the avatar desk's review-first note.
+export function renderProfileCssEditor(document, user) {
+  const panel = document.createElement("div");
+  panel.className = "css-editor";
+  const label = document.createElement("label");
+  label.className = "css-editor-label";
+  label.textContent = "Custom profile CSS (moderated)";
+  const textarea = document.createElement("textarea");
+  textarea.id = "profile-css-input";
+  textarea.className = "css-editor-input";
+  textarea.dataset.cssInput = "true";
+  textarea.maxLength = 20000;
+  textarea.rows = 6;
+  textarea.placeholder = "body { font-family: serif; } — every rule is scoped to your profile.";
+  textarea.value = typeof user.customCssRaw === "string" ? user.customCssRaw : "";
+  const note = document.createElement("p");
+  note.className = "form-note";
+  note.textContent = "CSS saves as PENDING: a moderator approves it before it goes live. Scoped to your profile container by the server.";
+  panel.append(label, textarea, note);
+  const save = document.createElement("button");
+  save.type = "button";
+  save.className = "button";
+  save.dataset.action = "save-profile-css";
+  save.textContent = "Save CSS for review";
+  const clear = document.createElement("button");
+  clear.type = "button";
+  clear.className = "button button-quiet";
+  clear.dataset.action = "clear-profile-css";
+  clear.textContent = "Remove my CSS";
+  panel.append(save, clear);
+  return panel;
 }

@@ -183,3 +183,25 @@ test("the profile payload carries the post counter (threads vs replies)", async 
   assert.ok(countCall.sql.includes("parent_id IS NULL"), "the counter separates threads from replies");
   assert.deepEqual(countCall.values.slice(0, 2), [7, 7], "the profile member's id, bound server-side");
 });
+
+test("banner + flair: whitelisted color, filtered 80-char text, 32-char flair", async () => {
+  const mock = mockDb([
+    sessionRoute({ username: "wempo", user_id: 1 }),
+    { sql: /^SELECT id FROM bans WHERE user_id = \?/, result: null },
+    { sql: /./ },
+  ]);
+  const response = await forumWorker.fetch(patchRequest({
+    bannerColor: "plum",
+    bannerText: "welcome to my crib",
+    flair: "certified gremlin",
+  }), envFor(mock.db));
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.deepEqual(payload.bannerColor, "plum");
+  assert.deepEqual(payload.bannerText, "welcome to my crib");
+  assert.deepEqual(payload.flair, "certified gremlin");
+  const update = mock.calls.find((call) => call.sql.startsWith("UPDATE users SET"));
+  assert.ok(update.sql.includes("banner_color = ?") && update.sql.includes("flair = ?"));
+  // 2 banner binds + 1 flair bind, after the 3 accent-guard binds.
+  assert.deepEqual(update.values.slice(0, 3), ["plum", "welcome to my crib", "certified gremlin"]);
+});

@@ -8,7 +8,10 @@ import {
   HttpError,
   archivePostRowsStatement,
   isValidPassword,
+  isValidBannerColor,
   isValidProfileAccent,
+  scopeProfileCss,
+  CUSTOM_CSS_MAX_BYTES,
   json,
   nowSeconds,
   rateLimit,
@@ -73,6 +76,12 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       // Profile themes (v2.5): the whitelisted accent KEY for the client's
       // per-key CSS class ("" normalizes rows missing the projection).
       profileAccent: isValidProfileAccent(user.profile_accent || "") ? user.profile_accent : "",
+      bannerColor: isValidBannerColor(user.banner_color || "") ? user.banner_color : "",
+      bannerText: applyWordFilter(user.banner_text || "", env.FILTERED_WORDS) || "",
+      flair: applyWordFilter(user.flair || "", env.FILTERED_WORDS) || "",
+      // Custom CSS (v2.5): only the APPROVED css serves, pre-scoped by the
+      // sandbox (shared.mjs); pending rewrites stay invisible to the public.
+      customCss: scopeProfileCss(user.approved_css || ""),
       bio: user.bio || "",
       socials: socialsFromRow(user),
       polytoriaUsername: user.polytoria_username || null,
@@ -95,8 +104,11 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
     const hasBio = body.bio !== undefined;
     const hasSocials = body.socials !== undefined;
     const hasAccent = body.profileAccent !== undefined;
-    if (!hasBio && !hasSocials && !hasAccent) {
-      throw new HttpError(400, "Provide a bio, socials, or accent value to update.");
+    const hasBannerColor = body.bannerColor !== undefined;
+    const hasBannerText = body.bannerText !== undefined;
+    const hasFlair = body.flair !== undefined;
+    if (!hasBio && !hasSocials && !hasAccent && !hasBannerColor && !hasBannerText && !hasFlair) {
+      throw new HttpError(400, "Provide a bio, socials, accent, banner, or flair value to update.");
     }
     let bio = null;
     if (hasBio) {
@@ -134,6 +146,28 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
     }
 
     let profileAccent = null;
+    let bannerColor = null;
+    let bannerText = null;
+    let flair = null;
+    if (hasBannerColor) {
+      if (!isValidBannerColor(body.bannerColor)) {
+        throw new HttpError(400, "That banner color is not available.");
+      }
+      bannerColor = body.bannerColor;
+    }
+    if (hasBannerText) {
+      // The banner text rides the word filter like a tiny post.
+      if (typeof body.bannerText !== "string" || body.bannerText.trim().length > 80) {
+        throw new HttpError(400, "Banner text must be 80 characters or fewer.");
+      }
+      bannerText = applyWordFilter(body.bannerText.trim(), env.FILTERED_WORDS);
+    }
+    if (hasFlair) {
+      if (typeof body.flair !== "string" || body.flair.trim().length > 32) {
+        throw new HttpError(400, "Flairs must be 32 characters or fewer.");
+      }
+      flair = applyWordFilter(body.flair.trim(), env.FILTERED_WORDS);
+    }
     if (hasAccent) {
       // Profile themes (v2.5): the stored value is a WHITELISTED palette key
       // (api/shared.mjs PROFILE_ACCENTS) — never raw CSS; "" clears the theme.
@@ -159,6 +193,18 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
       assignments.push("profile_accent = ?");
       params.push(profileAccent);
     }
+    if (hasBannerColor) {
+      assignments.push("banner_color = ?");
+      params.push(bannerColor);
+    }
+    if (hasBannerText) {
+      assignments.push("banner_text = ?");
+      params.push(bannerText);
+    }
+    if (hasFlair) {
+      assignments.push("flair = ?");
+      params.push(flair);
+    }
     if (assignments.length === 0) {
       throw new HttpError(400, "Provide a bio, socials, or accent value to update.");
     }
@@ -178,7 +224,99 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
     if (hasAccent) {
       response.profileAccent = profileAccent;
     }
+    if (hasBannerColor) response.bannerColor = bannerColor;
+    if (hasBannerText) response.bannerText = bannerText;
+    if (hasFlair) response.flair = flair;
     return json(response);
+  }
+  return null;
+}
+
+
+
+// Custom profile CSS (v2.5): members submit raw CSS (≤20 KiB); it lands
+// pending (the previously approved CSS keeps serving — the avatar-mirror
+// rule), and only moderators flip it. The profile payload carries only the
+// APPROVED css, pre-scoped via scopeProfileCss (shared.mjs's sandbox).
+async function handleCssSetRoute(request, env, url, path, method) {
+  if (path !== "/api/me/css" || method !== "POST") return null;
+  const session = await requireUser(request, env);
+  await assertNotBanned(env, session.user.id);
+  await rateLimit(request, env, "write");
+  await rateLimit(request, env, "avatar-upload", String(session.user.id));
+  const raw = await readLimitedBody(request, CUSTOM_CSS_MAX_BYTES + 1024);
+  const cssText = new TextDecoder().decode(raw).trim();
+  if (cssText.length > CUSTOM_CSS_MAX_BYTES) {
+    throw new HttpError(413, "Custom CSS must be 20 KiB or smaller.");
+  }
+  const hasApproved = await env.FORUM_DB.prepare(
+    "SELECT approved_css FROM users WHERE id = ? LIMIT 1",
+  ).bind(session.user.id).first();
+  await env.FORUM_DB.batch([
+    env.FORUM_DB.prepare(
+      "UPDATE users SET pending_css = ?, css_status = 'pending' WHERE id = ?",
+    ).bind(cssText, session.user.id),
+  ]);
+  return json({
+    pending: cssText,
+    serving: hasApproved && hasApproved.approved_css ? "previous-approved" : "none",
+  });
+}
+
+async function handleCssClearRoute(request, env, url, path, method) {
+  if (path !== "/api/me/css" || method !== "DELETE") return null;
+  const session = await requireUser(request, env);
+  await assertNotBanned(env, session.user.id);
+  await rateLimit(request, env, "write");
+  await env.FORUM_DB.batch([
+    env.FORUM_DB.prepare(
+      "UPDATE users SET pending_css = NULL, css_status = 'none' WHERE id = ?",
+    ).bind(session.user.id),
+  ]);
+  return json({ cleared: true });
+}
+
+// The css moderation desk (mirrors avatars): pending list oldest first,
+// approve promotes pending→approved in the same single batch, reject clears.
+async function handleCssAdminRoutes(request, env, url, path, method) {
+  const db = env.FORUM_DB;
+  if (path === "/api/admin/css" && method === "GET") {
+    await requireModerator(request, env, false);
+    const result = await db.prepare(
+      "SELECT id, username, pending_css, css_status FROM users " +
+      "WHERE css_status = 'pending' AND pending_css IS NOT NULL ORDER BY id LIMIT 100",
+    ).all();
+    return json({
+      cssSubmissions: (result.results || []).map((row) => ({
+        userId: Number(row.id),
+        username: row.username,
+        css: String(row.pending_css ?? ""),
+        bytes: String(row.pending_css ?? "").length,
+      })),
+    });
+  }
+  const cssMatch = path.match(/^\/api\/admin\/css\/([0-9]+)\/(approve|reject)$/);
+  if (cssMatch && method === "POST") {
+    const session = await requireModerator(request, env);
+    await assertNotBanned(env, session.user.id);
+    const userId = Number(cssMatch[1]);
+    if (!Number.isSafeInteger(userId) || userId < 1) throw new HttpError(404, "Not found.");
+    if (cssMatch[2] === "approve") {
+      const approved = await db.batch([
+        db.prepare(
+          "UPDATE users SET approved_css = pending_css, pending_css = NULL, css_status = 'approved' " +
+          "WHERE id = ? AND css_status = 'pending' AND pending_css IS NOT NULL",
+        ).bind(userId),
+      ]);
+      if (Number(approved[0]?.meta?.changes) !== 1) throw new HttpError(404, "Not found.");
+      return json({ approved: true, id: userId });
+    }
+    const rejected = await db.batch([
+      db.prepare("UPDATE users SET pending_css = NULL, css_status = 'none' WHERE id = ? AND css_status = 'pending'")
+        .bind(userId),
+    ]);
+    if (Number(rejected[0]?.meta?.changes) !== 1) throw new HttpError(404, "Not found.");
+    return json({ rejected: true, id: userId });
   }
   return null;
 }
@@ -356,7 +494,10 @@ async function handleProfileRoutes(request, env, url, path, method) {
     handleAvatarReadRoute,
     handleUserProfileRoute,
     handleProfileUpdateRoute,
+    handleCssSetRoute,
+    handleCssClearRoute,
     handleAvatarUploadRoute,
+    handleCssAdminRoutes,
     handlePasswordChangeRoute,
     handleAccountDeleteRoute,
   ];

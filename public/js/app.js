@@ -76,9 +76,37 @@ let router;
 let currentUser = null;
 let activeRoute = { name: "home" };
 let renderVersion = 0;
+// Milestone badges (v2.5): display-only, computed from the profile's
+// contribution counts — the thresholds graduate as the member posts.
+function profileBadgeFor(totalContributions) {
+  if (totalContributions >= 500) return "🏆 forum legend";
+  if (totalContributions >= 100) return "💯 centurion";
+  if (totalContributions >= 50) return "⭐ regular";
+  if (totalContributions >= 10) return "💬 conversationalist";
+  if (totalContributions >= 1) return "🌱 newcomer";
+  return null;
+}
+
 // Profile themes (v2.5): main outlives routes, so the accent class is
 // tracked and cleared before the next profile render.
 let activeProfileAccentClass = null;
+let bannerColorClass = null;
+let activeProfileStyleNode = null;
+function applyProfileTheme(profile) {
+  const themeId = Number(profile.id || 0);
+  if (activeProfileStyleNode) {
+    activeProfileStyleNode.remove();
+    activeProfileStyleNode = null;
+  }
+  if (!profile.customCss) return;
+  // A same-origin STYLESHEET link (style-src 'self' allows it — no CSP
+  // change); the scoped css is a fetched css URL, never an inline <style>.
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "/api/users/" + themeId + "/profile.css";
+  document.head.append(link);
+  activeProfileStyleNode = link;
+}
 
 // Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
 // its composer tags root posts with board=suggestions (form dataset flag read
@@ -500,9 +528,15 @@ function appendProfileRoleControls(profile, session, container) {
 }
 
 function renderProfile(profile, session) {
+  // Custom profile CSS (v2.5): the payload's css is ALREADY scoped (the
+  // server's sandbox); it lands as a <style> element with a textContent and
+  // the wrapper class the sandbox prefixes to. Removed on the next render (a
+  // tracked module node, like the accent class).
+  applyProfileTheme(profile);
   // Profile themes (v2.5): the accent is a whitelisted KEY from the server;
   // a per-key CSS class applies the color (no inline styles, CSP-pure).
   main.classList.add("profile-section");
+  main.classList.add("profile-theme-scope");
   if (activeProfileAccentClass) main.classList.remove(activeProfileAccentClass);
   activeProfileAccentClass = null;
   if (profile.profileAccent) {
@@ -517,10 +551,25 @@ function renderProfile(profile, session) {
     heading.append(image);
   }
   addHeading(heading, profile.username, 1);
+  // Flair (v2.5): a short filtered label under the name; next to it the
+  // milestone badge (v2.5, display-only, computed from the counter).
+  const flairRow = element("p", "profile-flair-row");
+  if (profile.flair) flairRow.append(element("span", "profile-flair", profile.flair));
+  const badgeText = profileBadgeFor(Number(profile.postsCount || 0) + Number(profile.repliesCount || 0));
+  if (badgeText) flairRow.append(element("span", "profile-badge", badgeText));
+  if (flairRow.children.length) heading.append(flairRow);
   // Per-user post counter (v2.5): threads started + replies written, in the
   // profile heading (muted; display-only).
   heading.append(element("p", "profile-post-counts",
     `${Number(profile.postsCount || 0)} posts · ${Number(profile.repliesCount || 0)} replies`));
+  // Banner (v2.5): a whitelisted color KEY class + the filtered banner text.
+  if (profile.bannerColor) {
+    main.classList.add("profile-banner-" + profile.bannerColor);
+    bannerColorClass = "profile-banner-" + profile.bannerColor;
+  }
+  const banner = element("div", "profile-banner");
+  if (profile.bannerText) banner.append(element("span", "profile-banner-text", profile.bannerText));
+  main.insertBefore(banner, heading);
   // The pending-upload status comes from the session payload (the profile
   // payload does not carry avatarStatus), so only the owner sees the badge —
   // everyone else just sees the currently approved avatar.
@@ -550,7 +599,7 @@ function renderProfile(profile, session) {
   renderProfilePosts(profile, session.user);
 }
 
-function renderAdmin(reportData, banData, avatarData, attachmentData, user) {
+function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, user) {
   addHeading(main, "Moderation desk", 1);
   addText(document, main, "p", "Review reports, hide inappropriate posts, and manage active bans.", "page-lede");
   addHeading(main, "Open reports", 2);
@@ -559,6 +608,8 @@ function renderAdmin(reportData, banData, avatarData, attachmentData, user) {
   main.append(createAvatarQueue(avatarData.avatars, document));
   addHeading(main, "Images awaiting review", 2);
   main.append(createAttachmentQueue(attachmentData.attachments, document));
+  addHeading(main, "Profile CSS awaiting review", 2);
+  main.append(createCssQueue(cssData.cssSubmissions, document));
   addHeading(main, "Active bans", 2);
   main.append(createActiveBanList(banData.bans, document));
 }
@@ -764,15 +815,41 @@ async function renderProfileRoute(route, context, version) {
   renderProfile(profile, context.session);
 }
 
+function createCssQueue(submissions, document) {
+  const container = element("div", "css-queue");
+  if (!submissions.length) {
+    addText(document, container, "p", "No CSS waiting for review.", "empty-state");
+    return container;
+  }
+  for (const submission of submissions) {
+    const item = element("div", "css-queue-item");
+    const head = element("p", "css-queue-head", submission.username + " — " + submission.bytes + " chars");
+    const preview = element("pre", "css-queue-preview");
+    preview.textContent = submission.css;
+    const approve = element("button", "button", "Approve");
+    approve.type = "button";
+    approve.dataset.action = "css-approve";
+    approve.dataset.userId = String(submission.userId);
+    const reject = element("button", "button button-quiet", "Reject");
+    reject.type = "button";
+    reject.dataset.action = "css-reject";
+    reject.dataset.userId = String(submission.userId);
+    item.append(head, preview, approve, reject);
+    container.append(item);
+  }
+  return container;
+}
+
 async function renderAdminRoute(context, version) {
-  const [reports, bans, avatars, attachments] = await Promise.all([
+  const [reports, bans, avatars, attachments, css] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/bans"),
     api("/api/admin/avatars"),
     api("/api/admin/attachments"),
+    api("/api/admin/css"),
   ]);
   if (version !== renderVersion) return;
-  renderAdmin(reports, bans, avatars, attachments, context.session.user);
+  renderAdmin(reports, bans, avatars, attachments, css, context.session.user);
 }
 
 async function renderNotificationsRoute(context, version) {
@@ -801,10 +878,17 @@ async function renderRoute(route) {
   // Profile themes (v2.5): main outlives routes — a member's accent class
   // must never tint another route (the review caught exactly that).
   main.classList.remove("profile-section");
+  if (bannerColorClass) {
+    main.classList.remove(bannerColorClass);
+    bannerColorClass = null;
+  }
   if (activeProfileAccentClass) {
     main.classList.remove(activeProfileAccentClass);
     activeProfileAccentClass = null;
   }
+    activeProfileStyleNode = null;
+  }
+  main.classList.remove("profile-theme-scope");
   teardownTurnstile();
   main.replaceChildren();
   setMessage();
@@ -1460,6 +1544,33 @@ async function handleButtonAction(button) {
     },
     "delete-post": () => openDeletePostDialog(button),
     "delete-account": () => openDeleteAccountDialog(),
+    "save-profile-css": async (button) => {
+      // Custom CSS (v2.5): POST the textarea's raw css to /api/me/css; it
+      // lands pending for a moderator. The note is review-first wording.
+      const form = button.closest("div");
+      const input = form?.querySelector("[data-css-input]");
+      if (!input) return;
+      if (!input.value.trim()) {
+        setMessage("Write some CSS first, or use Remove to clear it.", true);
+        return;
+      }
+      await api("/api/me/css", { method: "POST", body: input.value });
+      setMessage("CSS saved — a moderator will review it.");
+    },
+    "clear-profile-css": async () => {
+      await api("/api/me/css", { method: "DELETE" });
+      setMessage("Custom CSS removed.");
+    },
+    "css-approve": async (button) => {
+      await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/approve", { method: "POST" });
+      button.closest(".css-queue-item")?.remove();
+      setMessage("CSS approved.");
+    },
+    "css-reject": async (button) => {
+      await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/reject", { method: "POST" });
+      button.closest(".css-queue-item")?.remove();
+      setMessage("CSS rejected.");
+    },
     "set-profile-accent": async () => {
       // Profile themes (v2.5): the swatch's data-accent is a whitelisted KEY
       // ("" = clear). The server re-validates; success re-renders the route.

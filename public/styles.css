@@ -1573,3 +1573,9 @@ dialog h2 {
   width: auto;
   display: block;
 }
+
+/* Custom profile CSS (v2.5): the wrapper class the sandbox's selectors
+   prefix; the container itself gets nothing custom unless the CSS says so. */
+.profile-theme-scope {
+  /* the scope root — member CSS rules land inside it */
+}

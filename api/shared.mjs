@@ -491,7 +491,7 @@ function socialsFromRow(row) {
 
 async function userByUsernameKey(env, key) {
   return env.FORUM_DB.prepare(
-    "SELECT id, username, username_key, password_salt, password_hash, role, bio, profile_accent, " +
+    "SELECT id, username, username_key, password_salt, password_hash, role, bio, profile_accent, banner_color, banner_text, flair, approved_css, " +
       SOCIAL_SELECT_COLUMNS +
       "avatar_status, avatar_mime, avatar_updated_at, avatar_version " +
       "FROM users WHERE username_key = ? LIMIT 1",
@@ -502,6 +502,19 @@ async function userByUsernameKey(env, key) {
 // table — never raw CSS. The stored value is one of these ids ("" = no custom
 // accent); clients look the colors up, so nothing user-chosen ever reaches
 // CSS as a string. Colors are theme-stable (they read fine on dark too).
+export const PROFILE_BANNER_COLORS = {
+  "": null,
+  green: "#397357",
+  rust: "#b05334",
+  gold: "#d9a627",
+  slate: "#4a5a70",
+  plum: "#7c5480",
+};
+
+export function isValidBannerColor(value) {
+  return typeof value === "string" && Object.prototype.hasOwnProperty.call(PROFILE_BANNER_COLORS, value);
+}
+
 export const PROFILE_ACCENTS = {
   "": null,
   forest: "#3f8a63",
@@ -713,4 +726,88 @@ export function archivePostRowsStatement(db, whereSql, binds, reason, deletedAt)
     "FROM posts p LEFT JOIN users u ON u.id = p.author_id " +
     "WHERE (" + whereSql + ") AND NOT EXISTS (SELECT 1 FROM post_archive a WHERE a.original_post_id = p.id)",
   ).bind(deletedAt, reason, ...binds);
+}
+
+// Custom profile CSS (v2.5): the sandbox. Mods approve the TEXT, and at serve
+// time the raw CSS is re-scoped before it ever reaches a page:
+//   1. Every rule's selectors are prefixed with .profile-theme-scope (a
+//      per-profile container class), so nothing can escape its container.
+//   2. An @-block pass-through keeps @media/@keyframes working; @import and
+//      any other at-rule are dropped (url/resource smuggling surface).
+//   3. A blocklist strips the properties that could escape or hijack: any
+//      fixed positioning, z-index above 1, and everything the whitelist
+//      doesn't recognize as a cosmetic property (allow-list, not block-list:
+//      unknown properties are dropped — browsers ignore them anyway).
+// Residual risk is accepted-with-approval: a moderator reads the CSS before
+// it goes live, and the CSP still gates every url() to same-origin.
+const PROFILE_CSS_PROPERTY_ALLOW = new Set([
+  "color", "background", "background-color", "background-image", "background-position", "background-size", "background-repeat",
+  "border", "border-color", "border-width", "border-style", "border-radius",
+  "font", "font-family", "font-size", "font-style", "font-weight",
+  "letter-spacing", "line-height", "text-align", "text-transform", "text-decoration", "text-shadow",
+  "padding", "padding-left", "padding-right", "padding-top", "padding-bottom",
+  "margin", "margin-left", "margin-right", "margin-top", "margin-bottom",
+  "width", "height", "max-width", "max-height", "min-width", "min-height",
+  "opacity", "transform", "box-shadow", "display", "align-items", "justify-content",
+  "flex-direction", "flex-wrap", "gap", "overflow", "overflow-x", "overflow-y",
+  "object-fit", "object-position", "filter", "backdrop-filter", "border-bottom", "border-top",
+  "border-left", "border-right", "border-bottom-color", "border-top-color",
+  "border-left-color", "border-right-color",
+]);
+
+export const CUSTOM_CSS_MAX_BYTES = 20 * 1024;
+
+export function scopeProfileCss(rawCss) {
+  const text = String(rawCss ?? "");
+  if (!text.trim()) return "";
+  const sanitizedRules = [];
+  let index = 0;
+  while (index < text.length) {
+    const open = text.indexOf("{", index);
+    if (open === -1) break;
+    const close = text.indexOf("}", open);
+    if (close === -1) break;
+    const selectorText = text.slice(index, open).trim();
+    const bodyText = text.slice(open + 1, close);
+    index = close + 1;
+    if (selectorText.startsWith("@")) {
+      const atName = selectorText.slice(0, selectorText.match(/\s|\{/)?.index ?? selectorText.length).toLowerCase();
+      if (atName === "@media") {
+        // Media blocks recurse one level: scope the inner rules.
+        const inner = scopeProfileCss(bodyText);
+        sanitizedRules.push("@media" + selectorText.slice("@media".length) + "{" + inner + "}");
+      } else if (atName === "@keyframes" || atName === "@-webkit-keyframes") {
+        // Keyframes pass through but only their percentage selectors + allow-
+        // listed properties; the wrapper class prefix must NOT apply (keyframe
+        // selectors are percentages).
+        sanitizedRules.push(selectorText + "{" + sanitizeDeclarationBody(bodyText) + "}");
+      }
+      // Everything else (@import, @font-face, @supports…) is dropped.
+      continue;
+    }
+    const scoped = selectorText
+      .split(",")
+      .map((selector) => ".profile-theme-scope " + selector.trim())
+      .join(", ");
+    const body = sanitizeDeclarationBody(bodyText);
+    if (body) sanitizedRules.push(scoped + "{" + body + "}");
+  }
+  return sanitizedRules.join("\n");
+}
+
+// Property allow-list for one declaration body; url() survives only for the
+// same-origin / static assets path (the CSP gates it further either way).
+function sanitizeDeclarationBody(body) {
+  const kept = [];
+  for (const declaration of body.split(";")) {
+    const prop = declaration.slice(0, declaration.indexOf(":") > -1 ? declaration.indexOf(":") : 0).trim().toLowerCase();
+    const value = declaration.includes(":") ? declaration.slice(declaration.indexOf(":") + 1).trim() : "";
+    if (!prop || !value) continue;
+    if (prop === "z-index") continue; // stacking hijacks never pass
+    if (value.toLowerCase().includes("position") && prop === "position" && /(fixed|sticky)/.test(value.toLowerCase())) continue;
+    if (!PROFILE_CSS_PROPERTY_ALLOW.has(prop)) continue;
+    if (/(javascript:|expression\(|@import)/i.test(value)) continue;
+    kept.push(prop + ":" + value);
+  }
+  return kept.join(";");
 }
