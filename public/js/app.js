@@ -1150,13 +1150,12 @@ function composerSubmissionSignature({ body, files = [], gifs = [], board = null
 }
 
 function composerIdempotencyKey(form, signature) {
-  if (!form.dataset.idempotencyKey) {
+  // Keep a key only while the draft is unchanged. Ambiguous/network failures
+  // retry with the same key; editing the draft starts a distinct submission.
+  if (!form.dataset.idempotencyKey || form.dataset.idempotencySignature !== signature) {
     form.dataset.idempotencyKey = crypto.randomUUID();
     form.dataset.idempotencySignature = signature;
   }
-  // Keep the key after ambiguous/network failures. The server compares the
-  // actual payload fingerprint and refuses a changed retry instead of silently
-  // returning the old post. The user can then submit again with a fresh key.
   return form.dataset.idempotencyKey;
 }
 
