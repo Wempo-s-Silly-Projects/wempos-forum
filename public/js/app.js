@@ -630,7 +630,7 @@ function renderProfile(profile, session) {
     image.alt = `Avatar of ${profile.username}`;
     heading.append(image);
   }
-  addHeading(heading, profile.username, 1);
+  addHeading(heading, profile.username, 1).classList.add("profile-name");
   // Flair (v2.5): a short filtered label under the name; next to it the
   // milestone badge (v2.5, display-only, computed from the counter).
   const flairRow = element("p", "profile-flair-row");
@@ -649,6 +649,7 @@ function renderProfile(profile, session) {
   }
   const banner = element("div", "profile-banner");
   if (profile.bannerText) banner.append(element("span", "profile-banner-text", profile.bannerText));
+  banner.hidden = !profile.bannerColor && !profile.bannerText;
   // The heading is appended AFTER this block — insertBefore on a not-yet-
   // attached node throws (the owner hit exactly that on the live site);
   // appending the banner first yields the same above-the-heading order.
@@ -1205,7 +1206,13 @@ async function submitProfileEditorForm(form, text) {
   // profile from GET /api/users/:username rather than trusting the response.
   await api("/api/me", {
     method: "PATCH",
-    body: { bio: text("bio"), socials },
+    body: {
+      bio: text("bio"),
+      socials,
+      bannerColor: text("bannerColor").trim(),
+      bannerText: text("bannerText").trim(),
+      flair: text("flair").trim(),
+    },
   });
   await renderRoute({ name: "profile", username: currentUser.username });
   setMessage("Your profile was updated.");
@@ -1567,6 +1574,34 @@ function confirmGifPicker(button) {
   }
   renderComposerGifStrip(form);
 }
+async function uploadCommunityGif(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const upload = new FormData();
+    upload.append("gif", file, file.name);
+    const result = await api("/api/gifs", { method: "POST", body: upload });
+    const form = connectedComposer(activeGifComposerForm);
+    if (result.reuse && form) {
+      const { added } = addGifsToComposer(form, [result.id]);
+      renderComposerGifStrip(form);
+      if (added.length) {
+        gifPickerDialog()?.close();
+        activeGifComposerForm = null;
+        setMessage("That GIF is already approved and has been attached.");
+      } else {
+        setMessage("That GIF is approved, but this composer has no free attachment slots.", true);
+      }
+    } else {
+      setMessage(result.reuse
+        ? "That GIF is already in the approved library."
+        : "GIF submitted for moderator review.");
+    }
+  } finally {
+    input.value = "";
+  }
+}
+
 function connectedComposer(form) {
   return form && form.isConnected ? form : null;
 }
@@ -1834,6 +1869,17 @@ async function handleButtonAction(button) {
     },
     "confirm-gif-picker": () => confirmGifPicker(button),
     "cancel-gif-picker": () => { activeGifComposerForm = null; gifPickerDialog()?.close(); },
+    "choose-gif-upload": () => document.querySelector("#gif-marketplace-file")?.click(),
+    "gif-approve": async () => {
+      await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/approve", { method: "POST" });
+      await renderRoute(activeRoute);
+      setMessage("GIF approved and added to the public library.");
+    },
+    "gif-reject": async () => {
+      await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/reject", { method: "POST" });
+      await renderRoute(activeRoute);
+      setMessage("GIF submission rejected.");
+    },
     "remove-gif": () => {
       const form = button.closest("form");
       if (!form) return;
@@ -1949,8 +1995,11 @@ attachmentLightbox?.addEventListener("click", () => attachmentLightbox.close());
 // chosen list at change time (cap + size messages surface on the status bar).
 document.addEventListener("change", (event) => {
   const input = event.target;
-  if (input instanceof HTMLInputElement && input.dataset.composerInput === "images") {
+  if (!(input instanceof HTMLInputElement)) return;
+  if (input.dataset.composerInput === "images") {
     handleComposerFileSelection(input);
+  } else if (input.dataset.composerInput === "gif-marketplace") {
+    uploadCommunityGif(input).catch((error) => setMessage(error.message, true));
   }
 });
 document.addEventListener("submit", async (event) => {
