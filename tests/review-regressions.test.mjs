@@ -52,7 +52,7 @@ test("CSS moderation decisions are tied to the exact reviewed submission", async
   const app = await read("public/js/app.js");
   assert.match(profiles, /version: await cssSubmissionVersion\(css\)/);
   assert.match(profiles, /approved_css = \?, pending_css = NULL, css_status = 'approved'/);
-  assert.match(profiles, /WHERE id = \\? AND css_status = 'pending' AND pending_css = \\?/);
+  assert.match(profiles, /WHERE id = \? AND css_status = 'pending' AND pending_css = \?/);
   assert.match(profiles, /changed after it was loaded/);
   assert.match(app, /approve\?version=/);
   assert.match(app, /reject\?version=/);
