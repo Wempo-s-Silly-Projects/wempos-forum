@@ -257,6 +257,23 @@ export const createPostCard = (post, document, currentUser = null) => {
   const viewsHidden = createElement(document, "span", "visually-hidden", "views");
   views.append(viewsHidden, document.createTextNode(String(Number(post.viewCount || 0))));
   actions.append(views);
+  // Bookmarks (C4): signed-in members get a save toggle on every card; the
+  // state is data-driven off the payload's viewerBookmarked (guest payloads
+  // never carry it, so guests never see the toggle).
+  if (currentUser) {
+    const bookmarkButton = createElement(document, "button", "button button-quiet bookmark-toggle");
+    bookmarkButton.type = "button";
+    bookmarkButton.dataset.action = "toggle-bookmark";
+    bookmarkButton.dataset.postId = String(post.id);
+    bookmarkButton.setAttribute("aria-pressed", String(Boolean(post.viewerBookmarked)));
+    bookmarkButton.setAttribute("aria-label",
+      post.viewerBookmarked ? "Remove from saved posts" : "Save this post");
+    bookmarkButton.append(
+      createIcon(document, "bookmark"),
+      document.createTextNode(post.viewerBookmarked ? "Saved" : "Save"),
+    );
+    actions.append(bookmarkButton);
+  }
   // Reply-count chip (plan v2.3): only threads carrying comments get one;
   // replyCount 0 (or an un-decorated payload) renders no chip at all.
   // Number() on undefined yields NaN, so the guard handles both shapes.

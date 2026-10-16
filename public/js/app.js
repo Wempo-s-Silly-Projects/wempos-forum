@@ -346,6 +346,15 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   });
   profile.setAttribute("data-app-link", "");
   accountActions.append(profile);
+  // Bookmarks (C4): the private saved list — members only.
+  const saved = iconButton(document, "bookmarks", {
+    tagName: "a",
+    className: "button button-secondary icon-button",
+    ariaLabel: "Saved posts",
+    dataset: { href: "/bookmarks" },
+  });
+  saved.setAttribute("data-app-link", "");
+  accountActions.append(saved);
   accountActions.append(createNotificationBell(unreadNotifications, document));
   if (user.role === "admin" || user.role === "moderator") {
     const reports = iconButton(document, "shield", {
@@ -651,6 +660,7 @@ function setRouteTitle(route) {
     profile: "Profile",
     admin: "Moderation",
     notifications: "Notifications",
+    bookmarks: "Saved posts",
     setup: "First-time setup",
     "not-found": "Not found",
   };
@@ -792,6 +802,28 @@ async function renderSuggestionsRoute(context, version) {
   main.append(older);
 }
 
+// Bookmarks (C4): the private "Saved" page — the member's own saved list.
+// Guests get a sign-in prompt (the API 401s the private list regardless).
+const BOOKMARKS_EMPTY_TEXT = "Nothing saved yet. Use the Save button on a post.";
+async function renderBookmarksRoute(context, version) {
+  if (!context.session.user) {
+    addHeading(main, "Saved posts", 2);
+    addText(document, main, "p", "Sign in to see your saved posts.", "muted");
+    const signIn = element("a", "button button-secondary", "Sign in");
+    signIn.href = "/#join";
+    signIn.setAttribute("data-app-link", "");
+    main.append(signIn);
+    return;
+  }
+  const data = await api("/api/me/bookmarks");
+  if (version !== renderVersion) return;
+  addHeading(main, "Saved posts", 2);
+  // Privacy note: this list belongs to the signed-in account.
+  addText(document, main, "p", "Your saved list is private to you.", "muted");
+  appendPostList(main, data.bookmarks, document, context.session.user,
+    BOOKMARKS_EMPTY_TEXT);
+}
+
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
   if (version !== renderVersion) return;
@@ -921,6 +953,7 @@ async function renderRoute(route) {
     profile: () => renderProfileRoute(route, context, version),
     admin: () => renderAdminRoute(context, version),
     notifications: () => renderNotificationsRoute(context, version),
+    bookmarks: () => renderBookmarksRoute(context, version),
     "not-found": () => renderNotFoundRoute(),
   };
   const renderPage = renderers[route.name] || renderNotFoundRoute;
@@ -1584,6 +1617,16 @@ async function handleButtonAction(button) {
     // (dataset.subscribed) picks the direction — POST to follow, DELETE to
     // stop — and the route re-render refetches the post, so the payload's
     // subscribed state comes back from the server, never from the echo.
+    "toggle-bookmark": async () => {
+      // Bookmarks (C4): both directions are idempotent server-side; the
+      // route re-render refetches the payload's fresh state.
+      const bookmarked = String(button.getAttribute("aria-pressed")) === "true";
+      await api("/api/posts/" + button.dataset.postId + "/bookmark", {
+        method: bookmarked ? "DELETE" : "PUT",
+      });
+      await renderRoute(activeRoute);
+      setMessage(bookmarked ? "Removed from your saved posts." : "Saved.");
+    },
     "toggle-subscribe": async () => {
       const subscribed = button.dataset.subscribed === "1";
       await api("/api/posts/" + button.dataset.postId + "/subscribe", {

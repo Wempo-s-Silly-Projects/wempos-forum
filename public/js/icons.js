@@ -23,6 +23,10 @@ const ICON_PATHS = {
   lightbulb: ["M9 18h6", "M10 22h4", "M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z"],
   // Polls (C3): a bar chart — the composer's Poll button.
   poll: ["M5 20V11", "M12 20V4", "M19 20v-5", "M2 20h20"],
+  // Bookmarks (C4): the ribbon — save/unsave a post.
+  bookmark: ["M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"],
+  // Saved list (C4): the bookmark with a line set — list of saves.
+  bookmarks: ["M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z", "M9 7h6"],
 };
 
 const ICON_ARIA = {
@@ -33,6 +37,7 @@ const ICON_ARIA = {
   archive: "Archive",
   shield: "Moderation",
   lightbulb: "Suggestions",
+  bookmarks: "Saved posts",
 };
 
 export const ICON_NAMES = Object.keys(ICON_PATHS);

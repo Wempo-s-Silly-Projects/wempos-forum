@@ -6,6 +6,7 @@ export const routeForPath = (pathname, search = "") => {
   if (pathname === "/setup") return { name: "setup" };
   if (pathname === "/admin/reports") return { name: "admin" };
   if (pathname === "/notifications") return { name: "notifications" };
+  if (pathname === "/bookmarks") return { name: "bookmarks" };
   if (pathname === "/suggestions") return { name: "suggestions" };
   if (pathname === "/archive") return { name: "archive" };
   if (pathname === "/mine") return { name: "mine" };

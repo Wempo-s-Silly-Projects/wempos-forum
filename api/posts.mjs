@@ -10,6 +10,7 @@ import { applyWordFilter } from "./filter.mjs";
 import { notificationBatchStatements } from "./notifications.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
 import { pollPayload } from "./polls.mjs";
+import { bookmarkFlagForViewer, withBookmarkFlags } from "./bookmarks.mjs";
 import { subscriberFlagForViewer, subscriptionReplyFanOut } from "./subscriptions.mjs";
 import {
   archivePostRowsStatement,
@@ -211,8 +212,8 @@ async function listRootPosts(env, viewer, options = {}) {
     const last = shown.length ? shown[shown.length - 1] : null;
     return {
       // Root queries only (parent_id IS NULL): every shown row is a level-0 root.
-      posts: await withReplyMetadata(env.FORUM_DB, viewer,
-        await withAttachments(env.FORUM_DB, viewer, shown.map((row) => publicPost(row, 0)))),
+      posts: await withBookmarkFlags(env.FORUM_DB, viewer, await withReplyMetadata(env.FORUM_DB, viewer,
+        await withAttachments(env.FORUM_DB, viewer, shown.map((row) => publicPost(row, 0))))),
       nextBefore: hasMore && last
         ? Number(last.last_activity_at) + "_" + Number(last.id)
         : null,
@@ -244,8 +245,8 @@ async function listRootPosts(env, viewer, options = {}) {
       // feed (root queries only, publicPost level 0), so replyCount,
       // latestReplies, attachments, and publicLevel annotate every card
       // unchanged — the board filter never touches the decoration SQL.
-      posts: await withReplyMetadata(env.FORUM_DB, viewer,
-        await withAttachments(env.FORUM_DB, viewer, shown.map((row) => publicPost(row, 0)))),
+      posts: await withBookmarkFlags(env.FORUM_DB, viewer, await withReplyMetadata(env.FORUM_DB, viewer,
+        await withAttachments(env.FORUM_DB, viewer, shown.map((row) => publicPost(row, 0))))),
       // The cursor's score half comes from the row's own like/dislike counts —
       // the identical tally the ORDER BY expression computes, so the emitted
       // cursor always sorts exactly where the row was shown.
@@ -271,8 +272,8 @@ async function listRootPosts(env, viewer, options = {}) {
   const rows = result.results || [];
   const hasMore = rows.length > 20;
   const shown = rows.slice(0, 20).map((row) => publicPost(row, 0));
-  const posts = await withReplyMetadata(env.FORUM_DB, viewer,
-    await withAttachments(env.FORUM_DB, viewer, shown));
+  const posts = await withBookmarkFlags(env.FORUM_DB, viewer, await withReplyMetadata(env.FORUM_DB, viewer,
+    await withAttachments(env.FORUM_DB, viewer, shown)));
   return { posts, nextBefore: hasMore && shown.length ? shown[shown.length - 1].id : null };
 }
 
@@ -472,6 +473,11 @@ async function handlePostDetailRoute(request, env, url, path, method) {
     // state (root-only dimension — replies read false without a query, like
     // boards read 'general' on pre-migration rows).
     post.subscribed = await subscriberFlagForViewer(env.FORUM_DB, viewerId, row);
+    // Bookmarks (C4): the detail carries the viewer's saved state too (guests
+    // read no such query — the field is simply absent for them).
+    if (viewerId !== null) {
+      post.viewerBookmarked = await bookmarkFlagForViewer(env.FORUM_DB, viewerId, postId);
+    }
     // Polls (C3): the poll rides the ROOT's detail read (replies carry none).
     // Results are always visible; the viewer's own option rides for members.
     if (!row.parent_id) {
@@ -900,4 +906,4 @@ async function handlePostRoutes(request, env, url, path, method) {
   return null;
 }
 
-export { handlePostRoutes, listRootPosts, listReplies };
+export { banFilterSql, handlePostRoutes, listRootPosts, listReplies };

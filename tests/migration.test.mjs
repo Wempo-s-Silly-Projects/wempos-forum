@@ -982,8 +982,10 @@ test("migration 0009 adds a NOT NULL view_count defaulting to zero", () => {
 // transaction, in filename order).
 
 const MIGRATION_0013 = readFileSync(path.join(repoRoot, "migrations", "0013_subscriptions.sql"), "utf8");
+const MIGRATION_0015 = readFileSync(path.join(repoRoot, "migrations", "0015_bookmarks.sql"), "utf8");
 
 const apply0013 = (db) => applyFile(db, MIGRATION_0013);
+const apply0015 = (db) => applyFile(db, MIGRATION_0015);
 
 function applyFile(db, sql) {
   db.exec("BEGIN");
@@ -1049,4 +1051,29 @@ test("migration 0013 cascades with the account and the thread", () => {
   db.prepare("DELETE FROM posts WHERE id = 3").run();
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM thread_subscriptions").get().n, 0,
     "the thread's subscriptions cascade away with the thread rows");
+});
+
+// --- 0015: bookmarks (C4) -------------------------------------------------------
+
+test("migration 0015 creates bookmarks with the composite PK, cascade FKs, and an index", () => {
+  const db = (() => { const d = openLatestDb(); apply0013(d); apply0015(d); return d; })();
+
+  assert.ok(objectNamesForType(db, "table").includes("bookmarks"), "bookmarks table exists");
+  const pkInfo = db.prepare("PRAGMA table_info(bookmarks)").all()
+    .filter((column) => column.pk > 0)
+    .sort((a, b) => a.pk - b.pk)
+    .map((column) => column.name);
+  assert.deepEqual(pkInfo, ["user_id", "post_id"]);
+  assert.ok(objectNamesForType(db, "index").includes("idx_bookmarks_user_time"));
+
+  db.prepare("INSERT INTO bookmarks (user_id, post_id, created_at) VALUES (?, ?, ?)").run(1, 1, T + 400);
+  assert.throws(() =>
+    db.prepare("INSERT INTO bookmarks (user_id, post_id, created_at) VALUES (?, ?, ?)").run(1, 1, T + 401),
+    "the (user, post) pair is unique");
+  assert.throws(() =>
+    db.prepare("INSERT INTO bookmarks (user_id, post_id, created_at) VALUES (?, ?, ?)").run(999, 1, T + 401),
+    "unknown users refused");
+  // Cascades with the thread.
+  db.prepare("DELETE FROM posts WHERE id = 1").run();
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM bookmarks").get().n, 0);
 });
