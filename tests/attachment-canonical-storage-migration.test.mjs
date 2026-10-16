@@ -69,6 +69,24 @@ function fixtureDb() {
     "gif-source", 0, Buffer.from([7, 8, 9, 10]),
   );
 
+  // This hash has both an approved upload and a library GIF. The attachment row
+  // represents a by-reference GIF selection and must not receive copied chunks.
+  db.prepare("INSERT INTO attachments (id, hash, status, created_at) VALUES (?, ?, ?, ?)").run(
+    "shared-upload-source", "hash-c", "approved", 41,
+  );
+  db.prepare("INSERT INTO attachment_chunks (attachment_id, kind, seq, data) VALUES (?, 'approved', ?, ?)").run(
+    "shared-upload-source", 0, Buffer.from([3, 3, 3]),
+  );
+  db.prepare("INSERT INTO attachments (id, hash, status, created_at) VALUES (?, ?, ?, ?)").run(
+    "gif-selection-shared-hash", "hash-c", "approved", 42,
+  );
+  db.prepare("INSERT INTO gifs (id, hash, status) VALUES (?, ?, ?)").run(
+    "gif-shared-hash", "hash-c", "approved",
+  );
+  db.prepare("INSERT INTO gif_chunks (gif_id, seq, data) VALUES (?, ?, ?)").run(
+    "gif-shared-hash", 0, Buffer.from([3, 3, 3]),
+  );
+
   db.prepare("INSERT INTO attachments (id, hash, status, created_at) VALUES (?, ?, ?, ?)").run(
     "missing-source", "hash-no-source", "approved", 50,
   );
@@ -99,6 +117,7 @@ test("migration leaves GIF-backed library references by-reference", () => {
   db.exec(migration);
 
   assert.deepEqual(chunksFor(db, "gif-backed-alias"), []);
+  assert.deepEqual(chunksFor(db, "gif-selection-shared-hash"), []);
 });
 
 test("migration preserves existing chunks and leaves unresolved or pending rows alone", () => {
