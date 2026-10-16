@@ -50,6 +50,7 @@ test("duplicate GIF approval converges after unique-index races", async () => {
 test("CSS moderation decisions are tied to the exact reviewed submission", async () => {
   const profiles = await read("api/profiles.mjs");
   const app = await read("public/js/app.js");
+  assert.match(profiles, /SELECT id, username, pending_css, pending_css_version, css_status FROM users/);
   assert.match(profiles, /version: String\(row\.pending_css_version \?\? ""\)/);
   assert.match(profiles, /pending_css = \?, pending_css_version = \?, css_status = 'pending'/);
   assert.match(profiles, /pending_css_version = \?/);
