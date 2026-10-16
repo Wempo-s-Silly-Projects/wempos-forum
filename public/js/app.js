@@ -1211,7 +1211,7 @@ async function submitProfileEditorForm(form, text) {
     body: {
       bio: text("bio"),
       socials,
-      bannerColor: text("bannerColor").trim(),
+      bannerColor: text("bannerColor").trim().toLowerCase(),
       bannerText: text("bannerText").trim(),
       flair: text("flair").trim(),
     },
@@ -2045,7 +2045,7 @@ try {
     });
   });
 } catch (error) {
-  console.error("Forum startup failed:", error && error.name ? error.name : "UnknownError");
+  console.error("Forum startup failed:", error);
   main.replaceChildren();
   addHeading(main, "The forum could not start", 1);
   addText(document, main, "p",
