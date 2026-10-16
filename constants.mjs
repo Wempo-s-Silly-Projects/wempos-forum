@@ -23,7 +23,7 @@ export const UNBAN_ACTIVE_UPDATE_SQL =
 // idempotency_key, target id, ban user_id, ban now.
 export const THREAD_REPLY_INSERT_SQL =
   "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint, staged_at) " +
-    "SELECT ?, ?, ?, 'public', ?, ?, ?, ?, ?, ? WHERE EXISTS ("
+    "SELECT ?, ?, ?, 'public', ?, ?, ?, ?, ?, ? WHERE EXISTS (" +
     "SELECT 1 FROM posts WHERE id = ? AND visibility = 'public' AND (" +
     "parent_id IS NULL OR EXISTS (" +
     "SELECT 1 FROM posts root WHERE root.id = posts.parent_id " +
