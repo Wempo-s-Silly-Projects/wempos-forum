@@ -142,10 +142,10 @@ async function gifReferenceEntries(db, gifIds) {
 }
 
 // One metadata INSERT plus one attachment_chunks INSERT per chunk of each
-// validated file, all riding in the same batch. Bytes are stored as
-// kind='pending' (the terminal-before-review state); the approved set stays
-// empty until a moderator approves. `db` is env.FORUM_DB; postId is the
-// freshly inserted post/reply row id.
+// validated file, all riding in the same batch. New, unrecognized content is
+// stored as kind='pending'; byte-identical content approved previously is stored
+// as kind='approved'. Every attachment owns a complete byte set so removing
+// another post or source GIF cannot break it. `db` is env.FORUM_DB.
 // SHA-256 hex of the validated bytes (v2.5): dedup + auto-approve identity.
 // WebCrypto has no blake3; SHA-256 has no practical collision attack at any
 // scale that matters — the owner picked the algorithm by constraint.
