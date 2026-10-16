@@ -158,9 +158,14 @@ export async function sha256Hex(bytes) {
 // for library-GIF reference rows and legacy duplicates created before migration
 // 0020. Returns { mime, id } or null.
 export async function lookupCanonicalByHash(db, hash) {
+  if (!hash) return null;
+  const revoked = await db.prepare(
+    "SELECT 1 FROM revoked_attachment_hashes WHERE hash = ? LIMIT 1",
+  ).bind(hash).first();
+  if (revoked) return null;
   const row = await db.prepare(
     "SELECT a.id, a.mime FROM attachments a WHERE a.hash = ? AND a.status = 'approved' " +
-    "AND EXISTS (SELECT 1 FROM attachment_chunks c WHERE c.attachment_id = a.id) " +
+    "AND EXISTS (SELECT 1 FROM attachment_chunks c WHERE c.attachment_id = a.id AND c.kind = 'approved') " +
     "ORDER BY a.created_at ASC LIMIT 1",
   ).bind(hash).first();
   if (row) return { mime: row.mime, id: row.id, table: "attachments" };
@@ -368,6 +373,10 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
     // the public URL cache-busts off the pending one) and the pending→approved
     // chunk relabel succeed or fail together. The changes guard reads back the
     // batch's first result, 404-ing a non-pending or unknown id.
+    const pending = await db.prepare(
+      "SELECT hash FROM attachments WHERE id = ? AND status = 'pending'",
+    ).bind(attachmentId).first();
+    if (!pending) throw new HttpError(404, "Attachment not found.");
     const results = await db.batch([
       db.prepare(
         "UPDATE attachments SET status = 'approved', version = ? WHERE id = ? AND status = 'pending'",
@@ -375,6 +384,7 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
       db.prepare(
         "UPDATE attachment_chunks SET kind = 'approved' WHERE attachment_id = ? AND kind = 'pending'",
       ).bind(attachmentId),
+      ...(pending.hash ? [db.prepare("DELETE FROM revoked_attachment_hashes WHERE hash = ?").bind(pending.hash)] : []),
     ]);
     if (Number(results[0]?.meta?.changes) !== 1) {
       throw new HttpError(404, "Attachment not found.");
@@ -389,11 +399,22 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
   // unknown ids never existed → both are the same 404). Browser/CDN caches
   // that already hold the previously served bytes keep them until they expire;
   // that is a documented out of scope here.
-  const result = await db.prepare(
-    "DELETE FROM attachments WHERE id = ? AND status IN ('pending', 'approved')",
-  ).bind(attachmentId).run();
-  if (Number(result.meta?.changes) !== 1) {
-    throw new HttpError(404, "Attachment not found.");
+  const target = await db.prepare(
+    "SELECT hash, status FROM attachments WHERE id = ? AND status IN ('pending', 'approved')",
+  ).bind(attachmentId).first();
+  if (!target) throw new HttpError(404, "Attachment not found.");
+  if (target.status === "approved" && target.hash) {
+    await db.batch([
+      db.prepare(
+        "INSERT INTO revoked_attachment_hashes (hash, revoked_at, revoked_by) VALUES (?, ?, ?) " +
+        "ON CONFLICT(hash) DO UPDATE SET revoked_at = excluded.revoked_at, revoked_by = excluded.revoked_by",
+      ).bind(target.hash, nowSeconds(), session.user.id),
+      db.prepare("DELETE FROM attachments WHERE hash = ? AND status = 'approved'").bind(target.hash),
+    ]);
+  } else {
+    await db.prepare(
+      "DELETE FROM attachments WHERE id = ? AND status IN ('pending', 'approved')",
+    ).bind(attachmentId).run();
   }
   return json({ rejected: true, id: attachmentId });
 }
