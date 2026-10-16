@@ -34,8 +34,57 @@ test("preserves length exactly for every match and non-match", () => {
   assert.equal(applyWordFilter("surrounded ***bad*** by stars", "bad"), "surrounded ********* by stars");
 });
 
-test("does substring matching inside longer words", () => {
-  assert.equal(applyWordFilter("that was badword of him", "bad"), "that was ***word of him");
+test("does not match inside longer words (whole-word rule)", () => {
+  // Updated from the old substring semantics: since whole-word matching, an
+  // occurrence embedded inside a longer word ("badword") is left alone, so
+  // innocent words like "badword", "class", "passage" or "bass" survive.
+  assert.equal(applyWordFilter("that was badword of him", "bad"), "that was badword of him");
+  assert.equal(applyWordFilter("badword", "bad"), "badword");
+});
+
+test("whole-word: stand-alone occurrences are still masked in every position", () => {
+  assert.equal(applyWordFilter("that ass", "ass"), "that ***");
+  assert.equal(applyWordFilter("ass that", "ass"), "*** that");
+  assert.equal(applyWordFilter("Ass", "ass"), "***");
+});
+
+test("whole-word: innocent words containing the entry survive untouched", () => {
+  assert.equal(applyWordFilter("in class today", "ass"), "in class today");
+  assert.equal(applyWordFilter("a passage of time", "ass"), "a passage of time");
+  assert.equal(applyWordFilter("bass guitar", "ass"), "bass guitar");
+});
+
+test("whole-word: punctuation and underscore neighbors count as boundaries", () => {
+  assert.equal(applyWordFilter("what an ass.", "ass"), "what an ***.");
+  assert.equal(applyWordFilter("the (ass) plan", "ass"), "the (***) plan");
+  // Deliberate: underscore counts as a boundary (it is not [A-Za-z0-9]), so
+  // username-style "smart_ass" still matches the entry "ass".
+  assert.equal(applyWordFilter("smart_ass", "ass"), "smart_***");
+});
+
+test("whole-word: mixed capitalization of a whole match is masked", () => {
+  assert.equal(applyWordFilter("nice Ass", "ass"), "nice ***");
+  assert.equal(applyWordFilter("NiceAsS", "ass"), "NiceAsS");
+});
+
+test("whole-word: multi-word entries take boundaries only at their outer edges", () => {
+  // The boundary rule applies to the entry's outer edges only; the internal
+  // characters of the phrase (here the space) are matched literally as before.
+  assert.equal(applyWordFilter("that is a bad word", "bad word"), "that is a ********");
+  assert.equal(applyWordFilter("bad wording got in", "bad word"), "bad wording got in");
+  assert.equal(applyWordFilter("the badwording list", "bad word"), "the badwording list");
+});
+
+test("whole-word: non-ASCII neighbors are boundaries (only [A-Za-z0-9] continues a word)", () => {
+  // Chosen behavior: the boundary set is exactly [A-Za-z0-9], so a non-ASCII
+  // letter like é counts as a boundary and the occurrence is masked.
+  assert.equal(applyWordFilter("caféass", "ass"), "café***");
+  assert.equal(applyWordFilter("assé", "ass"), "***é");
+});
+
+test("an unset or empty words secret still leaves filter-adjacent text untouched", () => {
+  assert.equal(applyWordFilter("ass class passage", undefined), "ass class passage");
+  assert.equal(applyWordFilter("ass class passage", ""), "ass class passage");
 });
 
 test("masks the word when it sits at the body end and start", () => {

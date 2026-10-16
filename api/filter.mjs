@@ -6,9 +6,18 @@
 // The raw comma-separated string is parsed and compiled per call, memoized by
 // the raw string value in a bounded cache (the secret is static per deploy,
 // so the cache almost always holds one entry). Matching is done on the
-// case-folded body with literal substring search; every matched position is
-// replaced by "*" translated back into the original string, so the filter is
-// length-preserving for ALL inputs.
+// case-folded body with literal search, but only WHOLE-WORD occurrences are
+// masked: an occurrence counts when the characters immediately before and
+// after it — checked in the ORIGINAL text — are not [A-Za-z0-9] (or when the
+// occurrence touches the start/end of the text). Underscore counts as a
+// boundary, so username-style "smart_ass" still matches the entry "ass" —
+// deliberate. For multi-word entries the boundary rule applies only to the
+// entry's outer edges; internal characters (spaces, punctuation) are matched
+// literally as before, because only the two outer neighbors are ever
+// inspected. Every accepted match is replaced by "*" translated back into the
+// original string, so the filter is length-preserving for ALL inputs (skipped
+// occurrences leave their characters untouched; an accepted match never
+// changes the stored length).
 //
 // Case folding is done per UTF-16 code unit (not via one String#toLowerCase
 // call on the whole body) because lowercase folding can lengthen a string
@@ -39,6 +48,15 @@ function compiledWords(wordsRaw) {
   return compiled;
 }
 
+// Whole-word boundary test on one UTF-16 code unit of the ORIGINAL text:
+// exactly [A-Za-z0-9] continues a word; anything else (underscore, spaces,
+// punctuation, non-ASCII letters) is a boundary. Plain range comparisons are
+// exact for these ASCII ranges and deliberately treat every non-ASCII unit
+// as a boundary — see tests/filter.test.mjs, which pins that choice.
+function isWordUnit(unit) {
+  return (unit >= "a" && unit <= "z") || (unit >= "A" && unit <= "Z") || (unit >= "0" && unit <= "9");
+}
+
 export function applyWordFilter(text, wordsRaw) {
   // Non-string text passes through unchanged by design: in production the
   // only caller hands this the output of requiredText() (always a trimmed,
@@ -62,8 +80,17 @@ export function applyWordFilter(text, wordsRaw) {
     while (index !== -1) {
       const start = origIndexMap[index];
       const end = origIndexMap[index + word.length - 1] + 1;
-      for (let position = start; position < end; position++) {
-        masked[position] = "*";
+      // Whole-word check against the ORIGINAL text around the occurrence's
+      // original-character span. Checking here (rather than on the folded
+      // string) keeps the boundary correct for fold-lengthening characters,
+      // and inspecting only the two outer neighbors means multi-word entries
+      // match their interiors literally, exactly as before.
+      const beforeOk = start === 0 || !isWordUnit(text[start - 1]);
+      const afterOk = end === text.length || !isWordUnit(text[end]);
+      if (beforeOk && afterOk) {
+        for (let position = start; position < end; position++) {
+          masked[position] = "*";
+        }
       }
       index = folded.indexOf(word, index + 1);
     }

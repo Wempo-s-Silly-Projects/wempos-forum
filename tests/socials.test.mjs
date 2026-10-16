@@ -183,7 +183,7 @@ test("a bio containing a filtered word is masked before it is stored", async () 
   assert.equal(update.values[0], "my name is ******* and I like cheese");
 });
 
-test("filter masking is case-insensitive and masks every occurrence in a bio", async () => {
+test("filter masking is case-insensitive and masks every whole-word occurrence in a bio", async () => {
   const routes = meRoutes();
   const { response, body, calls } = await call("https://forum.example/api/me", "PATCH", routes, {
     role: "member",
@@ -191,9 +191,12 @@ test("filter masking is case-insensitive and masks every occurrence in a bio", a
     extras: { FILTERED_WORDS: "badword" },
   });
 
+  // Updated for whole-word matching (see tests/filter.test.mjs): the two
+  // stand-alone occurrences are still masked, but "badwordish" is a longer
+  // word whose embedded occurrence no longer matches the entry.
   assert.equal(response.status, 200);
-  assert.deepEqual(body, { bio: "******* and ******* and *******ish" });
-  assert.equal(calls[2].values[0], "******* and ******* and *******ish");
+  assert.deepEqual(body, { bio: "******* and ******* and badwordish" });
+  assert.equal(calls[2].values[0], "******* and ******* and badwordish");
 });
 
 test("a length-boundary bio stays accepted after masking (masking preserves length)", async () => {
