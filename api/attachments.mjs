@@ -430,9 +430,15 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
       db.prepare("DELETE FROM gifs WHERE hash = ? AND status = 'approved'").bind(target.hash),
     ]);
   } else {
-    await db.prepare(
-      "DELETE FROM attachments WHERE id = ? AND status IN ('pending', 'approved')",
+    // The row was pending when read above. Fence the delete to that exact
+    // state: if a concurrent approval wins first, do not silently delete an
+    // approved row without recording a hash tombstone and removing duplicates.
+    const deleted = await db.prepare(
+      "DELETE FROM attachments WHERE id = ? AND status = 'pending'",
     ).bind(attachmentId).run();
+    if (Number(deleted?.meta?.changes) !== 1) {
+      throw new HttpError(409, "That attachment changed while moderation was in progress. Reload the queue and try again.");
+    }
   }
   return json({ rejected: true, id: attachmentId });
 }
