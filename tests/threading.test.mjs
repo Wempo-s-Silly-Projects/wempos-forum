@@ -417,7 +417,7 @@ test("new root posts stamp last_activity_at equal to created_at", async () => {
   assert.ok(insert.sql.includes(
     "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board)",
   ));
-  assert.ok(insert.sql.includes("SELECT ?, NULL, ?, 'public', ?, ?, ? WHERE NOT EXISTS"));
+  assert.ok(insert.sql.includes("SELECT ?, NULL, ?, 'public', ?, ?, ?, ? WHERE NOT EXISTS"));
   assert.deepEqual(insert.values.slice(0, 2), [7, "a brand new root"]);
   assertRecentSeconds(insert.values[2]);
   assert.equal(insert.values[3], insert.values[2], "last_activity_at binds the same timestamp as created_at");
