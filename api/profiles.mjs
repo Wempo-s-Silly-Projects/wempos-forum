@@ -8,6 +8,7 @@ import {
   HttpError,
   archivePostRowsStatement,
   isValidPassword,
+  isValidProfileAccent,
   json,
   nowSeconds,
   rateLimit,
@@ -58,6 +59,9 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       id: Number(user.id),
       username: user.username,
       role: user.role,
+      // Profile themes (v2.5): the whitelisted accent KEY for the client's
+      // per-key CSS class ("" normalizes rows missing the projection).
+      profileAccent: isValidProfileAccent(user.profile_accent || "") ? user.profile_accent : "",
       bio: user.bio || "",
       socials: socialsFromRow(user),
       polytoriaUsername: user.polytoria_username || null,
@@ -79,8 +83,9 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
     // one ban-gated UPDATE.
     const hasBio = body.bio !== undefined;
     const hasSocials = body.socials !== undefined;
-    if (!hasBio && !hasSocials) {
-      throw new HttpError(400, "Provide a bio or socials value to update.");
+    const hasAccent = body.profileAccent !== undefined;
+    if (!hasBio && !hasSocials && !hasAccent) {
+      throw new HttpError(400, "Provide a bio, socials, or accent value to update.");
     }
     let bio = null;
     if (hasBio) {
@@ -117,6 +122,16 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
       }
     }
 
+    let profileAccent = null;
+    if (hasAccent) {
+      // Profile themes (v2.5): the stored value is a WHITELISTED palette key
+      // (api/shared.mjs PROFILE_ACCENTS) — never raw CSS; "" clears the theme.
+      if (!isValidProfileAccent(body.profileAccent)) {
+        throw new HttpError(400, "That profile accent is not available.");
+      }
+      profileAccent = body.profileAccent;
+    }
+
     const assignments = [];
     const params = [];
     if (hasBio) {
@@ -129,8 +144,12 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
         params.push(value);
       }
     }
+    if (hasAccent) {
+      assignments.push("profile_accent = ?");
+      params.push(profileAccent);
+    }
     if (assignments.length === 0) {
-      throw new HttpError(400, "Provide a bio or socials value to update.");
+      throw new HttpError(400, "Provide a bio, socials, or accent value to update.");
     }
     const result = await db.prepare(
       "UPDATE users SET " + assignments.join(", ") + " WHERE id = ? AND NOT EXISTS (" +
@@ -144,6 +163,9 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
       response.socials = Object.fromEntries(
         Object.entries(socials).filter(([, value]) => value !== null),
       );
+    }
+    if (hasAccent) {
+      response.profileAccent = profileAccent;
     }
     return json(response);
   }

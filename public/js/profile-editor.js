@@ -179,6 +179,45 @@ export function renderProfileEditor(main, user) {
     input.pattern = SOCIAL_PATTERNS[key].source;
   }
   panel.append(form);
+  if (user) {
+    panel.append(renderProfileAccentPicker(document, user.profileAccent || ""));
+  }
   main.append(panel);
   return panel;
+}
+
+// Profile themes (v2.5): the palette mirrors api/shared.mjs's PROFILE_ACCENTS
+// whitelist EXACTLY (the server is the validator; this copy is display-only).
+// Colors apply via per-key CSS classes (styles.css) — no inline styles, so a
+// restrictive CSP is happy; "none" is the forum default green.
+export const PROFILE_ACCENT_KEYS = ["", "forest", "coral", "gold", "sky", "violet", "rose", "teal"];
+export const PROFILE_ACCENT_LABELS = {
+  "": "Default",
+  forest: "Forest",
+  coral: "Coral",
+  gold: "Gold",
+  sky: "Sky",
+  violet: "Violet",
+  rose: "Rose",
+  teal: "Teal",
+};
+
+export function renderProfileAccentPicker(document, currentAccent = "") {
+  const field = document.createElement("div");
+  field.className = "accent-picker";
+  const label = document.createElement("p");
+  label.className = "accent-picker-label";
+  label.textContent = "Profile color";
+  field.append(label);
+  for (const key of PROFILE_ACCENT_KEYS) {
+    const swatch = document.createElement("button");
+    swatch.type = "button";
+    swatch.className = "accent-swatch" + (key ? " accent-" + key : " accent-default");
+    swatch.dataset.accent = key;
+    swatch.setAttribute("aria-label", "Profile color: " + PROFILE_ACCENT_LABELS[key]);
+    swatch.setAttribute("title", PROFILE_ACCENT_LABELS[key]);
+    swatch.setAttribute("aria-pressed", key === currentAccent ? "true" : "false");
+    field.append(swatch);
+  }
+  return field;
 }

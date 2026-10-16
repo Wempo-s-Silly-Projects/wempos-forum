@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 import { buildSocialLinks, invalidSocialKeys, SOCIAL_LABELS } from "../public/js/profile-editor.js";
 import { createIcon, iconButton } from "../public/js/icons.js";
 import { resolveTheme } from "../public/js/theme.js";
+import { PROFILE_ACCENT_KEYS, renderProfileAccentPicker } from "../public/js/profile-editor.js";
 import { notificationItemView } from "../public/js/notifications.js";
 import { formatBanCountdown } from "../public/js/banned.js";
 
@@ -667,6 +668,7 @@ function stubDocument() {
       tagName: tag.toUpperCase(), namespaceURI: ns || null,
       attributes: {}, dataset: {}, children: [], href: null,
       setAttribute(name, value) { this.attributes[name] = value; },
+      getAttribute(name) { return name in this.attributes ? this.attributes[name] : null; },
       append(child) { this.children.push(child); },
     };
     nodes.push(node);
@@ -705,4 +707,22 @@ test("iconButton carries the actionable label in aria-label, never visible text"
   assert.equal(link.href, "/users/alice", "anchors take the href");
   assert.equal(link.attributes["aria-label"], "Profile — alice");
   assert.throws(() => iconButton(doc, "nonexistent"), /No such icon/);
+});
+
+// --- v2.5: profile accent themes ------------------------------------------------
+// The accent is a whitelisted palette KEY; colors apply via per-key CSS
+// classes (no inline styles, CSP-pure). The picker is testable DOM-free.
+
+test("the accent picker renders one swatch per whitelisted key with pressed state", () => {
+  const picker = renderProfileAccentPicker(stubDocument(), "gold");
+  const swatches = picker.children.filter((node) => node.className.includes("accent-swatch"));
+  assert.equal(swatches.length, PROFILE_ACCENT_KEYS.length, "one swatch per key (+ the label above)");
+  assert.equal(swatches[0].dataset.accent, "", "the default swatch clears the theme");
+  const gold = picker.children.find((node) => node.dataset.accent === "gold");
+  assert.equal(gold.className.includes("accent-gold"), true, "per-key color class");
+  assert.equal(gold.getAttribute("aria-pressed"), "true", "pressed marks the current accent");
+  assert.equal(swatches[0].getAttribute("aria-pressed"), "false");
+  // Every swatch carries an accessible label + tooltip with its color name.
+  assert.ok(swatches.some((node) => node.getAttribute("aria-label") === "Profile color: Coral"));
+  assert.ok(swatches.every((node) => node.getAttribute("title")));
 });

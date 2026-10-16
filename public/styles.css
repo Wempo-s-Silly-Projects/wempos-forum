@@ -855,19 +855,18 @@ dialog h2 {
   position: relative;
 }
 
+/* The unread indicator is a tiny red dot (v2.5); the count lives in aria. */
 .notification-badge {
   position: absolute;
-  top: -0.5rem;
-  right: -0.5rem;
-  min-width: 1.5rem;
-  padding: 0.1rem 0.35rem;
+  top: -0.25rem;
+  right: -0.25rem;
+  width: 0.62rem;
+  height: 0.62rem;
+  padding: 0;
   border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-align: center;
-  color: var(--on-yellow);
-  background: var(--yellow);
-  border: 2px solid var(--on-yellow);
+  color: transparent;
+  background: var(--coral);
+  border: 2px solid var(--paper);
 }
 
 .notification-item {
@@ -1129,6 +1128,30 @@ dialog h2 {
    Token-only colors (paper/ink/muted/line/soft-green/green-title/green-ink),
    so both themes inherit the treatment for free. */
 
+
+.view-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 0.9rem;
+  border: 2px solid var(--ink);
+  border-radius: 0.45rem 0.65rem 0.4rem 0.55rem;
+  background: var(--paper);
+  box-shadow: 3px 4px 0 var(--paper-shadow);
+}
+/* Profile themes (v2.4.4): accent applied from the container's CSSOM-set
+   custom property (never inline style parsing — CSP-safe; values come from a
+   server-side whitelist). */
+.profile-section {
+  --profile-accent: var(--green);
+}
+.profile-section .author-name,
+.profile-section .profile-name {
+  color: var(--profile-accent);
+}
+.profile-section > .paper-card,
+.profile-section > * > .paper-card {
+  border-top: 3px solid var(--profile-accent);
+}
 .reply-count {
   display: inline-flex;
   align-items: center;
@@ -1372,9 +1395,51 @@ dialog h2 {
   align-items: center;
   gap: 0.3rem;
 }
+.view-count svg,
 .reply-count svg,
 .attachment-pending svg {
   width: 1rem;
   height: 1rem;
   display: block;
+}
+
+
+/* Profile themes (v2.5): per-key accent classes — no inline styles, CSP-pure.
+   The palette mirrors api/shared.mjs's PROFILE_ACCENTS whitelist exactly. */
+.profile-accent-forest { --profile-accent: #3f8a63; }
+.profile-accent-coral { --profile-accent: #d05f4c; }
+.profile-accent-gold { --profile-accent: #d9a627; }
+.profile-accent-sky { --profile-accent: #4d8fc4; }
+.profile-accent-violet { --profile-accent: #8b6cc4; }
+.profile-accent-rose { --profile-accent: #c95f86; }
+.profile-accent-teal { --profile-accent: #3d9aa0; }
+.accent-swatch {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 2px solid var(--line);
+  cursor: pointer;
+  padding: 0;
+}
+.accent-swatch[aria-pressed="true"] {
+  border: 3px solid var(--ink);
+}
+.accent-default { background: var(--green); }
+.accent-forest { background: #3f8a63; }
+.accent-coral { background: #d05f4c; }
+.accent-gold { background: #d9a627; }
+.accent-sky { background: #4d8fc4; }
+.accent-violet { background: #8b6cc4; }
+.accent-rose { background: #c95f86; }
+.accent-teal { background: #3d9aa0; }
+.accent-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.6rem;
+}
+.accent-picker-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0;
 }

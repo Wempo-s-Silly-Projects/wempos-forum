@@ -33,10 +33,12 @@ export const createNotificationBell = (unreadCount, document) => {
   bell.setAttribute("aria-label",
     count ? `Notifications, ${count} unread` : "Notifications");
   bell.append(createIcon(document, "bell"));
+  // The unread indicator is a tiny red (coral) DOT — the count lives in the
+  // bell's aria-label, not in a number pill (owner spec, v2.5).
   const badge = document.createElement("span");
   badge.className = "notification-badge";
   badge.dataset.notificationCount = "true";
-  badge.textContent = String(count);
+  badge.textContent = "";
   badge.hidden = count === 0;
   bell.append(badge);
   return bell;
@@ -48,7 +50,7 @@ export function updateBell(unreadCount) {
   const badge = document.querySelector("#notification-bell [data-notification-count]");
   if (!badge) return;
   const count = Number(unreadCount) || 0;
-  badge.textContent = String(count);
+  badge.textContent = ""; // a dot, not a number — the count lives in aria-label
   badge.hidden = count === 0;
   const bell = document.querySelector("#notification-bell");
   if (bell) {

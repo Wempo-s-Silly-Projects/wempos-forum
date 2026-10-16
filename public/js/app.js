@@ -75,6 +75,9 @@ let router;
 let currentUser = null;
 let activeRoute = { name: "home" };
 let renderVersion = 0;
+// Profile themes (v2.5): main outlives routes, so the accent class is
+// tracked and cleared before the next profile render.
+let activeProfileAccentClass = null;
 
 // Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
 // its composer tags root posts with board=suggestions (form dataset flag read
@@ -472,6 +475,15 @@ function appendProfileRoleControls(profile, session, container) {
 }
 
 function renderProfile(profile, session) {
+  // Profile themes (v2.5): the accent is a whitelisted KEY from the server;
+  // a per-key CSS class applies the color (no inline styles, CSP-pure).
+  main.classList.add("profile-section");
+  if (activeProfileAccentClass) main.classList.remove(activeProfileAccentClass);
+  activeProfileAccentClass = null;
+  if (profile.profileAccent) {
+    activeProfileAccentClass = "profile-accent-" + profile.profileAccent;
+    main.classList.add(activeProfileAccentClass);
+  }
   const heading = element("section", "profile-heading");
   if (profile.avatarUrl) {
     const image = element("img", "avatar profile-avatar");
@@ -1288,6 +1300,12 @@ async function handleButtonAction(button) {
     },
     "delete-post": () => openDeletePostDialog(button),
     "delete-account": () => openDeleteAccountDialog(),
+    "set-profile-accent": async () => {
+      // Profile themes (v2.5): the swatch's data-accent is a whitelisted KEY
+      // ("" = clear). The server re-validates; success re-renders the route.
+      await api("/api/me", { method: "PATCH", body: { profileAccent: button.dataset.accent || "" } });
+      await renderRoute();
+    },
     "edit-history": async () => {
       // Toggle: an open panel for this card closes; otherwise the past
       // versions fetch and expand under the body. History is public — no

@@ -491,11 +491,30 @@ function socialsFromRow(row) {
 
 async function userByUsernameKey(env, key) {
   return env.FORUM_DB.prepare(
-    "SELECT id, username, username_key, password_salt, password_hash, role, bio, " +
+    "SELECT id, username, username_key, password_salt, password_hash, role, bio, profile_accent, " +
       SOCIAL_SELECT_COLUMNS +
       "avatar_status, avatar_mime, avatar_updated_at, avatar_version " +
       "FROM users WHERE username_key = ? LIMIT 1",
   ).bind(key).first();
+}
+
+// Profile themes (v2.4.4): the accent is a WHITELISTED palette key from this
+// table — never raw CSS. The stored value is one of these ids ("" = no custom
+// accent); clients look the colors up, so nothing user-chosen ever reaches
+// CSS as a string. Colors are theme-stable (they read fine on dark too).
+export const PROFILE_ACCENTS = {
+  "": null,
+  forest: "#3f8a63",
+  coral: "#d05f4c",
+  gold: "#d9a627",
+  sky: "#4d8fc4",
+  violet: "#8b6cc4",
+  rose: "#c95f86",
+  teal: "#3d9aa0",
+};
+
+export function isValidProfileAccent(value) {
+  return typeof value === "string" && Object.prototype.hasOwnProperty.call(PROFILE_ACCENTS, value);
 }
 
 function publicUser(row) {
@@ -506,6 +525,11 @@ function publicUser(row) {
     bio: row.bio || "",
     socials: socialsFromRow(row),
     polytoriaUsername: row.polytoria_username || null,
+    // Profile theme accent (v2.4.4): the whitelisted KEY, or "" when the row
+    // predates migration 0010 (the column just isn't in a projection).
+    profileAccent: isValidProfileAccent(row.profile_accent === undefined ? "" : row.profile_accent)
+      ? row.profile_accent
+      : "",
     // Rows from SQL that predates avatar moderation (e.g. search projections)
     // omit the column; normalize it to the never-uploaded shape.
     avatarStatus: row.avatar_status || null,
