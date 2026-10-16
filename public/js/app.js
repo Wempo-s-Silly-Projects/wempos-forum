@@ -52,6 +52,22 @@ const errorMessage = document.querySelector("#error-message");
 const reportDialog = document.querySelector("#report-dialog");
 const reportForm = reportDialog.querySelector('[data-form="report"]');
 const attachmentLightbox = document.querySelector("#attachment-lightbox");
+// Destructive-action confirmation (v2.4.1 feature): one shared dialog for both
+// deletion flows. openConfirmDialog fills the copy from the pending action and
+// stores its handler; the confirm-ok button runs it. Copy always reaches the
+// DOM through textContent, never markup.
+const confirmDialog = document.querySelector("#confirm-dialog");
+const confirmTitle = confirmDialog.querySelector("#confirm-title");
+const confirmMessage = confirmDialog.querySelector("#confirm-message");
+const confirmOk = confirmDialog.querySelector("#confirm-ok");
+let confirmHandler = null;
+
+function openConfirmDialog(title, message, onConfirm) {
+  confirmTitle.textContent = title;
+  confirmMessage.textContent = message;
+  confirmHandler = onConfirm;
+  confirmDialog.showModal();
+}
 
 let router;
 let currentUser = null;
@@ -340,6 +356,19 @@ function renderAccountSettings() {
     }),
   ], "Update password"));
   account.append(passwordPanel);
+  // Delete account control (v2.4.1 feature): lives in the signed-in account
+  // settings area only (this renderer never runs for guests), confirming
+  // through the shared confirm dialog whose copy spells out the blast radius —
+  // including other people's replies inside the account's own threads — before
+  // anything is sent. The confirm button is disabled while the request is
+  // pending (see the confirm-ok handler).
+  const deletePanel = createPanel("Delete account",
+    "This permanently deletes your account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies, reactions, reports, notifications, and profile. There is no undo.");
+  const deleteButton = element("button", "button button-danger", "Delete account");
+  deleteButton.type = "button";
+  deleteButton.dataset.action = "delete-account";
+  deletePanel.append(deleteButton);
+  account.append(deletePanel);
   main.append(account);
 }
 
@@ -757,6 +786,55 @@ async function submitPasswordForm(text) {
   setMessage("Your password was changed. Other signed-in sessions were revoked.");
 }
 
+// Post deletion (v2.4.1 feature): the confirm dialog's copy comes from the
+// card's deleteScope (set by createPostCard off post.parent) so a root author
+// is warned that the whole conversation — other people's replies included —
+// goes with it, while a reply author is told their thread survives. The server
+// (DELETE /api/posts/:id) does the actual reparent/cascade work; on success a
+// thread-route deletion of the viewed post navigates home (the conversation no
+// longer exists), every other surface just re-renders its route.
+function openDeletePostDialog(button) {
+  const postId = Number(button.dataset.postId);
+  const isThreadRoot = button.dataset.deleteScope !== "reply";
+  openConfirmDialog(
+    isThreadRoot ? "Delete this thread?" : "Delete this reply?",
+    isThreadRoot
+      ? "Your post and the entire conversation under it are deleted — including other people's replies. This cannot be undone."
+      : "Your reply is deleted. Its replies stay in the thread. This cannot be undone.",
+    async () => {
+      const viewedThreadId = activeRoute.name === "post" ? activeRoute.id : null;
+      await api("/api/posts/" + postId, { method: "DELETE" });
+      confirmDialog.close();
+      if (viewedThreadId === postId) {
+        router.navigate("/");
+      } else {
+        await renderRoute(activeRoute);
+      }
+      setMessage("The post was deleted.");
+    },
+  );
+}
+
+// Account deletion (v2.4.1 feature): POST /api/me/delete removes the account
+// and everything it owns server-side. The dialog copy states the full blast
+// radius — including other people's replies inside the account's own threads —
+// before a single request is sent. On success the client mirrors logout
+// exactly (CSRF token cleared, home as a signed-out guest); the route re-render
+// refetches the session, which is now anonymous.
+function openDeleteAccountDialog() {
+  openConfirmDialog(
+    "Delete your account?",
+    "Your account and everything it owns is permanently deleted: your posts — and every thread you started, including other people's replies inside those threads — plus your replies, reactions, reports, notifications, and profile. There is no undo.",
+    async () => {
+      await api("/api/me/delete", { method: "POST" });
+      setCsrfToken("");
+      confirmDialog.close();
+      router.navigate("/");
+      setMessage("Your account was deleted. You are signed out.");
+    },
+  );
+}
+
 async function submitReportForm(text) {
   await api("/api/posts/" + reportForm.dataset.postId + "/reports", {
     method: "POST",
@@ -1130,6 +1208,26 @@ async function handleButtonAction(button) {
     "cancel-edit": () => {
       const article = editTargetArticle(button);
       if (article) closeEditForm(article);
+    },
+    "delete-post": () => openDeletePostDialog(button),
+    "delete-account": () => openDeleteAccountDialog(),
+    "confirm-ok": async () => {
+      if (!confirmHandler) return;
+      const handler = confirmHandler;
+      // Disabled while pending: a double confirm can't fire the destructive
+      // request twice; the finally-block re-arms it if the request failed (the
+      // dialog stays open, and the error bar carries the message).
+      confirmOk.disabled = true;
+      try {
+        await handler();
+      } finally {
+        confirmOk.disabled = false;
+        confirmHandler = null;
+      }
+    },
+    "confirm-cancel": () => {
+      confirmHandler = null;
+      confirmDialog.close();
     },
   };
   const handler = handlers[button.dataset.action];

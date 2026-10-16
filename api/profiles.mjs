@@ -232,6 +232,69 @@ async function handlePasswordChangeRoute(request, env, url, path, method) {
   return null;
 }
 
+// Account deletion (v2.4.1 feature): POST /api/me/delete. Same-origin + CSRF
+// via requireUser (mutating routes are Origin-gated in shared.mjs and the
+// worker's global write limiter runs first); the handler re-runs the write
+// limiter like the post routes do. assertNotBanned is deliberately absent: a
+// banned account has no live sessions to reach this route with (the ban route
+// revokes them), and nothing here can resurrect a ban.
+//
+// FK analysis (migrations 0001/0002/0003/0004 — deleting the USER row):
+//   sessions.user_id        → users ON DELETE CASCADE
+//   posts.author_id         → users ON DELETE CASCADE — takes every post the
+//     user authored, and each of their root posts cascades its whole thread
+//     (posts.parent_id CASCADE) including OTHER users' replies inside it,
+//     with every child row (reactions/reports/notifications/attachments/
+//     attachment_chunks cascading on posts)
+//   reactions.user_id       → users ON DELETE CASCADE
+//   reports.reporter_id     → users ON DELETE CASCADE
+//   reports.resolved_by     → users ON DELETE SET NULL (kept, reviewer NULLed)
+//   bans.user_id            → users ON DELETE CASCADE
+//   bans.created_by / revoked_by → users ON DELETE SET NULL (kept, actor NULLed)
+//   notifications.user_id   → users ON DELETE CASCADE
+//   attachment_chunks       → attachments ON DELETE CASCADE
+//   attachments.created_by  → users(id) — NO ON DELETE action (the one FK gap).
+//     Intake only ever attaches images to the uploader's own posts, so the
+//     post cascade removes every attachment they created inside the user
+//     DELETE itself — but "no action" is still checked immediately when a row
+//     references the deleted user, so the handler deletes those rows
+//     explicitly FIRST (their chunks cascade via attachments) instead of
+//     gambling on a FOREIGN KEY constraint failed 500.
+// The explicit child deletes below also fix the order the spec asks for:
+// everything the account owns is removed, then the user row ends the batch so
+// the remaining SET NULL actions (bans the user created, reports they
+// resolved) rewrite those actor columns without the row present.
+export function accountDeletionStatements(db, userId) {
+  return [
+    db.prepare("DELETE FROM attachments WHERE created_by = ?").bind(userId),
+    db.prepare("DELETE FROM notifications WHERE user_id = ?").bind(userId),
+    db.prepare("DELETE FROM reactions WHERE user_id = ?").bind(userId),
+    db.prepare("DELETE FROM reports WHERE reporter_id = ?").bind(userId),
+    db.prepare("DELETE FROM bans WHERE user_id = ?").bind(userId),
+    db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(userId),
+    db.prepare("DELETE FROM users WHERE id = ?").bind(userId),
+  ];
+}
+
+async function handleAccountDeleteRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
+  if (path === "/api/me/delete" && method === "POST") {
+    const session = await requireUser(request, env);
+    await rateLimit(request, env, "write");
+    const userId = Number(session.user.id);
+    // One atomic batch: if any statement fails the whole deletion rolls back
+    // (D1 batches are transactional), so a partial wipe is impossible. The
+    // final user DELETE must change exactly one row — 0 means the account
+    // vanished between the session read and the write.
+    const results = await db.batch(accountDeletionStatements(db, userId));
+    if (Number(results[results.length - 1]?.meta?.changes) !== 1) {
+      throw new HttpError(404, "Account not found.");
+    }
+    return json({ deleted: true });
+  }
+  return null;
+}
+
 async function handleProfileRoutes(request, env, url, path, method) {
   const handlers = [
     handleAvatarReadRoute,
@@ -239,6 +302,7 @@ async function handleProfileRoutes(request, env, url, path, method) {
     handleProfileUpdateRoute,
     handleAvatarUploadRoute,
     handlePasswordChangeRoute,
+    handleAccountDeleteRoute,
   ];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method);

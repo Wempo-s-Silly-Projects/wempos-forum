@@ -66,9 +66,9 @@ Never run the remote migration against a database that contains data you do not 
 
 - `GET /api/session`, `GET /api/setup/status`
 - `POST /api/setup`, `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`
-- `GET /api/posts`, `GET /api/posts/:id`, `POST /api/posts`, `PATCH /api/posts/:id`, `POST /api/posts/:id/replies`
+- `GET /api/posts`, `GET /api/posts/:id`, `POST /api/posts`, `PATCH /api/posts/:id`, `DELETE /api/posts/:id`, `POST /api/posts/:id/replies`
 - `PUT /api/posts/:id/reaction`, `DELETE /api/posts/:id/reaction`, `GET /api/search`, `GET /api/users/:username`
-- `PATCH /api/me`, `POST /api/me/avatar`, `PATCH /api/me/password`
+- `PATCH /api/me`, `POST /api/me/avatar`, `PATCH /api/me/password`, `POST /api/me/delete`
 - `GET /api/me/notifications`, `POST /api/me/notifications/:id/read`, `POST /api/me/notifications/read-all`
 - `POST /api/posts/:id/reports`, `GET /api/admin/reports`, `POST /api/admin/reports/:id/resolve`
 - `GET /api/admin/bans`, `POST /api/admin/users/:id/bans`, `DELETE /api/admin/users/:id/bans`
@@ -92,6 +92,8 @@ The backend is split into `api/*.mjs` modules (shared, session, posts, profiles,
 - Thread presentation (v2.3): feed cards show a reply-count chip and up to 3 single-line latest-reply previews; sub-replies render cascade-styled on the detail view; a Quote button prefills `> @user: text` into the reply composer and leading `> ` lines render as blockquotes; profile social links collapse into an expandable block.
 - Boards (v2.4.1, migration 0006): posts carry a `board` column (`posts.board`, default `'general'`; values whitelisted to `'general'`/`'suggestions'` at the handler layer). The board is a root-only dimension — replies inherit their thread root's board at creation, and the home feed is the general board implicitly. The Suggestions board (`/suggestions`) lists only roots with `board='suggestions'`, sorted by net reaction score (likes minus dislikes) with the id tiebreak, paginating a composite `before=<score>_<id>` cursor; score instability across page turns is accepted. GET /api/posts without a `board` param keeps the original activity-feed behavior; unknown `board` values 400.
 - Author post editing (v2.4): `PATCH /api/posts/:id` is author-only (any role, covers roots and replies), reapplies the word filter and the 1,000-character limit, stamps `edited_at` (shown as an "(edited)" marker), and never bumps `last_activity_at`; edits are text-only, so attachments stay as originally posted.
+- Author post deletion: `DELETE /api/posts/:id` is author-only (session identity, no role path; delete button on own cards behind a confirm dialog). Deleting a ROOT post deletes the entire thread — every reply (other people's included) plus its reactions, reports, notifications, and attachments, all via foreign-key cascades. Deleting a REPLY preserves the conversation: its sub-replies are reparented to the thread root in the same atomic batch before the delete, so no one else's content is lost.
+- Account deletion: `POST /api/me/delete` lets a signed-in member permanently delete their own account (Delete account control in the signed-in account settings, behind a confirm dialog that spells out the blast radius). Everything the account owns goes: their posts — and the whole threads they started, including other people's replies inside those threads — their replies inside other people's threads, reactions, reports they authored, notifications, bans on them, all sessions, and their avatar. Bans/reports they acted on as a moderator survive with the actor columns cleared. Other members' own threads are untouched.
 
 ### Image attachments
 

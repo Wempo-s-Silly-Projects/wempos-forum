@@ -8,6 +8,9 @@
 //   File and FormData globals, so submission payloads are checkable here too)
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { buildSocialLinks, invalidSocialKeys, SOCIAL_LABELS } from "../public/js/profile-editor.js";
 import { resolveTheme } from "../public/js/theme.js";
 import { notificationItemView } from "../public/js/notifications.js";
@@ -356,6 +359,8 @@ import { charsLeftLabel, COMPOSER_MAX_CHARS } from "../public/js/composer-limits
 import { createTextarea } from "../public/js/forms.js";
 import { api, setCsrfToken } from "../public/js/api.js";
 
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
 test("the composer cap is pinned at 1,000 characters", () => {
   assert.equal(COMPOSER_MAX_CHARS, 1000);
 });
@@ -550,4 +555,101 @@ test("an edit save surfaces a server 400's message through the thrown error", as
     globalThis.fetch = originalFetch;
     setCsrfToken("");
   }
+});
+
+// --- Deletion (v2.4.1 feature): the payload boundary ----------------------------
+// Both destructive flows post through api() with the session CSRF header; the
+// server's {deleted:true} echo and error surfaces ride the same plumbing the
+// report/edit flows already pin. Source-level pins below cover app.js's DOM-
+// bound dialog wiring (untestable under node --test).
+
+test("a post delete submits DELETE /api/posts/:id with the session CSRF token and no body", async () => {
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (path, init) => {
+    calls.push({ path, init });
+    return new Response(JSON.stringify({ deleted: true }),
+      { status: 200, headers: { "Content-Type": "application/json" } });
+  };
+  try {
+    setCsrfToken("csrf-token-fixture");
+    const result = await api("/api/posts/42", { method: "DELETE" });
+    assert.deepEqual(result, { deleted: true });
+  } finally {
+    globalThis.fetch = originalFetch;
+    setCsrfToken("");
+  }
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].path, "/api/posts/42");
+  assert.equal(calls[0].init.method, "DELETE");
+  assert.equal(calls[0].init.headers["X-CSRF-Token"], "csrf-token-fixture");
+  assert.equal(calls[0].init.credentials, "same-origin");
+  assert.equal(calls[0].init.body, undefined, "a delete sends no body");
+});
+
+test("an account delete submits POST /api/me/delete with the session CSRF token", async () => {
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (path, init) => {
+    calls.push({ path, init });
+    return new Response(JSON.stringify({ deleted: true }),
+      { status: 200, headers: { "Content-Type": "application/json" } });
+  };
+  try {
+    setCsrfToken("csrf-token-fixture");
+    const result = await api("/api/me/delete", { method: "POST" });
+    assert.deepEqual(result, { deleted: true });
+  } finally {
+    globalThis.fetch = originalFetch;
+    setCsrfToken("");
+  }
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].path, "/api/me/delete");
+  assert.equal(calls[0].init.method, "POST");
+  assert.equal(calls[0].init.headers["X-CSRF-Token"], "csrf-token-fixture");
+  assert.equal(calls[0].init.credentials, "same-origin");
+  assert.equal(calls[0].init.body, undefined, "the route reads no request body");
+});
+
+test("the deletion confirm flows are wired in app.js and the shared dialog exists", () => {
+  const appJs = readFileSync(path.join(repoRoot, "public", "js", "app.js"), "utf8");
+  const indexHtml =
+    readFileSync(path.join(repoRoot, "public", "index.html"), "utf8");
+  // The shared confirm dialog exists in the document shell, with Cancel and a
+  // confirm button both action-routed through app.js's click delegation.
+  assert.match(indexHtml, /<dialog id="confirm-dialog"/);
+  assert.match(indexHtml, /data-action="confirm-cancel"/);
+  assert.match(indexHtml, /data-action="confirm-ok"/);
+  // Post deletion: the card button action opens the dialog, and the handler
+  // sends DELETE to /api/posts/:id …
+  assert.match(appJs, /"delete-post": \(\) => openDeletePostDialog\(button\)/);
+  assert.match(appJs, /api\("\/api\/posts\/" \+ postId, \{ method: "DELETE" \}\)/);
+  // … carrying BOTH copy variants: the thread-root warning that other people's
+  // replies go with the post, and the reply variant promising the replies stay.
+  assert.match(appJs, /including other people's replies/);
+  assert.match(appJs, /Its replies stay in the thread/);
+  // A thread-route deletion of the viewed post navigates home; other surfaces
+  // re-render their route.
+  assert.match(appJs, /if \(viewedThreadId === postId\) \{\s*router\.navigate\("\/"\);/);
+  // Account deletion: the settings-area control opens the dialog, the handler
+  // POSTs /api/me/delete, and the client clears the session exactly like
+  // logout (CSRF token emptied, home as a signed-out guest).
+  assert.match(appJs, /"delete-account": \(\) => openDeleteAccountDialog\(\)/);
+  assert.match(appJs, /api\("\/api\/me\/delete", \{ method: "POST" \}\)/);
+  assert.match(
+    appJs,
+    /await api\("\/api\/me\/delete", \{ method: "POST" \}\);\s*setCsrfToken\(""\);/,
+  );
+  // The account-copy warning includes other people's replies inside the
+  // account's own threads.
+  assert.match(appJs, /every thread you started, including other people's replies inside those threads/);
+  // The dangerous action's confirm button is disabled while the request is
+  // pending (double-confirm can't fire the destructive request twice).
+  assert.match(appJs, /confirmOk\.disabled = true;/);
+  // The account control only ever renders inside the signed-in settings panel.
+  assert.match(appJs, /const deleteButton = element\("button", "button button-danger", "Delete account"\);/);
+  assert.match(appJs, /deleteButton\.dataset\.action = "delete-account";/);
+  // The dialog copy is filled through textContent properties only.
+  assert.match(appJs, /confirmTitle\.textContent = title;/);
+  assert.match(appJs, /confirmMessage\.textContent = message;/);
 });

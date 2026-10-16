@@ -606,3 +606,49 @@ test("appendPostList renders the suggestions board's empty-state copy", () => {
   const empty = selectByClass(container, "empty-state");
   assert.equal(empty.textContent, "No suggestions yet — be the first!");
 });
+
+// --- Deletion (v2.4.1 feature): author-only Delete affordance ------------------
+// Same session-identity gate as the Edit button, plus a deleteScope telling
+// app.js's confirm dialog which copy applies (root → thread, reply → reply).
+
+const deleteButtonOf = (root) =>
+  [...walk(root)].find((node) => node.dataset?.action === "delete-post");
+
+test("the Delete button renders only for the author signed in", () => {
+  const mine = authorPost({ id: 10 });
+  const mineButton = deleteButtonOf(createPostCard(mine, mockDocument(), sessionUser(5)));
+  assert.ok(mineButton, "the author gets a Delete button");
+  assert.equal(mineButton.tagName, "BUTTON");
+  assert.equal(mineButton.dataset.postId, "10");
+  assert.equal(mineButton.dataset.deleteScope, "thread", "a root card scopes to its thread");
+
+  assert.equal(
+    deleteButtonOf(createPostCard(mine, mockDocument(), sessionUser(6))), undefined,
+    "a different signed-in member gets no Delete button",
+  );
+  assert.equal(deleteButtonOf(createPostCard(mine, mockDocument(), null)), undefined,
+    "a guest gets no Delete button");
+  assert.equal(
+    deleteButtonOf(createPostCard(mine, mockDocument(), "alice")), undefined,
+    "a session without an id can never match the author",
+  );
+  assert.equal(
+    deleteButtonOf(createPostCard(authorPost({ author: null }), mockDocument(), sessionUser(5))),
+    undefined,
+    "removed-account cards never offer Delete",
+  );
+  assert.equal(
+    deleteButtonOf(createPostCard(
+      authorPost({ author: { username: "bob", id: 9 } }), mockDocument(),
+      { id: 5, username: "mod", role: "moderator" },
+    )), undefined,
+    "moderators get no delete power either (server is author-only)",
+  );
+});
+
+test("a reply card's Delete button scopes to reply so the thread keeps its sub-replies", () => {
+  const mineReply = authorPost({ id: 11, parent: { id: 10 }, publicLevel: 1 });
+  const button = deleteButtonOf(createPostCard(mineReply, mockDocument(), sessionUser(5)));
+  assert.ok(button, "the author's reply card still offers Delete");
+  assert.equal(button.dataset.deleteScope, "reply");
+});

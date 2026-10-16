@@ -223,6 +223,21 @@ export const createPostCard = (post, document, currentUser = null) => {
     editButton.dataset.postId = String(post.id);
     actions.append(editButton);
   }
+  // Delete affordance (v2.4.1 feature): author-only, the exact same session
+  // identity gate as the Edit button above — guests, other members, and
+  // moderators never see it, while a hidden own post keeps it like it keeps
+  // Edit. deleteScope tells app.js's confirm dialog which copy to show and
+  // which client behavior to apply after the server confirms: a root card
+  // ("thread") takes the whole conversation with it, while a reply card
+  // ("reply") keeps the thread (sub-replies are reparented by the server).
+  if (currentUser && post.author && Number(currentUser.id) === Number(post.author.id)) {
+    const deleteButton = createElement(document, "button", "button button-quiet", "Delete");
+    deleteButton.type = "button";
+    deleteButton.dataset.action = "delete-post";
+    deleteButton.dataset.postId = String(post.id);
+    deleteButton.dataset.deleteScope = post.parent ? "reply" : "thread";
+    actions.append(deleteButton);
+  }
   // Reply affordance: same strict rule as replyAffordances — signed-in users
   // on explicitly level-1 rows only (publicLevel 2 and undefined publicLevel
   // never show it; replying to level-2 targets is server-forbidden).

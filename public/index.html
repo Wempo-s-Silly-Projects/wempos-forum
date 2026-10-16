@@ -72,6 +72,18 @@
     <dialog id="attachment-lightbox" class="attachment-lightbox" aria-label="Full image view">
       <img id="attachment-lightbox-image" alt="">
     </dialog>
+    <!-- Destructive-action confirmation (v2.4.1 feature): one shared dialog
+         for post and account deletion. app.js fills the title and message from
+         the pending action (textContent only), and the confirm button runs the
+         matching handler; Escape and Cancel close without acting. -->
+    <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+      <h2 id="confirm-title"></h2>
+      <p id="confirm-message"></p>
+      <div class="form-actions">
+        <button class="button button-secondary" type="button" data-action="confirm-cancel">Cancel</button>
+        <button class="button button-danger" id="confirm-ok" type="button" data-action="confirm-ok">Delete</button>
+      </div>
+    </dialog>
     <noscript><p class="noscript-note">This forum needs JavaScript to load posts and account actions.</p></noscript>
   </body>
 </html>

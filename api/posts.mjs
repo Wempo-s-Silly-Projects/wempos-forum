@@ -576,6 +576,76 @@ async function handlePostEditRoute(request, env, url, path, method) {
   return null;
 }
 
+// Author post deletion (v2.4.1 feature, shipped without a version bump): DELETE /api/posts/:id. Access is author-only
+// by session identity — no role path (a moderator gets no delete power here),
+// exactly the same gates as the edit route (requireUser + assertNotBanned +
+// the write and post-write rate limit scopes). The TOCTOU guard mirrors the
+// edit route: the author_id clause runs at write time, so a non-author racing
+// the ownership read cannot delete, and an already-gone post reports 404.
+//
+// FK analysis (migrations 0001/0002/0003/0004, D1 keeps enforcement ON, all
+// actions fire immediately, no post-deletion statements may be orphaned):
+//   posts.parent_id    → posts(id) ON DELETE CASCADE — replies cascade
+//   reactions.post_id  → posts(id) ON DELETE CASCADE
+//   reports.post_id    → posts(id) ON DELETE CASCADE
+//   notifications.target_post_id / reply_id → posts(id) ON DELETE CASCADE
+//   attachments.post_id → posts(id) ON DELETE CASCADE; attachment_chunks →
+//     attachments(id) ON DELETE CASCADE (chunk bytes die with the attachment)
+// So deleting a ROOT post takes the whole thread (including other users'
+// replies and every child row above) with ONE guarded DELETE — no explicit
+// child cleanup is needed or performed. Deleting a REPLY must preserve the
+// conversation: its sub-replies are REPARENTED to the thread root first (one
+// UPDATE, in the same atomic batch as the delete), so nobody else's content
+// is lost; the reply's own reactions/reports/notifications/attachments
+// cascade away with the reply row. The reparent is also why the batch order
+// is fixed: parent_id must leave the deleted id before the CASCADE runs, or
+// SQLite would cascade the sub-replies away instead.
+export const POST_DELETE_SQL =
+  "DELETE FROM posts WHERE id = ? AND author_id = ?";
+export const REPLY_REPARENT_SQL = "UPDATE posts SET parent_id = ? WHERE parent_id = ?";
+
+// Statement builder shared with the real-SQLite FK tests (tests/deletions.test.mjs
+// runs these exact SQL strings against migrations 0001–0006 to pin the cascade
+// and reparent semantics). parentId null means the target is a thread root.
+export function postDeletionStatements(db, authorId, postId, parentId) {
+  const deletePost = db.prepare(POST_DELETE_SQL).bind(postId, authorId);
+  if (parentId === null || parentId === undefined) return [deletePost];
+  return [db.prepare(REPLY_REPARENT_SQL).bind(parentId, postId), deletePost];
+}
+
+async function handlePostDeleteRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
+  const deleteMatch = path.match(/^\/api\/posts\/([0-9]+)$/);
+  if (deleteMatch && method === "DELETE") {
+    const session = await requireUser(request, env);
+    await assertNotBanned(env, session.user.id);
+    await rateLimit(request, env, "write");
+    await rateLimit(request, env, "post-write", String(session.user.id));
+    const postId = Number(deleteMatch[1]);
+    if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
+    const post = await postById(env, postId, session.user.id);
+    if (!post) throw new HttpError(404, "Post not found.");
+    if (Number(post.author_id) !== session.user.id) {
+      throw new HttpError(403, "Only the author can delete this post.");
+    }
+    const parentId = post.parent_id === null || post.parent_id === undefined
+      ? null
+      : Number(post.parent_id);
+    const results = await db.batch(postDeletionStatements(
+      db, session.user.id, postId, parentId,
+    ));
+    // The author-guarded DELETE must be the statement that changed exactly one
+    // row; a 0-change delete means the post vanished between the read and the
+    // write (or ownership shifted) — report 404, never a false success. A
+    // 0-change reparent only means the reply had no sub-replies.
+    if (Number(results[results.length - 1]?.meta?.changes) !== 1) {
+      throw new HttpError(404, "Post not found.");
+    }
+    return json({ deleted: true });
+  }
+  return null;
+}
+
 async function handleReactionRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   const reactionMatch = path.match(/^\/api\/posts\/([0-9]+)\/reaction$/);
@@ -648,7 +718,7 @@ async function handleSearchRoute(request, env, url, path, method) {
 }
 
 async function handlePostRoutes(request, env, url, path, method) {
-  const handlers = [handlePostFeedRoute, handleRepliesReadRoute, handlePostDetailRoute, handleReplyCreateRoute, handlePostCreateRoute, handlePostEditRoute, handleReactionRoute, handleReactionDeleteRoute, handleSearchRoute];
+  const handlers = [handlePostFeedRoute, handleRepliesReadRoute, handlePostDetailRoute, handleReplyCreateRoute, handlePostCreateRoute, handlePostEditRoute, handlePostDeleteRoute, handleReactionRoute, handleReactionDeleteRoute, handleSearchRoute];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method);
     if (response) return response;
