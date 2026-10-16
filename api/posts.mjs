@@ -8,6 +8,7 @@ import {
 } from "./attachments.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { notificationBatchStatements } from "./notifications.mjs";
+import { mentionFanOutStatements } from "./mentions.mjs";
 import { subscriberFlagForViewer, subscriptionReplyFanOut } from "./subscriptions.mjs";
 import {
   archivePostRowsStatement,
@@ -555,6 +556,16 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
       const statements = notificationBatchStatements(
         db, recipientId, session.user.id, targetId, replyId, now,
       );
+      // Mentions (C2): @username tokens in the FILTERED body notify their
+      // members unless that member is the ordinary target already notified
+      // above (deduped; the INSERT's NOT EXISTS guard is the second net).
+      statements.push(...await mentionFanOutStatements(db, message, {
+        actorId: session.user.id,
+        targetPostId: targetId,
+        replyId,
+        now,
+        excludeIds: [recipientId],
+      }));
       statements.push(...await subscriptionReplyFanOut(db, {
         rootPostId: bumpTargetId,
         replyAuthorId: session.user.id,
@@ -606,6 +617,21 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     const postId = Number(result.meta.last_row_id);
     // Attachment intake is a separate batch: if it fails, the post row is already committed (retry may duplicate the post); accepted tradeoff.
     await insertAttachments(db, postId, session.user.id, files, gifEntries);
+    try {
+      // Mentions (C2): @username tokens in the FILTERED body notify their
+      // members, best-effort — a failed mention never fails the post. There
+      // is no reply id yet, and the fresh root's own id is the target.
+      const mentionStatements = await mentionFanOutStatements(db, message, {
+        actorId: session.user.id,
+        targetPostId: postId,
+        replyId: null,
+        now,
+        excludeIds: [],
+      });
+      if (mentionStatements.length > 0) await db.batch(mentionStatements);
+    } catch {
+      // Ignore: mentions are a convenience, not a post precondition.
+    }
     return json({ id: postId }, 201);
   }
   return null;

@@ -33,6 +33,30 @@ export function isSafeLinkUrl(raw) {
 // - refused (unterminated marker, refused image, unsafe/malformed link) →
 //   NO run emits; start stays, and the scan walks past the marker so its
 //   span rides the final text run exactly once.
+// A mention is an "@" preceded by the text start or a non-word character,
+// then a word-only handle — the exact token shape the API's notify scan uses
+// (api/mentions.mjs). Renders as a same-origin /users/<name> anchor. The
+// handle is regex-restricted to [A-Za-z0-9_], so it can never escape its href
+// segment; hrefs stay relative, and internal anchors (unlike links) get no
+// target attribute — they ride the SPA router like profile links.
+const MENTION_PATTERN = /(?:^|[^a-zA-Z0-9_])@([a-zA-Z0-9_]+)/g;
+
+// The next mention token at or after `from`; -1 when there is none.
+function nextMentionOpen(value, from) {
+  MENTION_PATTERN.lastIndex = from;
+  let match;
+  while ((match = MENTION_PATTERN.exec(value)) !== null) {
+    return match.index + (match[0].length - match[1].length) - 1; // "@" position
+  }
+  return -1;
+}
+
+// The handle that starts at an "@" position (after the "@").
+function mentionHandleAt(value, at) {
+  const match = /^@([a-zA-Z0-9_]+)/.exec(value.slice(at));
+  return match ? match[1] : null;
+}
+
 export function parseInline(document, text) {
   const value = String(text ?? "");
   const nodes = [];
@@ -43,7 +67,8 @@ export function parseInline(document, text) {
     const boldOpen = value.indexOf("**", index);
     const linkOpen = value.indexOf("[", index);
     const emOpen = nextItalicOpen(value, index);
-    const next = pickFirst([codeOpen, boldOpen, emOpen, linkOpen]);
+    const mentionOpen = nextMentionOpen(value, index);
+    const next = pickFirst([codeOpen, boldOpen, emOpen, linkOpen, mentionOpen]);
     if (next === -1 || next >= value.length) break;
     const emitPre = () => {
       if (next > start) nodes.push(makeText(document, value.slice(start, next)));
@@ -87,6 +112,18 @@ export function parseInline(document, text) {
       emitPre();
       nodes.push(makeInline(document, "em", emBody));
       start = index = close + 1;
+      continue;
+    }
+    // Mention token (C2): "@handle" → a same-origin /users/<handle> anchor.
+    const handle = mentionHandleAt(value, next);
+    if (handle) {
+      emitPre();
+      const anchor = document.createElement("a");
+      anchor.textContent = "@" + handle;
+      anchor.href = "/users/" + handle;
+      anchor.setAttribute("class", "mention");
+      nodes.push(anchor);
+      start = index = next + 1 + handle.length;
       continue;
     }
     // linkOpen: [text](url) — images ("![") are always refused.
