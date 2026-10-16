@@ -1,5 +1,5 @@
 // Post feed, post detail, replies, reactions, and search routes.
-import { REPLY_BUMP_SQL, SEARCH_USERS_SQL, THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL } from "../constants.mjs";
+import { REPLY_BUMP_SQL, SEARCH_USERS_SQL, STAGED_REPLY_BUMP_SQL, THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL } from "../constants.mjs";
 import {
   attachmentRowsForView,
   insertAttachments,
@@ -542,7 +542,7 @@ async function persistStagedPostAttachments(db, postId, authorId, files, gifEntr
       // for a reply whose attachments failed to commit.
       const results = await db.batch([
         publish,
-        db.prepare(REPLY_BUMP_SQL).bind(nowSeconds(), bumpTargetId),
+        db.prepare(STAGED_REPLY_BUMP_SQL).bind(nowSeconds(), bumpTargetId, postId),
       ]);
       if (Number(results[0]?.meta?.changes) !== 1) {
         throw new HttpError(409, "The conversation changed while your reply was being published. Please try again.");
