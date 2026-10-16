@@ -583,9 +583,8 @@ async function persistStagedPostAttachments(db, postId, authorId, files, gifEntr
       "SELECT 1 FROM posts target WHERE target.id = posts.parent_id AND target.visibility = 'public' AND (" +
       "target.parent_id IS NULL OR EXISTS (SELECT 1 FROM posts root WHERE root.id = target.parent_id " +
       "AND root.parent_id IS NULL AND root.visibility = 'public')))) " +
-      "AND NOT EXISTS (SELECT 1 FROM attachments a WHERE a.post_id = posts.id AND a.source_kind = 'gif' " +
-      "AND NOT EXISTS (SELECT 1 FROM gifs g WHERE g.hash = a.hash AND g.status = 'approved' " +
-      "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = g.hash)))",
+      "AND NOT EXISTS (SELECT 1 FROM attachments a WHERE a.post_id = posts.id AND a.status = 'approved' " +
+      "AND EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = a.hash))",
     ).bind(postId, authorId);
     if (bumpTargetId !== null) {
       // Publish and bump together so the root activity clock does not advance
