@@ -1468,3 +1468,9 @@ dialog h2 {
   color: var(--ink);
   background: var(--yellow);
 }
+
+.profile-post-counts {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0.2rem 0 0;
+}

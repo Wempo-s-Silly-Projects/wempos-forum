@@ -1,5 +1,6 @@
 import { attachmentUrl } from "./attachments.js";
 import { createIcon } from "./icons.js";
+import { parseBlocks, parseInline } from "./markdown.js";
 import { createTextarea } from "./forms.js";
 import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
 import { collapseWhitespace } from "./quotes.js";
@@ -86,19 +87,64 @@ const bodyLineBlocks = (body) => {
   return blocks;
 };
 
+// Body rendering (v2.5): markdown subset blocks — fenced code, headings,
+// lists, quotes, paragraphs — with markdown-INLINE runs (bold/italics/code/
+// safe links) inside every kind except code fences (raw). HTML is never
+// interpreted: all text lands through textContent, so "<b>" and "<script>"
+// stay literal. Images never render (the raw "![…](…)" stays text).
 const renderBodyBlocks = (post, document, article) => {
-  for (const block of bodyLineBlocks(post.body)) {
-    if (block.quote) {
+  for (const block of parseBlocks(post.body)) {
+    if (block.kind === "code") {
+      const pre = createElement(document, "pre", "post-codeblock");
+      const code = document.createElement("code");
+      code.textContent = block.text.join("\n");
+      pre.append(code);
+      article.append(pre);
+      continue;
+    }
+    if (block.kind === "heading") {
+      const tag = block.level === 1 ? "h3" : block.level === 2 ? "h4" : "h5";
+      const heading = createElement(document, tag, "post-heading");
+      renderInline(document, heading, block.text.join("\n"));
+      article.append(heading);
+      continue;
+    }
+    if (block.kind === "list") {
+      const list = createElement(document, "ul", "post-list");
+      for (const item of block.text) {
+        const entry = createElement(document, "li", "post-list-item");
+        renderInline(document, entry, item);
+        list.append(entry);
+      }
+      article.append(list);
+      continue;
+    }
+    if (block.kind === "quote") {
       const quote = createElement(document, "blockquote", "post-quote");
       for (const line of block.text) {
-        quote.append(createElement(document, "p", "quote-line", line));
+        const quoteLine = createElement(document, "p", "quote-line");
+        renderInline(document, quoteLine, line);
+        quote.append(quoteLine);
       }
       article.append(quote);
-    } else {
-      article.append(createElement(document, "p", "post-body", block.text.join("\n")));
+      continue;
     }
+    const paragraph = createElement(document, "p", "post-body");
+    renderInline(document, paragraph, block.text.join("\n"));
+    article.append(paragraph);
   }
 };
+
+// Markdown-inline runs appended INTO an existing element (link hrefs are
+// scheme-checked by isSafeLinkUrl in markdown.js; anything unsafe renders
+// as literal text via textContent — no exception escapes here).
+function renderInline(document, target, text) {
+  try {
+    for (const node of parseInline(document, text)) target.append(node);
+  } catch {
+    target.textContent = String(text ?? "");
+  }
+}
 
 // Latest-replies preview rows on feed cards (plan v2.3): up to three compact,
 // app-link rows (author + single-line snippet + time) into the thread. The

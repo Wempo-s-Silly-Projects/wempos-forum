@@ -44,6 +44,15 @@ async function handleUserProfileRoute(request, env, url, path, method) {
     }
     const user = await userByUsernameKey(env, username.toLowerCase());
     if (!user) throw new HttpError(404, "Member not found.");
+    // Per-user post counter (v2.6): two COUNT subselects — threads started
+    // and replies written (any post row with a parent). Display-only; it
+    // does not filter by visibility (the author's own-view semantics), and
+    // the posts LIST right below still applies all visibility rules.
+    const counts = await env.FORUM_DB.prepare(
+      "SELECT " +
+      "(SELECT COUNT(*) FROM posts WHERE author_id = ?) AS posts_count, " +
+      "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NOT NULL) AS replies_count",
+    ).bind(Number(user.id), Number(user.id)).first();
     const session = await readSession(request, env);
     const beforeRaw = url.searchParams.get("before");
     let before = null;
@@ -59,6 +68,8 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       id: Number(user.id),
       username: user.username,
       role: user.role,
+      postsCount: Number(counts && counts.posts_count || 0),
+      repliesCount: Number(counts && counts.replies_count || 0),
       // Profile themes (v2.5): the whitelisted accent KEY for the client's
       // per-key CSS class ("" normalizes rows missing the projection).
       profileAccent: isValidProfileAccent(user.profile_accent || "") ? user.profile_accent : "",

@@ -386,8 +386,10 @@ test("(d) consecutive '> ' lines render as blockquote children, text only", () =
   const lines = quote.children;
   assert.equal(lines.length, 2);
   assert.equal(lines[0].tagName, "P");
-  assert.equal(lines[0].textContent, "line");
-  assert.equal(lines[1].textContent, "line2");
+  // Quote lines carry their text as raw text nodes (markdown-inline runs);
+  // the walk collects the line's full text content.
+  assert.equal([...walk(lines[0])].map((node) => node.textContent ?? "").join(""), "line");
+  assert.equal([...walk(lines[1])].map((node) => node.textContent ?? "").join(""), "line2");
 });
 
 test("(d) a leading quote block renders blockquote-then-text keeping order", () => {
@@ -400,7 +402,8 @@ test("(d) a leading quote block renders blockquote-then-text keeping order", () 
   const quoteIndex = children.indexOf(selectByClass(card, "post-quote"));
   const bodyIndex = children.indexOf(selectByClass(card, "post-body"));
   assert.ok(quoteIndex >= 0 && bodyIndex === quoteIndex + 1, "quote block sits before the text block");
-  assert.equal(selectByClass(card, "post-body").textContent, "Then normal text");
+  const bodyText = [...walk(selectByClass(card, "post-body"))].map((node) => node.textContent ?? "").join("");
+  assert.equal(bodyText, "Then normal text");
 });
 
 test("(d) HTML-looking text in bodies and quotes stays literal, never interpreted", () => {
@@ -410,9 +413,9 @@ test("(d) HTML-looking text in bodies and quotes stays literal, never interprete
     null,
   );
   const quoteLine = selectByClass(card, "quote-line");
-  assert.equal(quoteLine.textContent, "<script>alert(1)</script>");
+  assert.equal([...walk(quoteLine)].map((node) => node.textContent ?? "").join(""), "<script>alert(1)</script>");
   const body = selectByClass(card, "post-body");
-  assert.equal(body.textContent, "bold <b>bold</b> tail");
+  assert.equal([...walk(body)].map((node) => node.textContent ?? "").join(""), "bold <b>bold</b> tail");
 });
 
 test("(d) bodies without quote lines keep the single pre-wrap .post-body paragraph", () => {

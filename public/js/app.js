@@ -499,6 +499,10 @@ function renderProfile(profile, session) {
     heading.append(image);
   }
   addHeading(heading, profile.username, 1);
+  // Per-user post counter (v2.5): threads started + replies written, in the
+  // profile heading (muted; display-only).
+  heading.append(element("p", "profile-post-counts",
+    `${Number(profile.postsCount || 0)} posts · ${Number(profile.repliesCount || 0)} replies`));
   // The pending-upload status comes from the session payload (the profile
   // payload does not carry avatarStatus), so only the owner sees the badge —
   // everyone else just sees the currently approved avatar.
@@ -603,9 +607,13 @@ async function renderHomeRoute(route, context, version) {
 // conversation box" placement, not a top-bar item).
 function renderFeedTabs(active) {
   const tabs = element("div", "feed-tabs");
-  const spec = active === "mine"
-    ? [["/", "All posts"], ["/mine", "My posts", true]]
-    : [["/", "All posts", true], ["/mine", "My posts"]];
+  // Suggestions rides the tab pair too (owner: "more up front" than a header
+  // icon) — a real route like the others.
+  const spec = [
+    ["/", "All posts", active === "all"],
+    ["/mine", "My posts", active === "mine"],
+    ["/suggestions", "Suggestions", active === "suggestions"],
+  ];
   for (const [href, label, isActive] of spec) {
     const tab = element("a", "feed-tab", label);
     tab.href = href;
@@ -686,6 +694,7 @@ async function renderSuggestionsRoute(context, version) {
   // data.feed.* reads below are correct.
   const data = { feed: await api("/api/posts?board=suggestions") };
   if (version !== renderVersion) return;
+  main.append(renderFeedTabs("suggestions"));
   if (context.session.user) {
     main.append(createComposer(
       "post-create", "Share a suggestion", "Post suggestion", null, null,
