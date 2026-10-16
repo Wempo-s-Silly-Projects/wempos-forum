@@ -945,8 +945,12 @@ function quoteIntoComposer(button) {
   // event — so the composer's live character counter (wired in forms.js to the
   // input event) would keep showing the stale pre-quote count. Dispatch the
   // event it listens for so the counter reflects the post-prefill value.
-  // No truncation here: programmatic assignment can exceed the textarea's
-  // maxLength, and submitting is blocked by form validity / the server 400.
+  // Over-limit prefills are NOT clamped here (clamping would silently eat the
+  // user's draft). Note the actual protection: native tooLong validity only
+  // covers values "last changed by a user edit" (WHATWG constraint
+  // validation), so a programmatically assigned value past 1000 chars sails
+  // through client validity checks and the server 400 is the only gate. The
+  // stale counter above is display-only and independent of that limit.
   textarea.dispatchEvent(new Event("input", { bubbles: true }));
   form.scrollIntoView({ block: "nearest" });
 }
