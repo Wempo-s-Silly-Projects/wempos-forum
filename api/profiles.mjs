@@ -235,9 +235,12 @@ async function handlePasswordChangeRoute(request, env, url, path, method) {
 // Account deletion (v2.4.1 feature): POST /api/me/delete. Same-origin + CSRF
 // via requireUser (mutating routes are Origin-gated in shared.mjs and the
 // worker's global write limiter runs first); the handler re-runs the write
-// limiter like the post routes do. assertNotBanned is deliberately absent: a
-// banned account has no live sessions to reach this route with (the ban route
-// revokes them), and nothing here can resurrect a ban.
+// limiter like the post routes do. assertNotBanned is deliberately absent
+// (spec-required for exactly this route): ban enforcement is lazy — the
+// per-request checks happen at login/next-read, so a banned user holding a
+// live session CAN reach this route and may delete their own account as their
+// own way out. Deleting is also self-limiting: it removes the sessions and
+// bans rows, so nothing here can extend or resurrect a ban.
 //
 // FK analysis (migrations 0001/0002/0003/0004 — deleting the USER row):
 //   sessions.user_id        → users ON DELETE CASCADE

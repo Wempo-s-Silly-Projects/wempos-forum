@@ -671,7 +671,7 @@ test("account deletion removes the user and everything they own, keeping other u
   // threads (owner-accepted blast radius), while bob's own thread (minus
   // alice's reply in it) survives.
   for (const gone of [aRoot, bRep, cSub, aRep]) {
-    assert.equal(countWhere(db, "SELECT COUNT(*) AS n FROM posts WHERE id = ?"), 0, "post " + gone);
+    assert.equal(countWhere(db, "SELECT COUNT(*) AS n FROM posts WHERE id = ?", gone), 0, "post " + gone);
   }
   assert.ok(countWhere(db, "SELECT COUNT(*) AS n FROM posts WHERE id = ?", bRoot));
   // No orphaned child rows anywhere: reactions on her posts (by anyone) and by
