@@ -26,6 +26,7 @@ import {
   requireTurnstile,
   requireUser,
   requiredText,
+  VIEW_INCREMENT_SQL,
 } from "./shared.mjs";
 
 export { POST_SELECT };
@@ -416,6 +417,19 @@ async function handlePostDetailRoute(request, env, url, path, method) {
     const showAll = Boolean(viewer && viewer.role === "admin");
     const row = await postById(env, postId, viewerId);
     if (!(await canViewPost(env, row, viewer))) throw new HttpError(404, "Post not found.");
+    // View counter (v2.4.3, raw impressions): every non-author detail read is
+    // one view. RETURNING keeps the payload's count fresh; a failed/0-change
+    // increment (post deleted mid-request) just keeps the stale read value.
+    const isOwnView = viewer && viewer.id === Number(row.author_id);
+    if (!isOwnView) {
+      try {
+        const counted = await env.FORUM_DB.prepare(VIEW_INCREMENT_SQL).bind(postId).first();
+        const fresh = counted && counted.view_count !== undefined ? Number(counted.view_count) : null;
+        if (fresh !== null) row.view_count = fresh;
+      } catch {
+        // Counting is best-effort; a failed increment never fails the read.
+      }
+    }
     // Depth annotation: this post is a root when parent_id is null, else a
     // level-1 reply; its direct replies are one level deeper.
     const detailDepth = row.parent_id ? 1 : 0;

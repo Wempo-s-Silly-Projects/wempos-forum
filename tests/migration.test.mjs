@@ -945,3 +945,34 @@ test("migration 0008 creates post_archive with a reason CHECK and cascade-free h
       "INSERT INTO post_archive (original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
     ).run(998, 1, "wempo", "x", "general", T + 20, T + 500, "mass-delete"));
 });
+
+// Migration 0009 tests: the view counter lives on the posts row itself and
+// defaults to zero everywhere.
+const MIGRATION_0009 = readFileSync(path.join(repoRoot, "migrations", "0009_view_count.sql"), "utf8");
+
+function applyViewCount(db) {
+  db.exec("BEGIN");
+  try {
+    db.exec(MIGRATION_0009);
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
+
+test("migration 0009 adds a NOT NULL view_count defaulting to zero", () => {
+  const db = openV6Db();
+  applyPostEdits(db);
+  applyPostArchive(db);
+  applyViewCount(db);
+
+  const columns = columnsOf(db, "posts");
+  assert.ok(columns.includes("view_count"), "missing posts.view_count");
+  assert.equal(db.prepare("SELECT view_count FROM posts WHERE id = 1").get().view_count, 0,
+    "pre-existing posts read zero");
+  db.prepare("UPDATE posts SET view_count = view_count + 1 WHERE id = 1 RETURNING view_count")
+    .all();
+  assert.equal(db.prepare("SELECT view_count FROM posts WHERE id = 1").get().view_count, 1,
+    "the increment (RETURNING) path works on the real column");
+});

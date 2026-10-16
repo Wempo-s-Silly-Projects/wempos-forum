@@ -208,6 +208,17 @@ export const createPostCard = (post, document, currentUser = null) => {
   // Reply-count chip (plan v2.3): only threads carrying comments get one;
   // replyCount 0 (or an un-decorated payload) renders no chip at all.
   // Number() on undefined yields NaN, so the guard handles both shapes.
+  // View counter (v2.4.3): front and center — every card carries an eye chip
+  // with the raw impression count; 0 is displayed (front-and-center was the
+  // owner's whole ask, unlike the reply chip which hides at 0).
+  const views = createElement(document, "span", "view-count icon-inline");
+  views.append(createIcon(document, "eye"));
+  const viewsHidden = createElement(document, "span", "visually-hidden", "views");
+  views.append(viewsHidden, document.createTextNode(String(Number(post.viewCount || 0))));
+  actions.append(views);
+  // Reply-count chip (plan v2.3): only threads carrying comments get one;
+  // replyCount 0 (or an un-decorated payload) renders no chip at all.
+  // Number() on undefined yields NaN, so the guard handles both shapes.
   if (Number(post.replyCount) > 0) {
     const chat = createElement(document, "span", "reply-count icon-inline");
     chat.append(createIcon(document, "chat"));
