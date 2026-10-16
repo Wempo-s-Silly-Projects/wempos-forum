@@ -274,7 +274,7 @@ test("a multipart post with one GIF file creates the post and one pending attach
   assert.equal(inserts[0].values[4], "pending", "new (never-approved) attachments are always pending");
   assert.equal(inserts[0].values[1], 42, "attachment binds the inserted post's row id");
   assert.equal(inserts[0].values[2], 7, "attachment records the uploading account");
-  assert.match(postInsert.sql, /SELECT \?, NULL, \?, 'hidden', \?, \?, \? WHERE NOT EXISTS/, "attachment-bearing posts start hidden until their bytes are stored");
+  assert.match(postInsert.sql, /SELECT \?, NULL, \?, 'hidden', \?, \?, \?, \? WHERE NOT EXISTS/, "attachment-bearing posts start hidden until their bytes are stored");
   assert.ok(mock.calls.some((entry) => entry.sql.startsWith("UPDATE posts SET visibility = 'public'")),
     "the post is published only after its attachment batch commits");
 });
