@@ -183,7 +183,7 @@ function postRow(overrides = {}) {
 const sessionRoute = { sql: /FROM sessions s LEFT JOIN users u/, result: sessionRow() };
 const banCheckRoute = { sql: /^SELECT id FROM bans WHERE user_id = \?/, result: null };
 const postInsertRoute = {
-  sql: /INSERT INTO posts \(author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key\)/,
+  sql: /INSERT INTO posts \(author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint, staged_at\)/,
   runMeta: { meta: { changes: 1, last_row_id: 42 } },
 };
 
@@ -267,14 +267,14 @@ test("a multipart post with one GIF file creates the post and one pending attach
   const inserts = attachmentCalls(mock.calls);
   assert.equal(inserts.length, 1, "one attachment row must be inserted");
   // Mime must come from sniffImageMime, not the client's declared type.
-  assert.equal(inserts[0].values[6], "image/gif"); // v2.5: 8 binds, mime at [6]
+  assert.equal(inserts[0].values[7], "image/gif"); // v2.5: 8 binds, mime at [6]
   assert.ok(inserts[0].sql.includes("status, version"), "attachment insert sets the schema columns");
   // v2.5: status is a BIND (pending for unseen content; 'approved' when the
   // hash matched a previously-approved upload).
-  assert.equal(inserts[0].values[4], "pending", "new (never-approved) attachments are always pending");
+  assert.equal(inserts[0].values[4], 0, "new uploads do not claim a prior approval");
   assert.equal(inserts[0].values[1], 42, "attachment binds the inserted post's row id");
   assert.equal(inserts[0].values[2], 7, "attachment records the uploading account");
-  assert.match(postInsert.sql, /SELECT \?, NULL, \?, 'hidden', \?, \?, \?, \? WHERE NOT EXISTS/, "attachment-bearing posts start hidden until their bytes are stored");
+  assert.match(postInsert.sql, /SELECT \?, NULL, \?, 'hidden', \?, \?, \?, \?, \?, \? WHERE NOT EXISTS/, "attachment-bearing posts start hidden until their bytes are stored");
   assert.ok(mock.calls.some((entry) => entry.sql.startsWith("UPDATE posts SET visibility = 'public'")),
     "the post is published only after its attachment batch commits");
 });
@@ -296,7 +296,7 @@ test("a .png-named JPEG binds image/jpeg — the sniff decides, not the filename
   assert.equal(response.status, 201);
   const inserts = attachmentCalls(mock.calls);
   assert.equal(inserts.length, 1);
-  assert.equal(inserts[0].values[6], "image/jpeg"); // v2.5: 8 binds, mime at [6]
+  assert.equal(inserts[0].values[7], "image/jpeg"); // v2.5: 8 binds, mime at [6]
 });
 
 test("non-image bytes are refused with 400 and never insert anything", async () => {
@@ -388,19 +388,19 @@ test("a 4 MiB multipart post chunks its bytes into seq 0..2 of the intake batch"
   assert.equal(chunkInserts.length, 3, "4 MiB must fill three chunks at 1,900,000 bytes each");
   assert.equal(mock.batches.length, 1, "metadata and chunk inserts ride in ONE batch");
   assert.equal(mock.batches[0].length, 4, "the batch carries the metadata INSERT plus every chunk INSERT");
-  assert.deepEqual(chunkInserts.map((call) => call.values[1]), [0, 1, 2], "chunks bind seq 0..2");
+  assert.deepEqual(chunkInserts.map((call) => call.values[2]), [0, 1, 2], "chunks bind seq 0..2");
   assert.ok(chunkInserts[0].sql.includes("kind"), "the chunk insert names the kind column");
-  assert.ok(chunkInserts[0].sql.includes("'pending'"), "intake bytes are always pending");
+  assert.ok(chunkInserts[0].sql.includes("ELSE 'pending'"), "unapproved intake bytes remain pending");
   for (const call of chunkInserts) {
-    assert.ok(call.values[2].length > 0 && call.values[2].length <= MAX_ATTACHMENT_CHUNK_BYTES);
+    assert.ok(call.values[3].length > 0 && call.values[3].length <= MAX_ATTACHMENT_CHUNK_BYTES);
     assert.equal(call.values[0], metadataInserts[0].values[0], "chunks bind their attachment's id");
   }
   // Chunks fill to the cap in order; only the tail chunk can be short.
   assert.deepEqual(
-    chunkInserts.slice(0, 2).map((call) => call.values[2].length),
+    chunkInserts.slice(0, 2).map((call) => call.values[3].length),
     [MAX_ATTACHMENT_CHUNK_BYTES, MAX_ATTACHMENT_CHUNK_BYTES],
   );
-  assert.equal(chunkInserts[2].values[2].length, GIF_FOUR_MIB.length - 2 * MAX_ATTACHMENT_CHUNK_BYTES);
+  assert.equal(chunkInserts[2].values[3].length, GIF_FOUR_MIB.length - 2 * MAX_ATTACHMENT_CHUNK_BYTES);
 });
 
 test("reassembling a 10 MiB file's bound chunk bytes is byte-identical to the upload", async () => {
@@ -413,9 +413,9 @@ test("reassembling a 10 MiB file's bound chunk bytes is byte-identical to the up
   const assembled = new Uint8Array(JPEG_TEN_MIB.length);
   let offset = 0;
   for (const [expected, call] of expectedChunks.map((expected, index) => [expected, chunkInserts[index]])) {
-    assert.deepEqual(call.values[2], expected.data, `chunk seq ${expected.seq} must hold the right byte range`);
-    assembled.set(call.values[2], offset);
-    offset += call.values[2].length;
+    assert.deepEqual(call.values[3], expected.data, `chunk seq ${expected.seq} must hold the right byte range`);
+    assembled.set(call.values[3], offset);
+    offset += call.values[3].length;
   }
   assert.equal(offset, JPEG_TEN_MIB.length);
   assert.deepEqual(assembled, JPEG_TEN_MIB);
@@ -1104,7 +1104,7 @@ test("approving flips the pending chunks to approved, marks the row approved, an
   const mock = mockDb([
     moderatorSessionRoute,
     banCheckRoute,
-    { sql: /SELECT hash FROM attachments WHERE id = \? AND status = 'pending'/, result: { hash: null } },
+    { sql: /SELECT id FROM attachments WHERE id = \? AND status = 'pending'/, result: { id: ATTACHMENT_ID } },
     { sql: /^UPDATE attachments/, runMeta: { meta: { changes: 1 } } },
     { sql: /^UPDATE attachment_chunks/, runMeta: { meta: { changes: 6 } } },
     { sql: /./ },
@@ -1118,7 +1118,7 @@ test("approving flips the pending chunks to approved, marks the row approved, an
   const body = await response.json();
   assert.deepEqual(body, { approved: true, id: ATTACHMENT_ID });
   assert.equal(mock.batches.length, 1, "the approve runs its two statements in ONE all-or-nothing batch");
-  assert.equal(mock.batches[0].length, 2, "approve = the status flip plus the chunk relabel");
+  assert.equal(mock.batches[0].length, 3, "approval, chunk relabel, and tombstone clearing are one batch");
   const metadataUpdate = mock.calls.find((call) => call.sql.startsWith("UPDATE attachments"));
   const chunkUpdate = mock.calls.find((call) => call.sql.startsWith("UPDATE attachment_chunks"));
   assert.ok(metadataUpdate, "the approve UPDATE must run");
@@ -1277,12 +1277,12 @@ test("approved hash duplicates store an independent approved chunk set", async (
 
   assert.equal(ids.length, 1);
   const metadata = mock.calls.find((entry) => entry.sql.startsWith("INSERT INTO attachments"));
-  assert.equal(metadata.values[4], "approved");
+  assert.equal(metadata.values[4], 1, "the duplicate was previously approved, subject to the revocation guard");
   const chunks = chunkInsertCalls(mock.calls);
   assert.equal(chunks.length, 1);
   assert.match(chunks[0].sql, /VALUES \(\?, 'approved', \?, \?\)/);
   assert.equal(chunks[0].values[0], ids[0], "the duplicate owns its bytes instead of aliasing the original");
-  assert.deepEqual(chunks[0].values[2], bytes);
+  assert.deepEqual(chunks[0].values[3], bytes);
 });
 
 test("attachment storage failure removes the staged post before returning an error", async () => {
@@ -1331,7 +1331,7 @@ test("insertAttachments persists all files and their chunks in ONE all-or-nothin
   assert.equal(chunkInsertCalls(mock.calls).length, 3);
   assert.ok(attachmentCalls(mock.calls).every((insert) => insert.values[1] === 42 && insert.values[2] === 7));
   for (const call of chunkInsertCalls(mock.calls)) {
-    assert.ok(call.values[2].length <= MAX_ATTACHMENT_CHUNK_BYTES);
+    assert.ok(call.values[3].length <= MAX_ATTACHMENT_CHUNK_BYTES);
     assert.ok(ids.includes(call.values[0]), "each chunk binds its own attachment's id");
   }
   // Empty file lists still write nothing.
