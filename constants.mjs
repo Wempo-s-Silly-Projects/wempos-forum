@@ -31,6 +31,14 @@ export const THREAD_REPLY_INSERT_SQL =
     "AND NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
     "AND (expires_at IS NULL OR expires_at > ?))";
 
+// Replies with attachments are inserted as hidden until their attachment batch
+// commits. Replacing only the first visibility literal preserves the public-root
+// and ban predicates below while allowing the caller to bind 'hidden'.
+export const THREAD_REPLY_INSERT_STAGED_SQL = THREAD_REPLY_INSERT_SQL.replace(
+  "SELECT ?, ?, ?, 'public', ?, ?, ? WHERE EXISTS (",
+  "SELECT ?, ?, ?, ?, ?, ?, ? WHERE EXISTS (",
+);
+
 // Reply replies bump their conversation root: last_activity_at = now on the
 // root row (id resolved in JS as the target root or the target's parent).
 export const REPLY_BUMP_SQL = "UPDATE posts SET last_activity_at = ? WHERE id = ?";
