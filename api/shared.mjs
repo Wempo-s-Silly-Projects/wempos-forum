@@ -368,7 +368,7 @@ export async function requireTurnstile(request, env, body, expectedAction) {
   const secret = env.TURNSTILE_SECRET;
   const hostnames = String(env.TURNSTILE_HOSTNAMES || "")
     .split(",")
-    .map((hostname) => hostname.trim())
+    .map((hostname) => hostname.trim().toLowerCase())
     .filter(Boolean);
   const token = typeof body["cf-turnstile-response"] === "string" ? body["cf-turnstile-response"] : "";
   if (!secret || hostnames.length === 0 || !token || token.length > TURNSTILE_TOKEN_MAX_LENGTH) {
@@ -393,7 +393,18 @@ export async function requireTurnstile(request, env, body, expectedAction) {
     console.error("Turnstile siteverify request failed:", error && error.name ? error.name : "UnknownError");
     throw new HttpError(403, "Human verification could not be completed. Please try again.");
   }
-  if (!result.success || result.action !== expectedAction || !hostnames.includes(result.hostname)) {
+  const verifiedHostname = typeof result.hostname === "string"
+    ? result.hostname.toLowerCase()
+    : "";
+  // Wildcards must be explicit ("*.example.com"). The leading dot in the
+  // suffix prevents a wildcard from matching the apex or a similarly named
+  // domain such as "notexample.com". Production keeps its exact hostname list.
+  const hostnameMatches = hostnames.some((allowedHostname) =>
+    allowedHostname.startsWith("*.")
+      ? verifiedHostname.endsWith(allowedHostname.slice(1))
+      : verifiedHostname === allowedHostname,
+  );
+  if (!result.success || result.action !== expectedAction || !hostnameMatches) {
     throw new HttpError(403, "Human verification failed. Please try again.");
   }
 }
