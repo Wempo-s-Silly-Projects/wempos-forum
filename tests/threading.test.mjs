@@ -428,7 +428,7 @@ test("new root posts stamp last_activity_at equal to created_at", async () => {
   assert.equal(insert.values[3], insert.values[2], "last_activity_at binds the same timestamp as created_at");
   // No board field submitted: the root defaults to the general board.
   assert.equal(insert.values[4], "general");
-  assert.deepEqual(insert.values.slice(5), [null, null, null, null, 7, insert.values[2]],
+  assert.deepEqual(insert.values.slice(5), [null, null, null, 7, insert.values[2]],
     "the ban guard binds follow the board (user id, then the ban check's now)");
 });
 
