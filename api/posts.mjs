@@ -674,18 +674,11 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
     const idempotencyKey = getPostIdempotencyKey(request);
-    await rateLimit(request, env, "write");
-    await rateLimit(request, env, "post-write", String(session.user.id));
     const targetId = Number(replyMatch[1]);
     if (!Number.isSafeInteger(targetId) || targetId < 1) throw new HttpError(404, "Post not found.");
     const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
       .startsWith("multipart/form-data");
-    // Charge multipart composer requests before parsing, hashing, sniffing, or duplicate lookup.
-    if (isMultipart) await rateLimit(request, env, "image-upload", String(session.user.id));
     const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env);
-    if (!isMultipart && (files.length > 0 || gifIds.length > 0)) {
-      await rateLimit(request, env, "image-upload", String(session.user.id));
-    }
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
@@ -695,6 +688,14 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
       : null;
     const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
     if (replay) return replay;
+    // Idempotent replays are checked before quota-consuming limits. Body parsing
+    // is bounded; only a genuinely new submission consumes write/upload quota.
+    await rateLimit(request, env, "write");
+    await rateLimit(request, env, "post-write", String(session.user.id));
+    if (isMultipart || files.length > 0 || gifIds.length > 0) {
+      await rateLimit(request, env, "image-upload", String(session.user.id));
+    }
+
     const target = await postById(env, targetId, session.user.id);
     if (!target || target.visibility !== "public") {
       throw new HttpError(400, "Replies must be attached to a public conversation, not another reply.");
@@ -810,16 +811,9 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
     const idempotencyKey = getPostIdempotencyKey(request);
-    await rateLimit(request, env, "write");
-    await rateLimit(request, env, "post-write", String(session.user.id));
     const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
       .startsWith("multipart/form-data");
-    // Charge multipart composer requests before parsing, hashing, sniffing, or duplicate lookup.
-    if (isMultipart) await rateLimit(request, env, "image-upload", String(session.user.id));
     const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env);
-    if (!isMultipart && (files.length > 0 || gifIds.length > 0)) {
-      await rateLimit(request, env, "image-upload", String(session.user.id));
-    }
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
@@ -833,6 +827,14 @@ async function handlePostCreateRoute(request, env, url, path, method) {
       : null;
     const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
     if (replay) return replay;
+    // Idempotent replays are checked before quota-consuming limits. Body parsing
+    // is bounded; only a genuinely new submission consumes write/upload quota.
+    await rateLimit(request, env, "write");
+    await rateLimit(request, env, "post-write", String(session.user.id));
+    if (isMultipart || files.length > 0 || gifIds.length > 0) {
+      await rateLimit(request, env, "image-upload", String(session.user.id));
+    }
+
     await requireTurnstile(request, env, fields, "post");
     const now = nowSeconds();
     // A fresh root starts its activity clock at creation time. When it carries
