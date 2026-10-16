@@ -290,7 +290,7 @@ async function handleCssClearRoute(request, env, url, path, method) {
   await rateLimit(request, env, "write");
   await env.FORUM_DB.batch([
     env.FORUM_DB.prepare(
-      "UPDATE users SET pending_css = NULL, approved_css = NULL, css_status = 'none' WHERE id = ?"),
+      "UPDATE users SET pending_css = NULL, approved_css = NULL, css_status = 'none' WHERE id = ?",
     ).bind(session.user.id),
   ]);
   return json({ cleared: true });
