@@ -47,7 +47,7 @@ const envFor = (db) => ({
 });
 
 function archiveRoute(rows) {
-  return { sql: /^SELECT id, original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because FROM post_archive WHERE id < \? ORDER BY id DESC LIMIT 51$/, rows };
+  return { sql: /^SELECT id, original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because, deleted_by_user_id, deleted_by_name FROM post_archive WHERE id < \? ORDER BY id DESC LIMIT 51$/, rows };
 }
 
 test("GET /api/archive is public, newest-first, and ISO-serialized", async () => {
