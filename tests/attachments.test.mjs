@@ -79,7 +79,7 @@ function chunkFixture(bytes, chunkSize = MAX_ATTACHMENT_CHUNK_BYTES) {
 // D1 mock: routes are { sql: RegExp, result?, rows?, runMeta? }. prepare()
 // picks the first route whose regex matches the SQL (last route is the
 // fallback). Copied from tests/threading.test.mjs.
-function mockDb(routes, { batchMeta = null } = {}) {
+function mockDb(routes, { batchMeta = null, batchError = null } = {}) {
   const calls = [];
   const batches = [];
   const db = {
@@ -110,6 +110,7 @@ function mockDb(routes, { batchMeta = null } = {}) {
     },
     async batch(statements) {
       batches.push(statements);
+      if (batchError) throw batchError;
       return statements.map((statement, index) =>
         (batchMeta && batchMeta[index]) || { meta: { changes: 1 } });
     },
@@ -273,6 +274,9 @@ test("a multipart post with one GIF file creates the post and one pending attach
   assert.equal(inserts[0].values[4], "pending", "new (never-approved) attachments are always pending");
   assert.equal(inserts[0].values[1], 42, "attachment binds the inserted post's row id");
   assert.equal(inserts[0].values[2], 7, "attachment records the uploading account");
+  assert.equal(postInsert.values[2], "hidden", "attachment-bearing posts start hidden until their bytes are stored");
+  assert.ok(mock.calls.some((entry) => entry.sql.startsWith("UPDATE posts SET visibility = 'public'")),
+    "the post is published only after its attachment batch commits");
 });
 
 test("a .png-named JPEG binds image/jpeg — the sniff decides, not the filename", async () => {
@@ -1257,6 +1261,50 @@ test("approving an unknown or non-pending attachment id is a 404", async () => {
     envFor(mock.db),
   );
   assert.equal(response.status, 404);
+});
+
+test("approved hash duplicates store an independent approved chunk set", async () => {
+  const bytes = GIF_BYTES;
+  const file = { mime: "image/gif", bytes, hash: "a".repeat(64), preApproved: true };
+  const mock = mockDb([{ sql: /./ }]);
+  const ids = await insertAttachments(mock.db, 99, 7, [file]);
+
+  assert.equal(ids.length, 1);
+  const metadata = mock.calls.find((entry) => entry.sql.startsWith("INSERT INTO attachments"));
+  assert.equal(metadata.values[4], "approved");
+  const chunks = chunkInsertCalls(mock.calls);
+  assert.equal(chunks.length, 1);
+  assert.match(chunks[0].sql, /VALUES \(\?, 'approved', \?, \?\)/);
+  assert.equal(chunks[0].values[0], ids[0], "the duplicate owns its bytes instead of aliasing the original");
+  assert.deepEqual(chunks[0].values[2], bytes);
+});
+
+test("attachment storage failure removes the staged post before returning an error", async () => {
+  const mock = mockDb(
+    [sessionRoute, banCheckRoute, postInsertRoute, { sql: /./ }],
+    { batchError: new Error("simulated attachment batch failure") },
+  );
+  const siteverify = withMockedSiteverify({ success: true, action: "post", hostname: "forum.example" });
+  const originalError = console.error;
+  console.error = () => {};
+  let response;
+  try {
+    ({ response } = await multipartPost(
+      mock,
+      envFor(mock.db),
+      [{ bytes: GIF_BYTES, name: "broken-upload.gif" }],
+    ));
+  } finally {
+    siteverify.done();
+    console.error = originalError;
+  }
+
+  assert.equal(response.status, 500);
+  const postInsert = mock.calls.find((entry) => entry.sql.startsWith("INSERT INTO posts"));
+  assert.equal(postInsert.values[2], "hidden", "the newly inserted post must not be publicly visible");
+  assert.ok(mock.calls.some((entry) =>
+    entry.sql.startsWith("DELETE FROM posts WHERE id = ? AND author_id = ? AND visibility = 'hidden'")),
+  "failure cleanup removes the hidden post so retrying cannot duplicate it");
 });
 
 test("insertAttachments persists all files and their chunks in ONE all-or-nothing batch", async () => {
