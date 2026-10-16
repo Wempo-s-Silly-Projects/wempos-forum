@@ -40,6 +40,99 @@ async function withAttachments(db, viewer, posts) {
   return posts.map((post) => ({ ...post, attachments: map.get(post.id) || [] }));
 }
 
+// Feed thread presentation (v2.3): every serialized root post gains
+// `replyCount` (ALL comments in the thread — level-1 replies plus sub-replies)
+// and `latestReplies` (up to 3 most recent level-1 replies). Reply data rides
+// TWO batched read-only queries per page, exactly like the attachments
+// metadata: the feed's cursor/visibility SELECTs never change, and these
+// helpers decorate rows only after they return.
+const REPLY_SNIPPET_MAX = 80;
+
+function replySnippet(body) {
+  const text = typeof body === "string" ? body : "";
+  return text.length > REPLY_SNIPPET_MAX ? text.slice(0, REPLY_SNIPPET_MAX) + "…" : text;
+}
+
+// One query for every root on the page. Level-1 replies join their root
+// directly (r.parent_id = root); sub-replies join through their level-1 parent
+// (l1.parent_id = root). Viewer visibility mirrors listReplies +
+// attachSubReplyCounts' member clause (public, or the viewer's own reply), and
+// the level-2 rows additionally require a viewable level-1 parent — the
+// remaining canViewPost ancestor (the root) is guaranteed public by the feed's
+// own WHERE. Admin viewers (showAll) drop the member clauses, like everywhere
+// else counts run. Irrelevant rows from threads off this page group under ids
+// the map lookup simply never reads.
+function replyCountsSql(ids, showAll) {
+  const placeholders = ids.map(() => "?").join(", ");
+  return "SELECT COALESCE(l1.parent_id, r.parent_id) AS thread_root, COUNT(*) AS reply_count " +
+    "FROM posts r JOIN posts l1 ON l1.id = r.parent_id " +
+    "WHERE (l1.parent_id IS NULL OR l1.parent_id IN (" + placeholders + ")) " +
+    (showAll
+      ? "GROUP BY thread_root"
+      : "AND (r.visibility = 'public' OR r.author_id = ?) " +
+        "AND (l1.parent_id IS NULL OR l1.visibility = 'public' OR l1.author_id = ?) " +
+        "GROUP BY thread_root");
+}
+
+// Per root, at most the 3 most recent level-1 replies, ranked in SQL. Each row
+// also carries its sub-reply count with the same visibility semantics the
+// replies page exposes. Bind order follows SQL text order for members:
+// sub-count viewer id, then the root ids, then the level-1 viewer id.
+function latestRepliesSql(ids, showAll) {
+  const placeholders = ids.map(() => "?").join(", ");
+  const subCountSelect = "(SELECT COUNT(*) FROM posts c WHERE c.parent_id = r.id" +
+    (showAll ? ") AS sub_reply_count" : " AND (c.visibility = 'public' OR c.author_id = ?)) AS sub_reply_count");
+  const memberClause = showAll
+    ? ""
+    : " AND (r.visibility = 'public' OR r.author_id = ?)";
+  return "SELECT * FROM (" +
+    "SELECT r.id, r.parent_id AS thread_root, r.body, r.created_at, r.author_id, " +
+    "u.username AS author_username, u.avatar_mime AS author_avatar_mime, " +
+    "u.avatar_version AS author_avatar_version, " + subCountSelect + ", " +
+    "ROW_NUMBER() OVER (PARTITION BY r.parent_id ORDER BY r.created_at DESC, r.id DESC) AS rn " +
+    "FROM posts r JOIN users u ON u.id = r.author_id " +
+    "WHERE r.parent_id IN (" + placeholders + ")" + memberClause +
+    ") WHERE rn <= 3 ORDER BY thread_root ASC, rn ASC";
+}
+
+async function withReplyMetadata(db, viewer, posts) {
+  if (!posts.length) return posts;
+  const ids = [...new Set(posts.map((post) => Number(post.id)))];
+  const showAll = Boolean(viewer && viewer.role === "admin");
+  const viewerId = viewer ? Number(viewer.id) : null;
+  const countsStatement = db.prepare(replyCountsSql(ids, showAll))
+    .bind(...(showAll ? ids : [...ids, viewerId || -1, viewerId || -1]));
+  const latestStatement = db.prepare(latestRepliesSql(ids, showAll))
+    .bind(...(showAll ? ids : [viewerId || -1, ...ids, viewerId || -1]));
+  const [countResult, latestResult] = await Promise.all([countsStatement.all(), latestStatement.all()]);
+  const replyCounts = new Map();
+  for (const row of countResult.results || []) {
+    replyCounts.set(Number(row.thread_root), Number(row.reply_count || 0));
+  }
+  const latestByRoot = new Map();
+  for (const row of latestResult.results || []) {
+    const threadRoot = Number(row.thread_root);
+    const rows = latestByRoot.get(threadRoot) || [];
+    rows.push({
+      id: Number(row.id),
+      authorUsername: row.author_username,
+      // Same avatar-URL convention as publicPost's author fields.
+      avatarUrl: row.author_avatar_mime
+        ? "/api/avatars/" + row.author_id + "?v=" + row.author_avatar_version
+        : null,
+      snippet: replySnippet(row.body),
+      createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
+      subReplyCount: Number(row.sub_reply_count || 0),
+    });
+    latestByRoot.set(threadRoot, rows);
+  }
+  return posts.map((post) => ({
+    ...post,
+    replyCount: replyCounts.get(Number(post.id)) || 0,
+    latestReplies: latestByRoot.get(Number(post.id)) || [],
+  }));
+}
+
 async function listRootPosts(env, viewer, options = {}) {
   const viewerId = viewer ? viewer.id : null;
   let sql = POST_SELECT + "WHERE p.parent_id IS NULL AND p.visibility = 'public' ";
@@ -61,8 +154,8 @@ async function listRootPosts(env, viewer, options = {}) {
     const last = shown.length ? shown[shown.length - 1] : null;
     return {
       // Root queries only (parent_id IS NULL): every shown row is a level-0 root.
-      posts: await withAttachments(env.FORUM_DB, viewer,
-        shown.map((row) => publicPost(row, 0))),
+      posts: await withReplyMetadata(env.FORUM_DB, viewer,
+        await withAttachments(env.FORUM_DB, viewer, shown.map((row) => publicPost(row, 0)))),
       nextBefore: hasMore && last
         ? Number(last.last_activity_at) + "_" + Number(last.id)
         : null,
@@ -85,7 +178,8 @@ async function listRootPosts(env, viewer, options = {}) {
   const rows = result.results || [];
   const hasMore = rows.length > 20;
   const shown = rows.slice(0, 20).map((row) => publicPost(row, 0));
-  const posts = await withAttachments(env.FORUM_DB, viewer, shown);
+  const posts = await withReplyMetadata(env.FORUM_DB, viewer,
+    await withAttachments(env.FORUM_DB, viewer, shown));
   return { posts, nextBefore: hasMore && shown.length ? shown[shown.length - 1].id : null };
 }
 

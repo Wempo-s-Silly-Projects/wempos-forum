@@ -867,6 +867,303 @@ test("the replies page skips count batches entirely for level-2 rows", async () 
   assert.equal(mock.batches.length, 0, "no count batch may run for level-2 rows");
 });
 
+// ---------------------------------------------------------------------------
+// v2.3 feed thread presentation: batched replyCount + latestReplies decoration.
+// Mirrors the withAttachments discipline — the feed SELECT and its cursor
+// clauses are untouched; the two decoration queries attach after rows return,
+// and the row-matching routes below key on their distinctive SQL fragments.
+// ---------------------------------------------------------------------------
+
+function feedRoutesWithReplyData({ feedRows, countRows = [], latestRows = [], session = sessionRoute }) {
+  return [
+    session,
+    { sql: /FROM posts p JOIN users u/, rows: feedRows },
+    { sql: /AS reply_count/, rows: countRows },
+    { sql: /ROW_NUMBER/, rows: latestRows },
+    { sql: /./ },
+  ];
+}
+
+function latestRowFixture(overrides = {}) {
+  return {
+    id: "10",
+    thread_root: "1",
+    body: "level one",
+    created_at: 1700000010,
+    author_id: "5",
+    author_username: "replyer",
+    author_avatar_mime: null,
+    author_avatar_version: null,
+    sub_reply_count: 0,
+    rn: 1,
+    ...overrides,
+  };
+}
+
+test("feed posts carry replyCount and the 3 most-recent latestReplies, root posts only", async () => {
+  // Two roots: root 1 has 3 comments (2 level-1 replies + 1 sub-reply); root 2
+  // has none. The counts/latest mocks carry what the batched queries return.
+  const root1 = postRow({ id: "1", created_at: 1700000000, last_activity_at: 1700100100 });
+  const root2 = postRow({ id: "2", created_at: 1700000000, last_activity_at: 1700100099 });
+  const mock = mockDb(feedRoutesWithReplyData({
+    feedRows: [root1, root2],
+    countRows: [
+      { thread_root: "1", reply_count: "3" },
+      { thread_root: "2", reply_count: "0" },
+    ],
+    latestRows: [
+      // Most recent first, as SELECTed (created_at DESC in the SQL, test-pinned
+      // below together with the window ordering clause).
+      latestRowFixture({
+        id: "13", thread_root: "1", body: "newest reply", created_at: 1700000050,
+        author_id: "5", author_username: "new_replyer", sub_reply_count: 1, rn: 1,
+      }),
+      latestRowFixture({
+        id: "10", thread_root: "1", body: "older reply", created_at: 1700000010,
+        author_id: "6", author_username: "old_replyer", author_avatar_mime: "image/png",
+        author_avatar_version: "avv1", sub_reply_count: 0, rn: 2,
+      }),
+    ],
+  }));
+  const response = await route(
+    new Request("https://forum.example/api/posts", { headers: { "CF-Connecting-IP": "192.0.2.9" } }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.posts.length, 2);
+
+  const tagged = body.posts[0];
+  assert.equal(tagged.id, 1);
+  assert.equal(tagged.replyCount, 3, "2 level-1 replies plus 1 sub-reply = 3 comments");
+  assert.deepEqual(tagged.latestReplies.map((reply) => reply.id), [13, 10],
+    "previews arrive most recent first, exactly as the SELECT returned them");
+  assert.deepEqual(tagged.latestReplies[0], {
+    id: 13,
+    authorUsername: "new_replyer",
+    avatarUrl: null,
+    snippet: "newest reply",
+    createdAt: new Date(1700000050 * 1000).toISOString(),
+    subReplyCount: 1,
+  });
+  // Avatar URL convention mirrors publicPost's author fields (POST_SELECT).
+  assert.equal(
+    tagged.latestReplies[1].avatarUrl,
+    "/api/avatars/6?v=avv1",
+  );
+  assert.equal(tagged.latestReplies[1].authorUsername, "old_replyer");
+
+  // Zero-reply roots stay typed: never null, never absent.
+  assert.equal(body.posts[1].replyCount, 0);
+  assert.deepEqual(body.posts[1].latestReplies, []);
+  assert.equal(typeof body.posts[1].replyCount, "number");
+});
+
+test("a zero-reply feed page still types replyCount 0 and latestReplies []", async () => {
+  const mock = mockDb(feedRoutesWithReplyData({
+    feedRows: [postRow({ id: "1", created_at: 1700000000, last_activity_at: 1700100100 })],
+  }));
+  const response = await route(
+    new Request("https://forum.example/api/posts", { headers: { "CF-Connecting-IP": "192.0.2.9" } }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.posts[0].replyCount, 0, "no counts row means zero, not missing");
+  assert.deepEqual(body.posts[0].latestReplies, []);
+  assert.ok(Array.isArray(body.posts[0].latestReplies));
+});
+
+test("hidden replies are excluded from the count and previews per viewer visibility", async () => {
+  // Signed-in member 7 mirrors listReplies' guest/member visibility: only
+  // public replies count, plus their own hidden ones; a level-2 reply under a
+  // hidden level-1 parent is invisible too (canViewPost on the parent chain).
+  // The mock returns only what a SQL obeying those rules would return; the
+  // binding SQL shape is asserted below so the mock cannot mask a regression.
+  const mock = mockDb(feedRoutesWithReplyData({
+    feedRows: [postRow({ id: "1", created_at: 1700000000, last_activity_at: 1700100100 })],
+    countRows: [{ thread_root: "1", reply_count: "2" }],
+    latestRows: [
+      latestRowFixture({ id: "10", author_id: "5", author_username: "visible_author" }),
+    ],
+  }));
+  const response = await route(
+    new Request("https://forum.example/api/posts", {
+      headers: { "CF-Connecting-IP": "192.0.2.9", Cookie: "wempo_session=" + "s".repeat(43) },
+    }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.posts[0].replyCount, 2, "the hidden reply does not count");
+  assert.deepEqual(
+    body.posts[0].latestReplies.map((reply) => reply.id),
+    [10],
+    "the hidden reply is not previewed",
+  );
+
+  const countsCall = mock.calls.find((call) => call.sql.includes("AS reply_count"));
+  assert.ok(countsCall);
+  // Level-1 + level-2 both gated by the same member visibility clause listReplies
+  // uses, and the level-2 rows additionally require a viewable level-1 parent.
+  assert.ok(countsCall.sql.includes("r.visibility = 'public' OR r.author_id = ?"));
+  assert.ok(countsCall.sql.includes("l1.parent_id IS NULL OR l1.visibility = 'public' OR l1.author_id = ?"));
+  assert.ok(countsCall.sql.includes("JOIN posts l1 ON l1.id = r.parent_id"), "level-2 rows resolve their thread through the level-1 parent");
+  assert.deepEqual(countsCall.values, [1, 7, 7], "root ids bound for the IN list, then the viewer id twice");
+  assert.deepEqual(countsCall.values.slice(0, 1), [1], "only this page's root ids bound");
+
+  const latestCall = mock.calls.find((call) => call.sql.includes("ROW_NUMBER"));
+  assert.ok(latestCall);
+  assert.ok(latestCall.sql.includes("r.visibility = 'public' OR r.author_id = ?"),
+    "previews obey the same visibility clause as the replies page");
+  assert.ok(latestCall.sql.includes("c.visibility = 'public' OR c.author_id = ?"),
+    "preview subReplyCount respects viewer visibility like the replies page");
+  assert.deepEqual(latestCall.values, [7, 1, 7],
+    "bind order follows SQL text: sub-count viewer, root ids, level-1 viewer");
+});
+
+test("more than 3 replies caps latestReplies at the 3 most recent while replyCount stays full", async () => {
+  const mock = mockDb(feedRoutesWithReplyData({
+    feedRows: [postRow({ id: "1", created_at: 1700000000, last_activity_at: 1700100100 })],
+    countRows: [{ thread_root: "1", reply_count: "4" }],
+    latestRows: [
+      latestRowFixture({ id: "40", created_at: 1700000040, sub_reply_count: 0, rn: 1 }),
+      latestRowFixture({ id: "30", created_at: 1700000030, sub_reply_count: 0, rn: 2 }),
+      latestRowFixture({ id: "20", created_at: 1700000020, sub_reply_count: 0, rn: 3 }),
+    ],
+  }));
+  const response = await route(
+    new Request("https://forum.example/api/posts", { headers: { "CF-Connecting-IP": "192.0.2.9" } }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.posts[0].replyCount, 4, "the count is the full comment total");
+  assert.equal(body.posts[0].latestReplies.length, 3);
+  assert.deepEqual(body.posts[0].latestReplies.map((reply) => reply.id), [40, 30, 20]);
+
+  // The cap is enforced in the ranked query itself, most recent per thread root.
+  const latestCall = mock.calls.find((call) => call.sql.includes("ROW_NUMBER"));
+  assert.match(
+    latestCall.sql, /ROW_NUMBER\(\) OVER \(PARTITION BY r\.parent_id ORDER BY r\.created_at DESC, r\.id DESC\) AS rn/,
+  );
+  assert.ok(latestCall.sql.includes("WHERE rn <= 3"));
+  assert.deepEqual(latestCall.values.slice(1, 2), [1], "the IN list carries this page's root ids once");
+});
+
+test("preview snippets truncate the reply body text at 80 characters with an ellipsis", async () => {
+  const longBody = "b".repeat(100);
+  const mock = mockDb(feedRoutesWithReplyData({
+    feedRows: [postRow({ id: "1", created_at: 1700000000, last_activity_at: 1700100100 })],
+    latestRows: [
+      latestRowFixture({ id: "10", body: longBody }),
+      latestRowFixture({ id: "11", body: "short but fine", rn: 2 }),
+    ],
+  }));
+  const response = await route(
+    new Request("https://forum.example/api/posts", { headers: { "CF-Connecting-IP": "192.0.2.9" } }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  const [long, short] = body.posts[0].latestReplies;
+  assert.equal(long.snippet, "b".repeat(80) + "…");
+  assert.equal(long.snippet.length, 81, "80 characters plus the ellipsis character");
+  assert.equal(short.snippet, "short but fine", "bodies at or under 80 characters pass through uncut");
+});
+
+test("each feed page pays exactly one counts query and one latest-replies query, and the cursor SQL is untouched", async () => {
+  const feedRows = [];
+  for (let i = 0; i < 3; i++) {
+    feedRows.push(postRow({
+      id: String(9 - i),
+      created_at: 1700000000 + i,
+      last_activity_at: 1700100100 - i,
+    }));
+  }
+  const mock = mockDb(feedRoutesWithReplyData({ feedRows }));
+  const response = await route(
+    new Request("https://forum.example/api/posts", { headers: { "CF-Connecting-IP": "192.0.2.9" } }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  for (const post of body.posts) {
+    assert.equal(post.replyCount, 0);
+    assert.deepEqual(post.latestReplies, []);
+  }
+  const countsCalls = mock.calls.filter((call) => call.sql.includes("AS reply_count"));
+  const latestCalls = mock.calls.filter((call) => call.sql.includes("ROW_NUMBER"));
+  assert.equal(countsCalls.length, 1, "one reply-counts query per feed page");
+  assert.equal(latestCalls.length, 1, "one latest-replies query per feed page");
+  assert.equal(mock.batches.length, 0, "decoration is two plain reads, never a D1 batch");
+  assert.ok(countsCalls[0].sql.includes("IN (?, ?, ?)"), "one placeholder per root id, deduplicated");
+  assert.deepEqual(countsCalls[0].values.slice(0, 3), [9, 8, 7]);
+
+  // The feed SELECT itself still owns its cursor clauses: no decoration SQL may
+  // leak into it (Review Focus 1), and the composite keyset is exactly as v2.2.
+  const feedCall = mock.calls[0];
+  assert.equal(feedCall.sql.includes("ROW_NUMBER"), false);
+  assert.equal(feedCall.sql.includes("reply_count"), false);
+  assert.equal(feedCall.sql.includes("latest"), false);
+  assert.match(feedCall.sql, /WHERE p\.parent_id IS NULL AND p\.visibility = 'public' /);
+  assert.match(feedCall.sql, /ORDER BY p\.last_activity_at DESC, p\.id DESC LIMIT 21/);
+  assert.equal(feedCall.values.length, 1);
+
+  // Detail and replies read paths gain nothing (unchanged payloads).
+  const root = postRow({ id: "1", created_at: 1700000000, last_activity_at: 1700000005 });
+  const detailMock = mockDb([
+    { sql: /WHERE p\.id = \? LIMIT 1/, result: (values) => (values[1] === 1 ? root : null) },
+    { sql: /WHERE p\.parent_id = \?/, rows: [] },
+    { sql: /./ },
+  ]);
+  const detailResponse = await route(
+    new Request("https://forum.example/api/posts/1", { headers: { "CF-Connecting-IP": "192.0.2.9" } }),
+    envFor(detailMock.db),
+  );
+  assert.equal(detailResponse.status, 200);
+  const detailBody = await detailResponse.json();
+  assert.equal("replyCount" in detailBody, false, "the detail payload is unchanged");
+  assert.equal("latestReplies" in detailBody, false, "the detail payload is unchanged");
+});
+
+test("admin feed viewers count and preview without visibility binds, mirroring the replies page", async () => {
+  const mock = mockDb(feedRoutesWithReplyData({
+    feedRows: [postRow({ id: "1", created_at: 1700000000, last_activity_at: 1700100100 })],
+    countRows: [{ thread_root: "1", reply_count: "5" }],
+    latestRows: [latestRowFixture({ id: "10", sub_reply_count: 2 })],
+  }));
+  const feed = await listRootPosts(
+    { FORUM_DB: mock.db },
+    { id: 7, role: "admin", username: "admin_user" },
+    { byActivity: true },
+  );
+
+  assert.equal(feed.posts[0].replyCount, 5);
+  assert.deepEqual(feed.posts[0].latestReplies.map((reply) => reply.id), [10]);
+  const countsCall = mock.calls.find((call) => call.sql.includes("AS reply_count"));
+  assert.equal(
+    countsCall.sql.includes("l1.parent_id IS NULL OR l1.visibility = 'public' OR l1.author_id = ?"),
+    false,
+    "admins drop the member visibility clauses like attachSubReplyCounts' showAll",
+  );
+  assert.equal(countsCall.sql.includes("r.author_id = ?"), false);
+  assert.deepEqual(countsCall.values, [1], "root ids only, no viewer binds");
+  const latestCall = mock.calls.find((call) => call.sql.includes("ROW_NUMBER"));
+  assert.equal(
+    latestCall.sql.includes("c.visibility = 'public' OR c.author_id = ?"),
+    false,
+    "preview subReplyCounts also drop the member clause for admins",
+  );
+  assert.deepEqual(latestCall.values, [1]);
+});
+
 test("admin viewers get counts without the visibility clause on the replies page", async () => {
   const root = postRow({ id: "1", parent_id: null, last_activity_at: 1700000005 });
   const reply10 = postRow({ id: "10", author_id: "5", parent_id: "1", body: "first", last_activity_at: null });
