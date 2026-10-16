@@ -39,6 +39,7 @@ WHERE name IN (
   '0021_post_creation_idempotency.sql',
   '0022_revoked_attachment_hashes.sql',
   '0023_post_archive_deleted_by.sql',
-  '0024_idempotency_fingerprints_and_attachment_sources.sql'
+  '0024_idempotency_fingerprints_and_attachment_sources.sql',
+  '0025_attachment_gif_identity.sql'
 )
 ORDER BY name;
