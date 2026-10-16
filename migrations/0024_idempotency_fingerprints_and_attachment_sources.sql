@@ -1,5 +1,8 @@
 -- Migration 0024: content-bound idempotency and attachment provenance.
 ALTER TABLE posts ADD COLUMN idempotency_fingerprint TEXT;
+-- Only in-flight attachment submissions receive staged_at. This avoids treating
+-- moderator-hidden posts as abandoned upload drafts during retry cleanup.
+ALTER TABLE posts ADD COLUMN staged_at INTEGER;
 ALTER TABLE post_archive ADD COLUMN idempotency_key TEXT;
 ALTER TABLE post_archive ADD COLUMN idempotency_fingerprint TEXT;
 
