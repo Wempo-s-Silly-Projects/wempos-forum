@@ -364,7 +364,7 @@ function renderAccountSettings() {
   // anything is sent. The confirm button is disabled while the request is
   // pending (see the confirm-ok handler).
   const deletePanel = createPanel("Delete account",
-    "This permanently deletes your account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies, reactions, reports, notifications, and profile. There is no undo.");
+    "This permanently deletes your account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo.");
   const deleteButton = element("button", "button button-danger", "Delete account");
   deleteButton.type = "button";
   deleteButton.dataset.action = "delete-account";
@@ -825,7 +825,7 @@ function openDeletePostDialog(button) {
 function openDeleteAccountDialog() {
   openConfirmDialog(
     "Delete your account?",
-    "Your account and everything it owns is permanently deleted: your posts — and every thread you started, including other people's replies inside those threads — plus your replies, reactions, reports, notifications, and profile. There is no undo.",
+    "Your account and everything it owns is permanently deleted: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo.",
     async () => {
       await api("/api/me/delete", { method: "POST" });
       setCsrfToken("");
@@ -1230,14 +1230,16 @@ async function handleButtonAction(button) {
       if (!confirmHandler) return;
       const handler = confirmHandler;
       // Disabled while pending: a double confirm can't fire the destructive
-      // request twice; the finally-block re-arms it if the request failed (the
-      // dialog stays open, and the error bar carries the message).
+      // request twice while it is in flight. A REQUEST FAILURE keeps the
+      // handler armed (the dialog stays open, the error bar carries the
+      // message) so the user can retry the same confirm without closing the
+      // dialog first; success clears it via the handler itself.
       confirmOk.disabled = true;
       try {
         await handler();
+        confirmHandler = null;
       } finally {
         confirmOk.disabled = false;
-        confirmHandler = null;
       }
     },
     "confirm-cancel": () => {
