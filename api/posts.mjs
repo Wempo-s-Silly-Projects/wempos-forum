@@ -48,6 +48,13 @@ async function withAttachments(db, viewer, posts) {
 // helpers decorate rows only after they return.
 const REPLY_SNIPPET_MAX = 80;
 
+// Composer body cap (owner-set, post-spam response): root post AND reply
+// bodies accept at most 1,000 characters. Kept module-local because
+// constants.mjs holds platform-only constants; the frontend mirrors the number
+// in public/js/composer-limits.js (COMPOSER_MAX_CHARS feeds both the textarea
+// maxLength and the live counter).
+const MAX_COMPOSER_BODY_CHARS = 1000;
+
 function replySnippet(body) {
   const text = typeof body === "string" ? body : "";
   return text.length > REPLY_SNIPPET_MAX ? text.slice(0, REPLY_SNIPPET_MAX) + "…" : text;
@@ -368,7 +375,7 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images.");
     }
     await requireTurnstile(request, env, fields, "reply");
-    const message = applyWordFilter(requiredText(fields.body, "reply", 2000), env.FILTERED_WORDS);
+    const message = applyWordFilter(requiredText(fields.body, "reply", MAX_COMPOSER_BODY_CHARS), env.FILTERED_WORDS);
     const now = nowSeconds();
     const recipientId = target.author_id === null || target.author_id === undefined
       ? null
@@ -417,7 +424,7 @@ async function handlePostCreateRoute(request, env, url, path, method) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images.");
     }
     await requireTurnstile(request, env, fields, "post");
-    const message = applyWordFilter(requiredText(fields.body, "post", 2000), env.FILTERED_WORDS);
+    const message = applyWordFilter(requiredText(fields.body, "post", MAX_COMPOSER_BODY_CHARS), env.FILTERED_WORDS);
     const now = nowSeconds();
     // A fresh root starts its activity clock at creation time.
     const result = await db.prepare(

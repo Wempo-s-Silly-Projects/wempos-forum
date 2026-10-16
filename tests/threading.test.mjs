@@ -1190,3 +1190,102 @@ test("admin viewers get counts without the visibility clause on the replies page
   // Admin sees every child: parent_id = ? alone, no visibility bind.
   assert.deepEqual(adminMock.batches[0].map((statement) => statement.values), [[10]]);
 });
+
+// --- Composer body limit (owner-set): post and reply bodies cap at 1,000 ----
+// characters. requiredText keeps its "between 1 and N characters" wording with
+// the new number; exactly-at-limit values still create.
+
+const postInsertRoute = {
+  sql: /INSERT INTO posts/,
+  runMeta: { meta: { changes: 1, last_row_id: 900 } },
+};
+const postCreateRoutes = [sessionRoute, banCheckRoute, postInsertRoute, { sql: /./ }];
+
+test("a 1,001-character post body is rejected with 400 and the 1,000-character message", async () => {
+  const mock = mockDb(postCreateRoutes);
+  const siteverify = withMockedSiteverify({ success: true, action: "post", hostname: "forum.example" });
+  let response;
+  try {
+    response = await route(
+      requestFor("https://forum.example/api/posts", "POST", {
+        body: "W".repeat(1001),
+        "cf-turnstile-response": "turnstile-token-fixture",
+      }),
+      envFor(mock.db),
+    );
+  } finally {
+    siteverify.done();
+  }
+  assert.equal(response.status, 400);
+  assert.equal((await response.json()).error, "Post must be between 1 and 1000 characters.");
+  // No insert ever ran: the oversized body stopped at validation.
+  assert.equal(mock.batches.length, 0);
+  assert.equal(mock.calls.filter((call) => /INSERT INTO posts/.test(call.sql)).length, 0);
+});
+
+test("a 1,000-character post body is accepted with 201", async () => {
+  const mock = mockDb(postCreateRoutes);
+  const siteverify = withMockedSiteverify({ success: true, action: "post", hostname: "forum.example" });
+  let response;
+  try {
+    response = await route(
+      requestFor("https://forum.example/api/posts", "POST", {
+        body: "W".repeat(1000),
+        "cf-turnstile-response": "turnstile-token-fixture",
+      }),
+      envFor(mock.db),
+    );
+  } finally {
+    siteverify.done();
+  }
+  assert.equal(response.status, 201);
+  assert.deepEqual(await response.json(), { id: 900 });
+  const insert = mock.calls.find((call) => /INSERT INTO posts/.test(call.sql));
+  // Root insert binds (author_id, body, created_at, ...), so the body is values[1].
+  assert.equal(insert.values[1], "W".repeat(1000));
+});
+
+test("a 1,001-character reply body is rejected with 400 and the 1,000-character message", async () => {
+  const root = postRow({ id: "1", author_id: "3", parent_id: null });
+  const mock = mockDb(threadRoutes((id) => (id === 1 ? root : null)));
+  const siteverify = withMockedSiteverify({ success: true, action: "reply", hostname: "forum.example" });
+  let response;
+  try {
+    response = await route(
+      requestFor("https://forum.example/api/posts/1/replies", "POST", {
+        body: "W".repeat(1001),
+        "cf-turnstile-response": "turnstile-token-fixture",
+      }),
+      envFor(mock.db),
+    );
+  } finally {
+    siteverify.done();
+  }
+  assert.equal(response.status, 400);
+  assert.equal((await response.json()).error, "Reply must be between 1 and 1000 characters.");
+  assert.equal(mock.batches.length, 0);
+});
+
+test("a 1,000-character reply body is accepted with 201", async () => {
+  const root = postRow({ id: "1", author_id: "3", parent_id: null });
+  const mock = mockDb(threadRoutes((id) => (id === 1 ? root : null)), {
+    batchMeta: [{ meta: { changes: 1, last_row_id: 500 } }],
+  });
+  const siteverify = withMockedSiteverify({ success: true, action: "reply", hostname: "forum.example" });
+  let response;
+  try {
+    response = await route(
+      requestFor("https://forum.example/api/posts/1/replies", "POST", {
+        body: "W".repeat(1000),
+        "cf-turnstile-response": "turnstile-token-fixture",
+      }),
+      envFor(mock.db),
+    );
+  } finally {
+    siteverify.done();
+  }
+  assert.equal(response.status, 201);
+  assert.deepEqual(await response.json(), { id: 500 });
+  const [replyInsert] = mock.batches[0];
+  assert.equal(replyInsert.values[2], "W".repeat(1000));
+});

@@ -304,3 +304,116 @@ test("quote prefill inserts as a VALUE only, never HTML-parsed user content", ()
   );
   assert.equal(typeof textarea.value, "string");
 });
+
+// --- Task (v2.4): composer body limit + live counter --------------------------
+// composer-limits.js is DOM-free (pure label math + the shared cap constant);
+// the counter WIRING lives in forms.js's createTextarea, exercised here with
+// the same tiny mock-element style the render suite uses.
+
+import { charsLeftLabel, COMPOSER_MAX_CHARS } from "../public/js/composer-limits.js";
+import { createTextarea } from "../public/js/forms.js";
+
+test("the composer cap is pinned at 1,000 characters", () => {
+  assert.equal(COMPOSER_MAX_CHARS, 1000);
+});
+
+test("charsLeftLabel counts down from the cap, grouping 1,000 for legibility", () => {
+  assert.equal(charsLeftLabel(1000, ""), "1,000 chars left");
+  assert.equal(charsLeftLabel(1000, "hello"), "995 chars left");
+  assert.equal(charsLeftLabel(1000, "x".repeat(1000)), "0 chars left");
+});
+
+test("charsLeftLabel clamps over-limit values to zero chars left", () => {
+  assert.equal(charsLeftLabel(1000, "x".repeat(1005)), "0 chars left");
+  assert.equal(charsLeftLabel(1000, "x".repeat(2000)), "0 chars left");
+});
+
+test("charsLeftLabel treats null/undefined values as empty", () => {
+  assert.equal(charsLeftLabel(1000, null), "1,000 chars left");
+  assert.equal(charsLeftLabel(1000, undefined), "1,000 chars left");
+});
+
+// createTextarea mock: the textarea must expose addEventListener so the glue
+// test can capture the input handler and dispatch it (no real DOM needed).
+const counterMockDocument = () => {
+  const makeElement = (tagName) => ({
+    tagName: tagName.toUpperCase(),
+    children: [],
+    className: "",
+    textContent: "",
+    dataset: {},
+    attributes: {},
+    maxLength: undefined,
+    listeners: {},
+    setAttribute(name, value) {
+      this.attributes[name] = String(value);
+    },
+    getAttribute(name) {
+      return name in this.attributes ? this.attributes[name] : null;
+    },
+    addEventListener(type, handler) {
+      (this.listeners[type] ??= []).push(handler);
+    },
+    dispatchInput() {
+      for (const handler of this.listeners.input ?? []) handler({ target: this });
+    },
+    append(...nodes) {
+      for (const node of nodes) this.children.push(node);
+    },
+  });
+  return { createElement: (tagName) => makeElement(tagName) };
+};
+
+function* walkTree(node) {
+  yield node;
+  for (const child of node.children || []) yield* walkTree(child);
+}
+
+test("a composer textarea gets maxLength 1000 and a live, polite counter", () => {
+  const document = counterMockDocument();
+  const wrapper = createTextarea(document, {
+    id: "post-create-new-body", label: "Body", rows: 4,
+    maxLength: COMPOSER_MAX_CHARS, required: true, counter: true,
+  });
+  const textarea = [...walkTree(wrapper)].find((node) => node.tagName === "TEXTAREA");
+  const counter = [...walkTree(wrapper)].find((node) => node.className === "char-counter");
+
+  // Client-side truncation mirrors the server cap — textarea.maxLength 1000
+  // serializes as the maxLength="1000" attribute.
+  assert.equal(textarea.maxLength, 1000);
+  assert.ok(counter, "the counter element exists");
+  assert.equal(counter.getAttribute("aria-live"), "polite");
+  assert.equal(counter.dataset.charCounter, "post-create-new-body");
+  // Counter is initialized visible (empty composer) and mutes via CSS class.
+  assert.equal(counter.textContent, "1,000 chars left");
+});
+
+test("the counter updates on the textarea's input event", () => {
+  const document = counterMockDocument();
+  const wrapper = createTextarea(document, {
+    id: "reply-42-body", label: "Reply", maxLength: 1000, counter: true,
+  });
+  const textarea = [...walkTree(wrapper)].find((node) => node.tagName === "TEXTAREA");
+  const counter = [...walkTree(wrapper)].find((node) => node.className === "char-counter");
+
+  textarea.value = "hello";
+  textarea.dispatchInput();
+  assert.equal(counter.textContent, "995 chars left");
+  textarea.value = "x".repeat(1000);
+  textarea.dispatchInput();
+  assert.equal(counter.textContent, "0 chars left");
+  textarea.value = "";
+  textarea.dispatchInput();
+  assert.equal(counter.textContent, "1,000 chars left");
+});
+
+test("a textarea without the counter option stays counter-free (bio keeps its 10k cap)", () => {
+  const document = counterMockDocument();
+  const wrapper = createTextarea(document, {
+    id: "profile-bio", label: "Bio", maxLength: 10000,
+  });
+  const counters = [...walkTree(wrapper)].filter((node) => node.className === "char-counter");
+  assert.equal(counters.length, 0);
+  const textarea = [...walkTree(wrapper)].find((node) => node.tagName === "TEXTAREA");
+  assert.equal(textarea.maxLength, 10000);
+});

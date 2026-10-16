@@ -12,6 +12,7 @@ import {
   createReportQueue,
 } from "./admin.js";
 import { addText, createForm, createInput, createTextarea } from "./forms.js";
+import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
 import { appendPostList, createPostCard, createSubReplyContainer } from "./render.js";
 import { prefillQuote } from "./quotes.js";
 import { isPlainLeftClick, startRouter } from "./router.js";
@@ -144,7 +145,7 @@ function createComposer(name, label, buttonLabel, postID = null, turnstileAction
   // keep label/for pairs unique in the document.
   form.append(createTextarea(document, {
     id: `${name}-${postID ?? "new"}-body`, name: "body", label,
-    rows: 4, maxLength: 2000, required: true,
+    rows: 4, maxLength: COMPOSER_MAX_CHARS, required: true, counter: true,
   }));
   form.append(createComposerAttachmentRow());
   addTurnstileSlot(form, turnstileAction ?? (name === "post-create" ? "post" : "reply"));

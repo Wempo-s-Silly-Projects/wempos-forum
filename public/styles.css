@@ -590,6 +590,13 @@ textarea {
   color: var(--muted);
 }
 
+/* Composer character counter: always visible, muted, polite live region. */
+.char-counter {
+  color: var(--muted);
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+}
+
 .form-note,
 .error-copy {
   margin: 0.35rem 0 1rem;

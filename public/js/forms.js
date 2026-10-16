@@ -1,3 +1,5 @@
+import { charsLeftLabel } from "./composer-limits.js";
+
 export function createForm(document, name, fields, submitLabel) {
   const form = document.createElement("form");
   form.dataset.form = name;
@@ -41,7 +43,7 @@ export const createInput = (document, {
 }
 
 export function createTextarea(document, {
-  id, name = id, label, rows = 3, maxLength, required = false, description,
+  id, name = id, label, rows = 3, maxLength, required = false, description, counter = false,
 }) {
   const wrapper = document.createElement("div");
   wrapper.className = "form-field";
@@ -55,6 +57,20 @@ export function createTextarea(document, {
   textarea.required = required;
   if (maxLength !== undefined) textarea.maxLength = maxLength;
   wrapper.append(textareaLabel, textarea);
+  // Live character counter (composer textareas only, opt-in via `counter`):
+  // always visible and muted via the .char-counter CSS class; the label text
+  // comes from the DOM-free composer-limits.js so tests own the math.
+  if (counter && maxLength !== undefined) {
+    const counterElement = document.createElement("div");
+    counterElement.className = "char-counter";
+    counterElement.dataset.charCounter = id;
+    counterElement.setAttribute("aria-live", "polite");
+    counterElement.textContent = charsLeftLabel(maxLength, "");
+    textarea.addEventListener("input", () => {
+      counterElement.textContent = charsLeftLabel(maxLength, textarea.value);
+    });
+    wrapper.append(counterElement);
+  }
   if (description) {
     const help = document.createElement("small");
     help.id = `${id}-description`;
