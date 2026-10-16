@@ -461,12 +461,12 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
       db.prepare("DELETE FROM gifs WHERE hash = ? AND status = 'approved'").bind(target.hash),
     ]);
   } else {
-    // The row was pending when read above. Fence the delete to that exact
-    // state: if a concurrent approval wins first, do not silently delete an
-    // approved row without recording a hash tombstone and removing duplicates.
+    // Fence the delete to the exact state read above: if a concurrent
+    // moderation change wins first, do not silently delete the replacement
+    // state without recording any required hash tombstone or cleanup.
     const deleted = await db.prepare(
-      "DELETE FROM attachments WHERE id = ? AND status = 'pending'",
-    ).bind(attachmentId).run();
+      "DELETE FROM attachments WHERE id = ? AND status = ?",
+    ).bind(attachmentId, target.status).run();
     if (Number(deleted?.meta?.changes) !== 1) {
       throw new HttpError(409, "That attachment changed while moderation was in progress. Reload the queue and try again.");
     }
