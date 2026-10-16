@@ -189,6 +189,8 @@ test("a reply attaching an approved library gif inserts an APPROVED reference ro
   assert.equal(rows[0].values[6], "image/gif", "the referenced MIME is validated inside the INSERT");
   assert.equal(rows[0].values[8], "image/gif", "the attachment row stores the GIF MIME");
   assert.equal(rows[0].values[9], "a".repeat(64), "the row carries the GIF hash; bytes resolve at serve time");
+  assert.equal(rows[0].values[10], "123e4567-e89b-12d3-a456-426614174000", "the attachment persists the source GIF id for exact retries");
+  assert.match(rows[0].sql, /source_kind, source_gif_id/);
   const bump = mock.calls.find((call) => call.sql.startsWith("UPDATE gifs SET use_count"));
   assert.ok(bump, "use_count bump");
   assert.deepEqual(bump.values, ["123e4567-e89b-12d3-a456-426614174000"]);
