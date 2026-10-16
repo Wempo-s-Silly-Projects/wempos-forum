@@ -27,7 +27,7 @@ Preview points to its own database, `wempo-forum-preview`, and isolated rate-lim
 npm run db:migrate:preview
 ```
 
-Preview was already at migration 0019 during the audit. Apply migration 0020 with the Preview-only command above, then confirm Preview's `d1_migrations` includes the full chain before testing the Preview Worker. Configure Preview-only `SETUP_SECRET` and `PASSWORD_PEPPER` as Cloudflare secrets, not plain `vars`; never reuse production values. Keep the Turnstile allowed-hostname list aligned with the exact Preview hostname.
+Preview was already at migration 0019 during the audit. Apply migrations 0020–0022 with the Preview-only command above, then confirm Preview's `d1_migrations` includes the full chain before testing the Preview Worker. Configure Preview-only `SETUP_SECRET` and `PASSWORD_PEPPER` as Cloudflare secrets, not plain `vars`; never reuse production values. Keep the Turnstile allowed-hostname list aligned with the exact Preview hostname.
 
 ## Why migration 0020 exists
 
