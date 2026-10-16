@@ -846,3 +846,68 @@ test("migration 0006 constrains nothing at the SQL layer — the board whitelist
   assert.equal(db.prepare("SELECT board FROM posts WHERE id = 1").get().board, "not-a-board");
   assert.throws(() => db.prepare("UPDATE posts SET board = NULL WHERE id = 1").run());
 });
+
+// Migration 0007 tests: the edit-history table stores every PAST version of a
+// post (the API inserts the replaced body at edit time; first edit snapshots
+// the original at its creation stamp). Applied on top of the full chain
+// (0001 → … → 0007) like the real run.
+const MIGRATION_0007 = readFileSync(path.join(repoRoot, "migrations", "0007_post_edits.sql"), "utf8");
+
+function applyPostEdits(db) {
+  db.exec("BEGIN");
+  try {
+    db.exec(MIGRATION_0007);
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
+
+function openV7Db() {
+  const db = openV6Db();
+  applyPostEdits(db);
+  return db;
+}
+
+test("migration 0007 creates post_edits with cascade delete and no disturbance to posts", () => {
+  const db = openV7Db();
+
+  const columns = columnsOf(db, "post_edits");
+  assert.ok(columns.includes("post_id"), "missing post_edits.post_id");
+  assert.ok(columns.includes("editor_id"), "missing post_edits.editor_id");
+  assert.ok(columns.includes("body"), "missing post_edits.body");
+  assert.ok(columns.includes("edited_at"), "missing post_edits.edited_at");
+  assert.deepEqual(
+    columnsOf(db, "posts"),
+    columnsOf(openV6Db(), "posts"),
+    "0007 must not disturb any existing posts column",
+  );
+
+  // History rows insert fine and read back in order.
+  db.prepare(
+    "INSERT INTO post_edits (post_id, editor_id, body, edited_at) VALUES (?, ?, ?, ?)",
+  ).run(1, 1, "original body", T + 20);
+  db.prepare(
+    "INSERT INTO post_edits (post_id, editor_id, body, edited_at) VALUES (?, ?, ?, ?)",
+  ).run(1, 1, "reworded body", T + 200);
+  const lineage = db.prepare(
+    "SELECT body FROM post_edits WHERE post_id = 1 ORDER BY edited_at ASC",
+  ).all();
+  assert.deepEqual(lineage.map((row) => row.body), ["original body", "reworded body"]);
+
+  // The FK is ON DELETE CASCADE: deleting the post removes its history.
+  db.prepare("DELETE FROM posts WHERE id = 1").run();
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM post_edits WHERE post_id = 1").get().n, 0);
+});
+
+test("migration 0007 requires a body and editor — history rows are never anonymous", () => {
+  const db = openV7Db();
+  assert.throws(() =>
+    db.prepare("INSERT INTO post_edits (post_id, editor_id, edited_at) VALUES (?, ?, ?)").run(1, 1, T + 20));
+  // The editor NOT NULL needs an existing row to bite: seed one, then null it.
+  db.prepare("INSERT INTO post_edits (post_id, editor_id, body, edited_at) VALUES (?, ?, ?, ?)")
+    .run(1, 1, "seed body", T + 20);
+  assert.throws(() =>
+    db.prepare("UPDATE post_edits SET editor_id = NULL WHERE post_id = 1").run());
+});

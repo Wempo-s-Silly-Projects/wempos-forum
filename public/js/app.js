@@ -19,6 +19,7 @@ import {
   createPostCard,
   createSubReplyContainer,
   openEditForm,
+  renderEditHistoryPanel,
 } from "./render.js";
 import { prefillQuote } from "./quotes.js";
 import { isPlainLeftClick, startRouter } from "./router.js";
@@ -1211,6 +1212,20 @@ async function handleButtonAction(button) {
     },
     "delete-post": () => openDeletePostDialog(button),
     "delete-account": () => openDeleteAccountDialog(),
+    "edit-history": async () => {
+      // Toggle: an open panel for this card closes; otherwise the past
+      // versions fetch and expand under the body. History is public — no
+      // auth needed beyond the same-origin GET.
+      const article = editTargetArticle(button);
+      if (!article) return;
+      const existing = article.querySelector(":scope > .edit-history-panel");
+      if (existing) {
+        existing.remove();
+        return;
+      }
+      const data = await api(`/api/posts/${encodeURIComponent(button.dataset.postId)}/edits`);
+      article.append(renderEditHistoryPanel(document, data.edits));
+    },
     "confirm-ok": async () => {
       if (!confirmHandler) return;
       const handler = confirmHandler;

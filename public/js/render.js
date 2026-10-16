@@ -165,7 +165,17 @@ export const createPostCard = (post, document, currentUser = null) => {
   // (edited) marker (v2.4): data-driven off editedAt, which every serialized
   // post carries (null until the author's first edit). A muted token-styled
   // token next to the creation time; never a link or tooltip markup.
-  if (post.editedAt) header.append(createElement(document, "span", "post-edited", "(edited)"));
+  if (post.editedAt) {
+    header.append(createElement(document, "span", "post-edited", "(edited)"));
+    // Edit history (v2.4.1): a small toggle that fetches and expands the
+    // post's past versions. Everyone gets it — the point is that edits can't
+    // quietly rewrite context (trouserpants' anti-abuse ask).
+    const historyToggle = createElement(document, "button", "post-edited-history", "history");
+    historyToggle.type = "button";
+    historyToggle.dataset.action = "edit-history";
+    historyToggle.dataset.postId = String(post.id);
+    header.append(historyToggle);
+  }
   article.append(header);
 
   renderBodyBlocks(post, document, article);
@@ -378,3 +388,27 @@ export const closeEditForm = (article) => {
   article.removeChild(form);
   return true;
 };
+
+// Edit-history panel (v2.4.1): the past versions returned by
+// GET /api/posts/:id/edits, newest first, as plain text rows. Bodies are user
+// content — textContent only, never markup. An empty lineage still renders a
+// muted placeholder so the toggle never feels broken.
+export function renderEditHistoryPanel(document, edits) {
+  const panel = createElement(document, "div", "edit-history-panel");
+  const title = createElement(document, "p", "edit-history-title", "Earlier versions (newest first)");
+  panel.append(title);
+  if (!Array.isArray(edits) || edits.length === 0) {
+    panel.append(createElement(document, "p", "edit-history-empty", "No earlier versions."));
+    return panel;
+  }
+  for (const edit of edits) {
+    const entry = createElement(document, "div", "edit-history-entry");
+    const time = createElement(document, "time", "edit-history-time");
+    time.dateTime = edit.editedAt;
+    time.textContent = new Date(edit.editedAt).toLocaleString();
+    const body = createElement(document, "p", "edit-history-body", String(edit.body ?? ""));
+    entry.append(time, body);
+    panel.append(entry);
+  }
+  return panel;
+}

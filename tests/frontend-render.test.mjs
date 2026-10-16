@@ -17,6 +17,7 @@ import {
   openEditForm,
   closeEditForm,
   appendPostList,
+  renderEditHistoryPanel,
 } from "../public/js/render.js";
 import { renderProfileSocials } from "../public/js/profile-editor.js";
 
@@ -651,4 +652,44 @@ test("a reply card's Delete button scopes to reply so the thread keeps its sub-r
   const button = deleteButtonOf(createPostCard(mineReply, mockDocument(), sessionUser(5)));
   assert.ok(button, "the author's reply card still offers Delete");
   assert.equal(button.dataset.deleteScope, "reply");
+});
+
+// --- v2.4.1: public edit history ------------------------------------------------
+// A small "history" toggle rides the (edited) marker when a post HAS been
+// edited; renderEditHistoryPanel builds the expandable panel from the API's
+// past-version rows (text-only — quote/history content is never markup).
+
+test("(d) the history toggle renders only on edited posts", () => {
+  const edited = createPostCard(
+    authorPost({ id: 10, editedAt: "2026-10-16T00:00:00.000Z" }),
+    mockDocument(),
+    null,
+  );
+  const toggle = [...walk(edited)].find((node) => node.dataset?.action === "edit-history");
+  assert.ok(toggle, "editedAt present → history toggle");
+  assert.equal(toggle.tagName, "BUTTON");
+  assert.equal(toggle.textContent, "history");
+  assert.equal(toggle.dataset.postId, "10");
+
+  const plain = createPostCard(authorPost({ id: 10, editedAt: null }), mockDocument(), null);
+  assert.equal(
+    [...walk(plain)].find((node) => node.dataset?.action === "edit-history"),
+    undefined,
+    "never-edited posts have no history toggle",
+  );
+});
+
+test("(e) renderEditHistoryPanel renders past versions as text, newest first", () => {
+  const malicious = { body: "<script>alert(1)</script> totally innocent", editedAt: "2026-10-16T01:00:00.000Z" };
+  const first = { body: "original body", editedAt: "2026-10-15T00:00:00.000Z" };
+  const panel = renderEditHistoryPanel(mockDocument(), [malicious, first]);
+  assert.ok(panel, "panel renders");
+  const text = [...walk(panel)].map((node) => node.textContent ?? "").join("\n");
+  assert.ok(text.includes("original body"), "the original version shows");
+  assert.ok(text.includes("<script>alert(1)</script> totally innocent"),
+    "markup-looking bodies stay literal — the script tag is content, not markup");
+  // Timestamps render for each version.
+  assert.ok(text.includes("2026"), "each version carries its timestamp");
+  const empty = renderEditHistoryPanel(mockDocument(), []);
+  assert.ok(empty, "an empty lineage still renders (placeholder shape)");
 });

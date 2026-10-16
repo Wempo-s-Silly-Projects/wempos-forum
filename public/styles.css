@@ -1242,3 +1242,46 @@ dialog h2 {
 .socials-details > .profile-socials {
   margin-top: 0.5rem;
 }
+
+/* Edit history (v2.4.1): the toggle next to the (edited) marker and the
+   expandable panel of past versions. Token-only, so both themes inherit. */
+.post-edited-history {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 0.78rem;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.edit-history-panel {
+  margin: 0.6rem 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  background: var(--field);
+  border-radius: 6px;
+}
+.edit-history-title {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 0.4rem;
+}
+.edit-history-empty {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+.edit-history-entry {
+  padding: 0.4rem 0;
+  border-top: 1px solid var(--line);
+}
+.edit-history-time {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.edit-history-body {
+  margin: 0.15rem 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

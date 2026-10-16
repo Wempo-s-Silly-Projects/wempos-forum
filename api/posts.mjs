@@ -564,14 +564,53 @@ async function handlePostEditRoute(request, env, url, path, method) {
       env.FILTERED_WORDS,
     );
     const editedAt = nowSeconds();
+    // Edit history (v2.4.1): the version being REPLACED is snapshotted into
+    // post_edits inside the same atomic batch as the UPDATE, stamped with the
+    // time it became current (COALESCE(edited_at, created_at) — a first edit
+    // therefore snapshots the original at its creation). Past versions only:
+    // the current body always lives on the posts row itself.
+    const replacedBody = String(post.body ?? "");
+    const becameCurrentAt = Number(post.edited_at || post.created_at);
     // The author_id clause re-checks ownership at write time (TOCTOU guard) and
     // doubles as the no-race 404: a row deleted between the read and the write
-    // changes nothing.
-    const result = await db.prepare(
-      "UPDATE posts SET body = ?, edited_at = ? WHERE id = ? AND author_id = ?",
-    ).bind(message, editedAt, postId, session.user.id).run();
-    if (Number(result.meta?.changes) !== 1) throw new HttpError(404, "Post not found.");
+    // changes nothing (the batch rolls back, history included).
+    const results = await db.batch([
+      db.prepare(
+        "INSERT INTO post_edits (post_id, editor_id, body, edited_at) VALUES (?, ?, ?, ?)",
+      ).bind(postId, session.user.id, replacedBody, becameCurrentAt),
+      db.prepare(
+        "UPDATE posts SET body = ?, edited_at = ? WHERE id = ? AND author_id = ?",
+      ).bind(message, editedAt, postId, session.user.id),
+    ]);
+    if (Number(results[1]?.meta?.changes) !== 1) throw new HttpError(404, "Post not found.");
     return json({ id: postId, editedAt: new Date(editedAt * 1000).toISOString() });
+  }
+  return null;
+}
+
+// Public edit history: anyone who can view the post can view every past
+// version — the anti-abuse property trouserpants called for (edits can't
+// quietly rewrite context). Guests included; visibility of a hidden post
+// still applies via canViewPost. Past versions only, newest first.
+async function handlePostEditHistoryRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
+  const historyMatch = path.match(/^\/api\/posts\/([0-9]+)\/edits$/);
+  if (historyMatch && method === "GET") {
+    const postId = Number(historyMatch[1]);
+    if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
+    const session = await readSession(request, env);
+    const viewer = session && session.user ? session.user : null;
+    const row = await postById(env, postId, viewer && viewer.id ? viewer.id : null);
+    if (!row || !(await canViewPost(env, row, viewer))) throw new HttpError(404, "Post not found.");
+    const result = await db.prepare(
+      "SELECT body, edited_at FROM post_edits WHERE post_id = ? ORDER BY edited_at DESC, id DESC",
+    ).bind(postId).all();
+    return json({
+      edits: (result.results || []).map((edit) => ({
+        body: edit.body,
+        editedAt: new Date(Number(edit.edited_at) * 1000).toISOString(),
+      })),
+    });
   }
   return null;
 }
@@ -718,7 +757,7 @@ async function handleSearchRoute(request, env, url, path, method) {
 }
 
 async function handlePostRoutes(request, env, url, path, method) {
-  const handlers = [handlePostFeedRoute, handleRepliesReadRoute, handlePostDetailRoute, handleReplyCreateRoute, handlePostCreateRoute, handlePostEditRoute, handlePostDeleteRoute, handleReactionRoute, handleReactionDeleteRoute, handleSearchRoute];
+  const handlers = [handlePostFeedRoute, handleRepliesReadRoute, handlePostDetailRoute, handleReplyCreateRoute, handlePostCreateRoute, handlePostEditRoute, handlePostEditHistoryRoute, handlePostDeleteRoute, handleReactionRoute, handleReactionDeleteRoute, handleSearchRoute];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method);
     if (response) return response;

@@ -151,7 +151,7 @@ test("POST_SELECT exposes the edit stamp so every serialized post can carry edit
 
 test("the author's edit stores the masked body, stamps edited_at, and never touches last_activity_at", async () => {
   const own = postRow({ id: "1", author_id: "7" });
-  const mock = mockDb(editRoutes((id) => (id === 1 ? own : null)));
+  const mock = mockDb(editRoutesWithHistory((id) => (id === 1 ? own : null)));
   const response = await route(
     requestFor("https://forum.example/api/posts/1", { body: "I said badword today" }),
     envFor(mock.db, { FILTERED_WORDS: "badword" }),
@@ -176,7 +176,13 @@ test("the author's edit stores the masked body, stamps edited_at, and never touc
     payload.editedAt,
     new Date(Number(update.values[1]) * 1000).toISOString(),
   );
-  assert.equal(mock.batches.length, 0, "an edit is a single UPDATE, never a batch");
+  // Since edit history (v2.4.1) the replaced body is snapshotted into
+  // post_edits in the SAME batch as the update — see the history tests below
+  // for the full shape; here we only pin that the update stays inside it.
+  assert.equal(mock.batches.length, 1, "history INSERT and UPDATE share one atomic batch");
+  const batchUpdate = mock.batches[0].find((stmt) => stmt.sql.startsWith("UPDATE posts"));
+  assert.ok(batchUpdate, "the UPDATE rides the history batch");
+  assert.deepEqual(batchUpdate.values, update.values);
 
   // Filter off (unset secret): the raw body passes through byte-for-byte.
   const unfiltered = mockDb(editRoutes((id) => (id === 1 ? own : null)));
@@ -371,4 +377,157 @@ test("rate limiting gates the edit route with both the write and post-write scop
   assert.deepEqual(scopesCalled.map((call) => call.scope), ["write", "write", "post-write"],
     "routeApi's write gate plus the handler's write and post-write gates");
   assert.match(scopesCalled[2].key, /^[a-f0-9]{64}$/);
+});
+// --- Edit history (v2.4.1) ----------------------------------------------------
+// Model: post_edits stores only PAST versions. On each edit, before the UPDATE
+// runs, the version being REPLACED is inserted with the timestamp it became
+// current (COALESCE(posts.edited_at, posts.created_at) — for a first edit that
+// is the creation stamp, so the original is never lost). History and UPDATE
+// ride one db.batch so a history row can never exist without its edit.
+
+const insertEditRoute = { sql: /^INSERT INTO post_edits \(post_id, editor_id, body, edited_at\) VALUES \(\?, \?, \?, \?\)$/ };
+
+function editRoutesWithHistory(rowForId) {
+  return [sessionRoute, banCheckRoute, postByIdRoute(rowForId), insertEditRoute, updateRoute, fallbackRoute];
+}
+
+test("history and update ride one atomic batch: the first edit snapshots the original", async () => {
+  // Never-edited post: the replaced version is the original, timestamped at
+  // creation, so the full lineage is reconstructible from creation onward.
+  const own = postRow({ id: "1", author_id: "7", body: "original body", edited_at: null, created_at: 1700000000 });
+  const mock = mockDb(editRoutesWithHistory((id) => (id === 1 ? own : null)));
+  const response = await route(
+    requestFor("https://forum.example/api/posts/1", { body: "second wording" }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(mock.batches.length, 1, "history INSERT and UPDATE must share one atomic batch");
+  const [insert, update] = mock.batches[0];
+  assert.match(insert.sql, /^INSERT INTO post_edits \(post_id, editor_id, body, edited_at\) VALUES \(\?, \?, \?, \?\)$/);
+  assert.deepEqual(insert.values, [1, 7, "original body", 1700000000],
+    "first edit snapshots the ORIGINAL body with the creation stamp");
+  assert.match(update.sql, /^UPDATE posts SET body = \?, edited_at = \? WHERE id = \? AND author_id = \?$/);
+});
+
+test("a subsequent edit appends only the version it replaces, stamped at the previous edit", async () => {
+  const own = postRow({ id: "1", author_id: "7", body: "second wording", edited_at: 1700000099, created_at: 1700000000 });
+  const mock = mockDb(editRoutesWithHistory((id) => (id === 1 ? own : null)));
+  const response = await route(
+    requestFor("https://forum.example/api/posts/1", { body: "third wording" }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(mock.batches.length, 1);
+  const [insert] = mock.batches[0];
+  assert.deepEqual(insert.values, [1, 7, "second wording", 1700000099],
+    "the replaced version is stamped when it BECAME current, not when it was replaced");
+  // No original-snapshot double-insert on later edits.
+  assert.equal(mock.batches[0].filter((s) => s.sql.startsWith("INSERT INTO post_edits")).length, 1);
+});
+
+test("GET /api/posts/:id/edits serves the past-version lineage to anyone who can view the post", async () => {
+  // Public post viewed by a signed-out guest: history is public by design
+  // (the whole point is that edits can't quietly rewrite context).
+  const rows = [
+    { id: 2, post_id: 1, editor_id: 7, body: "second wording", edited_at: 1700000099 },
+    { id: 1, post_id: 1, editor_id: 7, body: "original body", edited_at: 1700000000 },
+  ];
+  const mock = mockDb([
+    { sql: /FROM sessions s LEFT JOIN users u/, result: null },
+    postByIdRoute((id) => (id === 1 ? postRow({ id: "1" }) : null)),
+    { sql: /FROM post_edits WHERE post_id = \?/, rows, }
+  ]);
+  const response = await route(
+    new Request("https://forum.example/api/posts/1/edits", { method: "GET" }),
+    envFor(mock.db),
+  );
+
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.deepEqual(payload.edits.map((edit) => edit.body), ["second wording", "original body"],
+    "newest first");
+  assert.deepEqual(payload.edits.map((edit) => edit.editedAt), [
+    new Date(1700000099 * 1000).toISOString(),
+    new Date(1700000000 * 1000).toISOString(),
+  ]);
+  // The read limiter covers this public GET like every other read.
+  assert.ok(mock.calls.some((call) => /FROM post_edits WHERE post_id = \?/.test(call.sql)));
+});
+
+test("edit history hides behind post visibility: a guest gets 404 on a hidden post", async () => {
+  // postById returns the row; visibility is enforced by canViewPost after it.
+  const mock = mockDb([
+    { sql: /FROM sessions s LEFT JOIN users u/, result: null },
+    postByIdRoute((id) => (id === 7 ? postRow({ id: "7", visibility: "hidden" }) : null)),
+    { sql: /./ },
+  ]);
+  const response = await route(
+    new Request("https://forum.example/api/posts/7/edits", { method: "GET" }),
+    envFor(mock.db),
+  );
+  assert.equal(response.status, 404);
+  assert.ok(!mock.calls.some((call) => /FROM post_edits/.test(call.sql)),
+    "no history rows are read for an unviewable post");
+});
+
+test("the author and an admin can view a hidden post's edit history (canViewPost convention)", async () => {
+  // canViewPost grants hidden-post visibility to the author and ADMINS only —
+  // moderators are outside it in this app's existing rules, so history for a
+  // hidden post follows the same shape as the detail read.
+  const own = postRow({ id: "7", author_id: "7", visibility: "hidden" });
+  const authorMock = mockDb([
+    sessionRoute,
+    postByIdRoute((id) => (id === 7 ? own : null)),
+    { sql: /FROM post_edits WHERE post_id = \?/, rows: [] },
+  ]);
+  assert.equal((await route(
+    new Request("https://forum.example/api/posts/7/edits", {
+      method: "GET",
+      headers: { Cookie: "wempo_session=" + "s".repeat(43) },
+    }),
+    envFor(authorMock.db),
+  )).status, 200);
+
+  const adminMock = mockDb([
+    { sql: /FROM sessions s LEFT JOIN users u/, result: signedInSessionRow({ role: "admin", user_id: 9 }) },
+    postByIdRoute((id) => (id === 7 ? own : null)),
+    { sql: /FROM post_edits WHERE post_id = \?/, rows: [] },
+  ]);
+  assert.equal((await route(
+    new Request("https://forum.example/api/posts/7/edits", {
+      method: "GET",
+      headers: { Cookie: "wempo_session=" + "s".repeat(43) },
+    }),
+    envFor(adminMock.db),
+  )).status, 200);
+
+  // A moderator is treated like any non-author: 404, no existence leak.
+  const modMock = mockDb([
+    { sql: /FROM sessions s LEFT JOIN users u/, result: signedInSessionRow({ role: "moderator", user_id: 9 }) },
+    postByIdRoute((id) => (id === 7 ? own : null)),
+    { sql: /./ },
+  ]);
+  assert.equal((await route(
+    new Request("https://forum.example/api/posts/7/edits", {
+      method: "GET",
+      headers: { Cookie: "wempo_session=" + "s".repeat(43) },
+    }),
+    envFor(modMock.db),
+  )).status, 404);
+});
+
+test("unknown post id on the history route is a 404", async () => {
+  const mock = mockDb([
+    { sql: /FROM sessions s LEFT JOIN users u/, result: null },
+    postByIdRoute(() => null),
+    { sql: /./ },
+  ]);
+  const response = await route(
+    new Request("https://forum.example/api/posts/999/edits", { method: "GET" }),
+    envFor(mock.db, { READ_RATE_LIMITER: successLimiter() }),
+  );
+  assert.equal(response.status, 404);
+  assert.ok(!mock.calls.some((call) => /FROM post_edits/.test(call.sql)));
 });
