@@ -278,7 +278,7 @@ test("the author deletes a reply: sub-replies reparent to the thread root before
   const batchArchive = batch[0];
   assert.ok(batchArchive.sql.startsWith("INSERT INTO post_archive"));
   assert.equal(batchArchive.values[1], "post-delete");
-  assert.deepEqual(batchArchive.values.slice(2), [51],
+  assert.deepEqual(batchArchive.values.slice(4), [51],
     "a reply delete archives just the reply (sub-replies reparent, staying live)");
   // The reparent binds (root id, deleted reply id): the deleted reply's
   // children are re-pointed at the THREAD ROOT, not at the reply itself.
