@@ -50,7 +50,7 @@ async function handleUserProfileRoute(request, env, url, path, method) {
     // the posts LIST right below still applies all visibility rules.
     const counts = await env.FORUM_DB.prepare(
       "SELECT " +
-      "(SELECT COUNT(*) FROM posts WHERE author_id = ?) AS posts_count, " +
+      "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NULL) AS posts_count, " +
       "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NOT NULL) AS replies_count",
     ).bind(Number(user.id), Number(user.id)).first();
     const session = await readSession(request, env);

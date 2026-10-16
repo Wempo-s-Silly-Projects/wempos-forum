@@ -13,6 +13,12 @@ const SAFE_PREFIXES = ["http://", "https://", "/"];
 export function isSafeLinkUrl(raw) {
   const value = String(raw ?? "").trim();
   if (value === "") return false;
+  if (value.startsWith("//")) {
+    // Network-path reference ("//evil.com") resolves scheme-relative against
+    // the page — external navigation wearing the "internal" label. Not a
+    // safe same-origin value.
+    return false;
+  }
   const lower = value.toLowerCase();
   for (const prefix of SAFE_PREFIXES) {
     if (lower.startsWith(prefix)) return true;

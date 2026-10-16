@@ -73,19 +73,7 @@ const renderAttachments = (post, document, article) => {
 // blockquote-then-text. All content is attached through textContent (the
 // createElement text argument) — a body containing "<b>" or "<script>"
 // keeps rendering as literal text, exactly as before.
-const bodyLineBlocks = (body) => {
-  const lines = String(body ?? "").split("\n");
-  const blocks = [];
-  for (const line of lines) {
-    const trimmed = line.trim();
-    const isQuote = trimmed.startsWith("> ");
-    const last = blocks[blocks.length - 1];
-    const content = isQuote ? trimmed.slice(2) : line;
-    if (last && last.quote === isQuote) last.text.push(content);
-    else blocks.push({ quote: isQuote, text: [content] });
-  }
-  return blocks;
-};
+
 
 // Body rendering (v2.5): markdown subset blocks — fenced code, headings,
 // lists, quotes, paragraphs — with markdown-INLINE runs (bold/italics/code/
@@ -110,9 +98,9 @@ const renderBodyBlocks = (post, document, article) => {
       continue;
     }
     if (block.kind === "list") {
-      const list = createElement(document, "ul", "post-list");
+      const list = createElement(document, "ul", "md-list");
       for (const item of block.text) {
-        const entry = createElement(document, "li", "post-list-item");
+        const entry = createElement(document, "li", "md-list-item");
         renderInline(document, entry, item);
         list.append(entry);
       }
@@ -183,7 +171,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // Raw body rides as a plain JS property (never markup — the same convention
   // as the composer's form.composerFiles) so the author's inline edit form can
   // prefill the exact original text, newlines and quote markers included —
-  // the rendered .post-body/.post-quote blocks are lossy and must not be
+  // the rendered body blocks (all kinds) are lossy and must not be
   // re-parsed back into a draft.
   article.postBody = String(post.body ?? "");
   if (post.visibility === "hidden") article.classList.add("post-hidden");
@@ -419,7 +407,9 @@ export const createEditComposer = (post, document) => {
 // quote blockquotes. Attachments, previews, and the action row stay visible —
 // edits are text-only, so everything else is untouched.
 const isEditBodyBlock = (node) =>
-  node.className === "post-body" || node.className === "post-quote";
+  node.className === "post-body" || node.className === "post-quote" ||
+  node.className === "post-codeblock" || node.className === "post-heading" ||
+  Array.isArray(node.children) && node.className === "post-list";
 
 // Swap (openEditForm) / restore (closeEditForm) are pure DOM-in/DOM-out so the
 // mock-element render suite can pin the whole cycle. The card's raw body must

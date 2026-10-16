@@ -1,3 +1,7 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // Unit tests for replyAffordances and the post-card attachment strip in
 // public/js/render.js. replyAffordances is a pure helper; it decides which
 // reply-related affordances a post card should render.
@@ -736,4 +740,12 @@ test("the notification bell renders as a styled icon button with badge and aria-
   const unreadBadge = selectByClass(unread, "notification-badge");
   assert.equal(unreadBadge.hidden, false, "the dot shows when unread");
   assert.equal(unreadBadge.textContent, "", "a dot, not a number pill");
+});
+test("(v2.5) the feed tab pair renders the three routes with the active one marked", () => {
+  // renderFeedTabs lives in app.js (node-unimportable), so the pin is at the
+  // source level: three anchors, aria-selected via the active key, on all
+  // three routes.
+  const appJs = readFileSync(path.join(repoRoot, "public", "js", "app.js"), "utf8");
+  assert.equal((appJs.match(/renderFeedTabs\(/g) || []).length >= 3, true, "home, /mine and /suggestions all render tabs");
+  assert.match(appJs, /\["\/", "All posts", active === "all"],/);
 });

@@ -147,3 +147,39 @@ test("the profile payload carries the accent key from the row", async () => {
   assert.equal(response.status, 200);
   assert.deepEqual((await response.json()).profileAccent, "sky");
 });
+test("the profile payload carries the post counter (threads vs replies)", async () => {
+  const profileRow = {
+    id: 7, username: "test_user", role: "member", bio: "", profile_accent: "",
+  };
+  const calls = [];
+  const batches = [];
+  const db = {
+    prepare(sql) {
+      return {
+        bind(...values) {
+          calls.push({ sql: sql.slice(0, 220), values });
+          return {
+            async first() {
+              if (/posts_count/.test(sql)) return { posts_count: "10", replies_count: "31" };
+              if (/FROM users/.test(sql)) return profileRow;
+              return null;
+            },
+            async all() { return { results: [] }; },
+          };
+        },
+      };
+    },
+    async batch(statements) { batches.push(statements); return statements.map(() => ({ meta: { changes: 1 } })); },
+  };
+  const response = await forumWorker.fetch(
+    new Request("https://forum.example/api/users/test_user", { method: "GET" }),
+    envFor(db),
+  );
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.deepEqual(payload.postsCount, 10, "threads STARTED — replies excluded (parent_id IS NULL)");
+  assert.deepEqual(payload.repliesCount, 31);
+  const countCall = calls.find((call) => call.sql.includes("posts_count"));
+  assert.ok(countCall.sql.includes("parent_id IS NULL"), "the counter separates threads from replies");
+  assert.deepEqual(countCall.values.slice(0, 2), [7, 7], "the profile member's id, bound server-side");
+});

@@ -32,10 +32,10 @@ function textOf(node) {
 }
 
 test("isSafeLinkUrl: http(s) and same-origin paths pass; schemes and junk fail", () => {
-  for (const good of ["https://forum.example/post", "http://example.com/a?b=c", "/posts/12", "//forum.example"]) {
+  for (const good of ["https://forum.example/post", "http://example.com/a?b=c", "/posts/12"]) {
     assert.equal(isSafeLinkUrl(good), true, good);
   }
-  for (const bad of ["javascript:alert(1)", "JAVASCRIPT:x", "data:text/html,evil", "vbscript:x", "", "   ", "ftp://x", "mailto:a@b"]) {
+  for (const bad of ["javascript:alert(1)", "JAVASCRIPT:x", "data:text/html,evil", "vbscript:x", "", "   ", "ftp://x", "mailto:a@b", "//evil.com"]) {
     assert.equal(isSafeLinkUrl(bad), false, bad);
   }
 });

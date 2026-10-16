@@ -1474,3 +1474,32 @@ dialog h2 {
   font-size: 0.9rem;
   margin: 0.2rem 0 0;
 }
+
+
+/* Markdown blocks (v2.5): distinct classes (md-*) — the feed's .post-list
+   grid class must never style body lists (review-caught collision). */
+.md-list {
+  margin: 0.4rem 0 0.4rem 1.4rem;
+  padding: 0;
+}
+.md-list-item {
+  margin: 0.2rem 0;
+}
+.post-codeblock {
+  margin: 0.5rem 0;
+  padding: 0.6rem 0.75rem;
+  border: 1.5px solid var(--line);
+  background: var(--field);
+  border-radius: 0.4rem;
+  overflow-x: auto;
+}
+.post-codeblock code {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.9rem;
+  color: var(--ink);
+  white-space: pre;
+}
+.post-heading {
+  color: var(--ink);
+  margin: 0.7rem 0 0.25rem;
+}
