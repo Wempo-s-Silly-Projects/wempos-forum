@@ -8,6 +8,7 @@ const preloadPath = new URL("../public/js/theme-preload.js", import.meta.url);
 test("theme prepaint runs from a same-origin script allowed by the strict CSP", async () => {
   const html = await readFile(readmePath, "utf8");
   assert.match(html, /<script src="\/js\/theme-preload\.js"><\/script>/);
+  assert.ok(html.indexOf('<script src="/js/theme-preload.js"></script>') < html.indexOf('<link rel="stylesheet" href="/styles.css">'), "theme preload must appear before the stylesheet");
   assert.doesNotMatch(html, /<script>\s*[\s\S]*?<\/script>/i);
   assert.match(await readFile(preloadPath, "utf8"), /localStorage\.getItem\("forum-theme"\)/);
 });
