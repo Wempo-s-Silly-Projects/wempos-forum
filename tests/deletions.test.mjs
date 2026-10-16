@@ -164,7 +164,7 @@ const fallbackRoute = { sql: /./ };
 // FIRST; its binds are [deletedAt, reason, ...deletionSelectors]. The tests
 // below match it by sql text and verify binds shape/leniency (deletedAt is
 // "recent seconds", reason and selector list are exact).
-const archiveRoute = { sql: /^INSERT INTO post_archive \(original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because\)/ };
+const archiveRoute = { sql: /^INSERT INTO post_archive \(original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because, deleted_by_user_id, deleted_by_name\)/ };
 const ARCHIVE_BATCH_META = { meta: { changes: 1 } };
 
 
