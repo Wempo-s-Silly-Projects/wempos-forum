@@ -52,8 +52,8 @@ function archiveRoute(rows) {
 
 test("GET /api/archive is public, newest-first, and ISO-serialized", async () => {
   const rows = [
-    { id: 5, original_post_id: 90, author_id: 7, author_name: "scrubber", body: "words to hide", board: "general", created_at: 1700000000, deleted_at: 1700001234, deleted_because: "post-delete" },
-    { id: 4, original_post_id: 91, author_id: 7, author_name: "scrubber", body: "mass-wiped", board: "suggestions", created_at: 1700000001, deleted_at: 1700001234, deleted_because: "account-delete" },
+    { id: 5, original_post_id: 90, author_id: 7, author_name: "scrubber", body: "words to hide", board: "general", created_at: 1700000000, deleted_at: 1700001234, deleted_because: "post-delete", deleted_by_user_id: 8, deleted_by_name: "moderator" },
+    { id: 4, original_post_id: 91, author_id: 7, author_name: "scrubber", body: "mass-wiped", board: "suggestions", created_at: 1700000001, deleted_at: 1700001234, deleted_because: "account-delete", deleted_by_user_id: null, deleted_by_name: "alice" },
   ];
   const response = await forumWorker.fetch(
     new Request("https://forum.example/api/archive", { method: "GET" }),
@@ -64,6 +64,8 @@ test("GET /api/archive is public, newest-first, and ISO-serialized", async () =>
   assert.equal(payload.archive.length, 2);
   assert.equal(payload.archive[0].authorName, "scrubber");
   assert.equal(payload.archive[0].deletedBecause, "post-delete");
+  assert.equal(payload.archive[0].deletedByUserId, 8);
+  assert.equal(payload.archive[0].deletedByName, "moderator");
   assert.equal(payload.archive[0].body, "words to hide");
   assert.equal(payload.archive[0].deletedAt, new Date(1700001234 * 1000).toISOString());
   assert.equal(payload.nextBefore, null, "no cursor until a full page (51 rows)");
@@ -73,7 +75,7 @@ test("a full page emits the id cursor from the last shown row", async () => {
   const rows = Array.from({ length: 51 }, (_val, index) => ({
     id: 100 - index, original_post_id: 1000 - index, author_id: null, author_name: "gone",
     body: "v" + index, board: "general", created_at: 1700000000, deleted_at: 1700001234,
-    deleted_because: "account-delete",
+    deleted_because: "account-delete", deleted_by_user_id: null, deleted_by_name: "removed-account",
   }));
   const response2 = await forumWorker.fetch(
     new Request("https://forum.example/api/archive", { method: "GET" }),
