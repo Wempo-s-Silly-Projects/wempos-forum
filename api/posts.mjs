@@ -521,7 +521,7 @@ const STAGED_IDEMPOTENCY_TTL_SECONDS = 30 * 60;
 async function existingIdempotentPost(db, authorId, key) {
   if (!key) return null;
   const live = await db.prepare(
-    "SELECT id, visibility, created_at, idempotency_key, idempotency_fingerprint, " +
+    "SELECT id, visibility, created_at, staged_at, idempotency_key, idempotency_fingerprint, " +
     "parent_id, body, board FROM posts WHERE author_id = ? AND idempotency_key = ? LIMIT 1",
   ).bind(authorId, key).first();
   if (live) return { ...live, archived: false };
@@ -533,46 +533,64 @@ async function existingIdempotentPost(db, authorId, key) {
   return archived ? { ...archived, archived: true } : null;
 }
 
-async function replayIdempotentPost(db, authorId, key, fingerprint) {
-  if (!key) return null;
-  let existing = await existingIdempotentPost(db, authorId, key);
-  if (existing && !existing.archived && existing.visibility === "hidden" &&
-      Number(existing.created_at) <= nowSeconds() - STAGED_IDEMPOTENCY_TTL_SECONDS) {
-    await db.prepare(
-      "DELETE FROM posts WHERE id = ? AND author_id = ? AND idempotency_key = ? " +
-      "AND visibility = 'hidden' AND created_at <= ?",
-    ).bind(Number(existing.id), authorId, key, nowSeconds() - STAGED_IDEMPOTENCY_TTL_SECONDS).run();
-    existing = await existingIdempotentPost(db, authorId, key);
+async function storedPostFingerprint(db, existing, fingerprint) {
+  if (existing.idempotency_fingerprint || !fingerprint || existing.archived) {
+    return existing.idempotency_fingerprint || null;
   }
-  if (!existing) return null;
-  let storedFingerprint = existing.idempotency_fingerprint || null;
   // Rows created before migration 0024 have no persisted fingerprint. Rebuild
   // the comparable shape from their immutable body/target/board and attachment
   // hash list; do not silently replay a legacy key for a different payload.
-  if (!storedFingerprint && !existing.archived && fingerprint) {
-    const storedAttachments = await db.prepare(
-      "SELECT hash, mime FROM attachments WHERE post_id = ? ORDER BY hash, mime",
-    ).bind(Number(existing.id)).all();
-    storedFingerprint = await postCreationFingerprint({
-      kind: existing.parent_id === null || existing.parent_id === undefined ? "post" : "reply",
-      targetId: existing.parent_id === null || existing.parent_id === undefined ? null : Number(existing.parent_id),
-      message: String(existing.body ?? ""),
-      board: existing.board ?? null,
-      attachments: storedAttachments.results || [],
-    });
-  }
-  if (storedFingerprint && fingerprint && storedFingerprint !== fingerprint) {
+  const storedAttachments = await db.prepare(
+    "SELECT hash, mime FROM attachments WHERE post_id = ? ORDER BY hash, mime",
+  ).bind(Number(existing.id)).all();
+  return postCreationFingerprint({
+    kind: existing.parent_id === null || existing.parent_id === undefined ? "post" : "reply",
+    targetId: existing.parent_id === null || existing.parent_id === undefined ? null : Number(existing.parent_id),
+    message: String(existing.body ?? ""),
+    board: existing.board ?? null,
+    attachments: storedAttachments.results || [],
+  });
+}
+
+function assertIdempotencyFingerprint(existingFingerprint, fingerprint) {
+  if (existingFingerprint && fingerprint && existingFingerprint !== fingerprint) {
     throw new HttpError(409, "Idempotency-Key was already used for a different submission. Submit again to create the changed content.");
   }
+}
+
+async function replayIdempotentPost(db, authorId, key, fingerprint) {
+  if (!key) return null;
+  let existing = await existingIdempotentPost(db, authorId, key);
+  if (!existing) return null;
+  let storedFingerprint = await storedPostFingerprint(db, existing, fingerprint);
+  assertIdempotencyFingerprint(storedFingerprint, fingerprint);
   if (existing.archived) {
     throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
   }
+
+  // Only explicit staged submissions are eligible for expiry. Moderator-hidden
+  // posts have staged_at=NULL and must never be deleted by retry cleanup.
+  if (existing.visibility === "hidden" && existing.staged_at !== null &&
+      existing.staged_at !== undefined &&
+      Number(existing.staged_at) <= nowSeconds() - STAGED_IDEMPOTENCY_TTL_SECONDS) {
+    await db.prepare(
+      "DELETE FROM posts WHERE id = ? AND author_id = ? AND idempotency_key = ? " +
+      "AND visibility = 'hidden' AND staged_at IS NOT NULL AND staged_at <= ?",
+    ).bind(Number(existing.id), authorId, key, nowSeconds() - STAGED_IDEMPOTENCY_TTL_SECONDS).run();
+    existing = await existingIdempotentPost(db, authorId, key);
+    if (!existing) return null;
+    storedFingerprint = await storedPostFingerprint(db, existing, fingerprint);
+    assertIdempotencyFingerprint(storedFingerprint, fingerprint);
+    if (existing.archived) {
+      throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
+    }
+  }
+
   if (existing.visibility !== "public") {
     throw new HttpError(409, "Your post is still being processed. Retry shortly.");
   }
   return json({ id: Number(existing.id) }, 200);
 }
-
 async function postCreationFingerprint({
   kind, targetId = null, message, board = null, files = [], gifEntries = [], attachments = null,
 }) {
