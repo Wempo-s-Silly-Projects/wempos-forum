@@ -35,6 +35,7 @@ const MIGRATIONS = [
   "0022_revoked_attachment_hashes.sql",
   "0023_post_archive_deleted_by.sql",
   "0024_idempotency_fingerprints_and_attachment_sources.sql",
+  "0025_attachment_gif_identity.sql",
 ].map((name) => readFileSync(path.join(repoRoot, "migrations", name), "utf8"));
 
 // --- Worker-route layer (mockDb, post-edit.test.mjs idioms) -------------------
