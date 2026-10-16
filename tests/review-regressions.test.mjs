@@ -113,7 +113,7 @@ test("approved attachment and GIF flows use write-time revocation guards", async
   assert.match(gifs, /status <> 'approved' OR NOT EXISTS \(SELECT 1 FROM revoked_attachment_hashes/);
   assert.match(gifs, /DELETE FROM revoked_attachment_hashes WHERE hash = /);
   assert.match(gifs, /WHERE status = 'approved'[\s\S]*?NOT EXISTS \(SELECT 1 FROM revoked_attachment_hashes/);
-  assert.match(posts, /a\.source_kind = 'gif'[\s\S]*?revoked_attachment_hashes/);
+  assert.match(posts, /a\.status = 'approved'[\s\S]*?revoked_attachment_hashes/);
   assert.match(migration, /source_kind TEXT NOT NULL DEFAULT 'legacy'/);
 });
 
