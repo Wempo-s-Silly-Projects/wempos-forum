@@ -27,7 +27,7 @@ export async function handleLeaderboardRoutes(request, env, url, path, method) {
     "+ (SELECT COUNT(*) FROM posts WHERE author_id = u.id AND parent_id IS NOT NULL AND created_at >= ?) " +
     "+ (SELECT COUNT(*) FROM reactions rr JOIN posts p ON p.id = rr.post_id WHERE p.author_id = u.id AND rr.created_at >= ?)) DESC, " +
     "u.username_key ASC LIMIT " + LEADERBOARD_SIZE,
-  ).bind(weekStart, weekStart, weekStart, weekStart, weekStart, weekStart, weekStart).all();
+  ).bind(weekStart, weekStart, weekStart, weekStart, weekStart, weekStart, weekStart, weekStart).all();
   return json({
     week: {
       leaderboard: (result.results || []).map((row) => ({
