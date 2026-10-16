@@ -397,7 +397,7 @@ async function handleCssAdminRoutes(request, env, url, path, method) {
   if (path === "/api/admin/css" && method === "GET") {
     await requireModerator(request, env, false);
     const result = await db.prepare(
-      "SELECT id, username, pending_css, css_status FROM users " +
+      "SELECT id, username, pending_css, pending_css_version, css_status FROM users " +
       "WHERE css_status = 'pending' AND pending_css IS NOT NULL ORDER BY id LIMIT 100",
     ).all();
     return json({
@@ -420,7 +420,7 @@ async function handleCssAdminRoutes(request, env, url, path, method) {
     const userId = Number(cssMatch[1]);
     if (!Number.isSafeInteger(userId) || userId < 1) throw new HttpError(404, "Not found.");
     const expectedVersion = url.searchParams.get("version") || "";
-    if (!/^[0-9a-f-]{36}$/i.test(expectedVersion)) {
+    if (!/^(?:[0-9a-f]{32}|[0-9a-f-]{36})$/i.test(expectedVersion)) {
       throw new HttpError(409, "This CSS submission is stale. Refresh the moderation queue.");
     }
     const current = await db.prepare(
