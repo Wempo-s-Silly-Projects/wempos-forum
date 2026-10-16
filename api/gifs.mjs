@@ -35,7 +35,7 @@ export async function handleGifRoutes(request, env, url, path, method) {
   if (upload) return upload;
   const list = await handleGifListRoute(request, env, path, method);
   if (list) return list;
-  const admin = await handleGifAdminRoutes(request, env, path, method);
+  const admin = await handleGifAdminRoutes(request, env, url, path, method);
   if (admin) return admin;
   return null;
 }
