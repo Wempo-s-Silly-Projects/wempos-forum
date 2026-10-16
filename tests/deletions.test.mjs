@@ -210,8 +210,8 @@ test("the author deletes a root post with ONE author-guarded DELETE, no reparent
   assert.ok(archiveCall, "the archive INSERT runs");
   assert.equal(archiveCall.values[1], "post-delete");
   assert.equal(archiveCall.values[2], 7, "deleting user id is snapshotted");
-  assert.equal(archiveCall.values[3], "alice", "deleting username is snapshotted");
-  assert.deepEqual(archiveCall.values.slice(2), [50, 50, 50],
+  assert.equal(archiveCall.values[3], "test_user", "deleting username is snapshotted");
+  assert.deepEqual(archiveCall.values.slice(4), [50, 50, 50],
     "root delete archives the root, its replies, and its sub-replies");
   assert.ok(Math.abs(Number(archiveCall.values[0]) - Math.floor(Date.now() / 1000)) < 30,
     "deletedAt is epoch seconds");
@@ -454,7 +454,9 @@ test("account deletion removes owned child rows explicitly, then the user row, i
   // DELETE action), then the owned children, then the user row LAST.
   assert.equal(batch[0].sql.startsWith("INSERT INTO post_archive"), true);
   assert.equal(batch[0].values[1], "account-delete");
-  assert.deepEqual(batch[0].values.slice(2), [7, 7, 7]);
+  assert.equal(batch[0].values[2], 7, "account deletion actor id is recorded");
+  assert.equal(batch[0].values[3], "test_user", "account deletion actor name is recorded");
+  assert.deepEqual(batch[0].values.slice(4), [7, 7, 7]);
   assert.ok(Math.abs(Number(batch[0].values[0]) - Math.floor(Date.now() / 1000)) < 30);
   assert.deepEqual(
     batch.slice(1).map((statement) => statement.sql),
