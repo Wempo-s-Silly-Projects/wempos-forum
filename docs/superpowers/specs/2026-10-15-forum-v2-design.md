@@ -6,7 +6,7 @@ Status: Approved in chat by user (2026-10-15)
 ## Purpose
 
 Add 13 user-requested features to the Cloudflare Workers + D1 forum: moderated avatars, a
-moderator role, reaction toggling, Turnstile on replies, nested replies, feed bumping, a
+mod role, reaction toggling, Turnstile on replies, nested replies, feed bumping, a
 word-filter template, a 10,000-char bio limit, profile socials/Polytoria username,
 in-app reply notifications, and a banned-account sign-in screen.
 
@@ -37,7 +37,7 @@ in-app reply notifications, and a banned-account sign-in screen.
 | Word filter | Replace matches with same-length asterisks, stored masked |
 | Filter words | Template file only, empty list — user adds words later |
 | Avatar privacy while pending | Previous approved avatar (or none) stays public |
-| Moderators | New `moderator` role, promoted by admin; moderation powers for reports/bans/avatar queue, not for promotion |
+| mods | New `mod` role, promoted by admin; moderation powers for reports/bans/avatar queue, not for promotion |
 | Ban screen | Shown on rejected sign-in only: "You are banned", reason, countdown for temp bans |
 | Notifications | In-app only; bell in header with unread count + `/notifications` page |
 | Ban-reason probe oracle | Accepted (rate-limited sign-in mitigates) |
@@ -49,7 +49,7 @@ SQLite cannot alter CHECK constraints, so the `users` table is rebuilt:
 
 1. `CREATE TABLE users_new` mirroring the current schema with changes:
    - `bio` CHECK length ≤ 10 000 (was 280)
-   - `role` CHECK IN (‘member’, ‘moderator’, ‘admin’) (was member/admin)
+   - `role` CHECK IN (‘member’, ‘mod’, ‘admin’) (was member/admin)
    - New nullable columns, each `TEXT` ≤ 120 chars via CHECK:
      `avatar_status` CHECK IN ('approved','pending','rejected'),
      `social_youtube`, `social_x`, `social_reddit`, `social_github`, `social_discord`,
@@ -153,14 +153,14 @@ existing tests keep passing) into:
   cannot exceed limits by construction (replacement is length-preserving).
 - Filter state is static per deploy. Empty list = no-op.
 
-## 8. Moderators and promotion
+## 8. mods and promotion
 
-- New role `moderator`; `requireModerator` = role admin OR moderator for:
+- New role `mod`; `requiremod` = role admin OR mod for:
   report queue, report resolve, ban list, ban create/revoke, avatar queue.
 - New admin-only endpoints:
-  - `POST /api/admin/users/:id/promote` → sets role='moderator' (target must be a member)
-  - `POST /api/admin/users/:id/demote` → sets role='member' (target must be a moderator)
-  - Refuse targeting admins (same 403 as bans). Session users of demoted moderators keep
+  - `POST /api/admin/users/:id/promote` → sets role='mod' (target must be a member)
+  - `POST /api/admin/users/:id/demote` → sets role='member' (target must be a mod)
+  - Refuse targeting admins (same 403 as bans). Session users of demoted mods keep
     access until their next `readSession` — acceptable, reads role at request time.
 - `POST` bodies validated (reason optional; not stored).
 - Admin UI: promote/demote controls on author cards in the moderation desk, and on the member
@@ -180,15 +180,15 @@ with an empty pending set).
 - **Serving (`GET /api/avatars/:userId`):** serves the approved avatar if the approved set is
   populated. If not — i.e. the user has no approved avatar yet and the account has a pending
   one — the endpoint serves the pending avatar only to the owner (session user id matches) or
-  an admin/moderator; everyone else gets 404.
-- **Approve (moderator/admin):** copies pending set → approved set, clears pending set,
+  an admin/mod; everyone else gets 404.
+- **Approve (mod/admin):** copies pending set → approved set, clears pending set,
   `avatar_status='approved'`.
-- **Reject (moderator/admin):** clears pending set; approved set reappears for public serving
+- **Reject (mod/admin):** clears pending set; approved set reappears for public serving
   if one exists; otherwise the user is back to no-avatar.
 - **Queue:** `GET /api/admin/avatars` lists users with `avatar_status='pending'` (username,
-  avatar version, uploaded time), moderator-gated, same shape as the report queue. Resolve
+  avatar version, uploaded time), mod-gated, same shape as the report queue. Resolve
   endpoints are `POST /api/admin/avatars/:userId/approve` and `.../reject`, both ban-gated
-  for the acting moderator. Rate limits read on `read`, resolve on `write`.
+  for the acting mod. Rate limits read on `read`, resolve on `write`.
 - Frontend: profile page shows the user's own "awaiting review" badge when their pending set
   is populated; the user's current public avatar still shows normally.
 
@@ -228,7 +228,7 @@ with an empty pending set).
 - `GET /api/session` gains `unreadNotifications` (integer) for signed-in users — count of
   `read_at IS NULL`. No extra request per navigation.
 - `GET /api/me/notifications` → newest 50 with post preview (first 80 chars of the reply body),
-  target post id, read state; moderator-safe (recipient-only rows).
+  target post id, read state; mod-safe (recipient-only rows).
 - `POST /api/me/notifications/:id/read` → sets `read_at` for own rows only.
 - `POST /api/me/notifications/read-all` → stamps all unread own rows.
 - UI: bell button in header (hidden for guests) with unread count badge; `/notifications`
@@ -260,7 +260,7 @@ with an empty pending set).
 - Each backend feature: node:test cases with mock D1 (existing `mockD1Batch` pattern) —
   reply-depth validation SQL matches bind order; bump cursor pagination; DELETE reaction
   idempotence; filter masking boundary cases (word at end, case, repeated word, empty list);
-  promote/demote authorization table (member/moderator/admin × admin-only routes);
+  promote/demote authorization table (member/mod/admin × admin-only routes);
   avatar queue approve/reject state machine; notification insert/self-exclusion/cap;
   login-ban payload (wrong password excluded).
 - Frontend: node tests for pure helpers where extractable (reaction toggle intent from button
@@ -275,7 +275,7 @@ with an empty pending set).
 3. Parallel backend agents on disjoint files:
    a. threading + bump + replies Turnstile (`api/posts.mjs`)
    b. reactions DELETE, socials, bio cap (`api/profiles.mjs` + shared validators)
-   c. moderator role + promote/demote + ban screen payload (`api/moderation.mjs`,
+   c. mod role + promote/demote + ban screen payload (`api/moderation.mjs`,
       `api/session.mjs`)
    d. avatar moderation queue (`api/moderation.mjs` — **shares file with (c)**, so (c) and (d)
       run sequentially or (d) first)
