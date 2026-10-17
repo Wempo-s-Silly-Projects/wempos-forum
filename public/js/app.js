@@ -85,7 +85,7 @@ function profileBadgeFor(totalContributions) {
   if (totalContributions >= 5000) return "Mega Forumer";
   if (totalContributions >= 1000) return "Big Forumer";
   if (totalContributions >= 100) return "Standard forumer";
-  if (totalContributions <100) return "New Forumer";
+  if (totalContributions < 100) return "New Forumer";
   return null;
 }
 
