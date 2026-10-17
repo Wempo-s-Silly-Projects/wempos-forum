@@ -12,7 +12,7 @@ import {
   readJson,
   requireAdmin,
   requireMutationApplied,
-  requireModerator,
+  requiremod,
   requireUser,
   requiredText,
 } from "./shared.mjs";
@@ -54,7 +54,7 @@ async function handleReportCreateRoute(request, env, url, path, method) {
 async function handleReportQueueRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/reports" && method === "GET") {
-    await requireModerator(request, env, false);
+    await requiremod(request, env, false);
     const result = await db.prepare(
       "SELECT r.id, r.reason, r.created_at, reporter.username AS reporter_username, " +
         "p.id AS post_id, p.body AS post_body, p.visibility AS post_visibility, author.id AS author_id, author.username AS author_username " +
@@ -70,7 +70,7 @@ async function handleReportQueueRoute(request, env, url, path, method) {
         reporter: { username: row.reporter_username },
         post: {
           id: Number(row.post_id),
-          // Moderator-only desk (v3.0.1): the queue is behind requireModerator,
+          // mod-only desk (v3.0.1): the queue is behind requiremod,
           // and the nuke rule leaves mods as the only viewers of hidden
           // content — so the body shows here instead of a withheld marker.
           body: row.post_body,
@@ -83,7 +83,7 @@ async function handleReportQueueRoute(request, env, url, path, method) {
   return null;
 }
 
-async function hidePostForOpenReport(db, reportId, moderatorId, now) {
+async function hidePostForOpenReport(db, reportId, modId, now) {
   const results = await db.batch([
     db.prepare(
       "UPDATE posts SET visibility = 'hidden' WHERE id = (" +
@@ -92,20 +92,20 @@ async function hidePostForOpenReport(db, reportId, moderatorId, now) {
     db.prepare(
       "UPDATE reports SET status = 'actioned', resolved_at = ?, resolved_by = ? " +
         "WHERE id = ? AND status = 'open'",
-    ).bind(now, moderatorId, reportId),
+    ).bind(now, modId, reportId),
   ]);
   if (Number(results[1]?.meta?.changes) !== 1) {
-    throw new HttpError(409, "This report was already resolved by another moderator.");
+    throw new HttpError(409, "This report was already resolved by another mod.");
   }
 }
 
-async function dismissOpenReport(db, reportId, moderatorId, now) {
+async function dismissOpenReport(db, reportId, modId, now) {
   const result = await db.prepare(
     "UPDATE reports SET status = 'dismissed', resolved_at = ?, resolved_by = ? " +
       "WHERE id = ? AND status = 'open'",
-  ).bind(now, moderatorId, reportId).run();
+  ).bind(now, modId, reportId).run();
   if (Number(result.meta?.changes) !== 1) {
-    throw new HttpError(409, "This report was already resolved by another moderator.");
+    throw new HttpError(409, "This report was already resolved by another mod.");
   }
 }
 
@@ -113,7 +113,7 @@ async function handleReportResolveRoute(request, env, url, path, method) {
   const match = path.match(/^\/api\/admin\/reports\/([0-9]+)\/resolve$/);
   if (!match || method !== "POST") return null;
 
-  const session = await requireModerator(request, env);
+  const session = await requiremod(request, env);
   const reportId = Number(match[1]);
   if (!Number.isSafeInteger(reportId) || reportId < 1) {
     throw new HttpError(404, "Report not found.");
@@ -140,7 +140,7 @@ async function handleReportResolveRoute(request, env, url, path, method) {
 async function handleBanListRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/bans" && method === "GET") {
-    await requireModerator(request, env, false);
+    await requiremod(request, env, false);
     const result = await db.prepare(
       "SELECT b.id, b.user_id, b.reason, b.expires_at, u.username " +
         "FROM bans b JOIN users u ON u.id = b.user_id " +
@@ -159,7 +159,7 @@ async function handleBanListRoute(request, env, url, path, method) {
   return null;
 }
 
-async function createUserBan(db, targetId, moderatorId, request) {
+async function createUserBan(db, targetId, modId, request) {
   const body = await readJson(request);
   const reason = requiredText(body.reason, "ban reason", 500);
   const now = nowSeconds();
@@ -167,13 +167,13 @@ async function createUserBan(db, targetId, moderatorId, request) {
     db.prepare(
       "UPDATE bans SET revoked_at = ?, revoked_by = ?, revocation_reason = 'Expired automatically' " +
         "WHERE user_id = ? AND revoked_at IS NULL AND expires_at IS NOT NULL AND expires_at <= ?",
-    ).bind(now, moderatorId, targetId, now),
+    ).bind(now, modId, targetId, now),
     db.prepare(
       "INSERT INTO bans (user_id, reason, created_at, created_by) " +
         "SELECT ?, ?, ?, ? WHERE NOT EXISTS (" +
         "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
         "AND (expires_at IS NULL OR expires_at > ?))",
-    ).bind(targetId, reason, now, moderatorId, targetId, now),
+    ).bind(targetId, reason, now, modId, targetId, now),
     db.prepare(
       "DELETE FROM sessions WHERE user_id = ? AND EXISTS (" +
         "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
@@ -186,7 +186,7 @@ async function createUserBan(db, targetId, moderatorId, request) {
   return json({ ok: true }, 201);
 }
 
-async function revokeUserBan(db, targetId, moderatorId, request) {
+async function revokeUserBan(db, targetId, modId, request) {
   const body = await readJson(request);
   const reason = requiredText(body.reason, "unban reason", 500);
   const active = await db.prepare(
@@ -196,9 +196,9 @@ async function revokeUserBan(db, targetId, moderatorId, request) {
   if (!active) throw new HttpError(404, "No active ban was found for this member.");
   const now = nowSeconds();
   const result = await db.prepare(UNBAN_ACTIVE_UPDATE_SQL)
-    .bind(now, moderatorId, reason, Number(active.id), targetId, now).run();
+    .bind(now, modId, reason, Number(active.id), targetId, now).run();
   if (Number(result.meta?.changes) !== 1) {
-    throw new HttpError(409, "This ban was already revoked by another moderator.");
+    throw new HttpError(409, "This ban was already revoked by another mod.");
   }
   return json({ ok: true });
 }
@@ -207,7 +207,7 @@ async function handleBanMutationRoute(request, env, url, path, method) {
   const match = path.match(/^\/api\/admin\/users\/([0-9]+)\/bans$/);
   if (!match || (method !== "POST" && method !== "DELETE")) return null;
 
-  const session = await requireModerator(request, env);
+  const session = await requiremod(request, env);
   const targetId = Number(match[1]);
   if (!Number.isSafeInteger(targetId) || targetId < 1) throw new HttpError(404, "Member not found.");
   const db = env.FORUM_DB;
@@ -216,18 +216,18 @@ async function handleBanMutationRoute(request, env, url, path, method) {
   ).bind(targetId).first();
   if (!target) throw new HttpError(404, "Member not found.");
   if (target.role === "admin" || targetId === session.user.id) {
-    throw new HttpError(403, "Administrator accounts cannot be banned here.");
+    throw new HttpError(403, "admin accounts cannot be banned here.");
   }
   if (method === "POST") return createUserBan(db, targetId, session.user.id, request);
   return revokeUserBan(db, targetId, session.user.id, request);
 }
 
-// Promotion is strictly an administrator operation. Role transitions carry a
-// role guard in the UPDATE itself (changes-checked), and administrators are
+// Promotion is strictly an admin operation. Role transitions carry a
+// role guard in the UPDATE itself (changes-checked), and admins are
 // refused up front — including self-demotion — so 'admin' is unreachable from
 // here. Sessions are not invalidated: readSession reads the role at request
 // time, so demotion applies on the target's next request.
-const ROLE_CHANGE_ADMIN_403 = "Administrator accounts cannot be modified here.";
+const ROLE_CHANGE_ADMIN_403 = "admin accounts cannot be modified here.";
 const ROLE_UNCHANGED_409 = "That member already has this role.";
 
 async function handleRoleChangeRoute(request, env, url, path, method) {
@@ -254,11 +254,11 @@ async function handleRoleChangeRoute(request, env, url, path, method) {
 
   if (match[2] === "promote") {
     if (target.role !== "member") throw new HttpError(409, ROLE_UNCHANGED_409);
-  } else if (target.role !== "moderator") {
+  } else if (target.role !== "mod") {
     throw new HttpError(409, ROLE_UNCHANGED_409);
   }
 
-  const nextRole = match[2] === "promote" ? "moderator" : "member";
+  const nextRole = match[2] === "promote" ? "mod" : "member";
   const result = await db.prepare(
     "UPDATE users SET role = ? WHERE id = ? AND role = ?",
   ).bind(nextRole, targetId, target.role).run();
@@ -274,7 +274,7 @@ async function handleRoleChangeRoute(request, env, url, path, method) {
 async function handleAvatarQueueRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/avatars" && method === "GET") {
-    await requireModerator(request, env, false);
+    await requiremod(request, env, false);
     const result = await db.prepare(
       "SELECT id, username, pending_avatar_updated_at, pending_avatar_version " +
         "FROM users WHERE avatar_status = 'pending' " +
@@ -332,7 +332,7 @@ async function handleAvatarModerationRoute(request, env, url, path, method) {
   const match = path.match(/^\/api\/admin\/avatars\/([0-9]+)\/(approve|reject)$/);
   if (!match || method !== "POST") return null;
 
-  const session = await requireModerator(request, env);
+  const session = await requiremod(request, env);
   await assertNotBanned(env, session.user.id);
   const userId = Number(match[1]);
   if (!Number.isSafeInteger(userId) || userId < 1) {
@@ -348,8 +348,8 @@ async function handleAvatarModerationRoute(request, env, url, path, method) {
   return json({ ok: true });
 }
 
-// Thread pinning (C5): POST /api/admin/threads/:id/pin|unpin — moderators or
-// admin, the desk idiom (requireModerator mutating + changes-checked UPDATE
+// Thread pinning (C5): POST /api/admin/threads/:id/pin|unpin — mods or
+// admin, the desk idiom (requiremod mutating + changes-checked UPDATE
 // with a SQL guard). Root-only like boards/subscriptions; the write-time WHERE
 // clauses are also the idempotency-conflict detector, turning a double pin or
 // an unpin of an unpinned thread into a 409 instead of a silent no-op.
@@ -360,7 +360,7 @@ async function handleThreadPinRoute(request, env, url, path, method) {
   const match = path.match(THREAD_PIN_ROUTE);
   if (!match || method !== "POST") return null;
 
-  const session = await requireModerator(request, env);
+  const session = await requiremod(request, env);
   await assertNotBanned(env, session.user.id);
   const threadId = Number(match[1]);
   if (!Number.isSafeInteger(threadId) || threadId < 1) {
@@ -404,13 +404,13 @@ async function handleThreadPinRoute(request, env, url, path, method) {
   return json({ ok: true, pinned: false });
 }
 
-// Hidden posts (v3.0.1, the nuke): the moderator-only page. Lists every post
+// Hidden posts (v3.0.1, the nuke): the mod-only page. Lists every post
 // normal surfaces never carry — a hidden row or ANY row by an actively
 // banned author — bodies included, since mods ARE the only in-app door now.
 async function handleHiddenPostsRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path !== "/api/admin/hidden" || method !== "GET") return null;
-  await requireModerator(request, env, false);
+  await requiremod(request, env, false);
   const result = await db.prepare(
     "SELECT p.id, p.body, p.visibility, p.board, p.created_at, p.parent_id, " +
       "author.id AS author_id, author.username AS author_username, " +
