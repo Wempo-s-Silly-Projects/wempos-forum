@@ -81,11 +81,11 @@ let renderVersion = 0;
 // Milestone badges (v2.5): display-only, computed from the profile's
 // contribution counts — the thresholds graduate as the member posts.
 function profileBadgeFor(totalContributions) {
-  if (totalContributions >= 500) return "🏆 forum legend";
-  if (totalContributions >= 100) return "💯 centurion";
-  if (totalContributions >= 50) return "⭐ regular";
-  if (totalContributions >= 10) return "💬 conversationalist";
-  if (totalContributions >= 1) return "🌱 newcomer";
+  if (totalContributions >= 25000) return "Famous Forumer";
+  if (totalContributions >= 5000) return "Mega Forumer";
+  if (totalContributions >= 1000) return "Big Forumer";
+  if (totalContributions >= 100) return "Standard forumer";
+  if (totalContributions <100) return "New Forumer";
   return null;
 }
 
