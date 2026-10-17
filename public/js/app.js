@@ -406,7 +406,7 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
 
 function renderIntroduction() {
   const intro = element("section", "personal-intro");
-  addHeading(intro, "Wempo's Forum", 1);
+  addHeading(intro, "Wempo's Forum: Have fun and meet new people!", 1);
   addText(document, intro, "p", homepageIntro, "personal-intro-copy");
   const interests = element("ul", "personal-tags");
   for (const interest of homepageInterests) interests.append(element("li", "", interest));
