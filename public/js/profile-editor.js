@@ -163,7 +163,7 @@ export function renderProfileEditor(main, user) {
       id: `profile-social-${key}`, name: key, label: SOCIAL_LABELS[key],
       maxLength: 120,
       description: key === "polytoria"
-        ? "Your Polytoria username (shown as plain text)."
+        ? "Your Polytoria username."
         : SOCIAL_PATTERNS[key] ? `Just the ${SOCIAL_LABELS[key]} handle, not the whole URL.` : "",
     })),
     createInput(document, {
