@@ -39,7 +39,7 @@ export { POST_SELECT };
 
 // Attachments metadata rides one batched lookup per page: every serialized
 // post gains an `attachments` array (possibly empty, never null/absent) whose
-// viewer filtering (author/moderator-only pending visibility) lives in
+// viewer filtering (author/mod-only pending visibility) lives in
 // attachmentRowsForView. This helper never widens a page's visibility SQL —
 // it decorates rows only after the cursor/visibility SELECTs come back.
 async function withAttachments(db, viewer, posts) {
@@ -596,7 +596,7 @@ async function replayIdempotentPost(db, authorId, key, fingerprint) {
     throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
   }
 
-  // Only explicit staged submissions are eligible for expiry. Moderator-hidden
+  // Only explicit staged submissions are eligible for expiry. mod-hidden
   // posts have staged_at=NULL and must never be deleted by retry cleanup.
   if (existing.visibility === "hidden" && existing.staged_at !== null &&
       existing.staged_at !== undefined &&
@@ -933,7 +933,7 @@ async function handlePostCreateRoute(request, env, url, path, method) {
 
 // Author post edits (v2.4): PATCH /api/posts/:id covers BOTH roots and replies
 // (both are rows in posts). Access is author-only by session identity — no role
-// path (a moderator gets no edit power here), and the author may edit even a
+// path (a mod gets no edit power here), and the author may edit even a
 // hidden own post. Content gates mirror create exactly: requiredText semantics
 // with MAX_COMPOSER_BODY_CHARS and the word filter REAPPLIED, storing the
 // masked body. last_activity_at is deliberately absent from the UPDATE — an
@@ -1016,7 +1016,7 @@ async function handlePostEditHistoryRoute(request, env, url, path, method) {
 }
 
 // Author post deletion (v2.4.1 feature, shipped without a version bump): DELETE /api/posts/:id. Access is author-only
-// by session identity — no role path (a moderator gets no delete power here),
+// by session identity — no role path (a mod gets no delete power here),
 // exactly the same gates as the edit route (requireUser + assertNotBanned +
 // the write and post-write rate limit scopes). The TOCTOU guard mirrors the
 // edit route: the author_id clause runs at write time, so a non-author racing
