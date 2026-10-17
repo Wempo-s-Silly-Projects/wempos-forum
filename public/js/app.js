@@ -180,10 +180,10 @@ function authForm(name, title, buttonLabel) {
 }
 
 function setupForm() {
-  const panel = createPanel("Set up Wempo's Forum", "The first administrator requires a setup secret configured by the site owner.");
+  const panel = createPanel("Set up Wempo's Forum:3", "The first administrator requires a setup secret configured by the site owner.");
   panel.append(createForm(document, "setup", [
     createInput(document, {
-      id: "setup-username", name: "username", label: "Administrator username",
+      id: "setup-username", name: "username", label: "Admin username",
       autoComplete: "username", required: true, minLength: 3, maxLength: 24,
     }),
     createInput(document, {
@@ -193,7 +193,7 @@ function setupForm() {
     createInput(document, {
       id: "setup-key", name: "setupKey", label: "Setup secret", type: "password",
       autoComplete: "off", required: true, minLength: 32, maxLength: 4096,
-      description: "Provided by the site owner through Wrangler. Never share it.",
+      description: "Provided by the site owner through Wrangler. Never EVER share it!",
     }),
   ], "Create administrator"));
   return panel;
@@ -418,7 +418,7 @@ function renderIntroduction() {
 }
 
 function renderJoinPanel() {
-  const panel = createPanel("Join the conversation", "Accounts use a username and password. There is no email collection or email-based recovery.");
+  const panel = createPanel("Join the conversation!", "Accounts use a username and password. There is no email collection or email-based recovery.");
   panel.id = "join";
   const grid = element("div", "auth-grid");
   grid.append(
@@ -432,7 +432,7 @@ function renderJoinPanel() {
 function renderSetupLocked() {
   const panel = createPanel(
     "First-time setup is locked",
-    "The site owner must configure valid SETUP_SECRET and PASSWORD_PEPPER values in Wrangler before the first administrator can be created.",
+    "The site owner must configure valid SETUP_SECRET and PASSWORD_PEPPER values in Wrangler before the first admin can be created.",
   );
   main.append(panel);
 }
@@ -455,7 +455,7 @@ function renderHomeContent(session, data, route) {
     main.append(renderFeedTabs("all"));
     main.append(createComposer("post-create", "What's on your mind?", "Post message"));
   }
-  addHeading(main, route.name === "search" ? "Search results" : "Recent conversations", 2);
+  addHeading(main, route.name === "search" ? "Search results" : "Recent posts", 2);
   if (route.name === "search") {
     addText(document, main, "p", `Results for “${route.query}”`, "muted");
     renderSearchResults(main, data.search);
@@ -488,7 +488,7 @@ function renderAccountSettings() {
     document.documentElement.dataset.corners = square ? "square" : "round";
   });
 
-  const passwordPanel = createPanel("Change password", "There is no email-based recovery; choose a password you can keep safe.");
+  const passwordPanel = createPanel("Change your password", "There is no email-based recovery; choose a password you can keep safe.");
   passwordPanel.append(createForm(document, "password", [
     createInput(document, {
       id: "current-password", name: "currentPassword", label: "Current password",
@@ -506,8 +506,8 @@ function renderAccountSettings() {
   // including other people's replies inside the account's own threads — before
   // anything is sent. The confirm button is disabled while the request is
   // pending (see the confirm-ok handler).
-  const deletePanel = createPanel("Delete account",
-    "This permanently deletes your account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo.");
+  const deletePanel = createPanel("Delete your account",
+    "This permanently deletes your account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo. Are you really sure?");
   const deleteButton = element("button", "button button-danger", "Delete account");
   deleteButton.type = "button";
   deleteButton.dataset.action = "delete-account";
@@ -527,7 +527,7 @@ function renderSearchResults(container, results) {
   if (Array.isArray(results.replies)) {
     addHeading(container, "Replies", 2);
     if (!results.replies.length) {
-      addText(document, container, "p", "No matching replies.", "empty-state");
+      addText(document, container, "p", "It's pretty empty here....", "There is no replies that match!", "empty-state");
     } else {
       const replyList = element("div", "reply-search-results");
       for (const reply of results.replies) {
@@ -558,7 +558,7 @@ function renderSearchResults(container, results) {
     }
     people.append(list);
   } else {
-    addText(document, people, "p", "No matching people.", "empty-state");
+    addText(document, people, "p", "It's pretty empty here", "There are no users that match!", "empty-state");
   }
   container.append(people);
   addHeading(container, "Posts", 2);
@@ -568,7 +568,7 @@ function renderSearchResults(container, results) {
 function renderProfilePosts(profile, user) {
   addHeading(main, "Posts", 2);
   if (!profile.posts.length) {
-    addText(document, main, "p", "No posts yet.", "empty-state");
+    addText(document, main, "p", "No posts, yet!", "empty-state");
     return;
   }
 
@@ -604,7 +604,7 @@ function appendProfileRoleControls(profile, session, container) {
   if (!session.user || session.user.role !== "admin") return;
   if (session.user.id === profile.id || profile.role === "admin") return;
   const [formName, label] = profile.role === "member"
-    ? ["admin-promote", "Promote to moderator"]
+    ? ["admin-promote", "Promote to mod"]
     : ["admin-demote", "Demote to member"];
   const form = document.createElement("form");
   form.dataset.form = formName;
@@ -686,7 +686,7 @@ function renderProfile(profile, session) {
     // profile instead of trusting the asymmetric PATCH echo.
     renderProfileEditor(main, profile);
     const pictures = createPanel("Profile picture",
-      "Uploads are reviewed by moderators before they appear publicly.");
+      "Uploads are reviewed by mods before they appear publicly.");
     const avatarForm = document.createElement("form");
     avatarForm.dataset.form = "avatar";
     avatarForm.append(createInput(document, {
@@ -976,7 +976,7 @@ async function renderPostRoute(route, context, version) {
     for (const reply of post.replies) replyList.append(createPostCard(reply, document, context.session.user));
     main.append(replyList);
   } else {
-    addText(document, main, "p", "No replies yet.", "empty-state");
+    addText(document, main, "p", "No replies yet!", "empty-state");
   }
   if (post.repliesNextBefore) {
     const olderReplies = element("button", "button button-secondary", "Load older replies");
@@ -1207,7 +1207,7 @@ async function submitAuthForm(type, form, text) {
   }
   setCsrfToken(result.csrfToken);
   router.navigate("/");
-  setMessage(type === "setup" ? "Administrator account created." : "You're signed in.");
+  setMessage(type === "setup" ? "Admin account created!" : "You're signed in.");
 }
 
 function composerSubmissionSignature({ body, files = [], gifs = [], board = null, targetId = null }) {
@@ -1282,7 +1282,7 @@ async function submitNewPost(form, text) {
     }
   }
   router.navigate("/posts/" + post.id);
-  setMessage("Your post is live." + pollNote);
+  setMessage("Your post is live!" + pollNote);
 }
 
 async function submitReplyForm(form, text) {
@@ -1316,7 +1316,7 @@ async function submitReplyForm(form, text) {
   // Reply-to-reply composers remember the thread root (declared above) so the
   // rerender lands back on the conversation, not on the level-1 reply's page.
   await renderRoute({ name: "post", id: Number(threadId) });
-  setMessage("Your reply was added.");
+  setMessage("Your reply was added!");
 }
 
 async function submitProfileEditorForm(form, text) {
