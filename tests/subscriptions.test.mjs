@@ -460,6 +460,7 @@ test("the detail card renders the subscribe toggle for signed-in members only", 
       append(...nodes) { for (const child of nodes) this.children.push(child); },
       setAttribute(name, value) { this.attributes[name] = String(value); },
       getAttribute(name) { return name in this.attributes ? this.attributes[name] : null; },
+      replaceChildren(...kept) { for (const child of kept) if (child) this.children.push(child); },
       get classList() {
         const self = this;
         return { add(name) { self.className = (self.className + " " + name).trim(); } };

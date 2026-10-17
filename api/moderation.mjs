@@ -57,7 +57,7 @@ async function handleReportQueueRoute(request, env, url, path, method) {
     await requireModerator(request, env, false);
     const result = await db.prepare(
       "SELECT r.id, r.reason, r.created_at, reporter.username AS reporter_username, " +
-        "p.id AS post_id, p.body AS post_body, author.id AS author_id, author.username AS author_username " +
+        "p.id AS post_id, p.body AS post_body, p.visibility AS post_visibility, author.id AS author_id, author.username AS author_username " +
         "FROM reports r JOIN users reporter ON reporter.id = r.reporter_id " +
         "JOIN posts p ON p.id = r.post_id JOIN users author ON author.id = p.author_id " +
         "WHERE r.status = 'open' ORDER BY r.created_at ASC LIMIT 100",
@@ -70,7 +70,11 @@ async function handleReportQueueRoute(request, env, url, path, method) {
         reporter: { username: row.reporter_username },
         post: {
           id: Number(row.post_id),
-          body: row.post_body,
+          // Hidden-post policy (v2.5, owner rule): hidden posts are visible
+          // to NOBODY on the forum — not the mods either. The desk sees the
+          // report + the withheld marker, never the body.
+          body: (row.post_visibility === "public") ? row.post_body : "[post hidden — content withheld]",
+          hidden: row.post_visibility !== "public",
           author: { id: Number(row.author_id), username: row.author_username },
         },
       })),

@@ -101,3 +101,36 @@ export function applyWordFilter(text, wordsRaw) {
   }
   return masked.join("");
 }
+
+// Username-filter hardening (v2.5 fix): two bypasses were live — separator
+// stitching ("p_e_n_i_s", "p.e.n.i.s") and leetspeak ("pen1s"). Both work
+// against the WHOLE-WORD filter: the stitched form's segments aren't filter
+// words, and "pen1s" lowercases to a string with no match. Usernames are
+// identity, not prose, so their check is stricter: strip every non-letter
+// (collapsing separators), map common leet to letters, then a plain
+// SUBSTRING scan. A false "class"-style positive on a NAME is an acceptable
+// trade (the signup message never reveals the list).
+export function normalizeUsernameForFilter(value) {
+  return String(value ?? "").toLowerCase()
+    .replace(/@/g, "a$".length === 2 ? "a" : "a") // no-op guard for future maps
+    .replace(/[$]/g, "s")
+    .replace(/[3]/g, "e")
+    .replace(/[4]/g, "a")
+    .replace(/[5]/g, "s")
+    .replace(/[7]/g, "t")
+    .replace(/[8]/g, "b")
+    .replace(/[9]/g, "g")
+    .replace(/[0]/g, "o")
+    .replace(/[1]/g, "i")
+    .replace(/[^a-z]/g, "");
+}
+
+export function containsFilteredWord(text, wordsRaw) {
+  if (typeof wordsRaw !== "string" || !wordsRaw.trim()) return false;
+  const lowered = String(text ?? "").toLowerCase();
+  for (const word of wordsRaw.split(",")) {
+    const piece = word.trim().toLowerCase();
+    if (piece && lowered.includes(piece)) return true;
+  }
+  return false;
+}

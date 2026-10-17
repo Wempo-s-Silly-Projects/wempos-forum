@@ -356,6 +356,13 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   });
   leaderboardLink.setAttribute("data-app-link", "");
   accountActions.append(leaderboardLink);
+  const rulesLink = iconButton(document, "scroll", {
+    tagName: "a",
+    className: "button button-secondary icon-button",
+    dataset: { href: "/rules" },
+  });
+  rulesLink.setAttribute("data-app-link", "");
+  accountActions.append(rulesLink);
   if (!user) {
     const signIn = element("a", "button button-secondary", "Sign in");
     signIn.href = "/#join";
@@ -692,7 +699,7 @@ function renderProfile(profile, session) {
   renderProfilePosts(profile, session.user);
 }
 
-function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, gifData, user) {
+function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, gifData, rulesData, user) {
   addHeading(main, "Moderation desk", 1);
   addText(document, main, "p", "Review reports, hide inappropriate posts, and manage active bans.", "page-lede");
   addHeading(main, "Open reports", 2);
@@ -705,6 +712,8 @@ function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, p
   main.append(createCssQueue(cssData.cssSubmissions, document));
   addHeading(main, "Profile reports", 2);
   main.append(createProfileReportQueue(profileReportData.profileReports, document));
+  addHeading(main, "Forum rules", 2);
+  main.append(createRulesEditor(rulesData.rules, document));
   addHeading(main, "GIFs awaiting review", 2);
   main.append(createGifQueue(gifData.gifs, document));
   addHeading(main, "Active bans", 2);
@@ -735,6 +744,7 @@ function setRouteTitle(route) {
     archive: "Archive",
     mine: "My posts",
     leaderboard: "Leaderboard",
+    rules: "Rules",
     post: "Post",
     profile: "Profile",
     admin: "Moderation",
@@ -790,6 +800,20 @@ function renderFeedTabs(active) {
     tabs.append(tab);
   }
   return tabs;
+}
+
+async function renderRulesRoute(context, version) {
+  const data = await api("/api/rules");
+  if (version !== renderVersion) return;
+  addHeading(main, "Forum rules", 2);
+  if (!data.rules) {
+    addText(document, main, "p", "The rules haven't been written yet.", "empty-state");
+    return;
+  }
+  renderBodyBlocks({ body: data.rules }, document, main);
+  if (data.updatedAt) {
+    addText(document, main, "p", `Last updated ${new Date(data.updatedAt).toLocaleString()}`, "muted");
+  }
 }
 
 async function renderLeaderboardRoute(context, version) {
@@ -993,6 +1017,21 @@ function createProfileReportQueue(reports, document) {
   return container;
 }
 
+function createRulesEditor(rulesData, document) {
+  const container = element("div", "rules-editor");
+  const label = element("p", "accent-picker-label", "Forum rules (markdown — the subset bodies use)");
+  const textarea = element("textarea", "css-editor-input");
+  textarea.id = "rules-input";
+  textarea.rows = 10;
+  textarea.maxLength = 20000;
+  textarea.value = typeof rulesData.rules === "string" ? rulesData.rules : "";
+  const save = element("button", "button", "Save rules");
+  save.type = "button";
+  save.dataset.action = "save-forum-rules";
+  container.append(label, textarea, save);
+  return container;
+}
+
 function createCssQueue(submissions, document) {
   const container = element("div", "css-queue");
   if (!submissions.length) {
@@ -1021,7 +1060,7 @@ function createCssQueue(submissions, document) {
 }
 
 async function renderAdminRoute(context, version) {
-  const [reports, bans, avatars, attachments, css, profileReports, gifs] = await Promise.all([
+  const [reports, bans, avatars, attachments, css, profileReports, gifs, rules] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/bans"),
     api("/api/admin/avatars"),
@@ -1029,9 +1068,10 @@ async function renderAdminRoute(context, version) {
     api("/api/admin/css"),
     api("/api/admin/profile-reports"),
     api("/api/admin/gifs"),
+    api("/api/rules"),
   ]);
   if (version !== renderVersion) return;
-  renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, context.session.user);
+  renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, rules, context.session.user);
 }
 
 async function renderNotificationsRoute(context, version) {
@@ -1089,6 +1129,7 @@ async function renderRoute(route) {
     suggestions: () => renderSuggestionsRoute(context, version),
     mine: () => renderMineRoute(context, version),
     leaderboard: () => renderLeaderboardRoute(context, version),
+    rules: () => renderRulesRoute(context, version),
     archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
@@ -1955,6 +1996,13 @@ async function handleButtonAction(button) {
     },
     "delete-post": () => openDeletePostDialog(button),
     "delete-account": () => openDeleteAccountDialog(),
+    "save-forum-rules": async () => {
+      const input = document.querySelector("#rules-input");
+      if (!input) return;
+      await api("/api/rules", { method: "POST", body: input.value });
+      router.navigate("/rules");
+      setMessage("Rules saved.");
+    },
     "save-profile-css": async (button) => {
       // Custom CSS (v2.5): POST the textarea's raw css to /api/me/css; it
       // lands pending for a moderator. The note is review-first wording.

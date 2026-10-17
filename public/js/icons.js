@@ -28,6 +28,14 @@ const ICON_PATHS = {
   // Bookmarks (C4): the ribbon — save/unsave a post.
   bookmark: ["M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"],
   trophy: ["M8 21h8", "M12 17v4", "M17 4h3v1a4 4 0 0 1-4 4V8a4 4 0 0 0-3-4h-4a4 4 0 0 0-3 4v1a4 4 0 0 1-4-4V4h3", "M7 4h10v4a5 5 0 0 1-10 0z"],
+  thumbUp: ["M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3m0 11V9l5.5-7A2.5 2.5 0 0 1 15 4.5L14 10h5a2 2 0 0 1 2 2.5l-1.5 7A2.5 2.5 0 0 1 17 22h-7a3 3 0 0 1-3-3z"],
+  thumbDown: ["M17 2h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3m0-11v11l-5.5 7A2.5 2.5 0 0 1 9 19.5L10 14H5a2 2 0 0 1-2-2.5l1.5-7A2.5 2.5 0 0 1 7 2h7a3 3 0 0 1 3 3z"],
+  flag: ["M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z", "M4 22V4"],
+  trash: ["M3 6h18", "M8 6V4h8v2", "M19 6l-1 14H6L5 6", "M10 11v6", "M14 11v6"],
+  pen: ["M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"],
+  open: ["M15 3h6v6", "M9 21H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2z", "M21 3l-9 9"],
+  scroll: ["M4 19.5A2.5 2.5 0 0 1 6.5 17H20", "M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"],
+
   // Saved list (C4): the bookmark with a line set — list of saves.
   bookmarks: ["M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z", "M9 7h6"],
 };
@@ -40,7 +48,8 @@ const ICON_ARIA = {
   archive: "Archive",
   shield: "Moderation",
   lightbulb: "Suggestions",
-  bookmarks: "Saved posts",
+  bookmarks: "Save",
+  trophy: "Leaderboard",
   trophy: "Leaderboard",
 };
 

@@ -1,7 +1,7 @@
 // Session, credentials, and first-admin setup routes. The avatar GET reader
 // moved to api/shared.mjs (registered on the profiles group in task 7).
 import { unreadCount } from "./notifications.mjs";
-import { applyWordFilter } from "./filter.mjs";
+import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
 import {
   createSession,
   equalConstantTime,
@@ -159,7 +159,10 @@ async function handleRegistrationRoute(request, env, url, path, method) {
     // removal, case-insensitive match) rejects registration with a generic
     // message that never hints at the private word list. An unset or empty
     // FILTERED_WORDS secret is a strict no-op here, exactly like the posts flow.
-    if (applyWordFilter(credentials.username, env.FILTERED_WORDS) !== credentials.username) {
+    // The whole-word check plus the collapsed/leet-normalized substring
+    // check: "p_e_n_i_s" and "pen1s" don't survive either (v2.5 fix).
+    if (applyWordFilter(credentials.username, env.FILTERED_WORDS) !== credentials.username ||
+        containsFilteredWord(normalizeUsernameForFilter(credentials.username), env.FILTERED_WORDS)) {
       throw new HttpError(400, "That username isn't allowed.");
     }
     const user = await storeUser(env, credentials, "member");

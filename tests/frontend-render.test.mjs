@@ -121,6 +121,10 @@ class MockElement {
   }
   // Edit-flow (v2.4) DOM ops: openEditForm inserts the form before the first
   // body block; closeEditForm removes it again. A null/absent ref appends.
+  replaceChildren(...nodes) {
+    const kept = nodes.filter((node) => node instanceof MockElement);
+    this.children = kept;
+  }
   insertBefore(node, ref) {
     if (!(node instanceof MockElement)) return;
     const index = ref ? this.children.indexOf(ref) : -1;

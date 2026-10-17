@@ -243,15 +243,21 @@ export const createPostCard = (post, document, currentUser = null) => {
     ["like", "Like", post.likeCount ?? 0],
     ["dislike", "Dislike", post.dislikeCount ?? 0],
   ]) {
-    const button = createElement(document, "button", "button button-quiet", `${label} ${count}`);
+    const button = createElement(document, "button", "button button-quiet reaction-button icon-inline");
     button.type = "button";
     button.dataset.action = "reaction";
     button.dataset.postId = String(post.id);
     button.dataset.value = value;
+    const rxLabel = `${label} this post`;
+    button.setAttribute("aria-label", `${label} (${count})`);
+    button.setAttribute("title", `${label} (${count})`);
     button.setAttribute("aria-pressed", String(post.viewerReaction === value));
     // Stateful toggle: app.js sends DELETE when active, PUT when not.
     if (post.viewerReaction === value) button.dataset.state = "active";
     if (!currentUser) button.disabled = true;
+    if (post.viewerReaction === value) button.classList.add("reaction-active");
+    button.append(createIcon(document, value === "like" ? "thumbUp" : "thumbDown"));
+    button.append(document.createTextNode(String(count)));
     actions.append(button);
   }
   // Reply-count chip (plan v2.3): only threads carrying comments get one;
@@ -274,12 +280,10 @@ export const createPostCard = (post, document, currentUser = null) => {
     bookmarkButton.dataset.action = "toggle-bookmark";
     bookmarkButton.dataset.postId = String(post.id);
     bookmarkButton.setAttribute("aria-pressed", String(Boolean(post.viewerBookmarked)));
-    bookmarkButton.setAttribute("aria-label",
-      post.viewerBookmarked ? "Remove from saved posts" : "Save this post");
-    bookmarkButton.append(
-      createIcon(document, "bookmark"),
-      document.createTextNode(post.viewerBookmarked ? "Saved" : "Save"),
-    );
+    const bookmarkLabel = post.viewerBookmarked ? "Remove from saved posts" : "Save this post";
+    bookmarkButton.setAttribute("aria-label", bookmarkLabel);
+    bookmarkButton.setAttribute("title", bookmarkLabel);
+    bookmarkButton.replaceChildren(createIcon(document, post.viewerBookmarked ? "bookmarks" : "bookmark"));
     actions.append(bookmarkButton);
   }
   // Reply-count chip (plan v2.3): only threads carrying comments get one;
@@ -295,14 +299,20 @@ export const createPostCard = (post, document, currentUser = null) => {
     chat.append(hiddenLabel, document.createTextNode(String(post.replyCount)));
     actions.append(chat);
   }
-  const threadLink = createElement(document, "a", "button button-quiet", "Open post and replies");
+  const threadLink = createElement(document, "a", "button button-quiet icon-button");
   threadLink.href = `/posts/${post.id}`;
+  threadLink.setAttribute("aria-label", "Open post and replies");
+  threadLink.setAttribute("title", "Open post and replies");
+  threadLink.append(createIcon(document, "open"));
   actions.append(threadLink);
   if (currentUser && post.visibility !== "hidden") {
-    const report = createElement(document, "button", "button button-quiet", "Report");
+    const report = createElement(document, "button", "button button-quiet icon-button");
     report.type = "button";
     report.dataset.action = "report";
     report.dataset.postId = String(post.id);
+    report.setAttribute("aria-label", "Report this post");
+    report.setAttribute("title", "Report this post");
+    report.append(createIcon(document, "flag"));
     actions.append(report);
   }
   // Edit affordance (v2.4): author-only by session identity. The renderer sees
@@ -312,10 +322,13 @@ export const createPostCard = (post, document, currentUser = null) => {
   // mirroring the server's author-only gate. Unlike Report, a hidden own post
   // keeps its Edit button: the author may edit what they authored.
   if (currentUser && post.author && Number(currentUser.id) === Number(post.author.id)) {
-    const editButton = createElement(document, "button", "button button-quiet", "Edit");
+    const editButton = createElement(document, "button", "button button-quiet icon-button");
     editButton.type = "button";
     editButton.dataset.action = "edit-post";
     editButton.dataset.postId = String(post.id);
+    editButton.setAttribute("aria-label", "Edit this post");
+    editButton.setAttribute("title", "Edit");
+    editButton.append(createIcon(document, "pen"));
     actions.append(editButton);
   }
   // Delete affordance (v2.4.1 feature): author-only, the exact same session
@@ -326,11 +339,15 @@ export const createPostCard = (post, document, currentUser = null) => {
   // ("thread") takes the whole conversation with it, while a reply card
   // ("reply") keeps the thread (sub-replies are reparented by the server).
   if (currentUser && post.author && Number(currentUser.id) === Number(post.author.id)) {
-    const deleteButton = createElement(document, "button", "button button-quiet", "Delete");
+    const deleteButton = createElement(document, "button", "button button-quiet icon-button");
     deleteButton.type = "button";
     deleteButton.dataset.action = "delete-post";
     deleteButton.dataset.postId = String(post.id);
     deleteButton.dataset.deleteScope = post.parent ? "reply" : "thread";
+    const deleteLabel = post.parent ? "Delete this reply" : "Delete this thread";
+    deleteButton.setAttribute("aria-label", deleteLabel);
+    deleteButton.setAttribute("title", deleteLabel);
+    deleteButton.append(createIcon(document, "trash"));
     actions.append(deleteButton);
   }
   // Subscribe toggle (C1): the detail payload carries `subscribed`, so the

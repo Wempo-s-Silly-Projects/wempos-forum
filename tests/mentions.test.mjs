@@ -320,6 +320,7 @@ function stubDocument() {
     textContent: "",
     setAttribute(name, value) { this.attributes[name] = value; },
     getAttribute(name) { return name in this.attributes ? this.attributes[name] : null; },
+    replaceChildren(...kept) { for (const child of kept) if (child) this.children.push(child); },
     append(child) { this.children.push(child); },
   });
   return {

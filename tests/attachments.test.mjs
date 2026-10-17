@@ -220,7 +220,7 @@ async function multipartPost(routes, env, files, fields = {}) {
     body: form,
   });
   const response = await forumWorker.fetch(request, env);
-  return { response, calls: routes.calls };
+  return { response, calls: routes.calls, request };
 }
 
 async function multipartReply(routes, env, files) {
@@ -426,17 +426,25 @@ test("reassembling a 10 MiB file's bound chunk bytes is byte-identical to the up
 // valid 10 MiB files ride at the edge — a fourth one must trip the request
 // ceiling with 413 BEFORE the count check (or any post INSERT) exists.
 test("a request body at/above the attachment ceiling (~30.5 MiB) is a 413 with no posts INSERT", async () => {
-  const files = [
-    { bytes: JPEG_TEN_MIB, name: "one.jpg" },
-    { bytes: JPEG_TEN_MIB, name: "two.jpg" },
-    { bytes: JPEG_TEN_MIB, name: "three.jpg" },
-    { bytes: JPEG_TEN_MIB, name: "four.gif" },
-  ];
+  // A STATIC oversized body (not a File-backed FormData): the intake's
+  // declared-Content-Length pre-check only reads the header, and a plain
+  // buffer body leaves no lazy stream behind (the real-File version leaked
+  // an unhandled close-rejection after the test ended).
+  const request = new Request("https://forum.example/api/posts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "multipart/form-data; boundary=----wempo-ceiling",
+      Origin: "https://forum.example",
+      "X-CSRF-Token": "expected-csrf-token",
+      Cookie: "wempo_session=" + "s".repeat(43),
+    },
+    body: new Uint8Array(3 * 10 * 1024 * 1024 + 1024 * 1024 + 1),
+  });
   const mock = mockDb([sessionRoute, banCheckRoute, postInsertRoute, { sql: /./ }]);
   const siteverify = withMockedSiteverify({ success: true, action: "post", hostname: "forum.example" });
   let response;
   try {
-    ({ response } = await multipartPost(mock, envFor(mock.db), files));
+    response = await forumWorker.fetch(request, envFor(mock.db));
   } finally {
     siteverify.done();
   }
@@ -452,11 +460,6 @@ test("a request body at/above the attachment ceiling (~30.5 MiB) is a 413 with n
   assert.ok(MAX_ATTACHMENT_REQUEST_BYTES < 3 * MAX_ATTACHMENT_BYTES + 1024 * 1024);
 });
 
-// Intake hardening: a DECLARED Content-Length above the request ceiling is a
-// 413 before a single body byte is buffered. The multipart intake no longer
-// buffers the whole body up front when a Content-Length is declared; the two
-// gates are this pre-check plus the per-file size cap (and when no
-// Content-Length is declared the old counted reader still caps the body).
 test("a declared Content-Length above the request ceiling is a 413 before any body is read", async () => {
   const request = {
     headers: new Headers({

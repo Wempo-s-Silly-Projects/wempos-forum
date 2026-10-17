@@ -339,6 +339,7 @@ function mockDocument() {
       append(...nodes) { for (const child of nodes) this.children.push(child); },
       setAttribute(name, value) { this.attributes[name] = String(value); },
       getAttribute(name) { return name in this.attributes ? this.attributes[name] : null; },
+    replaceChildren(...kept) { for (const child of kept) if (child) this.children.push(child); },
     };
     return node;
   }

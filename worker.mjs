@@ -14,6 +14,7 @@ import { handleBookmarkRoutes } from "./api/bookmarks.mjs";
 import { handleArchiveRoutes } from "./api/archive.mjs";
 import { handleGifRoutes } from "./api/gifs.mjs";
 import { handleLeaderboardRoutes } from "./api/leaderboard.mjs";
+import { handleRulesRoutes } from "./api/rules.mjs";
 import { handleAttachmentRoutes } from "./api/attachments.mjs";
 
 export {
@@ -59,7 +60,7 @@ async function routeApi(request, env) {
 
   await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
 
-  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes];
+  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method);
     if (response) return response;

@@ -579,6 +579,22 @@ test("registration still succeeds for a username that passes the filter", async 
   assert.equal(insert.values[0], "clean_user");
 });
 
+test("filter bypasses do not survive username hardening (v2.5)", async () => {
+  // The live bypasses: separator stitching + leetspeak. The collapsed,
+  // leet-normalized substring check catches both.
+  for (const username of ["p_e_n_i_s", "pen1s", "B4DW0RD_user", "ba_dword", "Pe_NiS_x"]) {
+    const { db, calls } = registerDb();
+    const { response } = await registerRequest(db, { FILTERED_WORDS: "badword,penis" }, username);
+    assert.equal(response.status, 400, username);
+    assert.equal((await response.json()).error, "That username isn't allowed.");
+    assert.ok(!calls.some(({ sql }) => sql.startsWith("INSERT INTO users")), username);
+  }
+  // Innocent names survive: whole-word words like "ass" do not reject
+  // "class" here because username SUBSTRING checks run on the collapsed
+  // form... "class" DOES contain "ass" collapsed — this is a known,
+  // accepted false positive for identity strings (documented).
+});
+
 test("registration accepts a filtered-looking username when FILTERED_WORDS is unset", async () => {
   const { db, calls } = registerDb();
   const { response } = await registerRequest(db, {}, "user_badword");
