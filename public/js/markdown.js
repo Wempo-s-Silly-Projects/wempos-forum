@@ -227,7 +227,7 @@ export function parseBlocks(body) {
       fence = { kind: "code", text: [] };
       continue;
     }
-    const heading = /^#{1,3} /.exec(trimmed);
+    const heading = /^#{1,6} /.exec(trimmed);
     if (heading) {
       flushList(blocks, () => list);
       list = null;
