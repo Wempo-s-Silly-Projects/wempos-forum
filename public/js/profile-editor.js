@@ -51,6 +51,7 @@ const SOCIAL_LINK_BASES = {
   instagram: (handle) => `https://www.instagram.com/${encodeURIComponent(handle)}`,
   tiktok: (handle) => `https://www.tiktok.com/@${encodeURIComponent(handle)}`,
   twitch: (handle) => `https://www.twitch.tv/${encodeURIComponent(handle)}`,
+  polytoria: (handle) => `https://polytoria.com/u/${encodeURIComponent(handle)}`,
 };
 
 // Pure, DOM-free. Returns [{ key, label, text, url? }] for every platform with
