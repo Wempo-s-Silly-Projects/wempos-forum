@@ -2,7 +2,7 @@
 // fan-out for post + reply creation. The scan runs AFTER the word filter (the
 // masked body is what gets scanned and stored — a filtered token cannot
 // mention). Resolution is by username_key (usernames are stored lowercase), so
-// "@wempo" and "@Wempo" are the same member; an unknown name is a silent
+// "@itswempo" and "@ItsWempo" are the same member; an unknown name is a silent
 // no-op, and the author never notifies themselves. The fan-out rides
 // notifications.mjs's fanOutStatements — the same dedupe-guarded INSERT +
 // cap-pruning DELETE pair the subscriptions use — so a member is notified at
