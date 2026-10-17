@@ -4,7 +4,7 @@
 
 **Goal:** Add a user-switchable dark theme (OS-preference default) and image/GIF attachments on posts and replies (D1-stored uploads, hybrid moderation).
 
-**Architecture:** Attachments follow the avatar pipeline's shape (magic-byte sniffing, D1 blobs, pending/approved byte pairs, moderator queue) but live in a new `attachments` table and a new `api/attachments.mjs` module. Dark mode overrides the existing `:root` token block; no second palette.
+**Architecture:** Attachments follow the avatar pipeline's shape (magic-byte sniffing, D1 blobs, pending/approved byte pairs, mod queue) but live in a new `attachments` table and a new `api/attachments.mjs` module. Dark mode overrides the existing `:root` token block; no second palette.
 
 **Tech Stack:** Cloudflare Workers, D1, vanilla ES modules, node:test.
 
@@ -16,7 +16,7 @@
 - Accepted attachment types (by magic bytes, never by client-declared mime): JPEG, PNG, WebP, GIF (`GIF87a`/`GIF89a`). GIF needs only bytes 0–5 to identify, but the existing 12-byte minimum in `sniffImageMime` stays (a shorter "image" is garbage).
 - CSP is untouched: `img-src 'self' data:` stays. No external image hosts, ever.
 - `requireTurnstile` reads `body["cf-turnstile-response"]` as a string (api/shared.mjs:355) — multipart uploads must surface that form field into the `fields` object passed in.
-- Pending attachments serve to the author and moderators only; everyone else gets 404. Rejected attachments 404 for everyone.
+- Pending attachments serve to the author and mods only; everyone else gets 404. Rejected attachments 404 for everyone.
 - New rate-limit scope `"image-upload"` → binding `IMAGE_UPLOAD_RATE_LIMITER`, 5/min, added to `wrangler.toml` following the `AVATAR_UPLOAD_RATE_LIMITER` block (wrangler.toml:86).
 - The `api/*.mjs` module split is load-bearing (CLAUDE.md): attachment topics live in `api/attachments.mjs`.
 - Keep `public/styles.css`'s light `:root` values as the defaults; dark values are overrides, not a new palette definition site.
@@ -100,9 +100,9 @@
 **Interfaces:**
 - Consumes: nothing from other tasks beyond the module Task 3 created.
 - Produces: `export async function handleAttachmentRoutes(request, env, url, path, method)` in `api/attachments.mjs` → a `Response` for matching routes, `null` otherwise (the worker's handler-chain convention). Registered in `worker.mjs:55`'s handlers array. Mirrors the avatar reader in `api/shared.mjs:562-600` for response construction (`blobToUint8Array`, `X-Content-Type-Options`, security headers).
-- Produces: `GET /api/attachments/:id?v=` serving approved bytes publicly (no auth), pending bytes to the author or any moderator, 404 otherwise. `Cache-Control: private, max-age=300` for pending; `max-age=31536000, immutable` for approved (the `?v=` version param makes this safe).
+- Produces: `GET /api/attachments/:id?v=` serving approved bytes publicly (no auth), pending bytes to the author or any mod, 404 otherwise. `Cache-Control: private, max-age=300` for pending; `max-age=31536000, immutable` for approved (the `?v=` version param makes this safe).
 
-- [ ] **Step 1: Write failing tests**: (a) approved attachment serves correct bytes + `Content-Type` = stored mime; (b) author fetches own pending → 200 with pending bytes (Review Focus #2/#3 adjacency: with `Content-Type: image/gif` from the validated mime); (c) second member → 404, (d) guest → 404 (Review Focus #3); (e) moderator → 200; (f) rejected → 404 for everyone incl. author; (g) unknown id → 404.
+- [ ] **Step 1: Write failing tests**: (a) approved attachment serves correct bytes + `Content-Type` = stored mime; (b) author fetches own pending → 200 with pending bytes (Review Focus #2/#3 adjacency: with `Content-Type: image/gif` from the validated mime); (c) second member → 404, (d) guest → 404 (Review Focus #3); (e) mod → 200; (f) rejected → 404 for everyone incl. author; (g) unknown id → 404.
 - [ ] **Step 2: Run** — expect FAIL (route not registered).
 - [ ] **Step 3: Implement** `handleAttachmentRoutes` in `api/attachments.mjs` and register it in `worker.mjs`'s handlers array.
 - [ ] **Step 4: Run** — expect PASS.
@@ -115,7 +115,7 @@
 - Test: `tests/attachments.test.mjs`
 
 **Interfaces:**
-- Produces: `export async function attachmentRowsForView(db, postIds, viewer)` in `api/attachments.mjs` → `Map<postId, Array<{ id, status, mime, version, awaiting }>>` — `awaiting` is `true` when the viewer sees the pending state, and for non-author/non-moderator viewers pending rows are **omitted entirely**. Every serialized post gains `attachments: Array<…>` from that map; `attachments` may be empty; it is never `null`/absent.
+- Produces: `export async function attachmentRowsForView(db, postIds, viewer)` in `api/attachments.mjs` → `Map<postId, Array<{ id, status, mime, version, awaiting }>>` — `awaiting` is `true` when the viewer sees the pending state, and for non-author/non-mod viewers pending rows are **omitted entirely**. Every serialized post gains `attachments: Array<…>` from that map; `attachments` may be empty; it is never `null`/absent.
 
 - [ ] **Step 1: Write failing tests**: detail read as author lists a pending attachment with `awaiting: true`; the same read as another member shows `attachments: []`; after marking approved, non-author sees the row with `awaiting: false`; feed rows include an approved attachment's `id`/`version`.
 - [ ] **Step 2: Run** — expect FAIL.
@@ -123,14 +123,14 @@
 - [ ] **Step 4: Run** `npm test` — PASS.
 - [ ] **Step 5: Commit** `feat: expose attachment metadata on post reads`
 
-### Task 6: Moderator queue — list, approve, reject
+### Task 6: mod queue — list, approve, reject
 
 **Files:**
 - Modify: `api/attachments.mjs` (extend `handleAttachmentRoutes`)
 - Test: `tests/attachments.test.mjs`
 
 - Consumes: `handleAttachmentRoutes` (Task 4 — extended here, not redefined); role checks following `api/moderation.mjs:270-345` (the avatar queue/moderation routes).
-- Produces: `GET /api/admin/attachments` → `{ attachments: [{ id, postId, uploader, mime, sizeBytes, createdAt }] }` (pending only, oldest first, LIMIT 100); `POST /api/admin/attachments/:id/approve` → `{ approved: true, id }` (copies `pending_*` into the approved pair, bumps version, sets status); `POST /api/admin/attachments/:id/reject` → `{ rejected: true, id }` (clears pending bytes, `status='rejected'`). All three moderator-only (member → 403, guest → 401).
+- Produces: `GET /api/admin/attachments` → `{ attachments: [{ id, postId, uploader, mime, sizeBytes, createdAt }] }` (pending only, oldest first, LIMIT 100); `POST /api/admin/attachments/:id/approve` → `{ approved: true, id }` (copies `pending_*` into the approved pair, bumps version, sets status); `POST /api/admin/attachments/:id/reject` → `{ rejected: true, id }` (clears pending bytes, `status='rejected'`). All three mod-only (member → 403, guest → 401).
 
 - [ ] **Step 1: Write failing tests**: queue returns pending oldest-first; member → 403; approve swaps in pending bytes and bumps version (assert bound values); reject clears bytes → status rejected; approve then re-listing shows the row gone; rejecting an already-rejected id → 404.
 - [ ] **Step 2: Run** — expect FAIL.
@@ -236,7 +236,7 @@
 
 - [ ] **Step 1: Run the full battery**: `npm run db:migrate:local && npm test && wrangler deploy --dry-run` — all PASS/clean.
 - [ ] **Step 2: Update CLAUDE.md** per the list above (no code changes in this task).
-- [ ] **Step 3: Browser smoke checklist** (requires `wrangler dev` with Turnstile test keys via `--var`, the process used in the v2 build): register/login, toggle theme + reload → theme persists; attach a small GIF to a post → visible as author with pending chip; second account sees placeholder; moderator approves from mod panel → visible to second account on reload; reject flow removes it. Report results to the human partner — do not claim production readiness from unit tests alone (CLAUDE.md).
+- [ ] **Step 3: Browser smoke checklist** (requires `wrangler dev` with Turnstile test keys via `--var`, the process used in the v2 build): register/login, toggle theme + reload → theme persists; attach a small GIF to a post → visible as author with pending chip; second account sees placeholder; mod approves from mod panel → visible to second account on reload; reject flow removes it. Report results to the human partner — do not claim production readiness from unit tests alone (CLAUDE.md).
 - [ ] **Step 4: Commit** `docs: document attachments and dark mode`
 
 ---
