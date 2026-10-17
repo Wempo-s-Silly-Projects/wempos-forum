@@ -257,7 +257,7 @@ export function renderProfileCssEditor(document, user) {
   textarea.value = typeof user.customCssRaw === "string" ? user.customCssRaw : "";
   const note = document.createElement("p");
   note.className = "form-note";
-  note.textContent = "CSS saves as PENDING: a moderator approves it before it goes live. Scoped to your profile container by the server.";
+  note.textContent = "CSS saves as PENDING: a mod approves it before it goes live. Scoped to your profile container by the server.";
   panel.append(label, textarea, note);
   const save = document.createElement("button");
   save.type = "button";
