@@ -323,7 +323,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // Edit affordance (v2.4): author-only by session identity. The renderer sees
   // the session user object (app.js passes session.user), so the id comparison
   // is exact; guests and any viewer without an id (undefined id → NaN → never
-  // equal) never see the button, and moderators get no edit power either —
+  // equal) never see the button, and mods get no edit power either —
   // mirroring the server's author-only gate. Unlike Report, a hidden own post
   // keeps its Edit button: the author may edit what they authored.
   if (currentUser && post.author && Number(currentUser.id) === Number(post.author.id)) {
