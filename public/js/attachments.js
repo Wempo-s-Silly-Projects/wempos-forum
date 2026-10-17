@@ -63,7 +63,7 @@ export function buildComposerBody({ body, turnstileToken, files = [], gifs = [],
 
 // Serving URL for one attachment metadata row ({ id, version }) from the post
 // payloads Task 5 serializes. Approved rows are public with a year of
-// immutable cache keyed by version; pending rows serve the author/moderator
+// immutable cache keyed by version; pending rows serve the author/mod
 // under the same URL shape (private short cache).
 export const attachmentUrl = (attachment) =>
   `/api/attachments/${attachment.id}?v=${encodeURIComponent(attachment.version)}`;
