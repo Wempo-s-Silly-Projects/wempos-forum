@@ -995,7 +995,7 @@ dialog h2 {
   gap: 0.8rem;
 }
 
-/* Hidden posts (v3.0.1): the moderator-only desk section. */
+/* Hidden posts (v3.0.1): the mod-only desk section. */
 .hidden-posts-queue {
   display: grid;
   gap: 0.8rem;
