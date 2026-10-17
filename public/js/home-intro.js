@@ -1,2 +1,2 @@
-export const homepageIntro = "Hai I'm Wempo:3 I am a goober who does random stupid stuff. Welcome to my forum!";
-export const homepageInterests = ["Polytoria", "Roblox", "funny stuff", "forums"];
+export const homepageIntro = "Wempo's Forum: Chat Anytime, Anywhere";
+export const homepageInterests = ["Always Online", "Custom Profile Themes", "Flairs", "Banners", "And more!"];
