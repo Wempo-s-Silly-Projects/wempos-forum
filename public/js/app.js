@@ -180,7 +180,7 @@ function authForm(name, title, buttonLabel) {
 }
 
 function setupForm() {
-  const panel = createPanel("Set up Wempo's Forum:3", "The first administrator requires a setup secret configured by the site owner.");
+  const panel = createPanel("Set up Wempo's Forum:3", "The first admin requires a setup secret configured by the site owner.");
   panel.append(createForm(document, "setup", [
     createInput(document, {
       id: "setup-username", name: "username", label: "Admin username",
@@ -195,7 +195,7 @@ function setupForm() {
       autoComplete: "off", required: true, minLength: 32, maxLength: 4096,
       description: "Provided by the site owner through Wrangler. Never EVER share it!",
     }),
-  ], "Create administrator"));
+  ], "Create admin"));
   return panel;
 }
 
@@ -389,7 +389,7 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   saved.setAttribute("data-app-link", "");
   accountActions.append(saved);
   accountActions.append(createNotificationBell(unreadNotifications, document));
-  if (user.role === "admin" || user.role === "moderator") {
+  if (user.role === "admin" || user.role === "mod") {
     const reports = iconButton(document, "shield", {
       tagName: "a",
       className: "button button-secondary icon-button",
@@ -597,7 +597,7 @@ function appendProfileSocials(profile, isOwnProfile) {
 
 // Spec §8: promote/demote is admin-only, so admins get the control on member
 // profiles too. The payload's role selects the single correct form (members →
-// promote, moderators → demote); admins get nothing (server 403s anyway), and
+// promote, mods → demote); admins get nothing (server 403s anyway), and
 // the viewer's own profile never needs one. Handlers re-render the current
 // route, so both the desk and this surface refresh after a role change.
 function appendProfileRoleControls(profile, session, container) {
@@ -717,7 +717,7 @@ function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, p
   main.append(createRulesEditor(rulesData.rules, document));
   addHeading(main, "Gallery uploads awaiting review", 2);
   main.append(createGifQueue(gifData.gifs, document));
-  // Hidden posts (v3.0.1, the nuke): the moderator-only page — hidden rows
+  // Hidden posts (v3.0.1, the nuke): the mod-only page — hidden rows
   // and anything by an actively banned author, bodies included.
   addHeading(main, "Hidden posts", 2);
   main.append(createHiddenPostsQueue(hiddenData.hidden, document));
@@ -1424,7 +1424,7 @@ async function submitReportForm(text) {
   delete reportForm.dataset.targetType;
   delete reportForm.dataset.targetId;
   document.querySelector("#report-title").textContent = "Report this post";
-  setMessage("Your report was sent to the moderators.");
+  setMessage("Your report was sent to the mods.");
 }
 
 // Author edit save (v2.4): JSON {body} to PATCH /api/posts/:id (api.js adds the
@@ -1613,7 +1613,7 @@ async function submitRoleChange(form, action, text) {
   // re-rendering the current route refreshes whichever surface is showing.
   await renderRoute(activeRoute);
   setMessage(action === "promote"
-    ? "The member was promoted to moderator."
+    ? "The member was promoted to mod."
     : "The member was demoted to member.");
 }
 
@@ -1723,7 +1723,7 @@ async function uploadCommunityGif(input) {
     } else {
       setMessage(result.reuse
         ? "That image is already in the approved library!"
-        : "Upload submitted for moderator review.");
+        : "Upload submitted for mod review.");
     }
   } finally {
     input.value = "";
@@ -1969,7 +1969,7 @@ async function handleButtonAction(button) {
     "mark-notifications-read": () => markAllNotificationsRead(),
     "composer-attach": () => attachComposerImages(button),
     "open-gif-picker": () => openGifPicker(button),
-    // Pinned (C5): the moderator desk's pin/unpin — POST to the admin route and
+    // Pinned (C5): the mod desk's pin/unpin — POST to the admin route and
     // re-render; the payload's pinnedAt decides which control each card shows.
     "thread-pin": async () => {
       await api("/api/admin/threads/" + button.dataset.postId + "/pin", { method: "POST" });
@@ -2035,7 +2035,7 @@ async function handleButtonAction(button) {
     },
     "save-profile-css": async (button) => {
       // Custom CSS (v2.5): POST the textarea's raw css to /api/me/css; it
-      // lands pending for a moderator. The note is review-first wording.
+      // lands pending for a mod. The note is review-first wording.
       const form = button.closest("div");
       const input = form?.querySelector("[data-css-input]");
       if (!input) return;
@@ -2044,7 +2044,7 @@ async function handleButtonAction(button) {
         return;
       }
       await api("/api/me/css", { method: "POST", body: input.value });
-      setMessage("CSS saved — a moderator will review it.");
+      setMessage("CSS saved — a mod will review it.");
     },
     "clear-profile-css": async () => {
       await api("/api/me/css", { method: "DELETE" });
