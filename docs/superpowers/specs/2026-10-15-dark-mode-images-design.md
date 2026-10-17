@@ -60,7 +60,7 @@ D1's 2 MB BLOB/row cap rules out single-column storage at 10 MiB, so bytes live 
 
 - `GET /api/attachments/:id` in a new `api/attachments.mjs`:
   - Approved images serve to everyone (public, no auth), `?v=` cache-busting param stored as `version`.
-  - `pending` images serve **only to their author** and to moderators. Everyone else gets 404 (not 403 — don't confirm existence).
+  - `pending` images serve **only to their author** and to mods. Everyone else gets 404 (not 403 — don't confirm existence).
   - `rejected` images 404 for everyone.
   - Response sets `Cache-Control: private, max-age` for pending (author-only) and longer caching for approved public bytes, with immutable versioning.
 
@@ -84,10 +84,10 @@ D1's 2 MB BLOB/row cap rules out single-column storage at 10 MiB, so bytes live 
 
 ### Moderation
 
-- `GET /api/admin/attachments` — moderator-only queue of pending attachments (id, post id, uploader, mime, size, created_at), same shape as the avatar queue.
+- `GET /api/admin/attachments` — mod-only queue of pending attachments (id, post id, uploader, mime, size, created_at), same shape as the avatar queue.
 - `POST /api/admin/attachments/:id/approve` — promotes pending bytes to the approved pair, `status='approved'`, bumps version.
 - `POST /api/admin/attachments/:id/reject` — clears bytes, `status='rejected'`.
-- Surfaced in the existing moderator tools panel next to the avatar queue. Moderator UI lets them jump to the containing post for context.
+- Surfaced in the existing mod tools panel next to the avatar queue. mod UI lets them jump to the containing post for context.
 - The existing word-filter and reports flow are untouched; reports on posts already surface the containing post.
 
 ### CSP
@@ -103,7 +103,7 @@ D1's 2 MB BLOB/row cap rules out single-column storage at 10 MiB, so bytes live 
 ## Security notes
 
 - Magic bytes validated server-side; served responses re-state the validated mime with `X-Content-Type-Options: nosniff` (header already global).
-- Pending attachments are author/moderator-only reads; existence is not confirmed to outsiders (404).
+- Pending attachments are author/mod-only reads; existence is not confirmed to outsiders (404).
 - Attachment serving never sets user-controlled headers; ids are random, hashes not needed (unlike sessions) because ids are already opaque.
 - Body-size and rate limits apply before any D1 write.
 - Same CSRF/Origin/session rules as every other state-changing endpoint.
@@ -113,8 +113,8 @@ D1's 2 MB BLOB/row cap rules out single-column storage at 10 MiB, so bytes live 
 - Unit tests (existing `tests/` patterns, node:test):
   - Magic-byte validation: each accepted type passes; mismatched/claimed-but-wrong mime fails; truncation fails.
   - Limits: >1 MiB rejected; 4 files rejected; oversized request body rejected.
-  - Hybrid visibility: author sees pending bytes; a second account 404s; moderator sees pending bytes; approve → public; reject → 404 for all.
-  - Queue endpoints require moderator role; approve/reject state transitions.
+  - Hybrid visibility: author sees pending bytes; a second account 404s; mod sees pending bytes; approve → public; reject → 404 for all.
+  - Queue endpoints require mod role; approve/reject state transitions.
   - GIF specifically: `GIF89a` bytes pass and serve with `image/gif`.
 - Browser smoke additions: attach a GIF to a post, see it as the author, log in as second account → placeholder; approve in mod panel → visible. Dark-mode toggle round-trips through reload.
 
