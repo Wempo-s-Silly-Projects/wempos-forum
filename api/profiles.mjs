@@ -19,7 +19,7 @@ import {
   readLimitedBody,
   readSession,
   requireMutationApplied,
-  requireModerator,
+  requiremod,
   requireUser,
   SOCIAL_PLATFORMS,
   socialsFromRow,
@@ -241,7 +241,7 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
 
 // Custom profile CSS (v2.5): members submit raw CSS (≤20 KiB); it lands
 // pending (the previously approved CSS keeps serving — the avatar-mirror
-// rule), and only moderators flip it. The profile payload carries only the
+// rule), and only mods flip it. The profile payload carries only the
 // APPROVED css, pre-scoped via scopeProfileCss (shared.mjs's sandbox).
 async function handleCssSetRoute(request, env, url, path, method) {
   if (path !== "/api/me/css" || method !== "POST") return null;
@@ -339,7 +339,7 @@ async function handleProfileReportRoute(request, env, url, path, method) {
 async function handleProfileReportAdminRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/profile-reports" && method === "GET") {
-    await requireModerator(request, env, false);
+    await requiremod(request, env, false);
     const result = await db.prepare(
       "SELECT pr.id, pr.profile_user_id, pr.reason, pr.created_at, u.username AS profileUsername, r2.username AS reporter " +
       "FROM profile_reports pr " +
@@ -360,7 +360,7 @@ async function handleProfileReportAdminRoute(request, env, url, path, method) {
   }
   const resolveMatch = path.match(/^\/api\/admin\/profile-reports\/([0-9]+)\/resolve$/);
   if (resolveMatch && method === "POST") {
-    const session = await requireModerator(request, env);
+    const session = await requiremod(request, env);
     await assertNotBanned(env, session.user.id);
     const resolved = await db.batch([
       db.prepare(
@@ -395,7 +395,7 @@ async function handleCssStylesheetRoute(request, env, url, path, method) {
 async function handleCssAdminRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/css" && method === "GET") {
-    await requireModerator(request, env, false);
+    await requiremod(request, env, false);
     const result = await db.prepare(
       "SELECT id, username, pending_css, pending_css_version, css_status FROM users " +
       "WHERE css_status = 'pending' AND pending_css IS NOT NULL ORDER BY id LIMIT 100",
@@ -415,7 +415,7 @@ async function handleCssAdminRoutes(request, env, url, path, method) {
   }
   const cssMatch = path.match(/^\/api\/admin\/css\/([0-9]+)\/(approve|reject)$/);
   if (cssMatch && method === "POST") {
-    const session = await requireModerator(request, env);
+    const session = await requiremod(request, env);
     await assertNotBanned(env, session.user.id);
     const userId = Number(cssMatch[1]);
     if (!Number.isSafeInteger(userId) || userId < 1) throw new HttpError(404, "Not found.");
@@ -488,7 +488,7 @@ async function handleAvatarUploadRoute(request, env, url, path, method) {
     const updatedAt = nowSeconds();
     const avatarVersion = createAvatarVersion();
     // Uploads always land in the pending mirror set: any previously approved
-    // avatar keeps serving publicly until a moderator approves this upload.
+    // avatar keeps serving publicly until a mod approves this upload.
     // Re-uploading while pending replaces the pending bytes in place. The
     // schema CHECKs keep avatar_status='pending' and the pending set all-or-
     // nothing within this single statement's write.
