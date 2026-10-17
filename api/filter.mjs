@@ -93,7 +93,7 @@ export function applyWordFilter(text, wordsRaw) {
       const afterOk = end === text.length || !isWordUnit(text[end]);
       if (beforeOk && afterOk) {
         for (let position = start; position < end; position++) {
-          masked[position] = "*";
+          masked[position] = "#";
         }
       }
       index = folded.indexOf(word, index + 1);
