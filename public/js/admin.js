@@ -43,7 +43,7 @@ export const createReportQueue = (reports, document, currentUser = null) => {
     banForm.dataset.userId = String(report.post.author.id);
     actions.append(banForm);
     // Role changes are strictly admin-only (the report queue itself is open to
-    // moderators); target start roles are not known from the payload, so both
+    // mods); target start roles are not known from the payload, so both
     // forms are offered and the server reports a stale-role 409 if the target
     // is already in that role.
     if (currentUser && currentUser.role === "admin") {
@@ -54,7 +54,7 @@ export const createReportQueue = (reports, document, currentUser = null) => {
           label: `Reason to promote ${report.post.author.username} (optional)`,
           maxLength: 500,
         }),
-      ], "Promote to moderator");
+      ], "Promote to mod");
       promoteForm.dataset.userId = String(report.post.author.id);
       const demoteForm = createForm(document, "admin-demote", [
         createInput(document, {
@@ -107,7 +107,7 @@ export function createActiveBanList(bans, document) {
 // Pending image moderation queue (plan Task 6/7): oldest uploads first from
 // GET /api/admin/attachments. Mirrors the avatar queue above, sized down to a
 // small strip preview; the preview URL can 404 (pending bytes serve only to
-// the uploader and moderators), so the <img> hides itself on error.
+// the uploader and mods), so the <img> hides itself on error.
 export function createAttachmentQueue(attachments, document) {
   const list = document.createElement("div");
   list.className = "attachment-queue";
