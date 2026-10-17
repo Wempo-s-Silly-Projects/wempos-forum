@@ -312,16 +312,16 @@ async function requireSignedInRead(request, env) {
   return session;
 }
 
-// Moderation gate: admins and moderators. Mutating (default) requests go
+// Moderation gate: admins and mods. Mutating (default) requests go
 // through requireUser (same-origin + CSRF); read-only requests skip that.
 // Roles are read at request time, so demotions take effect on the next
 // readSession without any session invalidation.
-async function requireModerator(request, env, mutating = true) {
+async function requiremod(request, env, mutating = true) {
   const session = mutating
     ? await requireUser(request, env)
     : await requireSignedInRead(request, env);
-  if (session.user.role !== "admin" && session.user.role !== "moderator") {
-    throw new HttpError(403, "Only moderators can do that.");
+  if (session.user.role !== "admin" && session.user.role !== "mod") {
+    throw new HttpError(403, "Only mods can do that.");
   }
   return session;
 }
@@ -331,7 +331,7 @@ async function requireAdmin(request, env, mutating = true) {
   const session = mutating
     ? await requireUser(request, env)
     : await requireSignedInRead(request, env);
-  if (session.user.role !== "admin") throw new HttpError(403, "Only moderators can do that.");
+  if (session.user.role !== "admin") throw new HttpError(403, "Only mods can do that.");
   return session;
 }
 
@@ -619,7 +619,7 @@ async function postById(env, postId, viewerId) {
 }
 
 // Nuke rule (v3.0.1): hidden content (a hidden post, or ANY content by an
-// actively-banned author) is invisible to everyone EXCEPT moderators and
+// actively-banned author) is invisible to everyone EXCEPT mods and
 // admins — the author included. Normal surfaces (feeds, replies, detail,
 // search, history) never carry it (the list SQL binds a no-match bypass
 // sentinel); the only in-app door is the desk's hidden-posts page
@@ -627,27 +627,27 @@ async function postById(env, postId, viewerId) {
 // without any write ("now" stays SQL-computed and bind-free).
 export async function canViewPost(env, row, viewer) {
   if (!row) return false;
-  const isModerator = Boolean(viewer && (viewer.role === "admin" || viewer.role === "moderator"));
-  if (row.visibility !== "public" && !isModerator) return false;
+  const ismod = Boolean(viewer && (viewer.role === "admin" || viewer.role === "mod"));
+  if (row.visibility !== "public" && !ismod) return false;
   const bannedAuthor = await env.FORUM_DB.prepare(
     "SELECT 1 FROM bans b WHERE b.user_id = ? AND b.revoked_at IS NULL " +
     "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1",
   ).bind(Number(row.author_id)).first();
-  if (bannedAuthor && !isModerator) return false;
+  if (bannedAuthor && !ismod) return false;
   // Every ancestor up to the root (parent, and the grandparent root for
   // level-2 replies) must be viewable: hidden ancestors never leak through a
-  // public reply chain. The same moderator-only rule applies per ancestor.
+  // public reply chain. The same mod-only rule applies per ancestor.
   let ancestorId = row.parent_id;
   for (let depth = 0; ancestorId !== null && ancestorId !== undefined && depth < 2; depth++) {
     const ancestor = await env.FORUM_DB.prepare(
       "SELECT id, author_id, visibility, parent_id FROM posts WHERE id = ? LIMIT 1",
     ).bind(Number(ancestorId)).first();
-    if (!ancestor || (ancestor.visibility !== "public" && !isModerator)) return false;
+    if (!ancestor || (ancestor.visibility !== "public" && !ismod)) return false;
     const ancestorBanned = await env.FORUM_DB.prepare(
       "SELECT 1 FROM bans b WHERE b.user_id = ? AND b.revoked_at IS NULL " +
       "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1",
     ).bind(Number(ancestor.author_id)).first();
-    if (ancestorBanned && !isModerator) return false;
+    if (ancestorBanned && !ismod) return false;
     ancestorId = ancestor.parent_id;
   }
   return true;
@@ -657,7 +657,7 @@ export async function canViewPost(env, row, viewer) {
 // profiles route group, since avatars belong to profiles). Approved avatars
 // serve to anyone with public cache headers. Whenever a pending upload exists
 // (first-ever upload or a re-upload over an approved avatar), its bytes are
-// visible to the account owner and to admins/moderators — reviewers must see
+// visible to the account owner and to admins/mods — reviewers must see
 // the candidate even when an approved avatar is still serving publicly —
 // uncacheable; everyone else sees the approved avatar or 404. The session is
 // only consulted when a pending set exists, so guest 404s never read sessions.
@@ -676,8 +676,8 @@ async function handleAvatarReadRoute(request, env, url, path, method) {
     if (row.pending_avatar_mime && row.pending_avatar_data) {
       const session = await readSession(request, env);
       const viewer = session && session.user;
-      const isModerator = viewer && (viewer.role === "admin" || viewer.role === "moderator");
-      if (viewer && (viewer.id === userId || isModerator)) {
+      const ismod = viewer && (viewer.role === "admin" || viewer.role === "mod");
+      if (viewer && (viewer.id === userId || ismod)) {
         const headers = securityHeaders();
         headers.set("Content-Type", row.pending_avatar_mime);
         headers.set("Cache-Control", "no-store");
@@ -709,7 +709,7 @@ export {
   requireCsrf,
   requireUser,
   requireSignedInRead,
-  requireModerator,
+  requiremod,
   requireAdmin,
   assertNotBanned,
   requireMutationApplied,
@@ -754,7 +754,7 @@ export function archivePostRowsStatement(
 //      fixed positioning, z-index above 1, and everything the whitelist
 //      doesn't recognize as a cosmetic property (allow-list, not block-list:
 //      unknown properties are dropped — browsers ignore them anyway).
-// Residual risk is accepted-with-approval: a moderator reads the CSS before
+// Residual risk is accepted-with-approval: a mod reads the CSS before
 // it goes live, and the CSP still gates every url() to same-origin.
 const PROFILE_CSS_PROPERTY_ALLOW = new Set([
   "color", "background", "background-color", "background-image", "background-position", "background-size", "background-repeat",
