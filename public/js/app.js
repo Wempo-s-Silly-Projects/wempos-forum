@@ -1722,7 +1722,7 @@ async function uploadCommunityGif(input) {
       }
     } else {
       setMessage(result.reuse
-        ? "That image is already in the approved library."
+        ? "That image is already in the approved library!"
         : "Upload submitted for moderator review.");
     }
   } finally {
@@ -1768,7 +1768,7 @@ function confirmPollDialog() {
   activePollComposerForm = null;
   dialog.querySelector("form").reset();
   dialog.close();
-  setMessage("Poll attached — it posts with your message.");
+  setMessage("Poll attached — it posts with your message!");
 }
 
 function attachComposerImages(button) {
@@ -2176,7 +2176,7 @@ try {
     renderRoute(route).catch((error) => {
       setMessage(error.message, true);
       main.replaceChildren();
-      addHeading(main, "Something went wrong", 1);
+      addHeading(main, "Something went wrong:(", 1);
       addText(document, main, "p", error.message, "error-copy");
     });
   });
