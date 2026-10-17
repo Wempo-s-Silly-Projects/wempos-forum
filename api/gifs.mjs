@@ -1,7 +1,7 @@
 // Media gallery (v3.0.1, was the GIF marketplace): a shared library of images
 // (GIF, JPEG, PNG, WebP) members upload once and
 // everyone can use. Moderation mirrors the attachments desk: uploads land
-// pending (the uploader and moderators see them), approve → approved (and,
+// pending (the uploader and mods see them), approve → approved (and,
 // via the per-hash UNIQUE index, a duplicate of already-approved bytes
 // returns the EXISTING gif instead of new storage). Posts attach approved
 // gifs by reference — no byte copies; use_count tracks popularity.
@@ -15,7 +15,7 @@ import {
   rateLimit,
   readLimitedBody,
   readSession,
-  requireModerator,
+  requiremod,
   requireUser,
   securityHeaders,
   sniffImageMime,
@@ -43,7 +43,7 @@ export async function handleGifRoutes(request, env, url, path, method) {
 
 // Serve: approved gifs are public with immutable versioned caching, exactly
 // like approved attachments; pending ones serve to their uploader and the
-// moderators; rejected/unknown are the shared 404.
+// mods; rejected/unknown are the shared 404.
 export async function handleGifServingRoute(request, env, path, method) {
   const gifMatch = path.match(GIF_ID_ROUTE);
   if (!gifMatch) return null;
@@ -66,8 +66,8 @@ export async function handleGifServingRoute(request, env, path, method) {
   if (row.status === "pending") {
     const session = await readSession(request, env);
     const viewer = session && session.user;
-    const isModerator = viewer && (viewer.role === "admin" || viewer.role === "moderator");
-    if (viewer && (viewer.id === Number(row.uploader_id) || isModerator)) {
+    const ismod = viewer && (viewer.role === "admin" || viewer.role === "mod");
+    if (viewer && (viewer.id === Number(row.uploader_id) || ismod)) {
       const bytes = await assembledGifBytes(env.FORUM_DB, row.id);
       if (bytes) {
         const headers = securityHeaders();
@@ -199,11 +199,11 @@ export async function assembledGifBytes(db, gifId) {
   return bytes;
 }
 
-// Moderator desk for the library: mirrors the attachments queue.
+// mod desk for the library: mirrors the attachments queue.
 async function handleGifAdminRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/gifs" && method === "GET") {
-    await requireModerator(request, env, false);
+    await requiremod(request, env, false);
     const result = await db.prepare(
       "SELECT g.id, g.hash, g.mime, g.created_at, u.username AS uploader " +
       "FROM gifs g LEFT JOIN users u ON u.id = g.uploader_id " +
@@ -220,7 +220,7 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
   }
   const adminMatch = path.match(GIF_ADMIN_ROUTE);
   if (adminMatch) {
-    const session = await requireModerator(request, env);
+    const session = await requiremod(request, env);
     await assertNotBanned(env, session.user.id);
     const gifId = adminMatch[1];
     const decision = adminMatch[2];
