@@ -66,4 +66,4 @@ export function buildComposerBody({ body, turnstileToken, files = [], gifs = [],
 // immutable cache keyed by version; pending rows serve the author/mod
 // under the same URL shape (private short cache).
 export const attachmentUrl = (attachment) =>
-  `/api/gifs/${attachment.id}?v=${encodeURIComponent(attachment.version)}`;
+  `/api/attachments/${attachment.id}?v=${encodeURIComponent(attachment.version)}`;
