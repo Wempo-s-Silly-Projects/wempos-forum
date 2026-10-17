@@ -70,10 +70,10 @@ async function handleReportQueueRoute(request, env, url, path, method) {
         reporter: { username: row.reporter_username },
         post: {
           id: Number(row.post_id),
-          // Hidden-post policy (v2.5, owner rule): hidden posts are visible
-          // to NOBODY on the forum — not the mods either. The desk sees the
-          // report + the withheld marker, never the body.
-          body: (row.post_visibility === "public") ? row.post_body : "[post hidden — content withheld]",
+          // Moderator-only desk (v3.0.1): the queue is behind requireModerator,
+          // and the nuke rule leaves mods as the only viewers of hidden
+          // content — so the body shows here instead of a withheld marker.
+          body: row.post_body,
           hidden: row.post_visibility !== "public",
           author: { id: Number(row.author_id), username: row.author_username },
         },
@@ -404,6 +404,49 @@ async function handleThreadPinRoute(request, env, url, path, method) {
   return json({ ok: true, pinned: false });
 }
 
+// Hidden posts (v3.0.1, the nuke): the moderator-only page. Lists every post
+// normal surfaces never carry — a hidden row or ANY row by an actively
+// banned author — bodies included, since mods ARE the only in-app door now.
+async function handleHiddenPostsRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
+  if (path !== "/api/admin/hidden" || method !== "GET") return null;
+  await requireModerator(request, env, false);
+  const result = await db.prepare(
+    "SELECT p.id, p.body, p.visibility, p.board, p.created_at, p.parent_id, " +
+      "author.id AS author_id, author.username AS author_username, " +
+      "(SELECT b.reason FROM bans b WHERE b.user_id = p.author_id AND b.revoked_at IS NULL " +
+      "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1) AS ban_reason, " +
+      "(SELECT b.expires_at FROM bans b WHERE b.user_id = p.author_id AND b.revoked_at IS NULL " +
+      "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1) AS ban_expires_at, " +
+      // Root link: a reply links to its thread (level-2 replies walk to the
+      // level-1 parent's parent); roots link to themselves.
+      "(SELECT CASE WHEN parent.parent_id IS NOT NULL THEN parent.parent_id ELSE parent.id END " +
+      "FROM posts parent WHERE parent.id = p.parent_id) AS thread_root_id " +
+      "FROM posts p JOIN users author ON author.id = p.author_id " +
+      "WHERE p.visibility <> 'public' " +
+      "OR EXISTS (SELECT 1 FROM bans b WHERE b.user_id = p.author_id AND b.revoked_at IS NULL " +
+      "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER))) " +
+      "ORDER BY p.created_at DESC LIMIT 100",
+  ).all();
+  return json({
+    hidden: (result.results || []).map((row) => ({
+      id: Number(row.id),
+      body: row.body,
+      visibility: row.visibility,
+      board: row.board || "general",
+      createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
+      threadId: row.parent_id !== null && row.parent_id !== undefined
+        ? Number(row.thread_root_id ?? row.parent_id)
+        : Number(row.id),
+      author: { id: Number(row.author_id), username: row.author_username },
+      banReason: row.ban_reason || null,
+      banExpiresAt: row.ban_expires_at === null || row.ban_expires_at === undefined
+        ? null
+        : new Date(Number(row.ban_expires_at) * 1000).toISOString(),
+    })),
+  });
+}
+
 async function handleModerationRoutes(request, env, url, path, method) {
   const handlers = [
     handleReportCreateRoute,
@@ -414,6 +457,7 @@ async function handleModerationRoutes(request, env, url, path, method) {
     handleRoleChangeRoute,
     handleAvatarQueueRoute,
     handleAvatarModerationRoute,
+    handleHiddenPostsRoute,
     handleThreadPinRoute,
   ];
   for (const handler of handlers) {

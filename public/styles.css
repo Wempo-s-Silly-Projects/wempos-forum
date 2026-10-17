@@ -441,6 +441,26 @@ a:hover {
   text-decoration: none;
 }
 
+/* Flair + name color on cards (v3.0.1): the card scopes --profile-accent so
+   an author's accent class (on the article) colors their name and flair;
+   authors without an accent keep the default green. */
+.post-card {
+  --profile-accent: var(--green);
+}
+.post-card .author-name {
+  color: var(--profile-accent);
+}
+.post-flair {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--profile-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 .avatar {
   width: 2.5rem;
   height: 2.5rem;
@@ -975,6 +995,31 @@ dialog h2 {
   gap: 0.8rem;
 }
 
+/* Hidden posts (v3.0.1): the moderator-only desk section. */
+.hidden-posts-queue {
+  display: grid;
+  gap: 0.8rem;
+}
+.hidden-post-item {
+  display: grid;
+  gap: 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  padding: 0.6rem 0.8rem;
+}
+.hidden-post-head {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.hidden-post-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.hidden-post-when {
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+
 .avatar-card {
   display: flex;
   flex-wrap: wrap;
@@ -1421,6 +1466,13 @@ dialog h2 {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+}
+/* Bare-size default (v3.0.1): every inline icon gets real dimensions — the
+   reaction thumbs collapsed to 0px without an explicit sizing rule. */
+.icon-inline svg {
+  width: 1rem;
+  height: 1rem;
+  display: block;
 }
 .view-count svg,
 .reply-count svg,

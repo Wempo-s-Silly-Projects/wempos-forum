@@ -1,4 +1,4 @@
-// GIF picker (v2.5): the composer's GIF button opens a dialog of the
+// Gallery picker (v3.0.1, was the GIF picker): the composer's Gallery button opens a dialog of the
 // APPROVED library; members multi-select up to the composer's spare
 // attachment slots; confirmed picks ride the SAME submission as files
 // (form.composerGifs — gifIds fields), so server-side validation/limits
@@ -37,12 +37,12 @@ export function renderGifThumbs(document, form) {
     const img = document.createElement("img");
     img.src = "/api/gifs/" + encodeURIComponent(gifId);
     img.loading = "lazy";
-    img.alt = "Selected GIF";
+    img.alt = "Selected image";
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "gif-remove";
     remove.textContent = "×";
-    remove.setAttribute("aria-label", "Remove this GIF");
+    remove.setAttribute("aria-label", "Remove this image");
     remove.dataset.action = "remove-gif";
     remove.dataset.gifId = gifId;
     chip.append(img, remove);

@@ -84,18 +84,18 @@
     <!-- Click-to-expand attachments (micro-batch): a chrome-free native dialog
          that app.js fills with the same uncapped attachment URL. Escape and a
          click on the dialog or backdrop close it. -->
-    <dialog id="gif-picker" aria-label="GIF picker">
+    <dialog id="gif-picker" aria-label="Gallery picker">
       <div class="gif-picker-head">
-        <h2>GIF library</h2>
+        <h2>Gallery</h2>
         <button class="button button-quiet" type="button" data-action="cancel-gif-picker">Close</button>
       </div>
-      <p class="gif-picker-note">Community GIFs are moderated before they appear here. Select up to your spare image slots.</p>
+      <p class="gif-picker-note">Community uploads are moderated before they appear here. Select up to your spare image slots.</p>
       <div class="gif-upload-row">
-        <input id="gif-marketplace-file" type="file" accept="image/gif" hidden data-composer-input="gif-marketplace">
-        <button class="button button-secondary" type="button" data-action="choose-gif-upload">Upload a GIF for review</button>
-        <span class="form-note">Animated GIFs only, up to 10 MiB.</span>
+        <input id="gif-marketplace-file" type="file" accept="image/gif,image/jpeg,image/png,image/webp" hidden data-composer-input="gif-marketplace">
+        <button class="button button-secondary" type="button" data-action="choose-gif-upload">Upload an image for review</button>
+        <span class="form-note">GIF, JPEG, PNG, or WebP, up to 10 MiB.</span>
       </div>
-      <div id="gif-grid" class="gif-grid" role="listbox" aria-label="Available GIFs"></div>
+      <div id="gif-grid" class="gif-grid" role="listbox" aria-label="Gallery uploads"></div>
       <div class="gif-picker-foot">
         <button class="button" type="button" data-action="confirm-gif-picker">Insert selected</button>
       </div>

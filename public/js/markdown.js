@@ -26,8 +26,8 @@ export function isSafeLinkUrl(raw) {
   return false;
 }
 
-// Inline scan of ONE text run: `code`, **bold**, *italic*, [text](url).
-// Markers are CONSUMED or REFUSED:
+// Inline scan of ONE text run: `code`, **bold**, *italic*, ~~strike~~,
+// [text](url). Markers are CONSUMED or REFUSED:
 // - consumed → the pre-marker text run emits, then the element; start walks
 //   past the close.
 // - refused (unterminated marker, refused image, unsafe/malformed link) →
@@ -65,10 +65,11 @@ export function parseInline(document, text) {
   while (index < value.length) {
     const codeOpen = value.indexOf("`", index);
     const boldOpen = value.indexOf("**", index);
+    const strikeOpen = value.indexOf("~~", index);
     const linkOpen = value.indexOf("[", index);
     const emOpen = nextItalicOpen(value, index);
     const mentionOpen = nextMentionOpen(value, index);
-    const next = pickFirst([codeOpen, boldOpen, emOpen, linkOpen, mentionOpen]);
+    const next = pickFirst([codeOpen, boldOpen, strikeOpen, emOpen, linkOpen, mentionOpen]);
     if (next === -1 || next >= value.length) break;
     const emitPre = () => {
       if (next > start) nodes.push(makeText(document, value.slice(start, next)));
@@ -97,6 +98,19 @@ export function parseInline(document, text) {
       }
       emitPre();
       nodes.push(makeInline(document, "strong", value.slice(next + 2, close)));
+      start = index = close + 2;
+      continue;
+    }
+    if (next === strikeOpen) {
+      const close = value.indexOf("~~", next + 2);
+      if (close === -1 || close === next + 2) {
+        emitPre();
+        start = next;
+        index = next + 2;
+        continue;
+      }
+      emitPre();
+      nodes.push(makeInline(document, "del", value.slice(next + 2, close)));
       start = index = close + 2;
       continue;
     }

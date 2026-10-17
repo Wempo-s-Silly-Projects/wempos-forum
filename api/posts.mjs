@@ -144,12 +144,16 @@ function latestRepliesSql(ids, showAll) {
 async function withReplyMetadata(db, viewer, posts) {
   if (!posts.length) return posts;
   const ids = [...new Set(posts.map((post) => Number(post.id)))];
-  const showAll = Boolean(viewer && viewer.role === "admin");
+  // Nuke rule (v3.0.1): reply metadata never counts hidden/banned content —
+  // not even for admins. The member clause's `OR author_id = ?` bypass slots
+  // bind -1 (never a real author id), so the clause reduces to "public and
+  // unbanned only".
+  const showAll = false;
   const viewerId = viewer ? Number(viewer.id) : null;
   const countsStatement = db.prepare(replyCountsSql(ids, showAll))
-    .bind(...(showAll ? ids : [...ids, viewerId || -1, viewerId || -1]));
+    .bind(...(showAll ? ids : [...ids, -1, -1]));
   const latestStatement = db.prepare(latestRepliesSql(ids, showAll))
-    .bind(...(showAll ? ids : [viewerId || -1, ...ids, viewerId || -1]));
+    .bind(...(showAll ? ids : [-1, ...ids, -1]));
   const [countResult, latestResult] = await Promise.all([countsStatement.all(), latestStatement.all()]);
   const replyCounts = new Map();
   for (const row of countResult.results || []) {
@@ -300,7 +304,9 @@ async function listReplies(env, postId, viewer, showAll = false, before = null,
     visibilityFilter + "ORDER BY p.id DESC LIMIT 101";
   const values = [viewerId || -1, postId];
   if (before !== null) values.push(before);
-  if (!showAll) values.push(viewerId || -1);
+  // Nuke rule (v3.0.1): the author bypass binds -1 (never a real author id),
+  // so the member clause reduces to "public and unbanned" for every viewer.
+  if (!showAll) values.push(-1);
   const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
   const rows = result.results || [];
   const hasMore = rows.length > 100;
@@ -398,7 +404,7 @@ async function attachSubReplyCounts(env, replies, { showAll, viewerId }) {
     (showAll ? "" : " AND ((visibility = 'public' AND " + banFilterSql("") + ") OR author_id = ?)");
   const countResults = await env.FORUM_DB.batch(
     replies.map((reply) => env.FORUM_DB.prepare(countSql)
-      .bind(...(showAll ? [reply.id] : [reply.id, viewerId || -1]))),
+      .bind(...(showAll ? [reply.id] : [reply.id, -1]))),
   );
   return replies.map((reply, index) => {
     const countRow = countResults[index] && countResults[index].results
@@ -432,14 +438,15 @@ async function handleRepliesReadRoute(request, env, url, path, method) {
     // its parent_id is null (children are level-1), else a level-1 reply
     // (children are level-2).
     const targetDepth = parent.parent_id ? 1 : 0;
-    const showAll = Boolean(viewer && viewer.role === "admin");
+    // Nuke rule (v3.0.1): replies never carry hidden/banned content inline —
+    // showAll is gone; the desk's hidden-posts page is the only mod door.
     const page = await listReplies(env, postId,
-      viewer, showAll, before, targetDepth + 1);
+      viewer, false, before, targetDepth + 1);
     // Level-1 rows can be replied to, so they need expand-counts; level-2 rows
     // never do (replying to them is server-forbidden), so no batch runs.
     const replies = targetDepth === 0
       ? await attachSubReplyCounts(env, page.replies, {
-        showAll,
+        showAll: false,
         viewerId: viewer ? viewer.id : null,
       })
       : page.replies;
@@ -1217,7 +1224,8 @@ async function searchReplies(env, viewer, query, authorId) {
   values.push(viewerId || -1); // viewer_reaction's subselect first
   values.push(query);
   if (authorId !== null) values.push(authorId);
-  values.push(viewerId || -1);
+  // Nuke rule: the bypass never matches (public + unbanned only).
+  values.push(-1);
   const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
   const rows = [];
   for (const row of (result.results || [])) {

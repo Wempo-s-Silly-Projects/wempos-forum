@@ -22,6 +22,7 @@ import {
   createPostCard,
   createSubReplyContainer,
   openEditForm,
+  renderBodyBlocks,
   renderEditHistoryPanel,
 } from "./render.js";
 import { prefillQuote } from "./quotes.js";
@@ -248,7 +249,7 @@ function createComposerAttachmentRow(withPollButton = false) {
   attach.dataset.action = "composer-attach";
   // GIF picker (v2.5): the library dialog — approved community GIFs attach
   // by reference (no re-upload bytes; the marketplace's dedup covers them).
-  const gifButton = element("button", "button button-quiet", "🎬 GIFs");
+  const gifButton = element("button", "button button-quiet", "Gallery");
   gifButton.type = "button";
   gifButton.dataset.action = "open-gif-picker";
   // Polls (C3): the Poll button — root composers only. The dialog stashes a
@@ -699,7 +700,7 @@ function renderProfile(profile, session) {
   renderProfilePosts(profile, session.user);
 }
 
-function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, gifData, rulesData, user) {
+function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, gifData, rulesData, hiddenData, user) {
   addHeading(main, "Moderation desk", 1);
   addText(document, main, "p", "Review reports, hide inappropriate posts, and manage active bans.", "page-lede");
   addHeading(main, "Open reports", 2);
@@ -714,8 +715,12 @@ function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, p
   main.append(createProfileReportQueue(profileReportData.profileReports, document));
   addHeading(main, "Forum rules", 2);
   main.append(createRulesEditor(rulesData.rules, document));
-  addHeading(main, "GIFs awaiting review", 2);
+  addHeading(main, "Gallery uploads awaiting review", 2);
   main.append(createGifQueue(gifData.gifs, document));
+  // Hidden posts (v3.0.1, the nuke): the moderator-only page — hidden rows
+  // and anything by an actively banned author, bodies included.
+  addHeading(main, "Hidden posts", 2);
+  main.append(createHiddenPostsQueue(hiddenData.hidden, document));
   addHeading(main, "Active bans", 2);
   main.append(createActiveBanList(banData.bans, document));
 }
@@ -1017,6 +1022,30 @@ function createProfileReportQueue(reports, document) {
   return container;
 }
 
+function createHiddenPostsQueue(items, document) {
+  const container = element("div", "hidden-posts-queue");
+  if (!items.length) {
+    addText(document, container, "p", "Nothing hidden right now.", "empty-state");
+    return container;
+  }
+  for (const item of items) {
+    const card = element("div", "hidden-post-item");
+    const head = element("p", "hidden-post-head",
+      item.author.username + " — " +
+      (item.banReason ? "ban: " + item.banReason : "hidden post") +
+      (item.banExpiresAt ? " (until " + new Date(item.banExpiresAt).toLocaleString() + ")" : " (permanent)"));
+    const body = element("p", "hidden-post-body");
+    body.textContent = item.body;
+    const when = element("p", "hidden-post-when", new Date(item.createdAt).toLocaleString());
+    const link = element("a", "button button-quiet", item.threadId === item.id ? "Open post" : "Open thread");
+    link.href = "/posts/" + item.threadId;
+    link.setAttribute("data-app-link", "");
+    card.append(head, body, when, link);
+    container.append(card);
+  }
+  return container;
+}
+
 function createRulesEditor(rulesData, document) {
   const container = element("div", "rules-editor");
   const label = element("p", "accent-picker-label", "Forum rules (markdown — the subset bodies use)");
@@ -1060,7 +1089,7 @@ function createCssQueue(submissions, document) {
 }
 
 async function renderAdminRoute(context, version) {
-  const [reports, bans, avatars, attachments, css, profileReports, gifs, rules] = await Promise.all([
+  const [reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/bans"),
     api("/api/admin/avatars"),
@@ -1069,9 +1098,10 @@ async function renderAdminRoute(context, version) {
     api("/api/admin/profile-reports"),
     api("/api/admin/gifs"),
     api("/api/rules"),
+    api("/api/admin/hidden"),
   ]);
   if (version !== renderVersion) return;
-  renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, rules, context.session.user);
+  renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, context.session.user);
 }
 
 async function renderNotificationsRoute(context, version) {
@@ -1638,11 +1668,11 @@ async function openGifPicker(button) {
     thumb.dataset.gifId = gif.id;
     thumb.setAttribute("role", "option");
     thumb.setAttribute("aria-pressed", "false");
-    thumb.title = "Use this GIF";
+    thumb.title = "Use this image";
     const img = element("img");
     img.src = gif.url;
     img.loading = "lazy";
-    img.alt = "Library GIF";
+    img.alt = "Library image";
     thumb.append(img);
     thumb.addEventListener("click", () => {
       const pressed = thumb.getAttribute("aria-pressed") === "true";
@@ -1668,7 +1698,7 @@ function confirmGifPicker(button) {
   if (!form || selected.length === 0) return;
   const { added } = addGifsToComposer(form, selected);
   if (added.length < selected.length) {
-    setMessage("Only " + added.length + " GIF(s) fit your attachment slots.", true);
+    setMessage("Only " + added.length + " image(s) fit your attachment slots.", true);
   }
   renderComposerGifStrip(form);
 }
@@ -1686,14 +1716,14 @@ async function uploadCommunityGif(input) {
       if (added.length) {
         gifPickerDialog()?.close();
         activeGifComposerForm = null;
-        setMessage("That GIF is already approved and has been attached.");
+        setMessage("That image is already approved and has been attached.");
       } else {
-        setMessage("That GIF is approved, but this composer has no free attachment slots.", true);
+        setMessage("That image is approved, but this composer has no free attachment slots.", true);
       }
     } else {
       setMessage(result.reuse
-        ? "That GIF is already in the approved library."
-        : "GIF submitted for moderator review.");
+        ? "That image is already in the approved library."
+        : "Upload submitted for moderator review.");
     }
   } finally {
     input.value = "";
@@ -2081,7 +2111,10 @@ async function handleButtonAction(button) {
     },
   };
   const handler = handlers[button.dataset.action];
-  if (handler) await handler();
+  // Pass the button: handlers written as (button) => {} MUST get it — calling
+  // them bare crashes with "reading 'dataset' of undefined" (the live
+  // resolve-profile-report/css-desk breakage).
+  if (handler) await handler(button);
 }
 
 async function handleClick(event) {

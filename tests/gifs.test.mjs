@@ -114,15 +114,19 @@ test("uploading bytes whose hash is already approved returns the EXISTING gif (d
   assert.equal(mock.calls.some((call) => call.sql.startsWith("INSERT INTO gifs")), false, "no row is stored");
 });
 
-test("uploading a PNG to the marketplace is refused (GIFs only)", async () => {
+test("uploading a PNG to the gallery is now allowed (v3.0.1 image support)", async () => {
   const mock = mockDb([
     sessionRoute(),
     { sql: /^SELECT id FROM bans WHERE user_id = \?/, result: null },
-    { sql: /./ },
+    // Hash dedup lookup reads nothing; the INSERT + chunk batch run as no-ops.
+    { sql: /SELECT id FROM gifs WHERE hash = \?/, result: null },
+    { sql: /./, runMeta: { meta: { changes: 1 } } },
   ]);
   const response = await multipartGif(mock, {}, PNG_BYTES);
-  assert.equal(response.status, 400);
-  assert.match((await response.json()).error, /animated GIFs only/);
+  assert.equal(response.status, 201, JSON.stringify(await response.clone().json()));
+  const body = await response.json();
+  assert.equal(typeof body.id, "string", "a fresh gif id comes back");
+  assert.equal(body.reuse, false, "a novel image is stored, not reused");
 });
 
 test("a guest cannot upload to the marketplace (401 before any work)", async () => {

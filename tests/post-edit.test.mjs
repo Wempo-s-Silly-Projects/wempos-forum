@@ -472,15 +472,15 @@ test("edit history hides behind post visibility: a guest gets 404 on a hidden po
     "no history rows are read for an unviewable post");
 });
 
-test("the author and an admin can view a hidden post's edit history (canViewPost convention)", async () => {
-  // canViewPost grants hidden-post visibility to the author and ADMINS only —
-  // moderators are outside it in this app's existing rules, so history for a
-  // hidden post follows the same shape as the detail read.
+test("only moderators and admins can view a hidden post's edit history (canViewPost convention)", async () => {
+  // Nuke rule (v3.0.1): canViewPost grants hidden-post visibility to
+  // moderators and ADMINS only — the author is outside it now, so history for
+  // a hidden post follows the same shape as the detail read.
   const own = postRow({ id: "7", author_id: "7", visibility: "hidden" });
   const authorMock = mockDb([
     sessionRoute,
     postByIdRoute((id) => (id === 7 ? own : null)),
-    { sql: /FROM post_edits WHERE post_id = \?/, rows: [] },
+    { sql: /./ },
   ]);
   assert.equal((await route(
     new Request("https://forum.example/api/posts/7/edits", {
@@ -488,7 +488,7 @@ test("the author and an admin can view a hidden post's edit history (canViewPost
       headers: { Cookie: "wempo_session=" + "s".repeat(43) },
     }),
     envFor(authorMock.db),
-  )).status, 200);
+  )).status, 404, "the author no longer views their own hidden content");
 
   const adminMock = mockDb([
     { sql: /FROM sessions s LEFT JOIN users u/, result: signedInSessionRow({ role: "admin", user_id: 9 }) },
@@ -503,11 +503,11 @@ test("the author and an admin can view a hidden post's edit history (canViewPost
     envFor(adminMock.db),
   )).status, 200);
 
-  // A moderator is treated like any non-author: 404, no existence leak.
+  // A moderator passes (the desk is the only door into hidden content).
   const modMock = mockDb([
     { sql: /FROM sessions s LEFT JOIN users u/, result: signedInSessionRow({ role: "moderator", user_id: 9 }) },
     postByIdRoute((id) => (id === 7 ? own : null)),
-    { sql: /./ },
+    { sql: /FROM post_edits WHERE post_id = \?/, rows: [] },
   ]);
   assert.equal((await route(
     new Request("https://forum.example/api/posts/7/edits", {
@@ -515,7 +515,7 @@ test("the author and an admin can view a hidden post's edit history (canViewPost
       headers: { Cookie: "wempo_session=" + "s".repeat(43) },
     }),
     envFor(modMock.db),
-  )).status, 404);
+  )).status, 200);
 });
 
 test("unknown post id on the history route is a 404", async () => {

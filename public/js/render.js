@@ -81,7 +81,7 @@ const renderAttachments = (post, document, article) => {
 // safe links) inside every kind except code fences (raw). HTML is never
 // interpreted: all text lands through textContent, so "<b>" and "<script>"
 // stay literal. Images never render (the raw "![…](…)" stays text).
-const renderBodyBlocks = (post, document, article) => {
+export const renderBodyBlocks = (post, document, article) => {
   for (const block of parseBlocks(post.body)) {
     if (block.kind === "code") {
       const pre = createElement(document, "pre", "post-codeblock");
@@ -180,6 +180,9 @@ export const createPostCard = (post, document, currentUser = null) => {
   const header = createElement(document, "header", "post-header");
   const author = createElement(document, "div", "post-author");
   if (post.author) {
+    // Name color on cards (v3.0.1): the accent rides the card as the same
+    // whitelisted per-key class the profile page uses (--profile-accent).
+    if (post.author.profileAccent) article.classList.add("profile-accent-" + post.author.profileAccent);
     if (post.author.avatarUrl) {
       const avatar = createElement(document, "img", "avatar");
       avatar.src = post.author.avatarUrl;
@@ -189,6 +192,8 @@ export const createPostCard = (post, document, currentUser = null) => {
     const profileLink = createElement(document, "a", "author-name", post.author.username);
     profileLink.href = `/users/${encodeURIComponent(post.author.username)}`;
     author.append(profileLink);
+    // Flair on cards (v3.0.1): the profile flair chip shown next to the name.
+    if (post.author.flair) author.append(createElement(document, "span", "post-flair", post.author.flair));
   } else {
     author.append(createElement(document, "span", "author-name", "Removed account"));
   }

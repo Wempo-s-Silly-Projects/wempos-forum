@@ -1,4 +1,5 @@
-// GIF marketplace (v2.5): a shared library of GIFs members upload once and
+// Media gallery (v3.0.1, was the GIF marketplace): a shared library of images
+// (GIF, JPEG, PNG, WebP) members upload once and
 // everyone can use. Moderation mirrors the attachments desk: uploads land
 // pending (the uploader and moderators see them), approve → approved (and,
 // via the per-hash UNIQUE index, a duplicate of already-approved bytes
@@ -106,18 +107,18 @@ export async function handleGifUploadRoute(request, env, path, method) {
     }
     const file = form.get("gif");
     if (!file || typeof file === "string") {
-      throw new HttpError(400, "Attach a GIF file in the gif field.");
+      throw new HttpError(400, "Attach an image file in the gif field.");
     }
     bytes = new Uint8Array(await file.arrayBuffer());
   } else {
     bytes = raw;
   }
   if (bytes.length > MAX_GIF_BYTES) {
-    throw new HttpError(413, "GIFs must be 10 MiB or smaller.");
+    throw new HttpError(413, "Images must be 10 MiB or smaller.");
   }
   const mime = sniffImageMime(bytes);
-  if (mime !== "image/gif") {
-    throw new HttpError(400, "The marketplace takes animated GIFs only.");
+  if (!mime) {
+    throw new HttpError(400, "The gallery takes GIF, JPEG, PNG, or WebP images.");
   }
   const hash = bytesToHex(await crypto.subtle.digest("SHA-256", bytes));
   const existing = await db.prepare(

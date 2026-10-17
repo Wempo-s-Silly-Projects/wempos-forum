@@ -695,11 +695,13 @@ test("level-2 replies are visible only when their parent and root are viewable",
     1: { id: 1, author_id: 7, visibility: "hidden", parent_id: null },
   });
   const level2 = { id: 3, author_id: 8, parent_id: 2, visibility: "public" };
-  // Ancestor author/admin rules are unchanged: the reply's own author (8) is
-  // not exempt from a hidden ancestor, mirroring the level-1 parent rule.
+  // Nuke rule (v3.0.1): hidden ancestors are visible to moderators/admins
+  // ONLY — the reply's author (8) and the ancestor's author (7) get 404s like
+  // everyone else; the desk's hidden-posts page is the only door.
   assert.equal(await canViewPost(hiddenRoot, level2, { id: 44, role: "member" }), false);
   assert.equal(await canViewPost(hiddenRoot, level2, { id: 8, role: "member" }), false);
-  assert.equal(await canViewPost(hiddenRoot, level2, { id: 7, role: "member" }), true);
+  assert.equal(await canViewPost(hiddenRoot, level2, { id: 7, role: "member" }), false);
+  assert.equal(await canViewPost(hiddenRoot, level2, { id: 7, role: "moderator" }), true);
   assert.equal(await canViewPost(hiddenRoot, level2, { id: 44, role: "admin" }), true);
 
   const visibleChain = ancestorEnv({
@@ -718,7 +720,10 @@ test("level-2 replies never reveal a hidden parent to unrelated members", async 
   const level2 = { id: 3, author_id: 8, parent_id: 2, visibility: "public" };
   assert.equal(await canViewPost(hiddenParent, level2, null), false);
   assert.equal(await canViewPost(hiddenParent, level2, { id: 44, role: "member" }), false);
-  assert.equal(await canViewPost(hiddenParent, level2, { id: 9, role: "member" }), true);
+  // Nuke rule (v3.0.1): even the hidden parent's author (9) can't view it
+  // through the chain — moderators/admins only.
+  assert.equal(await canViewPost(hiddenParent, level2, { id: 9, role: "member" }), false);
+  assert.equal(await canViewPost(hiddenParent, level2, { id: 9, role: "moderator" }), true);
   assert.equal(await canViewPost(hiddenParent, level2, { id: 44, role: "admin" }), true);
 });
 
@@ -1054,7 +1059,9 @@ test("hidden replies are excluded from the count and previews per viewer visibil
   assert.ok(countsCall.sql.includes("((r.visibility = 'public' AND NOT EXISTS (SELECT 1 FROM bans"));
   assert.ok(countsCall.sql.includes("l1.parent_id IS NULL OR (l1.visibility = 'public' AND NOT EXISTS (SELECT 1 FROM bans"));
   assert.ok(countsCall.sql.includes("JOIN posts l1 ON l1.id = r.parent_id"), "level-2 rows resolve their thread through the level-1 parent");
-  assert.deepEqual(countsCall.values, [1, 7, 7], "root ids bound for the IN list, then the viewer id twice");
+  // Nuke rule (v3.0.1): the author-bypass slots bind -1 (never a real id) —
+  // hidden/banned replies count for NOBODY on list surfaces.
+  assert.deepEqual(countsCall.values, [1, -1, -1], "root ids bound for the IN list, then the no-match sentinels");
   assert.deepEqual(countsCall.values.slice(0, 1), [1], "only this page's root ids bound");
 
   const latestCall = mock.calls.find((call) => call.sql.includes("ROW_NUMBER"));
@@ -1063,8 +1070,8 @@ test("hidden replies are excluded from the count and previews per viewer visibil
     "previews obey the same visibility clause as the replies page");
   assert.ok(latestCall.sql.includes("((c.visibility = 'public' AND NOT EXISTS (SELECT 1 FROM bans"),
     "preview subReplyCount respects viewer visibility like the replies page");
-  assert.deepEqual(latestCall.values, [7, 1, 7],
-    "bind order follows SQL text: sub-count viewer, root ids, level-1 viewer");
+  assert.deepEqual(latestCall.values, [-1, 1, -1],
+    "bind order follows SQL text: no-match sentinel, root ids, no-match sentinel");
 });
 
 test("more than 3 replies caps latestReplies at the 3 most recent while replyCount stays full", async () => {
@@ -1175,7 +1182,7 @@ test("each feed page pays exactly one counts query and one latest-replies query,
   assert.equal("latestReplies" in detailBody, false, "the detail payload is unchanged");
 });
 
-test("admin feed viewers count and preview without visibility binds, mirroring the replies page", async () => {
+test("admin feed viewers count and preview without hidden content (nuke rule)", async () => {
   const mock = mockDb(feedRoutesWithReplyData({
     feedRows: [postRow({ id: "1", created_at: 1700000000, last_activity_at: 1700100100 })],
     countRows: [{ thread_root: "1", reply_count: "5" }],
@@ -1189,21 +1196,12 @@ test("admin feed viewers count and preview without visibility binds, mirroring t
 
   assert.equal(feed.posts[0].replyCount, 5);
   assert.deepEqual(feed.posts[0].latestReplies.map((reply) => reply.id), [10]);
+  // Nuke rule (v3.0.1): the SQL keeps the member clause but its bypass binds
+  // never match — reply metadata is public-and-unbanned for every viewer.
   const countsCall = mock.calls.find((call) => call.sql.includes("AS reply_count"));
-  assert.equal(
-    countsCall.sql.includes("l1.parent_id IS NULL OR l1.visibility = 'public' OR l1.author_id = ?"),
-    false,
-    "admins drop the member visibility clauses like attachSubReplyCounts' showAll",
-  );
-  assert.equal(countsCall.sql.includes("r.author_id = ?"), false);
-  assert.deepEqual(countsCall.values, [1], "root ids only, no viewer binds");
+  assert.deepEqual(countsCall.values, [1, -1, -1], "root ids, then the no-match sentinels");
   const latestCall = mock.calls.find((call) => call.sql.includes("ROW_NUMBER"));
-  assert.equal(
-    latestCall.sql.includes("c.visibility = 'public' OR c.author_id = ?"),
-    false,
-    "preview subReplyCounts also drop the member clause for admins",
-  );
-  assert.deepEqual(latestCall.values, [1]);
+  assert.deepEqual(latestCall.values, [-1, 1, -1], "sentinel, root ids, sentinel");
 });
 
 test("admin viewers get counts without the visibility clause on the replies page", async () => {
@@ -1229,8 +1227,9 @@ test("admin viewers get counts without the visibility clause on the replies page
   const body = await response.json();
   assert.equal(body.replies[0].subReplyCount, 4);
   assert.equal(adminMock.batches.length, 1);
-  // Admin sees every child: parent_id = ? alone, no visibility bind.
-  assert.deepEqual(adminMock.batches[0].map((statement) => statement.values), [[10]]);
+  // Nuke rule (v3.0.1): even admins' reply pages run the member clause with a
+  // no-match bypass — hidden children count for nobody on normal surfaces.
+  assert.deepEqual(adminMock.batches[0].map((statement) => statement.values), [[10, -1]]);
 });
 
 // --- Composer body limit (owner-set): post and reply bodies cap at 1,000 ----

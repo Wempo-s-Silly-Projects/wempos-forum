@@ -19,6 +19,9 @@ export const POST_SELECT =
   "SELECT p.id, p.author_id, p.parent_id, p.body, p.visibility, p.created_at, p.last_activity_at, p.edited_at, p.board, p.view_count, p.pinned_at, " +
   "u.username AS author_username, u.avatar_mime AS author_avatar_mime, " +
   "u.avatar_updated_at AS author_avatar_updated_at, u.avatar_version AS author_avatar_version, " +
+  // Flairs and profile accents ride every post (v3.0.1): feed cards show the
+  // author's flair chip next to the name and the accent colors it.
+  "u.flair AS author_flair, u.profile_accent AS author_accent, " +
   "(SELECT parent.body FROM posts parent WHERE parent.id = p.parent_id) AS parent_body, " +
   "(SELECT COUNT(*) FROM reactions r WHERE r.post_id = p.id AND r.value = 'like') AS like_count, " +
   "(SELECT COUNT(*) FROM reactions r WHERE r.post_id = p.id AND r.value = 'dislike') AS dislike_count, " +
@@ -588,6 +591,9 @@ function publicPost(row, publicLevel) {
     author: {
       id: Number(row.author_id),
       username: row.author_username,
+      // Flair chip + accent on cards (v3.0.1): whitelisted keys only.
+      flair: row.author_flair || null,
+      profileAccent: row.author_accent || null,
       avatarUrl: row.author_avatar_mime
         ? "/api/avatars/" + row.author_id + "?v=" + row.author_avatar_version
         : null,
@@ -612,42 +618,36 @@ async function postById(env, postId, viewerId) {
   return row || null;
 }
 
+// Nuke rule (v3.0.1): hidden content (a hidden post, or ANY content by an
+// actively-banned author) is invisible to everyone EXCEPT moderators and
+// admins — the author included. Normal surfaces (feeds, replies, detail,
+// search, history) never carry it (the list SQL binds a no-match bypass
+// sentinel); the only in-app door is the desk's hidden-posts page
+// (GET /api/admin/hidden). An expired or revoked ban restores content
+// without any write ("now" stays SQL-computed and bind-free).
 export async function canViewPost(env, row, viewer) {
   if (!row) return false;
-  if (row.visibility !== "public" &&
-      (!viewer || (viewer.id !== Number(row.author_id) && viewer.role !== "admin"))) {
-    return false;
-  }
-  // Banning auto-hides posts (v2.4.1): an ACTIVE ban on the author hides the
-  // content the way a hidden post does — the author themselves and admins
-  // pass, moderators and everyone else do not. "Now" is SQL-computed
-  // (bind-free), so an expired or revoked ban restores the post without any
-  // write. The same check applies per ancestor below.
+  const isModerator = Boolean(viewer && (viewer.role === "admin" || viewer.role === "moderator"));
+  if (row.visibility !== "public" && !isModerator) return false;
   const bannedAuthor = await env.FORUM_DB.prepare(
     "SELECT 1 FROM bans b WHERE b.user_id = ? AND b.revoked_at IS NULL " +
     "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1",
   ).bind(Number(row.author_id)).first();
-  const canViewBannedAuthor = viewer &&
-    (viewer.role === "admin" || viewer.id === Number(row.author_id));
-  if (bannedAuthor && !canViewBannedAuthor) return false;
+  if (bannedAuthor && !isModerator) return false;
   // Every ancestor up to the root (parent, and the grandparent root for
   // level-2 replies) must be viewable: hidden ancestors never leak through a
-  // public reply chain. Author/admin rules apply per ancestor.
+  // public reply chain. The same moderator-only rule applies per ancestor.
   let ancestorId = row.parent_id;
   for (let depth = 0; ancestorId !== null && ancestorId !== undefined && depth < 2; depth++) {
     const ancestor = await env.FORUM_DB.prepare(
       "SELECT id, author_id, visibility, parent_id FROM posts WHERE id = ? LIMIT 1",
     ).bind(Number(ancestorId)).first();
-    const canViewHiddenAncestor = ancestor && viewer &&
-      (viewer.role === "admin" || Number(ancestor.author_id) === viewer.id);
-    if (!ancestor || (ancestor.visibility !== "public" && !canViewHiddenAncestor)) return false;
+    if (!ancestor || (ancestor.visibility !== "public" && !isModerator)) return false;
     const ancestorBanned = await env.FORUM_DB.prepare(
       "SELECT 1 FROM bans b WHERE b.user_id = ? AND b.revoked_at IS NULL " +
       "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1",
     ).bind(Number(ancestor.author_id)).first();
-    const canViewBannedAncestor = viewer &&
-      (viewer.role === "admin" || Number(ancestor.author_id) === viewer.id);
-    if (ancestorBanned && !canViewBannedAncestor) return false;
+    if (ancestorBanned && !isModerator) return false;
     ancestorId = ancestor.parent_id;
   }
   return true;

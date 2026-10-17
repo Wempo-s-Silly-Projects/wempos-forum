@@ -67,12 +67,15 @@ function envWithParent(parent) {
   };
 }
 
-test("hidden root posts are visible only to their author and an administrator", async () => {
+test("hidden root posts are visible only to moderators and admins (nuke rule)", async () => {
   const hiddenRoot = { id: 1, author_id: 7, parent_id: null, visibility: "hidden" };
   assert.equal(await canViewPost({ FORUM_DB: null }, hiddenRoot, null), false);
   assert.equal(await canViewPost({ FORUM_DB: null }, hiddenRoot, { id: 8, role: "member" }), false);
   const noBan = envWithParent(undefined);
-  assert.equal(await canViewPost(noBan, hiddenRoot, { id: 7, role: "member" }), true);
+  // Nuke rule (v3.0.1): the author can no longer view their own hidden
+  // content — the desk's hidden-posts page is the only door.
+  assert.equal(await canViewPost(noBan, hiddenRoot, { id: 7, role: "member" }), false);
+  assert.equal(await canViewPost(noBan, hiddenRoot, { id: 7, role: "moderator" }), true);
   assert.equal(await canViewPost(noBan, hiddenRoot, { id: 8, role: "admin" }), true);
 });
 
@@ -81,7 +84,10 @@ test("public replies cannot reveal a hidden parent to unrelated members", async 
   const env = envWithParent({ id: 1, author_id: 7, visibility: "hidden" });
   assert.equal(await canViewPost(env, reply, null), false);
   assert.equal(await canViewPost(env, reply, { id: 8, role: "member" }), false);
-  assert.equal(await canViewPost(env, reply, { id: 7, role: "member" }), true);
+  // Nuke rule (v3.0.1): even the hidden parent's author can't view the chain;
+  // moderators pass.
+  assert.equal(await canViewPost(env, reply, { id: 7, role: "member" }), false);
+  assert.equal(await canViewPost(env, reply, { id: 7, role: "moderator" }), true);
   assert.equal(await canViewPost(env, reply, { id: 9, role: "admin" }), true);
 });
 
