@@ -40,7 +40,7 @@ async function storeUser(env, credentials, role = "member") {
   try {
     // First-admin setup is a one-time privilege boundary. Keep the "no admin
     // exists" check inside the INSERT itself so two concurrent setup requests
-    // cannot both pass setupRequired() and create separate administrators.
+    // cannot both pass setupRequired() and create separate admins.
     const insert = role === "admin"
       ? env.FORUM_DB.prepare(
         "INSERT INTO users (username, username_key, password_salt, password_hash, role, bio, created_at) " +
@@ -121,7 +121,7 @@ async function handleFirstAdminSetupRoute(request, env, url, path, method) {
     await rateLimit(request, env, "setup");
     if (!(await setupRequired(env))) throw new HttpError(409, "First-time setup has already been completed.");
     if (!isValidSetupSecret(env.SETUP_SECRET)) {
-      throw new HttpError(503, "First-time setup is locked. Configure SETUP_SECRET using Wrangler before creating the administrator.");
+      throw new HttpError(503, "First-time setup is locked. Configure SETUP_SECRET using Wrangler before creating the admin.");
     }
     const body = await readJson(request);
     const credentials = validateNewCredentials(body);
