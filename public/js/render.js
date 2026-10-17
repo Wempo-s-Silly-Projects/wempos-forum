@@ -338,7 +338,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   }
   // Delete affordance (v2.4.1 feature): author-only, the exact same session
   // identity gate as the Edit button above — guests, other members, and
-  // moderators never see it, while a hidden own post keeps it like it keeps
+  // mods never see it, while a hidden own post keeps it like it keeps
   // Edit. deleteScope tells app.js's confirm dialog which copy to show and
   // which client behavior to apply after the server confirms: a root card
   // ("thread") takes the whole conversation with it, while a reply card
@@ -414,12 +414,12 @@ export const createPostCard = (post, document, currentUser = null) => {
     expandButton.setAttribute("aria-expanded", "false");
     actions.append(expandButton);
   }
-  // Pinning (C5): moderators and admins get the pin/unpin control on ROOT
+  // Pinning (C5): mods and admins get the pin/unpin control on ROOT
   // cards only (the server's gate is the desk idiom; the same roles and the
   // same root-only rule the client mirrors). The payload's pinnedAt picks the
   // label: a pinned root shows Unpin, everything else shows Pin.
   if (currentUser && !post.parent &&
-      (currentUser.role === "admin" || currentUser.role === "moderator")) {
+      (currentUser.role === "admin" || currentUser.role === "mod")) {
     const isPinned = Boolean(post.pinnedAt);
     const pinButton = createElement(document, "button", "button button-quiet",
       isPinned ? "Unpin" : "Pin");
