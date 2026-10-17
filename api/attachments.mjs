@@ -15,7 +15,7 @@ import {
   readLimitedBody,
   readJson,
   readSession,
-  requireModerator,
+  requiremod,
   securityHeaders,
   sniffImageMime,
 } from "./shared.mjs";
@@ -303,7 +303,7 @@ async function assembledChunkBytes(db, attachmentId, kind) {
 // caching — safe because every URL carries its `?v=` version, which is a cache
 // buster only: mismatches or absence are never rejected or used as an
 // authorization gate. Pending attachments serve the pending chunk set only to
-// the author or to a moderator/admin, with a private five-minute cache.
+// the author or to a mod/admin, with a private five-minute cache.
 // Rejected and unknown ids, and any non-rejected row whose required chunk set
 // is empty, are a plain 404 — the endpoint never confirms an attachment's
 // existence, much less serves half of one.
@@ -353,8 +353,8 @@ async function handleAttachmentServingRoute(request, env, path, method) {
   if (row.status === "pending") {
     const session = await readSession(request, env);
     const viewer = session && session.user;
-    const isModerator = viewer && (viewer.role === "admin" || viewer.role === "moderator");
-    if (viewer && (viewer.id === Number(row.created_by) || isModerator)) {
+    const ismod = viewer && (viewer.role === "admin" || viewer.role === "mod");
+    if (viewer && (viewer.id === Number(row.created_by) || ismod)) {
       const bytes = await assembledChunkBytes(env.FORUM_DB, row.id, "pending");
       if (bytes) {
         const headers = securityHeaders();
@@ -369,7 +369,7 @@ async function handleAttachmentServingRoute(request, env, path, method) {
   throw new HttpError(404, "Attachment not found.");
 }
 
-// Moderator desk for pending attachments: the oldest-first queue, then the
+// mod desk for pending attachments: the oldest-first queue, then the
 // approve/reject decisions. Role gates and the ban check mirror the avatar
 // moderation routes in api/moderation.mjs. There is no size column; the queue
 // computes sizeBytes in SQL from SUM(length(c.data)) over the pending chunks
@@ -386,7 +386,7 @@ const ATTACHMENT_MODERATION_ROUTE =
 async function handleAttachmentAdminRoutes(request, env, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/attachments" && method === "GET") {
-    await requireModerator(request, env, false);
+    await requiremod(request, env, false);
     const result = await db.prepare(
       "SELECT a.id, a.post_id, a.mime, a.created_at, u.username AS uploader, " +
         "SUM(length(c.data)) AS size_bytes, COUNT(c.seq) AS chunk_count " +
@@ -410,7 +410,7 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
   const moderationMatch = path.match(ATTACHMENT_MODERATION_ROUTE);
   if (!moderationMatch || method !== "POST") return null;
 
-  const session = await requireModerator(request, env);
+  const session = await requiremod(request, env);
   await assertNotBanned(env, session.user.id);
   const attachmentId = moderationMatch[1];
   if (moderationMatch[2] === "approve") {
@@ -443,7 +443,7 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
   // Reject: 'rejected' is terminal with no bytes left behind — the row is
   // DELETEd and the FK cascade removes its chunks. The guard admits BOTH
   // pending AND approved statuses: an approved row also needs a removal path
-  // when a moderator reconsiders an approval (rejected ids are terminal and
+  // when a mod reconsiders an approval (rejected ids are terminal and
   // unknown ids never existed → both are the same 404). Browser/CDN caches
   // that already hold the previously served bytes keep them until they expire;
   // that is a documented out of scope here.
@@ -487,7 +487,7 @@ export async function handleAttachmentRoutes(request, env, url, path, method) {
 // a whole page — never a per-post query. Viewer semantics mirror
 // handleAttachmentRoutes above: approved rows are visible to everyone
 // (awaiting: false); pending rows are visible ONLY to the uploading account
-// or a moderator/admin (awaiting: true) and are omitted ENTIRELY for everyone
+// or a mod/admin (awaiting: true) and are omitted ENTIRELY for everyone
 // else, so a pending upload cannot leak even its existence through metadata;
 // rejected rows (deleted since 0004, checked defensively anyway) are omitted
 // for everyone. Returns a Map<postId, Array<
@@ -508,13 +508,13 @@ export async function attachmentRowsForView(db, postIds, viewer) {
       // correctness but must not shuffle between reads).
       "ORDER BY created_at ASC, id ASC",
   ).bind(...ids).all();
-  const isModerator = Boolean(viewer) &&
-    (viewer.role === "admin" || viewer.role === "moderator");
+  const ismod = Boolean(viewer) &&
+    (viewer.role === "admin" || viewer.role === "mod");
   const viewerId = viewer ? Number(viewer.id) : NaN;
   for (const row of result.results || []) {
     if (row.status === "rejected") continue;
     const visible = row.status === "approved" ||
-      (Boolean(viewer) && (isModerator || Number(row.created_by) === viewerId));
+      (Boolean(viewer) && (ismod || Number(row.created_by) === viewerId));
     if (!visible) continue;
     const postId = Number(row.post_id);
     const rows = byPost.get(postId) || [];
