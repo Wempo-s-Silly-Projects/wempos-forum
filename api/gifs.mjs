@@ -66,7 +66,7 @@ export async function handleGifServingRoute(request, env, path, method) {
   if (row.status === "pending") {
     const session = await readSession(request, env);
     const viewer = session && session.user;
-    const ismod = viewer && (viewer.role === "admin" || viewer.role === "mod");
+    const ismod = viewer && (viewer.role === "admin" || viewer.role === "moderator");
     if (viewer && (viewer.id === Number(row.uploader_id) || ismod)) {
       const bytes = await assembledGifBytes(env.FORUM_DB, row.id);
       if (bytes) {
