@@ -353,7 +353,7 @@ async function handleAttachmentServingRoute(request, env, path, method) {
   if (row.status === "pending") {
     const session = await readSession(request, env);
     const viewer = session && session.user;
-    const ismod = viewer && (viewer.role === "admin" || viewer.role === "mod");
+    const ismod = viewer && (viewer.role === "admin" || viewer.role === "moderator");
     if (viewer && (viewer.id === Number(row.created_by) || ismod)) {
       const bytes = await assembledChunkBytes(env.FORUM_DB, row.id, "pending");
       if (bytes) {
@@ -509,7 +509,7 @@ export async function attachmentRowsForView(db, postIds, viewer) {
       "ORDER BY created_at ASC, id ASC",
   ).bind(...ids).all();
   const ismod = Boolean(viewer) &&
-    (viewer.role === "admin" || viewer.role === "mod");
+    (viewer.role === "admin" || viewer.role === "moderator");
   const viewerId = viewer ? Number(viewer.id) : NaN;
   for (const row of result.results || []) {
     if (row.status === "rejected") continue;
