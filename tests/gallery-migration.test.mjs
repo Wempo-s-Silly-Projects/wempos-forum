@@ -89,6 +89,7 @@ test("Gallery recovery migration copies only matching approved attachment bytes"
     CREATE TABLE revoked_attachment_hashes (hash TEXT PRIMARY KEY);
 
     INSERT INTO gifs (id, hash, status) VALUES ('recoverable', 'hash-a', 'approved');
+    INSERT INTO gifs (id, hash, status) VALUES ('pending-recoverable', 'hash-a', 'pending');
     INSERT INTO gifs (id, hash, status) VALUES ('unrecoverable', 'hash-b', 'approved');
     INSERT INTO gifs (id, hash, status) VALUES ('already-has-bytes', 'hash-c', 'approved');
     INSERT INTO gifs (id, hash, status) VALUES ('revoked', 'hash-d', 'approved');
@@ -110,6 +111,12 @@ test("Gallery recovery migration copies only matching approved attachment bytes"
   ).all();
   assert.deepEqual(recovered.map((row) => row.seq), [0, 1]);
   assert.deepEqual(recovered.map((row) => [...row.data]), [[1, 2, 3], [4, 5]]);
+  const pendingRecovered = db.prepare(
+    "SELECT seq, data FROM gif_chunks WHERE gif_id = 'pending-recoverable' ORDER BY seq",
+  ).all();
+  assert.deepEqual(pendingRecovered.map((row) => row.seq), [0, 1]);
+  assert.deepEqual(pendingRecovered.map((row) => [...row.data]), [[1, 2, 3], [4, 5]]);
+  assert.equal(db.prepare("SELECT status FROM gifs WHERE id = 'pending-recoverable'").get().status, "pending");
   assert.deepEqual(
     db.prepare("SELECT seq, data FROM gif_chunks WHERE gif_id = 'unrecoverable'").all(),
     [],
