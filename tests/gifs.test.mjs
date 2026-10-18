@@ -105,7 +105,8 @@ test("uploading bytes whose hash is already approved returns the EXISTING gif (d
   const mock = mockDb([
     sessionRoute(),
     { sql: /^SELECT id FROM bans WHERE user_id = \?/, result: null },
-    { sql: /SELECT id FROM gifs WHERE hash = \? AND status = 'approved'/, result: { id: "223e4567-e89b-12d3-a456-426614174000" } },
+    { sql: /SELECT id, \(SELECT COUNT\(\*\) FROM gif_chunks c WHERE c.gif_id = gifs.id\)/, result: { id: "223e4567-e89b-12d3-a456-426614174000", chunk_count: 1 } },
+    { sql: /SELECT data FROM gif_chunks WHERE gif_id = \? ORDER BY seq/, rows: [{ data: GIF_BYTES }] },
     { sql: /./ },
   ]);
   const response = await multipartGif(mock, {}, GIF_BYTES);
