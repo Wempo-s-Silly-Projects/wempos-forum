@@ -31,7 +31,7 @@ export function renderBannedScreen(main, { reason, expiresAt }) {
   panel.className = "panel banned-screen";
   const heading = document.createElement("h1");
   heading.className = "page-heading";
-  heading.textContent = "You are banned";
+  heading.textContent = "Oh noes:( You are banned!";
   panel.append(heading);
   addText(document, panel, "p",
     typeof reason === "string" && reason ? reason : "No reason was provided.",
@@ -49,7 +49,7 @@ export function renderBannedScreen(main, { reason, expiresAt }) {
     const timer = setInterval(tick, 1000);
     tick();
   } else {
-    addText(document, panel, "p", "No reactivation time set.", "banned-countdown");
+    addText(document, panel, "p", "No reactivation time set....", "banned-countdown");
   }
   main.append(panel);
   return panel;

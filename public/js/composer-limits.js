@@ -6,7 +6,7 @@
 // Owner-set cap for BOTH post and reply bodies, enforced server-side in
 // api/posts.mjs (requiredText, MAX_COMPOSER_BODY_CHARS) and client-side here.
 // Bio (10,000) and search are separate limits and do not use this constant.
-export const COMPOSER_MAX_CHARS = 1000;
+export const COMPOSER_MAX_CHARS = 4750;
 
 // Digit grouping keeps "1,000" legible; a plain replace is locale-independent
 // so node and browser produce byte-identical labels.
