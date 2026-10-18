@@ -320,7 +320,7 @@ async function requiremod(request, env, mutating = true) {
   const session = mutating
     ? await requireUser(request, env)
     : await requireSignedInRead(request, env);
-  if (session.user.role !== "admin" && session.user.role !== "mod") {
+  if (session.user.role !== "admin" && session.user.role !== "moderator") {
     throw new HttpError(403, "Only mods can do that.");
   }
   return session;
