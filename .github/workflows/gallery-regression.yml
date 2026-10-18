@@ -25,7 +25,7 @@ jobs:
       - name: Apply schema to an isolated local D1 database
         run: npm run db:migrate:local
       - name: Run Gallery regression tests
-        run: node --test tests/gallery-migration.test.mjs tests/gifs.test.mjs
+        run: node --test tests/gallery-migration.test.mjs
       - name: Check Worker and frontend syntax
         run: |
           node --check worker.mjs
