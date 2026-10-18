@@ -627,7 +627,7 @@ async function postById(env, postId, viewerId) {
 // without any write ("now" stays SQL-computed and bind-free).
 export async function canViewPost(env, row, viewer) {
   if (!row) return false;
-  const ismod = Boolean(viewer && (viewer.role === "admin" || viewer.role === "mod"));
+  const ismod = Boolean(viewer && (viewer.role === "admin" || viewer.role === "moderator"));
   if (row.visibility !== "public" && !ismod) return false;
   const bannedAuthor = await env.FORUM_DB.prepare(
     "SELECT 1 FROM bans b WHERE b.user_id = ? AND b.revoked_at IS NULL " +
@@ -676,7 +676,7 @@ async function handleAvatarReadRoute(request, env, url, path, method) {
     if (row.pending_avatar_mime && row.pending_avatar_data) {
       const session = await readSession(request, env);
       const viewer = session && session.user;
-      const ismod = viewer && (viewer.role === "admin" || viewer.role === "mod");
+      const ismod = viewer && (viewer.role === "admin" || viewer.role === "moderator");
       if (viewer && (viewer.id === userId || ismod)) {
         const headers = securityHeaders();
         headers.set("Content-Type", row.pending_avatar_mime);
