@@ -80,12 +80,14 @@ let activeRoute = { name: "home" };
 let renderVersion = 0;
 // Milestone badges (v2.5): display-only, computed from the profile's
 // contribution counts — the thresholds graduate as the member posts.
-function profileBadgeFor(totalContributions) {
+function profileBadgeFor(totalContributions, profile) {
   if (totalContributions >= 10000) return "Famous Forumer";
   if (totalContributions >= 1000) return "Mega Forumer";
   if (totalContributions >= 100) return "Big Forumer";
   if (totalContributions >= 20) return "Standard forumer";
   if (totalContributions < 20) return "New Forumer";
+  if (profile.role == "Admin") return "Admin";
+  if (profile.role == "Moderator") return "Mod";
   return null;
 }
 
@@ -643,10 +645,9 @@ function renderProfile(profile, session) {
   // milestone badge (v2.5, display-only, computed from the counter).
   const flairRow = element("p", "profile-flair-row");
   if (profile.flair) flairRow.append(element("span", "profile-flair", profile.flair));
-  const badgeText = profileBadgeFor(Number(profile.postsCount || 0) + Number(profile.repliesCount || 0) + profile.role);
+  const badgeText = profileBadgeFor(Number(profile.postsCount || 0) + Number(profile.repliesCount || 0) + String(profile.role));
   if (badgeText) flairRow.append(element("span", "profile-badge", badgeText));
   if (flairRow.children.length) heading.append(flairRow);
-
   // Per-user post counter (v2.5): threads started + replies written, in the
   // profile heading (muted; display-only).
   heading.append(element("p", "profile-post-counts",
