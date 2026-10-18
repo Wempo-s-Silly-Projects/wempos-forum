@@ -389,7 +389,7 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   saved.setAttribute("data-app-link", "");
   accountActions.append(saved);
   accountActions.append(createNotificationBell(unreadNotifications, document));
-  if (user.role === "admin" || user.role === "mod") {
+  if (user.role === "admin" || user.role === "moderator") {
     const reports = iconButton(document, "shield", {
       tagName: "a",
       className: "button button-secondary icon-button",
