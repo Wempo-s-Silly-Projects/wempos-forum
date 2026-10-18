@@ -643,7 +643,7 @@ function renderProfile(profile, session) {
   // milestone badge (v2.5, display-only, computed from the counter).
   const flairRow = element("p", "profile-flair-row");
   if (profile.flair) flairRow.append(element("span", "profile-flair", profile.flair));
-  const badgeText = profileBadgeFor(Number(profile.postsCount || 0) + Number(profile.repliesCount || 0) + String(session.profile.role));
+  const badgeText = profileBadgeFor(Number(profile.postsCount || 0) + Number(profile.repliesCount || 0) + profile.role);
   if (badgeText) flairRow.append(element("span", "profile-badge", badgeText));
   if (flairRow.children.length) heading.append(flairRow);
 
