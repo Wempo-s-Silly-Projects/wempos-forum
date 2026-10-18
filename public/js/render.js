@@ -419,7 +419,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // same root-only rule the client mirrors). The payload's pinnedAt picks the
   // label: a pinned root shows Unpin, everything else shows Pin.
   if (currentUser && !post.parent &&
-      (currentUser.role === "admin" || currentUser.role === "mod")) {
+      (currentUser.role === "admin" || currentUser.role === "moderator")) {
     const isPinned = Boolean(post.pinnedAt);
     const pinButton = createElement(document, "button", "button button-quiet",
       isPinned ? "Unpin" : "Pin");
