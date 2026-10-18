@@ -122,11 +122,26 @@ export async function handleGifUploadRoute(request, env, path, method) {
   }
   const hash = bytesToHex(await crypto.subtle.digest("SHA-256", bytes));
   const existing = await db.prepare(
-    "SELECT id FROM gifs WHERE hash = ? AND status = 'approved' " +
+    "SELECT id, (SELECT COUNT(*) FROM gif_chunks c WHERE c.gif_id = gifs.id) AS chunk_count " +
+    "FROM gifs WHERE hash = ? AND status = 'approved' " +
     "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = gifs.hash) LIMIT 1",
   ).bind(hash).first();
   if (existing) {
-    return json({ id: existing.id, reuse: true });
+    const storedBytes = await assembledGifBytes(db, existing.id);
+    if (storedBytes && bytesEqual(storedBytes, bytes)) {
+      return json({ id: existing.id, reuse: true });
+    }
+
+    // Migration 0027 historically left approved metadata rows without bytes.
+    // The upload's SHA-256 matches this approved row, so these exact bytes are
+    // safe to use to restore its canonical chunk set instead of deduping into
+    // another unusable reference. Replace any partial set atomically.
+    const restore = [
+      db.prepare("DELETE FROM gif_chunks WHERE gif_id = ?").bind(existing.id),
+      ...gifChunkInsertStatements(db, existing.id, bytes),
+    ];
+    await db.batch(restore);
+    return json({ id: existing.id, reuse: true, restored: true });
   }
   const id = crypto.randomUUID();
   const now = nowSeconds();
@@ -135,13 +150,8 @@ export async function handleGifUploadRoute(request, env, path, method) {
       "INSERT INTO gifs (id, hash, uploader_id, mime, status, version, created_at) " +
       "VALUES (?, ?, ?, ?, 'pending', ?, ?)",
     ).bind(id, hash, session.user.id, mime, createAvatarVersion(), now),
+    ...gifChunkInsertStatements(db, id, bytes),
   ];
-  for (let seq = 0, offset = 0; offset < bytes.length; seq += 1, offset += GIF_CHUNK_BYTES) {
-    statements.push(
-      db.prepare("INSERT INTO gif_chunks (gif_id, seq, data) VALUES (?, ?, ?)")
-        .bind(id, seq, bytes.subarray(offset, offset + GIF_CHUNK_BYTES)),
-    );
-  }
   await db.batch(statements);
   // Close the race where an approved twin appears between the first lookup
   // and the pending insert. Approval itself also handles the remaining race.
@@ -159,6 +169,25 @@ export async function handleGifUploadRoute(request, env, path, method) {
   return json({ id, reuse: false }, 201);
 }
 
+function gifChunkInsertStatements(db, id, bytes) {
+  const statements = [];
+  for (let seq = 0, offset = 0; offset < bytes.length; seq += 1, offset += GIF_CHUNK_BYTES) {
+    statements.push(
+      db.prepare("INSERT INTO gif_chunks (gif_id, seq, data) VALUES (?, ?, ?)")
+        .bind(id, seq, bytes.subarray(offset, offset + GIF_CHUNK_BYTES)),
+    );
+  }
+  return statements;
+}
+
+function bytesEqual(left, right) {
+  if (left.length !== right.length) return false;
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] !== right[index]) return false;
+  }
+  return true;
+}
+
 function bytesToHex(buffer) {
   return [...new Uint8Array(buffer)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
@@ -168,6 +197,7 @@ export async function handleGifListRoute(request, env, path, method) {
   if (path !== "/api/gifs" || method !== "GET") return null;
   const result = await env.FORUM_DB.prepare(
     "SELECT id, version, use_count FROM gifs WHERE status = 'approved' " +
+    "AND EXISTS (SELECT 1 FROM gif_chunks c WHERE c.gif_id = gifs.id) " +
     "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = gifs.hash) " +
     "ORDER BY created_at DESC LIMIT " + GIFS_LIST_LIMIT,
   ).all();
