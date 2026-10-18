@@ -1,10 +1,8 @@
--- Migration 0027 (v3.0.1): the GIF marketplace becomes the media Gallery and
--- takes GIF, JPEG, PNG, and WebP. The gifs.mime CHECK has to widen, and
--- SQLite can only change a CHECK by rebuilding the table. gif_chunks is
--- rebuilt in the same pass so its foreign key follows the new table; its
--- rows (pending library-upload bytes only — attachments keep their own
--- chunk table) are dropped, which was acceptable because the live library
--- was empty at ship time.
+-- Migration 0027 (v3.0.1): widen the Gallery MIME check to GIF, JPEG, PNG,
+-- and WebP. SQLite requires rebuilding gifs to change its CHECK constraint.
+-- Preserve both the library metadata and its chunked image bytes during the
+-- rebuild. Create the replacement chunk table against gifs_new first so its
+-- foreign key follows the renamed parent table.
 CREATE TABLE gifs_new (
   id TEXT PRIMARY KEY,
   hash TEXT NOT NULL,
@@ -17,14 +15,20 @@ CREATE TABLE gifs_new (
 );
 INSERT INTO gifs_new (id, hash, uploader_id, mime, status, version, use_count, created_at)
   SELECT id, hash, uploader_id, mime, status, version, use_count, created_at FROM gifs;
-DROP TABLE gif_chunks;
-DROP TABLE gifs;
-ALTER TABLE gifs_new RENAME TO gifs;
-CREATE TABLE gif_chunks (
-  gif_id TEXT NOT NULL REFERENCES gifs(id) ON DELETE CASCADE,
+
+CREATE TABLE gif_chunks_new (
+  gif_id TEXT NOT NULL REFERENCES gifs_new(id) ON DELETE CASCADE,
   seq INTEGER NOT NULL,
   data BLOB NOT NULL CHECK (length(data) <= 2000000),
   PRIMARY KEY (gif_id, seq)
 );
+INSERT INTO gif_chunks_new (gif_id, seq, data)
+  SELECT gif_id, seq, data FROM gif_chunks;
+
+DROP TABLE gif_chunks;
+DROP TABLE gifs;
+ALTER TABLE gifs_new RENAME TO gifs;
+ALTER TABLE gif_chunks_new RENAME TO gif_chunks;
+
 CREATE INDEX idx_gifs_pending ON gifs(status);
 CREATE UNIQUE INDEX idx_gifs_hash_approved ON gifs(hash) WHERE status = 'approved';

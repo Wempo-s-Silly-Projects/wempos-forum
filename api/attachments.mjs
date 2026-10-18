@@ -133,6 +133,7 @@ async function gifReferenceEntries(db, gifIds, replayPostId = null) {
     seen.add(id);
     const gif = await db.prepare(
       "SELECT id, hash, mime FROM gifs WHERE id = ? AND status = 'approved' " +
+      "AND EXISTS (SELECT 1 FROM gif_chunks c WHERE c.gif_id = gifs.id) " +
       "AND NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = gifs.hash) LIMIT 1",
     ).bind(id).first();
     if (!gif) {
