@@ -26,7 +26,7 @@ JOIN attachments a
 JOIN attachment_chunks ac
   ON ac.attachment_id = a.id
  AND ac.kind = 'approved'
-WHERE g.status = 'approved'
+WHERE g.status IN ('pending', 'approved')
   AND NOT EXISTS (
     SELECT 1 FROM gif_chunks existing WHERE existing.gif_id = g.id
   )
