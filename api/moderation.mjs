@@ -216,7 +216,7 @@ async function handleBanMutationRoute(request, env, url, path, method) {
   ).bind(targetId).first();
   if (!target) throw new HttpError(404, "Member not found.");
   if (target.role === "admin" || targetId === session.user.id) {
-    throw new HttpError(403, "admin accounts cannot be banned here.");
+    throw new HttpError(403, "Admin accounts cannot be banned here.");
   }
   if (method === "POST") return createUserBan(db, targetId, session.user.id, request);
   return revokeUserBan(db, targetId, session.user.id, request);
@@ -227,7 +227,7 @@ async function handleBanMutationRoute(request, env, url, path, method) {
 // refused up front — including self-demotion — so 'admin' is unreachable from
 // here. Sessions are not invalidated: readSession reads the role at request
 // time, so demotion applies on the target's next request.
-const ROLE_CHANGE_ADMIN_403 = "admin accounts cannot be modified here.";
+const ROLE_CHANGE_ADMIN_403 = "Admin accounts cannot be modified here.";
 const ROLE_UNCHANGED_409 = "That member already has this role.";
 
 async function handleRoleChangeRoute(request, env, url, path, method) {
