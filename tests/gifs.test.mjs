@@ -119,9 +119,9 @@ test("re-uploading an approved Gallery image with missing chunks restores its by
   const id = "323e4567-e89b-12d3-a456-426614174000";
   const mock = mockDb([
     sessionRoute(),
-    { sql: /^SELECT id FROM bans WHERE user_id = \\?/, result: null },
-    { sql: /SELECT id, \\(SELECT COUNT\\(\\*\\) FROM gif_chunks c WHERE c.gif_id = gifs.id\\)/, result: { id, chunk_count: 0 } },
-    { sql: /SELECT data FROM gif_chunks WHERE gif_id = \\? ORDER BY seq/, rows: [] },
+    { sql: /^SELECT id FROM bans WHERE user_id = \?/, result: null },
+    { sql: /SELECT id, \(SELECT COUNT\(\*\) FROM gif_chunks c WHERE c.gif_id = gifs.id\)/, result: { id, chunk_count: 0 } },
+    { sql: /SELECT data FROM gif_chunks WHERE gif_id = \? ORDER BY seq/, rows: [] },
     { sql: /./ },
   ]);
   const response = await multipartGif(mock, {}, PNG_BYTES);
