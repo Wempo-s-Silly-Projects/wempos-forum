@@ -254,11 +254,11 @@ async function handleRoleChangeRoute(request, env, url, path, method) {
 
   if (match[2] === "promote") {
     if (target.role !== "member") throw new HttpError(409, ROLE_UNCHANGED_409);
-  } else if (target.role !== "mod") {
+  } else if (target.role !== "moderator") {
     throw new HttpError(409, ROLE_UNCHANGED_409);
   }
 
-  const nextRole = match[2] === "promote" ? "mod" : "member";
+  const nextRole = match[2] === "promote" ? "moderator" : "member";
   const result = await db.prepare(
     "UPDATE users SET role = ? WHERE id = ? AND role = ?",
   ).bind(nextRole, targetId, target.role).run();
