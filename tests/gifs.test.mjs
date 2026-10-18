@@ -115,6 +115,22 @@ test("uploading bytes whose hash is already approved returns the EXISTING gif (d
   assert.equal(mock.calls.some((call) => call.sql.startsWith("INSERT INTO gifs")), false, "no row is stored");
 });
 
+test("re-uploading an approved Gallery image with missing chunks restores its bytes", async () => {
+  const id = "323e4567-e89b-12d3-a456-426614174000";
+  const mock = mockDb([
+    sessionRoute(),
+    { sql: /^SELECT id FROM bans WHERE user_id = \\?/, result: null },
+    { sql: /SELECT id, \\(SELECT COUNT\\(\\*\\) FROM gif_chunks c WHERE c.gif_id = gifs.id\\)/, result: { id, chunk_count: 0 } },
+    { sql: /SELECT data FROM gif_chunks WHERE gif_id = \\? ORDER BY seq/, rows: [] },
+    { sql: /./ },
+  ]);
+  const response = await multipartGif(mock, {}, PNG_BYTES);
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { id, reuse: true, restored: true });
+  assert.equal(mock.calls.some((call) => call.sql.startsWith("INSERT INTO gif_chunks")), true);
+  assert.equal(mock.calls.some((call) => call.sql.startsWith("INSERT INTO gifs")), false);
+});
+
 test("uploading a PNG to the gallery is now allowed (v3.0.1 image support)", async () => {
   const mock = mockDb([
     sessionRoute(),
