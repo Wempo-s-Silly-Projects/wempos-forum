@@ -1052,7 +1052,7 @@ function createRulesEditor(rulesData, document) {
   const textarea = element("textarea", "css-editor-input");
   textarea.id = "rules-input";
   textarea.rows = 10;
-  textarea.maxLength = 20000;
+  textarea.maxLength = 999999999999999999999999999;
   textarea.value = typeof rulesData.rules === "string" ? rulesData.rules : "";
   const save = element("button", "button", "Save rules");
   save.type = "button";
