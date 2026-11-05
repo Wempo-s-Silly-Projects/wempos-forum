@@ -5,9 +5,8 @@
 import { api } from "../api.js";
 import { reportDialog, reportForm, setMessage } from "../dom.js";
 
-// GIF picker functions (v2.5): open renders the approved library into the
-// dialog grid; confirm folds the selection into the composer state; cancel
-// closes. Selected thumbs carry aria-pressed so keyboard/AT state is real.
+// The dialog opener: a card's Report button passes the button (the post id
+// rides its dataset); the profile button passes a {type, id} pair.
 function openReportDialog(target) {
   const isButton = target instanceof HTMLButtonElement;
   const targetType = isButton ? "post" : target.type;
@@ -41,7 +40,7 @@ async function submitReportForm(text) {
 // The registration seam: the report form submits through FORM_HANDLERS; the
 // dialog's open/close buttons merge into handleButtonAction's dispatch map.
 export const FORM_HANDLERS = {
-  report: (form, text) => submitReportForm(form, text),
+  report: (form, text) => submitReportForm(text),
 };
 
 export const ACTIONS = {

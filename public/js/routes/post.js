@@ -2,9 +2,9 @@
 // mini reply composers and sub-reply cascades, the quote prefill, the edit
 // flow (swap form, submit, history), and the attachment lightbox. Bodies
 // moved verbatim out of app.js; bare renderRoute calls inside moved bodies
-// re-read the boot state (state.renderRoute). Card actions that serve every
-// route (reaction/bookmark/subscribe/report/delete) stay in app.js — they
-// belong to render.js's cards, not to one route.
+// re-read the boot state (state.renderRoute). The card actions common to
+// several surfaces (reaction/bookmark/subscribe/suggestion status) live in
+// routes/feed.js, and the report dialog in routes/reports.js.
 import { api } from "../api.js";
 import { addHeading, attachmentLightbox, createPanel, element, main, setMessage } from "../dom.js";
 import { addText } from "../forms.js";
@@ -128,9 +128,6 @@ function editTargetArticle(button) {
   return main.querySelector(`article[data-post-id="${button.dataset.postId}"]`);
 }
 
-// GIF picker functions (v2.5): open renders the approved library into the
-// dialog grid; confirm folds the selection into the composer state; cancel
-// closes. Selected thumbs carry aria-pressed so keyboard/AT state is real.
 // Quote button (plan v2.3): prefill the CURRENT thread's reply composer. The
 // composer is resolved with the same convention toggleReplyComposer's
 // submitReplyForm path relies on — the root composer's form carries the thread

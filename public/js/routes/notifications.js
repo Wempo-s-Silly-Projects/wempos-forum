@@ -2,7 +2,8 @@
 // (guest gate + renderNotificationsPage for members) and its actions (mark
 // one read on open, mark all read). Bodies moved verbatim out of app.js.
 import { api } from "../api.js";
-import { element, main, setMessage } from "../dom.js";
+import { addHeading, element, main, setMessage } from "../dom.js";
+import { addText } from "../forms.js";
 import { state } from "../state.js";
 import { renderNotificationsPage, updateBell } from "../notifications.js";
 
