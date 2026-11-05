@@ -81,7 +81,7 @@ const REPLY_SNIPPET_MAX = 80;
 // constants.mjs holds platform-only constants; the frontend mirrors the number
 // in public/js/composer-limits.js (COMPOSER_MAX_CHARS feeds both the textarea
 // maxLength and the live counter).
-const MAX_COMPOSER_BODY_CHARS = 1000;
+const MAX_COMPOSER_BODY_CHARS = 4750;
 
 // Boards (v2.4.1): a root-only dimension. Root posts carry the board their
 // composer chose; replies inherit their thread root's board at creation (the
