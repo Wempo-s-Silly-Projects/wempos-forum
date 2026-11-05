@@ -42,20 +42,14 @@ import {
   securityHeaders,
 } from "./core/http.mjs";
 
-// Role tiers (v3.1 rename): the PUBLIC vocabulary is member / admin / owner,
-// but users.role stores the PRE-RENAME values — 'moderator' is the admin tier
-// and 'admin' is the owner tier. D1 cannot alter a CHECK constraint short of
-// rebuilding every table that references users, so the stored vocabulary is
-// FROZEN (ROLE_*_DB below) and publicRole() is the single map every role
-// value passes through on its way out of SQL. All JS comparisons use the
-// public values; only SQL literals and role WRITES use the stored constants.
-export const ROLE_OWNER_DB = "admin";
-export const ROLE_ADMIN_DB = "moderator";
-export const ROLE_MEMBER_DB = "member";
-const PUBLIC_ROLE_BY_STORED = { member: "member", moderator: "admin", admin: "owner" };
-export function publicRole(value) {
-  return PUBLIC_ROLE_BY_STORED[value] || value;
-}
+// v4.0: the role vocabulary moved to api/core/roles.mjs (plan 1, Task 5),
+// imported back so every existing consumer keeps working unchanged.
+import {
+  ROLE_ADMIN_DB,
+  ROLE_MEMBER_DB,
+  ROLE_OWNER_DB,
+  publicRole,
+} from "./core/roles.mjs";
 
 // IP bans (v3.1): the caller's network identity. CF-Connecting-IP is the
 // visitor IP behind Cloudflare; it is NEVER stored raw — the hash is keyed
@@ -832,6 +826,10 @@ export {
   postById,
   handleAvatarReadRoute,
   hashPassword,
+  publicRole,
+  ROLE_ADMIN_DB,
+  ROLE_MEMBER_DB,
+  ROLE_OWNER_DB,
   isValidPassword,
   isValidPasswordPepper,
   isValidSetupSecret,
