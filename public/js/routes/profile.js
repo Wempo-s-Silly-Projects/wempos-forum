@@ -385,7 +385,7 @@ export const ACTIONS = {
       await state.renderRoute({ name: "profile", username: state.currentUser.username });
       setMessage("Custom CSS removed.");
     },
-    "set-profile-accent": async () => {
+    "set-profile-accent": async (button) => {
       // Profile colors (any hex, v3.0.2): the swatch's data-accent is the
       // preset's hex ("" = clear). The server re-validates the hex; success
       // re-renders the route.
