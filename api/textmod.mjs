@@ -166,10 +166,13 @@ function textRemovalStatement(db, target) {
   if (target.kind === "chat") {
     return db.prepare("DELETE FROM chat_messages WHERE id = ?").bind(Number(target.entityId));
   }
+  if (target.kind === "wall") {
+    return db.prepare("DELETE FROM wall_posts WHERE id = ?").bind(Number(target.entityId));
+  }
   return db.prepare("DELETE FROM dm_messages WHERE id = ?").bind(Number(target.entityId));
 }
 
-// input: { kind: 'post'|'chat'|'dm', entityId, userId, text, postId = null }
+// input: { kind: 'post'|'chat'|'dm'|'wall', entityId, userId, text, postId = null }
 // (postId is the thread ROOT for post notifications; replies carry their own
 // id as entityId).
 export async function runTextCheck(env, input, fetchImpl = fetch) {

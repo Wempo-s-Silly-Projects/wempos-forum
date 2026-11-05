@@ -18,6 +18,7 @@ import { handleRulesRoutes } from "./api/rules.mjs";
 import { handleAttachmentRoutes } from "./api/attachments.mjs";
 import { handleAppealRoutes } from "./api/appeals.mjs";
 import { handleChatRoutes } from "./api/chat.mjs";
+import { handleWallRoutes } from "./api/wall.mjs";
 import { handleDmRoutes } from "./api/dms.mjs";
 import { handleVisionAdminRoutes } from "./api/vision.mjs";
 import { handleTextModAdminRoutes } from "./api/textmod.mjs";
@@ -70,7 +71,7 @@ async function routeApi(request, env, ctx) {
 
   await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
 
-  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleVisionAdminRoutes, handleTextModAdminRoutes];
+  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleVisionAdminRoutes, handleTextModAdminRoutes, handleWallRoutes];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method, ctx);
     if (response) return response;

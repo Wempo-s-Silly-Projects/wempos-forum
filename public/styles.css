@@ -2073,3 +2073,21 @@ dialog h2 {
   gap: 0.4rem;
 }
 .member-search-ban-info { color: #b3261e; font-weight: 700; margin: 0; }
+
+/* Profile wall (v4.0): the wall panel on profiles — composer on top, flat
+   post list below, pinned rows first with a pinned chip. */
+.wall-list { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.8rem; }
+.wall-post {
+  border: 1px solid var(--border, #ddd);
+  border-radius: var(--button-radius, 10px);
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.wall-post-pinned { border-color: var(--accent, #2e7d32); border-width: 2px; }
+.wall-post-header { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+.wall-post-author { font-weight: 700; color: inherit; }
+.wall-post-time { color: var(--muted, #666); font-size: 0.85rem; margin-left: auto; }
+.wall-post-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.profile-wall form { margin-bottom: 0.4rem; }
