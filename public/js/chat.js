@@ -371,12 +371,17 @@ export function renderChatPage(host, user) {
   if (dmTab) dmTab.hidden = !user;
 
   // A profile's Message button stashed a thread while off-route: land
-  // directly in it.
+  // directly in it. renderDmThread BEFORE setChatTab — setChatTab's "dms"
+  // branch refreshes the conversation list whenever no thread is open, and
+  // its async completion would paint the list back over the just-rendered
+  // thread (the pending thread never stayed open, fixed v4.0.1). With
+  // dmThread already set, setChatTab only unhides the tab and polls the
+  // thread instead.
   if (user && pendingDmThread) {
     const thread = pendingDmThread;
     pendingDmThread = null;
-    setChatTab("dms");
     renderDmThread(thread);
+    setChatTab("dms");
   } else {
     setChatTab("room");
   }
