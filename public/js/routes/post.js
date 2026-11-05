@@ -4,7 +4,7 @@
 // moved verbatim out of app.js; bare renderRoute calls inside moved bodies
 // re-read the boot state (state.renderRoute). The card actions common to
 // several surfaces (reaction/bookmark/subscribe/suggestion status) live in
-// routes/feed.js, and the report dialog in routes/reports.js.
+// composer.js, and the report dialog in routes/reports.js.
 import { api } from "../api.js";
 import { addHeading, attachmentLightbox, createPanel, element, main, setMessage } from "../dom.js";
 import { addText } from "../forms.js";
@@ -16,7 +16,7 @@ import {
   openEditForm,
   renderEditHistoryPanel,
 } from "../render.js";
-import { createComposer } from "./feed.js";
+import { createComposer } from "./composer.js";
 import { prefillQuote } from "../quotes.js";
 import { renderTurnstileSlots } from "../turnstile.js";
 

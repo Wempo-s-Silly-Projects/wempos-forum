@@ -39,18 +39,23 @@ import {
 import { state } from "./state.js";
 state.renderRoute = renderRoute;
 // v4.0 plan 4 Task 3: the feed concern (home/search/mine/category/bookmarks
-// routes, feed tabs, the composer family + its dialogs, feed pagination) lives
-// in routes/feed.js; registries spread its handlers as dispatch entries.
+// routes, feed tabs, feed pagination + card actions) lives in routes/feed.js;
+// the composer family (builder, submits, gif/poll dialogs) lives in
+// composer.js since the plan 7 follow-up; registries spread both modules'
+// handlers as dispatch entries.
 import {
   ACTIONS as feedActions,
-  FORM_HANDLERS as feedFormHandlers,
-  handleComposerFileSelection,
   renderBookmarksRoute,
   renderCategoryRoute,
   renderHomeRoute,
   renderMineRoute,
-  uploadCommunityGif,
 } from "./routes/feed.js";
+import {
+  ACTIONS as composerActions,
+  FORM_HANDLERS as composerFormHandlers,
+  handleComposerFileSelection,
+  uploadCommunityGif,
+} from "./routes/composer.js";
 // v4.0 profile wall: its module owns the render + the post/pin registrations.
 import {
   ACTIONS as wallActions,
@@ -233,7 +238,8 @@ async function submitForm(form) {
 
   const handlers = {
     ...authFormHandlers,
-    ...feedFormHandlers,
+    // The create/reply submits live in composer.js.
+    ...composerFormHandlers,
     ...wallFormHandlers,
     // The post-detail edit form lives in routes/post.js.
     ...postFormHandlers,
@@ -271,6 +277,8 @@ async function handleButtonAction(button) {
     // The card reactions, bookmark/subscribe toggles, and suggestion status
     // live in routes/feed.js.
     ...feedActions,
+    // The composer attachment/gif/poll actions live in composer.js.
+    ...composerActions,
     // Profile wall actions (v4.0).
     ...wallActions,
     // The post-detail conversation actions (incl. polls) live in routes/post.js.
