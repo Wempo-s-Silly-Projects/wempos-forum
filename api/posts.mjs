@@ -13,6 +13,7 @@ import { pollPayload } from "./polls.mjs";
 import { bookmarkFlagForViewer, withBookmarkFlags } from "./bookmarks.mjs";
 import { runFanOutChunks, subscriberFlagForViewer, subscriptionReplyFanOut, withSubscriptionFlags } from "./subscriptions.mjs";
 import { scheduleVisionCheck } from "./vision.mjs";
+import { scheduleTextCheck } from "./textmod.mjs";
 
 // Vision first-pass (v3.1): every freshly PENDING direct upload is background-
 // checked right after its batch commits. Dedup twins (preApproved) skip it —
@@ -873,6 +874,13 @@ async function handleReplyCreateRoute(request, env, url, path, method, ctx) {
     } catch {
       // Ignore: notifications are a convenience, not a reply precondition.
     }
+    // Text auto-mod (v3.1): the fresh reply scores in the background; a trip
+    // AUTO-HIDES it (never deletes — a mod or an approved appeal restores it
+    // from the hidden-posts desk). The reply response never waits on Google.
+    scheduleTextCheck(ctx, env, {
+      kind: "post", entityId: replyId, userId: session.user.id,
+      text: message, postId: bumpTargetId,
+    });
     return json({ id: replyId }, 201);
   }
   return null;
@@ -976,6 +984,13 @@ async function handlePostCreateRoute(request, env, url, path, method, ctx) {
     } catch {
       // Ignore: mentions are a convenience, not a post precondition.
     }
+    // Text auto-mod (v3.1): the fresh root scores in the background; a trip
+    // auto-hides it (never deletes). Runs after the staged publish above, so
+    // the hide guard always sees the final public visibility.
+    scheduleTextCheck(ctx, env, {
+      kind: "post", entityId: postId, userId: session.user.id,
+      text: message, postId,
+    });
     return json({ id: postId }, 201);
   }
   return null;
@@ -993,7 +1008,7 @@ async function handlePostCreateRoute(request, env, url, path, method, ctx) {
 // requireUser) and the content path reuses create's filter/limit gates, so a
 // token would add friction without any new trust decision. Edits are text-only
 // in v1: attachments stay exactly as originally posted.
-async function handlePostEditRoute(request, env, url, path, method) {
+async function handlePostEditRoute(request, env, url, path, method, ctx) {
   const db = env.FORUM_DB;
   const editMatch = path.match(/^\/api\/posts\/([0-9]+)$/);
   if (editMatch && method === "PATCH") {
@@ -1033,6 +1048,14 @@ async function handlePostEditRoute(request, env, url, path, method) {
       ).bind(message, editedAt, postId, session.user.id),
     ]);
     if (Number(results[1]?.meta?.changes) !== 1) throw new HttpError(404, "Post not found.");
+    // Text auto-mod (v3.1): edits re-score — edits must never quietly
+    // rewrite past a trip. If an unreversed auto_text action already exists
+    // for this post the task no-ops (the post is already hidden; the appeal
+    // path owns unhiding).
+    scheduleTextCheck(ctx, env, {
+      kind: "post", entityId: postId, userId: session.user.id,
+      text: message, postId: Number(post.parent_id || postId),
+    });
     return json({ id: postId, editedAt: new Date(editedAt * 1000).toISOString() });
   }
   return null;

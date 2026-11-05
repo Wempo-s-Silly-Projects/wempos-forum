@@ -8,24 +8,74 @@ repository. It is provided at runtime by the FILTERED_WORDS secret:
 
         badword,bad phrase
 
-  * Matching: entries are matched CASE-INSENSITIVELY anywhere in a post or
-    reply body (substring matching, not whole-word matching). A short
-    fragment such as "bad" is therefore also masked inside a longer word
-    like "badword". Entries are treated literally (no regex).
-  * Masking: every matched character is replaced with "*", so a filtered
-    body keeps the exact length of the original. An empty or whitespace-only
-    value (or an unset secret) disables filtering entirely: bodies pass
-    through unchanged.
+  * Matching (v3.1): FOUR passes share one output — every matched character
+    is masked, so a filtered body keeps the exact length of the original.
 
-Production (set or update once per deployment; the value is private and is
-written straight into the Worker's secret store, not into this repo):
+    1. EXACT: entries match case-insensitively ("LMFAO" = "lmfao") as whole
+       words, boundaries included, with multi-word entries matching their
+       interiors literally.
 
-    wrangler secret put FILTERED_WORDS
+    2. SKELETON: each entry also matches in normalized form — leet digits
+       ("w0rd"), soft-separator stitching ("w_o_r_d", "ullshi-t"),
+       zero-width injections, accent/homoglyph lookalikes — AND as a
+       SUBSTRING inside a longer token, so "badass", "smartass", and "hasss"
+       mask via the entries they contain. Elongations match too ("wooord",
+       "bittch", doubled letters held: "niggger" masks but "niger" does not
+       match "nigger").
+
+       WARNING — the substring rule is aggressive BY DESIGN (the owner's
+       call): if you list "ass", innocent words containing it ("class",
+       "grass", "passion") also mask. If you do not want that, do not list
+       short fragments; list the compounds you care about explicitly
+       ("badass,smartass") instead.
+
+    3. SCRAMBLE: tokens matching nothing above are retried with each single
+       character deleted, against entries of 4+ letters — "fusckers" masks
+       via "fuck", "DIsCK" via "dick". Two-character scrambles ("Ponussy")
+       must be listed as their own entries.
+
+    4. STITCHING: runs of one-or-two-letter words ("b a d", "fu u c c k k")
+       are concatenated and matched the same way, masking only the words the
+       match spans. Longer real words break a run, so innocent phrases like
+       "the pen is mightier" can never stitch into something else.
+
+  * REGEX ENTRIES: an entry wrapped in slashes compiles as a regular
+    expression instead of a literal word — for example:
+
+        /\bazz?hole\b/
+
+    matches "ashole" and "asshole" as whole words, while
+
+        /fu\s*(u|c)+k/
+
+    matches "fu ckk", "fuc k", and "fuuck" across spaces. Each pattern runs
+    against BOTH the lowercased original text and the normalized skeleton
+    (spaces intact, leet folded, soft separators gone) — write for whichever
+    space suits the pattern. \b word boundaries are yours to add; the
+    whole-word rule of the exact pass never applies to regex entries.
+
+    Caveats: the list is comma-separated, so a pattern cannot contain a
+    literal comma (write \x2c for one); an entry that fails to compile is
+    dropped silently — the rest of the list keeps working; and a
+    pathological pattern (nested quantifiers over long text) can burn CPU,
+    so keep patterns simple.
+
+    Left to text auto-mod (api/textmod.mjs) and the human desk, deliberately:
+    letter-spam spread across longer words ("f u sck ers") and variant
+    spellings the list doesn't cover — regex entries are the tool for the
+    variant families you know about; list them explicitly.
 
 Local development: add a FILTERED_WORDS entry with the same format to your
 .dev.vars file (which is Git-ignored and must never be committed), e.g.:
 
     FILTERED_WORDS=badword,bad phrase
 
+Production (set or update once per deployment; the value is private and is
+written straight into the Worker's secret store, not into this repo):
+
+    wrangler secret put FILTERED_WORDS
+
 Note: comma-separated entries cannot themselves contain a comma; entries are
-trimmed, lowercased, and deduplicated at use time.
+trimmed, lowercased, and deduplicated at use time. An empty or whitespace-only
+value (or an unset secret) disables filtering entirely: bodies pass through
+unchanged.

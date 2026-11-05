@@ -4,6 +4,11 @@
 -- advisory-or-automated at the owner's choice: verdicts land in vision_verdicts,
 -- trips (adult/violence at LIKELY or worse) auto-remove the pending upload and
 -- record a moderation_actions row, and members appeal either outcome.
+-- TEXT auto-mod (v3.1, widened before first apply): kind 'auto_text' actions
+-- come from api/textmod.mjs (OpenAI Moderation API — the engine was first
+-- sketched on Google Perspective, which sunsets 2026-12-31) — posts/replies
+-- hide, chat/DM messages delete — and appeal the same way (kind 'auto_text'
+-- in appeals).
 
 -- One verdict row per checked pending item, REPLACED on re-check (an avatar
 -- re-upload while pending overwrites the stale verdict). error is set when the
@@ -30,8 +35,8 @@ CREATE TABLE vision_verdicts (
 CREATE TABLE moderation_actions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
-  kind TEXT NOT NULL CHECK (kind IN ('auto_image')),
-  entity_kind TEXT NOT NULL CHECK (entity_kind IN ('attachment', 'gif', 'avatar')),
+  kind TEXT NOT NULL CHECK (kind IN ('auto_image', 'auto_text')),
+  entity_kind TEXT NOT NULL CHECK (entity_kind IN ('attachment', 'gif', 'avatar', 'post', 'chat', 'dm')),
   entity_id TEXT NOT NULL,
   hash TEXT,
   reason TEXT NOT NULL,
@@ -51,7 +56,7 @@ CREATE TABLE appeals (
   user_id INTEGER NOT NULL,
   action_id INTEGER,
   ban_id INTEGER,
-  kind TEXT NOT NULL CHECK (kind IN ('auto_image', 'ban')),
+  kind TEXT NOT NULL CHECK (kind IN ('auto_image', 'auto_text', 'ban')),
   body TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'denied')),
   created_at INTEGER NOT NULL,

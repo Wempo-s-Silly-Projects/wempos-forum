@@ -14,6 +14,7 @@ import {
   isVisionKilled,
   likelihoodScore,
   parseSafeSearch,
+  parseEmbeddedText,
   runReportVisionRecheck,
   runVisionCheck,
   scheduleReportVisionRecheck,
@@ -61,7 +62,12 @@ function fakeDb(sqlAnswers = {}, allAnswers = {}) {
   };
 }
 
-const visionResponse = (annotation) => ({ responses: [{ safeSearchAnnotation: annotation }] });
+const visionResponse = (annotation, ocrText) => ({
+  responses: [{
+    safeSearchAnnotation: annotation,
+    ...(ocrText !== undefined ? { fullTextAnnotation: { text: ocrText } } : {}),
+  }],
+});
 const SAFE = { adult: "VERY_UNLIKELY", medical: "VERY_UNLIKELY", spoof: "VERY_UNLIKELY", violence: "VERY_UNLIKELY", racy: "VERY_UNLIKELY" };
 
 test("publicRole maps the frozen stored vocabulary to the public one", () => {
@@ -331,4 +337,74 @@ test("scheduleReportVisionRecheck: no-op unconfigured, rides ctx.waitUntil when 
   scheduleReportVisionRecheck(ctx, { GOOGLE_VISION_API_KEY: "k" }, { postId: 1 });
   assert.ok(ran instanceof Promise);
   await ran; // must never throw into the request path
+});
+
+// --- OCR (v3.1, owner's ask): embedded text judged like typed text --------
+
+test('parseEmbeddedText: the aggregate text block survives; everything else is ""', () => {
+  assert.equal(parseEmbeddedText({ responses: [{ fullTextAnnotation: { text: "hello" } }] }), "hello");
+  assert.equal(parseEmbeddedText({ responses: [{ fullTextAnnotation: {} }] }), "");
+  assert.equal(parseEmbeddedText({ responses: [{}] }), "");
+  assert.equal(parseEmbeddedText({ responses: [] }), "");
+  assert.equal(parseEmbeddedText(null), "");
+});
+
+test("fetchVisionVerdict: ONE annotate call carries SafeSearch AND TEXT_DETECTION; ocrText rides back", async () => {
+  let body;
+  const result = await fetchVisionVerdict({ GOOGLE_VISION_API_KEY: "k" }, new Uint8Array([1]), async (url, init) => {
+    body = JSON.parse(init.body);
+    return { ok: true, json: async () => visionResponse(SAFE, "words in pixels") };
+  });
+  assert.deepEqual(
+    body.requests[0].features.map((feature) => feature.type).sort(),
+    ["SAFE_SEARCH_DETECTION", "TEXT_DETECTION"],
+  );
+  assert.equal(result.verdicts.adult, "VERY_UNLIKELY");
+  assert.equal(result.ocrText, "words in pixels");
+});
+
+test("runVisionCheck: a filtered word in the embedded text auto-removes — no moderation key needed", async () => {
+  const db = fakeDb();
+  await runVisionCheck({ FORUM_DB: db, GOOGLE_VISION_API_KEY: "k", FILTERED_WORDS: "badword" }, {
+    kind: "attachment", entityId: "a-ocr", bytes: new Uint8Array([1]), hash: "h-ocr", userId: 6,
+  }, async () => ({ ok: true, json: async () => visionResponse(SAFE, "cute cat photo with badword on it") }));
+  assert.ok(db.statements.some((s) => s.sql.includes("DELETE FROM attachments WHERE id = ? AND status = 'pending'")));
+  const action = db.statements.find((s) => s.sql.includes("INSERT INTO moderation_actions"));
+  assert.ok(action, "the OCR removal must be a moderation action (appealable)");
+  assert.match(action.params[4], /filtered word embedded/);
+  assert.ok(db.statements.some((s) => s.sql.includes("INSERT INTO notifications")));
+});
+
+test("runVisionCheck: when BOTH SafeSearch and embedded text trip, the SafeSearch reason wins", async () => {
+  const db = fakeDb();
+  await runVisionCheck({ FORUM_DB: db, GOOGLE_VISION_API_KEY: "k", FILTERED_WORDS: "badword" }, {
+    kind: "attachment", entityId: "a-both", bytes: new Uint8Array([1]), hash: "h-both", userId: 6,
+  }, async () => ({ ok: true, json: async () => visionResponse({ ...SAFE, adult: "VERY_LIKELY" }, "badword") }));
+  const action = db.statements.find((s) => s.sql.includes("INSERT INTO moderation_actions"));
+  assert.match(action.params[4], /Google Vision: adult: VERY_LIKELY/);
+});
+
+test("runVisionCheck: clean embedded text changes nothing", async () => {
+  const db = fakeDb();
+  await runVisionCheck({ FORUM_DB: db, GOOGLE_VISION_API_KEY: "k", FILTERED_WORDS: "badword" }, {
+    kind: "attachment", entityId: "a-clean", bytes: new Uint8Array([1]), hash: "h-clean", userId: 6,
+  }, async () => ({ ok: true, json: async () => visionResponse(SAFE, "wholesome caption") }));
+  assert.equal(db.statements.filter((s) => s.sql.includes("INSERT INTO moderation_actions")).length, 0);
+  assert.equal(db.statements.filter((s) => s.sql.includes("DELETE FROM attachments")).length, 0);
+  assert.equal(db.statements.filter((s) => s.sql.includes("INSERT INTO vision_verdicts")).length, 1);
+});
+
+test("runReportVisionRecheck: embedded filtered text in an APPROVED image is removed by the sweep", async () => {
+  const db = postSweepDb([{ id: "slur-png", status: "approved", hash: "ocr-hash", version: "v1", created_by: 7 }]);
+  await runReportVisionRecheck(
+    { FORUM_DB: db, GOOGLE_VISION_API_KEY: "k", FILTERED_WORDS: "badword" },
+    { postId: 42 },
+    async () => ({ ok: true, json: async () => visionResponse(SAFE, "badword") }),
+  );
+  const removal = db.statements.find((s) => s.sql.includes("DELETE FROM attachments WHERE id = ? AND status = ?"));
+  assert.ok(removal, "the live approved image must come down");
+  assert.equal(removal.params[0], "slur-png");
+  assert.equal(removal.params[1], "approved");
+  const action = db.statements.find((s) => s.sql.includes("INSERT INTO moderation_actions"));
+  assert.match(action.params[4], /filtered word embedded/);
 });

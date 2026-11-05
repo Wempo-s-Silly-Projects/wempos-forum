@@ -14,6 +14,12 @@
 // row, and notifies the member — who can appeal. An approved appeal allowlists
 // the content hash so a re-upload is never auto-removed again. Vision errors
 // are fail-open: the item stays in the human queue exactly as before.
+//
+// OCR (v3.1, owner's ask): the same annotate call also requests
+// TEXT_DETECTION, and any text embedded in the image is judged like typed
+// text (api/textmod.mjs's evaluateExtractedText — the word filter always,
+// the moderation classifier when configured). A trip on the embedded text
+// removes the image through the exact same path as a SafeSearch trip.
 import {
   assertNotBanned,
   blobToUint8Array,
@@ -22,6 +28,7 @@ import {
   readJson,
   requiremod,
 } from "./shared.mjs";
+import { evaluateExtractedText } from "./textmod.mjs";
 
 const VISION_ANNOTATE_URL = "https://vision.googleapis.com/v1/images:annotate";
 // Vision latency headroom inside waitUntil: hard timeout, fail-open below.
@@ -93,6 +100,20 @@ export function parseSafeSearch(responseJson) {
   return verdicts;
 }
 
+// OCR (v3.1, owner's ask): the same annotate call requests TEXT_DETECTION,
+// and the embedded text (fullTextAnnotation.text, the aggregate block)
+// rides back with the SafeSearch verdicts — a slur baked into a PNG gets
+// judged like a typed one (api/textmod.mjs's evaluateExtractedText). Missing
+// or non-string text is "" (most images carry no words).
+export function parseEmbeddedText(responseJson) {
+  const annotation =
+    responseJson &&
+    Array.isArray(responseJson.responses) &&
+    responseJson.responses[0] &&
+    responseJson.responses[0].fullTextAnnotation;
+  return annotation && typeof annotation.text === "string" ? annotation.text : "";
+}
+
 // Chunked base64 (String.fromCharCode on >32k args blows the stack).
 export function base64Bytes(bytes) {
   let binary = "";
@@ -110,8 +131,10 @@ function verdictSummary(verdicts) {
     .join(", ");
 }
 
-// The annotate call itself. Returns { verdicts } on success or { error } on
-// anything else (transport, non-200, unparseable) — callers fail open.
+// The annotate call itself. Returns { verdicts, ocrText } on success or
+// { error } on anything else (transport, non-200, unparseable) — callers fail
+// open. One request carries both features (SafeSearch + TEXT_DETECTION), so
+// OCR adds no second Google call per image.
 export async function fetchVisionVerdict(env, bytes, fetchImpl = fetch) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), VISION_TIMEOUT_MS);
@@ -127,7 +150,10 @@ export async function fetchVisionVerdict(env, bytes, fetchImpl = fetch) {
       body: JSON.stringify({
         requests: [
           {
-            features: [{ type: "SAFE_SEARCH_DETECTION" }],
+            features: [
+              { type: "SAFE_SEARCH_DETECTION" },
+              { type: "TEXT_DETECTION" },
+            ],
             image: { content: base64Bytes(bytes) },
           },
         ],
@@ -137,11 +163,12 @@ export async function fetchVisionVerdict(env, bytes, fetchImpl = fetch) {
     if (!response.ok) {
       return { error: "Vision responded with HTTP " + response.status };
     }
-    const verdicts = parseSafeSearch(await response.json());
+    const responseJson = await response.json();
+    const verdicts = parseSafeSearch(responseJson);
     if (!verdicts) {
       return { error: "Vision response carried no SafeSearch annotation" };
     }
-    return { verdicts };
+    return { verdicts, ocrText: parseEmbeddedText(responseJson) };
   } catch (error) {
     return { error: "Vision check failed: " + String(error && error.message || error).slice(0, 120) };
   } finally {
@@ -215,8 +242,17 @@ export async function runVisionCheck(env, input, fetchImpl = fetch) {
     ? await db.prepare("SELECT 1 FROM auto_mod_overrides WHERE hash = ? LIMIT 1").bind(hash).first()
     : null;
 
-  if (tripsAutoMod(verdicts) && !overridden) {
-    const reason = "Auto-mod removed this image (Google Vision: " + verdictSummary(verdicts) + ").";
+  // OCR: embedded text goes through the same judges as typed text. A trip
+  // removes through the identical path as a SafeSearch trip — one action row,
+  // one notification, one appeal. When BOTH trip, the SafeSearch reason
+  // wins (the stronger, category-specific verdict).
+  const ocr = result.ocrText
+    ? await evaluateExtractedText(env, result.ocrText, fetchImpl)
+    : { tripped: false };
+  if ((tripsAutoMod(verdicts) || ocr.tripped) && !overridden) {
+    const reason = tripsAutoMod(verdicts)
+      ? "Auto-mod removed this image (Google Vision: " + verdictSummary(verdicts) + ")."
+      : ocr.reason;
     await db.batch([
       storeVerdictRow(db, { kind, entityId, version: input.version, verdicts, error: null }),
       autoModRemovalStatements(db, { kind, entityId }),
@@ -405,13 +441,14 @@ export async function runReportVisionRecheck(env, input, fetchImpl = fetch) {
     }
   }
 
-  // Dedup twins (same content hash) share one Vision call per task.
+  // Dedup twins (same content hash) share one Vision call per task — and one
+  // embedded-text evaluation, since identical bytes extract identical text.
   const verdictCache = new Map();
   for (const target of targets) {
     const bytes = await target.load();
     if (!bytes || bytes.length === 0) continue;
-    let verdicts = target.hash ? verdictCache.get(target.hash) : undefined;
-    if (verdicts === undefined) {
+    let cached = target.hash ? verdictCache.get(target.hash) : undefined;
+    if (cached === undefined) {
       const result = await fetchVisionVerdict(env, bytes, fetchImpl);
       if (result.error) {
         // Fail open: the outage lands on the verdict row, nothing is removed.
@@ -421,21 +458,29 @@ export async function runReportVisionRecheck(env, input, fetchImpl = fetch) {
             verdicts: null, error: result.error,
           }),
         ]);
-        verdicts = null;
+        cached = null;
       } else {
-        verdicts = result.verdicts;
+        cached = {
+          verdicts: result.verdicts,
+          ocr: result.ocrText
+            ? await evaluateExtractedText(env, result.ocrText, fetchImpl)
+            : { tripped: false },
+        };
       }
-      if (target.hash) verdictCache.set(target.hash, verdicts);
+      if (target.hash) verdictCache.set(target.hash, cached);
     }
-    if (!verdicts) continue;
+    if (!cached) continue;
+    const verdicts = cached.verdicts;
 
     const overridden = target.hash
       ? await db.prepare("SELECT 1 FROM auto_mod_overrides WHERE hash = ? LIMIT 1")
           .bind(target.hash).first()
       : null;
-    if (tripsAutoMod(verdicts) && !overridden) {
-      const reason = "Auto-mod removed this image after a member report (Google Vision: " +
-        verdictSummary(verdicts) + ").";
+    if ((tripsAutoMod(verdicts) || cached.ocr.tripped) && !overridden) {
+      const reason = tripsAutoMod(verdicts)
+        ? "Auto-mod removed this image after a member report (Google Vision: " +
+          verdictSummary(verdicts) + ")."
+        : cached.ocr.reason;
       await db.batch([
         storeVerdictRow(db, {
           kind: target.kind, entityId: target.entityId, version: target.version,

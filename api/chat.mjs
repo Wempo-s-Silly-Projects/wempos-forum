@@ -18,6 +18,7 @@ import {
   requiremod,
 } from "./shared.mjs";
 import { applyWordFilter } from "./filter.mjs";
+import { scheduleTextCheck } from "./textmod.mjs";
 
 // A member counts as online for 3 minutes after their last heartbeat; the
 // client pings every 60s.
@@ -95,7 +96,7 @@ async function handleChatReadRoute(request, env, url, path, method) {
   });
 }
 
-async function handleChatCreateRoute(request, env, url, path, method) {
+async function handleChatCreateRoute(request, env, url, path, method, ctx) {
   if (path !== "/api/chat" || method !== "POST") return null;
   const session = await requireUser(request, env);
   await assertNotBanned(env, session.user.id);
@@ -112,6 +113,13 @@ async function handleChatCreateRoute(request, env, url, path, method) {
   const row = await env.FORUM_DB.prepare(
     CHAT_SELECT + "WHERE c.id = ? LIMIT 1",
   ).bind(Number(result.meta?.last_row_id)).first();
+  // Text auto-mod (v3.1): the message scores in the background; a trip
+  // deletes it (chat has no hidden state — the same permanence as staff
+  // deletion) and records an appealable action. The send never waits.
+  scheduleTextCheck(ctx, env, {
+    kind: "chat", entityId: Number(result.meta?.last_row_id),
+    userId: session.user.id, text: message,
+  });
   return json({ message: publicChatMessage(row) }, 201);
 }
 
@@ -180,12 +188,12 @@ async function handleAdminChatRoute(request, env, url, path, method) {
   });
 }
 
-export async function handleChatRoutes(request, env, url, path, method) {
+export async function handleChatRoutes(request, env, url, path, method, ctx) {
   const presence = await handlePresenceRoute(request, env, url, path, method);
   if (presence) return presence;
   const read = await handleChatReadRoute(request, env, url, path, method);
   if (read) return read;
-  const create = await handleChatCreateRoute(request, env, url, path, method);
+  const create = await handleChatCreateRoute(request, env, url, path, method, ctx);
   if (create) return create;
   const remove = await handleChatDeleteRoute(request, env, url, path, method);
   if (remove) return remove;

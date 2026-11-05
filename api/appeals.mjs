@@ -96,6 +96,41 @@ async function decideAppeal(db, appeal, decision, moderatorId) {
     return json({ approved: true, id: appeal.id });
   }
 
+  if (appeal.kind === "auto_text") {
+    // Reverse the action; for POST actions also unhide — the auto-hide was
+    // the only thing quarantine-grade about it, so an approval restores the
+    // content intact (unlike images, the bytes were never touched). Chat/DM
+    // actions have nothing to restore (deletion is permanent); the reversal
+    // clears the member's record. The unhide is guarded to still-hidden
+    // posts; if a mod ALSO hid the post for another reason afterwards, the
+    // approving admin is making the human call to publish it.
+    const statements = [
+      db.prepare(
+        "UPDATE appeals SET status = 'approved', decided_at = ?, decided_by = ? " +
+          "WHERE id = ? AND status = 'pending'",
+      ).bind(now, moderatorId, appeal.id),
+      db.prepare(
+        "UPDATE moderation_actions SET reversed_at = ?, reversed_by = ? WHERE id = ? AND reversed_at IS NULL",
+      ).bind(now, moderatorId, Number(appeal.action_id)),
+    ];
+    if (appeal.entity_kind === "post") {
+      statements.push(
+        db.prepare(
+          "UPDATE posts SET visibility = 'public' WHERE id = ? AND visibility = 'hidden'",
+        ).bind(Number(appeal.entity_id)),
+      );
+    }
+    statements.push(notifyStatement(db, Number(appeal.user_id),
+      appeal.entity_kind === "post"
+        ? "Your appeal was approved. Your post is visible again."
+        : "Your appeal was approved."));
+    const results = await db.batch(statements);
+    if (Number(results[0]?.meta?.changes) !== 1) {
+      throw new HttpError(409, "That appeal was already decided.");
+    }
+    return json({ approved: true, id: appeal.id });
+  }
+
   // Ban appeal: revoking the ban reuses the exact hand-unban semantics, so
   // un-banning auto-restores the member's hidden posts with no extra writes —
   // and clears the ban's IP rows, like a hand unban (v3.1).
@@ -142,7 +177,7 @@ async function handleAppealAdminRoutes(request, env, url, path, method) {
         body: row.body,
         createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
         decidedAt: row.decided_at ? new Date(Number(row.decided_at) * 1000).toISOString() : null,
-        ...(row.kind === "auto_image" ? {
+        ...(row.kind === "auto_image" || row.kind === "auto_text" ? {
           actionReason: row.action_reason,
           entityKind: row.entity_kind,
           verdicts: safeParseVerdicts(row.action_verdicts),
@@ -166,7 +201,7 @@ async function handleAppealAdminRoutes(request, env, url, path, method) {
     }
     const appeal = await db.prepare(
       "SELECT a.id, a.user_id, a.kind, a.status, a.action_id, a.ban_id, " +
-        "m.hash AS hash " +
+        "m.hash AS hash, m.entity_kind AS entity_kind, m.entity_id AS entity_id " +
         "FROM appeals a LEFT JOIN moderation_actions m ON m.id = a.action_id " +
         "WHERE a.id = ? LIMIT 1",
     ).bind(appealId).first();
@@ -297,17 +332,20 @@ async function handleMyAppealRoutes(request, env, url, path, method) {
       throw new HttpError(400, "Choose the auto-mod action to appeal.");
     }
     const action = await db.prepare(
-      "SELECT id, reversed_at FROM moderation_actions WHERE id = ? AND user_id = ? LIMIT 1",
+      "SELECT id, kind, reversed_at FROM moderation_actions WHERE id = ? AND user_id = ? LIMIT 1",
     ).bind(actionId, session.user.id).first();
     if (!action) throw new HttpError(404, "That auto-mod action doesn't exist.");
     if (action.reversed_at !== null && action.reversed_at !== undefined) {
       throw new HttpError(409, "That action was already reversed.");
     }
+    if (action.kind !== "auto_image" && action.kind !== "auto_text") {
+      throw new HttpError(404, "That auto-mod action doesn't exist.");
+    }
     try {
       const result = await db.prepare(
         "INSERT INTO appeals (user_id, action_id, ban_id, kind, body, status, created_at) " +
-          "VALUES (?, ?, NULL, 'auto_image', ?, 'pending', ?)",
-      ).bind(session.user.id, actionId, appealText, nowSeconds()).run();
+          "VALUES (?, ?, NULL, ?, ?, 'pending', ?)",
+      ).bind(session.user.id, actionId, action.kind, appealText, nowSeconds()).run();
       return json({ appeal: { id: Number(result.meta?.last_row_id), status: "pending" } }, 201);
     } catch (error) {
       // The UNIQUE(user_id, action_id) guard is the one-at-a-time rule.

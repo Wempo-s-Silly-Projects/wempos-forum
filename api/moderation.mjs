@@ -3,6 +3,7 @@
 import { UNBAN_ACTIVE_UPDATE_SQL } from "../constants.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { publicVisionVerdict, scheduleReportVisionRecheck, visionVerdictsByEntity } from "./vision.mjs";
+import { scheduleTextCheck } from "./textmod.mjs";
 import {
   assertNotBanned,
   canViewPost,
@@ -51,8 +52,13 @@ async function handleReportCreateRoute(request, env, url, path, method, ctx) {
     }
     // Auto-mod report sweep (v3.1, owner's ask): the filed report re-runs
     // SafeSearch over every image on this post — approved content included —
-    // in the background. The report response never waits on Google.
+    // AND re-scores the post's text, in the background. The report response
+    // never waits on Google; a text trip auto-hides the post for the desk.
     scheduleReportVisionRecheck(ctx, env, { postId });
+    scheduleTextCheck(ctx, env, {
+      kind: "post", entityId: postId, userId: Number(post.author_id),
+      text: String(post.body ?? ""), postId,
+    });
     return json({ ok: true }, 201);
   }
   return null;

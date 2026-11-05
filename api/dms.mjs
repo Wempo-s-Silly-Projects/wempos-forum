@@ -20,6 +20,7 @@ import {
   userByUsernameKey,
 } from "./shared.mjs";
 import { applyWordFilter } from "./filter.mjs";
+import { scheduleTextCheck } from "./textmod.mjs";
 
 const DM_PAGE_LIMIT = 50;
 const DM_MAX_CHARS = 1000;
@@ -127,7 +128,7 @@ async function handleDmStartRoute(request, env, url, path, method) {
 // One thread's messages — participant-only, polled with the same after=<id>
 // cursor shape as the public chat. The response carries the other member so
 // the panel can render the conversation header.
-async function handleDmThreadRoute(request, env, url, path, method) {
+async function handleDmThreadRoute(request, env, url, path, method, ctx) {
   const threadMatch = path.match(/^\/api\/dms\/([0-9]{1,15})$/);
   if (!threadMatch) return null;
   // GET reads session-only; POST is a mutation and keeps the CSRF gate.
@@ -180,6 +181,13 @@ async function handleDmThreadRoute(request, env, url, path, method) {
     const row = await env.FORUM_DB.prepare(
       DM_MESSAGE_SELECT + "WHERE m.id = ? LIMIT 1",
     ).bind(Number(result.meta?.last_row_id)).first();
+    // Text auto-mod (v3.1): the message scores in the background; a trip
+    // deletes it (DMs have no hidden state — same permanence as staff
+    // deletion) and records an appealable action. The send never waits.
+    scheduleTextCheck(ctx, env, {
+      kind: "dm", entityId: Number(result.meta?.last_row_id),
+      userId: session.user.id, text: message,
+    });
     return json({ message: publicDmMessage(row) }, 201);
   }
 
@@ -248,12 +256,12 @@ async function handleAdminDmLogRoute(request, env, url, path, method) {
   });
 }
 
-export async function handleDmRoutes(request, env, url, path, method) {
+export async function handleDmRoutes(request, env, url, path, method, ctx) {
   const start = await handleDmStartRoute(request, env, url, path, method);
   if (start) return start;
   const list = await handleDmListRoute(request, env, url, path, method);
   if (list) return list;
-  const thread = await handleDmThreadRoute(request, env, url, path, method);
+  const thread = await handleDmThreadRoute(request, env, url, path, method, ctx);
   if (thread) return thread;
   const remove = await handleDmMessageDeleteRoute(request, env, url, path, method);
   if (remove) return remove;

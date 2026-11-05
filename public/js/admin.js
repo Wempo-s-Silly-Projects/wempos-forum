@@ -61,6 +61,35 @@ export function createVisionSection(vision, document) {
   return section;
 }
 
+// The desk's text auto-mod control (v3.1): the OpenAI Moderation twin of the
+// Vision section — status line plus THE kill switch, one click, effective on
+// the next piece of member text. The same independence rule: the switch lives
+// in the database, so the OPENAI_API_KEY secret can never reset it.
+export function createTextModSection(textMod, document) {
+  const section = document.createElement("div");
+  section.className = "vision-section";
+  if (!textMod.configured) {
+    addText(document, section, "p",
+      "Text auto-mod is not configured — set the OPENAI_API_KEY secret to enable it.", "muted");
+  }
+  addText(document, section, "p",
+    textMod.killSwitch
+      ? "The text kill switch is TRIPPED — member text is not checked. This stays tripped even if the API key is added or changed; only this button clears it."
+      : textMod.configured
+        ? "Text auto-mod is running — every post, reply, chat message, and DM gets an OpenAI moderation check in the background."
+        : "The text kill switch is clear. Text auto-mod starts checking once a key is configured.",
+    "vision-status" + (textMod.killSwitch ? " vision-status-stopped" : ""));
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = textMod.killSwitch ? "button" : "button button-danger";
+  toggle.dataset.action = textMod.killSwitch ? "text-mod-resume" : "text-mod-kill";
+  toggle.textContent = textMod.killSwitch
+    ? "Clear the text kill switch (resume text auto-mod)"
+    : "Kill switch: STOP text auto-mod";
+  section.append(toggle);
+  return section;
+}
+
 // The appeals queue (v3.1): one card per appeal. Pending appeals carry the
 // decision pair; decided ones show their outcome. Context differs by kind —
 // auto-mod appeals show the machine reason and verdicts, ban appeals show
@@ -86,6 +115,20 @@ export function createAppealQueue(appeals, document) {
           "Vision verdicts: " + Object.entries(appeal.verdicts)
             .filter(([, value]) => value)
             .map(([category, value]) => category + ": " + value)
+            .join(" · "),
+          "vision-verdict");
+      }
+    } else if (appeal.kind === "auto_text") {
+      // Text verdicts: { flagged, categories: { name: score } } — only what
+      // OpenAI flagged rides in the payload.
+      addText(document, card, "p",
+        appeal.entityKind === "post"
+          ? "Hidden by: " + (appeal.actionReason || "auto-mod")
+          : "Removed by: " + (appeal.actionReason || "auto-mod"));
+      if (appeal.verdicts && appeal.verdicts.categories) {
+        addText(document, card, "p",
+          "Moderation scores: " + Object.entries(appeal.verdicts.categories)
+            .map(([category, score]) => category + " " + Number(score).toFixed(2))
             .join(" · "),
           "vision-verdict");
       }

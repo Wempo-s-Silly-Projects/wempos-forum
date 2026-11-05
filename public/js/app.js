@@ -16,6 +16,7 @@ import {
   createAvatarQueue,
   createMemberSearch,
   createReportQueue,
+  createTextModSection,
   createVisionSection,
   renderMemberSearchResults,
 } from "./admin.js";
@@ -789,13 +790,17 @@ function renderProfile(profile, session) {
   renderProfilePosts(profile, session.user);
 }
 
-function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, gifData, rulesData, hiddenData, user, appealData, visionData, chatData, dmData) {
+function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, gifData, rulesData, hiddenData, user, appealData, visionData, textModData, chatData, dmData) {
   addHeading(main, "Moderation desk", 1);
   addText(document, main, "p", "Review reports, hide inappropriate posts, and manage active bans.", "page-lede");
   // Auto-mod control (v3.1): the status line + THE kill switch, front and
   // center so stopping Vision never takes more than one click.
   addHeading(main, "Auto-mod (Google Vision)", 2);
   main.append(createVisionSection(visionData, document));
+  // Text auto-mod control (v3.1): the OpenAI Moderation twin — its own kill
+  // switch, independent of Vision's.
+  addHeading(main, "Auto-mod (OpenAI text moderation)", 2);
+  main.append(createTextModSection(textModData, document));
   addHeading(main, "Open reports", 2);
   main.append(createReportQueue(reportData.reports, document, user));
   addHeading(main, "Avatars awaiting review", 2);
@@ -1236,7 +1241,7 @@ function createCssQueue(submissions, document) {
 }
 
 async function renderAdminRoute(context, version) {
-  const [reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, appeals, vision, chat, dms] = await Promise.all([
+  const [reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, appeals, vision, textMod, chat, dms] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/bans"),
     api("/api/admin/avatars"),
@@ -1248,11 +1253,12 @@ async function renderAdminRoute(context, version) {
     api("/api/admin/hidden"),
     api("/api/admin/appeals"),
     api("/api/admin/vision"),
+    api("/api/admin/text-mod"),
     api("/api/admin/chat"),
     api("/api/admin/dms"),
   ]);
   if (version !== renderVersion) return;
-  renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, context.session.user, appeals, vision, chat, dms);
+  renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, context.session.user, appeals, vision, textMod, chat, dms);
 }
 
 
@@ -2271,6 +2277,18 @@ async function handleButtonAction(button) {
       await api("/api/admin/vision-kill-switch", { method: "POST", body: { tripped: false } });
       await renderRoute(activeRoute);
       setMessage("Auto-mod resumed.");
+    },
+    // Text auto-mod kill switch (v3.1): OpenAI Moderation's emergency stop —
+    // independent of the Vision switch.
+    "text-mod-kill": async () => {
+      await api("/api/admin/text-mod-kill-switch", { method: "POST", body: { tripped: true } });
+      await renderRoute(activeRoute);
+      setMessage("Text auto-mod is STOPPED — member text will not be checked.");
+    },
+    "text-mod-resume": async () => {
+      await api("/api/admin/text-mod-kill-switch", { method: "POST", body: { tripped: false } });
+      await renderRoute(activeRoute);
+      setMessage("Text auto-mod resumed.");
     },
     "thread-pin": async () => {
       await api("/api/admin/threads/" + button.dataset.postId + "/pin", { method: "POST" });
