@@ -689,6 +689,18 @@ textarea {
   font-weight: 700;
 }
 
+/* Banned-profile banner (v3.1): the coral callout strip under the profile
+   heading — the same treatment as the banned screen, one row instead of a
+   full page. */
+.profile-banned-banner {
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  color: var(--coral);
+  border: 1.5px solid var(--coral);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
 .profile-bio {
   white-space: pre-wrap;
   overflow-wrap: anywhere;

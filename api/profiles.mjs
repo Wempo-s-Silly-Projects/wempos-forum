@@ -65,6 +65,16 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NOT NULL) AS replies_count",
     ).bind(Number(user.id), Number(user.id)).first();
     const session = await readSession(request, env);
+    // Banned-profile banner (v3.1): the PUBLIC payload carries only the
+    // active-ban flag and expiry (the same predicate every read path uses) —
+    // the reason rides along only for staff, matching member search. Guests
+    // and members see the banner, not the moderation detail.
+    const ban = await env.FORUM_DB.prepare(
+      "SELECT reason, expires_at FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+        "AND (expires_at IS NULL OR expires_at > ?) ORDER BY id DESC LIMIT 1",
+    ).bind(Number(user.id), nowSeconds()).first();
+    const viewerIsStaff = Boolean(session && session.user &&
+      (session.user.role === "owner" || session.user.role === "admin"));
     const beforeRaw = url.searchParams.get("before");
     let before = null;
     if (beforeRaw !== null) {
@@ -99,6 +109,11 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       avatarUrl: user.avatar_mime ? "/api/avatars/" + user.id + "?v=" + user.avatar_version : null,
       posts: posts.posts,
       postsNextBefore: posts.nextBefore,
+      banned: Boolean(ban),
+      banExpiresAt: ban && ban.expires_at !== null && ban.expires_at !== undefined
+        ? Number(ban.expires_at)
+        : null,
+      ...(viewerIsStaff && ban ? { banReason: ban.reason || null } : {}),
     });
   }
   return null;

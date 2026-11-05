@@ -41,7 +41,7 @@ import {
   renderNotificationsPage,
   updateBell,
 } from "./notifications.js";
-import { renderBannedScreen } from "./banned.js";
+import { formatBanCountdown, renderBannedScreen } from "./banned.js";
 import {
   backToDmList,
   createChatButton,
@@ -746,6 +746,19 @@ function renderProfile(profile, session) {
   }
   appendProfileRoleControls(profile, session, heading);
   main.append(heading);
+  // Banned-profile banner (v3.1): the server flags actively banned members
+  // on the public payload (expiry included; the reason rides only for staff,
+  // like member search). Everyone sees the banner — banning already hides the
+  // member's posts, so the profile explains why the page reads empty.
+  if (profile.banned) {
+    let banText = "This user is banned.";
+    if (profile.banExpiresAt) {
+      banText = "This user is banned — reactivates in " +
+        (formatBanCountdown(profile.banExpiresAt) || "0m") + ".";
+    }
+    if (profile.banReason) banText += " Reason: " + profile.banReason;
+    main.append(element("p", "profile-banned-banner", banText));
+  }
   addText(document, main, "p", profile.bio || "This member hasn't added a bio yet.", "profile-bio");
   appendProfileSocials(profile, session.user?.id === profile.id);
   if (session.user?.id === profile.id) {
