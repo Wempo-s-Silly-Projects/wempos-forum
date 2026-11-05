@@ -27,15 +27,16 @@ import {
   SOCIAL_PLATFORMS,
   socialsFromRow,
   userByUsernameKey,
-  requiredText,
   verifyPassword,
 } from "./shared.mjs";
 import { listRootPosts } from "./posts.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
-import { scheduleReportVisionRecheck } from "./vision.mjs";
 // v4.0 plan 3, Task 2: the avatar lifecycle (upload, serve, moderation queue)
 // moved to its topic module — the dispatcher keeps registering these two.
 import { handleAvatarReadRoute, handleAvatarUploadRoute } from "./avatars.mjs";
+// v4.0 plan 3, Task 4: both profile-report routes moved to api/reports.mjs
+// (both report families in the "who reviews" module).
+import { handleProfileReportAdminRoute, handleProfileReportRoute } from "./reports.mjs";
 // v4.0 plan 3, Task 1: the custom-CSS sandbox moved to its topic module.
 import { CUSTOM_CSS_MAX_BYTES, scopeProfileCss } from "./profile-css.mjs";
 
@@ -342,81 +343,6 @@ async function handleCssClearRoute(request, env, url, path, method) {
 // The approved theme as a STYLESHEET (v2.5): a same-origin css URL stays
 // inside style-src 'self' — no CSP change; the scope prefixing happened at
 // serve time. 404 when the member has no approved theme.
-// Report-a-profile (v2.5): members report another member's profile surface
-// (bio/flair/banner/custom CSS) — the moderation desk handles the queue
-// (open first, resolve mirrors the post-reports route).
-async function handleProfileReportRoute(request, env, url, path, method, ctx) {
-  const db = env.FORUM_DB;
-  const reportMatch = path.match(/^\/api\/users\/([0-9]+)\/reports$/);
-  if (reportMatch && method === "POST") {
-    const session = await requireUser(request, env);
-    await assertNotBanned(env, session.user.id);
-    await rateLimit(request, env, "write");
-    await rateLimit(request, env, "report", String(session.user.id));
-    const profileUserId = Number(reportMatch[1]);
-    if (!Number.isSafeInteger(profileUserId) || profileUserId < 1 || profileUserId === Number(session.user.id)) {
-      throw new HttpError(400, "You can't report that profile.");
-    }
-    const target = await db.prepare(
-      "SELECT id FROM users WHERE id = ? LIMIT 1",
-    ).bind(profileUserId).first();
-    if (!target) throw new HttpError(404, "Member not found.");
-    const body = await readJson(request);
-    const reason = applyWordFilter(requiredText(body.reason, "report", 500), env.FILTERED_WORDS);
-    const results = await db.batch([
-      db.prepare(
-        "INSERT INTO profile_reports (profile_user_id, reporter_id, reason, status, created_at) " +
-        "VALUES (?, ?, ?, 'open', ?)",
-      ).bind(profileUserId, session.user.id, reason, nowSeconds()),
-    ]);
-    requireMutationApplied(results[0]);
-    // Auto-mod report sweep (v3.1): a profile report re-runs SafeSearch over
-    // the member's avatar sets (approved + pending) in the background — the
-    // report response never waits on Google.
-    scheduleReportVisionRecheck(ctx, env, { userId: profileUserId });
-    return json({ id: Number(results[0].meta.last_row_id) }, 201);
-  }
-  return null;
-}
-
-async function handleProfileReportAdminRoute(request, env, url, path, method) {
-  const db = env.FORUM_DB;
-  if (path === "/api/admin/profile-reports" && method === "GET") {
-    await requiremod(request, env, false);
-    const result = await db.prepare(
-      "SELECT pr.id, pr.profile_user_id, pr.reason, pr.created_at, u.username AS profileUsername, r2.username AS reporter " +
-      "FROM profile_reports pr " +
-      "JOIN users u ON u.id = pr.profile_user_id " +
-      "JOIN users r2 ON r2.id = pr.reporter_id " +
-      "WHERE pr.status = 'open' ORDER BY pr.created_at ASC LIMIT 100",
-    ).all();
-    return json({
-      profileReports: (result.results || []).map((row) => ({
-        id: Number(row.id),
-        profileUserId: Number(row.profile_user_id),
-        profileUsername: row.profileUsername,
-        reporter: row.reporter,
-        reason: row.reason,
-        createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
-      })),
-    });
-  }
-  const resolveMatch = path.match(/^\/api\/admin\/profile-reports\/([0-9]+)\/resolve$/);
-  if (resolveMatch && method === "POST") {
-    const session = await requiremod(request, env);
-    await assertNotBanned(env, session.user.id);
-    const resolved = await db.batch([
-      db.prepare(
-        "UPDATE profile_reports SET status = 'resolved', resolved_at = ? " +
-        "WHERE id = ? AND status = 'open'",
-      ).bind(nowSeconds(), Number(resolveMatch[1])),
-    ]);
-    if (Number(resolved[0]?.meta?.changes) !== 1) throw new HttpError(404, "Not found.");
-    return json({ resolved: true, id: Number(resolveMatch[1]) });
-  }
-  return null;
-}
-
 async function handleCssStylesheetRoute(request, env, url, path, method) {
   const cssMatch = path.match(/^\/api\/users\/([0-9]+)\/profile\.css$/);
   if (cssMatch && method === "GET") {
