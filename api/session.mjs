@@ -1,4 +1,4 @@
-// Session, credentials, and first-admin setup routes. The avatar GET reader
+// Session, credentials, and first-owner setup routes. The avatar GET reader
 // moved to api/shared.mjs (registered on the profiles group in task 7).
 import { unreadCount } from "./notifications.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
@@ -10,10 +10,13 @@ import {
   isValidPassword,
   isValidPasswordPepper,
   isValidSetupSecret,
+  assertNetworkNotBanned,
   isValidUsername,
   json,
   nowSeconds,
   publicUser,
+  ROLE_ADMIN_DB,
+  ROLE_OWNER_DB,
   rateLimit,
   readJson,
   readSession,
@@ -30,29 +33,34 @@ const DUMMY_SALT = "00000000000000000000000000000000";
 const DUMMY_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
 
 async function setupRequired(env) {
+  // Stored vocabulary (v3.1): ROLE_OWNER_DB is the pre-rename 'admin'.
   const row = await env.FORUM_DB.prepare("SELECT id FROM users WHERE role = 'admin' LIMIT 1").first();
   return !row;
 }
 
 async function storeUser(env, credentials, role = "member") {
+  // role arrives in the PUBLIC vocabulary; users.role stores the frozen
+  // pre-rename values, so translate on the way in (v3.1 rename).
+  const storedRole = role === "owner" ? ROLE_OWNER_DB : role === "admin" ? ROLE_ADMIN_DB : role;
   const password = await hashPassword(credentials.password, env.PASSWORD_PEPPER);
   const now = nowSeconds();
   try {
-    // First-admin setup is a one-time privilege boundary. Keep the "no admin
+    // First-owner setup is a one-time privilege boundary. Keep the "no owner
     // exists" check inside the INSERT itself so two concurrent setup requests
-    // cannot both pass setupRequired() and create separate admins.
-    const insert = role === "admin"
+    // cannot both pass setupRequired() and create separate owners. The SQL
+    // literal is the STORED owner value ('admin'), not the public 'owner'.
+    const insert = role === "owner"
       ? env.FORUM_DB.prepare(
         "INSERT INTO users (username, username_key, password_salt, password_hash, role, bio, created_at) " +
           "SELECT ?, ?, ?, ?, ?, '', ? WHERE NOT EXISTS " +
           "(SELECT 1 FROM users WHERE role = 'admin')",
-      ).bind(credentials.username, credentials.usernameKey, password.salt, password.hash, role, now)
+      ).bind(credentials.username, credentials.usernameKey, password.salt, password.hash, storedRole, now)
       : env.FORUM_DB.prepare(
         "INSERT INTO users (username, username_key, password_salt, password_hash, role, bio, created_at) " +
           "VALUES (?, ?, ?, ?, ?, '', ?)",
-      ).bind(credentials.username, credentials.usernameKey, password.salt, password.hash, role, now);
+      ).bind(credentials.username, credentials.usernameKey, password.salt, password.hash, storedRole, now);
     const result = await insert.run();
-    if (role === "admin" && Number(result.meta?.changes) !== 1) {
+    if (role === "owner" && Number(result.meta?.changes) !== 1) {
       throw new HttpError(409, "First-time setup has already been completed.");
     }
     return await env.FORUM_DB.prepare(
@@ -121,10 +129,17 @@ async function handleFirstAdminSetupRoute(request, env, url, path, method) {
     await rateLimit(request, env, "setup");
     if (!(await setupRequired(env))) throw new HttpError(409, "First-time setup has already been completed.");
     if (!isValidSetupSecret(env.SETUP_SECRET)) {
-      throw new HttpError(503, "First-time setup is locked. Configure SETUP_SECRET using Wrangler before creating the admin.");
+      throw new HttpError(503, "First-time setup is locked. Configure SETUP_SECRET using Wrangler before creating the owner account.");
     }
     const body = await readJson(request);
     const credentials = validateNewCredentials(body);
+    // The filter covers EVERYTHING — the first owner's username runs the same
+    // identity check as registration (masked form intact + normalized form
+    // clean), so the setup path can't mint a filtered-word owner name.
+    if (applyWordFilter(credentials.username, env.FILTERED_WORDS) !== credentials.username ||
+        containsFilteredWord(normalizeUsernameForFilter(credentials.username), env.FILTERED_WORDS)) {
+      throw new HttpError(400, "That username isn't allowed.");
+    }
     const suppliedKey = typeof body.setupKey === "string" ? body.setupKey : "";
     const expectedKeyHash = await sha256Hex(env.SETUP_SECRET);
     const suppliedKeyHash = await sha256Hex(suppliedKey);
@@ -133,7 +148,7 @@ async function handleFirstAdminSetupRoute(request, env, url, path, method) {
     }
     let user;
     try {
-      user = await storeUser(env, credentials, "admin");
+      user = await storeUser(env, credentials, "owner");
     } catch (error) {
       if (error instanceof HttpError) throw error;
       if (!(await setupRequired(env))) {
@@ -151,6 +166,9 @@ async function handleRegistrationRoute(request, env, url, path, method) {
   if (path === "/api/auth/register" && method === "POST") {
     const guest = await requireCsrf(request, env);
     await rateLimit(request, env, "register");
+    // IP bans (v3.1): no new accounts from a banned network — before any
+    // credential work, so the response carries no oracle.
+    await assertNetworkNotBanned(request, env);
     const body = await readJson(request);
     await requireTurnstile(request, env, body, "signup");
     const credentials = validateNewCredentials(body);
@@ -174,6 +192,11 @@ async function handleRegistrationRoute(request, env, url, path, method) {
 }
 
 async function handleLoginRoute(request, env, url, path, method) {
+  // IP bans (v3.1): sign-in from a banned network is refused up front, before
+  // any password work (no oracle, no PBKDF2 burn).
+  if (path === "/api/auth/login" && method === "POST") {
+    await assertNetworkNotBanned(request, env);
+  }
   const db = env.FORUM_DB;
   if (path === "/api/auth/login" && method === "POST") {
     const guest = await requireCsrf(request, env);

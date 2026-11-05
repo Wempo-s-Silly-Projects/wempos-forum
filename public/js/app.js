@@ -7,14 +7,22 @@ import {
 } from "./attachments.js";
 import {
   createActiveBanList,
+  createAppealQueue,
   createAttachmentQueue,
+  createBanForm,
+  createChatLog,
+  createDmLog,
   createGifQueue,
   createAvatarQueue,
+  createMemberSearch,
   createReportQueue,
+  createVisionSection,
+  renderMemberSearchResults,
 } from "./admin.js";
-import { addText, createForm, createInput, createTextarea } from "./forms.js";
+import { addText, createForm, createInput, createSelect, createTextarea } from "./forms.js";
 import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
 import { iconButton } from "./icons.js";
+import { BOARDS, BOARD_BY_SLUG, boardLabel, composerBoardChoices } from "./boards.js";
 import { addGifsToComposer, removeGifFromComposer, renderGifThumbs, spareComposerSlots } from "./gifs.js";
 import {
   appendPostList,
@@ -34,6 +42,20 @@ import {
   updateBell,
 } from "./notifications.js";
 import { renderBannedScreen } from "./banned.js";
+import {
+  backToDmList,
+  createChatButton,
+  deleteChatMessage,
+  deleteDmMessage,
+  initChat,
+  openDmThread,
+  openDmWith,
+  setChatTab,
+  submitChatMessage,
+  submitDmMessage,
+  toggleChat,
+  updateChatSession,
+} from "./chat.js";
 import { applyCornerPreference, initTheme } from "./theme.js";
 import {
   SOCIAL_LABELS,
@@ -91,8 +113,9 @@ function profileBadgeFor(totalContributions) {
 
 // Profile themes (v2.5): main outlives routes, so the accent class is
 // tracked and cleared before the next profile render.
-let activeProfileAccentClass = null;
-let bannerColorClass = null;
+// Profile theme accent + banner (any hex, v3.0.2): both apply as CSS custom
+// property writes on main (removed at each route switch — see renderRoute).
+
 let activeProfileStyleNode = null;
 let activeGifComposerForm = null;
 let activePollComposerForm = null;
@@ -180,10 +203,10 @@ function authForm(name, title, buttonLabel) {
 }
 
 function setupForm() {
-  const panel = createPanel("Set up Wempo's Forum:3", "The first admin requires a setup secret configured by the site owner.");
+  const panel = createPanel("Set up Wempo's Forum:3", "The first owner account requires a setup secret configured out of band.");
   panel.append(createForm(document, "setup", [
     createInput(document, {
-      id: "setup-username", name: "username", label: "Admin username",
+      id: "setup-username", name: "username", label: "Owner username",
       autoComplete: "username", required: true, minLength: 3, maxLength: 24,
     }),
     createInput(document, {
@@ -195,18 +218,19 @@ function setupForm() {
       autoComplete: "off", required: true, minLength: 32, maxLength: 4096,
       description: "Provided by the site owner through Wrangler. Never EVER share it!",
     }),
-  ], "Create admin"));
+  ], "Create owner"));
   return panel;
 }
 
 // Every composer is Turnstile-gated now: root posts use action "post", every
 // reply composer (the detail-route root reply and reply-to-reply mini
-// composers) uses action "reply". board (v2.4.1): the Suggestions composer
-// carries its board value on the form's dataset — the ONLY caller-driven
-// difference; submitNewPost reads the dataset flag so the payload picks the
-// board up in the same wire format the rest of the body uses.
+// composers) uses action "reply". board (v2.4.1): a category composer carries
+// its board value on the form's dataset; submitNewPost reads the dataset flag
+// so the payload picks the board up in the same wire format the rest of the
+// body uses. boardChoices (categories v3.1): the home composer renders a
+// category <select> instead — submitNewPost reads its value the same way.
 function createComposer(name, label, buttonLabel, postID = null,
-  turnstileAction = null, board = null) {
+  turnstileAction = null, board = null, boardChoices = null) {
   const panel = createPanel(board === "suggestions"
     ? "Share a suggestion"
     : name === "post-create" ? "Start a conversation" : "Reply");
@@ -214,6 +238,13 @@ function createComposer(name, label, buttonLabel, postID = null,
   form.dataset.form = name;
   if (postID !== null) form.dataset.postId = String(postID);
   if (board) form.dataset.board = board;
+  if (boardChoices) {
+    form.append(createSelect(document, {
+      id: `${name}-${postID ?? "new"}-board`, name: "board",
+      label: "Category",
+      options: boardChoices,
+    }));
+  }
   // The reply-to-reply mini composer shares the "reply" form name with the
   // detail route's root composer, so the textarea id carries the target id to
   // keep label/for pairs unique in the document.
@@ -364,6 +395,9 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   });
   rulesLink.setAttribute("data-app-link", "");
   accountActions.append(rulesLink);
+  // Live chat (v3.1): the panel toggle carries the online counter. Guests
+  // read the stream and see the count; sending needs a session.
+  accountActions.append(createChatButton(document));
   if (!user) {
     const signIn = element("a", "button button-secondary", "Sign in");
     signIn.href = "/#join";
@@ -388,8 +422,17 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   });
   saved.setAttribute("data-app-link", "");
   accountActions.append(saved);
+  // Appeals (v3.1): the member surface for auto-mod decisions and history.
+  const appeals = iconButton(document, "flag", {
+    tagName: "a",
+    className: "button button-secondary icon-button",
+    ariaLabel: "Appeals",
+    dataset: { href: "/appeals" },
+  });
+  appeals.setAttribute("data-app-link", "");
+  accountActions.append(appeals);
   accountActions.append(createNotificationBell(unreadNotifications, document));
-  if (user.role === "admin" || user.role === "moderator") {
+  if (user.role === "owner" || user.role === "admin") {
     const reports = iconButton(document, "shield", {
       tagName: "a",
       className: "button button-secondary icon-button",
@@ -432,7 +475,7 @@ function renderJoinPanel() {
 function renderSetupLocked() {
   const panel = createPanel(
     "First-time setup is locked",
-    "The site owner must configure valid SETUP_SECRET and PASSWORD_PEPPER values in Wrangler before the first admin can be created.",
+    "The site owner must configure valid SETUP_SECRET and PASSWORD_PEPPER values in Wrangler before the first owner account can be created.",
   );
   main.append(panel);
 }
@@ -450,19 +493,26 @@ function renderHomeContent(session, data, route) {
   if (session.user && route.name === "home") {
     // My posts (v2.5): a tab pair right above the composer (owner spec — NOT
     // a top-bar item, and home only: the search route shares this builder but
-    // gets no tabs, per the review). Real routes (/ and /mine) so tabs are
-    // anchors — internal navigation, shareable URLs, working back button.
+    // gets no tabs, per the review). Real routes so tabs are anchors —
+    // internal navigation, shareable URLs, working back button. Categories
+    // (v3.1) widened the pair: Recent activity, My posts, and every category.
     main.append(renderFeedTabs("all"));
-    main.append(createComposer("post-create", "What's on your mind?", "Post message"));
+    // The home composer picks its category from a select (members post in
+    // every category; the staff-only Updates category appears for staff
+    // alone — the server 403s everyone else regardless).
+    main.append(createComposer("post-create", "What's on your mind?", "Post message",
+      null, null, null, composerBoardChoices(session.user)));
   }
-  addHeading(main, route.name === "search" ? "Search results" : "Recent posts", 2);
+  // Recent activity (v3.1): the homepage mixes every category, 10 posts at a
+  // time (the server's no-board feed page size).
+  addHeading(main, route.name === "search" ? "Search results" : "Recent activity", 2);
   if (route.name === "search") {
     addText(document, main, "p", `Results for “${route.query}”`, "muted");
     renderSearchResults(main, data.search);
     return;
   }
   appendPostList(main, data.feed.posts, document, session.user);
-  if (!data.feed.nextBefore || data.feed.posts.length !== 20) return;
+  if (!data.feed.nextBefore) return;
   const older = element("button", "button button-secondary", "Load older posts");
   older.type = "button";
   older.dataset.action = "load-more";
@@ -595,16 +645,17 @@ function appendProfileSocials(profile, isOwnProfile) {
   if (details) main.append(details);
 }
 
-// Spec §8: promote/demote is admin-only, so admins get the control on member
-// profiles too. The payload's role selects the single correct form (members →
-// promote, mods → demote); admins get nothing (server 403s anyway), and
-// the viewer's own profile never needs one. Handlers re-render the current
-// route, so both the desk and this surface refresh after a role change.
+// Spec §8: promote/demote is owner-only (v3.1 rename: mod → admin, admin →
+// owner), so the owner gets the control on member profiles too. The payload's
+// role selects the single correct form (members → promote, admins → demote);
+// the owner's own profile and other owners get nothing (server 403s anyway).
+// Handlers re-render the current route, so both the desk and this surface
+// refresh after a role change.
 function appendProfileRoleControls(profile, session, container) {
-  if (!session.user || session.user.role !== "admin") return;
-  if (session.user.id === profile.id || profile.role === "admin") return;
+  if (!session.user || session.user.role !== "owner") return;
+  if (session.user.id === profile.id || profile.role === "owner") return;
   const [formName, label] = profile.role === "member"
-    ? ["admin-promote", "Promote to mod"]
+    ? ["admin-promote", "Promote to admin"]
     : ["admin-demote", "Demote to member"];
   const form = document.createElement("form");
   form.dataset.form = formName;
@@ -621,15 +672,16 @@ function renderProfile(profile, session) {
   // the wrapper class the sandbox prefixes to. Removed on the next render (a
   // tracked module node, like the accent class).
   applyProfileTheme(profile);
-  // Profile themes (v2.5): the accent is a whitelisted KEY from the server;
-  // a per-key CSS class applies the color (no inline styles, CSP-pure).
+  // Profile accent (any hex, v3.0.2): the server normalizes the accent to a
+  // #rrggbb hex, applied as a CSS custom property WRITE (element.style is a
+  // CSSOM assignment — not an inline style string — so the CSP stays pure);
+  // .profile-section provides the default green when unset.
   main.classList.add("profile-section");
   main.classList.add("profile-theme-scope");
-  if (activeProfileAccentClass) main.classList.remove(activeProfileAccentClass);
-  activeProfileAccentClass = null;
+  main.style.removeProperty("--profile-accent");
+  main.style.removeProperty("--banner-color");
   if (profile.profileAccent) {
-    activeProfileAccentClass = "profile-accent-" + profile.profileAccent;
-    main.classList.add(activeProfileAccentClass);
+    main.style.setProperty("--profile-accent", profile.profileAccent);
   }
   const heading = element("section", "profile-heading");
   if (profile.avatarUrl) {
@@ -640,8 +692,15 @@ function renderProfile(profile, session) {
   }
   addHeading(heading, profile.username, 1).classList.add("profile-name");
   // Flair (v2.5): a short filtered label under the name; next to it the
-  // milestone badge (v2.5, display-only, computed from the counter).
+  // milestone badge (v2.5, display-only, computed from the counter). The
+  // role badge (v3.1) leads the row for staff — Owner or Admin, from the
+  // server-mapped public role; members carry "member" and get nothing.
   const flairRow = element("p", "profile-flair-row");
+  if (profile.role === "owner" || profile.role === "admin") {
+    flairRow.append(element("span",
+      "role-badge role-badge-" + profile.role,
+      profile.role === "owner" ? "Owner" : "Admin"));
+  }
   if (profile.flair) flairRow.append(element("span", "profile-flair", profile.flair));
   const badgeText = profileBadgeFor(Number(profile.postsCount || 0) + Number(profile.repliesCount || 0));
   if (badgeText) flairRow.append(element("span", "profile-badge", badgeText));
@@ -650,10 +709,10 @@ function renderProfile(profile, session) {
   // profile heading (muted; display-only).
   heading.append(element("p", "profile-post-counts",
     `${Number(profile.postsCount || 0)} posts · ${Number(profile.repliesCount || 0)} replies`));
-  // Banner (v2.5): a whitelisted color KEY class + the filtered banner text.
+  // Banner (any hex, v3.0.2): the hex rides --banner-color (the CSS default
+  // stays transparent for none) + the filtered banner text.
   if (profile.bannerColor) {
-    main.classList.add("profile-banner-" + profile.bannerColor);
-    bannerColorClass = "profile-banner-" + profile.bannerColor;
+    main.style.setProperty("--banner-color", profile.bannerColor);
   }
   const banner = element("div", "profile-banner");
   if (profile.bannerText) banner.append(element("span", "profile-banner-text", profile.bannerText));
@@ -669,6 +728,14 @@ function renderProfile(profile, session) {
     heading.append(element("span", "avatar-pending-badge", "Avatar awaiting review"));
   }
   if (session.user && session.user.id !== profile.id) {
+    // DMs (v3.1): the conversation starter — find-or-creates the 1:1 thread
+    // and opens the chat panel on it. The word filter and desk review apply
+    // to DMs exactly like the public room.
+    const messageButton = element("button", "button button-secondary", "Message");
+    messageButton.type = "button";
+    messageButton.dataset.action = "dm-open";
+    messageButton.dataset.username = profile.username;
+    heading.append(messageButton);
     // Report-a-profile (v2.5): the bio/flair/banner/css surface is
     // reportable like post content — same desk, same resolve flow.
     const reportProfile = element("button", "button button-quiet", "Report profile");
@@ -685,6 +752,15 @@ function renderProfile(profile, session) {
     // Bio (10,000 chars) plus the ten social fields; submission re-fetches the
     // profile instead of trusting the asymmetric PATCH echo.
     renderProfileEditor(main, profile);
+    // Any-hex profile color (v3.0.2): the picker's native color input PATCHes
+    // on change (profile-editor.js stays DOM-pure; the glue lives here).
+    const accentColorInput = main.querySelector(".accent-color-input");
+    if (accentColorInput) {
+      accentColorInput.addEventListener("change", async () => {
+        await api("/api/me", { method: "PATCH", body: { profileAccent: accentColorInput.value } });
+        await renderRoute(activeRoute);
+      });
+    }
     const pictures = createPanel("Profile picture",
       "Uploads are reviewed by mods before they appear publicly.");
     const avatarForm = document.createElement("form");
@@ -700,9 +776,13 @@ function renderProfile(profile, session) {
   renderProfilePosts(profile, session.user);
 }
 
-function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, gifData, rulesData, hiddenData, user) {
+function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, gifData, rulesData, hiddenData, user, appealData, visionData, chatData, dmData) {
   addHeading(main, "Moderation desk", 1);
   addText(document, main, "p", "Review reports, hide inappropriate posts, and manage active bans.", "page-lede");
+  // Auto-mod control (v3.1): the status line + THE kill switch, front and
+  // center so stopping Vision never takes more than one click.
+  addHeading(main, "Auto-mod (Google Vision)", 2);
+  main.append(createVisionSection(visionData, document));
   addHeading(main, "Open reports", 2);
   main.append(createReportQueue(reportData.reports, document, user));
   addHeading(main, "Avatars awaiting review", 2);
@@ -713,6 +793,16 @@ function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, p
   main.append(createCssQueue(cssData.cssSubmissions, document));
   addHeading(main, "Profile reports", 2);
   main.append(createProfileReportQueue(profileReportData.profileReports, document));
+  addHeading(main, "Appeals", 2);
+  main.append(createAppealQueue(appealData.appeals, document));
+  // Chat log (v3.1): the full stream for staff — banned authors included —
+  // with in-place deletion. Newest first.
+  addHeading(main, "Chat log", 2);
+  main.append(createChatLog(chatData.messages, document));
+  // DM log (v3.1): 1:1 messages under the same scrutiny — both participants
+  // named, deletable in place.
+  addHeading(main, "DM log", 2);
+  main.append(createDmLog(dmData.messages, document));
   addHeading(main, "Forum rules", 2);
   main.append(createRulesEditor(rulesData.rules, document));
   addHeading(main, "Gallery uploads awaiting review", 2);
@@ -723,6 +813,10 @@ function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, p
   main.append(createHiddenPostsQueue(hiddenData.hidden, document));
   addHeading(main, "Active bans", 2);
   main.append(createActiveBanList(banData.bans, document));
+  // Find a member (v3.1): username search with the unban form attached, so an
+  // unban is one search + one button (Pone's ask).
+  addHeading(main, "Find a member", 2);
+  main.append(createMemberSearch(document));
 }
 
 async function prepareRouteContext(version) {
@@ -734,6 +828,9 @@ async function prepareRouteContext(version) {
   currentUser = session.user;
   setCsrfToken(session.csrfToken);
   renderAccountNavigation(session.user, session.unreadNotifications ?? 0);
+  // Live chat (v3.1): mirror the session into the chat module — heartbeat
+  // start/stop and the send form's availability. Cheap on repeats.
+  updateChatSession(session.user);
   return {
     session,
     setupRequired: setup.required,
@@ -753,6 +850,7 @@ function setRouteTitle(route) {
     post: "Post",
     profile: "Profile",
     admin: "Moderation",
+    appeals: "Appeals",
     notifications: "Notifications",
     bookmarks: "Saved posts",
     setup: "First-time setup",
@@ -760,7 +858,10 @@ function setRouteTitle(route) {
   };
   document.title = route.name === "home"
     ? "Wempo's Forum"
-    : `${pageNames[route.name] || pageNames.home} · Wempo's Forum`;
+    : route.name === "category"
+      // Categories (v3.1): the title carries the category's display name.
+      ? `${route.board ? boardLabel(route.board) : "Category"} · Wempo's Forum`
+      : `${pageNames[route.name] || pageNames.home} · Wempo's Forum`;
 }
 
 function renderSetupRoute(context) {
@@ -790,12 +891,15 @@ async function renderHomeRoute(route, context, version) {
 // conversation box" placement, not a top-bar item).
 function renderFeedTabs(active) {
   const tabs = element("div", "feed-tabs");
-  // Suggestions rides the tab pair too (owner: "more up front" than a header
-  // icon) — a real route like the others.
+  // Categories (v3.1, tab style): the tab pair above the composer is the
+  // category navigation — Recent activity (every category mixed, 10 at a
+  // time), My posts, then each category as its own route. `active` is the
+  // category slug on category pages ("all" home, "mine" on /mine); a slug
+  // match highlights that category's tab.
   const spec = [
-    ["/", "All posts", active === "all"],
+    ["/", "Recent activity", active === "all"],
     ["/mine", "My posts", active === "mine"],
-    ["/suggestions", "Suggestions", active === "suggestions"],
+    ...BOARDS.map((board) => ["/c/" + board.slug, board.label, active === board.slug]),
   ];
   for (const [href, label, isActive] of spec) {
     const tab = element("a", "feed-tab", label);
@@ -909,29 +1013,43 @@ async function renderArchiveListFragment(entries) {
   return list;
 }
 
-async function renderSuggestionsRoute(context, version) {
+// Category routes (v3.1, tab style): /c/<slug> (plus the /suggestions alias).
+// One renderer for every category — the tab pair with this category active, a
+// composer locked to the category (signed-in only, and staff-only on
+// Updates), and the board's feed. Suggestions keeps its score sort
+// server-side and carries the resolved/declined chips + staff status
+// controls through the post payloads.
+async function renderCategoryRoute(route, context, version) {
+  const board = BOARD_BY_SLUG[route.board];
   // api() returns the parsed body UNWRAPPED ({posts, nextBefore}), so the
   // route wraps it in the exact { feed: ... } shape renderHomeRoute builds —
-  // the two feed routes stay structurally identical, and the shared
+  // the feed routes stay structurally identical, and the shared
   // data.feed.* reads below are correct.
-  const data = { feed: await api("/api/posts?board=suggestions") };
+  const data = { feed: await api("/api/posts?board=" + encodeURIComponent(board.slug)) };
   if (version !== renderVersion) return;
-  main.append(renderFeedTabs("suggestions"));
-  if (context.session.user) {
+  main.append(renderFeedTabs(board.slug));
+  const user = context.session.user;
+  const isStaff = Boolean(user && (user.role === "owner" || user.role === "admin"));
+  if (user && (!board.staffOnly || isStaff)) {
     main.append(createComposer(
-      "post-create", "Share a suggestion", "Post suggestion", null, null,
-      SUGGESTIONS_BOARD,
+      "post-create",
+      board.staffOnly ? "Post a site update" : `Start a thread in ${board.label}`,
+      board.staffOnly ? "Post update" : "Post message",
+      null, null, board.slug,
     ));
   }
-  addHeading(main, "Suggestions", 2);
-  appendPostList(main, data.feed.posts, document, context.session.user,
-    SUGGESTIONS_EMPTY_TEXT);
-  if (!data.feed.nextBefore || data.feed.posts.length !== 20) return;
-  const older = element("button", "button button-secondary", "Load older suggestions");
+  addHeading(main, board.label, 2);
+  addText(document, main, "p", board.blurb, "muted");
+  appendPostList(main, data.feed.posts, document, user,
+    board.slug === SUGGESTIONS_BOARD
+      ? SUGGESTIONS_EMPTY_TEXT
+      : `Nothing in ${board.label} yet — start the conversation!`);
+  if (!data.feed.nextBefore) return;
+  const older = element("button", "button button-secondary", "Load older posts");
   older.type = "button";
   older.dataset.action = "load-more";
   older.dataset.before = String(data.feed.nextBefore);
-  older.dataset.board = SUGGESTIONS_BOARD;
+  older.dataset.board = board.slug;
   main.append(older);
 }
 
@@ -1016,7 +1134,11 @@ function createProfileReportQueue(reports, document) {
     const visit = element("a", "button button-quiet", "View profile");
     visit.href = "/users/" + encodeURIComponent(report.profileUsername);
     visit.setAttribute("data-app-link", "");
-    item.append(head, reason, resolve, visit);
+    // Ban affordance (v3.0.2): a profile report used to be resolve-only —
+    // the same admin-ban form as the post-report queue (reason + duration)
+    // lets the mod act on the reported member right here. The generic
+    // data-form="admin-ban" submit handler picks it up unchanged.
+    item.append(head, reason, resolve, visit, createBanForm(document, report.profileUserId, report.profileUsername));
     container.append(item);
   }
   return container;
@@ -1089,7 +1211,7 @@ function createCssQueue(submissions, document) {
 }
 
 async function renderAdminRoute(context, version) {
-  const [reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden] = await Promise.all([
+  const [reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, appeals, vision, chat, dms] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/bans"),
     api("/api/admin/avatars"),
@@ -1099,9 +1221,63 @@ async function renderAdminRoute(context, version) {
     api("/api/admin/gifs"),
     api("/api/rules"),
     api("/api/admin/hidden"),
+    api("/api/admin/appeals"),
+    api("/api/admin/vision"),
+    api("/api/admin/chat"),
+    api("/api/admin/dms"),
   ]);
   if (version !== renderVersion) return;
-  renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, context.session.user);
+  renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, context.session.user, appeals, vision, chat, dms);
+}
+
+
+// Appeals (v3.1): the member surface for auto-mod decisions — the removals
+// they can still appeal, plus their history. BAN appeals file from the ban
+// screen instead (banned members have no session to get here with).
+async function renderAppealsRoute(context, version) {
+  addHeading(main, "Appeals", 1);
+  if (!context.session.user) {
+    addText(document, main, "p", "Sign in to appeal an auto-mod decision.", "muted");
+    return;
+  }
+  const data = await api("/api/me/appeals");
+  if (version !== renderVersion) return;
+  addHeading(main, "Auto-mod decisions you can appeal", 2);
+  if (!data.appealableActions.length) {
+    addText(document, main, "p", "Nothing to appeal — auto-mod has not removed anything of yours.", "empty-state");
+  }
+  for (const action of data.appealableActions) {
+    const item = element("div", "appeal-action-item");
+    addText(document, item, "p",
+      new Date(action.createdAt).toLocaleString() + " — " + action.reason, "muted");
+    const form = createForm(document, "member-appeal", [
+      createTextarea(document, {
+        id: "appeal-body-" + action.id,
+        name: "body",
+        label: "Why was this removal wrong?",
+        required: true,
+        maxLength: 1000,
+        rows: 3,
+      }),
+    ], "Appeal");
+    form.dataset.actionId = String(action.id);
+    item.append(form);
+    main.append(item);
+  }
+  addHeading(main, "Your appeal history", 2);
+  if (!data.appeals.length) {
+    addText(document, main, "p", "You have not filed any appeals.", "empty-state");
+    return;
+  }
+  for (const appeal of data.appeals) {
+    const item = element("div", "appeal-history-item");
+    addText(document, item, "p",
+      (appeal.kind === "ban" ? "Ban appeal" : "Auto-mod appeal") + " — " + appeal.status +
+      " — " + new Date(appeal.createdAt).toLocaleString(), "muted");
+    if (appeal.reason) addText(document, item, "p", "About: " + appeal.reason, "muted");
+    addText(document, item, "p", '"' + appeal.body + '"', "appeal-body");
+    main.append(item);
+  }
 }
 
 async function renderNotificationsRoute(context, version) {
@@ -1130,14 +1306,11 @@ async function renderRoute(route) {
   // Profile themes (v2.5): main outlives routes — a member's accent class
   // must never tint another route (the review caught exactly that).
   main.classList.remove("profile-section");
-  if (bannerColorClass) {
-    main.classList.remove(bannerColorClass);
-    bannerColorClass = null;
-  }
-  if (activeProfileAccentClass) {
-    main.classList.remove(activeProfileAccentClass);
-    activeProfileAccentClass = null;
-  }
+  // Profile accent + banner (any hex, v3.0.2): both ride CSS custom
+  // properties on main — main outlives routes, so a member's colors must
+  // never tint another route (the review caught exactly that for classes).
+  main.style.removeProperty("--profile-accent");
+  main.style.removeProperty("--banner-color");
   // Custom profile CSS (v2.5): the tracked <link> was removed inside
   // applyProfileTheme (which also owns the null assignment at the top of this
   // render); the scope class must be dropped here so the class never tints a
@@ -1156,14 +1329,15 @@ async function renderRoute(route) {
     setup: () => renderSetupRoute(context),
     home: () => renderHomeRoute(route, context, version),
     search: () => renderHomeRoute(route, context, version),
-    suggestions: () => renderSuggestionsRoute(context, version),
     mine: () => renderMineRoute(context, version),
     leaderboard: () => renderLeaderboardRoute(context, version),
     rules: () => renderRulesRoute(context, version),
+    category: () => renderCategoryRoute(route, context, version),
     archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
     admin: () => renderAdminRoute(context, version),
+    appeals: () => renderAppealsRoute(context, version),
     notifications: () => renderNotificationsRoute(context, version),
     bookmarks: () => renderBookmarksRoute(context, version),
     "not-found": () => renderNotFoundRoute(),
@@ -1172,6 +1346,43 @@ async function renderRoute(route) {
   await renderPage();
   await renderTurnstileSlots(main);
 }
+
+// Member search (v3.1): fetch and render into the section's results node.
+async function submitMemberSearch(form, text) {
+  const data = await api("/api/admin/users/search?q=" + encodeURIComponent(text("q").trim()));
+  const results = form.parentElement?.querySelector("[data-member-search-results]");
+  results?.replaceChildren(renderMemberSearchResults(data.members, document));
+}
+
+// Appeals (v3.1): the desk's approve/deny, the member's auto-mod appeal, and
+// the session-less ban appeal from the ban screen.
+async function submitAppealDecision(form) {
+  await api("/api/admin/appeals/" + encodeURIComponent(form.dataset.appealId) + "/" + form.dataset.decision, { method: "POST" });
+  await renderRoute(activeRoute);
+  setMessage(form.dataset.decision === "approve" ? "Appeal approved." : "Appeal denied.");
+}
+
+async function submitMemberAppeal(form, text) {
+  await api("/api/me/appeals", {
+    method: "POST",
+    body: { actionId: Number(form.dataset.actionId), body: text("body") },
+  });
+  await renderRoute(activeRoute);
+  setMessage("Appeal filed — an admin will review it.");
+}
+
+async function submitBanAppealForm(form, text) {
+  // The ban screen has no session, so there is no CSRF token — the same-origin
+  // header is the guard, and the username travels in the body.
+  await api("/api/appeals", {
+    method: "POST",
+    body: { username: text("username"), body: text("body") },
+  });
+  setMessage("Appeal filed — an admin will review it.");
+  form.replaceChildren();
+  addText(document, form, "p", "Appeal received. You can close this page now.", "empty-state");
+}
+
 function readForm(form) {
   return new FormData(form);
 }
@@ -1199,7 +1410,7 @@ async function submitAuthForm(type, form, text) {
     // verified server-side before this payload exists, so showing it is safe.
     if (error.banned === true) {
       main.replaceChildren();
-      renderBannedScreen(main, { reason: error.reason, expiresAt: error.expiresAt });
+      renderBannedScreen(main, { reason: error.reason, expiresAt: error.expiresAt, username: text("username") });
       setMessage();
       return;
     }
@@ -1207,7 +1418,7 @@ async function submitAuthForm(type, form, text) {
   }
   setCsrfToken(result.csrfToken);
   router.navigate("/");
-  setMessage(type === "setup" ? "Admin account created!" : "You're signed in.");
+  setMessage(type === "setup" ? "Owner account created!" : "You're signed in.");
 }
 
 function composerSubmissionSignature({ body, files = [], gifs = [], board = null, targetId = null }) {
@@ -1243,7 +1454,10 @@ async function submitNewPost(form, text) {
   const body = text("body");
   const files = form.composerFiles ?? [];
   const gifs = form.composerGifs ?? [];
-  const board = form.dataset.board ?? null;
+  // Categories (v3.1): a dataset board (category composers lock the choice);
+  // otherwise the home composer's board <select> — text("board") is "" when
+  // the form carries no select at all, so the wire payload stays unchanged.
+  const board = form.dataset.board ?? (text("board") || null);
   const signature = composerSubmissionSignature({ body, files, gifs, board });
   const idempotencyKey = composerIdempotencyKey(form, signature);
   // buildComposerBody picks the wire format: FormData (repeatable "images"
@@ -1453,12 +1667,23 @@ async function submitReportResolution(form) {
 }
 
 async function submitBanForm(form, text) {
+  // Timed bans (v3.0.2): the optional duration select carries hours; 0 or
+  // absent = permanent. Hours become an absolute epoch-seconds expiresAt —
+  // the server re-validates the window (a minute to a year out).
+  const durationSelect = form.querySelector("select[name=\"duration\"]");
+  const hours = Number(durationSelect && durationSelect.value) || 0;
+  const body = { reason: text("reason") };
+  if (hours > 0) body.expiresAt = Math.floor(Date.now() / 1000) + hours * 3600;
+  // IP bans (v3.1): the opt-in checkbox rides the same request.
+  if (text("ipBan") === "on") body.ipBan = true;
   await api("/api/admin/users/" + form.dataset.userId + "/bans", {
     method: "POST",
-    body: { reason: text("reason") },
+    body,
   });
   await renderRoute({ name: "admin" });
-  setMessage("The user was banned and their sessions revoked.");
+  setMessage(hours > 0
+    ? "The user was banned and their sessions revoked. Their account reactivates when the ban expires."
+    : "The user was banned and their sessions revoked.");
 }
 
 async function submitUnbanForm(form, text) {
@@ -1497,6 +1722,20 @@ async function submitForm(form) {
     "admin-avatar-reject": () => submitAvatarModeration(form, "reject"),
     "admin-attachment-approve": () => submitAttachmentModeration(form, "approve"),
     "admin-attachment-reject": () => submitAttachmentModeration(form, "reject"),
+    "admin-member-search": () => submitMemberSearch(form, text),
+    "admin-appeal": () => submitAppealDecision(form),
+    "member-appeal": () => submitMemberAppeal(form, text),
+    "ban-appeal": () => submitBanAppealForm(form, text),
+    "chat-send": async () => {
+      // submitForm's generic "Saving…" status reads wrong for a live chat;
+      // clear it once the message lands (errors still surface via api()).
+      await submitChatMessage(form);
+      setMessage();
+    },
+    "dm-send": async () => {
+      await submitDmMessage(form);
+      setMessage();
+    },
   };
   const handler = handlers[type];
   if (handler) await handler();
@@ -1925,6 +2164,19 @@ async function handleButtonAction(button) {
     report: () => openReportDialog(button),
     "close-report": () => reportDialog.close(),
     "load-more": () => loadMorePosts(button),
+    // Suggestion status (v3.1): staff flip resolved/declined/open; the
+    // route re-render refetches the payload so the chip and buttons come
+    // back from the server, never from the echo.
+    "suggestion-status": async () => {
+      await api("/api/posts/" + button.dataset.postId + "/suggestion-status", {
+        method: "POST",
+        body: { status: button.dataset.status },
+      });
+      await renderRoute(activeRoute);
+      setMessage(button.dataset.status === "open"
+        ? "Suggestion reopened."
+        : "Suggestion marked " + button.dataset.status + ".");
+    },
     "load-more-archive": () => loadMoreArchive(button),
     "load-more-profile-posts": () => loadMoreProfilePosts(button),
     "load-older-replies": () => loadOlderReplies(button),
@@ -1948,6 +2200,13 @@ async function handleButtonAction(button) {
       next.dataset.before = String(older.nextBefore);
       main.append(next);
     },
+    "toggle-chat": () => toggleChat(),
+    "chat-tab": () => setChatTab(button.dataset.chatTab),
+    "dm-open-thread": () => openDmThread(button.dataset.threadId, button.dataset.otherUsername),
+    "dm-back": () => backToDmList(),
+    "dm-open": () => openDmWith(button.dataset.username),
+    "chat-delete": () => deleteChatMessage(button),
+    "dm-delete": () => deleteDmMessage(button),
     "toggle-bookmark": async () => {
       // Bookmarks (C4): both directions are idempotent server-side; the
       // route re-render refetches the payload's fresh state.
@@ -1971,6 +2230,17 @@ async function handleButtonAction(button) {
     "open-gif-picker": () => openGifPicker(button),
     // Pinned (C5): the mod desk's pin/unpin — POST to the admin route and
     // re-render; the payload's pinnedAt decides which control each card shows.
+    "vision-kill": async () => {
+      // Auto-mod kill switch (v3.1): one click, effective on the next upload.
+      await api("/api/admin/vision-kill-switch", { method: "POST", body: { tripped: true } });
+      await renderRoute(activeRoute);
+      setMessage("Auto-mod is STOPPED — new uploads will not be checked.");
+    },
+    "vision-resume": async () => {
+      await api("/api/admin/vision-kill-switch", { method: "POST", body: { tripped: false } });
+      await renderRoute(activeRoute);
+      setMessage("Auto-mod resumed.");
+    },
     "thread-pin": async () => {
       await api("/api/admin/threads/" + button.dataset.postId + "/pin", { method: "POST" });
       await renderRoute(activeRoute);
@@ -2070,8 +2340,9 @@ async function handleButtonAction(button) {
       setMessage("CSS rejected.");
     },
     "set-profile-accent": async () => {
-      // Profile themes (v2.5): the swatch's data-accent is a whitelisted KEY
-      // ("" = clear). The server re-validates; success re-renders the route.
+      // Profile colors (any hex, v3.0.2): the swatch's data-accent is the
+      // preset's hex ("" = clear). The server re-validates the hex; success
+      // re-renders the route.
       await api("/api/me", { method: "PATCH", body: { profileAccent: button.dataset.accent || "" } });
       await renderRoute(activeRoute);
     },
@@ -2171,6 +2442,9 @@ try {
   catch { storage = { getItem: () => null, setItem: () => {} }; }
   initTheme(document, storage);
   applyCornerPreference(document, storage);
+  // Live chat (v3.1): the poll loop starts at boot so the header's online
+  // counter is fresh even before the panel is ever opened.
+  initChat();
   fillVersionTag().catch(() => {});
   router = startRouter((route) => {
     renderRoute(route).catch((error) => {

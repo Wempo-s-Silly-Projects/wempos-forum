@@ -180,9 +180,12 @@ export const createPostCard = (post, document, currentUser = null) => {
   const header = createElement(document, "header", "post-header");
   const author = createElement(document, "div", "post-author");
   if (post.author) {
-    // Name color on cards (v3.0.1): the accent rides the card as the same
-    // whitelisted per-key class the profile page uses (--profile-accent).
-    if (post.author.profileAccent) article.classList.add("profile-accent-" + post.author.profileAccent);
+    // Name color on cards (any hex, v3.0.2): the server normalized the
+    // accent to a #rrggbb hex, so it rides as a CSS custom property WRITE
+    // (CSSOM assignment — CSP-pure, no class string, no inline style text).
+    if (post.author.profileAccent) {
+      article.style.setProperty("--profile-accent", post.author.profileAccent);
+    }
     if (post.author.avatarUrl) {
       const avatar = createElement(document, "img", "avatar");
       avatar.src = post.author.avatarUrl;
@@ -192,6 +195,13 @@ export const createPostCard = (post, document, currentUser = null) => {
     const profileLink = createElement(document, "a", "author-name", post.author.username);
     profileLink.href = `/users/${encodeURIComponent(post.author.username)}`;
     author.append(profileLink);
+    // Role badge (v3.1): staff are chipped next to the name — Owner or Admin,
+    // from the server-mapped public role. Members carry null and get nothing.
+    if (post.author.role === "owner" || post.author.role === "admin") {
+      author.append(createElement(document, "span",
+        "role-badge role-badge-" + post.author.role,
+        post.author.role === "owner" ? "Owner" : "Admin"));
+    }
     // Flair on cards (v3.0.1): the profile flair chip shown next to the name.
     if (post.author.flair) author.append(createElement(document, "span", "post-flair", post.author.flair));
   } else {
@@ -224,6 +234,14 @@ export const createPostCard = (post, document, currentUser = null) => {
     chip.append(createIcon(document, "pin"));
     chip.append(createElement(document, "span", "visually-hidden", "Pinned"));
     header.append(chip);
+  }
+  // Suggestion status (v3.1): resolved/declined chip on suggestions-board
+  // roots — data-driven off the payload, so every other category and every
+  // reply renders nothing.
+  if (post.board === "suggestions" && !post.parent && post.suggestionStatus) {
+    header.append(createElement(document, "span",
+      "suggestion-badge suggestion-badge-" + post.suggestionStatus,
+      post.suggestionStatus === "resolved" ? "Resolved" : "Declined"));
   }
   article.append(header);
 
@@ -355,23 +373,25 @@ export const createPostCard = (post, document, currentUser = null) => {
     deleteButton.append(createIcon(document, "trash"));
     actions.append(deleteButton);
   }
-  // Subscribe toggle (C1): the detail payload carries `subscribed`, so the
-  // toggle is data-driven and only the detail view's root card can ever show
-  // it (feed cards, reply cards, and un-upgraded payloads have no field).
-  // Guests get no toggle (the server 401s) exactly like the reaction buttons.
+  // Subscribe toggle (C1): icon-only, exactly like the bookmark toggle beside
+  // it — the open bell flips to bell-check when subscribed, and the wordmark
+  // lives in aria-label/title. `subscribed` rides BOTH the detail payload and
+  // the feed payloads (withSubscriptionFlags decorates feed root rows), so
+  // feed cards show the toggle too; reply cards and un-upgraded payloads never
+  // do. Guests get no toggle (the server 401s) exactly like reaction buttons.
   if (currentUser && post.subscribed !== undefined && !post.parent) {
-    const subscribeButton = createElement(document, "button", "button button-quiet subscribe-toggle");
+    const subscribeButton = createElement(document, "button", "button button-quiet icon-button subscribe-toggle");
     subscribeButton.type = "button";
     subscribeButton.dataset.action = "toggle-subscribe";
     subscribeButton.dataset.postId = String(post.id);
     subscribeButton.dataset.subscribed = post.subscribed ? "1" : "0";
     subscribeButton.setAttribute("aria-pressed", String(Boolean(post.subscribed)));
-    subscribeButton.setAttribute("aria-label",
-      post.subscribed ? "Unsubscribe from this thread" : "Subscribe to this thread");
-    subscribeButton.append(
-      createIcon(document, "bell-check"),
-      document.createTextNode(post.subscribed ? "Subscribed" : "Subscribe"),
-    );
+    const subscribeLabel = post.subscribed
+      ? "Unsubscribe from this thread"
+      : "Subscribe to this thread";
+    subscribeButton.setAttribute("aria-label", subscribeLabel);
+    subscribeButton.setAttribute("title", subscribeLabel);
+    subscribeButton.append(createIcon(document, post.subscribed ? "bell-check" : "bell"));
     actions.append(subscribeButton);
   }
   // Reply affordance: same strict rule as replyAffordances — signed-in users
@@ -419,7 +439,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // same root-only rule the client mirrors). The payload's pinnedAt picks the
   // label: a pinned root shows Unpin, everything else shows Pin.
   if (currentUser && !post.parent &&
-      (currentUser.role === "admin" || currentUser.role === "moderator")) {
+      (currentUser.role === "owner" || currentUser.role === "admin")) {
     const isPinned = Boolean(post.pinnedAt);
     const pinButton = createElement(document, "button", "button button-quiet",
       isPinned ? "Unpin" : "Pin");
@@ -427,6 +447,24 @@ export const createPostCard = (post, document, currentUser = null) => {
     pinButton.dataset.action = isPinned ? "thread-unpin" : "thread-pin";
     pinButton.dataset.postId = String(post.id);
     actions.append(pinButton);
+    // Suggestion status controls (v3.1): staff resolve/decline/reopen
+    // suggestion roots in place; the server gates the same roles and
+    // suggestions-board roots only. A decided suggestion offers Reopen; an
+    // open one offers the decision pair.
+    if (post.board === "suggestions") {
+      const choices = post.suggestionStatus
+        ? [["open", "Reopen"]]
+        : [["resolved", "Resolve"], ["declined", "Decline"]];
+      for (const [status, statusLabel] of choices) {
+        const statusButton = createElement(document, "button",
+          "button button-quiet", statusLabel);
+        statusButton.type = "button";
+        statusButton.dataset.action = "suggestion-status";
+        statusButton.dataset.postId = String(post.id);
+        statusButton.dataset.status = status;
+        actions.append(statusButton);
+      }
+    }
   }
   article.append(actions);
   return article;

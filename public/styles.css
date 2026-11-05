@@ -252,7 +252,9 @@ a:hover {
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  /* Even spacing (v3.0.2): matches .header-inner's grid gap so the nav
+     buttons sit at the same rhythm as every other header element. */
+  gap: 0.8rem;
 }
 
 .account-nav a,
@@ -668,14 +670,13 @@ textarea {
   padding: 0;
   border-radius: 0.55rem;
   overflow-wrap: anywhere;
+  /* Any hex (v3.0.2): the banner color rides --banner-color, set by the
+     client as a CSSOM custom-property write (validated server-side); no
+     background = transparent, same as the old no-key default. */
+  background: var(--banner-color, transparent);
 }
 .profile-banner:not(:empty):not([hidden]) { padding: 0.65rem 0.8rem; }
 .profile-banner-text { color: #fff; font-weight: 700; }
-.profile-banner-green .profile-banner { background: #397357; }
-.profile-banner-rust .profile-banner { background: #b05334; }
-.profile-banner-gold .profile-banner { background: #8d690f; }
-.profile-banner-slate .profile-banner { background: #4a5a70; }
-.profile-banner-plum .profile-banner { background: #7c5480; }
 .profile-flair-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.2rem 0; }
 .profile-flair, .profile-badge {
   display: inline-flex;
@@ -1224,17 +1225,25 @@ dialog h2 {
 .profile-section > * > .paper-card {
   border-top: 3px solid var(--profile-accent);
 }
-.reply-count {
+/* Reply-count chip (plan v2.3) and view counter (v2.4.3): display-only chips
+   that sit in the action row among real .button-quiet controls — they mirror
+   that box EXACTLY (quiet's min-height, border color, --field background,
+   --button-radius, and the button font metrics) so the row reads evenly.
+   They stay spans: no cursor/hover, they are not clickable. */
+.reply-count,
+.view-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.75rem;
+  min-height: 2.4rem;
   padding: 0.55rem 0.9rem;
-  border: 2px solid var(--ink);
-  border-radius: 0.5rem;
-  background: var(--soft-green);
-  color: var(--ink);
-  font-size: 0.85rem;
+  border: 2px solid #87917e;
+  border-radius: var(--button-radius);
+  background: var(--field);
+  color: var(--green-ink);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1483,15 +1492,10 @@ dialog h2 {
 }
 
 
-/* Profile themes (v2.5): per-key accent classes — no inline styles, CSP-pure.
-   The palette mirrors api/shared.mjs's PROFILE_ACCENTS whitelist exactly. */
-.profile-accent-forest { --profile-accent: #3f8a63; }
-.profile-accent-coral { --profile-accent: #d05f4c; }
-.profile-accent-gold { --profile-accent: #d9a627; }
-.profile-accent-sky { --profile-accent: #4d8fc4; }
-.profile-accent-violet { --profile-accent: #8b6cc4; }
-.profile-accent-rose { --profile-accent: #c95f86; }
-.profile-accent-teal { --profile-accent: #3d9aa0; }
+/* Profile colors (any hex, v3.0.2): the accent rides --profile-accent, a CSS
+   custom property the client writes from the server-validated hex (CSSOM
+   assignment — CSP-pure). The per-key accent classes are gone; the swatch
+   classes below are the picker's display-only quick picks. */
 .accent-swatch {
   width: 2rem;
   height: 2rem;
@@ -1499,6 +1503,16 @@ dialog h2 {
   border: 2px solid var(--line);
   cursor: pointer;
   padding: 0;
+}
+/* The any-hex affordance: a native color input sized like a swatch. */
+.accent-color-input {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 2px solid var(--line);
+  cursor: pointer;
+  padding: 0;
+  background: none;
 }
 .accent-swatch[aria-pressed="true"] {
   border: 3px solid var(--ink);
@@ -1524,9 +1538,12 @@ dialog h2 {
 }
 
 
-/* My posts (v2.5): the tab pair above the composer. Anchors styled as tabs. */
+/* My posts (v2.5): the tab pair above the composer. Anchors styled as tabs.
+   Categories (v3.1) widened the pair to the full set, so it wraps on narrow
+   viewports instead of overflowing. */
 .feed-tabs {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 0.4rem;
   margin-bottom: 0.6rem;
 }
@@ -1838,3 +1855,225 @@ dialog h2 {
     padding-inline: 0.9rem;
   }
 }
+
+/* Role badges (v3.1): staff chips next to names on post cards and in the
+   profile heading. Owner reads gold, admin reads the soft green ink —
+   both stay text-only spans rendered via textContent (CSP-pure). */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.role-badge-owner { color: #8d690f; border-color: #8d690f; }
+.role-badge-admin { color: var(--green-ink); }
+
+/* Suggestion status (v3.1): resolved/declined chips on suggestion roots.
+   Same pill shape as the role badges; resolved reads the soft green ink,
+   declined reads red. */
+.suggestion-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.suggestion-badge-resolved { color: var(--green-ink); border-color: var(--green-ink); }
+.suggestion-badge-declined { color: #b3261e; border-color: #b3261e; }
+
+/* Live chat + online presence (v3.1): the header's count chip and the
+   slide-over panel. The panel is fixed to the right edge, above the mobile
+   bar; its stream lives outside <main> so route renders never wipe it. */
+.chat-count {
+  margin-left: 0.25rem;
+  padding: 0 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.chat-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(22rem, 100vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--paper);
+  border-left: 2px solid var(--ink);
+  padding: 0.9rem;
+  z-index: 30;
+}
+.chat-panel[hidden] { display: none; }
+.chat-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.chat-head h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.chat-head .icon-button {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+}
+.chat-online { color: var(--muted); font-size: 0.85rem; }
+.chat-lurk { font-size: 0.85rem; color: var(--muted); }
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  padding: 0.5rem;
+}
+.chat-message {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--line);
+}
+.chat-message-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.8rem;
+}
+.chat-message-author { font-weight: 700; }
+.chat-message-head time { margin-left: auto; color: var(--muted); font-size: 0.72rem; }
+.chat-message-body {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.chat-message-delete {
+  align-self: flex-end;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+}
+.chat-message-delete:hover { color: #b3261e; }
+.chat-panel form { display: flex; gap: 0.4rem; }
+.chat-panel form input[type="text"] { flex: 1; min-width: 0; }
+.chat-guest-note { color: var(--muted); margin: 0; }
+/* DMs (v3.1): the conversation list and thread view inside the panel, plus
+   the desk's chat/DM log rows. */
+.chat-tabs { margin: 0.25rem 0; }
+.dm-thread-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow-y: auto;
+}
+.dm-thread-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+.dm-thread-name { font-weight: 700; }
+.dm-thread-preview {
+  color: var(--muted);
+  font-size: 0.85rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dm-thread-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-height: 0;
+  flex: 1;
+}
+.dm-thread-view h3 { margin: 0; }
+.dm-thread-view .chat-messages { flex: 1; }
+[data-chat-dms] {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+[data-chat-dms][hidden] { display: none; }
+[data-chat-room] {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+[data-chat-room] .chat-messages { flex: 1; }
+[data-chat-room][hidden] { display: none; }
+.chat-log-row {
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.6rem;
+}
+.chat-log-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0 0 0.2rem;
+  flex-wrap: wrap;
+}
+.chat-log-pair { font-weight: 700; }
+.chat-log-banned { color: #b3261e; font-size: 0.8rem; font-weight: 700; }
+.chat-log-body { margin: 0.2rem 0 0.6rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Appeals (v3.1) + Vision verdicts: queue/report lines on the desk and the
+   member appeals page. Flagged verdicts read red; the appeal body quotes are
+   blockquote-styled without inheriting the blockquote accent. */
+.vision-verdict { margin: 0.2rem 0; color: var(--muted-ink, #6b7280); font-size: 0.85rem; }
+.vision-verdict-flagged { color: #b3261e; font-weight: 700; }
+.vision-status { font-weight: 700; }
+.vision-status-stopped { color: #b3261e; }
+.appeal-card, .appeal-action-item, .appeal-history-item {
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.appeal-body { white-space: pre-wrap; font-style: italic; }
+
+/* IP bans + member search (v3.1): the checkbox row and the desk's find-a-
+   member section. The ban info reads red so an active ban is unmissable. */
+.form-field-checkbox label { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+.form-field-checkbox input[type="checkbox"] { width: 1.1rem; height: 1.1rem; }
+.member-search-row {
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.member-search-ban-info { color: #b3261e; font-weight: 700; margin: 0; }

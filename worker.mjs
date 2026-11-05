@@ -16,6 +16,10 @@ import { handleGifRoutes } from "./api/gifs.mjs";
 import { handleLeaderboardRoutes } from "./api/leaderboard.mjs";
 import { handleRulesRoutes } from "./api/rules.mjs";
 import { handleAttachmentRoutes } from "./api/attachments.mjs";
+import { handleAppealRoutes } from "./api/appeals.mjs";
+import { handleChatRoutes } from "./api/chat.mjs";
+import { handleDmRoutes } from "./api/dms.mjs";
+import { handleVisionAdminRoutes } from "./api/vision.mjs";
 
 export {
   blobToUint8Array,
@@ -23,12 +27,14 @@ export {
   createAvatarVersion,
   createSession,
   hashPassword,
+  imageResponse,
   isValidPassword,
   isValidPasswordPepper,
   isValidSetupSecret,
   isValidUsername,
   rateLimit,
   requireTurnstile,
+  sanitizeImage,
   sniffImageMime,
   verifyPassword,
 } from "./api/shared.mjs";
@@ -52,7 +58,10 @@ function apiError(error) {
   return json({ error: "Something went wrong. Please try again." }, 500);
 }
 
-async function routeApi(request, env) {
+// ctx carries waitUntil, which the Vision background checks ride (v3.1): the
+// upload response returns without waiting on Google. Callers without a ctx
+// (tests) simply never schedule background checks.
+async function routeApi(request, env, ctx) {
   const url = new URL(request.url);
   const path = url.pathname;
   const method = request.method.toUpperCase();
@@ -60,9 +69,9 @@ async function routeApi(request, env) {
 
   await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
 
-  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes];
+  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleVisionAdminRoutes];
   for (const handler of handlers) {
-    const response = await handler(request, env, url, path, method);
+    const response = await handler(request, env, url, path, method, ctx);
     if (response) return response;
   }
 
@@ -71,11 +80,11 @@ async function routeApi(request, env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
       try {
-        return await routeApi(request, env);
+        return await routeApi(request, env, ctx);
       } catch (error) {
         return apiError(error);
       }

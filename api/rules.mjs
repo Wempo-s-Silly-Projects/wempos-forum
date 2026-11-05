@@ -3,6 +3,7 @@
 // markdown renders via the same safe subset as post bodies; HTML stays
 // literal and images/embeds never render (the markdown renderer's rules).
 import { HttpError, json, nowSeconds, rateLimit, requiremod, readLimitedBody } from "./shared.mjs";
+import { applyWordFilter } from "./filter.mjs";
 
 const RULES_KEY = "rules";
 export const RULES_MAX_BYTES = 20 * 1024;
@@ -37,6 +38,9 @@ export async function handleRulesRoutes(request, env, url, path, method) {
       }
     }
     rulesText = rulesText.trim();
+    // The filter covers everything the site stores — rules included (the
+    // owner's own ask; overrides the old site-copy exemption).
+    rulesText = applyWordFilter(rulesText, env.FILTERED_WORDS);
     if (rulesText.length > RULES_MAX_BYTES) {
       throw new HttpError(413, "The rules must be 20 KiB or smaller.");
     }

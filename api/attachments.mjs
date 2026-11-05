@@ -10,16 +10,18 @@ import {
   assertNotBanned,
   blobToUint8Array,
   createAvatarVersion,
+  imageResponse,
   json,
   nowSeconds,
   readLimitedBody,
   readJson,
   readSession,
   requiremod,
-  securityHeaders,
+  sanitizeImage,
   sniffImageMime,
 } from "./shared.mjs";
 import { assembledGifBytes, GIF_FIELD } from "./gifs.mjs";
+import { publicVisionVerdict, visionVerdictsByEntity } from "./vision.mjs";
 
 export const MAX_ATTACHMENT_FILES = 3;
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
@@ -102,11 +104,21 @@ export async function readComposedBody(request, env, options = {}) {
       if (!mime) {
         throw new HttpError(400, "Only JPEG, PNG, WebP, and GIF images can be attached.");
       }
-      // v2.5 dedup + auto-approve: identical bytes to previously approved content
-      // skip moderation, but direct file uploads still get their own chunks.
-      const hash = await sha256Hex(bytes);
+      // Polyglot/metadata defense: strip text-carrying segments (JPEG APPn/COM,
+      // PNG tEXt/iTXt/EXIF, GIF comments, WebP EXIF/XMP) and any payload
+      // appended after the image's logical end, and require valid structure.
+      const sanitized = sanitizeImage(bytes);
+      if (!sanitized) {
+        throw new HttpError(400, "That image could not be read. Try re-saving it and uploading again.");
+      }
+      const clean = sanitized.bytes;
+      // v2.5 dedup + auto-approve: identical SANITIZED bytes to previously
+      // approved content skip moderation, but direct file uploads still get
+      // their own chunks. Hashing the clean bytes means the same image with
+      // junk appended dedups to the same canonical hash.
+      const hash = await sha256Hex(clean);
       const canonical = await lookupCanonicalByHash(env.FORUM_DB, hash);
-      files.push({ mime, bytes, hash, preApproved: Boolean(canonical) });
+      files.push({ mime, bytes: clean, hash, preApproved: Boolean(canonical) });
     } else if (name === GIF_FIELD) {
       // Library GIFs attach BY REFERENCE (v2.5): repeatable gifIds text
       // fields; only ids resolving to an APPROVED gif pass — anything else
@@ -340,30 +352,24 @@ async function handleAttachmentServingRoute(request, env, path, method) {
       }
     }
     if (bytes) {
-      const headers = securityHeaders();
-      headers.set("Content-Type", mime);
-      headers.set("Cache-Control", "public, max-age=31536000, immutable");
-      headers.set("X-Content-Type-Options", "nosniff");
-      // Stated explicitly: the chunk-concatenated length is known, and it tells
-      // the client the total size regardless of how many chunks were joined.
-      headers.set("Content-Length", String(bytes.length));
-      return new Response(bytes, { status: 200, headers });
+      // Egress re-verification: the bytes' magic signature must still match
+      // the claimed MIME, and the response carries the defensive header set
+      // (sniffed Content-Type, nosniff, Content-Disposition). Mismatch is
+      // fail-safe — the shared 404 below, never a best-guess serve.
+      const response = imageResponse(bytes, mime, "public, max-age=31536000, immutable");
+      if (response) return response;
     }
     throw new HttpError(404, "Attachment not found.");
   }
   if (row.status === "pending") {
     const session = await readSession(request, env);
     const viewer = session && session.user;
-    const ismod = viewer && (viewer.role === "admin" || viewer.role === "moderator");
+    const ismod = viewer && (viewer.role === "owner" || viewer.role === "admin");
     if (viewer && (viewer.id === Number(row.created_by) || ismod)) {
       const bytes = await assembledChunkBytes(env.FORUM_DB, row.id, "pending");
       if (bytes) {
-        const headers = securityHeaders();
-        headers.set("Content-Type", row.mime);
-        headers.set("Cache-Control", "private, max-age=300");
-        headers.set("X-Content-Type-Options", "nosniff");
-        headers.set("Content-Length", String(bytes.length));
-        return new Response(bytes, { status: 200, headers });
+        const response = imageResponse(bytes, row.mime, "private, max-age=300");
+        if (response) return response;
       }
     }
   }
@@ -395,6 +401,10 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
         "LEFT JOIN attachment_chunks c ON c.attachment_id = a.id AND c.kind = 'pending' " +
         "WHERE a.status = 'pending' GROUP BY a.id ORDER BY a.created_at ASC LIMIT 100",
     ).bind().all();
+    // Vision first-pass (v3.1): the desk shows each pending item's SafeSearch
+    // report (or its absence) so the human decision starts informed.
+    const verdicts = await visionVerdictsByEntity(db, "attachment",
+      (result.results || []).map((row) => row.id));
     return json({
       attachments: (result.results || []).map((row) => ({
         id: row.id,
@@ -404,6 +414,7 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
         sizeBytes: Number(row.size_bytes),
         chunkCount: Number(row.chunk_count),
         createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
+        vision: publicVisionVerdict(verdicts.get(String(row.id))),
       })),
     });
   }
@@ -434,6 +445,10 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
         "DELETE FROM revoked_attachment_hashes WHERE hash = " +
         "(SELECT hash FROM attachments WHERE id = ? AND status = 'approved')",
       ).bind(attachmentId),
+      // The Vision report described the pending state, which is now gone.
+      db.prepare(
+        "DELETE FROM vision_verdicts WHERE kind = 'attachment' AND entity_id = ?",
+      ).bind(attachmentId),
     ]);
     if (Number(results[0]?.meta?.changes) !== 1) {
       throw new HttpError(404, "Attachment not found.");
@@ -460,15 +475,21 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
       ).bind(target.hash, nowSeconds(), session.user.id),
       db.prepare("DELETE FROM attachments WHERE hash = ? AND status = 'approved'").bind(target.hash),
       db.prepare("DELETE FROM gifs WHERE hash = ? AND status = 'approved'").bind(target.hash),
+      db.prepare(
+        "DELETE FROM vision_verdicts WHERE kind = 'attachment' AND entity_id = ?",
+      ).bind(attachmentId),
     ]);
   } else {
     // The row was pending when read above. Fence the delete to that exact
     // state: if a concurrent approval wins first, do not silently delete an
     // approved row without recording a hash tombstone and removing duplicates.
-    const deleted = await db.prepare(
-      "DELETE FROM attachments WHERE id = ? AND status = 'pending'",
-    ).bind(attachmentId).run();
-    if (Number(deleted?.meta?.changes) !== 1) {
+    const deleted = await db.batch([
+      db.prepare("DELETE FROM attachments WHERE id = ? AND status = 'pending'").bind(attachmentId),
+      db.prepare(
+        "DELETE FROM vision_verdicts WHERE kind = 'attachment' AND entity_id = ?",
+      ).bind(attachmentId),
+    ]);
+    if (Number(deleted[0]?.meta?.changes) !== 1) {
       throw new HttpError(409, "That attachment changed while moderation was in progress. Reload the queue and try again.");
     }
   }
@@ -510,7 +531,7 @@ export async function attachmentRowsForView(db, postIds, viewer) {
       "ORDER BY created_at ASC, id ASC",
   ).bind(...ids).all();
   const ismod = Boolean(viewer) &&
-    (viewer.role === "admin" || viewer.role === "moderator");
+    (viewer.role === "owner" || viewer.role === "admin");
   const viewerId = viewer ? Number(viewer.id) : NaN;
   for (const row of result.results || []) {
     if (row.status === "rejected") continue;

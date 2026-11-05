@@ -10,6 +10,7 @@ import {
   assertNotBanned,
   blobToUint8Array,
   createAvatarVersion,
+  imageResponse,
   json,
   nowSeconds,
   rateLimit,
@@ -17,9 +18,10 @@ import {
   readSession,
   requiremod,
   requireUser,
-  securityHeaders,
+  sanitizeImage,
   sniffImageMime,
 } from "./shared.mjs";
+import { publicVisionVerdict, scheduleVisionCheck, visionVerdictsByEntity } from "./vision.mjs";
 
 export const GIF_FIELD = "gifIds";
 
@@ -29,10 +31,10 @@ export const GIF_ID_ROUTE = /^\/api\/gifs\/([0-9a-f-]{36})$/;
 const GIF_ADMIN_ROUTE = /^\/api\/admin\/gifs\/([0-9a-f-]{36})\/(approve|reject)$/;
 const GIF_CHUNK_BYTES = 2_000_000 - 100_000;
 
-export async function handleGifRoutes(request, env, url, path, method) {
+export async function handleGifRoutes(request, env, url, path, method, ctx) {
   const serving = await handleGifServingRoute(request, env, path, method);
   if (serving) return serving;
-  const upload = await handleGifUploadRoute(request, env, path, method);
+  const upload = await handleGifUploadRoute(request, env, path, method, ctx);
   if (upload) return upload;
   const list = await handleGifListRoute(request, env, path, method);
   if (list) return list;
@@ -57,24 +59,21 @@ export async function handleGifServingRoute(request, env, path, method) {
   if (row.status === "approved") {
     const bytes = await assembledGifBytes(env.FORUM_DB, row.id);
     if (!bytes) throw new HttpError(404, "GIF not found.");
-    const headers = securityHeaders();
-    headers.set("Content-Type", row.mime);
-    headers.set("Cache-Control", "public, max-age=31536000, immutable");
-    headers.set("Content-Length", String(bytes.length));
-    return new Response(bytes, { status: 200, headers });
+    // Egress re-verification: bytes must still sniff as the claimed image
+    // type (mismatch fails safe to the shared 404) + the defensive headers.
+    const response = imageResponse(bytes, row.mime, "public, max-age=31536000, immutable");
+    if (response) return response;
+    throw new HttpError(404, "GIF not found.");
   }
   if (row.status === "pending") {
     const session = await readSession(request, env);
     const viewer = session && session.user;
-    const ismod = viewer && (viewer.role === "admin" || viewer.role === "moderator");
+    const ismod = viewer && (viewer.role === "owner" || viewer.role === "admin");
     if (viewer && (viewer.id === Number(row.uploader_id) || ismod)) {
       const bytes = await assembledGifBytes(env.FORUM_DB, row.id);
       if (bytes) {
-        const headers = securityHeaders();
-        headers.set("Content-Type", row.mime);
-        headers.set("Cache-Control", "private, max-age=300");
-        headers.set("Content-Length", String(bytes.length));
-        return new Response(bytes, { status: 200, headers });
+        const response = imageResponse(bytes, row.mime, "private, max-age=300");
+        if (response) return response;
       }
     }
   }
@@ -86,7 +85,7 @@ export async function handleGifServingRoute(request, env, path, method) {
 // hash-dedup: uploading bytes whose hash already has an APPROVED gif returns
 // that gif (reuse: true) instead of storing anything; anything else lands a
 // pending row with its chunks.
-export async function handleGifUploadRoute(request, env, path, method) {
+export async function handleGifUploadRoute(request, env, path, method, ctx) {
   const db = env.FORUM_DB;
   if (path !== "/api/gifs" || method !== "POST") return null;
   const session = await requireUser(request, env);
@@ -120,6 +119,14 @@ export async function handleGifUploadRoute(request, env, path, method) {
   if (!mime) {
     throw new HttpError(400, "The gallery takes GIF, JPEG, PNG, or WebP images.");
   }
+  // Polyglot/metadata defense (mirrors attachment intake): strip text-carrying
+  // segments and appended payloads, require valid structure, and hash the
+  // clean bytes so dedup matches the canonical form of the same image.
+  const sanitized = sanitizeImage(bytes);
+  if (!sanitized) {
+    throw new HttpError(400, "That image could not be read. Try re-saving it and uploading again.");
+  }
+  bytes = sanitized.bytes;
   const hash = bytesToHex(await crypto.subtle.digest("SHA-256", bytes));
   const existing = await db.prepare(
     "SELECT id, (SELECT COUNT(*) FROM gif_chunks c WHERE c.gif_id = gifs.id) AS chunk_count " +
@@ -166,6 +173,15 @@ export async function handleGifUploadRoute(request, env, path, method) {
     ]);
     return json({ id: approvedAfterInsert.id, reuse: true });
   }
+  // Vision first-pass (v3.1): the fresh pending row gets its background check.
+  // Dedup twins and restored approved rows skip it — those bytes are approved.
+  scheduleVisionCheck(ctx, env, {
+    kind: "gif",
+    entityId: id,
+    bytes,
+    hash,
+    userId: session.user.id,
+  });
   return json({ id, reuse: false }, 201);
 }
 
@@ -239,12 +255,15 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
       "FROM gifs g LEFT JOIN users u ON u.id = g.uploader_id " +
       "WHERE g.status = 'pending' ORDER BY g.created_at ASC LIMIT 100",
     ).all();
+    const verdicts = await visionVerdictsByEntity(db, "gif",
+      (result.results || []).map((row) => row.id));
     return json({
       gifs: (result.results || []).map((row) => ({
         id: row.id,
         uploader: row.uploader || "removed",
         createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
         previewUrl: "/api/gifs/" + row.id,
+        vision: publicVisionVerdict(verdicts.get(String(row.id))),
       })),
     });
   }
@@ -264,6 +283,9 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
           db.prepare(
             "DELETE FROM revoked_attachment_hashes WHERE hash = " +
             "(SELECT hash FROM gifs WHERE id = ? AND status = 'approved')",
+          ).bind(gifId),
+          db.prepare(
+            "DELETE FROM vision_verdicts WHERE kind = 'gif' AND entity_id = ?",
           ).bind(gifId),
         ]);
       } catch (error) {
@@ -304,6 +326,9 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
     if (decision === "reject") {
       const rejected = await db.batch([
         db.prepare("DELETE FROM gifs WHERE id = ? AND status = 'pending'").bind(gifId),
+        db.prepare(
+          "DELETE FROM vision_verdicts WHERE kind = 'gif' AND entity_id = ?",
+        ).bind(gifId),
       ]);
       if (Number(rejected[0]?.meta?.changes) !== 1) throw new HttpError(404, "GIF not found.");
       return json({ rejected: true, id: gifId });

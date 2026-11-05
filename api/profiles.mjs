@@ -8,8 +8,11 @@ import {
   HttpError,
   archivePostRowsStatement,
   isValidPassword,
-  isValidBannerColor,
-  isValidProfileAccent,
+  normalizeBannerColor,
+  normalizeProfileAccent,
+  normalizeProfileColorInput,
+  PROFILE_ACCENTS,
+  PROFILE_BANNER_COLORS,
   scopeProfileCss,
   CUSTOM_CSS_MAX_BYTES,
   json,
@@ -21,6 +24,8 @@ import {
   requireMutationApplied,
   requiremod,
   requireUser,
+  publicRole,
+  sanitizeImage,
   SOCIAL_PLATFORMS,
   socialsFromRow,
   sniffImageMime,
@@ -29,7 +34,8 @@ import {
   verifyPassword,
 } from "./shared.mjs";
 import { listRootPosts } from "./posts.mjs";
-import { applyWordFilter } from "./filter.mjs";
+import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
+import { scheduleVisionCheck } from "./vision.mjs";
 
 const MAX_AVATAR_BYTES = 1024 * 1024;
 const MAX_AVATAR_REQUEST_BYTES = MAX_AVATAR_BYTES + 64 * 1024;
@@ -72,13 +78,13 @@ async function handleUserProfileRoute(request, env, url, path, method) {
     return json({
       id: Number(user.id),
       username: user.username,
-      role: user.role,
+      role: publicRole(user.role),
       postsCount: Number(counts && counts.posts_count || 0),
       repliesCount: Number(counts && counts.replies_count || 0),
       // Profile themes (v2.5): the whitelisted accent KEY for the client's
       // per-key CSS class ("" normalizes rows missing the projection).
-      profileAccent: isValidProfileAccent(user.profile_accent || "") ? user.profile_accent : "",
-      bannerColor: isValidBannerColor(user.banner_color || "") ? user.banner_color : "",
+      profileAccent: normalizeProfileAccent(user.profile_accent || ""),
+      bannerColor: normalizeBannerColor(user.banner_color || ""),
       bannerText: applyWordFilter(user.banner_text || "", env.FILTERED_WORDS) || "",
       flair: applyWordFilter(user.flair || "", env.FILTERED_WORDS) || "",
       // Custom CSS (v2.5): only the APPROVED css serves, pre-scoped by the
@@ -146,6 +152,15 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
         if (typeof value !== "string" || !platform.regex.test(value)) {
           throw new HttpError(400, "Enter a valid " + key + " name.");
         }
+        // The filter covers EVERYTHING member-written, and a social handle
+        // is identity like a username (masked #s would break the profile
+        // link anyway): reject instead of mask, using the register flow's
+        // strict checks — the word filter's masked form must survive intact
+        // AND the stitched/leet-normalized form must contain no entry.
+        if (applyWordFilter(value, env.FILTERED_WORDS) !== value ||
+            containsFilteredWord(normalizeUsernameForFilter(value), env.FILTERED_WORDS)) {
+          throw new HttpError(400, "That " + key + " name can't be used here.");
+        }
         socials[key] = value;
       }
     }
@@ -155,10 +170,13 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
     let bannerText = null;
     let flair = null;
     if (hasBannerColor) {
-      if (!isValidBannerColor(body.bannerColor)) {
-        throw new HttpError(400, "That banner color is not available.");
+      // Any hex (v3.0.2): "" clears, a legacy palette key converts to its
+      // hex, everything else must be #rrggbb.
+      const normalized = normalizeProfileColorInput(body.bannerColor, PROFILE_BANNER_COLORS);
+      if (normalized === null) {
+        throw new HttpError(400, "Pick a banner color like #4d8fc4, or leave it blank to clear.");
       }
-      bannerColor = body.bannerColor;
+      bannerColor = normalized;
     }
     if (hasBannerText) {
       // The banner text rides the word filter like a tiny post.
@@ -174,12 +192,14 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
       flair = applyWordFilter(body.flair.trim(), env.FILTERED_WORDS);
     }
     if (hasAccent) {
-      // Profile themes (v2.5): the stored value is a WHITELISTED palette key
-      // (api/shared.mjs PROFILE_ACCENTS) — never raw CSS; "" clears the theme.
-      if (!isValidProfileAccent(body.profileAccent)) {
-        throw new HttpError(400, "That profile accent is not available.");
+      // Profile accent (any hex, v3.0.2): "" clears, a legacy palette key
+      // converts to its hex, everything else must be #rrggbb — stored
+      // lowercased, applied client-side as a CSS custom property.
+      const normalized = normalizeProfileColorInput(body.profileAccent, PROFILE_ACCENTS);
+      if (normalized === null) {
+        throw new HttpError(400, "Pick a profile color like #4d8fc4, or leave it blank to clear.");
       }
-      profileAccent = body.profileAccent;
+      profileAccent = normalized;
     }
 
     const assignments = [];
@@ -266,6 +286,10 @@ async function handleCssSetRoute(request, env, url, path, method) {
     }
   }
   cssText = cssText.trim();
+  // The filter covers everything member-written — custom CSS included. The
+  // mask is #-preserving, so a hit only degrades styling (and a mod reviews
+  // the sheet anyway); no stylesheet can carry a filtered word.
+  cssText = applyWordFilter(cssText, env.FILTERED_WORDS);
   if (cssText.length > CUSTOM_CSS_MAX_BYTES) {
     throw new HttpError(413, "Custom CSS must be 20 KiB or smaller.");
   }
@@ -458,7 +482,7 @@ async function handleCssAdminRoutes(request, env, url, path, method) {
   return null;
 }
 
-async function handleAvatarUploadRoute(request, env, url, path, method) {
+async function handleAvatarUploadRoute(request, env, url, path, method, ctx) {
   const db = env.FORUM_DB;
   if (path === "/api/me/avatar" && method === "POST") {
     const session = await requireUser(request, env);
@@ -485,6 +509,13 @@ async function handleAvatarUploadRoute(request, env, url, path, method) {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const mime = sniffImageMime(bytes);
     if (!mime) throw new HttpError(415, "Only JPEG, PNG, and WebP images are supported.");
+    // Polyglot/metadata defense (mirrors attachment + gallery intake): strip
+    // text-carrying segments and appended payloads before anything is stored.
+    const sanitized = sanitizeImage(bytes);
+    if (!sanitized) {
+      throw new HttpError(400, "That image could not be read. Try re-saving it and uploading again.");
+    }
+    const clean = sanitized.bytes;
     const updatedAt = nowSeconds();
     const avatarVersion = createAvatarVersion();
     // Uploads always land in the pending mirror set: any previously approved
@@ -498,8 +529,19 @@ async function handleAvatarUploadRoute(request, env, url, path, method) {
         "WHERE id = ? AND NOT EXISTS (" +
         "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
         "AND (expires_at IS NULL OR expires_at > ?))",
-    ).bind(mime, bytes, updatedAt, avatarVersion, session.user.id, session.user.id, nowSeconds()).run();
+    ).bind(mime, clean, updatedAt, avatarVersion, session.user.id, session.user.id, nowSeconds()).run();
     requireMutationApplied(result);
+    // Vision first-pass (v3.1): the pending avatar gets its background check
+    // too — an auto-mod trip clears the pending mirror exactly like a mod
+    // rejection, so the previously approved avatar (if any) keeps serving.
+    scheduleVisionCheck(ctx, env, {
+      kind: "avatar",
+      entityId: session.user.id,
+      version: avatarVersion,
+      bytes: clean,
+      hash: null,
+      userId: session.user.id,
+    });
     return json({
       avatarUrl: "/api/avatars/" + session.user.id + "?v=" + avatarVersion,
       avatarStatus: "pending",
@@ -628,7 +670,7 @@ async function handleAccountDeleteRoute(request, env, url, path, method) {
   return null;
 }
 
-async function handleProfileRoutes(request, env, url, path, method) {
+async function handleProfileRoutes(request, env, url, path, method, ctx) {
   const handlers = [
     handleAvatarReadRoute,
     handleUserProfileRoute,
@@ -644,7 +686,7 @@ async function handleProfileRoutes(request, env, url, path, method) {
     handleAccountDeleteRoute,
   ];
   for (const handler of handlers) {
-    const response = await handler(request, env, url, path, method);
+    const response = await handler(request, env, url, path, method, ctx);
     if (response) return response;
   }
   return null;

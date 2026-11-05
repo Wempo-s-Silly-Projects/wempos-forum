@@ -15,6 +15,52 @@ const MAX_JSON_BYTES = 16 * 1024;
 const encoder = new TextEncoder();
 const TURNSTILE_TOKEN_MAX_LENGTH = 2048;
 
+// Role tiers (v3.1 rename): the PUBLIC vocabulary is member / admin / owner,
+// but users.role stores the PRE-RENAME values — 'moderator' is the admin tier
+// and 'admin' is the owner tier. D1 cannot alter a CHECK constraint short of
+// rebuilding every table that references users, so the stored vocabulary is
+// FROZEN (ROLE_*_DB below) and publicRole() is the single map every role
+// value passes through on its way out of SQL. All JS comparisons use the
+// public values; only SQL literals and role WRITES use the stored constants.
+export const ROLE_OWNER_DB = "admin";
+export const ROLE_ADMIN_DB = "moderator";
+export const ROLE_MEMBER_DB = "member";
+const PUBLIC_ROLE_BY_STORED = { member: "member", moderator: "admin", admin: "owner" };
+export function publicRole(value) {
+  return PUBLIC_ROLE_BY_STORED[value] || value;
+}
+
+// IP bans (v3.1): the caller's network identity. CF-Connecting-IP is the
+// visitor IP behind Cloudflare; it is NEVER stored raw — the hash is keyed
+// with PASSWORD_PEPPER (HMAC-SHA-256) so the rows cannot be reversed against
+// a plain IP list, and a missing pepper (tests, unconfigured local dev)
+// falls back to a plain digest.
+export async function requestIpHash(request, env) {
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const data = new TextEncoder().encode("wempo-forum-ip:" + ip);
+  let digest;
+  if (env.PASSWORD_PEPPER) {
+    const key = await crypto.subtle.importKey(
+      "raw", new TextEncoder().encode(env.PASSWORD_PEPPER),
+      { name: "HMAC", hash: "SHA-256" }, false, ["sign"],
+    );
+    digest = await crypto.subtle.sign("HMAC", key, data);
+  } else {
+    digest = await crypto.subtle.digest("SHA-256", data);
+  }
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+// Session creation from a banned network is refused — the ban-evasion teeth.
+// Checked BEFORE credential verification so the response carries no oracle.
+export async function assertNetworkNotBanned(request, env) {
+  const ipHash = await requestIpHash(request, env);
+  const row = await env.FORUM_DB.prepare(
+    "SELECT 1 FROM banned_ips WHERE ip_hash = ? LIMIT 1",
+  ).bind(ipHash).first();
+  if (row) throw new HttpError(403, "This network is banned from the forum.");
+}
+
 export const POST_SELECT =
   "SELECT p.id, p.author_id, p.parent_id, p.body, p.visibility, p.created_at, p.last_activity_at, p.edited_at, p.board, p.view_count, p.pinned_at, " +
   "u.username AS author_username, u.avatar_mime AS author_avatar_mime, " +
@@ -22,6 +68,12 @@ export const POST_SELECT =
   // Flairs and profile accents ride every post (v3.0.1): feed cards show the
   // author's flair chip next to the name and the accent colors it.
   "u.flair AS author_flair, u.profile_accent AS author_accent, " +
+  // Suggestion status (v3.1): resolved/declined on suggestions-board roots;
+  // NULL everywhere else (replies and every other category never carry one).
+  "p.suggestion_status, " +
+  // Role badges (v3.1): the author's mapped role rides every post so cards
+  // can chip owners/admins next to the name.
+  "u.role AS author_role, " +
   "(SELECT parent.body FROM posts parent WHERE parent.id = p.parent_id) AS parent_body, " +
   "(SELECT COUNT(*) FROM reactions r WHERE r.post_id = p.id AND r.value = 'like') AS like_count, " +
   "(SELECT COUNT(*) FROM reactions r WHERE r.post_id = p.id AND r.value = 'dislike') AS dislike_count, " +
@@ -127,6 +179,244 @@ export function sniffImageMime(bytes) {
     bytes[5] === 0x61
   ) return "image/gif";
   return null;
+}
+
+// ---- Intake sanitization (polyglot / metadata payload defense) ----
+//
+// A magic-byte prefix says "this starts as an image", not "this is only an
+// image". Classic smuggle vectors: a script payload appended AFTER the
+// format's logical end (post-IEND/post-EOI bytes ride along because the
+// header still sniffs clean), and payload text hidden in metadata segments
+// (JPEG APPn/COM — EXIF, XMP, comments; PNG tEXt/zTXt/iTXt/eXIf; GIF
+// comment extensions; WebP EXIF/XMP chunks). None of that executes inside a
+// Worker (bytes are served, never interpreted) — but stored payloads are
+// hygiene debt for anyone who later downloads or re-hosts the file, and they
+// break content-addressed dedup (the same photo plus a hidden payload hashes
+// differently). So intake now structurally PARSES each format: drop the
+// metadata segments, truncate at the logical end, and REJECT anything that
+// never reaches one (a truncated or malformed file fails even though its
+// prefix sniffs fine). Kept bytes are copied verbatim — chunk CRCs, entropy
+// data, animation extensions, and color profiles all survive untouched, so
+// no re-encode (no WASM dependency) and no valid image is altered.
+//
+// Returns { bytes, mime } on success (bytes is the ORIGINAL object when
+// nothing needed stripping) or null when the structure is invalid — callers
+// translate that into their own 400.
+
+// Rebuilds the byte set from the kept [start, end) slices. Returns the
+// original object when nothing was dropped, so clean uploads cost no copy.
+function assembleSanitized(bytes, keep) {
+  let total = 0;
+  for (const [start, end] of keep) total += end - start;
+  if (total === bytes.length) return bytes;
+  const output = new Uint8Array(total);
+  let at = 0;
+  for (const [start, end] of keep) {
+    output.set(bytes.subarray(start, end), at);
+    at += end - start;
+  }
+  return output;
+}
+
+// PNG: chunk walk. First chunk must be IHDR; text/EXIF-carrying ancillary
+// chunks are dropped; everything else (IDAT, PLTE, tRNS, iCCP, gAMA, pHYs…)
+// passes through with its CRC intact; the file must reach IEND, and any
+// bytes after IEND (the classic append vector) are truncated away.
+const PNG_DROP_CHUNKS = new Set(["tEXt", "zTXt", "iTXt", "eXIf", "tIME"]);
+
+function sanitizePng(bytes) {
+  const keep = [[0, 8]];
+  let offset = 8;
+  let seenIhdr = false;
+  while (offset + 12 <= bytes.length) {
+    const length = bytes[offset] * 2 ** 24 + bytes[offset + 1] * 2 ** 16 +
+      bytes[offset + 2] * 2 ** 8 + bytes[offset + 3];
+    if (length > bytes.length - offset - 12) return null;
+    const type = String.fromCharCode(bytes[offset + 4], bytes[offset + 5], bytes[offset + 6], bytes[offset + 7]);
+    if (!/^[A-Za-z]{4}$/.test(type)) return null;
+    if (type !== "IHDR" && !seenIhdr) return null;
+    seenIhdr = true;
+    const total = 12 + length;
+    if (type === "IEND") {
+      keep.push([offset, offset + total]);
+      return assembleSanitized(bytes, keep);
+    }
+    if (!PNG_DROP_CHUNKS.has(type)) keep.push([offset, offset + total]);
+    offset += total;
+  }
+  return null; // never reached IEND
+}
+
+// JPEG: marker walk. APPn (EXIF/XMP/...) and COM segments are dropped; SOF,
+// DHT, DQT, DRI, SOS and entropy data pass through with byte stuffing (FF 00)
+// and restart markers respected; the scan must reach EOI, and bytes after it
+// are truncated. Handles progressive JPEGs (multiple SOS scans).
+function jpegEntropyEnd(bytes, from) {
+  let at = from;
+  while (at + 1 < bytes.length) {
+    if (bytes[at] === 0xff) {
+      const next = bytes[at + 1];
+      if (next === 0x00 || (next >= 0xd0 && next <= 0xd7)) {
+        at += 2;
+        continue;
+      }
+      return at; // index of the 0xFF starting the next real marker
+    }
+    at += 1;
+  }
+  return -1; // stream ends without a marker: no EOI anywhere
+}
+
+function sanitizeJpeg(bytes) {
+  const keep = [[0, 2]]; // SOI
+  let offset = 2;
+  while (offset + 1 < bytes.length) {
+    if (bytes[offset] !== 0xff) return null;
+    const marker = bytes[offset + 1];
+    if (marker === 0xff) {
+      offset += 1; // fill bytes before a marker are legal
+      continue;
+    }
+    if (marker === 0xd9) {
+      keep.push([offset, offset + 2]); // EOI: the logical end of the image
+      return assembleSanitized(bytes, keep);
+    }
+    if (marker === 0xd8 || marker < 0xc0) return null; // second SOI / marker invalid at this position
+    if (offset + 4 > bytes.length) return null;
+    const segmentLength = (bytes[offset + 2] << 8) | bytes[offset + 3];
+    if (segmentLength < 2 || offset + 2 + segmentLength > bytes.length) return null;
+    if (marker === 0xda) {
+      // SOS: keep the header segment, then the entropy-coded scan up to the
+      // next real marker (EOI, or the next scan's DHT/SOS in progressive).
+      keep.push([offset, offset + 2 + segmentLength]);
+      const entropyStart = offset + 2 + segmentLength;
+      const stop = jpegEntropyEnd(bytes, entropyStart);
+      if (stop === -1) return null;
+      keep.push([entropyStart, stop]);
+      offset = stop;
+      continue;
+    }
+    const drop = (marker >= 0xe0 && marker <= 0xef) || marker === 0xfe; // APPn + COM
+    if (!drop) keep.push([offset, offset + 2 + segmentLength]);
+    offset += 2 + segmentLength;
+  }
+  return null; // ran out of bytes before EOI
+}
+
+// GIF: block walk. Comment (0x21 0xFE) and plaintext (0x21 0x01) extensions
+// are dropped; graphic control (0x21 0xF9) and application extensions
+// (0x21 0xFF — the animation loop) survive, as do image descriptors with
+// their color tables and LZW data; the file must reach its trailer (0x3B),
+// and bytes after it are truncated.
+function gifSubBlocksEnd(bytes, from) {
+  let at = from;
+  while (at < bytes.length) {
+    const size = bytes[at];
+    at += 1;
+    if (size === 0) return at;
+    at += size;
+  }
+  return -1; // sub-block chain never terminated
+}
+
+function sanitizeGif(bytes) {
+  const packed = bytes[10];
+  const colorTableBytes = (packed & 0x80) ? 3 * 2 ** ((packed & 0x07) + 1) : 0;
+  let offset = 13 + colorTableBytes;
+  const keep = [[0, offset]]; // header + logical screen descriptor (+ global color table)
+  while (offset < bytes.length) {
+    const block = bytes[offset];
+    if (block === 0x3b) {
+      keep.push([offset, offset + 1]); // trailer: the logical end
+      return assembleSanitized(bytes, keep);
+    }
+    if (block === 0x21) {
+      if (offset + 1 >= bytes.length) return null;
+      const label = bytes[offset + 1];
+      const end = gifSubBlocksEnd(bytes, offset + 2);
+      if (end === -1) return null;
+      if (label !== 0xfe && label !== 0x01) keep.push([offset, end]);
+      offset = end;
+      continue;
+    }
+    if (block === 0x2c) {
+      if (offset + 10 > bytes.length) return null;
+      const localTable = (bytes[offset + 9] & 0x80) ? 3 * 2 ** ((bytes[offset + 9] & 0x07) + 1) : 0;
+      // Image data = LZW minimum-code-size byte, THEN the sub-block chain —
+      // the +1 skips that bare code-size byte before the first size byte.
+      const end = gifSubBlocksEnd(bytes, offset + 10 + localTable + 1);
+      if (end === -1) return null;
+      keep.push([offset, end]);
+      offset = end;
+      continue;
+    }
+    return null; // unknown block byte
+  }
+  return null; // never reached the trailer
+}
+
+// WebP: RIFF chunk walk bounded by the declared RIFF size. EXIF/XMP chunks
+// are dropped; frame/animation chunks (VP8, VP8L, VP8X, ANIM/ANMF, ALPH)
+// survive; at least one frame chunk must be present, and bytes past the RIFF
+// end are truncated.
+function sanitizeWebp(bytes) {
+  const riffSize = bytes[4] + bytes[5] * 2 ** 8 + bytes[6] * 2 ** 16 + bytes[7] * 2 ** 24;
+  const riffEnd = 8 + riffSize;
+  if (riffSize < 4 || riffEnd > bytes.length) return null;
+  const keep = [[0, 12]];
+  let offset = 12;
+  let sawFrame = false;
+  while (offset + 8 <= riffEnd) {
+    const tag = String.fromCharCode(bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]);
+    const size = bytes[offset + 4] + bytes[offset + 5] * 2 ** 8 +
+      bytes[offset + 6] * 2 ** 16 + bytes[offset + 7] * 2 ** 24;
+    const total = 8 + size + (size % 2); // RIFF chunks are padded to even sizes
+    if (offset + total > riffEnd) return null;
+    if (tag === "VP8 " || tag === "VP8L" || tag === "VP8X") sawFrame = true;
+    if (tag !== "EXIF" && tag !== "XMP ") keep.push([offset, offset + total]);
+    offset += total;
+  }
+  if (offset !== riffEnd || !sawFrame) return null;
+  const output = assembleSanitized(bytes, keep);
+  if (output === bytes) return output;
+  // Bytes were dropped: rewrite the RIFF size field to match, or the
+  // container would claim more data than it holds.
+  const newSize = output.length - 8;
+  output[4] = newSize & 255;
+  output[5] = (newSize >>> 8) & 255;
+  output[6] = (newSize >>> 16) & 255;
+  output[7] = (newSize >>> 24) & 255;
+  return output;
+}
+
+export function sanitizeImage(bytes) {
+  const mime = sniffImageMime(bytes);
+  if (!mime) return null;
+  const sanitized = mime === "image/png" ? sanitizePng(bytes)
+    : mime === "image/jpeg" ? sanitizeJpeg(bytes)
+    : mime === "image/gif" ? sanitizeGif(bytes)
+    : sanitizeWebp(bytes);
+  if (!sanitized) return null;
+  return { bytes: sanitized, mime };
+}
+
+// Egress for stored image bytes. The row's claimed MIME is re-verified
+// against the bytes' magic signature at serve time — a mismatch (corrupt or
+// tampered storage) fails SAFE as null, which every serving route turns into
+// its own 404. Matched bytes get the full defensive set: the sniffed
+// Content-Type (never a stored string alone), nosniff so browsers cannot
+// guess the type, and Content-Disposition: inline with a fixed ASCII
+// filename so no execution context is ever inherited from the path.
+export function imageResponse(bytes, claimedMime, cacheControl) {
+  const sniffed = sniffImageMime(bytes);
+  if (!sniffed || sniffed !== claimedMime) return null;
+  const headers = securityHeaders();
+  headers.set("Content-Type", sniffed);
+  headers.set("Cache-Control", cacheControl);
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Content-Disposition", 'inline; filename="image"');
+  headers.set("Content-Length", String(bytes.length));
+  return new Response(bytes, { status: 200, headers });
 }
 
 export function isValidPasswordPepper(value) {
@@ -236,7 +526,7 @@ async function readSession(request, env) {
     user = {
       id: Number(row.user_id),
       username: row.username,
-      role: row.role,
+      role: publicRole(row.role),
       bio: row.bio || "",
       avatarStatus: row.avatar_status || null,
       avatarUrl: row.avatar_mime ? "/api/avatars/" + row.user_id + "?v=" + row.avatar_version : null,
@@ -246,6 +536,19 @@ async function readSession(request, env) {
 }
 
 export async function createSession(request, env, userId = null, oldTokenHash = null, requireUnbanned = false) {
+  // IP bans (v3.1): remember which network each member signed in from —
+  // keyed hash only, best-effort (a tracking failure never blocks sign-in).
+  if (userId !== null) {
+    try {
+      const ipHash = await requestIpHash(request, env);
+      await env.FORUM_DB.prepare(
+        "INSERT INTO known_ips (ip_hash, user_id, last_seen) VALUES (?, ?, ?) " +
+          "ON CONFLICT(ip_hash, user_id) DO UPDATE SET last_seen = excluded.last_seen",
+      ).bind(ipHash, Number(userId), nowSeconds()).run();
+    } catch {
+      /* best-effort tracking */
+    }
+  }
   const token = randomToken();
   const tokenHash = await sha256Hex(token);
   const csrfToken = randomToken(24);
@@ -320,18 +623,18 @@ async function requiremod(request, env, mutating = true) {
   const session = mutating
     ? await requireUser(request, env)
     : await requireSignedInRead(request, env);
-  if (session.user.role !== "admin" && session.user.role !== "moderator") {
-    throw new HttpError(403, "Only mods can do that.");
+  if (session.user.role !== "owner" && session.user.role !== "admin") {
+    throw new HttpError(403, "Only admins can do that.");
   }
   return session;
 }
 
-// Strictly admin-only gate (promote/demote, first-admin-style operations).
+// Strictly owner-only gate (promote/demote, first-owner-style operations).
 async function requireAdmin(request, env, mutating = true) {
   const session = mutating
     ? await requireUser(request, env)
     : await requireSignedInRead(request, env);
-  if (session.user.role !== "admin") throw new HttpError(403, "Only mods can do that.");
+  if (session.user.role !== "owner") throw new HttpError(403, "Only the owner can do that.");
   return session;
 }
 
@@ -510,25 +813,32 @@ async function userByUsernameKey(env, key) {
   ).bind(key).first();
 }
 
-// Profile themes (v2.5): the accent is a WHITELISTED palette key from this
-// table — never raw CSS. The stored value is one of these ids ("" = no custom
-// accent); clients look the colors up, so nothing user-chosen ever reaches
-// CSS as a string. Colors are theme-stable (they read fine on dark too).
+// Profile colors (any hex, v3.0.2): members pick any #rrggbb. The stored
+// value is ALWAYS a validated lowercase hex — the strict regex is the whole
+// security story (a matched value cannot carry CSS or markup), so clients
+// apply it as a CSS custom property WRITE (element.style.setProperty, a
+// CSSOM assignment — not an inline style string) and the CSP stays pure.
+// The old whitelisted palette keys survive as legacy: still accepted on
+// write (converted to their hex) and normalized on read, so existing
+// profiles keep their colors untouched. Banner key values mirror the old
+// per-key CSS (the banner variants, e.g. darker gold for white text).
+const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
+
+export function isValidHexColor(value) {
+  return typeof value === "string" && HEX_COLOR_PATTERN.test(value);
+}
+
 export const PROFILE_BANNER_COLORS = {
-  "": null,
+  "": "",
   green: "#397357",
   rust: "#b05334",
-  gold: "#d9a627",
+  gold: "#8d690f",
   slate: "#4a5a70",
   plum: "#7c5480",
 };
 
-export function isValidBannerColor(value) {
-  return typeof value === "string" && Object.prototype.hasOwnProperty.call(PROFILE_BANNER_COLORS, value);
-}
-
 export const PROFILE_ACCENTS = {
-  "": null,
+  "": "",
   forest: "#3f8a63",
   coral: "#d05f4c",
   gold: "#d9a627",
@@ -538,23 +848,45 @@ export const PROFILE_ACCENTS = {
   teal: "#3d9aa0",
 };
 
-export function isValidProfileAccent(value) {
-  return typeof value === "string" && Object.prototype.hasOwnProperty.call(PROFILE_ACCENTS, value);
+// Write-side: "" clears, a legacy palette key converts to its hex, anything
+// else must be #rrggbb (lowercased for storage). Returns null to REJECT.
+export function normalizeProfileColorInput(value, palette) {
+  if (typeof value !== "string") return null;
+  const raw = value.trim();
+  if (!raw) return "";
+  if (Object.prototype.hasOwnProperty.call(palette, raw)) return palette[raw];
+  return isValidHexColor(raw) ? raw.toLowerCase() : null;
+}
+
+// Read-side: stored hex passes through lowercased, a legacy key maps to its
+// hex, and anything else (pre-migration junk) normalizes to "".
+export function normalizeProfileColor(value, palette) {
+  const raw = typeof value === "string" ? value : "";
+  if (!raw) return "";
+  if (Object.prototype.hasOwnProperty.call(palette, raw)) return palette[raw] || "";
+  return isValidHexColor(raw) ? raw.toLowerCase() : "";
+}
+
+export function normalizeProfileAccent(value) {
+  return normalizeProfileColor(value, PROFILE_ACCENTS);
+}
+
+export function normalizeBannerColor(value) {
+  return normalizeProfileColor(value, PROFILE_BANNER_COLORS);
 }
 
 function publicUser(row) {
   return {
     id: Number(row.id),
     username: row.username,
-    role: row.role,
+    role: publicRole(row.role),
     bio: row.bio || "",
     socials: socialsFromRow(row),
     polytoriaUsername: row.polytoria_username || null,
-    // Profile theme accent (v2.5): the whitelisted KEY, or "" when the row
-    // predates migration 0010 (the column just isn't in a projection).
-    profileAccent: isValidProfileAccent(row.profile_accent === undefined ? "" : row.profile_accent)
-      ? row.profile_accent
-      : "",
+    // Profile theme accent (any hex, v3.0.2): normalized server-side to a
+    // #rrggbb hex (legacy palette keys map through); "" = none. Pre-migration
+    // projections normalize to "".
+    profileAccent: normalizeProfileAccent(row.profile_accent === undefined ? "" : row.profile_accent),
     // Rows from SQL that predates avatar moderation (e.g. search projections)
     // omit the column; normalize it to the never-uploaded shape.
     avatarStatus: row.avatar_status || null,
@@ -574,6 +906,10 @@ function publicPost(row, publicLevel) {
     // Board (v2.4.1): serialized for every post (general or suggestions);
     // rows from pre-migration projections normalize to the "general" shape.
     board: row.board || "general",
+    // Suggestion status (v3.1): 'resolved'/'declined' on suggestions-board
+    // roots, null otherwise (display-only chip; staff flip it through
+    // POST /api/posts/:id/suggestion-status).
+    suggestionStatus: row.suggestion_status || null,
     // View counter (v2.4.3, migration 0009): raw impressions, display-only.
     // The detail route overrides this with the RETURNING value when it
     // counted a fresh view, so the payload never reads stale by one.
@@ -591,9 +927,14 @@ function publicPost(row, publicLevel) {
     author: {
       id: Number(row.author_id),
       username: row.author_username,
-      // Flair chip + accent on cards (v3.0.1): whitelisted keys only.
+      // Flair chip + accent on cards (any hex, v3.0.2): the accent is
+      // normalized to #rrggbb here — the client writes it as a CSS custom
+      // property, never a class string.
       flair: row.author_flair || null,
-      profileAccent: row.author_accent || null,
+      profileAccent: normalizeProfileAccent(row.author_accent === undefined ? "" : row.author_accent) || null,
+      // Role badges (v3.1): the mapped public role ('owner'/'admin'), null
+      // for members so the badge only appears for staff.
+      role: row.author_role ? publicRole(row.author_role) : null,
       avatarUrl: row.author_avatar_mime
         ? "/api/avatars/" + row.author_id + "?v=" + row.author_avatar_version
         : null,
@@ -627,7 +968,7 @@ async function postById(env, postId, viewerId) {
 // without any write ("now" stays SQL-computed and bind-free).
 export async function canViewPost(env, row, viewer) {
   if (!row) return false;
-  const ismod = Boolean(viewer && (viewer.role === "admin" || viewer.role === "moderator"));
+  const ismod = Boolean(viewer && (viewer.role === "owner" || viewer.role === "admin"));
   if (row.visibility !== "public" && !ismod) return false;
   const bannedAuthor = await env.FORUM_DB.prepare(
     "SELECT 1 FROM bans b WHERE b.user_id = ? AND b.revoked_at IS NULL " +
@@ -676,22 +1017,16 @@ async function handleAvatarReadRoute(request, env, url, path, method) {
     if (row.pending_avatar_mime && row.pending_avatar_data) {
       const session = await readSession(request, env);
       const viewer = session && session.user;
-      const ismod = viewer && (viewer.role === "admin" || viewer.role === "moderator");
+      const ismod = viewer && (viewer.role === "owner" || viewer.role === "admin");
       if (viewer && (viewer.id === userId || ismod)) {
-        const headers = securityHeaders();
-        headers.set("Content-Type", row.pending_avatar_mime);
-        headers.set("Cache-Control", "no-store");
-        headers.set("X-Content-Type-Options", "nosniff");
-        return new Response(blobToUint8Array(row.pending_avatar_data), { status: 200, headers });
+        const response = imageResponse(blobToUint8Array(row.pending_avatar_data), row.pending_avatar_mime, "no-store");
+        if (response) return response;
       }
     }
 
     if (row.avatar_mime && row.avatar_data) {
-      const headers = securityHeaders();
-      headers.set("Content-Type", row.avatar_mime);
-      headers.set("Cache-Control", "public, max-age=3600");
-      headers.set("X-Content-Type-Options", "nosniff");
-      return new Response(blobToUint8Array(row.avatar_data), { status: 200, headers });
+      const response = imageResponse(blobToUint8Array(row.avatar_data), row.avatar_mime, "public, max-age=3600");
+      if (response) return response;
     }
 
     throw new HttpError(404, "Picture not found.");
@@ -711,6 +1046,7 @@ export {
   requireSignedInRead,
   requiremod,
   requireAdmin,
+  assertSameOrigin,
   assertNotBanned,
   requireMutationApplied,
   readLimitedBody,

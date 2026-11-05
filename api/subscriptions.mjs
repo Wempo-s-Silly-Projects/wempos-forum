@@ -100,6 +100,22 @@ export async function subscriberFlagForViewer(db, viewerId, row) {
   return Boolean(existing);
 }
 
+// The FEED payloads' subscribed flag (batched): one query per page marks
+// every root card the viewer is subscribed to — the same decorator pattern
+// as withBookmarkFlags, so feed cards render the same subscribe toggle the
+// detail view does. Feed rows are roots only, so no parent filter applies;
+// guests and empty pages pass through untouched.
+export async function withSubscriptionFlags(db, viewer, posts) {
+  if (!posts.length || !viewer) return posts;
+  const ids = [...new Set(posts.map((post) => Number(post.id)))];
+  const placeholders = ids.map(() => "?").join(", ");
+  const result = await db.prepare(
+    "SELECT post_id FROM thread_subscriptions WHERE user_id = ? AND post_id IN (" + placeholders + ")",
+  ).bind(viewer.id, ...ids).all();
+  const subscribed = new Set((result.results || []).map((row) => Number(row.post_id)));
+  return posts.map((post) => ({ ...post, subscribed: subscribed.has(Number(post.id)) }));
+}
+
 async function subscriptionGate(request, env, subscriptionMatch, method) {
   const db = env.FORUM_DB;
   if (!subscriptionMatch) return null;

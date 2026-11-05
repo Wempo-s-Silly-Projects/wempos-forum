@@ -11,7 +11,25 @@ import { notificationBatchStatements } from "./notifications.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
 import { pollPayload } from "./polls.mjs";
 import { bookmarkFlagForViewer, withBookmarkFlags } from "./bookmarks.mjs";
-import { runFanOutChunks, subscriberFlagForViewer, subscriptionReplyFanOut } from "./subscriptions.mjs";
+import { runFanOutChunks, subscriberFlagForViewer, subscriptionReplyFanOut, withSubscriptionFlags } from "./subscriptions.mjs";
+import { scheduleVisionCheck } from "./vision.mjs";
+
+// Vision first-pass (v3.1): every freshly PENDING direct upload is background-
+// checked right after its batch commits. Dedup twins (preApproved) skip it —
+// identical bytes already passed a human review. Library GIF references are
+// approved rows by construction and never checked here.
+function scheduleAttachmentVisionChecks(ctx, env, authorId, files, ids) {
+  files.forEach((file, index) => {
+    if (file.preApproved) return;
+    scheduleVisionCheck(ctx, env, {
+      kind: "attachment",
+      entityId: ids[index],
+      bytes: file.bytes,
+      hash: file.hash,
+      userId: authorId,
+    });
+  });
+}
 import {
   archivePostRowsStatement,
   assertNotBanned,
@@ -26,6 +44,7 @@ import {
   rateLimit,
   readJson,
   readSession,
+  requiremod,
   requireMutationApplied,
   requireTurnstile,
   requireUser,
@@ -66,11 +85,17 @@ const MAX_COMPOSER_BODY_CHARS = 1000;
 // Boards (v2.4.1): a root-only dimension. Root posts carry the board their
 // composer chose; replies inherit their thread root's board at creation (the
 // create route resolves the root anyway for the bump), and every pre-migration
-// row is 'general' (migration 0006's DEFAULT backfill). The whitelist lives
-// here — SQLite cannot gain a CHECK via ALTER TABLE ADD COLUMN — and the feeds
-// read it before any SQL runs.
-const BOARD_VALUES = ["general", "suggestions"];
+// row is 'general' (migration 0006's DEFAULT backfill) — which is exactly where
+// the old posts land in the expanded category set, no migration needed. The
+// whitelist lives here — SQLite cannot gain a CHECK via ALTER TABLE ADD
+// COLUMN — and the feeds read it before any SQL runs.
+// Categories (v3.1, Discourse-style): general chatter, game dev/work, showing
+// things off, bugs & troubleshooting, suggestions (score-sorted, resolvable),
+// and Updates — a staff-only-topics site-news category (everyone reads and
+// replies; only admins/owners may start topics).
+const BOARD_VALUES = ["general", "suggestions", "game-dev", "showcase", "help", "updates"];
 const SUGGESTIONS_BOARD = "suggestions";
+const UPDATES_BOARD = "updates";
 const GENERAL_BOARD_DEFAULT = "general";
 
 // Net reaction score for the Suggestions feed: likes minus dislikes, computed
@@ -219,16 +244,25 @@ async function listRootPosts(env, viewer, options = {}) {
       sql += "AND p.pinned_at IS NULL AND (p.last_activity_at < ? OR (p.last_activity_at = ? AND p.id < ?)) ";
       values.push(cursor.seconds, cursor.seconds, cursor.id);
     }
-    sql += "ORDER BY (p.pinned_at IS NULL) ASC, p.last_activity_at DESC, p.id DESC LIMIT 21";
+    // Categories (v3.1): a board param scopes the activity feed to that
+    // category's roots (cursor format unchanged — every category walks the
+    // same composite (pinned, last_activity_at, id) keyset). No board param
+    // is the Recent activity homepage: every category mixed.
+    if (options.board) {
+      sql += "AND p.board = ? ";
+      values.push(options.board);
+    }
+    const pageSize = options.limit || 20;
+    sql += "ORDER BY (p.pinned_at IS NULL) ASC, p.last_activity_at DESC, p.id DESC LIMIT " + (pageSize + 1);
     const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
     const rows = result.results || [];
-    const hasMore = rows.length > 20;
-    const shown = rows.slice(0, 20);
+    const hasMore = rows.length > pageSize;
+    const shown = rows.slice(0, pageSize);
     const last = shown.length ? shown[shown.length - 1] : null;
     return {
       // Root queries only (parent_id IS NULL): every shown row is a level-0 root.
-      posts: await withBookmarkFlags(env.FORUM_DB, viewer, await withReplyMetadata(env.FORUM_DB, viewer,
-        await withAttachments(env.FORUM_DB, viewer, shown.map((row) => publicPost(row, 0))))),
+      posts: await withSubscriptionFlags(env.FORUM_DB, viewer, await withBookmarkFlags(env.FORUM_DB, viewer, await withReplyMetadata(env.FORUM_DB, viewer,
+        await withAttachments(env.FORUM_DB, viewer, shown.map((row) => publicPost(row, 0)))))),
       nextBefore: hasMore && last
         ? (last.pinned_at === null || last.pinned_at === undefined ? "1_" : "0_") +
           Number(last.last_activity_at) + "_" + Number(last.id)
@@ -261,8 +295,8 @@ async function listRootPosts(env, viewer, options = {}) {
       // feed (root queries only, publicPost level 0), so replyCount,
       // latestReplies, attachments, and publicLevel annotate every card
       // unchanged — the board filter never touches the decoration SQL.
-      posts: await withBookmarkFlags(env.FORUM_DB, viewer, await withReplyMetadata(env.FORUM_DB, viewer,
-        await withAttachments(env.FORUM_DB, viewer, shown.map((row) => publicPost(row, 0))))),
+      posts: await withSubscriptionFlags(env.FORUM_DB, viewer, await withBookmarkFlags(env.FORUM_DB, viewer, await withReplyMetadata(env.FORUM_DB, viewer,
+        await withAttachments(env.FORUM_DB, viewer, shown.map((row) => publicPost(row, 0)))))),
       // The cursor's score half comes from the row's own like/dislike counts —
       // the identical tally the ORDER BY expression computes, so the emitted
       // cursor always sorts exactly where the row was shown.
@@ -288,8 +322,8 @@ async function listRootPosts(env, viewer, options = {}) {
   const rows = result.results || [];
   const hasMore = rows.length > 20;
   const shown = rows.slice(0, 20).map((row) => publicPost(row, 0));
-  const posts = await withBookmarkFlags(env.FORUM_DB, viewer, await withReplyMetadata(env.FORUM_DB, viewer,
-    await withAttachments(env.FORUM_DB, viewer, shown)));
+  const posts = await withSubscriptionFlags(env.FORUM_DB, viewer, await withBookmarkFlags(env.FORUM_DB, viewer, await withReplyMetadata(env.FORUM_DB, viewer,
+    await withAttachments(env.FORUM_DB, viewer, shown))));
   return { posts, nextBefore: hasMore && shown.length ? shown[shown.length - 1].id : null };
 }
 
@@ -338,12 +372,13 @@ async function listReplies(env, postId, viewer, showAll = false, before = null,
 async function handlePostFeedRoute(request, env, url, path, method) {
   if (path === "/api/posts" && method === "GET") {
     const session = await readSession(request, env);
-    // Board param (v2.4.1): absent or 'general' keeps the general feed's SQL,
-    // binds, and cursor format byte-identical; 'suggestions' selects the
-    // suggestions board. Unknown values hit boardField's whitelist 400 before
-    // any database work.
+    // Board param (categories v3.1): absent = the Recent activity homepage
+    // (every category mixed, 10 at a time); a whitelisted slug scopes the
+    // feed to that category. Unknown values hit boardField's whitelist 400
+    // before any database work; suggestions keeps its score-sorted branch.
     const boardRaw = url.searchParams.get("board");
-    const isSuggestions = boardRaw !== null && boardField(boardRaw) === SUGGESTIONS_BOARD;
+    const board = boardRaw !== null && boardRaw !== "" ? boardField(boardRaw) : null;
+    const isSuggestions = board === SUGGESTIONS_BOARD;
     const beforeRaw = url.searchParams.get("before");
     // My posts (v2.5): decided BEFORE cursor parsing — the authorId branch
     // paginates a bare id (profile-route convention), not a composite cursor.
@@ -387,7 +422,9 @@ async function handlePostFeedRoute(request, env, url, path, method) {
       env, session && session.user ? session.user : null,
       mineOnly
         ? { before, authorId: Number(session.user.id) }
-        : (isSuggestions ? { before, board: SUGGESTIONS_BOARD } : { before, byActivity: true }),
+        : (board
+          ? { before, board, byActivity: true }
+          : { before, byActivity: true }),
     );
     return json(feed);
   }
@@ -463,7 +500,7 @@ async function handlePostDetailRoute(request, env, url, path, method) {
     const session = await readSession(request, env);
     const viewer = session && session.user ? session.user : null;
     const viewerId = viewer ? viewer.id : null;
-    const showAll = Boolean(viewer && viewer.role === "admin");
+    const showAll = Boolean(viewer && viewer.role === "owner");
     const row = await postById(env, postId, viewerId);
     if (!(await canViewPost(env, row, viewer))) throw new HttpError(404, "Post not found.");
     // View counter (v2.4.3, raw impressions): every non-author detail read is
@@ -646,7 +683,7 @@ async function postCreationFingerprint({
 async function persistStagedPostAttachments(db, postId, authorId, files, gifEntries, options = {}) {
   const { bumpTargetId = null } = options;
   try {
-    await insertAttachments(db, postId, authorId, files, gifEntries);
+    return await insertAttachments(db, postId, authorId, files, gifEntries);
     const publish = db.prepare(
       "UPDATE posts SET visibility = 'public', staged_at = NULL WHERE id = ? AND author_id = ? AND visibility = 'hidden' " +
       "AND staged_at IS NOT NULL " +
@@ -692,7 +729,7 @@ async function persistStagedPostAttachments(db, postId, authorId, files, gifEntr
   }
 }
 
-async function handleReplyCreateRoute(request, env, url, path, method) {
+async function handleReplyCreateRoute(request, env, url, path, method, ctx) {
   const db = env.FORUM_DB;
   const replyMatch = path.match(/^\/api\/posts\/([0-9]+)\/replies$/);
   if (replyMatch && method === "POST") {
@@ -790,9 +827,10 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
     // Attachment-bearing replies stay hidden until the entire attachment batch
     // succeeds. The row id is always the new reply, not its bump target.
     if (hasAttachments) {
-      await persistStagedPostAttachments(db, replyId, session.user.id, files, gifEntries, {
+      const attachmentIds = await persistStagedPostAttachments(db, replyId, session.user.id, files, gifEntries, {
         bumpTargetId,
       });
+      scheduleAttachmentVisionChecks(ctx, env, session.user.id, files, attachmentIds);
     } else {
       await insertAttachments(db, replyId, session.user.id, files, gifEntries);
     }
@@ -836,7 +874,7 @@ async function handleReplyCreateRoute(request, env, url, path, method) {
   return null;
 }
 
-async function handlePostCreateRoute(request, env, url, path, method) {
+async function handlePostCreateRoute(request, env, url, path, method, ctx) {
   const db = env.FORUM_DB;
   if (path === "/api/posts" && method === "POST") {
     const session = await requireUser(request, env);
@@ -857,6 +895,13 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     // or multipart text part); absent/empty defaults to 'general', unknown
     // values 400 before any insert.
     const board = boardField(fields.board);
+    // Updates category (v3.1): staff-only topics — everyone can read and
+    // reply, but only admins and the owner start them. The session's public
+    // role is the gate (member → 403).
+    if (board === UPDATES_BOARD &&
+        session.user.role !== "owner" && session.user.role !== "admin") {
+      throw new HttpError(403, "Only admins can post updates.");
+    }
     const idempotencyFingerprint = idempotencyKey
       ? await postCreationFingerprint({ kind: "post", message, board, files, gifEntries })
       : null;
@@ -906,7 +951,8 @@ async function handlePostCreateRoute(request, env, url, path, method) {
     }
     const postId = Number(result.meta.last_row_id);
     if (hasAttachments) {
-      await persistStagedPostAttachments(db, postId, session.user.id, files, gifEntries);
+      const attachmentIds = await persistStagedPostAttachments(db, postId, session.user.id, files, gifEntries);
+      scheduleAttachmentVisionChecks(ctx, env, session.user.id, files, attachmentIds);
     } else {
       await insertAttachments(db, postId, session.user.id, files, gifEntries);
     }
@@ -1160,6 +1206,43 @@ async function handleReactionDeleteRoute(request, env, url, path, method) {
   return null;
 }
 
+// Suggestion status (v3.1): staff mark a suggestion thread resolved or
+// declined, or reopen it. Suggestions-board ROOTS only — replies never carry
+// a status. Reopening is idempotent (an already-open thread stays open);
+// setting a status must apply (a vanished post 404s above).
+async function handleSuggestionStatusRoute(request, env, url, path, method) {
+  const db = env.FORUM_DB;
+  const match = path.match(/^\/api\/posts\/([0-9]+)\/suggestion-status$/);
+  if (!match) return null;
+  if (method !== "POST") throw new HttpError(405, "That method is not supported.");
+  const session = await requiremod(request, env);
+  await assertNotBanned(env, session.user.id);
+  await rateLimit(request, env, "write");
+  const postId = Number(match[1]);
+  if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
+  const post = await postById(env, postId, session.user.id);
+  if (!post || post.parent_id !== null) throw new HttpError(404, "Post not found.");
+  if ((post.board || GENERAL_BOARD_DEFAULT) !== SUGGESTIONS_BOARD) {
+    throw new HttpError(400, "Only suggestions can be marked resolved or declined.");
+  }
+  const body = await readJson(request);
+  if (body.status === undefined) throw new HttpError(400, "Choose a suggestion status.");
+  if (body.status === "open") {
+    await db.prepare(
+      "UPDATE posts SET suggestion_status = NULL, suggestion_decided_by = NULL, suggestion_decided_at = NULL WHERE id = ?",
+    ).bind(postId).run();
+    return json({ ok: true, suggestionStatus: null });
+  }
+  if (body.status !== "resolved" && body.status !== "declined") {
+    throw new HttpError(400, "Choose resolved, declined, or open.");
+  }
+  const result = await db.prepare(
+    "UPDATE posts SET suggestion_status = ?, suggestion_decided_by = ?, suggestion_decided_at = ? WHERE id = ?",
+  ).bind(body.status, session.user.id, nowSeconds(), postId).run();
+  requireMutationApplied(result);
+  return json({ ok: true, suggestionStatus: body.status });
+}
+
 async function handleSearchRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/search" && method === "GET") {
@@ -1247,10 +1330,10 @@ async function threadRootId(env, row) {
   return Number(firstParent.parent_id);
 }
 
-async function handlePostRoutes(request, env, url, path, method) {
-  const handlers = [handlePostFeedRoute, handleRepliesReadRoute, handlePostDetailRoute, handleReplyCreateRoute, handlePostCreateRoute, handlePostEditRoute, handlePostEditHistoryRoute, handlePostDeleteRoute, handleReactionRoute, handleReactionDeleteRoute, handleSearchRoute];
+async function handlePostRoutes(request, env, url, path, method, ctx) {
+  const handlers = [handlePostFeedRoute, handleRepliesReadRoute, handlePostDetailRoute, handleReplyCreateRoute, handlePostCreateRoute, handlePostEditRoute, handlePostEditHistoryRoute, handlePostDeleteRoute, handleReactionRoute, handleReactionDeleteRoute, handleSuggestionStatusRoute, handleSearchRoute];
   for (const handler of handlers) {
-    const response = await handler(request, env, url, path, method);
+    const response = await handler(request, env, url, path, method, ctx);
     if (response) return response;
   }
   return null;

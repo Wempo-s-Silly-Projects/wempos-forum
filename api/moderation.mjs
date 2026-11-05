@@ -1,6 +1,8 @@
 // Reports, report resolution, bans, promote/demote (admin-only), and avatar
 // moderation routes (moderation desk).
 import { UNBAN_ACTIVE_UPDATE_SQL } from "../constants.mjs";
+import { applyWordFilter } from "./filter.mjs";
+import { publicVisionVerdict, visionVerdictsByEntity } from "./vision.mjs";
 import {
   assertNotBanned,
   canViewPost,
@@ -8,6 +10,7 @@ import {
   json,
   nowSeconds,
   postById,
+  publicRole,
   rateLimit,
   readJson,
   requireAdmin,
@@ -30,7 +33,7 @@ async function handleReportCreateRoute(request, env, url, path, method) {
     if (!(await canViewPost(env, post, session.user))) throw new HttpError(404, "Post not found.");
     if (Number(post.author_id) === session.user.id) throw new HttpError(400, "You cannot report your own post.");
     const body = await readJson(request);
-    const reason = requiredText(body.reason, "report reason", 500);
+    const reason = applyWordFilter(requiredText(body.reason, "report reason", 500), env.FILTERED_WORDS);
     try {
       const result = await db.prepare(
         "INSERT INTO reports (post_id, reporter_id, reason, status, created_at) " +
@@ -159,21 +162,37 @@ async function handleBanListRoute(request, env, url, path, method) {
   return null;
 }
 
-async function createUserBan(db, targetId, modId, request) {
+async function createUserBan(db, targetId, modId, request, env) {
   const body = await readJson(request);
-  const reason = requiredText(body.reason, "ban reason", 500);
+  const reason = applyWordFilter(requiredText(body.reason, "ban reason", 500), env.FILTERED_WORDS);
   const now = nowSeconds();
+  // Timed bans (v3.0.2): every read path (the ban screen's reactivation
+  // countdown, the visibility filters, the auto-expire sweep above) already
+  // honored expires_at — but the write path never accepted one, so all bans
+  // were permanent regardless of intent. An optional expiresAt (epoch
+  // seconds) now rides the body: absent/null = permanent; anything else
+  // must be a safe integer more than a minute and less than a year out
+  // (the 60-second floor absorbs client clock skew).
+  let expiresAt = null;
+  if (body.expiresAt !== undefined && body.expiresAt !== null && body.expiresAt !== "") {
+    const candidate = Number(body.expiresAt);
+    if (!Number.isSafeInteger(candidate) || candidate <= now + 60 ||
+        candidate > now + 366 * 86400) {
+      throw new HttpError(400, "The ban duration must be between a minute and a year from now.");
+    }
+    expiresAt = candidate;
+  }
   const results = await db.batch([
     db.prepare(
       "UPDATE bans SET revoked_at = ?, revoked_by = ?, revocation_reason = 'Expired automatically' " +
         "WHERE user_id = ? AND revoked_at IS NULL AND expires_at IS NOT NULL AND expires_at <= ?",
     ).bind(now, modId, targetId, now),
     db.prepare(
-      "INSERT INTO bans (user_id, reason, created_at, created_by) " +
-        "SELECT ?, ?, ?, ? WHERE NOT EXISTS (" +
+      "INSERT INTO bans (user_id, reason, created_at, created_by, expires_at) " +
+        "SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
         "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
         "AND (expires_at IS NULL OR expires_at > ?))",
-    ).bind(targetId, reason, now, modId, targetId, now),
+    ).bind(targetId, reason, now, modId, expiresAt, targetId, now),
     db.prepare(
       "DELETE FROM sessions WHERE user_id = ? AND EXISTS (" +
         "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
@@ -183,12 +202,26 @@ async function createUserBan(db, targetId, modId, request) {
   if (Number(results[1]?.meta?.changes) !== 1) {
     throw new HttpError(409, "This member is already banned.");
   }
-  return json({ ok: true }, 201);
+  // IP bans (v3.1, opt-in per ban form): copy the member's KNOWN network
+  // hashes to banned_ips so sign-in and registration from them is refused.
+  // Best-effort and additive — an unbanning mod removes the ban's rows.
+  if (body.ipBan === true || body.ipBan === "true") {
+    const banId = Number(results[1]?.meta?.last_row_id);
+    if (Number.isSafeInteger(banId) && banId > 0) {
+      await db.batch([
+        db.prepare(
+          "INSERT OR IGNORE INTO banned_ips (ip_hash, ban_id, created_at) " +
+            "SELECT ip_hash, ?, ? FROM known_ips WHERE user_id = ?",
+        ).bind(banId, now, targetId),
+      ]);
+    }
+  }
+  return json({ ok: true, expiresAt }, 201);
 }
 
-async function revokeUserBan(db, targetId, modId, request) {
+async function revokeUserBan(db, targetId, modId, request, env) {
   const body = await readJson(request);
-  const reason = requiredText(body.reason, "unban reason", 500);
+  const reason = applyWordFilter(requiredText(body.reason, "unban reason", 500), env.FILTERED_WORDS);
   const active = await db.prepare(
     "SELECT id FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
       "AND (expires_at IS NULL OR expires_at > ?) ORDER BY created_at DESC LIMIT 1",
@@ -200,6 +233,11 @@ async function revokeUserBan(db, targetId, modId, request) {
   if (Number(result.meta?.changes) !== 1) {
     throw new HttpError(409, "This ban was already revoked by another mod.");
   }
+  // IP bans (v3.1): unban restores network access too — but only the rows THIS
+  // ban added (another active ban's rows keep their teeth).
+  await db.batch([
+    db.prepare("DELETE FROM banned_ips WHERE ban_id = ?").bind(Number(active.id)),
+  ]);
   return json({ ok: true });
 }
 
@@ -215,19 +253,20 @@ async function handleBanMutationRoute(request, env, url, path, method) {
     "SELECT id, role FROM users WHERE id = ? LIMIT 1",
   ).bind(targetId).first();
   if (!target) throw new HttpError(404, "Member not found.");
-  if (target.role === "admin" || targetId === session.user.id) {
-    throw new HttpError(403, "Admin accounts cannot be banned here.");
+  // Raw row → public vocabulary via publicRole (v3.1 rename).
+  if (publicRole(target.role) === "owner" || targetId === session.user.id) {
+    throw new HttpError(403, "Owner accounts cannot be banned here.");
   }
-  if (method === "POST") return createUserBan(db, targetId, session.user.id, request);
-  return revokeUserBan(db, targetId, session.user.id, request);
+  if (method === "POST") return createUserBan(db, targetId, session.user.id, request, env);
+  return revokeUserBan(db, targetId, session.user.id, request, env);
 }
 
 // Promotion is strictly an admin operation. Role transitions carry a
 // role guard in the UPDATE itself (changes-checked), and admins are
-// refused up front — including self-demotion — so 'admin' is unreachable from
+// refused up front — including self-demotion — so 'owner' is unreachable from
 // here. Sessions are not invalidated: readSession reads the role at request
 // time, so demotion applies on the target's next request.
-const ROLE_CHANGE_ADMIN_403 = "Admin accounts cannot be modified here.";
+const ROLE_CHANGE_ADMIN_403 = "Owner accounts cannot be modified here.";
 const ROLE_UNCHANGED_409 = "That member already has this role.";
 
 async function handleRoleChangeRoute(request, env, url, path, method) {
@@ -250,24 +289,29 @@ async function handleRoleChangeRoute(request, env, url, path, method) {
     "SELECT id, role FROM users WHERE id = ? LIMIT 1",
   ).bind(targetId).first();
   if (!target) throw new HttpError(404, "Member not found.");
-  if (target.role === "admin") throw new HttpError(403, ROLE_CHANGE_ADMIN_403);
+  // Two vocabularies (v3.1 rename): the WHERE guard binds the STORED value
+  // the row actually carries; every comparison below runs in the public
+  // vocabulary after publicRole maps it.
+  const storedRole = target.role;
+  const currentRole = publicRole(storedRole);
+  if (currentRole === "owner") throw new HttpError(403, ROLE_CHANGE_ADMIN_403);
 
   if (match[2] === "promote") {
-    if (target.role !== "member") throw new HttpError(409, ROLE_UNCHANGED_409);
-  } else if (target.role !== "moderator") {
+    if (currentRole !== "member") throw new HttpError(409, ROLE_UNCHANGED_409);
+  } else if (currentRole !== "admin") {
     throw new HttpError(409, ROLE_UNCHANGED_409);
   }
 
-  const nextRole = match[2] === "promote" ? "moderator" : "member";
+  const nextRole = match[2] === "promote" ? ROLE_ADMIN_DB : ROLE_MEMBER_DB;
   const result = await db.prepare(
     "UPDATE users SET role = ? WHERE id = ? AND role = ?",
-  ).bind(nextRole, targetId, target.role).run();
+  ).bind(nextRole, targetId, storedRole).run();
   if (Number(result.meta?.changes) !== 1) {
     // The role changed between the read and the write; report the stale-role
     // conflict rather than pretending the promotion happened.
     throw new HttpError(409, ROLE_UNCHANGED_409);
   }
-  return json({ ok: true, role: nextRole });
+  return json({ ok: true, role: publicRole(nextRole) });
 }
 
 // Pending avatar moderation queue: oldest uploads first, capped at 100.
@@ -280,13 +324,24 @@ async function handleAvatarQueueRoute(request, env, url, path, method) {
         "FROM users WHERE avatar_status = 'pending' " +
         "ORDER BY pending_avatar_updated_at ASC LIMIT 100",
     ).bind().all();
+    // Vision verdicts key on (kind 'avatar', user id), and carry the pending
+    // version they describe: a re-upload while pending invalidates the old
+    // report, so only a version match surfaces (stale rows read as absent).
+    const verdicts = await visionVerdictsByEntity(db, "avatar",
+      (result.results || []).map((row) => row.id));
     return json({
-      avatars: (result.results || []).map((row) => ({
-        userId: Number(row.id),
-        username: row.username,
-        avatarUrl: "/api/avatars/" + row.id + "?v=" + row.pending_avatar_version,
-        uploadedAt: new Date(Number(row.pending_avatar_updated_at) * 1000).toISOString(),
-      })),
+      avatars: (result.results || []).map((row) => {
+        const verdict = verdicts.get(String(row.id));
+        return {
+          userId: Number(row.id),
+          username: row.username,
+          avatarUrl: "/api/avatars/" + row.id + "?v=" + row.pending_avatar_version,
+          uploadedAt: new Date(Number(row.pending_avatar_updated_at) * 1000).toISOString(),
+          vision: verdict && verdict.version === row.pending_avatar_version
+            ? publicVisionVerdict(verdict)
+            : null,
+        };
+      }),
     });
   }
   return null;
@@ -306,8 +361,15 @@ async function resolveAvatarPending(db, userId, approve) {
         "pending_avatar_updated_at = NULL, pending_avatar_version = NULL, " +
         "avatar_status = 'approved' " +
         "WHERE id = ? AND avatar_status = 'pending'",
-    ).bind(userId).run();
-    if (Number(result.meta?.changes) !== 1) {
+    ).bind(userId);
+    const results = await db.batch([
+      result,
+      // The Vision report described the pending upload, now decided.
+      db.prepare(
+        "DELETE FROM vision_verdicts WHERE kind = 'avatar' AND entity_id = ?",
+      ).bind(String(userId)),
+    ]);
+    if (Number(results[0].meta?.changes) !== 1) {
       throw new HttpError(409, "That avatar is not awaiting review.");
     }
     return;
@@ -322,8 +384,14 @@ async function resolveAvatarPending(db, userId, approve) {
       "pending_avatar_updated_at = NULL, pending_avatar_version = NULL, " +
       "avatar_status = CASE WHEN avatar_mime IS NOT NULL THEN 'approved' ELSE NULL END " +
       "WHERE id = ? AND avatar_status = 'pending'",
-  ).bind(userId).run();
-  if (Number(result.meta?.changes) !== 1) {
+  ).bind(userId);
+  const results = await db.batch([
+    result,
+    db.prepare(
+      "DELETE FROM vision_verdicts WHERE kind = 'avatar' AND entity_id = ?",
+    ).bind(String(userId)),
+  ]);
+  if (Number(results[0].meta?.changes) !== 1) {
     throw new HttpError(409, "That avatar is not awaiting review.");
   }
 }
@@ -447,6 +515,37 @@ async function handleHiddenPostsRoute(request, env, url, path, method) {
   });
 }
 
+// Member search (v3.1, Pone's ask — "make it easy to find players and unban
+// them"): staff-only username lookup with the active-ban state attached, so
+// an unban is one search + one button away.
+async function handleMemberSearchRoute(request, env, url, path, method) {
+  if (path !== "/api/admin/users/search" || method !== "GET") return null;
+  await requiremod(request, env, false);
+  const query = String(url.searchParams.get("q") || "").trim().toLowerCase();
+  if (!query) return json({ members: [] });
+  const pattern = "%" + query.replace(/[\\%_]/g, (character) => "\\" + character) + "%";
+  const result = await env.FORUM_DB.prepare(
+    "SELECT u.id, u.username, u.role, " +
+      "(SELECT b.reason FROM bans b WHERE b.user_id = u.id AND b.revoked_at IS NULL " +
+      "AND (b.expires_at IS NULL OR b.expires_at > ?) ORDER BY b.id DESC LIMIT 1) AS ban_reason, " +
+      "(SELECT b.expires_at FROM bans b WHERE b.user_id = u.id AND b.revoked_at IS NULL " +
+      "AND (b.expires_at IS NULL OR b.expires_at > ?) ORDER BY b.id DESC LIMIT 1) AS ban_expires_at " +
+      "FROM users u WHERE u.username_key LIKE ? ESCAPE '\\' ORDER BY u.id ASC LIMIT 20",
+  ).bind(nowSeconds(), nowSeconds(), pattern).all();
+  return json({
+    members: (result.results || []).map((row) => ({
+      id: Number(row.id),
+      username: row.username,
+      role: publicRole(row.role),
+      banned: Boolean(row.ban_reason),
+      banReason: row.ban_reason || null,
+      banExpiresAt: row.ban_expires_at === null || row.ban_expires_at === undefined
+        ? null
+        : Number(row.ban_expires_at),
+    })),
+  });
+}
+
 async function handleModerationRoutes(request, env, url, path, method) {
   const handlers = [
     handleReportCreateRoute,
@@ -454,6 +553,7 @@ async function handleModerationRoutes(request, env, url, path, method) {
     handleReportResolveRoute,
     handleBanListRoute,
     handleBanMutationRoute,
+    handleMemberSearchRoute,
     handleRoleChangeRoute,
     handleAvatarQueueRoute,
     handleAvatarModerationRoute,

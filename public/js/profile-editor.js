@@ -168,7 +168,7 @@ export function renderProfileEditor(main, user) {
     })),
     createInput(document, {
       id: "profile-banner-color", name: "bannerColor", label: "Banner color",
-      maxLength: 10, description: "green, rust, gold, slate, plum, or blank to clear.",
+      maxLength: 7, description: "Any hex like #4d8fc4, or blank to clear.",
     }),
     createInput(document, {
       id: "profile-banner-text", name: "bannerText", label: "Banner text",
@@ -201,21 +201,21 @@ export function renderProfileEditor(main, user) {
   return panel;
 }
 
-// Profile themes (v2.5): the palette mirrors api/shared.mjs's PROFILE_ACCENTS
-// whitelist EXACTLY (the server is the validator; this copy is display-only).
-// Colors apply via per-key CSS classes (styles.css) — no inline styles, so a
-// restrictive CSP is happy; "none" is the forum default green.
-export const PROFILE_ACCENT_KEYS = ["", "forest", "coral", "gold", "sky", "violet", "rose", "teal"];
-export const PROFILE_ACCENT_LABELS = {
-  "": "Default",
-  forest: "Forest",
-  coral: "Coral",
-  gold: "Gold",
-  sky: "Sky",
-  violet: "Violet",
-  rose: "Rose",
-  teal: "Teal",
-};
+// Profile colors (any hex, v3.0.2): the presets are display-only quick
+// picks — dataset.accent carries the HEX (the server re-validates and
+// stores lowercase hex; "" clears). The current accent arrives from the
+// server already normalized to hex, so pressed-state compares hex-to-hex.
+// The color input (wired by app.js) offers any #rrggbb beyond the presets.
+export const PROFILE_ACCENT_PRESETS = [
+  { key: "", label: "Default", hex: "" },
+  { key: "forest", label: "Forest", hex: "#3f8a63" },
+  { key: "coral", label: "Coral", hex: "#d05f4c" },
+  { key: "gold", label: "Gold", hex: "#d9a627" },
+  { key: "sky", label: "Sky", hex: "#4d8fc4" },
+  { key: "violet", label: "Violet", hex: "#8b6cc4" },
+  { key: "rose", label: "Rose", hex: "#c95f86" },
+  { key: "teal", label: "Teal", hex: "#3d9aa0" },
+];
 
 export function renderProfileAccentPicker(document, currentAccent = "") {
   const field = document.createElement("div");
@@ -224,17 +224,27 @@ export function renderProfileAccentPicker(document, currentAccent = "") {
   label.className = "accent-picker-label";
   label.textContent = "Profile color";
   field.append(label);
-  for (const key of PROFILE_ACCENT_KEYS) {
+  const current = String(currentAccent || "").toLowerCase();
+  for (const preset of PROFILE_ACCENT_PRESETS) {
     const swatch = document.createElement("button");
     swatch.type = "button";
-    swatch.className = "accent-swatch" + (key ? " accent-" + key : " accent-default");
-    swatch.dataset.accent = key;
+    swatch.className = "accent-swatch" + (preset.key ? " accent-" + preset.key : " accent-default");
+    swatch.dataset.accent = preset.hex;
     swatch.dataset.action = "set-profile-accent";
-    swatch.setAttribute("aria-label", "Profile color: " + PROFILE_ACCENT_LABELS[key]);
-    swatch.setAttribute("title", PROFILE_ACCENT_LABELS[key]);
-    swatch.setAttribute("aria-pressed", key === currentAccent ? "true" : "false");
+    swatch.setAttribute("aria-label", "Profile color: " + preset.label);
+    swatch.setAttribute("title", preset.label);
+    swatch.setAttribute("aria-pressed", preset.hex.toLowerCase() === current ? "true" : "false");
     field.append(swatch);
   }
+  // Any-hex pick: a native color input. app.js owns the change handler (this
+  // module stays DOM-pure); it PATCHes the hex and re-renders the route.
+  const colorInput = document.createElement("input");
+  colorInput.type = "color";
+  colorInput.className = "accent-color-input";
+  colorInput.value = /^#[0-9a-fA-F]{6}$/.test(String(currentAccent || "")) ? currentAccent : "#3f8a63";
+  colorInput.setAttribute("aria-label", "Custom profile color");
+  colorInput.setAttribute("title", "Custom color — any hex");
+  field.append(colorInput);
   return field;
 }
 

@@ -1,3 +1,5 @@
+import { BOARD_BY_SLUG } from "./boards.js";
+
 export const isPlainLeftClick = (event) =>
   event.button === 0 && !event.metaKey && !event.ctrlKey &&
   !event.shiftKey && !event.altKey;
@@ -7,11 +9,22 @@ export const routeForPath = (pathname, search = "") => {
   if (pathname === "/admin/reports") return { name: "admin" };
   if (pathname === "/notifications") return { name: "notifications" };
   if (pathname === "/bookmarks") return { name: "bookmarks" };
-  if (pathname === "/suggestions") return { name: "suggestions" };
+  if (pathname === "/appeals") return { name: "appeals" };
+  // Categories (v3.1, Discourse-style): /c/<slug> is the canonical category
+  // route; /suggestions stays as a live alias (the header lightbulb and the
+  // mobile bar's Suggest item both point at it). Unknown slugs 404 like any
+  // other unknown path.
+  if (pathname === "/suggestions") return { name: "category", board: "suggestions" };
   if (pathname === "/archive") return { name: "archive" };
   if (pathname === "/mine") return { name: "mine" };
   if (pathname === "/leaderboard") return { name: "leaderboard" };
   if (pathname === "/rules") return { name: "rules" };
+  const category = pathname.match(/^\/c\/([a-z0-9-]+)$/);
+  if (category) {
+    return BOARD_BY_SLUG[category[1]]
+      ? { name: "category", board: category[1] }
+      : { name: "not-found" };
+  }
   const post = pathname.match(/^\/posts\/(\d+)$/);
   if (post) return { name: "post", id: Number(post[1]) };
   const user = pathname.match(/^\/users\/([^/]+)$/);

@@ -2,7 +2,10 @@
 // against a banned account. renderBannedScreen appends into `main`; the caller
 // (app.js login flow) is responsible for clearing main first, matching how the
 // other route renderers own their own containers.
-import { addText } from "./forms.js";
+// Ban appeals (v3.1): the screen carries an appeal form. Banned members have
+// no session by definition, so the appeal posts to the session-less
+// POST /api/appeals with the username they tried to sign in with.
+import { addText, createForm, createInput, createTextarea } from "./forms.js";
 
 // Pure, DOM-free. expiresAt is an epoch-seconds number from the login 403
 // payload (null for permanent bans). Returns "3d 2h 14m"-style text with the
@@ -25,7 +28,7 @@ export const formatBanCountdown = (expiresAt, now = null) => {
   return parts.join(" ");
 };
 
-export function renderBannedScreen(main, { reason, expiresAt }) {
+export function renderBannedScreen(main, { reason, expiresAt, username = "" }) {
   const document = main.ownerDocument;
   const panel = document.createElement("section");
   panel.className = "panel banned-screen";
@@ -51,6 +54,30 @@ export function renderBannedScreen(main, { reason, expiresAt }) {
   } else {
     addText(document, panel, "p", "No reactivation time set....", "banned-countdown");
   }
+  // Ban appeals (v3.1): no session exists here, so the form posts the
+  // username it carries plus the appeal text; the server matches the
+  // username to its ACTIVE ban and rejects duplicates. The username input
+  // stays editable (the member may have mistyped it while signing in).
+  const appealForm = createForm(document, "ban-appeal", [
+    createInput(document, {
+      id: "ban-appeal-username",
+      name: "username",
+      label: "Username",
+      required: true,
+      minLength: 3,
+      maxLength: 24,
+      value: username,
+    }),
+    createTextarea(document, {
+      id: "ban-appeal-body",
+      name: "body",
+      label: "Why should this ban be lifted?",
+      required: true,
+      maxLength: 1000,
+      rows: 4,
+    }),
+  ], "Appeal this ban");
+  panel.append(appealForm);
   main.append(panel);
   return panel;
 }
