@@ -29,7 +29,7 @@ test("posts-write.mjs exports the write surface", () => {
   ]) {
     assert.equal(typeof write[name], "function", `posts-write.mjs must export ${name}`);
   }
-  assert.equal(write.MAX_COMPOSER_BODY_CHARS, 1000);
+  assert.equal(write.MAX_COMPOSER_BODY_CHARS, 4750);
   assert.equal(write.STAGED_IDEMPOTENCY_TTL_SECONDS, 30 * 60);
 });
 

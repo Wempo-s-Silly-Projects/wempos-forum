@@ -51,12 +51,12 @@ export function scheduleAttachmentVisionChecks(ctx, env, authorId, files, ids) {
   });
 }
 
-// Composer body cap (owner-set, post-spam response): root post AND reply
-// bodies accept at most 1,000 characters. Kept module-local because
-// constants.mjs holds platform-only constants; the frontend mirrors the number
-// in public/js/composer-limits.js (COMPOSER_MAX_CHARS feeds both the textarea
-// maxLength and the live counter).
-export const MAX_COMPOSER_BODY_CHARS = 1000;
+// Composer body cap (owner-set): root post AND reply bodies accept at most
+// 4,750 characters (bumped from 1,000 on main, 2026-11-05). Kept module-local
+// because constants.mjs holds platform-only constants; the frontend mirrors the
+// number in public/js/composer-limits.js (COMPOSER_MAX_CHARS feeds both the
+// textarea maxLength and the live counter — already at 4,750 there).
+export const MAX_COMPOSER_BODY_CHARS = 4750;
 
 export function getPostIdempotencyKey(request) {
   const key = request.headers.get("Idempotency-Key");
