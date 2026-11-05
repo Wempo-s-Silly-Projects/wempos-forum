@@ -1905,14 +1905,32 @@ dialog h2 {
 /* Live chat + online presence (v3.1): the header's count chip and the
    slide-over panel. The panel is fixed to the right edge, above the mobile
    bar; its stream lives outside <main> so route renders never wipe it. */
+/* The header's chat toggle (owner's call): a QUIET control — no button
+   chrome, no box; the glyph with the online count riding beside it. The
+   boxed icon-button look squeezed the glyph flat once the count joined it,
+   and the quiet look keeps the header calm. */
+.chat-button {
+  width: auto;
+  min-width: 2.5rem;
+  padding: 0 0.4rem;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  text-decoration: none;
+}
+.chat-button:hover {
+  color: var(--ink);
+}
+.chat-button svg {
+  flex-shrink: 0;
+}
 .chat-count {
   margin-left: 0.25rem;
-  padding: 0 0.35rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  padding: 0;
+  border: 0;
+  background: none;
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--muted);
 }
 .chat-page {
   display: flex;

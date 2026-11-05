@@ -39,7 +39,11 @@ function saveInvisiblePref(value) {
 // so the count badge is looked up fresh on every poll.
 export const createChatButton = (document) => {
   const link = document.createElement("a");
-  link.className = "button button-secondary icon-button";
+  // The chat toggle (owner's call): a QUIET control — no button chrome, just
+  // the glyph with the online count riding beside it. The boxed icon-button
+  // look squeezed the glyph flat once the count joined it, and a hallway
+  // door doesn't need to weigh as much as the nav buttons.
+  link.className = "icon-button chat-button";
   link.href = "/chat";
   link.setAttribute("data-app-link", "");
   link.setAttribute("aria-label", "Chat");
