@@ -5,21 +5,10 @@
 // and migrations/0003_attachments.sql for the pre-chunk history) — D1 caps a
 // single BLOB/row at 2,000,000 bytes, so any attachment above that size is
 // split across rows. R2 is not enabled on this account.
-import {
-  HttpError,
-  assertNotBanned,
-  blobToUint8Array,
-  createAvatarVersion,
-  imageResponse,
-  json,
-  nowSeconds,
-  readLimitedBody,
-  readJson,
-  readSession,
-  requiremod,
-  sanitizeImage,
-  sniffImageMime,
-} from "./shared.mjs";
+import { assertNotBanned, readSession, requireStaff } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, readLimitedBody, readJson } from "./core/http.mjs";
+import { blobToUint8Array, createAvatarVersion, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
 import { assembledGifBytes, GIF_FIELD } from "./gifs.mjs";
 import { publicVisionVerdict, visionVerdictsByEntity } from "./vision.mjs";
 
@@ -364,8 +353,8 @@ async function handleAttachmentServingRoute(request, env, path, method) {
   if (row.status === "pending") {
     const session = await readSession(request, env);
     const viewer = session && session.user;
-    const ismod = viewer && (viewer.role === "owner" || viewer.role === "admin");
-    if (viewer && (viewer.id === Number(row.created_by) || ismod)) {
+    const isStaff = viewer && (viewer.role === "owner" || viewer.role === "admin");
+    if (viewer && (viewer.id === Number(row.created_by) || isStaff)) {
       const bytes = await assembledChunkBytes(env.FORUM_DB, row.id, "pending");
       if (bytes) {
         const response = imageResponse(bytes, row.mime, "private, max-age=300");
@@ -393,7 +382,7 @@ const ATTACHMENT_MODERATION_ROUTE =
 async function handleAttachmentAdminRoutes(request, env, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/attachments" && method === "GET") {
-    await requiremod(request, env, false);
+    await requireStaff(request, env, false);
     const result = await db.prepare(
       "SELECT a.id, a.post_id, a.mime, a.created_at, u.username AS uploader, " +
         "SUM(length(c.data)) AS size_bytes, COUNT(c.seq) AS chunk_count " +
@@ -422,7 +411,7 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
   const moderationMatch = path.match(ATTACHMENT_MODERATION_ROUTE);
   if (!moderationMatch || method !== "POST") return null;
 
-  const session = await requiremod(request, env);
+  const session = await requireStaff(request, env);
   await assertNotBanned(env, session.user.id);
   const attachmentId = moderationMatch[1];
   if (moderationMatch[2] === "approve") {
@@ -530,13 +519,13 @@ export async function attachmentRowsForView(db, postIds, viewer) {
       // correctness but must not shuffle between reads).
       "ORDER BY created_at ASC, id ASC",
   ).bind(...ids).all();
-  const ismod = Boolean(viewer) &&
+  const isStaff = Boolean(viewer) &&
     (viewer.role === "owner" || viewer.role === "admin");
   const viewerId = viewer ? Number(viewer.id) : NaN;
   for (const row of result.results || []) {
     if (row.status === "rejected") continue;
     const visible = row.status === "approved" ||
-      (Boolean(viewer) && (ismod || Number(row.created_by) === viewerId));
+      (Boolean(viewer) && (isStaff || Number(row.created_by) === viewerId));
     if (!visible) continue;
     const postId = Number(row.post_id);
     const rows = byPost.get(postId) || [];

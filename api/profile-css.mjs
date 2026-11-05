@@ -1,7 +1,8 @@
 // v4.0 plan 3, Task 1: the custom-profile-CSS sandbox — the submit/serve
 // routes for profile styles live in api/profile-css.mjs, and this family is
 // the pure string pipeline they (and the profile read) share. Moved verbatim
-// from api/shared.mjs; imports nothing (a true leaf, like core/).
+// out of shared.mjs (deleted in the final sweep); imports nothing (a true
+// leaf, like core/).
 //
 // Custom profile CSS (v2.5): the sandbox. Mods approve the TEXT, and at serve
 // time the raw CSS is re-scoped before it ever reaches a page:

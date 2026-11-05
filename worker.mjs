@@ -2,7 +2,7 @@
 // api/; worker.mjs re-exports the functions that tests import. workerd
 // validates every Worker export as a function or ExportedHandler, so besides
 // the default fetch only `export { ... } from` re-exports appear here.
-import { HttpError, json, rateLimit, securityHeaders } from "./api/shared.mjs";
+import { HttpError, json, rateLimit, securityHeaders } from "./api/core/http.mjs";
 import { handleAuthRoutes } from "./api/session.mjs";
 import { handlePostRoutes } from "./api/posts.mjs";
 import { handleProfileRoutes } from "./api/profiles.mjs";
@@ -23,23 +23,24 @@ import { handleDmRoutes } from "./api/dms.mjs";
 import { handleVisionAdminRoutes } from "./api/vision.mjs";
 import { handleTextModAdminRoutes } from "./api/textmod.mjs";
 
+export { canViewPost } from "./api/core/visibility.mjs";
+export { isValidUsername } from "./api/core/shapers.mjs";
+export { createSession } from "./api/core/auth.mjs";
 export {
-  blobToUint8Array,
-  canViewPost,
-  createAvatarVersion,
-  createSession,
   hashPassword,
-  imageResponse,
   isValidPassword,
   isValidPasswordPepper,
   isValidSetupSecret,
-  isValidUsername,
-  rateLimit,
-  requireTurnstile,
+  verifyPassword,
+} from "./api/core/passwords.mjs";
+export {
+  createAvatarVersion,
+  imageResponse,
   sanitizeImage,
   sniffImageMime,
-  verifyPassword,
-} from "./api/shared.mjs";
+  blobToUint8Array,
+} from "./api/core/images.mjs";
+export { requireTurnstile, rateLimit } from "./api/core/http.mjs";
 export { createUserBan } from "./api/moderation.mjs";
 export { fanOutStatements, notificationBatchStatements, unreadCount } from "./api/notifications.mjs";
 

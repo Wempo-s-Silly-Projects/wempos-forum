@@ -67,8 +67,19 @@ test("core modules import nothing outside core/", () => {
   }
 });
 
-test("shared.mjs keeps its full export surface", async () => {
-  const shared = await import("../api/shared.mjs");
+test("the former shared.mjs export surface lives in the core modules", async () => {
+  const homes = [
+    await import("../api/core/auth.mjs"),
+    await import("../api/core/crypto.mjs"),
+    await import("../api/core/http.mjs"),
+    await import("../api/core/images.mjs"),
+    await import("../api/core/passwords.mjs"),
+    await import("../api/core/roles.mjs"),
+    await import("../api/core/shapers.mjs"),
+    await import("../api/core/visibility.mjs"),
+    await import("../api/core/archive.mjs"),
+  ].map((m) => Object.keys(m));
+  const union = new Set(homes.flat());
   for (const name of [
     "ROLE_OWNER_DB", "ROLE_ADMIN_DB", "ROLE_MEMBER_DB", "publicRole",
     "requestIpHash", "assertNetworkNotBanned", "POST_SELECT", "VIEW_INCREMENT_SQL",
@@ -78,21 +89,14 @@ test("shared.mjs keeps its full export surface", async () => {
     "rateLimit", "requireTurnstile", "isValidHexColor", "PROFILE_BANNER_COLORS",
     "PROFILE_ACCENTS", "normalizeProfileColorInput", "normalizeProfileColor",
     "normalizeProfileAccent", "normalizeBannerColor", "canViewPost",
-    // handleAvatarReadRoute left the surface in plan 3 Task 2 — moved
-    // verbatim (with upload + the moderation queue) to api/avatars.mjs;
-    // profiles.mjs imports from there now.
     "archivePostRowsStatement",
-    // CUSTOM_CSS_MAX_BYTES + scopeProfileCss left the surface in plan 3
-    // Task 1: the whole profile-CSS sandbox family moved verbatim to
-    // api/profile-css.mjs (its only consumer, profiles.mjs, imports from
-    // there now).
     "HttpError", "nowSeconds", "sha256Hex", "randomToken", "equalConstantTime",
-    "readSession", "requireCsrf", "requireUser", "requireSignedInRead", "requiremod",
+    "readSession", "requireCsrf", "requireUser", "requireSignedInRead", "requireStaff",
     "requireAdmin", "assertSameOrigin", "assertNotBanned", "requireMutationApplied",
     "readLimitedBody", "readJson", "requiredText", "securityHeaders", "json",
     "userByUsernameKey", "SOCIAL_PLATFORMS", "socialsFromRow", "publicUser",
     "publicPost", "postById", "MAX_JSON_BYTES",
   ]) {
-    assert.ok(name in shared, `shared.mjs must keep exporting ${name}`);
+    assert.ok(union.has(name), `the core modules must keep exporting ${name}`);
   }
 });

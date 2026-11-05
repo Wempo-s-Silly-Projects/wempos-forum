@@ -20,14 +20,10 @@
 // text (api/textmod.mjs's evaluateExtractedText — the word filter always,
 // the moderation classifier when configured). A trip on the embedded text
 // removes the image through the exact same path as a SafeSearch trip.
-import {
-  assertNotBanned,
-  blobToUint8Array,
-  json,
-  nowSeconds,
-  readJson,
-  requiremod,
-} from "./shared.mjs";
+import { assertNotBanned, requireStaff } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { json, readJson } from "./core/http.mjs";
+import { blobToUint8Array } from "./core/images.mjs";
 import { evaluateExtractedText } from "./textmod.mjs";
 
 const VISION_ANNOTATE_URL = "https://vision.googleapis.com/v1/images:annotate";
@@ -557,14 +553,14 @@ export function publicVisionVerdict(row) {
 export async function handleVisionAdminRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/vision" && method === "GET") {
-    await requiremod(request, env, false);
+    await requireStaff(request, env, false);
     return json({
       configured: isVisionConfigured(env),
       killSwitch: await isVisionKilled(db),
     });
   }
   if (path === "/api/admin/vision-kill-switch" && method === "POST") {
-    const session = await requiremod(request, env);
+    const session = await requireStaff(request, env);
     await assertNotBanned(env, session.user.id);
     const body = await readJson(request);
     const tripped = body.tripped === true || body.tripped === "true";

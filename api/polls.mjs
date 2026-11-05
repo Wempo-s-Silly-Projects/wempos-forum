@@ -2,18 +2,11 @@
 // changeable vote per member per poll, and the detail payload's poll shape —
 // question, options with counts (ALWAYS visible), total, and the viewer's own
 // option. Polls are display-only: nothing here ever touches feed sorting.
-import {
-  assertNotBanned,
-  canViewPost,
-  HttpError,
-  json,
-  nowSeconds,
-  postById,
-  rateLimit,
-  readJson,
-  requireUser,
-  requiredText,
-} from "./shared.mjs";
+import { assertNotBanned, requireUser } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readJson, requiredText } from "./core/http.mjs";
+import { postById } from "./core/shapers.mjs";
+import { canViewPost } from "./core/visibility.mjs";
 import { applyWordFilter } from "./filter.mjs";
 
 const MAX_POLL_QUESTION_CHARS = 200;

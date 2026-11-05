@@ -4,16 +4,11 @@
 // rate limit, then post visibility); the fan-out mirrors the ordinary reply
 // notification batch (api/notifications.mjs): one dedupe-guarded INSERT and
 // one cap-pruning DELETE per recipient, batched, best-effort at the call site.
-import {
-  assertNotBanned,
-  canViewPost,
-  HttpError,
-  json,
-  nowSeconds,
-  postById,
-  rateLimit,
-  requireUser,
-} from "./shared.mjs";
+import { assertNotBanned, requireUser } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit } from "./core/http.mjs";
+import { postById } from "./core/shapers.mjs";
+import { canViewPost } from "./core/visibility.mjs";
 import { fanOutStatements } from "./notifications.mjs";
 
 // Subscribers of one thread root. Resolved with ONE query per reply — never a

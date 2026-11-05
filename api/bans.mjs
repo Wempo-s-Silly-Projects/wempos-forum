@@ -6,20 +6,15 @@
 // .mjs and that surface does not change.
 import { UNBAN_ACTIVE_UPDATE_SQL } from "../constants.mjs";
 import { applyWordFilter } from "./filter.mjs";
-import {
-  HttpError,
-  json,
-  nowSeconds,
-  publicRole,
-  readJson,
-  requiremod,
-  requiredText,
-} from "./shared.mjs";
+import { requireStaff } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, readJson, requiredText } from "./core/http.mjs";
+import { publicRole } from "./core/roles.mjs";
 
 async function handleBanListRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/bans" && method === "GET") {
-    await requiremod(request, env, false);
+    await requireStaff(request, env, false);
     const result = await db.prepare(
       "SELECT b.id, b.user_id, b.reason, b.expires_at, u.username " +
         "FROM bans b JOIN users u ON u.id = b.user_id " +
@@ -121,7 +116,7 @@ async function handleBanMutationRoute(request, env, url, path, method) {
   const match = path.match(/^\/api\/admin\/users\/([0-9]+)\/bans$/);
   if (!match || (method !== "POST" && method !== "DELETE")) return null;
 
-  const session = await requiremod(request, env);
+  const session = await requireStaff(request, env);
   const targetId = Number(match[1]);
   if (!Number.isSafeInteger(targetId) || targetId < 1) throw new HttpError(404, "Member not found.");
   const db = env.FORUM_DB;

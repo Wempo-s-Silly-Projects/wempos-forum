@@ -3,33 +3,14 @@
 // profile-css.mjs (Task 1 consumes its sandbox here); report routes moved to
 // reports.mjs in Task 4. Everything else — profile read/update, password,
 // account deletion — stays here this plan.
-import {
-  assertNotBanned,
-  hashPassword,
-  HttpError,
-  archivePostRowsStatement,
-  isValidPassword,
-  normalizeBannerColor,
-  normalizeProfileAccent,
-  normalizeProfileColorInput,
-  PROFILE_ACCENTS,
-  PROFILE_BANNER_COLORS,
-  json,
-  nowSeconds,
-  rateLimit,
-  readJson,
-  readLimitedBody,
-  readSession,
-  requireMutationApplied,
-  requiremod,
-  requireUser,
-  publicRole,
-  SOCIAL_PLATFORMS,
-  socialsFromRow,
-  userByUsernameKey,
-  verifyPassword,
-} from "./shared.mjs";
-import { listRootPosts } from "./posts.mjs";
+import { archivePostRowsStatement } from "./core/archive.mjs";
+import { assertNotBanned, readSession, requireStaff, requireUser } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readJson, readLimitedBody, requireMutationApplied } from "./core/http.mjs";
+import { hashPassword, isValidPassword, verifyPassword } from "./core/passwords.mjs";
+import { publicRole } from "./core/roles.mjs";
+import { normalizeBannerColor, normalizeProfileAccent, normalizeProfileColorInput, PROFILE_ACCENTS, PROFILE_BANNER_COLORS, SOCIAL_PLATFORMS, socialsFromRow, userByUsernameKey } from "./core/shapers.mjs";
+import { listRootPosts } from "./posts-feed.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
 // v4.0 plan 3, Task 2: the avatar lifecycle (upload, serve, moderation queue)
 // moved to its topic module — the dispatcher keeps registering these two.
@@ -99,7 +80,7 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       bannerText: applyWordFilter(user.banner_text || "", env.FILTERED_WORDS) || "",
       flair: applyWordFilter(user.flair || "", env.FILTERED_WORDS) || "",
       // Custom CSS (v2.5): only the APPROVED css serves, pre-scoped by the
-      // sandbox (shared.mjs); pending rewrites stay invisible to the public.
+      // sandbox (profile-css.mjs); pending rewrites stay invisible to the public.
       customCss: scopeProfileCss(user.approved_css || ""),
       customCssRaw: session?.user?.id === Number(user.id)
         ? String(user.pending_css ?? user.approved_css ?? "")
@@ -278,7 +259,7 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
 // Custom profile CSS (v2.5): members submit raw CSS (≤20 KiB); it lands
 // pending (the previously approved CSS keeps serving — the avatar-mirror
 // rule), and only mods flip it. The profile payload carries only the
-// APPROVED css, pre-scoped via scopeProfileCss (shared.mjs's sandbox).
+// APPROVED css, pre-scoped via scopeProfileCss (profile-css.mjs's sandbox).
 async function handleCssSetRoute(request, env, url, path, method) {
   if (path !== "/api/me/css" || method !== "POST") return null;
   const session = await requireUser(request, env);
@@ -364,7 +345,7 @@ async function handleCssStylesheetRoute(request, env, url, path, method) {
 async function handleCssAdminRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/css" && method === "GET") {
-    await requiremod(request, env, false);
+    await requireStaff(request, env, false);
     const result = await db.prepare(
       "SELECT id, username, pending_css, pending_css_version, css_status FROM users " +
       "WHERE css_status = 'pending' AND pending_css IS NOT NULL ORDER BY id LIMIT 100",
@@ -384,7 +365,7 @@ async function handleCssAdminRoutes(request, env, url, path, method) {
   }
   const cssMatch = path.match(/^\/api\/admin\/css\/([0-9]+)\/(approve|reject)$/);
   if (cssMatch && method === "POST") {
-    const session = await requiremod(request, env);
+    const session = await requireStaff(request, env);
     await assertNotBanned(env, session.user.id);
     const userId = Number(cssMatch[1]);
     if (!Number.isSafeInteger(userId) || userId < 1) throw new HttpError(404, "Not found.");
@@ -461,7 +442,8 @@ async function handlePasswordChangeRoute(request, env, url, path, method) {
 }
 
 // Account deletion (v2.4.1 feature): POST /api/me/delete. Same-origin + CSRF
-// via requireUser (mutating routes are Origin-gated in shared.mjs and the
+// via requireUser (mutating routes are Origin-gated by the core auth/CSRF
+// gates and the
 // worker's global write limiter runs first); the handler re-runs the write
 // limiter like the post routes do. assertNotBanned is deliberately absent
 // (spec-required for exactly this route): ban enforcement is lazy — the

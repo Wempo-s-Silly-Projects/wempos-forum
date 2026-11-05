@@ -6,16 +6,10 @@
 // background (a trip deletes the row; the action is appealable), and rows by
 // actively banned authors vanish at read time — read-time only, so an unban
 // restores the wall without any write.
-import {
-  HttpError,
-  assertNotBanned,
-  json,
-  nowSeconds,
-  publicRole,
-  rateLimit,
-  readJson,
-  requireUser,
-} from "./shared.mjs";
+import { assertNotBanned, requireUser } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
+import { publicRole } from "./core/roles.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { scheduleTextCheck } from "./textmod.mjs";
 

@@ -6,19 +6,11 @@
 // message with both participants named — so DMs are reviewable, not a blind
 // spot. No unread tracking in v1: the conversation list sorts by the latest
 // message.
-import {
-  HttpError,
-  assertNotBanned,
-  json,
-  nowSeconds,
-  publicRole,
-  rateLimit,
-  readJson,
-  requireSignedInRead,
-  requireUser,
-  requiremod,
-  userByUsernameKey,
-} from "./shared.mjs";
+import { assertNotBanned, requireSignedInRead, requireUser, requireStaff } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
+import { publicRole } from "./core/roles.mjs";
+import { userByUsernameKey } from "./core/shapers.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { scheduleTextCheck } from "./textmod.mjs";
 
@@ -221,7 +213,7 @@ async function handleDmMessageDeleteRoute(request, env, url, path, method) {
 // the read-time ban filter. Same review-and-delete posture as the chat log.
 async function handleAdminDmLogRoute(request, env, url, path, method) {
   if (path !== "/api/admin/dms" || method !== "GET") return null;
-  await requiremod(request, env, false);
+  await requireStaff(request, env, false);
   const beforeRaw = url.searchParams.get("before");
   let before = null;
   if (beforeRaw !== null && beforeRaw !== "") {

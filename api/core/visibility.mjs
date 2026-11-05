@@ -11,13 +11,13 @@
 // without any write ("now" stays SQL-computed and bind-free).
 export async function canViewPost(env, row, viewer) {
   if (!row) return false;
-  const ismod = Boolean(viewer && (viewer.role === "owner" || viewer.role === "admin"));
-  if (row.visibility !== "public" && !ismod) return false;
+  const isStaff = Boolean(viewer && (viewer.role === "owner" || viewer.role === "admin"));
+  if (row.visibility !== "public" && !isStaff) return false;
   const bannedAuthor = await env.FORUM_DB.prepare(
     "SELECT 1 FROM bans b WHERE b.user_id = ? AND b.revoked_at IS NULL " +
     "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1",
   ).bind(Number(row.author_id)).first();
-  if (bannedAuthor && !ismod) return false;
+  if (bannedAuthor && !isStaff) return false;
   // Every ancestor up to the root (parent, and the grandparent root for
   // level-2 replies) must be viewable: hidden ancestors never leak through a
   // public reply chain. The same mod-only rule applies per ancestor.
@@ -26,12 +26,12 @@ export async function canViewPost(env, row, viewer) {
     const ancestor = await env.FORUM_DB.prepare(
       "SELECT id, author_id, visibility, parent_id FROM posts WHERE id = ? LIMIT 1",
     ).bind(Number(ancestorId)).first();
-    if (!ancestor || (ancestor.visibility !== "public" && !ismod)) return false;
+    if (!ancestor || (ancestor.visibility !== "public" && !isStaff)) return false;
     const ancestorBanned = await env.FORUM_DB.prepare(
       "SELECT 1 FROM bans b WHERE b.user_id = ? AND b.revoked_at IS NULL " +
       "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1",
     ).bind(Number(ancestor.author_id)).first();
-    if (ancestorBanned && !ismod) return false;
+    if (ancestorBanned && !isStaff) return false;
     ancestorId = ancestor.parent_id;
   }
   return true;

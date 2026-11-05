@@ -25,19 +25,11 @@ import {
   scheduleAttachmentVisionChecks,
   throwIfArchivedIdempotencyKey,
 } from "./posts-write.mjs";
-import {
-  assertNotBanned,
-  canViewPost,
-  HttpError,
-  json,
-  nowSeconds,
-  postById,
-  rateLimit,
-  readSession,
-  requireTurnstile,
-  requireUser,
-  requiredText,
-} from "./shared.mjs";
+import { assertNotBanned, readSession, requireUser } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, requireTurnstile, requiredText } from "./core/http.mjs";
+import { postById } from "./core/shapers.mjs";
+import { canViewPost } from "./core/visibility.mjs";
 
 export async function handleRepliesReadRoute(request, env, url, path, method) {
   const repliesReadMatch = path.match(/^\/api\/posts\/([0-9]+)\/replies$/);

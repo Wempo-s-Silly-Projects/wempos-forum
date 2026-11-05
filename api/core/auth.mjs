@@ -163,11 +163,12 @@ export async function requireSignedInRead(request, env) {
 
 // Moderation gate: staff — the admin tier plus the owner (v3.1 public
 // vocabulary; 'moderator' survives only as the STORED role value for the
-// admin tier). Mutating (default) requests go
+// admin tier; the pre-rename requiremod spelling was renamed requireStaff
+// in the final sweep). Mutating (default) requests go
 // through requireUser (same-origin + CSRF); read-only requests skip that.
 // Roles are read at request time, so demotions take effect on the next
 // readSession without any session invalidation.
-export async function requiremod(request, env, mutating = true) {
+export async function requireStaff(request, env, mutating = true) {
   const session = mutating
     ? await requireUser(request, env)
     : await requireSignedInRead(request, env);

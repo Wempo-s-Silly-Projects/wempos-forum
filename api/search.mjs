@@ -3,15 +3,10 @@
 // Moved verbatim from api/posts.mjs.
 import { SEARCH_USERS_SQL } from "../constants.mjs";
 import { banFilterSql, listRootPosts } from "./posts-feed.mjs";
-import {
-  canViewPost,
-  HttpError,
-  json,
-  publicPost,
-  publicUser,
-  readSession,
-  userByUsernameKey,
-} from "./shared.mjs";
+import { readSession } from "./core/auth.mjs";
+import { HttpError, json } from "./core/http.mjs";
+import { publicPost, publicUser, userByUsernameKey } from "./core/shapers.mjs";
+import { canViewPost } from "./core/visibility.mjs";
 
 export async function handleSearchRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;

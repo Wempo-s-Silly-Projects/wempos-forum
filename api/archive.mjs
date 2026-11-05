@@ -3,7 +3,7 @@
 // point is that deletion is never a way to scrub words (rooman98's ask), so
 // this read is unauthenticated: anyone who can visit the forum can view what
 // was destroyed, marked with who wrote it and why it's gone.
-import { HttpError, json } from "./shared.mjs";
+import { HttpError, json } from "./core/http.mjs";
 
 const ARCHIVE_PAGE_SIZE = 51;
 

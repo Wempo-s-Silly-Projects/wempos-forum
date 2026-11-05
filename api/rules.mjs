@@ -2,7 +2,9 @@
 // POST /api/admin/rules (admin-only; the desk has the editor). The rules'
 // markdown renders via the same safe subset as post bodies; HTML stays
 // literal and images/embeds never render (the markdown renderer's rules).
-import { HttpError, json, nowSeconds, rateLimit, requiremod, readLimitedBody } from "./shared.mjs";
+import { requireStaff } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readLimitedBody } from "./core/http.mjs";
 import { applyWordFilter } from "./filter.mjs";
 
 const RULES_KEY = "rules";
@@ -20,7 +22,7 @@ export async function handleRulesRoutes(request, env, url, path, method) {
     });
   }
   if (method === "POST") {
-    const session = await requiremod(request, env);
+    const session = await requireStaff(request, env);
     await rateLimit(request, env, "write");
     const raw = await readLimitedBody(request, RULES_MAX_BYTES + 1024);
     const text = new TextDecoder().decode(raw);

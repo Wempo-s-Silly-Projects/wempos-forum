@@ -21,7 +21,7 @@ import {
   scheduleVisionCheck,
   tripsAutoMod,
 } from "../api/vision.mjs";
-import { publicRole, ROLE_ADMIN_DB, ROLE_OWNER_DB } from "../api/shared.mjs";
+import { publicRole, ROLE_ADMIN_DB, ROLE_OWNER_DB } from "../api/core/roles.mjs";
 
 // A recording db: prepare().bind() captures (sql, params); first() answers
 // from a per-SQL-substring table; batch() returns the always-changes shape.

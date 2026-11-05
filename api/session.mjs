@@ -1,33 +1,14 @@
-// Session, credentials, and first-owner setup routes. The avatar GET reader
-// moved to api/shared.mjs (registered on the profiles group in task 7).
+// Session, credentials, and first-owner setup routes. (The avatar GET reader
+// moved out with the avatar lifecycle in plan 3 — it registers on the
+// profiles group from api/avatars.mjs.)
 import { unreadCount } from "./notifications.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
-import {
-  createSession,
-  equalConstantTime,
-  hashPassword,
-  HttpError,
-  isValidPassword,
-  isValidPasswordPepper,
-  isValidSetupSecret,
-  assertNetworkNotBanned,
-  isValidUsername,
-  json,
-  nowSeconds,
-  publicUser,
-  ROLE_ADMIN_DB,
-  ROLE_OWNER_DB,
-  rateLimit,
-  readJson,
-  readSession,
-  requireCsrf,
-  requireTurnstile,
-  requireUser,
-  securityHeaders,
-  sha256Hex,
-  userByUsernameKey,
-  verifyPassword,
-} from "./shared.mjs";
+import { createSession, assertNetworkNotBanned, readSession, requireCsrf, requireUser } from "./core/auth.mjs";
+import { equalConstantTime, nowSeconds, sha256Hex } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readJson, requireTurnstile, securityHeaders } from "./core/http.mjs";
+import { hashPassword, isValidPassword, isValidPasswordPepper, isValidSetupSecret, verifyPassword } from "./core/passwords.mjs";
+import { ROLE_ADMIN_DB, ROLE_OWNER_DB } from "./core/roles.mjs";
+import { isValidUsername, publicUser, userByUsernameKey } from "./core/shapers.mjs";
 
 const DUMMY_SALT = "00000000000000000000000000000000";
 const DUMMY_HASH = "0000000000000000000000000000000000000000000000000000000000000000";

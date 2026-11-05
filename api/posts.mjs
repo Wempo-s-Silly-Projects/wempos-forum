@@ -1,18 +1,13 @@
-// v4.0 plan 2 composer (Task 7 shaping): the posts surface's dispatcher.
-// Every route has split into boards.mjs, posts-feed.mjs, posts-write.mjs,
-// replies.mjs, search.mjs, and suggestions.mjs; this module imports the
-// handlers and composes the pinned POST_ROUTE_HANDLERS chain, plus the
-// historical re-exports (bookmarks.mjs imports banFilterSql, profiles.mjs
-// imports listRootPosts; POST_DELETE_SQL/REPLY_REPARENT_SQL/
-// postDeletionStatements stay reachable here until the final sweep
-// re-points importers).
+// v4.0 plan 2 composer (Task 7 shaping), final sweep applied: every route
+// has split into boards.mjs, posts-feed.mjs, posts-write.mjs, replies.mjs,
+// search.mjs, and suggestions.mjs; this module imports the handlers and
+// composes the pinned POST_ROUTE_HANDLERS chain. (bookmarks.mjs and
+// profiles.mjs now import banFilterSql/listRootPosts from posts-feed.mjs
+// directly; the FK strings live on posts-write.mjs with their test.)
 // v4.0 plan 2, Task 3: feed/detail reads moved to api/posts-feed.mjs.
 import {
-  banFilterSql,
   handlePostDetailRoute,
   handlePostFeedRoute,
-  listReplies,
-  listRootPosts,
 } from "./posts-feed.mjs";
 // v4.0 plan 2, Task 6: search and suggestion-status moved to their modules.
 import { handleSearchRoute } from "./search.mjs";
@@ -37,12 +32,6 @@ import {
   handleRepliesReadRoute,
   handleReplyCreateRoute,
 } from "./replies.mjs";
-import {
-  POST_SELECT,
-} from "./shared.mjs";
-
-export { POST_SELECT };
-
 // The dispatch order IS the API contract (first handler claiming a route
 // wins), so the chain lives here as an exported constant — tests/post-route-
 // order.test.mjs pins the exact sequence, and the plan-2 split composer must
@@ -61,19 +50,7 @@ async function handlePostRoutes(request, env, url, path, method, ctx) {
 // The posts surface's public faces, in one place:
 //   handlePostRoutes — the dispatcher worker.mjs mounts
 //   POST_ROUTE_HANDLERS — the pinned chain (tests/post-route-order.test.mjs)
-//   banFilterSql / listRootPosts / listReplies — historical imports
-//     (bookmarks.mjs, profiles.mjs) and test consumers
-//   POST_DELETE_SQL / REPLY_REPARENT_SQL / postDeletionStatements — kept
-//     reachable through posts.mjs until the final sweep re-points importers
-//     (the FK-string consumer is tests/posts-write-module.test.mjs, which
-//     imports posts-write.mjs directly)
 export {
   POST_ROUTE_HANDLERS,
-  POST_DELETE_SQL,
-  REPLY_REPARENT_SQL,
-  banFilterSql,
   handlePostRoutes,
-  listRootPosts,
-  listReplies,
-  postDeletionStatements,
 };

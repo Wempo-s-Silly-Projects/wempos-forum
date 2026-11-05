@@ -7,20 +7,11 @@
 import { applyWordFilter } from "./filter.mjs";
 import { scheduleReportVisionRecheck } from "./vision.mjs";
 import { scheduleTextCheck } from "./textmod.mjs";
-import {
-  assertNotBanned,
-  canViewPost,
-  HttpError,
-  json,
-  nowSeconds,
-  postById,
-  rateLimit,
-  readJson,
-  requireMutationApplied,
-  requiremod,
-  requireUser,
-  requiredText,
-} from "./shared.mjs";
+import { assertNotBanned, requireStaff, requireUser } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readJson, requireMutationApplied, requiredText } from "./core/http.mjs";
+import { postById } from "./core/shapers.mjs";
+import { canViewPost } from "./core/visibility.mjs";
 
 async function handleReportCreateRoute(request, env, url, path, method, ctx) {
   const db = env.FORUM_DB;
@@ -68,7 +59,7 @@ async function handleReportCreateRoute(request, env, url, path, method, ctx) {
 async function handleReportQueueRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/reports" && method === "GET") {
-    await requiremod(request, env, false);
+    await requireStaff(request, env, false);
     const result = await db.prepare(
       "SELECT r.id, r.reason, r.created_at, reporter.username AS reporter_username, " +
         "p.id AS post_id, p.body AS post_body, p.visibility AS post_visibility, author.id AS author_id, author.username AS author_username " +
@@ -84,7 +75,7 @@ async function handleReportQueueRoute(request, env, url, path, method) {
         reporter: { username: row.reporter_username },
         post: {
           id: Number(row.post_id),
-          // mod-only desk (v3.0.1): the queue is behind requiremod,
+          // mod-only desk (v3.0.1): the queue is behind requireStaff,
           // and the nuke rule leaves mods as the only viewers of hidden
           // content — so the body shows here instead of a withheld marker.
           body: row.post_body,
@@ -127,7 +118,7 @@ async function handleReportResolveRoute(request, env, url, path, method) {
   const match = path.match(/^\/api\/admin\/reports\/([0-9]+)\/resolve$/);
   if (!match || method !== "POST") return null;
 
-  const session = await requiremod(request, env);
+  const session = await requireStaff(request, env);
   const reportId = Number(match[1]);
   if (!Number.isSafeInteger(reportId) || reportId < 1) {
     throw new HttpError(404, "Report not found.");
@@ -152,7 +143,7 @@ async function handleReportResolveRoute(request, env, url, path, method) {
 }
 
 // Thread pinning (C5): POST /api/admin/threads/:id/pin|unpin — any staff
-// member, the desk idiom (requiremod mutating + changes-checked UPDATE
+// member, the desk idiom (requireStaff mutating + changes-checked UPDATE
 // with a SQL guard). Root-only like boards/subscriptions; the write-time WHERE
 // clauses are also the idempotency-conflict detector, turning a double pin or
 // an unpin of an unpinned thread into a 409 instead of a silent no-op.
@@ -163,7 +154,7 @@ async function handleThreadPinRoute(request, env, url, path, method) {
   const match = path.match(THREAD_PIN_ROUTE);
   if (!match || method !== "POST") return null;
 
-  const session = await requiremod(request, env);
+  const session = await requireStaff(request, env);
   await assertNotBanned(env, session.user.id);
   const threadId = Number(match[1]);
   if (!Number.isSafeInteger(threadId) || threadId < 1) {
@@ -212,7 +203,7 @@ async function handleThreadPinRoute(request, env, url, path, method) {
 async function handleHiddenPostsRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path !== "/api/admin/hidden" || method !== "GET") return null;
-  await requiremod(request, env, false);
+  await requireStaff(request, env, false);
   const result = await db.prepare(
     "SELECT p.id, p.body, p.visibility, p.board, p.created_at, p.parent_id, " +
       "author.id AS author_id, author.username AS author_username, " +
@@ -288,7 +279,7 @@ async function handleProfileReportRoute(request, env, url, path, method, ctx) {
 async function handleProfileReportAdminRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/profile-reports" && method === "GET") {
-    await requiremod(request, env, false);
+    await requireStaff(request, env, false);
     const result = await db.prepare(
       "SELECT pr.id, pr.profile_user_id, pr.reason, pr.created_at, u.username AS profileUsername, r2.username AS reporter " +
       "FROM profile_reports pr " +
@@ -309,7 +300,7 @@ async function handleProfileReportAdminRoute(request, env, url, path, method) {
   }
   const resolveMatch = path.match(/^\/api\/admin\/profile-reports\/([0-9]+)\/resolve$/);
   if (resolveMatch && method === "POST") {
-    const session = await requiremod(request, env);
+    const session = await requireStaff(request, env);
     await assertNotBanned(env, session.user.id);
     const resolved = await db.batch([
       db.prepare(

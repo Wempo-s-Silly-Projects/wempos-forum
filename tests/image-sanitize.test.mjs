@@ -1,12 +1,12 @@
 // Intake sanitization (polyglot / metadata payload defense): the structural
-// parsers in api/shared.mjs must strip text-carrying metadata segments,
+// parsers in api/core/images.mjs must strip text-carrying metadata segments,
 // truncate any payload appended after the format's logical end, reject
 // structurally invalid files (even ones whose prefix sniffs clean), and
 // leave valid clean images byte-identical — the property the content-addressed
 // dedup relies on (same image ± junk ⇒ same sanitized bytes ⇒ same hash).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { imageResponse, sanitizeImage } from "../api/shared.mjs";
+import { imageResponse, sanitizeImage } from "../api/core/images.mjs";
 
 const PNG_SIG = Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 

@@ -3,17 +3,10 @@
 // — stays in boards.mjs per the Task-2 ledger resolution; this module needs
 // only the board constants.)
 import { GENERAL_BOARD_DEFAULT, SUGGESTIONS_BOARD } from "./boards.mjs";
-import {
-  assertNotBanned,
-  HttpError,
-  json,
-  nowSeconds,
-  postById,
-  rateLimit,
-  readJson,
-  requiremod,
-  requireMutationApplied,
-} from "./shared.mjs";
+import { assertNotBanned, requireStaff } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readJson, requireMutationApplied } from "./core/http.mjs";
+import { postById } from "./core/shapers.mjs";
 
 // Suggestion status (v3.1): staff mark a suggestion thread resolved or
 // declined, or reopen it. Suggestions-board ROOTS only — replies never carry
@@ -24,7 +17,7 @@ export async function handleSuggestionStatusRoute(request, env, url, path, metho
   const match = path.match(/^\/api\/posts\/([0-9]+)\/suggestion-status$/);
   if (!match) return null;
   if (method !== "POST") throw new HttpError(405, "That method is not supported.");
-  const session = await requiremod(request, env);
+  const session = await requireStaff(request, env);
   await assertNotBanned(env, session.user.id);
   await rateLimit(request, env, "write");
   const postId = Number(match[1]);

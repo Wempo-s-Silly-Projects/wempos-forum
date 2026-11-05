@@ -11,7 +11,7 @@ import {
   normalizeProfileColorInput,
   PROFILE_ACCENTS,
   PROFILE_BANNER_COLORS,
-} from "../api/shared.mjs";
+} from "../api/core/shapers.mjs";
 
 test("isValidHexColor accepts only strict 6-digit hex", () => {
   assert.equal(isValidHexColor("#3f8a63"), true);

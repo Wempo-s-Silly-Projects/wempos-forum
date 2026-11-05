@@ -4,21 +4,13 @@
 // the session's OWN rows only, newest first, guests 401. The list rides
 // POST_SELECT with the feed's visibility semantics (public, unbanned rows), so
 // a post that later became hidden doesn't leak through somebody's saved list.
-import {
-  assertNotBanned,
-  canViewPost,
-  HttpError,
-  json,
-  nowSeconds,
-  postById,
-  POST_SELECT,
-  publicPost,
-  rateLimit,
-  requireSignedInRead,
-  requireUser,
-} from "./shared.mjs";
+import { assertNotBanned, requireSignedInRead, requireUser } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit } from "./core/http.mjs";
+import { postById, POST_SELECT, publicPost } from "./core/shapers.mjs";
+import { canViewPost } from "./core/visibility.mjs";
 import { attachmentRowsForView } from "./attachments.mjs";
-import { banFilterSql } from "./posts.mjs";
+import { banFilterSql } from "./posts-feed.mjs";
 
 // The detail/feed flag read: one query for the (member, post) pair.
 export const BOOKMARK_EXISTS_SQL =

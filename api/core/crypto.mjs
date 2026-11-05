@@ -1,7 +1,7 @@
 // v4.0 core leaf: the crypto primitives everything else bottoms out on —
 // time, hex/base64url codecs, random tokens, SHA-256, constant-time string
 // comparison. Imports nothing (Web Crypto + TextEncoder only); every other
-// core module and api/shared.mjs may import from here, never the reverse.
+// other core module may import from here, never the reverse.
 const encoder = new TextEncoder();
 
 export function nowSeconds() {

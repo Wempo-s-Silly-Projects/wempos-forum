@@ -3,7 +3,8 @@
 // RECEIVED on their content; the score is transparent addition. Currently
 // banned members are excluded (their content is hidden; the leaderboard
 // mirrors). Zero-activity members never appear.
-import { json, readSession } from "./shared.mjs";
+import { readSession } from "./core/auth.mjs";
+import { json } from "./core/http.mjs";
 
 const LEADERBOARD_SIZE = 10;
 

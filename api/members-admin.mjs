@@ -1,17 +1,10 @@
 // v4.0 plan 3, Task 5: the "who manages roles" module — promote/demote
 // (owner-only gate) and the member search that feeds the desk's unban flow.
 // Moved verbatim from api/moderation.mjs.
-import {
-  HttpError,
-  json,
-  nowSeconds,
-  publicRole,
-  readJson,
-  requireAdmin,
-  requiremod,
-  ROLE_ADMIN_DB,
-  ROLE_MEMBER_DB,
-} from "./shared.mjs";
+import { requireAdmin, requireStaff } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, readJson } from "./core/http.mjs";
+import { publicRole, ROLE_ADMIN_DB, ROLE_MEMBER_DB } from "./core/roles.mjs";
 
 // Promotion is strictly an admin operation. Role transitions carry a
 // role guard in the UPDATE itself (changes-checked), and admins are
@@ -70,7 +63,7 @@ async function handleRoleChangeRoute(request, env, url, path, method) {
 // an unban is one search + one button away.
 async function handleMemberSearchRoute(request, env, url, path, method) {
   if (path !== "/api/admin/users/search" || method !== "GET") return null;
-  await requiremod(request, env, false);
+  await requireStaff(request, env, false);
   const query = String(url.searchParams.get("q") || "").trim().toLowerCase();
   if (!query) return json({ members: [] });
   const pattern = "%" + query.replace(/[\\%_]/g, (character) => "\\" + character) + "%";

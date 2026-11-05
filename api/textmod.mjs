@@ -25,13 +25,9 @@
 // and DM messages have no hidden state to occupy, so those trip to a delete
 // (the same permanence as any chat deletion). Auto-mod never bans and never
 // touches accounts; bans stay a human decision.
-import {
-  assertNotBanned,
-  json,
-  nowSeconds,
-  readJson,
-  requiremod,
-} from "./shared.mjs";
+import { assertNotBanned, requireStaff } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { json, readJson } from "./core/http.mjs";
 import {
   containsFilteredWord,
   normalizeUsernameForFilter,
@@ -277,14 +273,14 @@ export function scheduleTextCheck(ctx, env, input) {
 export async function handleTextModAdminRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/text-mod" && method === "GET") {
-    await requiremod(request, env, false);
+    await requireStaff(request, env, false);
     return json({
       configured: isTextModConfigured(env),
       killSwitch: await isTextModKilled(db),
     });
   }
   if (path === "/api/admin/text-mod-kill-switch" && method === "POST") {
-    const session = await requiremod(request, env);
+    const session = await requireStaff(request, env);
     await assertNotBanned(env, session.user.id);
     const body = await readJson(request);
     const tripped = body.tripped === true || body.tripped === "true";

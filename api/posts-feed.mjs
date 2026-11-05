@@ -25,16 +25,10 @@ import {
   parseActivityCursor,
   parseScoreCursor,
 } from "./core/cursors.mjs";
-import {
-  canViewPost,
-  HttpError,
-  json,
-  POST_SELECT,
-  postById,
-  publicPost,
-  readSession,
-  VIEW_INCREMENT_SQL,
-} from "./shared.mjs";
+import { readSession } from "./core/auth.mjs";
+import { HttpError, json } from "./core/http.mjs";
+import { POST_SELECT, postById, publicPost, VIEW_INCREMENT_SQL } from "./core/shapers.mjs";
+import { canViewPost } from "./core/visibility.mjs";
 
 export { POST_SELECT };
 

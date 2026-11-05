@@ -1,13 +1,9 @@
 // Notification routes and the insert-batch pieces Task 5 spreads into the
 // reply-insert transaction. Notification rows live in D1 (see
 // migrations/0002_forum_v2.sql) and are recipient-only data throughout.
-import {
-  HttpError,
-  json,
-  nowSeconds,
-  requireSignedInRead,
-  requireUser,
-} from "./shared.mjs";
+import { requireSignedInRead, requireUser } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json } from "./core/http.mjs";
 
 const NOTIFICATIONS_PER_USER = 50;
 

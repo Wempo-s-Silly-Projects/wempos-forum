@@ -1,4 +1,4 @@
-// v4.0 plan 3, Task 1: the custom-profile-CSS sandbox leaves shared.mjs for
+// v4.0 plan 3, Task 1: the custom-profile-CSS sandbox (formerly shared.mjs) moves to
 // api/profile-css.mjs (its own topic module — the whole family is a pure
 // string pipeline with zero imports). These tests pin the module surface AND
 // the sandbox's security contract: scoping prefix on every rule, allow-list

@@ -6,17 +6,10 @@
 // member-written text; messages by actively banned members vanish at read
 // time (the same semantics as posts, banFilterSql's shape scoped to
 // chat_messages.user_id); staff can delete any message.
-import {
-  HttpError,
-  assertNotBanned,
-  json,
-  nowSeconds,
-  publicRole,
-  rateLimit,
-  readJson,
-  requireUser,
-  requiremod,
-} from "./shared.mjs";
+import { assertNotBanned, requireUser, requireStaff } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
+import { publicRole } from "./core/roles.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { scheduleTextCheck } from "./textmod.mjs";
 
@@ -129,7 +122,7 @@ async function handleChatDeleteRoute(request, env, url, path, method) {
   const match = path.match(/^\/api\/chat\/([0-9]{1,15})$/);
   if (!match) return null;
   if (method !== "DELETE") throw new HttpError(405, "That method is not supported.");
-  const session = await requiremod(request, env);
+  const session = await requireStaff(request, env);
   await assertNotBanned(env, session.user.id);
   await rateLimit(request, env, "write");
   const deleted = await env.FORUM_DB.prepare("DELETE FROM chat_messages WHERE id = ?")
@@ -162,7 +155,7 @@ async function handlePresenceRoute(request, env, url, path, method) {
 // posts are the record, chat is the hallway).
 async function handleAdminChatRoute(request, env, url, path, method) {
   if (path !== "/api/admin/chat" || method !== "GET") return null;
-  const session = await requiremod(request, env, false);
+  const session = await requireStaff(request, env, false);
   await assertNotBanned(env, session.user.id);
   const beforeRaw = url.searchParams.get("before");
   let before = null;

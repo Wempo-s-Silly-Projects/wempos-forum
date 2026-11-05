@@ -14,22 +14,11 @@
 // ban outright — the same statement unpinning/revoking by hand, so the
 // auto-unhide semantics for the member's posts come for free. All appeal
 // bodies run the word filter like every other stored member-written text.
-import {
-  HttpError,
-  assertNotBanned,
-  assertSameOrigin,
-  json,
-  nowSeconds,
-  rateLimit,
-  readJson,
-  readSession,
-  requireSignedInRead,
-  requiremod,
-  requireUser,
-  requiredText,
-  userByUsernameKey,
-  verifyPassword,
-} from "./shared.mjs";
+import { assertNotBanned, assertSameOrigin, readSession, requireSignedInRead, requireStaff, requireUser } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readJson, requiredText } from "./core/http.mjs";
+import { verifyPassword } from "./core/passwords.mjs";
+import { userByUsernameKey } from "./core/shapers.mjs";
 // Timing-equalizer dummies for the username-or-password mismatch case,
 // mirroring session.mjs's login flow (a missing account still pays the full
 // PBKDF2 cost so response timing never reveals whether the name exists).
@@ -155,7 +144,7 @@ async function decideAppeal(db, appeal, decision, moderatorId) {
 async function handleAppealAdminRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/appeals" && method === "GET") {
-    await requiremod(request, env, false);
+    await requireStaff(request, env, false);
     const result = await db.prepare(
       "SELECT a.id, a.user_id, a.kind, a.body, a.status, a.created_at, a.decided_at, " +
         "a.action_id, a.ban_id, u.username, " +
@@ -193,7 +182,7 @@ async function handleAppealAdminRoutes(request, env, url, path, method) {
 
   const decisionMatch = path.match(/^\/api\/admin\/appeals\/([0-9]+)\/(approve|deny)$/);
   if (decisionMatch && method === "POST") {
-    const session = await requiremod(request, env);
+    const session = await requireStaff(request, env);
     await assertNotBanned(env, session.user.id);
     const appealId = Number(decisionMatch[1]);
     if (!Number.isSafeInteger(appealId) || appealId < 1) {

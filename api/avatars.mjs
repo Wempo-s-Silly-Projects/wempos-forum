@@ -1,26 +1,13 @@
 // v4.0 plan 3, Task 2: the avatar topic module — one lifecycle, one file.
 // Intake lives here (upload + limits, from profiles.mjs), serving lives here
-// (handleAvatarReadRoute, from shared.mjs), and the moderation queue lives
+// (handleAvatarReadRoute), and the moderation queue lives
 // here (queue + resolve + approve/reject routes, from moderation.mjs). All
 // bodies moved verbatim; sources re-import through this module.
 import { publicVisionVerdict, scheduleVisionCheck, visionVerdictsByEntity } from "./vision.mjs";
-import {
-  assertNotBanned,
-  blobToUint8Array,
-  createAvatarVersion,
-  HttpError,
-  imageResponse,
-  json,
-  nowSeconds,
-  rateLimit,
-  readLimitedBody,
-  readSession,
-  requireMutationApplied,
-  requiremod,
-  requireUser,
-  sanitizeImage,
-  sniffImageMime,
-} from "./shared.mjs";
+import { assertNotBanned, readSession, requireStaff, requireUser } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readLimitedBody, requireMutationApplied } from "./core/http.mjs";
+import { blobToUint8Array, createAvatarVersion, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
 
 export const MAX_AVATAR_BYTES = 1024 * 1024;
 export const MAX_AVATAR_REQUEST_BYTES = MAX_AVATAR_BYTES + 64 * 1024;
@@ -48,8 +35,8 @@ async function handleAvatarReadRoute(request, env, url, path, method) {
     if (row.pending_avatar_mime && row.pending_avatar_data) {
       const session = await readSession(request, env);
       const viewer = session && session.user;
-      const ismod = viewer && (viewer.role === "owner" || viewer.role === "admin");
-      if (viewer && (viewer.id === userId || ismod)) {
+      const isStaff = viewer && (viewer.role === "owner" || viewer.role === "admin");
+      if (viewer && (viewer.id === userId || isStaff)) {
         const response = imageResponse(blobToUint8Array(row.pending_avatar_data), row.pending_avatar_mime, "no-store");
         if (response) return response;
       }
@@ -137,7 +124,7 @@ async function handleAvatarUploadRoute(request, env, url, path, method, ctx) {
 async function handleAvatarQueueRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/avatars" && method === "GET") {
-    await requiremod(request, env, false);
+    await requireStaff(request, env, false);
     const result = await db.prepare(
       "SELECT id, username, pending_avatar_updated_at, pending_avatar_version " +
         "FROM users WHERE avatar_status = 'pending' " +
@@ -219,7 +206,7 @@ async function handleAvatarModerationRoute(request, env, url, path, method) {
   const match = path.match(/^\/api\/admin\/avatars\/([0-9]+)\/(approve|reject)$/);
   if (!match || method !== "POST") return null;
 
-  const session = await requiremod(request, env);
+  const session = await requireStaff(request, env);
   await assertNotBanned(env, session.user.id);
   const userId = Number(match[1]);
   if (!Number.isSafeInteger(userId) || userId < 1) {

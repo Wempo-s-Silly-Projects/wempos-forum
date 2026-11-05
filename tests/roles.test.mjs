@@ -1,6 +1,6 @@
 // Role-vocabulary guard (v3.1): the stored role constants live in
-// api/shared.mjs and every module that references one must import or define
-// it. The 2026-11-04 promote 500 — moderation.mjs used ROLE_ADMIN_DB without
+// api/core/roles.mjs and every module that references one must import or
+// define it. The 2026-11-04 promote 500 — moderation.mjs used ROLE_ADMIN_DB without
 // importing it, so every promote/demote died in a request-time
 // ReferenceError that no static check caught — is the reason this exists.
 // "OK" means the name appears inside some import statement or a local

@@ -16,23 +16,12 @@ import { UPDATES_BOARD, boardField } from "./boards.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
 import { scheduleVisionCheck } from "./vision.mjs";
 import { scheduleTextCheck } from "./textmod.mjs";
-import {
-  archivePostRowsStatement,
-  assertNotBanned,
-  canViewPost,
-  HttpError,
-  json,
-  nowSeconds,
-  postById,
-  rateLimit,
-  readJson,
-  readSession,
-  requireMutationApplied,
-  requireTurnstile,
-  requireUser,
-  requiredText,
-  sha256Hex,
-} from "./shared.mjs";
+import { archivePostRowsStatement } from "./core/archive.mjs";
+import { assertNotBanned, readSession, requireUser } from "./core/auth.mjs";
+import { nowSeconds, sha256Hex } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readJson, requireMutationApplied, requireTurnstile, requiredText } from "./core/http.mjs";
+import { postById } from "./core/shapers.mjs";
+import { canViewPost } from "./core/visibility.mjs";
 
 // Vision first-pass (v3.1): every freshly PENDING direct upload is background-
 // checked right after its batch commits. Dedup twins (preApproved) skip it —

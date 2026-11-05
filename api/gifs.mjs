@@ -5,22 +5,10 @@
 // via the per-hash UNIQUE index, a duplicate of already-approved bytes
 // returns the EXISTING gif instead of new storage). Posts attach approved
 // gifs by reference — no byte copies; use_count tracks popularity.
-import {
-  HttpError,
-  assertNotBanned,
-  blobToUint8Array,
-  createAvatarVersion,
-  imageResponse,
-  json,
-  nowSeconds,
-  rateLimit,
-  readLimitedBody,
-  readSession,
-  requiremod,
-  requireUser,
-  sanitizeImage,
-  sniffImageMime,
-} from "./shared.mjs";
+import { assertNotBanned, readSession, requireStaff, requireUser } from "./core/auth.mjs";
+import { nowSeconds } from "./core/crypto.mjs";
+import { HttpError, json, rateLimit, readLimitedBody } from "./core/http.mjs";
+import { blobToUint8Array, createAvatarVersion, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
 import { publicVisionVerdict, scheduleVisionCheck, visionVerdictsByEntity } from "./vision.mjs";
 
 export const GIF_FIELD = "gifIds";
@@ -68,8 +56,8 @@ export async function handleGifServingRoute(request, env, path, method) {
   if (row.status === "pending") {
     const session = await readSession(request, env);
     const viewer = session && session.user;
-    const ismod = viewer && (viewer.role === "owner" || viewer.role === "admin");
-    if (viewer && (viewer.id === Number(row.uploader_id) || ismod)) {
+    const isStaff = viewer && (viewer.role === "owner" || viewer.role === "admin");
+    if (viewer && (viewer.id === Number(row.uploader_id) || isStaff)) {
       const bytes = await assembledGifBytes(env.FORUM_DB, row.id);
       if (bytes) {
         const response = imageResponse(bytes, row.mime, "private, max-age=300");
@@ -249,7 +237,7 @@ export async function assembledGifBytes(db, gifId) {
 async function handleGifAdminRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/admin/gifs" && method === "GET") {
-    await requiremod(request, env, false);
+    await requireStaff(request, env, false);
     const result = await db.prepare(
       "SELECT g.id, g.hash, g.mime, g.created_at, u.username AS uploader " +
       "FROM gifs g LEFT JOIN users u ON u.id = g.uploader_id " +
@@ -269,7 +257,7 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
   }
   const adminMatch = path.match(GIF_ADMIN_ROUTE);
   if (adminMatch) {
-    const session = await requiremod(request, env);
+    const session = await requireStaff(request, env);
     await assertNotBanned(env, session.user.id);
     const gifId = adminMatch[1];
     const decision = adminMatch[2];
