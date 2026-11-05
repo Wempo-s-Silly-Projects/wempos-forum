@@ -1,7 +1,7 @@
 // v4.0 core leaf: the crypto primitives everything else bottoms out on —
 // time, hex/base64url codecs, random tokens, SHA-256, constant-time string
 // comparison. Imports nothing (Web Crypto + TextEncoder only); every other
-// other core module may import from here, never the reverse.
+// core module may import from here, never the reverse.
 const encoder = new TextEncoder();
 
 export function nowSeconds() {
@@ -22,7 +22,7 @@ export function fromHex(value) {
   return bytes;
 }
 
-export function base64Url(bytes) {
+function base64Url(bytes) {
   let binary = "";
   for (const value of bytes) binary += String.fromCharCode(value);
   return btoa(binary).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");

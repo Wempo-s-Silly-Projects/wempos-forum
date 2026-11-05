@@ -1,10 +1,13 @@
 /* The v4.0 responsive layer (spec step 7): every rule below this file owns
    the narrow-viewport presentation, and styles.css (loaded before it) is
-   desktop-only. At widths ≥ 900px nothing in this sheet applies — desktop
-   rendering stays exactly the v3.1 look. The identity (tokens, radii, the
-   paper-strip surfaces) comes from styles.css; this sheet only rebuilds the
-   narrow chrome: a compressed header, a two-rung breakpoint ladder whose
-   phone rung drives a rebuilt bottom app bar, and touch ergonomics.
+   desktop-only. At widths ≥ 900px nothing in the media-query rungs applies —
+   desktop renders exactly the v3.1 look, EXCEPT the four intentional global
+   guards below (no sideways page scroll, internal-scroll wide content, the
+   hidden mobile bar), which apply at every width by design. The identity
+   (tokens, radii, the paper-strip surfaces) comes from styles.css; this
+   sheet only rebuilds the narrow chrome: a compressed header, a two-rung
+   breakpoint ladder whose phone rung drives a rebuilt bottom app bar, and
+   touch ergonomics.
 
    Rungs:
    * ≤899px  — narrow desktop: the column and header compress fluidly, the
@@ -276,6 +279,25 @@ table,
      long forms (poll, report) always keep their buttons reachable. */
   dialog {
     max-height: calc(100dvh - 2rem);
+  }
+
+  /* The v2.5-era phone polish the rebuild carried over (it lived in the old
+     700px/520px blocks): a tighter search row and the homepage intro's
+     slight tilt. */
+  .header-search form {
+    gap: 0.35rem;
+  }
+
+  .header-search .button {
+    padding-inline: 0.65rem;
+  }
+
+  .personal-intro {
+    transform: rotate(-0.15deg);
+  }
+
+  .personal-tags {
+    margin-right: 0;
   }
 }
 

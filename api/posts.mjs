@@ -2,8 +2,9 @@
 // has split into boards.mjs, posts-feed.mjs, posts-write.mjs, replies.mjs,
 // search.mjs, and suggestions.mjs; this module imports the handlers and
 // composes the pinned POST_ROUTE_HANDLERS chain. (bookmarks.mjs and
-// profiles.mjs now import banFilterSql/listRootPosts from posts-feed.mjs
-// directly; the FK strings live on posts-write.mjs with their test.)
+// search.mjs import banFilterSql and profiles.mjs imports listRootPosts
+// from posts-feed.mjs directly; the FK strings live on posts-write.mjs
+// with their test.)
 // v4.0 plan 2, Task 3: feed/detail reads moved to api/posts-feed.mjs.
 import {
   handlePostDetailRoute,

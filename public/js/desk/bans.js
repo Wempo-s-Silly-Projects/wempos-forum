@@ -146,7 +146,6 @@ function createActiveBanList(bans, document) {
 }
 
 export {
-  BAN_DURATION_HOURS,
   createBanForm,
   createActiveBanList,
   createMemberSearch,

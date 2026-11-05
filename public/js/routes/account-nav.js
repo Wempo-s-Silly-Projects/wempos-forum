@@ -117,6 +117,10 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
 // and responsive.css paints it with the green accent bar. Runs on every route
 // render (after history.pushState, so location.pathname is already the new
 // route); items without a match (guests, other pages) keep no current state.
+// The Profile/Sign-in rung is looked up BY ID, not by href: its href is
+// session-dependent ("/users/<name>" signed in, "/#join" as a guest) and was
+// rewritten earlier in renderAccountNavigation, so a href match can never
+// fire for the signed-in profile — the id is the stable handle.
 function markMobileBarItem(user) {
   const path = location.pathname;
   const isSelfProfile = Boolean(user) && path === "/users/" + encodeURIComponent(user.username);
@@ -125,7 +129,6 @@ function markMobileBarItem(user) {
     ["/mine", path === "/mine"],
     ["/suggestions", path === "/suggestions" || path === "/c/suggestions"],
     ["/notifications", path === "/notifications"],
-    ["/#join", isSelfProfile],
   ];
   for (const [href, active] of matches) {
     const item = document.querySelector(`.mobile-bar-item[href="${CSS.escape(href)}"]`);
@@ -133,6 +136,11 @@ function markMobileBarItem(user) {
       if (active) item.setAttribute("aria-current", "page");
       else item.removeAttribute("aria-current");
     }
+  }
+  const profileItem = document.querySelector("#mobile-profile, #mobile-signin");
+  if (profileItem) {
+    if (isSelfProfile) profileItem.setAttribute("aria-current", "page");
+    else profileItem.removeAttribute("aria-current");
   }
 }
 
