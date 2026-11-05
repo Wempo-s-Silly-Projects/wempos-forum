@@ -19,14 +19,10 @@ import { iconButton } from "./icons.js";
 import { boardLabel } from "./boards.js";
 import {
   appendPostList,
-  closeEditForm,
   createPostCard,
   createSubReplyContainer,
-  openEditForm,
   renderBodyBlocks,
-  renderEditHistoryPanel,
 } from "./render.js";
-import { prefillQuote } from "./quotes.js";
 import { isPlainLeftClick, startRouter } from "./router.js";
 import {
   createNotificationBell,
@@ -115,6 +111,15 @@ import {
   FORM_HANDLERS as wallFormHandlers,
   renderProfileWall,
 } from "./wall.js";
+// v4.0 plan 4 Task 4: the post-detail concern (the /post/:id route, its
+// reply mini-composers and sub-reply cascades, quote prefill, the edit
+// flow, and the attachment lightbox) lives in routes/post.js; registries
+// spread its handlers as the dispatch entries that used to live inline.
+import {
+  ACTIONS as postActions,
+  FORM_HANDLERS as postFormHandlers,
+  renderPostRoute,
+} from "./routes/post.js";
 // Milestone badges (v2.5): display-only, computed from the profile's
 // contribution counts — the thresholds graduate as the member posts.
 function profileBadgeFor(totalContributions) {
@@ -147,7 +152,6 @@ function applyProfileTheme(profile) {
   document.head.append(link);
   activeProfileStyleNode = link;
 }
-
 
 function renderAccountNavigation(user, unreadNotifications = 0) {
   accountActions.replaceChildren();
@@ -608,34 +612,6 @@ async function renderChatRoute(context, version) {
   renderChatPage(main, context.session.user);
 }
 
-
-async function renderPostRoute(route, context, version) {
-  const post = await api(`/api/posts/${route.id}`);
-  if (version !== state.renderVersion) return;
-  addHeading(main, "Conversation", 1);
-  main.append(createPostCard(post, document, context.session.user));
-  addHeading(main, "Replies", 2);
-  if (post.replies.length) {
-    const replyList = element("div", "post-list replies-list");
-    replyList.dataset.repliesFor = String(post.id);
-    for (const reply of post.replies) replyList.append(createPostCard(reply, document, context.session.user));
-    main.append(replyList);
-  } else {
-    addText(document, main, "p", "No replies yet!", "empty-state");
-  }
-  if (post.repliesNextBefore) {
-    const olderReplies = element("button", "button button-secondary", "Load older replies");
-    olderReplies.type = "button";
-    olderReplies.dataset.action = "load-older-replies";
-    olderReplies.dataset.postId = String(post.id);
-    olderReplies.dataset.before = String(post.repliesNextBefore);
-    main.append(olderReplies);
-  }
-  if (context.session.user && post.visibility !== "hidden" && !post.parent) {
-    main.append(createComposer("reply", "Write a thoughtful reply", "Reply", post.id));
-  }
-}
-
 async function renderProfileRoute(route, context, version) {
   const profile = await api(`/api/users/${encodeURIComponent(route.username)}`);
   if (version !== state.renderVersion) return;
@@ -757,7 +733,6 @@ async function renderAdminRoute(context, version) {
   if (version !== state.renderVersion) return;
   renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, context.session.user, appeals, vision, textMod, chat, dms);
 }
-
 
 // Appeals (v3.1): the member surface for auto-mod decisions — the removals
 // they can still appeal, plus their history. BAN appeals file from the ban
@@ -1029,22 +1004,6 @@ async function submitReportForm(text) {
   setMessage("Your report was sent to the mods.");
 }
 
-// Author edit save (v2.4): JSON {body} to PATCH /api/posts/:id (api.js adds the
-// CSRF header). The server reapplies the word filter and 1,000-char cap, stores
-// the masked body, stamps edited_at, and never bumps last_activity_at — over-
-// limit/filter rejections 400 into the shared error bar here, with the form
-// left open so the author can fix the draft. On success the route re-render
-// refetches the post, so the edited body, the (edited) marker, and the closed
-// form all come back from the server — never from trusting the PATCH echo.
-async function submitPostEditForm(form, text) {
-  await api("/api/posts/" + form.dataset.postId, {
-    method: "PATCH",
-    body: { body: text("body") },
-  });
-  await renderRoute(state.activeRoute);
-  setMessage("Your edit was saved.");
-}
-
 async function submitReportResolution(form) {
   await api("/api/admin/reports/" + form.dataset.reportId + "/resolve", {
     method: "POST",
@@ -1094,11 +1053,12 @@ async function submitForm(form) {
     ...authFormHandlers,
     ...feedFormHandlers,
     ...wallFormHandlers,
+    // The post-detail edit form lives in routes/post.js.
+    ...postFormHandlers,
     "profile-editor": () => submitProfileEditorForm(form, text),
     avatar: () => submitAvatarForm(values),
     password: () => submitPasswordForm(text),
     report: () => submitReportForm(text),
-    "post-edit": () => submitPostEditForm(form, text),
     "admin-resolve": () => submitReportResolution(form),
     "admin-ban": () => submitBanForm(form, text),
     "admin-unban": () => submitUnbanForm(form, text),
@@ -1153,65 +1113,6 @@ async function submitReaction(button) {
   await renderRoute(state.activeRoute);
 }
 
-async function toggleReplyComposer(button) {
-  const postId = button.dataset.postId;
-  const article = main.querySelector(`article[data-post-id="${postId}"]`);
-  if (!article) return;
-  const existing = main.querySelector(`[data-reply-composer-for="${postId}"]`);
-  if (existing) {
-    existing.remove();
-    return;
-  }
-  // Mini composer under the level-1 reply; replies go to /api/posts/:thatId
-  // with Turnstile action "reply".
-  const panel = createComposer("reply", "Write a reply", "Reply", postId, "reply");
-  panel.dataset.replyComposerFor = postId;
-  // submitReplyForm reads the FORM's dataset (the thread root it should
-  // re-render after a successful reply), not the marker panel's — so the
-  // thread id must ride on the form itself or the rerender would land on the
-  // level-1 reply's own detail page instead of the conversation.
-  if (state.activeRoute.name === "post") {
-    panel.querySelector("form").dataset.threadId = String(state.activeRoute.id);
-  }
-  article.after(panel);
-  await renderTurnstileSlots(panel);
-}
-
-async function toggleSubReplies(button) {
-  // Double-click guard: one fetch per expand; a stale in-flight request never
-  // builds a duplicate container (the old one is orphaned by re-render).
-  if (button.dataset.loading === "1") return;
-  const postId = button.dataset.postId;
-  const existing = main.querySelector(`[data-sub-replies-for="${postId}"]`);
-  if (existing) {
-    const hidden = existing.hasAttribute("hidden");
-    if (hidden) existing.removeAttribute("hidden");
-    else existing.setAttribute("hidden", "");
-    button.setAttribute("aria-expanded", String(hidden));
-    button.textContent = hidden
-      ? `Hide ${button.dataset.replyCount} replies`
-      : `Show ${button.dataset.replyCount} replies`;
-    return;
-  }
-  button.dataset.loading = "1";
-  button.disabled = true;
-  try {
-    const page = await api("/api/posts/" + postId + "/replies");
-    // Children arrive with publicLevel 2, so createPostCard renders them without
-    // further reply buttons (server forbids level-2 targets). The wrapper div
-    // (grouping class + cascade treatment) is render.js's createSubReplyContainer.
-    const container = createSubReplyContainer(postId, page.replies, document, state.currentUser);
-    const article = main.querySelector(`article[data-post-id="${postId}"]`);
-    if (article) article.after(container);
-    button.dataset.replyCount = String(page.replies.length);
-    button.setAttribute("aria-expanded", "true");
-    if (page.replies.length) button.textContent = `Hide ${page.replies.length} replies`;
-  } finally {
-    delete button.dataset.loading;
-    button.disabled = false;
-  }
-}
-
 async function openNotification(button) {
   // Mark-first is idempotent server-side; navigation then re-renders the bell
   // with a fresh unread count from GET /api/session.
@@ -1263,15 +1164,6 @@ async function submitAttachmentModeration(form, action) {
   setMessage(action === "approve" ? "The image was approved." : "The image was rejected.");
 }
 
-// Edit-form swap/restore (v2.4): the DOM cycle lives in render.js
-// (openEditForm/closeEditForm), testable against the mock element suite.
-// A second Edit click on an already-open form is a no-op (openEditForm refuses
-// a duplicate), and Cancel restores the exact original body nodes — the patch
-// itself only happens through the form's submit path.
-function editTargetArticle(button) {
-  return main.querySelector(`article[data-post-id="${button.dataset.postId}"]`);
-}
-
 // GIF picker functions (v2.5): open renders the approved library into the
 // dialog grid; confirm folds the selection into the composer state; cancel
 // closes. Selected thumbs carry aria-pressed so keyboard/AT state is real.
@@ -1288,53 +1180,6 @@ function openReportDialog(target) {
     targetType === "profile" ? "Report this profile" : "Report this post";
   reportDialog.showModal();
   reportForm.querySelector("textarea").focus();
-}
-
-// Quote button (plan v2.3): prefill the CURRENT thread's reply composer. The
-// composer is resolved with the same convention toggleReplyComposer's
-// submitReplyForm path relies on — the root composer's form carries the thread
-// id in data-post-id (its reply target), while an open reply-to-reply mini
-// composer carries it in data-thread-id — so both spellings resolve the same
-// thread composer on the detail route. On routes without a composer
-// (home/search/profile) a Quote click is a silent no-op. The snippet lands
-// through quotes.js's prefillQuote: textarea .value property assignment only,
-// never HTML.
-function quoteIntoComposer(button) {
-  if (state.activeRoute.name !== "post") return;
-  const rootId = String(state.activeRoute.id);
-  const form =
-    main.querySelector(`form[data-form="reply"][data-thread-id="${rootId}"]`) ??
-    main.querySelector(`form[data-form="reply"][data-post-id="${rootId}"]`);
-  if (!form) return;
-  const textarea = form.querySelector("textarea");
-  if (!textarea) return;
-  prefillQuote(textarea, button.dataset.quoteUsername ?? "", button.dataset.quoteSnippet ?? "");
-  // prefillQuote assigns .value programmatically, which fires no `input`
-  // event — so the composer's live character counter (wired in forms.js to the
-  // input event) would keep showing the stale pre-quote count. Dispatch the
-  // event it listens for so the counter reflects the post-prefill value.
-  // Over-limit prefills are NOT clamped here (clamping would silently eat the
-  // user's draft). Note the actual protection: native tooLong validity only
-  // covers values "last changed by a user edit" (WHATWG constraint
-  // validation), so a programmatically assigned value past 1000 chars sails
-  // through client validity checks and the server 400 is the only gate. The
-  // stale counter above is display-only and independent of that limit.
-  textarea.dispatchEvent(new Event("input", { bubbles: true }));
-  form.scrollIntoView({ block: "nearest" });
-}
-
-// Click-to-expand attachments (micro-batch): the strip caps render size with
-// CSS, but the stored bytes are full-size — the lightbox just swaps in the
-// same versioned URL uncapped (capped only by the viewport in CSS). The
-// native <dialog> supplies Escape and focus handling for free; a click
-// anywhere on the dialog or its backdrop closes it (wired once at load).
-function openAttachmentLightbox(button) {
-  const stripImage = button.querySelector("img.post-attachment");
-  if (!stripImage || !attachmentLightbox) return;
-  const fullImage = attachmentLightbox.querySelector("img");
-  if (!fullImage) return;
-  fullImage.src = stripImage.src;
-  attachmentLightbox.showModal();
 }
 
 async function loadMoreArchive(button) {
@@ -1362,18 +1207,6 @@ async function loadMoreProfilePosts(button) {
   else button.remove();
 }
 
-async function loadOlderReplies(button) {
-  const postId = button.dataset.postId;
-  const older = await api("/api/posts/" + postId + "/replies?before=" + button.dataset.before);
-  const replyList = main.querySelector('.replies-list[data-replies-for="' + postId + '"]');
-  if (!replyList) throw new Error("The reply list is no longer available. Reload the conversation.");
-  const fragment = document.createDocumentFragment();
-  for (const reply of older.replies) fragment.append(createPostCard(reply, document, state.currentUser));
-  replyList.prepend(fragment);
-  if (older.nextBefore) button.dataset.before = String(older.nextBefore);
-  else button.remove();
-}
-
 async function handleButtonAction(button) {
   const handlers = {
     logout: async () => {
@@ -1389,6 +1222,8 @@ async function handleButtonAction(button) {
     ...feedActions,
     // Profile wall actions (v4.0).
     ...wallActions,
+    // The post-detail conversation actions live in routes/post.js.
+    ...postActions,
     // Suggestion status (v3.1): staff flip resolved/declined/open; the
     // route re-render refetches the payload so the chip and buttons come
     // back from the server, never from the echo.
@@ -1404,10 +1239,6 @@ async function handleButtonAction(button) {
     },
     "load-more-archive": () => loadMoreArchive(button),
     "load-more-profile-posts": () => loadMoreProfilePosts(button),
-    "load-older-replies": () => loadOlderReplies(button),
-    "reply-to": () => toggleReplyComposer(button),
-    "expand-sub-replies": () => toggleSubReplies(button),
-    quote: () => quoteIntoComposer(button),
     "open-notification": () => openNotification(button),
     "chat-tab": () => setChatTab(button.dataset.chatTab),
     "dm-open-thread": () => openDmThread(button.dataset.threadId, button.dataset.otherUsername),
@@ -1495,15 +1326,6 @@ async function handleButtonAction(button) {
       await renderRoute(state.activeRoute);
       setMessage("GIF submission rejected.");
     },
-    "expand-attachment": () => openAttachmentLightbox(button),
-    "edit-post": () => {
-      const article = editTargetArticle(button);
-      if (article) openEditForm(article, document);
-    },
-    "cancel-edit": () => {
-      const article = editTargetArticle(button);
-      if (article) closeEditForm(article);
-    },
     "delete-post": () => openDeletePostDialog(button),
     "delete-account": () => openDeleteAccountDialog(),
     "save-forum-rules": async () => {
@@ -1555,20 +1377,6 @@ async function handleButtonAction(button) {
       // re-renders the route.
       await api("/api/me", { method: "PATCH", body: { profileAccent: button.dataset.accent || "" } });
       await renderRoute(state.activeRoute);
-    },
-    "edit-history": async () => {
-      // Toggle: an open panel for this card closes; otherwise the past
-      // versions fetch and expand under the body. History is public — no
-      // auth needed beyond the same-origin GET.
-      const article = editTargetArticle(button);
-      if (!article) return;
-      const existing = article.querySelector(":scope > .edit-history-panel");
-      if (existing) {
-        existing.remove();
-        return;
-      }
-      const data = await api(`/api/posts/${encodeURIComponent(button.dataset.postId)}/edits`);
-      article.append(renderEditHistoryPanel(document, data.edits));
     },
     "confirm-ok": async () => {
       if (!getConfirmHandler()) return;
