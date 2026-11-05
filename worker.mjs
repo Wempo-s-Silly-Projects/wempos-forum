@@ -42,15 +42,6 @@ export {
   blobToUint8Array,
 } from "./api/core/images.mjs";
 export { requireTurnstile, rateLimit } from "./api/core/http.mjs";
-export {
-  base32Encode,
-  base32Decode,
-  generateTotpSecret,
-  hotpAt,
-  totpAt,
-  verifyTotpCode,
-  otpauthUri,
-} from "./api/core/totp.mjs";
 export { createUserBan } from "./api/moderation.mjs";
 export { fanOutStatements, notificationBatchStatements, unreadCount } from "./api/notifications.mjs";
 
