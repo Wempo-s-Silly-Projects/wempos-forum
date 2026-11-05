@@ -947,10 +947,10 @@ async function renderRulesRoute(context, version) {
 async function renderLeaderboardRoute(context, version) {
   const data = await api("/api/leaderboard");
   if (version !== renderVersion) return;
-  addHeading(main, "This week's leaderboard", 2);
-  const rows = data.week.leaderboard;
+  addHeading(main, "Leaderboard", 2);
+  const rows = data.allTime.leaderboard;
   if (!rows.length) {
-    addText(document, main, "p", "Nothing yet this week — be the first!", "empty-state");
+    addText(document, main, "p", "Nothing yet — be the first!", "empty-state");
     return;
   }
   const list = element("ol", "leaderboard-list");
