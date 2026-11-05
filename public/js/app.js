@@ -123,6 +123,17 @@ import {
 } from "./routes/profile.js";
 import { clearProfileTheme } from "./routes/profile.js";
 
+// v4.0 plan 4 Task 6: the content pages (rules/leaderboard/archive) plus
+// the site-search submit and page actions (archive paging, rules save) live
+// in routes/pages.js.
+import {
+  ACTIONS as pagesActions,
+  FORM_HANDLERS as pagesFormHandlers,
+  renderArchiveRoute,
+  renderLeaderboardRoute,
+  renderRulesRoute,
+} from "./routes/pages.js";
+
 function renderAccountNavigation(user, unreadNotifications = 0) {
   accountActions.replaceChildren();
   // The mobile bar's last item mirrors the session: Profile (signed in) --
@@ -316,82 +327,6 @@ function setRouteTitle(route) {
       // Categories (v3.1): the title carries the category's display name.
       ? `${route.board ? boardLabel(route.board) : "Category"} · Wempo's Forum`
       : `${pageNames[route.name] || pageNames.home} · Wempo's Forum`;
-}
-
-async function renderRulesRoute(context, version) {
-  const data = await api("/api/rules");
-  if (version !== state.renderVersion) return;
-  addHeading(main, "Forum rules", 2);
-  if (!data.rules) {
-    addText(document, main, "p", "The rules haven't been written yet.", "empty-state");
-    return;
-  }
-  renderBodyBlocks({ body: data.rules }, document, main);
-  if (data.updatedAt) {
-    addText(document, main, "p", `Last updated ${new Date(data.updatedAt).toLocaleString()}`, "muted");
-  }
-}
-
-async function renderLeaderboardRoute(context, version) {
-  const data = await api("/api/leaderboard");
-  if (version !== state.renderVersion) return;
-  addHeading(main, "Leaderboard", 2);
-  const rows = data.allTime.leaderboard;
-  if (!rows.length) {
-    addText(document, main, "p", "Nothing yet — be the first!", "empty-state");
-    return;
-  }
-  const list = element("ol", "leaderboard-list");
-  for (const [index, entry] of rows.entries()) {
-    const row = element("li", "leaderboard-row");
-    row.append(element("span", "leaderboard-rank", "#" + (index + 1)));
-    const link = element("a", "leaderboard-name", entry.username);
-    link.href = "/users/" + encodeURIComponent(entry.username);
-    link.setAttribute("data-app-link", "");
-    row.append(link, element("span", "leaderboard-stats",
-      `${entry.threads} threads · ${entry.replies} replies · ${entry.reactionsReceived} reactions received`));
-    row.append(element("span", "leaderboard-score", String(entry.score)));
-    list.append(row);
-  }
-  main.append(list);
-}
-
-async function renderArchiveRoute(context, version) {
-  // The accountability archive (v2.4.1): everyone can read what was deleted,
-  // so no auth is needed — this route renders for guests too.
-  const data = await api("/api/archive");
-  if (version !== state.renderVersion) return;
-  addHeading(main, "Archive", 2);
-  if (!data.archive.length) {
-    main.append(element("p", "archive-empty", "Nothing has been deleted yet."));
-    return;
-  }
-  main.append(await renderArchiveListFragment(data.archive));
-  if (!data.nextBefore) return;
-  const older = element("button", "button button-secondary", "Load older archive");
-  older.type = "button";
-  older.dataset.action = "load-more-archive";
-  older.dataset.before = String(data.nextBefore);
-  main.append(older);
-}
-
-async function renderArchiveListFragment(entries) {
-  const list = element("div", "archive-list");
-  for (const entry of entries) {
-    const card = element("article", "archive-card");
-    const header = element("p", "archive-header");
-    header.append(element("span", "archive-author", "post by " + entry.authorName));
-    header.append(element("span", "archive-meta",
-      "deleted " + new Date(entry.deletedAt).toLocaleString() + " · " +
-      (entry.deletedBecause === "account-delete" ? "account deleted" : "post deleted") +
-      " · deleted by " + (entry.deletedByName || "unknown")));
-    card.append(header);
-    const bodyBlock = element("p", "archive-body");
-    bodyBlock.textContent = entry.body;
-    card.append(bodyBlock);
-    list.append(card);
-  }
-  return list;
 }
 
 // Live chat page (v3.1): the /chat route — the room + DMs live here as a full
@@ -601,10 +536,11 @@ async function renderRoute(route) {
   // never tint another route (the review caught exactly that for classes).
   main.style.removeProperty("--profile-accent");
   main.style.removeProperty("--banner-color");
-  // Custom profile CSS (v2.5): the tracked <link> was removed inside
-  // applyProfileTheme (which also owns the null assignment at the top of this
-  // render); the scope class must be dropped here so the class never tints a
-  // non-profile route (the review caught exactly that for the accent).
+  // Custom profile CSS (v2.5): the tracked <link> lives in routes/profile.js
+  // (applyProfileTheme removes it at the next profile render — the scoped
+  // selectors are inert elsewhere); the scope class must be dropped here so
+  // the class never tints a non-profile route (the review caught exactly
+  // that for the accent).
   main.classList.remove("profile-theme-scope");
   clearProfileTheme();
   teardownTurnstile();
@@ -679,10 +615,6 @@ function readForm(form) {
   return new FormData(form);
 }
 
-async function submitSiteSearch(text) {
-  state.router.navigate("/?q=" + encodeURIComponent(text("q").trim()));
-}
-
 async function submitReportForm(text) {
   const targetType = reportForm.dataset.targetType || "post";
   const targetId = encodeURIComponent(reportForm.dataset.targetId || "");
@@ -743,7 +675,6 @@ async function submitForm(form) {
   setMessage("Saving…");
 
   const handlers = {
-    "site-search": () => submitSiteSearch(text),
     ...authFormHandlers,
     ...feedFormHandlers,
     ...wallFormHandlers,
@@ -751,6 +682,8 @@ async function submitForm(form) {
     ...postFormHandlers,
     // The profile submit handlers live in routes/profile.js.
     ...profileFormHandlers,
+    // The site-search submit lives in routes/pages.js.
+    ...pagesFormHandlers,
     report: () => submitReportForm(text),
     "admin-resolve": () => submitReportResolution(form),
     "admin-ban": () => submitBanForm(form, text),
@@ -875,21 +808,6 @@ function openReportDialog(target) {
   reportForm.querySelector("textarea").focus();
 }
 
-async function loadMoreArchive(button) {
-  // The accountability archive paginates on the raw row id (newest-first);
-  // each page appends below the previous one like the feed routes.
-  const older = await api("/api/archive?before=" + button.dataset.before);
-  const rendered = await renderArchiveListFragment(older.archive);
-  button.before(rendered);
-  button.remove();
-  if (!older.nextBefore) return;
-  const next = element("button", "button button-secondary", "Load older archive");
-  next.type = "button";
-  next.dataset.action = "load-more-archive";
-  next.dataset.before = String(older.nextBefore);
-  main.append(next);
-}
-
 async function handleButtonAction(button) {
   const handlers = {
     logout: async () => {
@@ -909,6 +827,8 @@ async function handleButtonAction(button) {
     ...postActions,
     // The profile surface's actions live in routes/profile.js.
     ...profileActions,
+    // The content-page actions (archive paging, rules save) live in routes/pages.js.
+    ...pagesActions,
     // Suggestion status (v3.1): staff flip resolved/declined/open; the
     // route re-render refetches the payload so the chip and buttons come
     // back from the server, never from the echo.
@@ -922,7 +842,6 @@ async function handleButtonAction(button) {
         ? "Suggestion reopened."
         : "Suggestion marked " + button.dataset.status + ".");
     },
-    "load-more-archive": () => loadMoreArchive(button),
     "open-notification": () => openNotification(button),
     "chat-tab": () => setChatTab(button.dataset.chatTab),
     "dm-open-thread": () => openDmThread(button.dataset.threadId, button.dataset.otherUsername),
@@ -1009,13 +928,6 @@ async function handleButtonAction(button) {
       await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/reject", { method: "POST" });
       await renderRoute(state.activeRoute);
       setMessage("GIF submission rejected.");
-    },
-    "save-forum-rules": async () => {
-      const input = document.querySelector("#rules-input");
-      if (!input) return;
-      await api("/api/rules", { method: "POST", body: input.value });
-      state.router.navigate("/rules");
-      setMessage("Rules saved.");
     },
     "report-profile": () => openReportDialog({ type: "profile", id: button.dataset.profileId }),
     "resolve-profile-report": async (button) => {
