@@ -219,6 +219,13 @@ namespace_id = "614202610142012"
 limit = 5
 period = 60
 
+[[env.preview.ratelimits]]
+name = "TOTP_RATE_LIMITER"
+namespace_id = "614202610142013"
+[env.preview.ratelimits.simple]
+limit = 10
+period = 60
+
 # Preview uses a dedicated database and isolated rate-limit namespaces.
 [previews.vars]
 TURNSTILE_HOSTNAMES = "wempos-forum-preview.itswempo.workers.dev"

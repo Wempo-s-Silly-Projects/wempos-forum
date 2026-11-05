@@ -99,9 +99,14 @@ async function handleTotpRoutes(request, env, url, path, method) {
   // VERIFIED password (never sent before credentials pass, so this endpoint
   // carries no credential oracle). A consumed or expired challenge 401s.
   if (path === "/api/auth/totp" && method === "POST") {
-    await requireCsrf(request, env);
+    const guest = await requireCsrf(request, env);
     await assertNetworkNotBanned(request, env);
-    await totpLimiter(request, env, "step");
+    // Per-IP: a constant actor here would collapse every visitor into ONE
+    // 10/min bucket (any guest session + CSRF is enough to reach this
+    // endpoint), letting 11 requests/min lock every 2FA member out of
+    // sign-in. Brute force per account is bounded by the user-keyed pass
+    // after the challenge lookup.
+    await totpLimiter(request, env, "");
     const body = await readJson(request);
     const token = typeof body.challenge === "string" ? body.challenge : "";
     const code = isSixDigitCode(body.code) ? body.code.trim() : null;
@@ -146,7 +151,9 @@ async function handleTotpRoutes(request, env, url, path, method) {
     }
     // createSession's requireUnbanned insert re-checks an active ban, so a
     // ban landing between password and code still can't mint a session.
-    const session = await createSession(request, env, userId, null, true);
+    // The guest session's hash rotates the same pre-login bucket the
+    // password-first login deletes (never leaving it orphaned for 30 days).
+    const session = await createSession(request, env, userId, guest.tokenHash, true);
     if (!session) throw new HttpError(403, "This account is currently banned.");
     return json(
       { user: publicUser(user), csrfToken: session.csrfToken },

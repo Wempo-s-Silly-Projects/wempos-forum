@@ -47,7 +47,10 @@ export function renderTotpSettings(container, session) {
 async function openSetupStep(panel) {
   const result = await api("/api/me/totp/setup", { method: "POST" });
   setMessage("Add the secret to your authenticator, then confirm with a code.");
-  panel.replaceChildren();
+  // Swap only the body — the panel's h2 heading and lede stay put.
+  for (const node of [...panel.children]) {
+    if (node.tagName !== "H2" && node.tagName !== "P") node.remove();
+  }
   const note = element("p", "form-note");
   note.textContent =
     "Type this secret into your authenticator app (or paste the otpauth line). It shows once — reload throws it away until you confirm.";
