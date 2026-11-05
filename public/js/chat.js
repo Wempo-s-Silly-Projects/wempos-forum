@@ -1,12 +1,13 @@
-// Live chat + DMs + online presence (v3.1, Desen's ask): a slide-over panel
-// and a polling loop. The ROOM is one public stream; DMs are private 1:1
-// threads started from a profile's Message button. GET /api/chat?after=<id>
-// carries new room messages plus the online count; the DM thread polls the
-// same shape at /api/dms/:id. POST /api/presence is the signed-in heartbeat
-// (every minute), and invisible mode rides each heartbeat so toggling it
-// takes effect on the next ping (sent immediately on toggle). The panel
-// lives OUTSIDE main, so route renders never wipe it; every body renders
-// through textContent only.
+// Live chat + DMs + online presence (v3.1, Desen's ask): a whole page at
+// /chat — one public room plus 1:1 DMs, on a polling loop. GET
+// /api/chat?after=<id> carries new room messages plus the online count; the
+// DM thread polls the same shape at /api/dms/:id. POST /api/presence is the
+// signed-in heartbeat (every minute), and invisible mode rides each
+// heartbeat so toggling it takes effect on the next ping (sent immediately on
+// toggle). The page lives in <main> like every route (so navigation owns its
+// lifecycle); module state — the room/DM cursors and the open thread —
+// survives route renders, and the polls no-op once the page detaches. Every
+// body renders through textContent only.
 
 import { api } from "./api.js";
 import { createIcon } from "./icons.js";
@@ -14,19 +15,15 @@ import { createIcon } from "./icons.js";
 const HEARTBEAT_INTERVAL_MS = 60_000;
 const CHAT_POLL_MS = 15_000;
 
-// Module state: session (heartbeat gate + send gates), the last-seen room
-// message id and DM message id (poll cursors), the open tab and DM thread,
-// and the two timers. The panel is built lazily so it costs nothing until
-// the first open.
 let chatUser = null;
-let panel = null;
+let panel = null; // the /chat page's root element; null/detached off-route
 let lastId = 0;
 let dmLastId = 0;
-let built = false;
 let pollTimer = null;
 let heartbeatTimer = null;
 let activeTab = "room";
 let dmThread = null; // { id, otherUser: { id, username } }
+let pendingDmThread = null; // opened from a profile while off-route
 
 function isInvisiblePref() {
   try { return window.localStorage.getItem("forum-invisible") === "true"; }
@@ -37,23 +34,22 @@ function saveInvisiblePref(value) {
   try { window.localStorage.setItem("forum-invisible", String(value)); } catch {}
 }
 
-// The header button: chat icon + the live online count (visible to guests
+// The header link: chat icon + the live online count (visible to guests
 // too — the counter is the point). app.js re-renders the header per route,
 // so the count badge is looked up fresh on every poll.
 export const createChatButton = (document) => {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "button button-secondary icon-button";
-  button.dataset.action = "toggle-chat";
-  button.setAttribute("aria-label", "Chat");
-  button.setAttribute("aria-expanded", "false");
-  button.append(createIcon(document, "chat"));
+  const link = document.createElement("a");
+  link.className = "button button-secondary icon-button";
+  link.href = "/chat";
+  link.setAttribute("data-app-link", "");
+  link.setAttribute("aria-label", "Chat");
+  link.append(createIcon(document, "chat"));
   const count = document.createElement("span");
   count.className = "chat-count";
   count.dataset.chatCount = "";
   count.textContent = "0";
-  button.append(count);
-  return button;
+  link.append(count);
+  return link;
 };
 
 // One message row, shared by the room and DM threads. kind picks the delete
@@ -105,6 +101,7 @@ function renderChatMessage(document, list, message, user, kind) {
 // Incoming room messages: append (deduped by row presence — the initial load
 // returns the newest page, so the cursor and the DOM can briefly disagree).
 function appendRoomMessages(messages) {
+  if (!panel?.isConnected) return;
   const list = panel.querySelector("[data-chat-messages]");
   if (!list) return;
   for (const message of messages) {
@@ -137,17 +134,17 @@ async function pollRoom() {
   }
   const online = panel?.querySelector("[data-chat-online]");
   if (online) online.textContent = data.online + " online now";
-  if (panel && !panel.hidden && activeTab === "room") {
+  if (panel?.isConnected && activeTab === "room") {
     appendRoomMessages(data.messages);
   } else if (Number(data.lastId) > lastId) {
-    // Panel closed (or on another tab): still advance the cursor so the next
-    // open skips to the freshest page instead of replaying history.
+    // Off the chat page (or on the DMs tab): still advance the cursor so the
+    // next visit skips to the freshest page instead of replaying history.
     lastId = Number(data.lastId);
   }
 }
 
 async function refreshDmList() {
-  if (!chatUser) return;
+  if (!chatUser || !panel?.isConnected) return;
   const data = await api("/api/dms");
   const host = panel.querySelector("[data-chat-dms]");
   if (!host) return;
@@ -181,7 +178,7 @@ async function refreshDmList() {
 }
 
 async function pollDmThread() {
-  if (!dmThread) return;
+  if (!dmThread || !panel?.isConnected) return;
   const base = "/api/dms/" + dmThread.id;
   const data = await api(dmLastId > 0 ? base + "?after=" + dmLastId : base);
   const list = panel.querySelector("[data-dm-messages]");
@@ -196,7 +193,7 @@ async function pollDmThread() {
 
 export function setChatTab(tab) {
   activeTab = tab;
-  if (!panel) return;
+  if (!panel?.isConnected) return;
   const room = panel.querySelector("[data-chat-room]");
   const dms = panel.querySelector("[data-chat-dms]");
   if (room) room.hidden = tab !== "room";
@@ -211,9 +208,21 @@ export function setChatTab(tab) {
   }
 }
 
+// Open a thread from the conversation list (the row carries the id and the
+// other member's name — everything the thread view needs).
+export function openDmThread(threadId, otherUsername) {
+  renderDmThread({ id: Number(threadId), otherUser: { username: otherUsername } });
+}
+
+export function backToDmList() {
+  dmThread = null;
+  refreshDmList();
+}
+
 // The DM thread view: back control, the other member's name, the message
 // stream, and the send form. Replaces the conversation list in place.
 function renderDmThread(thread) {
+  if (!panel?.isConnected) return;
   const host = panel.querySelector("[data-chat-dms]");
   if (!host) return;
   dmThread = thread;
@@ -253,19 +262,20 @@ function renderDmThread(thread) {
   view.append(form);
   host.replaceChildren(view);
   pollDmThread();
-  input.focus();
 }
 
-function buildPanel(document) {
-  const existing = document.querySelector("#chat-panel");
-  if (!existing) return null;
-  panel = existing;
+// The /chat route's body: the room + DMs tab pair. app.js owns the page's
+// heading and hands the container over; the cursors and open thread live in
+// module state, so navigating away and back resumes rather than reloading.
+export function renderChatPage(host, user) {
+  chatUser = user;
+  const document = host.ownerDocument;
+  const page = document.createElement("div");
+  page.className = "chat-page";
+  panel = page;
 
   const head = document.createElement("div");
   head.className = "chat-head";
-  const title = document.createElement("h2");
-  title.textContent = "Live chat";
-  head.append(title);
   const online = document.createElement("span");
   online.className = "chat-online";
   online.dataset.chatOnline = "";
@@ -282,18 +292,10 @@ function buildPanel(document) {
     tabButton.dataset.action = "chat-tab";
     tabButton.dataset.chatTab = tab;
     tabButton.textContent = label;
-    tabButton.setAttribute("aria-selected", String(tab === activeTab));
+    tabButton.setAttribute("aria-selected", "false");
     tabs.append(tabButton);
   }
   head.append(tabs);
-
-  const close = document.createElement("button");
-  close.type = "button";
-  close.className = "button button-quiet icon-button";
-  close.dataset.action = "toggle-chat";
-  close.setAttribute("aria-label", "Close chat");
-  close.append(createIcon(document, "logout"));
-  head.append(close);
 
   // Invisible mode (Desen's ask): lurk without appearing online. Client-stored
   // like the theme; every heartbeat carries it, and the toggle fires one
@@ -320,6 +322,14 @@ function buildPanel(document) {
   room.append(list);
   const form = document.createElement("form");
   form.dataset.form = "chat-send";
+  if (!user) {
+    form.hidden = true;
+    const guest = document.createElement("p");
+    guest.className = "chat-guest-note";
+    guest.dataset.chatGuestNote = "";
+    guest.textContent = "Sign in to join the chat.";
+    room.append(guest);
+  }
   const input = document.createElement("input");
   input.type = "text";
   input.name = "body";
@@ -335,96 +345,57 @@ function buildPanel(document) {
   form.append(send);
   room.append(form);
 
-  // The DMs tab: hosts the conversation list or one thread view.
+  // The DMs tab: hosts the conversation list or one thread view. Members
+  // only — guests never see the tab.
   const dms = document.createElement("div");
   dms.dataset.chatDms = "";
   dms.hidden = true;
+  page.append(head, room, dms);
+  host.append(page);
 
-  panel.replaceChildren(head, room, dms);
-  built = true;
-  return panel;
-}
+  const dmTab = tabs.querySelector('[data-chat-tab="dms"]');
+  if (dmTab) dmTab.hidden = !user;
 
-export function toggleChat() {
-  if (!built) buildPanel(document);
-  if (!panel) return;
-  panel.hidden = !panel.hidden;
-  for (const button of document.querySelectorAll('[data-action="toggle-chat"]')) {
-    button.setAttribute("aria-expanded", String(!panel.hidden));
+  // A profile's Message button stashed a thread while off-route: land
+  // directly in it.
+  if (user && pendingDmThread) {
+    const thread = pendingDmThread;
+    pendingDmThread = null;
+    setChatTab("dms");
+    renderDmThread(thread);
+  } else {
+    setChatTab("room");
   }
-  if (!panel.hidden) {
-    lastId = 0;
-    setChatTab(activeTab === "dms" && dmThread ? "dms" : "room");
-    pollRoom();
-  }
+  pollRoom();
 }
 
 // Start (or reopen) a DM with a named member — the profile Message button's
-// handler. Find-or-creates the thread server-side, opens the panel on the
-// DMs tab, and renders the thread.
-// Open a thread from the conversation list (the row carries the id and the
-// other member's name — everything the thread view needs).
-export function openDmThread(threadId, otherUsername) {
-  renderDmThread({ id: Number(threadId), otherUser: { username: otherUsername } });
-}
-
-export function backToDmList() {
-  dmThread = null;
-  refreshDmList();
-}
-
+// handler. Find-or-creates the thread server-side; app.js then navigates to
+// /chat, where the pending thread opens.
 export async function openDmWith(username) {
   if (!chatUser) return;
-  if (!built) buildPanel(document);
-  if (!panel) return;
-  panel.hidden = false;
   const data = await api("/api/dms", { method: "POST", body: { username } });
-  setChatTab("dms");
-  renderDmThread(data.thread);
+  pendingDmThread = data.thread;
 }
 
 // Session lifecycle: called by app.js whenever the session resolves (boot,
-// sign-in, sign-out). Starts/stops the heartbeat and mirrors availability —
-// guests read the room but never send; the DMs tab is members-only.
+// sign-in, sign-out). Starts/stops the heartbeat; nothing panel-bound (the
+// page renders per-visit with its own session-aware bits).
 export function updateChatSession(user) {
   chatUser = user;
-  if (!built) buildPanel(document);
-  if (panel) {
-    const form = panel.querySelector('[data-form="chat-send"]');
-    if (form) {
-      form.hidden = !user;
-      if (!user) {
-        if (!panel.querySelector("[data-chat-guest-note]")) {
-          const guest = document.createElement("p");
-          guest.className = "chat-guest-note";
-          guest.dataset.chatGuestNote = "";
-          guest.textContent = "Sign in to join the chat.";
-          form.after(guest);
-        }
-      } else {
-        panel.querySelector("[data-chat-guest-note]")?.remove();
-      }
-    }
-    const dmTab = panel.querySelector('[data-chat-tab="dms"]');
-    if (dmTab) dmTab.hidden = !user;
-    if (!user) {
-      dmThread = null;
-      if (activeTab === "dms") setChatTab("room");
-    }
-  }
   if (user) sendHeartbeat();
   if (heartbeatTimer) clearInterval(heartbeatTimer);
   heartbeatTimer = user ? setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS) : null;
 }
 
-// Boot: start the poll loop (the online count stays fresh even with the
-// panel closed) and prime the first fetch.
+// Boot: start the poll loop — the online count badge in the header stays
+// fresh even off the chat page.
 export function initChat() {
   if (pollTimer) return;
   pollRoom();
   pollTimer = setInterval(() => {
     pollRoom();
-    if (panel && !panel.hidden && activeTab === "dms") {
+    if (panel?.isConnected && activeTab === "dms") {
       dmThread ? pollDmThread() : refreshDmList();
     }
   }, CHAT_POLL_MS);
@@ -436,7 +407,7 @@ export async function submitChatMessage(form) {
   const body = String(input?.value ?? "").trim();
   if (!body) return;
   const data = await api("/api/chat", { method: "POST", body: { body } });
-  if (panel && !panel.hidden && activeTab === "room") {
+  if (panel?.isConnected && activeTab === "room") {
     appendRoomMessages([data.message]);
   } else {
     lastId = Math.max(lastId, Number(data.message.id));

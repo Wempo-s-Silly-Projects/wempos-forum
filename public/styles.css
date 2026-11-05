@@ -1902,39 +1902,20 @@ dialog h2 {
   font-weight: 700;
   color: var(--muted);
 }
-.chat-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: min(22rem, 100vw);
+.chat-page {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  background: var(--paper);
-  border-left: 2px solid var(--ink);
-  padding: 0.9rem;
-  z-index: 30;
 }
-.chat-panel[hidden] { display: none; }
 .chat-head {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
-.chat-head h2 {
-  margin: 0;
-  font-size: 1.2rem;
-}
-.chat-head .icon-button {
-  position: absolute;
-  top: 0.7rem;
-  right: 0.7rem;
-}
 .chat-online { color: var(--muted); font-size: 0.85rem; }
 .chat-lurk { font-size: 0.85rem; color: var(--muted); }
 .chat-messages {
-  flex: 1;
+  height: 26rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -1974,8 +1955,8 @@ dialog h2 {
   padding: 0;
 }
 .chat-message-delete:hover { color: #b3261e; }
-.chat-panel form { display: flex; gap: 0.4rem; }
-.chat-panel form input[type="text"] { flex: 1; min-width: 0; }
+.chat-page form { display: flex; gap: 0.4rem; }
+.chat-page form input[type="text"] { flex: 1; min-width: 0; }
 .chat-guest-note { color: var(--muted); margin: 0; }
 /* DMs (v3.1): the conversation list and thread view inside the panel, plus
    the desk's chat/DM log rows. */
@@ -2012,24 +1993,9 @@ dialog h2 {
   flex-direction: column;
   gap: 0.4rem;
   min-height: 0;
-  flex: 1;
 }
 .dm-thread-view h3 { margin: 0; }
-.dm-thread-view .chat-messages { flex: 1; }
-[data-chat-dms] {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
 [data-chat-dms][hidden] { display: none; }
-[data-chat-room] {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-[data-chat-room] .chat-messages { flex: 1; }
 [data-chat-room][hidden] { display: none; }
 .chat-log-row {
   border: 1px solid var(--line);

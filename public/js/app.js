@@ -50,10 +50,10 @@ import {
   initChat,
   openDmThread,
   openDmWith,
+  renderChatPage,
   setChatTab,
   submitChatMessage,
   submitDmMessage,
-  toggleChat,
   updateChatSession,
 } from "./chat.js";
 import { applyCornerPreference, initTheme } from "./theme.js";
@@ -847,6 +847,7 @@ function setRouteTitle(route) {
     mine: "My posts",
     leaderboard: "Leaderboard",
     rules: "Rules",
+    chat: "Chat",
     post: "Post",
     profile: "Profile",
     admin: "Moderation",
@@ -1011,6 +1012,17 @@ async function renderArchiveListFragment(entries) {
     list.append(card);
   }
   return list;
+}
+
+// Live chat page (v3.1): the /chat route — the room + DMs live here as a full
+// page. chat.js owns the body (tabs, streams, send forms); the cursors and
+// open thread survive navigation in chat.js module state.
+async function renderChatRoute(context, version) {
+  addHeading(main, "Live chat", 1);
+  addText(document, main, "p",
+    "One public room plus your DMs. You count as online while you're signed in — tick Invisible in the header to lurk without appearing.",
+    "page-lede");
+  renderChatPage(main, context.session.user);
 }
 
 // Category routes (v3.1, tab style): /c/<slug> (plus the /suggestions alias).
@@ -1333,6 +1345,7 @@ async function renderRoute(route) {
     leaderboard: () => renderLeaderboardRoute(context, version),
     rules: () => renderRulesRoute(context, version),
     category: () => renderCategoryRoute(route, context, version),
+    chat: () => renderChatRoute(context, version),
     archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
@@ -2200,11 +2213,15 @@ async function handleButtonAction(button) {
       next.dataset.before = String(older.nextBefore);
       main.append(next);
     },
-    "toggle-chat": () => toggleChat(),
     "chat-tab": () => setChatTab(button.dataset.chatTab),
     "dm-open-thread": () => openDmThread(button.dataset.threadId, button.dataset.otherUsername),
     "dm-back": () => backToDmList(),
-    "dm-open": () => openDmWith(button.dataset.username),
+    // The profile Message button find-or-creates the thread, then lands on
+    // /chat where the pending thread opens.
+    "dm-open": async () => {
+      await openDmWith(button.dataset.username);
+      router.navigate("/chat");
+    },
     "chat-delete": () => deleteChatMessage(button),
     "dm-delete": () => deleteDmMessage(button),
     "toggle-bookmark": async () => {
