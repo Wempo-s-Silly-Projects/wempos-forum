@@ -23,11 +23,18 @@ import {
   rateLimit,
   readJson,
   readSession,
+  requireSignedInRead,
   requiremod,
   requireUser,
   requiredText,
   userByUsernameKey,
+  verifyPassword,
 } from "./shared.mjs";
+// Timing-equalizer dummies for the username-or-password mismatch case,
+// mirroring session.mjs's login flow (a missing account still pays the full
+// PBKDF2 cost so response timing never reveals whether the name exists).
+const DUMMY_SALT = "00000000000000000000000000000000";
+const DUMMY_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
 import { applyWordFilter } from "./filter.mjs";
 
 export const MAX_APPEAL_BODY_CHARS = 1000;
@@ -191,12 +198,28 @@ async function handleBanAppealRoute(request, env, url, path, method) {
   const body = await readJson(request);
   const username = typeof body.username === "string" ? body.username.trim() : "";
   if (!username) throw new HttpError(400, "Enter the username of the banned account.");
+  // Identity proof (review finding): username alone would let anyone file —
+  // and via the one-appeal-per-ban rule LOCK OUT — an appeal in any banned
+  // member's name. The password rides the same PBKDF2 path as login; the ban
+  // screen already holds it from the failed sign-in, so the real member
+  // types nothing extra. Verified BEFORE any ban lookup so an attacker never
+  // learns whether an account is banned.
+  const password = typeof body.password === "string" ? body.password : "";
+  if (password.length < 1 || password.length > 128) {
+    throw new HttpError(400, "Enter the account's password to appeal.");
+  }
   const appealText = applyWordFilter(
     requiredText(body.body, "appeal", MAX_APPEAL_BODY_CHARS),
     env.FILTERED_WORDS,
   );
   const user = await userByUsernameKey(env, username.toLowerCase());
-  if (!user) throw new HttpError(404, "No account with that username.");
+  const valid = await verifyPassword(
+    password,
+    user ? user.password_salt : DUMMY_SALT,
+    user ? user.password_hash : DUMMY_HASH,
+    env.PASSWORD_PEPPER,
+  );
+  if (!user || !valid) throw new HttpError(401, "The username or password is incorrect.");
   const now = nowSeconds();
   const ban = await db.prepare(
     "SELECT id FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
@@ -223,7 +246,9 @@ async function handleBanAppealRoute(request, env, url, path, method) {
 async function handleMyAppealRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/me/appeals" && method === "GET") {
-    const session = await requireUser(request, env);
+    // GETs carry no CSRF header (the frontend only attaches one to mutating
+    // methods), so the read authenticates session-only.
+    const session = await requireSignedInRead(request, env);
     const [history, actions] = await Promise.all([
       db.prepare(
         "SELECT a.id, a.kind, a.status, a.body, a.created_at, a.decided_at, " +

@@ -14,6 +14,7 @@ import {
   publicRole,
   rateLimit,
   readJson,
+  requireSignedInRead,
   requireUser,
   requiremod,
   userByUsernameKey,
@@ -71,7 +72,9 @@ async function dmThreadFor(env, threadId) {
 // and a last-message preview.
 async function handleDmListRoute(request, env, url, path, method) {
   if (path !== "/api/dms" || method !== "GET") return null;
-  const session = await requireUser(request, env);
+  // GETs carry no CSRF header (the frontend only attaches one to mutating
+  // methods), so reads authenticate session-only.
+  const session = await requireSignedInRead(request, env);
   const rows = (await env.FORUM_DB.prepare(
     "SELECT t.id, t.user_a, t.user_b, a.username AS user_a_name, b.username AS user_b_name, " +
     "(SELECT MAX(m2.id) FROM dm_messages m2 WHERE m2.thread_id = t.id) AS last_message_id, " +
@@ -127,7 +130,10 @@ async function handleDmStartRoute(request, env, url, path, method) {
 async function handleDmThreadRoute(request, env, url, path, method) {
   const threadMatch = path.match(/^\/api\/dms\/([0-9]{1,15})$/);
   if (!threadMatch) return null;
-  const session = await requireUser(request, env);
+  // GET reads session-only; POST is a mutation and keeps the CSRF gate.
+  const session = method === "GET"
+    ? await requireSignedInRead(request, env)
+    : await requireUser(request, env);
   await assertNotBanned(env, session.user.id);
   const threadId = Number(threadMatch[1]);
   const thread = await dmThreadFor(env, threadId);
@@ -207,7 +213,7 @@ async function handleDmMessageDeleteRoute(request, env, url, path, method) {
 // the read-time ban filter. Same review-and-delete posture as the chat log.
 async function handleAdminDmLogRoute(request, env, url, path, method) {
   if (path !== "/api/admin/dms" || method !== "GET") return null;
-  await requiremod(request, env);
+  await requiremod(request, env, false);
   const beforeRaw = url.searchParams.get("before");
   let before = null;
   if (beforeRaw !== null && beforeRaw !== "") {

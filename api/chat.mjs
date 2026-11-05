@@ -154,7 +154,7 @@ async function handlePresenceRoute(request, env, url, path, method) {
 // posts are the record, chat is the hallway).
 async function handleAdminChatRoute(request, env, url, path, method) {
   if (path !== "/api/admin/chat" || method !== "GET") return null;
-  const session = await requiremod(request, env);
+  const session = await requiremod(request, env, false);
   await assertNotBanned(env, session.user.id);
   const beforeRaw = url.searchParams.get("before");
   let before = null;

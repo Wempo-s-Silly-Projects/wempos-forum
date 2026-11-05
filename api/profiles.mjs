@@ -643,6 +643,14 @@ export function accountDeletionStatements(db, userId, { archiveReason, deletedAt
     db.prepare("DELETE FROM notifications WHERE user_id = ?").bind(userId),
     db.prepare("DELETE FROM reactions WHERE user_id = ?").bind(userId),
     db.prepare("DELETE FROM reports WHERE reporter_id = ?").bind(userId),
+    // IP bans (v3.1): banned_ips has no FK, so the bans delete below cannot
+    // cascade it — without this the network rows would strand and keep
+    // refusing sign-ins forever (unban/appeal both need a live ban row).
+    // Runs before the bans delete so the subquery can still find the ids.
+    db.prepare(
+      "DELETE FROM banned_ips WHERE ban_id IN (SELECT id FROM bans WHERE user_id = ?)",
+    ).bind(userId),
+    db.prepare("DELETE FROM known_ips WHERE user_id = ?").bind(userId),
     db.prepare("DELETE FROM bans WHERE user_id = ?").bind(userId),
     db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(userId),
     db.prepare("DELETE FROM users WHERE id = ?").bind(userId),

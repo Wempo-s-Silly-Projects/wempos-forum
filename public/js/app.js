@@ -1386,10 +1386,11 @@ async function submitMemberAppeal(form, text) {
 
 async function submitBanAppealForm(form, text) {
   // The ban screen has no session, so there is no CSRF token — the same-origin
-  // header is the guard, and the username travels in the body.
+  // header is the guard, and the username + password (the identity proof)
+  // travel in the body.
   await api("/api/appeals", {
     method: "POST",
-    body: { username: text("username"), body: text("body") },
+    body: { username: text("username"), password: text("password"), body: text("body") },
   });
   setMessage("Appeal filed — an admin will review it.");
   form.replaceChildren();
@@ -1423,7 +1424,7 @@ async function submitAuthForm(type, form, text) {
     // verified server-side before this payload exists, so showing it is safe.
     if (error.banned === true) {
       main.replaceChildren();
-      renderBannedScreen(main, { reason: error.reason, expiresAt: error.expiresAt, username: text("username") });
+      renderBannedScreen(main, { reason: error.reason, expiresAt: error.expiresAt, username: text("username"), password: text("password") });
       setMessage();
       return;
     }

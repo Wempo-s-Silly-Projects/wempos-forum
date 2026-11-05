@@ -683,7 +683,10 @@ async function postCreationFingerprint({
 async function persistStagedPostAttachments(db, postId, authorId, files, gifEntries, options = {}) {
   const { bumpTargetId = null } = options;
   try {
-    return await insertAttachments(db, postId, authorId, files, gifEntries);
+    // The inserted attachment ids ride back out for the Vision first-pass
+    // (scheduleAttachmentVisionChecks) — but ONLY after the publish below
+    // runs: an early return here would strand every staged post hidden.
+    const attachmentIds = await insertAttachments(db, postId, authorId, files, gifEntries);
     const publish = db.prepare(
       "UPDATE posts SET visibility = 'public', staged_at = NULL WHERE id = ? AND author_id = ? AND visibility = 'hidden' " +
       "AND staged_at IS NOT NULL " +
@@ -710,6 +713,7 @@ async function persistStagedPostAttachments(db, postId, authorId, files, gifEntr
         throw new HttpError(409, "Your post could not be published. Please try again.");
       }
     }
+    return attachmentIds;
   } catch (error) {
     try {
       const cleanup = await db.prepare(

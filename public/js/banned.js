@@ -4,7 +4,9 @@
 // other route renderers own their own containers.
 // Ban appeals (v3.1): the screen carries an appeal form. Banned members have
 // no session by definition, so the appeal posts to the session-less
-// POST /api/appeals with the username they tried to sign in with.
+// POST /api/appeals with the username AND PASSWORD they tried to sign in
+// with — the password proof keeps anyone from filing (or locking out) an
+// appeal in a banned member's name.
 import { addText, createForm, createInput, createTextarea } from "./forms.js";
 
 // Pure, DOM-free. expiresAt is an epoch-seconds number from the login 403
@@ -28,7 +30,7 @@ export const formatBanCountdown = (expiresAt, now = null) => {
   return parts.join(" ");
 };
 
-export function renderBannedScreen(main, { reason, expiresAt, username = "" }) {
+export function renderBannedScreen(main, { reason, expiresAt, username = "", password = "" }) {
   const document = main.ownerDocument;
   const panel = document.createElement("section");
   panel.className = "panel banned-screen";
@@ -55,9 +57,11 @@ export function renderBannedScreen(main, { reason, expiresAt, username = "" }) {
     addText(document, panel, "p", "No reactivation time set....", "banned-countdown");
   }
   // Ban appeals (v3.1): no session exists here, so the form posts the
-  // username it carries plus the appeal text; the server matches the
-  // username to its ACTIVE ban and rejects duplicates. The username input
-  // stays editable (the member may have mistyped it while signing in).
+  // username and password it carries plus the appeal text; the server verifies
+  // the password (the login already proved it, so this costs the real member
+  // nothing) and matches the username to its ACTIVE ban, rejecting
+  // duplicates. Both inputs stay editable (the member may have mistyped the
+  // username while signing in).
   const appealForm = createForm(document, "ban-appeal", [
     createInput(document, {
       id: "ban-appeal-username",
@@ -67,6 +71,16 @@ export function renderBannedScreen(main, { reason, expiresAt, username = "" }) {
       minLength: 3,
       maxLength: 24,
       value: username,
+    }),
+    createInput(document, {
+      id: "ban-appeal-password",
+      name: "password",
+      label: "Password (proves this is really you)",
+      type: "password",
+      autoComplete: "current-password",
+      required: true,
+      maxLength: 128,
+      value: password,
     }),
     createTextarea(document, {
       id: "ban-appeal-body",

@@ -14,8 +14,14 @@ CREATE TABLE known_ips (
 CREATE INDEX idx_known_ips_user ON known_ips (user_id);
 
 CREATE TABLE banned_ips (
-  ip_hash TEXT PRIMARY KEY,
+  ip_hash TEXT NOT NULL,
   ban_id INTEGER NOT NULL,
-  created_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL,
+  -- Composite key, not ip_hash alone: the same hash may ride several bans
+  -- (two members behind one NAT), and keying by hash only would let the
+  -- first INSERT OR IGNORE strand the hash when a different ban is unbanned.
+  -- Per-ban rows mean an unban removes exactly its own network rows.
+  PRIMARY KEY (ip_hash, ban_id)
 );
 CREATE INDEX idx_banned_ips_ban ON banned_ips (ban_id);
+CREATE INDEX idx_banned_ips_hash ON banned_ips (ip_hash);
