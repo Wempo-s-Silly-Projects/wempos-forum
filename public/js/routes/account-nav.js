@@ -109,6 +109,31 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
     dataset: { action: "logout" },
   });
   accountActions.append(logout);
+  markMobileBarItem(user);
+}
+
+// The bottom app bar's active destination (v4.0 responsive rebuild): the bar
+// owns phone navigation, so the current route's item reads aria-current="page"
+// and responsive.css paints it with the green accent bar. Runs on every route
+// render (after history.pushState, so location.pathname is already the new
+// route); items without a match (guests, other pages) keep no current state.
+function markMobileBarItem(user) {
+  const path = location.pathname;
+  const isSelfProfile = Boolean(user) && path === "/users/" + encodeURIComponent(user.username);
+  const matches = [
+    ["/", path === "/"],
+    ["/mine", path === "/mine"],
+    ["/suggestions", path === "/suggestions" || path === "/c/suggestions"],
+    ["/notifications", path === "/notifications"],
+    ["/#join", isSelfProfile],
+  ];
+  for (const [href, active] of matches) {
+    const item = document.querySelector(`.mobile-bar-item[href="${CSS.escape(href)}"]`);
+    if (item) {
+      if (active) item.setAttribute("aria-current", "page");
+      else item.removeAttribute("aria-current");
+    }
+  }
 }
 
 export const ACTIONS = {

@@ -43,6 +43,20 @@ export function applyCornerPreference(doc, storage) {
 export function initTheme(doc, storage) {
   const root = doc.documentElement;
 
+  // Browser chrome (v4.0): the phone's address/status bar follows the
+  // EFFECTIVE theme, not just the OS preference — a manual dark choice on a
+  // light-OS phone must not paint the chrome light. The two media-scoped
+  // <meta theme-color> tags in index.html carry the colors; rewriting their
+  // content keeps one source of truth.
+  const BROWSER_CHROME_COLORS = { light: "#f7efdc", dark: "#131b27" };
+  const applyBrowserChromeColor = (theme) => {
+    const color = BROWSER_CHROME_COLORS[theme];
+    if (!color) return;
+    for (const meta of doc.querySelectorAll('meta[name="theme-color"]')) {
+      meta.content = color;
+    }
+  };
+
   const announceNextMode = (theme) => {
     const toggle = doc.querySelector("#theme-toggle");
     if (toggle) {
@@ -61,11 +75,13 @@ export function initTheme(doc, storage) {
   const theme = resolveTheme(readPreference(storage), readOsPreference(doc));
   root.dataset.theme = theme;
   announceNextMode(theme);
+  applyBrowserChromeColor(theme);
 
   doc.querySelector("#theme-toggle")?.addEventListener("click", () => {
     const next = root.dataset.theme === "dark" ? "light" : "dark";
     root.dataset.theme = next;
     announceNextMode(next);
+    applyBrowserChromeColor(next);
     try {
       storage.setItem(THEME_STORAGE_KEY, next);
     } catch {

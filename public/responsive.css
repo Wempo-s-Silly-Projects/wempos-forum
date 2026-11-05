@@ -1,0 +1,287 @@
+/* The v4.0 responsive layer (spec step 7): every rule below this file owns
+   the narrow-viewport presentation, and styles.css (loaded before it) is
+   desktop-only. At widths ≥ 900px nothing in this sheet applies — desktop
+   rendering stays exactly the v3.1 look. The identity (tokens, radii, the
+   paper-strip surfaces) comes from styles.css; this sheet only rebuilds the
+   narrow chrome: a compressed header, a two-rung breakpoint ladder whose
+   phone rung drives a rebuilt bottom app bar, and touch ergonomics.
+
+   Rungs:
+   * ≤899px  — narrow desktop: the column and header compress fluidly, the
+     four-column header keeps one row.
+   * ≤640px  — phone: single full-width column; the bottom app bar owns
+     navigation (the icon nav leaves the header; the theme toggle stays);
+     44px+ touch targets; the bar steps aside while the keyboard is up.
+
+   Wide-content rule: nothing ever scrolls the page sideways — long code,
+   tables, and DM previews scroll inside their own boxes. */
+
+/* ---- all widths: never scroll the page sideways ---- */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+  /* Pull-to-refresh on installed phones shouldn't fight the app. */
+  overscroll-behavior-y: none;
+}
+
+pre,
+table,
+iframe,
+img,
+svg,
+video {
+  max-width: 100%;
+}
+
+pre,
+table,
+.css-queue-preview,
+.chat-messages {
+  overflow-x: auto;
+}
+
+/* The bottom app bar only exists at the phone rung. */
+.mobile-bar {
+  display: none;
+}
+
+/* ---- rung 1: narrow desktop (≤ 899px) ---- */
+@media (max-width: 899px) {
+  /* The four-column header can't hold both the search and the whole icon
+     row once it is this narrow: the search steps down to its own row and
+     the icon nav keeps row one beside the brand. */
+  .header-inner {
+    width: min(100% - 1.5rem, 1120px);
+    grid-template-columns: 1fr auto auto;
+    gap: 0.65rem 1rem;
+    padding-block: 0.65rem;
+    min-height: 68px;
+  }
+
+  #theme-toggle {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .header-search {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .account-nav {
+    grid-column: 3;
+    grid-row: 1;
+    gap: 0.5rem;
+  }
+
+  .account-nav .button {
+    padding-inline: 0.55rem;
+  }
+
+  .main-content {
+    margin-top: 1.25rem;
+  }
+}
+
+/* ---- rung 2: phone (≤ 640px) ---- */
+@media (max-width: 640px) {
+  /* Full-width single column everywhere. */
+  .header-inner,
+  .main-content,
+  .status-bar,
+  .site-footer {
+    width: min(100% - 1.25rem, 780px);
+  }
+
+  /* The header compresses to brand + theme toggle on row one, search on
+     row two. The icon nav steps down — the app bar owns navigation — but
+     the theme toggle keeps its seat so phones can still switch themes. */
+  .header-inner {
+    grid-template-columns: auto auto;
+    gap: 0.6rem;
+    min-height: 64px;
+    padding-block: 0.5rem;
+  }
+
+  .header-search {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  #theme-toggle {
+    justify-self: end;
+  }
+
+  .account-nav {
+    display: none;
+  }
+
+  .main-content {
+    margin: 1.1rem auto 2.5rem;
+  }
+
+  .status-bar {
+    margin-top: 0.35rem;
+  }
+
+  /* ---- the bottom app bar, rebuilt ----
+     Same five destinations, now with 48px-equivalent targets, a real
+     active state (aria-current, set per route by routes/account-nav.js),
+     and safe-area-aware padding for notched phones. It steps out of the
+     way while a text field is focused so the keyboard gets the room. */
+  .mobile-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    position: fixed;
+    inset: auto 0 0 0;
+    background: var(--paper);
+    border-top: 2px solid var(--ink);
+    padding: 0.3rem 0.4rem calc(0.35rem + env(safe-area-inset-bottom));
+    z-index: 6;
+  }
+
+  .mobile-bar-item {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 0.15rem;
+    min-height: 3rem;
+    justify-self: stretch;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.2rem 0.25rem;
+    border-radius: var(--button-radius);
+  }
+
+  .mobile-bar-item svg {
+    width: 1.45rem;
+    height: 1.45rem;
+    display: block;
+  }
+
+  .mobile-bar-item svg path {
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* The active destination reads in the forum's green with a short accent
+     bar on top — same hand-drawn identity, no new vocabulary. */
+  .mobile-bar-item:hover {
+    color: var(--ink);
+    background: none;
+  }
+
+  .mobile-bar-item[aria-current="page"] {
+    color: var(--green-ink);
+    position: relative;
+  }
+
+  .mobile-bar-item[aria-current="page"]::after {
+    content: "";
+    position: absolute;
+    top: -0.35rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1.9rem;
+    height: 0.2rem;
+    border-radius: 999px;
+    background: var(--green);
+  }
+
+  /* Keyboard up: the bar yields. A text field is the only way to type
+     (search, chat, composer, reports), so :has() on focus is exact. */
+  body:has(input:focus, textarea:focus) .mobile-bar {
+    display: none;
+  }
+
+  /* Room for the bar + its safe-area padding; kept while typing so the
+     reflow doesn't bounce when the bar returns. */
+  body {
+    padding-bottom: calc(4.2rem + env(safe-area-inset-bottom));
+  }
+
+  /* ---- touch ergonomics: every interactive element at 44px+ ---- */
+  .button,
+  .feed-tab,
+  .form-actions button {
+    min-height: 2.75rem;
+    padding: 0.6rem 0.95rem;
+  }
+
+  .view-count,
+  .reply-count {
+    min-height: 2.75rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    min-height: 2.75rem;
+  }
+
+  textarea {
+    min-height: 5rem;
+  }
+
+  .icon-button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  /* Cards stack: the post header's author row and timestamp flow instead
+     of squeezing; the timestamp loses its desktop left margin (it owned a
+     fixed 3.1rem indent that overhangs 320px columns); action rows wrap to
+     a second thumb-sized line. */
+  .post-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  .post-time {
+    margin-left: 0;
+  }
+
+  .main-content,
+  .post-list,
+  .post-card,
+  .panel {
+    min-width: 0;
+  }
+
+  .post-actions {
+    flex-wrap: wrap;
+    row-gap: 0.4rem;
+  }
+
+  .auth-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Chat: the room stream gets viewport-fitting height instead of a fixed
+     26rem that can overrun small landscape phones. */
+  .chat-messages {
+    height: min(26rem, 55vh);
+  }
+
+  /* Dialogs stay on the page: the fixed dialogs cap to the viewport so
+     long forms (poll, report) always keep their buttons reachable. */
+  dialog {
+    max-height: calc(100dvh - 2rem);
+  }
+}
+
+/* ---- installed PWA: notch-aware chrome ---- */
+@media all and (display-mode: standalone) {
+  .site-header {
+    padding-top: env(safe-area-inset-top);
+  }
+}
