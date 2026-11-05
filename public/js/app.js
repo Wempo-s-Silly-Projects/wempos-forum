@@ -72,30 +72,24 @@ import {
   takeTurnstileToken,
   teardownTurnstile,
 } from "./turnstile.js";
-
-const main = document.querySelector("#main-content");
-const accountActions = document.querySelector("#account-actions");
-const statusMessage = document.querySelector("#status-message");
-const errorMessage = document.querySelector("#error-message");
-const reportDialog = document.querySelector("#report-dialog");
-const reportForm = reportDialog.querySelector('[data-form="report"]');
-const attachmentLightbox = document.querySelector("#attachment-lightbox");
-// Destructive-action confirmation (v2.4.1 feature): one shared dialog for both
-// deletion flows. openConfirmDialog fills the copy from the pending action and
-// stores its handler; the confirm-ok button runs it. Copy always reaches the
-// DOM through textContent, never markup.
-const confirmDialog = document.querySelector("#confirm-dialog");
-const confirmTitle = confirmDialog.querySelector("#confirm-title");
-const confirmMessage = confirmDialog.querySelector("#confirm-message");
-const confirmOk = confirmDialog.querySelector("#confirm-ok");
-let confirmHandler = null;
-
-function openConfirmDialog(title, message, onConfirm) {
-  confirmTitle.textContent = title;
-  confirmMessage.textContent = message;
-  confirmHandler = onConfirm;
-  confirmDialog.showModal();
-}
+// v4.0 plan 4 Task 1: the shell singletons + panel helpers live in dom.js.
+import {
+  accountActions,
+  addHeading,
+  addSubmit,
+  attachmentLightbox,
+  clearConfirmHandler,
+  confirmDialog,
+  confirmOk,
+  createPanel,
+  element,
+  getConfirmHandler,
+  main,
+  openConfirmDialog,
+  reportDialog,
+  reportForm,
+  setMessage,
+} from "./dom.js";
 
 let router;
 let currentUser = null;
@@ -141,38 +135,6 @@ function applyProfileTheme(profile) {
 // by submitNewPost) and its empty state speaks the board's copy.
 const SUGGESTIONS_BOARD = "suggestions";
 const SUGGESTIONS_EMPTY_TEXT = "No suggestions yet — be the first!";
-
-const element = (tagName, className = "", text) => {
-  const node = document.createElement(tagName);
-  if (className) node.className = className;
-  if (text !== undefined) node.textContent = text;
-  return node;
-}
-
-function setMessage(message = "", isError = false) {
-  statusMessage.textContent = isError ? "" : message;
-  errorMessage.textContent = isError ? message : "";
-}
-
-function addHeading(parent, text, level = 1) {
-  const heading = element(`h${level}`, level === 1 ? "page-heading" : "", text);
-  parent.append(heading);
-  return heading;
-}
-
-function createPanel(title, description = "") {
-  const panel = element("section", "panel");
-  addHeading(panel, title, 2);
-  if (description) addText(document, panel, "p", description, "muted");
-  return panel;
-}
-
-function addSubmit(form, label) {
-  const button = element("button", "button button-primary", label);
-  button.type = "submit";
-  form.append(button);
-  return button;
-}
 
 function authForm(name, title, buttonLabel) {
   const section = element("section", "auth-card");
@@ -2410,8 +2372,8 @@ async function handleButtonAction(button) {
       article.append(renderEditHistoryPanel(document, data.edits));
     },
     "confirm-ok": async () => {
-      if (!confirmHandler) return;
-      const handler = confirmHandler;
+      if (!getConfirmHandler()) return;
+      const handler = getConfirmHandler();
       // Disabled while pending: a double confirm can't fire the destructive
       // request twice while it is in flight. A REQUEST FAILURE keeps the
       // handler armed (the dialog stays open, the error bar carries the
@@ -2420,13 +2382,13 @@ async function handleButtonAction(button) {
       confirmOk.disabled = true;
       try {
         await handler();
-        confirmHandler = null;
+        clearConfirmHandler();
       } finally {
         confirmOk.disabled = false;
       }
     },
     "confirm-cancel": () => {
-      confirmHandler = null;
+      clearConfirmHandler();
       confirmDialog.close();
     },
   };
