@@ -10,9 +10,10 @@
 // body renders through textContent only.
 
 import { api } from "./api.js";
-import { addHeading, main } from "./dom.js";
+import { addHeading, main, setMessage } from "./dom.js";
 import { addText } from "./forms.js";
 import { createIcon } from "./icons.js";
+import { state } from "./state.js";
 
 const HEARTBEAT_INTERVAL_MS = 60_000;
 const CHAT_POLL_MS = 15_000;
@@ -462,3 +463,33 @@ export async function renderChatRoute(context) {
     "page-lede");
   renderChatPage(main, context.session.user);
 }
+
+// The registration seam (task 9): the chat/DM sends submit through
+// FORM_HANDLERS; the page's tab/nav/delete actions merge into
+// handleButtonAction's dispatch map.
+export const FORM_HANDLERS = {
+  "chat-send": async (form) => {
+    // submitForm's generic "Saving…" status reads wrong for a live chat;
+    // clear it once the message lands (errors still surface via api()).
+    await submitChatMessage(form);
+    setMessage();
+  },
+  "dm-send": async (form) => {
+    await submitDmMessage(form);
+    setMessage();
+  },
+};
+
+export const ACTIONS = {
+  "chat-tab": (button) => setChatTab(button.dataset.chatTab),
+  "dm-open-thread": (button) => openDmThread(button.dataset.threadId, button.dataset.otherUsername),
+  "dm-back": () => backToDmList(),
+  // The profile Message button find-or-creates the thread, then lands on
+  // /chat where the pending thread opens.
+  "dm-open": async (button) => {
+    await openDmWith(button.dataset.username);
+    state.router.navigate("/chat");
+  },
+  "chat-delete": (button) => deleteChatMessage(button),
+  "dm-delete": (button) => deleteDmMessage(button),
+};

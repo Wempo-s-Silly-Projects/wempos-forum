@@ -1,54 +1,28 @@
 import { api, setCsrfToken } from "./api.js";
 import { addText } from "./forms.js";
-import { iconButton } from "./icons.js";
 import { boardLabel } from "./boards.js";
-import {
-  appendPostList,
-  createPostCard,
-  createSubReplyContainer,
-  renderBodyBlocks,
-} from "./render.js";
 import { isPlainLeftClick, startRouter } from "./router.js";
-import { createNotificationBell } from "./notifications.js";
 import {
-  backToDmList,
-  createChatButton,
-  deleteChatMessage,
-  deleteDmMessage,
+  ACTIONS as chatActions,
+  FORM_HANDLERS as chatFormHandlers,
   initChat,
-  openDmThread,
-  openDmWith,
-  renderChatPage,
-  setChatTab,
-  submitChatMessage,
-  submitDmMessage,
   updateChatSession,
   renderChatRoute,
 } from "./chat.js";
 import { applyCornerPreference, initTheme } from "./theme.js";
 import {
-  addTurnstileSlot,
-  refreshTurnstile,
   renderTurnstileSlots,
-  takeTurnstileToken,
   teardownTurnstile,
 } from "./turnstile.js";
 // v4.0 plan 4 Task 1: the shell singletons + panel helpers live in dom.js.
 import {
-  accountActions,
   addHeading,
-  addSubmit,
   attachmentLightbox,
   clearConfirmHandler,
   confirmDialog,
   confirmOk,
-  createPanel,
-  element,
   getConfirmHandler,
   main,
-  openConfirmDialog,
-  reportDialog,
-  reportForm,
   setMessage,
 } from "./dom.js";
 // v4.0 plan 4 Task 2: the auth concern (auth panels, setup screens, their
@@ -56,7 +30,6 @@ import {
 // spread its handlers as the dispatch entries that used to live inline here.
 import {
   FORM_HANDLERS as authFormHandlers,
-  renderHomeAccess,
   renderSetupRoute,
 } from "./routes/auth.js";
 
@@ -71,7 +44,6 @@ state.renderRoute = renderRoute;
 import {
   ACTIONS as feedActions,
   FORM_HANDLERS as feedFormHandlers,
-  createComposer,
   handleComposerFileSelection,
   renderBookmarksRoute,
   renderCategoryRoute,
@@ -83,7 +55,6 @@ import {
 import {
   ACTIONS as wallActions,
   FORM_HANDLERS as wallFormHandlers,
-  renderProfileWall,
 } from "./wall.js";
 // v4.0 plan 4 Task 4: the post-detail concern (the /post/:id route, its
 // reply mini-composers and sub-reply cascades, quote prefill, the edit
@@ -137,107 +108,17 @@ import {
   renderAdminRoute,
 } from "./routes/admin.js";
 
-function renderAccountNavigation(user, unreadNotifications = 0) {
-  accountActions.replaceChildren();
-  // The mobile bar's last item mirrors the session: Profile (signed in) --
-  // the static markup ships a Sign-in item for guests; the id marks it.
-  const mobileSignIn = document.querySelector("#mobile-signin") ||
-    document.querySelector("#mobile-profile") ||
-    document.querySelector(".mobile-bar .mobile-bar-item:last-child");
-  if (mobileSignIn) {
-    const span = mobileSignIn.querySelector("span:last-of-type");
-    mobileSignIn.id = user ? "mobile-profile" : "mobile-signin";
-    mobileSignIn.href = user ? "/users/" + encodeURIComponent(user.username) : "/#join";
-    mobileSignIn.setAttribute("aria-label", user ? "Profile" : "Sign in");
-    mobileSignIn.title = user ? "Profile" : "Sign in";
-    if (span) span.textContent = user ? "Profile" : "Sign in";
-    if (user) mobileSignIn.dataset.appLink = "";
-    else mobileSignIn.removeAttribute("data-app-link");
-  }
-  // Suggestions board link (v2.4.1): the header's site-section link, styled
-  // exactly like the links around it and visible to guests and signed-in
-  // members alike; internal navigation handles it like every other header
-  // anchor. The brand stays Home.
-  const suggestions = iconButton(document, "lightbulb", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    dataset: { href: "/suggestions" },
-  });
-  suggestions.setAttribute("data-app-link", "");
-  accountActions.append(suggestions);
-  // Accountability archive (v2.4.1): public to guests and members alike.
-  const archiveLink = iconButton(document, "archive", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    dataset: { href: "/archive" },
-  });
-  archiveLink.setAttribute("data-app-link", "");
-  accountActions.append(archiveLink);
-  const leaderboardLink = iconButton(document, "trophy", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    dataset: { href: "/leaderboard" },
-  });
-  leaderboardLink.setAttribute("data-app-link", "");
-  accountActions.append(leaderboardLink);
-  const rulesLink = iconButton(document, "scroll", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    dataset: { href: "/rules" },
-  });
-  rulesLink.setAttribute("data-app-link", "");
-  accountActions.append(rulesLink);
-  // Live chat (v3.1): the panel toggle carries the online counter. Guests
-  // read the stream and see the count; sending needs a session.
-  accountActions.append(createChatButton(document));
-  if (!user) {
-    const signIn = element("a", "button button-secondary", "Sign in");
-    signIn.href = "/#join";
-    signIn.setAttribute("data-app-link", "");
-    accountActions.append(signIn);
-    return;
-  }
-  const profile = iconButton(document, "person", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    ariaLabel: "Profile — " + user.username,
-    dataset: { href: "/users/" + encodeURIComponent(user.username) },
-  });
-  profile.setAttribute("data-app-link", "");
-  accountActions.append(profile);
-  // Bookmarks (C4): the private saved list — members only.
-  const saved = iconButton(document, "bookmarks", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    ariaLabel: "Saved posts",
-    dataset: { href: "/bookmarks" },
-  });
-  saved.setAttribute("data-app-link", "");
-  accountActions.append(saved);
-  // Appeals (v3.1): the member surface for auto-mod decisions and history.
-  const appeals = iconButton(document, "flag", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    ariaLabel: "Appeals",
-    dataset: { href: "/appeals" },
-  });
-  appeals.setAttribute("data-app-link", "");
-  accountActions.append(appeals);
-  accountActions.append(createNotificationBell(unreadNotifications, document));
-  if (user.role === "owner" || user.role === "admin") {
-    const reports = iconButton(document, "shield", {
-      tagName: "a",
-      className: "button button-secondary icon-button",
-      dataset: { href: "/admin/reports" },
-    });
-    accountActions.append(reports);
-  }
-  const logout = iconButton(document, "logout", {
-    className: "button button-quiet icon-button",
-    dataset: { action: "logout" },
-  });
-  accountActions.append(logout);
-}
+// v4.0 plan 4 Task 9: the report dialog, the header chrome (mobile bar +
+// site-section icons + logout), and the chat panel's dispatch entries live
+// in routes/reports.js, routes/account-nav.js, and chat.js.
+import {
+  ACTIONS as reportActions,
+  FORM_HANDLERS as reportFormHandlers,
+} from "./routes/reports.js";
+import {
+  ACTIONS as accountNavActions,
+  renderAccountNavigation,
+} from "./routes/account-nav.js";
 
 async function prepareRouteContext(version) {
   const [session, setup] = await Promise.all([
@@ -344,21 +225,6 @@ function readForm(form) {
   return new FormData(form);
 }
 
-async function submitReportForm(text) {
-  const targetType = reportForm.dataset.targetType || "post";
-  const targetId = encodeURIComponent(reportForm.dataset.targetId || "");
-  const endpoint = targetType === "profile"
-    ? "/api/users/" + targetId + "/reports"
-    : "/api/posts/" + targetId + "/reports";
-  await api(endpoint, { method: "POST", body: { reason: text("reason") } });
-  reportDialog.close();
-  reportForm.reset();
-  delete reportForm.dataset.targetType;
-  delete reportForm.dataset.targetId;
-  document.querySelector("#report-title").textContent = "Report this post";
-  setMessage("Your report was sent to the mods.");
-}
-
 async function submitForm(form) {
   const values = readForm(form);
   const type = form.dataset.form;
@@ -379,17 +245,10 @@ async function submitForm(form) {
     ...appealFormHandlers,
     // The desk submits live in routes/admin.js.
     ...adminFormHandlers,
-    report: () => submitReportForm(text),
-    "chat-send": async () => {
-      // submitForm's generic "Saving…" status reads wrong for a live chat;
-      // clear it once the message lands (errors still surface via api()).
-      await submitChatMessage(form);
-      setMessage();
-    },
-    "dm-send": async () => {
-      await submitDmMessage(form);
-      setMessage();
-    },
+    // The report form lives in routes/reports.js.
+    ...reportFormHandlers,
+    // The chat/DM sends live in chat.js.
+    ...chatFormHandlers,
   };
   const handler = handlers[type];
   // Route-module handlers take (form, text, values); entries still owned in
@@ -407,54 +266,14 @@ function handleInternalNavigation(event) {
   return true;
 }
 
-async function submitReaction(button) {
-  // Stateful toggle: an "active" button carries the viewer's own reaction, so
-  // clicking it retracts (DELETE); otherwise it sets the value (PUT).
-  if (button.dataset.state === "active") {
-    await api("/api/posts/" + button.dataset.postId + "/reaction", { method: "DELETE" });
-  } else {
-    await api("/api/posts/" + button.dataset.postId + "/reaction", {
-      method: "PUT",
-      body: { value: button.dataset.value },
-    });
-  }
-  await renderRoute(state.activeRoute);
-}
-
-// GIF picker functions (v2.5): open renders the approved library into the
-// dialog grid; confirm folds the selection into the composer state; cancel
-// closes. Selected thumbs carry aria-pressed so keyboard/AT state is real.
-function openReportDialog(target) {
-  const isButton = target instanceof HTMLButtonElement;
-  const targetType = isButton ? "post" : target.type;
-  const targetId = isButton ? target.dataset.postId : target.id;
-  if (!["post", "profile"].includes(targetType) || !targetId) {
-    throw new Error("That report target is no longer available.");
-  }
-  reportForm.dataset.targetType = targetType;
-  reportForm.dataset.targetId = String(targetId);
-  document.querySelector("#report-title").textContent =
-    targetType === "profile" ? "Report this profile" : "Report this post";
-  reportDialog.showModal();
-  reportForm.querySelector("textarea").focus();
-}
-
 async function handleButtonAction(button) {
   const handlers = {
-    logout: async () => {
-      await api("/api/auth/logout", { method: "POST" });
-      setCsrfToken("");
-      state.router.navigate("/");
-      setMessage("You are signed out.");
-    },
-    reaction: () => submitReaction(button),
-    report: () => openReportDialog(button),
-    "close-report": () => reportDialog.close(),
-    // Feed + composer actions live in routes/feed.js.
+    // The card reactions, bookmark/subscribe toggles, and suggestion status
+    // live in routes/feed.js.
     ...feedActions,
     // Profile wall actions (v4.0).
     ...wallActions,
-    // The post-detail conversation actions live in routes/post.js.
+    // The post-detail conversation actions (incl. polls) live in routes/post.js.
     ...postActions,
     // The profile surface's actions live in routes/profile.js.
     ...profileActions,
@@ -464,60 +283,12 @@ async function handleButtonAction(button) {
     ...notificationActions,
     // The desk actions live in routes/admin.js.
     ...adminActions,
-    // Suggestion status (v3.1): staff flip resolved/declined/open; the
-    // route re-render refetches the payload so the chip and buttons come
-    // back from the server, never from the echo.
-    "suggestion-status": async () => {
-      await api("/api/posts/" + button.dataset.postId + "/suggestion-status", {
-        method: "POST",
-        body: { status: button.dataset.status },
-      });
-      await renderRoute(state.activeRoute);
-      setMessage(button.dataset.status === "open"
-        ? "Suggestion reopened."
-        : "Suggestion marked " + button.dataset.status + ".");
-    },
-    "chat-tab": () => setChatTab(button.dataset.chatTab),
-    "dm-open-thread": () => openDmThread(button.dataset.threadId, button.dataset.otherUsername),
-    "dm-back": () => backToDmList(),
-    // The profile Message button find-or-creates the thread, then lands on
-    // /chat where the pending thread opens.
-    "dm-open": async () => {
-      await openDmWith(button.dataset.username);
-      state.router.navigate("/chat");
-    },
-    "chat-delete": () => deleteChatMessage(button),
-    "dm-delete": () => deleteDmMessage(button),
-    "toggle-bookmark": async () => {
-      // Bookmarks (C4): both directions are idempotent server-side; the
-      // route re-render refetches the payload's fresh state.
-      const bookmarked = String(button.getAttribute("aria-pressed")) === "true";
-      await api("/api/posts/" + button.dataset.postId + "/bookmark", {
-        method: bookmarked ? "DELETE" : "PUT",
-      });
-      await renderRoute(state.activeRoute);
-      setMessage(bookmarked ? "Removed from your saved posts." : "Saved.");
-    },
-    "toggle-subscribe": async () => {
-      const subscribed = button.dataset.subscribed === "1";
-      await api("/api/posts/" + button.dataset.postId + "/subscribe", {
-        method: subscribed ? "DELETE" : "POST",
-      });
-      await renderRoute(state.activeRoute);
-      setMessage(subscribed ? "You unsubscribed from this thread." : "You will get notifications for replies here.");
-    },
-    // Polls (C3): the vote PUT (one changeable vote per member) and the
-    // re-render refetches the payload's fresh counts.
-    "poll-vote": async () => {
-      if (state.activeRoute.name !== "post") return;
-      const postId = state.activeRoute.id;
-      await api("/api/posts/" + postId + "/poll", {
-        method: "PUT",
-        body: { optionId: Number(button.dataset.optionId) },
-      });
-      await renderRoute(state.activeRoute);
-    },
-    "report-profile": () => openReportDialog({ type: "profile", id: button.dataset.profileId }),
+    // The report dialog lives in routes/reports.js.
+    ...reportActions,
+    // The header's sign-out lives in routes/account-nav.js.
+    ...accountNavActions,
+    // The chat/DM page actions live in chat.js.
+    ...chatActions,
     "confirm-ok": async () => {
       if (!getConfirmHandler()) return;
       const handler = getConfirmHandler();

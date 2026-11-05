@@ -201,6 +201,17 @@ export const ACTIONS = {
   "expand-sub-replies": (button) => toggleSubReplies(button),
   quote: (button) => quoteIntoComposer(button),
   "expand-attachment": (button) => openAttachmentLightbox(button),
+  // Polls (C3, task 9): the vote PUT (one changeable vote per member) and the
+  // re-render refetches the payload's fresh counts.
+  "poll-vote": async (button) => {
+    if (state.activeRoute.name !== "post") return;
+    const postId = state.activeRoute.id;
+    await api("/api/posts/" + postId + "/poll", {
+      method: "PUT",
+      body: { optionId: Number(button.dataset.optionId) },
+    });
+    await state.renderRoute(state.activeRoute);
+  },
   "edit-post": (button) => {
     const article = editTargetArticle(button);
     if (article) openEditForm(article, document);

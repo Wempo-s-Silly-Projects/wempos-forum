@@ -712,8 +712,57 @@ export const FORM_HANDLERS = {
   reply: (form, text) => submitReplyForm(form, text),
 };
 
+// Task 9: the card actions that ride every feed surface (reactions, the
+// bookmark/subscribe toggles, suggestion status) moved here from app.js —
+// the route re-render refetches fresh state, never trusting the echo.
+async function submitReaction(button) {
+  // Stateful toggle: an "active" button carries the viewer's own reaction, so
+  // clicking it retracts (DELETE); otherwise it sets the value (PUT).
+  if (button.dataset.state === "active") {
+    await api("/api/posts/" + button.dataset.postId + "/reaction", { method: "DELETE" });
+  } else {
+    await api("/api/posts/" + button.dataset.postId + "/reaction", {
+      method: "PUT",
+      body: { value: button.dataset.value },
+    });
+  }
+  await state.renderRoute(state.activeRoute);
+}
+
 export const ACTIONS = {
   "load-more": (button) => loadMorePosts(button),
+  reaction: (button) => submitReaction(button),
+  "toggle-bookmark": async (button) => {
+    // Bookmarks (C4): both directions are idempotent server-side; the
+    // route re-render refetches the payload's fresh state.
+    const bookmarked = String(button.getAttribute("aria-pressed")) === "true";
+    await api("/api/posts/" + button.dataset.postId + "/bookmark", {
+      method: bookmarked ? "DELETE" : "PUT",
+    });
+    await state.renderRoute(state.activeRoute);
+    setMessage(bookmarked ? "Removed from your saved posts." : "Saved.");
+  },
+  "toggle-subscribe": async (button) => {
+    const subscribed = button.dataset.subscribed === "1";
+    await api("/api/posts/" + button.dataset.postId + "/subscribe", {
+      method: subscribed ? "DELETE" : "POST",
+    });
+    await state.renderRoute(state.activeRoute);
+    setMessage(subscribed ? "You unsubscribed from this thread." : "You will get notifications for replies here.");
+  },
+  // Suggestion status (v3.1): staff flip resolved/declined/open; the
+  // route re-render refetches the payload so the chip and buttons come
+  // back from the server, never from the echo.
+  "suggestion-status": async (button) => {
+    await api("/api/posts/" + button.dataset.postId + "/suggestion-status", {
+      method: "POST",
+      body: { status: button.dataset.status },
+    });
+    await state.renderRoute(state.activeRoute);
+    setMessage(button.dataset.status === "open"
+      ? "Suggestion reopened."
+      : "Suggestion marked " + button.dataset.status + ".");
+  },
   "load-more-bookmarks": async (button) => {
     const older = await api("/api/me/bookmarks?before=" + button.dataset.before);
     appendPostList(main, older.bookmarks, document, state.currentUser,
