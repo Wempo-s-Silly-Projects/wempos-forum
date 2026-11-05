@@ -1389,7 +1389,6 @@ async function handleButtonAction(button) {
     ...feedActions,
     // Profile wall actions (v4.0).
     ...wallActions,
-    "load-more": () => loadMorePosts(button),
     // Suggestion status (v3.1): staff flip resolved/declined/open; the
     // route re-render refetches the payload so the chip and buttons come
     // back from the server, never from the echo.
@@ -1410,22 +1409,6 @@ async function handleButtonAction(button) {
     "expand-sub-replies": () => toggleSubReplies(button),
     quote: () => quoteIntoComposer(button),
     "open-notification": () => openNotification(button),
-    // Thread subscriptions (C1): the detail card's toggle. The payload flag
-    // (dataset.subscribed) picks the direction — POST to follow, DELETE to
-    // stop — and the route re-render refetches the post, so the payload's
-    // subscribed state comes back from the server, never from the echo.
-    "load-more-bookmarks": async () => {
-      const older = await api("/api/me/bookmarks?before=" + button.dataset.before);
-      appendPostList(main, older.bookmarks, document, state.currentUser,
-        BOOKMARKS_EMPTY_TEXT);
-      button.remove();
-      if (!older.nextBefore || older.bookmarks.length !== 20) return;
-      const next = element("button", "button button-secondary", "Load older saved posts");
-      next.type = "button";
-      next.dataset.action = "load-more-bookmarks";
-      next.dataset.before = String(older.nextBefore);
-      main.append(next);
-    },
     "chat-tab": () => setChatTab(button.dataset.chatTab),
     "dm-open-thread": () => openDmThread(button.dataset.threadId, button.dataset.otherUsername),
     "dm-back": () => backToDmList(),
