@@ -208,6 +208,13 @@ export function setChatTab(tab) {
   if (tab === "dms") {
     dmThread ? pollDmThread() : refreshDmList();
   } else {
+    // The room restarts from the newest page whenever it opens EMPTY — a
+    // fresh /chat visit, or landing in a DM thread first and switching over.
+    // The away-cursor (lastId) advanced past every message while the room
+    // was unrendered, so the incremental fetch would return nothing and the
+    // room would come back blank (messages "disappearing upon leave").
+    const list = room?.querySelector("[data-chat-messages]");
+    if (list && list.children.length === 0) lastId = 0;
     pollRoom();
   }
 }
