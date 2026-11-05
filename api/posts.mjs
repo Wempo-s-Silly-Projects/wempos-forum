@@ -63,9 +63,10 @@ async function handlePostRoutes(request, env, url, path, method, ctx) {
 //   POST_ROUTE_HANDLERS — the pinned chain (tests/post-route-order.test.mjs)
 //   banFilterSql / listRootPosts / listReplies — historical imports
 //     (bookmarks.mjs, profiles.mjs) and test consumers
-//   POST_DELETE_SQL / REPLY_REPARENT_SQL / postDeletionStatements — the FK
-//     tests consume these; reachable through posts.mjs until the final sweep
-//     re-points the importers
+//   POST_DELETE_SQL / REPLY_REPARENT_SQL / postDeletionStatements — kept
+//     reachable through posts.mjs until the final sweep re-points importers
+//     (the FK-string consumer is tests/posts-write-module.test.mjs, which
+//     imports posts-write.mjs directly)
 export {
   POST_ROUTE_HANDLERS,
   POST_DELETE_SQL,
