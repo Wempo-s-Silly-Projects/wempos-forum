@@ -35,7 +35,7 @@ import {
 } from "./shared.mjs";
 import { listRootPosts } from "./posts.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
-import { scheduleVisionCheck } from "./vision.mjs";
+import { scheduleReportVisionRecheck, scheduleVisionCheck } from "./vision.mjs";
 
 const MAX_AVATAR_BYTES = 1024 * 1024;
 const MAX_AVATAR_REQUEST_BYTES = MAX_AVATAR_BYTES + 64 * 1024;
@@ -345,7 +345,7 @@ async function handleCssClearRoute(request, env, url, path, method) {
 // Report-a-profile (v2.5): members report another member's profile surface
 // (bio/flair/banner/custom CSS) — the moderation desk handles the queue
 // (open first, resolve mirrors the post-reports route).
-async function handleProfileReportRoute(request, env, url, path, method) {
+async function handleProfileReportRoute(request, env, url, path, method, ctx) {
   const db = env.FORUM_DB;
   const reportMatch = path.match(/^\/api\/users\/([0-9]+)\/reports$/);
   if (reportMatch && method === "POST") {
@@ -370,6 +370,10 @@ async function handleProfileReportRoute(request, env, url, path, method) {
       ).bind(profileUserId, session.user.id, reason, nowSeconds()),
     ]);
     requireMutationApplied(results[0]);
+    // Auto-mod report sweep (v3.1): a profile report re-runs SafeSearch over
+    // the member's avatar sets (approved + pending) in the background — the
+    // report response never waits on Google.
+    scheduleReportVisionRecheck(ctx, env, { userId: profileUserId });
     return json({ id: Number(results[0].meta.last_row_id) }, 201);
   }
   return null;

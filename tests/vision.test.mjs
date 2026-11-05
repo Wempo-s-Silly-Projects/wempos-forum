@@ -14,7 +14,9 @@ import {
   isVisionKilled,
   likelihoodScore,
   parseSafeSearch,
+  runReportVisionRecheck,
   runVisionCheck,
+  scheduleReportVisionRecheck,
   scheduleVisionCheck,
   tripsAutoMod,
 } from "../api/vision.mjs";
@@ -22,7 +24,9 @@ import { publicRole, ROLE_ADMIN_DB, ROLE_OWNER_DB } from "../api/shared.mjs";
 
 // A recording db: prepare().bind() captures (sql, params); first() answers
 // from a per-SQL-substring table; batch() returns the always-changes shape.
-function fakeDb(sqlAnswers = {}) {
+// allAnswers answers .all() selects the same substring way (for the report
+// re-check's target and byte queries).
+function fakeDb(sqlAnswers = {}, allAnswers = {}) {
   const statements = [];
   const answer = (sql) => {
     for (const [needle, value] of Object.entries(sqlAnswers)) {
@@ -30,11 +34,17 @@ function fakeDb(sqlAnswers = {}) {
     }
     return null;
   };
+  const answerAll = (sql) => {
+    for (const [needle, value] of Object.entries(allAnswers)) {
+      if (sql.includes(needle)) return typeof value === "function" ? value() : value;
+    }
+    return { results: [] };
+  };
   const mk = (sql, params) => {
     statements.push({ sql, params });
     return {
       first: async () => answer(sql),
-      all: async () => ({ results: [] }),
+      all: async () => answerAll(sql),
       run: async () => ({ meta: { changes: 1, last_row_id: statements.length } }),
     };
   };
@@ -44,7 +54,7 @@ function fakeDb(sqlAnswers = {}) {
       // Real D1 allows parameterless .first()/.all() without .bind(); the
       // kill-switch read uses exactly that shape.
       first: async () => answer(sql),
-      all: async () => ({ results: [] }),
+      all: async () => answerAll(sql),
       bind: (...params) => mk(sql, params),
     }),
     batch: async (stmts) => stmts.map((_, index) => ({ meta: { changes: 1, last_row_id: index + 1 } })),
@@ -184,6 +194,141 @@ test("scheduleVisionCheck: rides ctx.waitUntil and is a no-op when unconfigured"
   scheduleVisionCheck(null, { GOOGLE_VISION_API_KEY: "k" }, { kind: "attachment", entityId: "x" });
   assert.equal(ran, null, "no bytes = nothing scheduled");
   scheduleVisionCheck(ctx, { GOOGLE_VISION_API_KEY: "k" }, { kind: "attachment", entityId: "x", bytes: new Uint8Array([1]) });
+  assert.ok(ran instanceof Promise);
+  await ran; // must never throw into the request path
+});
+
+// ---------------------------------------------------------------------------
+// Report-triggered re-check (v3.1): a filed report sweeps EVERY image on the
+// reported target — approved content included — with intake's exact policy.
+
+// A post's attachment rows, answered for the re-check's target select. Every
+// attachment shares one own-chunk byte set (the fake matches SQL by
+// substring, and the byte queries carry ? placeholders, not literal ids).
+function postSweepDb(attachmentRows, sqlAnswers = {}) {
+  return fakeDb(sqlAnswers, {
+    "FROM attachments WHERE post_id": { results: attachmentRows },
+    "FROM attachment_chunks": { results: [{ data: new Uint8Array([1, 2, 3]) }] },
+  });
+}
+
+test("runReportVisionRecheck: a tripping APPROVED image is removed and recorded; a clean twin is not", async () => {
+  const db = postSweepDb([
+    { id: "flagged", status: "approved", hash: "bad-hash", version: "v1", created_by: 7 },
+    { id: "clean", status: "approved", hash: "ok-hash", version: "v2", created_by: 7 },
+  ]);
+  await runReportVisionRecheck({ FORUM_DB: db, GOOGLE_VISION_API_KEY: "k" }, { postId: 42 }, async () => ({
+    ok: true,
+    json: async () => visionResponse({ ...SAFE, adult: "LIKELY" }),
+  }));
+  // Both were checked — the sweep covers approved content, not just pending.
+  assert.equal(db.statements.filter((s) => s.sql.includes("INSERT INTO vision_verdicts")).length, 2);
+  // Only the flagged one is removed, and the DELETE carries its status guard.
+  const removal = db.statements.find((s) => s.sql.includes("DELETE FROM attachments WHERE id = ? AND status = ?"));
+  assert.ok(removal, "the approved tripping row must be removed");
+  assert.equal(removal.params[0], "flagged");
+  assert.equal(removal.params[1], "approved");
+  const action = db.statements.find((s) => s.sql.includes("INSERT INTO moderation_actions"));
+  assert.ok(action, "the removal must be a moderation action (appealable)");
+  assert.equal(action.params[0], 7);
+  assert.match(action.params[4], /after a member report/);
+  assert.ok(db.statements.some((s) => s.sql.includes("INSERT INTO notifications")));
+});
+
+test("runReportVisionRecheck: dedup twins (same hash) share one Vision call", async () => {
+  const db = postSweepDb([
+    { id: "twin-a", status: "approved", hash: "same", version: "v1", created_by: 7 },
+    { id: "twin-b", status: "approved", hash: "same", version: "v2", created_by: 7 },
+  ]);
+  let fetched = 0;
+  await runReportVisionRecheck({ FORUM_DB: db, GOOGLE_VISION_API_KEY: "k" }, { postId: 42 }, async () => {
+    fetched += 1;
+    return { ok: true, json: async () => visionResponse(SAFE) };
+  });
+  assert.equal(fetched, 1);
+  assert.equal(db.statements.filter((s) => s.sql.includes("INSERT INTO vision_verdicts")).length, 2);
+});
+
+test("runReportVisionRecheck: an appeal-approved hash is re-checked but never re-removed", async () => {
+  const db = postSweepDb(
+    [{ id: "spared", status: "approved", hash: "appealed", version: "v1", created_by: 7 }],
+    { "auto_mod_overrides": {} },
+  );
+  await runReportVisionRecheck({ FORUM_DB: db, GOOGLE_VISION_API_KEY: "k" }, { postId: 42 }, async () => ({
+    ok: true,
+    json: async () => visionResponse({ ...SAFE, adult: "VERY_LIKELY" }),
+  }));
+  assert.equal(db.statements.filter((s) => s.sql.includes("DELETE FROM attachments")).length, 0);
+  assert.equal(db.statements.filter((s) => s.sql.includes("INSERT INTO moderation_actions")).length, 0);
+  assert.equal(db.statements.filter((s) => s.sql.includes("INSERT INTO vision_verdicts")).length, 1);
+});
+
+test("runReportVisionRecheck: a Vision failure fails open and removes nothing", async () => {
+  const db = postSweepDb([{ id: "row", status: "pending", hash: "h", version: "v1", created_by: 7 }]);
+  await runReportVisionRecheck({ FORUM_DB: db, GOOGLE_VISION_API_KEY: "k" }, { postId: 42 }, async () => ({ ok: false, status: 500 }));
+  assert.ok(db.statements.some((s) => s.sql.includes("INSERT INTO vision_verdicts")));
+  assert.equal(db.statements.filter((s) => s.sql.includes("DELETE FROM attachments")).length, 0);
+  assert.equal(db.statements.filter((s) => s.sql.includes("INSERT INTO moderation_actions")).length, 0);
+});
+
+test("runReportVisionRecheck: the kill switch stops the sweep before any fetch", async () => {
+  const db = postSweepDb([{ id: "row", status: "approved", hash: "h", version: "v1", created_by: 7 }],
+    { "FROM site_settings": { value: "1" } });
+  let fetched = 0;
+  await runReportVisionRecheck({ FORUM_DB: db, GOOGLE_VISION_API_KEY: "k" }, { postId: 42 }, async () => {
+    fetched += 1;
+    return { ok: true, json: async () => visionResponse(SAFE) };
+  });
+  assert.equal(fetched, 0);
+  assert.equal(db.statements.length, 0);
+});
+
+test("runReportVisionRecheck: a profile report sweeps the APPROVED avatar and blanks it on a trip", async () => {
+  const db = fakeDb(
+    {
+      // recheckAvatarBytes for the approved mirror (declared first — its SQL
+      // also contains the user-row needle below).
+      "avatar_data AS data": { data: new Uint8Array([1, 2]) },
+      // The avatar-set read: both mirrors exist.
+      "FROM users WHERE id = ? LIMIT 1": {
+        id: 9, avatar_mime: "image/png", avatar_version: "v1",
+        pending_avatar_mime: null, pending_avatar_version: null,
+      },
+    },
+  );
+  await runReportVisionRecheck({ FORUM_DB: db, GOOGLE_VISION_API_KEY: "k" }, { userId: 9 }, async () => ({
+    ok: true,
+    json: async () => visionResponse({ ...SAFE, violence: "LIKELY" }),
+  }));
+  const clear = db.statements.find((s) => s.sql.includes("SET avatar_mime = NULL, avatar_data = NULL"));
+  assert.ok(clear, "the live avatar must be blanked on a trip");
+  assert.equal(clear.params[0], 9);
+  const action = db.statements.find((s) => s.sql.includes("INSERT INTO moderation_actions"));
+  assert.ok(action, "the removal must be a moderation action (appealable)");
+  assert.equal(action.params[1], "avatar");
+  assert.equal(action.params[2], "9");
+});
+
+test("runReportVisionRecheck: a byte-less row (vanished canonical) is skipped, not fetched", async () => {
+  const db = fakeDb({}, { "FROM attachments WHERE post_id": { results: [
+    { id: "empty", status: "approved", hash: null, version: "v1", created_by: 7 },
+  ] } });
+  let fetched = 0;
+  await runReportVisionRecheck({ FORUM_DB: db, GOOGLE_VISION_API_KEY: "k" }, { postId: 42 }, async () => {
+    fetched += 1;
+    return { ok: true, json: async () => visionResponse(SAFE) };
+  });
+  assert.equal(fetched, 0);
+  assert.equal(db.statements.filter((s) => s.sql.includes("INSERT INTO vision_verdicts")).length, 0);
+  assert.equal(db.statements.filter((s) => s.sql.includes("moderation_actions")).length, 0);
+});
+
+test("scheduleReportVisionRecheck: no-op unconfigured, rides ctx.waitUntil when configured", async () => {
+  let ran = null;
+  const ctx = { waitUntil: (promise) => { ran = promise; } };
+  scheduleReportVisionRecheck(ctx, {}, { postId: 1 });
+  assert.equal(ran, null, "no API key = nothing scheduled");
+  scheduleReportVisionRecheck(ctx, { GOOGLE_VISION_API_KEY: "k" }, { postId: 1 });
   assert.ok(ran instanceof Promise);
   await ran; // must never throw into the request path
 });

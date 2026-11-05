@@ -16,6 +16,7 @@
 // are fail-open: the item stays in the human queue exactly as before.
 import {
   assertNotBanned,
+  blobToUint8Array,
   json,
   nowSeconds,
   readJson,
@@ -249,6 +250,227 @@ export function scheduleVisionCheck(ctx, env, input) {
     ctx.waitUntil(task);
   }
   // No ctx (tests, non-Worker callers): the promise still runs best-effort.
+}
+
+// ---------------------------------------------------------------------------
+// Report-triggered re-check (v3.1, owner's ask): a filed report re-runs
+// SafeSearch over EVERY image on the reported target — including content the
+// intake check already passed, because a report is a fresh human signal and
+// Vision's verdicts drift. Post reports sweep all of that post's attachments
+// (pending AND approved, library-GIF reference rows included); profile reports
+// sweep both avatar sets. The policy is intake's exactly: LIKELY+ adult or
+// violence removes, appeal-allowlisted hashes never re-flag, the kill switch
+// stops the whole task, Vision errors fail open, and every removal is a
+// moderation_actions row — so the member can appeal from the same Appeals
+// page and an approval allowlists the hash against future re-checks.
+
+// Chunk concatenation, shared shape of attachment_chunks/gif_chunks assembly.
+function concatBlobRows(result) {
+  const chunks = ((result && result.results) || []).map((row) => blobToUint8Array(row.data));
+  if (chunks.length === 0) return null;
+  const total = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return bytes;
+}
+
+// Byte resolution for one attachment row, mirroring the serving path exactly:
+// the row's own chunk set first (kind follows moderation status), then the
+// canonical by hash — a deduplicated upload or a library-GIF reference row
+// stores no bytes of its own. Kept local because attachments.mjs and gifs.mjs
+// import this module (no circular import for two SELECT builders).
+async function recheckAttachmentBytes(db, row) {
+  const own = await concatBlobRows(await db.prepare(
+    "SELECT data FROM attachment_chunks WHERE attachment_id = ? AND kind = ? ORDER BY seq",
+  ).bind(row.id, row.status).all());
+  if (own) return own;
+  if (!row.hash) return null;
+  const canonical = await db.prepare(
+    "SELECT a.id FROM attachments a WHERE a.hash = ? AND a.status = 'approved' " +
+      "AND EXISTS (SELECT 1 FROM attachment_chunks c WHERE c.attachment_id = a.id AND c.kind = 'approved') " +
+      "ORDER BY a.created_at ASC LIMIT 1",
+  ).bind(row.hash).first();
+  if (canonical) {
+    const bytes = await concatBlobRows(await db.prepare(
+      "SELECT data FROM attachment_chunks WHERE attachment_id = ? AND kind = 'approved' ORDER BY seq",
+    ).bind(canonical.id).all());
+    if (bytes) return bytes;
+  }
+  const gif = await db.prepare(
+    "SELECT id FROM gifs WHERE hash = ? AND status = 'approved' LIMIT 1",
+  ).bind(row.hash).first();
+  if (gif) {
+    return concatBlobRows(await db.prepare(
+      "SELECT data FROM gif_chunks WHERE gif_id = ? ORDER BY seq",
+    ).bind(gif.id).all());
+  }
+  return null;
+}
+
+// Avatar bytes live in single BLOB columns, not chunks. column is from a
+// fixed two-entry whitelist below, never caller input.
+async function recheckAvatarBytes(db, userId, column) {
+  const row = await db.prepare(
+    "SELECT " + column + " AS data FROM users WHERE id = ? LIMIT 1",
+  ).bind(userId).first();
+  return row && row.data ? blobToUint8Array(row.data) : null;
+}
+
+// Removal for a report re-check trip. Unlike intake (which can only remove a
+// pending upload), the re-check may take down LIVE content — that is its job —
+// but always through the same guarded, idempotent statements the desks use.
+function recheckRemovalStatement(db, target) {
+  if (target.kind === "attachment") {
+    // The status guard keeps a desk decision made mid-check from being
+    // crossed (an already-rejected row deletes zero rows, harmlessly).
+    return db.prepare("DELETE FROM attachments WHERE id = ? AND status = ?")
+      .bind(target.entityId, target.status);
+  }
+  if (target.mirror === "pending") {
+    // Intake's exact mirror clear: the previously approved avatar (if any)
+    // returns to serving.
+    return db.prepare(
+      "UPDATE users SET pending_avatar_mime = NULL, pending_avatar_data = NULL, " +
+        "pending_avatar_updated_at = NULL, pending_avatar_version = NULL, " +
+        "avatar_status = CASE WHEN avatar_mime IS NOT NULL THEN 'approved' ELSE NULL END " +
+        "WHERE id = ? AND avatar_status = 'pending'",
+    ).bind(Number(target.entityId));
+  }
+  // The live approved avatar blanks, exactly like a mod removal would.
+  return db.prepare(
+    "UPDATE users SET avatar_mime = NULL, avatar_data = NULL, " +
+      "avatar_updated_at = NULL, avatar_version = NULL " +
+      "WHERE id = ? AND avatar_mime IS NOT NULL",
+  ).bind(Number(target.entityId));
+}
+
+export async function runReportVisionRecheck(env, input, fetchImpl = fetch) {
+  const db = env.FORUM_DB;
+  // The panel kill switch gates the re-check too — one click stops intake
+  // checks AND report sweeps, effective on the next filed report.
+  if (await isVisionKilled(db)) return;
+
+  const targets = [];
+  if (Number.isSafeInteger(input.postId) && input.postId > 0) {
+    // Every image on the reported post: direct uploads and library-GIF
+    // reference rows alike, pending AND approved ("scan everything").
+    const rows = (await db.prepare(
+      "SELECT id, status, hash, version, created_by FROM attachments " +
+        "WHERE post_id = ? AND status IN ('pending', 'approved') ORDER BY created_at",
+    ).bind(input.postId).all()).results || [];
+    for (const row of rows) {
+      targets.push({
+        kind: "attachment",
+        entityId: row.id,
+        status: row.status,
+        hash: row.hash || null,
+        version: row.version || null,
+        userId: Number(row.created_by),
+        load: () => recheckAttachmentBytes(db, row),
+      });
+    }
+  }
+  if (Number.isSafeInteger(input.userId) && input.userId > 0) {
+    // Profile reports sweep both avatar sets: the approved one is serving
+    // publicly, the pending mirror is waiting on the desk.
+    const user = await db.prepare(
+      "SELECT id, avatar_mime, avatar_version, pending_avatar_mime, pending_avatar_version " +
+        "FROM users WHERE id = ? LIMIT 1",
+    ).bind(input.userId).first();
+    if (user) {
+      const mirrors = [
+        user.avatar_mime
+          ? { mirror: "approved", column: "avatar_data", version: user.avatar_version }
+          : null,
+        user.pending_avatar_mime
+          ? { mirror: "pending", column: "pending_avatar_data", version: user.pending_avatar_version }
+          : null,
+      ];
+      for (const mirror of mirrors) {
+        if (!mirror) continue;
+        targets.push({
+          kind: "avatar",
+          entityId: String(user.id),
+          mirror: mirror.mirror,
+          hash: null, // avatars are hashless, like their intake checks
+          version: mirror.version || null,
+          userId: Number(user.id),
+          load: () => recheckAvatarBytes(db, Number(user.id), mirror.column),
+        });
+      }
+    }
+  }
+
+  // Dedup twins (same content hash) share one Vision call per task.
+  const verdictCache = new Map();
+  for (const target of targets) {
+    const bytes = await target.load();
+    if (!bytes || bytes.length === 0) continue;
+    let verdicts = target.hash ? verdictCache.get(target.hash) : undefined;
+    if (verdicts === undefined) {
+      const result = await fetchVisionVerdict(env, bytes, fetchImpl);
+      if (result.error) {
+        // Fail open: the outage lands on the verdict row, nothing is removed.
+        await db.batch([
+          storeVerdictRow(db, {
+            kind: target.kind, entityId: target.entityId, version: target.version,
+            verdicts: null, error: result.error,
+          }),
+        ]);
+        verdicts = null;
+      } else {
+        verdicts = result.verdicts;
+      }
+      if (target.hash) verdictCache.set(target.hash, verdicts);
+    }
+    if (!verdicts) continue;
+
+    const overridden = target.hash
+      ? await db.prepare("SELECT 1 FROM auto_mod_overrides WHERE hash = ? LIMIT 1")
+          .bind(target.hash).first()
+      : null;
+    if (tripsAutoMod(verdicts) && !overridden) {
+      const reason = "Auto-mod removed this image after a member report (Google Vision: " +
+        verdictSummary(verdicts) + ").";
+      await db.batch([
+        storeVerdictRow(db, {
+          kind: target.kind, entityId: target.entityId, version: target.version,
+          verdicts, error: null,
+        }),
+        recheckRemovalStatement(db, target),
+        db.prepare(
+          "INSERT INTO moderation_actions (user_id, kind, entity_kind, entity_id, hash, reason, verdicts, created_at) " +
+            "VALUES (?, 'auto_image', ?, ?, ?, ?, ?, ?)",
+        ).bind(target.userId, target.kind, target.entityId, target.hash, reason,
+          JSON.stringify(verdicts), nowSeconds()),
+        notifyStatement(db, target.userId,
+          "Auto-mod removed one of your images after a report. If this was a mistake, appeal it from your profile's Appeals page."),
+      ]);
+      continue;
+    }
+    await db.batch([
+      storeVerdictRow(db, {
+        kind: target.kind, entityId: target.entityId, version: target.version,
+        verdicts, error: null,
+      }),
+    ]);
+  }
+}
+
+// Report routes call this right after the report row commits. No-op when the
+// subsystem is unconfigured; the kill switch is re-read inside the task.
+export function scheduleReportVisionRecheck(ctx, env, input) {
+  if (!isVisionConfigured(env)) return;
+  const task = runReportVisionRecheck(env, input).catch((error) => {
+    console.error("Vision report re-check failed:", error);
+  });
+  if (ctx && typeof ctx.waitUntil === "function") {
+    ctx.waitUntil(task);
+  }
 }
 
 // Queue payload decorator: batched verdict lookup for the moderation desks,

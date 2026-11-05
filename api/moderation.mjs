@@ -2,7 +2,7 @@
 // moderation routes (moderation desk).
 import { UNBAN_ACTIVE_UPDATE_SQL } from "../constants.mjs";
 import { applyWordFilter } from "./filter.mjs";
-import { publicVisionVerdict, visionVerdictsByEntity } from "./vision.mjs";
+import { publicVisionVerdict, scheduleReportVisionRecheck, visionVerdictsByEntity } from "./vision.mjs";
 import {
   assertNotBanned,
   canViewPost,
@@ -20,7 +20,7 @@ import {
   requiredText,
 } from "./shared.mjs";
 
-async function handleReportCreateRoute(request, env, url, path, method) {
+async function handleReportCreateRoute(request, env, url, path, method, ctx) {
   const db = env.FORUM_DB;
   const reportMatch = path.match(/^\/api\/posts\/([0-9]+)\/reports$/);
   if (reportMatch && method === "POST") {
@@ -49,6 +49,10 @@ async function handleReportCreateRoute(request, env, url, path, method) {
       if (duplicate) throw new HttpError(409, "You already have an open report for this post.");
       throw error;
     }
+    // Auto-mod report sweep (v3.1, owner's ask): the filed report re-runs
+    // SafeSearch over every image on this post — approved content included —
+    // in the background. The report response never waits on Google.
+    scheduleReportVisionRecheck(ctx, env, { postId });
     return json({ ok: true }, 201);
   }
   return null;
@@ -546,7 +550,7 @@ async function handleMemberSearchRoute(request, env, url, path, method) {
   });
 }
 
-async function handleModerationRoutes(request, env, url, path, method) {
+async function handleModerationRoutes(request, env, url, path, method, ctx) {
   const handlers = [
     handleReportCreateRoute,
     handleReportQueueRoute,
@@ -561,7 +565,7 @@ async function handleModerationRoutes(request, env, url, path, method) {
     handleThreadPinRoute,
   ];
   for (const handler of handlers) {
-    const response = await handler(request, env, url, path, method);
+    const response = await handler(request, env, url, path, method, ctx);
     if (response) return response;
   }
   return null;
