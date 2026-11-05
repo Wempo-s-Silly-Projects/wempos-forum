@@ -14,6 +14,13 @@ import { bookmarkFlagForViewer, withBookmarkFlags } from "./bookmarks.mjs";
 import { runFanOutChunks, subscriberFlagForViewer, subscriptionReplyFanOut, withSubscriptionFlags } from "./subscriptions.mjs";
 import { scheduleVisionCheck } from "./vision.mjs";
 import { scheduleTextCheck } from "./textmod.mjs";
+// v4.0: composite cursor parse/encode moved to the core leaf (plan 2, Task 1).
+import {
+  encodeActivityCursor,
+  encodeScoreCursor,
+  parseActivityCursor,
+  parseScoreCursor,
+} from "./core/cursors.mjs";
 
 // Vision first-pass (v3.1): every freshly PENDING direct upload is background-
 // checked right after its batch commits. Dedup twins (preApproved) skip it —
@@ -265,8 +272,7 @@ async function listRootPosts(env, viewer, options = {}) {
       posts: await withSubscriptionFlags(env.FORUM_DB, viewer, await withBookmarkFlags(env.FORUM_DB, viewer, await withReplyMetadata(env.FORUM_DB, viewer,
         await withAttachments(env.FORUM_DB, viewer, shown.map((row) => publicPost(row, 0)))))),
       nextBefore: hasMore && last
-        ? (last.pinned_at === null || last.pinned_at === undefined ? "1_" : "0_") +
-          Number(last.last_activity_at) + "_" + Number(last.id)
+        ? encodeActivityCursor(last)
         : null,
     };
   }
@@ -302,7 +308,7 @@ async function listRootPosts(env, viewer, options = {}) {
       // the identical tally the ORDER BY expression computes, so the emitted
       // cursor always sorts exactly where the row was shown.
       nextBefore: hasMore && last
-        ? (Number(last.like_count) - Number(last.dislike_count)) + "_" + Number(last.id)
+        ? encodeScoreCursor(last)
         : null,
     };
   }
@@ -399,21 +405,11 @@ async function handlePostFeedRoute(request, env, url, path, method) {
       }
     } else if (beforeRaw !== null) {
       if (isSuggestions) {
-        // Score cursors carry a signed integer half: a thread disliked below
-        // zero sorts at a negative score, so its cursor can be "-3_12".
-        const cursorMatch = /^(-?[0-9]{1,10})_([0-9]{1,10})$/.exec(beforeRaw);
-        if (!cursorMatch) throw new HttpError(400, "That page cursor is invalid.");
-        before = { score: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
+        before = parseScoreCursor(beforeRaw);
+        if (!before) throw new HttpError(400, "That page cursor is invalid.");
       } else {
-        const rankedCursor = /^([01])_([0-9]{1,10})_([0-9]{1,10})$/.exec(beforeRaw);
-        const cursorMatch = /^([0-9]{1,10})_([0-9]{1,10})$/.exec(beforeRaw);
-        if (rankedCursor) {
-          before = { rank: Number(rankedCursor[1]), seconds: Number(rankedCursor[2]), id: Number(rankedCursor[3]) };
-        } else if (cursorMatch) {
-          before = { seconds: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
-        } else {
-          throw new HttpError(400, "That page cursor is invalid.");
-        }
+        before = parseActivityCursor(beforeRaw);
+        if (!before) throw new HttpError(400, "That page cursor is invalid.");
       }
     }
     // My posts (v2.5): `mine=1` filters the feed to the SESSION's own roots —
@@ -1357,8 +1353,14 @@ async function threadRootId(env, row) {
   return Number(firstParent.parent_id);
 }
 
+// The dispatch order IS the API contract (first handler claiming a route
+// wins), so the chain lives here as an exported constant — tests/post-route-
+// order.test.mjs pins the exact sequence, and the plan-2 split composer must
+// assemble these same twelve from the split modules in this same order.
+const POST_ROUTE_HANDLERS = [handlePostFeedRoute, handleRepliesReadRoute, handlePostDetailRoute, handleReplyCreateRoute, handlePostCreateRoute, handlePostEditRoute, handlePostEditHistoryRoute, handlePostDeleteRoute, handleReactionRoute, handleReactionDeleteRoute, handleSuggestionStatusRoute, handleSearchRoute];
+
 async function handlePostRoutes(request, env, url, path, method, ctx) {
-  const handlers = [handlePostFeedRoute, handleRepliesReadRoute, handlePostDetailRoute, handleReplyCreateRoute, handlePostCreateRoute, handlePostEditRoute, handlePostEditHistoryRoute, handlePostDeleteRoute, handleReactionRoute, handleReactionDeleteRoute, handleSuggestionStatusRoute, handleSearchRoute];
+  const handlers = POST_ROUTE_HANDLERS;
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method, ctx);
     if (response) return response;
@@ -1366,4 +1368,4 @@ async function handlePostRoutes(request, env, url, path, method, ctx) {
   return null;
 }
 
-export { banFilterSql, handlePostRoutes, listRootPosts, listReplies };
+export { POST_ROUTE_HANDLERS, banFilterSql, handlePostRoutes, listRootPosts, listReplies };
