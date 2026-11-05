@@ -9,11 +9,9 @@ import {
 } from "../constants.mjs";
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
-// The crypto leaf keeps its own encoder; this one serves the password code
-// that still lives here until plan 1, Task 4 moves it out.
-const encoder = new TextEncoder();
-// v4.0: the crypto primitives moved to api/core/crypto.mjs (plan 1, Task 2)
-// and the http glue to api/core/http.mjs (plan 1, Task 3), imported back so
+// v4.0: the crypto primitives moved to api/core/crypto.mjs (plan 1, Task 2),
+// the http glue to api/core/http.mjs (plan 1, Task 3), and the password
+// pipeline to api/core/passwords.mjs (plan 1, Task 4) — imported back so
 // every existing consumer keeps working unchanged.
 import {
   base64Url,
@@ -24,6 +22,13 @@ import {
   randomToken,
   sha256Hex,
 } from "./core/crypto.mjs";
+import {
+  hashPassword,
+  isValidPassword,
+  isValidPasswordPepper,
+  isValidSetupSecret,
+  verifyPassword,
+} from "./core/passwords.mjs";
 import {
   HttpError,
   MAX_JSON_BYTES,
@@ -111,10 +116,6 @@ export const VIEW_INCREMENT_SQL =
 
 export function isValidUsername(value) {
   return typeof value === "string" && /^[A-Za-z0-9_]{3,24}$/.test(value);
-}
-
-export function isValidPassword(value) {
-  return typeof value === "string" && value.length >= 12 && value.length <= 128;
 }
 
 export function createAvatarVersion() {
@@ -388,55 +389,6 @@ export function imageResponse(bytes, claimedMime, cacheControl) {
   headers.set("Content-Disposition", 'inline; filename="image"');
   headers.set("Content-Length", String(bytes.length));
   return new Response(bytes, { status: 200, headers });
-}
-
-export function isValidPasswordPepper(value) {
-  return typeof value === "string" && value.length >= 32 && value.length <= 256;
-}
-
-export function isValidSetupSecret(value) {
-  return typeof value === "string" && value.length >= 32 && value.length <= 4096;
-}
-
-async function derivePassword(password, saltHex, pepper) {
-  if (!isValidPasswordPepper(pepper)) {
-    throw new HttpError(503, "Password security is not configured. Set PASSWORD_PEPPER using Wrangler.");
-  }
-
-  const pepperKey = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(pepper),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const pepperedPassword = await crypto.subtle.sign(
-    "HMAC",
-    pepperKey,
-    encoder.encode(password),
-  );
-  const key = await crypto.subtle.importKey(
-    "raw",
-    pepperedPassword,
-    "PBKDF2",
-    false,
-    ["deriveBits"],
-  );
-  const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", salt: fromHex(saltHex), iterations: PBKDF2_ITERATIONS, hash: "SHA-256" },
-    key,
-    256,
-  );
-  return hex(new Uint8Array(bits));
-}
-
-export async function hashPassword(password, pepper) {
-  const saltHex = hex(crypto.getRandomValues(new Uint8Array(16)));
-  return { salt: saltHex, hash: await derivePassword(password, saltHex, pepper) };
-}
-
-export async function verifyPassword(password, salt, expectedHash, pepper) {
-  return equalConstantTime(await derivePassword(password, salt, pepper), expectedHash);
 }
 
 function setCookie(request, token, maxAge = SESSION_TTL_SECONDS) {
@@ -879,8 +831,13 @@ export {
   publicPost,
   postById,
   handleAvatarReadRoute,
+  hashPassword,
+  isValidPassword,
+  isValidPasswordPepper,
+  isValidSetupSecret,
   rateLimit,
   requireTurnstile,
+  verifyPassword,
   MAX_JSON_BYTES,
 };
 // Accountability archive (v2.4.1): builds the INSERT..SELECT that copies the
