@@ -10,6 +10,8 @@
 // body renders through textContent only.
 
 import { api } from "./api.js";
+import { addHeading, main } from "./dom.js";
+import { addText } from "./forms.js";
 import { createIcon } from "./icons.js";
 
 const HEARTBEAT_INTERVAL_MS = 60_000;
@@ -449,4 +451,14 @@ export async function deleteChatMessage(button) {
 export async function deleteDmMessage(button) {
   await api("/api/dm-messages/" + button.dataset.chatMessageId, { method: "DELETE" });
   document.querySelector(`[data-dm-message-id="${button.dataset.chatMessageId}"]`)?.remove();
+}
+
+// The /chat route wrapper (v3.1): nav renders here like every page route —
+// the heading + lede, then the page body this module already owns.
+export async function renderChatRoute(context) {
+  addHeading(main, "Live chat", 1);
+  addText(document, main, "p",
+    "One public room plus your DMs. You count as online while you're signed in — tick Invisible in the header to lurk without appearing.",
+    "page-lede");
+  renderChatPage(main, context.session.user);
 }
