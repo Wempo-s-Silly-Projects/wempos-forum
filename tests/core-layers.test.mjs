@@ -19,9 +19,12 @@ test("core modules import nothing outside core/", () => {
     const source = readFileSync(new URL(name, dir), "utf8");
     const imports = [...source.matchAll(/from\s+["']([^"']+)["']/g)].map((m) => m[1]);
     for (const target of imports) {
+      // constants.mjs (repo root) is a pure data leaf beneath core in the
+      // ladder — importing it can never cycle. Everything else must be a
+      // sibling core file.
       assert.ok(
-        target.startsWith("./"),
-        `${name} imports "${target}" — core files may only import sibling core files`,
+        target.startsWith("./") || target === "../../constants.mjs",
+        `${name} imports "${target}" — core files may only import sibling core files or the root constants leaf`,
       );
     }
   }

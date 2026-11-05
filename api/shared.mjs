@@ -5,19 +5,16 @@
 // as consts, mirroring constants.mjs).
 import {
   PBKDF2_ITERATIONS,
-  RATE_LIMIT_BINDINGS,
   SESSION_INSERT_IF_UNBANNED_SQL,
-  TURNSTILE_SITEVERIFY_URL,
 } from "../constants.mjs";
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
-const MAX_JSON_BYTES = 16 * 1024;
-const TURNSTILE_TOKEN_MAX_LENGTH = 2048;
 // The crypto leaf keeps its own encoder; this one serves the password code
 // that still lives here until plan 1, Task 4 moves it out.
 const encoder = new TextEncoder();
 // v4.0: the crypto primitives moved to api/core/crypto.mjs (plan 1, Task 2)
-// and are imported back so every existing consumer keeps working unchanged.
+// and the http glue to api/core/http.mjs (plan 1, Task 3), imported back so
+// every existing consumer keeps working unchanged.
 import {
   base64Url,
   equalConstantTime,
@@ -27,6 +24,18 @@ import {
   randomToken,
   sha256Hex,
 } from "./core/crypto.mjs";
+import {
+  HttpError,
+  MAX_JSON_BYTES,
+  json,
+  rateLimit,
+  readJson,
+  readLimitedBody,
+  requireMutationApplied,
+  requireTurnstile,
+  requiredText,
+  securityHeaders,
+} from "./core/http.mjs";
 
 // Role tiers (v3.1 rename): the PUBLIC vocabulary is member / admin / owner,
 // but users.role stores the PRE-RENAME values — 'moderator' is the admin tier
@@ -99,18 +108,6 @@ export const POST_SELECT =
 // the same request that counts a view also reports the new total.
 export const VIEW_INCREMENT_SQL =
   "UPDATE posts SET view_count = view_count + 1 WHERE id = ? RETURNING view_count";
-
-class HttpError extends Error {
-  // `payload` replaces the JSON body when present (used by the ban-screen
-  // login response, which carries reason/expiresAt beyond the error message).
-  constructor(status, message, headers = {}, payload = null) {
-    super(message);
-    this.name = "HttpError";
-    this.status = status;
-    this.headers = headers;
-    this.payload = payload;
-  }
-}
 
 export function isValidUsername(value) {
   return typeof value === "string" && /^[A-Za-z0-9_]{3,24}$/.test(value);
@@ -442,32 +439,6 @@ export async function verifyPassword(password, salt, expectedHash, pepper) {
   return equalConstantTime(await derivePassword(password, salt, pepper), expectedHash);
 }
 
-function securityHeaders(headers = new Headers()) {
-  const result = new Headers(headers);
-  result.set("X-Content-Type-Options", "nosniff");
-  result.set("Strict-Transport-Security", "max-age=31536000");
-  result.set("X-Frame-Options", "DENY");
-  result.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  result.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-  result.set("Cross-Origin-Resource-Policy", "same-origin");
-  result.set("Cross-Origin-Opener-Policy", "same-origin");
-  result.set(
-    "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self'; " +
-      "img-src 'self' data:; connect-src 'self' https://challenges.cloudflare.com; " +
-      "frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; " +
-      "form-action 'self'; frame-ancestors 'none'",
-  );
-  return result;
-}
-
-function json(data, status = 200, headers = {}) {
-  const resultHeaders = securityHeaders(new Headers(headers));
-  resultHeaders.set("Content-Type", "application/json; charset=utf-8");
-  resultHeaders.set("Cache-Control", "no-store");
-  return new Response(JSON.stringify(data), { status, headers: resultHeaders });
-}
-
 function setCookie(request, token, maxAge = SESSION_TTL_SECONDS) {
   const secure = new URL(request.url).protocol === "https:" ? "; Secure" : "";
   return "wempo_session=" + token + "; Path=/; HttpOnly; SameSite=Lax; Max-Age=" + maxAge + secure;
@@ -618,133 +589,6 @@ async function assertNotBanned(env, userId) {
       "AND (expires_at IS NULL OR expires_at > ?) LIMIT 1",
   ).bind(userId, nowSeconds()).first();
   if (activeBan) throw new HttpError(403, "This account is currently banned.");
-}
-
-function requireMutationApplied(result) {
-  if (Number(result?.meta?.changes) !== 1) {
-    throw new HttpError(403, "This account is currently banned.");
-  }
-  return result;
-}
-
-export async function rateLimit(request, env, scope, actor = "") {
-  const bindingName = RATE_LIMIT_BINDINGS[scope];
-  const limiter = bindingName ? env[bindingName] : null;
-  if (!limiter || typeof limiter.limit !== "function") {
-    throw new HttpError(503, "Rate limiting is not configured for this endpoint.");
-  }
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  const identity = actor ? scope + ":" + actor : scope + ":" + ip;
-  const key = await sha256Hex(identity);
-  const { success } = await limiter.limit({ key });
-  if (!success) {
-    throw new HttpError(429, "Too many requests. Please wait a little and try again.", {
-      "Retry-After": "60",
-    });
-  }
-}
-
-export async function requireTurnstile(request, env, body, expectedAction) {
-  const secret = env.TURNSTILE_SECRET;
-  const hostnames = String(env.TURNSTILE_HOSTNAMES || "")
-    .split(",")
-    .map((hostname) => hostname.trim())
-    .filter(Boolean);
-  const token = typeof body["cf-turnstile-response"] === "string" ? body["cf-turnstile-response"] : "";
-  if (!secret || hostnames.length === 0 || !token || token.length > TURNSTILE_TOKEN_MAX_LENGTH) {
-    throw new HttpError(403, "Human verification is required.");
-  }
-  let result;
-  try {
-    const response = await fetch(TURNSTILE_SITEVERIFY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      signal: AbortSignal.timeout(10_000),
-      body: new URLSearchParams({
-        secret,
-        response: token,
-        remoteip: request.headers.get("CF-Connecting-IP") || "",
-      }),
-    });
-    if (!response.ok) throw new Error("siteverify responded with " + response.status);
-    result = await response.json();
-  } catch (error) {
-    if (error instanceof HttpError) throw error;
-    console.error("Turnstile siteverify request failed:", error && error.name ? error.name : "UnknownError");
-    throw new HttpError(403, "Human verification could not be completed. Please try again.");
-  }
-  const verifiedHostname = typeof result.hostname === "string" ? result.hostname.trim().toLowerCase() : "";
-  const hostnameAllowed = hostnames.some((configured) => {
-    const expected = configured.toLowerCase();
-    if (expected.startsWith("*.")) {
-      const suffix = expected.slice(1);
-      return verifiedHostname.length > suffix.length && verifiedHostname.endsWith(suffix);
-    }
-    return verifiedHostname === expected;
-  });
-  if (!result.success || result.action !== expectedAction || !hostnameAllowed) {
-    throw new HttpError(403, "Human verification failed. Please try again.");
-  }
-}
-
-async function readLimitedBody(request, maximum) {
-  const declared = Number(request.headers.get("Content-Length") || 0);
-  if (declared > maximum) throw new HttpError(413, "That upload is too large.");
-  const reader = request.body && request.body.getReader ? request.body.getReader() : null;
-  if (!reader) return new Uint8Array();
-  const chunks = [];
-  let total = 0;
-  while (true) {
-    const part = await reader.read();
-    if (part.done) break;
-    total += part.value.byteLength;
-    if (total > maximum) {
-      try {
-        await reader.cancel();
-      } catch (cancelError) {
-        console.warn(
-          "Request body cancellation failed:",
-          cancelError && cancelError.name ? cancelError.name : "UnknownError",
-        );
-      }
-      throw new HttpError(413, "That upload is too large.");
-    }
-    chunks.push(part.value);
-  }
-  const output = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    output.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return output;
-}
-
-async function readJson(request, maxBytes = MAX_JSON_BYTES) {
-  const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
-  if (!contentType.startsWith("application/json")) {
-    throw new HttpError(415, "Send this form as JSON.");
-  }
-  const bytes = await readLimitedBody(request, maxBytes);
-  let value;
-  try {
-    value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
-  } catch {
-    throw new HttpError(400, "The request body is not valid JSON.");
-  }
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new HttpError(400, "The request body must be a JSON object.");
-  }
-  return value;
-}
-
-function requiredText(value, field, maximum) {
-  if (typeof value !== "string") throw new HttpError(400, "Enter a valid " + field + ".");
-  const result = value.trim();
-  if (!result || result.length > maximum) {
-    throw new HttpError(400, field.charAt(0).toUpperCase() + field.slice(1) + " must be between 1 and " + maximum + " characters.");
-  }
-  return result;
 }
 
 // Platform keys accepted by PATCH /api/me `socials`, each with the users table
@@ -1035,6 +879,8 @@ export {
   publicPost,
   postById,
   handleAvatarReadRoute,
+  rateLimit,
+  requireTurnstile,
   MAX_JSON_BYTES,
 };
 // Accountability archive (v2.4.1): builds the INSERT..SELECT that copies the
