@@ -94,7 +94,7 @@ import { canViewPost } from "./core/visibility.mjs";
 // profiles route group, since avatars belong to profiles). Approved avatars
 // serve to anyone with public cache headers. Whenever a pending upload exists
 // (first-ever upload or a re-upload over an approved avatar), its bytes are
-// visible to the account owner and to admins/mods — reviewers must see
+// visible to the account owner and to staff — reviewers must see
 // the candidate even when an approved avatar is still serving publicly —
 // uncacheable; everyone else sees the approved avatar or 404. The session is
 // only consulted when a pending set exists, so guest 404s never read sessions.

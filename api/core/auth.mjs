@@ -161,7 +161,9 @@ export async function requireSignedInRead(request, env) {
   return session;
 }
 
-// Moderation gate: admins and mods. Mutating (default) requests go
+// Moderation gate: staff — the admin tier plus the owner (v3.1 public
+// vocabulary; 'moderator' survives only as the STORED role value for the
+// admin tier). Mutating (default) requests go
 // through requireUser (same-origin + CSRF); read-only requests skip that.
 // Roles are read at request time, so demotions take effect on the next
 // readSession without any session invalidation.

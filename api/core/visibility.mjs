@@ -2,8 +2,9 @@
 // path consults. No imports: it is pure SQL over env.FORUM_DB.
 //
 // Nuke rule (v3.0.1): hidden content (a hidden post, or ANY content by an
-// actively-banned author) is invisible to everyone EXCEPT mods and
-// admins — the author included. Normal surfaces (feeds, replies, detail,
+// actively-banned author) is invisible to everyone EXCEPT staff (the admin
+// tier and the owner, in the v3.1 public vocabulary — the author included).
+// Normal surfaces (feeds, replies, detail,
 // search, history) never carry it (the list SQL binds a no-match bypass
 // sentinel); the only in-app door is the desk's hidden-posts page
 // (GET /api/admin/hidden). An expired or revoked ban restores content

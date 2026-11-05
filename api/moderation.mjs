@@ -428,8 +428,8 @@ async function handleAvatarModerationRoute(request, env, url, path, method) {
   return json({ ok: true });
 }
 
-// Thread pinning (C5): POST /api/admin/threads/:id/pin|unpin — mods or
-// admin, the desk idiom (requiremod mutating + changes-checked UPDATE
+// Thread pinning (C5): POST /api/admin/threads/:id/pin|unpin — any staff
+// member, the desk idiom (requiremod mutating + changes-checked UPDATE
 // with a SQL guard). Root-only like boards/subscriptions; the write-time WHERE
 // clauses are also the idempotency-conflict detector, turning a double pin or
 // an unpin of an unpinned thread into a 409 instead of a silent no-op.
