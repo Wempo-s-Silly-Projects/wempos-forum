@@ -14,6 +14,17 @@ import { bookmarkFlagForViewer, withBookmarkFlags } from "./bookmarks.mjs";
 import { runFanOutChunks, subscriberFlagForViewer, subscriptionReplyFanOut, withSubscriptionFlags } from "./subscriptions.mjs";
 import { scheduleVisionCheck } from "./vision.mjs";
 import { scheduleTextCheck } from "./textmod.mjs";
+// v4.0 plan 2: board vocabulary + whitelist gate and the Suggestions score
+// expression moved to their split module (Task 2); composite cursor
+// parse/encode moved to the core leaf (Task 1).
+import {
+  BOARD_VALUES,
+  GENERAL_BOARD_DEFAULT,
+  SUGGESTION_SCORE_SQL,
+  SUGGESTIONS_BOARD,
+  UPDATES_BOARD,
+  boardField,
+} from "./boards.mjs";
 // v4.0: composite cursor parse/encode moved to the core leaf (plan 2, Task 1).
 import {
   encodeActivityCursor,
@@ -89,40 +100,6 @@ const REPLY_SNIPPET_MAX = 80;
 // in public/js/composer-limits.js (COMPOSER_MAX_CHARS feeds both the textarea
 // maxLength and the live counter).
 const MAX_COMPOSER_BODY_CHARS = 1000;
-
-// Boards (v2.4.1): a root-only dimension. Root posts carry the board their
-// composer chose; replies inherit their thread root's board at creation (the
-// create route resolves the root anyway for the bump), and every pre-migration
-// row is 'general' (migration 0006's DEFAULT backfill) — which is exactly where
-// the old posts land in the expanded category set, no migration needed. The
-// whitelist lives here — SQLite cannot gain a CHECK via ALTER TABLE ADD
-// COLUMN — and the feeds read it before any SQL runs.
-// Categories (v3.1, Discourse-style): general chatter, game dev/work, showing
-// things off, bugs & troubleshooting, suggestions (score-sorted, resolvable),
-// and Updates — a staff-only-topics site-news category (everyone reads and
-// replies; only admins/owners may start topics).
-const BOARD_VALUES = ["general", "suggestions", "game-dev", "showcase", "help", "updates"];
-const SUGGESTIONS_BOARD = "suggestions";
-const UPDATES_BOARD = "updates";
-const GENERAL_BOARD_DEFAULT = "general";
-
-// Net reaction score for the Suggestions feed: likes minus dislikes, computed
-// from the reactions rows themselves (reactions.value CHECK-constrains to
-// 'like'/'dislike'; one row per post+user, so the score is the net of both
-// directions — dislikes count against). A zero-score thread is a real page
-// row: COALESCE keeps every thread visible even with no reactions at all.
-const SUGGESTION_SCORE_SQL =
-  "(SELECT COALESCE(SUM(CASE r.value WHEN 'like' THEN 1 ELSE -1 END), 0) " +
-  "FROM reactions r WHERE r.post_id = p.id)";
-
-// Single whitelist gate for the create routes' board field: absent/empty →
-// 'general', whitelisted strings pass, everything else is a 400 before any
-// body validation or database work.
-function boardField(value) {
-  if (value === undefined || value === null || value === "") return GENERAL_BOARD_DEFAULT;
-  if (BOARD_VALUES.includes(value)) return value;
-  throw new HttpError(400, "That board is not available.");
-}
 
 function replySnippet(body) {
   const text = typeof body === "string" ? body : "";
