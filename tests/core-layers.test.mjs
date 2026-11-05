@@ -78,7 +78,11 @@ test("shared.mjs keeps its full export surface", async () => {
     "rateLimit", "requireTurnstile", "isValidHexColor", "PROFILE_BANNER_COLORS",
     "PROFILE_ACCENTS", "normalizeProfileColorInput", "normalizeProfileColor",
     "normalizeProfileAccent", "normalizeBannerColor", "canViewPost",
-    "archivePostRowsStatement", "CUSTOM_CSS_MAX_BYTES", "scopeProfileCss",
+    "archivePostRowsStatement",
+    // CUSTOM_CSS_MAX_BYTES + scopeProfileCss left the surface in plan 3
+    // Task 1: the whole profile-CSS sandbox family moved verbatim to
+    // api/profile-css.mjs (its only consumer, profiles.mjs, imports from
+    // there now).
     "HttpError", "nowSeconds", "sha256Hex", "randomToken", "equalConstantTime",
     "readSession", "requireCsrf", "requireUser", "requireSignedInRead", "requiremod",
     "requireAdmin", "assertSameOrigin", "assertNotBanned", "requireMutationApplied",

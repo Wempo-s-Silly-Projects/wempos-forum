@@ -13,8 +13,6 @@ import {
   normalizeProfileColorInput,
   PROFILE_ACCENTS,
   PROFILE_BANNER_COLORS,
-  scopeProfileCss,
-  CUSTOM_CSS_MAX_BYTES,
   json,
   nowSeconds,
   rateLimit,
@@ -36,6 +34,8 @@ import {
 import { listRootPosts } from "./posts.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
 import { scheduleReportVisionRecheck, scheduleVisionCheck } from "./vision.mjs";
+// v4.0 plan 3, Task 1: the custom-CSS sandbox moved to its topic module.
+import { CUSTOM_CSS_MAX_BYTES, scopeProfileCss } from "./profile-css.mjs";
 
 const MAX_AVATAR_BYTES = 1024 * 1024;
 const MAX_AVATAR_REQUEST_BYTES = MAX_AVATAR_BYTES + 64 * 1024;
