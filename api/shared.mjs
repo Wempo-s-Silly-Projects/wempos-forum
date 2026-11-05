@@ -89,47 +89,6 @@ import {
 } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 
-
-// Avatar serving (moved here from the session group — registered on the
-// profiles route group, since avatars belong to profiles). Approved avatars
-// serve to anyone with public cache headers. Whenever a pending upload exists
-// (first-ever upload or a re-upload over an approved avatar), its bytes are
-// visible to the account owner and to staff — reviewers must see
-// the candidate even when an approved avatar is still serving publicly —
-// uncacheable; everyone else sees the approved avatar or 404. The session is
-// only consulted when a pending set exists, so guest 404s never read sessions.
-async function handleAvatarReadRoute(request, env, url, path, method) {
-  const db = env.FORUM_DB;
-  const avatarMatch = path.match(/^\/api\/avatars\/([0-9]+)$/);
-  if (avatarMatch) {
-    if (method !== "GET") throw new HttpError(405, "That method is not supported.");
-    const userId = Number(avatarMatch[1]);
-    if (!Number.isSafeInteger(userId) || userId < 1) throw new HttpError(404, "Picture not found.");
-    const row = await db.prepare(
-      "SELECT avatar_status, avatar_mime, avatar_data, pending_avatar_mime, pending_avatar_data FROM users WHERE id = ? LIMIT 1",
-    ).bind(userId).first();
-    if (!row) throw new HttpError(404, "Picture not found.");
-
-    if (row.pending_avatar_mime && row.pending_avatar_data) {
-      const session = await readSession(request, env);
-      const viewer = session && session.user;
-      const ismod = viewer && (viewer.role === "owner" || viewer.role === "admin");
-      if (viewer && (viewer.id === userId || ismod)) {
-        const response = imageResponse(blobToUint8Array(row.pending_avatar_data), row.pending_avatar_mime, "no-store");
-        if (response) return response;
-      }
-    }
-
-    if (row.avatar_mime && row.avatar_data) {
-      const response = imageResponse(blobToUint8Array(row.avatar_data), row.avatar_mime, "public, max-age=3600");
-      if (response) return response;
-    }
-
-    throw new HttpError(404, "Picture not found.");
-  }
-  return null;
-}
-
 export {
   HttpError,
   nowSeconds,
@@ -156,7 +115,8 @@ export {
   publicUser,
   publicPost,
   postById,
-  handleAvatarReadRoute,
+  // handleAvatarReadRoute left the surface in plan 3 Task 2 (moved verbatim
+  // to api/avatars.mjs with its family; importers re-pointed).
   hashPassword,
   publicRole,
   assertNetworkNotBanned,

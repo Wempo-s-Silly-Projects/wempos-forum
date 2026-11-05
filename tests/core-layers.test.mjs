@@ -78,6 +78,9 @@ test("shared.mjs keeps its full export surface", async () => {
     "rateLimit", "requireTurnstile", "isValidHexColor", "PROFILE_BANNER_COLORS",
     "PROFILE_ACCENTS", "normalizeProfileColorInput", "normalizeProfileColor",
     "normalizeProfileAccent", "normalizeBannerColor", "canViewPost",
+    // handleAvatarReadRoute left the surface in plan 3 Task 2 — moved
+    // verbatim (with upload + the moderation queue) to api/avatars.mjs;
+    // profiles.mjs imports from there now.
     "archivePostRowsStatement",
     // CUSTOM_CSS_MAX_BYTES + scopeProfileCss left the surface in plan 3
     // Task 1: the whole profile-CSS sandbox family moved verbatim to
@@ -88,7 +91,7 @@ test("shared.mjs keeps its full export surface", async () => {
     "requireAdmin", "assertSameOrigin", "assertNotBanned", "requireMutationApplied",
     "readLimitedBody", "readJson", "requiredText", "securityHeaders", "json",
     "userByUsernameKey", "SOCIAL_PLATFORMS", "socialsFromRow", "publicUser",
-    "publicPost", "postById", "handleAvatarReadRoute", "MAX_JSON_BYTES",
+    "publicPost", "postById", "MAX_JSON_BYTES",
   ]) {
     assert.ok(name in shared, `shared.mjs must keep exporting ${name}`);
   }

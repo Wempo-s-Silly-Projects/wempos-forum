@@ -2,7 +2,11 @@
 // moderation routes (moderation desk).
 import { UNBAN_ACTIVE_UPDATE_SQL } from "../constants.mjs";
 import { applyWordFilter } from "./filter.mjs";
-import { publicVisionVerdict, scheduleReportVisionRecheck, visionVerdictsByEntity } from "./vision.mjs";
+import { scheduleReportVisionRecheck } from "./vision.mjs";
+// v4.0 plan 3, Task 2: the avatar moderation queue moved to api/avatars.mjs
+// (the spec puts the queue routes with the avatar lifecycle); its dispatcher
+// registrations import back here in the original order.
+import { handleAvatarModerationRoute, handleAvatarQueueRoute } from "./avatars.mjs";
 import { scheduleTextCheck } from "./textmod.mjs";
 import {
   assertNotBanned,
@@ -324,108 +328,6 @@ async function handleRoleChangeRoute(request, env, url, path, method) {
     throw new HttpError(409, ROLE_UNCHANGED_409);
   }
   return json({ ok: true, role: publicRole(nextRole) });
-}
-
-// Pending avatar moderation queue: oldest uploads first, capped at 100.
-async function handleAvatarQueueRoute(request, env, url, path, method) {
-  const db = env.FORUM_DB;
-  if (path === "/api/admin/avatars" && method === "GET") {
-    await requiremod(request, env, false);
-    const result = await db.prepare(
-      "SELECT id, username, pending_avatar_updated_at, pending_avatar_version " +
-        "FROM users WHERE avatar_status = 'pending' " +
-        "ORDER BY pending_avatar_updated_at ASC LIMIT 100",
-    ).bind().all();
-    // Vision verdicts key on (kind 'avatar', user id), and carry the pending
-    // version they describe: a re-upload while pending invalidates the old
-    // report, so only a version match surfaces (stale rows read as absent).
-    const verdicts = await visionVerdictsByEntity(db, "avatar",
-      (result.results || []).map((row) => row.id));
-    return json({
-      avatars: (result.results || []).map((row) => {
-        const verdict = verdicts.get(String(row.id));
-        return {
-          userId: Number(row.id),
-          username: row.username,
-          avatarUrl: "/api/avatars/" + row.id + "?v=" + row.pending_avatar_version,
-          uploadedAt: new Date(Number(row.pending_avatar_updated_at) * 1000).toISOString(),
-          vision: verdict && verdict.version === row.pending_avatar_version
-            ? publicVisionVerdict(verdict)
-            : null,
-        };
-      }),
-    });
-  }
-  return null;
-}
-
-async function resolveAvatarPending(db, userId, approve) {
-  if (approve) {
-    // Copy the pending set into the approved set and clear pending in one
-    // statement — SQLite evaluates every RHS against the pre-update row, so
-    // the mirror-set CHECKs hold. The avatar_status guard makes the update
-    // idempotency-safe: 0 changes means nothing was awaiting review.
-    const result = await db.prepare(
-      "UPDATE users SET " +
-        "avatar_mime = pending_avatar_mime, avatar_data = pending_avatar_data, " +
-        "avatar_updated_at = pending_avatar_updated_at, avatar_version = pending_avatar_version, " +
-        "pending_avatar_mime = NULL, pending_avatar_data = NULL, " +
-        "pending_avatar_updated_at = NULL, pending_avatar_version = NULL, " +
-        "avatar_status = 'approved' " +
-        "WHERE id = ? AND avatar_status = 'pending'",
-    ).bind(userId);
-    const results = await db.batch([
-      result,
-      // The Vision report described the pending upload, now decided.
-      db.prepare(
-        "DELETE FROM vision_verdicts WHERE kind = 'avatar' AND entity_id = ?",
-      ).bind(String(userId)),
-    ]);
-    if (Number(results[0].meta?.changes) !== 1) {
-      throw new HttpError(409, "That avatar is not awaiting review.");
-    }
-    return;
-  }
-  // Reject: clear the pending set. An already-approved avatar reappears for
-  // public serving; a first-upload has nothing left, so status returns to
-  // the never-uploaded NULL. One statement with a CASE (documented choice
-  // over a two-statement batch) keeps the guard and the transition atomic.
-  const result = await db.prepare(
-    "UPDATE users SET " +
-      "pending_avatar_mime = NULL, pending_avatar_data = NULL, " +
-      "pending_avatar_updated_at = NULL, pending_avatar_version = NULL, " +
-      "avatar_status = CASE WHEN avatar_mime IS NOT NULL THEN 'approved' ELSE NULL END " +
-      "WHERE id = ? AND avatar_status = 'pending'",
-  ).bind(userId);
-  const results = await db.batch([
-    result,
-    db.prepare(
-      "DELETE FROM vision_verdicts WHERE kind = 'avatar' AND entity_id = ?",
-    ).bind(String(userId)),
-  ]);
-  if (Number(results[0].meta?.changes) !== 1) {
-    throw new HttpError(409, "That avatar is not awaiting review.");
-  }
-}
-
-async function handleAvatarModerationRoute(request, env, url, path, method) {
-  const match = path.match(/^\/api\/admin\/avatars\/([0-9]+)\/(approve|reject)$/);
-  if (!match || method !== "POST") return null;
-
-  const session = await requiremod(request, env);
-  await assertNotBanned(env, session.user.id);
-  const userId = Number(match[1]);
-  if (!Number.isSafeInteger(userId) || userId < 1) {
-    throw new HttpError(404, "Member not found.");
-  }
-  const db = env.FORUM_DB;
-  const target = await db.prepare(
-    "SELECT id FROM users WHERE id = ? LIMIT 1",
-  ).bind(userId).first();
-  if (!target) throw new HttpError(404, "Member not found.");
-
-  await resolveAvatarPending(db, userId, match[2] === "approve");
-  return json({ ok: true });
 }
 
 // Thread pinning (C5): POST /api/admin/threads/:id/pin|unpin — any staff

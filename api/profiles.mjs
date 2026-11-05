@@ -1,9 +1,10 @@
-// "Me" routes (bio, avatar upload, password change), the user profile page,
-// and avatar serving (GET /api/avatars/:id, reader moved into api/shared.mjs).
+// v4.0 plan 3 composer: profile-group dispatcher. Avatar upload/serve and the
+// moderation queue moved to api/avatars.mjs (Task 2); the CSS routes moved to
+// profile-css.mjs (Task 1 consumes its sandbox here); report routes moved to
+// reports.mjs in Task 4. Everything else — profile read/update, password,
+// account deletion — stays here this plan.
 import {
   assertNotBanned,
-  createAvatarVersion,
-  handleAvatarReadRoute,
   hashPassword,
   HttpError,
   archivePostRowsStatement,
@@ -23,22 +24,21 @@ import {
   requiremod,
   requireUser,
   publicRole,
-  sanitizeImage,
   SOCIAL_PLATFORMS,
   socialsFromRow,
-  sniffImageMime,
   userByUsernameKey,
   requiredText,
   verifyPassword,
 } from "./shared.mjs";
 import { listRootPosts } from "./posts.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
-import { scheduleReportVisionRecheck, scheduleVisionCheck } from "./vision.mjs";
+import { scheduleReportVisionRecheck } from "./vision.mjs";
+// v4.0 plan 3, Task 2: the avatar lifecycle (upload, serve, moderation queue)
+// moved to its topic module — the dispatcher keeps registering these two.
+import { handleAvatarReadRoute, handleAvatarUploadRoute } from "./avatars.mjs";
 // v4.0 plan 3, Task 1: the custom-CSS sandbox moved to its topic module.
 import { CUSTOM_CSS_MAX_BYTES, scopeProfileCss } from "./profile-css.mjs";
 
-const MAX_AVATAR_BYTES = 1024 * 1024;
-const MAX_AVATAR_REQUEST_BYTES = MAX_AVATAR_BYTES + 64 * 1024;
 // PATCH /api/me carries up to a 10,000-character bio, so this route lifts the
 // 16 KB global JSON cap to 64 KB (Task 2 pre-approved per-route interface).
 const ME_JSON_BYTES = 64 * 1024;
@@ -497,74 +497,6 @@ async function handleCssAdminRoutes(request, env, url, path, method) {
       throw new HttpError(409, "This CSS submission changed while being rejected. Refresh the moderation queue.");
     }
     return json({ rejected: true, id: userId });
-  }
-  return null;
-}
-
-async function handleAvatarUploadRoute(request, env, url, path, method, ctx) {
-  const db = env.FORUM_DB;
-  if (path === "/api/me/avatar" && method === "POST") {
-    const session = await requireUser(request, env);
-    await assertNotBanned(env, session.user.id);
-    await rateLimit(request, env, "avatar-upload", String(session.user.id));
-    const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
-    if (!contentType.startsWith("multipart/form-data;")) {
-      throw new HttpError(415, "Upload a JPEG, PNG, or WebP image.");
-    }
-    const bufferedBody = await readLimitedBody(request, MAX_AVATAR_REQUEST_BYTES);
-    let form;
-    try {
-      form = await new Request(request.url, {
-        method: "POST",
-        headers: request.headers,
-        body: bufferedBody,
-      }).formData();
-    } catch {
-      throw new HttpError(400, "The image upload could not be read.");
-    }
-    const file = form.get("avatar");
-    if (!(file instanceof File) || file.size < 1) throw new HttpError(400, "Choose an image to upload.");
-    if (file.size > MAX_AVATAR_BYTES) throw new HttpError(413, "Profile pictures must be 1 MiB or smaller.");
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const mime = sniffImageMime(bytes);
-    if (!mime) throw new HttpError(415, "Only JPEG, PNG, and WebP images are supported.");
-    // Polyglot/metadata defense (mirrors attachment + gallery intake): strip
-    // text-carrying segments and appended payloads before anything is stored.
-    const sanitized = sanitizeImage(bytes);
-    if (!sanitized) {
-      throw new HttpError(400, "That image could not be read. Try re-saving it and uploading again.");
-    }
-    const clean = sanitized.bytes;
-    const updatedAt = nowSeconds();
-    const avatarVersion = createAvatarVersion();
-    // Uploads always land in the pending mirror set: any previously approved
-    // avatar keeps serving publicly until a mod approves this upload.
-    // Re-uploading while pending replaces the pending bytes in place. The
-    // schema CHECKs keep avatar_status='pending' and the pending set all-or-
-    // nothing within this single statement's write.
-    const result = await db.prepare(
-      "UPDATE users SET pending_avatar_mime = ?, pending_avatar_data = ?, " +
-        "pending_avatar_updated_at = ?, pending_avatar_version = ?, avatar_status = 'pending' " +
-        "WHERE id = ? AND NOT EXISTS (" +
-        "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
-        "AND (expires_at IS NULL OR expires_at > ?))",
-    ).bind(mime, clean, updatedAt, avatarVersion, session.user.id, session.user.id, nowSeconds()).run();
-    requireMutationApplied(result);
-    // Vision first-pass (v3.1): the pending avatar gets its background check
-    // too — an auto-mod trip clears the pending mirror exactly like a mod
-    // rejection, so the previously approved avatar (if any) keeps serving.
-    scheduleVisionCheck(ctx, env, {
-      kind: "avatar",
-      entityId: session.user.id,
-      version: avatarVersion,
-      bytes: clean,
-      hash: null,
-      userId: session.user.id,
-    });
-    return json({
-      avatarUrl: "/api/avatars/" + session.user.id + "?v=" + avatarVersion,
-      avatarStatus: "pending",
-    });
   }
   return null;
 }
