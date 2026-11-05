@@ -470,9 +470,10 @@ export const POST_DELETE_SQL =
   "DELETE FROM posts WHERE id = ? AND author_id = ?";
 export const REPLY_REPARENT_SQL = "UPDATE posts SET parent_id = ? WHERE parent_id = ?";
 
-// Statement builder shared with the real-SQLite FK tests (tests/deletions.test.mjs
-// runs these exact SQL strings against migrations 0001–0006 to pin the cascade
-// and reparent semantics). parentId null means the target is a thread root.
+// Statement builder pinning the exact FK-safe SQL strings (POST_DELETE_SQL's
+// cascade and REPLY_REPARENT_SQL's reparent semantics; tests/posts-write-
+// module.test.mjs asserts the exact strings). parentId null means the target
+// is a thread root.
 export function postDeletionStatements(db, authorId, postId, parentId, { archiveReason, deletedAt, deletedByUserId = authorId, deletedByName = null } = {}) {
   // Accountability archive (v2.4.1): the doomed rows are copied into
   // post_archive FIRST, in the same atomic batch. A root delete archives the

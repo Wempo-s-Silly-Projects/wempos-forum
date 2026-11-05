@@ -1,9 +1,9 @@
 // v4.0 plan 2, Task 5: the write side of the posts surface — create (post +
 // reply plumbing), edit, history, delete, and reactions — plus the idempotency
-// family both create routes share and the SQL constants the real-SQLite FK
-// tests (tests/deletions.test.mjs) import. This pin holds the module's export
-// surface steady across the split; the composer re-exports several of these
-// until the final sweep re-points importers.
+// family both create routes share and the exact FK SQL strings (asserted
+// below). This pin holds the module's export surface steady across the split;
+// the composer re-exports several of these until the final sweep re-points
+// importers.
 import test from "node:test";
 import assert from "node:assert/strict";
 import * as write from "../api/posts-write.mjs";
