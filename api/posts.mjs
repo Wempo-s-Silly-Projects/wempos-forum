@@ -22,6 +22,8 @@ import { handleSuggestionStatusRoute } from "./suggestions.mjs";
 // by tests/posts-write-module.test.mjs; the composer re-exports several
 // until the final sweep re-points importers).
 import {
+  POST_DELETE_SQL,
+  REPLY_REPARENT_SQL,
   handlePostCreateRoute,
   handlePostDeleteRoute,
   handlePostEditHistoryRoute,
@@ -56,4 +58,21 @@ async function handlePostRoutes(request, env, url, path, method, ctx) {
   return null;
 }
 
-export { POST_ROUTE_HANDLERS, banFilterSql, handlePostRoutes, listRootPosts, listReplies };
+// The posts surface's public faces, in one place:
+//   handlePostRoutes — the dispatcher worker.mjs mounts
+//   POST_ROUTE_HANDLERS — the pinned chain (tests/post-route-order.test.mjs)
+//   banFilterSql / listRootPosts / listReplies — historical imports
+//     (bookmarks.mjs, profiles.mjs) and test consumers
+//   POST_DELETE_SQL / REPLY_REPARENT_SQL / postDeletionStatements — the FK
+//     tests consume these; reachable through posts.mjs until the final sweep
+//     re-points the importers
+export {
+  POST_ROUTE_HANDLERS,
+  POST_DELETE_SQL,
+  REPLY_REPARENT_SQL,
+  banFilterSql,
+  handlePostRoutes,
+  listRootPosts,
+  listReplies,
+  postDeletionStatements,
+};
