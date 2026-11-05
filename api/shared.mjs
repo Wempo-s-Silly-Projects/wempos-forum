@@ -12,8 +12,21 @@ import {
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 const MAX_JSON_BYTES = 16 * 1024;
-const encoder = new TextEncoder();
 const TURNSTILE_TOKEN_MAX_LENGTH = 2048;
+// The crypto leaf keeps its own encoder; this one serves the password code
+// that still lives here until plan 1, Task 4 moves it out.
+const encoder = new TextEncoder();
+// v4.0: the crypto primitives moved to api/core/crypto.mjs (plan 1, Task 2)
+// and are imported back so every existing consumer keeps working unchanged.
+import {
+  base64Url,
+  equalConstantTime,
+  fromHex,
+  hex,
+  nowSeconds,
+  randomToken,
+  sha256Hex,
+} from "./core/crypto.mjs";
 
 // Role tiers (v3.1 rename): the PUBLIC vocabulary is member / admin / owner,
 // but users.role stores the PRE-RENAME values — 'moderator' is the admin tier
@@ -97,45 +110,6 @@ class HttpError extends Error {
     this.headers = headers;
     this.payload = payload;
   }
-}
-
-function nowSeconds() {
-  return Math.floor(Date.now() / 1000);
-}
-
-function hex(bytes) {
-  let result = "";
-  for (const value of bytes) result += value.toString(16).padStart(2, "0");
-  return result;
-}
-
-function fromHex(value) {
-  const bytes = new Uint8Array(value.length / 2);
-  for (let i = 0; i < bytes.length; i++) {
-    bytes[i] = Number.parseInt(value.slice(i * 2, i * 2 + 2), 16);
-  }
-  return bytes;
-}
-
-function base64Url(bytes) {
-  let binary = "";
-  for (const value of bytes) binary += String.fromCharCode(value);
-  return btoa(binary).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-}
-
-function randomToken(size = 32) {
-  return base64Url(crypto.getRandomValues(new Uint8Array(size)));
-}
-
-async function sha256Hex(value) {
-  return hex(new Uint8Array(await crypto.subtle.digest("SHA-256", encoder.encode(value))));
-}
-
-function equalConstantTime(a, b) {
-  if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
-  let mismatch = 0;
-  for (let i = 0; i < a.length; i++) mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return mismatch === 0;
 }
 
 export function isValidUsername(value) {
