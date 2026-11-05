@@ -221,10 +221,13 @@ test("scheduleTextCheck: no-op when unconfigured, rides ctx.waitUntil when confi
   scheduleTextCheck(ctx, { OPENAI_API_KEY: "k" }, { kind: "post", entityId: 1, userId: 1, text: "hi" });
   assert.equal(calls.length, 1);
   // No ctx (tests, non-Worker callers): the promise still runs best-effort.
+  // A kill-switched db keeps it hermetic — the task exits before any fetch.
   let ran = false;
-  scheduleTextCheck(null, { OPENAI_API_KEY: "k" }, {
+  scheduleTextCheck(null, {
+    OPENAI_API_KEY: "k",
+    FORUM_DB: fakeDb({ "FROM site_settings": { value: "1" } }),
+  }, {
     kind: "post", entityId: 1, userId: 1, text: "hi",
-    // runTextCheck is env-driven; a bare call proves the no-ctx path doesn't throw.
   });
   await new Promise((resolve) => setTimeout(resolve, 5));
   ran = true;

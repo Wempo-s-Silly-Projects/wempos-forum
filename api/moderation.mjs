@@ -19,6 +19,8 @@ import {
   requiremod,
   requireUser,
   requiredText,
+  ROLE_ADMIN_DB,
+  ROLE_MEMBER_DB,
 } from "./shared.mjs";
 
 async function handleReportCreateRoute(request, env, url, path, method, ctx) {
