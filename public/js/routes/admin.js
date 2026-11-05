@@ -4,27 +4,28 @@
 // desk submits (resolve, ban/unban, role changes, avatar/attachment
 // moderation, member search). Bodies moved verbatim out of app.js; bare
 // renderRoute calls inside moved bodies re-read the boot state
-// (state.renderRoute). The queue/form builders shared by several sections
-// still live in ../admin.js.
+// (state.renderRoute). The queue/form section builders moved to the desk/
+// modules in plan 6 (spec step 6): automod, appeals, bans, chat-log, media,
+// reports — imported below.
 import { api } from "../api.js";
 import { addHeading, element, main, setMessage } from "../dom.js";
 import { addText } from "../forms.js";
 import { state } from "../state.js";
+import { createAppealQueue } from "../desk/appeals.js";
 import {
   createActiveBanList,
-  createAppealQueue,
+  createBanForm,
+  createMemberSearch,
+  renderMemberSearchResults,
+} from "../desk/bans.js";
+import { createChatLog, createDmLog } from "../desk/chat-log.js";
+import { createTextModSection, createVisionSection } from "../desk/automod.js";
+import {
   createAttachmentQueue,
   createAvatarQueue,
-  createBanForm,
-  createChatLog,
-  createDmLog,
   createGifQueue,
-  createMemberSearch,
-  createReportQueue,
-  createTextModSection,
-  createVisionSection,
-  renderMemberSearchResults,
-} from "../admin.js";
+} from "../desk/media.js";
+import { createReportQueue } from "../desk/reports.js";
 
 async function renderAdminRoute(context, version) {
   const [reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, appeals, vision, textMod, chat, dms] = await Promise.all([
