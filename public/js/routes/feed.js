@@ -15,6 +15,7 @@ import {
 } from "../dom.js";
 import { state } from "../state.js";
 import { renderHomeAccess } from "./auth.js";
+import { renderTotpSettings } from "./twofa.js";
 import { createComposer } from "./composer.js";
 import { appendPostList } from "../render.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
@@ -69,7 +70,7 @@ function renderHomeContent(session, data, route) {
   older.dataset.before = String(data.feed.nextBefore);
   main.append(older);
 }
-function renderAccountSettings() {
+function renderAccountSettings(session) {
   const account = document.createElement("details");
   account.className = "panel";
   // Appearance: the square-corners pref (v2.5) - a checkbox in the account
@@ -105,6 +106,10 @@ function renderAccountSettings() {
   // including other people's replies inside the account's own threads — before
   // anything is sent. The confirm button is disabled while the request is
   // pending (see the confirm-ok handler).
+  // Two-factor sign-in (v4.0.1): the section lives in routes/twofa.js — the
+  // off branch stages an authenticator secret, the on branch takes a disable
+  // code. No recovery exists, by the feature's own spec.
+  renderTotpSettings(account, session);
   const deletePanel = createPanel("Delete your account",
     "This permanently deletes your account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo. Are you really sure?");
   const deleteButton = element("button", "button button-danger", "Delete account");
@@ -119,7 +124,7 @@ function renderHome(session, setupRequired, setupConfigured, data, route) {
   renderIntroduction();
   renderHomeAccess(session, setupRequired, setupConfigured);
   renderHomeContent(session, data, route);
-  if (session.user) renderAccountSettings();
+  if (session.user) renderAccountSettings(session);
 }
 function renderSearchResults(container, results) {
   // Deep reply results (v2.5): a Replies section under the Posts one.

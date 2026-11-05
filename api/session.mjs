@@ -9,6 +9,7 @@ import { HttpError, json, rateLimit, readJson, requireTurnstile, securityHeaders
 import { hashPassword, isValidPassword, isValidPasswordPepper, isValidSetupSecret, verifyPassword } from "./core/passwords.mjs";
 import { ROLE_ADMIN_DB, ROLE_OWNER_DB } from "./core/roles.mjs";
 import { isValidUsername, publicUser, userByUsernameKey } from "./core/shapers.mjs";
+import { issueTotpChallenge } from "./twofa.mjs";
 
 const DUMMY_SALT = "00000000000000000000000000000000";
 const DUMMY_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
@@ -200,6 +201,20 @@ async function handleLoginRoute(request, env, url, path, method) {
     if (!user || !valid) throw new HttpError(401, "The username or password is incorrect.");
     // The ban screen payload is only readable with verified credentials; the
     // generic 401 above already answered invalid ones without touching this row.
+    // Two-factor (v4.0.1) sits between the password check and the session
+    // mint: members with 2FA on get a short-lived single-use challenge
+    // instead (the plaintext rides this response, only its SHA-256 is
+    // stored) and no cookie is set — POST /api/auth/totp finishes sign-in.
+    const hasTotp = await db.prepare(
+      "SELECT totp_secret FROM users WHERE id = ? AND totp_enabled = 1 AND totp_secret IS NOT NULL LIMIT 1",
+    ).bind(Number(user.id)).first();
+    if (hasTotp) {
+      // The challenge is minted before the ban branch of the totp route's
+      // session step; an account that lands a ban after this point simply
+      // can't convert the challenge into a session (requireUnbanned).
+      const challenge = await issueTotpChallenge(db, Number(user.id));
+      return json({ totpRequired: true, challenge }, 200);
+    }
     const bannedMessage = "This account is currently banned.";
     const activeBan = await db.prepare(
       "SELECT reason, expires_at FROM bans WHERE user_id = ? AND revoked_at IS NULL " +

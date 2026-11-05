@@ -56,6 +56,11 @@ import {
   handleComposerFileSelection,
   uploadCommunityGif,
 } from "./routes/composer.js";
+// v4.0.1: the two-factor section (settings + login step) lives in routes/twofa.js.
+import {
+  ACTIONS as twofaActions,
+  FORM_HANDLERS as twofaFormHandlers,
+} from "./routes/twofa.js";
 // v4.0 profile wall: its module owns the render + the post/pin registrations.
 import {
   ACTIONS as wallActions,
@@ -255,6 +260,8 @@ async function submitForm(form) {
     ...reportFormHandlers,
     // The chat/DM sends live in chat.js.
     ...chatFormHandlers,
+    // The two-factor confirm/disable/login step lives in routes/twofa.js.
+    ...twofaFormHandlers,
   };
   const handler = handlers[type];
   // Route-module handlers take (form, text, values); entries still owned in
@@ -297,6 +304,8 @@ async function handleButtonAction(button) {
     ...accountNavActions,
     // The chat/DM page actions live in chat.js.
     ...chatActions,
+    // Two-factor setup lives in routes/twofa.js.
+    ...twofaActions,
     "confirm-ok": async () => {
       if (!getConfirmHandler()) return;
       const handler = getConfirmHandler();

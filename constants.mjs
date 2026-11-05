@@ -62,6 +62,7 @@ export const RATE_LIMIT_BINDINGS = Object.freeze({
   "guest-session": "GUEST_SESSION_RATE_LIMITER",
   register: "REGISTER_RATE_LIMITER",
   login: "LOGIN_RATE_LIMITER",
+  totp: "TOTP_RATE_LIMITER",
   setup: "SETUP_RATE_LIMITER",
   "post-write": "POST_WRITE_RATE_LIMITER",
   "password-change": "PASSWORD_CHANGE_RATE_LIMITER",

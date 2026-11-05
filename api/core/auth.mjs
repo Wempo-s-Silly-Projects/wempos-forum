@@ -61,7 +61,8 @@ export async function readSession(request, env) {
   const tokenHash = await sha256Hex(token);
   const row = await env.FORUM_DB.prepare(
     "SELECT s.token_hash, s.user_id, s.csrf_token, s.expires_at, " +
-      "u.username, u.role, u.bio, u.avatar_status, u.avatar_mime, u.avatar_updated_at, u.avatar_version " +
+      "u.username, u.role, u.bio, u.avatar_status, u.avatar_mime, u.avatar_updated_at, u.avatar_version, " +
+      "u.totp_enabled " +
       "FROM sessions s LEFT JOIN users u ON u.id = s.user_id " +
       "WHERE s.token_hash = ? AND s.expires_at > ? LIMIT 1",
   ).bind(tokenHash, nowSeconds()).first();
@@ -76,6 +77,10 @@ export async function readSession(request, env) {
       bio: row.bio || "",
       avatarStatus: row.avatar_status || null,
       avatarUrl: row.avatar_mime ? "/api/avatars/" + row.user_id + "?v=" + row.avatar_version : null,
+      // Two-factor sign-in (v4.0.1): the account settings panel reads the
+      // real state from the session payload. Additive — nothing else in the
+      // session shape moves.
+      totpEnabled: Number(row.totp_enabled) === 1,
     };
   }
   return { tokenHash: row.token_hash, csrfToken: row.csrf_token, expiresAt: Number(row.expires_at), user };

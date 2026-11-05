@@ -15,6 +15,7 @@ import {
 import { addTurnstileSlot, refreshTurnstile, takeTurnstileToken } from "../turnstile.js";
 import { renderBannedScreen } from "../banned.js";
 import { state } from "../state.js";
+import { renderTotpLoginStep } from "./twofa.js";
 
 function authForm(name, title, buttonLabel) {
   const section = element("section", "auth-card");
@@ -127,6 +128,14 @@ async function submitAuthForm(type, form, text) {
       return;
     }
     throw error;
+  }
+  // Two-factor sign-in (v4.0.1): the password passed but a code is owed —
+  // the join panel swaps to the code step (renderTotpLoginStep in
+  // routes/twofa.js); POST /api/auth/totp mints the session.
+  if (result.totpRequired) {
+    renderTotpLoginStep(result.challenge);
+    setMessage("Enter the code from your authenticator app to finish signing in.");
+    return;
   }
   setCsrfToken(result.csrfToken);
   state.router.navigate("/");

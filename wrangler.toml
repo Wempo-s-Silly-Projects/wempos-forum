@@ -106,6 +106,12 @@ limit = 30
 period = 60
 
 [[ratelimits]]
+name = "TOTP_RATE_LIMITER"
+namespace_id = "614202610141013"
+[ratelimits.simple]
+limit = 10
+period = 60
+[[ratelimits]]
 name = "IMAGE_UPLOAD_RATE_LIMITER"
 namespace_id = "614202610141012"
 [ratelimits.simple]
@@ -306,4 +312,11 @@ name = "IMAGE_UPLOAD_RATE_LIMITER"
 namespace_id = "614202610142012"
 [previews.ratelimits.simple]
 limit = 5
+period = 60
+
+[[previews.ratelimits]]
+name = "TOTP_RATE_LIMITER"
+namespace_id = "614202610142013"
+[previews.ratelimits.simple]
+limit = 10
 period = 60
