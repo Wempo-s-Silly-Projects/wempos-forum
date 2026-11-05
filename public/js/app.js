@@ -42,7 +42,7 @@ import {
   renderNotificationsPage,
   updateBell,
 } from "./notifications.js";
-import { formatBanCountdown, renderBannedScreen } from "./banned.js";
+import { formatBanCountdown } from "./banned.js";
 import {
   backToDmList,
   createChatButton,
@@ -90,11 +90,20 @@ import {
   reportForm,
   setMessage,
 } from "./dom.js";
+// v4.0 plan 4 Task 2: the auth concern (auth panels, setup screens, their
+// submit handlers) lives in routes/auth.js; the route + form registries
+// spread its handlers as the dispatch entries that used to live inline here.
+import {
+  FORM_HANDLERS as authFormHandlers,
+  renderHomeAccess,
+  renderSetupRoute,
+} from "./routes/auth.js";
 
-let router;
-let currentUser = null;
-let activeRoute = { name: "home" };
-let renderVersion = 0;
+// v4.0 plan 4 Task 2: the boot state lives in state.js (route modules read
+// and write the same bag). renderRoute is hoisted, so it can be published
+// here at module scope before any route module runs.
+import { state } from "./state.js";
+state.renderRoute = renderRoute;
 // Milestone badges (v2.5): display-only, computed from the profile's
 // contribution counts — the thresholds graduate as the member posts.
 function profileBadgeFor(totalContributions) {
@@ -135,55 +144,6 @@ function applyProfileTheme(profile) {
 // by submitNewPost) and its empty state speaks the board's copy.
 const SUGGESTIONS_BOARD = "suggestions";
 const SUGGESTIONS_EMPTY_TEXT = "No suggestions yet — be the first!";
-
-function authForm(name, title, buttonLabel) {
-  const section = element("section", "auth-card");
-  addHeading(section, title, 2);
-  const form = createForm(document, name, [
-    createInput(document, {
-      id: `${name}-username`,
-      name: "username",
-      label: "Username",
-      autoComplete: "username",
-      required: true,
-      minLength: 3,
-      maxLength: 24,
-    }),
-    createInput(document, {
-      id: `${name}-password`,
-      name: "password",
-      label: "Password",
-      type: "password",
-      autoComplete: name === "login" ? "current-password" : "new-password",
-      required: true,
-      minLength: 12,
-      maxLength: 128,
-    }),
-  ], buttonLabel);
-  addTurnstileSlot(form, name === "login" ? "login" : "signup");
-  section.append(form);
-  return section;
-}
-
-function setupForm() {
-  const panel = createPanel("Set up Wempo's Forum:3", "The first owner account requires a setup secret configured out of band.");
-  panel.append(createForm(document, "setup", [
-    createInput(document, {
-      id: "setup-username", name: "username", label: "Owner username",
-      autoComplete: "username", required: true, minLength: 3, maxLength: 24,
-    }),
-    createInput(document, {
-      id: "setup-password", name: "password", label: "Password",
-      type: "password", autoComplete: "new-password", required: true, minLength: 12, maxLength: 128,
-    }),
-    createInput(document, {
-      id: "setup-key", name: "setupKey", label: "Setup secret", type: "password",
-      autoComplete: "off", required: true, minLength: 32, maxLength: 4096,
-      description: "Provided by the site owner through Wrangler. Never EVER share it!",
-    }),
-  ], "Create owner"));
-  return panel;
-}
 
 // Every composer is Turnstile-gated now: root posts use action "post", every
 // reply composer (the detail-route root reply and reply-to-reply mini
@@ -423,35 +383,6 @@ function renderIntroduction() {
   main.append(intro);
 }
 
-function renderJoinPanel() {
-  const panel = createPanel("Join the conversation!", "Accounts use a username and password. There is no email collection or email-based recovery.");
-  panel.id = "join";
-  const grid = element("div", "auth-grid");
-  grid.append(
-    authForm("login", "Welcome back", "Sign in"),
-    authForm("register", "New around here?", "Create account"),
-  );
-  panel.append(grid);
-  main.append(panel);
-}
-
-function renderSetupLocked() {
-  const panel = createPanel(
-    "First-time setup is locked",
-    "The site owner must configure valid SETUP_SECRET and PASSWORD_PEPPER values in Wrangler before the first owner account can be created.",
-  );
-  main.append(panel);
-}
-
-function renderHomeAccess(session, setupRequired, setupConfigured) {
-  if (setupRequired) {
-    if (setupConfigured) main.append(setupForm());
-    else renderSetupLocked();
-    return;
-  }
-  if (!session.user) renderJoinPanel();
-}
-
 function renderHomeContent(session, data, route) {
   if (session.user && route.name === "home") {
     // My posts (v2.5): a tab pair right above the composer (owner spec — NOT
@@ -575,7 +506,7 @@ function renderSearchResults(container, results) {
   }
   container.append(people);
   addHeading(container, "Posts", 2);
-  appendPostList(container, results.posts, document, currentUser);
+  appendPostList(container, results.posts, document, state.currentUser);
 }
 
 function renderProfilePosts(profile, user) {
@@ -734,7 +665,7 @@ function renderProfile(profile, session) {
     if (accentColorInput) {
       accentColorInput.addEventListener("change", async () => {
         await api("/api/me", { method: "PATCH", body: { profileAccent: accentColorInput.value } });
-        await renderRoute(activeRoute);
+        await renderRoute(state.activeRoute);
       });
     }
     const pictures = createPanel("Profile picture",
@@ -804,8 +735,8 @@ async function prepareRouteContext(version) {
     api("/api/session"),
     api("/api/setup/status"),
   ]);
-  if (version !== renderVersion) return null;
-  currentUser = session.user;
+  if (version !== state.renderVersion) return null;
+  state.currentUser = session.user;
   setCsrfToken(session.csrfToken);
   renderAccountNavigation(session.user, session.unreadNotifications ?? 0);
   // Live chat (v3.1): mirror the session into the chat module — heartbeat
@@ -845,20 +776,11 @@ function setRouteTitle(route) {
       : `${pageNames[route.name] || pageNames.home} · Wempo's Forum`;
 }
 
-function renderSetupRoute(context) {
-  if (context.setupRequired) {
-    if (context.setupConfigured) main.append(setupForm());
-    else renderSetupLocked();
-    return;
-  }
-  addText(document, main, "p", "First-time setup has already been completed.", "empty-state");
-}
-
 async function renderHomeRoute(route, context, version) {
   const data = route.name === "search"
     ? { search: await api(`/api/search?q=${encodeURIComponent(route.query)}&in=replies`) }
     : { feed: await api("/api/posts") };
-  if (version !== renderVersion) return;
+  if (version !== state.renderVersion) return;
   renderHome(context.session, context.setupRequired, context.setupConfigured, data, route);
 }
 
@@ -894,7 +816,7 @@ function renderFeedTabs(active) {
 
 async function renderRulesRoute(context, version) {
   const data = await api("/api/rules");
-  if (version !== renderVersion) return;
+  if (version !== state.renderVersion) return;
   addHeading(main, "Forum rules", 2);
   if (!data.rules) {
     addText(document, main, "p", "The rules haven't been written yet.", "empty-state");
@@ -908,7 +830,7 @@ async function renderRulesRoute(context, version) {
 
 async function renderLeaderboardRoute(context, version) {
   const data = await api("/api/leaderboard");
-  if (version !== renderVersion) return;
+  if (version !== state.renderVersion) return;
   addHeading(main, "Leaderboard", 2);
   const rows = data.allTime.leaderboard;
   if (!rows.length) {
@@ -942,7 +864,7 @@ async function renderMineRoute(context, version) {
     return;
   }
   const data = { feed: await api("/api/posts?mine=1") };
-  if (version !== renderVersion) return;
+  if (version !== state.renderVersion) return;
   main.append(renderFeedTabs("mine"));
   main.append(createComposer("post-create", "What's on your mind?", "Post message"));
   addHeading(main, "My posts", 2);
@@ -960,7 +882,7 @@ async function renderArchiveRoute(context, version) {
   // The accountability archive (v2.4.1): everyone can read what was deleted,
   // so no auth is needed — this route renders for guests too.
   const data = await api("/api/archive");
-  if (version !== renderVersion) return;
+  if (version !== state.renderVersion) return;
   addHeading(main, "Archive", 2);
   if (!data.archive.length) {
     main.append(element("p", "archive-empty", "Nothing has been deleted yet."));
@@ -1018,7 +940,7 @@ async function renderCategoryRoute(route, context, version) {
   // the feed routes stay structurally identical, and the shared
   // data.feed.* reads below are correct.
   const data = { feed: await api("/api/posts?board=" + encodeURIComponent(board.slug)) };
-  if (version !== renderVersion) return;
+  if (version !== state.renderVersion) return;
   main.append(renderFeedTabs(board.slug));
   const user = context.session.user;
   const isStaff = Boolean(user && (user.role === "owner" || user.role === "admin"));
@@ -1059,7 +981,7 @@ async function renderBookmarksRoute(context, version) {
     return;
   }
   const data = await api("/api/me/bookmarks");
-  if (version !== renderVersion) return;
+  if (version !== state.renderVersion) return;
   addHeading(main, "Saved posts", 2);
   // Privacy note: this list belongs to the signed-in account.
   addText(document, main, "p", "Your saved list is private to you.", "muted");
@@ -1076,7 +998,7 @@ async function renderBookmarksRoute(context, version) {
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
-  if (version !== renderVersion) return;
+  if (version !== state.renderVersion) return;
   addHeading(main, "Conversation", 1);
   main.append(createPostCard(post, document, context.session.user));
   addHeading(main, "Replies", 2);
@@ -1103,7 +1025,7 @@ async function renderPostRoute(route, context, version) {
 
 async function renderProfileRoute(route, context, version) {
   const profile = await api(`/api/users/${encodeURIComponent(route.username)}`);
-  if (version !== renderVersion) return;
+  if (version !== state.renderVersion) return;
   renderProfile(profile, context.session);
 }
 
@@ -1219,7 +1141,7 @@ async function renderAdminRoute(context, version) {
     api("/api/admin/chat"),
     api("/api/admin/dms"),
   ]);
-  if (version !== renderVersion) return;
+  if (version !== state.renderVersion) return;
   renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, context.session.user, appeals, vision, textMod, chat, dms);
 }
 
@@ -1234,7 +1156,7 @@ async function renderAppealsRoute(context, version) {
     return;
   }
   const data = await api("/api/me/appeals");
-  if (version !== renderVersion) return;
+  if (version !== state.renderVersion) return;
   addHeading(main, "Auto-mod decisions you can appeal", 2);
   if (!data.appealableActions.length) {
     addText(document, main, "p", "Nothing to appeal — auto-mod has not removed anything of yours.", "empty-state");
@@ -1283,7 +1205,7 @@ async function renderNotificationsRoute(context, version) {
     return;
   }
   const data = await api("/api/me/notifications");
-  if (version !== renderVersion) return;
+  if (version !== state.renderVersion) return;
   renderNotificationsPage(main, data.notifications);
 }
 
@@ -1293,8 +1215,8 @@ function renderNotFoundRoute() {
 }
 
 async function renderRoute(route) {
-  const version = ++renderVersion;
-  activeRoute = route;
+  const version = ++state.renderVersion;
+  state.activeRoute = route;
   main.classList.toggle("home-page", route.name === "home");
   // Profile themes (v2.5): main outlives routes — a member's accent class
   // must never tint another route (the review caught exactly that).
@@ -1352,7 +1274,7 @@ async function submitMemberSearch(form, text) {
 // the session-less ban appeal from the ban screen.
 async function submitAppealDecision(form) {
   await api("/api/admin/appeals/" + encodeURIComponent(form.dataset.appealId) + "/" + form.dataset.decision, { method: "POST" });
-  await renderRoute(activeRoute);
+  await renderRoute(state.activeRoute);
   setMessage(form.dataset.decision === "approve" ? "Appeal approved." : "Appeal denied.");
 }
 
@@ -1361,7 +1283,7 @@ async function submitMemberAppeal(form, text) {
     method: "POST",
     body: { actionId: Number(form.dataset.actionId), body: text("body") },
   });
-  await renderRoute(activeRoute);
+  await renderRoute(state.activeRoute);
   setMessage("Appeal filed — an admin will review it.");
 }
 
@@ -1383,37 +1305,7 @@ function readForm(form) {
 }
 
 async function submitSiteSearch(text) {
-  router.navigate("/?q=" + encodeURIComponent(text("q").trim()));
-}
-
-async function submitAuthForm(type, form, text) {
-  const endpoint = type === "login" ? "/api/auth/login" :
-    type === "register" ? "/api/auth/register" : "/api/setup";
-  const credentials = { username: text("username"), password: text("password") };
-  if (type === "setup") {
-    credentials.setupKey = text("setupKey");
-  } else {
-    credentials["cf-turnstile-response"] = takeTurnstileToken(form);
-    refreshTurnstile(form);
-  }
-  let result;
-  try {
-    result = await api(endpoint, { method: "POST", body: credentials });
-  } catch (error) {
-    // Banned accounts get a dedicated screen (spec §13): api.js copies the 403
-    // body's banned/reason/expiresAt onto the error object. Credentials were
-    // verified server-side before this payload exists, so showing it is safe.
-    if (error.banned === true) {
-      main.replaceChildren();
-      renderBannedScreen(main, { reason: error.reason, expiresAt: error.expiresAt, username: text("username"), password: text("password") });
-      setMessage();
-      return;
-    }
-    throw error;
-  }
-  setCsrfToken(result.csrfToken);
-  router.navigate("/");
-  setMessage(type === "setup" ? "Owner account created!" : "You're signed in.");
+  state.router.navigate("/?q=" + encodeURIComponent(text("q").trim()));
 }
 
 function composerSubmissionSignature({ body, files = [], gifs = [], board = null, targetId = null }) {
@@ -1490,7 +1382,7 @@ async function submitNewPost(form, text) {
       pollNote = " (the poll could not be attached)";
     }
   }
-  router.navigate("/posts/" + post.id);
+  state.router.navigate("/posts/" + post.id);
   setMessage("Your post is live!" + pollNote);
 }
 
@@ -1551,7 +1443,7 @@ async function submitProfileEditorForm(form, text) {
       flair: text("flair").trim(),
     },
   });
-  await renderRoute({ name: "profile", username: currentUser.username });
+  await renderRoute({ name: "profile", username: state.currentUser.username });
   setMessage("Your profile was updated.");
 }
 
@@ -1559,7 +1451,7 @@ async function submitAvatarForm(values) {
   const upload = new FormData();
   upload.append("avatar", values.get("avatar"));
   await api("/api/me/avatar", { method: "POST", body: upload });
-  await renderRoute({ name: "profile", username: currentUser.username });
+  await renderRoute({ name: "profile", username: state.currentUser.username });
   setMessage("Your profile picture was updated.");
 }
 
@@ -1588,13 +1480,13 @@ function openDeletePostDialog(button) {
       ? "Your post and the entire conversation under it are deleted — including other people's replies. This cannot be undone."
       : "Your reply is deleted. Its replies stay in the thread. This cannot be undone.",
     async () => {
-      const viewedThreadId = activeRoute.name === "post" ? activeRoute.id : null;
+      const viewedThreadId = state.activeRoute.name === "post" ? state.activeRoute.id : null;
       await api("/api/posts/" + postId, { method: "DELETE" });
       confirmDialog.close();
       if (viewedThreadId === postId) {
-        router.navigate("/");
+        state.router.navigate("/");
       } else {
-        await renderRoute(activeRoute);
+        await renderRoute(state.activeRoute);
       }
       setMessage("The post was deleted.");
     },
@@ -1615,7 +1507,7 @@ function openDeleteAccountDialog() {
       await api("/api/me/delete", { method: "POST" });
       setCsrfToken("");
       confirmDialog.close();
-      router.navigate("/");
+      state.router.navigate("/");
       setMessage("Your account was deleted. You are signed out.");
     },
   );
@@ -1648,7 +1540,7 @@ async function submitPostEditForm(form, text) {
     method: "PATCH",
     body: { body: text("body") },
   });
-  await renderRoute(activeRoute);
+  await renderRoute(state.activeRoute);
   setMessage("Your edit was saved.");
 }
 
@@ -1698,9 +1590,7 @@ async function submitForm(form) {
 
   const handlers = {
     "site-search": () => submitSiteSearch(text),
-    login: () => submitAuthForm("login", form, text),
-    register: () => submitAuthForm("register", form, text),
-    setup: () => submitAuthForm("setup", form, text),
+    ...authFormHandlers,
     "post-create": () => submitNewPost(form, text),
     reply: () => submitReplyForm(form, text),
     "profile-editor": () => submitProfileEditorForm(form, text),
@@ -1733,7 +1623,9 @@ async function submitForm(form) {
     },
   };
   const handler = handlers[type];
-  if (handler) await handler();
+  // Route-module handlers take (form, text, values); entries still owned in
+  // app.js are zero-arg closures that ignore the arguments — call uniformly.
+  if (handler) await handler(form, text, values);
 }
 
 function handleInternalNavigation(event) {
@@ -1742,7 +1634,7 @@ function handleInternalNavigation(event) {
   if (!anchor || anchor.origin !== location.origin || !anchor.pathname.startsWith("/") ||
       anchor.hash || anchor.hasAttribute("download")) return false;
   event.preventDefault();
-  router.navigate(anchor.pathname + anchor.search);
+  state.router.navigate(anchor.pathname + anchor.search);
   return true;
 }
 
@@ -1757,7 +1649,7 @@ async function submitReaction(button) {
       body: { value: button.dataset.value },
     });
   }
-  await renderRoute(activeRoute);
+  await renderRoute(state.activeRoute);
 }
 
 async function toggleReplyComposer(button) {
@@ -1777,8 +1669,8 @@ async function toggleReplyComposer(button) {
   // re-render after a successful reply), not the marker panel's — so the
   // thread id must ride on the form itself or the rerender would land on the
   // level-1 reply's own detail page instead of the conversation.
-  if (activeRoute.name === "post") {
-    panel.querySelector("form").dataset.threadId = String(activeRoute.id);
+  if (state.activeRoute.name === "post") {
+    panel.querySelector("form").dataset.threadId = String(state.activeRoute.id);
   }
   article.after(panel);
   await renderTurnstileSlots(panel);
@@ -1807,7 +1699,7 @@ async function toggleSubReplies(button) {
     // Children arrive with publicLevel 2, so createPostCard renders them without
     // further reply buttons (server forbids level-2 targets). The wrapper div
     // (grouping class + cascade treatment) is render.js's createSubReplyContainer.
-    const container = createSubReplyContainer(postId, page.replies, document, currentUser);
+    const container = createSubReplyContainer(postId, page.replies, document, state.currentUser);
     const article = main.querySelector(`article[data-post-id="${postId}"]`);
     if (article) article.after(container);
     button.dataset.replyCount = String(page.replies.length);
@@ -1825,7 +1717,7 @@ async function openNotification(button) {
   await api("/api/me/notifications/" + button.dataset.notificationId + "/read", {
     method: "POST",
   });
-  router.navigate("/posts/" + button.dataset.postId);
+  state.router.navigate("/posts/" + button.dataset.postId);
 }
 
 async function markAllNotificationsRead() {
@@ -1845,7 +1737,7 @@ async function submitRoleChange(form, action, text) {
   });
   // Role-change forms live on the moderation desk and on member profiles;
   // re-rendering the current route refreshes whichever surface is showing.
-  await renderRoute(activeRoute);
+  await renderRoute(state.activeRoute);
   setMessage(action === "promote"
     ? "The member was promoted to mod."
     : "The member was demoted to member.");
@@ -2050,8 +1942,8 @@ function openReportDialog(target) {
 // through quotes.js's prefillQuote: textarea .value property assignment only,
 // never HTML.
 function quoteIntoComposer(button) {
-  if (activeRoute.name !== "post") return;
-  const rootId = String(activeRoute.id);
+  if (state.activeRoute.name !== "post") return;
+  const rootId = String(state.activeRoute.id);
   const form =
     main.querySelector(`form[data-form="reply"][data-thread-id="${rootId}"]`) ??
     main.querySelector(`form[data-form="reply"][data-post-id="${rootId}"]`);
@@ -2096,7 +1988,7 @@ async function loadMorePosts(button) {
   const mine = button.dataset.mine;
   const older = await api("/api/posts?before=" + button.dataset.before +
     (board ? "&board=" + board : "") + (mine ? "&mine=" + mine : ""));
-  appendPostList(main, older.posts, document, currentUser,
+  appendPostList(main, older.posts, document, state.currentUser,
     board === SUGGESTIONS_BOARD ? SUGGESTIONS_EMPTY_TEXT : undefined);
   button.remove();
   if (older.posts.length !== 20 || !older.nextBefore) return;
@@ -2130,7 +2022,7 @@ async function loadMoreProfilePosts(button) {
   const page = await api("/api/users/" + encodeURIComponent(username) + "?before=" + button.dataset.before);
   const list = main.querySelector(".profile-post-list");
   if (!list) throw new Error("The profile post list is no longer available. Reload the profile.");
-  for (const post of page.posts) list.append(createPostCard(post, document, currentUser));
+  for (const post of page.posts) list.append(createPostCard(post, document, state.currentUser));
   if (page.postsNextBefore) button.dataset.before = String(page.postsNextBefore);
   else button.remove();
 }
@@ -2141,7 +2033,7 @@ async function loadOlderReplies(button) {
   const replyList = main.querySelector('.replies-list[data-replies-for="' + postId + '"]');
   if (!replyList) throw new Error("The reply list is no longer available. Reload the conversation.");
   const fragment = document.createDocumentFragment();
-  for (const reply of older.replies) fragment.append(createPostCard(reply, document, currentUser));
+  for (const reply of older.replies) fragment.append(createPostCard(reply, document, state.currentUser));
   replyList.prepend(fragment);
   if (older.nextBefore) button.dataset.before = String(older.nextBefore);
   else button.remove();
@@ -2152,7 +2044,7 @@ async function handleButtonAction(button) {
     logout: async () => {
       await api("/api/auth/logout", { method: "POST" });
       setCsrfToken("");
-      router.navigate("/");
+      state.router.navigate("/");
       setMessage("You are signed out.");
     },
     reaction: () => submitReaction(button),
@@ -2167,7 +2059,7 @@ async function handleButtonAction(button) {
         method: "POST",
         body: { status: button.dataset.status },
       });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage(button.dataset.status === "open"
         ? "Suggestion reopened."
         : "Suggestion marked " + button.dataset.status + ".");
@@ -2185,7 +2077,7 @@ async function handleButtonAction(button) {
     // subscribed state comes back from the server, never from the echo.
     "load-more-bookmarks": async () => {
       const older = await api("/api/me/bookmarks?before=" + button.dataset.before);
-      appendPostList(main, older.bookmarks, document, currentUser,
+      appendPostList(main, older.bookmarks, document, state.currentUser,
         BOOKMARKS_EMPTY_TEXT);
       button.remove();
       if (!older.nextBefore || older.bookmarks.length !== 20) return;
@@ -2202,7 +2094,7 @@ async function handleButtonAction(button) {
     // /chat where the pending thread opens.
     "dm-open": async () => {
       await openDmWith(button.dataset.username);
-      router.navigate("/chat");
+      state.router.navigate("/chat");
     },
     "chat-delete": () => deleteChatMessage(button),
     "dm-delete": () => deleteDmMessage(button),
@@ -2213,7 +2105,7 @@ async function handleButtonAction(button) {
       await api("/api/posts/" + button.dataset.postId + "/bookmark", {
         method: bookmarked ? "DELETE" : "PUT",
       });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage(bookmarked ? "Removed from your saved posts." : "Saved.");
     },
     "toggle-subscribe": async () => {
@@ -2221,7 +2113,7 @@ async function handleButtonAction(button) {
       await api("/api/posts/" + button.dataset.postId + "/subscribe", {
         method: subscribed ? "DELETE" : "POST",
       });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage(subscribed ? "You unsubscribed from this thread." : "You will get notifications for replies here.");
     },
     "mark-notifications-read": () => markAllNotificationsRead(),
@@ -2232,34 +2124,34 @@ async function handleButtonAction(button) {
     "vision-kill": async () => {
       // Auto-mod kill switch (v3.1): one click, effective on the next upload.
       await api("/api/admin/vision-kill-switch", { method: "POST", body: { tripped: true } });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage("Auto-mod is STOPPED — new uploads will not be checked.");
     },
     "vision-resume": async () => {
       await api("/api/admin/vision-kill-switch", { method: "POST", body: { tripped: false } });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage("Auto-mod resumed.");
     },
     // Text auto-mod kill switch (v3.1): OpenAI Moderation's emergency stop —
     // independent of the Vision switch.
     "text-mod-kill": async () => {
       await api("/api/admin/text-mod-kill-switch", { method: "POST", body: { tripped: true } });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage("Text auto-mod is STOPPED — member text will not be checked.");
     },
     "text-mod-resume": async () => {
       await api("/api/admin/text-mod-kill-switch", { method: "POST", body: { tripped: false } });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage("Text auto-mod resumed.");
     },
     "thread-pin": async () => {
       await api("/api/admin/threads/" + button.dataset.postId + "/pin", { method: "POST" });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage("Thread pinned.");
     },
     "thread-unpin": async () => {
       await api("/api/admin/threads/" + button.dataset.postId + "/unpin", { method: "POST" });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage("Thread unpinned.");
     },
     "open-poll-dialog": () => openPollDialog(button),
@@ -2268,25 +2160,25 @@ async function handleButtonAction(button) {
     // Polls (C3): the vote PUT (one changeable vote per member) and the
     // re-render refetches the payload's fresh counts.
     "poll-vote": async () => {
-      if (activeRoute.name !== "post") return;
-      const postId = activeRoute.id;
+      if (state.activeRoute.name !== "post") return;
+      const postId = state.activeRoute.id;
       await api("/api/posts/" + postId + "/poll", {
         method: "PUT",
         body: { optionId: Number(button.dataset.optionId) },
       });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
     },
     "confirm-gif-picker": () => confirmGifPicker(button),
     "cancel-gif-picker": () => { activeGifComposerForm = null; gifPickerDialog()?.close(); },
     "choose-gif-upload": () => document.querySelector("#gif-marketplace-file")?.click(),
     "gif-approve": async () => {
       await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/approve", { method: "POST" });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage("GIF approved and added to the public library.");
     },
     "gif-reject": async () => {
       await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/reject", { method: "POST" });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage("GIF submission rejected.");
     },
     "remove-gif": () => {
@@ -2311,7 +2203,7 @@ async function handleButtonAction(button) {
       const input = document.querySelector("#rules-input");
       if (!input) return;
       await api("/api/rules", { method: "POST", body: input.value });
-      router.navigate("/rules");
+      state.router.navigate("/rules");
       setMessage("Rules saved.");
     },
     "save-profile-css": async (button) => {
@@ -2329,7 +2221,7 @@ async function handleButtonAction(button) {
     },
     "clear-profile-css": async () => {
       await api("/api/me/css", { method: "DELETE" });
-      await renderRoute({ name: "profile", username: currentUser.username });
+      await renderRoute({ name: "profile", username: state.currentUser.username });
       setMessage("Custom CSS removed.");
     },
     "report-profile": () => openReportDialog({ type: "profile", id: button.dataset.profileId }),
@@ -2341,13 +2233,13 @@ async function handleButtonAction(button) {
     "css-approve": async (button) => {
       const version = encodeURIComponent(button.dataset.version || "");
       await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/approve?version=" + version, { method: "POST" });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage("CSS approved.");
     },
     "css-reject": async (button) => {
       const version = encodeURIComponent(button.dataset.version || "");
       await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/reject?version=" + version, { method: "POST" });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
       setMessage("CSS rejected.");
     },
     "set-profile-accent": async () => {
@@ -2355,7 +2247,7 @@ async function handleButtonAction(button) {
       // preset's hex ("" = clear). The server re-validates the hex; success
       // re-renders the route.
       await api("/api/me", { method: "PATCH", body: { profileAccent: button.dataset.accent || "" } });
-      await renderRoute(activeRoute);
+      await renderRoute(state.activeRoute);
     },
     "edit-history": async () => {
       // Toggle: an open panel for this card closes; otherwise the past
@@ -2436,7 +2328,7 @@ document.addEventListener("submit", async (event) => {
 });
 
 // Theme storage may be unavailable in private/restricted contexts. That should
-// never prevent the application router from running or leave the HTML shell
+// never prevent the application state.router from running or leave the HTML shell
 // stuck at its initial placeholder.
 async function fillVersionTag() {
   const info = await api("/api/version");
@@ -2457,7 +2349,7 @@ try {
   // counter is fresh even before the panel is ever opened.
   initChat();
   fillVersionTag().catch(() => {});
-  router = startRouter((route) => {
+  state.router = startRouter((route) => {
     renderRoute(route).catch((error) => {
       setMessage(error.message, true);
       main.replaceChildren();
