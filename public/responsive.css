@@ -107,7 +107,6 @@ table,
   .desk-nav-active, .desk-nav-active:hover { border-color: var(--green); }
   .desk-status { grid-template-columns: 1fr; }
   .desk-tiles { grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); }
-}
 
   /* Full-width single column everywhere. */
   .header-inner,
