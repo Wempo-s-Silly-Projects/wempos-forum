@@ -78,8 +78,24 @@ export async function runFanOutChunks(db, statements) {
 export async function subscriptionReplyFanOut(db, context) {
   const result = await db.prepare(SUBSCRIBERS_SELECT_SQL)
     .bind(context.rootPostId).all();
-  const subscriberIds = (result.results || []).map((row) => Number(row.user_id));
+  let subscriberIds = (result.results || []).map((row) => Number(row.user_id));
   if (!subscriberIds.length) return [];
+  // Blocks (v4.4): a subscriber paired with the REPLY AUTHOR never receives
+  // the notification — the bell would preview a post the pair 404s everywhere
+  // else (the same interaction-channel rule the mention fan-out applies).
+  // ONE filtered query over the already-resolved list, callers' cap stays the
+  // SELECT's; no per-subscriber loop.
+  const replyAuthorId = Number(context.replyAuthorId);
+  if (Number.isSafeInteger(replyAuthorId) && replyAuthorId > 0) {
+    const placeholders = subscriberIds.map(() => "?").join(", ");
+    const kept = (await db.prepare(
+      "SELECT id FROM users WHERE id IN (" + placeholders + ") AND NOT EXISTS (" +
+      "SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND bk.blocked_id = users.id) " +
+      "OR (bk.blocked_id = ? AND bk.blocker_id = users.id))",
+    ).bind(...subscriberIds, replyAuthorId, replyAuthorId).all()).results || [];
+    subscriberIds = kept.map((row) => Number(row.id));
+    if (!subscriberIds.length) return [];
+  }
   return subscriptionFanOutStatements(db, subscriberIds, context);
 }
 

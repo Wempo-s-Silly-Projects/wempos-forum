@@ -77,7 +77,9 @@ async function handleDmListRoute(request, env, url, path, method) {
     "(SELECT m2.created_at FROM dm_messages m2 WHERE m2.thread_id = t.id ORDER BY m2.id DESC LIMIT 1) AS last_at, " +
     "CASE WHEN t.user_a = ? THEN t.unread_a ELSE t.unread_b END AS unread_for_me " +
     "FROM dm_threads t JOIN users a ON a.id = t.user_a JOIN users b ON b.id = t.user_b " +
-    "WHERE t.user_a = ? OR t.user_b = ? " +
+    // The OR group is parenthesized: SQLite binds AND tighter than OR, and
+    // unparenthesized the pair filter would only gate the user_b arm.
+    "WHERE (t.user_a = ? OR t.user_b = ?) " +
     // Blocks (v4.4): closed threads vanish from the conversation list —
     // the thread route 403s them anyway.
     "AND NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND " +

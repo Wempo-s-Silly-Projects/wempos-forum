@@ -55,12 +55,26 @@ function secureResponse(response) {
 }
 
 // Conditional gets (If-None-Match / If-Modified-Since) are dropped before the
-// asset pipeline sees them: ASSETS.fetch answers them with a bare 304 that
-// bypasses stampedAssetResponse entirely, so the browser would keep its
-// pre-stamp HTML (and pre-security-header everything) until the etag changed.
-// Static bytes are small here — a full 200 on revalidation is the right trade.
+// asset pipeline sees them — but only for DOCUMENT requests: ASSETS.fetch
+// answers them with a bare 304 that bypasses stampedAssetResponse entirely, so
+// the browser would keep its pre-stamp HTML (pre-security-header everything)
+// until the etag changed. Only HTML documents get stamped, so only document
+// requests need the force-200 trade; every other asset (JS/CSS/images) keeps
+// its correct 304 revalidation path instead of a full 200 per visit.
 const CONDITIONAL_HEADERS = ["If-None-Match", "If-Modified-Since"];
+const DOCUMENT_SECFETCH_DESTS = new Set(["document", "iframe", "frame"]);
+function isDocumentRequest(request) {
+  const dest = request.headers.get("Sec-Fetch-Dest");
+  if (dest) return DOCUMENT_SECFETCH_DESTS.has(dest.toLowerCase());
+  // Fallback without sec-fetch-dest (older agents, wrangler dev): an
+  // extension-less path (SPA routes, "/") or .html is a document.
+  const path = new URL(request.url).pathname;
+  if (/\.html?$/i.test(path)) return true;
+  const last = path.split("/").pop();
+  return last === "" || !last.includes(".");
+}
 function unconditional(request) {
+  if (!isDocumentRequest(request)) return request;
   const headers = new Headers(request.headers);
   for (const name of CONDITIONAL_HEADERS) headers.delete(name);
   return new Request(request.url, { method: request.method, headers });
@@ -94,6 +108,9 @@ async function stampedAssetResponse(assetResponse, env) {
   const headers = new Headers(assetResponse.headers);
   headers.delete("Content-Length");
   headers.delete("ETag");
+  // The byte length changed, so a validator for the old body no longer
+  // describes these bytes — a retained Last-Modified would advertise a lie.
+  headers.delete("Last-Modified");
   headers.set("Cache-Control", "no-store");
   const stamp = `<meta name="app-build" content="${build}">`;
   return new Response(html.includes("</head>") ? html.replace("</head>", stamp + "</head>") : html, {

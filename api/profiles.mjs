@@ -39,6 +39,35 @@ async function handleUserProfileRoute(request, env, url, path, method) {
     }
     const user = await userByUsernameKey(env, username.toLowerCase());
     if (!user) throw new HttpError(404, "Member not found.");
+    const session = await readSession(request, env);
+    const viewerIsStaff = Boolean(session && session.user &&
+      (session.user.role === "owner" || session.user.role === "admin"));
+    const viewer = session && session.user ? session.user : null;
+    // Blocks (v4.4): a block pair (either direction) refuses the profile —
+    // "they can't see your profile" — without an error page. The client
+    // renders the unavailable strip; counts/list SQL never even run. Signed-
+    // in non-staff members only: staff keep full read access for desk work.
+    // The refusal runs FIRST (zero counting work) and its payload carries
+    // benign empty defaults so OLD tabs still running pre-v4.4 JS don't walk
+    // into renderProfilePosts' profile.posts.length with undefined.
+    const viewerBlocked = Boolean(viewer && !viewerIsStaff &&
+      session.user.id !== Number(user.id) &&
+      (await blockPairExists(env, session.user.id, user.id)));
+    if (viewerBlocked) {
+      return json({
+        unavailable: true,
+        id: Number(user.id),
+        username: user.username,
+        bio: "",
+        socials: {},
+        profileAccent: "",
+        bannerColor: "",
+        postsCount: 0,
+        repliesCount: 0,
+        posts: [],
+        postsNextBefore: null,
+      });
+    }
     // Per-user post counter (v2.6): two COUNT subselects — threads started
     // and replies written (any post row with a parent). Display-only; it
     // does not filter by visibility (the author's own-view semantics), and
@@ -48,7 +77,6 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NULL) AS posts_count, " +
       "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NOT NULL) AS replies_count",
     ).bind(Number(user.id), Number(user.id)).first();
-    const session = await readSession(request, env);
     // Banned-profile banner (v3.1): the PUBLIC payload carries only the
     // active-ban flag and expiry (the same predicate every read path uses) —
     // the reason rides along only for staff, matching member search. Guests
@@ -57,23 +85,6 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       "SELECT reason, expires_at FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
         "AND (expires_at IS NULL OR expires_at > ?) ORDER BY id DESC LIMIT 1",
     ).bind(Number(user.id), nowSeconds()).first();
-    const viewerIsStaff = Boolean(session && session.user &&
-      (session.user.role === "owner" || session.user.role === "admin"));
-    const viewer = session && session.user ? session.user : null;
-    // Blocks (v4.4): a block pair (either direction) refuses the profile —
-    // "they can't see your profile" — without an error page. The client
-    // renders the unavailable strip; counts/list SQL never even run. Signed-
-    // in non-staff members only: staff keep full read access for desk work.
-    const viewerBlocked = Boolean(viewer && !viewerIsStaff &&
-      session.user.id !== Number(user.id) &&
-      (await blockPairExists(env, session.user.id, user.id)));
-    if (viewerBlocked) {
-      return json({
-        unavailable: true,
-        id: Number(user.id),
-        username: user.username,
-      });
-    }
     const beforeRaw = url.searchParams.get("before");
     let before = null;
     if (beforeRaw !== null) {

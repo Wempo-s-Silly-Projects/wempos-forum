@@ -86,15 +86,18 @@ export function replyCountsSql(ids, showAll, viewer = null) {
 
 // Per root, at most the 3 most recent level-1 replies, ranked in SQL. Each row
 // also carries its sub-reply count with the same visibility semantics the
-// replies page exposes. Bind order follows SQL text order for members:
-// sub-count viewer id, then the root ids, then the level-1 viewer id, then the
-// block pair binds (v4.4) last.
+// replies page exposes — INCLUDING the block pair filter (v4.4), matching
+// attachSubReplyCounts on the detail page. Bind order follows SQL text order
+// for members: sub-count viewer id, sub-count block binds, then the root ids,
+// then the level-1 viewer id, then the level-1 block pair binds last.
 export function latestRepliesSql(ids, showAll, viewer = null) {
   const placeholders = ids.map(() => "?").join(", ");
+  const subBlockClause = showAll ? "" : viewerBlockFilterSql(viewer, "c.author_id");
   const subCountSelect = "(SELECT COUNT(*) FROM posts c WHERE c.parent_id = r.id" +
     (showAll
       ? ") AS sub_reply_count"
-      : " AND ((c.visibility = 'public' AND " + banFilterSql("c") + ") OR c.author_id = ?)) AS sub_reply_count");
+      : " AND ((c.visibility = 'public' AND " + banFilterSql("c") + ") OR c.author_id = ?)" +
+        subBlockClause + ") AS sub_reply_count");
   const blockClause = showAll ? "" : viewerBlockFilterSql(viewer, "r.author_id");
   const memberClause = showAll
     ? ""
@@ -124,8 +127,11 @@ export async function withReplyMetadata(db, viewer, posts) {
     ? [viewerId, viewerId] : [];
   const countsStatement = db.prepare(replyCountsSql(ids, showAll, viewer))
     .bind(...(showAll ? ids : [...ids, -1, -1, ...blockBinds, ...blockBinds]));
+  // Block binds appear TWICE in latestRepliesSql (sub-count's c.author_id
+  // filter, then the level-1 r.author_id filter), first set right after the
+  // sub-count's viewer bind per SQL text order.
   const latestStatement = db.prepare(latestRepliesSql(ids, showAll, viewer))
-    .bind(...(showAll ? ids : [-1, ...ids, -1, ...blockBinds]));
+    .bind(...(showAll ? ids : [-1, ...blockBinds, ...ids, -1, ...blockBinds]));
   const [countResult, latestResult] = await Promise.all([countsStatement.all(), latestStatement.all()]);
   const replyCounts = new Map();
   for (const row of countResult.results || []) {

@@ -82,7 +82,9 @@ async function handleChatReadRoute(request, env, url, path, method) {
     ).bind(after).all()).results || [];
   const messages = after === null ? rows.reverse() : rows;
   const onlineRow = await db.prepare(
-    "SELECT COUNT(*) AS online FROM presence WHERE invisible = 0 AND last_seen > ?",
+    "SELECT COUNT(*) AS online FROM presence WHERE invisible = 0 AND last_seen > ? " +
+    "AND NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = presence.user_id AND b.revoked_at IS NULL " +
+    "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)))",
   ).bind(nowSeconds() - PRESENCE_WINDOW_SECONDS).first();
   // Who's online (v4.4, owner's ask): the same window, naming the visible
   // (non-lurking) members so the chat page can list them. Actively-banned
@@ -106,8 +108,15 @@ async function handleChatReadRoute(request, env, url, path, method) {
   if (session && session.user) {
     const dmRow = await db.prepare(
       "SELECT COALESCE(SUM(CASE WHEN user_a = ? THEN unread_a ELSE unread_b END), 0) AS unread " +
-      "FROM dm_threads WHERE user_a = ? OR user_b = ?",
-    ).bind(session.user.id, session.user.id, session.user.id).first();
+      "FROM dm_threads WHERE (user_a = ? OR user_b = ?) " +
+      // Blocks (v4.4): pair-closed threads vanish from the list and 403 on
+      // open — their unread must not ride the badge either (it could never
+      // clear, the thread's read flush is refused).
+      "AND NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND " +
+      "bk.blocked_id IN (user_a, user_b)) OR (bk.blocked_id = ? AND " +
+      "bk.blocker_id IN (user_a, user_b)))",
+    ).bind(session.user.id, session.user.id, session.user.id,
+      session.user.id, session.user.id).first();
     dmUnread = Number(dmRow?.unread || 0);
     const bellRow = await db.prepare(
       "SELECT COUNT(*) AS unread FROM notifications WHERE user_id = ? AND read_at IS NULL",
@@ -125,7 +134,8 @@ async function handleChatReadRoute(request, env, url, path, method) {
     onlineMembers: onlineMemberRows.map((row) => ({
       id: Number(row.id),
       username: row.username,
-      // Mapped public role ('owner'/'admin'), null for members.
+      // Mapped public role ('owner'/'admin'); members keep "member" — roles
+      // are public here, matching every chat row's author object.
       role: row.role ? publicRole(row.role) : null,
     })),
     dmUnread,
