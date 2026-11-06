@@ -6,6 +6,8 @@ import { addText } from "./forms.js";
 
 // Pure, DOM-free. Returns { id, targetPostId, read, href, label }. The payload
 // never includes the replier's identity, so the label stays generic.
+export const notificationItemView = (item) => {
+  const preview = String(item?.postPreview ?? "");
   const rawTarget = Number(item?.targetPostId);
   // NULL = a label-only notification (appeal outcome, chat ping): nothing to
   // navigate to — clicking just marks it read.
