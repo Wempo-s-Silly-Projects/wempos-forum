@@ -17,38 +17,40 @@
 //      entry "ass". Multi-word entries match their interiors literally.
 //      ("LMFAO" folds to "lmfao" and masks if listed.)
 //
-//   2. SKELETON pass (v3.1, bypass hardening): each whitespace-delimited
-//      token is reduced to a normalized skeleton — zero-width characters
-//      dropped, accents/fullwidth folded via NFKD with combining marks
-//      stripped, Latin-lookalike homoglyphs mapped, leet digits/symbols
-//      mapped (0→o, 1→i, 3→e, 4→a, 5→s, 7→t, 8→b, 9→g, @→a, $→s), every
-//      other soft separator (punctuation, hyphens, underscores, unmapped
-//      digits) dropped, letters only. Inside a token, an entry matches as a
-//      plain SUBSTRING (so "badass", "smartass", "hasss", "ullshi-t" all
-//      mask via the entries they contain) OR through an ELONGATION-TOLERANT
-//      pattern: each single entry letter matches one-or-more of itself, and
-//      a doubled entry letter (the "ss" of "ass", the "gg" of "nigger")
-//      matches two-or-more — so "wooord", "bittch", "fucckk", and
-//      letter-bomb elongations all match WITHOUT the pattern ever matching
-//      something SHORTER than the entry ("as" never matches "ass").
+//   2. SKELETON pass (v3.1 hardening, exact since v4.2.1): each
+//      whitespace-delimited token is reduced to a normalized skeleton —
+//      zero-width characters dropped, accents/fullwidth folded via NFKD with
+//      combining marks stripped, Latin-lookalike homoglyphs mapped, leet
+//      digits/symbols mapped (0→o, 1→i, 3→e, 4→a, 5→s, 7→t, 8→b, 9→g, @→a,
+//      $→s), every other soft separator (punctuation, hyphens, underscores,
+//      unmapped digits) dropped, letters only. An entry matches a token
+//      EXACTLY: the entry's elongation pattern must consume the WHOLE token —
+//      "wooord", "bittch", "fucckk" and letter-bomb elongations mask, while
+//      innocent carriers ("class" via "ass", "title" via "tit") and true
+//      compounds ("badass") never do. Compounds that should mask are a
+//      regex/glob entry's job ("*ass*", "/smart ?ass/").
 //
 //   3. SCRAMBLE tolerance (v3.1): a token with no direct hit is also tested
 //      with each single character deleted, against entries of 4+ letters —
-//      "fusckers" loses its "s" and contains "fuck", "DIsCK" folds and loses
-//      its "s" to "dick". One deletion only; two-character scrambles
-//      ("Ponussy") stay a word-list matter.
+//      "badsword" loses its "s" and reads exactly "badword", "fusckers" loses
+//      its "s" to "fuckers". The delete-one variant itself must match the
+//      entry exactly. One deletion only; two-character scrambles ("Ponussy")
+//      stay a word-list matter.
 //
 //   4. STITCHING pass (v3.1): consecutive tokens whose skeletons are at most
 //      TWO characters ("b a d", "fu c c kk", "fu u c c k k") are
-//      concatenated and matched with the same substring + elongation rules,
-//      masking only the tokens the match actually spans. Multi-character
+//      concatenated; an entry masks a run's tail exactly when it matches the
+//      stitched text from some token to the run's end — "b a d w o r d" masks
+//      whole, "i am b a d w o r d" masks only "b a d w o r d". Multi-character
 //      tokens never stitch, so "the pen is mightier" cannot false-positive —
 //      the pen/is boundary is a real word boundary, not obfuscation.
 //
 // Known deliberate limits (all over-mask-safe, all word-list matters):
-// mid-sentence letter-spam spanning longer words ("f u sck ers") is left to
-// text auto-mod (api/textmod.mjs) and the human desk; two-character
-// scrambles and variant spellings ("fuk", "asf") must be listed to match.
+// compounds and substrings ("badass" via "ass", plurals like "badwords" via
+// "badword") no longer mask — list the variant, a glob ("badword*"), or a
+// regex ("/badwords?/") when they should; soft-separator tails ("ullhe-ck")
+// likewise only mask when the whole token reads as the entry. Two-character
+// scrambles and unlisted variant spellings ("fuk", "asf") must be listed.
 //
 // Case folding is done per UTF-16 code unit (not via one String#toLowerCase
 // call on the whole body) because lowercase folding can lengthen a string
@@ -218,25 +220,28 @@ function compileGlobEntry(word) {
   return compilePatternRegex(pattern, "");
 }
 
+// One layer of the list format: NEWLINES separate entries (the owner's live
+// list is line-based), and commas separate entries WITHIN a line — unless the
+// line as a whole is itself a valid pattern, whose commas belong to it (char
+// classes like [a, b] must never split a line mid-pattern). A \, escape also
+// keeps a literal comma inside one entry. Exported so the desk's bulk-add can
+// parse pasted text exactly like the filter itself will read it.
+export function splitFilterEntries(wordsRaw) {
+  return String(wordsRaw).split(/[\r\n]+/).flatMap((line) => {
+    const candidate = line.trim().replace(/\\,/g, ",")
+      .replace(/\\u\{?([0-9A-Fa-f]{5,8})\}?/g, "\\u{$1}");
+    if (candidate.includes(",") && REGEX_HINT.test(candidate) &&
+        compilePatternRegex(candidate)) return [candidate];
+    return line.split(/(?<!\\),/);
+  });
+}
+
 function compileFilter(wordsRaw) {
   const words = [];
   const entries = [];
   const regexes = [];
   const seen = new Set();
-  for (const entry of String(wordsRaw).split(/[\r\n]+/).flatMap(
-    // Newlines separate entries (the owner's live list is line-based), and
-    // commas separate entries WITHIN a line — unless the line as a whole is
-    // itself a valid pattern, whose commas belong to it (char classes like
-    // [a, b] must never split a line mid-pattern). A \, escape also keeps a
-    // literal comma inside one entry.
-    (line) => {
-      const candidate = line.trim().replace(/\\,/g, ",")
-        .replace(/\\u\{?([0-9A-Fa-f]{5,8})\}?/g, "\\u{$1}");
-      if (candidate.includes(",") && REGEX_HINT.test(candidate) &&
-          compilePatternRegex(candidate)) return [candidate];
-      return line.split(/(?<!\\),/);
-    },
-  )) {
+  for (const entry of splitFilterEntries(wordsRaw)) {
     const trimmed = entry.trim().replace(/\\,/g, ",");
     if (!trimmed) continue;
     // Slash-wrapped regex (existing format), then bare regex autodetection,
@@ -311,35 +316,42 @@ function maskSpan(masked, start, end) {
   }
 }
 
-// One entry's hit range inside a skeleton string, or null. Plain substring
-// first (compounds: "badass" contains "ass"), then the elongation pattern
-// ("wooord" matches "word"). Both run over the SAME skeleton the caller
-// built, so the returned range indexes that string.
+// One entry's whole-string match against a skeleton token (or a stitched
+// run), or null. Matching is EXACT: the elongation pattern must consume the
+// entire haystack, so "wooord" matches "word" but "badass" never matches
+// "ass" — compounds that genuinely should mask are a regex/glob entry's job
+// ("*ass*", "/bad|class/"). Runs over the SAME skeleton the caller built, so
+// the returned range indexes that string.
 function findEntryRange(haystack, entry) {
-  const direct = haystack.indexOf(entry.skeleton);
-  if (direct !== -1) return [direct, direct + entry.skeleton.length];
-  const match = entry.regex && entry.regex.exec(haystack);
-  if (match) return [match.index, match.index + match[0].length];
+  if (!entry.regex) return null;
+  const match = entry.regex.exec(haystack);
+  if (match && match[0].length === haystack.length) {
+    return [match.index, match.index + match[0].length];
+  }
   return null;
 }
 
 // Scramble tolerance: every delete-one variant of the haystack, against
 // entries of 4+ letters. Returns [hitStart, hitEnd, deletedIndex] in
 // HAYSTACK index space (the deleted position already re-expanded), or null.
-// One deletion catches the single-character insertions people actually use
-// ("fusckers", "DIsCK"); two-character scrambles are a word-list matter.
+// The variant itself must match the entry EXACTLY (whole variant, via
+// findEntryRange), so only genuine one-character insertions mask —
+// "badsword" → "badword", never "password" (its variants contain no listed
+// entry as the whole string). One deletion catches the single-character
+// insertions people actually use ("fusckers", "DIsCK"); two-character
+// scrambles are a word-list matter.
 function findScrambledRange(haystack, entries) {
   if (haystack.length < 5) return null; // nothing worth deleting from
   for (let deleted = 0; deleted < haystack.length; deleted++) {
     const variant = haystack.slice(0, deleted) + haystack.slice(deleted + 1);
     for (const entry of entries) {
       if (entry.skeleton.length < 4) continue;
-      const range = findEntryRange(variant, entry);
-      if (!range) continue;
-      const start = Math.min(range[0], deleted);
-      // Re-expand the part of the match that sits after the deletion.
-      const end = (range[1] > deleted ? range[1] + 1 : range[1]);
-      return [start, end, deleted];
+      if (findEntryRange(variant, entry)) {
+        // The variant matched the entry exactly (findEntryRange requires the
+        // whole variant), so the hit spans the entire token — mask all of it,
+        // including the deleted position.
+        return [0, haystack.length, deleted];
+      }
     }
   }
   return null;
@@ -372,8 +384,10 @@ function applySkeletonPasses(masked, text, entries, regexes) {
 
   // Regex entries against the normalized skeleton — the space where "fu c c
   // kk"-style spacing still exists but leet/soft separators are gone, so a
-  // pattern like /fu\s*(u|c)+k/ spans both shapes.
+  // pattern like /fu\s*(u|c)+k/ spans both shapes. Same lastIndex reset as
+  // the folded pass above: these are shared global patterns.
   for (const pattern of regexes) {
+    pattern.lastIndex = 0;
     let match = pattern.exec(skeleton);
     while (match) {
       maskSpan(masked, spans[match.index][0], spans[match.index + match[0].length - 1][1]);
@@ -410,28 +424,18 @@ function applySkeletonPasses(masked, text, entries, regexes) {
     if (runEnd - runStart >= 2) {
       const run = tokens.slice(runStart, runEnd);
       const stitched = run.map((token) => skeleton.slice(token.start, token.end)).join("");
-      for (const entry of entries) {
-        const range = findEntryRange(stitched, entry);
-        if (!range) continue;
-        // Only the tokens the match actually spans get masked — "i am b a d"
-        // masks "b a d", never the innocent words before it.
-        const prefixLengths = run.map((token) => token.end - token.start);
-        let cursor = 0;
-        let tokenAt = 0;
-        while (tokenAt < run.length && cursor + prefixLengths[tokenAt] <= range[0]) {
-          cursor += prefixLengths[tokenAt];
-          tokenAt += 1;
+      // Exactness applies here too: an entry must consume the stitched text
+      // from some token onward to the end of the run — "i am b a d w o r d"
+      // matches "badword" starting at the third token and masks ONLY "b a d
+      // w o r d", never the innocent words before it.
+      const prefixLengths = run.map((token) => token.end - token.start);
+      for (let first = 0; first < run.length; first++) {
+        let offset = 0;
+        for (let i = 0; i < first; i++) offset += prefixLengths[i];
+        if (entries.some((entry) => findEntryRange(stitched.slice(offset), entry))) {
+          maskSpan(masked, spans[run[first].start][0], spans[run[run.length - 1].end - 1][1]);
+          break;
         }
-        let endAt = tokenAt;
-        let endCursor = cursor;
-        while (endAt < run.length && endCursor < range[1]) {
-          endCursor += prefixLengths[endAt];
-          endAt += 1;
-        }
-        maskSpan(masked,
-          spans[run[tokenAt].start][0],
-          spans[run[Math.min(endAt, run.length) - 1].end - 1][1]);
-        break;
       }
     }
     runStart = Math.max(runEnd, runStart + 1);
@@ -488,8 +492,10 @@ export function applyWordFilter(text, wordsRaw) {
   // string the exact pass reads, with the same original-index map, so
   // pattern matches mask exactly the characters they matched). A pattern
   // author controls word boundaries with \b — the exact pass's whole-word
-  // rule never applies here.
+  // rule never applies here. Compiled patterns are global; reset lastIndex
+  // so state carried over from an earlier call can never skip the scan.
   for (const pattern of compiled.regexes) {
+    pattern.lastIndex = 0;
     let match = pattern.exec(folded);
     while (match) {
       const start = origIndexMap[match.index];

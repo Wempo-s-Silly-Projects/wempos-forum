@@ -259,9 +259,6 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
             "DELETE FROM revoked_attachment_hashes WHERE hash = " +
             "(SELECT hash FROM gifs WHERE id = ? AND status = 'approved')",
           ).bind(gifId),
-          db.prepare(
-            "DELETE FROM vision_verdicts WHERE kind = 'gif' AND entity_id = ?",
-          ).bind(gifId),
         ]);
       } catch (error) {
         // Concurrent uploads can create pending rows after the upload-side
@@ -301,9 +298,6 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
     if (decision === "reject") {
       const rejected = await db.batch([
         db.prepare("DELETE FROM gifs WHERE id = ? AND status = 'pending'").bind(gifId),
-        db.prepare(
-          "DELETE FROM vision_verdicts WHERE kind = 'gif' AND entity_id = ?",
-        ).bind(gifId),
       ]);
       if (Number(rejected[0]?.meta?.changes) !== 1) throw new HttpError(404, "GIF not found.");
       return json({ rejected: true, id: gifId });

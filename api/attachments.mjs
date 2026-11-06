@@ -428,10 +428,6 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
         "DELETE FROM revoked_attachment_hashes WHERE hash = " +
         "(SELECT hash FROM attachments WHERE id = ? AND status = 'approved')",
       ).bind(attachmentId),
-      // The Vision report described the pending state, which is now gone.
-      db.prepare(
-        "DELETE FROM vision_verdicts WHERE kind = 'attachment' AND entity_id = ?",
-      ).bind(attachmentId),
     ]);
     if (Number(results[0]?.meta?.changes) !== 1) {
       throw new HttpError(404, "Attachment not found.");
@@ -458,9 +454,6 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
       ).bind(target.hash, nowSeconds(), session.user.id),
       db.prepare("DELETE FROM attachments WHERE hash = ? AND status = 'approved'").bind(target.hash),
       db.prepare("DELETE FROM gifs WHERE hash = ? AND status = 'approved'").bind(target.hash),
-      db.prepare(
-        "DELETE FROM vision_verdicts WHERE kind = 'attachment' AND entity_id = ?",
-      ).bind(attachmentId),
     ]);
   } else {
     // The row was pending when read above. Fence the delete to that exact
@@ -468,9 +461,6 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
     // approved row without recording a hash tombstone and removing duplicates.
     const deleted = await db.batch([
       db.prepare("DELETE FROM attachments WHERE id = ? AND status = 'pending'").bind(attachmentId),
-      db.prepare(
-        "DELETE FROM vision_verdicts WHERE kind = 'attachment' AND entity_id = ?",
-      ).bind(attachmentId),
     ]);
     if (Number(deleted[0]?.meta?.changes) !== 1) {
       throw new HttpError(409, "That attachment changed while moderation was in progress. Reload the queue and try again.");

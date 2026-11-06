@@ -41,8 +41,11 @@ test("skeleton pass: leet digits and symbols mask", () => {
 test("skeleton pass: soft separators stitch within a token", () => {
   assert.equal(applyWordFilter("bad_w0rd", LIST), "########");
   assert.equal(applyWordFilter("b.a.d.w.o.r.d", LIST), "#############");
-  // The hyphen drops out of the skeleton, so "he-ck" reads "heck".
-  assert.equal(applyWordFilter("ullhe-ck", LIST), "ull#####");
+  // The hyphen drops out of the skeleton, so "he-ck" reads exactly "heck"
+  // (the separator between the first and last letter masks with the span).
+  assert.equal(applyWordFilter("he-ck", LIST), "#####");
+  // With a prefix the token no longer IS the entry — exact matching leaves it.
+  assert.equal(applyWordFilter("ullhe-ck", LIST), "ullhe-ck");
 });
 
 test("skeleton pass: zero-width and homoglyph injections mask", () => {
@@ -63,15 +66,30 @@ test("skeleton pass: elongation matches, doubled entry letters are held", () => 
   assert.equal(applyWordFilter("aple pie", LIST), "aple pie");
 });
 
-test("skeleton pass: compounds mask via substring (aggressive by design)", () => {
-  assert.equal(applyWordFilter("coolscrub", LIST), "cool#####");
-  assert.equal(applyWordFilter("badwords", LIST), "#######s");
-  // The documented trade-off the owner accepted: innocent carriers mask too.
-  assert.equal(applyWordFilter("applesauce", LIST), "#####sauce");
+test("skeleton pass: exact whole-token matching, innocent carriers survive", () => {
+  // No substring masking: "scrub" inside "coolscrub" no longer masks —
+  // innocent carriers keep their letters (the owner's exactness call).
+  assert.equal(applyWordFilter("coolscrub", LIST), "coolscrub");
+  assert.equal(applyWordFilter("applesauce", LIST), "applesauce");
+  // The plural still masks — one deleted "s" leaves exactly "badword", which
+  // the scramble pass catches as a whole-variant match.
+  // Compounds that SHOULD mask are a glob or regex entry's call.
+  assert.equal(applyWordFilter("coolscrub", "*scrub*"), "#########");
+  assert.equal(applyWordFilter("badwords", "/badwords?/"), "########");
+});
+
+test("skeleton pass: exactness with a short entry (no class/bass masking)", () => {
+  const SHORT = "ass";
+  assert.equal(applyWordFilter("class", SHORT), "class");
+  assert.equal(applyWordFilter("bass", SHORT), "bass");
+  assert.equal(applyWordFilter("ass", SHORT), "###");
+  // Elongation is still whole-token: an elongated form of the entry masks.
+  assert.equal(applyWordFilter("asss", SHORT), "####");
 });
 
 test("scramble pass: one deleted character still matches 4+ letter entries", () => {
-  // "badsword" loses its "s" and contains "badword".
+  // "badsword" loses its "s" and reads exactly "badword" — the whole token
+  // masks, and so do plurals that one deletion reduces to the entry.
   assert.equal(applyWordFilter("badsword", LIST), "########");
   // Delete-1 can chain with elongation: "badsdword" drops a "d" to
   // "baddword", whose double d the elongation pattern absorbs.
