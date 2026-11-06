@@ -40,10 +40,13 @@ const NOTIFICATION_SELECT =
   "FROM notifications n WHERE n.user_id = ? ORDER BY n.id DESC LIMIT " + NOTIFICATIONS_PER_USER;
 
 function publicNotification(row) {
+  const hasTarget = row.target_post_id !== null && row.target_post_id !== undefined;
   return {
     id: Number(row.id),
-    targetPostId: Number(row.target_post_id),
-    replyId: Number(row.reply_id),
+    // NULL = a label-only notification (appeal outcome, chat ping): no post
+    // target for the client to navigate to.
+    targetPostId: hasTarget ? Number(row.target_post_id) : null,
+    replyId: hasTarget ? Number(row.reply_id) : null,
     createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
     read: row.read_at !== null && row.read_at !== undefined,
     postPreview: String(row.reply_body || "").slice(0, 80),
@@ -95,6 +98,17 @@ export function fanOutStatements(db, recipientIds, { targetPostId, replyId, now,
   return statements;
 }
 
+// A label-only notification (v4.2): the row has NO post target — appeal
+// outcomes, chat/DM pings — so it is a plain INSERT; the reply-dedupe guard
+// above keys on reply_id, which is NULL here (nothing to dedupe against).
+// Labels are server-computed copy, capped like every other label.
+function notifyStatement(db, userId, label) {
+  return db.prepare(
+    "INSERT INTO notifications (user_id, target_post_id, reply_id, created_at, label) " +
+      "VALUES (?, NULL, NULL, ?, ?)",
+  ).bind(userId, nowSeconds(), String(label).slice(0, 200));
+}
+
 async function unreadCount(env, userId) {
   const row = await env.FORUM_DB.prepare(
     "SELECT COUNT(*) AS unread FROM notifications WHERE user_id = ? AND read_at IS NULL",
@@ -142,4 +156,4 @@ async function handleNotificationsRoutes(request, env, url, path, method) {
   return await handleNotificationsRoute(request, env, url, path, method);
 }
 
-export { notificationBatchStatements, unreadCount, handleNotificationsRoutes };
+export { notificationBatchStatements, unreadCount, handleNotificationsRoutes, notifyStatement };

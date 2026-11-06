@@ -25,6 +25,10 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { json, readJson } from "./core/http.mjs";
 import { blobToUint8Array } from "./core/images.mjs";
 import { evaluateExtractedText } from "./textmod.mjs";
+// Label-only notifications are NULL-target rows (shared builder — the local
+// copy here was the same NOT NULL constraint failure that broke appeals on
+// the old NOT NULL targets).
+import { notifyStatement } from "./notifications.mjs";
 
 const VISION_ANNOTATE_URL = "https://vision.googleapis.com/v1/images:annotate";
 // Vision latency headroom inside waitUntil: hard timeout, fail-open below.
@@ -205,13 +209,6 @@ function autoModRemovalStatements(db, { kind, entityId }) {
   ).bind(Number(entityId));
 }
 
-function notifyStatement(db, userId, label) {
-  return db.prepare(
-    "INSERT INTO notifications (user_id, target_post_id, reply_id, created_at, label) " +
-      "VALUES (?, NULL, NULL, ?, ?)",
-  ).bind(userId, nowSeconds(), label.slice(0, 200));
-}
-
 export async function runVisionCheck(env, input, fetchImpl = fetch) {
   const db = env.FORUM_DB;
   const { kind, entityId, bytes, userId } = input;
@@ -252,11 +249,15 @@ export async function runVisionCheck(env, input, fetchImpl = fetch) {
     await db.batch([
       storeVerdictRow(db, { kind, entityId, version: input.version, verdicts, error: null }),
       autoModRemovalStatements(db, { kind, entityId }),
+      // content_preview (v4.2): for images the surviving evidence is the OCR
+      // text Vision extracted (the bytes are deleted); NULL for text-less
+      // images (SafeSearch tripped on the pixels).
       db.prepare(
-        "INSERT INTO moderation_actions (user_id, kind, entity_kind, entity_id, hash, reason, verdicts, created_at) " +
-          "VALUES (?, 'auto_image', ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO moderation_actions (user_id, kind, entity_kind, entity_id, hash, reason, verdicts, content_preview, created_at) " +
+          "VALUES (?, 'auto_image', ?, ?, ?, ?, ?, ?, ?)",
       ).bind(userId, kind, String(entityId), hash, reason,
-        JSON.stringify(verdicts), nowSeconds()),
+        JSON.stringify(verdicts),
+        result.ocrText ? String(result.ocrText).slice(0, 2000) : null, nowSeconds()),
       notifyStatement(db, userId,
         "Auto-mod removed one of your images. If this was a mistake, appeal it from your profile's Appeals page."),
     ]);
@@ -458,6 +459,7 @@ export async function runReportVisionRecheck(env, input, fetchImpl = fetch) {
       } else {
         cached = {
           verdicts: result.verdicts,
+          ocrText: result.ocrText || null,
           ocr: result.ocrText
             ? await evaluateExtractedText(env, result.ocrText, fetchImpl)
             : { tripped: false },
@@ -483,11 +485,13 @@ export async function runReportVisionRecheck(env, input, fetchImpl = fetch) {
           verdicts, error: null,
         }),
         recheckRemovalStatement(db, target),
+        // content_preview (v4.2): same snapshot as intake-time removals.
         db.prepare(
-          "INSERT INTO moderation_actions (user_id, kind, entity_kind, entity_id, hash, reason, verdicts, created_at) " +
-            "VALUES (?, 'auto_image', ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO moderation_actions (user_id, kind, entity_kind, entity_id, hash, reason, verdicts, content_preview, created_at) " +
+            "VALUES (?, 'auto_image', ?, ?, ?, ?, ?, ?, ?)",
         ).bind(target.userId, target.kind, target.entityId, target.hash, reason,
-          JSON.stringify(verdicts), nowSeconds()),
+          JSON.stringify(verdicts),
+          cached.ocrText ? String(cached.ocrText).slice(0, 2000) : null, nowSeconds()),
         notifyStatement(db, target.userId,
           "Auto-mod removed one of your images after a report. If this was a mistake, appeal it from your profile's Appeals page."),
       ]);

@@ -120,11 +120,25 @@ export async function fetchModerationVerdict(env, text, fetchImpl = fetch) {
   }
 }
 
-// Trips on OpenAI's own calibrated verdict — all categories are enabled by
-// default on every call, and `flagged` is the product's answer over all of
-// them. We deliberately keep no local threshold bars to drift out of tune.
+// The SEVERE categories (v4.2, owner: "automod too sensitive"): OpenAI's
+// umbrella `flagged` verdict covered every category — mild harassment banter,
+// self-harm TALK, a passing sexual mention — and hid posts over them. An
+// action now requires a clearly severe category to be flagged: threats to
+// people, hate threats, sexual content involving minors, graphic violence,
+// and explicit self-harm instruction/intent. Mild flags simply do nothing —
+// no row, no hide, no appeal noise.
+const SEVERE_TEXT_CATEGORIES = new Set([
+  "harassment/threatening",
+  "hate/threatening",
+  "self-harm/instructions",
+  "self-harm/intent",
+  "sexual/minors",
+  "violence/graphic",
+]);
+
 export function tripsTextAutoMod(verdict) {
-  return Boolean(verdict && verdict.flagged);
+  if (!verdict) return false;
+  return (verdict.categories || []).some((category) => SEVERE_TEXT_CATEGORIES.has(category));
 }
 
 // The desk/appeal summary: the categories OpenAI flagged, with their scores.
@@ -198,11 +212,14 @@ export async function runTextCheck(env, input, fetchImpl = fetch) {
     : "Auto-mod removed this message (OpenAI moderation: " + scoreSummary(verdict) + ").";
   await db.batch([
     textRemovalStatement(db, { kind: input.kind, entityId: input.entityId }),
+    // content_preview (v4.2): the exact flagged words — the appeal cards
+    // (and the chat/DM staff logs) must show WHAT tripped the classifier,
+    // even after the chat/DM message was deleted and the post hidden.
     db.prepare(
-      "INSERT INTO moderation_actions (user_id, kind, entity_kind, entity_id, hash, reason, verdicts, created_at) " +
-        "VALUES (?, 'auto_text', ?, ?, NULL, ?, ?, ?)",
+      "INSERT INTO moderation_actions (user_id, kind, entity_kind, entity_id, hash, reason, verdicts, content_preview, created_at) " +
+        "VALUES (?, 'auto_text', ?, ?, NULL, ?, ?, ?, ?)",
     ).bind(Number(input.userId), input.kind, String(input.entityId), reason,
-      JSON.stringify(verdictsPayload(verdict)), now),
+      JSON.stringify(verdictsPayload(verdict)), String(input.text).slice(0, 2000), now),
     db.prepare(
       "INSERT INTO notifications (user_id, target_post_id, reply_id, created_at, label) " +
         "VALUES (?, ?, ?, ?, ?)",

@@ -23,11 +23,16 @@ async function renderNotificationsRoute(context, version) {
 
 async function openNotification(button) {
   // Mark-first is idempotent server-side; navigation then re-renders the bell
-  // with a fresh unread count from GET /api/session.
+  // with a fresh unread count from GET /api/session. Label-only rows (appeal
+  // outcomes, chat pings — no post target) just mark read.
   await api("/api/me/notifications/" + button.dataset.notificationId + "/read", {
     method: "POST",
   });
-  state.router.navigate("/posts/" + button.dataset.postId);
+  if (button.dataset.postId) {
+    state.router.navigate("/posts/" + button.dataset.postId);
+  } else {
+    await state.renderRoute({ name: "notifications" });
+  }
 }
 
 async function markAllNotificationsRead() {

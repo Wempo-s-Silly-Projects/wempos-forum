@@ -25,19 +25,17 @@ import { userByUsernameKey } from "./core/shapers.mjs";
 const DUMMY_SALT = "00000000000000000000000000000000";
 const DUMMY_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
 import { applyWordFilter } from "./filter.mjs";
+// Appeal outcomes are label-only notifications (no post to point at) — the
+// shared builder in notifications.mjs (migration 0036 made the targets
+// nullable; the local NULL-binding copy here 500'd every decision batch on
+// the old NOT NULL target column, which was the reported "appeals no worky").
+import { notifyStatement } from "./notifications.mjs";
 
 export const MAX_APPEAL_BODY_CHARS = 1000;
 const APPEAL_QUEUE_LIMIT = 100;
 // Un-reversed auto-mod actions stay appealable for a rolling window so the
 // list cannot grow unbounded.
 const ACTION_APPEAL_WINDOW_SECONDS = 30 * 86400;
-
-function notifyStatement(db, userId, label) {
-  return db.prepare(
-    "INSERT INTO notifications (user_id, target_post_id, reply_id, created_at, label) " +
-      "VALUES (?, NULL, NULL, ?, ?)",
-  ).bind(userId, nowSeconds(), String(label).slice(0, 200));
-}
 
 async function decideAppeal(db, appeal, decision, moderatorId) {
   const now = nowSeconds();
@@ -149,11 +147,13 @@ async function handleAppealAdminRoutes(request, env, url, path, method) {
       "SELECT a.id, a.user_id, a.kind, a.body, a.status, a.created_at, a.decided_at, " +
         "a.action_id, a.ban_id, u.username, " +
         "m.reason AS action_reason, m.entity_kind AS entity_kind, m.hash AS action_hash, " +
-        "m.verdicts AS action_verdicts, " +
+        "m.verdicts AS action_verdicts, m.content_preview AS content_preview, " +
+        "p.body AS post_body, " +
         "b.reason AS ban_reason, b.expires_at AS ban_expires_at " +
         "FROM appeals a " +
         "LEFT JOIN users u ON u.id = a.user_id " +
         "LEFT JOIN moderation_actions m ON m.id = a.action_id " +
+        "LEFT JOIN posts p ON p.id = m.entity_id AND m.entity_kind = 'post' " +
         "LEFT JOIN bans b ON b.id = a.ban_id " +
         "ORDER BY CASE a.status WHEN 'pending' THEN 0 ELSE 1 END, a.created_at ASC LIMIT " + APPEAL_QUEUE_LIMIT,
     ).all();
@@ -168,7 +168,18 @@ async function handleAppealAdminRoutes(request, env, url, path, method) {
         decidedAt: row.decided_at ? new Date(Number(row.decided_at) * 1000).toISOString() : null,
         ...(row.kind === "auto_image" || row.kind === "auto_text" ? {
           actionReason: row.action_reason,
-          entityKind: row.entity_kind,
+          // entity_id is the post id for post appeals (the desk opens it —
+          // hidden posts remain admin-readable through canViewPost).
+          entityId: row.entity_kind === "post" ? Number(row.entity_id) : null,
+          // The flagged-content snapshot (v4.2): what tripped the auto-mod,
+          // always visible — even after the chat/DM message was deleted or
+          // the post hidden. postBody is the post's CURRENT body (the appeal
+          // text may predate a newer edit); the snapshot is what the
+          // classifier saw.
+          contentPreview: row.content_preview && typeof row.content_preview === "string"
+            ? row.content_preview
+            : null,
+          postBody: row.post_body && typeof row.post_body === "string" ? row.post_body : null,
           verdicts: safeParseVerdicts(row.action_verdicts),
         } : {
           banReason: row.ban_reason,

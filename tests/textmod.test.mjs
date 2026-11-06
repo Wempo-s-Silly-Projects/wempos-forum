@@ -132,36 +132,50 @@ test("fetchModerationVerdict: non-200, transport failures, and missing results r
   assert.match(empty.error, /no result/);
 });
 
-test("tripsTextAutoMod follows OpenAI's calibrated flagged verdict", () => {
-  assert.equal(tripsTextAutoMod({ flagged: true, categories: ["harassment"], categoryScores: {} }), true);
+test("tripsTextAutoMod trips only on SEVERE categories (mild flags act on nothing)", () => {
+  // v4.2 sensitivity fix: the umbrella `flagged` hid posts over mild
+  // categories; an action now needs one of the severe ones.
+  assert.equal(tripsTextAutoMod({ flagged: true, categories: ["harassment"], categoryScores: {} }), false);
+  assert.equal(tripsTextAutoMod({ flagged: true, categories: ["harassment/threatening"], categoryScores: {} }), true);
+  assert.equal(tripsTextAutoMod({ flagged: true, categories: ["hate", "sexual/minors"], categoryScores: {} }), true);
   assert.equal(tripsTextAutoMod({ flagged: false, categories: [], categoryScores: {} }), false);
   assert.equal(tripsTextAutoMod(null), false);
-  // High scores alone do NOT trip — flagged is the verdict, scores are the
-  // evidence on the desk.
-  assert.equal(tripsTextAutoMod({ flagged: false, categories: [], categoryScores: { harassment: 0.5 } }), false);
+  // High scores alone do NOT trip — a severe flagged CATEGORY is the verdict.
+  assert.equal(tripsTextAutoMod({ flagged: false, categories: [], categoryScores: { "violence/graphic": 0.9 } }), false);
 });
 
-test("runTextCheck: a flagged post HIDES (never deletes), records the action, notifies", async () => {
+test("runTextCheck: a severe flag HIDES the post (never deletes), records the action + preview, notifies", async () => {
   const db = fakeDb();
   await runTextCheck({ FORUM_DB: db, OPENAI_API_KEY: "k" }, {
     kind: "post", entityId: 42, userId: 9, text: "awful things", postId: 7,
-  }, async () => ({ ok: true, json: async () => moderationResponse(true, { harassment: true }) }));
+  }, async () => ({ ok: true, json: async () => moderationResponse(true, { "harassment/threatening": true }) }));
+  assert.equal(tripsTextAutoMod({ flagged: true, categories: ["harassment/threatening"], categoryScores: { "harassment/threatening": 0.99 } }), true);
   const hide = db.statements.find((s) => s.sql.includes("UPDATE posts SET visibility = 'hidden'"));
   assert.ok(hide, "the post must be hidden, not deleted");
   assert.equal(hide.params[0], 42);
   assert.equal(db.statements.filter((s) => s.sql.includes("DELETE FROM")).length, 0);
   const action = db.statements.find((s) => s.sql.includes("INSERT INTO moderation_actions"));
   assert.ok(action, "the auto-mod action row must be recorded");
-  // Bind order: userId, entity_kind, entity_id, reason, verdicts, created_at
-  // (kind='auto_text' is an in-SQL literal).
+  // Bind order: userId, entity_kind, entity_id, reason, verdicts,
+  // content_preview, created_at (kind='auto_text' is an in-SQL literal).
   assert.equal(action.params[0], 9);
   assert.equal(action.params[2], "42");
-  assert.match(action.params[3], /OpenAI moderation: harassment/);
+  assert.match(action.params[3], /harassment\/threatening/);
   const stored = JSON.parse(action.params[4]);
-  assert.deepEqual(stored, { flagged: true, categories: { harassment: 0.99 } });
+  assert.deepEqual(stored, { flagged: true, categories: { "harassment/threatening": 0.99 } });
+  assert.equal(action.params[5], "awful things", "the flagged text is snapshotted for the desk");
   const note = db.statements.find((s) => s.sql.includes("INSERT INTO notifications"));
   assert.equal(note.params[1], 7); // thread root id for the click-through
   assert.equal(note.params[2], 42); // the hidden reply's own id
+});
+
+test("runTextCheck: a mild flag (harassment banter) takes NO action — too sensitive otherwise", async () => {
+  const db = fakeDb();
+  await runTextCheck({ FORUM_DB: db, OPENAI_API_KEY: "k" }, {
+    kind: "post", entityId: 42, userId: 9, text: "mildly rude banter", postId: 7,
+  }, async () => ({ ok: true, json: async () => moderationResponse(true, { harassment: true }) }));
+  assert.ok(db.statements.every((s) => !s.sql.includes("INSERT")), "no action row, nothing hidden");
+  assert.ok(db.statements.every((s) => !s.sql.includes("UPDATE posts")));
 });
 
 test("runTextCheck: a flagged chat message DELETES (chat has no hidden state)", async () => {
@@ -242,18 +256,19 @@ test("evaluateExtractedText: a filtered word embedded in the image trips WITHOUT
   });
 });
 
-test("evaluateExtractedText: a flagged text trip needs the moderation key and reports the categories", async () => {
+test("evaluateExtractedText: a SEVERE text trip needs the moderation key and reports the categories", async () => {
   let seen;
   const verdict = await evaluateExtractedText(
     { OPENAI_API_KEY: "k", FORUM_DB: fakeDb() },
     "awful things in pixels",
     async (url, init) => {
       seen = { url, init };
-      return { ok: true, json: async () => moderationResponse(true, { hate: true }) };
+      // A severe category trips; the mild one beneath is display-only.
+      return { ok: true, json: async () => moderationResponse(true, { hate: true, "hate/threatening": true }) };
     },
   );
   assert.equal(verdict.tripped, true);
-  assert.match(verdict.reason, /OpenAI moderation on embedded text: hate 0\.99/);
+  assert.match(verdict.reason, /hate\/threatening 0\.99/);
   assert.equal(seen.init.headers.Authorization, "Bearer k");
 });
 

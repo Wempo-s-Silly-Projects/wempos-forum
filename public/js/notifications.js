@@ -6,14 +6,15 @@ import { addText } from "./forms.js";
 
 // Pure, DOM-free. Returns { id, targetPostId, read, href, label }. The payload
 // never includes the replier's identity, so the label stays generic.
-export const notificationItemView = (item) => {
-  const preview = String(item?.postPreview ?? "");
-  const targetPostId = Number(item?.targetPostId);
+  const rawTarget = Number(item?.targetPostId);
+  // NULL = a label-only notification (appeal outcome, chat ping): nothing to
+  // navigate to — clicking just marks it read.
+  const targetPostId = rawTarget > 0 ? rawTarget : null;
   return {
     id: Number(item?.id),
     targetPostId,
     read: Boolean(item?.read),
-    href: `/posts/${targetPostId}`,
+    href: targetPostId ? `/posts/${targetPostId}` : null,
     // The server-stored label wins (mentions: "You were mentioned by X");
     // every other (or pre-0017) row keeps the generic reply copy.
     label: item.label
@@ -88,7 +89,8 @@ export function renderNotificationsPage(main, items) {
     row.className = "notification-item" + (item.read ? "" : " notification-unread");
     row.dataset.action = "open-notification";
     row.dataset.notificationId = String(item.id);
-    row.dataset.postId = String(item.targetPostId);
+    // Post-less items carry no postId — the click marks read without navigating.
+    if (item.targetPostId) row.dataset.postId = String(item.targetPostId);
     row.textContent = item.label;
     if (item.read) row.setAttribute("aria-disabled", "false");
     else row.setAttribute("aria-current", "true");

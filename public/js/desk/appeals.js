@@ -30,6 +30,11 @@ function createAppealQueue(appeals, document) {
             .join(" · "),
           "vision-verdict");
       }
+      // What the OCR saw (v4.2) — the bytes are deleted; this is the trace.
+      if (appeal.contentPreview) {
+        addText(document, card, "p",
+          "Text in the image: " + appeal.contentPreview, "flagged-content");
+      }
     } else if (appeal.kind === "auto_text") {
       // Text verdicts: { flagged, categories: { name: score } } — only what
       // OpenAI flagged rides in the payload.
@@ -48,6 +53,22 @@ function createAppealQueue(appeals, document) {
       addText(document, card, "p", "Ban reason: " + (appeal.banReason || "No reason was provided."));
     }
     addText(document, card, "p", '"' + appeal.body + '"', "appeal-body");
+    // What got flagged (v4.2): the snapshot stored at removal time — the only
+    // record for chat/DM actions (the message was deleted) and the
+    // classifier-truth for posts. The live post link below serves hidden posts
+    // to staff through canViewPost.
+    if (appeal.kind === "auto_text" && (appeal.contentPreview || appeal.postBody)) {
+      addText(document, card, "p",
+        "Flagged content: " + (appeal.contentPreview || appeal.postBody), "flagged-content");
+    }
+    if (appeal.kind === "auto_text" && appeal.entityKind === "post" && appeal.entityId) {
+      addText(document, card, "p", "Original post:", "muted");
+      const view = document.createElement("a");
+      view.className = "button button-quiet flagged-content-link";
+      view.href = "/posts/" + appeal.entityId;
+      view.textContent = "View the original post";
+      card.append(view);
+    }
     addText(document, card, "p",
       appeal.status === "pending"
         ? "Waiting for review — filed " + new Date(appeal.createdAt).toLocaleString()
