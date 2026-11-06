@@ -71,7 +71,9 @@ export async function handleFilterAdminRoutes(request, env, url, path, method) {
   if (path !== "/api/admin/filter" && path !== "/api/admin/filter/entries") return null;
 
   if (method === "GET" && path === "/api/admin/filter") {
-    const session = await requireStaff(request, env);
+    // Read-only: mutating=false skips the same-origin/CSRF gates (fetch GETs
+    // carry no Origin header — the desk section loads via a plain read).
+    const session = await requireStaff(request, env, false);
     await rateLimit(request, env, "read");
     const row = await env.FORUM_DB.prepare(
       "SELECT value, updated_at FROM site_settings WHERE key = ? LIMIT 1",
