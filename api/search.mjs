@@ -6,6 +6,7 @@ import { banFilterSql, listRootPosts } from "./posts-feed.mjs";
 import { readSession } from "./core/auth.mjs";
 import { HttpError, json } from "./core/http.mjs";
 import { publicPost, publicUser, userByUsernameKey } from "./core/shapers.mjs";
+import { viewerBlockFilterSql } from "./core/blocks.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 
 export async function handleSearchRoute(request, env, url, path, method) {
@@ -33,7 +34,15 @@ export async function handleSearchRoute(request, env, url, path, method) {
       // matches, never an error (it also feeds the People panel).
       authorId = author ? Number(author.id) : -1;
     }
-    const users = await db.prepare(SEARCH_USERS_SQL).bind(query, query).all();
+    // Blocks (v4.4): block-paired members don't surface in each other's
+    // member results — the profile read would be refused anyway. The clause
+    // rides BEFORE SEARCH_USERS_SQL's ORDER BY/LIMIT suffix.
+    const userBlockFilter = viewerBlockFilterSql(viewer, "id");
+    const usersSql = userBlockFilter
+      ? SEARCH_USERS_SQL.replace(" ORDER BY username_key", " " + userBlockFilter.trim() + " ORDER BY username_key")
+      : SEARCH_USERS_SQL;
+    const users = await db.prepare(usersSql)
+      .bind(...(userBlockFilter ? [query, query, viewer.id, viewer.id] : [query, query])).all();
     const posts = await listRootPosts(env, viewer,
       authorId !== null ? { searchTerm: query, authorId } : { searchTerm: query });
     const payload = {

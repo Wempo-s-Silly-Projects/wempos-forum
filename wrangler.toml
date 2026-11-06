@@ -5,13 +5,17 @@ workers_dev = true
 
 [vars]
 TURNSTILE_HOSTNAMES = "wempos-forum.itswempo.workers.dev"
-VERSION = "4.3.0"
+VERSION = "4.4.0"
 
 [assets]
 directory = "./public"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
-run_worker_first = ["/api/*"]
+# Worker-first (v4.3.1): the worker serves every request (stamp + security
+# headers + CSP on the HTML shell) instead of the platform handing assets
+# straight to the browser — the v4.2 /api/* scoping silently dropped the
+# security headers from every page and asset.
+run_worker_first = true
 
 [[d1_databases]]
 binding = "FORUM_DB"
@@ -121,13 +125,17 @@ period = 60
 # Named preview environment: never inherit the production D1 or rate-limit bindings.
 [env.preview.vars]
 TURNSTILE_HOSTNAMES = "wempos-forum-preview.itswempo.workers.dev"
-VERSION = "4.3.0-preview"
+VERSION = "4.4.0-preview"
 
 [env.preview.assets]
 directory = "./public"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
-run_worker_first = ["/api/*"]
+# Worker-first (v4.3.1): the worker serves every request (stamp + security
+# headers + CSP on the HTML shell) instead of the platform handing assets
+# straight to the browser — the v4.2 /api/* scoping silently dropped the
+# security headers from every page and asset.
+run_worker_first = true
 
 [[env.preview.d1_databases]]
 binding = "FORUM_DB"

@@ -8,6 +8,7 @@
 // (migration 0038), zeroed by reading the thread; the bell also carries one
 // unread "New DM from X" row at a time per thread label.
 import { assertNotBanned, requireSignedInRead, requireUser, requireStaff } from "./core/auth.mjs";
+import { blockPairExists } from "./core/blocks.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicRole } from "./core/roles.mjs";
@@ -76,8 +77,14 @@ async function handleDmListRoute(request, env, url, path, method) {
     "(SELECT m2.created_at FROM dm_messages m2 WHERE m2.thread_id = t.id ORDER BY m2.id DESC LIMIT 1) AS last_at, " +
     "CASE WHEN t.user_a = ? THEN t.unread_a ELSE t.unread_b END AS unread_for_me " +
     "FROM dm_threads t JOIN users a ON a.id = t.user_a JOIN users b ON b.id = t.user_b " +
-    "WHERE t.user_a = ? OR t.user_b = ? ORDER BY last_message_id DESC",
-  ).bind(session.user.id, session.user.id, session.user.id).all()).results || [];
+    "WHERE t.user_a = ? OR t.user_b = ? " +
+    // Blocks (v4.4): closed threads vanish from the conversation list —
+    // the thread route 403s them anyway.
+    "AND NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND " +
+    "bk.blocked_id IN (t.user_a, t.user_b)) OR (bk.blocked_id = ? AND " +
+    "bk.blocker_id IN (t.user_a, t.user_b))) ORDER BY last_message_id DESC",
+  ).bind(session.user.id, session.user.id, session.user.id,
+    session.user.id, session.user.id).all()).results || [];
   return json({
     threads: rows.map((row) => ({
       id: Number(row.id),
@@ -105,6 +112,11 @@ async function handleDmStartRoute(request, env, url, path, method) {
   const targetId = Number(target.id);
   if (targetId === Number(session.user.id)) {
     throw new HttpError(400, "You cannot DM yourself.");
+  }
+  // Blocks (v4.4): neither side of a pair starts a conversation — mirrors the
+  // wall refusal (writes don't bypass, even for staff).
+  if (await blockPairExists(env, session.user.id, targetId)) {
+    throw new HttpError(403, "You cannot message that member.");
   }
   const pair = [
     Math.min(Number(session.user.id), targetId),
@@ -137,6 +149,14 @@ async function handleDmThreadRoute(request, env, url, path, method, ctx) {
   const isParticipant = Number(thread.user_a) === Number(session.user.id) ||
     Number(thread.user_b) === Number(session.user.id);
   if (!isParticipant) throw new HttpError(403, "That conversation is not yours to read.");
+  // Blocks (v4.4): a block pair closes the thread in BOTH directions — reads
+  // and new messages alike. The desk's DM log (GET /api/admin/dms) keeps the
+  // full history for review, so nothing needs unblocking to stay auditable.
+  const otherId = Number(thread.user_a) === Number(session.user.id)
+    ? Number(thread.user_b) : Number(thread.user_a);
+  if (await blockPairExists(env, session.user.id, otherId)) {
+    throw new HttpError(403, "That conversation is not available.");
+  }
 
   if (method === "GET") {
     // Reading the thread IS reading your messages: the viewer's unread flag

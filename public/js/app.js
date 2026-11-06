@@ -129,6 +129,11 @@ import {
   renderAccountNavigation,
 } from "./routes/account-nav.js";
 
+// Blocks (v4.4): the blocked-members settings section lives in
+// routes/blocks.js (rendered into the account area by routes/feed.js, like
+// the two-factor section); its Unblock action merges here.
+import { ACTIONS as blockActions } from "./routes/blocks.js";
+
 async function prepareRouteContext(version) {
   const [session, setup] = await Promise.all([
     api("/api/session"),
@@ -302,6 +307,8 @@ async function handleButtonAction(button) {
     ...accountNavActions,
     // The chat/DM page actions live in chat.js.
     ...chatActions,
+    // The blocked-members unblock action lives in routes/blocks.js.
+    ...blockActions,
     // Two-factor setup lives in routes/twofa.js.
     ...twofaActions,
     "confirm-ok": async () => {
@@ -378,6 +385,43 @@ async function fillVersionTag() {
   const commit = typeof info?.commit === "string" ? info.commit : "";
   document.querySelector("#version-tag").textContent =
     [shortVersion, commit].filter(Boolean).join(" · ");
+  // Stale-build notice (v4.3.1): the worker stamped the HTML with the build
+  // this page was SERVED with; when the live one differs, this tab's JS is
+  // an SPA-era relic and actions can misrender against the newer backend —
+  // offer the reload rather than let the tab silently misbehave. No stamp
+  // (older HTML, or the worker not yet deployed) never triggers the banner.
+  const served = document.querySelector('meta[name="app-build"]')?.content || "";
+  const live = [typeof info?.version === "string" ? info.version : "", commit].filter(Boolean).join("@");
+  if (served && live && served !== live) showStaleBuildBanner();
+  if (live) setInterval(() => {
+    // The stamp only drifts AFTER the tab has been open across a deploy — a
+    // boot-time check alone would always match. Re-check on a timer; the
+    // banner shows once and stays.
+    api("/api/version").then((info) => {
+      const now = [typeof info?.version === "string" ? info.version : "",
+        typeof info?.commit === "string" ? info.commit : ""].filter(Boolean).join("@");
+      if (now && now !== served) showStaleBuildBanner();
+    }).catch(() => { /* transient */ });
+  }, 60_000).unref?.();
+}
+
+// The banner shows once per page load; the reload button is a plain
+// location.reload() and the copy rides textContent — the CSP stays pure.
+let staleBuildBannerShown = false;
+function showStaleBuildBanner() {
+  if (staleBuildBannerShown || document.querySelector(".stale-build-banner")) return;
+  staleBuildBannerShown = true;
+  const bar = document.createElement("div");
+  bar.className = "stale-build-banner";
+  const note = document.createElement("span");
+  note.textContent = "The forum was updated while this page was open. Reload for the newest version.";
+  const reload = document.createElement("button");
+  reload.type = "button";
+  reload.className = "button button-secondary";
+  reload.textContent = "Reload";
+  reload.addEventListener("click", () => location.reload());
+  bar.append(note, reload);
+  document.body.prepend(bar);
 }
 
 try {

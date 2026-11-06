@@ -74,6 +74,8 @@ export const RATE_LIMIT_BINDINGS = Object.freeze({
 
 export const SEARCH_USERS_SQL =
   "SELECT id, username, role, bio, avatar_mime, avatar_updated_at, avatar_version FROM users " +
-  "WHERE instr(username_key, ?) > 0 OR instr(lower(bio), ?) > 0 ORDER BY username_key LIMIT 20";
+  // The WHERE group is parenthesized so appended rows (the blocks clause,
+  // v4.4) AND against the whole group, not just the right OR arm.
+  "WHERE (instr(username_key, ?) > 0 OR instr(lower(bio), ?) > 0) ORDER BY username_key LIMIT 20";
 
 export const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";

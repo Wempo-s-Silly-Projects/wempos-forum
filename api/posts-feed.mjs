@@ -28,6 +28,7 @@ import {
 import { readSession } from "./core/auth.mjs";
 import { HttpError, json } from "./core/http.mjs";
 import { POST_SELECT, postById, publicPost, VIEW_INCREMENT_SQL } from "./core/shapers.mjs";
+import { viewerBlockFilterSql } from "./core/blocks.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 
 export { POST_SELECT };
@@ -65,9 +66,13 @@ export function replySnippet(body) {
 // remaining canViewPost ancestor (the root) is guaranteed public by the feed's
 // own WHERE. Admin viewers (showAll) drop the member clauses, like everywhere
 // else counts run. Irrelevant rows from threads off this page group under ids
-// the map lookup simply never reads.
-export function replyCountsSql(ids, showAll) {
+// the map lookup simply never reads. Block pairs (v4.4) hide the pair's rows
+// from the counts the same way banFilterSql hides banned ones — bind order
+// follows SQL text order: ids, member bypasses, then the block viewer binds.
+export function replyCountsSql(ids, showAll, viewer = null) {
   const placeholders = ids.map(() => "?").join(", ");
+  const blockClause = showAll ? "" :
+    viewerBlockFilterSql(viewer, "r.author_id") + viewerBlockFilterSql(viewer, "l1.author_id");
   return "SELECT COALESCE(l1.parent_id, r.parent_id) AS thread_root, COUNT(*) AS reply_count " +
     "FROM posts r JOIN posts l1 ON l1.id = r.parent_id " +
     "WHERE (l1.parent_id IS NULL OR l1.parent_id IN (" + placeholders + ")) " +
@@ -75,22 +80,25 @@ export function replyCountsSql(ids, showAll) {
       ? "GROUP BY thread_root"
       : "AND ((r.visibility = 'public' AND " + banFilterSql("r") + ") OR r.author_id = ?) " +
         "AND (l1.parent_id IS NULL OR (l1.visibility = 'public' AND " + banFilterSql("l1") + ") OR l1.author_id = ?) " +
+        blockClause +
         "GROUP BY thread_root");
 }
 
 // Per root, at most the 3 most recent level-1 replies, ranked in SQL. Each row
 // also carries its sub-reply count with the same visibility semantics the
 // replies page exposes. Bind order follows SQL text order for members:
-// sub-count viewer id, then the root ids, then the level-1 viewer id.
-export function latestRepliesSql(ids, showAll) {
+// sub-count viewer id, then the root ids, then the level-1 viewer id, then the
+// block pair binds (v4.4) last.
+export function latestRepliesSql(ids, showAll, viewer = null) {
   const placeholders = ids.map(() => "?").join(", ");
   const subCountSelect = "(SELECT COUNT(*) FROM posts c WHERE c.parent_id = r.id" +
     (showAll
       ? ") AS sub_reply_count"
       : " AND ((c.visibility = 'public' AND " + banFilterSql("c") + ") OR c.author_id = ?)) AS sub_reply_count");
+  const blockClause = showAll ? "" : viewerBlockFilterSql(viewer, "r.author_id");
   const memberClause = showAll
     ? ""
-    : " AND ((r.visibility = 'public' AND " + banFilterSql("r") + ") OR r.author_id = ?)";
+    : " AND ((r.visibility = 'public' AND " + banFilterSql("r") + ") OR r.author_id = ?)" + blockClause;
   return "SELECT * FROM (" +
     "SELECT r.id, r.parent_id AS thread_root, r.body, r.created_at, r.author_id, " +
     "u.username AS author_username, u.avatar_mime AS author_avatar_mime, " +
@@ -110,10 +118,14 @@ export async function withReplyMetadata(db, viewer, posts) {
   // unbanned only".
   const showAll = false;
   const viewerId = viewer ? Number(viewer.id) : null;
-  const countsStatement = db.prepare(replyCountsSql(ids, showAll))
-    .bind(...(showAll ? ids : [...ids, -1, -1]));
-  const latestStatement = db.prepare(latestRepliesSql(ids, showAll))
-    .bind(...(showAll ? ids : [-1, ...ids, -1]));
+  // Blocks (v4.4): the pair's rows drop out of the counts and preview
+  // snippets too — mirroring the ban filter, not leaking through decoration.
+  const blockBinds = Boolean(viewerBlockFilterSql(viewer, "r.author_id"))
+    ? [viewerId, viewerId] : [];
+  const countsStatement = db.prepare(replyCountsSql(ids, showAll, viewer))
+    .bind(...(showAll ? ids : [...ids, -1, -1, ...blockBinds, ...blockBinds]));
+  const latestStatement = db.prepare(latestRepliesSql(ids, showAll, viewer))
+    .bind(...(showAll ? ids : [-1, ...ids, -1, ...blockBinds]));
   const [countResult, latestResult] = await Promise.all([countsStatement.all(), latestStatement.all()]);
   const replyCounts = new Map();
   for (const row of countResult.results || []) {
@@ -161,6 +173,13 @@ export async function listRootPosts(env, viewer, options = {}) {
   let sql = POST_SELECT + "WHERE p.parent_id IS NULL AND p.visibility = 'public' AND " +
     banFilterSql("p") + " ";
   const values = [viewerId || -1];
+  // Blocks (v4.4): both directions drop from every list — the pairs hide
+  // from each other's feeds. Bound right after POST_SELECT's viewer bind.
+  const rootBlockClause = viewerBlockFilterSql(viewer, "p.author_id");
+  if (rootBlockClause) {
+    sql += rootBlockClause;
+    values.push(viewerId, viewerId);
+  }
   if (options.byActivity) {
     // Feed order: most recently bumped conversation first, id as the tiebreaker.
     // Pagination walks the composite key (last_activity_at, id) so a shared
@@ -267,14 +286,16 @@ export async function listReplies(env, postId, viewer, showAll = false, before =
   const visibilityFilter = showAll
     ? ""
     : "AND ((p.visibility = 'public' AND " + banFilterSql("p") + ") OR p.author_id = ?) ";
+  const blockFilter = showAll ? "" : viewerBlockFilterSql(viewer, "p.author_id");
   const cursorFilter = before === null ? "" : "AND p.id < ? ";
   const sql = POST_SELECT + "WHERE p.parent_id = ? " + cursorFilter +
-    visibilityFilter + "ORDER BY p.id DESC LIMIT 101";
+    visibilityFilter + blockFilter + "ORDER BY p.id DESC LIMIT 101";
   const values = [viewerId || -1, postId];
   if (before !== null) values.push(before);
   // Nuke rule (v3.0.1): the author bypass binds -1 (never a real author id),
   // so the member clause reduces to "public and unbanned" for every viewer.
   if (!showAll) values.push(-1);
+  if (blockFilter) values.push(viewerId, viewerId);
   const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
   const rows = result.results || [];
   const hasMore = rows.length > 100;
@@ -359,13 +380,16 @@ export async function handlePostFeedRoute(request, env, url, path, method) {
 // per-reply query loop can exceed the Workers subrequest cap on busy roots.
 // Viewer visibility mirrors listReplies: admins see every child, everyone else
 // counts only public or their own. Results map back by statement order.
-export async function attachSubReplyCounts(env, replies, { showAll, viewerId }) {
+export async function attachSubReplyCounts(env, replies, { showAll, viewerId, viewer = null }) {
   if (!replies.length) return replies;
+  const blockFilter = showAll ? "" : viewerBlockFilterSql(viewer, "author_id");
   const countSql = "SELECT COUNT(*) AS sub_reply_count FROM posts WHERE parent_id = ?" +
-    (showAll ? "" : " AND ((visibility = 'public' AND " + banFilterSql("") + ") OR author_id = ?)");
+    (showAll ? "" : " AND ((visibility = 'public' AND " + banFilterSql("") + ") OR author_id = ?)" + blockFilter);
   const countResults = await env.FORUM_DB.batch(
     replies.map((reply) => env.FORUM_DB.prepare(countSql)
-      .bind(...(showAll ? [reply.id] : [reply.id, -1]))),
+      .bind(...(showAll
+        ? [reply.id]
+        : blockFilter ? [reply.id, -1, viewerId, viewerId] : [reply.id, -1]))),
   );
   return replies.map((reply, index) => {
     const countRow = countResults[index] && countResults[index].results
@@ -414,6 +438,7 @@ export async function handlePostDetailRoute(request, env, url, path, method) {
     post.replies = await attachSubReplyCounts(env, replyPage.replies, {
       showAll,
       viewerId,
+      viewer,
     });
     post.repliesNextBefore = replyPage.nextBefore;
     post.attachments = replyPage.attachments.get(Number(row.id)) || [];

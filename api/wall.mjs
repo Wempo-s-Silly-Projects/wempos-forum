@@ -6,7 +6,8 @@
 // background (a trip deletes the row; the action is appealable), and rows by
 // actively banned authors vanish at read time — read-time only, so an unban
 // restores the wall without any write.
-import { assertNotBanned, requireUser } from "./core/auth.mjs";
+import { assertNotBanned, readSession, requireUser } from "./core/auth.mjs";
+import { blockPairExists } from "./core/blocks.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicRole } from "./core/roles.mjs";
@@ -44,11 +45,19 @@ function publicWallPost(row) {
 }
 
 // GET /api/users/:id/wall — public. Pinned posts first (newest pin wins),
-// then unpinned newest-first.
+// then unpinned newest-first. Block pairs (v4.4) refuse the read both ways
+// ("they can't see your profile" covers the wall), except staff.
 async function handleWallReadRoute(request, env, url, path, method) {
   const match = path.match(/^\/api\/users\/([0-9]{1,15})\/wall$/);
   if (!match || method !== "GET") return null;
   const ownerId = Number(match[1]);
+  const session = await readSession(request, env);
+  const viewer = session && session.user ? session.user : null;
+  if (viewer && viewer.id !== ownerId &&
+    (viewer.role === "owner" || viewer.role === "admin" ||
+      await blockPairExists(env, viewer.id, ownerId))) {
+    throw new HttpError(403, "That wall is not available.");
+  }
   const rows = (await env.FORUM_DB.prepare(
     WALL_SELECT + "WHERE w.owner_id = ? AND " + WALL_BAN_FILTER_SQL +
     " ORDER BY (w.pinned_at IS NOT NULL) DESC, w.pinned_at DESC, w.id DESC " +
@@ -71,6 +80,11 @@ async function handleWallCreateRoute(request, env, url, path, method, ctx) {
     "SELECT id FROM users WHERE id = ? LIMIT 1",
   ).bind(ownerId).first();
   if (!owner) throw new HttpError(404, "That member does not exist.");
+  // Blocks (v4.4): neither side of a pair writes on the other's wall (staff
+  // included — their reads bypass, their writes don't).
+  if (await blockPairExists(env, session.user.id, ownerId)) {
+    throw new HttpError(403, "Wall posts are unavailable between you two.");
+  }
   const body = await readJson(request);
   const message = applyWordFilter(
     String(body.body ?? "").trim().slice(0, WALL_MAX_CHARS),

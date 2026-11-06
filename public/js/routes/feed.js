@@ -16,6 +16,7 @@ import {
 import { state } from "../state.js";
 import { renderHomeAccess } from "./auth.js";
 import { renderTotpSettings } from "./twofa.js";
+import { renderBlockedSettings } from "./blocks.js";
 import { createComposer } from "./composer.js";
 import { appendPostList } from "../render.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
@@ -110,6 +111,9 @@ function renderAccountSettings(session) {
   // off branch stages an authenticator secret, the on branch takes a disable
   // code. No recovery exists, by the feature's own spec.
   renderTotpSettings(account, session);
+  // Blocks (v4.4): the blocked-members list + Unblock controls ride the
+  // account settings area right after the two-factor section.
+  renderBlockedSettings(account, session);
   const deletePanel = createPanel("Delete your account",
     "This permanently deletes your account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo. Are you really sure?");
   const deleteButton = element("button", "button button-danger", "Delete account");

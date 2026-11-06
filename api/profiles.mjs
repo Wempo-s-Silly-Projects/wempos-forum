@@ -4,6 +4,7 @@
 // reports.mjs in Task 4. Everything else — profile read/update, password,
 // account deletion — stays here this plan.
 import { archivePostRowsStatement } from "./core/archive.mjs";
+import { blockPairExists } from "./core/blocks.mjs";
 import { assertNotBanned, readSession, requireStaff, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson, readLimitedBody, requireMutationApplied } from "./core/http.mjs";
@@ -58,13 +59,28 @@ async function handleUserProfileRoute(request, env, url, path, method) {
     ).bind(Number(user.id), nowSeconds()).first();
     const viewerIsStaff = Boolean(session && session.user &&
       (session.user.role === "owner" || session.user.role === "admin"));
+    const viewer = session && session.user ? session.user : null;
+    // Blocks (v4.4): a block pair (either direction) refuses the profile —
+    // "they can't see your profile" — without an error page. The client
+    // renders the unavailable strip; counts/list SQL never even run. Signed-
+    // in non-staff members only: staff keep full read access for desk work.
+    const viewerBlocked = Boolean(viewer && !viewerIsStaff &&
+      session.user.id !== Number(user.id) &&
+      (await blockPairExists(env, session.user.id, user.id)));
+    if (viewerBlocked) {
+      return json({
+        unavailable: true,
+        id: Number(user.id),
+        username: user.username,
+      });
+    }
     const beforeRaw = url.searchParams.get("before");
     let before = null;
     if (beforeRaw !== null) {
       if (!/^[1-9][0-9]{0,14}$/.test(beforeRaw)) throw new HttpError(400, "That page cursor is invalid.");
       before = Number(beforeRaw);
     }
-    const posts = await listRootPosts(env, session && session.user ? session.user : null, {
+    const posts = await listRootPosts(env, viewer, {
       authorId: Number(user.id),
       before,
     });

@@ -61,6 +61,7 @@ export async function handleRepliesReadRoute(request, env, url, path, method) {
       ? await attachSubReplyCounts(env, page.replies, {
         showAll: false,
         viewerId: viewer ? viewer.id : null,
+        viewer,
       })
       : page.replies;
     return json({ replies, nextBefore: page.nextBefore });

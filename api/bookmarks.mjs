@@ -8,6 +8,7 @@ import { assertNotBanned, requireSignedInRead, requireUser } from "./core/auth.m
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit } from "./core/http.mjs";
 import { postById, POST_SELECT, publicPost } from "./core/shapers.mjs";
+import { viewerBlockFilterSql } from "./core/blocks.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 import { attachmentRowsForView } from "./attachments.mjs";
 import { banFilterSql } from "./posts-feed.mjs";
@@ -59,6 +60,14 @@ async function handleBookmarkListRoute(request, env, url, path, method) {
     let sql = POST_SELECT + "JOIN bookmarks b ON b.post_id = p.id " +
       "WHERE b.user_id = ? AND p.visibility = 'public' AND " + banFilterSql("p") + " ";
     const values = [user.id, user.id];
+    // Blocks (v4.4): a saved post whose author is now block-paired with the
+    // viewer drops from the list (both directions) — a private list is still
+    // a place the pair's rows shouldn't surface. Staff keep their saved rows.
+    const blockFilter = viewerBlockFilterSql(user, "p.author_id");
+    if (blockFilter) {
+      sql += blockFilter;
+      values.push(user.id, user.id);
+    }
     if (before) {
       sql += "AND (b.created_at < ? OR (b.created_at = ? AND p.id < ?)) ";
       values.push(before.seconds, before.seconds, before.id);

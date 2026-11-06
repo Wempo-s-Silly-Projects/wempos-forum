@@ -203,6 +203,31 @@ async function pollRoom() {
   }
   const online = panel?.querySelector("[data-chat-online]");
   if (online) online.textContent = data.online + " online now";
+  // Who's online (v4.4): the roster of named members riding the same poll.
+  // Names link to profiles (plain anchors — the SPA router takes them); the
+  // roster caps at the server's 60, and the count stays authoritative.
+  const roster = panel?.querySelector("[data-chat-roster]");
+  if (roster) {
+    roster.replaceChildren();
+    const members = Array.isArray(data.onlineMembers) ? data.onlineMembers : [];
+    if (!members.length) {
+      roster.append(document.createTextNode(
+        data.online > 0 ? "Everyone else is lurking." : "Nobody is online right now."));
+    } else {
+      roster.append(document.createTextNode("Online now: "));
+      members.forEach((member, index) => {
+        if (index) roster.append(document.createTextNode(", "));
+        const link = document.createElement("a");
+        link.href = "/users/" + encodeURIComponent(member.username);
+        link.className = "chat-online-name";
+        link.textContent = member.username;
+        roster.append(link);
+      });
+      if (data.online > members.length) {
+        roster.append(document.createTextNode(" (+" + (data.online - members.length) + " unseen)"));
+      }
+    }
+  }
   // v4.2 badge feed: the bell count (mentions + DM rows) and the DM unread
   // dot ride the same poll. Beep/flash only on INCREASES.
   const bellUnread = Number(data.bellUnread || 0);
@@ -373,6 +398,12 @@ export function renderChatPage(host, user) {
   online.dataset.chatOnline = "";
   online.textContent = "";
   head.append(online);
+  // Who's online (v4.4): the named roster under the count — refreshed by
+  // every chat poll like the count itself.
+  const roster = document.createElement("div");
+  roster.className = "chat-roster";
+  roster.dataset.chatRoster = "";
+  head.append(roster);
 
   // Room/DMs tab pair — the same tab idiom as the feed's category tabs.
   const tabs = document.createElement("div");

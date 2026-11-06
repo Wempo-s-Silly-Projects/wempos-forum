@@ -2027,6 +2027,23 @@ dialog h2 {
 }
 .flagged-content-link { margin: 0.2rem 0; }
 
+/* Stale-build banner (v4.3.1): an SPA tab keeps the JS it loaded with across
+   deploys; the worker stamps every HTML response with its build and the
+   client offers the reload when it drifts from the live /api/version. */
+.stale-build-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.9rem;
+  background: var(--soft-green);
+  color: var(--green-dark);
+  border-bottom: 2px solid var(--green);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
 /* The moderation desk (v4.2 redesign): a section-routed panel — sidebar rail
    of dedicated pages + an overview board. Rail is sticky on desktop,
    chips-row on narrow widths (responsive.css owns the narrow layer). */
@@ -2090,3 +2107,26 @@ dialog h2 {
 .desk-tile-waiting .desk-tile-count { color: var(--coral-dark); }
 .desk-tile-count { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
 .desk-tile-label { font-size: 0.85rem; color: var(--muted); }
+
+/* Blocks (v4.4): the blocked-members settings list. */
+.blocked-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.blocked-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  background: var(--field);
+}
+.blocked-name { font-weight: 700; }
+
+/* Who's online roster (v4.4): the named list under the chat page count. */
+.chat-roster {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0.4rem 0 0;
+}
+.chat-online-name { font-weight: 700; color: var(--green-dark); text-decoration: none; }
+.chat-online-name:hover { text-decoration: underline; }

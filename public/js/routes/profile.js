@@ -32,6 +32,13 @@ import { renderProfileWall } from "../wall.js";
 async function renderProfileRoute(route, context, version) {
   const profile = await api(`/api/users/${encodeURIComponent(route.username)}`);
   if (version !== state.renderVersion) return;
+  // Blocks (v4.4): a block pair (either direction) refuses the profile —
+  // render the plain unavailable strip instead of the surface.
+  if (profile.unavailable) {
+    addHeading(main, "Profile unavailable", 1);
+    addText(document, main, "p", "This profile is not available to you.", "empty-state");
+    return;
+  }
   renderProfile(profile, context.session);
 }
 
@@ -138,6 +145,15 @@ function renderProfile(profile, session) {
     heading.append(element("span", "avatar-pending-badge", "Avatar awaiting review"));
   }
   if (session.user && session.user.id !== profile.id) {
+    // Blocks (v4.4): the Block toggle lives beside Message/Report. Once a
+    // pair exists this profile becomes unavailable (both directions), so the
+    // Unblock controls live in the account settings' blocked-members list.
+    const blockButton = element("button", "button button-quiet", "Block");
+    blockButton.type = "button";
+    blockButton.dataset.action = "block-user";
+    blockButton.dataset.profileId = String(profile.id);
+    blockButton.dataset.username = profile.username;
+    heading.append(blockButton);
     // DMs (v3.1): the conversation starter — find-or-creates the 1:1 thread
     // and opens the chat panel on it. The word filter and desk review apply
     // to DMs exactly like the public room.
@@ -327,6 +343,24 @@ function openDeletePostDialog(button) {
   );
 }
 
+// Blocks (v4.4): the confirm dialog spells out the pairing — a block hides
+// BOTH members from each other (this profile becomes unavailable on success,
+// so the route re-render lands on the unavailable strip).
+function openBlockDialog(button) {
+  const userId = Number(button.dataset.profileId);
+  const username = button.dataset.username || "this member";
+  openConfirmDialog(
+    `Block @${username}?`,
+    "You will no longer see their posts, and they can no longer see your profile or posts, reply, react, or message. You can undo it from your account settings.",
+    async () => {
+      await api(`/api/users/${userId}/block`, { method: "POST" });
+      confirmDialog.close();
+      await state.renderRoute(state.activeRoute);
+      setMessage(`Blocked @${username}.`);
+    },
+  );
+}
+
 // Account deletion (v2.4.1 feature): POST /api/me/delete removes the account
 // and everything it owns server-side. The dialog copy states the full blast
 // radius — including other people's replies inside the account's own threads —
@@ -367,6 +401,7 @@ export const ACTIONS = {
   "load-more-profile-posts": (button) => loadMoreProfilePosts(button),
   "delete-post": (button) => openDeletePostDialog(button),
   "delete-account": () => openDeleteAccountDialog(),
+  "block-user": (button) => openBlockDialog(button),
     "save-profile-css": async (button) => {
       // Custom CSS (v2.5): POST the textarea's raw css to /api/me/css; it
       // lands pending for a mod. The note is review-first wording.

@@ -20,6 +20,8 @@ const PRESENCE_WINDOW_SECONDS = 180;
 const CHAT_PAGE_LIMIT = 50;
 const CHAT_MAX_CHARS = 500;
 const ADMIN_CHAT_PAGE_LIMIT = 100;
+// The who's-online roster (v4.4) names at most this many members per poll.
+const ONLINE_ROSTER_LIMIT = 60;
 
 // Read-time active-ban filter for chat rows: same shape as banFilterSql, but
 // chat_messages keys the author by user_id, not author_id.
@@ -82,6 +84,19 @@ async function handleChatReadRoute(request, env, url, path, method) {
   const onlineRow = await db.prepare(
     "SELECT COUNT(*) AS online FROM presence WHERE invisible = 0 AND last_seen > ?",
   ).bind(nowSeconds() - PRESENCE_WINDOW_SECONDS).first();
+  // Who's online (v4.4, owner's ask): the same window, naming the visible
+  // (non-lurking) members so the chat page can list them. Actively-banned
+  // members drop out at read (heartbeats already stopped at the ban, so this
+  // only tightens the lapse window). Invisible members stay off the list,
+  // exactly matching the public counter.
+  const onlineMemberRows = (await db.prepare(
+    "SELECT p.user_id AS id, u.username, u.role " +
+    "FROM presence p JOIN users u ON u.id = p.user_id " +
+    "WHERE p.invisible = 0 AND p.last_seen > ? " +
+    "AND NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = u.id AND b.revoked_at IS NULL " +
+    "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER))) " +
+    "ORDER BY u.username LIMIT " + ONLINE_ROSTER_LIMIT,
+  ).bind(nowSeconds() - PRESENCE_WINDOW_SECONDS).all()).results || [];
   // Signed-in extras (v4.2): the DM unread total and the bell's unread count
   // ride the SAME response, so the global 15s chat poll keeps both badges
   // fresh with no extra requests. Guests get zeros.
@@ -104,6 +119,15 @@ async function handleChatReadRoute(request, env, url, path, method) {
     // lastId drives the next poll's cursor; 0 when the stream is empty.
     lastId: messages.length ? Number(messages[messages.length - 1].id) : (after || 0),
     online: Number(onlineRow?.online || 0),
+    // Who's online (v4.4): the roster the count describes — same window,
+    // same invisible-mode rules. The count can exceed the list's length
+    // (roster caps at 60; the count itself is uncapped).
+    onlineMembers: onlineMemberRows.map((row) => ({
+      id: Number(row.id),
+      username: row.username,
+      // Mapped public role ('owner'/'admin'), null for members.
+      role: row.role ? publicRole(row.role) : null,
+    })),
     dmUnread,
     bellUnread,
   });

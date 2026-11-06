@@ -9,6 +9,13 @@
 // sentinel); the only in-app door is the desk's hidden-posts page
 // (GET /api/admin/hidden). An expired or revoked ban restores content
 // without any write ("now" stays SQL-computed and bind-free).
+//
+// Member blocks (v4.4): a block pair hides post content between the two
+// members in BOTH directions — the blockee can't read the blocker's posts
+// (or interact with them: reactions/replies gate here too) and the blocker
+// doesn't see the blockee's. Staff bypass, like the ban check, so desk
+// review never breaks on a member block.
+import { blockPairExists } from "./blocks.mjs";
 export async function canViewPost(env, row, viewer) {
   if (!row) return false;
   const isStaff = Boolean(viewer && (viewer.role === "owner" || viewer.role === "admin"));
@@ -18,6 +25,11 @@ export async function canViewPost(env, row, viewer) {
     "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1",
   ).bind(Number(row.author_id)).first();
   if (bannedAuthor && !isStaff) return false;
+  // Blocks (v4.4): both directions — a signed-in non-staff viewer is cut off
+  // from a blocked member's content (and the blockee from the blocker's).
+  if (!isStaff && viewer && viewer.id) {
+    if (await blockPairExists(env, viewer.id, row.author_id)) return false;
+  }
   // Every ancestor up to the root (parent, and the grandparent root for
   // level-2 replies) must be viewable: hidden ancestors never leak through a
   // public reply chain. The same mod-only rule applies per ancestor.
@@ -32,6 +44,9 @@ export async function canViewPost(env, row, viewer) {
       "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1",
     ).bind(Number(ancestor.author_id)).first();
     if (ancestorBanned && !isStaff) return false;
+    if (!isStaff && viewer && viewer.id) {
+      if (await blockPairExists(env, viewer.id, ancestor.author_id)) return false;
+    }
     ancestorId = ancestor.parent_id;
   }
   return true;
