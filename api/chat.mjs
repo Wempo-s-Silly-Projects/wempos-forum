@@ -6,10 +6,11 @@
 // member-written text; messages by actively banned members vanish at read
 // time (the same semantics as posts, banFilterSql's shape scoped to
 // chat_messages.user_id); staff can delete any message.
-import { assertNotBanned, requireUser, requireStaff } from "./core/auth.mjs";
+import { assertNotBanned, readSession, requireUser, requireStaff } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicRole } from "./core/roles.mjs";
+import { mentionFanOutStatements } from "./mentions.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { scheduleTextCheck } from "./textmod.mjs";
 
@@ -81,11 +82,30 @@ async function handleChatReadRoute(request, env, url, path, method) {
   const onlineRow = await db.prepare(
     "SELECT COUNT(*) AS online FROM presence WHERE invisible = 0 AND last_seen > ?",
   ).bind(nowSeconds() - PRESENCE_WINDOW_SECONDS).first();
+  // Signed-in extras (v4.2): the DM unread total and the bell's unread count
+  // ride the SAME response, so the global 15s chat poll keeps both badges
+  // fresh with no extra requests. Guests get zeros.
+  const session = await readSession(request, env).catch(() => null);
+  let dmUnread = 0;
+  let bellUnread = 0;
+  if (session && session.user) {
+    const dmRow = await db.prepare(
+      "SELECT COALESCE(SUM(CASE WHEN user_a = ? THEN unread_a ELSE unread_b END), 0) AS unread " +
+      "FROM dm_threads WHERE user_a = ? OR user_b = ?",
+    ).bind(session.user.id, session.user.id, session.user.id).first();
+    dmUnread = Number(dmRow?.unread || 0);
+    const bellRow = await db.prepare(
+      "SELECT COUNT(*) AS unread FROM notifications WHERE user_id = ? AND read_at IS NULL",
+    ).bind(session.user.id).first();
+    bellUnread = Number(bellRow?.unread || 0);
+  }
   return json({
     messages: messages.map(publicChatMessage),
     // lastId drives the next poll's cursor; 0 when the stream is empty.
     lastId: messages.length ? Number(messages[messages.length - 1].id) : (after || 0),
     online: Number(onlineRow?.online || 0),
+    dmUnread,
+    bellUnread,
   });
 }
 
@@ -113,6 +133,18 @@ async function handleChatCreateRoute(request, env, url, path, method, ctx) {
     kind: "chat", entityId: Number(result.meta?.last_row_id),
     userId: session.user.id, text: message,
   });
+  // @mention pings (v4.2): chat bodies notify through the same fan-out as
+  // posts — label-only rows (no post to click through). Never fails the send.
+  try {
+    const mentionStatements = await mentionFanOutStatements(env.FORUM_DB, message, {
+      actorId: session.user.id, now: nowSeconds(),
+      actorUsername: session.user.username,
+      label: "You were mentioned by " + session.user.username + " in chat",
+    });
+    if (mentionStatements.length > 0) await env.FORUM_DB.batch(mentionStatements);
+  } catch {
+    // Mentions are a convenience, not a chat precondition.
+  }
   return json({ message: publicChatMessage(row) }, 201);
 }
 

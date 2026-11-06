@@ -4,8 +4,9 @@
 // their own messages, and staff can delete anything. Per the owner's call
 // ("same scrutiny as posts"), the desk also gets the full DM LOG — every
 // message with both participants named — so DMs are reviewable, not a blind
-// spot. No unread tracking in v1: the conversation list sorts by the latest
-// message.
+// spot. Unread tracking (v4.2): per-participant counters on the thread row
+// (migration 0038), zeroed by reading the thread; the bell also carries one
+// unread "New DM from X" row at a time per thread label.
 import { assertNotBanned, requireSignedInRead, requireUser, requireStaff } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
@@ -61,8 +62,8 @@ async function dmThreadFor(env, threadId) {
 }
 
 // The member's conversation list: every thread they participate in, sorted by
-// the latest message (empty threads sort last), each with the other member
-// and a last-message preview.
+// the latest message (empty threads sort last), each with the other member, a
+// last-message preview, and their unread message count (v4.2).
 async function handleDmListRoute(request, env, url, path, method) {
   if (path !== "/api/dms" || method !== "GET") return null;
   // GETs carry no CSRF header (the frontend only attaches one to mutating
@@ -72,10 +73,11 @@ async function handleDmListRoute(request, env, url, path, method) {
     "SELECT t.id, t.user_a, t.user_b, a.username AS user_a_name, b.username AS user_b_name, " +
     "(SELECT MAX(m2.id) FROM dm_messages m2 WHERE m2.thread_id = t.id) AS last_message_id, " +
     "(SELECT m2.body FROM dm_messages m2 WHERE m2.thread_id = t.id ORDER BY m2.id DESC LIMIT 1) AS last_body, " +
-    "(SELECT m2.created_at FROM dm_messages m2 WHERE m2.thread_id = t.id ORDER BY m2.id DESC LIMIT 1) AS last_at " +
+    "(SELECT m2.created_at FROM dm_messages m2 WHERE m2.thread_id = t.id ORDER BY m2.id DESC LIMIT 1) AS last_at, " +
+    "CASE WHEN t.user_a = ? THEN t.unread_a ELSE t.unread_b END AS unread_for_me " +
     "FROM dm_threads t JOIN users a ON a.id = t.user_a JOIN users b ON b.id = t.user_b " +
     "WHERE t.user_a = ? OR t.user_b = ? ORDER BY last_message_id DESC",
-  ).bind(session.user.id, session.user.id).all()).results || [];
+  ).bind(session.user.id, session.user.id, session.user.id).all()).results || [];
   return json({
     threads: rows.map((row) => ({
       id: Number(row.id),
@@ -84,6 +86,7 @@ async function handleDmListRoute(request, env, url, path, method) {
       lastAt: row.last_at === null || row.last_at === undefined
         ? null
         : new Date(Number(row.last_at) * 1000).toISOString(),
+      unread: Number(row.unread_for_me || 0),
     })),
   });
 }
@@ -136,6 +139,12 @@ async function handleDmThreadRoute(request, env, url, path, method, ctx) {
   if (!isParticipant) throw new HttpError(403, "That conversation is not yours to read.");
 
   if (method === "GET") {
+    // Reading the thread IS reading your messages: the viewer's unread flag
+    // zeroes here, guarded so a clean thread never pays a write on poll.
+    const mine = Number(thread.user_a) === Number(session.user.id) ? "unread_a" : "unread_b";
+    await env.FORUM_DB.prepare(
+      "UPDATE dm_threads SET " + mine + " = 0 WHERE id = ? AND " + mine + " <> 0",
+    ).bind(threadId).run();
     const afterRaw = url.searchParams.get("after");
     let after = null;
     if (afterRaw !== null && afterRaw !== "") {
@@ -156,6 +165,7 @@ async function handleDmThreadRoute(request, env, url, path, method, ctx) {
       messages: messages.map(publicDmMessage),
       lastId: messages.length ? Number(messages[messages.length - 1].id) : (after || 0),
       otherUser: otherParticipant(thread, session.user.id),
+      unread: 0,
     });
   }
 
@@ -170,6 +180,29 @@ async function handleDmThreadRoute(request, env, url, path, method, ctx) {
     const result = await env.FORUM_DB.prepare(
       "INSERT INTO dm_messages (thread_id, user_id, body, created_at) VALUES (?, ?, ?, ?)",
     ).bind(threadId, session.user.id, message, nowSeconds()).run();
+    // Unread counters (v4.2): sending IS reading your own thread — the
+    // sender's flag zeroes while the recipient's climbs. The bell gets a
+    // "New DM" row too, but AT MOST ONE unread copy (an unread same-label row
+    // suppresses the next insert until the member reads their bell — the
+    // badge still counts real messages through unread_a/b).
+    const senderIsA = Number(thread.user_a) === Number(session.user.id);
+    await env.FORUM_DB.batch([
+      env.FORUM_DB.prepare(
+        "UPDATE dm_threads SET " + (senderIsA ? "unread_b = unread_b + 1, unread_a = 0" : "unread_a = unread_a + 1, unread_b = 0") +
+        " WHERE id = ?",
+      ).bind(threadId),
+      env.FORUM_DB.prepare(
+        "INSERT INTO notifications (user_id, target_post_id, reply_id, created_at, label) " +
+        "SELECT ?, NULL, NULL, ?, ? WHERE NOT EXISTS (" +
+        "SELECT 1 FROM notifications WHERE user_id = ? AND read_at IS NULL AND label = ? LIMIT 1)",
+      ).bind(
+        senderIsA ? thread.user_b : thread.user_a,
+        nowSeconds(),
+        "New DM from " + session.user.username,
+        senderIsA ? thread.user_b : thread.user_a,
+        "New DM from " + session.user.username,
+      ),
+    ]);
     const row = await env.FORUM_DB.prepare(
       DM_MESSAGE_SELECT + "WHERE m.id = ? LIMIT 1",
     ).bind(Number(result.meta?.last_row_id)).first();
