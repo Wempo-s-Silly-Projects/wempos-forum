@@ -61,7 +61,9 @@ function createAppealQueue(appeals, document) {
       addText(document, card, "p",
         "Flagged content: " + (appeal.contentPreview || appeal.postBody), "flagged-content");
     }
-    if (appeal.kind === "auto_text" && appeal.entityKind === "post" && appeal.entityId) {
+    // entityId is only mapped for post appeals server-side — checking it
+    // directly (no entityKind on the payload).
+    if (appeal.kind === "auto_text" && appeal.entityId) {
       addText(document, card, "p", "Original post:", "muted");
       const view = document.createElement("a");
       view.className = "button button-quiet flagged-content-link";

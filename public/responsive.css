@@ -89,6 +89,26 @@ table,
 
 /* ---- rung 2: phone (≤ 640px) ---- */
 @media (max-width: 640px) {
+  /* The desk (v4.2): the sidebar rail becomes a horizontally scrollable
+     chip row above the section content; tiles breathe with the columns. */
+  .desk-shell { display: block; }
+  .desk-nav { position: static; margin-bottom: 0.6rem; }
+  .desk-nav-list {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 0.3rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .desk-nav-link {
+    white-space: nowrap;
+    border: 1px solid var(--line);
+    background: var(--field);
+  }
+  .desk-nav-active, .desk-nav-active:hover { border-color: var(--green); }
+  .desk-status { grid-template-columns: 1fr; }
+  .desk-tiles { grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); }
+}
+
   /* Full-width single column everywhere. */
   .header-inner,
   .main-content,

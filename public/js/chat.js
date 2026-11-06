@@ -13,6 +13,8 @@ import { api } from "./api.js";
 import { addHeading, main, setMessage } from "./dom.js";
 import { addText } from "./forms.js";
 import { createIcon } from "./icons.js";
+// The bell badge (DMs/mentions ride the real notification system, v4.2).
+import { updateBell } from "./notifications.js";
 import { state } from "./state.js";
 
 const HEARTBEAT_INTERVAL_MS = 60_000;
@@ -27,6 +29,8 @@ let heartbeatTimer = null;
 let activeTab = "room";
 let dmThread = null; // { id, otherUser: { id, username } }
 let pendingDmThread = null; // opened from a profile while off-route
+let lastDmUnread = null; // beep/flash only on INCREASES, never at boot
+let lastBellUnread = null;
 
 function isInvisiblePref() {
   try { return window.localStorage.getItem("forum-invisible") === "true"; }
@@ -35,6 +39,15 @@ function isInvisiblePref() {
 
 function saveInvisiblePref(value) {
   try { window.localStorage.setItem("forum-invisible", String(value)); } catch {}
+}
+
+function isPingMuted() {
+  try { return window.localStorage.getItem("forum-chat-muted") === "true"; }
+  catch { return false; }
+}
+
+function savePingMuted(value) {
+  try { window.localStorage.setItem("forum-chat-muted", String(value)); } catch {}
 }
 
 // The header link: chat icon + the live online count (visible to guests
@@ -56,8 +69,55 @@ export const createChatButton = (document) => {
   count.dataset.chatCount = "";
   count.textContent = "0";
   link.append(count);
+  // Unread-DM dot (v4.2): lives beside the count; hidden until unread DMs
+  // arrive, pulses on a new one (the ping alert).
+  const dot = document.createElement("span");
+  dot.className = "chat-unread-dot";
+  dot.dataset.chatUnread = "";
+  dot.hidden = true;
+  link.append(dot);
   return link;
 };
+
+// The unread badge + ping alert: dot on every chat button, flash animation,
+// and a short Web Audio blip (no asset, no Notification permission). Muted
+// state is client-stored like invisible mode.
+function setDmUnread(unread) {
+  const increased = lastDmUnread !== null && unread > lastDmUnread;
+  lastDmUnread = unread;
+  for (const dot of document.querySelectorAll("[data-chat-unread]")) {
+    dot.hidden = unread === 0;
+    dot.setAttribute("aria-hidden", "true");
+    if (increased && unread > 0) {
+      dot.classList.remove("chat-unread-pulse");
+      void dot.offsetWidth; // restart the CSS animation
+      dot.classList.add("chat-unread-pulse");
+    }
+  }
+  if (increased && unread > 0 && !isPingMuted()) playPing();
+  // Also flash the mobile Alerts bell? Mentions ride the bell — pulse it too.
+}
+
+let audioContext = null;
+function playPing() {
+  try {
+    audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioContext.state === "suspended") audioContext.resume();
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, audioContext.currentTime);
+    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.08, audioContext.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.28);
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.3);
+  } catch {
+    // No audio context (policy, autoplay): the visual pulse still fired.
+  }
+}
 
 // One message row, shared by the room and DM threads. kind picks the delete
 // control: room messages delete staff-only; DM messages delete for the
@@ -65,6 +125,10 @@ export const createChatButton = (document) => {
 function renderChatMessage(document, list, message, user, kind) {
   const row = document.createElement("div");
   row.className = "chat-message";
+  // Your own messages align right in a filled bubble (v4.2, both surfaces).
+  const staff = Boolean(user && (user.role === "owner" || user.role === "admin"));
+  const own = Boolean(user && Number(user.id) === Number(message.author.id));
+  if (own) row.classList.add("chat-mine");
   // Room and DM ids come from different tables — distinct dataset keys keep
   // the two delete handlers from ever crossing streams.
   if (kind === "dm") row.dataset.dmMessageId = String(message.id);
@@ -90,8 +154,6 @@ function renderChatMessage(document, list, message, user, kind) {
   body.className = "chat-message-body";
   body.textContent = message.body;
   row.append(body);
-  const staff = Boolean(user && (user.role === "owner" || user.role === "admin"));
-  const own = Boolean(user && Number(user.id) === Number(message.author.id));
   if (kind === "dm" ? (staff || own) : staff) {
     const remove = document.createElement("button");
     remove.type = "button";
@@ -141,6 +203,14 @@ async function pollRoom() {
   }
   const online = panel?.querySelector("[data-chat-online]");
   if (online) online.textContent = data.online + " online now";
+  // v4.2 badge feed: the bell count (mentions + DM rows) and the DM unread
+  // dot ride the same poll. Beep/flash only on INCREASES.
+  const bellUnread = Number(data.bellUnread || 0);
+  if (bellUnread !== lastBellUnread) {
+    lastBellUnread = bellUnread;
+    updateBell(bellUnread);
+  }
+  setDmUnread(Number(data.dmUnread || 0));
   if (panel?.isConnected && activeTab === "room") {
     appendRoomMessages(data.messages);
   } else if (Number(data.lastId) > lastId) {
@@ -166,7 +236,7 @@ async function refreshDmList() {
   for (const thread of data.threads) {
     const row = document.createElement("button");
     row.type = "button";
-    row.className = "dm-thread-row";
+    row.className = "dm-thread-row" + (Number(thread.unread || 0) > 0 ? " dm-thread-unread" : "");
     row.dataset.action = "dm-open-thread";
     row.dataset.threadId = String(thread.id);
     row.dataset.otherUsername = thread.otherUser.username;
@@ -179,6 +249,14 @@ async function refreshDmList() {
       ? thread.lastBody
       : (thread.lastAt ? "" : "No messages yet");
     row.append(name, preview);
+    // Per-conversation unread count (v4.2) — like a phone thread badge.
+    const unread = Number(thread.unread || 0);
+    if (unread > 0) {
+      const badge = document.createElement("span");
+      badge.className = "dm-thread-badge";
+      badge.textContent = String(unread);
+      row.append(badge);
+    }
     list.append(row);
   }
   host.replaceChildren(list);
@@ -326,6 +404,17 @@ export function renderChatPage(host, user) {
   });
   lurk.append(invisibleBox, document.createTextNode(" Invisible — don't count me online"));
   head.append(lurk);
+
+  // The ping alert's mute (v4.2): client-stored; the dot/flash always fire,
+  // this only silences the sound.
+  const mute = document.createElement("label");
+  mute.className = "chat-lurk";
+  const muteBox = document.createElement("input");
+  muteBox.type = "checkbox";
+  muteBox.checked = isPingMuted();
+  muteBox.addEventListener("change", () => savePingMuted(muteBox.checked));
+  mute.append(muteBox, document.createTextNode(" Mute the ping sound"));
+  head.append(mute);
 
   // The public room.
   const room = document.createElement("div");

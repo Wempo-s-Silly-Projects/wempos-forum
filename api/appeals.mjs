@@ -146,7 +146,7 @@ async function handleAppealAdminRoutes(request, env, url, path, method) {
     const result = await db.prepare(
       "SELECT a.id, a.user_id, a.kind, a.body, a.status, a.created_at, a.decided_at, " +
         "a.action_id, a.ban_id, u.username, " +
-        "m.reason AS action_reason, m.entity_kind AS entity_kind, m.hash AS action_hash, " +
+        "m.reason AS action_reason, m.entity_kind AS entity_kind, m.entity_id, m.hash AS action_hash, " +
         "m.verdicts AS action_verdicts, m.content_preview AS content_preview, " +
         "p.body AS post_body, " +
         "b.reason AS ban_reason, b.expires_at AS ban_expires_at " +

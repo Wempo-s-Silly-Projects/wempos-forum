@@ -6,7 +6,12 @@ export const isPlainLeftClick = (event) =>
 
 export const routeForPath = (pathname, search = "") => {
   if (pathname === "/setup") return { name: "setup" };
-  if (pathname === "/admin/reports") return { name: "admin" };
+  // The moderation desk (v4.2): a section-routed panel — /admin is the
+  // overview, /admin/<slug> a dedicated page. Unknown slugs still route (the
+  // desk falls back to the overview) so old links like /admin/reports keep
+  // working as the reports section.
+  const adminSection = pathname.match(/^\/admin(?:\/([\w-]+))?$/);
+  if (adminSection) return { name: "admin", section: adminSection[1] || "dashboard" };
   if (pathname === "/notifications") return { name: "notifications" };
   if (pathname === "/bookmarks") return { name: "bookmarks" };
   if (pathname === "/appeals") return { name: "appeals" };

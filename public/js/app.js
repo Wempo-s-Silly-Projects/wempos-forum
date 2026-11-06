@@ -220,7 +220,7 @@ async function renderRoute(route) {
     archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
-    admin: () => renderAdminRoute(context, version),
+    admin: () => renderAdminRoute(route, context, version),
     appeals: () => renderAppealsRoute(context, version),
     notifications: () => renderNotificationsRoute(context, version),
     bookmarks: () => renderBookmarksRoute(context, version),

@@ -27,72 +27,222 @@ import {
 } from "../desk/media.js";
 import { createReportQueue } from "../desk/reports.js";
 
-async function renderAdminRoute(context, version) {
-  const [reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, appeals, vision, textMod, chat, dms] = await Promise.all([
+// The desk (v4.2 redesign): /admin is a section-routed panel — a sidebar rail
+// of dedicated pages (each loading exactly one desk payload) plus a dashboard
+// overview that counts every queue and shows what actually needs staff eyes.
+// The old single page stacked all fourteen payloads fetch-at-once; sections
+// keep the same endpoint surface, just one fetch per visit.
+const DESK_SECTIONS = [
+  { slug: "dashboard", label: "Overview" },
+  { slug: "reports", label: "Post reports" },
+  { slug: "profile-reports", label: "Profile reports" },
+  { slug: "appeals", label: "Appeals" },
+  { slug: "images", label: "Images" },
+  { slug: "avatars", label: "Avatars" },
+  { slug: "gifs", label: "GIF library" },
+  { slug: "css", label: "Profile CSS" },
+  { slug: "hidden", label: "Hidden posts" },
+  { slug: "bans", label: "Bans & members" },
+  { slug: "automod", label: "Auto-mod" },
+  { slug: "chat-log", label: "Chat log" },
+  { slug: "dm-log", label: "DM log" },
+  { slug: "rules", label: "Rules" },
+];
+
+// slug → { lede, load(), build() }. Every build() appends the section's body
+// to `main` after the shell; each loads only what it renders.
+const DESK_BUILDERS = {
+  "reports": {
+    lede: "Open post reports, newest first — resolve, ban, or dismiss.",
+    load: () => api("/api/admin/reports"),
+    build: (data, user) => createReportQueue(data.reports, document, user),
+  },
+  "profile-reports": {
+    lede: "Reported profiles — resolve, view, or ban the reported member.",
+    load: () => api("/api/admin/profile-reports"),
+    build: (data) => createProfileReportQueue(data.profileReports, document),
+  },
+  "appeals": {
+    lede: "Second looks at auto-mod removals and bans. Approve or deny — approval always notifies the member.",
+    load: () => api("/api/admin/appeals"),
+    build: (data) => createAppealQueue(data.appeals, document),
+  },
+  "images": {
+    lede: "Attachments awaiting review. Author sees their own pending images; approve makes them public.",
+    load: () => api("/api/admin/attachments"),
+    build: (data) => createAttachmentQueue(data.attachments, document),
+  },
+  "avatars": {
+    lede: "Avatar uploads awaiting review. The previous avatar keeps serving until you decide.",
+    load: () => api("/api/admin/avatars"),
+    build: (data) => createAvatarQueue(data.avatars, document),
+  },
+  "gifs": {
+    lede: "GIF submissions for the shared library.",
+    load: () => api("/api/admin/gifs"),
+    build: (data) => createGifQueue(data.gifs, document),
+  },
+  "css": {
+    lede: "Custom profile CSS awaiting review. Approved themes serve scoped and sandboxed.",
+    load: () => api("/api/admin/css"),
+    build: (data) => createCssQueue(data.cssSubmissions, document),
+  },
+  "hidden": {
+    lede: "Hidden posts and everything by actively banned members, bodies included.",
+    load: () => api("/api/admin/hidden"),
+    build: (data) => createHiddenPostsQueue(data.hidden, document),
+  },
+  "bans": {
+    lede: "Active bans with unban forms, plus member search to act on anyone directly.",
+    load: () => api("/api/admin/bans"),
+    build: (data, user) => [
+      createActiveBanList(data.bans, document),
+      createMemberSearch(document),
+    ],
+  },
+  "automod": {
+    lede: "Both auto-mod subsystems live here: Vision for pixels, OpenAI for text. Each has its own kill switch, independent of the API keys.",
+    load: async () => [await api("/api/admin/vision"), await api("/api/admin/text-mod")],
+    build: ([visionData, textModData], user) => [
+      createVisionSection(visionData, document),
+      createTextModSection(textModData, document),
+    ],
+  },
+  "chat-log": {
+    lede: "The full public chat stream — banned authors included, deletable in place.",
+    load: () => api("/api/admin/chat"),
+    build: (data) => createChatLog(data.messages, document),
+  },
+  "dm-log": {
+    lede: "The full 1:1 stream with both participants named — same scrutiny as the chat.",
+    load: () => api("/api/admin/dms"),
+    build: (data) => createDmLog(data.messages, document),
+  },
+  "rules": {
+    lede: "The site copy every /rules visitor reads — markdown subset, word-filtered.",
+    load: () => api("/api/rules"),
+    build: (data) => createRulesEditor(data.rules, document),
+  },
+};
+
+async function renderAdminRoute(route, context, version) {
+  const user = context.session.user;
+  const staff = Boolean(user && (user.role === "owner" || user.role === "admin"));
+  if (!staff) {
+    addHeading(main, "Moderation desk", 1);
+    addText(document, main, "p", "Only staff can use the desk.", "muted");
+    return;
+  }
+  const slug = DESK_BUILDERS[route.section] ? route.section : "dashboard";
+  const content = renderAdminShell(user, slug);
+  if (slug !== "dashboard") {
+    const section = DESK_BUILDERS[slug];
+    const data = await section.load();
+    if (version !== state.renderVersion) return;
+    addHeading(content, DESK_SECTIONS.find((s) => s.slug === slug).label, 1);
+    addText(document, content, "p", section.lede, "page-lede");
+    const body = section.build(data, user);
+    for (const node of Array.isArray(body) ? body : [body]) {
+      node && content.append(node);
+    }
+    return;
+  }
+  // Dashboard: count every work queue and surface what actually needs eyes —
+  // status cards first, then the queue tiles.
+  const [reports, appeals, attachments, avatars, gifs, css, profileReports, hidden, vision, textMod] = await Promise.all([
     api("/api/admin/reports"),
-    api("/api/admin/bans"),
-    api("/api/admin/avatars"),
+    api("/api/admin/appeals"),
     api("/api/admin/attachments"),
+    api("/api/admin/avatars"),
+    api("/api/admin/gifs"),
     api("/api/admin/css"),
     api("/api/admin/profile-reports"),
-    api("/api/admin/gifs"),
-    api("/api/rules"),
     api("/api/admin/hidden"),
-    api("/api/admin/appeals"),
     api("/api/admin/vision"),
     api("/api/admin/text-mod"),
-    api("/api/admin/chat"),
-    api("/api/admin/dms"),
   ]);
   if (version !== state.renderVersion) return;
-  renderAdmin(reports, bans, avatars, attachments, css, profileReports, gifs, rules, hidden, context.session.user, appeals, vision, textMod, chat, dms);
+  addHeading(content, "Overview", 1);
+  addText(document, content, "p",
+    "Everything the desk watches, one glance: the queues with work show their counts, the auto-mod twins report their state. " +
+    "Open a section from the rail to work it.", "page-lede");
+  const counts = {
+    "reports": reports.reports.length,
+    "appeals": appeals.appeals.filter((a) => a.status === "pending").length,
+    "images": attachments.attachments.length,
+    "avatars": avatars.avatars.length,
+    "gifs": gifs.gifs.length,
+    "css": css.cssSubmissions.length,
+    "profile-reports": profileReports.profileReports.length,
+    "hidden": hidden.hidden.length,
+  };
+  content.append(createDashboardBoard(
+    DESK_SECTIONS
+      .filter((s) => s.slug !== "dashboard" && DESK_BUILDERS[s.slug])
+      .map((s) => ({ slug: s.slug, label: s.label, count: counts[s.slug] })),
+    vision, textMod, document,
+  ));
 }
 
-function renderAdmin(reportData, banData, avatarData, attachmentData, cssData, profileReportData, gifData, rulesData, hiddenData, user, appealData, visionData, textModData, chatData, dmData) {
-  addHeading(main, "Moderation desk", 1);
-  addText(document, main, "p", "Review reports, hide inappropriate posts, and manage active bans.", "page-lede");
-  // Auto-mod control (v3.1): the status line + THE kill switch, front and
-  // center so stopping Vision never takes more than one click.
-  addHeading(main, "Auto-mod (Google Vision)", 2);
-  main.append(createVisionSection(visionData, document));
-  // Text auto-mod control (v3.1): the OpenAI Moderation twin — its own kill
-  // switch, independent of Vision's.
-  addHeading(main, "Auto-mod (OpenAI text moderation)", 2);
-  main.append(createTextModSection(textModData, document));
-  addHeading(main, "Open reports", 2);
-  main.append(createReportQueue(reportData.reports, document, user));
-  addHeading(main, "Avatars awaiting review", 2);
-  main.append(createAvatarQueue(avatarData.avatars, document));
-  addHeading(main, "Images awaiting review", 2);
-  main.append(createAttachmentQueue(attachmentData.attachments, document));
-  addHeading(main, "Profile CSS awaiting review", 2);
-  main.append(createCssQueue(cssData.cssSubmissions, document));
-  addHeading(main, "Profile reports", 2);
-  main.append(createProfileReportQueue(profileReportData.profileReports, document));
-  addHeading(main, "Appeals", 2);
-  main.append(createAppealQueue(appealData.appeals, document));
-  // Chat log (v3.1): the full stream for staff — banned authors included —
-  // with in-place deletion. Newest first.
-  addHeading(main, "Chat log", 2);
-  main.append(createChatLog(chatData.messages, document));
-  // DM log (v3.1): 1:1 messages under the same scrutiny — both participants
-  // named, deletable in place.
-  addHeading(main, "DM log", 2);
-  main.append(createDmLog(dmData.messages, document));
-  addHeading(main, "Forum rules", 2);
-  main.append(createRulesEditor(rulesData.rules, document));
-  addHeading(main, "Gallery uploads awaiting review", 2);
-  main.append(createGifQueue(gifData.gifs, document));
-  // Hidden posts (v3.0.1, the nuke): the mod-only page — hidden rows
-  // and anything by an actively banned author, bodies included.
-  addHeading(main, "Hidden posts", 2);
-  main.append(createHiddenPostsQueue(hiddenData.hidden, document));
-  addHeading(main, "Active bans", 2);
-  main.append(createActiveBanList(banData.bans, document));
-  // Find a member (v3.1): username search with the unban form attached, so an
-  // unban is one search + one button (Pone's ask).
-  addHeading(main, "Find a member", 2);
-  main.append(createMemberSearch(document));
+// The desk shell: sidebar rail + content column; the column is returned so
+// each section renders INTO it (headings included).
+function renderAdminShell(user, activeSlug) {
+  const shell = document.createElement("div");
+  shell.className = "desk-shell";
+  const nav = document.createElement("nav");
+  nav.className = "desk-nav";
+  nav.setAttribute("aria-label", "Moderation desk sections");
+  const name = document.createElement("p");
+  name.className = "desk-signin";
+  name.textContent = "Signed in as " + user.username;
+  nav.append(name);
+  const list = document.createElement("ul");
+  list.className = "desk-nav-list";
+  for (const section of DESK_SECTIONS) {
+    const item = document.createElement("li");
+    const link = document.createElement("a");
+    link.className = "desk-nav-link" + (section.slug === activeSlug ? " desk-nav-active" : "");
+    link.href = section.slug === "dashboard" ? "/admin" : "/admin/" + section.slug;
+    link.setAttribute("data-app-link", "");
+    if (section.slug === activeSlug) link.setAttribute("aria-current", "page");
+    link.textContent = section.label;
+    item.append(link);
+    list.append(item);
+  }
+  nav.append(list);
+  const content = document.createElement("div");
+  content.className = "desk-content";
+  shell.append(nav, content);
+  main.append(shell);
+  return content;
+}
+
+function createDashboardBoard(tiles, vision, textMod, document) {
+  const board = document.createElement("div");
+  const status = document.createElement("div");
+  status.className = "desk-status";
+  status.append(createVisionSection(vision, document));
+  status.append(createTextModSection(textMod, document));
+  board.append(status);
+  const tilesHost = document.createElement("div");
+  tilesHost.className = "desk-tiles";
+  for (const tile of tiles) {
+    if (tile.count === null || tile.count === undefined) continue;
+    const link = document.createElement("a");
+    link.className = "desk-tile" + (tile.count > 0 ? " desk-tile-waiting" : "");
+    link.href = "/admin/" + tile.slug;
+    link.setAttribute("data-app-link", "");
+    const count = document.createElement("span");
+    count.className = "desk-tile-count";
+    count.textContent = String(tile.count);
+    const label = document.createElement("span");
+    label.className = "desk-tile-label";
+    label.textContent = tile.label;
+    link.append(count, label);
+    tilesHost.append(link);
+  }
+  board.append(tilesHost);
+  return board;
 }
 
 function createProfileReportQueue(reports, document) {

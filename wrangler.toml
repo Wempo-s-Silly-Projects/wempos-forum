@@ -5,7 +5,7 @@ workers_dev = true
 
 [vars]
 TURNSTILE_HOSTNAMES = "wempos-forum.itswempo.workers.dev"
-VERSION = "4.0.1"
+VERSION = "4.2.0"
 
 [assets]
 directory = "./public"
@@ -121,7 +121,7 @@ period = 60
 # Named preview environment: never inherit the production D1 or rate-limit bindings.
 [env.preview.vars]
 TURNSTILE_HOSTNAMES = "wempos-forum-preview.itswempo.workers.dev"
-VERSION = "4.0.1-preview"
+VERSION = "4.2.0-preview"
 
 [env.preview.assets]
 directory = "./public"

@@ -1938,3 +1938,159 @@ dialog h2 {
 .wall-post-time { color: var(--muted, #666); font-size: 0.85rem; margin-left: auto; }
 .wall-post-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .profile-wall form { margin-bottom: 0.4rem; }
+
+/* Chat + DM polish (v4.2): unread badges, ping pulse, and message bubbles.
+   The ROOM keeps the shared-ledger look (it is a hallway); DM THREADS get
+   bubbles — own messages fill right. */
+.chat-button { position: relative; }
+.chat-unread-dot {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.35rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--coral);
+  border: 2px solid var(--paper);
+}
+.chat-unread-pulse { animation: chat-unread-pulse 0.6s ease-out 3; }
+@keyframes chat-unread-pulse {
+  0% { transform: scale(0.6); opacity: 0.4; }
+  60% { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-unread-pulse { animation: none; }
+}
+
+/* DM thread view: chat bubbles. Own messages align right in the filled
+   bubble; other messages stay on the paper card. */
+.dm-thread-view .chat-message-body {
+  display: inline-block;
+  max-width: 78%;
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--button-radius);
+  background: var(--field);
+  border: 1px solid var(--line);
+  margin: 0;
+}
+.chat-message { align-items: flex-start; }
+.chat-message-head time { margin-left: 0.5rem; }
+.dm-thread-view .chat-message.chat-mine {
+  align-items: flex-end;
+  text-align: right;
+}
+.dm-thread-view .chat-message.chat-mine .chat-message-author { color: var(--muted); }
+.dm-thread-view .chat-message.chat-mine .chat-message-body {
+  background: var(--green);
+  color: #fff;
+  border-color: transparent;
+}
+.dm-thread-view .chat-message.chat-mine .chat-message-head time { color: var(--muted); }
+.dm-thread-view .chat-message { padding-bottom: 0.55rem; border-bottom: 0; }
+
+/* Conversation rows: unread count badge + bold-unread thread name. */
+.dm-thread-row { position: relative; }
+.dm-thread-badge {
+  position: absolute;
+  top: -0.45rem;
+  right: -0.45rem;
+  min-width: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--coral);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+  text-align: center;
+}
+.dm-thread-row.dm-thread-unread { border-color: var(--coral); }
+.dm-thread-row.dm-thread-unread .dm-thread-name::after {
+  content: "";
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-left: 0.35rem;
+  border-radius: 50%;
+  background: var(--coral);
+}
+.chat-lurk input { margin-right: 0.3rem; }
+.dm-thread-list { padding: 0.6rem 0.4rem; }
+
+/* Flagged-content snapshot on the appeals cards (v4.2). */
+.flagged-content {
+  margin: 0.4rem 0;
+  padding: 0.5rem 0.7rem;
+  border-left: 3px solid var(--coral);
+  background: var(--error-soft, #f5d5c5);
+  border-radius: var(--button-radius);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.flagged-content-link { margin: 0.2rem 0; }
+
+/* The moderation desk (v4.2 redesign): a section-routed panel — sidebar rail
+   of dedicated pages + an overview board. Rail is sticky on desktop,
+   chips-row on narrow widths (responsive.css owns the narrow layer). */
+.desk-shell {
+  display: grid;
+  grid-template-columns: 13.5rem 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+.desk-nav { position: sticky; top: 1rem; }
+.desk-signin {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0 0 0.5rem 0.4rem;
+}
+.desk-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.desk-nav-link {
+  display: block;
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--button-radius);
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+.desk-nav-link:hover { background: var(--soft-green); color: var(--green-dark); }
+.desk-nav-active, .desk-nav-active:hover {
+  background: var(--green);
+  color: #fff;
+}
+.desk-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+.desk-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.7rem;
+}
+.desk-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  background: var(--field);
+  text-decoration: none;
+  color: var(--ink);
+}
+.desk-tile:hover { border-color: var(--green); }
+.desk-tile-waiting { border-color: var(--coral); }
+.desk-tile-waiting .desk-tile-count { color: var(--coral-dark); }
+.desk-tile-count { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
+.desk-tile-label { font-size: 0.85rem; color: var(--muted); }
