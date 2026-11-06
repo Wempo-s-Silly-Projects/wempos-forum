@@ -146,27 +146,76 @@ function elongationPattern(skeleton) {
   return pattern ? new RegExp(pattern) : null;
 }
 
-// REGEX entries (v3.1, owner's ask): an entry wrapped in slashes —
-// "/fu\s*(u|c)+k/" — compiles as a pattern instead of a literal word. Each
-// regex runs against BOTH the lowercased original text and the normalized
-// skeleton (spaces intact, soft separators gone), so patterns can be written
-// for whichever space suits them; matched ranges map back to original
-// characters and mask like any other hit. The list is comma-separated, so a
-// pattern cannot contain a literal comma — write \x2c for one. An invalid or
-// catastrophically complex pattern is the owner's risk: compilation errors
-// drop the entry (never the whole filter), but a pathological pattern can
-// still burn CPU — keep them simple.
-function compileRegexEntry(word) {
-  const match = word.match(/^\/(.+)\/([a-z]*)$/);
-  if (!match) return null;
+// Pattern entries (v4.2 compatible, owner's real list): three authored forms
+// beyond plain words, compiled verbatim and matched case-insensitively:
+//
+// 1. SLASH REGEX — "/fu\s*(u|c)+k/" — compiled as written with the owner's
+//    flags (g stripped so it is never doubled, i added when absent).
+// 2. BARE REGEX — any unslashed entry carrying real regex constructs
+//    (lookarounds like (?<!...), backslash escapes, [char classes], |
+//    alternation, {n,m} quantifiers, ^/$ anchors, .* runs) compiles as a
+//    pattern, exactly like the slash form — these were inert literals before.
+//    Astral escapes are normalized on the way in: Ὑ5 (five hex digits)
+//    rewrites to \u{1F595} with the u flag, which is the only JS form that
+//    can encode them.
+// 3. GLOB — an entry with plain * wildcards ("*israel*", "bibi*", "*igga")
+//    compiles as a pattern where each * matches anything and every other
+//    character (dots, slashes, digits) is literal. Entries authored with
+//    regex constructs never take the glob branch — .* / \* style stars are
+//    regex already.
+//
+// Every pattern runs against BOTH the folded original text and the
+// normalized skeleton (spaces intact), and the same compiled list drives
+// containsFilteredWord, so usernames and social handles are enforceable
+// through patterns too. An invalid pattern falls back to its literal form
+// (never kills the whole filter); a pathological valid one can still burn
+// CPU — the owner's risk.
+const REGEX_HINT = /\\|\(\?|\[[^\]]*\]|\||\{[\d,]+\}|\^|\$|\.\*/;
+
+function forceUnicodeAstral(pattern) {
+  const braced = pattern.replace(/\\u\{?([0-9A-Fa-f]{5,8})\}?(?![0-9A-Fa-f])/g, "\\u{$1}");
+  // \u{...} is only legal with the u flag — add it when the rewrite fired.
+  return braced !== pattern ? { pattern: braced, astral: true } : { pattern, astral: false };
+}
+
+function compilePatternRegex(body, ownerFlags) {
   try {
-    // Always global — every occurrence masks. "g" stripped first so it is
-    // never doubled ("gi" + "g" would throw).
-    const flags = (match[2] || "").replace(/g/g, "") + "g";
-    return new RegExp(match[1], flags);
+    let flags = (ownerFlags || "").replace(/g/g, "");
+    if (!flags.includes("i")) flags += "i";
+    const { pattern, astral } = forceUnicodeAstral(body);
+    if (astral && !flags.includes("u")) flags += "u";
+    return new RegExp(pattern, flags + "g");
   } catch {
     return null;
   }
+}
+
+function compileRegexEntry(word) {
+  const match = word.match(/^\/(.+)\/([a-z]*)$/);
+  return match ? compilePatternRegex(match[1], match[2]) : null;
+}
+
+// Glob semantics: * is the wildcard, every other character (including dots,
+// slashes, digits, emoji) is literal. A backslash escapes the next character
+// to literal — \* is a real asterisk. The wildcard compiles as \S* rather
+// than .* so a mask never spans whitespace — "*zippet*" must mask "zippet",
+// not the entire sentence it sits in.
+function escapeRegexUnit(unit) {
+  return unit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function compileGlobEntry(word) {
+  let pattern = "";
+  for (let i = 0; i < word.length; i++) {
+    const unit = word[i];
+    if (unit === "\\" && i + 1 < word.length) {
+      pattern += escapeRegexUnit(word[i + 1]);
+      i += 1;
+      continue;
+    }
+    pattern += unit === "*" ? "\\S*" : escapeRegexUnit(unit);
+  }
+  return compilePatternRegex(pattern, "");
 }
 
 function compileFilter(wordsRaw) {
@@ -174,14 +223,33 @@ function compileFilter(wordsRaw) {
   const entries = [];
   const regexes = [];
   const seen = new Set();
-  for (const entry of String(wordsRaw).split(",")) {
-    const word = entry.trim().toLowerCase();
-    if (!word) continue;
-    const regex = compileRegexEntry(word);
+  for (const entry of String(wordsRaw).split(/[\r\n]+/).flatMap(
+    // Newlines separate entries (the owner's live list is line-based), and
+    // commas separate entries WITHIN a line — unless the line as a whole is
+    // itself a valid pattern, whose commas belong to it (char classes like
+    // [a, b] must never split a line mid-pattern). A \, escape also keeps a
+    // literal comma inside one entry.
+    (line) => {
+      const candidate = line.trim().replace(/\\,/g, ",")
+        .replace(/\\u\{?([0-9A-Fa-f]{5,8})\}?/g, "\\u{$1}");
+      if (candidate.includes(",") && REGEX_HINT.test(candidate) &&
+          compilePatternRegex(candidate)) return [candidate];
+      return line.split(/(?<!\\),/);
+    },
+  )) {
+    const trimmed = entry.trim().replace(/\\,/g, ",");
+    if (!trimmed) continue;
+    // Slash-wrapped regex (existing format), then bare regex autodetection,
+    // then glob wildcards — all compile verbatim, never lowercased, and run
+    // case-insensitively. An invalid pattern falls back to its literal form.
+    let regex = compileRegexEntry(trimmed);
+    if (!regex && REGEX_HINT.test(trimmed)) regex = compilePatternRegex(trimmed);
+    if (!regex && trimmed.includes("*")) regex = compileGlobEntry(trimmed);
     if (regex) {
       regexes.push(regex);
       continue;
     }
+    const word = trimmed.toLowerCase();
     words.push(word);
     const skeleton = normalizeEntryForSkeleton(word);
     // Substring matching with fewer than two letters would mask half the
@@ -379,7 +447,10 @@ export function applyWordFilter(text, wordsRaw) {
   // An unset/empty/whitespace-only words secret is likewise a strict no-op.
   if (typeof text !== "string" || typeof wordsRaw !== "string") return text;
   const compiled = compiledFilter(wordsRaw);
-  if (compiled.words.length === 0) return text;
+  // Strict no-op only when the list produced NOTHING to match — a regex-only
+  // list (zero literal words) must still run its pattern passes.
+  if (compiled.words.length === 0 && compiled.entries.length === 0 &&
+      compiled.regexes.length === 0) return text;
   let folded = "";
   const origIndexMap = [];
   for (let i = 0; i < text.length; i++) {

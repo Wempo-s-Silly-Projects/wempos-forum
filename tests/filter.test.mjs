@@ -117,6 +117,64 @@ test("identity checks: usernames and handles normalize through the same pipeline
   assert.equal(containsFilteredWord(normalizeUsernameForFilter("helloworld"), LIST), false);
 });
 
+test("regex entries compile exactly as written (case preserved)", () => {
+  // A capital-bearing pattern previously degraded to lowercase before
+  // compile; now the body reaches RegExp verbatim and matching stays
+  // case-insensitive, so explicit caps still mask the folded original.
+  const CAPS_LIST = "/SC\\s*u\\s*b+/";
+  assert.equal(applyWordFilter("sc u b today", CAPS_LIST), "###### today");
+  // Pattern-level capitals cannot be mangled: an explicit character range
+  // keeps its bounds.
+  const RANGE_LIST = "/[Q-Z]ug/";
+  assert.equal(applyWordFilter("a tug today", RANGE_LIST), "a ### today");
+  // Identity fields run the same compiled patterns (case-insensitively), so
+  // a handle built from a pattern hit is rejected too.
+  assert.equal(containsFilteredWord("cool_scub123", CAPS_LIST), true);
+  assert.equal(containsFilteredWord("innocent", CAPS_LIST), false);
+});
+
+test("bare regex entries (no slashes) compile as patterns", () => {
+  // A lookaround-bearing entry — previously an inert literal — now masks.
+  const BARE_LIST = "(?<!x)zab";
+  assert.equal(applyWordFilter("say zab now", BARE_LIST), "say ### now");
+  assert.equal(applyWordFilter("say xzab now", BARE_LIST), "say xzab now");
+  // Character classes and quantifiers ride along unmodified.
+  assert.equal(applyWordFilter("zebra", "ze\\w+ra"), "#####");
+});
+
+test("glob entries: plain * wildcards, everything else literal", () => {
+  const GLOB_LIST = "*zippet*,bibi*,*igga";
+  // Wildcards become \S* — they never span whitespace, so only the matched
+  // run masks, never the sentence it sits in.
+  assert.equal(applyWordFilter("go zippet dot com now", GLOB_LIST), "go ###### dot com now");
+  assert.equal(applyWordFilter("bibilove now", GLOB_LIST), "######## now");
+  // Dots are literal in globs: only the real site name matches (16 chars).
+  assert.equal(applyWordFilter("visit docs.example.com today", "*docs.example.com*"),
+    "visit ################ today");
+  assert.equal(applyWordFilter("visit docsAexampleBcom today", "*docs.example.com*"),
+    "visit docsAexampleBcom today");
+  // A literal asterisk via \* never acts as a wildcard: "zab" alone survives.
+  const ESCAPED = "/zab\\*/";
+  assert.equal(applyWordFilter("cute zaba now", ESCAPED), "cute zaba now");
+  assert.equal(applyWordFilter("cute zab* now", ESCAPED), "cute #### now");
+});
+
+test("newlines separate entries; escaped commas survive", () => {
+  const MIX = "zab\napple,apple\nbanana,qu\\,x";
+  // Newline-separated entry is its own word (not folded into a comma blob).
+  assert.equal(applyWordFilter("a banana ripens", MIX), "a ###### ripens");
+  // \, keeps a literal comma inside the entry (4 characters).
+  assert.equal(applyWordFilter("hey qu,x now", MIX), "hey #### now");
+  assert.equal(applyWordFilter("hey quux now", MIX), "hey #### now");
+});
+
+test("astral escapes normalize to the u-flag brace form", () => {
+  // \u + five hex digits was unencodable in JS before; the compiler
+  // rewrites it to \u{1F600} and adds the u flag. Synthetic emoji (grin).
+  const EMOJI_LIST = "\\u1F600";
+  assert.equal(applyWordFilter("hi \u{1F600}", EMOJI_LIST), "hi ##");
+});
+
 test("masked output always keeps the original length", () => {
   for (const body of [
     "b a d w o r d", "badw0rd", "badsword", "badw​ord", "daaarn",

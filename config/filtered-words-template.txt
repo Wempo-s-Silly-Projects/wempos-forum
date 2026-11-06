@@ -39,31 +39,43 @@ repository. It is provided at runtime by the FILTERED_WORDS secret:
        match spans. Longer real words break a run, so innocent phrases like
        "the pen is mightier" can never stitch into something else.
 
-  * REGEX ENTRIES: an entry wrapped in slashes compiles as a regular
-    expression instead of a literal word — for example:
+  * REGEX ENTRIES (v4.2): slash-wrapped ("/fu\s*(u|c)+k/") or bare entries
+    carrying real regex constructs compile as regular expressions —
+    lookarounds (?<!aut)henti.*, backslash escapes, char classes .*n[e3]g.*,
+    alternation (harm|hurt), {n,m} quantifiers, ^/$ anchors, and .* runs
+    all count. The body compiles EXACTLY as written (never lowercased);
+    matching is always case-insensitive + global (the owner's flags ride
+    along on the slash form, g stripped and i added when absent). Patterns
+    run against BOTH the folded original text and the normalized skeleton
+    (spaces intact, leet folded, soft separators gone); \b boundaries are
+    yours to add. Astral escapes rewrite on the way in (\\u1F595 becomes
+    \u{1F595} with the u flag — the only JS form for them). The same list
+    drives username and social-handle rejection, so patterns enforce
+    identity fields too.
 
-        /\bazz?hole\b/
+    Caveats: a pattern that fails to compile falls back to its literal
+    form — the rest of the list keeps working either way; a pathological
+    pattern (nested quantifiers over long text) can burn CPU, so keep
+    patterns simple.
 
-    matches "ashole" and "asshole" as whole words, while
+  * GLOB ENTRIES (v4.2): plain * is a wildcard for anything-within-a-word —
+    prefix ("heil*"), suffix ("*igga"), infix, or both ("*epstein*"). Every
+    other character is literal, including dots ("*docs.google.com*" matches
+    the real site name), digits, spaces, and emoji. A star never crosses
+    whitespace, so "*zippet*" masks exactly "zippet", never the sentence
+    around it. Wildcard entries do not leet-normalize: "*C0CA1NE*" only
+    matches the leet spelling as typed — list the plain word separately.
 
-        /fu\s*(u|c)+k/
+  * FORMAT SEPARATORS: entries separate on NEWLINES or commas — one entry
+    per line (the imported-list style) and the classic single-line
+    comma-separated style both work. Commas inside a pattern line are safe
+    (a line that parses as a pattern compiles whole); anywhere else, write
+    \, for a literal comma. Entries are trimmed and deduplicated at use
+    time.
 
-    matches "fu ckk", "fuc k", and "fuuck" across spaces. Each pattern runs
-    against BOTH the lowercased original text and the normalized skeleton
-    (spaces intact, leet folded, soft separators gone) — write for whichever
-    space suits the pattern. \b word boundaries are yours to add; the
-    whole-word rule of the exact pass never applies to regex entries.
-
-    Caveats: the list is comma-separated, so a pattern cannot contain a
-    literal comma (write \x2c for one); an entry that fails to compile is
-    dropped silently — the rest of the list keeps working; and a
-    pathological pattern (nested quantifiers over long text) can burn CPU,
-    so keep patterns simple.
-
-    Left to text auto-mod (api/textmod.mjs) and the human desk, deliberately:
-    letter-spam spread across longer words ("f u sck ers") and variant
-    spellings the list doesn't cover — regex entries are the tool for the
-    variant families you know about; list them explicitly.
+    The skeleton passes stay deliberately: letter-spam spread across longer
+    words ("f u sck ers") and variant spellings the list doesn't cover are
+    the masks' job; patterns are for the families you know about.
 
 Local development: add a FILTERED_WORDS entry with the same format to your
 .dev.vars file (which is Git-ignored and must never be committed), e.g.:
@@ -74,8 +86,5 @@ Production (set or update once per deployment; the value is private and is
 written straight into the Worker's secret store, not into this repo):
 
     wrangler secret put FILTERED_WORDS
-
-Note: comma-separated entries cannot themselves contain a comma; entries are
-trimmed, lowercased, and deduplicated at use time. An empty or whitespace-only
 value (or an unset secret) disables filtering entirely: bodies pass through
 unchanged.
