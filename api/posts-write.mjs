@@ -12,6 +12,7 @@ import {
   readComposedBody,
 } from "./attachments.mjs";
 import { applyWordFilter } from "./filter.mjs";
+import { filterWords } from "./filterstore.mjs";
 import { UPDATES_BOARD, boardField } from "./boards.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
 import { archivePostRowsStatement } from "./core/archive.mjs";
@@ -227,7 +228,7 @@ export async function handlePostCreateRoute(request, env, url, path, method, ctx
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
-    const message = applyWordFilter(requiredText(fields.body, "post", MAX_COMPOSER_BODY_CHARS), env.FILTERED_WORDS);
+    const message = applyWordFilter(requiredText(fields.body, "post", MAX_COMPOSER_BODY_CHARS), filterWords(env));
     // The board rides the same fields object in both wire formats (JSON field
     // or multipart text part); absent/empty defaults to 'general', unknown
     // values 400 before any insert.
@@ -343,7 +344,7 @@ export async function handlePostEditRoute(request, env, url, path, method, ctx) 
     const body = await readJson(request);
     const message = applyWordFilter(
       requiredText(body.body, "post", MAX_COMPOSER_BODY_CHARS),
-      env.FILTERED_WORDS,
+      filterWords(env),
     );
     const editedAt = nowSeconds();
     // Edit history (v2.4.1): the version being REPLACED is snapshotted into

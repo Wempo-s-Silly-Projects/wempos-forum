@@ -13,6 +13,7 @@ import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { userByUsernameKey } from "./core/shapers.mjs";
 import { applyWordFilter } from "./filter.mjs";
+import { filterWords } from "./filterstore.mjs";
 
 const DM_PAGE_LIMIT = 50;
 const DM_MAX_CHARS = 1000;
@@ -173,7 +174,7 @@ async function handleDmThreadRoute(request, env, url, path, method, ctx) {
     const body = await readJson(request);
     const message = applyWordFilter(
       String(body.body ?? "").trim().slice(0, DM_MAX_CHARS),
-      env.FILTERED_WORDS,
+      filterWords(env),
     );
     if (!message) throw new HttpError(400, "Write a message first.");
     const result = await env.FORUM_DB.prepare(

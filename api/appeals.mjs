@@ -20,6 +20,7 @@ import { userByUsernameKey } from "./core/shapers.mjs";
 const DUMMY_SALT = "00000000000000000000000000000000";
 const DUMMY_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
 import { applyWordFilter } from "./filter.mjs";
+import { filterWords } from "./filterstore.mjs";
 // Appeal outcomes are label-only notifications (no post to point at) — the
 // shared builder in notifications.mjs (migration 0036 made the targets
 // nullable; the local NULL-binding copy here 500'd every decision batch on
@@ -141,7 +142,7 @@ async function handleBanAppealRoute(request, env, url, path, method) {
   }
   const appealText = applyWordFilter(
     requiredText(body.body, "appeal", MAX_APPEAL_BODY_CHARS),
-    env.FILTERED_WORDS,
+    filterWords(env),
   );
   const user = await userByUsernameKey(env, username.toLowerCase());
   const valid = await verifyPassword(

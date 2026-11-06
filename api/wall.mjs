@@ -11,6 +11,7 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { applyWordFilter } from "./filter.mjs";
+import { filterWords } from "./filterstore.mjs";
 
 const WALL_MAX_CHARS = 280;
 const WALL_PAGE_LIMIT = 50;
@@ -73,7 +74,7 @@ async function handleWallCreateRoute(request, env, url, path, method, ctx) {
   const body = await readJson(request);
   const message = applyWordFilter(
     String(body.body ?? "").trim().slice(0, WALL_MAX_CHARS),
-    env.FILTERED_WORDS,
+    filterWords(env),
   );
   if (!message) throw new HttpError(400, "Write something first.");
   const result = await env.FORUM_DB.prepare(

@@ -6,6 +6,7 @@
 // .mjs and that surface does not change.
 import { UNBAN_ACTIVE_UPDATE_SQL } from "../constants.mjs";
 import { applyWordFilter } from "./filter.mjs";
+import { filterWords } from "./filterstore.mjs";
 import { requireStaff } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, readJson, requiredText } from "./core/http.mjs";
@@ -35,7 +36,7 @@ async function handleBanListRoute(request, env, url, path, method) {
 
 export async function createUserBan(db, targetId, modId, request, env) {
   const body = await readJson(request);
-  const reason = applyWordFilter(requiredText(body.reason, "ban reason", 500), env.FILTERED_WORDS);
+  const reason = applyWordFilter(requiredText(body.reason, "ban reason", 500), filterWords(env));
   const now = nowSeconds();
   // Timed bans (v3.0.2): every read path (the ban screen's reactivation
   // countdown, the visibility filters, the auto-expire sweep above) already
@@ -92,7 +93,7 @@ export async function createUserBan(db, targetId, modId, request, env) {
 
 async function revokeUserBan(db, targetId, modId, request, env) {
   const body = await readJson(request);
-  const reason = applyWordFilter(requiredText(body.reason, "unban reason", 500), env.FILTERED_WORDS);
+  const reason = applyWordFilter(requiredText(body.reason, "unban reason", 500), filterWords(env));
   const active = await db.prepare(
     "SELECT id FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
       "AND (expires_at IS NULL OR expires_at > ?) ORDER BY created_at DESC LIMIT 1",

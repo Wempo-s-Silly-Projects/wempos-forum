@@ -12,6 +12,7 @@ import { publicRole } from "./core/roles.mjs";
 import { normalizeBannerColor, normalizeProfileAccent, normalizeProfileColorInput, PROFILE_ACCENTS, PROFILE_BANNER_COLORS, SOCIAL_PLATFORMS, socialsFromRow, userByUsernameKey } from "./core/shapers.mjs";
 import { listRootPosts } from "./posts-feed.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
+import { filterWords } from "./filterstore.mjs";
 // v4.0 plan 3, Task 2: the avatar lifecycle (upload, serve, moderation queue)
 // moved to its topic module — the dispatcher keeps registering these two.
 import { handleAvatarReadRoute, handleAvatarUploadRoute } from "./avatars.mjs";
@@ -77,8 +78,8 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       // per-key CSS class ("" normalizes rows missing the projection).
       profileAccent: normalizeProfileAccent(user.profile_accent || ""),
       bannerColor: normalizeBannerColor(user.banner_color || ""),
-      bannerText: applyWordFilter(user.banner_text || "", env.FILTERED_WORDS) || "",
-      flair: applyWordFilter(user.flair || "", env.FILTERED_WORDS) || "",
+      bannerText: applyWordFilter(user.banner_text || "", filterWords(env)) || "",
+      flair: applyWordFilter(user.flair || "", filterWords(env)) || "",
       // Custom CSS (v2.5): only the APPROVED css serves, pre-scoped by the
       // sandbox (profile-css.mjs); pending rewrites stay invisible to the public.
       customCss: scopeProfileCss(user.approved_css || ""),
@@ -131,7 +132,7 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
       // raw trimmed text (the same order the posts flow uses) and applyWordFilter's
       // mask preserves length, so masking can never push a stored bio over the
       // limit afterwards. An unset FILTERED_WORDS secret is a strict no-op.
-      bio = applyWordFilter(bio, env.FILTERED_WORDS);
+      bio = applyWordFilter(bio, filterWords(env));
     }
     let socials = null;
     if (hasSocials) {
@@ -154,8 +155,8 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
         // link anyway): reject instead of mask, using the register flow's
         // strict checks — the word filter's masked form must survive intact
         // AND the stitched/leet-normalized form must contain no entry.
-        if (applyWordFilter(value, env.FILTERED_WORDS) !== value ||
-            containsFilteredWord(normalizeUsernameForFilter(value), env.FILTERED_WORDS)) {
+        if (applyWordFilter(value, filterWords(env)) !== value ||
+            containsFilteredWord(normalizeUsernameForFilter(value), filterWords(env))) {
           throw new HttpError(400, "That " + key + " name can't be used here.");
         }
         socials[key] = value;
@@ -180,13 +181,13 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
       if (typeof body.bannerText !== "string" || body.bannerText.trim().length > 80) {
         throw new HttpError(400, "Banner text must be 80 characters or fewer.");
       }
-      bannerText = applyWordFilter(body.bannerText.trim(), env.FILTERED_WORDS);
+      bannerText = applyWordFilter(body.bannerText.trim(), filterWords(env));
     }
     if (hasFlair) {
       if (typeof body.flair !== "string" || body.flair.trim().length > 32) {
         throw new HttpError(400, "Flairs must be 32 characters or fewer.");
       }
-      flair = applyWordFilter(body.flair.trim(), env.FILTERED_WORDS);
+      flair = applyWordFilter(body.flair.trim(), filterWords(env));
     }
     if (hasAccent) {
       // Profile accent (any hex, v3.0.2): "" clears, a legacy palette key
@@ -286,7 +287,7 @@ async function handleCssSetRoute(request, env, url, path, method) {
   // The filter covers everything member-written — custom CSS included. The
   // mask is #-preserving, so a hit only degrades styling (and a mod reviews
   // the sheet anyway); no stylesheet can carry a filtered word.
-  cssText = applyWordFilter(cssText, env.FILTERED_WORDS);
+  cssText = applyWordFilter(cssText, filterWords(env));
   if (cssText.length > CUSTOM_CSS_MAX_BYTES) {
     throw new HttpError(413, "Custom CSS must be 20 KiB or smaller.");
   }

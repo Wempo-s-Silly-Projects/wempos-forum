@@ -13,8 +13,8 @@
 //      WHOLE-WORD occurrences mask — an occurrence counts when the characters
 //      immediately before and after it — checked in the ORIGINAL text — are
 //      not [A-Za-z0-9] (or when it touches the text's start/end). Underscore
-//      counts as a boundary, so username-style "smart_ass" still matches the
-//      entry "ass". Multi-word entries match their interiors literally.
+//      counts as a boundary, so username-style "my_ill" still matches the
+//      entry "ill". Multi-word entries match their interiors literally.
 //      ("LMFAO" folds to "lmfao" and masks if listed.)
 //
 //   2. SKELETON pass (v3.1 hardening, exact since v4.2.1): each
@@ -25,32 +25,33 @@
 //      $→s), every other soft separator (punctuation, hyphens, underscores,
 //      unmapped digits) dropped, letters only. An entry matches a token
 //      EXACTLY: the entry's elongation pattern must consume the WHOLE token —
-//      "wooord", "bittch", "fucckk" and letter-bomb elongations mask, while
-//      innocent carriers ("class" via "ass", "title" via "tit") and true
-//      compounds ("badass") never do. Compounds that should mask are a
-//      regex/glob entry's job ("*ass*", "/smart ?ass/").
+//      "wooord", "daaarn", "appple" and letter-bomb elongations mask, while
+//      innocent carriers ("chill" via "ill") and true compounds ("coolscrub")
+//      never do. Compounds that should mask are a regex/glob entry's job
+//      ("*scrub*", "/badwords?/").
 //
 //   3. SCRAMBLE tolerance (v3.1): a token with no direct hit is also tested
 //      with each single character deleted, against entries of 4+ letters —
-//      "badsword" loses its "s" and reads exactly "badword", "fusckers" loses
-//      its "s" to "fuckers". The delete-one variant itself must match the
-//      entry exactly. One deletion only; two-character scrambles ("Ponussy")
-//      stay a word-list matter.
+//      "badsword" loses its "s" and reads exactly "badword", "dadrn" loses a
+//      "d" and reads exactly "darn". The delete-one variant itself must match
+//      the entry exactly. One deletion only; two-character scrambles
+//      ("apxsple") stay a word-list matter.
 //
 //   4. STITCHING pass (v3.1): consecutive tokens whose skeletons are at most
-//      TWO characters ("b a d", "fu c c kk", "fu u c c k k") are
+//      TWO characters ("b a d", "d a a r n") are
 //      concatenated; an entry masks a run's tail exactly when it matches the
 //      stitched text from some token to the run's end — "b a d w o r d" masks
 //      whole, "i am b a d w o r d" masks only "b a d w o r d". Multi-character
-//      tokens never stitch, so "the pen is mightier" cannot false-positive —
-//      the pen/is boundary is a real word boundary, not obfuscation.
+//      tokens never stitch, so "is land" cannot false-positive into
+//      "island" — the boundary is a real word boundary, not obfuscation.
 //
 // Known deliberate limits (all over-mask-safe, all word-list matters):
-// compounds and substrings ("badass" via "ass", plurals like "badwords" via
-// "badword") no longer mask — list the variant, a glob ("badword*"), or a
-// regex ("/badwords?/") when they should; soft-separator tails ("ullhe-ck")
-// likewise only mask when the whole token reads as the entry. Two-character
-// scrambles and unlisted variant spellings ("fuk", "asf") must be listed.
+// compounds and substrings ("coolscrub" via "scrub", plurals like
+// "badwords" via "badword") no longer mask — list the variant, a glob
+// ("badword*"), or a regex ("/badwords?/") when they should; soft-separator
+// tails ("ullhe-ck") likewise only mask when the whole token reads as the
+// entry. Two-character scrambles and unlisted variant spellings ("wurd",
+// "asf") must be listed.
 //
 // Case folding is done per UTF-16 code unit (not via one String#toLowerCase
 // call on the whole body) because lowercase folding can lengthen a string
@@ -131,9 +132,9 @@ function normalizeEntryForSkeleton(entry) {
 }
 
 // Elongation-tolerant pattern for one normalized entry: every single letter
-// matches one-or-more of itself ("fuck" matches "fuuuck"), and a run of n≥2
-// identical letters matches n-or-more ("ass" matches "asss" but never "as";
-// "nigger" matches "niggggger" but never "niger" — the run is the word).
+// matches one-or-more of itself ("darn" matches "daaarn"), and a run of n≥2
+// identical letters matches n-or-more ("apple" matches "apppple" but never
+// "aple" — the run is the word).
 // Letters only, so no regex metacharacters can appear unescaped.
 function elongationPattern(skeleton) {
   let pattern = "";
@@ -160,7 +161,7 @@ function elongationPattern(skeleton) {
 //    Astral escapes are normalized on the way in: Ὑ5 (five hex digits)
 //    rewrites to \u{1F595} with the u flag, which is the only JS form that
 //    can encode them.
-// 3. GLOB — an entry with plain * wildcards ("*israel*", "bibi*", "*igga")
+// 3. GLOB — an entry with plain * wildcards ("*zippet*", "bibi*", "*zab")
 //    compiles as a pattern where each * matches anything and every other
 //    character (dots, slashes, digits) is literal. Entries authored with
 //    regex constructs never take the glob branch — .* / \* style stars are
@@ -318,9 +319,9 @@ function maskSpan(masked, start, end) {
 
 // One entry's whole-string match against a skeleton token (or a stitched
 // run), or null. Matching is EXACT: the elongation pattern must consume the
-// entire haystack, so "wooord" matches "word" but "badass" never matches
-// "ass" — compounds that genuinely should mask are a regex/glob entry's job
-// ("*ass*", "/bad|class/"). Runs over the SAME skeleton the caller built, so
+// entire haystack, so "wooord" matches "word" but "coolscrub" never matches
+// "scrub" — compounds that genuinely should mask are a regex/glob entry's job
+// ("*scrub*", "/bad|word/"). Runs over the SAME skeleton the caller built, so
 // the returned range indexes that string.
 function findEntryRange(haystack, entry) {
   if (!entry.regex) return null;
@@ -338,7 +339,7 @@ function findEntryRange(haystack, entry) {
 // findEntryRange), so only genuine one-character insertions mask —
 // "badsword" → "badword", never "password" (its variants contain no listed
 // entry as the whole string). One deletion catches the single-character
-// insertions people actually use ("fusckers", "DIsCK"); two-character
+// insertions people actually use ("badsword", "dadrn"); two-character
 // scrambles are a word-list matter.
 function findScrambledRange(haystack, entries) {
   if (haystack.length < 5) return null; // nothing worth deleting from
@@ -414,9 +415,9 @@ function applySkeletonPasses(masked, text, entries, regexes) {
   }
 
   // Stitching: runs of consecutive short tokens concatenate ("b a d" →
-  // "bad"; "fu u c c k k" → "fuucckk", whose elongation pattern for "fuck"
-  // matches). A multi-character token breaks the run — "pen is" can never
-  // become "penis" because "pen" is three skeleton characters of real word.
+  // "bad"; "d a a r n" → "daaarn", whose elongation pattern for "darn"
+  // matches). A multi-character token breaks the run — "is land" can never
+  // become "island" because "land" is four characters of real word.
   let runStart = 0;
   while (runStart < tokens.length) {
     let runEnd = runStart;
@@ -427,12 +428,22 @@ function applySkeletonPasses(masked, text, entries, regexes) {
       // Exactness applies here too: an entry must consume the stitched text
       // from some token onward to the end of the run — "i am b a d w o r d"
       // matches "badword" starting at the third token and masks ONLY "b a d
-      // w o r d", never the innocent words before it.
+      // w o r d", never the innocent words before it. Two cost guards keep
+      // mile-long letter-spam runs from going quadratic: only the last
+      // STITCH_PROBE_MAX token starts are probed (no stitched entry spans
+      // more fragments than that), and a suffix shorter than an entry's
+      // skeleton can never match it, so the scan skips those without a regex
+      // exec.
       const prefixLengths = run.map((token) => token.end - token.start);
-      for (let first = 0; first < run.length; first++) {
-        let offset = 0;
-        for (let i = 0; i < first; i++) offset += prefixLengths[i];
-        if (entries.some((entry) => findEntryRange(stitched.slice(offset), entry))) {
+      const firstMin = Math.max(0, run.length - 64);
+      let offset = 0;
+      for (let first = 0; first < firstMin; first++) offset += prefixLengths[first];
+      for (let first = firstMin; first < run.length; first++) {
+        if (first > firstMin) offset += prefixLengths[first - 1];
+        const suffixLength = stitched.length - offset;
+        if (entries.some((entry) =>
+          entry.skeleton.length <= suffixLength &&
+          findEntryRange(stitched.slice(offset), entry))) {
           maskSpan(masked, spans[run[first].start][0], spans[run[run.length - 1].end - 1][1]);
           break;
         }
@@ -516,10 +527,10 @@ export function applyWordFilter(text, wordsRaw) {
 // register flow rejects when the masked form does not survive intact OR this
 // normalized form contains an entry. This normalizer runs the full skeleton
 // pipeline (zero-width, NFKD accent/fullwidth folds, homoglyphs, leet) and
-// strips every remaining non-letter, so "p_e_n_i_s", "pen1s", "pеnis"
-// (Cyrillic е) and "p​enis" all normalize to the same thing. The companion
-// containsFilteredWord also runs each entry's elongation pattern, so
-// "thebittch" in a handle matches the entry "bitch".
+// strips every remaining non-letter, so "b_a_d_w_o_r_d", "badw0rd",
+// "badwоrd" (Cyrillic о) and "badw​ord" (zero-width) all normalize to the
+// same thing. The companion containsFilteredWord also runs each entry's
+// elongation pattern, so "theapplee" in a handle matches the entry "apple".
 export function normalizeUsernameForFilter(value) {
   let out = "";
   for (const unit of String(value ?? "").toLowerCase()) {
@@ -535,8 +546,8 @@ export function containsFilteredWord(text, wordsRaw) {
   const compiled = compiledFilter(wordsRaw);
   // Raw entries against the (already-normalized) input, then normalized
   // entries — an owner who lists a leet form ("p3nis") still matches the
-  // fully-normalized username ("penis") — then each entry's elongation
-  // pattern ("thebittch" matches "bitch").
+  // fully-normalized username ("badword") — then each entry's elongation
+  // pattern ("theapplee" matches "apple").
   for (const piece of compiled.words) {
     if (lowered.includes(piece)) return true;
   }

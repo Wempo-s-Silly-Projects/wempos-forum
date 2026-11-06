@@ -3,6 +3,7 @@
 // profiles group from api/avatars.mjs.)
 import { unreadCount } from "./notifications.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
+import { filterWords } from "./filterstore.mjs";
 import { createSession, assertNetworkNotBanned, readSession, requireCsrf, requireUser } from "./core/auth.mjs";
 import { equalConstantTime, nowSeconds, sha256Hex } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson, requireTurnstile, securityHeaders } from "./core/http.mjs";
@@ -118,8 +119,8 @@ async function handleFirstAdminSetupRoute(request, env, url, path, method) {
     // The filter covers EVERYTHING — the first owner's username runs the same
     // identity check as registration (masked form intact + normalized form
     // clean), so the setup path can't mint a filtered-word owner name.
-    if (applyWordFilter(credentials.username, env.FILTERED_WORDS) !== credentials.username ||
-        containsFilteredWord(normalizeUsernameForFilter(credentials.username), env.FILTERED_WORDS)) {
+    if (applyWordFilter(credentials.username, filterWords(env)) !== credentials.username ||
+        containsFilteredWord(normalizeUsernameForFilter(credentials.username), filterWords(env))) {
       throw new HttpError(400, "That username isn't allowed.");
     }
     const suppliedKey = typeof body.setupKey === "string" ? body.setupKey : "";
@@ -161,8 +162,8 @@ async function handleRegistrationRoute(request, env, url, path, method) {
     // FILTERED_WORDS secret is a strict no-op here, exactly like the posts flow.
     // The whole-word check plus the collapsed/leet-normalized substring
     // check: "p_e_n_i_s" and "pen1s" don't survive either (v2.5 fix).
-    if (applyWordFilter(credentials.username, env.FILTERED_WORDS) !== credentials.username ||
-        containsFilteredWord(normalizeUsernameForFilter(credentials.username), env.FILTERED_WORDS)) {
+    if (applyWordFilter(credentials.username, filterWords(env)) !== credentials.username ||
+        containsFilteredWord(normalizeUsernameForFilter(credentials.username), filterWords(env))) {
       throw new HttpError(400, "That username isn't allowed.");
     }
     const user = await storeUser(env, credentials, "member");

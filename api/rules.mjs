@@ -6,6 +6,7 @@ import { requireStaff } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readLimitedBody } from "./core/http.mjs";
 import { applyWordFilter } from "./filter.mjs";
+import { filterWords } from "./filterstore.mjs";
 
 const RULES_KEY = "rules";
 export const RULES_MAX_BYTES = 20 * 1024;
@@ -42,7 +43,7 @@ export async function handleRulesRoutes(request, env, url, path, method) {
     rulesText = rulesText.trim();
     // The filter covers everything the site stores — rules included (the
     // owner's own ask; overrides the old site-copy exemption).
-    rulesText = applyWordFilter(rulesText, env.FILTERED_WORDS);
+    rulesText = applyWordFilter(rulesText, filterWords(env));
     if (rulesText.length > RULES_MAX_BYTES) {
       throw new HttpError(413, "The rules must be 20 KiB or smaller.");
     }

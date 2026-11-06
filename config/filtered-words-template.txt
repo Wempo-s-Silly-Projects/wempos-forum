@@ -15,33 +15,36 @@ repository. It is provided at runtime by the FILTERED_WORDS secret:
        words, boundaries included, with multi-word entries matching their
        interiors literally.
 
-    2. SKELETON: each entry also matches in normalized form — leet digits
-       ("w0rd"), soft-separator stitching ("w_o_r_d", "ullshi-t"),
-       zero-width injections, accent/homoglyph lookalikes — AND as a
-       SUBSTRING inside a longer token, so "badass", "smartass", and "hasss"
-       mask via the entries they contain. Elongations match too ("wooord",
-       "bittch", doubled letters held: "niggger" masks but "niger" does not
-       match "nigger").
+    2. SKELETON (EXACT, v4.3): each entry also matches in normalized form —
+       leet digits ("w0rd"), soft-separator stitching ("w_o_r_d"),
+       zero-width injections, accent/homoglyph lookalikes — but matching is
+       EXACT per token: the entry must consume the WHOLE token (elongation
+       tolerated: "wooord", "daaarn"; doubled letters held: "apppple" masks
+       but "aple" never matches "apple"). Innocent carriers never mask —
+       "chill" does not match "ill" — and compounds like "coolscrub" or
+       "hasss" do not either. If a compound SHOULD mask, list it, glob it, or
+       regex it ("coolscrub", "*scrub*", "/badwords?/").
 
-       WARNING — the substring rule is aggressive BY DESIGN (the owner's
-       call): if you list "ass", innocent words containing it ("class",
-       "grass", "passion") also mask. If you do not want that, do not list
-       short fragments; list the compounds you care about explicitly
-       ("badass,smartass") instead.
+       Plurals still catch when one deleted letter bridges to the entry via
+       the scramble pass ("badwords" via "badword") — see rule 3.
 
     3. SCRAMBLE: tokens matching nothing above are retried with each single
-       character deleted, against entries of 4+ letters — "fusckers" masks
-       via "fuck", "DIsCK" via "dick". Two-character scrambles ("Ponussy")
-       must be listed as their own entries.
+       character deleted, against entries of 4+ letters; the delete-one
+       variant itself must equal the entry ("badsword" → "badword" masks the
+       whole token, "dadrn" → "darn"). The
+       whole token masks. Two-character scrambles ("apxsple") must be listed
+       as their own entries.
 
     4. STITCHING: runs of one-or-two-letter words ("b a d", "fu u c c k k")
-       are concatenated and matched the same way, masking only the words the
-       match spans. Longer real words break a run, so innocent phrases like
-       "the pen is mightier" can never stitch into something else.
+       are concatenated; the entry must match from some word in the run
+       through to the run's end, masking that tail — "b a d w o r d" masks
+       whole, "i am b a d w o r d" masks only "b a d w o r d". Longer real
+       words break a run, so innocent phrases like "the pen is mightier" can
+       never stitch into something else.
 
   * REGEX ENTRIES (v4.2): slash-wrapped ("/fu\s*(u|c)+k/") or bare entries
     carrying real regex constructs compile as regular expressions —
-    lookarounds (?<!aut)henti.*, backslash escapes, char classes .*n[e3]g.*,
+    lookarounds (?<!au)then.*, backslash escapes, char classes .*sn[a4]ke.*,
     alternation (harm|hurt), {n,m} quantifiers, ^/$ anchors, and .* runs
     all count. The body compiles EXACTLY as written (never lowercased);
     matching is always case-insensitive + global (the owner's flags ride
@@ -59,7 +62,7 @@ repository. It is provided at runtime by the FILTERED_WORDS secret:
     patterns simple.
 
   * GLOB ENTRIES (v4.2): plain * is a wildcard for anything-within-a-word —
-    prefix ("heil*"), suffix ("*igga"), infix, or both ("*epstein*"). Every
+    prefix ("zab*"), suffix ("*zab"), infix, or both ("*zippety*"). Every
     other character is literal, including dots ("*docs.google.com*" matches
     the real site name), digits, spaces, and emoji. A star never crosses
     whitespace, so "*zippet*" masks exactly "zippet", never the sentence

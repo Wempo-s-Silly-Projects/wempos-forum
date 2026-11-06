@@ -78,13 +78,13 @@ test("skeleton pass: exact whole-token matching, innocent carriers survive", () 
   assert.equal(applyWordFilter("badwords", "/badwords?/"), "########");
 });
 
-test("skeleton pass: exactness with a short entry (no class/bass masking)", () => {
-  const SHORT = "ass";
-  assert.equal(applyWordFilter("class", SHORT), "class");
-  assert.equal(applyWordFilter("bass", SHORT), "bass");
-  assert.equal(applyWordFilter("ass", SHORT), "###");
+test("skeleton pass: exactness with a short entry (no chill/pill masking)", () => {
+  const SHORT = "ill";
+  assert.equal(applyWordFilter("chill", SHORT), "chill");
+  assert.equal(applyWordFilter("pillow", SHORT), "pillow");
+  assert.equal(applyWordFilter("ill", SHORT), "###");
   // Elongation is still whole-token: an elongated form of the entry masks.
-  assert.equal(applyWordFilter("asss", SHORT), "####");
+  assert.equal(applyWordFilter("illl", SHORT), "####");
 });
 
 test("scramble pass: one deleted character still matches 4+ letter entries", () => {
@@ -161,7 +161,7 @@ test("bare regex entries (no slashes) compile as patterns", () => {
 });
 
 test("glob entries: plain * wildcards, everything else literal", () => {
-  const GLOB_LIST = "*zippet*,bibi*,*igga";
+  const GLOB_LIST = "*zippet*,bibi*,*glu";
   // Wildcards become \S* — they never span whitespace, so only the matched
   // run masks, never the sentence it sits in.
   assert.equal(applyWordFilter("go zippet dot com now", GLOB_LIST), "go ###### dot com now");

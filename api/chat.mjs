@@ -12,6 +12,7 @@ import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
 import { applyWordFilter } from "./filter.mjs";
+import { filterWords } from "./filterstore.mjs";
 
 // A member counts as online for 3 minutes after their last heartbeat; the
 // client pings every 60s.
@@ -116,7 +117,7 @@ async function handleChatCreateRoute(request, env, url, path, method, ctx) {
   const body = await readJson(request);
   const message = applyWordFilter(
     String(body.body ?? "").trim().slice(0, CHAT_MAX_CHARS),
-    env.FILTERED_WORDS,
+    filterWords(env),
   );
   if (!message) throw new HttpError(400, "Write a message first.");
   const result = await env.FORUM_DB.prepare(

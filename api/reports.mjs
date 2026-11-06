@@ -5,6 +5,7 @@
 // (thread pin/unpin and the hidden-posts desk page — see the plan's
 // rulings). All bodies moved verbatim from their sources.
 import { applyWordFilter } from "./filter.mjs";
+import { filterWords } from "./filterstore.mjs";
 import { assertNotBanned, requireStaff, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson, requireMutationApplied, requiredText } from "./core/http.mjs";
@@ -24,7 +25,7 @@ async function handleReportCreateRoute(request, env, url, path, method, ctx) {
     if (!(await canViewPost(env, post, session.user))) throw new HttpError(404, "Post not found.");
     if (Number(post.author_id) === session.user.id) throw new HttpError(400, "You cannot report your own post.");
     const body = await readJson(request);
-    const reason = applyWordFilter(requiredText(body.reason, "report reason", 500), env.FILTERED_WORDS);
+    const reason = applyWordFilter(requiredText(body.reason, "report reason", 500), filterWords(env));
     try {
       const result = await db.prepare(
         "INSERT INTO reports (post_id, reporter_id, reason, status, created_at) " +
@@ -248,7 +249,7 @@ async function handleProfileReportRoute(request, env, url, path, method, ctx) {
     ).bind(profileUserId).first();
     if (!target) throw new HttpError(404, "Member not found.");
     const body = await readJson(request);
-    const reason = applyWordFilter(requiredText(body.reason, "report", 500), env.FILTERED_WORDS);
+    const reason = applyWordFilter(requiredText(body.reason, "report", 500), filterWords(env));
     const results = await db.batch([
       db.prepare(
         "INSERT INTO profile_reports (profile_user_id, reporter_id, reason, status, created_at) " +

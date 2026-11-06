@@ -8,6 +8,7 @@ import { HttpError, json, rateLimit, readJson, requiredText } from "./core/http.
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 import { applyWordFilter } from "./filter.mjs";
+import { filterWords } from "./filterstore.mjs";
 
 const MAX_POLL_QUESTION_CHARS = 200;
 const MAX_POLL_OPTION_CHARS = 80;
@@ -90,14 +91,14 @@ async function handlePollCreateRoute(request, env, url, path, method) {
     }
     const question = applyWordFilter(
       requiredText(body.question, "question", MAX_POLL_QUESTION_CHARS),
-      env.FILTERED_WORDS,
+      filterWords(env),
     );
     const labels = [];
     const seen = new Set();
     for (const raw of body.options) {
       const label = applyWordFilter(
         requiredText(raw, "poll option", MAX_POLL_OPTION_CHARS),
-        env.FILTERED_WORDS,
+        filterWords(env),
       );
       const key = label.toLowerCase();
       if (seen.has(key)) {

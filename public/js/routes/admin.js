@@ -25,6 +25,7 @@ import {
   createGifQueue,
 } from "../desk/media.js";
 import { createReportQueue } from "../desk/reports.js";
+import { createFilterEditor } from "../desk/filter.js";
 
 // The desk (v4.2 redesign): /admin is a section-routed panel — a sidebar rail
 // of dedicated pages (each loading exactly one desk payload) plus a dashboard
@@ -45,6 +46,7 @@ const DESK_SECTIONS = [
   { slug: "chat-log", label: "Chat log" },
   { slug: "dm-log", label: "DM log" },
   { slug: "rules", label: "Rules" },
+  { slug: "filter", label: "Word filter" },
 ];
 
 // slug → { lede, load(), build() }. Every build() appends the section's body
@@ -112,6 +114,11 @@ const DESK_BUILDERS = {
     lede: "The site copy every /rules visitor reads — markdown subset, word-filtered.",
     load: () => api("/api/rules"),
     build: (data) => createRulesEditor(data.rules, document),
+  },
+  "filter": {
+    lede: "The word filter — edit the full list, or bulk-add pasted entries (duplicates skip).",
+    load: () => api("/api/admin/filter"),
+    build: (data) => createFilterEditor(data, document),
   },
 };
 
@@ -411,7 +418,30 @@ export const FORM_HANDLERS = {
   "admin-attachment-approve": (form) => submitAttachmentModeration(form, "approve"),
   "admin-attachment-reject": (form) => submitAttachmentModeration(form, "reject"),
   "admin-member-search": (form, text) => submitMemberSearch(form, text),
+  "filter-save": async (form, text) => submitFilterSave(form, text),
+  "filter-bulk-add": async (form, text) => submitFilterBulkAdd(form, text),
 };
+
+// Filter store (v4.3): the desk's two writes. Save replaces the whole list
+// (an empty list turns the filter off deliberately); bulk add appends and
+// dedupes server-side, and the report counts both directions.
+async function submitFilterSave(form, text) {
+  await api("/api/admin/filter", { method: "PUT", body: { words: text("words") } });
+  await state.renderRoute(state.activeRoute);
+  setMessage("The filter list was saved.");
+}
+
+async function submitFilterBulkAdd(form, text) {
+  const data = await api("/api/admin/filter/entries", {
+    method: "POST",
+    body: { entries: text("entries") },
+  });
+  await state.renderRoute(state.activeRoute);
+  setMessage(
+    data.added + (data.added === 1 ? " entry added" : " entries added") +
+    (data.skipped ? " · " + data.skipped + (data.skipped === 1 ? " duplicate skipped." : " duplicates skipped.") : "."),
+  );
+}
 
 export const ACTIONS = {
     // Pinned (C5): the mod desk's pin/unpin — POST to the admin route and

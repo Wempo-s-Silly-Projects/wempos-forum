@@ -21,6 +21,7 @@ import { handleChatRoutes } from "./api/chat.mjs";
 import { handleWallRoutes } from "./api/wall.mjs";
 import { handleDmRoutes } from "./api/dms.mjs";
 import { handleTotpRoutes } from "./api/twofa.mjs";
+import { ensureFilterWords, handleFilterAdminRoutes } from "./api/filterstore.mjs";
 
 export { canViewPost } from "./api/core/visibility.mjs";
 export { isValidUsername } from "./api/core/shapers.mjs";
@@ -69,9 +70,13 @@ async function routeApi(request, env, ctx) {
   const method = request.method.toUpperCase();
   if (!env.FORUM_DB) throw new HttpError(503, "The forum database is not configured.");
 
+  // Filter store (v4.3): prime the word-filter list cache once per request —
+  // the D1 row when it exists, else the FILTERED_WORDS secret.
+  await ensureFilterWords(env);
+
   await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
 
-  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleWallRoutes, handleTotpRoutes];
+  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleWallRoutes, handleTotpRoutes, handleFilterAdminRoutes];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method, ctx);
     if (response) return response;

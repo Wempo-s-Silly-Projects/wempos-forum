@@ -9,6 +9,7 @@
 import { REPLY_BUMP_SQL, THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL } from "../constants.mjs";
 import { insertAttachments, MAX_ATTACHMENT_FILES, readComposedBody } from "./attachments.mjs";
 import { applyWordFilter } from "./filter.mjs";
+import { filterWords } from "./filterstore.mjs";
 import { GENERAL_BOARD_DEFAULT } from "./boards.mjs";
 import { notificationBatchStatements } from "./notifications.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
@@ -86,7 +87,7 @@ export async function handleReplyCreateRoute(request, env, url, path, method, ct
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
-    const message = applyWordFilter(requiredText(fields.body, "reply", MAX_COMPOSER_BODY_CHARS), env.FILTERED_WORDS);
+    const message = applyWordFilter(requiredText(fields.body, "reply", MAX_COMPOSER_BODY_CHARS), filterWords(env));
     const idempotencyFingerprint = idempotencyKey
       ? await postCreationFingerprint({ kind: "reply", targetId, message, files, gifEntries })
       : null;
