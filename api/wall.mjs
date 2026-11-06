@@ -11,7 +11,6 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { applyWordFilter } from "./filter.mjs";
-import { scheduleTextCheck } from "./textmod.mjs";
 
 const WALL_MAX_CHARS = 280;
 const WALL_PAGE_LIMIT = 50;
@@ -84,14 +83,6 @@ async function handleWallCreateRoute(request, env, url, path, method, ctx) {
   const row = await env.FORUM_DB.prepare(
     WALL_SELECT + "WHERE w.id = ? LIMIT 1",
   ).bind(wallPostId).first();
-  // Text auto-mod (v3.1, owner's ask — "moderate the forum while mods are
-  // asleep"): the wall post scores in the background; a trip deletes the row
-  // (walls have no hidden state — chat's permanence) and records an
-  // appealable action. The post never waits on OpenAI.
-  scheduleTextCheck(ctx, env, {
-    kind: "wall", entityId: wallPostId,
-    userId: session.user.id, text: message,
-  });
   return json({ wallPost: publicWallPost(row) }, 201);
 }
 

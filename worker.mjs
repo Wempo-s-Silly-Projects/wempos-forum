@@ -21,8 +21,6 @@ import { handleChatRoutes } from "./api/chat.mjs";
 import { handleWallRoutes } from "./api/wall.mjs";
 import { handleDmRoutes } from "./api/dms.mjs";
 import { handleTotpRoutes } from "./api/twofa.mjs";
-import { handleVisionAdminRoutes } from "./api/vision.mjs";
-import { handleTextModAdminRoutes } from "./api/textmod.mjs";
 
 export { canViewPost } from "./api/core/visibility.mjs";
 export { isValidUsername } from "./api/core/shapers.mjs";
@@ -62,9 +60,9 @@ function apiError(error) {
   return json({ error: "Something went wrong. Please try again." }, 500);
 }
 
-// ctx carries waitUntil, which the Vision background checks ride (v3.1): the
-// upload response returns without waiting on Google. Callers without a ctx
-// (tests) simply never schedule background checks.
+// ctx carries waitUntil (v3.1): background work rides it where a route needs
+// one; the response returns without waiting. Callers without a ctx (tests)
+// simply never schedule background checks.
 async function routeApi(request, env, ctx) {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -73,7 +71,7 @@ async function routeApi(request, env, ctx) {
 
   await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
 
-  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleVisionAdminRoutes, handleTextModAdminRoutes, handleWallRoutes, handleTotpRoutes];
+  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleWallRoutes, handleTotpRoutes];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method, ctx);
     if (response) return response;

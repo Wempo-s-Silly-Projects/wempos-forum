@@ -1,10 +1,10 @@
 // v4.0 plan 2, Task 5: the write side of the posts surface — post/reply
 // creation plumbing (idempotency family, staged attachments), the edit,
 // history, delete, and reaction routes. Moved verbatim from api/posts.mjs.
-// replies.mjs (Task 4) imports the shared create-side plumbing through here —
-// scheduleAttachmentVisionChecks' home resolved to posts-write (its two
-// consumers, post-create and reply-create, both sit downstream); plan's
-// "resolve at implementation" note, recorded in the plan-2 ledger.
+// replies.mjs (Task 4) imports the shared create-side plumbing through here;
+// the plan's "resolve at implementation" ruling places it here because both
+// create routes (post + reply) consume it. Vision scheduling went away with
+// the auto-mod removal (v4.2); the staged-attachment plumbing stayed.
 import { STAGED_REPLY_BUMP_SQL } from "../constants.mjs";
 import {
   insertAttachments,
@@ -14,8 +14,6 @@ import {
 import { applyWordFilter } from "./filter.mjs";
 import { UPDATES_BOARD, boardField } from "./boards.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
-import { scheduleVisionCheck } from "./vision.mjs";
-import { scheduleTextCheck } from "./textmod.mjs";
 import { archivePostRowsStatement } from "./core/archive.mjs";
 import { assertNotBanned, readSession, requireUser } from "./core/auth.mjs";
 import { nowSeconds, sha256Hex } from "./core/crypto.mjs";
@@ -24,22 +22,6 @@ import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 
 // Vision first-pass (v3.1): every freshly PENDING direct upload is background-
-// checked right after its batch commits. Dedup twins (preApproved) skip it —
-// identical bytes already passed a human review. Library GIF references are
-// approved rows by construction and never checked here.
-export function scheduleAttachmentVisionChecks(ctx, env, authorId, files, ids) {
-  files.forEach((file, index) => {
-    if (file.preApproved) return;
-    scheduleVisionCheck(ctx, env, {
-      kind: "attachment",
-      entityId: ids[index],
-      bytes: file.bytes,
-      hash: file.hash,
-      userId: authorId,
-    });
-  });
-}
-
 // Composer body cap (owner-set): root post AND reply bodies accept at most
 // 4,750 characters (bumped from 1,000 on main, 2026-11-05). Kept module-local
 // because constants.mjs holds platform-only constants; the frontend mirrors the
@@ -180,7 +162,7 @@ export async function persistStagedPostAttachments(db, postId, authorId, files, 
   const { bumpTargetId = null } = options;
   try {
     // The inserted attachment ids ride back out for the Vision first-pass
-    // (scheduleAttachmentVisionChecks) — but ONLY after the publish below
+    // — but ONLY after the publish below
     // runs: an early return here would strand every staged post hidden.
     const attachmentIds = await insertAttachments(db, postId, authorId, files, gifEntries);
     const publish = db.prepare(
@@ -307,7 +289,6 @@ export async function handlePostCreateRoute(request, env, url, path, method, ctx
     const postId = Number(result.meta.last_row_id);
     if (hasAttachments) {
       const attachmentIds = await persistStagedPostAttachments(db, postId, session.user.id, files, gifEntries);
-      scheduleAttachmentVisionChecks(ctx, env, session.user.id, files, attachmentIds);
     } else {
       await insertAttachments(db, postId, session.user.id, files, gifEntries);
     }
@@ -327,13 +308,6 @@ export async function handlePostCreateRoute(request, env, url, path, method, ctx
     } catch {
       // Ignore: mentions are a convenience, not a post precondition.
     }
-    // Text auto-mod (v3.1): the fresh root scores in the background; a trip
-    // auto-hides it (never deletes). Runs after the staged publish above, so
-    // the hide guard always sees the final public visibility.
-    scheduleTextCheck(ctx, env, {
-      kind: "post", entityId: postId, userId: session.user.id,
-      text: message, postId,
-    });
     return json({ id: postId }, 201);
   }
   return null;
@@ -391,14 +365,6 @@ export async function handlePostEditRoute(request, env, url, path, method, ctx) 
       ).bind(message, editedAt, postId, session.user.id),
     ]);
     if (Number(results[1]?.meta?.changes) !== 1) throw new HttpError(404, "Post not found.");
-    // Text auto-mod (v3.1): edits re-score — edits must never quietly
-    // rewrite past a trip. If an unreversed auto_text action already exists
-    // for this post the task no-ops (the post is already hidden; the appeal
-    // path owns unhiding).
-    scheduleTextCheck(ctx, env, {
-      kind: "post", entityId: postId, userId: session.user.id,
-      text: message, postId: Number(post.parent_id || postId),
-    });
     return json({ id: postId, editedAt: new Date(editedAt * 1000).toISOString() });
   }
   return null;

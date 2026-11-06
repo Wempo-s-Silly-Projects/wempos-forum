@@ -9,7 +9,6 @@ import { assertNotBanned, readSession, requireStaff, requireUser } from "./core/
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readLimitedBody } from "./core/http.mjs";
 import { blobToUint8Array, createAvatarVersion, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
-import { publicVisionVerdict, scheduleVisionCheck, visionVerdictsByEntity } from "./vision.mjs";
 
 export const GIF_FIELD = "gifIds";
 
@@ -161,15 +160,6 @@ export async function handleGifUploadRoute(request, env, path, method, ctx) {
     ]);
     return json({ id: approvedAfterInsert.id, reuse: true });
   }
-  // Vision first-pass (v3.1): the fresh pending row gets its background check.
-  // Dedup twins and restored approved rows skip it — those bytes are approved.
-  scheduleVisionCheck(ctx, env, {
-    kind: "gif",
-    entityId: id,
-    bytes,
-    hash,
-    userId: session.user.id,
-  });
   return json({ id, reuse: false }, 201);
 }
 
@@ -243,15 +233,12 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
       "FROM gifs g LEFT JOIN users u ON u.id = g.uploader_id " +
       "WHERE g.status = 'pending' ORDER BY g.created_at ASC LIMIT 100",
     ).all();
-    const verdicts = await visionVerdictsByEntity(db, "gif",
-      (result.results || []).map((row) => row.id));
     return json({
       gifs: (result.results || []).map((row) => ({
         id: row.id,
         uploader: row.uploader || "removed",
         createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
         previewUrl: "/api/gifs/" + row.id,
-        vision: publicVisionVerdict(verdicts.get(String(row.id))),
       })),
     });
   }

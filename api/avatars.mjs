@@ -3,7 +3,6 @@
 // (handleAvatarReadRoute), and the moderation queue lives
 // here (queue + resolve + approve/reject routes, from moderation.mjs). All
 // bodies moved verbatim; sources re-import through this module.
-import { publicVisionVerdict, scheduleVisionCheck, visionVerdictsByEntity } from "./vision.mjs";
 import { assertNotBanned, readSession, requireStaff, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readLimitedBody, requireMutationApplied } from "./core/http.mjs";
@@ -101,17 +100,6 @@ async function handleAvatarUploadRoute(request, env, url, path, method, ctx) {
         "AND (expires_at IS NULL OR expires_at > ?))",
     ).bind(mime, clean, updatedAt, avatarVersion, session.user.id, session.user.id, nowSeconds()).run();
     requireMutationApplied(result);
-    // Vision first-pass (v3.1): the pending avatar gets its background check
-    // too — an auto-mod trip clears the pending mirror exactly like a mod
-    // rejection, so the previously approved avatar (if any) keeps serving.
-    scheduleVisionCheck(ctx, env, {
-      kind: "avatar",
-      entityId: session.user.id,
-      version: avatarVersion,
-      bytes: clean,
-      hash: null,
-      userId: session.user.id,
-    });
     return json({
       avatarUrl: "/api/avatars/" + session.user.id + "?v=" + avatarVersion,
       avatarStatus: "pending",
@@ -130,24 +118,13 @@ async function handleAvatarQueueRoute(request, env, url, path, method) {
         "FROM users WHERE avatar_status = 'pending' " +
         "ORDER BY pending_avatar_updated_at ASC LIMIT 100",
     ).bind().all();
-    // Vision verdicts key on (kind 'avatar', user id), and carry the pending
-    // version they describe: a re-upload while pending invalidates the old
-    // report, so only a version match surfaces (stale rows read as absent).
-    const verdicts = await visionVerdictsByEntity(db, "avatar",
-      (result.results || []).map((row) => row.id));
     return json({
-      avatars: (result.results || []).map((row) => {
-        const verdict = verdicts.get(String(row.id));
-        return {
-          userId: Number(row.id),
-          username: row.username,
-          avatarUrl: "/api/avatars/" + row.id + "?v=" + row.pending_avatar_version,
-          uploadedAt: new Date(Number(row.pending_avatar_updated_at) * 1000).toISOString(),
-          vision: verdict && verdict.version === row.pending_avatar_version
-            ? publicVisionVerdict(verdict)
-            : null,
-        };
-      }),
+      avatars: (result.results || []).map((row) => ({
+        userId: Number(row.id),
+        username: row.username,
+        avatarUrl: "/api/avatars/" + row.id + "?v=" + row.pending_avatar_version,
+        uploadedAt: new Date(Number(row.pending_avatar_updated_at) * 1000).toISOString(),
+      })),
     });
   }
   return null;
@@ -168,14 +145,7 @@ export async function resolveAvatarPending(db, userId, approve) {
         "avatar_status = 'approved' " +
         "WHERE id = ? AND avatar_status = 'pending'",
     ).bind(userId);
-    const results = await db.batch([
-      result,
-      // The Vision report described the pending upload, now decided.
-      db.prepare(
-        "DELETE FROM vision_verdicts WHERE kind = 'avatar' AND entity_id = ?",
-      ).bind(String(userId)),
-    ]);
-    if (Number(results[0].meta?.changes) !== 1) {
+    if (Number(result.meta?.changes) !== 1) {
       throw new HttpError(409, "That avatar is not awaiting review.");
     }
     return;
@@ -191,13 +161,7 @@ export async function resolveAvatarPending(db, userId, approve) {
       "avatar_status = CASE WHEN avatar_mime IS NOT NULL THEN 'approved' ELSE NULL END " +
       "WHERE id = ? AND avatar_status = 'pending'",
   ).bind(userId);
-  const results = await db.batch([
-    result,
-    db.prepare(
-      "DELETE FROM vision_verdicts WHERE kind = 'avatar' AND entity_id = ?",
-    ).bind(String(userId)),
-  ]);
-  if (Number(results[0].meta?.changes) !== 1) {
+  if (Number(result.meta?.changes) !== 1) {
     throw new HttpError(409, "That avatar is not awaiting review.");
   }
 }

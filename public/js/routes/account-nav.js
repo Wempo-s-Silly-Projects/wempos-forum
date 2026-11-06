@@ -1,6 +1,6 @@
 // v4.0 plan 4 Task 9: the header chrome — renderAccountNavigation (mobile
 // bar identity, the site-section icon links, chat toggle, profile/saved/
-// appeals/bell/shield, sign-in toggle) plus the logout action its quiet
+// bell/shield, sign-in toggle) plus the logout action its quiet
 // button dispatches. Bodies moved verbatim out of app.js.
 import { api, setCsrfToken } from "../api.js";
 import { accountActions, element, setMessage } from "../dom.js";
@@ -86,15 +86,6 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   });
   saved.setAttribute("data-app-link", "");
   accountActions.append(saved);
-  // Appeals (v3.1): the member surface for auto-mod decisions and history.
-  const appeals = iconButton(document, "flag", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    ariaLabel: "Appeals",
-    dataset: { href: "/appeals" },
-  });
-  appeals.setAttribute("data-app-link", "");
-  accountActions.append(appeals);
   accountActions.append(createNotificationBell(unreadNotifications, document));
   if (user.role === "owner" || user.role === "admin") {
     const reports = iconButton(document, "shield", {

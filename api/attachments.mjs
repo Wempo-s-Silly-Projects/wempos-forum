@@ -10,7 +10,6 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, readLimitedBody, readJson } from "./core/http.mjs";
 import { blobToUint8Array, createAvatarVersion, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
 import { assembledGifBytes, GIF_FIELD } from "./gifs.mjs";
-import { publicVisionVerdict, visionVerdictsByEntity } from "./vision.mjs";
 
 export const MAX_ATTACHMENT_FILES = 3;
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
@@ -390,10 +389,6 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
         "LEFT JOIN attachment_chunks c ON c.attachment_id = a.id AND c.kind = 'pending' " +
         "WHERE a.status = 'pending' GROUP BY a.id ORDER BY a.created_at ASC LIMIT 100",
     ).bind().all();
-    // Vision first-pass (v3.1): the desk shows each pending item's SafeSearch
-    // report (or its absence) so the human decision starts informed.
-    const verdicts = await visionVerdictsByEntity(db, "attachment",
-      (result.results || []).map((row) => row.id));
     return json({
       attachments: (result.results || []).map((row) => ({
         id: row.id,
@@ -403,7 +398,6 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
         sizeBytes: Number(row.size_bytes),
         chunkCount: Number(row.chunk_count),
         createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
-        vision: publicVisionVerdict(verdicts.get(String(row.id))),
       })),
     });
   }

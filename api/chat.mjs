@@ -12,7 +12,6 @@ import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
 import { applyWordFilter } from "./filter.mjs";
-import { scheduleTextCheck } from "./textmod.mjs";
 
 // A member counts as online for 3 minutes after their last heartbeat; the
 // client pings every 60s.
@@ -126,13 +125,6 @@ async function handleChatCreateRoute(request, env, url, path, method, ctx) {
   const row = await env.FORUM_DB.prepare(
     CHAT_SELECT + "WHERE c.id = ? LIMIT 1",
   ).bind(Number(result.meta?.last_row_id)).first();
-  // Text auto-mod (v3.1): the message scores in the background; a trip
-  // deletes it (chat has no hidden state — the same permanence as staff
-  // deletion) and records an appealable action. The send never waits.
-  scheduleTextCheck(ctx, env, {
-    kind: "chat", entityId: Number(result.meta?.last_row_id),
-    userId: session.user.id, text: message,
-  });
   // @mention pings (v4.2): chat bodies notify through the same fan-out as
   // posts — label-only rows (no post to click through). Never fails the send.
   try {

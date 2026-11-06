@@ -4,7 +4,7 @@
 // Seams (both one-directional): decorations come from posts-feed.mjs
 // (listReplies, attachSubReplyCounts — the Task-3 ruling keeps listReplies in
 // the read module); shared creation plumbing comes from posts-write.mjs
-// (idempotency family, staged persistence, scheduleAttachmentVisionChecks —
+// (idempotency family, staged persistence, attachment staging —
 // the Task-5 ruling places it there since both create routes consume it).
 import { REPLY_BUMP_SQL, THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL } from "../constants.mjs";
 import { insertAttachments, MAX_ATTACHMENT_FILES, readComposedBody } from "./attachments.mjs";
@@ -13,7 +13,6 @@ import { GENERAL_BOARD_DEFAULT } from "./boards.mjs";
 import { notificationBatchStatements } from "./notifications.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
 import { runFanOutChunks, subscriptionReplyFanOut } from "./subscriptions.mjs";
-import { scheduleTextCheck } from "./textmod.mjs";
 import { attachSubReplyCounts, listReplies } from "./posts-feed.mjs";
 import {
   MAX_COMPOSER_BODY_CHARS,
@@ -22,7 +21,6 @@ import {
   persistStagedPostAttachments,
   postCreationFingerprint,
   replayIdempotentPost,
-  scheduleAttachmentVisionChecks,
   throwIfArchivedIdempotencyKey,
 } from "./posts-write.mjs";
 import { assertNotBanned, readSession, requireUser } from "./core/auth.mjs";
@@ -170,7 +168,6 @@ export async function handleReplyCreateRoute(request, env, url, path, method, ct
       const attachmentIds = await persistStagedPostAttachments(db, replyId, session.user.id, files, gifEntries, {
         bumpTargetId,
       });
-      scheduleAttachmentVisionChecks(ctx, env, session.user.id, files, attachmentIds);
     } else {
       await insertAttachments(db, replyId, session.user.id, files, gifEntries);
     }
@@ -209,13 +206,6 @@ export async function handleReplyCreateRoute(request, env, url, path, method, ct
     } catch {
       // Ignore: notifications are a convenience, not a reply precondition.
     }
-    // Text auto-mod (v3.1): the fresh reply scores in the background; a trip
-    // AUTO-HIDES it (never deletes — a mod or an approved appeal restores it
-    // from the hidden-posts desk). The reply response never waits on Google.
-    scheduleTextCheck(ctx, env, {
-      kind: "post", entityId: replyId, userId: session.user.id,
-      text: message, postId: bumpTargetId,
-    });
     return json({ id: replyId }, 201);
   }
   return null;

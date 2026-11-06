@@ -5,7 +5,7 @@
 // moderation, member search). Bodies moved verbatim out of app.js; bare
 // renderRoute calls inside moved bodies re-read the boot state
 // (state.renderRoute). The queue/form section builders moved to the desk/
-// modules in plan 6 (spec step 6): automod, appeals, bans, chat-log, media,
+// modules in plan 6 (spec step 6): appeals, bans, chat-log, media,
 // reports — imported below.
 import { api } from "../api.js";
 import { addHeading, element, main, setMessage } from "../dom.js";
@@ -19,7 +19,6 @@ import {
   renderMemberSearchResults,
 } from "../desk/bans.js";
 import { createChatLog, createDmLog } from "../desk/chat-log.js";
-import { createTextModSection, createVisionSection } from "../desk/automod.js";
 import {
   createAttachmentQueue,
   createAvatarQueue,
@@ -43,7 +42,6 @@ const DESK_SECTIONS = [
   { slug: "css", label: "Profile CSS" },
   { slug: "hidden", label: "Hidden posts" },
   { slug: "bans", label: "Bans & members" },
-  { slug: "automod", label: "Auto-mod" },
   { slug: "chat-log", label: "Chat log" },
   { slug: "dm-log", label: "DM log" },
   { slug: "rules", label: "Rules" },
@@ -63,7 +61,7 @@ const DESK_BUILDERS = {
     build: (data) => createProfileReportQueue(data.profileReports, document),
   },
   "appeals": {
-    lede: "Second looks at auto-mod removals and bans. Approve or deny — approval always notifies the member.",
+    lede: "Second looks at bans a member appealed. Approve to revoke the ban — approval notifies the member.",
     load: () => api("/api/admin/appeals"),
     build: (data) => createAppealQueue(data.appeals, document),
   },
@@ -98,14 +96,6 @@ const DESK_BUILDERS = {
     build: (data, user) => [
       createActiveBanList(data.bans, document),
       createMemberSearch(document),
-    ],
-  },
-  "automod": {
-    lede: "Both auto-mod subsystems live here: Vision for pixels, OpenAI for text. Each has its own kill switch, independent of the API keys.",
-    load: async () => [await api("/api/admin/vision"), await api("/api/admin/text-mod")],
-    build: ([visionData, textModData], user) => [
-      createVisionSection(visionData, document),
-      createTextModSection(textModData, document),
     ],
   },
   "chat-log": {
@@ -149,7 +139,7 @@ async function renderAdminRoute(route, context, version) {
   }
   // Dashboard: count every work queue and surface what actually needs eyes —
   // status cards first, then the queue tiles.
-  const [reports, appeals, attachments, avatars, gifs, css, profileReports, hidden, vision, textMod] = await Promise.all([
+  const [reports, appeals, attachments, avatars, gifs, css, profileReports, hidden] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/appeals"),
     api("/api/admin/attachments"),
@@ -158,13 +148,11 @@ async function renderAdminRoute(route, context, version) {
     api("/api/admin/css"),
     api("/api/admin/profile-reports"),
     api("/api/admin/hidden"),
-    api("/api/admin/vision"),
-    api("/api/admin/text-mod"),
   ]);
   if (version !== state.renderVersion) return;
   addHeading(content, "Overview", 1);
   addText(document, content, "p",
-    "Everything the desk watches, one glance: the queues with work show their counts, the auto-mod twins report their state. " +
+    "Everything the desk watches, one glance: the queues with work show their counts. " +
     "Open a section from the rail to work it.", "page-lede");
   const counts = {
     "reports": reports.reports.length,
@@ -180,7 +168,7 @@ async function renderAdminRoute(route, context, version) {
     DESK_SECTIONS
       .filter((s) => s.slug !== "dashboard" && DESK_BUILDERS[s.slug])
       .map((s) => ({ slug: s.slug, label: s.label, count: counts[s.slug] })),
-    vision, textMod, document,
+    document,
   ));
 }
 
@@ -217,13 +205,8 @@ function renderAdminShell(user, activeSlug) {
   return content;
 }
 
-function createDashboardBoard(tiles, vision, textMod, document) {
+function createDashboardBoard(tiles, document) {
   const board = document.createElement("div");
-  const status = document.createElement("div");
-  status.className = "desk-status";
-  status.append(createVisionSection(vision, document));
-  status.append(createTextModSection(textMod, document));
-  board.append(status);
   const tilesHost = document.createElement("div");
   tilesHost.className = "desk-tiles";
   for (const tile of tiles) {
@@ -433,29 +416,6 @@ export const FORM_HANDLERS = {
 export const ACTIONS = {
     // Pinned (C5): the mod desk's pin/unpin — POST to the admin route and
     // re-render; the payload's pinnedAt decides which control each card shows.
-    "vision-kill": async () => {
-      // Auto-mod kill switch (v3.1): one click, effective on the next upload.
-      await api("/api/admin/vision-kill-switch", { method: "POST", body: { tripped: true } });
-      await state.renderRoute(state.activeRoute);
-      setMessage("Auto-mod is STOPPED — new uploads will not be checked.");
-    },
-    "vision-resume": async () => {
-      await api("/api/admin/vision-kill-switch", { method: "POST", body: { tripped: false } });
-      await state.renderRoute(state.activeRoute);
-      setMessage("Auto-mod resumed.");
-    },
-    // Text auto-mod kill switch (v3.1): OpenAI Moderation's emergency stop —
-    // independent of the Vision switch.
-    "text-mod-kill": async () => {
-      await api("/api/admin/text-mod-kill-switch", { method: "POST", body: { tripped: true } });
-      await state.renderRoute(state.activeRoute);
-      setMessage("Text auto-mod is STOPPED — member text will not be checked.");
-    },
-    "text-mod-resume": async () => {
-      await api("/api/admin/text-mod-kill-switch", { method: "POST", body: { tripped: false } });
-      await state.renderRoute(state.activeRoute);
-      setMessage("Text auto-mod resumed.");
-    },
     "thread-pin": async (button) => {
       await api("/api/admin/threads/" + button.dataset.postId + "/pin", { method: "POST" });
       await state.renderRoute(state.activeRoute);

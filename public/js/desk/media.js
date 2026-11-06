@@ -1,7 +1,6 @@
 // v4.0 plan 5 (spec step 6), task 1: the moderation desk's media review queues (attachments, avatars, GIFs) section
 // builders — bodies moved verbatim out of ../admin.js (now dissolved).
 import { addText } from "../forms.js";
-import { appendVisionVerdict } from "./automod.js";
 
 // Pending image moderation queue (plan Task 6/7): oldest uploads first from
 // GET /api/admin/attachments. Mirrors the avatar queue above, sized down to a
@@ -24,7 +23,6 @@ function createAttachmentQueue(attachments, document) {
       // sizeBytes/chunkCount come from SQL aggregation over the attachment's
       // D1 chunks (display-only; size is what moderation acts on).
       `${attachment.mime} · ${Math.max(1, Math.ceil(attachment.sizeBytes / 1024))} KB · ${attachment.chunkCount} chunk${attachment.chunkCount === 1 ? "" : "s"}`, "muted");
-    appendVisionVerdict(document, card, attachment.vision);
     const image = document.createElement("img");
     image.className = "attachment-preview";
     image.src = `/api/attachments/${attachment.id}`;
@@ -69,7 +67,6 @@ function createAvatarQueue(avatars, document) {
     card.className = "avatar-card";
     addText(document, card, "h3", avatar.username);
     addText(document, card, "p", `Uploaded ${new Date(avatar.uploadedAt).toLocaleString()}`);
-    appendVisionVerdict(document, card, avatar.vision);
     const image = document.createElement("img");
     image.className = "avatar avatar-preview";
     image.src = avatar.avatarUrl;
@@ -110,7 +107,6 @@ function createGifQueue(gifs, document) {
     const card = document.createElement("article");
     card.className = "attachment-card gif-review-card";
     addText(document, card, "p", `${gif.uploader} · uploaded ${new Date(gif.createdAt).toLocaleString()}`);
-    appendVisionVerdict(document, card, gif.vision);
     const image = document.createElement("img");
     image.src = gif.previewUrl;
     image.alt = "GIF submitted for moderation";

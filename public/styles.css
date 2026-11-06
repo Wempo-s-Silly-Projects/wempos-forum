@@ -1891,13 +1891,9 @@ dialog h2 {
 .chat-log-banned { color: #b3261e; font-size: 0.8rem; font-weight: 700; }
 .chat-log-body { margin: 0.2rem 0 0.6rem; white-space: pre-wrap; overflow-wrap: anywhere; }
 
-/* Appeals (v3.1) + Vision verdicts: queue/report lines on the desk and the
-   member appeals page. Flagged verdicts read red; the appeal body quotes are
-   blockquote-styled without inheriting the blockquote accent. */
-.vision-verdict { margin: 0.2rem 0; color: var(--muted-ink, #6b7280); font-size: 0.85rem; }
-.vision-verdict-flagged { color: #b3261e; font-weight: 700; }
-.vision-status { font-weight: 700; }
-.vision-status-stopped { color: #b3261e; }
+/* Appeals: the desk's appeal cards (auto-mod appeal styles went away with
+   the auto-mod removal in v4.2; the appeal body quotes are blockquote-styled
+   without inheriting the blockquote accent). */
 .appeal-card, .appeal-action-item, .appeal-history-item {
   border: 1px solid var(--line);
   border-radius: var(--button-radius);

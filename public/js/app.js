@@ -103,7 +103,6 @@ import {
 // (the /chat route wrapper moved into chat.js itself).
 import {
   FORM_HANDLERS as appealFormHandlers,
-  renderAppealsRoute,
 } from "./routes/appeals.js";
 import {
   ACTIONS as notificationActions,
@@ -221,7 +220,6 @@ async function renderRoute(route) {
     post: () => renderPostRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
     admin: () => renderAdminRoute(route, context, version),
-    appeals: () => renderAppealsRoute(context, version),
     notifications: () => renderNotificationsRoute(context, version),
     bookmarks: () => renderBookmarksRoute(context, version),
     "not-found": () => renderNotFoundRoute(),

@@ -13,7 +13,6 @@ import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { userByUsernameKey } from "./core/shapers.mjs";
 import { applyWordFilter } from "./filter.mjs";
-import { scheduleTextCheck } from "./textmod.mjs";
 
 const DM_PAGE_LIMIT = 50;
 const DM_MAX_CHARS = 1000;
@@ -206,13 +205,6 @@ async function handleDmThreadRoute(request, env, url, path, method, ctx) {
     const row = await env.FORUM_DB.prepare(
       DM_MESSAGE_SELECT + "WHERE m.id = ? LIMIT 1",
     ).bind(Number(result.meta?.last_row_id)).first();
-    // Text auto-mod (v3.1): the message scores in the background; a trip
-    // deletes it (DMs have no hidden state — same permanence as staff
-    // deletion) and records an appealable action. The send never waits.
-    scheduleTextCheck(ctx, env, {
-      kind: "dm", entityId: Number(result.meta?.last_row_id),
-      userId: session.user.id, text: message,
-    });
     return json({ message: publicDmMessage(row) }, 201);
   }
 

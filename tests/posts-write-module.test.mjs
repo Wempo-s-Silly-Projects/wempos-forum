@@ -10,7 +10,6 @@ import * as write from "../api/posts-write.mjs";
 
 test("posts-write.mjs exports the write surface", () => {
   for (const name of [
-    "scheduleAttachmentVisionChecks",
     "getPostIdempotencyKey",
     "existingIdempotentPost",
     "throwIfArchivedIdempotencyKey",

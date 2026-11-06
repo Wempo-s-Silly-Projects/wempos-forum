@@ -2,7 +2,7 @@
 // api/replies.mjs. It draws its decorations from posts-feed.mjs (the Task-3
 // seam: listReplies, attachSubReplyCounts) and its shared creation plumbing
 // from posts-write.mjs (the Task-5 ruling: idempotency family, staged
-// persistence, scheduleAttachmentVisionChecks). This pin holds the module's
+// persistence, staged persistence). This pin holds the module's
 // export surface steady.
 import test from "node:test";
 import assert from "node:assert/strict";

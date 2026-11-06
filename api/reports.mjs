@@ -5,8 +5,6 @@
 // (thread pin/unpin and the hidden-posts desk page — see the plan's
 // rulings). All bodies moved verbatim from their sources.
 import { applyWordFilter } from "./filter.mjs";
-import { scheduleReportVisionRecheck } from "./vision.mjs";
-import { scheduleTextCheck } from "./textmod.mjs";
 import { assertNotBanned, requireStaff, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson, requireMutationApplied, requiredText } from "./core/http.mjs";
@@ -42,15 +40,6 @@ async function handleReportCreateRoute(request, env, url, path, method, ctx) {
       if (duplicate) throw new HttpError(409, "You already have an open report for this post.");
       throw error;
     }
-    // Auto-mod report sweep (v3.1, owner's ask): the filed report re-runs
-    // SafeSearch over every image on this post — approved content included —
-    // AND re-scores the post's text, in the background. The report response
-    // never waits on Google; a text trip auto-hides the post for the desk.
-    scheduleReportVisionRecheck(ctx, env, { postId });
-    scheduleTextCheck(ctx, env, {
-      kind: "post", entityId: postId, userId: Number(post.author_id),
-      text: String(post.body ?? ""), postId,
-    });
     return json({ ok: true }, 201);
   }
   return null;
@@ -267,10 +256,6 @@ async function handleProfileReportRoute(request, env, url, path, method, ctx) {
       ).bind(profileUserId, session.user.id, reason, nowSeconds()),
     ]);
     requireMutationApplied(results[0]);
-    // Auto-mod report sweep (v3.1): a profile report re-runs SafeSearch over
-    // the member's avatar sets (approved + pending) in the background — the
-    // report response never waits on Google.
-    scheduleReportVisionRecheck(ctx, env, { userId: profileUserId });
     return json({ id: Number(results[0].meta.last_row_id) }, 201);
   }
   return null;
