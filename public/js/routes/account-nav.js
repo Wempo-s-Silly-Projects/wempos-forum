@@ -100,7 +100,7 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
     const reports = iconButton(document, "shield", {
       tagName: "a",
       className: "button button-secondary icon-button",
-      dataset: { href: "/admin/reports" },
+      dataset: { href: "/admin" },
     });
     accountActions.append(reports);
   }
