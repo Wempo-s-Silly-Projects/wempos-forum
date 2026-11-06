@@ -39,6 +39,21 @@ const NOTIFICATION_SELECT =
     "(SELECT body FROM posts WHERE id = n.reply_id) AS reply_body " +
   "FROM notifications n WHERE n.user_id = ? ORDER BY n.id DESC LIMIT " + NOTIFICATIONS_PER_USER;
 
+// Staff variant (plain above): the preview subselect is gated too (review
+// finding) — the 80-char body preview only rides when the reply row is
+// public, its author unbanned, and not block-paired with the recipient.
+// Members get this shape; staff read the ungated one so desk work never
+// breaks on filtered previews. Bind order: recipient (blocks), recipient
+// (blocks), recipient (list WHERE).
+const NOTIFICATION_SELECT_FILTERED =
+  "SELECT n.id, n.target_post_id, n.reply_id, n.created_at, n.read_at, n.label, " +
+    "(SELECT p.body FROM posts p WHERE p.id = n.reply_id AND p.visibility = 'public' AND " +
+    "NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = p.author_id AND b.revoked_at IS NULL " +
+    "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER))) AND " +
+    "NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND bk.blocked_id = p.author_id) " +
+    "OR (bk.blocker_id = p.author_id AND bk.blocked_id = ?))) AS reply_body " +
+  "FROM notifications n WHERE n.user_id = ? ORDER BY n.id DESC LIMIT " + NOTIFICATIONS_PER_USER;
+
 function publicNotification(row) {
   const hasTarget = row.target_post_id !== null && row.target_post_id !== undefined;
   return {
@@ -122,7 +137,11 @@ async function handleNotificationsRoute(request, env, url, path, method) {
   if (path === "/api/me/notifications") {
     if (method !== "GET") throw new HttpError(405, "That method is not supported.");
     const user = await requireSignedInRead(request, env);
-    const result = await db.prepare(NOTIFICATION_SELECT).bind(user.user.id).all();
+    const isStaff = user.user.role === "owner" || user.user.role === "admin";
+    const result = await (isStaff
+      ? db.prepare(NOTIFICATION_SELECT).bind(user.user.id)
+      : db.prepare(NOTIFICATION_SELECT_FILTERED).bind(user.user.id, user.user.id, user.user.id)
+    ).all();
     return json({ notifications: (result.results || []).map(publicNotification) });
   }
 

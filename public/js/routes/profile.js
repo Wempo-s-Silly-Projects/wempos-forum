@@ -64,12 +64,16 @@ function applyProfileTheme(profile) {
   activeProfileStyleNode = link;
 }
 
-// The node's own reset: renderRoute (app.js) clears the tracked <link> on
-// every route switch — the same "null, remove later" semantics the block had
-// when it lived there (applyProfileTheme removes the link on the NEXT profile
-// render — the scoped css selectors are inert on non-profile pages).
+// The node's own reset: renderRoute (app.js) removes the tracked <link> on
+// every route switch. (The selectors are inert on non-profile pages, but the
+// stylesheet keeps loading — remove the node outright so leaving a profile
+// stops fetching and re-applying its css, and a stale node can never
+// re-attach.)
 export function clearProfileTheme() {
-  activeProfileStyleNode = null;
+  if (activeProfileStyleNode) {
+    activeProfileStyleNode.remove();
+    activeProfileStyleNode = null;
+  }
 }
 
 // Milestone badges (v2.5): display-only, computed from the profile's

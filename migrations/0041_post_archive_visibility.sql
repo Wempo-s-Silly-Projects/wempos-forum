@@ -1,0 +1,13 @@
+-- Archive visibility (review fix): the accountability archive serves the
+-- DELETED text publicly — that was the anti-scrub design (rooman98's ask) —
+-- but moderation-hidden or banned-author posts were never meant to ride the
+-- public read: deleting one's own PUBLIC post is the accountability case;
+-- content a moderator hid was already not public at deletion time. The copy
+-- gains the row's posts.visibility AT DELETION TIME; the public read
+-- (/api/archive) shows only 'public' rows. Staff still see every archived
+-- row through the D1 store.
+-- Historical rows keep DEFAULT 'public': every copy before this column
+-- existed was made under the old behavior (no visibility was recorded), and
+-- re-deriving "was it hidden when deleted" retroactively is not honest — the
+-- flag marks the new copies' truth going forward.
+ALTER TABLE post_archive ADD COLUMN visibility TEXT NOT NULL DEFAULT 'public';

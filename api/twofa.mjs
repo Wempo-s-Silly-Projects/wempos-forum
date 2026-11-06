@@ -8,6 +8,7 @@
 import { requireCsrf, requireUser, assertNetworkNotBanned, createSession } from "./core/auth.mjs";
 import { nowSeconds, randomToken, sha256Hex } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
+import { verifyPassword } from "./core/passwords.mjs";
 import { publicUser, userByUsernameKey } from "./core/shapers.mjs";
 import { generateTotpSecret, otpauthUri, verifyTotpCode } from "./core/totp.mjs";
 
@@ -29,14 +30,25 @@ async function handleTotpRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
 
   // Stage a fresh secret. Re-running setup replaces the staged secret — a
-  // stale draft can never be confirmed into 2FA without a fresh code.
+  // stale draft can never be confirmed into 2FA without a fresh code. The
+  // session's CURRENT password re-proofs the member first (review finding —
+  // a hijacked tab should not be able to arm a 2FA takeover): same
+  // verifyPassword path as the login flow, rejected before any secret work.
   if (path === "/api/me/totp/setup" && method === "POST") {
     const session = await requireUser(request, env);
     await totpLimiter(request, env, "user:" + session.user.id);
+    const body = await readJson(request);
+    const currentPassword = typeof body.currentPassword === "string" ? body.currentPassword : "";
+    if (currentPassword.length < 1 || currentPassword.length > 128) {
+      throw new HttpError(400, "Enter your current password to start two-factor setup.");
+    }
     const row = await db.prepare(
-      "SELECT totp_enabled, totp_secret FROM users WHERE id = ? LIMIT 1",
+      "SELECT totp_enabled, totp_secret, password_salt, password_hash FROM users WHERE id = ? LIMIT 1",
     ).bind(session.user.id).first();
     if (!row) throw new HttpError(404, "Your account could not be found.");
+    if (!(await verifyPassword(currentPassword, row.password_salt, row.password_hash, env.PASSWORD_PEPPER))) {
+      throw new HttpError(401, "Your current password is incorrect.");
+    }
     if (Number(row.totp_enabled) === 1 && row.totp_secret) {
       throw new HttpError(409, "Two-factor authentication is already on. Turn it off first.");
     }

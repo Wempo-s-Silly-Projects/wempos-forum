@@ -21,7 +21,12 @@ async function handleArchiveRoute(request, env, url, path, method) {
     }
   }
   const sql = "SELECT id, original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because, deleted_by_user_id, deleted_by_name " +
-    "FROM post_archive WHERE id < ? ORDER BY id DESC LIMIT " + ARCHIVE_PAGE_SIZE;
+    // visibility (migration 0041): the public accountability read carries only
+    // rows that were PUBLIC when deleted — moderation-hidden or banned-author
+    // posts were not public content at deletion time. Rows kept hidden from
+    // this read (staff still see them in D1) count against the page size, so
+    // a sparse page is possible; the cursor keeps its id monotonicity either way.
+    "FROM post_archive WHERE visibility = 'public' AND id < ? ORDER BY id DESC LIMIT " + ARCHIVE_PAGE_SIZE;
   const result = await env.FORUM_DB.prepare(sql).bind(before ?? Number.MAX_SAFE_INTEGER).all();
   const rows = result.results || [];
   const hasMore = rows.length === ARCHIVE_PAGE_SIZE;

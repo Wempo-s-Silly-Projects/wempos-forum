@@ -127,6 +127,8 @@ async function handleBanAppealRoute(request, env, url, path, method) {
   // — but the same-origin rule for state-changing requests still applies.
   assertSameOrigin(request);
   await rateLimit(request, env, "write");
+  // Session-less route: no account actor exists yet, so both limits key by IP.
+  await rateLimit(request, env, "appeal");
   const body = await readJson(request);
   const username = typeof body.username === "string" ? body.username.trim() : "";
   if (!username) throw new HttpError(400, "Enter the username of the banned account.");
@@ -140,6 +142,9 @@ async function handleBanAppealRoute(request, env, url, path, method) {
   if (password.length < 1 || password.length > 128) {
     throw new HttpError(400, "Enter the account's password to appeal.");
   }
+  // Login-tier limit keyed by the claimed account, checked BEFORE the password
+  // work (review finding): a brute-forcer pays the binding before any PBKDF2.
+  await rateLimit(request, env, "appeal", "account:" + username.toLowerCase());
   const appealText = applyWordFilter(
     requiredText(body.body, "appeal", MAX_APPEAL_BODY_CHARS),
     filterWords(env),

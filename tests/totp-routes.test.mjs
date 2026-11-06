@@ -60,7 +60,7 @@ const USER_ROW = {
 function totpEnv(db) {
   return {
     FORUM_DB: db,
-    PASSWORD_PEPPER: "test-pepper",
+    PASSWORD_PEPPER: "0123456789abcdef0123456789abcdef",
     TOTP_RATE_LIMITER: { limit: async () => ({ success: true }) },
   };
 }
@@ -107,18 +107,30 @@ test("issueTotpChallenge stores ONLY the sha-256 hash, never the plaintext", asy
 });
 
 test("setup stages a fresh secret (update carries it) and 409s when already on", async () => {
-  const { env } = envWithDb({
-    ...MEMBER_ANSWERS,
-    "SELECT totp_enabled, totp_secret FROM users": { totp_enabled: 0, totp_secret: null },
-  });
+  // The current-password re-proof (review fix F9): setup now verifies against
+  // the row's real salt/hash. Build the hash the same Web Crypto path as the
+  // route so the comparison is exact.
+  const { hashPassword } = await import("../api/core/passwords.mjs");
+  const pepper = "0123456789abcdef0123456789abcdef"; // matches totpEnv's pepper below
+  const passwordHash = await hashPassword("correct horse battery staple", pepper);
   const base = "https://forum.test/api/me/totp/setup";
-  const request = (path) => new Request(path, {
+  const request = (path, body) => new Request(path, {
     method: "POST",
+    body: JSON.stringify(body ?? { currentPassword: "correct horse battery staple" }),
     headers: {
+      "content-type": "application/json",
       "Origin": "https://forum.test",
       "X-CSRF-Token": CSRF_TOKEN,
       "Cookie": "wempo_session=" + SESSION_TOKEN,
     },
+  });
+  const { env } = envWithDb({
+    ...MEMBER_ANSWERS,
+    "SELECT totp_enabled, totp_secret": {
+      totp_enabled: 0, totp_secret: null,
+      password_salt: passwordHash.salt, password_hash: passwordHash.hash,
+    },
+    "SELECT 1 FROM bans": null,
   });
   const response = await handleTotpRoutes(request(base), env, new URL(base), "/api/me/totp/setup", "POST");
   assert.equal(response.status, 200);
@@ -131,13 +143,33 @@ test("setup stages a fresh secret (update carries it) and 409s when already on",
 
   const alreadyOn = envWithDb({
     ...MEMBER_ANSWERS,
-    "SELECT totp_enabled, totp_secret FROM users": { totp_enabled: 1, totp_secret: SECRET },
+    "SELECT totp_enabled, totp_secret": {
+      totp_enabled: 1, totp_secret: SECRET,
+      password_salt: passwordHash.salt, password_hash: passwordHash.hash,
+    },
+    "SELECT 1 FROM bans": null,
   });
   await assert.rejects(
-    () => handleTotpRoutes(request(base), alreadyOn.env, new URL(base), "/api/me/totp/setup", "POST"),
+    () => handleTotpRoutes(request(base, { currentPassword: "correct horse battery staple" }), alreadyOn.env, new URL(base), "/api/me/totp/setup", "POST"),
     { status: 409 },
   );
+
+  // A wrong current password 401s before any staging update runs.
+  const wrong = envWithDb({
+    ...MEMBER_ANSWERS,
+    "SELECT totp_enabled, totp_secret": {
+      totp_enabled: 0, totp_secret: null,
+      password_salt: passwordHash.salt, password_hash: passwordHash.hash,
+    },
+    "SELECT 1 FROM bans": null,
+  });
+  await assert.rejects(
+    () => handleTotpRoutes(request(base, { currentPassword: "not my password" }), wrong.env, new URL(base), "/api/me/totp/setup", "POST"),
+    { status: 401, message: "Your current password is incorrect." },
+  );
+  assert.ok(!wrong.db.statements.some((s) => s.sql.includes("totp_pending_secret = ?")));
 });
+
 
 test("confirm with a wrong code 401s and never issues the guarded promotion", async () => {
   const { db, env } = envWithDb({

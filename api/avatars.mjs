@@ -5,7 +5,7 @@
 // bodies moved verbatim; sources re-import through this module.
 import { assertNotBanned, readSession, requireStaff, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { HttpError, json, rateLimit, readLimitedBody, requireMutationApplied } from "./core/http.mjs";
+import { HttpError, json, rateLimit, readJson, readLimitedBody, requireMutationApplied } from "./core/http.mjs";
 import { blobToUint8Array, createAvatarVersion, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
 
 export const MAX_AVATAR_BYTES = 1024 * 1024;
@@ -123,6 +123,10 @@ async function handleAvatarQueueRoute(request, env, url, path, method) {
         userId: Number(row.id),
         username: row.username,
         avatarUrl: "/api/avatars/" + row.id + "?v=" + row.pending_avatar_version,
+        // CAS token (review finding): approves must match the exact version
+        // queued — a replacement upload while the desk page sat open can no
+        // longer slip the OLD review onto the NEW upload.
+        pendingVersion: row.pending_avatar_version,
         uploadedAt: new Date(Number(row.pending_avatar_updated_at) * 1000).toISOString(),
       })),
     });
@@ -130,12 +134,18 @@ async function handleAvatarQueueRoute(request, env, url, path, method) {
   return null;
 }
 
-export async function resolveAvatarPending(db, userId, approve) {
+export async function resolveAvatarPending(db, userId, approve, pendingVersion = null) {
   if (approve) {
     // Copy the pending set into the approved set and clear pending in one
     // statement — SQLite evaluates every RHS against the pre-update row, so
     // the mirror-set CHECKs hold. The avatar_status guard makes the update
     // idempotency-safe: 0 changes means nothing was awaiting review.
+    // pendingVersion (review finding): the desk's queue read supplies the
+    // version it reviewed; an approve only lands when the member has not
+    // replaced the pending upload since (each upload bumps
+    // pending_avatar_version). A stale desk page 409s instead of approving
+    // whatever the member swapped in.
+    const requiresVersion = pendingVersion !== null && pendingVersion !== undefined;
     const result = await db.prepare(
       "UPDATE users SET " +
         "avatar_mime = pending_avatar_mime, avatar_data = pending_avatar_data, " +
@@ -143,10 +153,13 @@ export async function resolveAvatarPending(db, userId, approve) {
         "pending_avatar_mime = NULL, pending_avatar_data = NULL, " +
         "pending_avatar_updated_at = NULL, pending_avatar_version = NULL, " +
         "avatar_status = 'approved' " +
-        "WHERE id = ? AND avatar_status = 'pending'",
-    ).bind(userId);
+        "WHERE id = ? AND avatar_status = 'pending'" +
+        (requiresVersion ? " AND pending_avatar_version = ?" : ""),
+    ).bind(...(requiresVersion ? [userId, pendingVersion] : [userId]));
     if (Number(result.meta?.changes) !== 1) {
-      throw new HttpError(409, "That avatar is not awaiting review.");
+      throw new HttpError(409, requiresVersion
+        ? "That avatar changed since it was reviewed — reload the desk and review the current upload."
+        : "That avatar is not awaiting review.");
     }
     return;
   }
@@ -182,7 +195,20 @@ async function handleAvatarModerationRoute(request, env, url, path, method) {
   ).bind(userId).first();
   if (!target) throw new HttpError(404, "Member not found.");
 
-  await resolveAvatarPending(db, userId, match[2] === "approve");
+  // Approves carry the desk's reviewed-version token (the queue payload's
+  // pendingVersion, round-tripped by the client); rejects don't need it —
+  // clearing the pending set is safe under any replacement timing.
+  let pendingVersion = null;
+  let body = {};
+  try {
+    body = await readJson(request);
+  } catch {
+    body = {};
+  }
+  if (match[2] === "approve" && typeof body.pendingVersion === "string" && body.pendingVersion) {
+    pendingVersion = body.pendingVersion;
+  }
+  await resolveAvatarPending(db, userId, match[2] === "approve", pendingVersion);
   return json({ ok: true });
 }
 

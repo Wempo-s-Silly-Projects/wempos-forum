@@ -364,7 +364,13 @@ async function handleCssStylesheetRoute(request, env, url, path, method) {
     if (!scoped) throw new HttpError(404, "Not found.");
     return new Response(scoped, {
       status: 200,
-      headers: { "Content-Type": "text/css", "Cache-Control": "public, max-age=60" },
+      // nosniff rides like every other byte-serving route (review finding):
+      // the sniffed/stored type is the only one a browser may assume.
+      headers: {
+        "Content-Type": "text/css",
+        "Cache-Control": "public, max-age=60",
+        "X-Content-Type-Options": "nosniff",
+      },
     });
   }
   return null;

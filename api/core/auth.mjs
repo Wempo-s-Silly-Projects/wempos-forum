@@ -34,9 +34,16 @@ export async function requestIpHash(request, env) {
 // Checked BEFORE credential verification so the response carries no oracle.
 export async function assertNetworkNotBanned(request, env) {
   const ipHash = await requestIpHash(request, env);
+  // Join bans for the ACTIVE predicate: an expired or revoked ban clears its
+  // own rows on unban/appeal-approval, but the join keeps the gate correct
+  // even if rows outlive the ban (review finding — blind membership blocked
+  // networks whose ban was long gone).
+  const now = nowSeconds();
   const row = await env.FORUM_DB.prepare(
-    "SELECT 1 FROM banned_ips WHERE ip_hash = ? LIMIT 1",
-  ).bind(ipHash).first();
+    "SELECT 1 FROM banned_ips bi JOIN bans b ON b.id = bi.ban_id " +
+      "WHERE bi.ip_hash = ? AND b.revoked_at IS NULL " +
+      "AND (b.expires_at IS NULL OR b.expires_at > ?) LIMIT 1",
+  ).bind(ipHash, now).first();
   if (row) throw new HttpError(403, "This network is banned from the forum.");
 }
 

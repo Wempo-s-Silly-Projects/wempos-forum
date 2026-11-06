@@ -82,6 +82,9 @@ function createAvatarQueue(avatars, document) {
       const form = document.createElement("form");
       form.dataset.form = formName;
       form.dataset.userId = String(avatar.userId);
+      // The reviewed version rides every decision; the server matches it on
+      // approve so a replacement upload can't inherit a stale review.
+      form.dataset.pendingVersion = String(avatar.pendingVersion || "");
       const button = document.createElement("button");
       button.type = "submit";
       button.className = className;

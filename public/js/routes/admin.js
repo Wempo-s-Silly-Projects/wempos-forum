@@ -392,6 +392,9 @@ async function submitRoleChange(form, action, text) {
 async function submitAvatarModeration(form, action) {
   await api("/api/admin/avatars/" + form.dataset.userId + "/" + action, {
     method: "POST",
+    // pendingVersion (CAS): the server approves only the exact upload the
+    // queue showed; a 409 means the member replaced it — rerender re-fetches.
+    body: form.dataset.pendingVersion ? { pendingVersion: form.dataset.pendingVersion } : {},
   });
   await state.renderRoute({ name: "admin" });
   setMessage(action === "approve" ? "The avatar was approved." : "The avatar was rejected.");

@@ -22,10 +22,16 @@ export function renderTotpSettings(container, session) {
   panel.dataset.totpPanel = enabled ? "on" : "off";
 
   if (!enabled) {
-    const start = element("button", "button", "Enable two-factor");
-    start.type = "button";
-    start.dataset.action = "start-totp-setup";
-    panel.append(start);
+    // Starting setup re-proofs the member with their CURRENT password (the
+    // server rejects anything else) — a hijacked or abandoned tab cannot arm
+    // a 2FA takeover on a standing session.
+    panel.append(createForm(document, "totp-setup", [
+      createInput(document, {
+        id: "totp-setup-password", name: "currentPassword", label: "Current password",
+        type: "password", maxLength: 128, required: true, autoComplete: "current-password",
+        description: "Enter your current password — the secret is shown only after it verifies.",
+      }),
+    ], "Enable two-factor"));
     container.append(panel);
     return;
   }
@@ -43,9 +49,18 @@ export function renderTotpSettings(container, session) {
 // The staged-secret step: rendered in place when the setup request returns.
 // The secret and the otpauth URI are shown as copyable read-only fields —
 // no image QR (hand-entry or paste-URI both work in every authenticator),
-// and the code field proves possession before anything is kept.
+// and the code field proves possession before anything is kept. The setup
+// POST carries the account's current password (server re-proofs it).
+async function submitTotpSetup(form, text) {
+  await api("/api/me/totp/setup", {
+    method: "POST",
+    body: { currentPassword: text("currentPassword") },
+  });
+  const panel = form.closest("[data-totp-panel]");
+  if (panel) await openSetupStep(panel);
+}
+
 async function openSetupStep(panel) {
-  const result = await api("/api/me/totp/setup", { method: "POST" });
   setMessage("Add the secret to your authenticator, then confirm with a code.");
   // Swap only the body — the panel's h2 heading and lede stay put.
   for (const node of [...panel.children]) {
@@ -141,15 +156,10 @@ async function submitTotpLogin(form, text) {
 // The registration seam: FORM_HANDLERS merges into submitForm's dispatch
 // map; ACTIONS merges into handleButtonAction's dispatch map.
 export const FORM_HANDLERS = {
+  "totp-setup": (form, text) => submitTotpSetup(form, text),
   "totp-confirm": (form, text) => submitTotpConfirm(form, text),
   "totp-disable": (form, text) => submitTotpDisable(form, text),
   "totp-login": (form, text) => submitTotpLogin(form, text),
 };
 
-export const ACTIONS = {
-  "start-totp-setup": async (button) => {
-    const panel = button.closest("[data-totp-panel]");
-    if (!panel) return;
-    await openSetupStep(panel);
-  },
-};
+export const ACTIONS = {};

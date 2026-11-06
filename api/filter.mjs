@@ -63,6 +63,16 @@
 const COMPILE_CACHE_LIMIT = 64;
 const compileCache = new Map();
 
+// Per-token skeleton length that still gets the per-entry elongation and
+// delete-one-scramble regex passes (review finding): a 4,750-character
+// letter-spam token previously drove length × variants × entries exponential
+// backtracking execs here. 96 dwarfs every wordish token (a stitched run caps
+// its probes elsewhere), and tokens past it skip to the cheap passes —
+// real vocabulary never comes close, while a spam blob can no longer price
+// one character of text at quadratic work. The exact literal pass and the
+// full-text pattern execs are unaffected (they are linear per entry).
+const TOKEN_MATCH_MAX_CHARS = 96;
+
 // Zero-width and invisible characters contribute nothing anywhere — the
 // cheapest and most common injection bypass ("w​ord" looks like "word").
 const INVISIBLE_UNITS = new Set(["​", "‌", "‍", "⁠", "﻿", "­"]);
@@ -175,6 +185,68 @@ function elongationPattern(skeleton) {
 // CPU — the owner's risk.
 const REGEX_HINT = /\\|\(\?|\[[^\]]*\]|\||\{[\d,]+\}|\^|\$|\.\*/;
 
+// Compile-time pattern-complexity guards (review findings): a stored pattern
+// is OWNER-authored, but it executes on MEMBER text, so the old "the owner's
+// risk" stance was really "anyone who can get a pattern on the desk's list
+// can burn CPU on every stored write". Three guards sit between a submitted
+// pattern and the regex engines; each demotes the entry to its literal word
+// form (a literal still masks its exact spelling, so the filter never dies):
+// - catastrophic nesting: a quantified group ANYWHERE inside a quantified
+//   group — the (x+)+, (a*b)+, (?:.*a*)+ families that backtrack
+//   exponentially — is refused outright;
+// - unbounded-quantifier budget: more than MAX_PATTERN_QUANTIFIERS
+//   (*, +, {n,}) in one pattern is refused — linear patterns like
+//   ".*sn[a4]k[e3].*" (two) stay far below it;
+// - glob budget: a glob with more than MAX_GLOB_WILDCARDS * wildcards is
+//   refused, since each \S* multiplies the backtracking surface.
+const MAX_PATTERN_QUANTIFIERS = 6;
+const MAX_GLOB_WILDCARDS = 4;
+
+function hasCatastrophicQuantifiers(pattern) {
+  // Walk the pattern tracking each open group and whether its body carries an
+  // unbounded quantifier (+, *, or {n,}); closing a group that does, when the
+  // closer is ITSELF quantified, is the exponential shape.
+  const groups = [];
+  for (let i = 0; i < pattern.length; i++) {
+    const ch = pattern[i];
+    if (ch === "\\") { i += 1; continue; }
+    if (ch === "[") {
+      // A char class is a unit: its contents (including ] and quantifier
+      // characters after escapes) never structure the pattern.
+      i += 1;
+      while (i < pattern.length && pattern[i] !== "]") {
+        if (pattern[i] === "\\") i += 1;
+        i += 1;
+      }
+      continue;
+    }
+    if (ch === "(") { groups.push({ quantified: false }); continue; }
+    if (ch === ")" && groups.length > 0) {
+      const group = groups.pop();
+      const rest = pattern.slice(i + 1);
+      const closesQuantified = rest[0] === "+" || rest[0] === "*" ||
+        /^\{[0-9]+,\}/.test(rest);
+      if (group.quantified && closesQuantified) return true;
+      // A nested quantified body makes every enclosing group's body carry
+      // one — the inner quantifier's backtracking multiplies through any
+      // outer quantifier just the same.
+      if (group.quantified) {
+        for (const enclosing of groups) enclosing.quantified = true;
+      }
+    }
+    if ((ch === "+" || ch === "*" || /^\{[0-9]+,\}/.test(pattern.slice(i))) &&
+        groups.length > 0) {
+      groups[groups.length - 1].quantified = true;
+      if (ch === "{") i = pattern.indexOf("}", i);
+    }
+  }
+  return false;
+}
+
+function unboundedQuantifierCount(pattern) {
+  return (pattern.match(/[+*]|\{[0-9]+,\}/g) || []).length;
+}
+
 function forceUnicodeAstral(pattern) {
   const braced = pattern.replace(/\\u\{?([0-9A-Fa-f]{5,8})\}?(?![0-9A-Fa-f])/g, "\\u{$1}");
   // \u{...} is only legal with the u flag — add it when the rewrite fired.
@@ -187,6 +259,10 @@ function compilePatternRegex(body, ownerFlags) {
     if (!flags.includes("i")) flags += "i";
     const { pattern, astral } = forceUnicodeAstral(body);
     if (astral && !flags.includes("u")) flags += "u";
+    // Complexity guards (see the block comment above them): a refused pattern
+    // returns null so the entry degrades to its literal form below.
+    if (hasCatastrophicQuantifiers(pattern)) return null;
+    if (unboundedQuantifierCount(pattern) > MAX_PATTERN_QUANTIFIERS) return null;
     return new RegExp(pattern, flags + "g");
   } catch {
     return null;
@@ -208,6 +284,7 @@ function escapeRegexUnit(unit) {
 }
 
 function compileGlobEntry(word) {
+  if ((word.match(/\*/g) || []).length > MAX_GLOB_WILDCARDS) return null;
   let pattern = "";
   for (let i = 0; i < word.length; i++) {
     const unit = word[i];
@@ -361,6 +438,10 @@ function findScrambledRange(haystack, entries) {
 // The skeleton passes over one token. baseIndex is the token's first
 // position in the full skeleton; spans is the full skeleton's span map.
 function maskTokenMatch(masked, token, entries, spans, baseIndex) {
+  // Oversized tokens (letter-spam, see TOKEN_MATCH_MAX_CHARS) skip the
+  // per-entry elongation and scramble execs; no listed entry can reach them
+  // and their variant fan-out is the quadratic blow-up being capped.
+  if (token.length > TOKEN_MATCH_MAX_CHARS) return;
   for (const entry of entries) {
     const range = findEntryRange(token, entry);
     if (range) {

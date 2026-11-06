@@ -70,11 +70,21 @@ async function handleDmListRoute(request, env, url, path, method) {
   // GETs carry no CSRF header (the frontend only attaches one to mutating
   // methods), so reads authenticate session-only.
   const session = await requireSignedInRead(request, env);
+  // The preview subselects carry the same read-time ban hide the DM threads
+  // themselves have (review finding): messages from an actively banned author
+  // never supply lastAt/lastBody — the thread falls back to its remaining
+  // tail. The ban predicate is identical to every other read path.
   const rows = (await env.FORUM_DB.prepare(
     "SELECT t.id, t.user_a, t.user_b, a.username AS user_a_name, b.username AS user_b_name, " +
     "(SELECT MAX(m2.id) FROM dm_messages m2 WHERE m2.thread_id = t.id) AS last_message_id, " +
-    "(SELECT m2.body FROM dm_messages m2 WHERE m2.thread_id = t.id ORDER BY m2.id DESC LIMIT 1) AS last_body, " +
-    "(SELECT m2.created_at FROM dm_messages m2 WHERE m2.thread_id = t.id ORDER BY m2.id DESC LIMIT 1) AS last_at, " +
+    "(SELECT m2.body FROM dm_messages m2 WHERE m2.thread_id = t.id AND NOT EXISTS " +
+    "(SELECT 1 FROM bans bb WHERE bb.user_id = m2.user_id AND bb.revoked_at IS NULL " +
+    "AND (bb.expires_at IS NULL OR bb.expires_at > CAST(strftime('%s','now') AS INTEGER))) " +
+    "ORDER BY m2.id DESC LIMIT 1) AS last_body, " +
+    "(SELECT m2.created_at FROM dm_messages m2 WHERE m2.thread_id = t.id AND NOT EXISTS " +
+    "(SELECT 1 FROM bans bb WHERE bb.user_id = m2.user_id AND bb.revoked_at IS NULL " +
+    "AND (bb.expires_at IS NULL OR bb.expires_at > CAST(strftime('%s','now') AS INTEGER))) " +
+    "ORDER BY m2.id DESC LIMIT 1) AS last_at, " +
     "CASE WHEN t.user_a = ? THEN t.unread_a ELSE t.unread_b END AS unread_for_me " +
     "FROM dm_threads t JOIN users a ON a.id = t.user_a JOIN users b ON b.id = t.user_b " +
     // The OR group is parenthesized: SQLite binds AND tighter than OR, and

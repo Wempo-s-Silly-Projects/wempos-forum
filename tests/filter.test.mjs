@@ -202,3 +202,39 @@ test("masked output always keeps the original length", () => {
     assert.equal(applyWordFilter(body, REGEX_LIST).length, body.length);
   }
 });
+
+// Compile-time complexity guards (security review): stored patterns that
+// would backtrack exponentially, or carry more unbounded quantifiers than
+// the budget, demote to their literal word form — the filter never dies,
+// and the pathological exec never runs. Synthetic entries only.
+test("a nested-quantifier pattern falls back to its literal spelling", () => {
+  // /(za+)+b/ would span "zazab"-shaped runs if it compiled (its SKELETON
+  // fallback only reaches "z…ab"); refused, it reaches neither.
+  assert.equal(applyWordFilter("nice zazab day", "badword,/(za+)+b/"), "nice zazab day");
+  assert.equal(applyWordFilter("nice (za+)+b day", "badword,/(za+)+b/"), "nice (###### day");
+});
+
+test("an over-budget pattern quantifier count falls back to its literal", () => {
+  const many = "/z+a+b+c+d+e+f+g+h+/";
+  assert.equal(applyWordFilter("zzzaa", many), "zzzaa");
+  // The literal token masks (one soft-separator absorption can widen the
+  // span by a character — length is what the contract guarantees).
+  const masked = applyWordFilter("nice z+a+b+c+d+e+f+g+h+ end", many);
+  assert.equal(masked.length, "nice z+a+b+c+d+e+f+g+h+ end".length);
+  assert.equal(masked.startsWith("nice "), true);
+  assert.equal(masked.endsWith(" end"), true);
+  // Six budgeted quantifiers still compile — the linear pattern keeps working.
+  assert.equal(applyWordFilter("say zzzap now", "badword,/z+a+p+/"), "say ##### now");
+});
+
+test("a glob with more than four wildcards falls back to its literal", () => {
+  const many = "*a*b*c*d*e*f*";
+  assert.equal(applyWordFilter("abababab f", many), "abababab f");
+});
+
+test("an oversized letter-spam token skips the per-entry passes without cost", () => {
+  const spam = "z".repeat(500);
+  const output = applyWordFilter(spam + " badword here", LIST);
+  assert.equal(output.length, spam.length + " badword here".length);
+  assert.equal(output.slice(spam.length).startsWith(" ######"), true);
+});

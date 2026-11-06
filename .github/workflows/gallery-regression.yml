@@ -20,8 +20,15 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Install dependencies
-        run: npm ci
+      # Supply-chain posture (review finding): lifecycle scripts stay OFF for
+      # the install, then only the three packages package.json's allowScripts
+      # list actually needs (esbuild, fsevents, workerd) get their scripts run
+      # — a new compromised postinstall in any other dependency can't execute
+      # in CI.
+      - name: Install dependencies (scripts disabled)
+        run: npm ci --ignore-scripts
+      - name: Rebuild script-carrying dependencies (allowScripts list)
+        run: npm rebuild --foreground-scripts esbuild fsevents workerd
       - name: Apply schema to an isolated local D1 database
         run: npm run db:migrate:local
       - name: Run Gallery regression tests

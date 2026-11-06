@@ -13,6 +13,10 @@ const SAFE_PREFIXES = ["http://", "https://", "/"];
 export function isSafeLinkUrl(raw) {
   const value = String(raw ?? "").trim();
   if (value === "") return false;
+  // Control characters and escapes can slip a scheme past the prefix test
+  // ("ht\ntps://", backslash tricks in some URL parsers). Refuse before any
+  // prefix work (review finding).
+  if (/[\t\n\r\\]/.test(value)) return false;
   if (value.startsWith("//")) {
     // Network-path reference ("//evil.com") resolves scheme-relative against
     // the page — external navigation wearing the "internal" label. Not a

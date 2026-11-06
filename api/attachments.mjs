@@ -45,6 +45,12 @@ export async function readComposedBody(request, env, options = {}) {
     // path carries repeatable gifIds text fields — both resolve the same.
     const parsed = await readJson(request);
     const gifIds = Array.isArray(parsed.gifIds) ? parsed.gifIds.map(String) : [];
+    // The count cap lives HERE, before any GIF rows resolve (the routes'
+    // post-body checks were too late — resolution queries + intake work had
+    // already run for an oversized set).
+    if (gifIds.length > MAX_ATTACHMENT_FILES) {
+      throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
+    }
     const gifEntries = await gifReferenceEntries(env.FORUM_DB, gifIds, options.replayPostId);
     return { fields: parsed, files: [], gifIds, gifEntries };
   }
@@ -116,13 +122,18 @@ export async function readComposedBody(request, env, options = {}) {
       fields[name] = value;
     }
   }
+  // Same gate for the multipart branch (review finding — the routes checked
+  // files + gifIds only AFTER the whole body was parsed and sanitized).
+  if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
+    throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
+  }
   const gifEntries = await gifReferenceEntries(env.FORUM_DB, gifIds, options.replayPostId);
   return { fields, files, gifIds, gifEntries };
 }
 
 // Resolves library-gif ids to their approved rows ({ id, hash, mime } each):
 // duplicates collapse, unknown/not-approved ids 400, and the count cap lives
-// with the files' cap at the call site.
+// with the files' cap in readComposedBody.
 async function gifReferenceEntries(db, gifIds, replayPostId = null) {
   const entries = [];
   const seen = new Set();

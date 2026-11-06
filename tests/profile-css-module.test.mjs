@@ -52,3 +52,43 @@ test("dangerous declaration values fail", () => {
   assert.equal(scopeProfileCss("p { color: red; background-image: javascript:alert(1); }"),
     ".profile-theme-scope p{color:red}");
 });
+
+// Fail-closed scan guards (security review): the scanner may not disagree
+// with the browser about the sheet's structure — comments, quotes, escapes,
+// and stray braces all fail closed to "" instead of trusting the slice.
+test("unterminated comments and strings fail closed to an empty sheet", () => {
+  assert.equal(scopeProfileCss("/* never closed p { color: red; }"), "");
+  assert.equal(scopeProfileCss("p { content: \"open quote; color: red; }"), "");
+});
+
+test("a comment inside a selector no longer swallows the next rule's braces", () => {
+  // The browser strips this comment anywhere; the old scanner only ignored
+  // it inside braces, so the two sliced DIFFERENT blocks and the browser's
+  // slice escaped the sandbox. Now the comment strips before scanning.
+  assert.equal(
+    scopeProfileCss("p /* comment */ { color: red; }"),
+    ".profile-theme-scope p{color:red}",
+  );
+  // A comment opened in a VALUE and closed outside it parses one way for
+  // both sides only after stripping.
+  assert.equal(
+    scopeProfileCss("a { color: /* mid */ red; }"),
+    ".profile-theme-scope a{color:red}",
+  );
+});
+
+test("stray braces or escapes in selector text fail the whole sheet", () => {
+  assert.equal(scopeProfileCss("} p { color: red; }"), "");
+  assert.equal(scopeProfileCss("p\\x{ color: red; }"), "");
+});
+
+test("brace-bearing and quote-unbalanced declaration values drop their declaration", () => {
+  // A value with a brace could open/close a block in the emitted sheet.
+  assert.equal(scopeProfileCss("p { color: re{d; }"), "");
+  assert.equal(scopeProfileCss("p { color: red; }"), ".profile-theme-scope p{color:red}");
+  // An unbalanced parenthesis inside a value drops just the declaration.
+  assert.equal(
+    scopeProfileCss("p { background-image: url(unclosed; opacity: .5; }"),
+    ".profile-theme-scope p{opacity:.5}",
+  );
+});
