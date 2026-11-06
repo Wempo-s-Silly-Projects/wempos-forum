@@ -53,16 +53,25 @@ async function handleWallReadRoute(request, env, url, path, method) {
   const ownerId = Number(match[1]);
   const session = await readSession(request, env);
   const viewer = session && session.user ? session.user : null;
-  if (viewer && viewer.id !== ownerId &&
-    (viewer.role === "owner" || viewer.role === "admin" ||
-      await blockPairExists(env, viewer.id, ownerId))) {
+  const viewerIsStaff = Boolean(viewer && (viewer.role === "owner" || viewer.role === "admin"));
+  if (viewer && !viewerIsStaff && viewer.id !== ownerId &&
+    (await blockPairExists(env, viewer.id, ownerId))) {
     throw new HttpError(403, "That wall is not available.");
   }
+  // Blocks (v4.4): the wall itself can be viewable while carrying rows by a
+  // block-paired AUTHOR (the viewer blocked someone else entirely, or the
+  // owner's wall holds rows from the pair) — those rows drop at read, both
+  // directions, mirroring the ban filter. Staff bypass, like the pair gate.
+  const authorBlockFilter = !viewer || viewerIsStaff ? "" :
+    " AND NOT EXISTS (SELECT 1 FROM blocks bk WHERE " +
+    "(bk.blocker_id = ? AND bk.blocked_id = w.author_id) " +
+    "OR (bk.blocked_id = ? AND bk.blocker_id = w.author_id))";
   const rows = (await env.FORUM_DB.prepare(
     WALL_SELECT + "WHERE w.owner_id = ? AND " + WALL_BAN_FILTER_SQL +
+    authorBlockFilter +
     " ORDER BY (w.pinned_at IS NOT NULL) DESC, w.pinned_at DESC, w.id DESC " +
     "LIMIT " + WALL_PAGE_LIMIT,
-  ).bind(ownerId).all()).results || [];
+  ).bind(...(authorBlockFilter ? [ownerId, viewer.id, viewer.id] : [ownerId])).all()).results || [];
   return json({ wall: rows.map(publicWallPost) });
 }
 

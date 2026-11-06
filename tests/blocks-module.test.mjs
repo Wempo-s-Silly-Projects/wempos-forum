@@ -102,3 +102,75 @@ test("canViewPost: no pair reads clean for a member viewer", async () => {
 test("api/blocks.mjs exports the dispatcher", () => {
   assert.equal(typeof blocksApi.handleBlockRoutes, "function");
 });
+
+// Wall-read route pins (v4.4): the owner's wall refuses block pairs for
+// member viewers, staff reads bypass, and rows by a pair-paired AUTHOR drop
+// from an otherwise-viewable wall. All through the fake FORUM_DB above —
+// no real member data.
+import { handleWallRoutes } from "../api/wall.mjs";
+
+const WALL_TOKEN = "w".repeat(43); // matches readSession's 40-50 char format
+function wallRequest() {
+  return new Request("http://x/api/users/2/wall", {
+    headers: { cookie: "wempo_session=" + WALL_TOKEN },
+  });
+}
+function wallEnv({ sessionId = null, dbRole = "member", pairRow = false, capture = null } = {}) {
+  return { FORUM_DB: {
+    prepare(sql) {
+      if (capture) capture.push(sql);
+      return { bind: () => ({
+        first: async () => {
+          if (sql.includes("FROM sessions")) return sessionId && {
+            token_hash: "h", user_id: sessionId, csrf_token: "c", expires_at: 99999999999,
+            username: "paircheck", role: dbRole, bio: "", avatar_status: null,
+            avatar_mime: null, avatar_updated_at: null, avatar_version: null, totp_enabled: 0,
+          };
+          if (sql.includes("FROM blocks WHERE")) return pairRow ? { 1: 1 } : null;
+          return null;
+        },
+        all: async () => ({ results: [] }),
+      }) };
+    },
+  } };
+}
+
+test("wall read: an active pair 403s a member viewer", async () => {
+  // The handler throws HttpError(403); the worker entry converts it.
+  await assert.rejects(
+    handleWallRoutes(wallRequest(), wallEnv({ sessionId: 1, pairRow: true }),
+      new URL("http://x/api/users/2/wall"), "/api/users/2/wall", "GET", undefined),
+    (error) => error.status === 403,
+  );
+});
+
+test("wall read: staff bypasses the pair (desk reads never break)", async () => {
+  const response = await handleWallRoutes(wallRequest(),
+    wallEnv({ sessionId: 2, dbRole: "admin", pairRow: true }),
+    new URL("http://x/api/users/2/wall"), "/api/users/2/wall", "GET", undefined);
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.deepEqual(body, { wall: [] });
+});
+
+test("wall read: a member's page filters pair-paired AUTHORS off the wall", async () => {
+  const capture = [];
+  await handleWallRoutes(wallRequest(), wallEnv({ sessionId: 1, capture }),
+    new URL("http://x/api/users/2/wall"), "/api/users/2/wall", "GET", undefined);
+  const wallSql = capture.find((sql) => sql.includes("FROM wall_posts"));
+  assert.match(wallSql, /FROM blocks bk/u);
+});
+
+test("wall read: guests and staff never carry the author block filter", async () => {
+  const capture = [];
+  // Guest: sessionId null makes readSession null.
+  await handleWallRoutes(new Request("http://x/api/users/2/wall"), wallEnv({ capture }),
+    new URL("http://x/api/users/2/wall"), "/api/users/2/wall", "GET", undefined);
+  const guestSql = capture.find((sql) => sql.includes("FROM wall_posts"));
+  assert.doesNotMatch(guestSql, /FROM blocks bk/u);
+  const staffCapture = [];
+  await handleWallRoutes(wallRequest(), wallEnv({ sessionId: 2, dbRole: "admin", capture: staffCapture }),
+    new URL("http://x/api/users/2/wall"), "/api/users/2/wall", "GET", undefined);
+  const staffSql = staffCapture.find((sql) => sql.includes("FROM wall_posts"));
+  assert.doesNotMatch(staffSql, /FROM blocks bk/u);
+});

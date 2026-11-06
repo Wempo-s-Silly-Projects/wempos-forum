@@ -39,8 +39,10 @@ export function scanMentions(body) {
 
 // Builds the READY statements for one body's mentions ([] when nobody is
 // notified): the scan, the per-name resolution, and the exclusions (the actor,
-// any ids the caller already notified — the ordinary reply target — and the
-// subscription fan-out's recipients via the INSERT's own NOT EXISTS guard).
+// any ids the caller already notified — the ordinary reply target — the
+// subscription fan-out's recipients via the INSERT's own NOT EXISTS guard, and
+// block pairs (v4.4): a mention is an interaction channel, so a pair in
+// EITHER direction never receives one).
 export async function mentionFanOutStatements(db, body, {
   actorId, targetPostId = null, replyId = null, now, excludeIds = [], actorUsername,
   label,
@@ -64,6 +66,14 @@ export async function mentionFanOutStatements(db, body, {
     if (!user) continue; // Unknown name: silent no-op.
     const id = Number(user.id);
     if (excluded.has(id) || recipients.has(id)) continue;
+    // Blocks (v4.4): the mention ping stays closed between a pair — one
+    // query per recipient, capped at MAX_MENTIONS_PER_BODY (10), so the
+    // cost is bounded like the mention scan itself.
+    const paired = await db.prepare(
+      "SELECT 1 FROM blocks WHERE (blocker_id = ? AND blocked_id = ?) " +
+      "OR (blocker_id = ? AND blocked_id = ?) LIMIT 1",
+    ).bind(Number(actorId), id, id, Number(actorId)).first();
+    if (paired) continue;
     recipients.add(id);
   }
   // Statement assembly: the shared notify idiom (insert + prune per recipient),
