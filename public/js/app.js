@@ -366,12 +366,20 @@ document.addEventListener("change", (event) => {
 });
 document.addEventListener("submit", async (event) => {
   const form = event.target;
+  
   if (!(form instanceof HTMLFormElement)) return;
+  
   event.preventDefault();
+  
+  if (form.dataset.submitting == "true" return;
+
+  form.dataset.submitting = "true";
   try {
     await submitForm(form);
   } catch (error) {
     setMessage(error.message, true);
+  } finally {
+    form.dataset.submitting = "false";
   }
 });
 
