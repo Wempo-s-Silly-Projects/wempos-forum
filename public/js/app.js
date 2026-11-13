@@ -371,7 +371,7 @@ document.addEventListener("submit", async (event) => {
   
   event.preventDefault();
   
-  if (form.dataset.submitting == "true" return;
+  if (form.dataset.submitting == "true") return;
 
   form.dataset.submitting = "true";
   try {
