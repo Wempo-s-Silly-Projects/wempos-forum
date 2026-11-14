@@ -14,6 +14,8 @@ import {
   element,
   main,
   openConfirmDialog,
+  confirmBlock,
+  confirmDelete,
   action,
   setMessage,
 } from "../dom.js";
@@ -344,6 +346,7 @@ function openDeletePostDialog(button) {
       } else {
         await state.renderRoute(state.activeRoute);
       }
+      confirmBlock.hidden = false;
       setMessage("The post was deleted.");
     },
   );
@@ -358,11 +361,12 @@ function openBlockDialog(button) {
   openConfirmDialog(
     `Block @${username}?`,
     "You will no longer see their posts, and they can no longer see your profile or posts, reply, react, or message. You can undo it from your account settings.",
-    "block"
+    "block",
     async () => {
       await api(`/api/users/${userId}/block`, { method: "POST" });
       confirmDialog.close();
       await state.renderRoute(state.activeRoute);
+      confirmDelete.hidden = false;
       setMessage(`Blocked @${username}.`);
     },
   );
@@ -378,11 +382,13 @@ function openDeleteAccountDialog() {
   openConfirmDialog(
     "Delete your account?",
     "Your account and everything it owns is permanently deleted: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo.",
+    "delete",
     async () => {
       await api("/api/me/delete", { method: "POST" });
       setCsrfToken("");
       confirmDialog.close();
       state.router.navigate("/");
+      confirmBlock.hidden = false;
       setMessage("Your account was deleted. You are signed out.");
     },
     delete
