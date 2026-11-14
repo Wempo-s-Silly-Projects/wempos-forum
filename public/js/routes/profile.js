@@ -394,7 +394,6 @@ function openDeleteAccountDialog() {
       confirmBlock.hidden = false;
       setMessage("Your account was deleted. You are signed out.");
     },
-    delete
   );
 }
 
