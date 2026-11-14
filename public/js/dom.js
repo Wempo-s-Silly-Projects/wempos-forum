@@ -31,14 +31,21 @@ export let action = null;
 // deletion flows. openConfirmDialog fills the copy from the pending action and
 // stores its handler; the confirm-ok button runs it. Copy always reaches the
 // DOM through textContent, never markup.
-export function openConfirmDialog(title, message, action2, onConfirm) {
+export function openConfirmDialog(title, message, actionType, onConfirm) {
   confirmTitle.textContent = title;
   confirmMessage.textContent = message;
-  action = action2;
+
+  // The dialog has separate Block and Delete/Unblock buttons. Configure their
+  // visibility and label on every open so Cancel, Escape, and failed requests
+  // cannot leave stale button state for the next confirmation.
+  const isBlock = actionType === "block";
+  confirmBlock.hidden = !isBlock;
+  confirmDelete.hidden = isBlock;
+  confirmDelete.textContent = actionType === "unblock" ? "Unblock" : "Delete";
+
+  action = actionType;
   confirmHandler = onConfirm;
   confirmDialog.showModal();
-  
-  
 }
 
 export const getConfirmHandler = () => confirmHandler;
