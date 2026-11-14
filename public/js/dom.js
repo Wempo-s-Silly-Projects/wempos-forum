@@ -26,18 +26,20 @@ export const confirmDelete = confirmDialog.querySelector("#confirm-delete");
 const confirmTitle = confirmDialog.querySelector("#confirm-title");
 const confirmMessage = confirmDialog.querySelector("#confirm-message");
 let confirmHandler = null;
-let action = null;
+export let action = null;
 // Destructive-action confirmation (v2.4.1 feature): one shared dialog for both
 // deletion flows. openConfirmDialog fills the copy from the pending action and
 // stores its handler; the confirm-ok button runs it. Copy always reaches the
 // DOM through textContent, never markup.
-export function openConfirmDialog(title, message, onConfirm) {
+export function openConfirmDialog(title, message, onConfirm, action) {
   confirmTitle.textContent = title;
   confirmMessage.textContent = message;
-  confirmHandler = onConfirm;
-  confirmDialog.showModal();
   if (action == block) confirmDelete.visibility = true;
   if (action == deleteaccount) confirmBlock.hidden = true;
+  confirmHandler = onConfirm;
+  confirmDialog.showModal();
+  action == action
+  
 }
 
 export const getConfirmHandler = () => confirmHandler;
