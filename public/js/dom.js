@@ -32,6 +32,13 @@ export let action = null;
 // stores its handler; the confirm-ok button runs it. Copy always reaches the
 // DOM through textContent, never markup.
 export function openConfirmDialog(title, message, actionType, onConfirm) {
+  if (!["block", "delete", "unblock"].includes(actionType)) {
+    throw new TypeError(`Unsupported confirmation action: ${String(actionType)}`);
+  }
+  if (typeof onConfirm !== "function") {
+    throw new TypeError("A confirmation callback is required.");
+  }
+
   confirmTitle.textContent = title;
   confirmMessage.textContent = message;
 
