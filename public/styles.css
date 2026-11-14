@@ -516,6 +516,10 @@ img {
   gap: 0.55rem;
 }
 
+.button[hidden] {
+  display: none !important;
+}
+
 .button {
   min-height: 2.75rem;
   display: inline-flex;
