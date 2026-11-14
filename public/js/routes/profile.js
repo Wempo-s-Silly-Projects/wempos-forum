@@ -374,7 +374,6 @@ function openBlockDialog(button) {
 // exactly (CSRF token cleared, home as a signed-out guest); the route re-render
 // refetches the session, which is now anonymous.
 function openDeleteAccountDialog() {
-  confirmBlock.hidden = true;
   openConfirmDialog(
     "Delete your account?",
     "Your account and everything it owns is permanently deleted: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo.",
@@ -384,7 +383,6 @@ function openDeleteAccountDialog() {
       setCsrfToken("");
       confirmDialog.close();
       state.router.navigate("/");
-      confirmBlock.hidden = false;
       setMessage("Your account was deleted. You are signed out.");
     },
   );
