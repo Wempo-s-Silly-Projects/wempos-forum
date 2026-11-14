@@ -334,10 +334,9 @@ function openDeletePostDialog(button) {
     isThreadRoot
       ? "Your post and the entire conversation under it are deleted — including other people's replies. This cannot be undone."
       : "Your reply is deleted. Its replies stay in the thread. This cannot be undone.",
-    
+      "delete"
     async () => {
       const viewedThreadId = state.activeRoute.name === "post" ? state.activeRoute.id : null;
-      action = 
       await api("/api/posts/" + postId, { method: "DELETE" });
       confirmDialog.close();
       if (viewedThreadId === postId) {
@@ -347,7 +346,6 @@ function openDeletePostDialog(button) {
       }
       setMessage("The post was deleted.");
     },
-    delete
   );
 }
 
@@ -360,13 +358,13 @@ function openBlockDialog(button) {
   openConfirmDialog(
     `Block @${username}?`,
     "You will no longer see their posts, and they can no longer see your profile or posts, reply, react, or message. You can undo it from your account settings.",
+    "block"
     async () => {
       await api(`/api/users/${userId}/block`, { method: "POST" });
       confirmDialog.close();
       await state.renderRoute(state.activeRoute);
       setMessage(`Blocked @${username}.`);
     },
-    block
   );
 }
 
