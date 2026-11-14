@@ -56,6 +56,7 @@ async function unblock(button) {
   openConfirmDialog(
     `Unblock @${username}?`,
     "They will be able to see your profile and posts, and interact with them again (unless you take other action).",
+    "unblock",
     async () => {
       await api(`/api/users/${userId}/block`, { method: "DELETE" });
       setMessage(`Unblocked @${username}.`);
