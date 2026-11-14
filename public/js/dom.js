@@ -31,11 +31,11 @@ export let action = null;
 // deletion flows. openConfirmDialog fills the copy from the pending action and
 // stores its handler; the confirm-ok button runs it. Copy always reaches the
 // DOM through textContent, never markup.
-export function openConfirmDialog(title, message, action, onConfirm) {
+export function openConfirmDialog(title, message, action2, onConfirm) {
   confirmTitle.textContent = title;
   confirmMessage.textContent = message;
-  action = action;
-  if (action == block) confirmDelete.visibility = true;
+  action = action2;
+  if (action == block) confirmDelete.hidden = true;
   if (action == deleteaccount) confirmBlock.hidden = true;
   confirmHandler = onConfirm;
   confirmDialog.showModal();
