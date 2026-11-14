@@ -312,7 +312,7 @@ async function handleButtonAction(button) {
     ...blockActions,
     // Two-factor setup lives in routes/twofa.js.
     ...twofaActions,
-    "confirm-ok": async () => {
+    "confirm-block": async () => {
       if (!getConfirmHandler()) return;
       const handler = getConfirmHandler();
       // Disabled while pending: a double confirm can't fire the destructive
@@ -320,14 +320,28 @@ async function handleButtonAction(button) {
       // handler armed (the dialog stays open, the error bar carries the
       // message) so the user can retry the same confirm without closing the
       // dialog first; success clears it via the handler itself.
-      confirmBlocked.disabled = true;
-      confirmDelete.disabled = true;
+      confirmBlocked.disabled = true
       try {
         await handler();
         clearConfirmHandler();
       } finally {
-        cconfirmBlocked.disabled = false
-        confirmDelete.disabled = false;
+        confirmBlocked.disabled = false
+      }
+    },
+    "confirm-delete": async () => {
+      if (!getConfirmHandler()) return;
+      const handler = getConfirmHandler();
+      // Disabled while pending: a double confirm can't fire the destructive
+      // request twice while it is in flight. A REQUEST FAILURE keeps the
+      // handler armed (the dialog stays open, the error bar carries the
+      // message) so the user can retry the same confirm without closing the
+      // dialog first; success clears it via the handler itself.
+      confirmDelete.disabled = true
+      try {
+        await handler();
+        clearConfirmHandler();
+      } finally {
+        confirmDelete.disabled = false
       }
     },
     "confirm-cancel": () => {
