@@ -14,6 +14,7 @@ import {
   element,
   main,
   openConfirmDialog,
+  action,
   setMessage,
 } from "../dom.js";
 import { addText, createInput } from "../forms.js";
@@ -333,8 +334,10 @@ function openDeletePostDialog(button) {
     isThreadRoot
       ? "Your post and the entire conversation under it are deleted — including other people's replies. This cannot be undone."
       : "Your reply is deleted. Its replies stay in the thread. This cannot be undone.",
+    
     async () => {
       const viewedThreadId = state.activeRoute.name === "post" ? state.activeRoute.id : null;
+      action = 
       await api("/api/posts/" + postId, { method: "DELETE" });
       confirmDialog.close();
       if (viewedThreadId === postId) {
@@ -344,6 +347,7 @@ function openDeletePostDialog(button) {
       }
       setMessage("The post was deleted.");
     },
+    delete
   );
 }
 
@@ -362,6 +366,7 @@ function openBlockDialog(button) {
       await state.renderRoute(state.activeRoute);
       setMessage(`Blocked @${username}.`);
     },
+    block
   );
 }
 
@@ -382,6 +387,7 @@ function openDeleteAccountDialog() {
       state.router.navigate("/");
       setMessage("Your account was deleted. You are signed out.");
     },
+    delete
   );
 }
 
