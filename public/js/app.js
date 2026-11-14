@@ -20,7 +20,8 @@ import {
   attachmentLightbox,
   clearConfirmHandler,
   confirmDialog,
-  confirmOk,
+  confirmBlock,
+  confirmDelete,
   getConfirmHandler,
   main,
   setMessage,
@@ -319,12 +320,14 @@ async function handleButtonAction(button) {
       // handler armed (the dialog stays open, the error bar carries the
       // message) so the user can retry the same confirm without closing the
       // dialog first; success clears it via the handler itself.
-      confirmOk.disabled = true;
+      confirmBlocked.disabled = true;
+      confirmDelete.disabled = true;
       try {
         await handler();
         clearConfirmHandler();
       } finally {
-        confirmOk.disabled = false;
+        cconfirmBlocked.disabled = false
+        confirmDelete.disabled = false;
       }
     },
     "confirm-cancel": () => {
