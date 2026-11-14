@@ -35,8 +35,6 @@ export function openConfirmDialog(title, message, action2, onConfirm) {
   confirmTitle.textContent = title;
   confirmMessage.textContent = message;
   action = action2;
-  if (action == block) confirmDelete.hidden = true;
-  if (action == delete) confirmBlock.hidden = true;
   confirmHandler = onConfirm;
   confirmDialog.showModal();
   
