@@ -320,12 +320,12 @@ async function handleButtonAction(button) {
       // handler armed (the dialog stays open, the error bar carries the
       // message) so the user can retry the same confirm without closing the
       // dialog first; success clears it via the handler itself.
-      confirmBlocked.disabled = true
+      confirmBlock.disabled = true
       try {
         await handler();
         clearConfirmHandler();
       } finally {
-        confirmBlocked.disabled = false
+        confirmBlock.disabled = false
       }
     },
     "confirm-delete": async () => {
