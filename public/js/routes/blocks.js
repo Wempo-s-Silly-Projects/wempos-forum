@@ -5,7 +5,7 @@
 // Unblock door for rows this member didn't create (those are closed by the
 // other member alone).
 import { api } from "../api.js";
-import { createPanel, element, openConfirmDialog, setMessage } from "../dom.js";
+import { confirmDialog, createPanel, element, openConfirmDialog, setMessage } from "../dom.js";
 import { state } from "../state.js";
 
 export async function renderBlockedSettings(account, session) {
@@ -59,6 +59,7 @@ async function unblock(button) {
     "unblock",
     async () => {
       await api(`/api/users/${userId}/block`, { method: "DELETE" });
+      confirmDialog.close();
       setMessage(`Unblocked @${username}.`);
       await state.renderRoute(state.activeRoute);
     },
