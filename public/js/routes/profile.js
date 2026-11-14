@@ -331,6 +331,7 @@ async function submitPasswordForm(text) {
 function openDeletePostDialog(button) {
   const postId = Number(button.dataset.postId);
   const isThreadRoot = button.dataset.deleteScope !== "reply";
+  confirmBlock.hidden = true;
   openConfirmDialog(
     isThreadRoot ? "Delete this thread?" : "Delete this reply?", 
     isThreadRoot
@@ -338,7 +339,6 @@ function openDeletePostDialog(button) {
       : "Your reply is deleted. Its replies stay in the thread. This cannot be undone.",
     "delete",
     async () => {
-      confirmBlock.hidden = true;
       const viewedThreadId = state.activeRoute.name === "post" ? state.activeRoute.id : null;
       await api("/api/posts/" + postId, { method: "DELETE" });
       confirmDialog.close();
@@ -359,12 +359,12 @@ function openDeletePostDialog(button) {
 function openBlockDialog(button) {
   const userId = Number(button.dataset.profileId);
   const username = button.dataset.username || "this member";
+  confirmDelete.hidden = true;
   openConfirmDialog(
     `Block @${username}?`,
     "You will no longer see their posts, and they can no longer see your profile or posts, reply, react, or message. You can undo it from your account settings.",
     "block",
     async () => {
-      confirmDelete.hidden = true;
       await api(`/api/users/${userId}/block`, { method: "POST" });
       confirmDialog.close();
       await state.renderRoute(state.activeRoute);
@@ -381,12 +381,12 @@ function openBlockDialog(button) {
 // exactly (CSRF token cleared, home as a signed-out guest); the route re-render
 // refetches the session, which is now anonymous.
 function openDeleteAccountDialog() {
+  confirmBlock.hidden = true;
   openConfirmDialog(
     "Delete your account?",
     "Your account and everything it owns is permanently deleted: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo.",
     "delete",
     async () => {
-      confirmBlock.hidden = true;
       await api("/api/me/delete", { method: "POST" });
       setCsrfToken("");
       confirmDialog.close();
