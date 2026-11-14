@@ -334,7 +334,7 @@ function openDeletePostDialog(button) {
     isThreadRoot
       ? "Your post and the entire conversation under it are deleted — including other people's replies. This cannot be undone."
       : "Your reply is deleted. Its replies stay in the thread. This cannot be undone.",
-      "delete"
+      "delete",
     async () => {
       const viewedThreadId = state.activeRoute.name === "post" ? state.activeRoute.id : null;
       await api("/api/posts/" + postId, { method: "DELETE" });
