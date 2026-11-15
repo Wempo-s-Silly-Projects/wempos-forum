@@ -30,6 +30,22 @@ export function isValidPasswordPepper(value) {
   );
 }
 
+function isValidSaltHex(saltHex) {
+  return (
+    typeof saltHex === "string" &&
+    saltHex.length === SALT_HEX_LENGTH &&
+    /^[0-9a-fA-F]+$/.test(saltHex)
+  );
+}
+
+function isValidHashHex(hashHex) {
+  return (
+    typeof hashHex === "string" &&
+    hashHex.length === HASH_HEX_LENGTH &&
+    /^[0-9a-fA-F]+$/.test(hashHex)
+  );
+}
+
 export function isValidSetupSecret(value) {
   return (
     typeof value === "string" &&
@@ -57,21 +73,13 @@ function requirePepper(pepper) {
 }
 
 function requireSalt(saltHex) {
-  if (
-    typeof saltHex !== "string" ||
-    saltHex.length !== SALT_HEX_LENGTH ||
-    !/^[0-9a-fA-F]+$/.test(saltHex)
-  ) {
+  if (!isValidSaltHex(saltHex)) {
     throw new HttpError(400, "Stored password credentials are invalid.");
   }
 }
 
 function requireExpectedHash(expectedHash) {
-  if (
-    typeof expectedHash !== "string" ||
-    expectedHash.length !== HASH_HEX_LENGTH ||
-    !/^[0-9a-fA-F]+$/.test(expectedHash)
-  ) {
+  if (!isValidHashHex(expectedHash)) {
     throw new HttpError(400, "Stored password credentials are invalid.");
   }
 }
@@ -155,9 +163,18 @@ export async function verifyPassword(
   expectedHash,
   pepper,
 ) {
-  requirePassword(password);
-  requireSalt(salt);
-  requireExpectedHash(expectedHash);
+  // Invalid user-typed passwords and malformed stored credentials verify as
+  // false so callers keep answering with their own generic credential
+  // failure (a uniform 401, no oracle); only configuration/infra problems
+  // throw.
+  if (
+    !isValidPassword(password) ||
+    !isValidSaltHex(salt) ||
+    !isValidHashHex(expectedHash)
+  ) {
+    return false;
+  }
+
   requirePepper(pepper);
   requireIterations();
 
