@@ -11,22 +11,23 @@ const SAFE_PREFIXES = ["http://", "https://", "/"];
 // A link target is safe only when it starts with a known-safe scheme or is a
 // same-origin absolute path. "javascript:", "data:", "vbscript:", malformed
 // URLs and any other scheme are refused by the caller (literal text instead).
-export function isSafeLinkUrl(value) {
-  const url = value.trim();
+export function isSafeLinkUrl(raw) {
+  const value = String(raw ?? "").trim();
 
   if (
-    !url ||
-    /[\t\n\r\\\x00-\x1f\x7f]/.test(url) ||
-    url.startsWith("//")
+    value === "" ||
+    /[\t\n\r\\\x00-\x1f\x7f]/.test(value) ||
+    value.startsWith("//")
   ) {
     return false;
   }
 
-  // Allow same-origin relative paths.
-  if (url.startsWith("/")) return true;
+  // Same-origin absolute paths.
+  if (value.startsWith("/")) return true;
 
+  // Absolute HTTP(S) URLs must be valid and have a hostname.
   try {
-    const parsed = new URL(url);
+    const parsed = new URL(value);
 
     return (
       (parsed.protocol === "http:" || parsed.protocol === "https:") &&
@@ -160,8 +161,13 @@ export function parseInline(document, text) {
     const label = wellFormed ? value.slice(next + 1, closeBracket) : null;
     const url = wellFormed ? value.slice(parenOpen + 1, parenClose) : null;
     if (isImage || !wellFormed || label === "" || !isSafeLinkUrl(url)) {
-      // Refused: no pre-text run; the bracket and URL stay literal.
-      index = next + 1;
+      // Refused: preserve the entire construct as literal text.
+      // Do not advance start: the original text must be emitted unchanged.
+      if (wellFormed) {
+        index = parenClose + 1;
+      } else {
+        index = next + 1;
+      }
       continue;
     }
     emitPre();
