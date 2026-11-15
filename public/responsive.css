@@ -221,10 +221,10 @@ table,
   body:has(
      input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):focus,
      textarea:focus,
-     [contenteditable="true"]:focus
-   ) .mobile-bar {
-     display: none;
-}
+     [contenteditable]:focus
+     ) .mobile-bar {
+        display: none,
+     }
 
   /* Room for the bar + its safe-area padding; kept while typing so the
      reflow doesn't bounce when the bar returns. */
@@ -232,7 +232,7 @@ table,
     padding-bottom: calc(4.2rem + env(safe-area-inset-bottom));
   }
 
-  /* ---- touch ergonomics: every interactive element at 44px+ ---- */
+  /* ---- touch ergonomics: primary controls get 44px+ targets ---- */
    .mobile-bar-item,
    button,
    [role="button"] {
