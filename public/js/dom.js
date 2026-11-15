@@ -1,3 +1,4 @@
+
 // v4.0 plan 4 Task 1: the boot shell's DOM singletons and the tiny panel
 // helpers every route module builds screens out of. The singletons are the
 // static markup's fixed nodes (#main-content, the status/error bar, the
@@ -13,28 +14,44 @@
 // the monolith shared.
 import { addText } from "./forms.js";
 
-export const main = document.querySelector("#main-content");
-export const accountActions = document.querySelector("#account-actions");
-export const statusMessage = document.querySelector("#status-message");
-export const errorMessage = document.querySelector("#error-message");
-export const reportDialog = document.querySelector("#report-dialog");
-export const reportForm = reportDialog.querySelector('[data-form="report"]');
-export const attachmentLightbox = document.querySelector("#attachment-lightbox");
-export const confirmDialog = document.querySelector("#confirm-dialog");
-export const confirmBlock = confirmDialog.querySelector("#confirm-block");
-export const confirmDelete = confirmDialog.querySelector("#confirm-delete");
-const confirmTitle = confirmDialog.querySelector("#confirm-title");
-const confirmMessage = confirmDialog.querySelector("#confirm-message");
+// Fail clearly at boot if required static markup is missing.
+function requireElement(selector, parent = document) {
+  const node = parent.querySelector(selector);
+
+  if (!node) {
+    throw new Error(`Required application element is missing: ${selector}`);
+  }
+
+  return node;
+}
+
+export const main = requireElement("#main-content");
+export const accountActions = requireElement("#account-actions");
+export const statusMessage = requireElement("#status-message");
+export const errorMessage = requireElement("#error-message");
+export const reportDialog = requireElement("#report-dialog");
+export const reportForm = requireElement('[data-form="report"]', reportDialog);
+export const attachmentLightbox = requireElement("#attachment-lightbox");
+export const confirmDialog = requireElement("#confirm-dialog");
+export const confirmBlock = requireElement("#confirm-block", confirmDialog);
+export const confirmDelete = requireElement("#confirm-delete", confirmDialog);
+const confirmTitle = requireElement("#confirm-title", confirmDialog);
+const confirmMessage = requireElement("#confirm-message", confirmDialog);
+
 let confirmHandler = null;
 export let action = null;
+
 // Destructive-action confirmation (v2.4.1 feature): one shared dialog for both
 // deletion flows. openConfirmDialog fills the copy from the pending action and
 // stores its handler; the confirm-ok button runs it. Copy always reaches the
 // DOM through textContent, never markup.
 export function openConfirmDialog(title, message, actionType, onConfirm) {
   if (!["block", "delete", "unblock"].includes(actionType)) {
-    throw new TypeError(`Unsupported confirmation action: ${String(actionType)}`);
+    throw new TypeError(
+      `Unsupported confirmation action: ${String(actionType)}`,
+    );
   }
+
   if (typeof onConfirm !== "function") {
     throw new TypeError("A confirmation callback is required.");
   }
@@ -56,16 +73,20 @@ export function openConfirmDialog(title, message, actionType, onConfirm) {
 }
 
 export const getConfirmHandler = () => confirmHandler;
+
 export const clearConfirmHandler = () => {
   confirmHandler = null;
+  action = null;
 };
 
 const element = (tagName, className = "", text) => {
   const node = document.createElement(tagName);
+
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
+
   return node;
-}
+};
 
 export function setMessage(message = "", isError = false) {
   statusMessage.textContent = isError ? "" : message;
@@ -73,7 +94,18 @@ export function setMessage(message = "", isError = false) {
 }
 
 export function addHeading(parent, text, level = 1) {
-  const heading = element(`h${level}`, level === 1 ? "page-heading" : "", text);
+  if (!Number.isInteger(level) || level < 1 || level > 6) {
+    throw new RangeError(
+      "Heading level must be an integer from 1 to 6.",
+    );
+  }
+
+  const heading = element(
+    `h${level}`,
+    level === 1 ? "page-heading" : "",
+    text,
+  );
+
   parent.append(heading);
   return heading;
 }
@@ -81,7 +113,11 @@ export function addHeading(parent, text, level = 1) {
 export function createPanel(title, description = "") {
   const panel = element("section", "panel");
   addHeading(panel, title, 2);
-  if (description) addText(document, panel, "p", description, "muted");
+
+  if (description) {
+    addText(document, panel, "p", description, "muted");
+  }
+
   return panel;
 }
 
