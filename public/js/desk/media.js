@@ -84,7 +84,11 @@ function isValidAvatar(avatar) {
       typeof avatar.uploadedAt === "string" ||
       typeof avatar.uploadedAt === "number"
     ) &&
-    validId(avatar.pendingVersion),
+    // Legacy pending rows predate the CAS version column, so their
+    // pendingVersion is null — still perfectly reviewable: the server
+    // approves versionless rows when nothing replaced the upload, and the
+    // reviewed-version token rides the submit as an empty string.
+    (avatar.pendingVersion == null || validId(avatar.pendingVersion)),
   );
 }
 
