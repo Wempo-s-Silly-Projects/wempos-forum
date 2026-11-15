@@ -321,14 +321,14 @@ function validateGifList(data) {
 // Prevent rapid repeated submits from creating duplicate requests. The lock
 // is released after either success or failure, allowing legitimate retries.
 async function withComposerSubmissionLock(form, submit) {
-  if (form.dataset.submitting === "true") return;
+  if (form.dataset.composerSubmitting === "true") return;
 
-  form.dataset.submitting = "true";
+  form.dataset.composerSubmitting = "true";
 
   try {
     return await submit();
   } finally {
-    delete form.dataset.submitting;
+    delete form.dataset.composerSubmitting;
   }
 }
 
