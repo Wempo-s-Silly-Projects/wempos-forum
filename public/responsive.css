@@ -222,9 +222,9 @@ table,
      input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):focus,
      textarea:focus,
      [contenteditable]:focus
-     ) .mobile-bar {
-        display: none,
-     }
+   ) .mobile-bar {
+      display: none;
+   }
 
   /* Room for the bar + its safe-area padding; kept while typing so the
      reflow doesn't bounce when the bar returns. */
