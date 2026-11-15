@@ -218,9 +218,13 @@ table,
 
   /* Keyboard up: the bar yields. A text field is the only way to type
      (search, chat, composer, reports), so :has() on focus is exact. */
-  body:has(input:focus, textarea:focus) .mobile-bar {
-    display: none;
-  }
+  body:has(
+     input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):focus,
+     textarea:focus,
+     [contenteditable="true"]:focus
+   ) .mobile-bar {
+     display: none;
+}
 
   /* Room for the bar + its safe-area padding; kept while typing so the
      reflow doesn't bounce when the bar returns. */
@@ -229,6 +233,11 @@ table,
   }
 
   /* ---- touch ergonomics: every interactive element at 44px+ ---- */
+   .mobile-bar-item,
+   button,
+   [role="button"] {
+     min-height: 2.75rem;
+   }
   .button,
   .feed-tab,
   .form-actions button {
@@ -297,8 +306,9 @@ table,
   /* Dialogs stay on the page: the fixed dialogs cap to the viewport so
      long forms (poll, report) always keep their buttons reachable. */
   dialog {
-    max-height: calc(100dvh - 2rem);
-  }
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+}
 
   /* The v2.5-era phone polish the rebuild carried over (it lived in the old
      700px/520px blocks): a tighter search row and the homepage intro's
