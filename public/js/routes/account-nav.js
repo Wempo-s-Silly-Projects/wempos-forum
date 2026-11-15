@@ -7,7 +7,7 @@ import { api, setCsrfToken } from "../api.js";
 import { accountActions, element, setMessage } from "../dom.js";
 import { iconButton } from "../icons.js";
 import { createNotificationBell } from "../notifications.js";
-import { createChatButton } from "../chat.js";
+import { createChatButton } from "../chat.js"; // re-exported for tests; the nav no longer mounts it
 import { state } from "../state.js";
 
 function isValidUser(user) {
@@ -110,9 +110,9 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
     createSectionLink("scroll", "/rules", "Rules"),
   );
 
-  // Live chat (v3.1): the panel toggle carries the online counter. Guests
-  // read the stream and see the count; sending needs a session.
-  accountActions.append(createChatButton(document));
+  // Live chat retired (GooberCord launch): the nav button and its online
+  // counter go with it — presence lives on GooberCord now. The /chat route
+  // keeps mapping to a move notice for old links.
 
   if (!currentUser) {
     const signIn = element(
