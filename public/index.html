@@ -83,9 +83,9 @@
     <!-- Click-to-expand attachments (micro-batch): a chrome-free native dialog
          that app.js fills with the same uncapped attachment URL. Escape and a
          click on the dialog or backdrop close it. -->
-    <dialog id="gif-picker" aria-label="Gallery picker">
+    <dialog id="gif-picker" aria-labelledby="gif-picker-title">
       <div class="gif-picker-head">
-        <h2>Gallery</h2>
+        <h2 id="gif-picker-title">Gallery</h2>
         <button class="button button-quiet" type="button" data-action="cancel-gif-picker">Close</button>
       </div>
       <p class="gif-picker-note">Community uploads are moderated before they appear here. Select up to your spare image slots.</p>
@@ -140,7 +140,7 @@
         <p id="poll-options-note" class="gif-picker-note">Two to four non-duplicate options.</p>
         <div class="form-actions">
           <button class="button button-secondary" type="button" data-action="cancel-poll-dialog">Cancel</button>
-          <button class="button button-primary" type="button" data-action="confirm-poll-dialog">Add poll</button>
+          <button class="button button-primary" type="submit" data-action="confirm-poll-dialog">Add poll</button>
         </div>
       </form>
     </dialog>
