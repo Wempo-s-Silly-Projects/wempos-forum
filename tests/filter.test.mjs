@@ -238,3 +238,19 @@ test("an oversized letter-spam token skips the per-entry passes without cost", (
   assert.equal(output.length, spam.length + " badword here".length);
   assert.equal(output.slice(spam.length).startsWith(" ######"), true);
 });
+
+test("skeleton pass: a pattern whose match reaches a space does not crash", () => {
+  // Regression: /(?<![a-z])twat\s*/ over "twat hello" consumed the space
+  // after the token, whose skeleton span is null — applyWordFilter threw
+  // TypeError and a production write route 500s whenever a pattern's \s*,
+  // .* or glob run lands on a token boundary. The skeleton pass now masks
+  // the covered non-space characters only. (The folded pass above it uses
+  // a dense index map, so it masks the matched spaces too — pre-existing,
+  // length-preserving, and visible in these expectations.)
+  const tail = "/(?<![a-z])twat\\s*/";
+  assert.equal(applyWordFilter("twat hello", tail), "#####hello");
+  const head = "/\\s*fan\\s*/";
+  assert.equal(applyWordFilter("the fan boy waved", head), "the#####boy waved");
+  const spaces = "/\\s+/";
+  assert.equal(applyWordFilter("hello world", spaces), "hello#world");
+});

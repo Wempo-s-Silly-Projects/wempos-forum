@@ -472,7 +472,17 @@ function applySkeletonPasses(masked, text, entries, regexes) {
     pattern.lastIndex = 0;
     let match = pattern.exec(skeleton);
     while (match) {
-      maskSpan(masked, spans[match.index][0], spans[match.index + match[0].length - 1][1]);
+      // A match may start or end on a skeleton space (whose span is null —
+      // `/(?<![a-z])twat\s*/` over "twat hello" eats the space after the
+      // token). Mask only the covered non-space skeleton characters; a
+      // match that covers nothing but spaces masks nothing.
+      let from = match.index;
+      while (from < spans.length && spans[from] === null) from += 1;
+      let to = match.index + match[0].length - 1;
+      while (to >= from && (to >= spans.length || spans[to] === null)) to -= 1;
+      if (from <= to) {
+        maskSpan(masked, spans[from][0], spans[to][1]);
+      }
       if (match.index === pattern.lastIndex) pattern.lastIndex += 1; // no zero-length loops
       match = pattern.exec(skeleton);
     }
