@@ -206,7 +206,7 @@ function renderChatMessage(document, list, message, user, kind) {
 
   const when = document.createElement("time");
   when.dateTime = message.createdAt;
-  when.textContent = new Date(message.createdAt).toLocaleTimeString();
+  when.textContent = new Date(message.createdAt).toLocaleString();
   head.append(when);
 
   row.append(head);
