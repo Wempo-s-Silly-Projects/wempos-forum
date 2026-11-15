@@ -1,3 +1,4 @@
+
 // v4.0 plan 4 Task 9: the header chrome — renderAccountNavigation (mobile
 // bar identity, the site-section icon links, chat toggle, profile/saved/
 // bell/shield, sign-in toggle) plus the logout action its quiet
@@ -9,98 +10,168 @@ import { createNotificationBell } from "../notifications.js";
 import { createChatButton } from "../chat.js";
 import { state } from "../state.js";
 
+function isValidUser(user) {
+  return Boolean(
+    user &&
+    typeof user === "object" &&
+    typeof user.username === "string" &&
+    user.username.length > 0 &&
+    typeof user.role === "string",
+  );
+}
+
+function getMobileIdentityItem() {
+  return (
+    document.querySelector("#mobile-signin") ||
+    document.querySelector("#mobile-profile")
+  );
+}
+
+function updateMobileIdentity(user) {
+  const mobileItem = getMobileIdentityItem();
+
+  if (!mobileItem) {
+    return;
+  }
+
+  const span = mobileItem.querySelector("span:last-of-type");
+
+  mobileItem.id = user ? "mobile-profile" : "mobile-signin";
+  mobileItem.href = user
+    ? "/users/" + encodeURIComponent(user.username)
+    : "/#join";
+
+  mobileItem.setAttribute(
+    "aria-label",
+    user ? "Profile" : "Sign in",
+  );
+
+  mobileItem.title = user ? "Profile" : "Sign in";
+
+  if (span) {
+    span.textContent = user ? "Profile" : "Sign in";
+  }
+
+  if (user) {
+    mobileItem.dataset.appLink = "";
+  } else {
+    mobileItem.removeAttribute("data-app-link");
+  }
+}
+
+function createSectionLink(icon, href, label) {
+  const link = iconButton(document, icon, {
+    tagName: "a",
+    className: "button button-secondary icon-button",
+    ariaLabel: label,
+    dataset: { href },
+  });
+
+  link.setAttribute("data-app-link", "");
+
+  return link;
+}
+
+function normaliseUnreadCount(value) {
+  const count = Number(value);
+
+  return Number.isSafeInteger(count) && count >= 0
+    ? count
+    : 0;
+}
+
 function renderAccountNavigation(user, unreadNotifications = 0) {
+  const currentUser = isValidUser(user) ? user : null;
+
   accountActions.replaceChildren();
+
   // The mobile bar's last item mirrors the session: Profile (signed in) --
   // the static markup ships a Sign-in item for guests; the id marks it.
-  const mobileSignIn = document.querySelector("#mobile-signin") ||
-    document.querySelector("#mobile-profile") ||
-    document.querySelector(".mobile-bar .mobile-bar-item:last-child");
-  if (mobileSignIn) {
-    const span = mobileSignIn.querySelector("span:last-of-type");
-    mobileSignIn.id = user ? "mobile-profile" : "mobile-signin";
-    mobileSignIn.href = user ? "/users/" + encodeURIComponent(user.username) : "/#join";
-    mobileSignIn.setAttribute("aria-label", user ? "Profile" : "Sign in");
-    mobileSignIn.title = user ? "Profile" : "Sign in";
-    if (span) span.textContent = user ? "Profile" : "Sign in";
-    if (user) mobileSignIn.dataset.appLink = "";
-    else mobileSignIn.removeAttribute("data-app-link");
-  }
+  updateMobileIdentity(currentUser);
+
   // Suggestions board link (v2.4.1): the header's site-section link, styled
   // exactly like the links around it and visible to guests and signed-in
   // members alike; internal navigation handles it like every other header
   // anchor. The brand stays Home.
-  const suggestions = iconButton(document, "lightbulb", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    dataset: { href: "/suggestions" },
-  });
-  suggestions.setAttribute("data-app-link", "");
-  accountActions.append(suggestions);
+  accountActions.append(
+    createSectionLink("lightbulb", "/suggestions", "Suggestions"),
+  );
+
   // Accountability archive (v2.4.1): public to guests and members alike.
-  const archiveLink = iconButton(document, "archive", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    dataset: { href: "/archive" },
-  });
-  archiveLink.setAttribute("data-app-link", "");
-  accountActions.append(archiveLink);
-  const leaderboardLink = iconButton(document, "trophy", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    dataset: { href: "/leaderboard" },
-  });
-  leaderboardLink.setAttribute("data-app-link", "");
-  accountActions.append(leaderboardLink);
-  const rulesLink = iconButton(document, "scroll", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    dataset: { href: "/rules" },
-  });
-  rulesLink.setAttribute("data-app-link", "");
-  accountActions.append(rulesLink);
+  accountActions.append(
+    createSectionLink("archive", "/archive", "Archive"),
+  );
+
+  accountActions.append(
+    createSectionLink("trophy", "/leaderboard", "Leaderboard"),
+  );
+
+  accountActions.append(
+    createSectionLink("scroll", "/rules", "Rules"),
+  );
+
   // Live chat (v3.1): the panel toggle carries the online counter. Guests
   // read the stream and see the count; sending needs a session.
   accountActions.append(createChatButton(document));
-  if (!user) {
-    const signIn = element("a", "button button-secondary", "Sign in");
+
+  if (!currentUser) {
+    const signIn = element(
+      "a",
+      "button button-secondary",
+      "Sign in",
+    );
+
     signIn.href = "/#join";
     signIn.setAttribute("data-app-link", "");
+
     accountActions.append(signIn);
+
+    markMobileBarItem(null);
     return;
   }
-  const profile = iconButton(document, "person", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    ariaLabel: "Profile — " + user.username,
-    dataset: { href: "/users/" + encodeURIComponent(user.username) },
-  });
-  profile.setAttribute("data-app-link", "");
+
+  const profile = createSectionLink(
+    "person",
+    "/users/" + encodeURIComponent(currentUser.username),
+    "Profile — " + currentUser.username,
+  );
+
   accountActions.append(profile);
+
   // Bookmarks (C4): the private saved list — members only.
-  const saved = iconButton(document, "bookmarks", {
-    tagName: "a",
-    className: "button button-secondary icon-button",
-    ariaLabel: "Saved posts",
-    dataset: { href: "/bookmarks" },
-  });
-  saved.setAttribute("data-app-link", "");
-  accountActions.append(saved);
-  accountActions.append(createNotificationBell(unreadNotifications, document));
-  if (user.role === "owner" || user.role === "admin") {
-    const reports = iconButton(document, "shield", {
-      tagName: "a",
-      className: "button button-secondary icon-button",
-      dataset: { href: "/admin" },
-    });
+  accountActions.append(
+    createSectionLink("bookmarks", "/bookmarks", "Saved posts"),
+  );
+
+  accountActions.append(
+    createNotificationBell(
+      normaliseUnreadCount(unreadNotifications),
+      document,
+    ),
+  );
+
+  if (
+    currentUser.role === "owner" ||
+    currentUser.role === "admin"
+  ) {
+    const reports = createSectionLink(
+      "shield",
+      "/admin",
+      "Moderation desk",
+    );
+
     accountActions.append(reports);
   }
+
   const logout = iconButton(document, "logout", {
     className: "button button-quiet icon-button",
     dataset: { action: "logout" },
+    ariaLabel: "Sign out",
   });
+
   accountActions.append(logout);
-  markMobileBarItem(user);
+
+  markMobileBarItem(currentUser);
 }
 
 // The bottom app bar's active destination (v4.0 responsive rebuild): the bar
@@ -114,30 +185,54 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
 // fire for the signed-in profile — the id is the stable handle.
 function markMobileBarItem(user) {
   const path = location.pathname;
-  const isSelfProfile = Boolean(user) && path === "/users/" + encodeURIComponent(user.username);
+
+  const isSelfProfile =
+    Boolean(user) &&
+    path === "/users/" + encodeURIComponent(user.username);
+
   const matches = [
     ["/", path === "/"],
     ["/mine", path === "/mine"],
-    ["/suggestions", path === "/suggestions" || path === "/c/suggestions"],
+    [
+      "/suggestions",
+      path === "/suggestions" || path === "/c/suggestions",
+    ],
     ["/notifications", path === "/notifications"],
   ];
+
   for (const [href, active] of matches) {
-    const item = document.querySelector(`.mobile-bar-item[href="${CSS.escape(href)}"]`);
-    if (item) {
-      if (active) item.setAttribute("aria-current", "page");
-      else item.removeAttribute("aria-current");
+    const item = Array.from(
+      document.querySelectorAll(".mobile-bar-item"),
+    ).find((candidate) => candidate.getAttribute("href") === href);
+
+    if (!item) {
+      continue;
+    }
+
+    if (active) {
+      item.setAttribute("aria-current", "page");
+    } else {
+      item.removeAttribute("aria-current");
     }
   }
-  const profileItem = document.querySelector("#mobile-profile, #mobile-signin");
+
+  const profileItem = document.querySelector(
+    "#mobile-profile, #mobile-signin",
+  );
+
   if (profileItem) {
-    if (isSelfProfile) profileItem.setAttribute("aria-current", "page");
-    else profileItem.removeAttribute("aria-current");
+    if (isSelfProfile) {
+      profileItem.setAttribute("aria-current", "page");
+    } else {
+      profileItem.removeAttribute("aria-current");
+    }
   }
 }
 
 export const ACTIONS = {
   logout: async () => {
     await api("/api/auth/logout", { method: "POST" });
+
     setCsrfToken("");
     state.router.navigate("/");
     setMessage("You are signed out.");
