@@ -47,6 +47,8 @@ const ICON_ARIA = {
   person: "Profile",
   magnifier: "Search",
   archive: "Archive",
+  // The rules page's scroll icon (account-actions nav).
+  scroll: "Rules",
   shield: "Moderation",
   lightbulb: "Suggestions",
   bookmarks: "Save",
