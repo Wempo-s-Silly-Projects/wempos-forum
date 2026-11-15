@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   /* Corner style (v2.5): round by default; [data-corners="square"] flips it. */
   --button-radius: 0.45rem 0.65rem 0.4rem 0.55rem;
   accent-color: var(--green);
@@ -58,6 +58,7 @@
   /* Cool "night slate": blue-slate surfaces from the original dark launch,
      with identity accents (mustard, green, coral) kept bright so
      --on-yellow labels and white button text stay readable. */
+  color-scheme: dark;
   --paper: #1d2836;
   --paper-shadow: #0c1219;
   --desk: #131b27;
@@ -92,6 +93,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    color-scheme: dark;
     --paper: #1d2836;
     --paper-shadow: #0c1219;
     --desk: #131b27;
@@ -164,7 +166,7 @@ a:hover {
   color: var(--link-hover);
 }
 
-:where(a, button, input, textarea):focus-visible {
+:where(a, button, input, textarea, select, summary):focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
@@ -828,8 +830,9 @@ dialog h2 {
 }
 
 @media (forced-colors: active) {
-  :where(a, button, input, textarea, select):focus-visible {
+   :where(a, button, input, textarea, select, summary):focus-visible {
     outline: 3px solid Highlight;
+    outline-offset: 3px;
   }
 }
 
@@ -1925,14 +1928,14 @@ dialog h2 {
    post list below, pinned rows first with a pinned chip. */
 .wall-list { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.8rem; }
 .wall-post {
-  border: 1px solid var(--border, #ddd);
+  border: 1px solid var(--line);
   border-radius: var(--button-radius, 10px);
   padding: 0.6rem 0.8rem;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
 }
-.wall-post-pinned { border-color: var(--accent, #2e7d32); border-width: 2px; }
+.wall-post-pinned { border-color: var(--profile-accent, var(--green)); border-width: 2px; }
 .wall-post-header { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
 .wall-post-author { font-weight: 700; color: inherit; }
 .wall-post-time { color: var(--muted, #666); font-size: 0.85rem; margin-left: auto; }
