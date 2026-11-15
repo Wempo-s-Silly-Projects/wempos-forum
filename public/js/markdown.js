@@ -7,27 +7,34 @@
 // ever reach an href. No dependencies: the parser is plain string walking.
 const SAFE_PREFIXES = ["http://", "https://", "/"];
 
+
 // A link target is safe only when it starts with a known-safe scheme or is a
 // same-origin absolute path. "javascript:", "data:", "vbscript:", malformed
 // URLs and any other scheme are refused by the caller (literal text instead).
-export function isSafeLinkUrl(raw) {
-  const value = String(raw ?? "").trim();
-  if (value === "") return false;
-  // Control characters and escapes can slip a scheme past the prefix test
-  // ("ht\ntps://", backslash tricks in some URL parsers). Refuse before any
-  // prefix work (review finding).
-  if (/[\t\n\r\\]/.test(value)) return false;
-  if (value.startsWith("//")) {
-    // Network-path reference ("//evil.com") resolves scheme-relative against
-    // the page — external navigation wearing the "internal" label. Not a
-    // safe same-origin value.
+export function isSafeLinkUrl(value) {
+  const url = value.trim();
+
+  if (
+    !url ||
+    /[\t\n\r\\\x00-\x1f\x7f]/.test(url) ||
+    url.startsWith("//")
+  ) {
     return false;
   }
-  const lower = value.toLowerCase();
-  for (const prefix of SAFE_PREFIXES) {
-    if (lower.startsWith(prefix)) return true;
+
+  // Allow same-origin relative paths.
+  if (url.startsWith("/")) return true;
+
+  try {
+    const parsed = new URL(url);
+
+    return (
+      (parsed.protocol === "http:" || parsed.protocol === "https:") &&
+      Boolean(parsed.hostname)
+    );
+  } catch {
+    return false;
   }
-  return false;
 }
 
 // Inline scan of ONE text run: `code`, **bold**, *italic*, ~~strike~~,
@@ -173,7 +180,15 @@ export function parseInline(document, text) {
   if (start < value.length) nodes.push(makeText(document, value.slice(start)));
   return nodes;
 }
+function findMarkdownConstructEnd(source, start) {
+  const closeBracket = source.indexOf("]", start + 1);
+  if (closeBracket === -1 || source[closeBracket + 1] !== "(") {
+    return -1;
+  }
 
+  const closeParen = source.indexOf(")", closeBracket + 2);
+  return closeParen === -1 ? -1 : closeParen + 1;
+}
 // An italic opener is a "*" not doubled and not followed by whitespace.
 function nextItalicOpen(value, from) {
   let at = value.indexOf("*", from);
@@ -204,7 +219,7 @@ function makeInline(document, tagName, text) {
   return element;
 }
 
-// Block shape of a body: fenced code (```…```), "# " headings (1–3 hashes —
+// Block shape of a body: fenced code (```…```), "# " headings (1–6 hashes —
 // the post page's own h1/h2 hierarchy is not for post bodies), "- " lists,
 // and quote/paragraph runs (the pre-existing convention). Blocks keep their
 // RAW text (inline rendering happens at build time).
