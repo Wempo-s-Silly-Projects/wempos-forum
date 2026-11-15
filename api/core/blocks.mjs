@@ -1,3 +1,4 @@
+
 // v4.4 core leaf: member blocks — the both-direction predicate and the SQL
 // fragments list surfaces use to hide blocked members' rows. No imports:
 // pure SQL over env.FORUM_DB, like visibility.mjs.
@@ -10,18 +11,38 @@
 // helpers below instead, since feeds filter rows in the SELECT, not per row.
 // Staff never lose desk visibility: every read-path check bypasses for
 // owner/admin viewers (stored-vocabulary roles — publicRole is NOT fed here).
+
+function memberId(value) {
+  const id = Number(value);
+  return Number.isSafeInteger(id) && id > 0 ? id : null;
+}
+
+// Check whether either member has blocked the other.
 export async function blockPairExists(env, viewerId, otherId) {
+  const viewer = memberId(viewerId);
+  const other = memberId(otherId);
+
+  if (viewer === null || other === null || viewer === other) {
+    return false;
+  }
+
   const row = await env.FORUM_DB.prepare(
     "SELECT 1 FROM blocks WHERE (blocker_id = ?1 AND blocked_id = ?2) " +
-    "OR (blocker_id = ?2 AND blocked_id = ?1) LIMIT 1",
-  ).bind(Number(viewerId), Number(otherId)).first();
+      "OR (blocker_id = ?2 AND blocked_id = ?1) LIMIT 1",
+  ).bind(viewer, other).first();
+
   return Boolean(row);
 }
 
 // List-surface fragment: exclude every author (column) on either side of a
-// block pair with the viewer. Bound twice with the same id — D1's positional
-// binding makes the doubled bind the cheap, safe shape.
+// block pair with the viewer. The column argument MUST be a trusted SQL
+// column expression supplied by application code — never request input.
+// Bound twice with the same id; callers must bind the viewer ID twice.
 export function blockFilterSql(column) {
+  if (typeof column !== "string" || !column.trim()) {
+    throw new TypeError("A trusted SQL author column is required.");
+  }
+
   return ` AND ${column} NOT IN (` +
     "SELECT blocked_id FROM blocks WHERE blocker_id = ? " +
     "UNION SELECT blocker_id FROM blocks WHERE blocked_id = ?)";
@@ -29,11 +50,17 @@ export function blockFilterSql(column) {
 
 // The full both-direction block list for one member (GET /api/me/blocks).
 export async function blockedIdList(env, viewerId) {
-  const id = Number(viewerId);
+  const id = memberId(viewerId);
+
+  if (id === null) {
+    throw new TypeError("A valid member ID is required.");
+  }
+
   const result = await env.FORUM_DB.prepare(
     "SELECT blocked_id AS id FROM blocks WHERE blocker_id = ?1 " +
-    "UNION SELECT blocker_id AS id FROM blocks WHERE blocked_id = ?1",
+      "UNION SELECT blocker_id AS id FROM blocks WHERE blocked_id = ?1",
   ).bind(id).all();
+
   return (result.results || []).map((row) => Number(row.id));
 }
 
@@ -41,7 +68,11 @@ export async function blockedIdList(env, viewerId) {
 // staff (their reads bypass, mirroring canViewPost). Every caller of
 // blockFilterSql goes through here so desk review can never be blocked.
 export function viewerBlockFilterSql(viewer, column) {
-  if (!viewer || !viewer.id) return "";
-  if (viewer.role === "owner" || viewer.role === "admin") return "";
+  if (!viewer || viewer.id == null) return "";
+
+  if (viewer.role === "owner" || viewer.role === "admin") {
+    return "";
+  }
+
   return blockFilterSql(column);
 }
