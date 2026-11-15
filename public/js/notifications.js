@@ -1,68 +1,115 @@
+
 // Notification bell and the /notifications page (spec §12). Items are built
 // with notificationItemView; clicking one marks it read and navigates to the
 // target thread (handled by app.js's data-action="open-notification"). All DOM
 // building is textContent-based.
-import { addText } from "./forms.js";
 
-// Pure, DOM-free. Returns { id, targetPostId, read, href, label }. The payload
-// never includes the replier's identity, so the label stays generic.
+import { addText } from "./forms.js";
+import { createIcon } from "./icons.js";
+
+// Normalise counts received from API responses or other callers.
+function normaliseUnreadCount(value) {
+  const count = Number(value);
+
+  return Number.isSafeInteger(count) && count > 0 ? count : 0;
+}
+
+// Pure, DOM-free. Returns { id, targetPostId, read, href, label }.
+// The payload never includes the replier's identity, so the fallback
+// label stays generic.
 export const notificationItemView = (item) => {
+  const rawId = Number(item?.id);
+  const id =
+    Number.isSafeInteger(rawId) && rawId > 0
+      ? rawId
+      : null;
+
   const preview = String(item?.postPreview ?? "");
   const rawTarget = Number(item?.targetPostId);
+
   // NULL = a label-only notification (appeal outcome, chat ping): nothing to
   // navigate to — clicking just marks it read.
-  const targetPostId = rawTarget > 0 ? rawTarget : null;
+  const targetPostId =
+    Number.isSafeInteger(rawTarget) && rawTarget > 0
+      ? rawTarget
+      : null;
+
   return {
-    id: Number(item?.id),
+    id,
     targetPostId,
     read: Boolean(item?.read),
     href: targetPostId ? `/posts/${targetPostId}` : null,
+
     // The server-stored label wins (mentions: "You were mentioned by X");
     // every other (or pre-0017) row keeps the generic reply copy.
-    label: item.label
+    label: item?.label
       ? String(item.label)
-      : (preview ? `New reply on your post: ${preview}` : "New reply on your post"),
+      : preview
+        ? `New reply on your post: ${preview}`
+        : "New reply on your post",
   };
 };
 
 // Header bell: shown for signed-in users only (renderAccountNavigation decides
 // whether to append it). The unread badge is hidden when the count is zero but
 // stays in the DOM so updateBell() can reveal it later without a rebuild.
-import { createIcon } from "./icons.js";
-
 export const createNotificationBell = (unreadCount, document) => {
   const bell = document.createElement("a");
+
   bell.id = "notification-bell";
-  // icon-button is required: the shared icon sizing/stroke CSS scopes to it.
-  bell.className = "button button-secondary notification-bell icon-button";
+  bell.className =
+    "button button-secondary notification-bell icon-button";
   bell.href = "/notifications";
-  const count = Number(unreadCount) || 0;
-  bell.setAttribute("aria-label",
-    count ? `Notifications, ${count} unread` : "Notifications");
+
+  const count = normaliseUnreadCount(unreadCount);
+
+  bell.setAttribute(
+    "aria-label",
+    count
+      ? `Notifications, ${count} unread`
+      : "Notifications",
+  );
+
   bell.append(createIcon(document, "bell"));
+
   // The unread indicator is a tiny red (coral) DOT — the count lives in the
   // bell's aria-label, not in a number pill (owner spec, v2.5).
   const badge = document.createElement("span");
+
   badge.className = "notification-badge";
   badge.dataset.notificationCount = "true";
   badge.textContent = "";
   badge.hidden = count === 0;
+
   bell.append(badge);
+
   return bell;
 };
 
 // Refresh the badge in the already-rendered header. A no-op when the bell is
 // not in the DOM (guests, or a page rendered before the header existed).
 export function updateBell(unreadCount) {
-  const badge = document.querySelector("#notification-bell [data-notification-count]");
+  const badge = document.querySelector(
+    "#notification-bell [data-notification-count]",
+  );
+
   if (!badge) return;
-  const count = Number(unreadCount) || 0;
-  badge.textContent = ""; // a dot, not a number — the count lives in aria-label
+
+  const count = normaliseUnreadCount(unreadCount);
+
+  // A dot, not a number — the count lives in aria-label.
+  badge.textContent = "";
   badge.hidden = count === 0;
+
   const bell = document.querySelector("#notification-bell");
+
   if (bell) {
-    bell.setAttribute("aria-label",
-      count ? `Notifications, ${count} unread` : "Notifications");
+    bell.setAttribute(
+      "aria-label",
+      count
+        ? `Notifications, ${count} unread`
+        : "Notifications",
+    );
   }
 }
 
@@ -72,38 +119,71 @@ export function updateBell(unreadCount) {
 // notification-unread class so styles can highlight them.
 export function renderNotificationsPage(main, items) {
   const document = main.ownerDocument;
+
   const section = document.createElement("section");
   section.className = "panel notifications-panel";
+
   const heading = document.createElement("h1");
   heading.className = "page-heading";
   heading.textContent = "Notifications";
+
   section.append(heading);
-  const list = (items ?? []).map(notificationItemView);
+
+  // Ignore malformed API payloads and notification IDs.
+  const list = Array.isArray(items)
+    ? items
+        .map(notificationItemView)
+        .filter((item) => item.id !== null)
+    : [];
+
   if (!list.length) {
-    addText(document, section, "p",
-      "No notifications yet. Replies to your posts will show up here.", "empty-state");
+    addText(
+      document,
+      section,
+      "p",
+      "No notifications yet. Replies to your posts will show up here.",
+      "empty-state",
+    );
+
     main.append(section);
     return section;
   }
+
   for (const item of list) {
     const row = document.createElement("button");
+
     row.type = "button";
-    row.className = "notification-item" + (item.read ? "" : " notification-unread");
+    row.className =
+      "notification-item" +
+      (item.read ? "" : " notification-unread");
+
     row.dataset.action = "open-notification";
     row.dataset.notificationId = String(item.id);
+
     // Post-less items carry no postId — the click marks read without navigating.
-    if (item.targetPostId) row.dataset.postId = String(item.targetPostId);
+    if (item.targetPostId) {
+      row.dataset.postId = String(item.targetPostId);
+    }
+
     row.textContent = item.label;
-    if (item.read) row.setAttribute("aria-disabled", "false");
-    else row.setAttribute("aria-current", "true");
+
+    // Communicate unread state without misusing aria-current.
+    if (!item.read) {
+      row.setAttribute("aria-label", `${item.label}, unread`);
+    }
+
     section.append(row);
   }
+
   const markAll = document.createElement("button");
+
   markAll.type = "button";
   markAll.className = "button button-secondary";
   markAll.dataset.action = "mark-notifications-read";
   markAll.textContent = "Mark all read";
+
   section.append(markAll);
   main.append(section);
+
   return section;
 }
