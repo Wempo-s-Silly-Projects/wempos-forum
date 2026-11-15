@@ -1,3 +1,4 @@
+
 // Profile editor (bio up to 10,000 characters + the ten social inputs) and the
 // pure social-link map shared by the profile page renderer in app.js. The
 // client-side patterns below are pinned copies of api/shared.mjs
@@ -5,7 +6,8 @@
 // editor. All DOM building is textContent-based (no innerHTML).
 import { createForm, createInput, createTextarea } from "./forms.js";
 
-export const SOCIAL_LABELS = {
+// Display labels for supported social platforms.
+export const SOCIAL_LABELS = Object.freeze({
   youtube: "YouTube",
   x: "X",
   reddit: "Reddit",
@@ -16,16 +18,24 @@ export const SOCIAL_LABELS = {
   tiktok: "TikTok",
   twitch: "Twitch",
   polytoria: "Polytoria",
-};
+});
 
 // Field order for the editor; spec §10 (Polytoria last).
-export const SOCIAL_PLATFORM_ORDER = [
-  "youtube", "x", "reddit", "github", "discord", "gitlab",
-  "instagram", "tiktok", "twitch", "polytoria",
-];
+export const SOCIAL_PLATFORM_ORDER = Object.freeze([
+  "youtube",
+  "x",
+  "reddit",
+  "github",
+  "discord",
+  "gitlab",
+  "instagram",
+  "tiktok",
+  "twitch",
+  "polytoria",
+]);
 
 // Mirrors api/shared.mjs SOCIAL_PLATFORMS.regex exactly.
-export const SOCIAL_PATTERNS = {
+export const SOCIAL_PATTERNS = Object.freeze({
   youtube: /^[A-Za-z0-9._-]{1,60}$/,
   x: /^[A-Za-z0-9_]{1,15}$/,
   reddit: /^[A-Za-z0-9_-]{3,20}$/,
@@ -36,38 +46,57 @@ export const SOCIAL_PATTERNS = {
   tiktok: /^[A-Za-z0-9_.]{1,24}$/,
   twitch: /^[A-Za-z0-9_]{1,25}$/,
   polytoria: /^[A-Za-z0-9_]{1,24}$/,
-};
+});
 
-// Linked platforms build their profile URL here; Discord and Polytoria stay
-// plain text. Every dynamic segment passes through encodeURIComponent, so
-// symbol-prefixed (or otherwise unusual) handles can never produce a broken or
-// attacker-shaped href.
-const SOCIAL_LINK_BASES = {
-  youtube: (handle) => `https://www.youtube.com/@${encodeURIComponent(handle)}`,
-  x: (handle) => `https://x.com/${encodeURIComponent(handle)}`,
-  reddit: (handle) => `https://www.reddit.com/user/${encodeURIComponent(handle)}`,
-  github: (handle) => `https://github.com/${encodeURIComponent(handle)}`,
-  gitlab: (handle) => `https://gitlab.com/${encodeURIComponent(handle)}`,
-  instagram: (handle) => `https://www.instagram.com/${encodeURIComponent(handle)}`,
-  tiktok: (handle) => `https://www.tiktok.com/@${encodeURIComponent(handle)}`,
-  twitch: (handle) => `https://www.twitch.tv/${encodeURIComponent(handle)}`,
-  polytoria: (handle) => `https://polytoria.com/u/${encodeURIComponent(handle)}`,
-};
+// Linked platforms build their profile URL here; Discord stays plain text.
+// Every dynamic segment passes through encodeURIComponent, so symbol-prefixed
+// (or otherwise unusual) handles cannot produce an attacker-shaped href.
+const SOCIAL_LINK_BASES = Object.freeze({
+  youtube: (handle) =>
+    `https://www.youtube.com/@${encodeURIComponent(handle)}`,
+  x: (handle) =>
+    `https://x.com/${encodeURIComponent(handle)}`,
+  reddit: (handle) =>
+    `https://www.reddit.com/user/${encodeURIComponent(handle)}`,
+  github: (handle) =>
+    `https://github.com/${encodeURIComponent(handle)}`,
+  gitlab: (handle) =>
+    `https://gitlab.com/${encodeURIComponent(handle)}`,
+  instagram: (handle) =>
+    `https://www.instagram.com/${encodeURIComponent(handle)}`,
+  tiktok: (handle) =>
+    `https://www.tiktok.com/@${encodeURIComponent(handle)}`,
+  twitch: (handle) =>
+    `https://www.twitch.tv/${encodeURIComponent(handle)}`,
+  polytoria: (handle) =>
+    `https://polytoria.com/u/${encodeURIComponent(handle)}`,
+});
 
 // Pure, DOM-free. Returns [{ key, label, text, url? }] for every platform with
 // a non-empty handle, in SOCIAL_PLATFORM_ORDER order. socials.polytoria wins
 // over the separate polytoriaUsername field; both exist on the payload.
 export const buildSocialLinks = (socials = {}, polytoriaUsername = null) => {
   const handles = { ...socials };
-  if (typeof polytoriaUsername === "string" && polytoriaUsername &&
-    !(typeof handles.polytoria === "string" && handles.polytoria)) {
+
+  if (
+    typeof polytoriaUsername === "string" &&
+    polytoriaUsername &&
+    !(typeof handles.polytoria === "string" && handles.polytoria)
+  ) {
     handles.polytoria = polytoriaUsername;
   }
+
   const links = [];
+
   for (const key of SOCIAL_PLATFORM_ORDER) {
     const handle = handles[key];
-    if (typeof handle !== "string" || !handle) continue;
+
+    if (typeof handle !== "string" || !handle) {
+      continue;
+    }
+
     const base = SOCIAL_LINK_BASES[key];
+
     links.push({
       key,
       label: SOCIAL_LABELS[key],
@@ -75,24 +104,34 @@ export const buildSocialLinks = (socials = {}, polytoriaUsername = null) => {
       url: base ? base(handle) : undefined,
     });
   }
+
   return links;
 };
 
 // Pure, DOM-free. Keys that would fail the server's PATCH /api/me validation.
 // null / undefined / "" mean "clear this field" and mirror the server's rule
-// that clearing is always allowed. Unknown platform keys are invalid (server →
-// 400).
+// that clearing is always allowed. Unknown platform keys are invalid (server
+// → 400).
 export const invalidSocialKeys = (socials = {}) => {
   const invalid = [];
+
   for (const [key, value] of Object.entries(socials)) {
     const pattern = SOCIAL_PATTERNS[key];
+
     if (!pattern) {
       invalid.push(key);
       continue;
     }
-    if (value === null || value === undefined || value === "") continue;
-    if (typeof value !== "string" || !pattern.test(value)) invalid.push(key);
+
+    if (value === null || value === undefined || value === "") {
+      continue;
+    }
+
+    if (typeof value !== "string" || !pattern.test(value)) {
+      invalid.push(key);
+    }
   }
+
   return invalid;
 };
 
@@ -103,40 +142,65 @@ export const invalidSocialKeys = (socials = {}) => {
 // OPEN, every other visitor gets it CLOSED. Returns null when the profile has
 // no links at all (callers render nothing, as before). textContent-only
 // building, no innerHTML.
-export function renderProfileSocials(document, profile, isOwnProfile = false) {
-  const links = buildSocialLinks(profile?.socials, profile?.polytoriaUsername);
-  if (!links.length) return null;
+export function renderProfileSocials(
+  document,
+  profile,
+  isOwnProfile = false,
+) {
+  const links = buildSocialLinks(
+    profile?.socials,
+    profile?.polytoriaUsername,
+  );
+
+  if (!links.length) {
+    return null;
+  }
+
   const container = document.createElement("details");
   container.className = "socials-details";
   container.open = isOwnProfile;
+
   const summary = document.createElement("summary");
   summary.className = "socials-summary";
-  summary.textContent = links.length === 1 ? "1 link" : `${links.length} links`;
+  summary.textContent = links.length === 1
+    ? "1 link"
+    : `${links.length} links`;
+
   container.append(summary);
+
   const list = document.createElement("ul");
   list.className = "profile-socials";
+
   for (const link of links) {
     const item = document.createElement("li");
     item.className = "profile-social";
+
     const label = document.createElement("span");
     label.className = "social-label";
     label.textContent = `${link.label}: `;
+
     item.append(label);
+
     if (link.url) {
       const anchor = document.createElement("a");
       anchor.className = "social-handle";
       anchor.textContent = link.text;
       anchor.href = link.url;
+
       item.append(anchor);
     } else {
       const handle = document.createElement("span");
       handle.className = "social-handle";
       handle.textContent = link.text;
+
       item.append(handle);
     }
+
     list.append(item);
   }
+
   container.append(list);
+
   return container;
 }
 
@@ -146,58 +210,115 @@ export function renderProfileSocials(document, profile, isOwnProfile = false) {
 // after PATCH /api/me (the PATCH response echo is asymmetric).
 export function renderProfileEditor(main, user) {
   const document = main.ownerDocument;
+
   const panel = document.createElement("section");
   panel.className = "panel profile-editor-panel";
+
   const heading = document.createElement("h2");
   heading.textContent = "Edit your profile";
+
   panel.append(heading);
-  const socials = user && user.socials && typeof user.socials === "object"
-    ? user.socials
-    : {};
+
+  const socials =
+    user && user.socials && typeof user.socials === "object"
+      ? user.socials
+      : {};
+
   const fields = [
     createTextarea(document, {
-      id: "profile-bio", name: "bio", label: "Bio", rows: 4, maxLength: 10000,
+      id: "profile-bio",
+      name: "bio",
+      label: "Bio",
+      rows: 4,
+      maxLength: 10000,
       description: "Up to 10000 characters. Shown on your profile.",
     }),
-    ...SOCIAL_PLATFORM_ORDER.map((key) => createInput(document, {
-      id: `profile-social-${key}`, name: key, label: SOCIAL_LABELS[key],
-      maxLength: 120,
-      description: key === "polytoria"
-        ? "Your Polytoria username."
-        : SOCIAL_PATTERNS[key] ? `Just the ${SOCIAL_LABELS[key]} handle, not the whole URL.` : "",
-    })),
+
+    ...SOCIAL_PLATFORM_ORDER.map((key) =>
+      createInput(document, {
+        id: `profile-social-${key}`,
+        name: key,
+        label: SOCIAL_LABELS[key],
+        maxLength: 120,
+        description: key === "polytoria"
+          ? "Your Polytoria username."
+          : `Just the ${SOCIAL_LABELS[key]} handle, not the whole URL.`,
+      }),
+    ),
+
     createInput(document, {
-      id: "profile-banner-color", name: "bannerColor", label: "Banner color",
-      maxLength: 7, description: "Any hex like #4d8fc4, or blank to clear.",
+      id: "profile-banner-color",
+      name: "bannerColor",
+      label: "Banner color",
+      maxLength: 7,
+      description: "Any hex like #4d8fc4, or blank to clear.",
     }),
+
     createInput(document, {
-      id: "profile-banner-text", name: "bannerText", label: "Banner text",
-      maxLength: 80, description: "Optional text displayed in your profile banner.",
+      id: "profile-banner-text",
+      name: "bannerText",
+      label: "Banner text",
+      maxLength: 80,
+      description: "Optional text displayed in your profile banner.",
     }),
+
     createInput(document, {
-      id: "profile-flair", name: "flair", label: "Profile flair",
-      maxLength: 32, description: "A short label shown below your name.",
+      id: "profile-flair",
+      name: "flair",
+      label: "Profile flair",
+      maxLength: 32,
+      description: "A short label shown below your name.",
     }),
   ];
-  const form = createForm(document, "profile-editor", fields, "Save profile");
+
+  const form = createForm(
+    document,
+    "profile-editor",
+    fields,
+    "Save profile",
+  );
+
   form.querySelector("#profile-bio").value =
-    typeof user?.bio === "string" ? user.bio : "";
+    typeof user?.bio === "string"
+      ? user.bio
+      : "";
+
   for (const key of SOCIAL_PLATFORM_ORDER) {
     const input = form.querySelector(`#profile-social-${key}`);
     const value = socials[key];
+
     input.value = typeof value === "string" ? value : "";
     input.pattern = SOCIAL_PATTERNS[key].source;
   }
-  form.querySelector("#profile-banner-color").value = user?.bannerColor || "";
-  form.querySelector("#profile-banner-text").value = user?.bannerText || "";
-  form.querySelector("#profile-flair").value = user?.flair || "";
+
+  form.querySelector("#profile-banner-color").value =
+    user?.bannerColor || "";
+
+  form.querySelector("#profile-banner-text").value =
+    user?.bannerText || "";
+
+  form.querySelector("#profile-flair").value =
+    user?.flair || "";
+
   panel.append(form);
+
   if (user) {
     const cssPanel = renderProfileCssEditor(document, user);
-    if (cssPanel) panel.append(cssPanel);
-    panel.append(renderProfileAccentPicker(document, user.profileAccent || ""));
+
+    if (cssPanel) {
+      panel.append(cssPanel);
+    }
+
+    panel.append(
+      renderProfileAccentPicker(
+        document,
+        user.profileAccent || "",
+      ),
+    );
   }
+
   main.append(panel);
+
   return panel;
 }
 
@@ -206,45 +327,109 @@ export function renderProfileEditor(main, user) {
 // stores lowercase hex; "" clears). The current accent arrives from the
 // server already normalized to hex, so pressed-state compares hex-to-hex.
 // The color input (wired by app.js) offers any #rrggbb beyond the presets.
-export const PROFILE_ACCENT_PRESETS = [
-  { key: "", label: "Default", hex: "" },
-  { key: "forest", label: "Forest", hex: "#3f8a63" },
-  { key: "coral", label: "Coral", hex: "#d05f4c" },
-  { key: "gold", label: "Gold", hex: "#d9a627" },
-  { key: "sky", label: "Sky", hex: "#4d8fc4" },
-  { key: "violet", label: "Violet", hex: "#8b6cc4" },
-  { key: "rose", label: "Rose", hex: "#c95f86" },
-  { key: "teal", label: "Teal", hex: "#3d9aa0" },
-];
+export const PROFILE_ACCENT_PRESETS = Object.freeze([
+  Object.freeze({
+    key: "",
+    label: "Default",
+    hex: "",
+  }),
+  Object.freeze({
+    key: "forest",
+    label: "Forest",
+    hex: "#3f8a63",
+  }),
+  Object.freeze({
+    key: "coral",
+    label: "Coral",
+    hex: "#d05f4c",
+  }),
+  Object.freeze({
+    key: "gold",
+    label: "Gold",
+    hex: "#d9a627",
+  }),
+  Object.freeze({
+    key: "sky",
+    label: "Sky",
+    hex: "#4d8fc4",
+  }),
+  Object.freeze({
+    key: "violet",
+    label: "Violet",
+    hex: "#8b6cc4",
+  }),
+  Object.freeze({
+    key: "rose",
+    label: "Rose",
+    hex: "#c95f86",
+  }),
+  Object.freeze({
+    key: "teal",
+    label: "Teal",
+    hex: "#3d9aa0",
+  }),
+]);
 
-export function renderProfileAccentPicker(document, currentAccent = "") {
+export function renderProfileAccentPicker(
+  document,
+  currentAccent = "",
+) {
   const field = document.createElement("div");
   field.className = "accent-picker";
+
   const label = document.createElement("p");
   label.className = "accent-picker-label";
   label.textContent = "Profile color";
+
   field.append(label);
+
   const current = String(currentAccent || "").toLowerCase();
+
   for (const preset of PROFILE_ACCENT_PRESETS) {
     const swatch = document.createElement("button");
+
     swatch.type = "button";
-    swatch.className = "accent-swatch" + (preset.key ? " accent-" + preset.key : " accent-default");
+    swatch.className =
+      "accent-swatch" +
+      (preset.key
+        ? " accent-" + preset.key
+        : " accent-default");
+
     swatch.dataset.accent = preset.hex;
     swatch.dataset.action = "set-profile-accent";
-    swatch.setAttribute("aria-label", "Profile color: " + preset.label);
+
+    swatch.setAttribute(
+      "aria-label",
+      "Profile color: " + preset.label,
+    );
+
     swatch.setAttribute("title", preset.label);
-    swatch.setAttribute("aria-pressed", preset.hex.toLowerCase() === current ? "true" : "false");
+
+    swatch.setAttribute(
+      "aria-pressed",
+      String(preset.hex.toLowerCase() === current),
+    );
+
     field.append(swatch);
   }
+
   // Any-hex pick: a native color input. app.js owns the change handler (this
   // module stays DOM-pure); it PATCHes the hex and re-renders the route.
   const colorInput = document.createElement("input");
+
   colorInput.type = "color";
   colorInput.className = "accent-color-input";
-  colorInput.value = /^#[0-9a-fA-F]{6}$/.test(String(currentAccent || "")) ? currentAccent : "#3f8a63";
+
+  colorInput.value =
+    /^#[0-9a-fA-F]{6}$/.test(String(currentAccent || ""))
+      ? currentAccent
+      : "#3f8a63";
+
   colorInput.setAttribute("aria-label", "Custom profile color");
   colorInput.setAttribute("title", "Custom color — any hex");
+
   field.append(colorInput);
+
   return field;
 }
 
@@ -254,31 +439,46 @@ export function renderProfileAccentPicker(document, currentAccent = "") {
 export function renderProfileCssEditor(document, user) {
   const panel = document.createElement("div");
   panel.className = "css-editor";
+
   const label = document.createElement("label");
   label.className = "css-editor-label";
+  label.htmlFor = "profile-css-input";
   label.textContent = "Custom profile CSS (moderated)";
+
   const textarea = document.createElement("textarea");
   textarea.id = "profile-css-input";
   textarea.className = "css-editor-input";
   textarea.dataset.cssInput = "true";
   textarea.maxLength = 20000;
   textarea.rows = 6;
-  textarea.placeholder = "body { font-family: serif; } — every rule is scoped to your profile.";
-  textarea.value = typeof user.customCssRaw === "string" ? user.customCssRaw : "";
+  textarea.placeholder =
+    "body { font-family: serif; } — every rule is scoped to your profile.";
+
+  textarea.value =
+    typeof user?.customCssRaw === "string"
+      ? user.customCssRaw
+      : "";
+
   const note = document.createElement("p");
   note.className = "form-note";
-  note.textContent = "CSS saves as PENDING: a mod approves it before it goes live. Scoped to your profile container by the server.";
+  note.textContent =
+    "CSS saves as PENDING: a mod approves it before it goes live. Scoped to your profile container by the server.";
+
   panel.append(label, textarea, note);
+
   const save = document.createElement("button");
   save.type = "button";
   save.className = "button";
   save.dataset.action = "save-profile-css";
   save.textContent = "Save CSS for review";
+
   const clear = document.createElement("button");
   clear.type = "button";
   clear.className = "button button-quiet";
   clear.dataset.action = "clear-profile-css";
   clear.textContent = "Remove my CSS";
+
   panel.append(save, clear);
+
   return panel;
 }
