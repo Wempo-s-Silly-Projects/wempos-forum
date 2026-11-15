@@ -46,9 +46,14 @@ export function archivePostRowsStatement(
     );
   }
 
+  // deleted_at is stored as INTEGER epoch seconds (post_archive.deleted_at)
+  // and every caller passes nowSeconds() — a number. A refactor-era guard
+  // here demanded a string, which 500s every author deletion before the
+  // batch runs; the guard must match the column, not the other way around.
   if (
-    typeof deletedAt !== "string" ||
-    !deletedAt.trim()
+    typeof deletedAt !== "number" ||
+    !Number.isInteger(deletedAt) ||
+    deletedAt <= 0
   ) {
     throw new TypeError(
       "An archive deletion timestamp is required.",

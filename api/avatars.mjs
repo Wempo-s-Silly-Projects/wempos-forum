@@ -155,7 +155,7 @@ export async function resolveAvatarPending(db, userId, approve, pendingVersion =
         "avatar_status = 'approved' " +
         "WHERE id = ? AND avatar_status = 'pending'" +
         (requiresVersion ? " AND pending_avatar_version = ?" : ""),
-    ).bind(...(requiresVersion ? [userId, pendingVersion] : [userId]));
+    ).bind(...(requiresVersion ? [userId, pendingVersion] : [userId])).run();
     if (Number(result.meta?.changes) !== 1) {
       throw new HttpError(409, requiresVersion
         ? "That avatar changed since it was reviewed — reload the desk and review the current upload."
@@ -173,7 +173,7 @@ export async function resolveAvatarPending(db, userId, approve, pendingVersion =
       "pending_avatar_updated_at = NULL, pending_avatar_version = NULL, " +
       "avatar_status = CASE WHEN avatar_mime IS NOT NULL THEN 'approved' ELSE NULL END " +
       "WHERE id = ? AND avatar_status = 'pending'",
-  ).bind(userId);
+  ).bind(userId).run();
   if (Number(result.meta?.changes) !== 1) {
     throw new HttpError(409, "That avatar is not awaiting review.");
   }
