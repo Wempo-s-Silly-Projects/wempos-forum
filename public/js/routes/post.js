@@ -11,7 +11,6 @@ import { api } from "../api.js";
 import {
   addHeading,
   attachmentLightbox,
-  closeEditForm as unusedCloseEditForm,
   createPanel,
   element,
   main,
