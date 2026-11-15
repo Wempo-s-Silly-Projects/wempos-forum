@@ -50,7 +50,6 @@ const ICON_ARIA = {
   lightbulb: "Suggestions",
   bookmarks: "Save",
   trophy: "Leaderboard",
-  trophy: "Leaderboard",
 };
 
 export const ICON_NAMES = Object.keys(ICON_PATHS);
