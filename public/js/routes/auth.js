@@ -126,8 +126,10 @@ function renderJoinPanel() {
     authForm("login", "Welcome back", "Sign in"),
     authForm("register", "New around here?", "Create Wempo Account"),
   );
-  renderAccountsSignIn(grid, panel);
+  // insertBefore in renderAccountsSignIn requires grid to already belong to
+  // panel; append it first so guest rendering cannot throw NotFoundError.
   panel.append(grid);
+  renderAccountsSignIn(grid, panel);
   main.append(panel);
 }
 
