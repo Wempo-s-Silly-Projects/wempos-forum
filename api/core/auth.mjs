@@ -112,14 +112,26 @@ export async function createSession(request, env, userId = null, oldTokenHash = 
   const csrfToken = randomToken(24);
   const now = nowSeconds();
   const expiresAt = now + SESSION_TTL_SECONDS;
-  const insert = requireUnbanned
-    ? env.FORUM_DB.prepare(SESSION_INSERT_IF_UNBANNED_SQL)
-      .bind(tokenHash, userId, csrfToken, now, expiresAt, userId, now)
-    : env.FORUM_DB.prepare(
-      "INSERT INTO sessions (token_hash, user_id, csrf_token, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
-    ).bind(tokenHash, userId, csrfToken, now, expiresAt);
-
-  if (oldTokenHash && requireUnbanned) {
+  // A pre-auth guest session is a one-time capability. Consume it in the
+  // same D1 batch that inserts the authenticated session, and make the INSERT
+  // conditional on that guest row still existing. D1 serializes batches, so
+  // two tabs racing login/SSO/TOTP cannot both rotate the same guest cookie.
+  // The loser gets 409 rather than a second Set-Cookie overwriting the winner.
+  let insert;
+  if (oldTokenHash) {
+    const guestPredicate =
+      "EXISTS (SELECT 1 FROM sessions WHERE token_hash = ? AND user_id IS NULL AND expires_at > ?)";
+    const banPredicate = requireUnbanned
+      ? " AND NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+        "AND (expires_at IS NULL OR expires_at > ?))"
+      : "";
+    insert = env.FORUM_DB.prepare(
+      "INSERT INTO sessions (token_hash, user_id, csrf_token, created_at, expires_at) " +
+        "SELECT ?, ?, ?, ?, ? WHERE " + guestPredicate + banPredicate,
+    ).bind(
+      tokenHash, userId, csrfToken, now, expiresAt, oldTokenHash, now,
+      ...(requireUnbanned ? [userId, now] : []),
+    );
     const results = await env.FORUM_DB.batch([
       insert,
       env.FORUM_DB.prepare(
@@ -127,13 +139,22 @@ export async function createSession(request, env, userId = null, oldTokenHash = 
           "SELECT 1 FROM sessions WHERE token_hash = ?)",
       ).bind(oldTokenHash, tokenHash),
     ]);
-    if (Number(results[0]?.meta?.changes) !== 1) return null;
-  } else if (oldTokenHash) {
-    await env.FORUM_DB.batch([
-      env.FORUM_DB.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(oldTokenHash),
-      insert,
-    ]);
+    if (Number(results[0]?.meta?.changes) !== 1) {
+      const guestStillExists = await env.FORUM_DB.prepare(
+        "SELECT 1 FROM sessions WHERE token_hash = ? AND user_id IS NULL AND expires_at > ? LIMIT 1",
+      ).bind(oldTokenHash, now).first();
+      if (!guestStillExists) {
+        throw new HttpError(409, "This sign-in was completed in another tab. Reload to continue.");
+      }
+      return null;
+    }
   } else {
+    insert = requireUnbanned
+      ? env.FORUM_DB.prepare(SESSION_INSERT_IF_UNBANNED_SQL)
+        .bind(tokenHash, userId, csrfToken, now, expiresAt, userId, now)
+      : env.FORUM_DB.prepare(
+        "INSERT INTO sessions (token_hash, user_id, csrf_token, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
+      ).bind(tokenHash, userId, csrfToken, now, expiresAt);
     const result = await insert.run();
     if (requireUnbanned && Number(result.meta?.changes) !== 1) return null;
   }
