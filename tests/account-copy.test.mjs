@@ -31,10 +31,6 @@ test("settings + deletion copy calls it a Wempo Account", () => {
   assert.ok(profile.includes("Your Wempo Account was deleted."), "the post-deletion status message");
 });
 
-test("the move notice speaks of the same Wempo Account", () => {
-  assert.ok(read("../public/js/chat.js").includes("the same Wempo Account, no new sign-up"));
-});
-
 test("the SSO front door rides the Accounts origin with an origin-only return", () => {
   const auth = read("../public/js/routes/auth.js");
   assert.ok(auth.includes('const ACCOUNTS_ORIGIN = "https://accounts.itswempo.workers.dev";'));

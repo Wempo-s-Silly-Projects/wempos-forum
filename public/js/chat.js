@@ -926,27 +926,19 @@ export async function deleteDmMessage(button) {
   button.closest("[data-dm-message-id]")?.remove();
 }
 
-// The /chat route wrapper — retired (GooberCord launch): the forum's live
-// chat and DMs moved to GooberCord on the same account, with every room
-// message and DM thread imported into the gc_* tables on the shared
-// database. The route stays mapped so old links and DM notification
-// deep-links land here instead of 404ing.
-export async function renderChatRoute() {
-  addHeading(main, "Chat has moved to GooberCord", 1);
+// The /chat route wrapper (v3.1).
+export async function renderChatRoute(context) {
+  addHeading(main, "Live chat", 1);
 
   addText(
     document,
     main,
     "p",
-    "Live chat and DMs now live on GooberCord — the same Wempo Account, no new sign-up, and all the room history and DM threads came along. This page keeps the lights on for old links only.",
+    "One public room plus your DMs. You count as online while you're signed in — tick Invisible in the header to lurk without appearing.",
     "page-lede",
   );
 
-  const link = document.createElement("a");
-  link.className = "button button-primary";
-  link.href = "https://goobercord.itswempo.workers.dev";
-  link.textContent = "Open GooberCord";
-  main.append(link);
+  renderChatPage(main, context.session.user);
 }
 
 // The registration seam (task 9): chat/DM sends submit through FORM_HANDLERS;
