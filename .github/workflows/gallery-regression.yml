@@ -63,6 +63,11 @@ jobs:
       - name: Apply schema to an isolated local D1 database
         run: npm run db:migrate:local
       - name: Run Gallery regression tests
+        run: node --test tests/gallery-migration.test.mjs tests/account-copy.test.mjs tests/sso-redeem.test.mjs tests/relay-routes.test.mjs
+      - name: Check Worker and frontend syntax
+        run: |
+          node --check worker.mjs
+          for file in public/js/*.js public/js/routes/*.js api/core/auth.mjs api/session.mjs api/accounts.mjs api/relay.mjs; do
         run: node --test tests/gallery-migration.test.mjs tests/account-copy.test.mjs tests/sso-redeem.test.mjs
       - name: Check Worker and frontend syntax
         run: |
