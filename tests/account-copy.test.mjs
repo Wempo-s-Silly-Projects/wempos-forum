@@ -62,6 +62,7 @@ test("SSO redemption blocks competing password and registration sign-in transiti
   const auth = read("../public/js/routes/auth.js");
   assert.ok(auth.includes("let ssoRedeemInFlight = false;"), "an explicit in-flight guard tracks SSO redemption");
   assert.ok(auth.includes('setJoinFormsDisabled(joinPanel, true)'), "password/register forms are disabled during redemption");
+  assert.ok(auth.includes("redeemAccountsSignIn(code, note, joinPanel)"), "the attached join panel is passed before redemption begins");
   assert.ok(auth.includes('setJoinFormsDisabled(joinPanel, false)'), "forms are re-enabled when redemption fails");
   assert.ok(
     auth.includes('if (ssoRedeemInFlight && (type === "login" || type === "register")) return;'),
