@@ -9,7 +9,6 @@ import assert from "node:assert/strict";
 import { handleAccountsRoutes } from "../api/accounts.mjs";
 import { createSession } from "../api/core/auth.mjs";
 import { HttpError } from "../api/core/http.mjs";
-import { SESSION_INSERT_IF_UNBANNED_SQL } from "../constants.mjs";
 
 const TOKEN = "t".repeat(64);
 const CODE = "9f".repeat(32);
