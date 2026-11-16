@@ -29,7 +29,7 @@ const ACCOUNTS_ORIGIN = "https://accounts.itswempo.workers.dev";
 const SSO_QUERY_KEY = "wt";
 let ssoRedeemAttempted = false;
 
-function accountsSignInUrl() {
+export function accountsSignInUrl() {
   return ACCOUNTS_ORIGIN + "/login?return=" + encodeURIComponent(location.origin);
 }
 
