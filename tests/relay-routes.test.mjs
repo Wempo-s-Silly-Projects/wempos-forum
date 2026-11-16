@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import { handleRelayRoutes } from "../api/relay.mjs";
 import { HttpError } from "../api/core/http.mjs";
 import { hashPassword } from "../api/core/passwords.mjs";
+import { requestIpHash } from "../api/core/auth.mjs";
 
 const TOKEN = "t".repeat(64);
 const PEPPER = "0123456789abcdef0123456789abcdef";
@@ -83,6 +84,58 @@ async function call(handler, request, env, url, path, method) {
     throw error;
   }
 }
+
+test("relay network-ban check: missing token is refused before any database lookup", async () => {
+  const db = fakeDb();
+  const response = await call(handleRelayRoutes,
+    relayRequest("/api/relay/network-ban-check", { ip: "203.0.113.7" }),
+    relayEnv(db), new URL("https://forum.test/api/relay/network-ban-check"),
+    "/api/relay/network-ban-check", "POST",
+  );
+  assert.equal(response.status, 403);
+  assert.equal(db.statements.length, 0);
+});
+
+test("relay network-ban check: invalid address shape is rejected", async () => {
+  const db = fakeDb();
+  const response = await call(handleRelayRoutes,
+    relayRequest("/api/relay/network-ban-check", { ip: "not-a-hostname.example" }, TOKEN),
+    relayEnv(db), new URL("https://forum.test/api/relay/network-ban-check"),
+    "/api/relay/network-ban-check", "POST",
+  );
+  assert.equal(response.status, 400);
+  assert.equal(db.statements.length, 0);
+});
+
+test("relay network-ban check uses the Forum pepper and reports an active ban", async () => {
+  const ip = "203.0.113.7";
+  const db = fakeDb({
+    "FROM banned_ips bi JOIN bans b": { "1": 1 },
+  });
+  const data = await ok(await call(handleRelayRoutes,
+    relayRequest("/api/relay/network-ban-check", { ip }, TOKEN),
+    relayEnv(db), new URL("https://forum.test/api/relay/network-ban-check"),
+    "/api/relay/network-ban-check", "POST",
+  ));
+  assert.deepEqual(data, { banned: true });
+  const lookup = db.statements.find((statement) => statement.sql.includes("FROM banned_ips bi JOIN bans b"));
+  assert.ok(lookup, "active network-ban lookup ran");
+  const expected = await requestIpHash(
+    new Request("https://forum.test/", { headers: { "CF-Connecting-IP": ip } }),
+    relayEnv(db),
+  );
+  assert.equal(lookup.params[0], expected, "the lookup uses the Forum-keyed IP hash");
+});
+
+test("relay network-ban check reports an unbanned address as false", async () => {
+  const db = fakeDb();
+  const data = await ok(await call(handleRelayRoutes,
+    relayRequest("/api/relay/network-ban-check", { ip: "2001:db8::7" }, TOKEN),
+    relayEnv(db), new URL("https://forum.test/api/relay/network-ban-check"),
+    "/api/relay/network-ban-check", "POST",
+  ));
+  assert.deepEqual(data, { banned: false });
+});
 
 test("relay verify: absent token answers 403 with no body oracle", async () => {
   const db = fakeDb();
