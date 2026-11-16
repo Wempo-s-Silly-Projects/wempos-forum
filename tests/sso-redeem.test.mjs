@@ -239,7 +239,7 @@ test("session mint parity: the redeem mints the login route's own session shape"
 
   // And the same machinery under it: the unbanned-guarded INSERT plus the
   // guest-token rotation and the known-ip tracking a login performs.
-  assert.ok(db.statements.some((statement) => statement.sql.includes("INSERT INTO sessions") && statement.sql.includes("WHERE EXISTS (SELECT 1 FROM sessions WHERE token_hash = ? AND user_id IS NULL)") && statement.sql.includes("NOT EXISTS (SELECT 1 FROM bans")),
+  assert.ok(db.statements.some((statement) => statement.sql.includes("INSERT INTO sessions") && statement.sql.includes("WHERE EXISTS (SELECT 1 FROM sessions WHERE token_hash = ? AND user_id IS NULL AND expires_at > ?)") && statement.sql.includes("NOT EXISTS (SELECT 1 FROM bans")),
     "session insert is conditioned on the existing guest session and an unbanned account");
   assert.ok(db.statements.some((statement) => statement.sql.includes("INSERT INTO known_ips")));
 });
