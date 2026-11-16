@@ -7,6 +7,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { redeemAccountsSignIn, FORM_HANDLERS } from "../public/js/routes/auth.js";
 
 const read = (path) => readFileSync(fileURLToPath(new URL(path, import.meta.url)), "utf8");
 
@@ -58,15 +59,60 @@ test("guest join panel attaches the auth grid before inserting the SSO entry bef
 });
 
 
-test("SSO redemption blocks competing password and registration sign-in transitions", () => {
-  const auth = read("../public/js/routes/auth.js");
-  assert.ok(auth.includes("let ssoRedeemInFlight = false;"), "an explicit in-flight guard tracks SSO redemption");
-  assert.ok(auth.includes('setJoinFormsDisabled(joinPanel, true)'), "password/register forms are disabled during redemption");
-  assert.ok(auth.includes("if (code) redeemAccountsSignIn(code, note, joinPanel);"), "the SSO callback passes the attached join panel at the redemption call site");
-  assert.ok(auth.includes('setJoinFormsDisabled(joinPanel, false)'), "forms are re-enabled when redemption fails");
-  assert.ok(
-    auth.includes('if (ssoRedeemInFlight && (type === "login" || type === "register")) return;'),
-    "a submit already queued before the controls were disabled cannot race SSO",
-  );
-  assert.ok(auth.includes("finally {\n    ssoRedeemInFlight = false;"), "the in-flight guard is always released");
+test("SSO redemption disables current and re-rendered forms, blocks submits, and restores controls on failure", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalDocument = globalThis.document;
+  const originalLocation = globalThis.location;
+  const originalHistory = globalThis.history;
+  let rejectFetch;
+  let fetchCalls = 0;
+  const controls = [{ disabled: false }, { disabled: false }];
+  const panel = {
+    querySelectorAll: () => controls,
+  };
+  const rerenderedControls = [{ disabled: false }];
+  const rerenderedPanel = {
+    querySelectorAll: () => rerenderedControls,
+  };
+  globalThis.document = {
+    querySelectorAll: (selector) => selector === "#join" ? [panel, rerenderedPanel] : [],
+  };
+  globalThis.location = { href: "https://forum.test/?wt=abc123" };
+  globalThis.history = { replaceState() {} };
+  globalThis.fetch = () => {
+    fetchCalls++;
+    return new Promise((resolve, reject) => { rejectFetch = reject; });
+  };
+
+  try {
+    const note = { textContent: "" };
+    const redemption = redeemAccountsSignIn("abc123", note, panel);
+    await Promise.resolve();
+
+    assert.ok(controls.every((control) => control.disabled),
+      "the original panel's form controls are disabled while redemption is pending");
+
+    const rerenderedNote = { textContent: "" };
+    await redeemAccountsSignIn("abc123", rerenderedNote, rerenderedPanel);
+    assert.ok(rerenderedControls.every((control) => control.disabled),
+      "a newly rendered panel is disabled while the original redemption remains pending");
+    assert.match(rerenderedNote.textContent, /Signing you in/);
+
+    await FORM_HANDLERS.login({}, () => "");
+    assert.equal(fetchCalls, 1,
+      "a password submission during SSO does not issue a competing auth request");
+
+    rejectFetch(new Error("simulated relay failure"));
+    await redemption;
+    assert.ok([...controls, ...rerenderedControls].every((control) => !control.disabled),
+      "all currently rendered join forms are restored after redemption fails");
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (originalDocument === undefined) delete globalThis.document;
+    else globalThis.document = originalDocument;
+    if (originalLocation === undefined) delete globalThis.location;
+    else globalThis.location = originalLocation;
+    if (originalHistory === undefined) delete globalThis.history;
+    else globalThis.history = originalHistory;
+  }
 });
