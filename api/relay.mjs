@@ -45,7 +45,7 @@ async function requireRelayToken(request, env) {
 function isIpLiteral(value) {
   const ipv4 = value.split(".");
   if (ipv4.length === 4 && ipv4.every((part) =>
-    /^\\d{1,3}$/.test(part) && Number(part) <= 255
+    /^\d{1,3}$/.test(part) && Number(part) <= 255
   )) return true;
 
   if (!value.includes(":") || !/^[0-9a-fA-F:]+$/.test(value)) return false;
