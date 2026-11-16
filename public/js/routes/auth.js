@@ -28,6 +28,19 @@ import { renderTotpLoginStep } from "./twofa.js";
 const ACCOUNTS_ORIGIN = "https://accounts.itswempo.workers.dev";
 const SSO_QUERY_KEY = "wt";
 let ssoRedeemAttempted = false;
+let ssoRedeemInFlight = false;
+
+function setJoinFormsDisabled(joinPanel, disabled) {
+  for (const control of joinPanel.querySelectorAll("form input, form button, form select, form textarea")) {
+    control.disabled = disabled;
+  }
+}
+
+function setAllJoinFormsDisabled(disabled) {
+  for (const panel of document.querySelectorAll("#join")) {
+    setJoinFormsDisabled(panel, disabled);
+  }
+}
 
 export function accountsSignInUrl() {
   return ACCOUNTS_ORIGIN + "/?return=" + encodeURIComponent(location.origin);
@@ -39,20 +52,42 @@ function clearSsoCode() {
   history.replaceState(null, "", clean.pathname + clean.search);
 }
 
-async function redeemAccountsSignIn(code, note) {
+export async function redeemAccountsSignIn(code, note, joinPanel) {
   // Redeem ONCE per page load: the code is single-use server-side, so a
   // re-render racing the in-flight request must not fire a second POST.
-  if (ssoRedeemAttempted) return;
+  if (ssoRedeemAttempted) {
+    // A route re-render can create a fresh panel while the original one-time
+    // redemption is still pending. Keep the new panel disabled too.
+    if (ssoRedeemInFlight) {
+      if (joinPanel) setJoinFormsDisabled(joinPanel, true);
+      note.textContent = "Signing you in with Wempo Accounts…";
+    }
+    return;
+  }
   ssoRedeemAttempted = true;
+  ssoRedeemInFlight = true;
+  if (joinPanel) setJoinFormsDisabled(joinPanel, true);
   note.textContent = "Signing you in with Wempo Accounts…";
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
   try {
-    const result = await api("/api/auth/sso/redeem", { method: "POST", body: { wt: code } });
+    const result = await api("/api/auth/sso/redeem", {
+      method: "POST",
+      body: { wt: code },
+      signal: controller.signal,
+    });
     setCsrfToken(result.csrfToken);
     state.router.navigate("/");
     setMessage("You're signed in.");
   } catch (error) {
-    note.textContent = error.message;
+    note.textContent = controller.signal.aborted
+      ? "Wempo Accounts sign-in timed out. You can sign in with your password."
+      : error.message;
     clearSsoCode();
+    setAllJoinFormsDisabled(false);
+  } finally {
+    clearTimeout(timeout);
+    ssoRedeemInFlight = false;
   }
 }
 
@@ -64,7 +99,7 @@ function renderAccountsSignIn(grid, joinPanel) {
   // internal navigation (which only rewrites same-origin paths).
   const note = element("p", "sso-entry-note muted", "");
   const code = new URLSearchParams(location.search).get(SSO_QUERY_KEY);
-  if (code) redeemAccountsSignIn(code, note);
+  if (code) redeemAccountsSignIn(code, note, joinPanel);
   sso.append(button, note);
   joinPanel.insertBefore(sso, grid);
 }
@@ -160,6 +195,9 @@ function renderSetupRoute(context) {
 }
 
 async function submitAuthForm(type, form, text) {
+  // SSO redemption and password sign-in both rotate the session/CSRF state.
+  // Never let a second auth transition race the in-flight one-time redemption.
+  if (ssoRedeemInFlight && (type === "login" || type === "register")) return;
   const endpoint = type === "login" ? "/api/auth/login" :
     type === "register" ? "/api/auth/register" : "/api/setup";
   const credentials = { username: text("username"), password: text("password") };

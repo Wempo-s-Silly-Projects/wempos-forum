@@ -9,7 +9,6 @@ import assert from "node:assert/strict";
 import { handleAccountsRoutes } from "../api/accounts.mjs";
 import { createSession } from "../api/core/auth.mjs";
 import { HttpError } from "../api/core/http.mjs";
-import { SESSION_INSERT_IF_UNBANNED_SQL } from "../constants.mjs";
 
 const TOKEN = "t".repeat(64);
 const CODE = "9f".repeat(32);
@@ -240,8 +239,18 @@ test("session mint parity: the redeem mints the login route's own session shape"
 
   // And the same machinery under it: the unbanned-guarded INSERT plus the
   // guest-token rotation and the known-ip tracking a login performs.
-  assert.ok(db.statements.some((statement) => statement.sql === SESSION_INSERT_IF_UNBANNED_SQL));
+  assert.ok(db.statements.some((statement) => statement.sql.includes("INSERT INTO sessions") && statement.sql.includes("WHERE EXISTS (SELECT 1 FROM sessions WHERE token_hash = ? AND user_id IS NULL AND expires_at > ?)") && statement.sql.includes("NOT EXISTS (SELECT 1 FROM bans")),
+    "session insert is conditioned on the existing guest session and an unbanned account");
   assert.ok(db.statements.some((statement) => statement.sql.includes("INSERT INTO known_ips")));
+});
+
+test("a competing auth transition cannot rotate an already-consumed guest session", async () => {
+  const db = happyDb({ batchInsertChanges: 0 });
+  const env = ssoEnv(db, mockAccountsBinding());
+  const response = await call(ssoRequest(env, CODE), env);
+  assert.equal(response.status, 409);
+  assert.match(response.message, /completed in another tab/);
+  assert.equal(response.headers?.get?.("Set-Cookie") ?? null, null);
 });
 
 test("the ban gate: an active ban answers the login's 403 ban screen with reason and expiry", async () => {
@@ -264,7 +273,16 @@ test("the ban gate: an active ban answers the login's 403 ban screen with reason
 
 test("a ban landing at the insert still blocks: a lost unbanned INSERT 403s", async () => {
   const accounts = mockAccountsBinding();
-  const db = happyDb({ batchInsertChanges: 0 });
+  const db = happyDb({
+    batchInsertChanges: 0,
+    sqlAnswers: {
+      "FROM banned_ips bi JOIN bans b ON b.id = bi.ban_id": null,
+      "FROM sessions s LEFT JOIN users u ON u.id = s.user_id": GUEST_SESSION,
+      "FROM users WHERE id = ? LIMIT 1": USER,
+      "SELECT reason, expires_at FROM bans WHERE user_id": null,
+      "SELECT 1 FROM sessions WHERE token_hash = ? AND user_id IS NULL": GUEST_SESSION,
+    },
+  });
   const env = ssoEnv(db, accounts);
   const response = await call(ssoRequest(env, CODE), env);
   assert.equal(response.status, 403);

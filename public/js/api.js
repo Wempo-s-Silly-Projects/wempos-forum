@@ -4,7 +4,7 @@ export const setCsrfToken = (token) => {
   csrfToken = typeof token === "string" ? token : "";
 };
 
-export const api = async (path, { method = "GET", body, idempotencyKey } = {}) => {
+export const api = async (path, { method = "GET", body, idempotencyKey, signal } = {}) => {
   const headers = { Accept: "application/json" };
   const mutating = !["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase());
   if (body !== undefined && !(body instanceof FormData)) {
@@ -16,6 +16,7 @@ export const api = async (path, { method = "GET", body, idempotencyKey } = {}) =
     method,
     headers,
     credentials: "same-origin",
+    signal,
     body: body === undefined ? undefined :
       body instanceof FormData ? body : JSON.stringify(body),
   });
