@@ -49,7 +49,9 @@ function isIpLiteral(value) {
   )) return true;
 
   if (!value.includes(":") || !/^[0-9a-fA-F:]+$/.test(value)) return false;
-  if (value.indexOf("::") !== value.lastIndexOf("::")) return false;
+  if (value.includes(":::") || value.indexOf("::") !== value.lastIndexOf("::")) return false;
+  if (value.startsWith(":") && !value.startsWith("::")) return false;
+  if (value.endsWith(":") && !value.endsWith("::")) return false;
   const groups = value.split(":").filter(Boolean);
   return groups.every((group) => group.length <= 4) &&
     (value.includes("::") ? groups.length < 8 : groups.length === 8);
