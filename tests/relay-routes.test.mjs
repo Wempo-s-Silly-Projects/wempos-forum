@@ -163,7 +163,7 @@ test("network-ban check: returns Forum-keyed active-ban status without exposing 
     "/api/relay/network-ban-check", "POST",
   );
   const responseCopy = response.clone();
-  assert.deepEqual(await ok(response), { banned: true });
+  assert.deepEqual(await ok(response), { banned: true, ipHash: expectedHash });
   const lookup = db.statements.find((statement) => statement.sql.includes("FROM banned_ips"));
   assert.ok(lookup);
   assert.equal(lookup.params[0], expectedHash, "lookup uses Forum-keyed IP hash");
