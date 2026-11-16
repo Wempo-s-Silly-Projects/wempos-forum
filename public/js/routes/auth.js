@@ -28,6 +28,13 @@ import { renderTotpLoginStep } from "./twofa.js";
 const ACCOUNTS_ORIGIN = "https://accounts.itswempo.workers.dev";
 const SSO_QUERY_KEY = "wt";
 let ssoRedeemAttempted = false;
+let ssoRedeemInFlight = false;
+
+function setJoinFormsDisabled(joinPanel, disabled) {
+  for (const control of joinPanel.querySelectorAll("form input, form button, form select, form textarea")) {
+    control.disabled = disabled;
+  }
+}
 
 export function accountsSignInUrl() {
   return ACCOUNTS_ORIGIN + "/?return=" + encodeURIComponent(location.origin);
@@ -44,6 +51,9 @@ async function redeemAccountsSignIn(code, note) {
   // re-render racing the in-flight request must not fire a second POST.
   if (ssoRedeemAttempted) return;
   ssoRedeemAttempted = true;
+  ssoRedeemInFlight = true;
+  const joinPanel = note.closest("#join");
+  if (joinPanel) setJoinFormsDisabled(joinPanel, true);
   note.textContent = "Signing you in with Wempo Accounts…";
   try {
     const result = await api("/api/auth/sso/redeem", { method: "POST", body: { wt: code } });
@@ -53,6 +63,9 @@ async function redeemAccountsSignIn(code, note) {
   } catch (error) {
     note.textContent = error.message;
     clearSsoCode();
+    if (joinPanel) setJoinFormsDisabled(joinPanel, false);
+  } finally {
+    ssoRedeemInFlight = false;
   }
 }
 
@@ -160,6 +173,9 @@ function renderSetupRoute(context) {
 }
 
 async function submitAuthForm(type, form, text) {
+  // SSO redemption and password sign-in both rotate the session/CSRF state.
+  // Never let a second auth transition race the in-flight one-time redemption.
+  if (ssoRedeemInFlight && (type === "login" || type === "register")) return;
   const endpoint = type === "login" ? "/api/auth/login" :
     type === "register" ? "/api/auth/register" : "/api/setup";
   const credentials = { username: text("username"), password: text("password") };
