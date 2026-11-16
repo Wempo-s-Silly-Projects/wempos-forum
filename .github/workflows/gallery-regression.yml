@@ -50,13 +50,16 @@ jobs:
             const name = specifier.slice(0, separator);
             const expected = specifier.slice(separator + 1);
             const versions = installed.get(name) ?? new Set();
-            if (!versions.has(expected) || [...versions].some((version) => version !== expected)) {
-              throw new Error(`Refusing lifecycle rebuild for ${specifier}; installed versions: ${[...versions].join(", ") || "none"}`);
+            // Optional dependencies (notably fsevents on Linux) may be
+            // absent. There is nothing to rebuild in that case; any installed
+            // instance must still match the exact allow-listed version.
+            if (versions.size > 0 && [...versions].some((version) => version !== expected)) {
+              throw new Error(`Refusing lifecycle rebuild for ${specifier}; installed versions: ${[...versions].join(", ")}`);
             }
           }
           NODE
       - name: Rebuild exact script-carrying dependencies
-        run: npm rebuild --foreground-scripts esbuild@0.28.2 fsevents@2.3.3 workerd@1.20261023.1
+        run: npm rebuild --foreground-scripts esbuild@0.28.2 workerd@1.20261023.1
       - name: Apply schema to an isolated local D1 database
         run: npm run db:migrate:local
       - name: Run Gallery regression tests
