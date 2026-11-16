@@ -114,9 +114,9 @@ function renderAccountSettings(session) {
   // Blocks (v4.4): the blocked-members list + Unblock controls ride the
   // account settings area right after the two-factor section.
   renderBlockedSettings(account, session);
-  const deletePanel = createPanel("Delete your account",
-    "This permanently deletes your account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo. Are you really sure?");
-  const deleteButton = element("button", "button button-danger", "Delete account");
+  const deletePanel = createPanel("Delete your Wempo Account",
+    "This permanently deletes your Wempo Account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo. Are you really sure?");
+  const deleteButton = element("button", "button button-danger", "Delete Wempo Account");
   deleteButton.type = "button";
   deleteButton.dataset.action = "delete-account";
   deletePanel.append(deleteButton);

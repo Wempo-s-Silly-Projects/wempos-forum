@@ -938,7 +938,7 @@ export async function renderChatRoute() {
     document,
     main,
     "p",
-    "Live chat and DMs now live on GooberCord — same Wempo's account, no new sign-up, and all the room history and DM threads came along. This page keeps the lights on for old links only.",
+    "Live chat and DMs now live on GooberCord — the same Wempo Account, no new sign-up, and all the room history and DM threads came along. This page keeps the lights on for old links only.",
     "page-lede",
   );
 

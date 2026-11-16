@@ -98,7 +98,7 @@ function authForm(name, title, buttonLabel) {
 }
 
 function setupForm() {
-  const panel = createPanel("Set up Wempo's Forum:3", "The first owner account requires a setup secret configured out of band.");
+  const panel = createPanel("Set up Wempo's Forum:3", "The first owner Wempo Account requires a setup secret configured out of band.");
   panel.append(createForm(document, "setup", [
     createInput(document, {
       id: "setup-username", name: "username", label: "Owner username",
@@ -118,12 +118,12 @@ function setupForm() {
 }
 
 function renderJoinPanel() {
-  const panel = createPanel("Join the conversation!", "Accounts use a username and password. There is no email collection or email-based recovery.");
+  const panel = createPanel("Join the conversation!", "Wempo Accounts use a username and password. There is no email collection or email-based recovery.");
   panel.id = "join";
   const grid = element("div", "auth-grid");
   grid.append(
     authForm("login", "Welcome back", "Sign in"),
-    authForm("register", "New around here?", "Create account"),
+    authForm("register", "New around here?", "Create Wempo Account"),
   );
   renderAccountsSignIn(grid, panel);
   panel.append(grid);
@@ -133,7 +133,7 @@ function renderJoinPanel() {
 function renderSetupLocked() {
   const panel = createPanel(
     "First-time setup is locked",
-    "The site owner must configure valid SETUP_SECRET and PASSWORD_PEPPER values in Wrangler before the first owner account can be created.",
+    "The site owner must configure valid SETUP_SECRET and PASSWORD_PEPPER values in Wrangler before the first owner Wempo Account can be created.",
   );
   main.append(panel);
 }
@@ -191,7 +191,7 @@ async function submitAuthForm(type, form, text) {
   }
   setCsrfToken(result.csrfToken);
   state.router.navigate("/");
-  setMessage(type === "setup" ? "Owner account created!" : "You're signed in.");
+  setMessage(type === "setup" ? "Owner Wempo Account created!" : "You're signed in.");
 }
 
 // The registration seam: FORM_HANDLERS merges into submitForm's dispatch map;
