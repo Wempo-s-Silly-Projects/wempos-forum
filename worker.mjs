@@ -77,7 +77,7 @@ function unconditional(request) {
   if (!isDocumentRequest(request)) return request;
   const headers = new Headers(request.headers);
   for (const name of CONDITIONAL_HEADERS) headers.delete(name);
-  return new Request(request, { headers });
+  return new Request(request.url, { method: request.method, headers });
 }
 
 function apiError(error) {
@@ -112,47 +112,17 @@ async function stampedAssetResponse(assetResponse, env) {
   // describes these bytes — a retained Last-Modified would advertise a lie.
   headers.delete("Last-Modified");
   headers.set("Cache-Control", "no-store");
-  const stamp = `<meta name="app-build" content="${escapeHtmlAttribute(build)}">`;
+  const stamp = `<meta name="app-build" content="${build}">`;
   return new Response(html.includes("</head>") ? html.replace("</head>", stamp + "</head>") : html, {
     status: assetResponse.status,
     statusText: assetResponse.statusText,
     headers,
   });
 }
-function escapeHtmlAttribute(value) {
-  return String(value).replace(/[&"<>']/g, (char) => ({
-    "&": "&amp;",
-    '"': "&quot;",
-    "<": "&lt;",
-    ">": "&gt;",
-    "'": "&#39;",
-  })[char]);
-}
+
 // ctx carries waitUntil (v3.1): background work rides it where a route needs
 // one; the response returns without waiting. Callers without a ctx (tests)
 // simply never schedule background checks.
-const API_HANDLERS = [
-  handleAuthRoutes,
-  handlePostRoutes,
-  handleProfileRoutes,
-  handleModerationRoutes,
-  handleNotificationsRoutes,
-  handleSubscriptionsRoutes,
-  handlePollRoutes,
-  handleBookmarkRoutes,
-  handleAttachmentRoutes,
-  handleArchiveRoutes,
-  handleGifRoutes,
-  handleLeaderboardRoutes,
-  handleRulesRoutes,
-  handleAppealRoutes,
-  handleChatRoutes,
-  handleDmRoutes,
-  handleWallRoutes,
-  handleBlockRoutes,
-  handleTotpRoutes,
-  handleFilterAdminRoutes,
-];
 async function routeApi(request, env, ctx) {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -161,11 +131,12 @@ async function routeApi(request, env, ctx) {
 
   // Filter store (v4.3): prime the word-filter list cache once per request —
   // the D1 row when it exists, else the FILTERED_WORDS secret.
-  await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
-
   await ensureFilterWords(env);
 
-  for (const handler of API_HANDLERS) {
+  await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
+
+  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleWallRoutes, handleBlockRoutes, handleTotpRoutes, handleFilterAdminRoutes];
+  for (const handler of handlers) {
     const response = await handler(request, env, url, path, method, ctx);
     if (response) return response;
   }
