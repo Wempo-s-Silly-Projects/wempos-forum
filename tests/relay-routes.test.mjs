@@ -130,7 +130,11 @@ test("relay network-ban check uses the Forum pepper and reports an active ban", 
     relayEnv(db), new URL("https://forum.test/api/relay/network-ban-check"),
     "/api/relay/network-ban-check", "POST",
   ));
-  assert.deepEqual(data, { banned: true });
+  const expected = await requestIpHash(
+    new Request("https://forum.test/", { headers: { "CF-Connecting-IP": ip } }),
+    relayEnv(db),
+  );
+  assert.deepEqual(data, { banned: true, ipHash: expected });
   const lookup = db.statements.find((statement) => statement.sql.includes("FROM banned_ips bi JOIN bans b"));
   assert.ok(lookup, "active network-ban lookup ran");
   const expected = await requestIpHash(
@@ -147,10 +151,14 @@ test("relay network-ban check reports an unbanned address as false", async () =>
     relayEnv(db), new URL("https://forum.test/api/relay/network-ban-check"),
     "/api/relay/network-ban-check", "POST",
   ));
-  assert.deepEqual(data, { banned: false });
+  const expected = await requestIpHash(
+    new Request("https://forum.test/", { headers: { "CF-Connecting-IP": "2001:db8::7" } }),
+    relayEnv(db),
+  );
+  assert.deepEqual(data, { banned: false, ipHash: expected });
 });
 
-test("network-ban check: returns Forum-keyed active-ban status without exposing the IP hash", async () => {
+test("network-ban check: returns the opaque Forum-keyed hash only through the authenticated relay", async () => {
   const request = relayRequest("/api/relay/network-ban-check", { ip: "198.51.100.7" }, TOKEN);
   const expectedHash = await requestIpHash(
     new Request("https://forum.test/", { headers: { "CF-Connecting-IP": "198.51.100.7" } }),
@@ -163,13 +171,13 @@ test("network-ban check: returns Forum-keyed active-ban status without exposing 
     "/api/relay/network-ban-check", "POST",
   );
   const responseCopy = response.clone();
-  assert.deepEqual(await ok(response), { banned: true });
+  assert.deepEqual(await ok(response), { banned: true, ipHash: expectedHash });
   const lookup = db.statements.find((statement) => statement.sql.includes("FROM banned_ips"));
   assert.ok(lookup);
   assert.equal(lookup.params[0], expectedHash, "lookup uses Forum-keyed IP hash");
   const serialized = JSON.stringify(await responseCopy.json());
   assert.equal(serialized.includes("198.51.100.7"), false);
-  assert.equal(serialized.includes(expectedHash), false, "the stable IP hash is never returned");
+  assert.equal(serialized.includes(expectedHash), true, "the opaque hash is returned for GooberCord's atomic D1 guard");
 });
 
 test("network-ban check: rejects malformed IPs and unauthenticated callers before D1", async () => {
