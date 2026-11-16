@@ -30,7 +30,7 @@ const SSO_QUERY_KEY = "wt";
 let ssoRedeemAttempted = false;
 
 export function accountsSignInUrl() {
-  return ACCOUNTS_ORIGIN + "/login?return=" + encodeURIComponent(location.origin);
+  return ACCOUNTS_ORIGIN + "/?return=" + encodeURIComponent(location.origin);
 }
 
 function clearSsoCode() {
