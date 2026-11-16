@@ -122,7 +122,7 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
       "Sign in",
     );
 
-    signIn.href = accountSignInUrl();
+    signIn.href = accountSignInUrl(win.location.origin);
     signIn.setAttribute("data-app-link", "");
 
     accountActions.append(signIn);
