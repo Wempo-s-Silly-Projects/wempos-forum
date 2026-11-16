@@ -1,8 +1,5 @@
 // Non-function shared constants. Kept out of worker.mjs's exports because
 // workerd validates every Worker export as a function or ExportedHandler.
-
-// Password hashing work factor. Keep aligned with the password verification
-// implementation and benchmark when changing this value.
 export const PBKDF2_ITERATIONS = 100000;
 
 export const SESSION_INSERT_IF_UNBANNED_SQL =
@@ -40,19 +37,9 @@ export const THREAD_REPLY_INSERT_SQL =
 // Replies with attachments are inserted as hidden until their attachment batch
 // commits. Replacing only the first visibility literal preserves the public-root
 // and ban predicates below while allowing the caller to bind 'hidden'.
-const THREAD_REPLY_PUBLIC_INSERT_PREFIX =
-  "SELECT ?, ?, ?, 'public', ?, ?, ?, ?, ?, ? WHERE EXISTS (";
-
-const THREAD_REPLY_STAGED_INSERT_PREFIX =
-  "SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ? WHERE EXISTS (";
-
-if (!THREAD_REPLY_INSERT_SQL.includes(THREAD_REPLY_PUBLIC_INSERT_PREFIX)) {
-  throw new Error("THREAD_REPLY_INSERT_SQL is missing its expected INSERT prefix.");
-}
-
 export const THREAD_REPLY_INSERT_STAGED_SQL = THREAD_REPLY_INSERT_SQL.replace(
-  THREAD_REPLY_PUBLIC_INSERT_PREFIX,
-  THREAD_REPLY_STAGED_INSERT_PREFIX,
+  "SELECT ?, ?, ?, 'public', ?, ?, ?, ?, ?, ? WHERE EXISTS (",
+  "SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ? WHERE EXISTS (",
 );
 
 // Reply replies bump their conversation root: last_activity_at = now on the
