@@ -46,13 +46,12 @@ function clearSsoCode() {
   history.replaceState(null, "", clean.pathname + clean.search);
 }
 
-async function redeemAccountsSignIn(code, note) {
+async function redeemAccountsSignIn(code, note, joinPanel) {
   // Redeem ONCE per page load: the code is single-use server-side, so a
   // re-render racing the in-flight request must not fire a second POST.
   if (ssoRedeemAttempted) return;
   ssoRedeemAttempted = true;
   ssoRedeemInFlight = true;
-  const joinPanel = note.closest("#join");
   if (joinPanel) setJoinFormsDisabled(joinPanel, true);
   note.textContent = "Signing you in with Wempo Accounts…";
   try {
@@ -77,7 +76,7 @@ function renderAccountsSignIn(grid, joinPanel) {
   // internal navigation (which only rewrites same-origin paths).
   const note = element("p", "sso-entry-note muted", "");
   const code = new URLSearchParams(location.search).get(SSO_QUERY_KEY);
-  if (code) redeemAccountsSignIn(code, note);
+  if (code) redeemAccountsSignIn(code, note, joinPanel);
   sso.append(button, note);
   joinPanel.insertBefore(sso, grid);
 }
