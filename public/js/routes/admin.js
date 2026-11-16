@@ -1,4 +1,3 @@
-
 // v4.0 plan 4 Task 8: the moderation desk — the /admin route and its fourteen
 // payloads, the desk section builders that live inside app.js's renderAdmin
 // (profile-report queue, hidden posts queue, rules editor, CSS queue), and the
@@ -50,283 +49,104 @@ const DESK_SECTIONS = [
   { slug: "filter", label: "Word filter" },
 ];
 
-function isRecord(value) {
-  return Boolean(
-    value &&
-    typeof value === "object" &&
-    !Array.isArray(value),
-  );
-}
-
-function getArray(data, key) {
-  return isRecord(data) && Array.isArray(data[key])
-    ? data[key]
-    : [];
-}
-
-function validId(value) {
-  const id = Number(value);
-  return Number.isSafeInteger(id) && id > 0;
-}
-
-function validDate(value) {
-  if (
-    typeof value !== "string" &&
-    typeof value !== "number" &&
-    !(value instanceof Date)
-  ) {
-    return false;
-  }
-
-  return Number.isFinite(new Date(value).getTime());
-}
-
-function formatDate(value) {
-  if (!validDate(value)) {
-    return "Date unavailable";
-  }
-
-  return new Date(value).toLocaleString();
-}
-
-function nonNegativeCount(value) {
-  const count = Number(value);
-
-  return Number.isSafeInteger(count) && count >= 0
-    ? count
-    : 0;
-}
-
-function isValidProfileReport(report) {
-  return Boolean(
-    isRecord(report) &&
-    validId(report.id) &&
-    validId(report.profileUserId) &&
-    typeof report.profileUsername === "string" &&
-    report.profileUsername.trim().length > 0 &&
-    typeof report.reporter === "string" &&
-    report.reporter.trim().length > 0 &&
-    typeof report.reason === "string",
-  );
-}
-
-function isValidHiddenPost(item) {
-  return Boolean(
-    isRecord(item) &&
-    validId(item.id) &&
-    validId(item.threadId) &&
-    isRecord(item.author) &&
-    typeof item.author.username === "string" &&
-    item.author.username.trim().length > 0 &&
-    typeof item.body === "string" &&
-    validDate(item.createdAt) &&
-    (
-      item.banExpiresAt == null ||
-      validDate(item.banExpiresAt)
-    ) &&
-    (
-      item.banReason == null ||
-      typeof item.banReason === "string"
-    ),
-  );
-}
-
-function isValidCssSubmission(submission) {
-  return Boolean(
-    isRecord(submission) &&
-    validId(submission.userId) &&
-    typeof submission.username === "string" &&
-    submission.username.trim().length > 0 &&
-    typeof submission.css === "string" &&
-    (
-      submission.version == null ||
-      (
-        typeof submission.version === "number" &&
-        Number.isSafeInteger(submission.version) &&
-        submission.version >= 0
-      ) ||
-      (
-        typeof submission.version === "string" &&
-        submission.version.length > 0
-      )
-    ),
-  );
-}
-
 // slug → { lede, load(), build() }. Every build() appends the section's body
 // to `main` after the shell; each loads only what it renders.
 const DESK_BUILDERS = {
-  reports: {
+  "reports": {
     lede: "Open post reports, newest first — resolve, ban, or dismiss.",
     load: () => api("/api/admin/reports"),
-    build: (data, user) =>
-      createReportQueue(getArray(data, "reports"), document, user),
+    build: (data, user) => createReportQueue(data.reports, document, user),
   },
-
   "profile-reports": {
     lede: "Reported profiles — resolve, view, or ban the reported member.",
     load: () => api("/api/admin/profile-reports"),
-    build: (data) =>
-      createProfileReportQueue(
-        getArray(data, "profileReports"),
-        document,
-      ),
+    build: (data) => createProfileReportQueue(data.profileReports, document),
   },
-
-  appeals: {
+  "appeals": {
     lede: "Second looks at bans a member appealed. Approve to revoke the ban — approval notifies the member.",
     load: () => api("/api/admin/appeals"),
-    build: (data) =>
-      createAppealQueue(getArray(data, "appeals"), document),
+    build: (data) => createAppealQueue(data.appeals, document),
   },
-
-  images: {
+  "images": {
     lede: "Attachments awaiting review. Author sees their own pending images; approve makes them public.",
     load: () => api("/api/admin/attachments"),
-    build: (data) =>
-      createAttachmentQueue(getArray(data, "attachments"), document),
+    build: (data) => createAttachmentQueue(data.attachments, document),
   },
-
-  avatars: {
+  "avatars": {
     lede: "Avatar uploads awaiting review. The previous avatar keeps serving until you decide.",
     load: () => api("/api/admin/avatars"),
-    build: (data) =>
-      createAvatarQueue(getArray(data, "avatars"), document),
+    build: (data) => createAvatarQueue(data.avatars, document),
   },
-
-  gifs: {
+  "gifs": {
     lede: "GIF submissions for the shared library.",
     load: () => api("/api/admin/gifs"),
-    build: (data) =>
-      createGifQueue(getArray(data, "gifs"), document),
+    build: (data) => createGifQueue(data.gifs, document),
   },
-
-  css: {
+  "css": {
     lede: "Custom profile CSS awaiting review. Approved themes serve scoped and sandboxed.",
     load: () => api("/api/admin/css"),
-    build: (data) =>
-      createCssQueue(getArray(data, "cssSubmissions"), document),
+    build: (data) => createCssQueue(data.cssSubmissions, document),
   },
-
-  hidden: {
+  "hidden": {
     lede: "Hidden posts and everything by actively banned members, bodies included.",
     load: () => api("/api/admin/hidden"),
-    build: (data) =>
-      createHiddenPostsQueue(getArray(data, "hidden"), document),
+    build: (data) => createHiddenPostsQueue(data.hidden, document),
   },
-
-  bans: {
+  "bans": {
     lede: "Active bans with unban forms, plus member search to act on anyone directly.",
     load: () => api("/api/admin/bans"),
-    build: (data) => [
-      createActiveBanList(getArray(data, "bans"), document),
+    build: (data, user) => [
+      createActiveBanList(data.bans, document),
       createMemberSearch(document),
     ],
   },
-
   "chat-log": {
     lede: "The full public chat stream — banned authors included, deletable in place.",
     load: () => api("/api/admin/chat"),
-    build: (data) =>
-      createChatLog(getArray(data, "messages"), document),
+    build: (data) => createChatLog(data.messages, document),
   },
-
   "dm-log": {
     lede: "The full 1:1 stream with both participants named — same scrutiny as the chat.",
     load: () => api("/api/admin/dms"),
-    build: (data) =>
-      createDmLog(getArray(data, "messages"), document),
+    build: (data) => createDmLog(data.messages, document),
   },
-
-  rules: {
+  "rules": {
     lede: "The site copy every /rules visitor reads — markdown subset, word-filtered.",
     load: () => api("/api/rules"),
-    build: (data) =>
-      createRulesEditor(data, document),
+    build: (data) => createRulesEditor(data.rules, document),
   },
-
-  filter: {
+  "filter": {
     lede: "The word filter — edit the full list, or bulk-add pasted entries (duplicates skip).",
     load: () => api("/api/admin/filter"),
-    build: (data) =>
-      createFilterEditor(data, document),
+    build: (data) => createFilterEditor(data, document),
   },
 };
 
 async function renderAdminRoute(route, context, version) {
-  const user = context?.session?.user;
-
-  const staff = Boolean(
-    user &&
-    typeof user.username === "string" &&
-    (
-      user.role === "owner" ||
-      user.role === "admin"
-    ),
-  );
-
+  const user = context.session.user;
+  const staff = Boolean(user && (user.role === "owner" || user.role === "admin"));
   if (!staff) {
     addHeading(main, "Moderation desk", 1);
-    addText(
-      document,
-      main,
-      "p",
-      "Only staff can use the desk.",
-      "muted",
-    );
+    addText(document, main, "p", "Only staff can use the desk.", "muted");
     return;
   }
-
-  const slug = DESK_BUILDERS[route?.section]
-    ? route.section
-    : "dashboard";
-
+  const slug = DESK_BUILDERS[route.section] ? route.section : "dashboard";
   const content = renderAdminShell(user, slug);
-
   if (slug !== "dashboard") {
     const section = DESK_BUILDERS[slug];
     const data = await section.load();
-
-    if (version !== state.renderVersion) {
-      return;
-    }
-
-    const sectionInfo = DESK_SECTIONS.find(
-      (item) => item.slug === slug,
-    );
-
-    addHeading(content, sectionInfo.label, 1);
-    addText(
-      document,
-      content,
-      "p",
-      section.lede,
-      "page-lede",
-    );
-
+    if (version !== state.renderVersion) return;
+    addHeading(content, DESK_SECTIONS.find((s) => s.slug === slug).label, 1);
+    addText(document, content, "p", section.lede, "page-lede");
     const body = section.build(data, user);
-
     for (const node of Array.isArray(body) ? body : [body]) {
-      if (node) {
-        content.append(node);
-      }
+      node && content.append(node);
     }
-
     return;
   }
-
   // Dashboard: count every work queue and surface what actually needs eyes —
   // status cards first, then the queue tiles.
-  const [
-    reports,
-    appeals,
-    attachments,
-    avatars,
-    gifs,
-    css,
-    profileReports,
-    hidden,
-  ] = await Promise.all([
+  const [reports, appeals, attachments, avatars, gifs, css, profileReports, hidden] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/appeals"),
     api("/api/admin/attachments"),
@@ -336,66 +156,27 @@ async function renderAdminRoute(route, context, version) {
     api("/api/admin/profile-reports"),
     api("/api/admin/hidden"),
   ]);
-
-  if (version !== state.renderVersion) {
-    return;
-  }
-
+  if (version !== state.renderVersion) return;
   addHeading(content, "Overview", 1);
-
-  addText(
-    document,
-    content,
-    "p",
+  addText(document, content, "p",
     "Everything the desk watches, one glance: the queues with work show their counts. " +
-      "Open a section from the rail to work it.",
-    "page-lede",
-  );
-
-  const reportItems = getArray(reports, "reports");
-  const appealItems = getArray(appeals, "appeals");
-  const attachmentItems = getArray(attachments, "attachments");
-  const avatarItems = getArray(avatars, "avatars");
-  const gifItems = getArray(gifs, "gifs");
-  const cssItems = getArray(css, "cssSubmissions");
-  const profileReportItems = getArray(
-    profileReports,
-    "profileReports",
-  );
-  const hiddenItems = getArray(hidden, "hidden");
-
+    "Open a section from the rail to work it.", "page-lede");
   const counts = {
-    reports: reportItems.length,
-
-    appeals: appealItems.filter(
-      (item) =>
-        isRecord(item) &&
-        item.status === "pending",
-    ).length,
-
-    images: attachmentItems.length,
-    avatars: avatarItems.length,
-    gifs: gifItems.length,
-    css: cssItems.length,
-    "profile-reports": profileReportItems.length,
-    hidden: hiddenItems.length,
+    "reports": reports.reports.length,
+    "appeals": appeals.appeals.filter((a) => a.status === "pending").length,
+    "images": attachments.attachments.length,
+    "avatars": avatars.avatars.length,
+    "gifs": gifs.gifs.length,
+    "css": css.cssSubmissions.length,
+    "profile-reports": profileReports.profileReports.length,
+    "hidden": hidden.hidden.length,
   };
-
-  content.append(
-    createDashboardBoard(
-      DESK_SECTIONS
-        .filter(
-          (section) =>
-            section.slug !== "dashboard" &&
-            DESK_BUILDERS[section.slug],
-        )
-        .map((section) => ({
-          slug: section.slug,
-          label: section.label,
-          count: counts[section.slug],
-        })),
-    ),
-  );
+  content.append(createDashboardBoard(
+    DESK_SECTIONS
+      .filter((s) => s.slug !== "dashboard" && DESK_BUILDERS[s.slug])
+      .map((s) => ({ slug: s.slug, label: s.label, count: counts[s.slug] })),
+    document,
+  ));
 }
 
 // The desk shell: sidebar rail + content column; the column is returned so
@@ -403,408 +184,165 @@ async function renderAdminRoute(route, context, version) {
 function renderAdminShell(user, activeSlug) {
   const shell = document.createElement("div");
   shell.className = "desk-shell";
-
   const nav = document.createElement("nav");
   nav.className = "desk-nav";
-  nav.setAttribute(
-    "aria-label",
-    "Moderation desk sections",
-  );
-
+  nav.setAttribute("aria-label", "Moderation desk sections");
   const name = document.createElement("p");
   name.className = "desk-signin";
   name.textContent = "Signed in as " + user.username;
   nav.append(name);
-
   const list = document.createElement("ul");
   list.className = "desk-nav-list";
-
   for (const section of DESK_SECTIONS) {
     const item = document.createElement("li");
     const link = document.createElement("a");
-
-    link.className =
-      "desk-nav-link" +
-      (
-        section.slug === activeSlug
-          ? " desk-nav-active"
-          : ""
-      );
-
-    link.href =
-      section.slug === "dashboard"
-        ? "/admin"
-        : "/admin/" + section.slug;
-
+    link.className = "desk-nav-link" + (section.slug === activeSlug ? " desk-nav-active" : "");
+    link.href = section.slug === "dashboard" ? "/admin" : "/admin/" + section.slug;
     link.setAttribute("data-app-link", "");
-
-    if (section.slug === activeSlug) {
-      link.setAttribute("aria-current", "page");
-    }
-
+    if (section.slug === activeSlug) link.setAttribute("aria-current", "page");
     link.textContent = section.label;
-
     item.append(link);
     list.append(item);
   }
-
   nav.append(list);
-
   const content = document.createElement("div");
   content.className = "desk-content";
-
   shell.append(nav, content);
   main.append(shell);
-
   return content;
 }
 
-function createDashboardBoard(tiles) {
+function createDashboardBoard(tiles, document) {
   const board = document.createElement("div");
   const tilesHost = document.createElement("div");
-
   tilesHost.className = "desk-tiles";
-
   for (const tile of tiles) {
-    if (
-      !isRecord(tile) ||
-      typeof tile.slug !== "string" ||
-      typeof tile.label !== "string" ||
-      !Number.isSafeInteger(tile.count) ||
-      tile.count < 0
-    ) {
-      continue;
-    }
-
+    if (tile.count === null || tile.count === undefined) continue;
     const link = document.createElement("a");
-
-    link.className =
-      "desk-tile" +
-      (tile.count > 0 ? " desk-tile-waiting" : "");
-
+    link.className = "desk-tile" + (tile.count > 0 ? " desk-tile-waiting" : "");
     link.href = "/admin/" + tile.slug;
     link.setAttribute("data-app-link", "");
-
     const count = document.createElement("span");
     count.className = "desk-tile-count";
     count.textContent = String(tile.count);
-
     const label = document.createElement("span");
     label.className = "desk-tile-label";
     label.textContent = tile.label;
-
     link.append(count, label);
     tilesHost.append(link);
   }
-
   board.append(tilesHost);
-
   return board;
 }
 
 function createProfileReportQueue(reports, document) {
   const container = element("div", "profile-report-queue");
-
-  const validReports = Array.isArray(reports)
-    ? reports.filter(isValidProfileReport)
-    : [];
-
-  if (!validReports.length) {
-    addText(
-      document,
-      container,
-      "p",
-      "No profile reports.",
-      "empty-state",
-    );
-
+  if (!reports.length) {
+    addText(document, container, "p", "No profile reports.", "empty-state");
     return container;
   }
-
-  for (const report of validReports) {
+  for (const report of reports) {
     const item = element("div", "report-queue-item");
-
-    const head = element(
-      "p",
-      "report-queue-head",
-      report.profileUsername +
-        " (reported by " +
-        report.reporter +
-        ")",
-    );
-
-    const reason = element(
-      "p",
-      "report-queue-reason",
-    );
-
+    const head = element("p", "report-queue-head",
+      report.profileUsername + " (reported by " + report.reporter + ")");
+    const reason = element("p", "report-queue-reason");
     reason.textContent = report.reason;
-
-    const resolve = element(
-      "button",
-      "button",
-      "Resolve",
-    );
-
+    const resolve = element("button", "button", "Resolve");
     resolve.type = "button";
     resolve.dataset.action = "resolve-profile-report";
-    resolve.dataset.reportId = String(Number(report.id));
-
-    const visit = element(
-      "a",
-      "button button-quiet",
-      "View profile",
-    );
-
-    visit.href =
-      "/users/" + encodeURIComponent(report.profileUsername);
-
+    resolve.dataset.reportId = String(report.id);
+    const visit = element("a", "button button-quiet", "View profile");
+    visit.href = "/users/" + encodeURIComponent(report.profileUsername);
     visit.setAttribute("data-app-link", "");
-
     // Ban affordance (v3.0.2): a profile report used to be resolve-only —
     // the same admin-ban form as the post-report queue (reason + duration)
     // lets the mod act on the reported member right here. The generic
     // data-form="admin-ban" submit handler picks it up unchanged.
-    const banForm = createBanForm(
-      document,
-      String(Number(report.profileUserId)),
-      report.profileUsername,
-    );
-
-    item.append(
-      head,
-      reason,
-      resolve,
-      visit,
-      banForm,
-    );
-
+    item.append(head, reason, resolve, visit, createBanForm(document, report.profileUserId, report.profileUsername));
     container.append(item);
   }
-
   return container;
 }
 
 function createHiddenPostsQueue(items, document) {
   const container = element("div", "hidden-posts-queue");
-
-  const validItems = Array.isArray(items)
-    ? items.filter(isValidHiddenPost)
-    : [];
-
-  if (!validItems.length) {
-    addText(
-      document,
-      container,
-      "p",
-      "Nothing hidden right now.",
-      "empty-state",
-    );
-
+  if (!items.length) {
+    addText(document, container, "p", "Nothing hidden right now.", "empty-state");
     return container;
   }
-
-  for (const item of validItems) {
+  for (const item of items) {
     const card = element("div", "hidden-post-item");
-
-    const head = element(
-      "p",
-      "hidden-post-head",
-      item.author.username +
-        " — " +
-        (
-          item.banReason
-            ? "ban: " + item.banReason
-            : "hidden post"
-        ) +
-        (
-          item.banExpiresAt
-            ? " (until " + formatDate(item.banExpiresAt) + ")"
-            : " (permanent)"
-        ),
-    );
-
-    const body = element(
-      "p",
-      "hidden-post-body",
-    );
-
+    const head = element("p", "hidden-post-head",
+      item.author.username + " — " +
+      (item.banReason ? "ban: " + item.banReason : "hidden post") +
+      (item.banExpiresAt ? " (until " + new Date(item.banExpiresAt).toLocaleString() + ")" : " (permanent)"));
+    const body = element("p", "hidden-post-body");
     body.textContent = item.body;
-
-    const when = element(
-      "p",
-      "hidden-post-when",
-      formatDate(item.createdAt),
-    );
-
-    const link = element(
-      "a",
-      "button button-quiet",
-      Number(item.threadId) === Number(item.id)
-        ? "Open post"
-        : "Open thread",
-    );
-
-    link.href = "/posts/" + encodeURIComponent(String(item.threadId));
+    const when = element("p", "hidden-post-when", new Date(item.createdAt).toLocaleString());
+    const link = element("a", "button button-quiet", item.threadId === item.id ? "Open post" : "Open thread");
+    link.href = "/posts/" + item.threadId;
     link.setAttribute("data-app-link", "");
-
     card.append(head, body, when, link);
     container.append(card);
   }
-
   return container;
 }
 
-function createRulesEditor(rulesData) {
+function createRulesEditor(rulesData, document) {
   const container = element("div", "rules-editor");
-
-  const safeRulesData = isRecord(rulesData)
-    ? rulesData
-    : {};
-
-  const label = element(
-    "p",
-    "accent-picker-label",
-    "Forum rules (markdown — the subset bodies use)",
-  );
-
-  const textarea = element(
-    "textarea",
-    "css-editor-input",
-  );
-
+  const label = element("p", "accent-picker-label", "Forum rules (markdown — the subset bodies use)");
+  const textarea = element("textarea", "css-editor-input");
   textarea.id = "rules-input";
   textarea.rows = 10;
   textarea.maxLength = 1000000;
-
-  textarea.value =
-    typeof safeRulesData.rules === "string"
-      ? safeRulesData.rules
-      : "";
-
-  const save = element(
-    "button",
-    "button",
-    "Save rules",
-  );
-
+  textarea.value = typeof rulesData.rules === "string" ? rulesData.rules : "";
+  const save = element("button", "button", "Save rules");
   save.type = "button";
   save.dataset.action = "save-forum-rules";
-
   container.append(label, textarea, save);
-
   return container;
 }
 
-function createCssQueue(submissions) {
+function createCssQueue(submissions, document) {
   const container = element("div", "css-queue");
-
-  const validSubmissions = Array.isArray(submissions)
-    ? submissions.filter(isValidCssSubmission)
-    : [];
-
-  if (!validSubmissions.length) {
-    addText(
-      document,
-      container,
-      "p",
-      "No CSS waiting for review.",
-      "empty-state",
-    );
-
+  if (!submissions.length) {
+    addText(document, container, "p", "No CSS waiting for review.", "empty-state");
     return container;
   }
-
-  for (const submission of validSubmissions) {
+  for (const submission of submissions) {
     const item = element("div", "css-queue-item");
-
-    const head = element(
-      "p",
-      "css-queue-head",
-      submission.username +
-        " — " +
-        (
-          typeof submission.bytes === "number" &&
-          Number.isFinite(submission.bytes) &&
-          submission.bytes >= 0
-            ? submission.bytes
-            : submission.css.length
-        ) +
-        " chars",
-    );
-
-    const preview = element(
-      "pre",
-      "css-queue-preview",
-    );
-
+    const head = element("p", "css-queue-head", submission.username + " — " + submission.bytes + " chars");
+    const preview = element("pre", "css-queue-preview");
     preview.textContent = submission.css;
-
-    const approve = element(
-      "button",
-      "button",
-      "Approve",
-    );
-
+    const approve = element("button", "button", "Approve");
     approve.type = "button";
     approve.dataset.action = "css-approve";
-    approve.dataset.userId = String(Number(submission.userId));
-    approve.dataset.version = String(submission.version ?? "");
-
-    const reject = element(
-      "button",
-      "button button-quiet",
-      "Reject",
-    );
-
+    approve.dataset.userId = String(submission.userId);
+    approve.dataset.version = String(submission.version || "");
+    const reject = element("button", "button button-quiet", "Reject");
     reject.type = "button";
     reject.dataset.action = "css-reject";
-    reject.dataset.userId = String(Number(submission.userId));
-    reject.dataset.version = String(submission.version ?? "");
-
+    reject.dataset.userId = String(submission.userId);
+    reject.dataset.version = String(submission.version || "");
     item.append(head, preview, approve, reject);
     container.append(item);
   }
-
   return container;
 }
 
 // Member search (v3.1): fetch and render into the section's results node.
 async function submitMemberSearch(form, text) {
-  const query = text("q").trim();
-
-  const data = await api(
-    "/api/admin/users/search?q=" + encodeURIComponent(query),
-  );
-
-  const results = form.parentElement?.querySelector(
-    "[data-member-search-results]",
-  );
-
-  if (!results) {
-    return;
-  }
-
-  const members = getArray(data, "members");
-
-  results.replaceChildren(
-    renderMemberSearchResults(members, document),
-  );
+  const data = await api("/api/admin/users/search?q=" + encodeURIComponent(text("q").trim()));
+  const results = form.parentElement?.querySelector("[data-member-search-results]");
+  results?.replaceChildren(renderMemberSearchResults(data.members, document));
 }
 
 async function submitReportResolution(form) {
-  await api(
-    "/api/admin/reports/" +
-      encodeURIComponent(form.dataset.reportId || "") +
-      "/resolve",
-    {
-      method: "POST",
-      body: { action: form.dataset.action },
-    },
-  );
-
+  await api("/api/admin/reports/" + form.dataset.reportId + "/resolve", {
+    method: "POST",
+    body: { action: form.dataset.action },
+  });
   await state.renderRoute({ name: "admin" });
-
   setMessage("The report was updated.");
 }
 
@@ -812,347 +350,142 @@ async function submitBanForm(form, text) {
   // Timed bans (v3.0.2): the optional duration select carries hours; 0 or
   // absent = permanent. Hours become an absolute epoch-seconds expiresAt —
   // the server re-validates the window (a minute to a year out).
-  const durationSelect = form.querySelector(
-    'select[name="duration"]',
-  );
-
-  const hours = Number(
-    durationSelect && durationSelect.value,
-  ) || 0;
-
-  const body = {
-    reason: text("reason"),
-  };
-
-  if (hours > 0) {
-    body.expiresAt =
-      Math.floor(Date.now() / 1000) + hours * 3600;
-  }
-
+  const durationSelect = form.querySelector("select[name=\"duration\"]");
+  const hours = Number(durationSelect && durationSelect.value) || 0;
+  const body = { reason: text("reason") };
+  if (hours > 0) body.expiresAt = Math.floor(Date.now() / 1000) + hours * 3600;
   // IP bans (v3.1): the opt-in checkbox rides the same request.
-  if (text("ipBan") === "on") {
-    body.ipBan = true;
-  }
-
-  await api(
-    "/api/admin/users/" +
-      encodeURIComponent(form.dataset.userId || "") +
-      "/bans",
-    {
-      method: "POST",
-      body,
-    },
-  );
-
+  if (text("ipBan") === "on") body.ipBan = true;
+  await api("/api/admin/users/" + form.dataset.userId + "/bans", {
+    method: "POST",
+    body,
+  });
   await state.renderRoute({ name: "admin" });
-
-  setMessage(
-    hours > 0
-      ? "The user was banned and their sessions revoked. Their account reactivates when the ban expires."
-      : "The user was banned and their sessions revoked.",
-  );
+  setMessage(hours > 0
+    ? "The user was banned and their sessions revoked. Their account reactivates when the ban expires."
+    : "The user was banned and their sessions revoked.");
 }
 
 async function submitUnbanForm(form, text) {
-  await api(
-    "/api/admin/users/" +
-      encodeURIComponent(form.dataset.userId || "") +
-      "/bans",
-    {
-      method: "DELETE",
-      body: {
-        reason: text("reason"),
-      },
-    },
-  );
-
+  await api("/api/admin/users/" + form.dataset.userId + "/bans", {
+    method: "DELETE",
+    body: { reason: text("reason") },
+  });
   await state.renderRoute({ name: "admin" });
-
   setMessage("The ban was lifted.");
 }
 
 async function submitRoleChange(form, action, text) {
   const reason = text("reason").trim();
-
-  await api(
-    "/api/admin/users/" +
-      encodeURIComponent(form.dataset.userId || "") +
-      "/" +
-      action,
-    {
-      method: "POST",
-      body: reason ? { reason } : {},
-    },
-  );
-
+  await api("/api/admin/users/" + form.dataset.userId + "/" + action, {
+    method: "POST",
+    body: reason ? { reason } : {},
+  });
   // Role-change forms live on the moderation desk and on member profiles;
   // re-rendering the current route refreshes whichever surface is showing.
   await state.renderRoute(state.activeRoute);
-
-  setMessage(
-    action === "promote"
-      ? "The member was promoted to mod."
-      : "The member was demoted to member.",
-  );
+  setMessage(action === "promote"
+    ? "The member was promoted to mod."
+    : "The member was demoted to member.");
 }
 
 async function submitAvatarModeration(form, action) {
-  await api(
-    "/api/admin/avatars/" +
-      encodeURIComponent(form.dataset.userId || "") +
-      "/" +
-      action,
-    {
-      method: "POST",
-      // pendingVersion (CAS): the server approves only the exact upload the
-      // queue showed; a 409 means the member replaced it — rerender re-fetches.
-      body: form.dataset.pendingVersion
-        ? { pendingVersion: form.dataset.pendingVersion }
-        : {},
-    },
-  );
-
+  await api("/api/admin/avatars/" + form.dataset.userId + "/" + action, {
+    method: "POST",
+    // pendingVersion (CAS): the server approves only the exact upload the
+    // queue showed; a 409 means the member replaced it — rerender re-fetches.
+    body: form.dataset.pendingVersion ? { pendingVersion: form.dataset.pendingVersion } : {},
+  });
   await state.renderRoute({ name: "admin" });
-
-  setMessage(
-    action === "approve"
-      ? "The avatar was approved."
-      : "The avatar was rejected.",
-  );
+  setMessage(action === "approve" ? "The avatar was approved." : "The avatar was rejected.");
 }
 
 // Attachment rows are per-post ids, not replaceable profile pairs, and an
 // unknown/stale id 404s (never "already handled") — same rerender-and-report
 // flow as the avatar desk above.
 async function submitAttachmentModeration(form, action) {
-  await api(
-    "/api/admin/attachments/" +
-      encodeURIComponent(form.dataset.attachmentId || "") +
-      "/" +
-      action,
-    {
-      method: "POST",
-    },
-  );
-
+  await api("/api/admin/attachments/" + form.dataset.attachmentId + "/" + action, {
+    method: "POST",
+  });
   await state.renderRoute({ name: "admin" });
-
-  setMessage(
-    action === "approve"
-      ? "The image was approved."
-      : "The image was rejected.",
-  );
+  setMessage(action === "approve" ? "The image was approved." : "The image was rejected.");
 }
-
 export const FORM_HANDLERS = {
-  "admin-resolve": (form) =>
-    submitReportResolution(form),
-
-  "admin-ban": (form, text) =>
-    submitBanForm(form, text),
-
-  "admin-unban": (form, text) =>
-    submitUnbanForm(form, text),
-
-  "admin-promote": (form, text) =>
-    submitRoleChange(form, "promote", text),
-
-  "admin-demote": (form, text) =>
-    submitRoleChange(form, "demote", text),
-
-  "admin-avatar-approve": (form) =>
-    submitAvatarModeration(form, "approve"),
-
-  "admin-avatar-reject": (form) =>
-    submitAvatarModeration(form, "reject"),
-
-  "admin-attachment-approve": (form) =>
-    submitAttachmentModeration(form, "approve"),
-
-  "admin-attachment-reject": (form) =>
-    submitAttachmentModeration(form, "reject"),
-
-  "admin-member-search": (form, text) =>
-    submitMemberSearch(form, text),
-
-  "filter-save": async (form, text) =>
-    submitFilterSave(form, text),
-
-  "filter-bulk-add": async (form, text) =>
-    submitFilterBulkAdd(form, text),
+  "admin-resolve": (form) => submitReportResolution(form),
+  "admin-ban": (form, text) => submitBanForm(form, text),
+  "admin-unban": (form, text) => submitUnbanForm(form, text),
+  "admin-promote": (form, text) => submitRoleChange(form, "promote", text),
+  "admin-demote": (form, text) => submitRoleChange(form, "demote", text),
+  "admin-avatar-approve": (form) => submitAvatarModeration(form, "approve"),
+  "admin-avatar-reject": (form) => submitAvatarModeration(form, "reject"),
+  "admin-attachment-approve": (form) => submitAttachmentModeration(form, "approve"),
+  "admin-attachment-reject": (form) => submitAttachmentModeration(form, "reject"),
+  "admin-member-search": (form, text) => submitMemberSearch(form, text),
+  "filter-save": async (form, text) => submitFilterSave(form, text),
+  "filter-bulk-add": async (form, text) => submitFilterBulkAdd(form, text),
 };
 
 // Filter store (v4.3): the desk's two writes. Save replaces the whole list
 // (an empty list turns the filter off deliberately); bulk add appends and
 // dedupes server-side, and the report counts both directions.
 async function submitFilterSave(form, text) {
-  await api("/api/admin/filter", {
-    method: "PUT",
-    body: {
-      words: text("words"),
-    },
-  });
-
+  await api("/api/admin/filter", { method: "PUT", body: { words: text("words") } });
   await state.renderRoute(state.activeRoute);
-
   setMessage("The filter list was saved.");
 }
 
 async function submitFilterBulkAdd(form, text) {
-  const data = await api(
-    "/api/admin/filter/entries",
-    {
-      method: "POST",
-      body: {
-        entries: text("entries"),
-      },
-    },
-  );
-
+  const data = await api("/api/admin/filter/entries", {
+    method: "POST",
+    body: { entries: text("entries") },
+  });
   await state.renderRoute(state.activeRoute);
-
-  const added = nonNegativeCount(
-    isRecord(data) ? data.added : 0,
-  );
-
-  const skipped = nonNegativeCount(
-    isRecord(data) ? data.skipped : 0,
-  );
-
   setMessage(
-    added +
-      (added === 1 ? " entry added" : " entries added") +
-      (
-        skipped
-          ? " · " +
-            skipped +
-            (
-              skipped === 1
-                ? " duplicate skipped."
-                : " duplicates skipped."
-            )
-          : "."
-      ),
+    data.added + (data.added === 1 ? " entry added" : " entries added") +
+    (data.skipped ? " · " + data.skipped + (data.skipped === 1 ? " duplicate skipped." : " duplicates skipped.") : "."),
   );
 }
 
 export const ACTIONS = {
-  // Pinned (C5): the mod desk's pin/unpin — POST to the admin route and
-  // re-render; the payload's pinnedAt decides which control each card shows.
-  "thread-pin": async (button) => {
-    await api(
-      "/api/admin/threads/" +
-        encodeURIComponent(button.dataset.postId || "") +
-        "/pin",
-      {
-        method: "POST",
-      },
-    );
-
-    await state.renderRoute(state.activeRoute);
-
-    setMessage("Thread pinned.");
-  },
-
-  "thread-unpin": async (button) => {
-    await api(
-      "/api/admin/threads/" +
-        encodeURIComponent(button.dataset.postId || "") +
-        "/unpin",
-      {
-        method: "POST",
-      },
-    );
-
-    await state.renderRoute(state.activeRoute);
-
-    setMessage("Thread unpinned.");
-  },
-
-  "gif-approve": async (button) => {
-    await api(
-      "/api/admin/gifs/" +
-        encodeURIComponent(button.dataset.gifId || "") +
-        "/approve",
-      {
-        method: "POST",
-      },
-    );
-
-    await state.renderRoute(state.activeRoute);
-
-    setMessage("GIF approved and added to the public library.");
-  },
-
-  "gif-reject": async (button) => {
-    await api(
-      "/api/admin/gifs/" +
-        encodeURIComponent(button.dataset.gifId || "") +
-        "/reject",
-      {
-        method: "POST",
-      },
-    );
-
-    await state.renderRoute(state.activeRoute);
-
-    setMessage("GIF submission rejected.");
-  },
-
-  "resolve-profile-report": async (button) => {
-    await api(
-      "/api/admin/profile-reports/" +
-        encodeURIComponent(button.dataset.reportId || "") +
-        "/resolve",
-      {
-        method: "POST",
-      },
-    );
-
-    button.closest(".report-queue-item")?.remove();
-
-    setMessage("Report resolved.");
-  },
-
-  "css-approve": async (button) => {
-    const version = encodeURIComponent(
-      button.dataset.version || "",
-    );
-
-    await api(
-      "/api/admin/css/" +
-        encodeURIComponent(button.dataset.userId || "") +
-        "/approve?version=" +
-        version,
-      {
-        method: "POST",
-      },
-    );
-
-    await state.renderRoute(state.activeRoute);
-
-    setMessage("CSS approved.");
-  },
-
-  "css-reject": async (button) => {
-    const version = encodeURIComponent(
-      button.dataset.version || "",
-    );
-
-    await api(
-      "/api/admin/css/" +
-        encodeURIComponent(button.dataset.userId || "") +
-        "/reject?version=" +
-        version,
-      {
-        method: "POST",
-      },
-    );
-
-    await state.renderRoute(state.activeRoute);
-
-    setMessage("CSS rejected.");
-  },
+    // Pinned (C5): the mod desk's pin/unpin — POST to the admin route and
+    // re-render; the payload's pinnedAt decides which control each card shows.
+    "thread-pin": async (button) => {
+      await api("/api/admin/threads/" + button.dataset.postId + "/pin", { method: "POST" });
+      await state.renderRoute(state.activeRoute);
+      setMessage("Thread pinned.");
+    },
+    "thread-unpin": async (button) => {
+      await api("/api/admin/threads/" + button.dataset.postId + "/unpin", { method: "POST" });
+      await state.renderRoute(state.activeRoute);
+      setMessage("Thread unpinned.");
+    },
+    "gif-approve": async (button) => {
+      await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/approve", { method: "POST" });
+      await state.renderRoute(state.activeRoute);
+      setMessage("GIF approved and added to the public library.");
+    },
+    "gif-reject": async (button) => {
+      await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/reject", { method: "POST" });
+      await state.renderRoute(state.activeRoute);
+      setMessage("GIF submission rejected.");
+    },
+    "resolve-profile-report": async (button) => {
+      await api("/api/admin/profile-reports/" + encodeURIComponent(button.dataset.reportId) + "/resolve", { method: "POST" });
+      button.closest(".report-queue-item")?.remove();
+      setMessage("Report resolved.");
+    },
+    "css-approve": async (button) => {
+      const version = encodeURIComponent(button.dataset.version || "");
+      await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/approve?version=" + version, { method: "POST" });
+      await state.renderRoute(state.activeRoute);
+      setMessage("CSS approved.");
+    },
+    "css-reject": async (button) => {
+      const version = encodeURIComponent(button.dataset.version || "");
+      await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/reject?version=" + version, { method: "POST" });
+      await state.renderRoute(state.activeRoute);
+      setMessage("CSS rejected.");
+    },
 };
 
 export { renderAdminRoute };
