@@ -664,6 +664,26 @@ textarea {
   gap: 1rem;
 }
 
+/* Wempo Accounts sign-in handshake: the alternate front door sits above the
+ username/password pair — one secondary button plus the redeem-status note
+ (the shared expired-link copy lands here). */
+.sso-entry {
+  margin: 0 0 1rem;
+}
+
+.sso-entry-button {
+  display: inline-block;
+}
+
+.sso-entry-note:empty {
+  display: none;
+}
+
+.sso-entry-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.9rem;
+}
+
 .profile-heading {
   display: flex;
   align-items: center;
