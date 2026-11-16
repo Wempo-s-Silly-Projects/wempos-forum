@@ -20,7 +20,7 @@
 import { equalConstantTime, nowSeconds } from "./core/crypto.mjs";
 import { requestIpHash } from "./core/auth.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
-import { hashPassword, isValidPassword, verifyPassword } from "./core/passwords.mjs";
+import { hashPassword, isValidPassword, isValidPasswordPepper, verifyPassword } from "./core/passwords.mjs";
 import { isValidUsername, publicUser, userByUsernameKey } from "./core/shapers.mjs";
 
 const DUMMY_SALT = "00000000000000000000000000000000";
@@ -66,6 +66,9 @@ export async function handleRelayRoutes(request, env, url, path, method) {
     // strings or hostnames into the keyed network-ban lookup.
     if (!ip || ip.length > 45 || !isIpLiteral(ip)) {
       throw new HttpError(400, "A valid client IP is required.");
+    }
+    if (!isValidPasswordPepper(env.PASSWORD_PEPPER)) {
+      throw new HttpError(503, "Forum network-ban verification is not configured.");
     }
     const ipRequest = new Request(request.url, {
       headers: { "CF-Connecting-IP": ip },
