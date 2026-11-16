@@ -11,7 +11,6 @@ import { HttpError, json, rateLimit, readJson, readLimitedBody, requireMutationA
 import { hashPassword, isValidPassword, verifyPassword } from "./core/passwords.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { normalizeBannerColor, normalizeProfileAccent, normalizeProfileColorInput, PROFILE_ACCENTS, PROFILE_BANNER_COLORS, SOCIAL_PLATFORMS, socialsFromRow, userByUsernameKey } from "./core/shapers.mjs";
-import { listRootPosts } from "./posts-feed.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 // v4.0 plan 3, Task 2: the avatar lifecycle (upload, serve, moderation queue)
@@ -48,8 +47,7 @@ async function handleUserProfileRoute(request, env, url, path, method) {
     // renders the unavailable strip; counts/list SQL never even run. Signed-
     // in non-staff members only: staff keep full read access for desk work.
     // The refusal runs FIRST (zero counting work) and its payload carries
-    // benign empty defaults so OLD tabs still running pre-v4.4 JS don't walk
-    // into renderProfilePosts' profile.posts.length with undefined.
+    // benign empty defaults.
     const viewerBlocked = Boolean(viewer && !viewerIsStaff &&
       session.user.id !== Number(user.id) &&
       (await blockPairExists(env, session.user.id, user.id)));
@@ -64,14 +62,11 @@ async function handleUserProfileRoute(request, env, url, path, method) {
         bannerColor: "",
         postsCount: 0,
         repliesCount: 0,
-        posts: [],
-        postsNextBefore: null,
       });
     }
     // Per-user post counter (v2.6): two COUNT subselects — threads started
     // and replies written (any post row with a parent). Display-only; it
-    // does not filter by visibility (the author's own-view semantics), and
-    // the posts LIST right below still applies all visibility rules.
+    // does not filter by visibility (the author's own-view semantics).
     const counts = await env.FORUM_DB.prepare(
       "SELECT " +
       "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NULL) AS posts_count, " +
@@ -85,16 +80,6 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       "SELECT reason, expires_at FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
         "AND (expires_at IS NULL OR expires_at > ?) ORDER BY id DESC LIMIT 1",
     ).bind(Number(user.id), nowSeconds()).first();
-    const beforeRaw = url.searchParams.get("before");
-    let before = null;
-    if (beforeRaw !== null) {
-      if (!/^[1-9][0-9]{0,14}$/.test(beforeRaw)) throw new HttpError(400, "That page cursor is invalid.");
-      before = Number(beforeRaw);
-    }
-    const posts = await listRootPosts(env, viewer, {
-      authorId: Number(user.id),
-      before,
-    });
     return json({
       id: Number(user.id),
       username: user.username,
@@ -117,8 +102,6 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       socials: socialsFromRow(user),
       polytoriaUsername: user.polytoria_username || null,
       avatarUrl: user.avatar_mime ? "/api/avatars/" + user.id + "?v=" + user.avatar_version : null,
-      posts: posts.posts,
-      postsNextBefore: posts.nextBefore,
       banned: Boolean(ban),
       banExpiresAt: ban && ban.expires_at !== null && ban.expires_at !== undefined
         ? Number(ban.expires_at)

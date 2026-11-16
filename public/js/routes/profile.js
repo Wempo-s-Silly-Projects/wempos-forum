@@ -18,7 +18,6 @@ import {
 } from "../dom.js";
 import { addText, createInput } from "../forms.js";
 import { state } from "../state.js";
-import { createPostCard } from "../render.js";
 import { formatBanCountdown } from "../banned.js";
 import {
   SOCIAL_LABELS,
@@ -216,31 +215,9 @@ function renderProfile(profile, session) {
     pictures.append(avatarForm);
     main.append(pictures);
   }
-  renderProfilePosts(profile, session.user);
-  // Profile wall (v4.0): renders below the posts; it fetches its own payload
-  // and never blocks the profile render on the wall fetch.
+  // Profile wall (v4.0): it fetches its own payload and never blocks the
+  // profile render on the wall fetch.
   renderProfileWall(profile);
-}
-
-function renderProfilePosts(profile, user) {
-  addHeading(main, "Posts", 2);
-  if (!profile.posts.length) {
-    addText(document, main, "p", "No posts, yet!", "empty-state");
-    return;
-  }
-
-  const list = element("div", "post-list profile-post-list");
-  list.dataset.profileUsername = profile.username;
-  for (const post of profile.posts) list.append(createPostCard(post, document, user));
-  main.append(list);
-
-  if (!profile.postsNextBefore) return;
-  const older = element("button", "button button-secondary", "Load older posts");
-  older.type = "button";
-  older.dataset.action = "load-more-profile-posts";
-  older.dataset.username = profile.username;
-  older.dataset.before = String(profile.postsNextBefore);
-  main.append(older);
 }
 
 // Spec §8: promote/demote is owner-only (v3.1 rename: mod → admin, admin →
@@ -262,16 +239,6 @@ function appendProfileRoleControls(profile, session, container) {
   button.type = "submit";
   form.append(button);
   container.append(form);
-}
-
-async function loadMoreProfilePosts(button) {
-  const username = button.dataset.username;
-  const page = await api("/api/users/" + encodeURIComponent(username) + "?before=" + button.dataset.before);
-  const list = main.querySelector(".profile-post-list");
-  if (!list) throw new Error("The profile post list is no longer available. Reload the profile.");
-  for (const post of page.posts) list.append(createPostCard(post, document, state.currentUser));
-  if (page.postsNextBefore) button.dataset.before = String(page.postsNextBefore);
-  else button.remove();
 }
 
 async function submitProfileEditorForm(form, text) {
@@ -405,7 +372,6 @@ export const FORM_HANDLERS = {
 };
 
 export const ACTIONS = {
-  "load-more-profile-posts": (button) => loadMoreProfilePosts(button),
   "delete-post": (button) => openDeletePostDialog(button),
   "delete-account": () => openDeleteAccountDialog(),
   "block-user": (button) => openBlockDialog(button),
