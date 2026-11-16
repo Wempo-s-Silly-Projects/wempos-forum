@@ -17,9 +17,10 @@ import { renderBannedScreen } from "../banned.js";
 import { state } from "../state.js";
 import { renderTotpLoginStep } from "./twofa.js";
 
-// Wempo Accounts sign-in handshake: the header's "Sign in with Wempo Accounts"
-// button jumps to the Accounts worker's sign-in screen, which comes back with
-// ?wt=<one-time code>; redeemAccountsSignIn posts it to the redeem route once
+// Wempo Accounts sign-in handshake: the join panel's "Sign in with Wempo
+// Accounts" button jumps to the Accounts worker's sign-in screen, which comes
+// back with ?wt=<one-time code>; redeemAccountsSignIn posts it to the redeem
+// route once
 // and lands in the app through the same post-login flow the password form
 // uses. Only the bare ORIGIN rides the return parameter — never a query
 // string, so the exact-match return check on the Accounts side can never be
