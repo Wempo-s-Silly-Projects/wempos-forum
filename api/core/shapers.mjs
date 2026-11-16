@@ -67,13 +67,24 @@ export function socialsFromRow(row) {
   return socials;
 }
 
+// One full users projection shared by the key lookups — same column list both
+// paths, so publicUser shapes identically whichever way the row was found.
+const USER_ROW_SELECT =
+  "SELECT id, username, username_key, password_salt, password_hash, role, bio, profile_accent, banner_color, banner_text, flair, pending_css, approved_css, " +
+  SOCIAL_SELECT_COLUMNS +
+  "avatar_status, avatar_mime, avatar_updated_at, avatar_version " +
+  "FROM users";
+
 export async function userByUsernameKey(env, key) {
-  return env.FORUM_DB.prepare(
-    "SELECT id, username, username_key, password_salt, password_hash, role, bio, profile_accent, banner_color, banner_text, flair, pending_css, approved_css, " +
-      SOCIAL_SELECT_COLUMNS +
-      "avatar_status, avatar_mime, avatar_updated_at, avatar_version " +
-      "FROM users WHERE username_key = ? LIMIT 1",
-  ).bind(key).first();
+  return env.FORUM_DB.prepare(USER_ROW_SELECT + " WHERE username_key = ? LIMIT 1").bind(key).first();
+}
+
+// The Wempo Accounts SSO front door (api/accounts.mjs) redeems its code into
+// an id on the SHARED users table — the same row both apps write — so the
+// forum mints its session from the local row and never trusts the relay's
+// username/role echo.
+export async function userById(env, id) {
+  return env.FORUM_DB.prepare(USER_ROW_SELECT + " WHERE id = ? LIMIT 1").bind(Number(id)).first();
 }
 
 // Profile colors (any hex, v3.0.2): members pick any #rrggbb. The stored
