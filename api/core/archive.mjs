@@ -12,6 +12,20 @@
 export function archivePostRowsStatement(
   db, whereSql, binds, reason, deletedAt, deletedByUserId = null, deletedByName = null,
 ) {
+  // deleted_at is stored as INTEGER epoch seconds (post_archive.deleted_at)
+  // and every caller passes nowSeconds() — a number. A refactor-era guard
+  // here demanded a string, which 500s every author deletion before the
+  // batch runs; the guard must match the column, not the other way around.
+  if (
+    typeof deletedAt !== "number" ||
+    !Number.isInteger(deletedAt) ||
+    deletedAt <= 0
+  ) {
+    throw new TypeError(
+      "An archive deletion timestamp is required.",
+    );
+  }
+
   return db.prepare(
     "INSERT INTO post_archive (original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because, deleted_by_user_id, deleted_by_name, idempotency_key, idempotency_fingerprint, visibility) " +
     "SELECT p.id, p.author_id, COALESCE(u.username, 'removed'), p.body, p.board, p.created_at, ?, ?, ?, ?, p.idempotency_key, p.idempotency_fingerprint, p.visibility " +

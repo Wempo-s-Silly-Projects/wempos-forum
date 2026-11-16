@@ -8,6 +8,30 @@ import { HttpError } from "./http.mjs";
 
 const encoder = new TextEncoder();
 
+// Stored credential shapes (restored after the conciseness pass): a malformed
+// row (corrupted salt/hash, a legacy NULL, binary bytes) must verify as
+// FALSE — never throw, so one bad row is a failed login, not a server error.
+const SALT_BYTES = 16;
+const SALT_HEX_LENGTH = SALT_BYTES * 2;
+const HASH_BYTES = 32;
+const HASH_HEX_LENGTH = HASH_BYTES * 2;
+
+function isValidSaltHex(saltHex) {
+  return (
+    typeof saltHex === "string" &&
+    saltHex.length === SALT_HEX_LENGTH &&
+    /^[0-9a-fA-F]+$/.test(saltHex)
+  );
+}
+
+function isValidHashHex(hashHex) {
+  return (
+    typeof hashHex === "string" &&
+    hashHex.length === HASH_HEX_LENGTH &&
+    /^[0-9a-fA-F]+$/.test(hashHex)
+  );
+}
+
 export function isValidPassword(value) {
   return typeof value === "string" && value.length >= 12 && value.length <= 128;
 }
@@ -58,5 +82,8 @@ export async function hashPassword(password, pepper) {
 }
 
 export async function verifyPassword(password, salt, expectedHash, pepper) {
+  // Malformed stored values (and non-hex junk) answer invalid instead of
+  // throwing — the login route's 401 copy is the correct UX for a bad row.
+  if (!isValidSaltHex(salt) || !isValidHashHex(expectedHash)) return false;
   return equalConstantTime(await derivePassword(password, salt, pepper), expectedHash);
 }
