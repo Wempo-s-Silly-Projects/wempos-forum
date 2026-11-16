@@ -81,7 +81,7 @@ export async function handleRelayRoutes(request, env, url, path, method) {
         "WHERE bi.ip_hash = ? AND b.revoked_at IS NULL " +
         "AND (b.expires_at IS NULL OR b.expires_at > ?) LIMIT 1",
     ).bind(ipHash, nowSeconds()).first();
-    return json({ banned: Boolean(activeBan) });
+    return json({ banned: Boolean(activeBan), ipHash });
   }
 
   if (path === "/api/relay/password-verify" && method === "POST") {
