@@ -162,11 +162,12 @@ test("network-ban check: returns Forum-keyed active-ban status without exposing 
     new URL("https://forum.test/api/relay/network-ban-check"),
     "/api/relay/network-ban-check", "POST",
   );
+  const responseCopy = response.clone();
   assert.deepEqual(await ok(response), { banned: true });
   const lookup = db.statements.find((statement) => statement.sql.includes("FROM banned_ips"));
   assert.ok(lookup);
   assert.equal(lookup.params[0], expectedHash, "lookup uses Forum-keyed IP hash");
-  assert.equal(JSON.stringify(await response.clone().json()).includes("198.51.100.7"), false);
+  assert.equal(JSON.stringify(await responseCopy.json()).includes("198.51.100.7"), false);
 });
 
 test("network-ban check: rejects malformed IPs and unauthenticated callers before D1", async () => {
