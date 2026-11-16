@@ -120,7 +120,7 @@ export async function createSession(request, env, userId = null, oldTokenHash = 
   let insert;
   if (oldTokenHash) {
     const guestPredicate =
-      "EXISTS (SELECT 1 FROM sessions WHERE token_hash = ? AND user_id IS NULL)";
+      "EXISTS (SELECT 1 FROM sessions WHERE token_hash = ? AND user_id IS NULL AND expires_at > ?)";
     const banPredicate = requireUnbanned
       ? " AND NOT EXISTS (SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
         "AND (expires_at IS NULL OR expires_at > ?))"
@@ -129,7 +129,7 @@ export async function createSession(request, env, userId = null, oldTokenHash = 
       "INSERT INTO sessions (token_hash, user_id, csrf_token, created_at, expires_at) " +
         "SELECT ?, ?, ?, ?, ? WHERE " + guestPredicate + banPredicate,
     ).bind(
-      tokenHash, userId, csrfToken, now, expiresAt, oldTokenHash,
+      tokenHash, userId, csrfToken, now, expiresAt, oldTokenHash, now,
       ...(requireUnbanned ? [userId, now] : []),
     );
     const results = await env.FORUM_DB.batch([
@@ -141,8 +141,8 @@ export async function createSession(request, env, userId = null, oldTokenHash = 
     ]);
     if (Number(results[0]?.meta?.changes) !== 1) {
       const guestStillExists = await env.FORUM_DB.prepare(
-        "SELECT 1 FROM sessions WHERE token_hash = ? AND user_id IS NULL LIMIT 1",
-      ).bind(oldTokenHash).first();
+        "SELECT 1 FROM sessions WHERE token_hash = ? AND user_id IS NULL AND expires_at > ? LIMIT 1",
+      ).bind(oldTokenHash, now).first();
       if (!guestStillExists) {
         throw new HttpError(409, "This sign-in was completed in another tab. Reload to continue.");
       }
