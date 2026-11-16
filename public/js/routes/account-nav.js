@@ -9,7 +9,7 @@ import { iconButton } from "../icons.js";
 import { createNotificationBell } from "../notifications.js";
 import { createChatButton } from "../chat.js";
 import { state } from "../state.js";
-import { accountSignInUrl } from "./auth.js";
+import { accountsSignInUrl } from "./auth.js";
 
 function isValidUser(user) {
   return Boolean(
@@ -122,7 +122,7 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
       "Sign in",
     );
 
-    signIn.href = accountSignInUrl();
+    signIn.href = accountsSignInUrl();
     signIn.setAttribute("data-app-link", "");
 
     accountActions.append(signIn);
