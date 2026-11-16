@@ -7,7 +7,6 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { redeemAccountsSignIn, FORM_HANDLERS } from "../public/js/routes/auth.js";
 
 const read = (path) => readFileSync(fileURLToPath(new URL(path, import.meta.url)), "utf8");
 
@@ -74,9 +73,13 @@ test("SSO redemption disables current and re-rendered forms, blocks submits, and
   const rerenderedPanel = {
     querySelectorAll: () => rerenderedControls,
   };
+  const dummyNode = { querySelector: () => ({}) };
   globalThis.document = {
+    querySelector: () => dummyNode,
     querySelectorAll: (selector) => selector === "#join" ? [panel, rerenderedPanel] : [],
   };
+  const { redeemAccountsSignIn, FORM_HANDLERS } =
+    await import("../public/js/routes/auth.js?behavior-test");
   globalThis.location = { href: "https://forum.test/?wt=abc123" };
   globalThis.history = { replaceState() {} };
   globalThis.fetch = () => {
