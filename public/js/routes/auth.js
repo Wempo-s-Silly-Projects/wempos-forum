@@ -52,7 +52,7 @@ function clearSsoCode() {
   history.replaceState(null, "", clean.pathname + clean.search);
 }
 
-async function redeemAccountsSignIn(code, note, joinPanel) {
+export async function redeemAccountsSignIn(code, note, joinPanel) {
   // Redeem ONCE per page load: the code is single-use server-side, so a
   // re-render racing the in-flight request must not fire a second POST.
   if (ssoRedeemAttempted) {
