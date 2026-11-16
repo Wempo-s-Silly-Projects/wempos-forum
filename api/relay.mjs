@@ -17,7 +17,8 @@
 // rate limiters throttle per-username hammering exactly like the forum's own
 // login route. Response bodies never include salt/hash material — only ids,
 // usernames, and roles.
-import { equalConstantTime } from "./core/crypto.mjs";
+import { equalConstantTime, nowSeconds } from "./core/crypto.mjs";
+import { requestIpHash } from "./core/auth.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { hashPassword, isValidPassword, verifyPassword } from "./core/passwords.mjs";
 import { isValidUsername, publicUser, userByUsernameKey } from "./core/shapers.mjs";
@@ -42,6 +43,29 @@ async function requireRelayToken(request, env) {
 }
 
 export async function handleRelayRoutes(request, env, url, path, method) {
+  if (path === "/api/relay/network-ban-check" && method === "POST") {
+    await requireRelayToken(request, env);
+    const body = await readJson(request);
+    const ip = typeof body.ip === "string" ? body.ip.trim() : "";
+    // Cloudflare supplies an IPv4 or IPv6 literal. Do not accept arbitrary
+    // strings or hostnames into the keyed network-ban lookup.
+    if (!ip || ip.length > 45 || !/^[0-9a-fA-F:.]+$/.test(ip)) {
+      throw new HttpError(400, "A valid client IP is required.");
+    }
+    const ipRequest = new Request(request.url, {
+      headers: { "CF-Connecting-IP": ip },
+    });
+    const ipHash = await requestIpHash(ipRequest, env);
+    // The actor key is the Forum-keyed hash, never the raw address.
+    await rateLimit(request, env, "login", "network:" + ipHash);
+    const activeBan = await env.FORUM_DB.prepare(
+      "SELECT 1 FROM banned_ips bi JOIN bans b ON b.id = bi.ban_id " +
+        "WHERE bi.ip_hash = ? AND b.revoked_at IS NULL " +
+        "AND (b.expires_at IS NULL OR b.expires_at > ?) LIMIT 1",
+    ).bind(ipHash, nowSeconds()).first();
+    return json({ banned: Boolean(activeBan) });
+  }
+
   if (path === "/api/relay/password-verify" && method === "POST") {
     await requireRelayToken(request, env);
     const body = await readJson(request);
