@@ -125,22 +125,19 @@ test("relay network-ban check uses the Forum pepper and reports an active ban", 
   const db = fakeDb({
     "FROM banned_ips bi JOIN bans b": { "1": 1 },
   });
-  const data = await ok(await call(handleRelayRoutes,
+  const response = await call(handleRelayRoutes,
     relayRequest("/api/relay/network-ban-check", { ip }, TOKEN),
     relayEnv(db), new URL("https://forum.test/api/relay/network-ban-check"),
     "/api/relay/network-ban-check", "POST",
-  ));
-  const expected = await requestIpHash(
-    new Request("https://forum.test/", { headers: { "CF-Connecting-IP": ip } }),
-    relayEnv(db),
   );
-  assert.deepEqual(data, { banned: true, ipHash: expected });
+  const data = await ok(response);
   const lookup = db.statements.find((statement) => statement.sql.includes("FROM banned_ips bi JOIN bans b"));
   assert.ok(lookup, "active network-ban lookup ran");
   const expected = await requestIpHash(
     new Request("https://forum.test/", { headers: { "CF-Connecting-IP": ip } }),
     relayEnv(db),
   );
+  assert.deepEqual(data, { banned: true, ipHash: expected });
   assert.equal(lookup.params[0], expected, "the lookup uses the Forum-keyed IP hash");
 });
 
