@@ -42,6 +42,19 @@ async function requireRelayToken(request, env) {
   }
 }
 
+function isIpLiteral(value) {
+  const ipv4 = value.split(".");
+  if (ipv4.length === 4 && ipv4.every((part) =>
+    /^\\d{1,3}$/.test(part) && Number(part) <= 255
+  )) return true;
+
+  if (!value.includes(":") || !/^[0-9a-fA-F:]+$/.test(value)) return false;
+  if (value.indexOf("::") !== value.lastIndexOf("::")) return false;
+  const groups = value.split(":").filter(Boolean);
+  return groups.every((group) => group.length <= 4) &&
+    (value.includes("::") ? groups.length < 8 : groups.length === 8);
+}
+
 export async function handleRelayRoutes(request, env, url, path, method) {
   if (path === "/api/relay/network-ban-check" && method === "POST") {
     await requireRelayToken(request, env);
@@ -49,7 +62,7 @@ export async function handleRelayRoutes(request, env, url, path, method) {
     const ip = typeof body.ip === "string" ? body.ip.trim() : "";
     // Cloudflare supplies an IPv4 or IPv6 literal. Do not accept arbitrary
     // strings or hostnames into the keyed network-ban lookup.
-    if (!ip || ip.length > 45 || !/^[0-9a-fA-F:.]+$/.test(ip)) {
+    if (!ip || ip.length > 45 || !isIpLiteral(ip)) {
       throw new HttpError(400, "A valid client IP is required.");
     }
     const ipRequest = new Request(request.url, {
