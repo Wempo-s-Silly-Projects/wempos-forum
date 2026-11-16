@@ -19,15 +19,47 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 22
-      # Supply-chain posture (review finding): lifecycle scripts stay OFF for
-      # the install, then only the three packages package.json's allowScripts
-      # list actually needs (esbuild, fsevents, workerd) get their scripts run
-      # — a new compromised postinstall in any other dependency can't execute
-      # in CI.
+      # Lifecycle scripts stay OFF for install. Before rebuilding, verify
+      # every installed instance of each allow-listed package is exactly the
+      # version pinned in package.json's allowScripts map.
       - name: Install dependencies (scripts disabled)
         run: npm install --ignore-scripts --no-audit --no-fund
-      - name: Rebuild script-carrying dependencies (allowScripts list)
-        run: npm rebuild --foreground-scripts esbuild fsevents workerd
+      - name: Verify allow-listed dependency versions
+        run: |
+          node --input-type=module <<'NODE'
+          import { execFileSync } from "node:child_process";
+          import { readFileSync } from "node:fs";
+
+          const pkg = JSON.parse(readFileSync("package.json", "utf8"));
+          const allowed = pkg.allowScripts ?? {};
+          const tree = JSON.parse(execFileSync("npm", ["ls", "--all", "--json"], { encoding: "utf8" }));
+          const installed = new Map();
+
+          function visit(dependencies = {}) {
+            for (const [name, entry] of Object.entries(dependencies)) {
+              if (!installed.has(name)) installed.set(name, new Set());
+              if (entry.version) installed.get(name).add(entry.version);
+              visit(entry.dependencies);
+            }
+          }
+          visit(tree.dependencies);
+
+          for (const [specifier, enabled] of Object.entries(allowed)) {
+            if (enabled !== true) continue;
+            const separator = specifier.lastIndexOf("@");
+            const name = specifier.slice(0, separator);
+            const expected = specifier.slice(separator + 1);
+            const versions = installed.get(name) ?? new Set();
+            // Optional dependencies (notably fsevents on Linux) may be
+            // absent. There is nothing to rebuild in that case; any installed
+            // instance must still match the exact allow-listed version.
+            if (versions.size > 0 && [...versions].some((version) => version !== expected)) {
+              throw new Error(`Refusing lifecycle rebuild for ${specifier}; installed versions: ${[...versions].join(", ")}`);
+            }
+          }
+          NODE
+      - name: Rebuild exact script-carrying dependencies
+        run: npm rebuild --foreground-scripts esbuild@0.28.2 workerd@1.20261023.1
       - name: Apply schema to an isolated local D1 database
         run: npm run db:migrate:local
       - name: Run Gallery regression tests
