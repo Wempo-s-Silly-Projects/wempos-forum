@@ -18,6 +18,9 @@ import { renderHomeAccess } from "./auth.js";
 import { renderTotpSettings } from "./twofa.js";
 import { renderBlockedSettings } from "./blocks.js";
 import { createComposer } from "./composer.js";
+// The §4b door-swap: the guests' sign-in prompts (mine/bookmarks gates) are
+// the Accounts handoff — the join panel they used to point at is gone.
+import { wempoAccountsSignInUrl } from "../sso.js";
 import { appendPostList } from "../render.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
@@ -215,8 +218,7 @@ async function renderMineRoute(context, version) {
     addHeading(main, "My posts", 2);
     addText(document, main, "p", "Sign in to see your posts.", "muted");
     const signIn = element("a", "button button-secondary", "Sign in");
-    signIn.href = "/#join";
-    signIn.setAttribute("data-app-link", "");
+    signIn.href = wempoAccountsSignInUrl(location.origin);
     main.append(signIn);
     return;
   }
@@ -282,8 +284,7 @@ async function renderBookmarksRoute(context, version) {
     addHeading(main, "Saved posts", 2);
     addText(document, main, "p", "Sign in to see your saved posts.", "muted");
     const signIn = element("a", "button button-secondary", "Sign in");
-    signIn.href = "/#join";
-    signIn.setAttribute("data-app-link", "");
+    signIn.href = wempoAccountsSignInUrl(location.origin);
     main.append(signIn);
     return;
   }

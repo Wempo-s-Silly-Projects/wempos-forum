@@ -4,12 +4,17 @@
 // bell/shield, sign-in toggle) plus the logout action its quiet
 // button dispatches. Bodies moved verbatim out of app.js.
 import { api, setCsrfToken } from "../api.js";
-import { accountActions, element, setMessage } from "../dom.js";
+import { accountActions, element } from "../dom.js";
 import { iconButton } from "../icons.js";
 import { createNotificationBell } from "../notifications.js";
 import { createChatButton } from "../chat.js";
-import { state } from "../state.js";
-import { accountsSignInUrl } from "./auth.js";
+// The §4b door-swap: every auth link (header Sign in, mobile guest rung)
+// targets Wempo Accounts with an origin-only return; logout hands the browser
+// to the Accounts sign-out land so the Accounts session clears too.
+import {
+  wempoAccountsSignInUrl,
+  wempoAccountsSignOutUrl,
+} from "../sso.js";
 
 function isValidUser(user) {
   return Boolean(
@@ -40,7 +45,7 @@ function updateMobileIdentity(user) {
   mobileItem.id = user ? "mobile-profile" : "mobile-signin";
   mobileItem.href = user
     ? "/users/" + encodeURIComponent(user.username)
-    : "/#join";
+    : wempoAccountsSignInUrl(location.origin);
 
   mobileItem.setAttribute(
     "aria-label",
@@ -122,7 +127,7 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
       "Sign in",
     );
 
-    signIn.href = accountsSignInUrl();
+    signIn.href = wempoAccountsSignInUrl(location.origin);
     signIn.setAttribute("data-app-link", "");
 
     accountActions.append(signIn);
@@ -181,9 +186,10 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
 // render (after history.pushState, so location.pathname is already the new
 // route); items without a match (guests, other pages) keep no current state.
 // The Profile/Sign-in rung is looked up BY ID, not by href: its href is
-// session-dependent ("/users/<name>" signed in, "/#join" as a guest) and was
-// rewritten earlier in renderAccountNavigation, so a href match can never
-// fire for the signed-in profile — the id is the stable handle.
+// session-dependent ("/users/<name>" signed in, the Wempo Accounts handoff
+// as a guest) and was rewritten earlier in renderAccountNavigation, so a
+// href match can never fire for the signed-in profile — the id is the stable
+// handle.
 function markMobileBarItem(user) {
   const path = location.pathname;
 
@@ -231,12 +237,16 @@ function markMobileBarItem(user) {
 }
 
 export const ACTIONS = {
+  // The §4b sign-out handoff (the GooberCord twin's shape): the forum's own
+  // session clears first (logout POST + CSRF reset), THEN the browser rides
+  // to the Accounts sign-out land (?signout=1, no return parameter — with
+  // one, the Accounts arrival auto-issues a fresh ticket and bounces the
+  // member straight back signed in).
   logout: async () => {
     await api("/api/auth/logout", { method: "POST" });
 
     setCsrfToken("");
-    state.router.navigate("/");
-    setMessage("You are signed out.");
+    window.location.assign(wempoAccountsSignOutUrl());
   },
 };
 

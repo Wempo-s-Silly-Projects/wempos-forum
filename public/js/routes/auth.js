@@ -1,136 +1,28 @@
-// v4.0 plan 4 Task 2: the auth concern — the login/register/setup panel
-// builders, the first-setup screens, and the auth submit handler. Bodies moved
-// verbatim out of app.js. The route registry and FORM_HANDLERS maps wire into
-// app.js's renderRoute/submitForm registrations; the banned screen wiring
-// stays with submitAuthForm (it renders on a failed login's 403).
+// v4.0 plan 4 Task 2 + the §4b door-swap: the auth concern is now only the
+// first-owner setup screens and the home route's guest access gate. The
+// password login/register forms are GONE — Wempo Accounts
+// (accounts.itswempo.workers.dev) is the one sign-in surface: the header's
+// Sign in link, the mobile bar's guest rung, and the home route's door panel
+// all point there, and a `?wt` ticket redeems at boot (sso.js, called from
+// app.js) before any route renders. No form here posts /api/login or
+// /api/register anymore; /api/auth/* and /api/setup stay the workers'
+// plumbing (untouched) and setup remains an out-of-band owner surface.
 import { addText, createForm, createInput } from "../forms.js";
 import { api, setCsrfToken } from "../api.js";
-import {
-  addHeading,
-  createPanel,
-  element,
-  main,
-  setMessage,
-} from "../dom.js";
-import { addTurnstileSlot, refreshTurnstile, takeTurnstileToken } from "../turnstile.js";
-import { renderBannedScreen } from "../banned.js";
+import { createPanel, element, main, setMessage } from "../dom.js";
 import { state } from "../state.js";
-import { renderTotpLoginStep } from "./twofa.js";
+import { wempoAccountsSignInUrl } from "../sso.js";
 
-// Wempo Accounts sign-in handshake: the join panel's "Sign in with Wempo
-// Accounts" button jumps to the Accounts worker's sign-in screen, which comes
-// back with ?wt=<one-time code>; redeemAccountsSignIn posts it to the redeem
-// route once
-// and lands in the app through the same post-login flow the password form
-// uses. Only the bare ORIGIN rides the return parameter — never a query
-// string, so the exact-match return check on the Accounts side can never be
-// widened by what this page appends.
-const ACCOUNTS_ORIGIN = "https://accounts.itswempo.workers.dev";
-const SSO_QUERY_KEY = "wt";
-let ssoRedeemAttempted = false;
-let ssoRedeemInFlight = false;
-
-function setJoinFormsDisabled(joinPanel, disabled) {
-  for (const control of joinPanel.querySelectorAll("form input, form button, form select, form textarea")) {
-    control.disabled = disabled;
-  }
-}
-
-function setAllJoinFormsDisabled(disabled) {
-  for (const panel of document.querySelectorAll("#join")) {
-    setJoinFormsDisabled(panel, disabled);
-  }
-}
-
-export function accountsSignInUrl() {
-  return ACCOUNTS_ORIGIN + "/?return=" + encodeURIComponent(location.origin);
-}
-
-function clearSsoCode() {
-  const clean = new URL(location.href);
-  clean.searchParams.delete(SSO_QUERY_KEY);
-  history.replaceState(null, "", clean.pathname + clean.search);
-}
-
-export async function redeemAccountsSignIn(code, note, joinPanel) {
-  // Redeem ONCE per page load: the code is single-use server-side, so a
-  // re-render racing the in-flight request must not fire a second POST.
-  if (ssoRedeemAttempted) {
-    // A route re-render can create a fresh panel while the original one-time
-    // redemption is still pending. Keep the new panel disabled too.
-    if (ssoRedeemInFlight) {
-      if (joinPanel) setJoinFormsDisabled(joinPanel, true);
-      note.textContent = "Signing you in with Wempo Accounts…";
-    }
-    return;
-  }
-  ssoRedeemAttempted = true;
-  ssoRedeemInFlight = true;
-  if (joinPanel) setJoinFormsDisabled(joinPanel, true);
-  note.textContent = "Signing you in with Wempo Accounts…";
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15_000);
-  try {
-    const result = await api("/api/auth/sso/redeem", {
-      method: "POST",
-      body: { wt: code },
-      signal: controller.signal,
-    });
-    setCsrfToken(result.csrfToken);
-    state.router.navigate("/");
-    setMessage("You're signed in.");
-  } catch (error) {
-    note.textContent = controller.signal.aborted
-      ? "Wempo Accounts sign-in timed out. You can sign in with your password."
-      : error.message;
-    clearSsoCode();
-    setAllJoinFormsDisabled(false);
-  } finally {
-    clearTimeout(timeout);
-    ssoRedeemInFlight = false;
-  }
-}
-
-function renderAccountsSignIn(grid, joinPanel) {
-  const sso = element("div", "sso-entry");
-  const button = element("a", "button button-secondary sso-entry-button", "Sign in with Wempo Accounts");
-  button.href = accountsSignInUrl();
-  // Cross-origin jump to the Accounts worker: it must NOT ride the SPA's
-  // internal navigation (which only rewrites same-origin paths).
-  const note = element("p", "sso-entry-note muted", "");
-  const code = new URLSearchParams(location.search).get(SSO_QUERY_KEY);
-  if (code) redeemAccountsSignIn(code, note, joinPanel);
-  sso.append(button, note);
-  joinPanel.insertBefore(sso, grid);
-}
-
-function authForm(name, title, buttonLabel) {
-  const section = element("section", "auth-card");
-  addHeading(section, title, 2);
-  const form = createForm(document, name, [
-    createInput(document, {
-      id: `${name}-username`,
-      name: "username",
-      label: "Username",
-      autoComplete: "username",
-      required: true,
-      minLength: 3,
-      maxLength: 24,
-    }),
-    createInput(document, {
-      id: `${name}-password`,
-      name: "password",
-      label: "Password",
-      type: "password",
-      autoComplete: name === "login" ? "current-password" : "new-password",
-      required: true,
-      minLength: 12,
-      maxLength: 128,
-    }),
-  ], buttonLabel);
-  addTurnstileSlot(form, name === "login" ? "login" : "signup");
-  section.append(form);
-  return section;
+// The home route's guest rung (§4b): the door panel — no local forms, just
+// the Accounts handoff. Cross-origin jump: the SPA's internal navigation only
+// rewrites same-origin paths, and it must NOT intercept this one.
+function doorPanel() {
+  const panel = createPanel("Join the conversation!",
+    "Membership rides a Wempo Account: sign-in and registration happen on Wempo Accounts, and the forum receives you signed in. There is no email collection or email-based recovery.");
+  const button = element("a", "button button-primary sso-entry-button", "Sign in with Wempo Accounts");
+  button.href = wempoAccountsSignInUrl(location.origin);
+  panel.append(button);
+  main.append(panel);
 }
 
 function setupForm() {
@@ -153,21 +45,6 @@ function setupForm() {
   return panel;
 }
 
-function renderJoinPanel() {
-  const panel = createPanel("Join the conversation!", "Wempo Accounts use a username and password. There is no email collection or email-based recovery.");
-  panel.id = "join";
-  const grid = element("div", "auth-grid");
-  grid.append(
-    authForm("login", "Welcome back", "Sign in"),
-    authForm("register", "New around here?", "Create Wempo Account"),
-  );
-  // insertBefore in renderAccountsSignIn requires grid to already belong to
-  // panel; append it first so guest rendering cannot throw NotFoundError.
-  panel.append(grid);
-  renderAccountsSignIn(grid, panel);
-  main.append(panel);
-}
-
 function renderSetupLocked() {
   const panel = createPanel(
     "First-time setup is locked",
@@ -182,7 +59,7 @@ function renderHomeAccess(session, setupRequired, setupConfigured) {
     else renderSetupLocked();
     return;
   }
-  if (!session.user) renderJoinPanel();
+  if (!session.user) doorPanel();
 }
 
 function renderSetupRoute(context) {
@@ -194,55 +71,26 @@ function renderSetupRoute(context) {
   addText(document, main, "p", "First-time setup has already been completed.", "empty-state");
 }
 
-async function submitAuthForm(type, form, text) {
-  // SSO redemption and password sign-in both rotate the session/CSRF state.
-  // Never let a second auth transition race the in-flight one-time redemption.
-  if (ssoRedeemInFlight && (type === "login" || type === "register")) return;
-  const endpoint = type === "login" ? "/api/auth/login" :
-    type === "register" ? "/api/auth/register" : "/api/setup";
-  const credentials = { username: text("username"), password: text("password") };
-  if (type === "setup") {
-    credentials.setupKey = text("setupKey");
-  } else {
-    credentials["cf-turnstile-response"] = takeTurnstileToken(form);
-    refreshTurnstile(form);
-  }
-  let result;
-  try {
-    result = await api(endpoint, { method: "POST", body: credentials });
-  } catch (error) {
-    // Banned accounts get a dedicated screen (spec §13): api.js copies the 403
-    // body's banned/reason/expiresAt onto the error object. Credentials were
-    // verified server-side before this payload exists, so showing it is safe.
-    if (error.banned === true) {
-      main.replaceChildren();
-      renderBannedScreen(main, { reason: error.reason, expiresAt: error.expiresAt, username: text("username"), password: text("password") });
-      setMessage();
-      return;
-    }
-    throw error;
-  }
-  // Two-factor sign-in (v4.0.1): the password passed but a code is owed —
-  // the join panel swaps to the code step (renderTotpLoginStep in
-  // routes/twofa.js); POST /api/auth/totp mints the session.
-  if (result.totpRequired) {
-    renderTotpLoginStep(result.challenge);
-    setMessage("Enter the code from your authenticator app to finish signing in.");
-    return;
-  }
+async function submitSetupForm(form, text) {
+  const result = await api("/api/setup", {
+    method: "POST",
+    body: {
+      username: text("username"),
+      password: text("password"),
+      setupKey: text("setupKey"),
+    },
+  });
   setCsrfToken(result.csrfToken);
   state.router.navigate("/");
-  setMessage(type === "setup" ? "Owner Wempo Account created!" : "You're signed in.");
+  setMessage("Owner Wempo Account created!");
 }
 
 // The registration seam: FORM_HANDLERS merges into submitForm's dispatch map;
 // renderSetupRoute takes the setup entry of renderRoute's renderer table and
-// renderHomeAccess stays the home route's access gate (called from app.js's
+// renderHomeAccess stays the home route's access gate (called from feed.js's
 // renderHome until the feed task moves it).
 export const FORM_HANDLERS = {
-  login: (form, text) => submitAuthForm("login", form, text),
-  register: (form, text) => submitAuthForm("register", form, text),
-  setup: (form, text) => submitAuthForm("setup", form, text),
+  setup: (form, text) => submitSetupForm(form, text),
 };
 
 export { renderHomeAccess, renderSetupRoute };

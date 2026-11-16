@@ -6,6 +6,12 @@ export const isPlainLeftClick = (event) =>
 
 export const routeForPath = (pathname, search = "") => {
   if (pathname === "/setup") return { name: "setup" };
+  // The §4b door-swap: the password login/register pages are gone — any stale
+  // /login or /register path degrades to the home route (a bare "#/login"
+  // hash matches "/" with the fragment ignored, so it already lands here):
+  // a signed-out open shows the home door panel, a signed-in one the app
+  // shell.
+  if (pathname === "/login" || pathname === "/register") return { name: "home" };
   // The moderation desk (v4.2): a section-routed panel — /admin is the
   // overview, /admin/<slug> a dedicated page. Unknown slugs still route (the
   // desk falls back to the overview) so old links like /admin/reports keep

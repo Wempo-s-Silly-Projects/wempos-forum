@@ -1,12 +1,14 @@
-// v4.0.1: the TOTP two-factor UI — the account settings section (enable /
-// disable, staged secret + confirm code), the login's second step, and the
-// single-use backup codes (v4.8.1). There is no email fallback; recover-
-// ing from a lost authenticator is exactly what the backup codes are for.
-// The client never stores the secret after the confirm round-trip; the
-// staged secret is shown once, for authenticator-app entry — and a backup
-// set is likewise shown exactly once, at generation.
-import { api, setCsrfToken } from "../api.js";
-import { createPanel, element, main, setMessage } from "../dom.js";
+// v4.0.1 + the §4b door-swap: the TOTP two-factor UI — the account settings
+// section (enable/disable, staged secret + confirm code) and the single-use
+// backup codes (v4.8.1). The login's second step is GONE: the password login
+// panel it belonged to was removed with the door-swap (sign-in rides Wempo
+// Accounts at boot). There is no email fallback; recovering from a lost
+// authenticator is exactly what the backup codes are for. The client never
+// stores the secret after the confirm round-trip; the staged secret is shown
+// once, for authenticator-app entry — and a backup set is likewise shown
+// exactly once, at generation.
+import { api } from "../api.js";
+import { createPanel, element, setMessage } from "../dom.js";
 import { createForm, createInput, addText } from "../forms.js";
 import { state } from "../state.js";
 
@@ -116,15 +118,15 @@ function renderBackupCodes(panel, codes) {
 // and the code field proves possession before anything is kept. The setup
 // POST carries the account's current password (server re-proofs it).
 async function submitTotpSetup(form, text) {
-  await api("/api/me/totp/setup", {
+  const result = await api("/api/me/totp/setup", {
     method: "POST",
     body: { currentPassword: text("currentPassword") },
   });
   const panel = form.closest("[data-totp-panel]");
-  if (panel) await openSetupStep(panel);
+  if (panel) await openSetupStep(panel, result);
 }
 
-async function openSetupStep(panel) {
+async function openSetupStep(panel, result) {
   setMessage("Add the secret to your authenticator, then confirm with a code.");
   // Swap only the body — the panel's h2 heading and lede stay put.
   for (const node of [...panel.children]) {
@@ -188,50 +190,12 @@ async function submitBackupGenerate(form, text) {
   if (panel) renderBackupCodes(panel, result.codes);
 }
 
-// The login's second step replaces the join panel: the server already
-// verified the password and holds a single-use challenge. The challenge
-// token rides this one form; POST /api/auth/totp mints the session.
-export function renderTotpLoginStep(challenge) {
-  const panel = createPanel(
-    "Two-factor code",
-    "Enter the 6-digit code from your authenticator app to finish signing in.",
-  );
-  const form = element("form");
-  form.dataset.form = "totp-login";
-  const challengeInput = document.createElement("input");
-  challengeInput.type = "hidden";
-  challengeInput.name = "challenge";
-  challengeInput.value = challenge;
-  form.append(challengeInput);
-  form.append(createInput(document, {
-    id: "totp-login-code", name: "code", label: "6-digit code or backup code",
-    maxLength: 8, required: true,
-    description: "Lost your authenticator? Enter a backup code.",
-  }));
-  const send = element("button", "button button-primary", "Verify code");
-  send.type = "submit";
-  form.append(send);
-  panel.append(form);
-  main.replaceChildren(panel);
-}
-
-async function submitTotpLogin(form, text) {
-  const result = await api("/api/auth/totp", {
-    method: "POST",
-    body: { challenge: text("challenge"), code: text("code") },
-  });
-  setCsrfToken(result.csrfToken);
-  state.router.navigate("/");
-  setMessage("You're signed in with your two-factor code.");
-}
-
 // The registration seam: FORM_HANDLERS merges into submitForm's dispatch
 // map; ACTIONS merges into handleButtonAction's dispatch map.
 export const FORM_HANDLERS = {
   "totp-setup": (form, text) => submitTotpSetup(form, text),
   "totp-confirm": (form, text) => submitTotpConfirm(form, text),
   "totp-disable": (form, text) => submitTotpDisable(form, text),
-  "totp-login": (form, text) => submitTotpLogin(form, text),
   "totp-backups-generate": (form, text) => submitBackupGenerate(form, text),
 };
 

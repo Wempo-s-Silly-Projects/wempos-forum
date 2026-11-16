@@ -1,5 +1,6 @@
 import { api, setCsrfToken } from "./api.js";
 import { addText } from "./forms.js";
+import { renderBannedScreen } from "./banned.js";
 import { boardLabel } from "./boards.js";
 import { isPlainLeftClick, startRouter } from "./router.js";
 import {
@@ -22,6 +23,8 @@ import {
   confirmDialog,
   confirmBlock,
   confirmDelete,
+  createPanel,
+  element,
   getConfirmHandler,
   main,
   setMessage,
@@ -39,6 +42,9 @@ import {
 // here at module scope before any route module runs.
 import { state } from "./state.js";
 state.renderRoute = renderRoute;
+// The §4b door-swap: the boot-level ?wt redemption (before the router
+// mounts) and every Accounts URL ride the pure sso.js helpers.
+import { redeemReturnTicket, wempoAccountsSignInUrl } from "./sso.js";
 // v4.0 plan 4 Task 3: the feed concern (home/search/mine/category/bookmarks
 // routes, feed tabs, feed pagination + card actions) lives in routes/feed.js;
 // the composer family (builder, submits, gif/poll dialogs) lives in
@@ -400,9 +406,84 @@ document.addEventListener("submit", async (event) => {
   }
 });
 
+// A banned redeem answers on the forum itself (spec §13): the boot stops
+// into the ban screen — reason, expiry countdown, and the appeal form
+// (whose credentials stay blank; the member fills them in) — instead of
+// bouncing to Accounts, where a banned member would only ping-pong for
+// fresh tickets.
+function showBootBanScreen(error) {
+  main.replaceChildren();
+  renderBannedScreen(main, { reason: error.reason, expiresAt: error.expiresAt });
+  setMessage();
+}
+
+// Every other refused redeem (the audit's fix: no catch-all redirect) stops
+// the boot into the static can't-sign-in card. The Accounts link on it is
+// MANUAL — a burned ticket, a timed-out redeem, or a degraded relay can all
+// land here, and an automatic bounce would loop members cross-origin until a
+// rate limiter parks them; a person clicking the link chooses the retry.
+function showBootSignInCard() {
+  main.replaceChildren();
+  const panel = createPanel(
+    "Can't sign in right now",
+    "The Wempo Accounts sign-in isn't completing. Your sign-in link is single-use and may have expired or already been used.",
+  );
+  const again = element("a", "button button-secondary sso-entry-button", "Try again from Wempo Accounts");
+  again.href = wempoAccountsSignInUrl(location.origin);
+  panel.append(again);
+  main.append(panel);
+}
+
 // Theme storage may be unavailable in private/restricted contexts. That should
 // never prevent the application state.router from running or leave the HTML shell
 // stuck at its initial placeholder.
+async function boot() {
+  try {
+    let storage;
+    try { storage = window.localStorage; }
+    catch { storage = { getItem: () => null, setItem: () => {} }; }
+    initTheme(document, storage);
+    applyCornerPreference(document, storage);
+    // Live chat (v3.1): the poll loop starts at boot so the header's online
+    // counter is fresh even before the panel is ever opened.
+    initChat();
+    fillVersionTag().catch(() => {});
+    // The §4b door-swap: GooberCord's twin landed first — the forum has no
+    // password sign-in UI anymore, so a signed-out open carrying
+    // ?wt=<ticket> redeems the one-time ticket RIGHT HERE, before the
+    // router mounts (the redeem must run on the forum's origin, where the
+    // shared session cookie lives — including the guest session + CSRF the
+    // redeem requires, which the boot probes first). A banned redeem stops
+    // the boot into the ban screen; every other refusal stops it into the
+    // static can't-sign-in card. redeemReturnTicket returning true means the
+    // boot stops — the browser is NOT heading for the router.
+    if (await redeemReturnTicket(window, api, {
+      onBanned: showBootBanScreen,
+      onRefused: showBootSignInCard,
+      setCsrfToken,
+    })) return;
+    state.router = startRouter((route) => {
+      renderRoute(route).catch((error) => {
+        setMessage(error.message, true);
+        main.replaceChildren();
+        addHeading(main, "Something went wrong:(", 1);
+        addText(document, main, "p", error.message, "error-copy");
+      });
+    });
+  } catch (error) {
+    console.error("Forum startup failed:", error);
+    main.replaceChildren();
+    addHeading(main, "The forum could not start:(", 1);
+    addText(document, main, "p",
+      "A startup error interrupted the forum! Refresh after the site is updated.",
+      "error-copy");
+  }
+}
+
+boot();
+
+// The version tag + stale-build banner ride their own async task so a slow
+// /api/version never delays the router mount.
 async function fillVersionTag() {
   const info = await api("/api/version");
   const version = typeof info?.version === "string" ? info.version.split(".") : [];
@@ -447,31 +528,4 @@ function showStaleBuildBanner() {
   reload.addEventListener("click", () => location.reload());
   bar.append(note, reload);
   document.body.prepend(bar);
-}
-
-try {
-  let storage;
-  try { storage = window.localStorage; }
-  catch { storage = { getItem: () => null, setItem: () => {} }; }
-  initTheme(document, storage);
-  applyCornerPreference(document, storage);
-  // Live chat (v3.1): the poll loop starts at boot so the header's online
-  // counter is fresh even before the panel is ever opened.
-  initChat();
-  fillVersionTag().catch(() => {});
-  state.router = startRouter((route) => {
-    renderRoute(route).catch((error) => {
-      setMessage(error.message, true);
-      main.replaceChildren();
-      addHeading(main, "Something went wrong:(", 1);
-      addText(document, main, "p", error.message, "error-copy");
-    });
-  });
-} catch (error) {
-  console.error("Forum startup failed:", error);
-  main.replaceChildren();
-  addHeading(main, "The forum could not start:(", 1);
-  addText(document, main, "p",
-    "A startup error interrupted the forum! Refresh after the site is updated.",
-    "error-copy");
 }

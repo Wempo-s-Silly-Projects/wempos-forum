@@ -6,13 +6,15 @@ import { addHeading, element, main, setMessage } from "../dom.js";
 import { addText } from "../forms.js";
 import { state } from "../state.js";
 import { renderNotificationsPage, updateBell } from "../notifications.js";
+// The §4b door-swap: the guest gate's sign-in prompt is the Accounts handoff.
+import { wempoAccountsSignInUrl } from "../sso.js";
 
 async function renderNotificationsRoute(context, version) {
   if (!context.session.user) {
     addHeading(main, "Notifications", 1);
     addText(document, main, "p", "Sign in to see your notifications.", "muted");
     const signIn = element("a", "button button-secondary", "Sign in");
-    signIn.href = "/#join";
+    signIn.href = wempoAccountsSignInUrl(location.origin);
     main.append(signIn);
     return;
   }
