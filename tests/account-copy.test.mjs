@@ -116,3 +116,48 @@ test("SSO redemption disables current and re-rendered forms, blocks submits, and
     else globalThis.history = originalHistory;
   }
 });
+
+
+test("SSO redemption timeout settles and restores guest sign-in controls", async () => {
+  const { redeemAccountsSignIn: redeemWithTimeout } =
+    await import("../public/js/routes/auth.js?timeout-behavior");
+  const originalFetch = globalThis.fetch;
+  const originalDocument = globalThis.document;
+  const originalLocation = globalThis.location;
+  const originalHistory = globalThis.history;
+  const originalSetTimeout = globalThis.setTimeout;
+  const originalClearTimeout = globalThis.clearTimeout;
+  const controls = [{ disabled: false }, { disabled: false }];
+  const panel = { querySelectorAll: () => controls };
+  globalThis.document = { querySelectorAll: (selector) => selector === "#join" ? [panel] : [] };
+  globalThis.location = { href: "https://forum.test/?wt=timeout-code" };
+  globalThis.history = { replaceState() {} };
+  globalThis.setTimeout = (callback) => {
+    queueMicrotask(callback);
+    return 123;
+  };
+  globalThis.clearTimeout = () => {};
+  globalThis.fetch = (_path, options) => new Promise((_resolve, reject) => {
+    options.signal.addEventListener("abort", () => {
+      reject(new DOMException("The operation was aborted", "AbortError"));
+    }, { once: true });
+  });
+
+  try {
+    const note = { textContent: "" };
+    await redeemWithTimeout("timeout-code", note, panel);
+    assert.match(note.textContent, /timed out/i);
+    assert.ok(controls.every((control) => !control.disabled),
+      "the form is usable again after the redemption timeout settles");
+  } finally {
+    globalThis.fetch = originalFetch;
+    globalThis.setTimeout = originalSetTimeout;
+    globalThis.clearTimeout = originalClearTimeout;
+    if (originalDocument === undefined) delete globalThis.document;
+    else globalThis.document = originalDocument;
+    if (originalLocation === undefined) delete globalThis.location;
+    else globalThis.location = originalLocation;
+    if (originalHistory === undefined) delete globalThis.history;
+    else globalThis.history = originalHistory;
+  }
+});
