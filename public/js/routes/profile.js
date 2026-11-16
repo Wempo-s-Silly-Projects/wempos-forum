@@ -342,15 +342,15 @@ function openBlockDialog(button) {
 // refetches the session, which is now anonymous.
 function openDeleteAccountDialog() {
   openConfirmDialog(
-    "Delete your account?",
-    "Your account and everything it owns is permanently deleted: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo.",
+    "Delete your Wempo Account?",
+    "Your Wempo Account and everything it owns is permanently deleted: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo.",
     "delete",
     async () => {
       await api("/api/me/delete", { method: "POST" });
       setCsrfToken("");
       confirmDialog.close();
       state.router.navigate("/");
-      setMessage("Your account was deleted. You are signed out.");
+      setMessage("Your Wempo Account was deleted. You are signed out.");
     },
   );
 }

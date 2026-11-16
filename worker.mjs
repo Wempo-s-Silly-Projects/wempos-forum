@@ -22,6 +22,7 @@ import { handleWallRoutes } from "./api/wall.mjs";
 import { handleDmRoutes } from "./api/dms.mjs";
 import { handleBlockRoutes } from "./api/blocks.mjs";
 import { handleTotpRoutes } from "./api/twofa.mjs";
+import { handleAccountsRoutes } from "./api/accounts.mjs";
 import { ensureFilterWords, handleFilterAdminRoutes } from "./api/filterstore.mjs";
 import { handleRelayRoutes } from "./api/relay.mjs";
 
@@ -136,7 +137,7 @@ async function routeApi(request, env, ctx) {
 
   await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
 
-  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleWallRoutes, handleBlockRoutes, handleTotpRoutes, handleFilterAdminRoutes, handleRelayRoutes];
+  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleWallRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method, ctx);
     if (response) return response;

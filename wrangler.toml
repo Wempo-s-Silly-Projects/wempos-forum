@@ -122,6 +122,17 @@ namespace_id = "614202610141012"
 limit = 5
 period = 60
 
+# Wempo Accounts sign-in handshake: POST /api/auth/sso/redeem trades the Accounts
+# one-time ?wt= code for a forum session over this binding. Same story as
+# GooberCord's FORUM_WORKER relay: same-zone internet fetches to a sibling
+# workers.dev script 404 at the edge without entering that worker, so the call
+# rides a service binding with an https://sso.internal/ request URL instead,
+# and the shared RELAY_TOKEN secret (installed on BOTH workers) is still the
+# whole auth.
+[[services]]
+binding = "ACCOUNTS_WORKER"
+service = "accounts"
+
 # Named preview environment: never inherit the production D1 or rate-limit bindings.
 [env.preview.vars]
 TURNSTILE_HOSTNAMES = "wempos-forum-preview.itswempo.workers.dev"

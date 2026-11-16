@@ -17,6 +17,58 @@ import { renderBannedScreen } from "../banned.js";
 import { state } from "../state.js";
 import { renderTotpLoginStep } from "./twofa.js";
 
+// Wempo Accounts sign-in handshake: the join panel's "Sign in with Wempo
+// Accounts" button jumps to the Accounts worker's sign-in screen, which comes
+// back with ?wt=<one-time code>; redeemAccountsSignIn posts it to the redeem
+// route once
+// and lands in the app through the same post-login flow the password form
+// uses. Only the bare ORIGIN rides the return parameter — never a query
+// string, so the exact-match return check on the Accounts side can never be
+// widened by what this page appends.
+const ACCOUNTS_ORIGIN = "https://accounts.itswempo.workers.dev";
+const SSO_QUERY_KEY = "wt";
+let ssoRedeemAttempted = false;
+
+function accountsSignInUrl() {
+  return ACCOUNTS_ORIGIN + "/login?return=" + encodeURIComponent(location.origin);
+}
+
+function clearSsoCode() {
+  const clean = new URL(location.href);
+  clean.searchParams.delete(SSO_QUERY_KEY);
+  history.replaceState(null, "", clean.pathname + clean.search);
+}
+
+async function redeemAccountsSignIn(code, note) {
+  // Redeem ONCE per page load: the code is single-use server-side, so a
+  // re-render racing the in-flight request must not fire a second POST.
+  if (ssoRedeemAttempted) return;
+  ssoRedeemAttempted = true;
+  note.textContent = "Signing you in with Wempo Accounts…";
+  try {
+    const result = await api("/api/auth/sso/redeem", { method: "POST", body: { wt: code } });
+    setCsrfToken(result.csrfToken);
+    state.router.navigate("/");
+    setMessage("You're signed in.");
+  } catch (error) {
+    note.textContent = error.message;
+    clearSsoCode();
+  }
+}
+
+function renderAccountsSignIn(grid, joinPanel) {
+  const sso = element("div", "sso-entry");
+  const button = element("a", "button button-secondary sso-entry-button", "Sign in with Wempo Accounts");
+  button.href = accountsSignInUrl();
+  // Cross-origin jump to the Accounts worker: it must NOT ride the SPA's
+  // internal navigation (which only rewrites same-origin paths).
+  const note = element("p", "sso-entry-note muted", "");
+  const code = new URLSearchParams(location.search).get(SSO_QUERY_KEY);
+  if (code) redeemAccountsSignIn(code, note);
+  sso.append(button, note);
+  joinPanel.insertBefore(sso, grid);
+}
+
 function authForm(name, title, buttonLabel) {
   const section = element("section", "auth-card");
   addHeading(section, title, 2);
@@ -47,7 +99,7 @@ function authForm(name, title, buttonLabel) {
 }
 
 function setupForm() {
-  const panel = createPanel("Set up Wempo's Forum:3", "The first owner account requires a setup secret configured out of band.");
+  const panel = createPanel("Set up Wempo's Forum:3", "The first owner Wempo Account requires a setup secret configured out of band.");
   panel.append(createForm(document, "setup", [
     createInput(document, {
       id: "setup-username", name: "username", label: "Owner username",
@@ -67,13 +119,14 @@ function setupForm() {
 }
 
 function renderJoinPanel() {
-  const panel = createPanel("Join the conversation!", "Accounts use a username and password. There is no email collection or email-based recovery.");
+  const panel = createPanel("Join the conversation!", "Wempo Accounts use a username and password. There is no email collection or email-based recovery.");
   panel.id = "join";
   const grid = element("div", "auth-grid");
   grid.append(
     authForm("login", "Welcome back", "Sign in"),
-    authForm("register", "New around here?", "Create account"),
+    authForm("register", "New around here?", "Create Wempo Account"),
   );
+  renderAccountsSignIn(grid, panel);
   panel.append(grid);
   main.append(panel);
 }
@@ -81,7 +134,7 @@ function renderJoinPanel() {
 function renderSetupLocked() {
   const panel = createPanel(
     "First-time setup is locked",
-    "The site owner must configure valid SETUP_SECRET and PASSWORD_PEPPER values in Wrangler before the first owner account can be created.",
+    "The site owner must configure valid SETUP_SECRET and PASSWORD_PEPPER values in Wrangler before the first owner Wempo Account can be created.",
   );
   main.append(panel);
 }
@@ -139,7 +192,7 @@ async function submitAuthForm(type, form, text) {
   }
   setCsrfToken(result.csrfToken);
   state.router.navigate("/");
-  setMessage(type === "setup" ? "Owner account created!" : "You're signed in.");
+  setMessage(type === "setup" ? "Owner Wempo Account created!" : "You're signed in.");
 }
 
 // The registration seam: FORM_HANDLERS merges into submitForm's dispatch map;
