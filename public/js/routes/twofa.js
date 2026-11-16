@@ -1,372 +1,165 @@
-
 // v4.0.1: the TOTP two-factor UI — the account settings section (enable /
 // disable, staged secret + confirm code) and the login's second step. 2FA
-// ONLY: there is no recovery code path anywhere in the feature.
+// ONLY: there is no recovery code path anywhere, by the feature spec.
 // The client never stores the secret after the confirm round-trip; the
-// staged secret is shown for authenticator-app entry.
-
+// staged secret is shown once, for authenticator-app entry.
 import { api, setCsrfToken } from "../api.js";
 import { createPanel, element, main, setMessage } from "../dom.js";
 import { createForm, createInput, addText } from "../forms.js";
 import { state } from "../state.js";
 
-const activeSubmissions = new Set();
-
-function beginSubmission(form, action) {
-  const key = `${action}:${form.dataset.form || form.dataset.formType || ""}`;
-
-  if (activeSubmissions.has(key)) return false;
-
-  activeSubmissions.add(key);
-  return key;
-}
-
-function endSubmission(key) {
-  if (key) activeSubmissions.delete(key);
-}
-
-function validCode(value) {
-  return typeof value === "string" && /^[0-9]{6}$/.test(value);
-}
-
-function requireCode(value) {
-  if (!validCode(value)) {
-    throw new Error("Enter a valid 6-digit authenticator code.");
-  }
-
-  return value;
-}
-
-function validateSetupResponse(result) {
-  if (
-    !result ||
-    typeof result.secret !== "string" ||
-    !result.secret.trim() ||
-    typeof result.otpauth !== "string" ||
-    !result.otpauth.startsWith("otpauth://totp/")
-  ) {
-    throw new Error("The two-factor setup response was invalid.");
-  }
-
-  return result;
-}
-
-function validateTotpStateResponse(result) {
-  if (!result || typeof result.totpEnabled !== "boolean") {
-    throw new Error("The two-factor response was invalid.");
-  }
-
-  return result;
-}
-
 // The account settings section. Appended by renderAccountSettings into the
 // settings `details` panel; the panel body swaps between the off and on
 // branches, both rendered fresh from the session's totpEnabled flag.
 export function renderTotpSettings(container, session) {
-  const enabled = Boolean(
-    session.user && session.user.totpEnabled,
-  );
-
+  const enabled = Boolean(session.user && session.user.totpEnabled);
   const panel = createPanel(
     "Two-factor sign-in",
     enabled
       ? "Signing in needs your password and a 6-digit code from your authenticator app. Turn it off here only if you still hold the secret."
-      : "Add a second step to sign-in: an authenticator app generates the 6-digit code. Keep the secret safe — there is no email recovery.",
+      : "Add a second step to sign-in: an authenticator app (like Google Authenticator or Aegis) generates the 6-digit code. Keep the secret safe — there is no email recovery.",
   );
-
   panel.dataset.totpPanel = enabled ? "on" : "off";
 
   if (!enabled) {
-    // Starting setup re-proofs the member with their CURRENT password.
+    // Starting setup re-proofs the member with their CURRENT password (the
+    // server rejects anything else) — a hijacked or abandoned tab cannot arm
+    // a 2FA takeover on a standing session.
     panel.append(createForm(document, "totp-setup", [
       createInput(document, {
-        id: "totp-setup-password",
-        name: "currentPassword",
-        label: "Current password",
-        type: "password",
-        maxLength: 128,
-        required: true,
-        autoComplete: "current-password",
+        id: "totp-setup-password", name: "currentPassword", label: "Current password",
+        type: "password", maxLength: 128, required: true, autoComplete: "current-password",
         description: "Enter your current password — the secret is shown only after it verifies.",
       }),
     ], "Enable two-factor"));
-
     container.append(panel);
     return;
   }
 
   panel.append(createForm(document, "totp-disable", [
     createInput(document, {
-      id: "totp-disable-code",
-      name: "code",
-      label: "6-digit code",
-      inputMode: "numeric",
-      pattern: "[0-9]*",
-      maxLength: 6,
-      required: true,
+      id: "totp-disable-code", name: "code", label: "6-digit code",
+      inputMode: "numeric", pattern: "[0-9]*", maxLength: 6, required: true,
       autoComplete: "one-time-code",
     }),
   ], "Turn off two-factor"));
-
   container.append(panel);
 }
 
 // The staged-secret step: rendered in place when the setup request returns.
-// The secret and otpauth URI are displayed as read-only fields. The code
-// field proves possession before the server enables two-factor sign-in.
+// The secret and the otpauth URI are shown as copyable read-only fields —
+// no image QR (hand-entry or paste-URI both work in every authenticator),
+// and the code field proves possession before anything is kept. The setup
+// POST carries the account's current password (server re-proofs it).
 async function submitTotpSetup(form, text) {
-  const key = beginSubmission(form, "totp-setup");
-  if (!key) return;
-
-  try {
-    const result = validateSetupResponse(
-      await api("/api/me/totp/setup", {
-        method: "POST",
-        body: {
-          currentPassword: text("currentPassword"),
-        },
-      }),
-    );
-
-    const panel = form.closest("[data-totp-panel]");
-
-    if (!panel) {
-      throw new Error("The two-factor settings panel is no longer available.");
-    }
-
-    openSetupStep(panel, result);
-  } finally {
-    endSubmission(key);
-  }
+  await api("/api/me/totp/setup", {
+    method: "POST",
+    body: { currentPassword: text("currentPassword") },
+  });
+  const panel = form.closest("[data-totp-panel]");
+  if (panel) await openSetupStep(panel);
 }
 
-function openSetupStep(panel, result) {
-  // Validate before changing the panel, so an invalid response does not
-  // leave the user with an incomplete setup screen.
-  validateSetupResponse(result);
-
-  setMessage(
-    "Add the secret to your authenticator, then confirm with a code.",
-  );
-
+async function openSetupStep(panel) {
+  setMessage("Add the secret to your authenticator, then confirm with a code.");
   // Swap only the body — the panel's h2 heading and lede stay put.
   for (const node of [...panel.children]) {
-    if (node.tagName !== "H2" && node.tagName !== "P") {
-      node.remove();
-    }
+    if (node.tagName !== "H2" && node.tagName !== "P") node.remove();
   }
-
   const note = element("p", "form-note");
   note.textContent =
     "Type this secret into your authenticator app (or paste the otpauth line). It shows once — reload throws it away until you confirm.";
   panel.append(note);
-
   const secretLabel = element("label", "form-label");
   secretLabel.append(document.createTextNode("Secret"));
-
   const secretInput = element("input", "form-input");
   secretInput.type = "text";
   secretInput.readOnly = true;
-  secretInput.autocomplete = "off";
-  secretInput.spellcheck = false;
   secretInput.value = result.secret;
-
   secretLabel.append(secretInput);
   panel.append(secretLabel);
-
   const uriLabel = element("label", "form-label");
   uriLabel.append(document.createTextNode("otpauth URI"));
-
   const uriInput = element("input", "form-input");
   uriInput.type = "text";
   uriInput.readOnly = true;
-  uriInput.autocomplete = "off";
-  uriInput.spellcheck = false;
   uriInput.value = result.otpauth;
-
   uriLabel.append(uriInput);
   panel.append(uriLabel);
-
   panel.append(createForm(document, "totp-confirm", [
     createInput(document, {
-      id: "totp-confirm-code",
-      name: "code",
-      label: "6-digit code from your app",
-      inputMode: "numeric",
-      pattern: "[0-9]*",
-      maxLength: 6,
-      required: true,
+      id: "totp-confirm-code", name: "code", label: "6-digit code from your app",
+      inputMode: "numeric", pattern: "[0-9]*", maxLength: 6, required: true,
       autoComplete: "one-time-code",
     }),
   ], "Turn on two-factor"));
 }
 
 async function submitTotpConfirm(form, text) {
-  const key = beginSubmission(form, "totp-confirm");
-  if (!key) return;
-
-  try {
-    const result = validateTotpStateResponse(
-      await api("/api/me/totp/confirm", {
-        method: "POST",
-        body: {
-          code: requireCode(text("code")),
-        },
-      }),
-    );
-
-    if (state.currentUser) {
-      state.currentUser.totpEnabled = result.totpEnabled;
-    }
-
-    await state.renderRoute(state.activeRoute);
-
-    setMessage(
-      "Two-factor sign-in is on. Keep your authenticator safe.",
-    );
-  } finally {
-    endSubmission(key);
-  }
+  const result = await api("/api/me/totp/confirm", {
+    method: "POST",
+    body: { code: text("code") },
+  });
+  if (state.currentUser) state.currentUser.totpEnabled = result.totpEnabled;
+  await state.renderRoute(state.activeRoute);
+  setMessage("Two-factor sign-in is on. Keep your authenticator safe.");
 }
 
 async function submitTotpDisable(form, text) {
-  const key = beginSubmission(form, "totp-disable");
-  if (!key) return;
-
-  try {
-    const result = validateTotpStateResponse(
-      await api("/api/me/totp/disable", {
-        method: "POST",
-        body: {
-          code: requireCode(text("code")),
-        },
-      }),
-    );
-
-    if (state.currentUser) {
-      state.currentUser.totpEnabled = result.totpEnabled;
-    }
-
-    await state.renderRoute(state.activeRoute);
-
-    setMessage("Two-factor sign-in is off.");
-  } finally {
-    endSubmission(key);
-  }
+  const result = await api("/api/me/totp/disable", {
+    method: "POST",
+    body: { code: text("code") },
+  });
+  if (state.currentUser) state.currentUser.totpEnabled = result.totpEnabled;
+  await state.renderRoute(state.activeRoute);
+  setMessage("Two-factor sign-in is off.");
 }
 
 // The login's second step replaces the join panel: the server already
 // verified the password and holds a single-use challenge. The challenge
 // token rides this one form; POST /api/auth/totp mints the session.
 export function renderTotpLoginStep(challenge) {
-  if (
-    typeof challenge !== "string" ||
-    !challenge.trim()
-  ) {
-    throw new Error("The sign-in challenge is invalid.");
-  }
-
   const panel = createPanel(
     "Two-factor code",
     "Enter the 6-digit code from your authenticator app to finish signing in.",
   );
-
   const form = element("form");
   form.dataset.form = "totp-login";
-
   const challengeInput = document.createElement("input");
   challengeInput.type = "hidden";
   challengeInput.name = "challenge";
   challengeInput.value = challenge;
-
   form.append(challengeInput);
-
   form.append(createInput(document, {
-    id: "totp-login-code",
-    name: "code",
-    label: "6-digit code",
-    inputMode: "numeric",
-    pattern: "[0-9]*",
-    maxLength: 6,
-    required: true,
+    id: "totp-login-code", name: "code", label: "6-digit code",
+    inputMode: "numeric", pattern: "[0-9]*", maxLength: 6, required: true,
     autoComplete: "one-time-code",
   }));
-
-  const send = element(
-    "button",
-    "button button-primary",
-    "Verify code",
-  );
+  const send = element("button", "button button-primary", "Verify code");
   send.type = "submit";
-
   form.append(send);
   panel.append(form);
-
-  addText(
-    document,
-    panel,
-    "p",
-    "Request a new code by signing in again — each passcode question is single-use.",
-    "form-note",
-  );
-
+  addText(document, panel, "p", "Request a new code by signing in again — each passcode question is single-use.", "form-note");
   main.replaceChildren(panel);
 }
 
 async function submitTotpLogin(form, text) {
-  const key = beginSubmission(form, "totp-login");
-  if (!key) return;
-
-  try {
-    const challenge = text("challenge");
-
-    if (
-      typeof challenge !== "string" ||
-      !challenge.trim()
-    ) {
-      throw new Error("The sign-in challenge is missing.");
-    }
-
-    const result = await api("/api/auth/totp", {
-      method: "POST",
-      body: {
-        challenge,
-        code: requireCode(text("code")),
-      },
-    });
-
-    if (
-      !result ||
-      typeof result.csrfToken !== "string" ||
-      !result.csrfToken
-    ) {
-      throw new Error("The sign-in response was invalid.");
-    }
-
-    setCsrfToken(result.csrfToken);
-
-    state.router.navigate("/");
-
-    setMessage("You're signed in with your two-factor code.");
-  } finally {
-    endSubmission(key);
-  }
+  const result = await api("/api/auth/totp", {
+    method: "POST",
+    body: { challenge: text("challenge"), code: text("code") },
+  });
+  setCsrfToken(result.csrfToken);
+  state.router.navigate("/");
+  setMessage("You're signed in with your two-factor code.");
 }
 
 // The registration seam: FORM_HANDLERS merges into submitForm's dispatch
 // map; ACTIONS merges into handleButtonAction's dispatch map.
 export const FORM_HANDLERS = {
-  "totp-setup": (form, text) =>
-    submitTotpSetup(form, text),
-
-  "totp-confirm": (form, text) =>
-    submitTotpConfirm(form, text),
-
-  "totp-disable": (form, text) =>
-    submitTotpDisable(form, text),
-
-  "totp-login": (form, text) =>
-    submitTotpLogin(form, text),
+  "totp-setup": (form, text) => submitTotpSetup(form, text),
+  "totp-confirm": (form, text) => submitTotpConfirm(form, text),
+  "totp-disable": (form, text) => submitTotpDisable(form, text),
+  "totp-login": (form, text) => submitTotpLogin(form, text),
 };
 
 export const ACTIONS = {};
