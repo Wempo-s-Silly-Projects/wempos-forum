@@ -44,3 +44,15 @@ test("the product name and moderation copy keep their own vocabulary", () => {
   // Shared 401 refusal copy pin (api side):
   assert.ok(read("../api/accounts.mjs").includes("That sign-in link has expired. Sign in again."));
 });
+
+test("guest join panel attaches the auth grid before inserting the SSO entry before it", () => {
+  const auth = read("../public/js/routes/auth.js");
+  const start = auth.indexOf("function renderJoinPanel()");
+  const end = auth.indexOf("\nfunction renderSetupLocked()", start);
+  assert.ok(start >= 0 && end > start, "renderJoinPanel source exists");
+  const joinPanel = auth.slice(start, end);
+  const appendGrid = joinPanel.indexOf("panel.append(grid)");
+  const insertSso = joinPanel.indexOf("renderAccountsSignIn(grid, panel)");
+  assert.ok(appendGrid >= 0 && insertSso > appendGrid,
+    "the reference grid must be a child of panel before insertBefore uses it");
+});
