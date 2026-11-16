@@ -96,6 +96,19 @@ test("relay network-ban check: missing token is refused before any database look
   assert.equal(db.statements.length, 0);
 });
 
+test("relay network-ban check: missing Forum pepper fails closed", async () => {
+  const db = fakeDb();
+  const env = relayEnv(db);
+  env.PASSWORD_PEPPER = "";
+  const response = await call(handleRelayRoutes,
+    relayRequest("/api/relay/network-ban-check", { ip: "203.0.113.7" }, TOKEN),
+    env, new URL("https://forum.test/api/relay/network-ban-check"),
+    "/api/relay/network-ban-check", "POST",
+  );
+  assert.equal(response.status, 503);
+  assert.equal(db.statements.length, 0);
+});
+
 test("relay network-ban check: invalid address shape is rejected", async () => {
   const db = fakeDb();
   const response = await call(handleRelayRoutes,
