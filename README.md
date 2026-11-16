@@ -47,3 +47,41 @@ pnpm run db:migrate:local
 pnpm test
 wrangler deploy --dry-run
 ```
+
+## Signing in: Wempo Accounts
+
+The forum no longer has a sign-in page of its own. Signing in and account
+creation start at `accounts.itswempo.workers.dev` (Wempo Accounts): a sign-in
+form (username + password, a Turnstile challenge, optional TOTP step) and a
+"Make a Wempo Account" lane for new members. The forum keeps its own
+`/api/auth/login` and `/api/auth/register` endpoints as internal plumbing
+only — API callers and outage escape hatch, no links to them.
+
+How the handoff works:
+
+1. Opening the forum signed-out sends the browser to Wempo Accounts with
+   `?return=` the forum's origin (an exact-match origin, never a URL with
+   extra bits on it). An existing Accounts session skips the login form and
+   goes straight to the ticket.
+2. Accounts mints a one-time ticket — a 64-character hex code that lives at
+   most 60 seconds (only its hash is ever stored) — and sends the browser
+   back as `<forum origin>/?wt=<code>`.
+3. The forum worker redeems the ticket over a service binding with the
+   Accounts worker (`/api/auth/sso/redeem`, authenticated by the shared
+   relay secret) and mints a normal forum session. A burned or refused
+   ticket bounces the browser back to Accounts for a fresh one.
+
+Sign-out posts to `/api/auth/logout` and then hands the browser to
+`accounts.itswempo.workers.dev/?signout=1` so the Accounts session clears
+too (deliberately no `return=` there — an existing Accounts session would
+otherwise ticket straight back in). Two things this is not: signing out of
+Accounts itself does not retroactively clear the forum's session, and
+signing out here ends only the forum session plus the Accounts session —
+GooberCord keeps whatever session it already minted.
+
+Trust-wise: one shared D1 (`users`, `sessions`). The password pepper lives
+only on the forum worker; Accounts verifies and sets passwords only through
+the forum's token-gated credential relay, and a password hash is written or
+read only by this worker. The relay token (shared secret on both workers)
+is the same credential that authenticates the SSO redeem — it is read only
+as an environment secret and never logged.
