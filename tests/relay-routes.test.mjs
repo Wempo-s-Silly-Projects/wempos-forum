@@ -150,6 +150,46 @@ test("relay network-ban check reports an unbanned address as false", async () =>
   assert.deepEqual(data, { banned: false });
 });
 
+test("network-ban check: returns Forum-keyed active-ban status without exposing the IP hash", async () => {
+  const request = relayRequest("/api/relay/network-ban-check", { ip: "198.51.100.7" }, TOKEN);
+  const expectedHash = await requestIpHash(
+    new Request("https://forum.test/", { headers: { "CF-Connecting-IP": "198.51.100.7" } }),
+    { PASSWORD_PEPPER: PEPPER },
+  );
+  const db = fakeDb({ "FROM banned_ips bi JOIN bans b": { active: 1 } });
+  const response = await call(
+    handleRelayRoutes, request, relayEnv(db),
+    new URL("https://forum.test/api/relay/network-ban-check"),
+    "/api/relay/network-ban-check", "POST",
+  );
+  assert.deepEqual(await ok(response), { banned: true });
+  const lookup = db.statements.find((statement) => statement.sql.includes("FROM banned_ips"));
+  assert.ok(lookup);
+  assert.equal(lookup.params[0], expectedHash, "lookup uses Forum-keyed IP hash");
+  assert.equal(JSON.stringify(await response.clone().json()).includes("198.51.100.7"), false);
+});
+
+test("network-ban check: rejects malformed IPs and unauthenticated callers before D1", async () => {
+  const db = fakeDb();
+  const malformed = await call(
+    handleRelayRoutes,
+    relayRequest("/api/relay/network-ban-check", { ip: "not-an-ip.example" }, TOKEN),
+    relayEnv(db),
+    new URL("https://forum.test/api/relay/network-ban-check"),
+    "/api/relay/network-ban-check", "POST",
+  );
+  assert.equal(malformed.status, 400);
+  const unauthenticated = await call(
+    handleRelayRoutes,
+    relayRequest("/api/relay/network-ban-check", { ip: "198.51.100.7" }, "wrong"),
+    relayEnv(db),
+    new URL("https://forum.test/api/relay/network-ban-check"),
+    "/api/relay/network-ban-check", "POST",
+  );
+  assert.equal(unauthenticated.status, 403);
+  assert.equal(db.statements.length, 0);
+});
+
 test("relay verify: absent token answers 403 with no body oracle", async () => {
   const db = fakeDb();
   const response = await call(handleRelayRoutes,
