@@ -1,4 +1,3 @@
-
 // Pure, DOM-free helpers for the quote affordance (plan v2.3 Task 3). Safe to
 // import under node --test: no document access, and the only element the
 // prefill helper touches is the single textarea the caller passes in.
@@ -18,9 +17,7 @@ export const collapseWhitespace = (text) =>
 // Same truncation shape the backend's replySnippet uses (api/posts.mjs):
 // over the limit → first `limit` characters plus an ellipsis.
 const truncate = (text, limit) =>
-  text.length > limit
-    ? text.slice(0, limit) + "…"
-    : text;
+  text.length > limit ? text.slice(0, limit) + "…" : text;
 
 // One prefill line: "> @<username>: <≤120-char single-line snippet>\n".
 export const quoteLine = (username, body) =>
@@ -31,20 +28,8 @@ export const quoteLine = (username, body) =>
 // the textarea. Assignment through .value only — never innerHTML, never
 // markup. Returns the new value (handy for tests).
 export function prefillQuote(textarea, username, body) {
-  if (
-    !textarea ||
-    typeof textarea.value !== "string" ||
-    typeof textarea.focus !== "function"
-  ) {
-    throw new TypeError(
-      "prefillQuote requires a textarea-like element.",
-    );
-  }
-
-  const existing = textarea.value;
-
+  const existing = typeof textarea.value === "string" ? textarea.value : "";
   textarea.value = quoteLine(username, body) + existing;
   textarea.focus();
-
   return textarea.value;
 }
