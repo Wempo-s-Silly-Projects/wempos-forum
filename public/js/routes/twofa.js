@@ -1,8 +1,10 @@
 // v4.0.1: the TOTP two-factor UI — the account settings section (enable /
-// disable, staged secret + confirm code) and the login's second step. 2FA
-// ONLY: there is no recovery code path anywhere, by the feature spec.
+// disable, staged secret + confirm code), the login's second step, and the
+// single-use backup codes (v4.8.1). There is no email fallback; recover-
+// ing from a lost authenticator is exactly what the backup codes are for.
 // The client never stores the secret after the confirm round-trip; the
-// staged secret is shown once, for authenticator-app entry.
+// staged secret is shown once, for authenticator-app entry — and a backup
+// set is likewise shown exactly once, at generation.
 import { api, setCsrfToken } from "../api.js";
 import { createPanel, element, main, setMessage } from "../dom.js";
 import { createForm, createInput, addText } from "../forms.js";
@@ -38,12 +40,74 @@ export function renderTotpSettings(container, session) {
 
   panel.append(createForm(document, "totp-disable", [
     createInput(document, {
-      id: "totp-disable-code", name: "code", label: "6-digit code",
-      inputMode: "numeric", pattern: "[0-9]*", maxLength: 6, required: true,
-      autoComplete: "one-time-code",
+      id: "totp-disable-code", name: "code", label: "6-digit code or backup code",
+      maxLength: 8, required: true,
+      description: "The authenticator's 6-digit code — or, if you lost your authenticator, an unburned backup code.",
     }),
   ], "Turn off two-factor"));
   container.append(panel);
+
+  // Backup codes (v4.8.1): the settings section rides only the ON branch —
+  // codes exist exactly while the authenticator does, and turning 2FA off
+  // wipes them server-side. Stage one is a button; the password/code form
+  // (the regenerate's own confirmation) swaps in on click.
+  const backupPanel = createPanel(
+    "Backup codes",
+    "If you lose your authenticator, a backup code signs you in once. Each code works a single time.",
+  );
+  backupPanel.dataset.backupPanel = "ready";
+  const ask = element("button", "button button-primary", "Generate new codes");
+  ask.type = "button";
+  ask.dataset.action = "backup-generate-ask";
+  backupPanel.append(ask);
+  container.append(backupPanel);
+}
+
+// Stage two of the backup panel: the generate form itself, introduced by the
+// warn copy — regeneration REPLACES the old set, so the confirm happens
+// before any password is typed.
+function openBackupCodeForm(panel) {
+  for (const node of [...panel.children]) {
+    if (node.tagName !== "H2" && node.tagName !== "P") node.remove();
+  }
+  addText(
+    document,
+    panel,
+    "p",
+    "Generate 10 new codes? Your current backup codes stop working the moment the new set is created.",
+    "form-note",
+  );
+  panel.append(createForm(document, "totp-backups-generate", [
+    createInput(document, {
+      id: "totp-backups-password", name: "currentPassword", label: "Current password",
+      type: "password", maxLength: 128, required: true, autoComplete: "current-password",
+    }),
+    createInput(document, {
+      id: "totp-backups-code", name: "code", label: "6-digit code or backup code",
+      maxLength: 8, required: true,
+      description: "The 6-digit code proves the authenticator; a backup code works instead if the app is lost.",
+    }),
+  ], "Generate codes"));
+}
+
+// The one look at a new set: a read-only block the member copies or writes
+// down. This is built from the response's codes exactly once — the panel
+// never persists them, and a reload or re-render throws them away.
+function renderBackupCodes(panel, codes) {
+  for (const node of [...panel.children]) {
+    if (node.tagName !== "H2" && node.tagName !== "P") node.remove();
+  }
+  addText(document, panel, "p", "Each code signs you in once. These are shown only now — copy or write them down.", "form-note");
+  const block = element("pre", "backup-codes", codes.join("\n"));
+  panel.append(block);
+  const done = element("button", "button button-quiet", "Done");
+  done.type = "button";
+  done.addEventListener("click", async () => {
+    await state.renderRoute(state.activeRoute);
+  });
+  const actions = element("div", "backup-codes-actions");
+  actions.append(done);
+  panel.append(actions);
 }
 
 // The staged-secret step: rendered in place when the setup request returns.
@@ -108,11 +172,20 @@ async function submitTotpConfirm(form, text) {
 async function submitTotpDisable(form, text) {
   const result = await api("/api/me/totp/disable", {
     method: "POST",
-    body: { code: text("code") },
+    body: { code: text("code").trim() },
   });
   if (state.currentUser) state.currentUser.totpEnabled = result.totpEnabled;
   await state.renderRoute(state.activeRoute);
-  setMessage("Two-factor sign-in is off.");
+  setMessage("Two-factor sign-in is off. Your backup codes were wiped.");
+}
+
+async function submitBackupGenerate(form, text) {
+  const result = await api("/api/me/totp/backups/generate", {
+    method: "POST",
+    body: { currentPassword: text("currentPassword"), code: text("code").trim() },
+  });
+  const panel = form.closest("[data-backup-panel]");
+  if (panel) renderBackupCodes(panel, result.codes);
 }
 
 // The login's second step replaces the join panel: the server already
@@ -131,15 +204,14 @@ export function renderTotpLoginStep(challenge) {
   challengeInput.value = challenge;
   form.append(challengeInput);
   form.append(createInput(document, {
-    id: "totp-login-code", name: "code", label: "6-digit code",
-    inputMode: "numeric", pattern: "[0-9]*", maxLength: 6, required: true,
-    autoComplete: "one-time-code",
+    id: "totp-login-code", name: "code", label: "6-digit code or backup code",
+    maxLength: 8, required: true,
+    description: "Lost your authenticator? Enter a backup code.",
   }));
   const send = element("button", "button button-primary", "Verify code");
   send.type = "submit";
   form.append(send);
   panel.append(form);
-  addText(document, panel, "p", "Request a new code by signing in again — each passcode question is single-use.", "form-note");
   main.replaceChildren(panel);
 }
 
@@ -160,6 +232,13 @@ export const FORM_HANDLERS = {
   "totp-confirm": (form, text) => submitTotpConfirm(form, text),
   "totp-disable": (form, text) => submitTotpDisable(form, text),
   "totp-login": (form, text) => submitTotpLogin(form, text),
+  "totp-backups-generate": (form, text) => submitBackupGenerate(form, text),
 };
 
-export const ACTIONS = {};
+export const ACTIONS = {
+  // Backup panel stage one → the confirm + generate form (stage two).
+  "backup-generate-ask": (button) => {
+    const panel = button.closest("[data-backup-panel]");
+    if (panel) openBackupCodeForm(panel);
+  },
+};

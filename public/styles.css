@@ -2137,3 +2137,18 @@ dialog h2 {
 }
 .chat-online-name { font-weight: 700; color: var(--green-dark); text-decoration: none; }
 .chat-online-name:hover { text-decoration: underline; }
+
+/* Backup codes (v4.8.1): the one-look block in the account settings —
+   monospace, wrap-safe, sitting beside its Done action. */
+.backup-codes {
+  margin: 0.6rem 0 0;
+  padding: 0.7rem 0.8rem;
+  border: 1px dashed var(--line);
+  border-radius: var(--button-radius);
+  background: var(--field);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.backup-codes-actions { margin: 0.7rem 0 0; }
