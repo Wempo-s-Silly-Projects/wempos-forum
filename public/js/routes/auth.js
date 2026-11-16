@@ -36,6 +36,12 @@ function setJoinFormsDisabled(joinPanel, disabled) {
   }
 }
 
+function setAllJoinFormsDisabled(disabled) {
+  for (const panel of document.querySelectorAll("#join")) {
+    setJoinFormsDisabled(panel, disabled);
+  }
+}
+
 export function accountsSignInUrl() {
   return ACCOUNTS_ORIGIN + "/?return=" + encodeURIComponent(location.origin);
 }
@@ -49,21 +55,38 @@ function clearSsoCode() {
 async function redeemAccountsSignIn(code, note, joinPanel) {
   // Redeem ONCE per page load: the code is single-use server-side, so a
   // re-render racing the in-flight request must not fire a second POST.
-  if (ssoRedeemAttempted) return;
+  if (ssoRedeemAttempted) {
+    // A route re-render can create a fresh panel while the original one-time
+    // redemption is still pending. Keep the new panel disabled too.
+    if (ssoRedeemInFlight) {
+      if (joinPanel) setJoinFormsDisabled(joinPanel, true);
+      note.textContent = "Signing you in with Wempo Accounts…";
+    }
+    return;
+  }
   ssoRedeemAttempted = true;
   ssoRedeemInFlight = true;
   if (joinPanel) setJoinFormsDisabled(joinPanel, true);
   note.textContent = "Signing you in with Wempo Accounts…";
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
   try {
-    const result = await api("/api/auth/sso/redeem", { method: "POST", body: { wt: code } });
+    const result = await api("/api/auth/sso/redeem", {
+      method: "POST",
+      body: { wt: code },
+      signal: controller.signal,
+    });
     setCsrfToken(result.csrfToken);
     state.router.navigate("/");
     setMessage("You're signed in.");
   } catch (error) {
-    note.textContent = error.message;
+    note.textContent = controller.signal.aborted
+      ? "Wempo Accounts sign-in timed out. You can sign in with your password."
+      : error.message;
     clearSsoCode();
-    if (joinPanel) setJoinFormsDisabled(joinPanel, false);
+    setAllJoinFormsDisabled(false);
   } finally {
+    clearTimeout(timeout);
     ssoRedeemInFlight = false;
   }
 }
