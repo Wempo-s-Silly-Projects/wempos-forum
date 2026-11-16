@@ -56,3 +56,16 @@ test("guest join panel attaches the auth grid before inserting the SSO entry bef
   assert.ok(appendGrid >= 0 && insertSso > appendGrid,
     "the reference grid must be a child of panel before insertBefore uses it");
 });
+
+
+test("SSO redemption blocks competing password and registration sign-in transitions", () => {
+  const auth = read("../public/js/routes/auth.js");
+  assert.ok(auth.includes("let ssoRedeemInFlight = false;"), "an explicit in-flight guard tracks SSO redemption");
+  assert.ok(auth.includes('setJoinFormsDisabled(joinPanel, true)'), "password/register forms are disabled during redemption");
+  assert.ok(auth.includes('setJoinFormsDisabled(joinPanel, false)'), "forms are re-enabled when redemption fails");
+  assert.ok(
+    auth.includes('if (ssoRedeemInFlight && (type === "login" || type === "register")) return;'),
+    "a submit already queued before the controls were disabled cannot race SSO",
+  );
+  assert.ok(auth.includes("finally {\n    ssoRedeemInFlight = false;"), "the in-flight guard is always released");
+});
