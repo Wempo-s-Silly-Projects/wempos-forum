@@ -2,7 +2,7 @@
 // api/; worker.mjs re-exports the functions that tests import. workerd
 // validates every Worker export as a function or ExportedHandler, so besides
 // the default fetch only `export { ... } from` re-exports appear here.
-import { HttpError, json, rateLimit, securityHeaders } from "./api/core/http.mjs";
+import { HttpError, json, rateLimit, secureResponse, unconditional } from "./api/core/http.mjs";
 // Phase-2 Kitskey migration: the ONE error classifier and the dispatch chain
 // come from the vendored framework (core re-exports both; the byte-pin keeps
 // them identical). worker.mjs stops carrying its second copy of the mapping.
@@ -52,40 +52,14 @@ export { relayWorkerStamp } from "./api/relay.mjs";
 export { createUserBan } from "./api/moderation.mjs";
 export { fanOutStatements, notificationBatchStatements, unreadCount } from "./api/notifications.mjs";
 
-function secureResponse(response) {
-  const headers = securityHeaders(response.headers);
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
-}
-
-// Conditional gets (If-None-Match / If-Modified-Since) are dropped before the
-// asset pipeline sees them — but only for DOCUMENT requests: ASSETS.fetch
-// answers them with a bare 304 that bypasses stampedAssetResponse entirely, so
-// the browser would keep its pre-stamp HTML (pre-security-header everything)
-// until the etag changed. Only HTML documents get stamped, so only document
-// requests need the force-200 trade; every other asset (JS/CSS/images) keeps
-// its correct 304 revalidation path instead of a full 200 per visit.
-const CONDITIONAL_HEADERS = ["If-None-Match", "If-Modified-Since"];
-const DOCUMENT_SECFETCH_DESTS = new Set(["document", "iframe", "frame"]);
-function isDocumentRequest(request) {
-  const dest = request.headers.get("Sec-Fetch-Dest");
-  if (dest) return DOCUMENT_SECFETCH_DESTS.has(dest.toLowerCase());
-  // Fallback without sec-fetch-dest (older agents, wrangler dev): an
-  // extension-less path (SPA routes, "/") or .html is a document.
-  const path = new URL(request.url).pathname;
-  if (/\.html?$/i.test(path)) return true;
-  const last = path.split("/").pop();
-  return last === "" || !last.includes(".");
-}
-function unconditional(request) {
-  if (!isDocumentRequest(request)) return request;
-  const headers = new Headers(request.headers);
-  for (const name of CONDITIONAL_HEADERS) headers.delete(name);
-  return new Request(request.url, { method: request.method, headers });
-}
+// Phase-4 Kitskey migration: the static leg's two workers — secureResponse
+// (the security-header re-wrap; the framework default set is already the
+// forum's byte-identical set, so core binds no config override) and
+// unconditional (the conditional-get force-200 trade for documents) — now
+// come from the core leaf, which is the vendored framework verbatim.
+// worker.mjs stops carrying its own copies; stampedAssetResponse (the build
+// stamp) STAYS app-side — the build-meta injection is this app's document,
+// not a framework concern.
 
 // The API chain's not-found tail (phase-2 migration): the vendor dispatch
 // calls it when no handler matched — the two 404 copies this worker has

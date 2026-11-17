@@ -21,18 +21,32 @@ import {
 
 // The vendored surface, unchanged; since phase 2, worker.mjs consumes errorReply
 // and dispatch from here (the vendor import is theirs — one classifier, one
-// dispatch chain, no twin).
+// dispatch chain, no twin); since phase 4 also the static leg (secureResponse
+// above, unconditional re-exported from the vendor).
 export { HttpError, MAX_JSON_BYTES, errorReply };
 export const securityHeaders = vendorSecurityHeaders;
 export const json = vendorJson;
 
 // The config-bound half: the forum's limiter map and the shared JSON cap.
-const app = makeHttp({ rateLimitBindings: RATE_LIMIT_BINDINGS, maxJsonBytes: MAX_JSON_BYTES });
+// Phase-4 Kitskey migration: the static leg rides makeHttp too — the forum
+// binds NO securityHeaders override because the framework default set is
+// already this app's set byte-for-byte, so app.secureResponse re-wraps with
+// exactly the headers the inline twin applied.
+const app = makeHttp({
+  rateLimitBindings: RATE_LIMIT_BINDINGS,
+  maxJsonBytes: MAX_JSON_BYTES,
+});
 export const rateLimit = app.rateLimit;
 export const requireMutationApplied = app.requireMutationApplied;
 export const readLimitedBody = app.readLimitedBody;
 export const readJson = app.readJson;
 export const requiredText = app.requiredText;
+export const secureResponse = app.secureResponse;
+
+// Phase-4: the conditional-get force-200 trade (documents only) is the
+// framework verbatim — re-exported so worker.mjs's static branch keeps its
+// exact call shape.
+export { unconditional, isDocumentRequest } from "../vendor/http.mjs";
 
 const TURNSTILE_TOKEN_MAX_LENGTH = 2048;
 

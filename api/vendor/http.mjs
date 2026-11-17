@@ -4,9 +4,11 @@
 // vocabulary in its own api/core — the two were twins first).
 //
 // THE HOUSE RULES this module enforces by construction:
-//   - EVERY response rides the security header set (json() applies them; the
-//     worker's static responses re-wrap with secureResponse-style wrapping
-//     there, not here).
+//   - EVERY response rides the security header set: json() applies it to the
+//     API surface, and the static leg's secureResponse (on makeHttp, with the
+//     app's securityHeaders riding config) applies it to the asset surface —
+//     the apps' worker.mjs carried byte-identical secureResponse/unconditional
+//     twins, which is now this module (static-leg deliverable).
 //   - errors are thrown, never returned: the route handlers raise HttpError
 //     and ONE classifier (errorReply) turns the whole API's possible
 //     failures into the single response shape — { error: message }, the
@@ -100,12 +102,52 @@ export function dispatch(handlers, after = null) {
   };
 }
 
+// --- the static leg -----------------------------------------------------------
+
+// Conditional gets (If-None-Match / If-Modified-Since) are dropped before the
+// asset pipeline sees them — but only for DOCUMENT requests: ASSETS.fetch
+// answers them with a bare 304 that bypasses the app-side stamping entirely,
+// so the browser would keep its pre-stamp, pre-security-header HTML until the
+// etag changed. Only HTML documents get stamped, so only document requests
+// need the force-200 trade; every other asset (JS/CSS/images) keeps its
+// correct 304 revalidation path instead of a full 200 per visit. (The two
+// apps carried this block byte-identical in their worker.mjs; the extraction
+// keeps the names — unconditional, isDocumentRequest — so migrating a worker
+// is an import swap, never a rewrite.)
+const CONDITIONAL_HEADERS = ["If-None-Match", "If-Modified-Since"];
+const DOCUMENT_SECFETCH_DESTS = new Set(["document", "iframe", "frame"]);
+
+export function isDocumentRequest(request) {
+  const dest = request.headers.get("Sec-Fetch-Dest");
+  if (dest) return DOCUMENT_SECFETCH_DESTS.has(dest.toLowerCase());
+  // Fallback without sec-fetch-dest (older agents, wrangler dev): an
+  // extension-less path (SPA routes, "/") or .html is a document.
+  const path = new URL(request.url).pathname;
+  if (/\.html?$/i.test(path)) return true;
+  const last = path.split("/").pop();
+  return last === "" || !last.includes(".");
+}
+
+export function unconditional(request) {
+  if (!isDocumentRequest(request)) return request;
+  const headers = new Headers(request.headers);
+  for (const name of CONDITIONAL_HEADERS) headers.delete(name);
+  // The rebuilt request spells URL + method explicitly (the forum twin's
+  // shape; GooberCord rebuilt by Request-copy instead). Behaviorally
+  // identical for the GET document requests this leg serves — the explicit
+  // spelling wins because it does not depend on the original request's
+  // internals surviving a copy.
+  return new Request(request.url, { method: request.method, headers });
+}
+
 // makeHttp: the config-bound half. Each app passes its limiter binding map
-// ({ [scope]: bindingName }) and its JSON cap; a limiter map without the
-// scope fails the route (503) instead of silently skipping the wall.
+// ({ [scope]: bindingName }), its JSON cap, and — for the static leg — the
+// securityHeaders function its surface answers with. A limiter map without
+// the scope fails the route (503) instead of silently skipping the wall.
 export function makeHttp({
   rateLimitBindings = {},
   maxJsonBytes = MAX_JSON_BYTES,
+  securityHeaders: appSecurityHeaders = securityHeaders,
 } = {}) {
   async function rateLimit(request, env, scope, actor = "") {
     const bindingName = rateLimitBindings[scope];
@@ -196,12 +238,30 @@ export function makeHttp({
     return result;
   }
 
+  // The static leg: an upstream (ASSETS) response re-wrapped with the security
+  // header set the app chose on config. Body, status, and statusText pass
+  // through untouched; the header set is the only thing the leg decides. The
+  // framework default serves the framework's own set; a divergent app (a
+  // voice policy, say) passes ITS securityHeaders and every static response
+  // rides that one instead — the same re-assertion point the apps' inline
+  // secureResponse used. (The build-stamping that often surrounds this call
+  // stays app-side: it differs per app — build-meta injection is an app's
+  // document, not a framework concern.)
+  function secureResponse(response) {
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: appSecurityHeaders(response.headers),
+    });
+  }
+
   return {
     rateLimit,
     requireMutationApplied,
     readLimitedBody,
     readJson,
     requiredText,
+    secureResponse,
   };
 }
 

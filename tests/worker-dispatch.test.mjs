@@ -83,3 +83,88 @@ test("a non-HttpError inside the chain takes the shared 500 and never echoes the
     console.error = original;
   }
 });
+
+// --- phase 4 (Kitskey migration): the static leg rides the vendor ---------------
+
+test("worker.mjs stops carrying the static-leg twins — they come from the core leaf now", () => {
+  assert.ok(!/function secureResponse/.test(WORKER_SOURCE), "the re-wrap comes from core via makeHttp");
+  assert.ok(!/isDocumentRequest|CONDITIONAL_HEADERS/.test(WORKER_SOURCE), "the conditional-get trade is the framework verbatim");
+  assert.match(WORKER_SOURCE, /import \{ HttpError, json, rateLimit, secureResponse, unconditional \} from "\.\/api\/core\/http\.mjs"/,
+    "the static leg comes from the core leaf via the worker's import");
+  // The build stamp STAYS app-side: the injection is this app's document.
+  assert.match(WORKER_SOURCE, /async function stampedAssetResponse/);
+  assert.match(WORKER_SOURCE, /secureResponse\(await stampedAssetResponse\(await env\.ASSETS\.fetch\(unconditional\(request\)\), env\)\)/);
+});
+
+// Behavior through the static leg (a recording ASSETS stub): the re-wrap
+// carries the framework-default policy — which IS the forum's set byte-for-
+// byte, so core binds no securityHeaders override (the divergence wiring is
+// GC's, not ours) — and the conditional-get trade applies to documents only,
+// now decided by the vendored unconditional.
+test("the forum core binds NO securityHeaders override — the vendor default is already ours", async () => {
+  const { readFileSync } = await import("node:fs");
+  const coreSource = readFileSync(new URL("../api/core/http.mjs", import.meta.url), "utf8");
+  assert.ok(!/securityHeaders,\s*\n/.test(coreSource),
+    "no override config: the framework default set is the forum's set");
+  const core = await import("../api/core/http.mjs");
+  const response = core.secureResponse(new Response("x", { headers: { "ETag": '"v1"' } }));
+  assert.equal(response.headers.get("ETag"), '"v1"', "upstream validators ride through the re-wrap");
+  assert.equal(
+    response.headers.get("Permissions-Policy"),
+    "camera=(), microphone=(), geolocation=()",
+    "the framework default policy IS the forum's policy",
+  );
+});
+
+test("a document request drops conditionals and re-wraps with the security set", async () => {
+  const seen = [];
+  const env = {
+    ASSETS: {
+      fetch(request) {
+        seen.push(request.headers);
+        return new Response("<html><head></head></html>", {
+          status: 200,
+          headers: { "Content-Type": "text/html; charset=utf-8", "ETag": '"v1"' },
+        });
+      },
+    },
+  };
+  const response = await worker.fetch(
+    new Request("https://forum.test/", {
+      headers: { "If-None-Match": '"v1"', "If-Modified-Since": "yesterday" },
+    }),
+    env,
+    undefined,
+  );
+  assert.equal(response.status, 200);
+  const arriving = seen[0];
+  assert.equal(arriving.get("If-None-Match"), null, "the document's conditionals were dropped upstream");
+  assert.equal(arriving.get("If-Modified-Since"), null);
+  assert.equal(response.headers.get("X-Frame-Options"), "DENY");
+  assert.equal(response.headers.get("Referrer-Policy"), "strict-origin-when-cross-origin");
+});
+
+test("a script asset keeps its conditionals (the 304 revalidation path survives)", async () => {
+  const seen = [];
+  const env = {
+    ASSETS: {
+      fetch(request) {
+        seen.push(request.headers);
+        return new Response("module.exports = {}", {
+          status: 200,
+          headers: { "Content-Type": "text/javascript; charset=utf-8" },
+        });
+      },
+    },
+  };
+  const response = await worker.fetch(
+    new Request("https://forum.test/app.js", {
+      headers: { "Sec-Fetch-Dest": "script", "If-None-Match": '"v1"' },
+    }),
+    env,
+    undefined,
+  );
+  assert.equal(response.status, 200);
+  assert.equal(seen[0].get("If-None-Match"), '"v1"', "the conditionals were NOT dropped for a script");
+  assert.equal(response.headers.get("X-Frame-Options"), "DENY", "the re-wrap still applies");
+});
