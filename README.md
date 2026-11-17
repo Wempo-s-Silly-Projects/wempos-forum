@@ -90,7 +90,7 @@ as an environment secret and never logged.
 
 Source: <https://github.com/Wempo-s-Silly-Projects/wempos-forum>
 
-Copyright (C) 2026 YourLocalGoober
+Copyright (C) 2026 ItsWempo
 
 Wempo's Forum is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -113,7 +113,7 @@ offer those users the corresponding source of the version they are serving
 (GNU Affero General Public License, section 13): a visible link to the
 source archive, or the repository above, satisfies this duty.
 
-Copyright 2026 YourLocalGoober
+Copyright 2026 ItsWempo
 Copying and distribution of this file, with or without modification, are
 permitted in any medium without royalty provided the copyright notice and
 this notice are preserved.  This file is offered as-is, without any
