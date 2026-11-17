@@ -4,15 +4,33 @@
 // bodies re-read the boot state through the bag (state.renderRoute). The
 // composer family (builder, submits, gif/poll dialogs) lives in composer.js
 // since the plan 7 follow-up; createComposer's consumers import it there.
-import { addText, createForm, createInput, createTextarea } from "../forms.js";
-import { api } from "../api.js";
+//
+// 5.0 wave 2 (the prove-it wave): the module re-expresses its render on the
+// vendored Kitskey framework — frontload/dom's el(), the kit's
+// heading/text/panel/form family. The kit was extracted from this very app's
+// dom.js/forms.js twins, so every node it builds is character-for-character
+// the shape the route shipped (same classes, same labeled fields, same
+// data-form dispatch). Two rethink surfaces land with the conversion:
+//   - empty states become instructions: a zero feed names the action and,
+//     where the composer is on the page, carries a one-click CTA that
+//     focuses it — guests get the Accounts door as their instruction.
+//   - the unread model's first surface: the feed tabs read one client-side
+//     board-read model (see the section below), and boards with activity
+//     the member hasn't read announce themselves on their tab.
+// The composer module (createComposer), render.js's post cards
+// (appendPostList), the dom.js boot-shell singletons (main, setMessage) and
+// every URL ride verbatim — the diff is the builder, not the surface.
+import { el } from "../vendor/frontload/dom.mjs";
 import {
   addHeading,
-  createPanel,
-  element,
-  main,
-  setMessage,
-} from "../dom.js";
+  addText,
+  createForm,
+  createInput,
+  createStore,
+  panel,
+} from "../vendor/designer/kit.mjs";
+import { api } from "../api.js";
+import { main, setMessage } from "../dom.js";
 import { state } from "../state.js";
 import { renderHomeAccess } from "./auth.js";
 import { renderTotpSettings } from "./twofa.js";
@@ -31,20 +49,126 @@ import { homepageInterests, homepageIntro } from "../home-intro.js";
 const SUGGESTIONS_BOARD = "suggestions";
 const SUGGESTIONS_EMPTY_TEXT = "No suggestions yet — be the first!";
 
+// --- the unread model (the wave-7 seed's first surface) ----------------------
+// One client model the feed tabs read from. The member's own reads ride a
+// localStorage key in the forum's key family ("forum-board-visited" — a JSON
+// pair of { lastVisit, seen } maps); fresh activity rides the posts the feed
+// ALREADY fetches, because every serialized row carries its board slug and
+// its activity stamp. A board tab announces itself unread when served
+// activity is newer than the member's last read of that board (including
+// boards the member has never opened); reading the board marks it visited;
+// zero unread renders nothing — the wave-7 edge, held from day one. Wave 7
+// unifies this model with the bell, the mobile bar and the /mine view.
+const BOARD_READ_STORAGE_KEY = "forum-board-visited";
+
+// The kit store is the idiom the wave plan names for the route's module
+// state: get / set / subscribe over a plain object, and the store's own
+// subscriber is the persistence half — every set writes through under the
+// forum key, best-effort (privacy modes keep the announcements for this
+// page only).
+const boardReads = createStore(readBoardReadState());
+boardReads.subscribe((next) => {
+  try {
+    window.localStorage.setItem(BOARD_READ_STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    // Persistence is best-effort; the model still drives this page.
+  }
+});
+
+function readBoardReadState() {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(BOARD_READ_STORAGE_KEY) || "null");
+    return {
+      // Unknown stored shapes fall back to a silent start, never noise.
+      lastVisit: readableMap(parsed, "lastVisit"),
+      seen: readableMap(parsed, "seen"),
+    };
+  } catch {
+    // Malformed JSON or blocked storage: same silent start.
+    return { lastVisit: {}, seen: {} };
+  }
+}
+
+function readableMap(parsed, key) {
+  return parsed && typeof parsed === "object" &&
+    parsed[key] && typeof parsed[key] === "object" ? parsed[key] : {};
+}
+
+// postActivityAt: the row's own activity stamp (ms epoch; the serializer
+// ships camelCase — lastActivityAt when the board's activity was bumped,
+// the creation stamp otherwise).
+const postActivityAt = (post) => Number(post?.lastActivityAt ?? post?.createdAt) || 0;
+
+// The seen half: served feed rows advance their board's activity floor,
+// monotonically — an older page or a stale render never unmutes a board.
+function recordBoardActivity(posts) {
+  if (!Array.isArray(posts) || posts.length === 0) return;
+  const current = boardReads.get();
+  const seen = { ...current.seen };
+  let changed = false;
+  for (const post of posts) {
+    const board = post?.board;
+    // The whitelist IS boards.js's — an unknown slug is nothing to serve.
+    if (!board || !BOARD_BY_SLUG[board]) continue;
+    const at = postActivityAt(post);
+    if (at > (seen[board] || 0)) {
+      seen[board] = at;
+      changed = true;
+    }
+  }
+  if (changed) boardReads.set({ lastVisit: current.lastVisit, seen });
+}
+
+// The read half: opening the board's own route IS the member's read; the
+// floor is "now", lifted above anything served on the page so a slow clock
+// can never hang the unread state open.
+function markBoardVisited(slug) {
+  const current = boardReads.get();
+  boardReads.set({
+    seen: current.seen,
+    lastVisit: { ...current.lastVisit, [slug]: Math.max(Date.now(), current.seen[slug] || 0) },
+  });
+}
+
+const boardIsUnread = (slug) => {
+  const reads = boardReads.get();
+  return Boolean(reads.seen[slug]) && reads.seen[slug] > (reads.lastVisit[slug] || 0);
+};
+
+// --- empty states as instructions -------------------------------------------
+// The rethink's first route: a zero feed names the action. Where the composer
+// is on the page, the instruction is ONE click away — a CTA that focuses it;
+// a guest surface ends in the Accounts door instead. The blocks reuse only
+// classes the sheet already carries.
+function appendComposeCta(container, composer, label = "Start a thread") {
+  const box = composer?.querySelector?.("textarea");
+  if (!box) return;
+  const cta = el("button", { class: "button button-secondary", type: "button", text: label });
+  cta.addEventListener("click", () => box.focus());
+  container.append(cta);
+}
+
+function appendGuestDoorCta(container, label) {
+  container.append(el("a", {
+    class: "button button-secondary",
+    href: wempoAccountsSignInUrl(location.origin),
+    text: label,
+  }));
+}
+
 function renderIntroduction() {
-  const intro = element("section", "personal-intro");
+  const intro = el("section", { class: "personal-intro" });
   addHeading(intro, "Wempo's Forum: Have fun and meet new people!", 1);
-  addText(document, intro, "p", homepageIntro, "personal-intro-copy");
-  const interests = element("ul", "personal-tags");
-  for (const interest of homepageInterests) interests.append(element("li", "", interest));
+  addText(intro, homepageIntro, "personal-intro-copy");
+  const interests = el("ul", { class: "personal-tags" });
+  for (const interest of homepageInterests) interests.append(el("li", { text: interest }));
   intro.append(interests);
-  const doodle = element("span", "intro-doodle", ":3");
-  doodle.setAttribute("aria-hidden", "true");
-  intro.append(doodle);
+  intro.append(el("span", { class: "intro-doodle", text: ":3", "aria-hidden": "true" }));
   main.append(intro);
 }
 
 function renderHomeContent(session, data, route) {
+  let composer = null;
   if (session.user && route.name === "home") {
     // My posts (v2.5): a tab pair right above the composer (owner spec — NOT
     // a top-bar item, and home only: the search route shares this builder but
@@ -55,36 +179,34 @@ function renderHomeContent(session, data, route) {
     // The home composer picks its category from a select (members post in
     // every category; the staff-only Updates category appears for staff
     // alone — the server 403s everyone else regardless).
-    main.append(createComposer("post-create", "What's on your mind?", "Post message",
-      null, null, null, composerBoardChoices(session.user)));
+    composer = createComposer("post-create", "What's on your mind?", "Post message",
+      null, null, null, composerBoardChoices(session.user));
+    main.append(composer);
   }
   // Recent activity (v3.1): the homepage mixes every category, 10 posts at a
   // time (the server's no-board feed page size).
   addHeading(main, route.name === "search" ? "Search results" : "Recent activity", 2);
   if (route.name === "search") {
-    addText(document, main, "p", `Results for “${route.query}”`, "muted");
+    addText(main, `Results for “${route.query}”`, "muted");
     renderSearchResults(main, data.search);
     return;
   }
-  appendPostList(main, data.feed.posts, document, session.user);
+  appendPostList(main, data.feed.posts, document, session.user,
+    session.user
+      ? "Nothing in Recent activity yet — be the first."
+      // Guests: the door panel the boot renders above IS their instruction.
+      : "No posts yet — sign in above to start the first thread.");
+  if (!data.feed.posts.length) appendComposeCta(main, composer);
   if (!data.feed.nextBefore) return;
-  const older = element("button", "button button-secondary", "Load older posts");
-  older.type = "button";
-  older.dataset.action = "load-more";
-  older.dataset.before = String(data.feed.nextBefore);
-  main.append(older);
+  main.append(loadMoreButton({ label: "Load older posts", before: data.feed.nextBefore }));
 }
 function renderAccountSettings(session) {
-  const account = document.createElement("details");
-  account.className = "panel";
+  const account = el("details", { class: "panel" });
   // Appearance: the square-corners pref (v2.5) - a checkbox in the account
   // settings panel; stored client-side like the theme choice.
-  const corners = document.createElement("label");
-  corners.className = "corner-pref";
-  const cornersBox = document.createElement("input");
-  cornersBox.type = "checkbox";
+  const corners = el("label", { class: "corner-pref" });
+  const cornersBox = el("input", { type: "checkbox", dataset: { actionPref: "corners" } });
   try { cornersBox.checked = window.localStorage.getItem("forum-corners") === "square"; } catch {}
-  cornersBox.dataset.actionPref = "corners";
   corners.append(cornersBox, document.createTextNode(" Square corners"));
   cornersBox.addEventListener("change", () => {
     const square = cornersBox.checked;
@@ -92,7 +214,8 @@ function renderAccountSettings(session) {
     document.documentElement.dataset.corners = square ? "square" : "round";
   });
 
-  const passwordPanel = createPanel("Change your password", "There is no email-based recovery; choose a password you can keep safe.");
+  const passwordPanel = panel({ title: "Change your password",
+    description: "There is no email-based recovery; choose a password you can keep safe." });
   passwordPanel.append(createForm(document, "password", [
     createInput(document, {
       id: "current-password", name: "currentPassword", label: "Current password",
@@ -117,11 +240,10 @@ function renderAccountSettings(session) {
   // Blocks (v4.4): the blocked-members list + Unblock controls ride the
   // account settings area right after the two-factor section.
   renderBlockedSettings(account, session);
-  const deletePanel = createPanel("Delete your Wempo Account",
-    "This permanently deletes your Wempo Account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo. Are you really sure?");
-  const deleteButton = element("button", "button button-danger", "Delete Wempo Account");
-  deleteButton.type = "button";
-  deleteButton.dataset.action = "delete-account";
+  const deletePanel = panel({ title: "Delete your Wempo Account",
+    description: "This permanently deletes your Wempo Account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo. Are you really sure?" });
+  const deleteButton = el("button", { class: "button button-danger", type: "button",
+    dataset: { action: "delete-account" }, text: "Delete Wempo Account" });
   deletePanel.append(deleteButton);
   account.append(deletePanel);
   main.append(account);
@@ -138,48 +260,49 @@ function renderSearchResults(container, results) {
   if (Array.isArray(results.replies)) {
     addHeading(container, "Replies", 2);
     if (!results.replies.length) {
-      addText(document, container, "p", "It's pretty empty here....", "There is no replies that match!", "empty-state");
+      addText(container, "No replies match — try fewer words.", "empty-state");
     } else {
-      const replyList = element("div", "reply-search-results");
+      const replyList = el("div", { class: "reply-search-results" });
       for (const reply of results.replies) {
-        const miniCard = element("article", "reply-search-card");
-        miniCard.append(element("a", "reply-search-thread",
-          "in a conversation by " + (reply.parent ? "…" : "someone")));
-        const bodyBlock = element("p", "reply-search-body");
-        bodyBlock.textContent = reply.body;
-        const link = element("a", "button button-quiet", "Open thread");
-        link.href = "/posts/" + reply.threadId;
-        link.setAttribute("data-app-link", "");
+        const miniCard = el("article", { class: "reply-search-card" });
+        miniCard.append(el("a", { class: "reply-search-thread",
+          text: "in a conversation by " + (reply.parent ? "…" : "someone") }));
+        const bodyBlock = el("p", { class: "reply-search-body", text: reply.body });
+        const link = el("a", { class: "button button-quiet", text: "Open thread",
+          href: "/posts/" + reply.threadId, "data-app-link": "" });
         miniCard.append(bodyBlock, link);
         replyList.append(miniCard);
       }
       container.append(replyList);
     }
   }
-  const people = createPanel("People");
+  const people = panel({ title: "People" });
   if (results.users.length) {
-    const list = element("ul", "result-list");
+    const list = el("ul", { class: "result-list" });
     for (const user of results.users) {
-      const item = element("li");
-      const link = element("a", "", user.username);
-      link.href = `/users/${encodeURIComponent(user.username)}`;
-      item.append(link);
-      if (user.bio) addText(document, item, "p", user.bio, "muted");
+      const item = el("li");
+      item.append(el("a", { text: user.username,
+        href: `/users/${encodeURIComponent(user.username)}` }));
+      if (user.bio) addText(item, user.bio, "muted");
       list.append(item);
     }
     people.append(list);
   } else {
-    addText(document, people, "p", "It's pretty empty here", "There are no users that match!", "empty-state");
+    addText(people, "No members match — check the spelling, or try a shorter name.",
+      "empty-state");
   }
   container.append(people);
   addHeading(container, "Posts", 2);
-  appendPostList(container, results.posts, document, state.currentUser);
+  appendPostList(container, results.posts, document, state.currentUser,
+    "No posts match — fewer words search wider, or start the thread yourself.");
 }
 async function renderHomeRoute(route, context, version) {
   const data = route.name === "search"
     ? { search: await api(`/api/search?q=${encodeURIComponent(route.query)}&in=replies`) }
     : { feed: await api("/api/posts") };
   if (version !== state.renderVersion) return;
+  // The search payload carries the mixed posts half — evidence either way.
+  recordBoardActivity(route.name === "search" ? data.search.posts : data.feed.posts);
   renderHome(context.session, context.setupRequired, context.setupConfigured, data, route);
 }
 
@@ -192,49 +315,64 @@ async function renderHomeRoute(route, context, version) {
 // the active tab is aria-selected (the owner's "right above the start a
 // conversation box" placement, not a top-bar item).
 function renderFeedTabs(active) {
-  const tabs = element("div", "feed-tabs");
+  const tabs = el("div", { class: "feed-tabs" });
   // Categories (v3.1, tab style): the tab pair above the composer is the
   // category navigation — Recent activity (every category mixed, 10 at a
   // time), My posts, then each category as its own route. `active` is the
   // category slug on category pages ("all" home, "mine" on /mine); a slug
   // match highlights that category's tab.
   const spec = [
-    ["/", "Recent activity", active === "all"],
-    ["/mine", "My posts", active === "mine"],
-    ...BOARDS.map((board) => ["/c/" + board.slug, board.label, active === board.slug]),
+    ["/", "Recent activity", active === "all", null],
+    ["/mine", "My posts", active === "mine", null],
+    ...BOARDS.map((board) =>
+      ["/c/" + board.slug, board.label, active === board.slug, board.slug]),
   ];
-  for (const [href, label, isActive] of spec) {
-    const tab = element("a", "feed-tab", label);
-    tab.href = href;
+  for (const [href, label, isActive, slug] of spec) {
+    const tab = el("a", { class: "feed-tab", text: label, href });
     tab.setAttribute("data-app-link", "");
     tab.setAttribute("aria-selected", isActive ? "true" : "false");
+    // The unread announcement (the model's first surface): the tab keeps its
+    // name and its selection state; an unread one gains the machine-readable
+    // data-unread (wave 7 gives the dot its ink) and an aria-label announce.
+    if (!isActive && slug && boardIsUnread(slug)) {
+      tab.dataset.unread = "true";
+      tab.setAttribute("aria-label", label + " (new posts)");
+    }
     tabs.append(tab);
   }
   return tabs;
+}
+// The load-older button (five call sites): one builder, board/mine-aware
+// dataset exactly as before — el's dataset loop drops the absent keys.
+function loadMoreButton({ label, before, action = "load-more", board, mine }) {
+  return el("button", {
+    class: "button button-secondary", type: "button", text: label,
+    dataset: { action, before: String(before), board, mine },
+  });
 }
 async function renderMineRoute(context, version) {
   if (!context.session.user) {
     // A hand-typed /mine URL while signed out: a sign-in prompt, not an error.
     addHeading(main, "My posts", 2);
-    addText(document, main, "p", "Sign in to see your posts.", "muted");
-    const signIn = element("a", "button button-secondary", "Sign in");
+    addText(main, "Sign in to see your posts.", "muted");
+    const signIn = el("a", { class: "button button-secondary", text: "Sign in" });
     signIn.href = wempoAccountsSignInUrl(location.origin);
     main.append(signIn);
     return;
   }
+  // Own posts are self-authored — they are never unread news, so the model
+  // records nothing from /mine.
   const data = { feed: await api("/api/posts?mine=1") };
   if (version !== state.renderVersion) return;
   main.append(renderFeedTabs("mine"));
-  main.append(createComposer("post-create", "What's on your mind?", "Post message"));
+  const composer = createComposer("post-create", "What's on your mind?", "Post message");
+  main.append(composer);
   addHeading(main, "My posts", 2);
-  appendPostList(main, data.feed.posts, document, context.session.user);
+  appendPostList(main, data.feed.posts, document, context.session.user,
+    "No posts of yours yet — start your first thread with the composer above.");
+  if (!data.feed.posts.length) appendComposeCta(main, composer);
   if (!data.feed.nextBefore || data.feed.posts.length !== 20) return;
-  const older = element("button", "button button-secondary", "Load older posts");
-  older.type = "button";
-  older.dataset.action = "load-more";
-  older.dataset.before = String(data.feed.nextBefore);
-  older.dataset.mine = "1";
-  main.append(older);
+  main.append(loadMoreButton({ label: "Load older posts", before: data.feed.nextBefore, mine: "1" }));
 }
 // Category routes (v3.1, tab style): /c/<slug> (plus the /suggestions alias).
 // One renderer for every category — the tab pair with this category active, a
@@ -250,30 +388,38 @@ async function renderCategoryRoute(route, context, version) {
   // data.feed.* reads below are correct.
   const data = { feed: await api("/api/posts?board=" + encodeURIComponent(board.slug)) };
   if (version !== state.renderVersion) return;
+  // Opening the board IS the read: its served rows advance the seen floor
+  // and the visit mark clears the tab's announcement for next time.
+  recordBoardActivity(data.feed.posts);
+  markBoardVisited(board.slug);
   main.append(renderFeedTabs(board.slug));
   const user = context.session.user;
   const isStaff = Boolean(user && (user.role === "owner" || user.role === "admin"));
-  if (user && (!board.staffOnly || isStaff)) {
-    main.append(createComposer(
-      "post-create",
-      board.staffOnly ? "Post a site update" : `Start a thread in ${board.label}`,
-      board.staffOnly ? "Post update" : "Post message",
-      null, null, board.slug,
-    ));
-  }
+  const composer = user && (!board.staffOnly || isStaff)
+    ? createComposer(
+        "post-create",
+        board.staffOnly ? "Post a site update" : `Start a thread in ${board.label}`,
+        board.staffOnly ? "Post update" : "Post message",
+        null, null, board.slug)
+    : null;
+  if (composer) main.append(composer);
   addHeading(main, board.label, 2);
-  addText(document, main, "p", board.blurb, "muted");
+  addText(main, board.blurb, "muted");
   appendPostList(main, data.feed.posts, document, user,
     board.slug === SUGGESTIONS_BOARD
       ? SUGGESTIONS_EMPTY_TEXT
       : `Nothing in ${board.label} yet — start the conversation!`);
+  if (!data.feed.posts.length && composer) {
+    appendComposeCta(main, composer, board.staffOnly
+      ? "Post the first update"
+      : board.slug === SUGGESTIONS_BOARD ? "Post the first suggestion" : "Start a thread");
+  } else if (!data.feed.posts.length && !user) {
+    // Guests: the door, with the board's own name in the instruction.
+    appendGuestDoorCta(main, `Sign in to start the first thread in ${board.label}`);
+  }
   if (!data.feed.nextBefore) return;
-  const older = element("button", "button button-secondary", "Load older posts");
-  older.type = "button";
-  older.dataset.action = "load-more";
-  older.dataset.before = String(data.feed.nextBefore);
-  older.dataset.board = board.slug;
-  main.append(older);
+  main.append(loadMoreButton({ label: "Load older posts", before: data.feed.nextBefore,
+    board: board.slug }));
 }
 
 // Bookmarks (C4): the private "Saved" page — the member's own saved list.
@@ -282,8 +428,8 @@ const BOOKMARKS_EMPTY_TEXT = "Nothing saved yet. Use the Save button on a post."
 async function renderBookmarksRoute(context, version) {
   if (!context.session.user) {
     addHeading(main, "Saved posts", 2);
-    addText(document, main, "p", "Sign in to see your saved posts.", "muted");
-    const signIn = element("a", "button button-secondary", "Sign in");
+    addText(main, "Sign in to see your saved posts.", "muted");
+    const signIn = el("a", { class: "button button-secondary", text: "Sign in" });
     signIn.href = wempoAccountsSignInUrl(location.origin);
     main.append(signIn);
     return;
@@ -292,16 +438,13 @@ async function renderBookmarksRoute(context, version) {
   if (version !== state.renderVersion) return;
   addHeading(main, "Saved posts", 2);
   // Privacy note: this list belongs to the signed-in account.
-  addText(document, main, "p", "Your saved list is private to you.", "muted");
+  addText(main, "Your saved list is private to you.", "muted");
   appendPostList(main, data.bookmarks, document, context.session.user,
     BOOKMARKS_EMPTY_TEXT);
   // Pagination (fix round 1): the composite (bookmarked_at, id) cursor.
   if (!data.nextBefore || data.bookmarks.length !== 20) return;
-  const older = element("button", "button button-secondary", "Load older saved posts");
-  older.type = "button";
-  older.dataset.action = "load-more-bookmarks";
-  older.dataset.before = String(data.nextBefore);
-  main.append(older);
+  main.append(loadMoreButton({ label: "Load older saved posts", before: data.nextBefore,
+    action: "load-more-bookmarks" }));
 }
 async function loadMorePosts(button) {
   // Board-aware (v2.4.1): the suggestions route's button carries dataset.board
@@ -312,18 +455,19 @@ async function loadMorePosts(button) {
   const mine = button.dataset.mine;
   const older = await api("/api/posts?before=" + button.dataset.before +
     (board ? "&board=" + board : "") + (mine ? "&mine=" + mine : ""));
+  // The walked page is evidence too: max() keeps the floors monotonic, so
+  // walking backwards can never unmute a board.
+  recordBoardActivity(older.posts);
   appendPostList(main, older.posts, document, state.currentUser,
     board === SUGGESTIONS_BOARD ? SUGGESTIONS_EMPTY_TEXT : undefined);
   button.remove();
   if (older.posts.length !== 20 || !older.nextBefore) return;
-  const next = element("button", "button button-secondary",
-    board === SUGGESTIONS_BOARD ? "Load older suggestions" : "Load older posts");
-  next.type = "button";
-  next.dataset.action = "load-more";
-  next.dataset.before = String(older.nextBefore);
-  if (board) next.dataset.board = board;
-  if (mine) next.dataset.mine = mine;
-  main.append(next);
+  main.append(loadMoreButton({
+    label: board === SUGGESTIONS_BOARD ? "Load older suggestions" : "Load older posts",
+    before: older.nextBefore,
+    board,
+    mine,
+  }));
 }
 
 // The registration seam: FORM_HANDLERS merges into submitForm's dispatch map;
@@ -387,11 +531,8 @@ export const ACTIONS = {
       BOOKMARKS_EMPTY_TEXT);
     button.remove();
     if (!older.nextBefore || older.bookmarks.length !== 20) return;
-    const next = element("button", "button button-secondary", "Load older saved posts");
-    next.type = "button";
-    next.dataset.action = "load-more-bookmarks";
-    next.dataset.before = String(older.nextBefore);
-    main.append(next);
+    main.append(loadMoreButton({ label: "Load older saved posts", before: older.nextBefore,
+      action: "load-more-bookmarks" }));
   },
 };
 
