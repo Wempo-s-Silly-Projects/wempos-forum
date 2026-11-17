@@ -1523,8 +1523,11 @@ dialog h2 {
 /* The unread announce (5.0 wave 2's board-read model, first ink): an unread
    board tab gains one dot on the same --yellow the selected tab speaks, pill
    radius. Never fires on the selected tab (the announce skips it), so the
-   yellow always sits on the tab's own field. Nothing else on the sheet moves. */
-.feed-tab[data-unread="true"]::after {
+   yellow always sits on the tab's own field. Wave 7 rides the mobile Alerts
+   rung onto the same block (the lead's ink grant) — one grammar, one dot.
+   Nothing else on the sheet moves. */
+.feed-tab[data-unread="true"]::after,
+.mobile-bar-item[data-unread="true"]::after {
   content: "";
   width: 0.55rem;
   height: 0.55rem;
