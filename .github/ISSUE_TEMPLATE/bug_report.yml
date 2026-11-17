@@ -55,7 +55,7 @@ body:
     id: devconsole
     attributes:
       label: Output of Dev Console
-      description: Give the output of the Developer Console (chrome-based: F12, Firefox: ctrl + shift + i (mac: option + shift + i) and console)
+      description: Give the output of the Developer Console.
       placeholder: "Dev Console Output Here"
     validations:
       required: true
