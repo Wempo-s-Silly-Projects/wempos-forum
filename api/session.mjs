@@ -89,10 +89,9 @@ function validateNewCredentials(body) {
   return { username, usernameKey: username.toLowerCase(), password: body.password };
 }
 
-function expiredCookie() {
-  // Same wave: the clear answers the __Host- name — the prefix contract makes
-  // "; Secure" a requirement even on the Max-Age=0 overwrite, or the deletion
-  // itself is rejected.
+// __Host- wave: the clear rides the prefixed name; Secure is unconditional
+// with it.
+function expiredCookie(request) {
   return "__Host-wempo_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure";
 }
 
@@ -100,13 +99,24 @@ async function handleSessionRoute(request, env, url, path, method) {
   if (path === "/api/session" && method === "GET") {
     const existing = await readSession(request, env);
     if (existing) {
+      // __Host- wave: a legacy-named cookie self-migrates on the boot GET —
+      // the same token re-issued under the prefixed name plus the legacy
+      // clear, both riding this one response (Headers.append for the pair).
+      const migrateHeaders = () => {
+        const headers = securityHeaders(new Headers());
+        for (const cookie of existing.migrateCookies) headers.append("Set-Cookie", cookie);
+        return headers;
+      };
       // Guest-shaped sessions carry no user and must not report a count.
-      if (!existing.user) return json({ user: existing.user, csrfToken: existing.csrfToken });
+      if (!existing.user) {
+        return json({ user: existing.user, csrfToken: existing.csrfToken }, 200,
+          existing.migrateCookies ? migrateHeaders() : undefined);
+      }
       return json({
         user: existing.user,
         csrfToken: existing.csrfToken,
         unreadNotifications: await unreadCount(env, existing.user.id),
-      });
+      }, 200, existing.migrateCookies ? migrateHeaders() : undefined);
     }
     await rateLimit(request, env, "guest-session");
     const created = await createSession(request, env);
@@ -265,7 +275,7 @@ async function handleLogoutRoute(request, env, url, path, method) {
     await db.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(session.tokenHash).run();
     return new Response(null, {
       status: 204,
-      headers: securityHeaders(new Headers({ "Cache-Control": "no-store", "Set-Cookie": expiredCookie() })),
+      headers: securityHeaders(new Headers({ "Cache-Control": "no-store", "Set-Cookie": expiredCookie(request) })),
     });
   }
   return null;

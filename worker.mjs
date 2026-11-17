@@ -46,7 +46,6 @@ import { handleTotpRoutes } from "./api/twofa.mjs";
 import { handleAccountsRoutes } from "./api/accounts.mjs";
 import { ensureFilterWords, handleFilterAdminRoutes } from "./api/filterstore.mjs";
 import { handleRelayRoutes, relayWorkerStamp } from "./api/relay.mjs";
-import { pendingCookieMigration } from "./api/core/auth.mjs";
 
 export { canViewPost } from "./api/core/visibility.mjs";
 export { isValidUsername } from "./api/core/shapers.mjs";
@@ -94,33 +93,6 @@ function notFound(request, env, url, path) {
 // replaces the inlined handlers-for-loop, built once from the vendor import.
 const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
-
-// The legacy-cookie migration funnel (GC_LEGACY_COOKIE_NAME, core/auth.mjs):
-// a read that matched ONLY the legacy session cookie leaves a pending pair on
-// the request — the SAME token re-issued under the __Host- name (Secure
-// unconditional, the prefix contract) plus the legacy cookie cleared with
-// Max-Age=0 — attached here to whatever the route answered, so one
-// authenticated request self-migrates the session with zero DB writes. The
-// fallback and this hook are a NAMED cleanup row: removed once a full cycle's
-// ledger shows zero live legacy-name hits. Existing Set-Cookie values ride
-// through getSetCookie() (per-value, never comma-merged); an error path
-// (errorReply) carries no migration — only an answered read migrates.
-function withPendingCookieMigration(request, response) {
-  if (!response) return response;
-  const migration = pendingCookieMigration(request);
-  if (!migration) return response;
-  const existing = response.headers.getSetCookie
-    ? response.headers.getSetCookie()
-    : (response.headers.has("Set-Cookie") ? [response.headers.get("Set-Cookie")] : []);
-  const headers = new Headers(response.headers);
-  headers.delete("Set-Cookie");
-  for (const cookie of [...existing, ...migration]) headers.append("Set-Cookie", cookie);
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
-}
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
 // the build it came with (VERSION@COMMIT_SHA) as a <meta> tag. The client
@@ -185,10 +157,7 @@ async function routeApi(request, env, ctx) {
     await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
   }
 
-  return withPendingCookieMigration(
-    request,
-    await answerApiRoute(request, env, url, path, method, ctx),
-  );
+  return answerApiRoute(request, env, url, path, method, ctx);
 }
 
 export default {

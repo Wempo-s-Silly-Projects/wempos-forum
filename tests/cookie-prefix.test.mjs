@@ -17,22 +17,15 @@
 // see <https://www.gnu.org/licenses/>.
 
 // The __Host- wave's regression lane: the mint shape carries the prefixed,
-// always-Secure name; the legacy bare name still reads and self-migrates —
-// readSession marks the request (WeakMap, zero DB writes) with the pending
-// pair, and the worker's ONE funnel (withPendingCookieMigration) appends the
-// SAME token re-issued under the prefixed name plus the legacy clear. This
-// file comes out on the named cleanup row.
+// always-Secure name; the legacy bare name still reads; and a legacy hit
+// that resolves a live row self-migrates — migrateCookies re-issues the SAME
+// token under the prefixed name plus clears the legacy bare name, with no
+// session rewrite. This file comes out on the named cleanup row.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
-import { pendingCookieMigration, readSession, createSession } from "../api/core/auth.mjs";
+import { createSession, readSession } from "../api/core/auth.mjs";
 
 const SESSION_TOKEN = "A".repeat(44);
-
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-const WORKER_SOURCE = readFileSync(path.resolve(HERE, "../worker.mjs"), "utf-8");
 
 // Recording fake db (mirrors tests/backup-codes.test.mjs): statements are
 // recorded at bind time, and run() answers the changes count.
@@ -77,51 +70,40 @@ function sessionRequest(cookieName, token) {
 }
 
 test("the mint always rides the prefixed name with unconditional Secure", async () => {
+  const db = fakeDb();
   const session = await createSession(sessionRequest("__Host-wempo_session", SESSION_TOKEN),
-    { FORUM_DB: fakeDb() }, 2);
+    { FORUM_DB: db }, 2);
   assert.ok(session.setCookie.startsWith("__Host-wempo_session="),
     "login mints the prefixed cookie name");
-  assert.ok(!session.setCookie.startsWith("wempo_session="), "no bare legacy mint");
+  assert.ok(!session.setCookie.includes("wempo_session=;"), "no bare legacy mint");
   assert.ok(session.setCookie.includes("; Path=/; HttpOnly; SameSite=Lax; Max-Age="),
     "the prefix contract's cookie attributes stay intact");
   assert.ok(session.setCookie.endsWith("; Secure"), "Secure is unconditional");
 });
 
-test("a legacy-only hit authenticates and marks the request with the migration pair", async () => {
-  const request = sessionRequest("wempo_session", SESSION_TOKEN);
-  const session = await readSession(request,
+test("the legacy bare name still reads and self-migrates on a live row", async () => {
+  const session = await readSession(sessionRequest("wempo_session", SESSION_TOKEN),
     { FORUM_DB: fakeDb({ "FROM sessions s LEFT JOIN users": SESSION_ROW }) });
   assert.ok(session, "the legacy cookie still resolves the live row");
-  const migration = pendingCookieMigration(request);
-  assert.ok(Array.isArray(migration) && migration.length === 2,
-    "the WeakMap mark carries the pending pair");
-  assert.match(
-    migration[0],
-    /^__Host-wempo_session=A{44}; Path=\/; HttpOnly; SameSite=Lax; Max-Age=\d+; Secure$/,
-    "the SAME token re-issues under the prefixed name (Secure unconditional)",
-  );
-  assert.equal(migration[1],
+  assert.equal(session.migrateCookies.length, 2);
+  assert.ok(session.migrateCookies[0].startsWith("__Host-wempo_session=" + SESSION_TOKEN + ";"),
+    "the SAME token re-issues under the prefixed name");
+  assert.ok(session.migrateCookies[0].endsWith("; Secure"), "the migration re-issue stays Secure");
+  assert.equal(session.migrateCookies[1],
     "wempo_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
     "the bare legacy name clears alongside");
 });
 
-test("a prefixed hit reads with no pending pair", async () => {
-  const request = sessionRequest("__Host-wempo_session", SESSION_TOKEN);
-  const session = await readSession(request,
+test("a prefixed hit reads without migration baggage", async () => {
+  const session = await readSession(sessionRequest("__Host-wempo_session", SESSION_TOKEN),
     { FORUM_DB: fakeDb({ "FROM sessions s LEFT JOIN users": SESSION_ROW }) });
   assert.ok(session, "the prefixed cookie resolves the live row");
-  assert.equal(pendingCookieMigration(request), null,
-    "no mark rides a cookie already at the prefixed name");
+  assert.ok(!("migrateCookies" in session),
+    "no migration rides a cookie already at the prefixed name");
 });
 
-test("an unparseable legacy token stays null and never marks", async () => {
-  const request = sessionRequest("wempo_session", "short");
-  const session = await readSession(request, { FORUM_DB: fakeDb() });
+test("an unparseable legacy cookie still answers null", async () => {
+  const session = await readSession(sessionRequest("wempo_session", "short"),
+    { FORUM_DB: fakeDb() });
   assert.equal(session, null, "the fallback keeps readSession's token-shape gate");
-  assert.equal(pendingCookieMigration(request), null, "the dead request marks nothing");
-});
-
-test("the funnel hook is structural: worker imports the auth export and wraps the one route answer", () => {
-  assert.match(WORKER_SOURCE, /import \{ pendingCookieMigration \} from "\.\/api\/core\/auth\.mjs"/);
-  assert.match(WORKER_SOURCE, /withPendingCookieMigration\(\s*request,\s*await answerApiRoute/);
 });
