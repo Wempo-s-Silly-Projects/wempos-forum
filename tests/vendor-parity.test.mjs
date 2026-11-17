@@ -147,3 +147,142 @@ test("the re-exported cursor codecs round-trip, and the gate SQL rides the vendo
     "staff reads bypass the wall, exactly as before the migration");
   assert.equal(blocks.viewerBlockFilterSql({ id: 9, role: "member" }, "author_id"), blocks.blockFilterSql("author_id"));
 });
+
+// --- wave 1 (browser pins): public/js/vendor/ rides the same law ------------
+
+// The browser half of the vendoring: the framework modules under public/
+// are NOT an app-owned copy either — each rides a byte-pin to its source
+// path in /Users/itswempo/project-designer (the framework root, which is
+// where frontload/ and designer/ live; the api pins above stay rooted in
+// experience/ because that is where http.mjs and db.mjs are vendored from).
+// The designer/kit.mjs import of "../frontload/dom.mjs" is load-bearing:
+// the vendored subpaths keep the framework's own shape so the relative
+// import resolves inside the vendored tree untouched.
+const PROJECT_DESIGNER_DIR = path.resolve(HERE, "..", "..", "project-designer");
+const BROWSER_VENDOR_DIR = path.resolve(HERE, "..", "public", "js", "vendor");
+
+// The browser ledger: every file under public/js/vendor/ gets a byte-pin
+// line here; the coverage test below makes a pin-less file un-representable
+// (drift is un-representable in BOTH directions, exactly as the api ledger).
+const BROWSER_VENDORED = [
+  ["frontload/dom.mjs", "frontload/dom.mjs"],
+  ["frontload/tokens.mjs", "frontload/tokens.mjs"],
+  ["designer/kit.mjs", "designer/kit.mjs"],
+];
+
+for (const [vendoredPath, sourcePath] of BROWSER_VENDORED) {
+  test(`public/js/vendor/${vendoredPath} is byte-identical to the Kitskey framework source`, () => {
+    assert.equal(
+      readFileSync(path.join(BROWSER_VENDOR_DIR, vendoredPath), "utf8"),
+      readFileSync(path.join(PROJECT_DESIGNER_DIR, sourcePath), "utf8"),
+    );
+  });
+}
+
+test("the browser ledger covers every .mjs file in public/js/vendor/", () => {
+  const onDisk = readdirSync(BROWSER_VENDOR_DIR, { recursive: true })
+    .map(String)
+    .filter((name) => name.endsWith(".mjs"));
+  assert.deepEqual(
+    onDisk.sort(),
+    BROWSER_VENDORED.map(([name]) => name).sort(),
+    "a vendored file without a ledger line is drifting un-pinned",
+  );
+});
+
+// The boot seam, not the framework's internals (the kit's own tests own
+// those upstream): the engine instance is configured on the forum's OWN
+// storage-key family, and the skin read is inert today — no forum skin
+// exists, so every read lands the default skin the consuming stylesheet
+// does not key on yet.
+test("boot.mjs stands the appearance engine up on the forum's storage-key family", async () => {
+  const boot = await import("../public/js/boot.mjs");
+  assert.equal(boot.THEME_STORAGE_KEY, "forum-theme", "the theme home is theme.js's own");
+  assert.equal(boot.SKIN_STORAGE_KEY, "forum-skin", "the skin key is family-shaped and reserved");
+  const storage = {
+    getItem: (key) => (key === "forum-theme" ? "dark" : null),
+    setItem() {},
+  };
+  assert.equal(boot.appearance.readThemePreference(storage), "dark",
+    "the engine reads the SAME home theme-preload.js and theme.js own");
+  assert.equal(boot.appearance.readSkinPreference(storage), "brand",
+    "no skin choice exists on the forum; every read lands the inert default");
+});
+
+// The boot apply must be exactly what theme.js already paints: the same
+// theme resolution theme.js ships (through the same key), the same two
+// theme-color colors, the skin attribute inert — and the corner preference
+// untouched, because it is theme.js's app chrome, not the engine's.
+test("the boot apply re-solves the theme through the key and lands the skin inert", async () => {
+  const boot = await import("../public/js/boot.mjs");
+  const metas = [];
+  const doc = {
+    // defaultView null = the headless read: the OS preference is off, so an
+    // unchosen member resolves light, exactly as a matchMedia-less doc does.
+    defaultView: null,
+    documentElement: { dataset: {} },
+    querySelectorAll: (selector) => (
+      selector === 'meta[name="theme-color"]' ? metas : []
+    ),
+  };
+  const storage = { getItem: () => null };
+
+  const applied = boot.appearance.applyAppearance(doc, storage);
+
+  assert.deepEqual(applied, { theme: "light", skin: "brand" },
+    "an unchosen preference resolves through the OS, exactly as theme.js does");
+  assert.equal(doc.documentElement.dataset.theme, "light", "the attribute is always set on apply");
+  assert.equal(doc.documentElement.dataset.skin, "brand",
+    "the skin attribute lands inert; styles.css consumes no data-skin yet");
+  assert.ok(!("corners" in doc.documentElement.dataset),
+    "the corner preference stays theme.js's app chrome");
+
+  // The engine's chrome repaint carries the forum's palette — the same
+  // colors theme.js's BROWSER_CHROME_COLORS map holds for both themes.
+  for (const [theme, color] of [["light", "#f7efdc"], ["dark", "#131b27"]]) {
+    metas.length = 0;
+    const metaA = { content: null };
+    metas.push(metaA);
+    boot.appearance.applyChromeColor(doc, applied.skin, theme);
+    assert.equal(metaA.content, color, `theme-color ${theme} is the forum's own`);
+  }
+});
+
+// The dom seam the route waves ride: an injected document (the useDocument
+// install) is the only document el() needs, and user text rides
+// textContent — the house rule the report-wave flows lean on.
+test("frontload/dom's el() builds textContent-safe nodes against the injected document", async () => {
+  const dom = await import("../public/js/vendor/frontload/dom.mjs");
+  const fakeDocument = {
+    createElement(tag) {
+      const node = {
+        tag,
+        children: [],
+        dataset: {},
+        attrs: {},
+        className: "",
+        textContent: "",
+        append(...nodes) {
+          this.children.push(...nodes);
+        },
+        setAttribute(key, value) {
+          this.attrs[key] = value;
+        },
+        addEventListener() {},
+      };
+      return node;
+    },
+  };
+  dom.useDocument(fakeDocument);
+
+  try {
+    const node = dom.el("p", { class: "muted", text: "<b>not markup</b>" }, "tail");
+    assert.equal(node.className, "muted");
+    assert.equal(node.textContent, "<b>not markup</b>", "user text rides textContent, never markup");
+    assert.deepEqual(node.children, ["tail"], "children append node-wise");
+  } finally {
+    // Restore the module's own default ref so the fake document never
+    // leaks into a later use of the same module instance.
+    dom.useDocument(globalThis.document ?? null);
+  }
+});

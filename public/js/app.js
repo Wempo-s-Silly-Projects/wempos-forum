@@ -1,3 +1,9 @@
+// 5.0 wave 1: the vendored framework's boot wiring runs at import —
+// useDocument(document) plus the appearance engine on the forum's key
+// family. theme.js and theme-preload.js keep the toggle, the corner
+// preference, and the pre-paint paint in full this wave (no behavior
+// change); the route waves consume boot.mjs's exports from here on.
+import "./boot.mjs";
 import { api, setCsrfToken } from "./api.js";
 import { addText } from "./forms.js";
 import { renderBannedScreen } from "./banned.js";
