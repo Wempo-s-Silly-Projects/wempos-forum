@@ -109,7 +109,7 @@ async function renderPostReportRoute(route, context, version) {
   // family is single-line fields.
   const wrapper = el("div", { class: "form-field" });
   const reasonLabel = el("label", { text: "Reason" });
-  const reason = el("textarea", { name: "reason", maxLength: 500, required: true });
+  const reason = el("textarea", { name: "reason", rows: 4, maxLength: 500, required: true });
   reason.setAttribute("id", "report-page-reason");
   reasonLabel.setAttribute("for", "report-page-reason");
   const note = el("small", { class: "form-note", text: "Up to 500 characters — say what a mod should look at." });
