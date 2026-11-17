@@ -16,6 +16,12 @@ import { readdirSync, readFileSync } from "node:fs";
 
 const CORE_DIR_URL = new URL("../api/core/", import.meta.url);
 const CONSTANTS_URL = new URL("../constants.mjs", import.meta.url);
+// The one extension at the BOTTOM of the ladder: api/vendor/ holds the
+// vendored Project Kitskey framework files (phase 1 of the approved
+// migration), byte-pinned to the framework source by
+// tests/vendor-parity.test.mjs. Framework code may not import app code, so
+// this stays the lowest layer — vendored files import nothing but themselves.
+const VENDOR_DIR_URL = new URL("../api/vendor/", import.meta.url);
 
 // The layer rule as a pure function so its decisions are unit-testable:
 // is this import target legal from a core file? Judged on the RESOLVED
@@ -28,6 +34,7 @@ function coreImportIsLegal(target, fileUrl) {
     return false; // unparseable target: reject, never guess
   }
   if (resolved.href === CONSTANTS_URL.href) return true;
+  if (resolved.href.startsWith(VENDOR_DIR_URL.href)) return true; // vendored Kitskey
   return resolved.href.startsWith(CORE_DIR_URL.href);
 }
 
@@ -36,6 +43,8 @@ test("core import rule: sibling + constants leaf legal; escapes rejected on reso
   const cases = [
     ["./crypto.mjs", true], // sibling core file
     ["../../constants.mjs", true], // the root data leaf
+    ["../vendor/http.mjs", true], // vendored Kitskey framework files (byte-pinned)
+    ["../vendor/../shared.mjs", false], // "resolves inside core" alone is never enough
     ["./../shared.mjs", false], // "./" prefix escaping core — the bypass
     ["../shared.mjs", false], // shared.mjs is a topic-adjacent file, not core
     ["../posts.mjs", false], // topic modules are strictly above the ladder
@@ -61,7 +70,7 @@ test("core modules import nothing outside core/", () => {
     for (const target of imports) {
       assert.ok(
         coreImportIsLegal(target, fileUrl),
-        `${name} imports "${target}" — core files may only import sibling core files or the root constants leaf`,
+        `${name} imports "${target}" — core files may only import sibling core files, the vendored Kitskey files, or the root constants leaf`,
       );
     }
   }
