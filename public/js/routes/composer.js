@@ -97,9 +97,11 @@ function restoreDraft(form) {
 // category <select> instead — submitNewPost reads its value the same way.
 function createComposer(name, label, buttonLabel, postID = null,
   turnstileAction = null, board = null, boardChoices = null) {
-  const composer = panel(board === "suggestions"
-    ? "Share a suggestion"
-    : name === "post-create" ? "Start a conversation" : "Reply");
+  const composer = panel({
+    title: board === "suggestions"
+      ? "Share a suggestion"
+      : name === "post-create" ? "Start a conversation" : "Reply",
+  });
   const form = el("form", {
     dataset: { form: name, ...(postID !== null ? { postId: String(postID) } : {}),
       ...(board ? { board } : {}) },
