@@ -5,18 +5,17 @@
 // and the author's delete dialogs. Bodies moved verbatim out of app.js; bare
 // renderRoute calls inside moved bodies re-read the boot state
 // (state.renderRoute). The profile wall renders via ../wall.js.
+// 5.0 wave 5: the profile surface re-expresses on the vendored framework —
+// el() and the kit's heading/text/panel/input family — and the wave's axe
+// lands: the on-site change-password lane (its FORM_HANDLERS entry and
+// submit) retires with the form the feed's account settings dropped; the
+// PATCH /api/me/password plumbing stays for Wempo Accounts' dashboard. The
+// confirm dialogs stay dialogs (fast confirmations), the 2FA/codes surfaces
+// stay untouched (deferred-pending-dashboard, kit-free this wave).
+import { el } from "../vendor/frontload/dom.mjs";
+import { addHeading, addSubmit, addText, createInput, panel } from "../vendor/designer/kit.mjs";
 import { api, setCsrfToken } from "../api.js";
-import {
-  addHeading,
-  addSubmit,
-  confirmDialog,
-  createPanel,
-  element,
-  main,
-  openConfirmDialog,
-  setMessage,
-} from "../dom.js";
-import { addText, createInput } from "../forms.js";
+import { confirmDialog, main, setMessage, openConfirmDialog } from "../dom.js";
 import { state } from "../state.js";
 import { formatBanCountdown } from "../banned.js";
 import {
@@ -35,7 +34,7 @@ async function renderProfileRoute(route, context, version) {
   // render the plain unavailable strip instead of the surface.
   if (profile.unavailable) {
     addHeading(main, "Profile unavailable", 1);
-    addText(document, main, "p", "This profile is not available to you.", "empty-state");
+    addText(main, "This profile is not available to you.", "empty-state");
     return;
   }
   renderProfile(profile, context.session);
@@ -56,8 +55,7 @@ function applyProfileTheme(profile) {
   if (!profile.customCss) return;
   // A same-origin STYLESHEET link (style-src 'self' allows it — no CSP
   // change); the scoped css is a fetched css URL, never an inline <style>.
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
+  const link = el("link", { rel: "stylesheet" });
   link.href = "/api/users/" + themeId + "/profile.css";
   document.head.append(link);
   activeProfileStyleNode = link;
@@ -103,9 +101,9 @@ function renderProfile(profile, session) {
   if (profile.profileAccent) {
     main.style.setProperty("--profile-accent", profile.profileAccent);
   }
-  const heading = element("section", "profile-heading");
+  const heading = el("section", { class: "profile-heading" });
   if (profile.avatarUrl) {
-    const image = element("img", "avatar profile-avatar");
+    const image = el("img", { class: "avatar profile-avatar" });
     image.src = profile.avatarUrl;
     image.alt = `Avatar of ${profile.username}`;
     heading.append(image);
@@ -115,27 +113,24 @@ function renderProfile(profile, session) {
   // milestone badge (v2.5, display-only, computed from the counter). The
   // role badge (v3.1) leads the row for staff — Owner or Admin, from the
   // server-mapped public role; members carry "member" and get nothing.
-  const flairRow = element("p", "profile-flair-row");
+  const flairRow = el("p", { class: "profile-flair-row" });
   if (profile.role === "owner" || profile.role === "admin") {
-    flairRow.append(element("span",
-      "role-badge role-badge-" + profile.role,
-      profile.role === "owner" ? "Owner" : "Admin"));
+    flairRow.append(el("span", { class: "role-badge role-badge-" + profile.role, text: profile.role === "owner" ? "Owner" : "Admin" }));
   }
-  if (profile.flair) flairRow.append(element("span", "profile-flair", profile.flair));
+  if (profile.flair) flairRow.append(el("span", { class: "profile-flair", text: profile.flair }));
   const badgeText = profileBadgeFor(Number(profile.postsCount || 0) + Number(profile.repliesCount || 0));
-  if (badgeText) flairRow.append(element("span", "profile-badge", badgeText));
+  if (badgeText) flairRow.append(el("span", { class: "profile-badge", text: badgeText }));
   if (flairRow.children.length) heading.append(flairRow);
   // Per-user post counter (v2.5): threads started + replies written, in the
   // profile heading (muted; display-only).
-  heading.append(element("p", "profile-post-counts",
-    `${Number(profile.postsCount || 0)} posts · ${Number(profile.repliesCount || 0)} replies`));
+  heading.append(el("p", { class: "profile-post-counts", text: `${Number(profile.postsCount || 0)} posts · ${Number(profile.repliesCount || 0)} replies` }));
   // Banner (any hex, v3.0.2): the hex rides --banner-color (the CSS default
   // stays transparent for none) + the filtered banner text.
   if (profile.bannerColor) {
     main.style.setProperty("--banner-color", profile.bannerColor);
   }
-  const banner = element("div", "profile-banner");
-  if (profile.bannerText) banner.append(element("span", "profile-banner-text", profile.bannerText));
+  const banner = el("div", { class: "profile-banner" });
+  if (profile.bannerText) banner.append(el("span", { class: "profile-banner-text", text: profile.bannerText }));
   banner.hidden = !profile.bannerColor && !profile.bannerText;
   // The heading is appended AFTER this block — insertBefore on a not-yet-
   // attached node throws (the owner hit exactly that on the live site);
@@ -145,13 +140,13 @@ function renderProfile(profile, session) {
   // payload does not carry avatarStatus), so only the owner sees the badge —
   // everyone else just sees the currently approved avatar.
   if (session.user?.id === profile.id && session.user.avatarStatus === "pending") {
-    heading.append(element("span", "avatar-pending-badge", "Avatar awaiting review"));
+    heading.append(el("span", { class: "avatar-pending-badge", text: "Avatar awaiting review" }));
   }
   if (session.user && session.user.id !== profile.id) {
     // Blocks (v4.4): the Block toggle lives beside the report control. Once a
     // pair exists this profile becomes unavailable (both directions), so the
     // Unblock controls live in the account settings' blocked-members list.
-    const blockButton = element("button", "button button-quiet", "Block");
+    const blockButton = el("button", { class: "button button-quiet", text: "Block" });
     blockButton.type = "button";
     blockButton.dataset.action = "block-user";
     blockButton.dataset.profileId = String(profile.id);
@@ -159,7 +154,7 @@ function renderProfile(profile, session) {
     heading.append(blockButton);
     // Report-a-profile (v2.5): the bio/flair/banner/css surface is
     // reportable like post content — same desk, same resolve flow.
-    const reportProfile = element("button", "button button-quiet", "Report profile");
+    const reportProfile = el("button", { class: "button button-quiet", text: "Report profile" });
     reportProfile.type = "button";
     reportProfile.dataset.action = "report-profile";
     reportProfile.dataset.profileId = String(profile.id);
@@ -178,9 +173,9 @@ function renderProfile(profile, session) {
         (formatBanCountdown(profile.banExpiresAt) || "0m") + ".";
     }
     if (profile.banReason) banText += " Reason: " + profile.banReason;
-    main.append(element("p", "profile-banned-banner", banText));
+    main.append(el("p", { class: "profile-banned-banner", text: banText }));
   }
-  addText(document, main, "p", profile.bio || "This member hasn't added a bio yet.", "profile-bio");
+  addText(main, profile.bio || "This member hasn't added a bio yet.", "profile-bio");
   appendProfileSocials(profile, session.user?.id === profile.id);
   if (session.user?.id === profile.id) {
     // Bio (10,000 chars) plus the ten social fields; submission re-fetches the
@@ -195,10 +190,9 @@ function renderProfile(profile, session) {
         await state.renderRoute(state.activeRoute);
       });
     }
-    const pictures = createPanel("Profile picture",
-      "Uploads are reviewed by mods before they appear publicly.");
-    const avatarForm = document.createElement("form");
-    avatarForm.dataset.form = "avatar";
+    const pictures = panel({ title: "Profile picture",
+      description: "Uploads are reviewed by mods before they appear publicly." });
+    const avatarForm = el("form", { dataset: { form: "avatar" } });
     avatarForm.append(createInput(document, {
       id: "profile-avatar", name: "avatar", label: "Profile picture (JPEG, PNG, or WebP; up to 1 MiB)",
       type: "file", accept: "image/jpeg,image/png,image/webp", required: true,
@@ -224,10 +218,8 @@ function appendProfileRoleControls(profile, session, container) {
   const [formName, label] = profile.role === "member"
     ? ["admin-promote", "Promote to admin"]
     : ["admin-demote", "Demote to member"];
-  const form = document.createElement("form");
-  form.dataset.form = formName;
-  form.dataset.userId = String(profile.id);
-  const button = element("button", "button button-secondary", label);
+  const form = el("form", { dataset: { form: formName, userId: String(profile.id) } });
+  const button = el("button", { class: "button button-secondary", text: label });
   button.type = "submit";
   form.append(button);
   container.append(form);
@@ -266,15 +258,6 @@ async function submitAvatarForm(values) {
   await api("/api/me/avatar", { method: "POST", body: upload });
   await state.renderRoute({ name: "profile", username: state.currentUser.username });
   setMessage("Your profile picture was updated.");
-}
-
-async function submitPasswordForm(text) {
-  await api("/api/me/password", {
-    method: "PATCH",
-    body: { currentPassword: text("currentPassword"), newPassword: text("newPassword") },
-  });
-  await state.renderRoute({ name: "home" });
-  setMessage("Your password was changed. Other signed-in sessions were revoked.");
 }
 
 // Post deletion (v2.4.1 feature): the confirm dialog's copy comes from the
@@ -360,7 +343,9 @@ function appendProfileSocials(profile, isOwnProfile) {
 export const FORM_HANDLERS = {
   "profile-editor": (form, text) => submitProfileEditorForm(form, text),
   avatar: (form, text, values) => submitAvatarForm(values),
-  password: (form, text) => submitPasswordForm(text),
+  // The "password" entry retires with the change-password form (wave 5's axe,
+  // ruling A1): Wempo Accounts' dashboard owns password writes; the forum's
+  // PATCH /api/me/password plumbing stays for that lane alone.
 };
 
 export const ACTIONS = {

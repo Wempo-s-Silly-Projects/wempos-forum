@@ -24,8 +24,6 @@ import { el } from "../vendor/frontload/dom.mjs";
 import {
   addHeading,
   addText,
-  createForm,
-  createInput,
   createStore,
   panel,
 } from "../vendor/designer/kit.mjs";
@@ -38,7 +36,7 @@ import { renderBlockedSettings } from "./blocks.js";
 import { createComposer } from "./composer.js";
 // The §4b door-swap: the guests' sign-in prompts (mine/bookmarks gates) are
 // the Accounts handoff — the join panel they used to point at is gone.
-import { wempoAccountsSignInUrl } from "../sso.js";
+import { WEMPO_ACCOUNTS_ORIGIN, wempoAccountsSignInUrl } from "../sso.js";
 import { appendPostList } from "../render.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
@@ -214,18 +212,21 @@ function renderAccountSettings(session) {
     document.documentElement.dataset.corners = square ? "square" : "round";
   });
 
+  // The password axe (5.0 wave 5, ruling A1): the on-site change-password
+  // form LEAVES the forum UI — Wempo Accounts' dashboard owns password
+  // writes now, and the forum's PATCH /api/me/password plumbing stays for
+  // the dashboard's lane. The instruction takes the form's seat (the rethink:
+  // an empty spot names the action).
   const passwordPanel = panel({ title: "Change your password",
-    description: "There is no email-based recovery; choose a password you can keep safe." });
-  passwordPanel.append(createForm(document, "password", [
-    createInput(document, {
-      id: "current-password", name: "currentPassword", label: "Current password",
-      type: "password", autoComplete: "current-password", required: true, minLength: 12, maxLength: 128,
-    }),
-    createInput(document, {
-      id: "new-password", name: "newPassword", label: "New password",
-      type: "password", autoComplete: "new-password", required: true, minLength: 12, maxLength: 128,
-    }),
-  ], "Update password"));
+    description: "Passwords change on Wempo Accounts now — the dashboard owns the change and its session revocation; the forum keeps no local lane. There is no email-based recovery there either." });
+  const accountsLink = el("a", {
+    class: "button button-secondary sso-entry-button",
+    href: WEMPO_ACCOUNTS_ORIGIN,
+    text: "Change it on Wempo Accounts",
+  });
+  // Cross-origin jump: the SPA's internal navigation must not intercept it.
+  accountsLink.setAttribute("data-external-link", "");
+  passwordPanel.append(accountsLink);
   account.append(passwordPanel);
   // Delete account control (v2.4.1 feature): lives in the signed-in account
   // settings area only (this renderer never runs for guests), confirming
