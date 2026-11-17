@@ -1,0 +1,131 @@
+name: Bug report
+description: Report reproducible broken behavior in Wempo's Forum.
+title: "[Bug]: "
+labels:
+  - kind:bug
+  - status:needs-triage
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the template below with as much detail as possible to help us investigate and fix the issue. If you're not sure about something, just do your best to provide any relevant information.
+
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the bug you encountered.
+      options:
+        - label: I have searched the existing issues
+          required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken?
+      placeholder: "Example: Wempo's Forum crashes when uploading a file of the wrong file type"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: What browser(s) does this happen on?
+      description: Pick all browsers where this happens.
+      multiple: true
+      options:
+        - Mozilla Firefox
+        - Google Chrome
+        - Microsoft Edge
+        - Other (please specify)
+    validations:
+      required: true
+
+  - type: input
+    id: browserother
+    attributes:
+      label: Browser (If Other is chosen)
+      description: What exact browser are you using?
+      placeholder: "Browser"
+    validations:
+      required: false
+
+  - type: input
+    id: devconsole
+    attributes:
+      label: Output of Dev Console
+      description: Give the output of the Developer Console (chrome-based: F12, Firefox: ctrl + shift + i (mac: option + shift + i) and console)
+      placeholder: "Dev Console Output Here"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: extensions
+    attributes:
+      label: Did you have any extensions on?
+      description: If so, try without any extensions on.
+      opptions:
+        - label: I have verified the issue happens without extensions
+          required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: List the exact steps to reproduce the bug, including any specific actions, inputs, or conditions. The more detailed you are, the easier it will be for us to investigate and fix the issue.
+      placeholder: |
+        1. Open Site
+        2. Go to ...
+        3. Click ...
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Describe what you expected to happen.
+      placeholder: "What should happen instead?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Describe what actually happened.
+      placeholder: "What happened?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Screenshots or video
+      description: Attach media or a minimal sample to help reproduce the bug.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Reproducibility
+      description: How often does this happen? If you can only reproduce it once, please try to reproduce it a few more times to confirm whether it's a consistent issue or a one-time occurrence.
+      options:
+        - Always
+        - Often
+        - Sometimes
+        - Rarely
+        - Could not reproduce again
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra_details
+    attributes:
+      label: Additional details
+      description: Anything else you want to add about the bug?
+    validations:
+      required: false
