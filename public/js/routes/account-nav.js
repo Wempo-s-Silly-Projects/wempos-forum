@@ -2,9 +2,13 @@
 // v4.0 plan 4 Task 9: the header chrome — renderAccountNavigation (mobile
 // bar identity, the site-section icon links, chat toggle, profile/saved/
 // bell/shield, sign-in toggle) plus the logout action its quiet
-// button dispatches. Bodies moved verbatim out of app.js.
+// button dispatches. Bodies moved verbatim out of app.js. 5.0 wave 7
+// re-expresses the builders on the vendored kit; the static index.html ids
+// (mobile-signin/mobile-profile) stay load-bearing — the bar's identity and
+// active-state lookups probe them BY ID, so the markup keeps them.
+import { el } from "../vendor/frontload/dom.mjs";
 import { api, setCsrfToken } from "../api.js";
-import { accountActions, element } from "../dom.js";
+import { accountActions } from "../dom.js";
 import { iconButton } from "../icons.js";
 import { createNotificationBell } from "../notifications.js";
 // The §4b door-swap: every auth link (header Sign in, mobile guest rung)
@@ -85,6 +89,23 @@ function normaliseUnreadCount(value) {
     : 0;
 }
 
+// The unread system's mobile half (wave 7): the Alerts rung announces the
+// SAME way the feed tabs do — data-unread="true" plus an aria-label announce
+// — driven by the session's unread-notification count the route render
+// already carries. Zero unread renders nothing: the attribute is gone, so a
+// quiet surface never carries the announce (the wave-7 edge).
+function updateMobileBarUnread(unreadCount) {
+  const alerts = document.querySelector('.mobile-bar-item[href="/notifications"]');
+  if (!alerts) return;
+  if (normaliseUnreadCount(unreadCount) > 0) {
+    alerts.dataset.unread = "true";
+    alerts.setAttribute("aria-label", "Notifications (new notifications)");
+  } else {
+    delete alerts.dataset.unread;
+    alerts.setAttribute("aria-label", "Notifications");
+  }
+}
+
 function renderAccountNavigation(user, unreadNotifications = 0) {
   const currentUser = isValidUser(user) ? user : null;
 
@@ -93,6 +114,7 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   // The mobile bar's last item mirrors the session: Profile (signed in) --
   // the static markup ships a Sign-in item for guests; the id marks it.
   updateMobileIdentity(currentUser);
+  updateMobileBarUnread(currentUser ? unreadNotifications : 0);
 
   // Suggestions board link (v2.4.1): the header's site-section link, styled
   // exactly like the links around it and visible to guests and signed-in
@@ -117,11 +139,7 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
 
 
   if (!currentUser) {
-    const signIn = element(
-      "a",
-      "button button-secondary",
-      "Sign in",
-    );
+    const signIn = el("a", { class: "button button-secondary", text: "Sign in" });
 
     signIn.href = wempoAccountsSignInUrl(location.origin);
     signIn.setAttribute("data-app-link", "");
@@ -146,10 +164,7 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   );
 
   accountActions.append(
-    createNotificationBell(
-      normaliseUnreadCount(unreadNotifications),
-      document,
-    ),
+    createNotificationBell(normaliseUnreadCount(unreadNotifications)),
   );
 
   if (

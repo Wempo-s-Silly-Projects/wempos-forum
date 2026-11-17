@@ -1,9 +1,11 @@
 // v4.0 plan 4 Task 7: the notifications concern — the /notifications route
 // (guest gate + renderNotificationsPage for members) and its actions (mark
 // one read on open, mark all read). Bodies moved verbatim out of app.js.
+// 5.0 wave 7 re-expresses the route on the vendored kit.
+import { el } from "../vendor/frontload/dom.mjs";
+import { addHeading, addText } from "../vendor/designer/kit.mjs";
 import { api } from "../api.js";
-import { addHeading, element, main, setMessage } from "../dom.js";
-import { addText } from "../forms.js";
+import { main, setMessage } from "../dom.js";
 import { state } from "../state.js";
 import { renderNotificationsPage, updateBell } from "../notifications.js";
 // The §4b door-swap: the guest gate's sign-in prompt is the Accounts handoff.
@@ -12,8 +14,8 @@ import { wempoAccountsSignInUrl } from "../sso.js";
 async function renderNotificationsRoute(context, version) {
   if (!context.session.user) {
     addHeading(main, "Notifications", 1);
-    addText(document, main, "p", "Sign in to see your notifications.", "muted");
-    const signIn = element("a", "button button-secondary", "Sign in");
+    addText(main, "Sign in to see your notifications.", "muted");
+    const signIn = el("a", { class: "button button-secondary", text: "Sign in" });
     signIn.href = wempoAccountsSignInUrl(location.origin);
     main.append(signIn);
     return;

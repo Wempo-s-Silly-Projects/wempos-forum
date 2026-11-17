@@ -24,7 +24,6 @@ import { el } from "../vendor/frontload/dom.mjs";
 import {
   addHeading,
   addText,
-  createStore,
   panel,
 } from "../vendor/designer/kit.mjs";
 import { api } from "../api.js";
@@ -40,98 +39,20 @@ import { WEMPO_ACCOUNTS_ORIGIN, wempoAccountsSignInUrl } from "../sso.js";
 import { appendPostList } from "../render.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
+// The unified unread model lives in _kit.mjs (wave 7): the feed reads the
+// same store the chrome reads.
+import {
+  boardIsUnread,
+  markBoardVisited,
+  postActivityAt,
+  recordBoardActivity,
+} from "./_kit.mjs";
 
 // Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
 // its composer tags root posts with board=suggestions (form dataset flag read
 // by submitNewPost) and its empty state speaks the board's copy.
 const SUGGESTIONS_BOARD = "suggestions";
 const SUGGESTIONS_EMPTY_TEXT = "No suggestions yet — be the first!";
-
-// --- the unread model (the wave-7 seed's first surface) ----------------------
-// One client model the feed tabs read from. The member's own reads ride a
-// localStorage key in the forum's key family ("forum-board-visited" — a JSON
-// pair of { lastVisit, seen } maps); fresh activity rides the posts the feed
-// ALREADY fetches, because every serialized row carries its board slug and
-// its activity stamp. A board tab announces itself unread when served
-// activity is newer than the member's last read of that board (including
-// boards the member has never opened); reading the board marks it visited;
-// zero unread renders nothing — the wave-7 edge, held from day one. Wave 7
-// unifies this model with the bell, the mobile bar and the /mine view.
-const BOARD_READ_STORAGE_KEY = "forum-board-visited";
-
-// The kit store is the idiom the wave plan names for the route's module
-// state: get / set / subscribe over a plain object, and the store's own
-// subscriber is the persistence half — every set writes through under the
-// forum key, best-effort (privacy modes keep the announcements for this
-// page only).
-const boardReads = createStore(readBoardReadState());
-boardReads.subscribe((next) => {
-  try {
-    window.localStorage.setItem(BOARD_READ_STORAGE_KEY, JSON.stringify(next));
-  } catch {
-    // Persistence is best-effort; the model still drives this page.
-  }
-});
-
-function readBoardReadState() {
-  try {
-    const parsed = JSON.parse(window.localStorage.getItem(BOARD_READ_STORAGE_KEY) || "null");
-    return {
-      // Unknown stored shapes fall back to a silent start, never noise.
-      lastVisit: readableMap(parsed, "lastVisit"),
-      seen: readableMap(parsed, "seen"),
-    };
-  } catch {
-    // Malformed JSON or blocked storage: same silent start.
-    return { lastVisit: {}, seen: {} };
-  }
-}
-
-function readableMap(parsed, key) {
-  return parsed && typeof parsed === "object" &&
-    parsed[key] && typeof parsed[key] === "object" ? parsed[key] : {};
-}
-
-// postActivityAt: the row's own activity stamp (ms epoch; the serializer
-// ships camelCase — lastActivityAt when the board's activity was bumped,
-// the creation stamp otherwise).
-const postActivityAt = (post) => Number(post?.lastActivityAt ?? post?.createdAt) || 0;
-
-// The seen half: served feed rows advance their board's activity floor,
-// monotonically — an older page or a stale render never unmutes a board.
-function recordBoardActivity(posts) {
-  if (!Array.isArray(posts) || posts.length === 0) return;
-  const current = boardReads.get();
-  const seen = { ...current.seen };
-  let changed = false;
-  for (const post of posts) {
-    const board = post?.board;
-    // The whitelist IS boards.js's — an unknown slug is nothing to serve.
-    if (!board || !BOARD_BY_SLUG[board]) continue;
-    const at = postActivityAt(post);
-    if (at > (seen[board] || 0)) {
-      seen[board] = at;
-      changed = true;
-    }
-  }
-  if (changed) boardReads.set({ lastVisit: current.lastVisit, seen });
-}
-
-// The read half: opening the board's own route IS the member's read; the
-// floor is "now", lifted above anything served on the page so a slow clock
-// can never hang the unread state open.
-function markBoardVisited(slug) {
-  const current = boardReads.get();
-  boardReads.set({
-    seen: current.seen,
-    lastVisit: { ...current.lastVisit, [slug]: Math.max(Date.now(), current.seen[slug] || 0) },
-  });
-}
-
-const boardIsUnread = (slug) => {
-  const reads = boardReads.get();
-  return Boolean(reads.seen[slug]) && reads.seen[slug] > (reads.lastVisit[slug] || 0);
-};
 
 // --- empty states as instructions -------------------------------------------
 // The rethink's first route: a zero feed names the action. Where the composer
