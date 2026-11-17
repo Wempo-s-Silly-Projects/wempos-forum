@@ -19,8 +19,9 @@ import {
   securityHeaders as vendorSecurityHeaders,
 } from "../vendor/http.mjs";
 
-// The vendored surface, unchanged; errorReply arrives for the phase-2
-// worker.mjs migration (worker.mjs still carries its inline apiError twin).
+// The vendored surface, unchanged; since phase 2, worker.mjs consumes errorReply
+// and dispatch from here (the vendor import is theirs — one classifier, one
+// dispatch chain, no twin).
 export { HttpError, MAX_JSON_BYTES, errorReply };
 export const securityHeaders = vendorSecurityHeaders;
 export const json = vendorJson;

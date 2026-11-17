@@ -3,6 +3,10 @@
 // validates every Worker export as a function or ExportedHandler, so besides
 // the default fetch only `export { ... } from` re-exports appear here.
 import { HttpError, json, rateLimit, securityHeaders } from "./api/core/http.mjs";
+// Phase-2 Kitskey migration: the ONE error classifier and the dispatch chain
+// come from the vendored framework (core re-exports both; the byte-pin keeps
+// them identical). worker.mjs stops carrying its second copy of the mapping.
+import { dispatch, errorReply } from "./api/vendor/http.mjs";
 import { handleAuthRoutes } from "./api/session.mjs";
 import { handlePostRoutes } from "./api/posts.mjs";
 import { handleProfileRoutes } from "./api/profiles.mjs";
@@ -83,13 +87,21 @@ function unconditional(request) {
   return new Request(request.url, { method: request.method, headers });
 }
 
-function apiError(error) {
-  if (error instanceof HttpError) {
-    return json(error.payload || { error: error.message }, error.status, error.headers);
-  }
-  console.error("Forum request failed:", error);
-  return json({ error: "Something went wrong. Please try again." }, 500);
+// The API chain's not-found tail (phase-2 migration): the vendor dispatch
+// calls it when no handler matched — the two 404 copies this worker has
+// always carried, still THROWN so they classify through the one errorReply
+// chain instead of growing a rival response shape.
+function notFound(request, env, url, path) {
+  if (path.startsWith("/api/")) throw new HttpError(404, "That API endpoint does not exist.");
+  throw new HttpError(404, "Not found.");
 }
+
+// The API handler chain (phase-2 migration): each handler receives the shared
+// dispatch context and answers only the paths it owns; `undefined` falls
+// through to the next handler or the notFound tail — the vendor's dispatch()
+// replaces the inlined handlers-for-loop, built once from the vendor import.
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleWallRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes];
+const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
 // the build it came with (VERSION@COMMIT_SHA) as a <meta> tag. The client
@@ -154,14 +166,7 @@ async function routeApi(request, env, ctx) {
     await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
   }
 
-  const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleWallRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes];
-  for (const handler of handlers) {
-    const response = await handler(request, env, url, path, method, ctx);
-    if (response) return response;
-  }
-
-  if (path.startsWith("/api/")) throw new HttpError(404, "That API endpoint does not exist.");
-  throw new HttpError(404, "Not found.");
+  return answerApiRoute(request, env, url, path, method, ctx);
 }
 
 export default {
@@ -171,7 +176,9 @@ export default {
       try {
         return await routeApi(request, env, ctx);
       } catch (error) {
-        return apiError(error);
+        // The error classifier is the vendor's errorReply (imported above);
+        // the console label keeps the pair's literal, byte-for-byte.
+        return errorReply(error, "Forum request failed:");
       }
     }
     if (!env.ASSETS) return json({ error: "Static assets are not configured." }, 503);
