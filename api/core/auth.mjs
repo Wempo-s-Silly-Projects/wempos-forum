@@ -65,9 +65,12 @@ export async function assertNetworkNotBanned(request, env) {
   if (row) throw new HttpError(403, "This network is banned from the forum.");
 }
 
+// __Host- wave: the minted name carries the cookie prefix and Secure is
+// unconditional (the prefix contract requires Secure; browsers treat
+// http://localhost as trustworthy, so the wrangler dev flow survives). The
+// request parameter stays for caller-shape stability.
 function setCookie(request, token, maxAge = SESSION_TTL_SECONDS) {
-  const secure = new URL(request.url).protocol === "https:" ? "; Secure" : "";
-  return "wempo_session=" + token + "; Path=/; HttpOnly; SameSite=Lax; Max-Age=" + maxAge + secure;
+  return "__Host-wempo_session=" + token + "; Path=/; HttpOnly; SameSite=Lax; Max-Age=" + maxAge + "; Secure";
 }
 
 function cookieValue(request, name) {
@@ -81,7 +84,17 @@ function cookieValue(request, name) {
 }
 
 export async function readSession(request, env) {
-  const token = cookieValue(request, "wempo_session");
+  // __Host- wave: the prefixed name is read first; the legacy bare name is
+  // accepted for one transitional window, and a legacy hit that resolves a
+  // live row self-migrates — migrateCookies re-issues the SAME token under
+  // the prefixed name plus clears the legacy cookie, no session rewrite.
+  // The fallback comes out on the named cleanup row once legacy reads stop.
+  let token = cookieValue(request, "__Host-wempo_session");
+  let legacyCookie = false;
+  if (!token) {
+    token = cookieValue(request, "wempo_session");
+    legacyCookie = Boolean(token);
+  }
   if (!token || !/^[A-Za-z0-9_-]{40,50}$/.test(token)) return null;
   const tokenHash = await sha256Hex(token);
   const row = await env.FORUM_DB.prepare(
@@ -108,7 +121,15 @@ export async function readSession(request, env) {
       totpEnabled: Number(row.totp_enabled) === 1,
     };
   }
-  return { tokenHash: row.token_hash, csrfToken: row.csrf_token, expiresAt: Number(row.expires_at), user };
+  const session = { tokenHash: row.token_hash, csrfToken: row.csrf_token, expiresAt: Number(row.expires_at), user };
+  if (legacyCookie) {
+    session.migrateCookies = [
+      "__Host-wempo_session=" + token + "; Path=/; HttpOnly; SameSite=Lax; Max-Age=" +
+        Math.max(Number(row.expires_at) - nowSeconds(), 0) + "; Secure",
+      "wempo_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+    ];
+  }
+  return session;
 }
 
 export async function createSession(request, env, userId = null, oldTokenHash = null, requireUnbanned = false) {

@@ -158,7 +158,7 @@ function totpStepRequest(code, challenge = "ch".repeat(20)) {
       "content-type": "application/json",
       "Origin": "https://forum.test",
       "X-CSRF-Token": CSRF_TOKEN,
-      "Cookie": "wempo_session=" + SESSION_TOKEN,
+      "Cookie": "__Host-wempo_session=" + SESSION_TOKEN,
     },
   });
 }
@@ -171,7 +171,7 @@ function memberRequest(path, body) {
       "content-type": "application/json",
       "Origin": "https://forum.test",
       "X-CSRF-Token": CSRF_TOKEN,
-      "Cookie": "wempo_session=" + SESSION_TOKEN,
+      "Cookie": "__Host-wempo_session=" + SESSION_TOKEN,
     },
   });
 }
@@ -368,7 +368,7 @@ test("login step: a valid backup code burns once and mints the session", async (
     new URL("https://forum.test/api/auth/totp"), "/api/auth/totp", "POST",
   );
   assert.equal(response.status, 200);
-  assert.match(response.headers.get("Set-Cookie"), /^wempo_session=/);
+  assert.match(response.headers.get("Set-Cookie"), /^__Host-wempo_session=/);
   const burn = db.statements.find((s) =>
     s.sql.includes("DELETE FROM totp_backup_codes WHERE user_id = ? AND code_hash = ? AND used_at IS NULL"));
   assert.deepEqual(burn.params, [2, await sha256Hex(raw)], "the burn keys on the hash, never the raw code");

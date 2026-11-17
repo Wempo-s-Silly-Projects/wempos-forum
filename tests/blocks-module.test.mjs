@@ -130,7 +130,7 @@ import { handleWallRoutes } from "../api/wall.mjs";
 const WALL_TOKEN = "w".repeat(43); // matches readSession's 40-50 char format
 function wallRequest() {
   return new Request("http://x/api/users/2/wall", {
-    headers: { cookie: "wempo_session=" + WALL_TOKEN },
+    headers: { cookie: "__Host-wempo_session=" + WALL_TOKEN },
   });
 }
 function wallEnv({ sessionId = null, dbRole = "member", pairRow = false, capture = null } = {}) {

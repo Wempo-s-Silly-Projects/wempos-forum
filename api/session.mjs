@@ -89,22 +89,34 @@ function validateNewCredentials(body) {
   return { username, usernameKey: username.toLowerCase(), password: body.password };
 }
 
+// __Host- wave: the clear rides the prefixed name; Secure is unconditional
+// with it.
 function expiredCookie(request) {
-  const secure = new URL(request.url).protocol === "https:" ? "; Secure" : "";
-  return "wempo_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0" + secure;
+  return "__Host-wempo_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure";
 }
 
 async function handleSessionRoute(request, env, url, path, method) {
   if (path === "/api/session" && method === "GET") {
     const existing = await readSession(request, env);
     if (existing) {
+      // __Host- wave: a legacy-named cookie self-migrates on the boot GET —
+      // the same token re-issued under the prefixed name plus the legacy
+      // clear, both riding this one response (Headers.append for the pair).
+      const migrateHeaders = () => {
+        const headers = securityHeaders(new Headers());
+        for (const cookie of existing.migrateCookies) headers.append("Set-Cookie", cookie);
+        return headers;
+      };
       // Guest-shaped sessions carry no user and must not report a count.
-      if (!existing.user) return json({ user: existing.user, csrfToken: existing.csrfToken });
+      if (!existing.user) {
+        return json({ user: existing.user, csrfToken: existing.csrfToken }, 200,
+          existing.migrateCookies ? migrateHeaders() : undefined);
+      }
       return json({
         user: existing.user,
         csrfToken: existing.csrfToken,
         unreadNotifications: await unreadCount(env, existing.user.id),
-      });
+      }, 200, existing.migrateCookies ? migrateHeaders() : undefined);
     }
     await rateLimit(request, env, "guest-session");
     const created = await createSession(request, env);

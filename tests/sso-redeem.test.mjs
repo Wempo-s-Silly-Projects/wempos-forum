@@ -104,7 +104,7 @@ function ssoRequest(env, wt) {
     headers: {
       "Content-Type": "application/json",
       "Origin": "https://forum.test",
-      "Cookie": "wempo_session=" + COOKIE_TOKEN,
+      "Cookie": "__Host-wempo_session=" + COOKIE_TOKEN,
       "X-CSRF-Token": "csrf-guest",
       "CF-Connecting-IP": "203.0.113.9",
     },
@@ -245,7 +245,7 @@ test("session mint parity: the redeem mints the login route's own session shape"
   assert.ok(!("password_salt" in data.user) && !("password_hash" in data.user), "no credential material rides the session payload");
 
   const cookie = response.headers.get("Set-Cookie");
-  assert.match(cookie, /^wempo_session=[A-Za-z0-9_-]{40,50}(;|$)/);
+  assert.match(cookie, /^__Host-wempo_session=[A-Za-z0-9_-]{40,50}(;|$)/);
   // Parity with a normal login: both go through createSession(request, env,
   // id, oldTokenHash, requireUnbanned) — the flag tail must match exactly.
   const direct = await createSession(

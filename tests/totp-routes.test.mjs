@@ -96,7 +96,7 @@ function loginStepRequest(code, challenge = "ch".repeat(20)) {
       "content-type": "application/json",
       "Origin": "https://forum.test",
       "X-CSRF-Token": CSRF_TOKEN,
-      "Cookie": "wempo_session=" + SESSION_TOKEN,
+      "Cookie": "__Host-wempo_session=" + SESSION_TOKEN,
     },
   });
 }
@@ -139,7 +139,7 @@ test("setup stages a fresh secret (update carries it) and 409s when already on",
       "content-type": "application/json",
       "Origin": "https://forum.test",
       "X-CSRF-Token": CSRF_TOKEN,
-      "Cookie": "wempo_session=" + SESSION_TOKEN,
+      "Cookie": "__Host-wempo_session=" + SESSION_TOKEN,
     },
   });
   const { env } = envWithDb({
@@ -295,7 +295,7 @@ test("login step: a matching code consumes the challenge ONCE and mints the sess
   );
   assert.equal(response.status, 200);
   const setCookie = response.headers.get("Set-Cookie");
-  assert.match(setCookie, /^wempo_session=/);
+  assert.match(setCookie, /^__Host-wempo_session=/);
   const body = await response.json();
   assert.equal(body.user.username, "tester");
   // The consume was the LAST write: verifyTotpCode ran before it (wrong-code
