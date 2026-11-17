@@ -140,5 +140,42 @@ export async function handleRelayRoutes(request, env, url, path, method) {
     return json({ changed: true, user: user ? publicUser(user) : null });
   }
 
+  if (path === "/api/relay/session-revoke-all" && method === "POST") {
+    // The Wempo Accounts account-management page's "sign out everywhere" leg:
+    // GC's goober_session and the forum's wempo_session both hash into THIS
+    // database's one `sessions` table (the GC contract-parity pin's shared
+    // list), so a single keyed DELETE here signs the member out of every
+    // member site at once — the accounts worker's own wa_sso_sessions rows
+    // stay its business, and it never touches `sessions` directly.
+    await requireRelayToken(request, env);
+    const body = await readJson(request);
+    const userId = body.userId;
+
+    // Shape gate BEFORE any storage question, and strict: a JSON number only
+    // (a "9" string is a caller bug, not a coercion to paper over). A whole
+    // number of at least 1 — D1 integer ids only; anything else never
+    // reaches the table.
+    if (typeof userId !== "number" || !Number.isInteger(userId) || userId < 1 || userId > Number.MAX_SAFE_INTEGER) {
+      throw new HttpError(400, "A valid user ID is required.");
+    }
+
+    // The same credential-adjacent tier the set-password leg rides (no new
+    // wrangler binding), keyed by user id rather than username: one
+    // destructive relay verb cannot be hammered from one caller.
+    await rateLimit(request, env, "password-change", "user:" + userId);
+
+    // ALWAYS user_id-scoped — the WHERE clause is the whole safety story:
+    // guest-shaped sessions carry user_id NULL and `= ?` never matches NULL,
+    // so they are untouched by construction (session.mjs's guest discipline).
+    const result = await env.FORUM_DB.prepare(
+      "DELETE FROM sessions WHERE user_id = ?",
+    ).bind(userId).run();
+
+    // Zero rows is the same answer shape as any other count ({ revoked: 0 }):
+    // no existence oracle for an unknown/expunged user (the password-verify
+    // discipline). Only the count rides back — never token material.
+    return json({ revoked: Number(result?.meta?.changes) || 0 });
+  }
+
   return null;
 }

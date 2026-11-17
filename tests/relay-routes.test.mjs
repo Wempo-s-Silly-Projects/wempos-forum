@@ -349,3 +349,59 @@ test("relay set: an invalid password answers 400 before any write", async () => 
   assert.equal(response.status, 400);
   assert.equal(db.statements.length, 0, "validation failures write nothing");
 });
+
+// --- relay session-revoke-all (the accounts page's "sign out everywhere") -----
+
+test("relay session-revoke-all: token gate comes first — absent, wrong, or unconfigured answers 403/503 with no statement", async () => {
+  for (const [token, expected] of [[undefined, 403], ["wrong", 403], ["", 503]]) {
+    const db = fakeDb();
+    const env = relayEnv(db, token === "" ? "" : undefined);
+    const response = await call(handleRelayRoutes,
+      relayRequest("/api/relay/session-revoke-all", { userId: 9 }, token),
+      env, new URL("https://forum.test/api/relay/session-revoke-all"),
+      "/api/relay/session-revoke-all", "POST",
+    );
+    assert.equal(response.status, expected);
+    assert.equal(db.statements.length, 0, "refused calls touch no tables");
+  }
+});
+
+test("relay session-revoke-all: the user_id shape gate is 400 before any storage question", async () => {
+  for (const bad of [0, -3, "9", 9.5, null, undefined, Number.MAX_SAFE_INTEGER + 1]) {
+    const db = fakeDb();
+    const response = await call(handleRelayRoutes,
+      relayRequest("/api/relay/session-revoke-all", { userId: bad }, TOKEN),
+      relayEnv(db), new URL("https://forum.test/api/relay/session-revoke-all"),
+      "/api/relay/session-revoke-all", "POST",
+    );
+    assert.equal(response.status, 400, "shape " + JSON.stringify(bad) + " is a 400");
+    assert.equal(db.statements.length, 0, "bad shapes never reach the table");
+  }
+});
+
+test("relay session-revoke-all: one user_id-scoped DELETE, count-only answer", async () => {
+  const db = fakeDb({}, { "DELETE FROM sessions WHERE user_id = ?": 4 });
+  const data = await ok(await call(handleRelayRoutes,
+    relayRequest("/api/relay/session-revoke-all", { userId: 9 }, TOKEN),
+    relayEnv(db), new URL("https://forum.test/api/relay/session-revoke-all"),
+    "/api/relay/session-revoke-all", "POST",
+  ));
+  assert.deepEqual(data, { revoked: 4 });
+  const deletes = db.statements.filter((s) => s.sql.includes("DELETE FROM sessions"));
+  assert.equal(deletes.length, 1);
+  // The exact scoped statement, never an unscoped one: guest-shaped sessions
+  // (user_id NULL) cannot match `= ?` by construction.
+  assert.match(deletes[0].sql, /DELETE FROM sessions WHERE user_id = \?$/);
+  assert.equal(deletes[0].sql.includes("WHERE token_hash"), false);
+  assert.deepEqual(deletes[0].params, [9]);
+});
+
+test("relay session-revoke-all: zero rows answers { revoked: 0 } — no existence oracle", async () => {
+  const db = fakeDb({}, { "DELETE FROM sessions WHERE user_id = ?": 0 });
+  const data = await ok(await call(handleRelayRoutes,
+    relayRequest("/api/relay/session-revoke-all", { userId: 424242 }, TOKEN),
+    relayEnv(db), new URL("https://forum.test/api/relay/session-revoke-all"),
+    "/api/relay/session-revoke-all", "POST",
+  ));
+  assert.deepEqual(data, { revoked: 0 }, "the unknown-user answer matches the empty-user answer");
+});
