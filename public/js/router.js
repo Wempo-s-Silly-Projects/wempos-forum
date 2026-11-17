@@ -37,6 +37,10 @@ export const routeForPath = (pathname, search = "") => {
   }
   const post = pathname.match(/^\/posts\/(\d+)$/);
   if (post) return { name: "post", id: Number(post[1]) };
+  // The report task page (5.0 rethink, wave 3): the first dialog retirement —
+  // a post's report form at its own addressable URL.
+  const report = pathname.match(/^\/posts\/(\d+)\/report$/);
+  if (report) return { name: "post-report", id: Number(report[1]) };
   const user = pathname.match(/^\/users\/([^/]+)$/);
   if (user) {
     try {

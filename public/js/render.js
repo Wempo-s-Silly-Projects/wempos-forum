@@ -1,3 +1,13 @@
+// 5.0 wave 3 (the post thread slice): the card machinery re-expresses on the
+// vendored framework — frontload/dom's el() replaces the local createElement
+// twin node for node (user text rides textContent, classes ride class names,
+// nothing parses markup — the same CSP law, now enforced by construction).
+// The one behavior change the wave plans: a card’s Report button leaves the
+// shared report dialog for the /posts/:id/report task page — a real link,
+// addressable, reloadable (the report dialog itself now serves the profile
+// flow until its wave retires it too). Markdown parsing, attachment URLs,
+// the edit-form swap cycle and every aria contract ride verbatim.
+import { el } from "./vendor/frontload/dom.mjs";
 import { attachmentUrl } from "./attachments.js";
 import { createIcon } from "./icons.js";
 import { parseBlocks, parseInline } from "./markdown.js";
@@ -6,12 +16,6 @@ import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
 import { collapseWhitespace } from "./quotes.js";
 import { renderPollBlock } from "./polls.js";
 
-const createElement = (document, tagName, className, text) => {
-  const element = document.createElement(tagName);
-  if (className) element.className = className;
-  if (text !== undefined) element.textContent = text;
-  return element;
-};
 
 // Pure, DOM-free. publicLevel: 0 = root post, 1 = level-1 reply, 2 = level-2
 // reply-to-reply. A missing publicLevel is treated conservatively: replying is
@@ -40,14 +44,14 @@ export const replyAffordances = (post, currentUser = null) => {
 const renderAttachments = (post, document, article) => {
   const attachments = Array.isArray(post.attachments) ? post.attachments : [];
   if (!attachments.length) return;
-  const strip = createElement(document, "div", "post-attachments");
+  const strip = el("div", { class: "post-attachments" });
   const total = attachments.length;
   for (const [index, attachment] of attachments.entries()) {
-    const image = createElement(document, "img", "post-attachment");
+    const image = el("img", { class: "post-attachment" });
     image.src = attachmentUrl(attachment);
     image.alt = "";
     image.loading = "lazy";
-    const expand = createElement(document, "button", "attachment-expand");
+    const expand = el("button", { class: "attachment-expand" });
     expand.type = "button";
     expand.dataset.action = "expand-attachment";
     // Position-aware labels: identical labels on every image of a multi-image
@@ -59,7 +63,7 @@ const renderAttachments = (post, document, article) => {
     expand.append(image);
     strip.append(expand);
     if (attachment.awaiting) {
-      const pending = createElement(document, "p", "attachment-pending icon-inline");
+      const pending = el("p", { class: "attachment-pending icon-inline" });
       pending.append(createIcon(document, "image"), document.createTextNode("image awaiting review"));
       strip.append(pending);
     }
@@ -72,7 +76,7 @@ const renderAttachments = (post, document, article) => {
 // <blockquote> of text-only children; the surrounding text stays pre-wrap
 // .post-body paragraphs, so a leading quote block renders
 // blockquote-then-text. All content is attached through textContent (the
-// createElement text argument) — a body containing "<b>" or "<script>"
+// el's text argument) — a body containing "<b>" or "<script>"
 // keeps rendering as literal text, exactly as before.
 
 
@@ -84,24 +88,22 @@ const renderAttachments = (post, document, article) => {
 export const renderBodyBlocks = (post, document, article) => {
   for (const block of parseBlocks(post.body)) {
     if (block.kind === "code") {
-      const pre = createElement(document, "pre", "post-codeblock");
-      const code = document.createElement("code");
-      code.textContent = block.text.join("\n");
-      pre.append(code);
+      const pre = el("pre", { class: "post-codeblock" });
+      pre.append(el("code", { text: block.text.join("\n") }));
       article.append(pre);
       continue;
     }
     if (block.kind === "heading") {
       const tag = block.level === 1 ? "h3" : block.level === 2 ? "h4" : "h5";
-      const heading = createElement(document, tag, "post-heading");
+      const heading = el(tag, { class: "post-heading" });
       renderInline(document, heading, block.text.join("\n"));
       article.append(heading);
       continue;
     }
     if (block.kind === "list") {
-      const list = createElement(document, "ul", "md-list");
+      const list = el("ul", { class: "md-list" });
       for (const item of block.text) {
-        const entry = createElement(document, "li", "md-list-item");
+        const entry = el("li", { class: "md-list-item" });
         renderInline(document, entry, item);
         list.append(entry);
       }
@@ -109,16 +111,16 @@ export const renderBodyBlocks = (post, document, article) => {
       continue;
     }
     if (block.kind === "quote") {
-      const quote = createElement(document, "blockquote", "post-quote");
+      const quote = el("blockquote", { class: "post-quote" });
       for (const line of block.text) {
-        const quoteLine = createElement(document, "p", "quote-line");
+        const quoteLine = el("p", { class: "quote-line" });
         renderInline(document, quoteLine, line);
         quote.append(quoteLine);
       }
       article.append(quote);
       continue;
     }
-    const paragraph = createElement(document, "p", "post-body");
+    const paragraph = el("p", { class: "post-body" });
     renderInline(document, paragraph, block.text.join("\n"));
     article.append(paragraph);
   }
@@ -144,20 +146,20 @@ function renderInline(document, target, text) {
 const renderLatestReplies = (post, document, article) => {
   const latest = Array.isArray(post.latestReplies) ? post.latestReplies.slice(0, 3) : [];
   if (!latest.length) return;
-  const container = createElement(document, "div", "preview-replies");
-  container.append(createElement(document, "span", "preview-caption", "Replies"));
+  const container = el("div", { class: "preview-replies" });
+  container.append(el("span", { class: "preview-caption", text: "Replies" }));
   for (const reply of latest) {
-    const row = createElement(document, "a", "preview-reply");
+    const row = el("a", { class: "preview-reply" });
     row.href = `/posts/${post.id}`;
     if (reply.avatarUrl) {
-      const avatar = createElement(document, "img", "avatar preview-avatar");
+      const avatar = el("img", { class: "avatar preview-avatar" });
       avatar.src = reply.avatarUrl;
       avatar.alt = "";
       row.append(avatar);
     }
-    row.append(createElement(document, "span", "preview-author", reply.authorUsername ?? ""));
-    row.append(createElement(document, "span", "preview-snippet", collapseWhitespace(reply.snippet)));
-    const when = createElement(document, "time", "preview-time");
+    row.append(el("span", { class: "preview-author", text: reply.authorUsername ?? "" }));
+    row.append(el("span", { class: "preview-snippet", text: collapseWhitespace(reply.snippet) }));
+    const when = el("time", { class: "preview-time" });
     when.dateTime = reply.createdAt;
     when.textContent = new Date(reply.createdAt).toLocaleString();
     row.append(when);
@@ -167,7 +169,7 @@ const renderLatestReplies = (post, document, article) => {
 };
 
 export const createPostCard = (post, document, currentUser = null) => {
-  const article = createElement(document, "article", "post-card");
+  const article = el("article", { class: "post-card" });
   article.dataset.postId = String(post.id);
   // Raw body rides as a plain JS property (never markup — the same convention
   // as the composer's form.composerFiles) so the author's inline edit form can
@@ -177,8 +179,8 @@ export const createPostCard = (post, document, currentUser = null) => {
   article.postBody = String(post.body ?? "");
   if (post.visibility === "hidden") article.classList.add("post-hidden");
 
-  const header = createElement(document, "header", "post-header");
-  const author = createElement(document, "div", "post-author");
+  const header = el("header", { class: "post-header" });
+  const author = el("div", { class: "post-author" });
   if (post.author) {
     // Name color on cards (any hex, v3.0.2): the server normalized the
     // accent to a #rrggbb hex, so it rides as a CSS custom property WRITE
@@ -187,27 +189,25 @@ export const createPostCard = (post, document, currentUser = null) => {
       article.style.setProperty("--profile-accent", post.author.profileAccent);
     }
     if (post.author.avatarUrl) {
-      const avatar = createElement(document, "img", "avatar");
+      const avatar = el("img", { class: "avatar" });
       avatar.src = post.author.avatarUrl;
       avatar.alt = `Avatar of ${post.author.username}`;
       author.append(avatar);
     }
-    const profileLink = createElement(document, "a", "author-name", post.author.username);
+    const profileLink = el("a", { class: "author-name", text: post.author.username });
     profileLink.href = `/users/${encodeURIComponent(post.author.username)}`;
     author.append(profileLink);
     // Role badge (v3.1): staff are chipped next to the name — Owner or Admin,
     // from the server-mapped public role. Members carry null and get nothing.
     if (post.author.role === "owner" || post.author.role === "admin") {
-      author.append(createElement(document, "span",
-        "role-badge role-badge-" + post.author.role,
-        post.author.role === "owner" ? "Owner" : "Admin"));
+      author.append(el("span", { class: "role-badge role-badge-" + post.author.role, text: post.author.role === "owner" ? "Owner" : "Admin" }));
     }
     // Flair on cards (v3.0.1): the profile flair chip shown next to the name.
-    if (post.author.flair) author.append(createElement(document, "span", "post-flair", post.author.flair));
+    if (post.author.flair) author.append(el("span", { class: "post-flair", text: post.author.flair }));
   } else {
-    author.append(createElement(document, "span", "author-name", "Removed account"));
+    author.append(el("span", { class: "author-name", text: "Removed account" }));
   }
-  const time = createElement(document, "time", "post-time");
+  const time = el("time", { class: "post-time" });
   // lastActivityAt (bump activity, spec §4) is exposed machine-readably; the
   // visible label intentionally stays the creation time.
   time.dateTime = post.lastActivityAt ?? post.createdAt;
@@ -217,11 +217,11 @@ export const createPostCard = (post, document, currentUser = null) => {
   // post carries (null until the author's first edit). A muted token-styled
   // token next to the creation time; never a link or tooltip markup.
   if (post.editedAt) {
-    header.append(createElement(document, "span", "post-edited", "(edited)"));
+    header.append(el("span", { class: "post-edited", text: "(edited)" }));
     // Edit history (v2.4.1): a small toggle that fetches and expands the
     // post's past versions. Everyone gets it — the point is that edits can't
     // quietly rewrite context (trouserpants' anti-abuse ask).
-    const historyToggle = createElement(document, "button", "post-edited-history", "history");
+    const historyToggle = el("button", { class: "post-edited-history", text: "history" });
     historyToggle.type = "button";
     historyToggle.dataset.action = "edit-history";
     historyToggle.dataset.postId = String(post.id);
@@ -230,24 +230,22 @@ export const createPostCard = (post, document, currentUser = null) => {
   // Pinning (C5): the chip rides the payload's pinnedAt (null until pinned).
   // Root cards only — a reply row never carries its own pin.
   if (post.pinnedAt && !post.parent) {
-    const chip = createElement(document, "span", "post-pinned icon-inline");
+    const chip = el("span", { class: "post-pinned icon-inline" });
     chip.append(createIcon(document, "pin"));
-    chip.append(createElement(document, "span", "visually-hidden", "Pinned"));
+    chip.append(el("span", { class: "visually-hidden", text: "Pinned" }));
     header.append(chip);
   }
   // Suggestion status (v3.1): resolved/declined chip on suggestions-board
   // roots — data-driven off the payload, so every other category and every
   // reply renders nothing.
   if (post.board === "suggestions" && !post.parent && post.suggestionStatus) {
-    header.append(createElement(document, "span",
-      "suggestion-badge suggestion-badge-" + post.suggestionStatus,
-      post.suggestionStatus === "resolved" ? "Resolved" : "Declined"));
+    header.append(el("span", { class: "suggestion-badge suggestion-badge-" + post.suggestionStatus, text: post.suggestionStatus === "resolved" ? "Resolved" : "Declined" }));
   }
   article.append(header);
 
   renderBodyBlocks(post, document, article);
   if (post.parent) {
-    const parentLink = createElement(document, "a", "parent-context", `In reply to: ${post.parent.body}`);
+    const parentLink = el("a", { class: "parent-context", text: `In reply to: ${post.parent.body}` });
     parentLink.href = `/posts/${post.parent.id}`;
     article.append(parentLink);
   }
@@ -261,12 +259,12 @@ export const createPostCard = (post, document, currentUser = null) => {
     if (pollBlock) article.append(pollBlock);
   }
 
-  const actions = createElement(document, "div", "post-actions");
+  const actions = el("div", { class: "post-actions" });
   for (const [value, label, count] of [
     ["like", "Like", post.likeCount ?? 0],
     ["dislike", "Dislike", post.dislikeCount ?? 0],
   ]) {
-    const button = createElement(document, "button", "button button-quiet reaction-button icon-inline");
+    const button = el("button", { class: "button button-quiet reaction-button icon-inline" });
     button.type = "button";
     button.dataset.action = "reaction";
     button.dataset.postId = String(post.id);
@@ -289,16 +287,16 @@ export const createPostCard = (post, document, currentUser = null) => {
   // View counter (v2.4.3): front and center — every card carries an eye chip
   // with the raw impression count; 0 is displayed (front-and-center was the
   // owner's whole ask, unlike the reply chip which hides at 0).
-  const views = createElement(document, "span", "view-count icon-inline");
+  const views = el("span", { class: "view-count icon-inline" });
   views.append(createIcon(document, "eye"));
-  const viewsHidden = createElement(document, "span", "visually-hidden", "views");
+  const viewsHidden = el("span", { class: "visually-hidden", text: "views" });
   views.append(viewsHidden, document.createTextNode(String(Number(post.viewCount || 0))));
   actions.append(views);
   // Bookmarks (C4): signed-in members get a save toggle on every card; the
   // state is data-driven off the payload's viewerBookmarked (guest payloads
   // never carry it, so guests never see the toggle).
   if (currentUser) {
-    const bookmarkButton = createElement(document, "button", "button button-quiet icon-button bookmark-toggle");
+    const bookmarkButton = el("button", { class: "button button-quiet icon-button bookmark-toggle" });
     bookmarkButton.type = "button";
     bookmarkButton.dataset.action = "toggle-bookmark";
     bookmarkButton.dataset.postId = String(post.id);
@@ -313,26 +311,29 @@ export const createPostCard = (post, document, currentUser = null) => {
   // replyCount 0 (or an un-decorated payload) renders no chip at all.
   // Number() on undefined yields NaN, so the guard handles both shapes.
   if (Number(post.replyCount) > 0) {
-    const chat = createElement(document, "span", "reply-count icon-inline");
+    const chat = el("span", { class: "reply-count icon-inline" });
     chat.append(createIcon(document, "chat"));
     // The bare number alone is meaningless to a screen reader: "replies" is
     // supplied via a visually-hidden word, per the modern-web accessibility
     // guidance (icon-only controls keep an accessible name).
-    const hiddenLabel = createElement(document, "span", "visually-hidden", "replies");
+    const hiddenLabel = el("span", { class: "visually-hidden", text: "replies" });
     chat.append(hiddenLabel, document.createTextNode(String(post.replyCount)));
     actions.append(chat);
   }
-  const threadLink = createElement(document, "a", "button button-quiet icon-button");
+  const threadLink = el("a", { class: "button button-quiet icon-button" });
   threadLink.href = `/posts/${post.id}`;
   threadLink.setAttribute("aria-label", "Open post and replies");
   threadLink.setAttribute("title", "Open post and replies");
   threadLink.append(createIcon(document, "open"));
   actions.append(threadLink);
   if (currentUser && post.visibility !== "hidden") {
-    const report = createElement(document, "button", "button button-quiet icon-button");
-    report.type = "button";
-    report.dataset.action = "report";
-    report.dataset.postId = String(post.id);
+    // The report flow (5.0 rethink, wave 3): a task page at its own URL —
+    // /posts/:id/report — addressable, reloadable, shareable; the link keeps
+    // the old button's class and name so the card reads exactly as before.
+    const report = el("a", {
+      class: "button button-quiet icon-button",
+      href: `/posts/${post.id}/report`,
+    });
     report.setAttribute("aria-label", "Report this post");
     report.setAttribute("title", "Report this post");
     report.append(createIcon(document, "flag"));
@@ -345,7 +346,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // mirroring the server's author-only gate. Unlike Report, a hidden own post
   // keeps its Edit button: the author may edit what they authored.
   if (currentUser && post.author && Number(currentUser.id) === Number(post.author.id)) {
-    const editButton = createElement(document, "button", "button button-quiet icon-button");
+    const editButton = el("button", { class: "button button-quiet icon-button" });
     editButton.type = "button";
     editButton.dataset.action = "edit-post";
     editButton.dataset.postId = String(post.id);
@@ -362,7 +363,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // ("thread") takes the whole conversation with it, while a reply card
   // ("reply") keeps the thread (sub-replies are reparented by the server).
   if (currentUser && post.author && Number(currentUser.id) === Number(post.author.id)) {
-    const deleteButton = createElement(document, "button", "button button-quiet icon-button");
+    const deleteButton = el("button", { class: "button button-quiet icon-button" });
     deleteButton.type = "button";
     deleteButton.dataset.action = "delete-post";
     deleteButton.dataset.postId = String(post.id);
@@ -380,7 +381,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // feed cards show the toggle too; reply cards and un-upgraded payloads never
   // do. Guests get no toggle (the server 401s) exactly like reaction buttons.
   if (currentUser && post.subscribed !== undefined && !post.parent) {
-    const subscribeButton = createElement(document, "button", "button button-quiet icon-button subscribe-toggle");
+    const subscribeButton = el("button", { class: "button button-quiet icon-button subscribe-toggle" });
     subscribeButton.type = "button";
     subscribeButton.dataset.action = "toggle-subscribe";
     subscribeButton.dataset.postId = String(post.id);
@@ -398,7 +399,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // on explicitly level-1 rows only (publicLevel 2 and undefined publicLevel
   // never show it; replying to level-2 targets is server-forbidden).
   if (replyAffordances(post, currentUser).canReply) {
-    const replyButton = createElement(document, "button", "button button-quiet", "Reply");
+    const replyButton = el("button", { class: "button button-quiet", text: "Reply" });
     replyButton.type = "button";
     replyButton.dataset.action = "reply-to";
     replyButton.dataset.postId = String(post.id);
@@ -412,7 +413,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // prefill limit happens in quotes.js at prefill time. Cards by a removed
   // account have nothing to attribute the quote to and skip the button.
   if (post.author && post.parent) {
-    const quoteButton = createElement(document, "button", "button button-quiet", "Quote");
+    const quoteButton = el("button", { class: "button button-quiet", text: "Quote" });
     quoteButton.type = "button";
     quoteButton.dataset.action = "quote";
     quoteButton.dataset.postId = String(post.id);
@@ -422,12 +423,10 @@ export const createPostCard = (post, document, currentUser = null) => {
     actions.append(quoteButton);
   }
   if (post.subReplyCount > 0) {
-    const expandButton = createElement(
-      document,
-      "button",
-      "button button-quiet",
-      `Show ${post.subReplyCount} replies`,
-    );
+    const expandButton = el("button", {
+      class: "button button-quiet",
+      text: `Show ${post.subReplyCount} replies`,
+    });
     expandButton.type = "button";
     expandButton.dataset.action = "expand-sub-replies";
     expandButton.dataset.postId = String(post.id);
@@ -441,8 +440,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   if (currentUser && !post.parent &&
       (currentUser.role === "owner" || currentUser.role === "admin")) {
     const isPinned = Boolean(post.pinnedAt);
-    const pinButton = createElement(document, "button", "button button-quiet",
-      isPinned ? "Unpin" : "Pin");
+    const pinButton = el("button", { class: "button button-quiet", text: isPinned ? "Unpin" : "Pin" });
     pinButton.type = "button";
     pinButton.dataset.action = isPinned ? "thread-unpin" : "thread-pin";
     pinButton.dataset.postId = String(post.id);
@@ -456,8 +454,7 @@ export const createPostCard = (post, document, currentUser = null) => {
         ? [["open", "Reopen"]]
         : [["resolved", "Resolve"], ["declined", "Decline"]];
       for (const [status, statusLabel] of choices) {
-        const statusButton = createElement(document, "button",
-          "button button-quiet", statusLabel);
+        const statusButton = el("button", { class: "button button-quiet", text: statusLabel });
         statusButton.type = "button";
         statusButton.dataset.action = "suggestion-status";
         statusButton.dataset.postId = String(post.id);
@@ -476,10 +473,10 @@ export const createPostCard = (post, document, currentUser = null) => {
 export function appendPostList(container, posts, document, currentUser = null,
   emptyText = "No posts to show yet. Start the conversation.") {
   if (!posts.length) {
-    container.append(createElement(document, "p", "empty-state", emptyText));
+    container.append(el("p", { class: "empty-state", text: emptyText }));
     return;
   }
-  const list = createElement(document, "div", "post-list");
+  const list = el("div", { class: "post-list" });
   for (const post of posts) list.append(createPostCard(post, document, currentUser));
   container.append(list);
 }
@@ -490,10 +487,10 @@ export function appendPostList(container, posts, document, currentUser = null,
 // cascade CSS targets, reusing the existing grouping class .sub-replies and
 // adding the new .cascade-replies treatment.
 export const createSubReplyContainer = (postId, replies, document, currentUser = null) => {
-  const container = createElement(document, "div", "sub-replies cascade-replies");
+  const container = el("div", { class: "sub-replies cascade-replies" });
   container.dataset.subRepliesFor = String(postId);
   if (!replies.length) {
-    container.append(createElement(document, "p", "empty-state", "No replies to show yet."));
+    container.append(el("p", { class: "empty-state", text: "No replies to show yet." }));
     return container;
   }
   for (const reply of replies) container.append(createPostCard(reply, document, currentUser));
@@ -508,7 +505,7 @@ export const createSubReplyContainer = (postId, replies, document, currentUser =
 // create's filter/limit gates) and no attachment row: edits are text-only in
 // v1, attachments stay exactly as originally posted.
 export const createEditComposer = (post, document) => {
-  const form = createElement(document, "form", "edit-composer");
+  const form = el("form", { class: "edit-composer" });
   form.dataset.form = "post-edit";
   form.dataset.postId = String(post.id);
   form.append(createTextarea(document, {
@@ -516,10 +513,10 @@ export const createEditComposer = (post, document) => {
     rows: 4, maxLength: COMPOSER_MAX_CHARS, required: true, counter: true,
     value: post.body,
   }));
-  const actions = createElement(document, "div", "post-actions form-actions");
-  const save = createElement(document, "button", "button button-primary", "Save");
+  const actions = el("div", { class: "post-actions form-actions" });
+  const save = el("button", { class: "button button-primary", text: "Save" });
   save.type = "submit";
-  const cancel = createElement(document, "button", "button button-quiet", "Cancel");
+  const cancel = el("button", { class: "button button-quiet", text: "Cancel" });
   cancel.type = "button";
   cancel.dataset.action = "cancel-edit";
   cancel.dataset.postId = String(post.id);
@@ -574,19 +571,19 @@ export const closeEditForm = (article) => {
 // content — textContent only, never markup. An empty lineage still renders a
 // muted placeholder so the toggle never feels broken.
 export function renderEditHistoryPanel(document, edits) {
-  const panel = createElement(document, "div", "edit-history-panel");
-  const title = createElement(document, "p", "edit-history-title", "Earlier versions (newest first)");
+  const panel = el("div", { class: "edit-history-panel" });
+  const title = el("p", { class: "edit-history-title", text: "Earlier versions (newest first)" });
   panel.append(title);
   if (!Array.isArray(edits) || edits.length === 0) {
-    panel.append(createElement(document, "p", "edit-history-empty", "No earlier versions."));
+    panel.append(el("p", { class: "edit-history-empty", text: "No earlier versions." }));
     return panel;
   }
   for (const edit of edits) {
-    const entry = createElement(document, "div", "edit-history-entry");
-    const time = createElement(document, "time", "edit-history-time");
+    const entry = el("div", { class: "edit-history-entry" });
+    const time = el("time", { class: "edit-history-time" });
     time.dateTime = edit.editedAt;
     time.textContent = new Date(edit.editedAt).toLocaleString();
-    const body = createElement(document, "p", "edit-history-body", String(edit.body ?? ""));
+    const body = el("p", { class: "edit-history-body", text: String(edit.body ?? "") });
     entry.append(time, body);
     panel.append(entry);
   }

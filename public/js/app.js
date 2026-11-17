@@ -79,6 +79,7 @@ import {
 import {
   ACTIONS as postActions,
   FORM_HANDLERS as postFormHandlers,
+  renderPostReportRoute,
   renderPostRoute,
 } from "./routes/post.js";
 // v4.0 plan 4 Task 5: the profile concern (the /users/:username
@@ -165,6 +166,7 @@ function setRouteTitle(route) {
     leaderboard: "Leaderboard",
     rules: "Rules",
     post: "Post",
+    "post-report": "Report a post",
     profile: "Profile",
     admin: "Moderation",
     appeals: "Appeals",
@@ -223,6 +225,9 @@ async function renderRoute(route) {
     category: () => renderCategoryRoute(route, context, version),
     archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),
+    // The report task page (5.0 wave 3): the dialog's first retirement —
+    // the report form lives at /posts/:id/report.
+    "post-report": () => renderPostReportRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
     admin: () => renderAdminRoute(route, context, version),
     notifications: () => renderNotificationsRoute(context, version),
