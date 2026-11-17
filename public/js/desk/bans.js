@@ -1,6 +1,9 @@
 // v4.0 plan 5 (spec step 6), task 1: the moderation desk's bans + member search (the unban/role surfaces live with them) section
-// builders — bodies moved verbatim out of ../admin.js (now dissolved).
-import { createCheckbox, createForm, createInput, createSelect, addText } from "../forms.js";
+// builders — bodies moved verbatim out of ../admin.js (now dissolved) and
+// re-expressed on the vendored kit (5.0 wave 6).
+import { el } from "../vendor/frontload/dom.mjs";
+import { addText, createForm, createInput, createSelect } from "../vendor/designer/kit.mjs";
+import { createCheckbox } from "../forms.js";
 
 // Timed bans (v3.0.2): the duration picker's hours; 0 = permanent. The form
 // submit handler (submitBanForm in app.js) turns hours into an absolute
@@ -16,7 +19,7 @@ const BAN_DURATION_HOURS = [
 // One ban form — reason + duration + the opt-in IP ban — shared by the
 // post-report queue, the profile-report queue, and the member search results,
 // so a reported member can be banned from any desk.
-const createBanForm = (document, userId, username) => {
+const createBanForm = (userId, username) => {
   const form = createForm(document, "admin-ban", [
     createInput(document, {
       id: `ban-reason-${userId}-${Math.random().toString(36).slice(2, 8)}`,
@@ -46,9 +49,8 @@ const createBanForm = (document, userId, username) => {
 // Find a member (v3.1, Pone's ask): staff search by username with the
 // active-ban state attached. Results render into the results container the
 // submit handler owns, so the desk section is self-contained.
-function createMemberSearch(document) {
-  const section = document.createElement("div");
-  section.className = "member-search";
+function createMemberSearch() {
+  const section = el("div", { class: "member-search" });
   const form = createForm(document, "admin-member-search", [
     createInput(document, {
       id: "member-search-q",
@@ -58,40 +60,39 @@ function createMemberSearch(document) {
       description: "Search by username to find members and unban them.",
     }),
   ], "Search");
-  const results = document.createElement("div");
-  results.className = "member-search-results";
+  const results = el("div", { class: "member-search-results" });
   results.dataset.memberSearchResults = "";
   section.append(form, results);
   return section;
 }
 
-function renderMemberSearchResults(members, document) {
-  const list = document.createElement("div");
-  list.className = "member-search-result-list";
+function renderMemberSearchResults(members) {
+  const list = el("div", { class: "member-search-result-list" });
   if (!members.length) {
-    addText(document, list, "p", "No members matched.", "empty-state");
+    addText(list, "No members matched.", "empty-state");
     return list;
   }
   for (const member of members) {
-    const row = document.createElement("article");
-    row.className = "member-search-row";
-    const link = document.createElement("a");
-    link.href = "/users/" + encodeURIComponent(member.username);
-    link.setAttribute("data-app-link", "");
-    link.textContent = member.username;
-    row.append(link);
+    const row = el("article", { class: "member-search-row" });
+    row.append(el("a", {
+      href: "/users/" + encodeURIComponent(member.username),
+      "data-app-link": "",
+      text: member.username,
+    }));
     if (member.role === "owner" || member.role === "admin") {
-      addText(document, row, "span",
-        member.role === "owner" ? "Owner" : "Admin",
-        "role-badge role-badge-" + member.role);
+      row.append(el("span", {
+        class: "role-badge role-badge-" + member.role,
+        text: member.role === "owner" ? "Owner" : "Admin",
+      }));
     }
     if (member.banned) {
-      addText(document, row, "p",
-        "Banned: " + (member.banReason || "no reason recorded") +
-        (member.banExpiresAt
-          ? " — expires " + new Date(member.banExpiresAt * 1000).toLocaleString()
-          : " — permanent"),
-        "member-search-ban-info");
+      row.append(el("p", {
+        class: "member-search-ban-info",
+        text: "Banned: " + (member.banReason || "no reason recorded") +
+          (member.banExpiresAt
+            ? " — expires " + new Date(member.banExpiresAt * 1000).toLocaleString()
+            : " — permanent"),
+      }));
       const unbanForm = createForm(document, "admin-unban", [
         createInput(document, {
           id: `unban-reason-search-${member.id}`,
@@ -104,7 +105,7 @@ function renderMemberSearchResults(members, document) {
       unbanForm.dataset.userId = String(member.id);
       row.append(unbanForm);
     } else {
-      addText(document, row, "p", "Not banned.", "muted");
+      addText(row, "Not banned.", "muted");
     }
     list.append(row);
   }
@@ -114,20 +115,18 @@ function renderMemberSearchResults(members, document) {
 
 // The active-bans list (spec §9): one card per ban — reason, expiry, and the
 // unban form. Body moved verbatim out of ../admin.js (spec step 6).
-function createActiveBanList(bans, document) {
-  const list = document.createElement("div");
-  list.className = "ban-list";
+function createActiveBanList(bans) {
+  const list = el("div", { class: "ban-list" });
   if (!bans.length) {
-    addText(document, list, "p", "There are no active bans.", "empty-state");
+    addText(list, "There are no active bans.", "empty-state");
     return list;
   }
   for (const ban of bans) {
-    const card = document.createElement("article");
-    card.className = "ban-card";
-    addText(document, card, "h3", ban.user.username);
-    addText(document, card, "p", `Reason: ${ban.reason}`);
+    const card = el("article", { class: "ban-card" });
+    card.append(el("h3", { text: ban.user.username }));
+    addText(card, `Reason: ${ban.reason}`);
     if (ban.expiresAt) {
-      addText(document, card, "p", `Expires: ${new Date(ban.expiresAt).toLocaleString()}`);
+      addText(card, `Expires: ${new Date(ban.expiresAt).toLocaleString()}`);
     }
     const form = createForm(document, "admin-unban", [
       createInput(document, {
