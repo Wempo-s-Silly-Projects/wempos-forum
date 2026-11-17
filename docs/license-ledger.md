@@ -35,3 +35,32 @@ gate held transient-red between the two header commits (GC's).
 wempo-accounts api/filter.mjs (third twin of the same body) took its notice
 in 3102c49 with its own project token; its body remains byte-identical to the
 twin body.
+
+## The __Host- cookie-prefix rename wave (lead-ruled coordinated pair)
+
+| Side | Touched files | SHA | Named partner |
+| --- | --- | --- | --- |
+| wempos-forum | api/core/auth.mjs (pin-locked byte-twin), api/session.mjs, worker.mjs, 4 test fixture files, tests/cookie-prefix.test.mjs (new) | 4299fe2 | GooberCord a8f28bf |
+| GooberCord | api/core/auth.mjs (byte-identical after substitution), api/accounts.mjs, public/js/main.js wiring, fixture files, contract-parity rider re-aim | a8f28bf | wempos-forum 4299fe2 |
+
+Shape: the write path answers ONLY `__Host-` + the repo's own session name
+with `; Secure` unconditional (the RFC 6265bis prefix contract); the READ
+path accepts the legacy bare name for exactly one transitional cycle; a
+legacy hit on a live row self-migrates — `session.migrateCookies` re-issues
+the SAME token under the prefixed name (remaining TTL) plus clears the bare
+name (Max-Age=0), zero DB writes — and each repo's boot-GET attach carries
+the pair. Verification: byte-identity of the twin file holds under the
+substitution map (FORUM_DB, wempo_session, "Wempo's Forum") — GC a8f28bf ==
+vendorize(forum 4299fe2:api/core/auth.mjs), re-verified from both sides;
+suites same-wave green (forum 208/208 at 4299fe2, GC 1132/1132 at a8f28bf);
+GC's contract-parity rider re-aimed in a8f28bf to the wave's content-anchored
+markers, all four passing against the forum bytes.
+
+Dead-limb record: a conformance attempt (67f3257, built from the peer's
+STAGED-but-unpushed rider bytes, WeakMap era) diverged from the canonical
+shape and re-red the gate; reverted publicly in 99a914d (no history
+rewrite). Law codified by the gate chair for every future coordinated wave:
+BUILD ONLY FROM COMMITTED SHAs — staged-but-unpushed peer bytes are a rumor
+until pushed; iteration rides commit + push, in the lane that owns the
+bytes. The legacy-read fallback and its attach are a NAMED cleanup row
+(chair-called) once a full cycle's ledger shows zero legacy reads.
