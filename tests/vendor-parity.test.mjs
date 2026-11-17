@@ -1,29 +1,48 @@
-// The Kitskey vendor pin (phase 1 of the framework migration): api/vendor/
-// is NOT an app-owned copy of the framework — each vendored file must be
-// byte-identical to the Project Kitskey source it vendors, in the sibling
-// checkout at /Users/itswempo/project-designer. A drift in EITHER direction
-// fails here: copy a framework change in deliberately (vendor the file, run
-// the suite), or copy an app-side fix upstream to the framework — never edit
-// the vendored file in place.
+// The Kitskey vendor pin (the framework migration): api/vendor/ is NOT an
+// app-owned copy of the framework — each vendored file must be byte-identical
+// to the Project Kitskey source it vendors, in the sibling checkout at
+// /Users/itswempo/project-designer. A drift in EITHER direction fails here:
+// copy a framework change in deliberately (vendor the file, run the suite),
+// or copy an app-side fix upstream to the framework — never edit the vendored
+// file in place.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const FRAMEWORK_HTTP = path.resolve(HERE, "..", "..", "project-designer", "experience", "http.mjs");
-const VENDORED_HTTP = path.resolve(HERE, "..", "api", "vendor", "http.mjs");
+const KITSKEY_DIR = path.resolve(HERE, "..", "..", "project-designer", "experience");
+const VENDOR_DIR = path.resolve(HERE, "..", "api", "vendor");
 
-test("api/vendor/http.mjs is byte-identical to the Kitskey framework source", () => {
-  assert.equal(readFileSync(VENDORED_HTTP, "utf8"), readFileSync(FRAMEWORK_HTTP, "utf8"));
+// The vendored-file ledger: every file in api/vendor/ gets a byte-pin line
+// here, keyed to its source NAME inside experience/. A new vendor phase adds
+// its line in the same commit.
+const VENDORED = [
+  ["http.mjs", "http.mjs"],
+  ["db.mjs", "db.mjs"],
+];
+
+for (const [vendoredName, sourceName] of VENDORED) {
+  test(`api/vendor/${vendoredName} is byte-identical to the Kitskey framework source`, () => {
+    assert.equal(
+      readFileSync(path.join(VENDOR_DIR, vendoredName), "utf8"),
+      readFileSync(path.join(KITSKEY_DIR, sourceName), "utf8"),
+    );
+  });
+}
+
+test("the vendored-file ledger covers every .mjs file in api/vendor/", () => {
+  const onDisk = readdirSync(VENDOR_DIR).filter((name) => name.endsWith(".mjs"));
+  assert.deepEqual(onDisk.sort(), VENDORED.map(([name]) => name).sort(),
+    "a vendored file without a ledger line is drifting un-pinned");
 });
 
 // The vendored module's HttpError must be THE HttpError the app throws and
 // classifies: core/http.mjs re-exports the vendor class, and worker.mjs's
-// apiError does `instanceof HttpError` against the core import — so the
-// re-export chain, not a second class, is what keeps the 500/4xx
-// classification alive after the migration.
+// errorReply (the vendor import) does the classification against the SAME
+// class — so the re-export chain, not a second class, is what keeps the
+// 500/4xx classification alive after the migration.
 test("core/http.mjs re-exports the vendored HttpError (one class, not a twin)", async () => {
   const vendor = await import("../api/vendor/http.mjs");
   const core = await import("../api/core/http.mjs");
@@ -53,4 +72,55 @@ test("the migrated core leaf answers through the vendor vocabulary", async () =>
 
   const fallback = core.errorReply(new Error("boom"), "Test:");
   assert.equal(fallback.status, 500, "a non-HttpError takes the shared 500");
+});
+
+// --- phase 3 (experience/db): the cursors + block-gate core leaves ----------
+
+// Consumer-shape pins: the core leaves are re-export seams, not re-copies —
+// the codec block and the SQL blocks must live only in the vendor file.
+test("core/cursors.mjs re-exports the codecs instead of re-copying them", () => {
+  const core = readFileSync(path.resolve(HERE, "..", "api", "core", "cursors.mjs"), "utf8");
+  assert.ok(!core.includes("export function"), "the codec bodies must come from the vendor");
+  assert.match(core, /export \{\s*parseActivityCursor,[\s\S]*from "\.\.\/vendor\/db\.mjs"/);
+});
+
+test("core/blocks.mjs binds the app's gate instead of re-copying it", () => {
+  const core = readFileSync(path.resolve(HERE, "..", "api", "core", "blocks.mjs"), "utf8");
+  assert.ok(!core.includes("SELECT 1 FROM blocks"), "the SQL bodies must come from the vendor");
+  assert.match(core, /makeBlockGate\(\{ table: "blocks" \}\)/);
+  assert.match(core, /from "\.\.\/vendor\/db\.mjs"/);
+});
+
+// Behavior through the seams: the wire formats and the wall behave exactly as
+// before (the deep pins live in tests/cursors.test.mjs and
+// tests/blocks-module.test.mjs; these hold the seam itself together).
+test("the re-exported cursor codecs round-trip, and the gate SQL rides the vendor", async () => {
+  const cursors = await import("../api/core/cursors.mjs");
+  assert.deepEqual(
+    cursors.parseActivityCursor(cursors.encodeActivityCursor({ pinned_at: null, last_activity_at: 1729000000, id: 42 })),
+    { rank: 1, seconds: 1729000000, id: 42 },
+    "the re-export seam round-trips the ranked activity cursor",
+  );
+  assert.equal(cursors.encodeScoreCursor({ like_count: 3, dislike_count: 5, id: 9 }), "-2_9");
+
+  const blocks = await import("../api/core/blocks.mjs");
+  const seen = [];
+  const env = {
+    FORUM_DB: {
+      prepare(sql) {
+        return {
+          bind(...values) {
+            seen.push({ sql, values });
+            return { first: async () => ({ "1": 1 }), all: async () => ({ results: [{ id: 7 }, { id: 12 }] }) };
+          },
+        };
+      },
+    },
+  };
+  assert.equal(await blocks.blockPairExists(env, 4, 11), true);
+  assert.deepEqual(await blocks.blockedIdList(env, 4), [7, 12], "blocked ids are Number-coerced as before");
+  assert.match(seen[1].sql, /FROM blocks WHERE blocker_id = \?1/, "the table rides the gate's config");
+  assert.equal(blocks.viewerBlockFilterSql({ id: 9, role: "admin" }, "author_id"), "",
+    "staff reads bypass the wall, exactly as before the migration");
+  assert.equal(blocks.viewerBlockFilterSql({ id: 9, role: "member" }, "author_id"), blocks.blockFilterSql("author_id"));
 });
