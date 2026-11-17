@@ -3,13 +3,6 @@ import { addText } from "./forms.js";
 import { renderBannedScreen } from "./banned.js";
 import { boardLabel } from "./boards.js";
 import { isPlainLeftClick, startRouter } from "./router.js";
-import {
-  ACTIONS as chatActions,
-  FORM_HANDLERS as chatFormHandlers,
-  initChat,
-  updateChatSession,
-  renderChatRoute,
-} from "./chat.js";
 import { applyCornerPreference, initTheme } from "./theme.js";
 import {
   renderTurnstileSlots,
@@ -106,8 +99,7 @@ import {
 
 // v4.0 plan 4 Task 7: the appeals concern (the /appeals route and its
 // submits) and the notifications concern (the /notifications route and
-// its actions) live in routes/appeals.js and routes/notifications.js
-// (the /chat route wrapper moved into chat.js itself).
+// its actions) live in routes/appeals.js and routes/notifications.js.
 import {
   FORM_HANDLERS as appealFormHandlers,
 } from "./routes/appeals.js";
@@ -124,9 +116,9 @@ import {
   renderAdminRoute,
 } from "./routes/admin.js";
 
-// v4.0 plan 4 Task 9: the report dialog, the header chrome (mobile bar +
-// site-section icons + logout), and the chat panel's dispatch entries live
-// in routes/reports.js, routes/account-nav.js, and chat.js.
+// v4.0 plan 4 Task 9: the report dialog and the header chrome (mobile bar +
+// site-section icons + logout) live in routes/reports.js and
+// routes/account-nav.js.
 import {
   ACTIONS as reportActions,
   FORM_HANDLERS as reportFormHandlers,
@@ -150,9 +142,6 @@ async function prepareRouteContext(version) {
   state.currentUser = session.user;
   setCsrfToken(session.csrfToken);
   renderAccountNavigation(session.user, session.unreadNotifications ?? 0);
-  // Live chat (v3.1): mirror the session into the chat module — heartbeat
-  // start/stop and the send form's availability. Cheap on repeats.
-  updateChatSession(session.user);
   return {
     session,
     setupRequired: setup.required,
@@ -169,7 +158,6 @@ function setRouteTitle(route) {
     mine: "My posts",
     leaderboard: "Leaderboard",
     rules: "Rules",
-    chat: "Chat",
     post: "Post",
     profile: "Profile",
     admin: "Moderation",
@@ -227,7 +215,6 @@ async function renderRoute(route) {
     leaderboard: () => renderLeaderboardRoute(context, version),
     rules: () => renderRulesRoute(context, version),
     category: () => renderCategoryRoute(route, context, version),
-    chat: () => renderChatRoute(context, version),
     archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
@@ -268,8 +255,6 @@ async function submitForm(form) {
     ...adminFormHandlers,
     // The report form lives in routes/reports.js.
     ...reportFormHandlers,
-    // The chat/DM sends live in chat.js.
-    ...chatFormHandlers,
     // The two-factor confirm/disable/login step lives in routes/twofa.js.
     ...twofaFormHandlers,
   };
@@ -312,8 +297,6 @@ async function handleButtonAction(button) {
     ...reportActions,
     // The header's sign-out lives in routes/account-nav.js.
     ...accountNavActions,
-    // The chat/DM page actions live in chat.js.
-    ...chatActions,
     // The blocked-members unblock action lives in routes/blocks.js.
     ...blockActions,
     // Two-factor setup lives in routes/twofa.js.
@@ -444,9 +427,6 @@ async function boot() {
     catch { storage = { getItem: () => null, setItem: () => {} }; }
     initTheme(document, storage);
     applyCornerPreference(document, storage);
-    // Live chat (v3.1): the poll loop starts at boot so the header's online
-    // counter is fresh even before the panel is ever opened.
-    initChat();
     fillVersionTag().catch(() => {});
     // The §4b door-swap: GooberCord's twin landed first — the forum has no
     // password sign-in UI anymore, so a signed-out open carrying

@@ -148,7 +148,7 @@ function renderProfile(profile, session) {
     heading.append(element("span", "avatar-pending-badge", "Avatar awaiting review"));
   }
   if (session.user && session.user.id !== profile.id) {
-    // Blocks (v4.4): the Block toggle lives beside Message/Report. Once a
+    // Blocks (v4.4): the Block toggle lives beside the report control. Once a
     // pair exists this profile becomes unavailable (both directions), so the
     // Unblock controls live in the account settings' blocked-members list.
     const blockButton = element("button", "button button-quiet", "Block");
@@ -157,14 +157,6 @@ function renderProfile(profile, session) {
     blockButton.dataset.profileId = String(profile.id);
     blockButton.dataset.username = profile.username;
     heading.append(blockButton);
-    // DMs (v3.1): the conversation starter — find-or-creates the 1:1 thread
-    // and opens the chat panel on it. The word filter and desk review apply
-    // to DMs exactly like the public room.
-    const messageButton = element("button", "button button-secondary", "Message");
-    messageButton.type = "button";
-    messageButton.dataset.action = "dm-open";
-    messageButton.dataset.username = profile.username;
-    heading.append(messageButton);
     // Report-a-profile (v2.5): the bio/flair/banner/css surface is
     // reportable like post content — same desk, same resolve flow.
     const reportProfile = element("button", "button button-quiet", "Report profile");

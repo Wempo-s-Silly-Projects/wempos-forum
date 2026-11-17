@@ -7,7 +7,6 @@ import { api, setCsrfToken } from "../api.js";
 import { accountActions, element } from "../dom.js";
 import { iconButton } from "../icons.js";
 import { createNotificationBell } from "../notifications.js";
-import { createChatButton } from "../chat.js";
 // The §4b door-swap: every auth link (header Sign in, mobile guest rung)
 // targets Wempo Accounts with an origin-only return; logout hands the browser
 // to the Accounts sign-out land so the Accounts session clears too.
@@ -116,9 +115,6 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
     createSectionLink("scroll", "/rules", "Rules"),
   );
 
-  // Live chat (v3.1): the panel toggle carries the online counter. Guests
-  // read the stream and see the count; sending needs a session.
-  accountActions.append(createChatButton(document));
 
   if (!currentUser) {
     const signIn = element(

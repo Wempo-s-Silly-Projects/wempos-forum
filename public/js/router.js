@@ -20,7 +20,6 @@ export const routeForPath = (pathname, search = "") => {
   if (adminSection) return { name: "admin", section: adminSection[1] || "dashboard" };
   if (pathname === "/notifications") return { name: "notifications" };
   if (pathname === "/bookmarks") return { name: "bookmarks" };
-  if (pathname === "/chat") return { name: "chat" };
   // Categories (v3.1, Discourse-style): /c/<slug> is the canonical category
   // route; /suggestions stays as a live alias (the header lightbulb and the
   // mobile bar's Suggest item both point at it). Unknown slugs 404 like any
