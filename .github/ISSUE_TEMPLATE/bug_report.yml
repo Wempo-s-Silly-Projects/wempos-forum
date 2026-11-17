@@ -65,7 +65,7 @@ body:
     attributes:
       label: Did you have any extensions on?
       description: If so, try without any extensions on.
-      opptions:
+      options:
         - label: I have verified the issue happens without extensions
           required: true
 
