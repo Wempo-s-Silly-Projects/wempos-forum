@@ -1,3 +1,21 @@
+// Copyright 2026 YourLocalGoober
+//
+// This file is part of Wempo's Forum.
+//
+// Wempo's Forum is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
+
 // Thread subscriptions (C1): member follow/unfollow of a ROOT thread, plus the
 // reply fan-out that notifies every subscriber when a reply lands on the root.
 // Routes mirror the reaction routes' gates (requireUser + assertNotBanned +

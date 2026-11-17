@@ -1,3 +1,21 @@
+// Copyright 2026 YourLocalGoober
+//
+// This file is part of Wempo's Forum.
+//
+// Wempo's Forum is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
+
 // TOTP two-factor sign-in (v4.0.1, backup codes v4.8.1): setup/confirm/
 // disable on the member's own hand, plus the login-step verification.
 // 2FA only — no email fallback; the recovery path is the single-use backup
