@@ -6,7 +6,9 @@
 // pepper with username_key binding).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { handleRelayRoutes } from "../api/relay.mjs";
+import { handleRelayRoutes, relayWorkerStamp } from "../api/relay.mjs";
+import { readFileSync } from "node:fs";
+import worker from "../worker.mjs";
 import { HttpError } from "../api/core/http.mjs";
 import { hashPassword } from "../api/core/passwords.mjs";
 import { requestIpHash } from "../api/core/auth.mjs";
@@ -404,4 +406,82 @@ test("relay session-revoke-all: zero rows answers { revoked: 0 } — no existenc
     "/api/relay/session-revoke-all", "POST",
   ));
   assert.deepEqual(data, { revoked: 0 }, "the unknown-user answer matches the empty-user answer");
+});
+
+// --- H2: the dispatch tier keys relay-lane work per-worker ---------------------
+
+test("relayWorkerStamp: a plain slug rides through, anything else is nothing", async () => {
+  const mk = (value) => new Request("https://forum.test/", { headers: value ? { "X-Relay-Worker": value } : {} });
+  assert.equal(relayWorkerStamp(mk("goobercord")), "goobercord");
+  assert.equal(relayWorkerStamp(mk("wempos-forum")), "wempos-forum");
+  assert.equal(relayWorkerStamp(mk("x".repeat(65))), null, "over-long stamps are nothing");
+  assert.equal(relayWorkerStamp(mk("../../etc/passwd")), null, "non-slug stamps are nothing");
+  assert.equal(relayWorkerStamp(mk("")), null, "an empty stamp is nothing");
+  assert.equal(relayWorkerStamp(mk()), null, "an absent stamp is nothing");
+});
+
+test("the dispatch tier keys a stamped relay call's bucket on the CALLING WORKER, not a shared unknown bucket", async () => {
+  const writeKeys = [];
+  const db = fakeDb({}, { "DELETE FROM sessions WHERE user_id = ?": 1 });
+  const env = {
+    FORUM_DB: db,
+    RELAY_TOKEN: TOKEN,
+    PASSWORD_PEPPER: PEPPER,
+    WRITE_RATE_LIMITER: { limit: async ({ key }) => { writeKeys.push(key); return { success: true }; } },
+    LOGIN_RATE_LIMITER: { limit: async () => ({ success: true }) },
+    PASSWORD_CHANGE_RATE_LIMITER: { limit: async () => ({ success: true }) },
+  };
+
+  // Two different calling workers, same relay lane, same verb: each gets its
+  // OWN keyed bucket on the global tier (the write tier) — GC's and
+  // Accounts' relay work no longer throttle each other.
+  for (const stamp of ["goobercord", "wempos-forum"]) {
+    const response = await worker.fetch(
+      new Request("https://forum.test/api/relay/session-revoke-all", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "X-Relay-Token": TOKEN,
+          "X-Relay-Worker": stamp,
+        },
+        body: JSON.stringify({ userId: 9 }),
+      }),
+      env,
+      undefined,
+    );
+    assert.equal(response.status, 200);
+  }
+
+  assert.equal(writeKeys.length, 2);
+  assert.notEqual(writeKeys[0], writeKeys[1], "distinct buckets per calling worker");
+});
+
+test("an UNstamped relay call keeps the current browser-shaped bucket — fallback behavior unchanged", async () => {
+  const writeKeys = [];
+  const db = fakeDb({}, { "DELETE FROM sessions WHERE user_id = ?": 1 });
+  const env = {
+    FORUM_DB: db,
+    RELAY_TOKEN: TOKEN,
+    PASSWORD_PEPPER: PEPPER,
+    WRITE_RATE_LIMITER: { limit: async ({ key }) => { writeKeys.push(key); return { success: true }; } },
+    LOGIN_RATE_LIMITER: { limit: async () => ({ success: true }) },
+    PASSWORD_CHANGE_RATE_LIMITER: { limit: async () => ({ success: true }) },
+  };
+  const response = await worker.fetch(
+    new Request("https://forum.test/api/relay/session-revoke-all", {
+      method: "POST",
+      headers: { "content-type": "application/json", "X-Relay-Token": TOKEN },
+      body: JSON.stringify({ userId: 9 }),
+    }),
+    env,
+    undefined,
+  );
+  assert.equal(response.status, 200);
+  assert.equal(writeKeys.length, 1, "one global write-tier pass, keyed as it always was");
+});
+
+test("the forum's own redeem client declares its identity: api/accounts.mjs stamps X-Relay-Worker", async () => {
+  const source = readFileSync(new URL("../api/accounts.mjs", import.meta.url), "utf8");
+  assert.match(source, /"X-Relay-Worker": "wempos-forum"/,
+    "the forum's redeem binding call declares the wempos-forum slug (accounts enforces return_site against it)");
 });

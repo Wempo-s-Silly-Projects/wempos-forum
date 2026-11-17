@@ -42,6 +42,21 @@ async function requireRelayToken(request, env) {
   }
 }
 
+// The calling worker's convenience stamp (X-Relay-Worker, sent by the
+// sibling workers' relay clients: "goobercord" | "wempos-forum" | "accounts").
+// A plain slug or nothing — it is a BUCKETING AND STAMPING convenience, never
+// an auth boundary: the X-Relay-Token validated constant-time inside the
+// relay handlers is the whole auth, and a slug is trusted only AFTER that.
+// The forum's dispatch tier reads it PRE-auth to pick a throttle key only —
+// it cannot grant anything, only spread contention. Runtime caveat the
+// security auditors flagged: whether the platform injects CF-Connecting-IP
+// into service-binding subrequests is unverified, so the explicit header is
+// what makes per-worker throttling platform-independent either way.
+export function relayWorkerStamp(request) {
+  const name = request.headers.get("X-Relay-Worker") || "";
+  return /^[A-Za-z0-9-]{1,64}$/.test(name) ? name : null;
+}
+
 function isIpLiteral(value) {
   const ipv4 = value.split(".");
   if (ipv4.length === 4 && ipv4.every((part) =>

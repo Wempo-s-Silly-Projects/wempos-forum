@@ -24,7 +24,7 @@ import { handleBlockRoutes } from "./api/blocks.mjs";
 import { handleTotpRoutes } from "./api/twofa.mjs";
 import { handleAccountsRoutes } from "./api/accounts.mjs";
 import { ensureFilterWords, handleFilterAdminRoutes } from "./api/filterstore.mjs";
-import { handleRelayRoutes } from "./api/relay.mjs";
+import { handleRelayRoutes, relayWorkerStamp } from "./api/relay.mjs";
 
 export { canViewPost } from "./api/core/visibility.mjs";
 export { isValidUsername } from "./api/core/shapers.mjs";
@@ -44,6 +44,7 @@ export {
   blobToUint8Array,
 } from "./api/core/images.mjs";
 export { requireTurnstile, rateLimit } from "./api/core/http.mjs";
+export { relayWorkerStamp } from "./api/relay.mjs";
 export { createUserBan } from "./api/moderation.mjs";
 export { fanOutStatements, notificationBatchStatements, unreadCount } from "./api/notifications.mjs";
 
@@ -135,7 +136,23 @@ async function routeApi(request, env, ctx) {
   // the D1 row when it exists, else the FILTERED_WORDS secret.
   await ensureFilterWords(env);
 
-  await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
+  // The global tier. Relay-lane calls (the sibling workers' service-binding
+  // lanes under /api/relay/*) carry no browser IP, and every one collapsed
+  // into the same "unknown" bucket — GC's and Accounts' credential work
+  // throttling each other estate-wide (the H2 finding). When a token-holding
+  // caller announces itself with the plain X-Relay-Worker slug, the tier
+  // keys on THAT instead (current behavior otherwise). The slug is a
+  // bucketing convenience, NOT an auth boundary: the X-Relay-Token validated
+  // inside the relay handlers is the only boundary, and this pre-auth read
+  // only ever picks a throttle key. Whether the platform injects
+  // CF-Connecting-IP into service-binding subrequests is unverified — the
+  // explicit slug makes us platform-independent either way.
+  const relayWorker = relayWorkerStamp(request);
+  if (relayWorker) {
+    await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write", "worker:" + relayWorker);
+  } else {
+    await rateLimit(request, env, method === "GET" || method === "HEAD" ? "read" : "write");
+  }
 
   const handlers = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleChatRoutes, handleDmRoutes, handleWallRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes];
   for (const handler of handlers) {
