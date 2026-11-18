@@ -1,4 +1,4 @@
-// Copyright 2026 YourLocalGoober
+// Copyright 2026 ItsWempo
 //
 // This file is part of Wempo's Forum.
 //
