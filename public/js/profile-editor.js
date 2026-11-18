@@ -1,9 +1,33 @@
+// Copyright 2026 ItsWempo
+//
+// This file is part of Wempo's Forum.
+//
+// Wempo's Forum is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
+
 // Profile editor (bio up to 10,000 characters + the ten social inputs) and the
-// pure social-link map shared by the profile page renderer in app.js. The
-// client-side patterns below are pinned copies of api/shared.mjs
+// pure social-link map shared by the profile page renderer in routes/profile.js.
+// The client-side patterns below are pinned copies of api/shared.mjs
 // SOCIAL_PLATFORMS — the server re-validates everything; these only steer the
 // editor. All DOM building is textContent-based (no innerHTML).
-import { createForm, createInput, createTextarea } from "./forms.js";
+// 5.0 wave 5: the editor rides the vendored framework — the kit's
+// createForm/createInput (the verbatim twins of the old forms.js calls) build
+// the labeled fields, el() builds the rest. createTextarea has no kit twin,
+// so the frozen forms.js still supplies it.
+import { el } from "./vendor/frontload/dom.mjs";
+import { createForm, createInput } from "./vendor/designer/kit.mjs";
+import { createTextarea } from "./forms.js";
 
 export const SOCIAL_LABELS = {
   youtube: "YouTube",
@@ -106,34 +130,17 @@ export const invalidSocialKeys = (socials = {}) => {
 export function renderProfileSocials(document, profile, isOwnProfile = false) {
   const links = buildSocialLinks(profile?.socials, profile?.polytoriaUsername);
   if (!links.length) return null;
-  const container = document.createElement("details");
-  container.className = "socials-details";
+  const container = el("details", { class: "socials-details" });
   container.open = isOwnProfile;
-  const summary = document.createElement("summary");
-  summary.className = "socials-summary";
-  summary.textContent = links.length === 1 ? "1 link" : `${links.length} links`;
-  container.append(summary);
-  const list = document.createElement("ul");
-  list.className = "profile-socials";
+  container.append(el("summary", { class: "socials-summary",
+    text: links.length === 1 ? "1 link" : `${links.length} links` }));
+  const list = el("ul", { class: "profile-socials" });
   for (const link of links) {
-    const item = document.createElement("li");
-    item.className = "profile-social";
-    const label = document.createElement("span");
-    label.className = "social-label";
-    label.textContent = `${link.label}: `;
-    item.append(label);
-    if (link.url) {
-      const anchor = document.createElement("a");
-      anchor.className = "social-handle";
-      anchor.textContent = link.text;
-      anchor.href = link.url;
-      item.append(anchor);
-    } else {
-      const handle = document.createElement("span");
-      handle.className = "social-handle";
-      handle.textContent = link.text;
-      item.append(handle);
-    }
+    const item = el("li", { class: "profile-social" });
+    item.append(el("span", { class: "social-label", text: `${link.label}: ` }));
+    item.append(link.url
+      ? el("a", { class: "social-handle", text: link.text, href: link.url })
+      : el("span", { class: "social-handle", text: link.text }));
     list.append(item);
   }
   container.append(list);
@@ -146,11 +153,8 @@ export function renderProfileSocials(document, profile, isOwnProfile = false) {
 // after PATCH /api/me (the PATCH response echo is asymmetric).
 export function renderProfileEditor(main, user) {
   const document = main.ownerDocument;
-  const panel = document.createElement("section");
-  panel.className = "panel profile-editor-panel";
-  const heading = document.createElement("h2");
-  heading.textContent = "Edit your profile";
-  panel.append(heading);
+  const editorPanel = el("section", { class: "panel profile-editor-panel" });
+  editorPanel.append(el("h2", { text: "Edit your profile" }));
   const socials = user && user.socials && typeof user.socials === "object"
     ? user.socials
     : {};
@@ -191,14 +195,14 @@ export function renderProfileEditor(main, user) {
   form.querySelector("#profile-banner-color").value = user?.bannerColor || "";
   form.querySelector("#profile-banner-text").value = user?.bannerText || "";
   form.querySelector("#profile-flair").value = user?.flair || "";
-  panel.append(form);
+  editorPanel.append(form);
   if (user) {
     const cssPanel = renderProfileCssEditor(document, user);
-    if (cssPanel) panel.append(cssPanel);
-    panel.append(renderProfileAccentPicker(document, user.profileAccent || ""));
+    if (cssPanel) editorPanel.append(cssPanel);
+    editorPanel.append(renderProfileAccentPicker(document, user.profileAccent || ""));
   }
-  main.append(panel);
-  return panel;
+  main.append(editorPanel);
+  return editorPanel;
 }
 
 // Profile colors (any hex, v3.0.2): the presets are display-only quick
@@ -218,19 +222,17 @@ export const PROFILE_ACCENT_PRESETS = [
 ];
 
 export function renderProfileAccentPicker(document, currentAccent = "") {
-  const field = document.createElement("div");
-  field.className = "accent-picker";
-  const label = document.createElement("p");
-  label.className = "accent-picker-label";
-  label.textContent = "Profile color";
-  field.append(label);
+  const field = el("div", { class: "accent-picker" });
+  field.append(el("p", { class: "accent-picker-label", text: "Profile color" }));
   const current = String(currentAccent || "").toLowerCase();
   for (const preset of PROFILE_ACCENT_PRESETS) {
-    const swatch = document.createElement("button");
+    const swatch = el("button", {
+      // The preset's own modifier rides the class name; the factory family
+      // sets the rest through the structural props below.
+      class: "accent-swatch" + (preset.key ? " accent-" + preset.key : " accent-default"),
+      dataset: { accent: preset.hex, action: "set-profile-accent" },
+    });
     swatch.type = "button";
-    swatch.className = "accent-swatch" + (preset.key ? " accent-" + preset.key : " accent-default");
-    swatch.dataset.accent = preset.hex;
-    swatch.dataset.action = "set-profile-accent";
     swatch.setAttribute("aria-label", "Profile color: " + preset.label);
     swatch.setAttribute("title", preset.label);
     swatch.setAttribute("aria-pressed", preset.hex.toLowerCase() === current ? "true" : "false");
@@ -238,9 +240,7 @@ export function renderProfileAccentPicker(document, currentAccent = "") {
   }
   // Any-hex pick: a native color input. app.js owns the change handler (this
   // module stays DOM-pure); it PATCHes the hex and re-renders the route.
-  const colorInput = document.createElement("input");
-  colorInput.type = "color";
-  colorInput.className = "accent-color-input";
+  const colorInput = el("input", { type: "color", class: "accent-color-input" });
   colorInput.value = /^#[0-9a-fA-F]{6}$/.test(String(currentAccent || "")) ? currentAccent : "#3f8a63";
   colorInput.setAttribute("aria-label", "Custom profile color");
   colorInput.setAttribute("title", "Custom color — any hex");
@@ -252,33 +252,29 @@ export function renderProfileAccentPicker(document, currentAccent = "") {
 // (save-profile-css / clear-profile-css) do the POST/DELETE to /api/me/css,
 // mirroring the avatar desk's review-first note.
 export function renderProfileCssEditor(document, user) {
-  const panel = document.createElement("div");
-  panel.className = "css-editor";
-  const label = document.createElement("label");
-  label.className = "css-editor-label";
-  label.textContent = "Custom profile CSS (moderated)";
-  const textarea = document.createElement("textarea");
+  const cssPanel = el("div", { class: "css-editor" });
+  const textarea = el("textarea", {
+    // The kit's labeled-field law: the label wraps for the input's id.
+    maxLength: 20000,
+    class: "css-editor-input",
+    dataset: { cssInput: "true" },
+  });
   textarea.id = "profile-css-input";
-  textarea.className = "css-editor-input";
-  textarea.dataset.cssInput = "true";
-  textarea.maxLength = 20000;
   textarea.rows = 6;
   textarea.placeholder = "body { font-family: serif; } — every rule is scoped to your profile.";
   textarea.value = typeof user.customCssRaw === "string" ? user.customCssRaw : "";
-  const note = document.createElement("p");
-  note.className = "form-note";
-  note.textContent = "CSS saves as PENDING: a mod approves it before it goes live. Scoped to your profile container by the server.";
-  panel.append(label, textarea, note);
-  const save = document.createElement("button");
-  save.type = "button";
-  save.className = "button";
-  save.dataset.action = "save-profile-css";
-  save.textContent = "Save CSS for review";
-  const clear = document.createElement("button");
-  clear.type = "button";
-  clear.className = "button button-quiet";
-  clear.dataset.action = "clear-profile-css";
-  clear.textContent = "Remove my CSS";
-  panel.append(save, clear);
-  return panel;
+  cssPanel.append(el("label", { class: "css-editor-label" }, "Custom profile CSS (moderated)"));
+  cssPanel.append(textarea);
+  cssPanel.append(el("p", { class: "form-note",
+    text: "CSS saves as PENDING: a mod approves it before it goes live. Scoped to your profile container by the server." }));
+  const save = el("button", {
+    class: "button", type: "button",
+    dataset: { action: "save-profile-css" }, text: "Save CSS for review",
+  });
+  const clear = el("button", {
+    class: "button button-quiet", type: "button",
+    dataset: { action: "clear-profile-css" }, text: "Remove my CSS",
+  });
+  cssPanel.append(save, clear);
+  return cssPanel;
 }

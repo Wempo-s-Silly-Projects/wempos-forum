@@ -1,37 +1,56 @@
+// Copyright 2026 ItsWempo
+//
+// This file is part of Wempo's Forum.
+//
+// Wempo's Forum is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
+
 // v4.0 plan 5 (spec step 6), task 1: the moderation desk's report queue (ban/promote forms ride the cards) section
-// builders — bodies moved verbatim out of ../admin.js (now dissolved).
-import { createForm, createInput, addText } from "../forms.js";
+// builders — bodies moved verbatim out of ../admin.js (now dissolved) and
+// re-expressed on the vendored kit (5.0 wave 6).
+import { el } from "../vendor/frontload/dom.mjs";
+import { addText, createForm, createInput } from "../vendor/designer/kit.mjs";
 import { createBanForm } from "./bans.js";
 
-const createReportQueue = (reports, document, currentUser = null) => {
-  const list = document.createElement("div");
-  list.className = "report-list";
+const createReportQueue = (document, reports, currentUser = null) => {
+  const list = el("div", { class: "report-list" });
   if (!reports.length) {
-    addText(document, list, "p", "The report queue is clear.", "empty-state");
+    addText(list, "The report queue is clear.", "empty-state");
     return list;
   }
   for (const report of reports) {
-    const card = document.createElement("article");
-    card.className = "report-card";
-    card.dataset.reportId = String(report.id);
-    addText(document, card, "h2", `Report #${report.id}`);
-    addText(document, card, "p", `Reported by ${report.reporter.username}: ${report.reason}`);
-    const postLink = document.createElement("a");
-    postLink.href = `/posts/${report.post.id}`;
-    postLink.textContent = `Post by ${report.post.author.username}: ${report.post.body}`;
+    const card = el("article", {
+      class: "report-card",
+      dataset: { reportId: String(report.id) },
+    });
+    card.append(el("h2", { text: `Report #${report.id}` }));
+    addText(card, `Reported by ${report.reporter.username}: ${report.reason}`);
+    const postLink = el("a", {
+      href: `/posts/${report.post.id}`,
+      text: `Post by ${report.post.author.username}: ${report.post.body}`,
+    });
     card.append(postLink);
-    const actions = document.createElement("div");
-    actions.className = "form-actions";
+    const actions = el("div", { class: "form-actions" });
     for (const [action, label] of [["dismiss", "Dismiss"], ["hide_post", "Hide post"]]) {
-      const form = document.createElement("form");
-      form.dataset.form = "admin-resolve";
-      form.dataset.reportId = String(report.id);
-      form.dataset.action = action;
-      const button = document.createElement("button");
-      button.type = "submit";
-      button.className = action === "hide_post" ? "button button-danger" : "button button-secondary";
-      button.textContent = label;
-      form.append(button);
+      const form = el("form", {
+        dataset: { form: "admin-resolve", reportId: String(report.id), action },
+      });
+      form.append(el("button", {
+        type: "submit",
+        class: action === "hide_post" ? "button button-danger" : "button button-secondary",
+        text: label,
+      }));
       actions.append(form);
     }
     const banForm = createBanForm(document, report.post.author.id, report.post.author.username);

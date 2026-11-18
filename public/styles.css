@@ -1,3 +1,23 @@
+/*
+Copyright 2026 ItsWempo
+
+This file is part of Wempo's Forum.
+
+Wempo's Forum is free software: you can redistribute it and/or modify it
+under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the
+GNU Affero General Public License along with this program.  If not,
+see <https://www.gnu.org/licenses/>
+*/
+
 :root {
   color-scheme: light;
   /* Corner style (v2.5): round by default; [data-corners="square"] flips it. */
@@ -1517,6 +1537,22 @@ dialog h2 {
 .feed-tab[aria-selected="true"] {
   border: 2px solid var(--ink);
   color: var(--ink);
+  background: var(--yellow);
+}
+
+/* The unread announce (5.0 wave 2's board-read model, first ink): an unread
+   board tab gains one dot on the same --yellow the selected tab speaks, pill
+   radius. Never fires on the selected tab (the announce skips it), so the
+   yellow always sits on the tab's own field. Wave 7 rides the mobile Alerts
+   rung onto the same block (the lead's ink grant) — one grammar, one dot.
+   Nothing else on the sheet moves. */
+.feed-tab[data-unread="true"]::after,
+.mobile-bar-item[data-unread="true"]::after {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-left: 0.35rem;
+  border-radius: 999px;
   background: var(--yellow);
 }
 

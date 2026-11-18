@@ -1,9 +1,29 @@
+// Copyright 2026 ItsWempo
+//
+// This file is part of Wempo's Forum.
+//
+// Wempo's Forum is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
+
 // v4.0 plan 4 Task 7: the notifications concern — the /notifications route
 // (guest gate + renderNotificationsPage for members) and its actions (mark
 // one read on open, mark all read). Bodies moved verbatim out of app.js.
+// 5.0 wave 7 re-expresses the route on the vendored kit.
+import { el } from "../vendor/frontload/dom.mjs";
+import { addHeading, addText } from "../vendor/designer/kit.mjs";
 import { api } from "../api.js";
-import { addHeading, element, main, setMessage } from "../dom.js";
-import { addText } from "../forms.js";
+import { main, setMessage } from "../dom.js";
 import { state } from "../state.js";
 import { renderNotificationsPage, updateBell } from "../notifications.js";
 // The §4b door-swap: the guest gate's sign-in prompt is the Accounts handoff.
@@ -12,8 +32,8 @@ import { wempoAccountsSignInUrl } from "../sso.js";
 async function renderNotificationsRoute(context, version) {
   if (!context.session.user) {
     addHeading(main, "Notifications", 1);
-    addText(document, main, "p", "Sign in to see your notifications.", "muted");
-    const signIn = element("a", "button button-secondary", "Sign in");
+    addText(main, "Sign in to see your notifications.", "muted");
+    const signIn = el("a", { class: "button button-secondary", text: "Sign in" });
     signIn.href = wempoAccountsSignInUrl(location.origin);
     main.append(signIn);
     return;
