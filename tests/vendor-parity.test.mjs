@@ -152,13 +152,16 @@ test("the re-exported cursor codecs round-trip, and the gate SQL rides the vendo
 
 // The browser half of the vendoring: the framework modules under public/
 // are NOT an app-owned copy either — each rides a byte-pin to its source
-// path in /Users/itswempo/project-designer (the framework root, which is
+// path in the same Kitskey checkout the api pins bind (the framework root,
 // where frontload/ and designer/ live; the api pins above stay rooted in
-// experience/ because that is where http.mjs and db.mjs are vendored from).
+// experience/ because that is where http.mjs and db.mjs are vendored from),
+// so the same FORUM_KITSKEY_DIR override moves both halves together.
 // The designer/kit.mjs import of "../frontload/dom.mjs" is load-bearing:
 // the vendored subpaths keep the framework's own shape so the relative
 // import resolves inside the vendored tree untouched.
-const PROJECT_DESIGNER_DIR = path.resolve(HERE, "..", "..", "project-designer");
+const KITSKEY_ROOT = path.resolve(
+  process.env.FORUM_KITSKEY_DIR || path.resolve(HERE, "..", "..", "project-kitskey"),
+);
 const BROWSER_VENDOR_DIR = path.resolve(HERE, "..", "public", "js", "vendor");
 
 // The browser ledger: every file under public/js/vendor/ gets a byte-pin
@@ -174,7 +177,7 @@ for (const [vendoredPath, sourcePath] of BROWSER_VENDORED) {
   test(`public/js/vendor/${vendoredPath} is byte-identical to the Kitskey framework source`, () => {
     assert.equal(
       readFileSync(path.join(BROWSER_VENDOR_DIR, vendoredPath), "utf8"),
-      readFileSync(path.join(PROJECT_DESIGNER_DIR, sourcePath), "utf8"),
+      readFileSync(path.join(KITSKEY_ROOT, sourcePath), "utf8"),
     );
   });
 }
