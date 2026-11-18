@@ -75,7 +75,7 @@ const DESK_BUILDERS = {
   "reports": {
     lede: "Open post reports, newest first — resolve, ban, or dismiss.",
     load: () => api("/api/admin/reports"),
-    build: (data, user) => createReportQueue(data.reports, user),
+    build: (data, user) => createReportQueue(document, data.reports, user),
   },
   "profile-reports": {
     lede: "Reported profiles — resolve, view, or ban the reported member.",
@@ -116,8 +116,8 @@ const DESK_BUILDERS = {
     lede: "Active bans with unban forms, plus member search to act on anyone directly.",
     load: () => api("/api/admin/bans"),
     build: (data) => [
-      createActiveBanList(data.bans),
-      createMemberSearch(),
+      createActiveBanList(document, data.bans),
+      createMemberSearch(document),
     ],
   },
   "chat-log": {
@@ -138,7 +138,7 @@ const DESK_BUILDERS = {
   "filter": {
     lede: "The word filter — edit the full list, or bulk-add pasted entries (duplicates skip).",
     load: () => api("/api/admin/filter"),
-    build: (data) => createFilterEditor(data),
+    build: (data) => createFilterEditor(document, data),
   },
 };
 
@@ -270,7 +270,7 @@ function createProfileReportQueue(reports) {
     // the same admin-ban form as the post-report queue (reason + duration)
     // lets the mod act on the reported member right here. The generic
     // data-form="admin-ban" submit handler picks it up unchanged.
-    item.append(head, reason, resolve, visit, createBanForm(report.profileUserId, report.profileUsername));
+    item.append(head, reason, resolve, visit, createBanForm(document, report.profileUserId, report.profileUsername));
     container.append(item);
   }
   return container;

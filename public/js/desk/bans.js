@@ -37,7 +37,7 @@ const BAN_DURATION_HOURS = [
 // One ban form — reason + duration + the opt-in IP ban — shared by the
 // post-report queue, the profile-report queue, and the member search results,
 // so a reported member can be banned from any desk.
-const createBanForm = (userId, username) => {
+const createBanForm = (document, userId, username) => {
   const form = createForm(document, "admin-ban", [
     createInput(document, {
       id: `ban-reason-${userId}-${Math.random().toString(36).slice(2, 8)}`,
@@ -67,7 +67,7 @@ const createBanForm = (userId, username) => {
 // Find a member (v3.1, Pone's ask): staff search by username with the
 // active-ban state attached. Results render into the results container the
 // submit handler owns, so the desk section is self-contained.
-function createMemberSearch() {
+function createMemberSearch(document) {
   const section = el("div", { class: "member-search" });
   const form = createForm(document, "admin-member-search", [
     createInput(document, {
@@ -133,7 +133,7 @@ function renderMemberSearchResults(members) {
 
 // The active-bans list (spec §9): one card per ban — reason, expiry, and the
 // unban form. Body moved verbatim out of ../admin.js (spec step 6).
-function createActiveBanList(bans) {
+function createActiveBanList(document, bans) {
   const list = el("div", { class: "ban-list" });
   if (!bans.length) {
     addText(list, "There are no active bans.", "empty-state");

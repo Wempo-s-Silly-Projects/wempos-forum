@@ -27,7 +27,7 @@ import { el } from "../vendor/frontload/dom.mjs";
 import { addText, createForm } from "../vendor/designer/kit.mjs";
 import { createTextarea } from "../forms.js";
 
-export function createFilterEditor(data) {
+export function createFilterEditor(document, data) {
   const section = el("div", { class: "filter-editor" });
   const sourceNote = data.source === "database"
     ? "The list is stored in the database — edits apply everywhere within about 30 seconds."

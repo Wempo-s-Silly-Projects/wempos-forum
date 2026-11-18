@@ -23,7 +23,7 @@ import { el } from "../vendor/frontload/dom.mjs";
 import { addText, createForm, createInput } from "../vendor/designer/kit.mjs";
 import { createBanForm } from "./bans.js";
 
-const createReportQueue = (reports, currentUser = null) => {
+const createReportQueue = (document, reports, currentUser = null) => {
   const list = el("div", { class: "report-list" });
   if (!reports.length) {
     addText(list, "The report queue is clear.", "empty-state");
@@ -53,7 +53,7 @@ const createReportQueue = (reports, currentUser = null) => {
       }));
       actions.append(form);
     }
-    const banForm = createBanForm(report.post.author.id, report.post.author.username);
+    const banForm = createBanForm(document, report.post.author.id, report.post.author.username);
     actions.append(banForm);
     // Role changes are strictly owner-only (v3.1: the report queue itself is
     // open to admins); target start roles are not known from the payload, so

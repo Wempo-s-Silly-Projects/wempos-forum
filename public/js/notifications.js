@@ -50,7 +50,7 @@ export const notificationItemView = (item) => {
 // Header bell: shown for signed-in users only (renderAccountNavigation decides
 // whether to append it). The unread badge is hidden when the count is zero but
 // stays in the DOM so updateBell() can reveal it later without a rebuild.
-export const createNotificationBell = (unreadCount) => {
+export const createNotificationBell = (document, unreadCount) => {
   const count = Number(unreadCount) || 0;
   const bell = el("a", {
     id: "notification-bell",

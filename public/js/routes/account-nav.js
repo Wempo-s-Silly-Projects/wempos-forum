@@ -182,7 +182,7 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   );
 
   accountActions.append(
-    createNotificationBell(normaliseUnreadCount(unreadNotifications)),
+    createNotificationBell(document, normaliseUnreadCount(unreadNotifications)),
   );
 
   if (
