@@ -1,5 +1,6 @@
 # Wempo's Forum
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/819e5910d2974e0a9240c1257ec37ba4)](https://app.codacy.com/gh/Wempo-s-Silly-Projects/wempos-forum/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
 A classic discussion-board forum — boards, threads, posts, reactions,
 attachments, leaderboards, bans and appeals — served by a Cloudflare Worker
 backed by D1, with a vanilla JS frontend that talks to same-origin `/api/*`
