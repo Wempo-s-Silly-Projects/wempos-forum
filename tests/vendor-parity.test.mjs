@@ -18,11 +18,13 @@
 
 // The Kitskey vendor pin (the framework migration): api/vendor/ is NOT an
 // app-owned copy of the framework — each vendored file must be byte-identical
-// to the Project Kitskey source it vendors, in the sibling checkout at
-// /Users/itswempo/project-designer. A drift in EITHER direction fails here:
-// copy a framework change in deliberately (vendor the file, run the suite),
-// or copy an app-side fix upstream to the framework — never edit the vendored
-// file in place.
+// to the Project Kitskey source it vendors, in the sibling checkout (the kit
+// clone: /Users/itswempo/project-kitskey on this machine — historically named
+// project-designer; FORUM_KITSKEY_DIR overrides it for CI or moved checkouts,
+// mirroring GooberCord's GC_KITSKEY_DIR law). A drift in EITHER direction
+// fails here: copy a framework change in deliberately (vendor the file, run
+// the suite), or copy an app-side fix upstream to the framework — never edit
+// the vendored file in place.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
@@ -30,7 +32,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const KITSKEY_DIR = path.resolve(HERE, "..", "..", "project-designer", "experience");
+const KITSKEY_DIR = path.resolve(
+  process.env.FORUM_KITSKEY_DIR || path.resolve(HERE, "..", "..", "project-kitskey"),
+  "experience",
+);
 const VENDOR_DIR = path.resolve(HERE, "..", "api", "vendor");
 
 // The vendored-file ledger: every file in api/vendor/ gets a byte-pin line
