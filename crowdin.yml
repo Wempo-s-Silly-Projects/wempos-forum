@@ -1,5 +1,11 @@
 # Crowdin community-translation hook (the fleet's i18n pipeline).
 # The community translates; this repo ships the source. Locale files land
+# beside the source at public/locales/<locale>.json.
+#
+# PREREQUISITE (owner's issue #41, milestone 6.0): the forum's user-facing
+# strings are still inline English — the extraction to a strings module
+# (public/locales/en.json as the source table) is its own lane; this hook is
+# wired and waits for that source to exist.
 # beside the source at public/locales/<locale>.json — exactly the layout the
 # client loader already serves.
 #
@@ -22,5 +28,6 @@ preserve_hierarchy: true
 files:
   - source: "/public/locales/en.json"
     translation: "/public/locales/%locale%.json"
+    type: "json"
     type: json
     update_option: update_as_unapproved
