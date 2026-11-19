@@ -6,10 +6,16 @@
 # strings are still inline English — the extraction to a strings module
 # (public/locales/en.json as the source table) is its own lane; this hook is
 # wired and waits for that source to exist.
+# beside the source at public/locales/<locale>.json — exactly the layout the
+# client loader already serves.
 #
 # Secrets (owner-held, GitHub repo settings — never committed):
 #   CROWDIN_PROJECT_ID  — the Crowdin project's numeric id
 #   CROWDIN_PERSONAL_TOKEN — a Crowdin personal-access token
+#
+# The GitHub Action (cron + dispatch) uploads en.json and opens one PR per
+# translation batch; any Crowdin locale can be enabled on the project side
+# (more-than-8 languages needs no code change).
 
 project_id_env: CROWDIN_PROJECT_ID
 api_token_env: CROWDIN_PERSONAL_TOKEN
@@ -23,4 +29,5 @@ files:
   - source: "/public/locales/en.json"
     translation: "/public/locales/%locale%.json"
     type: "json"
+    type: json
     update_option: update_as_unapproved
