@@ -1,27 +1,3 @@
-// Copyright 2026 ItsWempo
-//
-// This file is part of Wempo's Forum.
-//
-// Wempo's Forum is free software: you can redistribute it and/or modify it
-// under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-//
-// You should have received a copy of the
-// GNU Affero General Public License along with this program.  If not,
-// see <https://www.gnu.org/licenses/>.
-
-// 5.0 wave 1: the vendored framework's boot wiring runs at import —
-// useDocument(document) plus the appearance engine on the forum's key
-// family. theme.js and theme-preload.js keep the toggle, the corner
-// preference, and the pre-paint paint in full this wave (no behavior
-// change); the route waves consume boot.mjs's exports from here on.
-import "./boot.mjs";
 import { api, setCsrfToken } from "./api.js";
 import { addText } from "./forms.js";
 import { renderBannedScreen } from "./banned.js";
@@ -97,7 +73,6 @@ import {
 import {
   ACTIONS as postActions,
   FORM_HANDLERS as postFormHandlers,
-  renderPostReportRoute,
   renderPostRoute,
 } from "./routes/post.js";
 // v4.0 plan 4 Task 5: the profile concern (the /users/:username
@@ -184,7 +159,6 @@ function setRouteTitle(route) {
     leaderboard: "Leaderboard",
     rules: "Rules",
     post: "Post",
-    "post-report": "Report a post",
     profile: "Profile",
     admin: "Moderation",
     appeals: "Appeals",
@@ -243,9 +217,6 @@ async function renderRoute(route) {
     category: () => renderCategoryRoute(route, context, version),
     archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),
-    // The report task page (5.0 wave 3): the dialog's first retirement —
-    // the report form lives at /posts/:id/report.
-    "post-report": () => renderPostReportRoute(route, context, version),
     profile: () => renderProfileRoute(route, context, version),
     admin: () => renderAdminRoute(route, context, version),
     notifications: () => renderNotificationsRoute(context, version),

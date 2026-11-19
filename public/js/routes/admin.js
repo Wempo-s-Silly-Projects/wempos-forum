@@ -1,21 +1,3 @@
-// Copyright 2026 ItsWempo
-//
-// This file is part of Wempo's Forum.
-//
-// Wempo's Forum is free software: you can redistribute it and/or modify it
-// under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-//
-// You should have received a copy of the
-// GNU Affero General Public License along with this program.  If not,
-// see <https://www.gnu.org/licenses/>.
-
 // v4.0 plan 4 Task 8: the moderation desk — the /admin route and its fourteen
 // payloads, the desk section builders that live inside app.js's renderAdmin
 // (profile-report queue, hidden posts queue, rules editor, CSS queue), and the
@@ -24,12 +6,10 @@
 // renderRoute calls inside moved bodies re-read the boot state
 // (state.renderRoute). The queue/form section builders moved to the desk/
 // modules in plan 6 (spec step 6): appeals, bans, chat-log, media,
-// reports — imported below. The route is re-expressed on the vendored kit
-// (5.0 wave 6); chat-log stays on its forms.js twins (untouched this wave).
-import { el } from "../vendor/frontload/dom.mjs";
-import { addHeading, addText } from "../vendor/designer/kit.mjs";
+// reports — imported below.
 import { api } from "../api.js";
-import { main, setMessage } from "../dom.js";
+import { addHeading, element, main, setMessage } from "../dom.js";
+import { addText } from "../forms.js";
 import { state } from "../state.js";
 import { createAppealQueue } from "../desk/appeals.js";
 import {
@@ -75,48 +55,48 @@ const DESK_BUILDERS = {
   "reports": {
     lede: "Open post reports, newest first — resolve, ban, or dismiss.",
     load: () => api("/api/admin/reports"),
-    build: (data, user) => createReportQueue(document, data.reports, user),
+    build: (data, user) => createReportQueue(data.reports, document, user),
   },
   "profile-reports": {
     lede: "Reported profiles — resolve, view, or ban the reported member.",
     load: () => api("/api/admin/profile-reports"),
-    build: (data) => createProfileReportQueue(data.profileReports),
+    build: (data) => createProfileReportQueue(data.profileReports, document),
   },
   "appeals": {
     lede: "Second looks at bans a member appealed. Approve to revoke the ban — approval notifies the member.",
     load: () => api("/api/admin/appeals"),
-    build: (data) => createAppealQueue(data.appeals),
+    build: (data) => createAppealQueue(data.appeals, document),
   },
   "images": {
     lede: "Attachments awaiting review. Author sees their own pending images; approve makes them public.",
     load: () => api("/api/admin/attachments"),
-    build: (data) => createAttachmentQueue(data.attachments),
+    build: (data) => createAttachmentQueue(data.attachments, document),
   },
   "avatars": {
     lede: "Avatar uploads awaiting review. The previous avatar keeps serving until you decide.",
     load: () => api("/api/admin/avatars"),
-    build: (data) => createAvatarQueue(data.avatars),
+    build: (data) => createAvatarQueue(data.avatars, document),
   },
   "gifs": {
     lede: "GIF submissions for the shared library.",
     load: () => api("/api/admin/gifs"),
-    build: (data) => createGifQueue(data.gifs),
+    build: (data) => createGifQueue(data.gifs, document),
   },
   "css": {
     lede: "Custom profile CSS awaiting review. Approved themes serve scoped and sandboxed.",
     load: () => api("/api/admin/css"),
-    build: (data) => createCssQueue(data.cssSubmissions),
+    build: (data) => createCssQueue(data.cssSubmissions, document),
   },
   "hidden": {
     lede: "Hidden posts and everything by actively banned members, bodies included.",
     load: () => api("/api/admin/hidden"),
-    build: (data) => createHiddenPostsQueue(data.hidden),
+    build: (data) => createHiddenPostsQueue(data.hidden, document),
   },
   "bans": {
     lede: "Active bans with unban forms, plus member search to act on anyone directly.",
     load: () => api("/api/admin/bans"),
-    build: (data) => [
-      createActiveBanList(document, data.bans),
+    build: (data, user) => [
+      createActiveBanList(data.bans, document),
       createMemberSearch(document),
     ],
   },
@@ -133,12 +113,12 @@ const DESK_BUILDERS = {
   "rules": {
     lede: "The site copy every /rules visitor reads — markdown subset, word-filtered.",
     load: () => api("/api/rules"),
-    build: (data) => createRulesEditor(data.rules),
+    build: (data) => createRulesEditor(data.rules, document),
   },
   "filter": {
     lede: "The word filter — edit the full list, or bulk-add pasted entries (duplicates skip).",
     load: () => api("/api/admin/filter"),
-    build: (data) => createFilterEditor(document, data),
+    build: (data) => createFilterEditor(data, document),
   },
 };
 
@@ -147,7 +127,7 @@ async function renderAdminRoute(route, context, version) {
   const staff = Boolean(user && (user.role === "owner" || user.role === "admin"));
   if (!staff) {
     addHeading(main, "Moderation desk", 1);
-    addText(main, "Only staff can use the desk.", "muted");
+    addText(document, main, "p", "Only staff can use the desk.", "muted");
     return;
   }
   const slug = DESK_BUILDERS[route.section] ? route.section : "dashboard";
@@ -157,7 +137,7 @@ async function renderAdminRoute(route, context, version) {
     const data = await section.load();
     if (version !== state.renderVersion) return;
     addHeading(content, DESK_SECTIONS.find((s) => s.slug === slug).label, 1);
-    addText(content, section.lede, "page-lede");
+    addText(document, content, "p", section.lede, "page-lede");
     const body = section.build(data, user);
     for (const node of Array.isArray(body) ? body : [body]) {
       node && content.append(node);
@@ -178,7 +158,7 @@ async function renderAdminRoute(route, context, version) {
   ]);
   if (version !== state.renderVersion) return;
   addHeading(content, "Overview", 1);
-  addText(content,
+  addText(document, content, "p",
     "Everything the desk watches, one glance: the queues with work show their counts. " +
     "Open a section from the rail to work it.", "page-lede");
   const counts = {
@@ -202,70 +182,78 @@ async function renderAdminRoute(route, context, version) {
 // The desk shell: sidebar rail + content column; the column is returned so
 // each section renders INTO it (headings included).
 function renderAdminShell(user, activeSlug) {
-  const shell = el("div", { class: "desk-shell" });
-  const nav = el("nav", { class: "desk-nav", "aria-label": "Moderation desk sections" });
-  nav.append(el("p", { class: "desk-signin", text: "Signed in as " + user.username }));
-  const list = el("ul", { class: "desk-nav-list" });
+  const shell = document.createElement("div");
+  shell.className = "desk-shell";
+  const nav = document.createElement("nav");
+  nav.className = "desk-nav";
+  nav.setAttribute("aria-label", "Moderation desk sections");
+  const name = document.createElement("p");
+  name.className = "desk-signin";
+  name.textContent = "Signed in as " + user.username;
+  nav.append(name);
+  const list = document.createElement("ul");
+  list.className = "desk-nav-list";
   for (const section of DESK_SECTIONS) {
-    const item = el("li");
-    item.append(el("a", {
-      class: "desk-nav-link" + (section.slug === activeSlug ? " desk-nav-active" : ""),
-      href: section.slug === "dashboard" ? "/admin" : "/admin/" + section.slug,
-      "data-app-link": "",
-      "aria-current": section.slug === activeSlug ? "page" : undefined,
-      text: section.label,
-    }));
+    const item = document.createElement("li");
+    const link = document.createElement("a");
+    link.className = "desk-nav-link" + (section.slug === activeSlug ? " desk-nav-active" : "");
+    link.href = section.slug === "dashboard" ? "/admin" : "/admin/" + section.slug;
+    link.setAttribute("data-app-link", "");
+    if (section.slug === activeSlug) link.setAttribute("aria-current", "page");
+    link.textContent = section.label;
+    item.append(link);
     list.append(item);
   }
   nav.append(list);
-  const content = el("div", { class: "desk-content" });
+  const content = document.createElement("div");
+  content.className = "desk-content";
   shell.append(nav, content);
   main.append(shell);
   return content;
 }
 
-function createDashboardBoard(tiles) {
-  const board = el("div");
-  const tilesHost = el("div", { class: "desk-tiles" });
+function createDashboardBoard(tiles, document) {
+  const board = document.createElement("div");
+  const tilesHost = document.createElement("div");
+  tilesHost.className = "desk-tiles";
   for (const tile of tiles) {
     if (tile.count === null || tile.count === undefined) continue;
-    const link = el("a", {
-      class: "desk-tile" + (tile.count > 0 ? " desk-tile-waiting" : ""),
-      href: "/admin/" + tile.slug,
-      "data-app-link": "",
-    });
-    link.append(
-      el("span", { class: "desk-tile-count", text: String(tile.count) }),
-      el("span", { class: "desk-tile-label", text: tile.label }),
-    );
+    const link = document.createElement("a");
+    link.className = "desk-tile" + (tile.count > 0 ? " desk-tile-waiting" : "");
+    link.href = "/admin/" + tile.slug;
+    link.setAttribute("data-app-link", "");
+    const count = document.createElement("span");
+    count.className = "desk-tile-count";
+    count.textContent = String(tile.count);
+    const label = document.createElement("span");
+    label.className = "desk-tile-label";
+    label.textContent = tile.label;
+    link.append(count, label);
     tilesHost.append(link);
   }
   board.append(tilesHost);
   return board;
 }
 
-function createProfileReportQueue(reports) {
-  const container = el("div", { class: "profile-report-queue" });
+function createProfileReportQueue(reports, document) {
+  const container = element("div", "profile-report-queue");
   if (!reports.length) {
-    addText(container, "No profile reports.", "empty-state");
+    addText(document, container, "p", "No profile reports.", "empty-state");
     return container;
   }
   for (const report of reports) {
-    const item = el("div", { class: "report-queue-item" });
-    const head = el("p", {
-      class: "report-queue-head",
-      text: report.profileUsername + " (reported by " + report.reporter + ")",
-    });
-    const reason = el("p", { class: "report-queue-reason", text: report.reason });
-    const resolve = el("button", { class: "button", text: "Resolve", type: "button" });
+    const item = element("div", "report-queue-item");
+    const head = element("p", "report-queue-head",
+      report.profileUsername + " (reported by " + report.reporter + ")");
+    const reason = element("p", "report-queue-reason");
+    reason.textContent = report.reason;
+    const resolve = element("button", "button", "Resolve");
+    resolve.type = "button";
     resolve.dataset.action = "resolve-profile-report";
     resolve.dataset.reportId = String(report.id);
-    const visit = el("a", {
-      class: "button button-quiet",
-      text: "View profile",
-      href: "/users/" + encodeURIComponent(report.profileUsername),
-      "data-app-link": "",
-    });
+    const visit = element("a", "button button-quiet", "View profile");
+    visit.href = "/users/" + encodeURIComponent(report.profileUsername);
+    visit.setAttribute("data-app-link", "");
     // Ban affordance (v3.0.2): a profile report used to be resolve-only —
     // the same admin-ban form as the post-report queue (reason + duration)
     // lets the mod act on the reported member right here. The generic
@@ -276,63 +264,63 @@ function createProfileReportQueue(reports) {
   return container;
 }
 
-function createHiddenPostsQueue(items) {
-  const container = el("div", { class: "hidden-posts-queue" });
+function createHiddenPostsQueue(items, document) {
+  const container = element("div", "hidden-posts-queue");
   if (!items.length) {
-    addText(container, "Nothing hidden right now.", "empty-state");
+    addText(document, container, "p", "Nothing hidden right now.", "empty-state");
     return container;
   }
   for (const item of items) {
-    const card = el("div", { class: "hidden-post-item" });
-    const head = el("p", {
-      class: "hidden-post-head",
-      text: item.author.username + " — " +
-        (item.banReason ? "ban: " + item.banReason : "hidden post") +
-        (item.banExpiresAt ? " (until " + new Date(item.banExpiresAt).toLocaleString() + ")" : " (permanent)"),
-    });
-    const body = el("p", { class: "hidden-post-body", text: item.body });
-    const when = el("p", { class: "hidden-post-when", text: new Date(item.createdAt).toLocaleString() });
-    const link = el("a", {
-      class: "button button-quiet",
-      text: item.threadId === item.id ? "Open post" : "Open thread",
-      href: "/posts/" + item.threadId,
-      "data-app-link": "",
-    });
+    const card = element("div", "hidden-post-item");
+    const head = element("p", "hidden-post-head",
+      item.author.username + " — " +
+      (item.banReason ? "ban: " + item.banReason : "hidden post") +
+      (item.banExpiresAt ? " (until " + new Date(item.banExpiresAt).toLocaleString() + ")" : " (permanent)"));
+    const body = element("p", "hidden-post-body");
+    body.textContent = item.body;
+    const when = element("p", "hidden-post-when", new Date(item.createdAt).toLocaleString());
+    const link = element("a", "button button-quiet", item.threadId === item.id ? "Open post" : "Open thread");
+    link.href = "/posts/" + item.threadId;
+    link.setAttribute("data-app-link", "");
     card.append(head, body, when, link);
     container.append(card);
   }
   return container;
 }
 
-function createRulesEditor(rulesData) {
-  const container = el("div", { class: "rules-editor" });
-  const label = el("p", { class: "accent-picker-label", text: "Forum rules (markdown — the subset bodies use)" });
-  const textarea = el("textarea", { class: "css-editor-input", id: "rules-input", rows: 10, maxLength: 1000000 });
+function createRulesEditor(rulesData, document) {
+  const container = element("div", "rules-editor");
+  const label = element("p", "accent-picker-label", "Forum rules (markdown — the subset bodies use)");
+  const textarea = element("textarea", "css-editor-input");
+  textarea.id = "rules-input";
+  textarea.rows = 10;
+  textarea.maxLength = 1000000;
   textarea.value = typeof rulesData.rules === "string" ? rulesData.rules : "";
-  const save = el("button", { class: "button", text: "Save rules", type: "button" });
+  const save = element("button", "button", "Save rules");
+  save.type = "button";
   save.dataset.action = "save-forum-rules";
   container.append(label, textarea, save);
   return container;
 }
 
-function createCssQueue(submissions) {
-  const container = el("div", { class: "css-queue" });
+function createCssQueue(submissions, document) {
+  const container = element("div", "css-queue");
   if (!submissions.length) {
-    addText(container, "No CSS waiting for review.", "empty-state");
+    addText(document, container, "p", "No CSS waiting for review.", "empty-state");
     return container;
   }
   for (const submission of submissions) {
-    const item = el("div", { class: "css-queue-item" });
-    const head = el("p", {
-      class: "css-queue-head",
-      text: submission.username + " — " + submission.bytes + " chars",
-    });
-    const preview = el("pre", { class: "css-queue-preview", text: submission.css });
-    const approve = el("button", { class: "button", text: "Approve", type: "button" });
+    const item = element("div", "css-queue-item");
+    const head = element("p", "css-queue-head", submission.username + " — " + submission.bytes + " chars");
+    const preview = element("pre", "css-queue-preview");
+    preview.textContent = submission.css;
+    const approve = element("button", "button", "Approve");
+    approve.type = "button";
     approve.dataset.action = "css-approve";
     approve.dataset.userId = String(submission.userId);
     approve.dataset.version = String(submission.version || "");
-    const reject = el("button", { class: "button button-quiet", text: "Reject", type: "button" });
+    const reject = element("button", "button button-quiet", "Reject");
+    reject.type = "button";
     reject.dataset.action = "css-reject";
     reject.dataset.userId = String(submission.userId);
     reject.dataset.version = String(submission.version || "");
@@ -346,7 +334,7 @@ function createCssQueue(submissions) {
 async function submitMemberSearch(form, text) {
   const data = await api("/api/admin/users/search?q=" + encodeURIComponent(text("q").trim()));
   const results = form.parentElement?.querySelector("[data-member-search-results]");
-  results?.replaceChildren(renderMemberSearchResults(data.members));
+  results?.replaceChildren(renderMemberSearchResults(data.members, document));
 }
 
 async function submitReportResolution(form) {

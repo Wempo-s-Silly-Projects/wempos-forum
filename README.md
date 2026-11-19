@@ -1,86 +1,121 @@
 # Wempo's Forum
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/819e5910d2974e0a9240c1257ec37ba4)](https://app.codacy.com/gh/Wempo-s-Silly-Projects/wempos-forum/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+This is my forum code:3 Yeah any ways here's how it was made: Cloudflare Workers, Cloudflare D1, and Static Assets. The frontend calls the same-origin `/api/*` endpoints which are handled by `worker.mjs`; posts, replies, reactions, profiles, sessions, reports, and bans stay in the D1 store.
+## Requirements
 
-A classic discussion-board forum — boards, threads, posts, reactions,
-attachments, leaderboards, bans and appeals — served by a Cloudflare Worker
-backed by D1, with a vanilla JS frontend that talks to same-origin `/api/*`
-endpoints handled by `worker.mjs`.
+- Node.js 22 or newer (preferably the latest version (as of writing Node.js 25 is EOL, so the only viable option is Node.js 22, 24, or 26 LTS))
+- pnpm is preferred
+- Access to a Cloudflare account that owns the D1 store `wempo-forum-data`
+- Cloudflare Wrangler is installed.
 
-- **Live:** <https://wempos-forum.itswempo.workers.dev>
-- **Source:** <https://github.com/Wempo-s-Silly-Projects/wempos-forum>
+## Local development
+1. Install pnpm if you haven't already (if u have skip to step 2)
+   ```bash
+   npm install corepack
+   corepack enable pnpm
+   ```
+3. Install dependencies:
 
-The forum is one of three apps on one shared D1 database and one identity
-layer. Signing in happens at [Wempo
-Accounts](https://accounts.itswempo.workers.dev): the forum has no sign-in
-page of its own. Signed-out visitors bounce to Accounts with `?return=` set
-to the forum's origin; Accounts mints a one-time 60-second ticket (only its
-hash is stored) and sends the browser back as `?wt=<code>`; the forum
-worker redeems the ticket over a service binding and mints a normal forum
-session. Sign-out ends the forum session and hands the browser to Accounts
-to clear that session too. Password hashes are written and read only by the
-forum worker — Accounts verifies and sets passwords through the forum's
-token-gated credential relay, and the relay token doubles as the SSO redeem
-secret, read only from environment secrets, never logged.
+   ```bash
+   pnpm install
+   wrangler login
+   ```
 
-## Features
+4. Create a long random setup secret. For local-only development, create a `.dev.vars` file in the repo root:
 
-- Boards, threads, posts, replies, reactions, attachments
-- Member profiles, avatars, accent colors, username changes
-- Bookmarks, blocks, archive, leaderboard
-- Mod tooling: bans, appeals, reports, members admin
-- Turnstile at the door, optional TOTP, per-lane rate limiters
+   ```dotenv
+   SETUP_SECRET=
+   PASSWORD_PEPPER=
+   ```
 
-## Quick start (local dev)
+   Paste seperate and randomly generated values. Use 32–4096 characters for `SETUP_SECRET` and 32–256 for `PASSWORD_PEPPER`. `.dev.vars` is ignored by Git and WILL never be committed. Keep a secure backup of `PASSWORD_PEPPER`; changing or losing it prevents existing accounts from authenticating because it is part of each password hash.
 
-Requirements: Node.js 22 or newer (22/24/26 LTS), [pnpm](https://pnpm.io),
-and a Cloudflare account if you want to bind your own D1 store.
+5. Apply the schema to the local D1 store and run the forum:
 
-```bash
-corepack enable pnpm          # skip if you already have pnpm
-pnpm install
-```
+   ```bash
+   pnpm run db:migrate:local
+   pnpm run dev
+   ```
 
-For local-only development create a `.dev.vars` at the repo root with two
-randomly generated secrets (`.dev.vars` is git-ignored and never
-committed; keep a backup of `PASSWORD_PEPPER` — losing it means existing
-accounts can no longer authenticate):
+6. Open the local URL printed by Wrangler. The first-owner setup form stays locked until both `SETUP_SECRET` and `PASSWORD_PEPPER` are configured with valid values. Use the setup secret in the setup form, then sign in normally.
 
-```dotenv
-SETUP_SECRET=
-PASSWORD_PEPPER=
-```
+Local development uses a local D1 store by default. The migration does not touch production unless you use the remote migration command.
 
-Use 32–4096 characters for `SETUP_SECRET` and 32–256 for `PASSWORD_PEPPER`.
-
-Apply the schema to the local D1 store and run:
+## Checks
 
 ```bash
 pnpm run db:migrate:local
-pnpm run dev
-```
-
-Open the local URL Wrangler prints. The first-owner setup form needs both
-`SETUP_SECRET` and `PASSWORD_PEPPER` configured; after setup you sign in
-through Wempo Accounts.
-
-Run the checks:
-
-```bash
 pnpm test
-pnpx wrangler deploy --dry-run
+wrangler deploy --dry-run
 ```
 
-Migrations applied without `--remote` stay local; production only moves
-under the owner's remote migration ritual.
+## Signing in: Wempo Accounts
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the full contributing guide.
+The forum no longer has a sign-in page of its own. Signing in and account
+creation start at `accounts.itswempo.workers.dev` (Wempo Accounts): a sign-in
+form (username + password, a Turnstile challenge, optional TOTP step) and a
+"Make a Wempo Account" lane for new members. The forum keeps its own
+`/api/auth/login` and `/api/auth/register` endpoints as internal plumbing
+only — API callers and outage escape hatch, no links to them.
+
+How the handoff works:
+
+1. Opening the forum signed-out sends the browser to Wempo Accounts with
+   `?return=` the forum's origin (an exact-match origin, never a URL with
+   extra bits on it). An existing Accounts session skips the login form and
+   goes straight to the ticket.
+2. Accounts mints a one-time ticket — a 64-character hex code that lives at
+   most 60 seconds (only its hash is ever stored) — and sends the browser
+   back as `<forum origin>/?wt=<code>`.
+3. The forum worker redeems the ticket over a service binding with the
+   Accounts worker (`/api/auth/sso/redeem`, authenticated by the shared
+   relay secret) and mints a normal forum session. A burned or refused
+   ticket bounces the browser back to Accounts for a fresh one.
+
+Sign-out posts to `/api/auth/logout` and then hands the browser to
+`accounts.itswempo.workers.dev/?signout=1` so the Accounts session clears
+too (deliberately no `return=` there — an existing Accounts session would
+otherwise ticket straight back in). Two things this is not: signing out of
+Accounts itself does not retroactively clear the forum's session, and
+signing out here ends only the forum session plus the Accounts session —
+GooberCord keeps whatever session it already minted.
+
+Trust-wise: one shared D1 (`users`, `sessions`). The password pepper lives
+only on the forum worker; Accounts verifies and sets passwords only through
+the forum's token-gated credential relay, and a password hash is written or
+read only by this worker. The relay token (shared secret on both workers)
+is the same credential that authenticates the SSO redeem — it is read only
+as an environment secret and never logged.
 
 ## License
 
-AGPL-3.0-or-later — see the [LICENSE](LICENSE) file (full text in
-[COPYING](COPYING)). If you run a modified version over a network, you owe
-your users the source of that version (AGPLv3 section 13).
+Source: <https://github.com/Wempo-s-Silly-Projects/wempos-forum>
 
 Copyright (C) 2026 ItsWempo
 
-[![Built with Cloudflare](https://workers.cloudflare.com/built-with-cloudflare.svg)](https://cloudflare.com)
+Wempo's Forum is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+The full license text follows in the COPYING file at the root of this
+repository.
+
+Modified versions that let users interact with them over a network must
+offer those users the corresponding source of the version they are serving
+(GNU Affero General Public License, section 13): a visible link to the
+source archive, or the repository above, satisfies this duty.
+
+Copyright 2026 ItsWempo
+Copying and distribution of this file, with or without modification, are
+permitted in any medium without royalty provided the copyright notice and
+this notice are preserved.  This file is offered as-is, without any
+warranty.
+

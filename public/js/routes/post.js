@@ -1,43 +1,13 @@
-// Copyright 2026 ItsWempo
-//
-// This file is part of Wempo's Forum.
-//
-// Wempo's Forum is free software: you can redistribute it and/or modify it
-// under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-//
-// You should have received a copy of the
-// GNU Affero General Public License along with this program.  If not,
-// see <https://www.gnu.org/licenses/>.
-
 // v4.0 plan 4 Task 4: the post-detail concern — the conversation route, the
 // mini reply composers and sub-reply cascades, the quote prefill, the edit
 // flow (swap form, submit, history), and the attachment lightbox. Bodies
 // moved verbatim out of app.js; bare renderRoute calls inside moved bodies
 // re-read the boot state (state.renderRoute). The card actions common to
 // several surfaces (reaction/bookmark/subscribe/suggestion status) live in
-// composer.js, and the profile-report dialog in routes/reports.js.
-//
-// 5.0 wave 3 (the post thread slice): the route re-expresses on the vendored
-// framework — frontload/dom's el(), the kit's heading/text/panel family —
-// with the same classes, the same aria contracts and the same URLs. The
-// rethink's first dialog retirement lands here: REPORTING A POST IS A TASK
-// PAGE (/posts/:id/report — renderPostReportRoute below), addressable,
-// reloadable, shareable; the profile-report dialog keeps serving the profile
-// flow until its wave re-expresses it. The attachment lightbox STAYS a
-// dialog (the fast-confirmation class the surface model keeps). A zero
-// replies feed becomes an instruction with a one-click CTA to the composer;
-// guests get the Accounts door.
-import { el } from "../vendor/frontload/dom.mjs";
-import { addHeading, addText, panel } from "../vendor/designer/kit.mjs";
+// composer.js, and the report dialog in routes/reports.js.
 import { api } from "../api.js";
-import { attachmentLightbox, main, setMessage } from "../dom.js";
+import { addHeading, attachmentLightbox, createPanel, element, main, setMessage } from "../dom.js";
+import { addText } from "../forms.js";
 import { state } from "../state.js";
 import {
   closeEditForm,
@@ -49,8 +19,6 @@ import {
 import { createComposer } from "./composer.js";
 import { prefillQuote } from "../quotes.js";
 import { renderTurnstileSlots } from "../turnstile.js";
-// The §4b door-swap: the report page's guest gate is the Accounts handoff.
-import { wempoAccountsSignInUrl } from "../sso.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -58,110 +26,26 @@ async function renderPostRoute(route, context, version) {
   addHeading(main, "Conversation", 1);
   main.append(createPostCard(post, document, context.session.user));
   addHeading(main, "Replies", 2);
-  let composer = null;
-  if (context.session.user && post.visibility !== "hidden" && !post.parent) {
-    composer = createComposer("reply", "Write a thoughtful reply", "Reply", post.id);
-  }
   if (post.replies.length) {
-    const replyList = el("div", { class: "post-list replies-list" });
+    const replyList = element("div", "post-list replies-list");
     replyList.dataset.repliesFor = String(post.id);
     for (const reply of post.replies) replyList.append(createPostCard(reply, document, context.session.user));
     main.append(replyList);
   } else {
-    // Empty states as instructions: where a composer is on the page (below),
-    // the CTA focuses it; guests get the door; a signed-in viewer whose
-    // composer never renders gets the plain fact.
-    if (composer) {
-      addText(main, "No replies yet — be the first.", "empty-state");
-      const cta = el("button", {
-        class: "button button-secondary", type: "button", text: "Write the first reply",
-      });
-      cta.addEventListener("click", () => composer.querySelector("textarea")?.focus());
-      main.append(cta);
-    } else {
-      addText(main, !context.session.user
-        ? "No replies yet — sign in to start the conversation."
-        : "No replies to show.", "empty-state");
-    }
+    addText(document, main, "p", "No replies yet!", "empty-state");
   }
   if (post.repliesNextBefore) {
-    main.append(el("button", {
-      class: "button button-secondary", type: "button", text: "Load older replies",
-      dataset: { action: "load-older-replies", postId: String(post.id), before: String(post.repliesNextBefore) },
-    }));
+    const olderReplies = element("button", "button button-secondary", "Load older replies");
+    olderReplies.type = "button";
+    olderReplies.dataset.action = "load-older-replies";
+    olderReplies.dataset.postId = String(post.id);
+    olderReplies.dataset.before = String(post.repliesNextBefore);
+    main.append(olderReplies);
   }
-  // The composer renders last, exactly as the route always ended.
-  if (composer) main.append(composer);
-}
-
-// The report TASK PAGE (5.0 wave 3): one report per URL — /posts/:id/report.
-// The form carries the reason (the same 500-char cap the old dialog's
-// textarea rode), submits through the same POST /api/posts/:id/reports the
-// dialog called, and hands back to the conversation the report belongs to.
-// A guest stops at the Accounts door (the server 401s the write regardless).
-async function renderPostReportRoute(route, context, version) {
-  if (!context.session.user) {
-    addHeading(main, "Report this post", 1);
-    addText(main, "Sign in to report this post to the mods.", "muted");
-    main.append(el("a", {
-      class: "button button-secondary",
-      href: wempoAccountsSignInUrl(location.origin),
-      text: "Sign in",
-    }));
-    return;
-  }
-  // The thread the report belongs to (a reply's page hands back to the
-  // conversation root); fetching the target also proves it exists — a dead
-  // id rides the shared 4xx error bar instead of a form for nothing.
-  const post = await api(`/api/posts/${route.id}`);
-  if (version !== state.renderVersion) return;
-  const threadId = post.parent ? post.parent.id : post.id;
-  const reportPanel = panel({
-    title: "Report this post",
-    description: "Your report goes straight to the mods along with the post. Describe what to look at — there is no email-based follow-up.",
-  });
-  const form = el("form", { dataset: { form: "post-report", postId: String(post.id), threadId: String(threadId) } });
-  // The reason field, in the kit's labeled-field shape (label.htmlFor → the
-  // textarea's id), with the description wire as aria-describedby — the same
-  // contract createInput carries, built with el because the kit's factory
-  // family is single-line fields.
-  const wrapper = el("div", { class: "form-field" });
-  const reasonLabel = el("label", { text: "Reason" });
-  const reason = el("textarea", { name: "reason", rows: 4, maxLength: 500, required: true });
-  reason.setAttribute("id", "report-page-reason");
-  reasonLabel.setAttribute("for", "report-page-reason");
-  const note = el("small", { class: "form-note", text: "Up to 500 characters — say what a mod should look at." });
-  reason.setAttribute("aria-describedby", "report-page-reason-description");
-  note.setAttribute("id", "report-page-reason-description");
-  wrapper.append(reasonLabel, reason, note);
-  form.append(wrapper);
-  const actionsRow = el("div", { class: "post-actions form-actions" });
-  actionsRow.append(el("button", { class: "button button-danger", type: "submit", text: "Send report" }));
-  actionsRow.append(el("a", {
-    class: "button button-quiet",
-    href: `/posts/${threadId}`,
-    text: "Back to the conversation",
-  }));
-  form.append(actionsRow);
-  reportPanel.append(form);
-  main.append(reportPanel);
-}
-
-// The report submit: same endpoint, same copy, same 500-cap — the change is
-// only where the form lives (a URL, not a dialog).
-async function submitPostReportForm(form, text) {
-  const postId = encodeURIComponent(form.dataset.postId);
-  await api(`/api/posts/${postId}/reports`, { method: "POST", body: { reason: text("reason") } });
-  setMessage("Your report was sent to the mods.");
-  // Hand back to the conversation; the form's fetch is gone either way.
-  const threadId = form.dataset.threadId;
-  if (state.router) {
-    state.router.navigate(`/posts/${threadId}`);
-  } else {
-    await state.renderRoute({ name: "post", id: Number(threadId) });
+  if (context.session.user && post.visibility !== "hidden" && !post.parent) {
+    main.append(createComposer("reply", "Write a thoughtful reply", "Reply", post.id));
   }
 }
-
 // Author edit save (v2.4): JSON {body} to PATCH /api/posts/:id (api.js adds the
 // CSRF header). The server reapplies the word filter and 1,000-char cap, stores
 // the masked body, stamps edited_at, and never bumps last_activity_at — over-
@@ -282,8 +166,6 @@ function quoteIntoComposer(button) {
 // same versioned URL uncapped (capped only by the viewport in CSS). The
 // native <dialog> supplies Escape and focus handling for free; a click
 // anywhere on the dialog or its backdrop closes it (wired once at load).
-// The lightbox STAYS a dialog in 5.0: a fast confirmation, per the surface
-// model — not a task page.
 function openAttachmentLightbox(button) {
   const stripImage = button.querySelector("img.post-attachment");
   if (!stripImage || !attachmentLightbox) return;
@@ -304,13 +186,10 @@ async function loadOlderReplies(button) {
   else button.remove();
 }
 
-// The registration seam: post-edit and the report-page submits go through
-// FORM_HANDLERS; the detail route's own actions merge into handleButtonAction's
-// dispatch map. (The post-card report ACTION is gone — the card's Report is a
-// link to the task page now; the profile-report dialog keeps its entries.)
+// The registration seam: post-edit submits through FORM_HANDLERS; the detail
+// route's own actions merge into handleButtonAction's dispatch map.
 export const FORM_HANDLERS = {
   "post-edit": (form, text) => submitPostEditForm(form, text),
-  "post-report": (form, text) => submitPostReportForm(form, text),
 };
 
 export const ACTIONS = {
@@ -354,4 +233,4 @@ export const ACTIONS = {
   },
 };
 
-export { renderPostRoute, renderPostReportRoute };
+export { renderPostRoute };

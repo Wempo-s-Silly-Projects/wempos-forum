@@ -1,32 +1,10 @@
-// Copyright 2026 ItsWempo
-//
-// This file is part of Wempo's Forum.
-//
-// Wempo's Forum is free software: you can redistribute it and/or modify it
-// under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-//
-// You should have received a copy of the
-// GNU Affero General Public License along with this program.  If not,
-// see <https://www.gnu.org/licenses/>.
-
 
 // v4.0 plan 4 Task 9: the header chrome — renderAccountNavigation (mobile
 // bar identity, the site-section icon links, chat toggle, profile/saved/
 // bell/shield, sign-in toggle) plus the logout action its quiet
-// button dispatches. Bodies moved verbatim out of app.js. 5.0 wave 7
-// re-expresses the builders on the vendored kit; the static index.html ids
-// (mobile-signin/mobile-profile) stay load-bearing — the bar's identity and
-// active-state lookups probe them BY ID, so the markup keeps them.
-import { el } from "../vendor/frontload/dom.mjs";
+// button dispatches. Bodies moved verbatim out of app.js.
 import { api, setCsrfToken } from "../api.js";
-import { accountActions } from "../dom.js";
+import { accountActions, element } from "../dom.js";
 import { iconButton } from "../icons.js";
 import { createNotificationBell } from "../notifications.js";
 // The §4b door-swap: every auth link (header Sign in, mobile guest rung)
@@ -107,23 +85,6 @@ function normaliseUnreadCount(value) {
     : 0;
 }
 
-// The unread system's mobile half (wave 7): the Alerts rung announces the
-// SAME way the feed tabs do — data-unread="true" plus an aria-label announce
-// — driven by the session's unread-notification count the route render
-// already carries. Zero unread renders nothing: the attribute is gone, so a
-// quiet surface never carries the announce (the wave-7 edge).
-function updateMobileBarUnread(unreadCount) {
-  const alerts = document.querySelector('.mobile-bar-item[href="/notifications"]');
-  if (!alerts) return;
-  if (normaliseUnreadCount(unreadCount) > 0) {
-    alerts.dataset.unread = "true";
-    alerts.setAttribute("aria-label", "Notifications (new notifications)");
-  } else {
-    delete alerts.dataset.unread;
-    alerts.setAttribute("aria-label", "Notifications");
-  }
-}
-
 function renderAccountNavigation(user, unreadNotifications = 0) {
   const currentUser = isValidUser(user) ? user : null;
 
@@ -132,7 +93,6 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   // The mobile bar's last item mirrors the session: Profile (signed in) --
   // the static markup ships a Sign-in item for guests; the id marks it.
   updateMobileIdentity(currentUser);
-  updateMobileBarUnread(currentUser ? unreadNotifications : 0);
 
   // Suggestions board link (v2.4.1): the header's site-section link, styled
   // exactly like the links around it and visible to guests and signed-in
@@ -157,7 +117,11 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
 
 
   if (!currentUser) {
-    const signIn = el("a", { class: "button button-secondary", text: "Sign in" });
+    const signIn = element(
+      "a",
+      "button button-secondary",
+      "Sign in",
+    );
 
     signIn.href = wempoAccountsSignInUrl(location.origin);
     signIn.setAttribute("data-app-link", "");
@@ -182,7 +146,10 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   );
 
   accountActions.append(
-    createNotificationBell(document, normaliseUnreadCount(unreadNotifications)),
+    createNotificationBell(
+      normaliseUnreadCount(unreadNotifications),
+      document,
+    ),
   );
 
   if (

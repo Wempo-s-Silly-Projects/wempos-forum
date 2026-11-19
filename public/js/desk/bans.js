@@ -1,27 +1,6 @@
-// Copyright 2026 ItsWempo
-//
-// This file is part of Wempo's Forum.
-//
-// Wempo's Forum is free software: you can redistribute it and/or modify it
-// under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-//
-// You should have received a copy of the
-// GNU Affero General Public License along with this program.  If not,
-// see <https://www.gnu.org/licenses/>.
-
 // v4.0 plan 5 (spec step 6), task 1: the moderation desk's bans + member search (the unban/role surfaces live with them) section
-// builders — bodies moved verbatim out of ../admin.js (now dissolved) and
-// re-expressed on the vendored kit (5.0 wave 6).
-import { el } from "../vendor/frontload/dom.mjs";
-import { addText, createForm, createInput, createSelect } from "../vendor/designer/kit.mjs";
-import { createCheckbox } from "../forms.js";
+// builders — bodies moved verbatim out of ../admin.js (now dissolved).
+import { createCheckbox, createForm, createInput, createSelect, addText } from "../forms.js";
 
 // Timed bans (v3.0.2): the duration picker's hours; 0 = permanent. The form
 // submit handler (submitBanForm in app.js) turns hours into an absolute
@@ -68,7 +47,8 @@ const createBanForm = (document, userId, username) => {
 // active-ban state attached. Results render into the results container the
 // submit handler owns, so the desk section is self-contained.
 function createMemberSearch(document) {
-  const section = el("div", { class: "member-search" });
+  const section = document.createElement("div");
+  section.className = "member-search";
   const form = createForm(document, "admin-member-search", [
     createInput(document, {
       id: "member-search-q",
@@ -78,39 +58,40 @@ function createMemberSearch(document) {
       description: "Search by username to find members and unban them.",
     }),
   ], "Search");
-  const results = el("div", { class: "member-search-results" });
+  const results = document.createElement("div");
+  results.className = "member-search-results";
   results.dataset.memberSearchResults = "";
   section.append(form, results);
   return section;
 }
 
-function renderMemberSearchResults(members) {
-  const list = el("div", { class: "member-search-result-list" });
+function renderMemberSearchResults(members, document) {
+  const list = document.createElement("div");
+  list.className = "member-search-result-list";
   if (!members.length) {
-    addText(list, "No members matched.", "empty-state");
+    addText(document, list, "p", "No members matched.", "empty-state");
     return list;
   }
   for (const member of members) {
-    const row = el("article", { class: "member-search-row" });
-    row.append(el("a", {
-      href: "/users/" + encodeURIComponent(member.username),
-      "data-app-link": "",
-      text: member.username,
-    }));
+    const row = document.createElement("article");
+    row.className = "member-search-row";
+    const link = document.createElement("a");
+    link.href = "/users/" + encodeURIComponent(member.username);
+    link.setAttribute("data-app-link", "");
+    link.textContent = member.username;
+    row.append(link);
     if (member.role === "owner" || member.role === "admin") {
-      row.append(el("span", {
-        class: "role-badge role-badge-" + member.role,
-        text: member.role === "owner" ? "Owner" : "Admin",
-      }));
+      addText(document, row, "span",
+        member.role === "owner" ? "Owner" : "Admin",
+        "role-badge role-badge-" + member.role);
     }
     if (member.banned) {
-      row.append(el("p", {
-        class: "member-search-ban-info",
-        text: "Banned: " + (member.banReason || "no reason recorded") +
-          (member.banExpiresAt
-            ? " — expires " + new Date(member.banExpiresAt * 1000).toLocaleString()
-            : " — permanent"),
-      }));
+      addText(document, row, "p",
+        "Banned: " + (member.banReason || "no reason recorded") +
+        (member.banExpiresAt
+          ? " — expires " + new Date(member.banExpiresAt * 1000).toLocaleString()
+          : " — permanent"),
+        "member-search-ban-info");
       const unbanForm = createForm(document, "admin-unban", [
         createInput(document, {
           id: `unban-reason-search-${member.id}`,
@@ -123,7 +104,7 @@ function renderMemberSearchResults(members) {
       unbanForm.dataset.userId = String(member.id);
       row.append(unbanForm);
     } else {
-      addText(row, "Not banned.", "muted");
+      addText(document, row, "p", "Not banned.", "muted");
     }
     list.append(row);
   }
@@ -133,18 +114,20 @@ function renderMemberSearchResults(members) {
 
 // The active-bans list (spec §9): one card per ban — reason, expiry, and the
 // unban form. Body moved verbatim out of ../admin.js (spec step 6).
-function createActiveBanList(document, bans) {
-  const list = el("div", { class: "ban-list" });
+function createActiveBanList(bans, document) {
+  const list = document.createElement("div");
+  list.className = "ban-list";
   if (!bans.length) {
-    addText(list, "There are no active bans.", "empty-state");
+    addText(document, list, "p", "There are no active bans.", "empty-state");
     return list;
   }
   for (const ban of bans) {
-    const card = el("article", { class: "ban-card" });
-    card.append(el("h3", { text: ban.user.username }));
-    addText(card, `Reason: ${ban.reason}`);
+    const card = document.createElement("article");
+    card.className = "ban-card";
+    addText(document, card, "h3", ban.user.username);
+    addText(document, card, "p", `Reason: ${ban.reason}`);
     if (ban.expiresAt) {
-      addText(card, `Expires: ${new Date(ban.expiresAt).toLocaleString()}`);
+      addText(document, card, "p", `Expires: ${new Date(ban.expiresAt).toLocaleString()}`);
     }
     const form = createForm(document, "admin-unban", [
       createInput(document, {

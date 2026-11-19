@@ -12,7 +12,7 @@ body:
       label: Area
       options:
         - Project Experience (API)
-        - Project Frontload (The frontend/actual site)
+        - Project Frontload (The frontend/actual site(
         - UI / UX
         - Other
     validations:
@@ -51,7 +51,7 @@ body:
       multiple: true
       options:
         - Forumers
-        - The Lead Developeda (me and my friend)
+        - The devs (me and mh friend)
         - Guests
         - Admins
         - Contributors

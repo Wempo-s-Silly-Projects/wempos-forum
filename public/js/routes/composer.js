@@ -1,43 +1,13 @@
-// Copyright 2026 ItsWempo
-//
-// This file is part of Wempo's Forum.
-//
-// Wempo's Forum is free software: you can redistribute it and/or modify it
-// under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-//
-// You should have received a copy of the
-// GNU Affero General Public License along with this program.  If not,
-// see <https://www.gnu.org/licenses/>.
-
 // v4.0 plan 7 follow-up: the composer concern, its own module -- the composer
 // builder (attachment row, file/gif strips), the create/reply submits with
 // their idempotency keys, and the composer dialogs (gallery picker, polls).
 // Bodies moved verbatim from routes/feed.js; feed.js keeps the routes and the
 // card actions. The FORM_HANDLERS/ACTIONS registries merge into app.js's
 // dispatch maps exactly as feed.js's do.
-//
-// 5.0 wave 4 (the write path): the module re-expresses on the vendored
-// framework — frontload/dom's el(), the kit's panel/submit/select family (the
-// kit's createSelect is the verbatim twin of forms.js's; createTextarea has no
-// kit twin, so the frozen forms.js still supplies it). The wave's real deliver
-// rides the kit's createStore: DRAFTS — a composer's body text persists under
-// the forum's own key family and survives route returns; a successful submit
-// clears it. Files and GIF attachments never ride the draft (File objects
-// can't serialize); the poll stash and the idempotency keys keep their exact
-// submit-time semantics. Turnstile wiring and every cap ride verbatim.
-import { el } from "../vendor/frontload/dom.mjs";
-import { addSubmit, createStore, createSelect, panel } from "../vendor/designer/kit.mjs";
 import { api } from "../api.js";
-import { setMessage } from "../dom.js";
+import { addSubmit, createPanel, element, setMessage } from "../dom.js";
 import { state } from "../state.js";
-import { createTextarea } from "../forms.js";
+import { createSelect, createTextarea } from "../forms.js";
 import {
   COMPOSER_ACCEPT,
   MAX_COMPOSER_FILES,
@@ -51,61 +21,6 @@ import { COMPOSER_MAX_CHARS } from "../composer-limits.js";
 let activeGifComposerForm = null;
 let activePollComposerForm = null;
 
-// --- the draft store (the wave-4 deliver) ------------------------------------
-// The kit store is the idiom the brief names for the composer's draft state:
-// get / set / subscribe over a plain object, and the subscriber IS the
-// persistence half. The map is keyed per composer — form name, its target
-// (post id) and its locked board — so the home composer, the category
-// composers and every reply mini-composer each remember their own text under
-// one "forum-drafts" key in the forum's key family, best-effort (privacy
-// modes keep the draft for the session only).
-const DRAFTS_STORAGE_KEY = "forum-drafts";
-const drafts = createStore(readDrafts());
-drafts.subscribe((next) => {
-  try {
-    window.localStorage.setItem(DRAFTS_STORAGE_KEY, JSON.stringify(next));
-  } catch {
-    // Persistence is best-effort; the store still drives this page.
-  }
-});
-
-function readDrafts() {
-  try {
-    const parsed = JSON.parse(window.localStorage.getItem(DRAFTS_STORAGE_KEY) || "null");
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch {
-    // Storage access itself can be blocked; same silent start.
-    return {};
-  }
-}
-
-const composerDraftKey = (form) =>
-  [form.dataset.form ?? "", form.dataset.postId ?? "", form.dataset.board ?? ""].join("::");
-
-// setDraft: a non-empty body saves; an emptied body FORGETS the key, so a
-// member who meant to start over is not haunted by a one-space draft.
-function setDraft(form, body) {
-  const key = composerDraftKey(form);
-  const next = { ...drafts.get() };
-  if (body) next[key] = body;
-  else delete next[key];
-  drafts.set(next);
-}
-
-// The builds restore the stored body through the textarea's .value (a
-// property write — never markup), then dispatch the input event the composer's
-// live counter listens for, so the restored draft's counter reads true.
-// The same dispatch the quote prefill makes — one convention for programmatic
-// value writes.
-function restoreDraft(form) {
-  const textarea = form.querySelector("textarea");
-  if (!textarea) return;
-  const stored = drafts.get()[composerDraftKey(form)];
-  if (typeof stored !== "string" || !stored) return;
-  textarea.value = stored;
-  textarea.dispatchEvent(new Event("input", { bubbles: true }));
-}
-
 // Every composer is Turnstile-gated now: root posts use action "post", every
 // reply composer (the detail-route root reply and reply-to-reply mini
 // composers) uses action "reply". board (v2.4.1): a category composer carries
@@ -115,15 +30,13 @@ function restoreDraft(form) {
 // category <select> instead — submitNewPost reads its value the same way.
 function createComposer(name, label, buttonLabel, postID = null,
   turnstileAction = null, board = null, boardChoices = null) {
-  const composer = panel({
-    title: board === "suggestions"
-      ? "Share a suggestion"
-      : name === "post-create" ? "Start a conversation" : "Reply",
-  });
-  const form = el("form", {
-    dataset: { form: name, ...(postID !== null ? { postId: String(postID) } : {}),
-      ...(board ? { board } : {}) },
-  });
+  const panel = createPanel(board === "suggestions"
+    ? "Share a suggestion"
+    : name === "post-create" ? "Start a conversation" : "Reply");
+  const form = document.createElement("form");
+  form.dataset.form = name;
+  if (postID !== null) form.dataset.postId = String(postID);
+  if (board) form.dataset.board = board;
   if (boardChoices) {
     form.append(createSelect(document, {
       id: `${name}-${postID ?? "new"}-board`, name: "board",
@@ -138,16 +51,11 @@ function createComposer(name, label, buttonLabel, postID = null,
     id: `${name}-${postID ?? "new"}-body`, name: "body", label,
     rows: 4, maxLength: COMPOSER_MAX_CHARS, required: true, counter: true,
   }));
-  restoreDraft(form);
-  // The draft save rides the textarea itself — files and GIFs stay live-only.
-  form.querySelector("textarea")?.addEventListener("input", (event) => {
-    setDraft(form, event.target.value);
-  });
   form.append(createComposerAttachmentRow(name === "post-create"));
   addTurnstileSlot(form, turnstileAction ?? (name === "post-create" ? "post" : "reply"));
   addSubmit(form, buttonLabel);
-  composer.append(form);
-  return composer;
+  panel.append(form);
+  return panel;
 }
 
 // Image attachments on every composer (plan Task 7): a paperclip-style button
@@ -158,21 +66,20 @@ function createComposer(name, label, buttonLabel, postID = null,
 // Uploads land in the moderation-pending state, so the note mirrors the
 // avatar uploader's review-first wording.
 function createComposerAttachmentRow(withPollButton = false) {
-  const input = el("input", {
-    type: "file",
-    accept: COMPOSER_ACCEPT,
-    dataset: { composerInput: "images" },
-  });
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = COMPOSER_ACCEPT;
   input.multiple = true;
   input.hidden = true;
   input.setAttribute("aria-hidden", "true");
   input.tabIndex = -1;
-  const attach = el("button", { class: "button button-quiet", text: "📎 Attach images" });
+  input.dataset.composerInput = "images";
+  const attach = element("button", "button button-quiet", "📎 Attach images");
   attach.type = "button";
   attach.dataset.action = "composer-attach";
   // GIF picker (v2.5): the library dialog — approved community GIFs attach
   // by reference (no re-upload bytes; the marketplace's dedup covers them).
-  const gifButton = el("button", { class: "button button-quiet", text: "Gallery" });
+  const gifButton = element("button", "button button-quiet", "Gallery");
   gifButton.type = "button";
   gifButton.dataset.action = "open-gif-picker";
   // Polls (C3): the Poll button — root composers only. The dialog stashes a
@@ -180,22 +87,22 @@ function createComposerAttachmentRow(withPollButton = false) {
   // submit posts it to /api/posts/:id/poll once the thread exists.
   const pollBits = [];
   if (withPollButton) {
-    const pollButton = el("button", { class: "button button-quiet", text: "📊 Poll" });
+    const pollButton = element("button", "button button-quiet", "📊 Poll");
     pollButton.type = "button";
     pollButton.dataset.action = "open-poll-dialog";
     pollBits.push(pollButton);
   }
-  const gifStrip = el("div", { class: "composer-files" });
+  const gifStrip = element("div", "composer-files");
   gifStrip.dataset.composerStrip = "gifs";
   gifStrip.hidden = true;
-  const description = el("span", { class: "form-note" });
+  const description = element("span", "form-note");
   description.textContent =
     `Images are reviewed before they show publicly. Up to ${MAX_COMPOSER_FILES}, ` +
     "10 MiB or less each (JPEG, PNG, WebP, or GIF).";
-  const strip = el("div", { class: "composer-files" });
+  const strip = element("div", "composer-files");
   strip.dataset.composerStrip = "images";
   strip.hidden = true;
-  const row = el("div", { class: "composer-attach-row" });
+  const row = element("div", "composer-attach-row");
   row.append(attach, gifButton, ...pollBits, description, strip, gifStrip, input);
   return row;
 }
@@ -208,8 +115,8 @@ function renderComposerFileStrip(form) {
   strip.hidden = files.length === 0;
   renderComposerGifStrip(form);
   for (const [index, file] of files.entries()) {
-    const chip = el("span", { class: "composer-file", text: file.name });
-    const remove = el("button", { class: "button button-quiet composer-file-remove", text: "Remove" });
+    const chip = element("span", "composer-file", file.name);
+    const remove = element("button", "button button-quiet composer-file-remove", "Remove");
     remove.type = "button";
     remove.dataset.action = "remove-composer-file";
     remove.dataset.fileIndex = String(index);
@@ -298,8 +205,6 @@ async function submitNewPost(form, text) {
   }
   delete form.dataset.idempotencyKey;
   delete form.dataset.idempotencySignature;
-  // The send clears the draft — the text is live, the composer's job is done.
-  setDraft(form, "");
   // Polls (C3): a stashed poll attaches to the fresh thread BEFORE the
   // navigation; a failed attach never loses the (already live) post.
   let pollNote = "";
@@ -345,8 +250,6 @@ async function submitReplyForm(form, text) {
   }
   delete form.dataset.idempotencyKey;
   delete form.dataset.idempotencySignature;
-  // The send clears the draft, exactly as the create submit does.
-  setDraft(form, "");
   // Reply-to-reply composers remember the thread root (declared above) so the
   // rerender lands back on the conversation, not on the level-1 reply's page.
   await state.renderRoute({ name: "post", id: Number(threadId) });
@@ -368,13 +271,16 @@ async function openGifPicker(button) {
   grid.replaceChildren();
   const spare = spareComposerSlots(form);
   for (const gif of data.gifs) {
-    const thumb = el("button", { class: "gif-grid-item" });
+    const thumb = element("button", "gif-grid-item");
     thumb.type = "button";
     thumb.dataset.gifId = gif.id;
     thumb.setAttribute("role", "option");
     thumb.setAttribute("aria-pressed", "false");
     thumb.title = "Use this image";
-    const img = el("img", { src: gif.url, alt: "Library image", loading: "lazy" });
+    const img = element("img");
+    img.src = gif.url;
+    img.loading = "lazy";
+    img.alt = "Library image";
     thumb.append(img);
     thumb.addEventListener("click", () => {
       const pressed = thumb.getAttribute("aria-pressed") === "true";
