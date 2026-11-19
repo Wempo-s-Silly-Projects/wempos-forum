@@ -11,3 +11,5 @@ coverage/
 
 *.swp
 *.kate-swp
+.claude/
+.superpowers/
