@@ -1,0 +1,37 @@
+name: Crowdin translations
+
+# Community-translations pull: a manual dispatch (no cron while the string
+# extraction is pending — see the PREREQUISITE note in crowdin.yml, the
+# owner's issue #41). Once public/locales/en.json exists, flip to cron the
+# same way GooberCord's is.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  crowdin:
+    runs-on: ubuntu-latest
+    steps:
+      # Hash-pinned (the Aikido issue-13 standard on GooberCord: every
+      # third-party action pinned by commit SHA).
+      - name: Check out repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Crowdin — upload source, pull community translations
+        uses: crowdin/github-action@d651c77756acbe11a31d77a6fb79d8a239e1e05a # v3.6.0
+        with:
+          upload_sources: true
+          upload_translations: true
+          download_translations: true
+          create_pull_request: true
+          pull_request_title: "i18n: crowdin community translations"
+          pull_request_body: "Automated batch of community translations from Crowdin — review, then merge."
+          localization_branch_name: "crowdin-translations"
+        env:
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

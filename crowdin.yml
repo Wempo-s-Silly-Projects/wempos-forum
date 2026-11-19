@@ -1,0 +1,26 @@
+# Crowdin community-translation hook (the fleet's i18n pipeline).
+# The community translates; this repo ships the source. Locale files land
+# beside the source at public/locales/<locale>.json.
+#
+# PREREQUISITE (owner's issue #41, milestone 6.0): the forum's user-facing
+# strings are still inline English — the extraction to a strings module
+# (public/locales/en.json as the source table) is its own lane; this hook is
+# wired and waits for that source to exist.
+#
+# Secrets (owner-held, GitHub repo settings — never committed):
+#   CROWDIN_PROJECT_ID  — the Crowdin project's numeric id
+#   CROWDIN_PERSONAL_TOKEN — a Crowdin personal-access token
+
+project_id_env: CROWDIN_PROJECT_ID
+api_token_env: CROWDIN_PERSONAL_TOKEN
+
+base_path: "."
+base_url: "https://api.crowdin.com"
+
+preserve_hierarchy: true
+
+files:
+  - source: "/public/locales/en.json"
+    translation: "/public/locales/%locale%.json"
+    type: "json"
+    update_option: update_as_unapproved
