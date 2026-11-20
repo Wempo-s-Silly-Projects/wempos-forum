@@ -1,4 +1,4 @@
-# GooberCord fleet — standing laws
+# Wempo’s Forum fleet — standing laws
 
 The fleet's anti-waste protocol (Section Q), inherited by every teammate and subagent — echo it verbatim into any spawned brief.
 
