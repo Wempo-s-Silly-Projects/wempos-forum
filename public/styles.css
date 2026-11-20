@@ -2172,3 +2172,255 @@ dialog h2 {
   word-break: break-all;
 }
 .backup-codes-actions { margin: 0.7rem 0 0; }
+
+/* Chat widget + Who's Online roster: the floating launcher and its panel ride
+   fixed positioning above the page chrome (native dialogs live in the top
+   layer, so nothing needs to out-z them); both surfaces reuse the site's
+   light/dark theme tokens and sleep while the tab is hidden. The panel keeps
+   its 360x560 design size but clamps to the viewport on narrow screens, and
+   the floating layer's motion disappears under prefers-reduced-motion. */
+.chat-widget-launcher {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 40;
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.25);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat-widget-launcher:hover { background: var(--green-dark); }
+.chat-widget-launcher:focus-visible { outline: 2px solid var(--focus); }
+.chat-widget-glyph { font-size: 1.35rem; line-height: 1; }
+.chat-widget-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--coral);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+}
+
+.chat-widget-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 80px;
+  z-index: 40;
+  width: min(360px, calc(100vw - 16px));
+  height: min(560px, calc(100vh - 96px));
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.3);
+  overflow: hidden;
+}
+.chat-widget-threads,
+.chat-widget-conversation {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+.chat-widget-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+.chat-widget-title { font-weight: 800; }
+.chat-widget-close,
+.chat-widget-back {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+}
+.chat-widget-close { font-size: 1.2rem; line-height: 1; padding: 0 0.2rem; }
+.chat-widget-close:hover { color: var(--ink); }
+.chat-widget-threads > .chat-widget-thread,
+.chat-widget-empty {
+  padding: 0.55rem 0.75rem;
+}
+.chat-widget-empty { color: var(--muted); font-size: 0.9rem; }
+.chat-widget-thread {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  width: 100%;
+}
+.chat-widget-thread:hover { background: var(--field); }
+.chat-widget-thread-name { font-weight: 600; }
+.chat-widget-thread-name.has-unread { font-weight: 800; }
+.chat-widget-thread-preview {
+  color: var(--muted);
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-widget-thread-time { color: var(--muted); font-size: 0.8rem; }
+.chat-widget-peer {
+  display: block;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  font-weight: 800;
+}
+.chat-widget-back {
+  align-self: flex-start;
+  padding: 0.4rem 0.75rem 0.1rem;
+}
+.chat-widget-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0.75rem;
+}
+.chat-widget-message {
+  max-width: 85%;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  background: var(--field);
+  align-self: flex-start;
+}
+.chat-widget-message.mine {
+  align-self: flex-end;
+  background: var(--green);
+  color: #fff;
+}
+.chat-widget-message-who {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--muted);
+  margin: 0 0 0.1rem;
+}
+.chat-widget-message-body { margin: 0; word-break: break-word; white-space: pre-wrap; }
+.chat-widget-message-time {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: right;
+}
+.chat-widget-message.mine .chat-widget-message-time { color: rgb(255 255 255 / 0.8); }
+.chat-widget-message.mine .chat-widget-message-who { display: none; }
+.chat-widget-older {
+  align-self: center;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+}
+.chat-widget-composer {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--line);
+}
+.chat-widget-input {
+  flex: 1;
+  min-height: 0;
+  max-height: 6rem;
+  resize: none;
+  font: inherit;
+  color: var(--ink);
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  padding: 0.4rem 0.5rem;
+}
+.chat-widget-send:disabled { opacity: 0.6; cursor: default; }
+.chat-widget-send-error {
+  margin: 0;
+  padding: 0.4rem 0.75rem;
+  color: var(--coral);
+  font-size: 0.85rem;
+}
+
+/* Who's Online: its own bottom-left surface — a light public card; hidden
+   entirely when the presence read fails, and simply absent on narrow phones. */
+.who-online {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 40;
+  width: 220px;
+  max-width: calc(100vw - 16px);
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.2);
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+}
+.who-online-heading {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 800;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.who-online-count {
+  color: var(--green-dark);
+  font-size: 0.8rem;
+}
+.who-online-note {
+  margin: 0.15rem 0 0.35rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.who-online-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.6rem;
+}
+.who-online-name {
+  font-weight: 700;
+  color: var(--link);
+  text-decoration: none;
+}
+.who-online-name:hover { text-decoration: underline; }
+.who-online-more { color: var(--muted); }
+@media (max-width: 640px) {
+  .who-online { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-widget-launcher,
+  .chat-widget-panel,
+  .who-online { transition: none; }
+}

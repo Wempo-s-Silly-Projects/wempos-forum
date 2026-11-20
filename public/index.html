@@ -16,6 +16,11 @@
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/responsive.css">
     <script type="module" src="/js/app.js"></script>
+    <!-- Chat widget + Who's Online roster: two self-mounting client modules
+         (each gates itself on its own boot probe, so no app.js wiring is
+         needed; both stay inert when the surfaces they serve are absent). -->
+    <script type="module" src="/js/chat-widget.js"></script>
+    <script type="module" src="/js/who-online.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
