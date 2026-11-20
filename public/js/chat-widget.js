@@ -15,6 +15,7 @@
 // button both gate the action, so Enter and a double click can never queue
 // two POSTs for one message (the 11-12 double-send defect, killed at the UI).
 import { api } from "./api.js";
+import { createIcon } from "./icons.js";
 
 const PANEL_POLL_MS = 5_000;
 const UNREAD_POLL_MS = 30_000;
@@ -99,7 +100,11 @@ const boot = async () => {
   launcher.type = "button";
   launcher.setAttribute("aria-label", "Chat");
   launcher.setAttribute("aria-expanded", "false");
-  const glyph = el("span", "chat-widget-glyph", "💬");
+  // The launcher rides the site's own icon system (the stroke "chat" icon,
+  // currentColor) — not an emoji text node; the glyph span stays the seat.
+  const glyph = el("span", "chat-widget-glyph");
+  glyph.setAttribute("aria-hidden", "true");
+  glyph.append(createIcon(document, "chat"));
   glyph.setAttribute("aria-hidden", "true");
   badge = el("span", "chat-widget-badge");
   badge.hidden = true;
