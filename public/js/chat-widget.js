@@ -199,8 +199,7 @@ const openThread = async (thread, { silent = false } = {}) => {
   if (data.unread > 0) {
     api(`/api/dm/threads/${encodeURIComponent(thread.id)}/read`, { method: "POST" })
       .then(() => {
-        const painted = threads.find((row) => row.id === thread.id);
-        if (painted) painted.unread = 0;
+        threads = threads.map((row) => (row.id === thread.id ? { ...row, unread: 0 } : row));
         paintBadge();
       })
       .catch(() => { /* the next poll re-acks */ });
@@ -239,11 +238,14 @@ const paintConversation = () => {
   const scroll = el("div", "chat-widget-messages");
   for (const message of messages) {
     const bubble = el("div", message.mine ? "chat-widget-message mine" : "chat-widget-message");
-    if (!message.mine) bubble.append(el("span", "chat-widget-message-who", message.authorUsername || ""));
+    if (!message.mine) {
+      const who = el("span", "chat-widget-message-who", message.authorUsername || "");
+      bubble.append(who);
+    }
     const body = el("p", "chat-widget-message-body", message.body);
     const time = el("span", "chat-widget-message-time", relativeTime(message.createdAt));
     time.title = message.createdAt || "";
-    bubble.append(who, body, time);
+    bubble.append(body, time);
     scroll.append(bubble);
   }
   const older = el("button", "chat-widget-older");
@@ -314,6 +316,12 @@ const sendMessage = async () => {
 const showSendError = (message) => {
   const composer = composerEl?.closest(".chat-widget-composer");
   if (!composer) return;
+  // One note, reused: a second failure rewrites the line instead of stacking.
+  const existing = composer.parentElement?.querySelector(".chat-widget-send-error");
+  if (existing) {
+    existing.textContent = message;
+    return;
+  }
   const note = el("p", "chat-widget-send-error", message);
   composer.before(note);
 };
