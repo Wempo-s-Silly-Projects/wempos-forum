@@ -301,17 +301,32 @@ async function handleThreadOpenRoute(request, env, url, path, method) {
   const viewerId = session.user.id;
   await rateLimit(request, env, "write");
   const body = await readJson(request);
-  const targetId = Number(body.userId);
+  // Accept EITHER {userId} OR {username}: the username resolves through the
+  // users table's normalized key (trim + lowercase, the session.mjs idiom),
+  // never raw text.
+  const username = typeof body.username === "string" ? body.username.trim().toLowerCase() : "";
+  let target;
+  if (username) {
+    target = await env.FORUM_DB.prepare(
+      "SELECT id, username, role FROM users WHERE username_key = ? LIMIT 1",
+    ).bind(username).first();
+    if (!target) throw new HttpError(400, "That member does not exist.");
+  } else {
+    target = null;
+  }
+  const targetId = target ? Number(target.id) : Number(body.userId);
   if (!Number.isInteger(targetId) || targetId <= 0) {
     throw new HttpError(400, "That member does not exist.");
   }
   if (targetId === viewerId) {
     throw new HttpError(400, "You cannot message yourself.");
   }
-  const target = await env.FORUM_DB.prepare(
-    "SELECT id, username, role FROM users WHERE id = ? LIMIT 1",
-  ).bind(targetId).first();
-  if (!target) throw new HttpError(400, "That member does not exist.");
+  if (!target) {
+    target = await env.FORUM_DB.prepare(
+      "SELECT id, username, role FROM users WHERE id = ? LIMIT 1",
+    ).bind(targetId).first();
+    if (!target) throw new HttpError(400, "That member does not exist.");
+  }
   if (await blockPairExists(env, viewerId, targetId)) {
     throw new HttpError(403, "That conversation is not available.");
   }
