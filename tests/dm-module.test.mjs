@@ -170,6 +170,42 @@ test("open-or-return inserts once with the canonical (min, max) pair", async () 
   assert.equal(insert.params[1], 5);
 });
 
+test("open-or-return resolves a target by username (trim + lowercase key idiom)", async () => {
+  const db = fakeDb({
+    ...SESSION_ANSWER,
+    ...CLEAR_GATES,
+    "WHERE username_key = ?": { id: 5, username: "kai", role: "member" },
+    "WHERE user_a = ? AND user_b = ?": { id: 7, user_a: 2, user_b: 5 },
+  });
+  const response = await drive(db, "/api/dm/threads", "POST", { username: "  KAI  " });
+  const payload = await response.json();
+  assert.equal(payload.id, 7);
+  assert.deepEqual(payload.other, { id: 5, username: "kai", role: "member" });
+  const lookup = db.statements.find((s) => s.sql.includes("WHERE username_key = ?"));
+  assert.ok(lookup, "the username_key lookup rode the open");
+  assert.equal(lookup.params[0], "kai");
+});
+
+test("by-username open refuses unknown members, the self pair, and empty strings", async () => {
+  const unknown = fakeDb({
+    ...SESSION_ANSWER,
+    "WHERE username_key = ?": null,
+  });
+  await assert.rejects(drive(unknown, "/api/dm/threads", "POST", { username: "kai" }),
+    (error) => error.status === 400 && error.message === "That member does not exist.");
+
+  const self = fakeDb({
+    ...SESSION_ANSWER,
+    "WHERE username_key = ?": { id: 2, username: "tester", role: "member" },
+  });
+  await assert.rejects(drive(self, "/api/dm/threads", "POST", { username: "tester" }),
+    (error) => error.status === 400 && error.message === "You cannot message yourself.");
+
+  const blank = fakeDb({ ...SESSION_ANSWER });
+  await assert.rejects(drive(blank, "/api/dm/threads", "POST", { username: "   " }),
+    (error) => error.status === 400 && error.message === "That member does not exist.");
+});
+
 test("self-pair, unknown target, and block pair all refuse before any write", async () => {
   const self = fakeDb({ ...SESSION_ANSWER });
   await assert.rejects(drive(self, "/api/dm/threads", "POST", { userId: 2 }),
