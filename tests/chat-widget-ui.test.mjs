@@ -71,6 +71,38 @@ test("the panel toggles, marks read, and pages older without innerHTML", () => {
   assert.ok(widget.includes("textContent"), "copy rides textContent");
 });
 
+test("the thread list grows a single-flight new-chat form keyed by username", () => {
+  assert.ok(widget.includes("const createThreadByUsername = async"), "the new-chat submit handler");
+  assert.ok(widget.includes('api("/api/dm/threads", { method: "POST", body: { username } })'), "the POST keyed by username");
+  assert.ok(widget.includes("if (!username || newChatInFlight) return;"), "the in-flight gate");
+  assert.ok(widget.includes("newChatButton.disabled = true;"), "the disabled arm");
+  assert.ok(widget.includes("newChatInFlight = false;"), "the flag resets in finally");
+  // The refusal rides the send-error slot idiom: ONE textContent-only line,
+  // reused (a second failure rewrites it, never stacks).
+  assert.ok(widget.includes('threadListEl.querySelector(".chat-widget-new-error")'), "one reused note");
+  assert.ok(widget.includes('el("p", "chat-widget-new-error", message)'), "the painted refusal line");
+  assert.ok(widget.includes("if (data?.id == null) throw"), "an id-less echo refuses");
+});
+
+test("the new-chat form survives the 5s list repaint and the door opens the returned thread", () => {
+  // paintThreadList's replaceChildren would wipe a half-typed username every
+  // 5s — the form mounts once per open, OUTSIDE the repainted rows container.
+  assert.ok(widget.includes("const buildNewChatForm = () => {"), "the once-per-open builder");
+  assert.ok(widget.includes("listSideEl.append(newChatFormEl, threadListEl);"), "the form rides outside the rows container");
+  assert.ok(widget.includes("export const openChatThread = async (threadId) => {"), "the exported profile door");
+  assert.ok(widget.includes("if (!launcher) await boot();"), "the idempotent boot");
+  assert.ok(widget.includes("if (!open) await openPanel();"), "the panel opens if closed");
+  assert.ok(widget.includes("const known = threads.find((row) => row.id === threadId);"), "the list-row lookup");
+  assert.ok(widget.includes("await openThread(known || { id: threadId });"), "an unknown id still lands the conversation");
+});
+
+test("the new-chat strip rides the widget's stylesheet family", () => {
+  const css = read("../public/styles.css");
+  assert.ok(css.includes(".chat-widget-new "), "the form family");
+  assert.ok(css.includes(".chat-widget-new-error"), "the refusal line family");
+  assert.ok(css.includes(".chat-widget-list"), "the side column family");
+});
+
 test("the widget's seams ride the shell markup and the stylesheet banner", () => {
   const shell = read("../public/index.html");
   assert.ok(shell.includes('<script type="module" src="/js/chat-widget.js"></script>'), "the module tag");

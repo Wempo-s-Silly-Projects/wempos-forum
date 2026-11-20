@@ -27,6 +27,7 @@ import {
   renderProfileSocials,
 } from "../profile-editor.js";
 import { renderProfileWall } from "../wall.js";
+import { openChatThread } from "../chat-widget.js";
 
 async function renderProfileRoute(route, context, version) {
   const profile = await api(`/api/users/${encodeURIComponent(route.username)}`);
@@ -148,6 +149,15 @@ function renderProfile(profile, session) {
     heading.append(element("span", "avatar-pending-badge", "Avatar awaiting review"));
   }
   if (session.user && session.user.id !== profile.id) {
+    // Day-2 widget wave: the Chat button boots the DM widget on this profile.
+    // The numeric id is the primary seat (the backend's open-or-return keys
+    // on { userId }); the username rides as a fallback seat.
+    const chatButton = element("button", "button button-quiet", "Chat");
+    chatButton.type = "button";
+    chatButton.dataset.action = "chat-user";
+    chatButton.dataset.profileId = String(profile.id);
+    chatButton.dataset.username = profile.username;
+    heading.append(chatButton);
     // Blocks (v4.4): the Block toggle lives beside the report control. Once a
     // pair exists this profile becomes unavailable (both directions), so the
     // Unblock controls live in the account settings' blocked-members list.
@@ -347,6 +357,22 @@ function openDeleteAccountDialog() {
   );
 }
 
+// Day-2 widget wave: Chat on a member's profile opens (or returns) the DM
+// thread with them. The numeric id is the primary seat for open-or-return
+// ({ userId }); the payload's username is only the fallback seat when no id
+// is present. The button only mounts for signed-in viewers of another
+// member's profile, so the widget's boot-probe law holds untouched; failures
+// throw and paint the message bar (handleClick's single catch).
+async function openProfileChat(button) {
+  const profileId = Number(button.dataset.profileId);
+  const username = button.dataset.username || "";
+  const body = Number.isInteger(profileId) && profileId > 0 ? { userId: profileId } : { username };
+  const thread = await api("/api/dm/threads", { method: "POST", body });
+  const threadId = thread?.id;
+  if (threadId == null) throw new Error("The chat could not be started.");
+  await openChatThread(threadId);
+}
+
 // Collapsible socials (plan v2.3): the details/summary wrapper lives in
 // profile-editor.js (renderProfileSocials, glue-testable); open state is a
 // plain `details.open = isOwnProfile` assignment — owner's own profile OPEN,
@@ -367,6 +393,7 @@ export const ACTIONS = {
   "delete-post": (button) => openDeletePostDialog(button),
   "delete-account": () => openDeleteAccountDialog(),
   "block-user": (button) => openBlockDialog(button),
+  "chat-user": (button) => openProfileChat(button),
     "save-profile-css": async (button) => {
       // Custom CSS (v2.5): POST the textarea's raw css to /api/me/css; it
       // lands pending for a mod. The note is review-first wording.
