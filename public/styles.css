@@ -2404,6 +2404,120 @@ dialog h2 {
   font-size: 0.85rem;
 }
 
+/* Old-UI revival (lobby-frontend lane): the widget's interior becomes the old
+   /chat page's two tabs — the Lobby stream rides the .chat-message family
+   that survived for the desk's log, and the DM rail grows the GC polish
+   (avatar initial circles, role-colored seats). The Lobby tab stays hidden
+   until its own boot probe succeeds (the degrade law), and the flex surfaces
+   carry explicit [hidden] guards — an author display rule beats the UA's
+   hidden attribute otherwise. */
+.chat-widget-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: 0.4rem;
+}
+.chat-widget-tab {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--button-radius);
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+}
+.chat-widget-tab[aria-selected="true"] {
+  border-color: var(--line);
+  background: var(--field);
+  color: var(--ink);
+}
+.chat-widget-lobby {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.chat-widget-lobby[hidden],
+.chat-widget-list[hidden],
+.chat-widget-conversation[hidden],
+.chat-widget-tab[hidden] {
+  display: none;
+}
+.chat-widget-lobby-online {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0;
+  padding: 0.35rem 0.75rem 0.25rem;
+}
+.chat-widget-lobby .chat-messages {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 0.5rem 0.75rem;
+}
+.chat-widget-lobby .chat-message.chat-mine .chat-message-body {
+  color: var(--muted);
+}
+.chat-widget-lobby-send {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+}
+.chat-widget-lobby-send input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  color: var(--ink);
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  padding: 0.35rem 0.5rem;
+}
+.chat-widget-lobby-send-button { flex-shrink: 0; }
+.chat-widget-lobby-error {
+  margin: 0;
+  padding: 0.4rem 0.75rem;
+  color: var(--coral);
+  font-size: 0.85rem;
+}
+.chat-widget-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--green-ink);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.chat-widget-avatar.role-badge-owner { background: #8d690f; }
+.chat-widget-avatar.role-badge-admin { background: var(--green-ink); }
+.chat-widget-thread {
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+}
+.chat-widget-message-who {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.chat-widget-message-who .chat-widget-avatar {
+  width: 18px;
+  height: 18px;
+  font-size: 0.6rem;
+}
+.chat-widget-message-who-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Who's Online: its own bottom-left surface — a light public card; hidden
    entirely when the presence read fails, and simply absent on narrow phones. */
 .who-online {

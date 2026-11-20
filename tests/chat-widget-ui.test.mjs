@@ -103,6 +103,50 @@ test("the new-chat strip rides the widget's stylesheet family", () => {
   assert.ok(css.includes(".chat-widget-list"), "the side column family");
 });
 
+test("the panel head carries the two-tab interior (Lobby stream + DMs rail)", () => {
+  assert.ok(widget.includes('el("button", "chat-widget-tab", "Lobby")'), "the Lobby tab");
+  assert.ok(widget.includes('el("button", "chat-widget-tab", "DMs")'), "the DMs tab");
+  assert.ok(widget.includes("const showTab = (nextTab) => {"), "the tab switcher");
+  assert.ok(widget.includes('let activeTab = "dms";'), "DMs is the default tab (the shipped interior)");
+  assert.ok(widget.includes('lobbyTab.dataset.widgetTab = "lobby";'), "the pinned tab seat");
+  assert.ok(widget.includes('showTab(lobbyAvailable ? "lobby" : "dms");'), "the lobby-first landing when the stream is live");
+});
+
+test("the Lobby stream interior is the old chat UI's shape, byte-kin", () => {
+  assert.ok(widget.includes('list.dataset.chatMessages = "";'), "the old stream id");
+  assert.ok(widget.includes("row.dataset.chatMessageId = String(message.id);"), "the old row id");
+  assert.ok(widget.includes('el("div", "chat-message");'), "the old row class family");
+  assert.ok(widget.includes('el("span", "role-badge role-badge-" + message.author.role'), "the old role badge");
+  assert.ok(widget.includes("when.textContent = new Date(message.createdAt).toLocaleString();"), "the old absolute timestamp");
+  assert.ok(widget.includes('?after=" + lobbyLastId'), "the old cursor poll");
+  assert.ok(widget.includes("const LOBBY_POLL_MS = 15_000;"), "the old 15s poll rhythm");
+  assert.ok(widget.includes('method: "DELETE"'), "the staff delete arm");
+  assert.ok(widget.includes("lobbyMessagesEl.scrollTop = lobbyMessagesEl.scrollHeight;"), "the old bottom-pinned scroll");
+});
+
+test("the Lobby tab degrades hidden until its own boot probe succeeds", () => {
+  assert.ok(widget.includes("let lobbyAvailable = false;"), "the degrade flag");
+  assert.ok(widget.includes("lobbyTab.hidden = true;"), "hidden by default");
+  assert.ok(widget.includes("lobbyTab.hidden = false;"), "revealed only on probe success");
+  assert.ok(widget.includes("if (nextTab === \"lobby\" && !lobbyAvailable) return;"), "a dead stream refuses activation");
+});
+
+test("the lobby mirrors session identity for mine/staff rows without touching the presence beacon", () => {
+  assert.ok(widget.includes('api("/api/session")'), "the one session probe at panel open");
+  assert.ok(!widget.includes("/api/presence"), "the beacon stays with who-online.js");
+  assert.ok(widget.includes('row.classList.add("chat-mine");'), "the old mine marker");
+  assert.ok(widget.includes("const isStaff = () => Boolean(widgetUser && (widgetUser.role === \"owner\" || widgetUser.role === \"admin\"));"), "the staff gate");
+});
+
+test("the GC polish rides the stylesheet: avatar circles and the tab pair", () => {
+  const css = read("../public/styles.css");
+  assert.ok(css.includes(".chat-widget-avatar"), "the initial-circle family");
+  assert.ok(css.includes(".chat-widget-avatar.role-badge-owner"), "the role-colored seat");
+  assert.ok(css.includes(".chat-widget-tab"), "the tab family");
+  assert.ok(css.includes(".chat-widget-lobby"), "the stream family");
+  assert.ok(css.includes(".chat-widget-lobby[hidden]"), "the hidden-attr guards");
+});
+
 test("the widget's seams ride the shell markup and the stylesheet banner", () => {
   const shell = read("../public/index.html");
   assert.ok(shell.includes('<script type="module" src="/js/chat-widget.js"></script>'), "the module tag");

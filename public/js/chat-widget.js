@@ -3,6 +3,11 @@
 // shared api() wrapper (fetch only), it mounts itself on import, and it stays
 // INERT for signed-out visitors: the single boot probe GET /api/dm/threads
 // decides everything (a 401/404/503 leaves no DOM and no polling behind).
+// The panel carries the two-tab interior: the old /chat page's Lobby stream
+// (the retired endpoint shapes, the .chat-message class family, the 15s poll
+// rhythm) and the DMs rail (the shipped conversation + New-chat strip). The
+// Lobby tab degrades to hidden until its own boot probe GET /api/chat
+// succeeds — the original boot-probe law, one more door.
 // Polling while the panel is open refreshes the thread list and the open
 // conversation every 5s; while closed, an unread-counter refresh rides every
 // 30s. Every timer sleeps while document.hidden — background tabs make no
@@ -13,8 +18,10 @@ import { api } from "./api.js";
 
 const PANEL_POLL_MS = 5_000;
 const UNREAD_POLL_MS = 30_000;
+const LOBBY_POLL_MS = 15_000;
 const PANEL_WIDTH_MAX = 360;
 const MESSAGE_PREVIEW_MAX = 60;
+const LOBBY_MESSAGE_MAX = 500;
 
 let launcher = null;
 let badge = null;
@@ -34,6 +41,24 @@ let sendButton = null;
 let newChatFormEl = null;
 let newChatInFlight = false;
 let listSideEl = null;
+
+// The Lobby tab's state: the old chat module's cursors and guards, scoped to
+// the widget. Session identity rides ONE /api/session probe per panel open —
+// it decides the mine marker and the staff-only delete arm. The presence
+// beacon stays with who-online.js; this module never sends it.
+let lobbyEl = null;
+let lobbyOnlineEl = null;
+let lobbyMessagesEl = null;
+let lobbyAvailable = false;
+let lobbyLog = [];
+let lobbyLastId = 0;
+let lobbyTimer = null;
+let lobbyVersion = 0;
+let lobbySendInFlight = false;
+let widgetUser = null;
+let activeTab = "dms";
+
+const isStaff = () => Boolean(widgetUser && (widgetUser.role === "owner" || widgetUser.role === "admin"));
 
 const relativeTime = (iso) => {
   const then = new Date(iso).getTime();
@@ -81,6 +106,19 @@ const boot = async () => {
   launcher.append(glyph, badge);
   launcher.addEventListener("click", togglePanel);
   document.body.append(launcher);
+  // The Lobby tab's own boot probe rides the old /chat read: a success seeds
+  // the stream (newest 50, oldest-first) and the online count; a failure
+  // keeps the tab hidden — the degrade law, one more door past the widget's
+  // signed-in gate above.
+  try {
+    const lobbyData = await api("/api/chat");
+    lobbyAvailable = true;
+    lobbyLog = Array.isArray(lobbyData?.messages) ? lobbyData.messages : [];
+    lobbyLastId = Number(lobbyData?.lastId || 0);
+  } catch {
+    // The lobby lane is unshipped (or signed-out): the tab stays hidden.
+    lobbyAvailable = false;
+  }
   paintBadge();
   unreadTimer = setInterval(() => {
     if (document.hidden || open) return;
@@ -112,7 +150,35 @@ const openPanel = async () => {
   launcher.setAttribute("aria-expanded", "true");
   panel = el("div", "chat-widget-panel");
   panel.setAttribute("role", "dialog");
-  panel.setAttribute("aria-label", "Direct messages");
+  panel.setAttribute("aria-label", "Chat");
+  // The two-tab head: the Lobby stream and the DMs rail (the shipped
+  // interior). The Lobby tab stays hidden until the stream is available.
+  const head = el("div", "chat-widget-head");
+  head.append(el("span", "chat-widget-title", "Chats"));
+  const tabs = el("div", "chat-widget-tabs");
+  const lobbyTab = el("button", "chat-widget-tab", "Lobby");
+  lobbyTab.type = "button";
+  lobbyTab.dataset.widgetTab = "lobby";
+  lobbyTab.setAttribute("aria-selected", "false");
+  lobbyTab.hidden = true;
+  lobbyTab.addEventListener("click", () => {
+    showTab("lobby");
+  });
+  const dmsTab = el("button", "chat-widget-tab", "DMs");
+  dmsTab.type = "button";
+  dmsTab.dataset.widgetTab = "dms";
+  dmsTab.setAttribute("aria-selected", "false");
+  dmsTab.addEventListener("click", () => {
+    showTab("dms");
+  });
+  tabs.append(lobbyTab, dmsTab);
+  head.append(tabs);
+  const close = el("button", "chat-widget-close");
+  close.type = "button";
+  close.textContent = "×";
+  close.setAttribute("aria-label", "Close chat panel");
+  close.addEventListener("click", closePanel);
+  head.append(close);
   threadListEl = el("div", "chat-widget-threads");
   conversationEl = el("div", "chat-widget-conversation");
   conversationEl.hidden = true;
@@ -121,8 +187,14 @@ const openPanel = async () => {
   listSideEl = el("div", "chat-widget-list");
   newChatFormEl = buildNewChatForm();
   listSideEl.append(newChatFormEl, threadListEl);
-  panel.append(listSideEl, conversationEl);
+  lobbyEl = buildLobby();
+  panel.append(head, listSideEl, conversationEl, lobbyEl);
   document.body.append(panel);
+  // Session identity (mine rows, the staff delete arm) rides one probe per
+  // open; a failure just drops the perks, never the stream.
+  widgetUser = await api("/api/session")
+    .then((data) => (data?.user ? data.user : null))
+    .catch(() => null);
   paintThreadList();
   panelTimer = setInterval(() => {
     if (document.hidden) return;
@@ -130,6 +202,14 @@ const openPanel = async () => {
     if (activeThread) refresh.push(openThread(activeThread, { silent: true }));
     Promise.all(refresh).catch(() => { /* next tick retries */ });
   }, PANEL_POLL_MS);
+  if (lobbyAvailable) {
+    lobbyTab.hidden = false;
+    lobbyTimer = setInterval(() => {
+      if (document.hidden) return;
+      pollLobbySafely();
+    }, LOBBY_POLL_MS);
+  }
+  showTab(lobbyAvailable ? "lobby" : "dms");
   const data = await api("/api/dm/threads").catch(() => null);
   if (data) {
     threads = Array.isArray(data.threads) ? data.threads : threads;
@@ -143,22 +223,58 @@ const closePanel = () => {
   launcher.setAttribute("aria-expanded", "false");
   clearInterval(panelTimer);
   panelTimer = null;
+  clearInterval(lobbyTimer);
+  lobbyTimer = null;
   panel.remove();
   panel = null;
   threadListEl = null;
   conversationEl = null;
   newChatFormEl = null;
   listSideEl = null;
+  lobbyEl = null;
+  lobbyOnlineEl = null;
+  lobbyMessagesEl = null;
   composerEl = null;
   sendButton = null;
   activeThread = null;
   conversation = null;
 };
 
+// The tab switcher: the Lobby stream and the DMs pair are mutually exclusive
+// surfaces inside the panel; the DM rail's own inner state (list vs the open
+// conversation) survives the round trip.
+const showTab = (nextTab) => {
+  if (nextTab !== "lobby" && nextTab !== "dms") return;
+  if (nextTab === "lobby" && !lobbyAvailable) return;
+  activeTab = nextTab;
+  if (!panel) return;
+  const showLobby = nextTab === "lobby";
+  const lobbyTab = panel.querySelector('[data-widget-tab="lobby"]');
+  const dmsTab = panel.querySelector('[data-widget-tab="dms"]');
+  if (lobbyTab) lobbyTab.setAttribute("aria-selected", String(showLobby));
+  if (dmsTab) dmsTab.setAttribute("aria-selected", String(!showLobby));
+  if (lobbyEl) lobbyEl.hidden = !showLobby;
+  if (listSideEl) listSideEl.hidden = showLobby || Boolean(activeThread);
+  if (conversationEl) conversationEl.hidden = showLobby || !activeThread;
+  if (showLobby) pollLobbySafely();
+};
+
+// GC polish: the initial-circle avatar the DM rail and the conversation's
+// theirs rows ride. Role seats are colored from the forum's role-badge tokens
+// when the payload carries one.
+const buildAvatar = (other) => {
+  const username = typeof other?.username === "string" ? other.username : "?";
+  const circle = el("span", "chat-widget-avatar", username.charAt(0).toUpperCase() || "?");
+  circle.setAttribute("aria-hidden", "true");
+  if (other?.role === "owner" || other?.role === "admin") {
+    circle.classList.add("role-badge-" + other.role);
+  }
+  return circle;
+};
+
 const paintThreadList = () => {
   if (!threadListEl) return;
   threadListEl.replaceChildren();
-  addTextHeading(threadListEl);
   if (threads.length === 0) {
     threadListEl.append(el("p", "chat-widget-empty", "No chats yet. Say hi from a profile or wait for a message:3"));
     return;
@@ -171,7 +287,8 @@ const paintThreadList = () => {
     const preview = el("span", "chat-widget-thread-preview", previewOf(thread));
     const time = el("span", "chat-widget-thread-time", thread.lastMessageAt ? relativeTime(thread.lastMessageAt) : "");
     time.title = thread.lastMessageAt || "";
-    row.append(name, preview, time);
+    const avatar = buildAvatar(thread.other);
+    row.append(avatar, name, preview, time);
     row.addEventListener("click", () => openThread(thread).catch(() => { /* the row stays clickable */ }));
     threadListEl.append(row);
   }
@@ -183,18 +300,6 @@ const previewOf = (thread) => {
   const clipped = preview.length > MESSAGE_PREVIEW_MAX
     ? `${preview.slice(0, MESSAGE_PREVIEW_MAX - 1)}…` : preview;
   return clipped || "No messages yet";
-};
-
-const addTextHeading = (parent) => {
-  const heading = el("div", "chat-widget-head");
-  heading.append(el("span", "chat-widget-title", "Chats"));
-  const close = el("button", "chat-widget-close");
-  close.type = "button";
-  close.textContent = "×";
-  close.setAttribute("aria-label", "Close chat panel");
-  close.addEventListener("click", closePanel);
-  heading.append(close);
-  parent.append(heading);
 };
 
 const openThread = async (thread, { silent = false } = {}) => {
@@ -249,7 +354,9 @@ const paintConversation = () => {
   for (const message of messages) {
     const bubble = el("div", message.mine ? "chat-widget-message mine" : "chat-widget-message");
     if (!message.mine) {
-      const who = el("span", "chat-widget-message-who", message.authorUsername || "");
+      // The GC whose-row: the leading initial-circle avatar before the name.
+      const who = el("span", "chat-widget-message-who");
+      who.append(buildAvatar(message), el("span", "chat-widget-message-who-name", message.authorUsername || ""));
       bubble.append(who);
     }
     const body = el("p", "chat-widget-message-body", message.body);
@@ -336,6 +443,169 @@ const showSendError = (message) => {
   composer.before(note);
 };
 
+// ----------
+// The Lobby tab: the old /chat page's public stream inside the widget. GET
+// /api/chat?after=<id> carries new room messages plus the online count (the
+// retired shape the backend lane restored); POST /api/chat sends; the
+// staff-only × deletes through DELETE /api/chat/:id. The old class family
+// (chat-message, role badges) and the old poll rhythm (15s) ride verbatim.
+// ----------
+
+// The background poll should quietly retry on the next interval rather than
+// create unhandled promise rejections during temporary network failures.
+const pollLobbySafely = () => {
+  pollLobby().catch(() => {});
+};
+
+// The Lobby tab's DOM: the online count line, the old stream list, the send
+// form. Built once per panel open.
+const buildLobby = () => {
+  const host = el("div", "chat-widget-lobby");
+  host.hidden = true;
+  lobbyOnlineEl = el("p", "chat-online chat-widget-lobby-online");
+  const list = el("div", "chat-messages");
+  list.dataset.chatMessages = "";
+  lobbyMessagesEl = list;
+  const form = el("form", "chat-widget-lobby-send");
+  const input = el("input", "chat-widget-lobby-input");
+  input.type = "text";
+  input.name = "body";
+  input.maxLength = LOBBY_MESSAGE_MAX;
+  input.required = true;
+  input.placeholder = "Message the lobby";
+  input.setAttribute("aria-label", "Message the lobby");
+  const send = el("button", "button button-primary chat-widget-lobby-send-button", "Send");
+  send.type = "submit";
+  form.append(input, send);
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    sendLobbyMessage(input);
+  });
+  host.append(lobbyOnlineEl, lobbyMessagesEl, form);
+  return host;
+};
+
+// One stream row, the old renderChatMessage's room arm byte-kin: the author
+// name, the role badge, the absolute timestamp, the filtered body — textContent
+// only — and the staff-only delete control.
+const lobbyMessageRow = (message) => {
+  const row = el("div", "chat-message");
+  row.dataset.chatMessageId = String(message.id);
+  if (widgetUser && Number(widgetUser.id) === Number(message.author.id)) {
+    row.classList.add("chat-mine");
+  }
+  const head = el("p", "chat-message-head");
+  head.append(el("span", "chat-message-author", message.author.username));
+  if (
+    message.author.role === "owner" ||
+    message.author.role === "admin"
+  ) {
+    head.append(
+      el("span", "role-badge role-badge-" + message.author.role, message.author.role === "owner" ? "Owner" : "Admin"),
+    );
+  }
+  const when = el("time");
+  when.dateTime = message.createdAt;
+  when.textContent = new Date(message.createdAt).toLocaleString();
+  head.append(when);
+  row.append(head, el("p", "chat-message-body", message.body));
+  if (isStaff()) {
+    const remove = el("button", "chat-message-delete", "×");
+    remove.type = "button";
+    remove.dataset.chatMessageId = String(message.id);
+    remove.setAttribute("aria-label", "Delete this lobby message");
+    remove.addEventListener("click", () => {
+      deleteLobbyMessage(remove).catch(() => { /* the row stays for a retry */ });
+    });
+    row.append(remove);
+  }
+  return row;
+};
+
+// Paint the whole stream (each panel open re-renders the carried log).
+const paintLobbyLog = () => {
+  if (!lobbyMessagesEl) return;
+  lobbyMessagesEl.replaceChildren();
+  for (const message of lobbyLog) {
+    lobbyMessagesEl.append(lobbyMessageRow(message));
+  }
+  lobbyMessagesEl.scrollTop = lobbyMessagesEl.scrollHeight;
+  if (lobbyOnlineEl) lobbyOnlineEl.textContent = lobbyOnlineText();
+};
+
+// Incoming lobby messages: append, deduped by id (the poll's echo-safe arm).
+const appendLobbyMessages = (messages) => {
+  if (!lobbyMessagesEl || !Array.isArray(messages)) return;
+  for (const message of messages) {
+    if (!message || message.id == null) continue;
+    if (lobbyLog.some((row) => row.id === message.id)) continue;
+    lobbyLog = [...lobbyLog, message];
+    lobbyMessagesEl.append(lobbyMessageRow(message));
+    if (Number(message.id) > lobbyLastId) lobbyLastId = Number(message.id);
+  }
+  lobbyMessagesEl.scrollTop = lobbyMessagesEl.scrollHeight;
+};
+
+const lobbyOnlineText = () => {
+  // The old line ("N online now"); the zero case renders its own quiet note.
+  return lobbyOnline === 1 ? "1 online now" : lobbyOnline + " online now";
+};
+
+const pollLobby = async () => {
+  const requestedVersion = ++lobbyVersion;
+  // lobbyLastId 0 = fresh load: the absent param asks the server for the
+  // newest page (after=0 would return the OLDEST page instead) — the old
+  // cursor law.
+  const data = await api(
+    lobbyLastId > 0 ? "/api/chat?after=" + lobbyLastId : "/api/chat",
+  );
+  if (!open || requestedVersion !== lobbyVersion) return;
+  lobbyAvailable = true;
+  lobbyOnline = Number(data?.online || 0);
+  if (lobbyOnlineEl) lobbyOnlineEl.textContent = lobbyOnlineText();
+  appendLobbyMessages(Array.isArray(data?.messages) ? data.messages : []);
+  const nextLastId = Number(data?.lastId || 0);
+  if (nextLastId > lobbyLastId) lobbyLastId = nextLastId;
+};
+
+// Room send: POST then append locally (the poll dedupe skips the echo) — the
+// old submitChatMessage's shape, single-flighted for the widget's form.
+const sendLobbyMessage = async (input) => {
+  const body = String(input?.value ?? "").trim();
+  if (!body || lobbySendInFlight) return;
+  lobbySendInFlight = true;
+  try {
+    const data = await api("/api/chat", { method: "POST", body: { body } });
+    input.value = "";
+    appendLobbyMessages(data?.message ? [data.message] : []);
+  } catch (error) {
+    showLobbySendError(error?.message || "The message did not send. Try again.");
+  } finally {
+    lobbySendInFlight = false;
+  }
+};
+
+// The refusal rides the send-error slot idiom: ONE textContent-only line at
+// the form's head, reused per failure, wiped by the panel's re-open.
+const showLobbySendError = (message) => {
+  if (!lobbyEl) return;
+  const existing = lobbyEl.querySelector(".chat-widget-lobby-error");
+  if (existing) {
+    existing.textContent = message;
+    return;
+  }
+  lobbyEl.append(el("p", "chat-widget-lobby-error", message));
+};
+
+// Staff cleanup, the old deleteChatMessage's shape: the row and the carried
+// log both drop the message (the log is filtered to a new array).
+const deleteLobbyMessage = async (button) => {
+  await api("/api/chat/" + button.dataset.chatMessageId, { method: "DELETE" });
+  const removedId = Number(button.dataset.chatMessageId);
+  lobbyLog = lobbyLog.filter((row) => Number(row.id) !== removedId);
+  button.closest("[data-chat-message-id]")?.remove();
+};
+
 // The New-chat affordance: a compact strip above the thread rows (a username
 // input + one submit button). It lives OUTSIDE the rows container —
 // paintThreadList's replaceChildren would otherwise wipe a half-typed
@@ -401,6 +671,8 @@ export const openChatThread = async (threadId) => {
   if (!launcher) await boot();
   if (!launcher) return;
   if (!open) await openPanel();
+  // The profile door lands on the DMs tab (a conversation is a DM surface).
+  showTab("dms");
   try {
     threads = await loadThreads();
     paintBadge();
