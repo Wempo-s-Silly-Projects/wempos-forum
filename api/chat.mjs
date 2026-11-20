@@ -25,13 +25,50 @@
 // word-filtered at intake, ban-hidden at read time, block-pair gated both
 // directions, and the unread counters are the canonical thread row's own —
 // a send bumps the OTHER side, a read zeroes the viewer's own.
-import { assertNotBanned, readSession, requireSignedInRead, requireUser } from "./core/auth.mjs";
+import { assertNotBanned, readSession, requireSignedInRead, requireStaff, requireUser } from "./core/auth.mjs";
 import { blockPairExists } from "./core/blocks.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
+import { mentionFanOutStatements } from "./mentions.mjs";
+
+// Lobby stream (old-ui-return lane): the retired public "Let's chat" surface
+// that rode migration 0032's chat_messages table comes back with the old UI —
+// the shapes below are the pre-7b4d844 handler's verbatim (poll keys, gate
+// order, fan-out-on-best-effort, staff delete), re-keyed onto today's auth
+// idioms with no new tables.
+const LOBBY_PRESENCE_WINDOW_SECONDS = 180;
+const LOBBY_CHAT_PAGE_LIMIT = 50;
+const LOBBY_CHAT_MAX_CHARS = 500;
+const LOBBY_ONLINE_ROSTER_LIMIT = 60;
+
+// Read-time active-ban filter for lobby chat rows: the old file's predicate,
+// keyed on chat_messages.user_id (posts' banFilterSql keys on author_id).
+const LOBBY_CHAT_BAN_FILTER_SQL =
+  "NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = c.user_id " +
+  "AND b.revoked_at IS NULL AND (b.expires_at IS NULL OR b.expires_at > " +
+  "CAST(strftime('%s','now') AS INTEGER)))";
+
+const LOBBY_CHAT_SELECT =
+  "SELECT c.id, c.body, c.created_at, c.user_id AS author_id, " +
+  "u.username AS author_username, u.role AS author_role " +
+  "FROM chat_messages c JOIN users u ON u.id = c.user_id ";
+
+function publicChatMessage(row) {
+  return {
+    id: Number(row.id),
+    body: row.body,
+    createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
+    author: {
+      id: Number(row.author_id),
+      username: row.author_username,
+      // Mapped public role ('owner'/'admin'), null for members.
+      role: row.author_role ? publicRole(row.author_role) : null,
+    },
+  };
+}
 
 const DM_MAX_BODY_CHARS = 1000;
 const DM_MESSAGE_PAGE_LIMIT = 50;
@@ -342,6 +379,129 @@ async function handleThreadOpenRoute(request, env, url, path, method) {
   });
 }
 
+// The lobby poll: messages after the cursor (newest 50 when absent) plus the
+// online count and roster, so one request keeps both halves of the panel
+// fresh. Public — guests read the lobby; sending requires a session. The
+// signed-in extras (dm/bell unread totals) ride the SAME response, so the
+// global poll keeps both badges fresh with no extra requests. Guests get
+// zeros. Verbatim the retired handler's shape.
+async function handleLobbyChatReadRoute(request, env, url, path, method) {
+  if (path !== "/api/chat" || method !== "GET") return null;
+  const db = env.FORUM_DB;
+  const afterRaw = url.searchParams.get("after");
+  let after = null;
+  if (afterRaw !== null && afterRaw !== "") {
+    if (!/^[0-9]{1,15}$/.test(afterRaw)) throw new HttpError(400, "That chat cursor is invalid.");
+    after = Number(afterRaw);
+  }
+  const rows = after === null
+    // Initial load: newest 50, oldest-first for append-order rendering.
+    ? (await db.prepare(
+      LOBBY_CHAT_SELECT + "WHERE " + LOBBY_CHAT_BAN_FILTER_SQL + " ORDER BY c.id DESC LIMIT " + LOBBY_CHAT_PAGE_LIMIT,
+    ).all()).results || []
+    : (await db.prepare(
+      LOBBY_CHAT_SELECT + "WHERE c.id > ? AND " + LOBBY_CHAT_BAN_FILTER_SQL +
+      " ORDER BY c.id ASC LIMIT " + LOBBY_CHAT_PAGE_LIMIT,
+    ).bind(after).all()).results || [];
+  const messages = after === null ? rows.slice().reverse() : rows;
+  const onlineRow = await db.prepare(
+    "SELECT COUNT(*) AS online FROM presence WHERE invisible = 0 AND last_seen > ? " +
+    "AND NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = presence.user_id AND b.revoked_at IS NULL " +
+    "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)))",
+  ).bind(nowSeconds() - LOBBY_PRESENCE_WINDOW_SECONDS).first();
+  // Who's online: the same window, naming the visible (non-lurking) members
+  // so the lobby can list them. Invisible members stay off the list, exactly
+  // matching the count; the count itself is uncapped, the roster is not.
+  const onlineMemberRows = (await db.prepare(
+    "SELECT p.user_id AS id, u.username, u.role " +
+    "FROM presence p JOIN users u ON u.id = p.user_id " +
+    "WHERE p.invisible = 0 AND p.last_seen > ? " +
+    "AND NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = u.id AND b.revoked_at IS NULL " +
+    "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER))) " +
+    "ORDER BY u.username LIMIT " + LOBBY_ONLINE_ROSTER_LIMIT,
+  ).bind(nowSeconds() - LOBBY_PRESENCE_WINDOW_SECONDS).all()).results || [];
+  const session = await readSession(request, env).catch(() => null);
+  let dmUnread = 0;
+  let bellUnread = 0;
+  if (session && session.user) {
+    const dmRow = await db.prepare(
+      "SELECT COALESCE(SUM(CASE WHEN user_a = ? THEN unread_a ELSE unread_b END), 0) AS unread " +
+      "FROM dm_threads WHERE (user_a = ? OR user_b = ?) " +
+      "AND NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND " +
+      "bk.blocked_id IN (user_a, user_b)) OR (bk.blocked_id = ? AND " +
+      "bk.blocker_id IN (user_a, user_b)))",
+    ).bind(session.user.id, session.user.id, session.user.id,
+      session.user.id, session.user.id).first();
+    dmUnread = Number(dmRow?.unread || 0);
+    const bellRow = await db.prepare(
+      "SELECT COUNT(*) AS unread FROM notifications WHERE user_id = ? AND read_at IS NULL",
+    ).bind(session.user.id).first();
+    bellUnread = Number(bellRow?.unread || 0);
+  }
+  return json({
+    messages: messages.map(publicChatMessage),
+    // lastId drives the next poll's cursor; 0 when the stream is empty.
+    lastId: messages.length ? Number(messages[messages.length - 1].id) : (after || 0),
+    online: Number(onlineRow?.online || 0),
+    onlineMembers: onlineMemberRows.map((row) => ({
+      id: Number(row.id),
+      username: row.username,
+      role: row.role ? publicRole(row.role) : null,
+    })),
+    dmUnread,
+    bellUnread,
+  });
+}
+
+// The lobby send. Gate order is the retired handler's: auth, ban, rate, then
+// the 500-char word-filtered body, the insert, and the @mention pings through
+// the same fan-out as posts (label-only rows, best-effort — mentions are a
+// convenience, never a chat precondition).
+async function handleLobbyChatCreateRoute(request, env, url, path, method, ctx) {
+  if (path !== "/api/chat" || method !== "POST") return null;
+  const session = await requireUser(request, env);
+  await assertNotBanned(env, session.user.id);
+  await rateLimit(request, env, "write");
+  const body = await readJson(request);
+  const message = applyWordFilter(
+    String(body.body ?? "").trim().slice(0, LOBBY_CHAT_MAX_CHARS),
+    filterWords(env),
+  );
+  if (!message) throw new HttpError(400, "Write a message first.");
+  const result = await env.FORUM_DB.prepare(
+    "INSERT INTO chat_messages (user_id, body, created_at) VALUES (?, ?, ?)",
+  ).bind(session.user.id, message, nowSeconds()).run();
+  const row = await env.FORUM_DB.prepare(
+    LOBBY_CHAT_SELECT + "WHERE c.id = ? LIMIT 1",
+  ).bind(Number(result.meta?.last_row_id)).first();
+  try {
+    const mentionStatements = await mentionFanOutStatements(env.FORUM_DB, message, {
+      actorId: session.user.id, now: nowSeconds(),
+      actorUsername: session.user.username,
+      label: "You were mentioned by " + session.user.username + " in chat",
+    });
+    if (mentionStatements.length > 0) await env.FORUM_DB.batch(mentionStatements);
+  } catch {
+    // Mentions never fail the send.
+  }
+  return json({ message: publicChatMessage(row) }, 201);
+}
+
+// Staff cleanup: any lobby message, any author. Deletion is immediate and
+// permanent (the lobby is ephemeral — no archive copy, unlike posts).
+async function handleLobbyChatDeleteRoute(request, env, url, path, method) {
+  const match = path.match(/^\/api\/chat\/([0-9]{1,15})$/);
+  if (!match) return null;
+  if (method !== "DELETE") throw new HttpError(405, "That method is not supported.");
+  const session = await requireStaff(request, env);
+  await assertNotBanned(env, session.user.id);
+  await rateLimit(request, env, "write");
+  const deleted = await env.FORUM_DB.prepare("DELETE FROM chat_messages WHERE id = ?")
+    .bind(Number(match[1])).run();
+  if (Number(deleted.meta?.changes) !== 1) throw new HttpError(404, "Message not found.");
+  return json({ ok: true });
+}
+
 export async function handleChatRoutes(request, env, url, path, method, ctx) {
   const handlers = [
     handlePresenceWriteRoute,
@@ -351,6 +511,9 @@ export async function handleChatRoutes(request, env, url, path, method, ctx) {
     handleThreadSendRoute,
     handleThreadReadMarkRoute,
     handleThreadOpenRoute,
+    handleLobbyChatReadRoute,
+    handleLobbyChatCreateRoute,
+    handleLobbyChatDeleteRoute,
   ];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method, ctx);
