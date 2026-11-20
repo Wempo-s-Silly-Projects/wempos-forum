@@ -416,7 +416,13 @@ async function handleAttachmentAdminRoutes(request, env, path, method) {
         "SUM(length(c.data)) AS size_bytes, COUNT(c.seq) AS chunk_count " +
         "FROM attachments a JOIN users u ON u.id = a.created_by " +
         "LEFT JOIN attachment_chunks c ON c.attachment_id = a.id AND c.kind = 'pending' " +
-        "WHERE a.status = 'pending' GROUP BY a.id ORDER BY a.created_at ASC LIMIT 100",
+        // Legacy debris: a metadata row committed before the intake was made
+        // fully batched can exist with zero chunk rows. It can never preview
+        // (its bytes are gone), so the desk omits it rather than serving a
+        // queue item every action 404s.
+        "WHERE a.status = 'pending' AND EXISTS " +
+        "(SELECT 1 FROM attachment_chunks pc WHERE pc.attachment_id = a.id AND pc.kind = 'pending') " +
+        "GROUP BY a.id ORDER BY a.created_at ASC LIMIT 100",
     ).bind().all();
     return json({
       attachments: (result.results || []).map((row) => ({
@@ -526,6 +532,22 @@ export async function attachmentRowsForView(db, postIds, viewer) {
     "SELECT id, post_id, status, created_by, version, mime " +
       "FROM attachments WHERE post_id IN (" + placeholders + ") " +
       "AND (status <> 'approved' OR NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = attachments.hash)) " +
+      // Byte-existence filter (2026-11-19 full-DB read found legacy debris: a
+      // metadata row committed before intake was fully batched can carry zero
+      // chunk rows — the bytes are gone and cannot be recovered). Serializing
+      // such a row hands the client a broken <img> forever: the row's id
+      // already 404s on the serving route, so the metadata read omits it too.
+      // A row stays when either its byte set exists in the kind its status
+      // serves from, or (approved rows only, matching the serving fallback) a
+      // same-hash canonical still owns resolvable bytes. Library-GIF
+      // reference rows carry zero chunks by design and stay via that
+      // canonical arm.
+      "AND (EXISTS (SELECT 1 FROM attachment_chunks sc WHERE sc.attachment_id = attachments.id AND sc.kind = attachments.status) " +
+      "OR (attachments.status = 'approved' AND (EXISTS (" +
+      "SELECT 1 FROM attachments sa JOIN attachment_chunks sac ON sac.attachment_id = sa.id AND sac.kind = 'approved' " +
+      "WHERE sa.hash = attachments.hash AND sa.status = 'approved') " +
+      "OR EXISTS (SELECT 1 FROM gifs sg JOIN gif_chunks sgc ON sgc.gif_id = sg.id " +
+      "WHERE sg.hash = attachments.hash AND sg.status = 'approved')))) " +
       // Deterministic strip order: attachments carry created_at (intake sets
       // it; several uploads in one post share the same intake second, so id
       // UUID breaks ties — stable even as row ordering never matters to

@@ -249,7 +249,11 @@ async function handleGifAdminRoutes(request, env, url, path, method) {
     const result = await db.prepare(
       "SELECT g.id, g.hash, g.mime, g.created_at, u.username AS uploader " +
       "FROM gifs g LEFT JOIN users u ON u.id = g.uploader_id " +
-      "WHERE g.status = 'pending' ORDER BY g.created_at ASC LIMIT 100",
+      // Legacy debris: a pending metadata row whose chunk bytes never landed
+      // (the intake predates the batched write) can never preview or approve
+      // into a servable gif, so the desk omits it.
+      "WHERE g.status = 'pending' AND EXISTS (SELECT 1 FROM gif_chunks pc WHERE pc.gif_id = g.id) " +
+      "ORDER BY g.created_at ASC LIMIT 100",
     ).all();
     return json({
       gifs: (result.results || []).map((row) => ({
