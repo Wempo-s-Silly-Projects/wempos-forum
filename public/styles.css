@@ -2370,6 +2370,40 @@ dialog h2 {
   font-size: 0.85rem;
 }
 
+/* Day-2 widget wave: the compact New-chat strip rides ABOVE the thread rows
+   but OUTSIDE the repainted rows container (a half-typed username survives
+   the 5s poll repaint); the refusal line reuses the slot idiom. */
+.chat-widget-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.chat-widget-new {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+.chat-widget-new-input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  color: var(--ink);
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  padding: 0.35rem 0.5rem;
+}
+.chat-widget-new-send { flex-shrink: 0; }
+.chat-widget-new-send:disabled { opacity: 0.6; cursor: default; }
+.chat-widget-new-error {
+  margin: 0;
+  padding: 0.4rem 0.75rem;
+  color: var(--coral);
+  font-size: 0.85rem;
+}
+
 /* Who's Online: its own bottom-left surface — a light public card; hidden
    entirely when the presence read fails, and simply absent on narrow phones. */
 .who-online {

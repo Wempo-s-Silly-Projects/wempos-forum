@@ -31,6 +31,9 @@ let panelTimer = null;
 let unreadTimer = null;
 let composerEl = null;
 let sendButton = null;
+let newChatFormEl = null;
+let newChatInFlight = false;
+let listSideEl = null;
 
 const relativeTime = (iso) => {
   const then = new Date(iso).getTime();
@@ -113,7 +116,12 @@ const openPanel = async () => {
   threadListEl = el("div", "chat-widget-threads");
   conversationEl = el("div", "chat-widget-conversation");
   conversationEl.hidden = true;
-  panel.append(threadListEl, conversationEl);
+  // The New-chat affordance mounts once per open, OUTSIDE the rows container
+  // paintThreadList replaces (see buildNewChatForm).
+  listSideEl = el("div", "chat-widget-list");
+  newChatFormEl = buildNewChatForm();
+  listSideEl.append(newChatFormEl, threadListEl);
+  panel.append(listSideEl, conversationEl);
   document.body.append(panel);
   paintThreadList();
   panelTimer = setInterval(() => {
@@ -139,6 +147,8 @@ const closePanel = () => {
   panel = null;
   threadListEl = null;
   conversationEl = null;
+  newChatFormEl = null;
+  listSideEl = null;
   composerEl = null;
   sendButton = null;
   activeThread = null;
@@ -229,7 +239,7 @@ const paintConversation = () => {
     activeThread = null;
     conversation = null;
     conversationEl.hidden = true;
-    threadListEl.hidden = false;
+    listSideEl.hidden = false;
     paintThreadList();
   });
   const title = el("span", "chat-widget-peer", conversation.other?.username || "unknown");
@@ -283,7 +293,7 @@ const paintConversation = () => {
   composer.append(composerEl, sendButton);
   conversationEl.append(composer);
   conversationEl.hidden = false;
-  if (threadListEl) threadListEl.hidden = true;
+  if (listSideEl) listSideEl.hidden = true;
 };
 
 const sendMessage = async () => {
@@ -324,6 +334,79 @@ const showSendError = (message) => {
   }
   const note = el("p", "chat-widget-send-error", message);
   composer.before(note);
+};
+
+// The New-chat affordance: a compact strip above the thread rows (a username
+// input + one submit button). It lives OUTSIDE the rows container —
+// paintThreadList's replaceChildren would otherwise wipe a half-typed
+// username on every 5s poll repaint — so it mounts once per open and only
+// paints its refusal line into the list.
+const buildNewChatForm = () => {
+  const form = el("form", "chat-widget-new");
+  const input = el("input", "chat-widget-new-input");
+  input.type = "text";
+  input.name = "username";
+  input.placeholder = "New chat by username…";
+  input.setAttribute("aria-label", "New chat username");
+  input.setAttribute("autocomplete", "off");
+  const newChatButton = el("button", "button button-primary chat-widget-new-send", "New chat");
+  newChatButton.type = "submit";
+  form.append(input, newChatButton);
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    createThreadByUsername(input.value);
+  });
+  return form;
+};
+
+const createThreadByUsername = async (rawUsername) => {
+  const username = rawUsername.trim();
+  if (!username || newChatInFlight) return;
+  const newChatButton = newChatFormEl?.querySelector(".chat-widget-new-send");
+  newChatInFlight = true;
+  if (newChatButton) newChatButton.disabled = true;
+  try {
+    const data = await api("/api/dm/threads", { method: "POST", body: { username } });
+    if (data?.id == null) throw new Error("The chat could not be started. Try again.");
+    if (newChatFormEl) newChatFormEl.querySelector(".chat-widget-new-input").value = "";
+    // The door re-reads the list first, so the new row is on it before the
+    // conversation opens.
+    await openChatThread(data.id);
+  } catch (error) {
+    showNewChatError(error?.message || "The chat could not be started. Try again.");
+  } finally {
+    newChatInFlight = false;
+    if (newChatButton) newChatButton.disabled = false;
+  }
+};
+
+// The refusal rides the send-error slot idiom: one textContent-only line
+// appended at the list's tail; a second failure rewrites it, and the next
+// repaint wipes it.
+const showNewChatError = (message) => {
+  if (!threadListEl) return;
+  const existing = threadListEl.querySelector(".chat-widget-new-error");
+  if (existing) {
+    existing.textContent = message;
+    return;
+  }
+  threadListEl.append(el("p", "chat-widget-new-error", message));
+};
+
+// The export the profile surface rides: boots the widget if its single probe
+// succeeded (idempotent — a signed-out visitor stays inert and the door is
+// a no-op), opens the panel if it is closed, lands the conversation on the
+// returned thread id, and gives the list its row before doing so.
+export const openChatThread = async (threadId) => {
+  if (!launcher) await boot();
+  if (!launcher) return;
+  if (!open) await openPanel();
+  try {
+    threads = await loadThreads();
+    paintBadge();
+  } catch { /* openThread still reads the conversation itself */ }
+  const known = threads.find((row) => row.id === threadId);
+  await openThread(known || { id: threadId });
 };
 
 await boot();
