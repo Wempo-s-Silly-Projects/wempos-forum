@@ -2424,3 +2424,11 @@ dialog h2 {
   .chat-widget-panel,
   .who-online { transition: none; }
 }
+
+/* day2-misc lane: the invisible-mode toggle's pressed seat (account settings
+   panel) — the same pressed idiom the poll vote rows use, scoped to this pair
+   so no borrowed class collides with a neighbor lane. */
+.presence-invisible-toggle[aria-pressed="true"] {
+  border-color: var(--green);
+  color: var(--green-dark);
+}

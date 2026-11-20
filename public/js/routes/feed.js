@@ -117,6 +117,14 @@ function renderAccountSettings(session) {
   // Blocks (v4.4): the blocked-members list + Unblock controls ride the
   // account settings area right after the two-factor section.
   renderBlockedSettings(account, session);
+  // Invisible-mode toggle (day-2 misc): the roster honors presence.invisible
+  // server-side; this is the member-facing seat. The read arm is the FLAG-LESS
+  // heartbeat POST /api/presence (who-online.js already sends it) — its
+  // response carries the stored invisible flag back, so the pair marks the
+  // member's current choice straight from the server, never a localStorage
+  // guess; a failed read just leaves both buttons unmarked. No roster wiring
+  // rides here: an invisible member drops off the list on its next refresh.
+  renderInvisibleToggle(account);
   const deletePanel = createPanel("Delete your Wempo Account",
     "This permanently deletes your Wempo Account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo. Are you really sure?");
   const deleteButton = element("button", "button button-danger", "Delete Wempo Account");
@@ -132,6 +140,44 @@ function renderHome(session, setupRequired, setupConfigured, data, route) {
   renderHomeAccess(session, setupRequired, setupConfigured);
   renderHomeContent(session, data, route);
   if (session.user) renderAccountSettings(session);
+}
+
+// The invisible toggle's two buttons (visible / invisible), each carrying its
+// own flag in dataset.invisible so ONE action handler serves both arms. The
+// active button is marked aria-pressed + the shared highlight class; the mark
+// comes from wherever the latest truth came from (the heartbeat's echo on
+// visit, the write response after a click).
+const presenceInvisibleMark = (choice, toggles) => {
+  for (const toggle of toggles) {
+    toggle.setAttribute("aria-pressed",
+      String(toggle.dataset.invisible === String(choice)));
+  }
+};
+
+function renderInvisibleToggle(account) {
+  const panel = createPanel("Who can see me online",
+    "Pick whether your name shows on the Who's Online roster. Invisible still " +
+    "delivers your messages and notifications — only the list changes.");
+  const toggles = element("div", "presence-toggle");
+  const visibleButton = element("button", "button button-secondary presence-invisible-toggle",
+    "Visible");
+  visibleButton.type = "button";
+  visibleButton.dataset.action = "presence-invisible";
+  visibleButton.dataset.invisible = "0";
+  const invisibleButton = element("button", "button button-secondary presence-invisible-toggle",
+    "Invisible on the Who's Online roster");
+  invisibleButton.type = "button";
+  invisibleButton.dataset.action = "presence-invisible";
+  invisibleButton.dataset.invisible = "1";
+  toggles.append(visibleButton, invisibleButton);
+  panel.append(toggles);
+  account.append(panel);
+  // The read arm: the flag-less heartbeat carries the stored flag back. On
+  // failure the pair stays unmarked — the click still works, nothing breaks.
+  api("/api/presence", { method: "POST", body: {} })
+    .then((data) => presenceInvisibleMark(data.invisible ? 1 : 0,
+      account.querySelectorAll(".presence-invisible-toggle")))
+    .catch(() => {});
 }
 function renderSearchResults(container, results) {
   // Deep reply results (v2.5): a Replies section under the Posts one.
@@ -380,6 +426,17 @@ export const ACTIONS = {
     setMessage(button.dataset.status === "open"
       ? "Suggestion reopened."
       : "Suggestion marked " + button.dataset.status + ".");
+  },
+  "presence-invisible": async (button) => {
+    // One handler for both arms (dataset.invisible picks 0/1 as a boolean per
+    // the chat.mjs contract); the response's stored flag, never the echo
+    // click, marks the pair — every toggle on the page, in case two render.
+    const data = await api("/api/presence", {
+      method: "POST",
+      body: { invisible: button.dataset.invisible === "1" },
+    });
+    presenceInvisibleMark(data.invisible ? 1 : 0,
+      document.querySelectorAll(".presence-invisible-toggle"));
   },
   "load-more-bookmarks": async (button) => {
     const older = await api("/api/me/bookmarks?before=" + button.dataset.before);
