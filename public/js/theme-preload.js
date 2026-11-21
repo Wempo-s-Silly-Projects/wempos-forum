@@ -27,3 +27,13 @@ try {
 if (storedTheme === "dark" || storedTheme === "light") {
   document.documentElement.dataset.theme = storedTheme;
 }
+// Reader text size (wave 2026-11-21-4): same early apply, same fallback.
+let storedTextSize = null;
+try {
+  storedTextSize = localStorage.getItem("forum-text-size");
+} catch {
+  // Blocked storage: the default size.
+}
+if (storedTextSize === "large" || storedTextSize === "larger") {
+  document.documentElement.dataset.textSize = storedTextSize;
+}

@@ -35,6 +35,9 @@ import { DM_GROUP_MAX_MEMBERS, DM_GROUP_NAME_MAX_CHARS, DM_IMAGE_TOKEN_PATTERN }
 
 const GROUP_MESSAGE_PAGE_LIMIT = 50;
 const GROUP_PREVIEW_MAX_CHARS = 80;
+// Adds need no consent, so the thread list's group key is bounded (and the
+// member IN-list stays well under D1's 100 bound parameters).
+const GROUP_LIST_LIMIT = 50;
 const GROUP_ROUTE = /^\/api\/dm\/groups\/([0-9]{1,15})$/;
 const GROUP_READ_MARK_ROUTE = /^\/api\/dm\/groups\/([0-9]{1,15})\/read$/;
 const GROUP_LEAVE_ROUTE = /^\/api\/dm\/groups\/([0-9]{1,15})\/leave$/;
@@ -96,13 +99,14 @@ export async function listViewerGroups(env, viewerId) {
     "SELECT g.id, g.name, g.created_at, gm.unread, " +
     lastVisible("body") + " AS last_body, " + lastVisible("created_at") + " AS last_at " +
     "FROM dm_group_members gm JOIN dm_groups g ON g.id = gm.group_id WHERE gm.user_id = ? " +
-    "ORDER BY COALESCE(last_at, g.created_at) DESC, g.id DESC",
+    "ORDER BY COALESCE(last_at, g.created_at) DESC, g.id DESC LIMIT " + GROUP_LIST_LIMIT,
   ).bind(viewerId, viewerId, viewerId, viewerId, viewerId).all()).results || [];
   if (rows.length === 0) return [];
+  const groupIds = rows.map((row) => Number(row.id));
   const memberRows = (await db.prepare(
-    MEMBER_ROWS_SQL + " AND gm.group_id IN (SELECT group_id FROM dm_group_members WHERE user_id = ?) " +
+    MEMBER_ROWS_SQL + " AND gm.group_id IN (" + groupIds.map(() => "?").join(", ") + ") " +
     "ORDER BY u.username_key",
-  ).bind(viewerId).all()).results || [];
+  ).bind(...groupIds).all()).results || [];
   return rows.map((row) => {
     const preview = String(row.last_body ?? "").trim();
     return {

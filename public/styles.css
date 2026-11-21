@@ -2836,3 +2836,24 @@ dialog h2 {
   overflow-wrap: anywhere;
 }
 .compose-preview-empty { margin: 0; color: var(--muted); }
+
+/* Reader text size (wave 2026-11-21-4, appearance pref): everything is sized
+   in rem, so the root font-size scales the whole forum. */
+:root[data-text-size="large"] { font-size: 112.5%; }
+:root[data-text-size="larger"] { font-size: 125%; }
+.text-size-pref,
+.corner-pref {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 0.5rem;
+}
+
+/* Copy link (wave 2026-11-21-4): the brief "Link copied" status rides
+   inside the icon button. */
+.copy-link-status {
+  margin-inline-start: 0.35rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}

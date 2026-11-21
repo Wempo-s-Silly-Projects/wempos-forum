@@ -21,7 +21,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  DRAFT_MAX_AGE_MS, clearDraft, clearFormDraft, draftKey, loadDraft, saveDraft,
+  DRAFT_MAX_AGE_MS, clearAllDrafts, clearDraft, clearFormDraft, draftKey, loadDraft, saveDraft,
 } from "../public/js/drafts.js";
 
 const memoryStorage = () => {
@@ -100,4 +100,44 @@ test("composer.js restores drafts on build and clears them after both submits", 
   assert.match(source, /from "\.\.\/drafts\.js"/);
   assert.match(source, /attachDraftAutosave\(/);
   assert.equal((source.match(/clearFormDraft\(form\)/g) || []).length, 2);
+});
+
+// Wave 2026-11-21-4 F1 (shared-browser leak): drafts are per ACCOUNT, and
+// signing out wipes them, so the next member on the same browser never sees
+// someone else's unsent text restored into their composer.
+const listingStorage = () => {
+  const base = memoryStorage();
+  return {
+    ...base,
+    get length() { return base.data.size; },
+    key: (index) => [...base.data.keys()][index] ?? null,
+  };
+};
+
+test("draftKey carries the signed-in account so two members never share a draft", () => {
+  const alice = draftKey("reply", 42, null, 1);
+  const bob = draftKey("reply", 42, null, 2);
+  assert.notEqual(alice, bob);
+  const storage = memoryStorage();
+  saveDraft(storage, alice, "alice's private reply", 1000);
+  assert.equal(loadDraft(storage, bob, 1000), null);
+  assert.equal(loadDraft(storage, alice, 1000), "alice's private reply");
+});
+
+test("clearAllDrafts removes every forum draft and leaves other keys alone", () => {
+  const storage = listingStorage();
+  saveDraft(storage, draftKey("reply", 1, null, 1), "one", 1000);
+  saveDraft(storage, draftKey("post-create", null, "general", 1), "two", 1000);
+  storage.setItem("forum-theme", "dark");
+  clearAllDrafts(storage);
+  assert.deepEqual([...storage.data.keys()], ["forum-theme"]);
+  assert.doesNotThrow(() => clearAllDrafts(throwingStorage));
+  assert.doesNotThrow(() => clearAllDrafts(null));
+});
+
+test("composer keys drafts by the signed-in account and sign-out wipes drafts", () => {
+  const composer = readFileSync(new URL("../public/js/routes/composer.js", import.meta.url), "utf8");
+  assert.match(composer, /draftKey\(name, postID, board, state\.currentUser\?\.id\)/);
+  const nav = readFileSync(new URL("../public/js/routes/account-nav.js", import.meta.url), "utf8");
+  assert.match(nav, /clearAllDrafts\(\)/);
 });

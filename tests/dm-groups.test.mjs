@@ -211,3 +211,26 @@ test("a typed body shaped like an image token is refused in groups and 1:1", asy
   const direct = await call(env, "/api/dm/threads/" + open.id, { method: "POST", body: { body: token }, session: s.alice });
   assert.equal(direct.status, 400);
 });
+
+// Wave 2026-11-21-4 F1: adds need no consent, so the thread list's group
+// key is bounded — the newest 50 groups by activity, member rows only for
+// those groups — however many groups a member has been dropped into.
+test("thread list returns at most the 50 most recently active groups", async () => {
+  const insertGroup = db.prepare("INSERT INTO dm_groups (creator_id, name, created_at) VALUES (?, ?, ?)");
+  const insertMember = db.prepare("INSERT INTO dm_group_members (group_id, user_id, joined_at) VALUES (?, ?, ?)");
+  const base = now() - 10_000;
+  const ids = [];
+  for (let index = 0; index < 105; index += 1) {
+    const id = Number(insertGroup.run(u.alice, "g" + index, base + index).lastInsertRowid);
+    insertMember.run(id, u.alice, base);
+    insertMember.run(id, u.bob, base);
+    ids.push(id);
+  }
+  const response = await call(env, "/api/dm/threads", { session: s.bob });
+  assert.equal(response.status, 200);
+  const { groups } = await response.json();
+  assert.equal(groups.length, 50);
+  assert.equal(groups[0].id, ids[104], "newest first");
+  assert.ok(!groups.some((group) => group.id === ids[0]), "oldest groups fall off the page");
+  assert.equal(groups[0].members.length, 2);
+});

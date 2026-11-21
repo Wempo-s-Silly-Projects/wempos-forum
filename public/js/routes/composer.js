@@ -75,7 +75,7 @@ function createComposer(name, label, buttonLabel, postID = null,
   }));
   // Draft autosave (wave 2026-11-21): per composer + thread, local-only.
   const bodyField = form.querySelector('textarea[name="body"]');
-  attachDraftAutosave(form, bodyField, draftKey(name, postID, board));
+  attachDraftAutosave(form, bodyField, draftKey(name, postID, board, state.currentUser?.id));
   // @mention autocomplete (wave 2026-11-21): suggestions from /api/search.
   attachMentionPicker(bodyField, document);
   // Live Preview toggle (wave 2026-11-21-3): client-only, opt-in per click.

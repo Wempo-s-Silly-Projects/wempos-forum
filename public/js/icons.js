@@ -57,6 +57,10 @@ const ICON_PATHS = {
 
   // Saved list (C4): the bookmark with a line set — list of saves.
   bookmarks: ["M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z", "M9 7h6"],
+
+  // Copy link (wave 2026-11-21-4): two chain links.
+  link: ["M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71",
+    "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"],
 };
 
 const iconAria = (name) => ({
