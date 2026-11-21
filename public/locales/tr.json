@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "Bu gönderideki değişiklikleriniz silinsin mi?",
   "drafts.restored": "Gönderilmemiş taslağın geri yüklendi ({when} kaydedildi).",
   "drafts.discard": "Taslağı sil",
-  "drafts.discardConfirm": "Bu taslak silinsin mi? Kutudaki metin temizlenecek."
+  "drafts.discardConfirm": "Bu taslak silinsin mi? Kutudaki metin temizlenecek.",
+  "longPost.showMore": "Daha fazla göster",
+  "longPost.showLess": "Daha az göster"
 }

@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "Скасувати зміни в цьому дописі?",
   "drafts.restored": "Відновлено ненадіслану чернетку (збережено {when}).",
   "drafts.discard": "Видалити чернетку",
-  "drafts.discardConfirm": "Видалити цю чернетку? Текст у полі буде очищено."
+  "drafts.discardConfirm": "Видалити цю чернетку? Текст у полі буде очищено.",
+  "longPost.showMore": "Показати більше",
+  "longPost.showLess": "Згорнути"
 }

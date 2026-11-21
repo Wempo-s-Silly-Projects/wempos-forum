@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "¿Descartar tus cambios en esta publicación?",
   "drafts.restored": "Se restauró tu borrador sin enviar (guardado {when}).",
   "drafts.discard": "Descartar borrador",
-  "drafts.discardConfirm": "¿Descartar este borrador? Se borrará el texto del cuadro."
+  "drafts.discardConfirm": "¿Descartar este borrador? Se borrará el texto del cuadro.",
+  "longPost.showMore": "Mostrar más",
+  "longPost.showLess": "Mostrar menos"
 }

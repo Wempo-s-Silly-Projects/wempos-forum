@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "Hủy các thay đổi của bạn cho bài viết này?",
   "drafts.restored": "Đã khôi phục bản nháp chưa gửi (lưu {when}).",
   "drafts.discard": "Bỏ bản nháp",
-  "drafts.discardConfirm": "Bỏ bản nháp này? Nội dung trong ô sẽ bị xóa."
+  "drafts.discardConfirm": "Bỏ bản nháp này? Nội dung trong ô sẽ bị xóa.",
+  "longPost.showMore": "Xem thêm",
+  "longPost.showLess": "Thu gọn"
 }

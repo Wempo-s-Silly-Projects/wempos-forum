@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "לבטל את השינויים שלך בפוסט הזה?",
   "drafts.restored": "הטיוטה שלא נשלחה שוחזרה (נשמרה {when}).",
   "drafts.discard": "מחק טיוטה",
-  "drafts.discardConfirm": "למחוק את הטיוטה? הטקסט בתיבה יימחק."
+  "drafts.discardConfirm": "למחוק את הטיוטה? הטקסט בתיבה יימחק.",
+  "longPost.showMore": "הצג עוד",
+  "longPost.showLess": "הצג פחות"
 }

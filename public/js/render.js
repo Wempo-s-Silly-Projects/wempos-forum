@@ -30,6 +30,7 @@ import { createCopyCodeButton } from "./copy-code.js";
 import { createReadAloud } from "./read-aloud.js";
 import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";
 import { isQotdBody } from "./traditions.js";
+import { createFoldedBody, isLongPost } from "./long-post.js";
 
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
@@ -289,7 +290,13 @@ export const createPostCard = (post, document, currentUser = null) => {
   }
   article.append(header);
 
-  renderBodyBlocks(post, document, article);
+  // Wave 32: long bodies fold on feed cards only (the feed decorates its
+  // cards with latestReplies; the thread page never does).
+  if (Array.isArray(post.latestReplies) && isLongPost(post.body)) {
+    article.append(createFoldedBody(document, post.id, (target) => renderBodyBlocks(post, document, target)));
+  } else {
+    renderBodyBlocks(post, document, article);
+  }
   if (post.parent) {
     const parentLink = createElement(document, "a", "parent-context", t("render.inReplyTo", { body: maskSpoilers(post.parent.body) }));
     parentLink.href = `/posts/${post.parent.id}`;
@@ -589,7 +596,7 @@ export const createEditComposer = (post, document) => {
 const isEditBodyBlock = (node) =>
   node.className === "post-body" || node.className === "post-quote" ||
   node.className === "post-codeblock" || node.className === "post-heading" ||
-  node.className === "md-list";
+  node.className === "md-list" || node.className === "post-body-fold";
 
 // Swap (openEditForm) / restore (closeEditForm) are pure DOM-in/DOM-out so the
 // mock-element render suite can pin the whole cycle. The card's raw body must

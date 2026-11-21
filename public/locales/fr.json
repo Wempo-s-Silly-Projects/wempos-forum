@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "Abandonner vos modifications de ce message ?",
   "drafts.restored": "Ton brouillon non envoyé a été restauré (enregistré {when}).",
   "drafts.discard": "Supprimer le brouillon",
-  "drafts.discardConfirm": "Supprimer ce brouillon ? Le texte de la zone sera effacé."
+  "drafts.discardConfirm": "Supprimer ce brouillon ? Le texte de la zone sera effacé.",
+  "longPost.showMore": "Afficher plus",
+  "longPost.showLess": "Afficher moins"
 }

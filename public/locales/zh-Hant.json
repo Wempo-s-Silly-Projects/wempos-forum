@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "要放棄對這篇貼文的修改嗎？",
   "drafts.restored": "已還原你未送出的草稿（儲存於{when}）。",
   "drafts.discard": "捨棄草稿",
-  "drafts.discardConfirm": "要捨棄這份草稿嗎？輸入框中的文字將被清除。"
+  "drafts.discardConfirm": "要捨棄這份草稿嗎？輸入框中的文字將被清除。",
+  "longPost.showMore": "顯示更多",
+  "longPost.showLess": "收合"
 }
