@@ -20,7 +20,7 @@
 // api/; worker.mjs re-exports the functions that tests import. workerd
 // validates every Worker export as a function or ExportedHandler, so besides
 // the default fetch only `export { ... } from` re-exports appear here.
-import { HttpError, json, rateLimit, secureResponse, unconditional } from "./api/core/http.mjs";
+import { HttpError, json, secureResponse, unconditional } from "./api/core/http.mjs";
 // Phase-2 Kitskey migration: the ONE error classifier and the dispatch chain
 // come from the vendored framework (core re-exports both; the byte-pin keeps
 // them identical). worker.mjs stops carrying its second copy of the mapping.
