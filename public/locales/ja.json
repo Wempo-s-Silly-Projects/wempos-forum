@@ -827,6 +827,7 @@
   "post.foldAllTitle": "すべての返信を投稿者の行まで折りたたみます。このページを離れるまで、あなただけに適用されます",
   "post.firstPost": "最初の投稿へ戻る",
   "post.myReply": "自分の返信へ移動",
+  "post.nextAuthorReply": "投稿者の次の返信へ",
   "traditions.qotdTitle": "今日の質問",
   "traditions.qotdToday": "今日の質問はこちら",
   "traditions.qotdAnswered": "回答済み",
