@@ -59,7 +59,7 @@ export const BOARDS = [
     staffOnly: true,
   },
   {
-    slug: "polls"
+    slug: "polls",
     get label() { return t("boards.pollsLabel"); },
     get blurb() { return t("boards.pollsBlurb"); },
     staffOnly: true,
