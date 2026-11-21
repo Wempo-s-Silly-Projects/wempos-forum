@@ -686,6 +686,7 @@
   "render.pin": "고정",
   "render.pinned": "고정됨",
   "render.quote": "인용",
+  "render.quoteTitle": "팁: 이 답글의 일부를 먼저 선택하면 그 부분만 인용할 수 있어요",
   "render.removedAccount": "삭제된 계정",
   "render.reopen": "다시 열기",
   "render.replies": "답글",

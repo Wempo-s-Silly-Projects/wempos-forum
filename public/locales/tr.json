@@ -686,6 +686,7 @@
   "render.pin": "Sabitle",
   "render.pinned": "Sabitlendi",
   "render.quote": "Alıntıla",
+  "render.quoteTitle": "İpucu: Yalnızca o kısmı alıntılamak için önce bu yanıtın bir kısmını seçin",
   "render.removedAccount": "Silinmiş hesap",
   "render.reopen": "Yeniden aç",
   "render.replies": "yanıt",

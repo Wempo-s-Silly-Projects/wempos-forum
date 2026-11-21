@@ -44,6 +44,7 @@ import { markThreadStarterReplies, threadStarterId } from "../thread-starter.js"
 import { bindPostKeys, createPostKeysHint } from "../post-keys.js";
 import { createFirstPostJump, createLatestReplyJump, createMyReplyJump } from "../latest-reply.js";
 import { addReplyFolds, createFoldAllToggle, ensureFoldAllToggle } from "../reply-fold.js";
+import { selectedQuoteText } from "../quote-selection.js";
 import { openLightbox } from "../lightbox.js";
 
 async function renderPostRoute(route, context, version) {
@@ -204,7 +205,11 @@ function quoteIntoComposer(button) {
   if (!form) return;
   const textarea = form.querySelector("textarea");
   if (!textarea) return;
-  prefillQuote(textarea, button.dataset.quoteUsername ?? "", button.dataset.quoteSnippet ?? "");
+  // Wave 24 F2: a selection inside this reply's body is quoted instead of
+  // the snippet (spoilers masked either way).
+  const card = button.closest("article.post-card");
+  const selected = selectedQuoteText(document.getSelection?.() ?? null, card);
+  prefillQuote(textarea, button.dataset.quoteUsername ?? "", selected || button.dataset.quoteSnippet || "");
   // prefillQuote assigns .value programmatically, which fires no `input`
   // event — so the composer's live character counter (wired in forms.js to the
   // input event) would keep showing the stale pre-quote count. Dispatch the

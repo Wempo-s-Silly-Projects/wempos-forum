@@ -686,6 +686,7 @@
   "render.pin": "Pin",
   "render.pinned": "Pinned",
   "render.quote": "Quote",
+  "render.quoteTitle": "Tip: select part of this reply first to quote just that part",
   "render.removedAccount": "Removed account",
   "render.reopen": "Reopen",
   "render.replies": "replies",

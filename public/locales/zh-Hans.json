@@ -686,6 +686,7 @@
   "render.pin": "置顶",
   "render.pinned": "已置顶",
   "render.quote": "引用",
+  "render.quoteTitle": "提示：先选中这条回复的一部分，即可只引用该部分",
   "render.removedAccount": "已删除的账号",
   "render.reopen": "重新开放",
   "render.replies": "回复",

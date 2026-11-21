@@ -686,6 +686,7 @@
   "render.pin": "ピン留め",
   "render.pinned": "ピン留め中",
   "render.quote": "引用",
+  "render.quoteTitle": "ヒント：先にこの返信の一部を選択すると、その部分だけを引用できます",
   "render.removedAccount": "削除されたアカウント",
   "render.reopen": "再オープン",
   "render.replies": "返信",

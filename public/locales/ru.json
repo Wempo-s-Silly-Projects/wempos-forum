@@ -686,6 +686,7 @@
   "render.pin": "Закрепить",
   "render.pinned": "Закреплено",
   "render.quote": "Цитировать",
+  "render.quoteTitle": "Совет: сначала выделите часть этого ответа, чтобы процитировать только её",
   "render.removedAccount": "Удалённый аккаунт",
   "render.reopen": "Открыть снова",
   "render.replies": "ответов",
