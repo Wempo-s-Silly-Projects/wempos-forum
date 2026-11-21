@@ -70,6 +70,62 @@ function publicChatMessage(row) {
   };
 }
 
+// Shared lobby cores (lobby-mcp-tools lane): the poll's message read and
+// online count, and the send's post-gate half, used verbatim by the routes
+// below and by the MCP lobby_read / lobby_post tools (api/mcp.mjs). Callers
+// own the auth, ban, and rate-limit gates.
+
+// Messages after the cursor (oldest-first, up to limit), or the newest
+// `limit` when after is null — re-ordered oldest-first for append rendering.
+async function lobbyMessageRows(db, after, limit) {
+  const rows = after === null
+    ? (await db.prepare(
+      LOBBY_CHAT_SELECT + "WHERE " + LOBBY_CHAT_BAN_FILTER_SQL + " ORDER BY c.id DESC LIMIT ?",
+    ).bind(limit).all()).results || []
+    : (await db.prepare(
+      LOBBY_CHAT_SELECT + "WHERE c.id > ? AND " + LOBBY_CHAT_BAN_FILTER_SQL +
+      " ORDER BY c.id ASC LIMIT ?",
+    ).bind(after, limit).all()).results || [];
+  return after === null ? rows.slice().reverse() : rows;
+}
+
+// The visible online count: presence window, invisible excluded, banned excluded.
+async function lobbyOnlineCount(db) {
+  const onlineRow = await db.prepare(
+    "SELECT COUNT(*) AS online FROM presence WHERE invisible = 0 AND last_seen > ? " +
+    "AND NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = presence.user_id AND b.revoked_at IS NULL " +
+    "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)))",
+  ).bind(nowSeconds() - LOBBY_PRESENCE_WINDOW_SECONDS).first();
+  return Number(onlineRow?.online || 0);
+}
+
+// The send after its gates: 500-char cap, word filter, insert, re-select the
+// stored row, then best-effort @mention fan-out. Returns the stored row.
+async function insertLobbyMessage(env, user, rawBody) {
+  const message = applyWordFilter(
+    String(rawBody ?? "").trim().slice(0, LOBBY_CHAT_MAX_CHARS),
+    filterWords(env),
+  );
+  if (!message) throw new HttpError(400, "Write a message first.");
+  const result = await env.FORUM_DB.prepare(
+    "INSERT INTO chat_messages (user_id, body, created_at) VALUES (?, ?, ?)",
+  ).bind(user.id, message, nowSeconds()).run();
+  const row = await env.FORUM_DB.prepare(
+    LOBBY_CHAT_SELECT + "WHERE c.id = ? LIMIT 1",
+  ).bind(Number(result.meta?.last_row_id)).first();
+  try {
+    const mentionStatements = await mentionFanOutStatements(env.FORUM_DB, message, {
+      actorId: user.id, now: nowSeconds(),
+      actorUsername: user.username,
+      label: "You were mentioned by " + user.username + " in chat",
+    });
+    if (mentionStatements.length > 0) await env.FORUM_DB.batch(mentionStatements);
+  } catch {
+    // Mentions never fail the send.
+  }
+  return row;
+}
+
 const DM_MAX_BODY_CHARS = 1000;
 const DM_MESSAGE_PAGE_LIMIT = 50;
 const DM_PREVIEW_MAX_CHARS = 80;
@@ -394,21 +450,8 @@ async function handleLobbyChatReadRoute(request, env, url, path, method) {
     if (!/^[0-9]{1,15}$/.test(afterRaw)) throw new HttpError(400, "That chat cursor is invalid.");
     after = Number(afterRaw);
   }
-  const rows = after === null
-    // Initial load: newest 50, oldest-first for append-order rendering.
-    ? (await db.prepare(
-      LOBBY_CHAT_SELECT + "WHERE " + LOBBY_CHAT_BAN_FILTER_SQL + " ORDER BY c.id DESC LIMIT " + LOBBY_CHAT_PAGE_LIMIT,
-    ).all()).results || []
-    : (await db.prepare(
-      LOBBY_CHAT_SELECT + "WHERE c.id > ? AND " + LOBBY_CHAT_BAN_FILTER_SQL +
-      " ORDER BY c.id ASC LIMIT " + LOBBY_CHAT_PAGE_LIMIT,
-    ).bind(after).all()).results || [];
-  const messages = after === null ? rows.slice().reverse() : rows;
-  const onlineRow = await db.prepare(
-    "SELECT COUNT(*) AS online FROM presence WHERE invisible = 0 AND last_seen > ? " +
-    "AND NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = presence.user_id AND b.revoked_at IS NULL " +
-    "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)))",
-  ).bind(nowSeconds() - LOBBY_PRESENCE_WINDOW_SECONDS).first();
+  const messages = await lobbyMessageRows(db, after, LOBBY_CHAT_PAGE_LIMIT);
+  const online = await lobbyOnlineCount(db);
   // Who's online: the same window, naming the visible (non-lurking) members
   // so the lobby can list them. Invisible members stay off the list, exactly
   // matching the count; the count itself is uncapped, the roster is not.
@@ -442,7 +485,7 @@ async function handleLobbyChatReadRoute(request, env, url, path, method) {
     messages: messages.map(publicChatMessage),
     // lastId drives the next poll's cursor; 0 when the stream is empty.
     lastId: messages.length ? Number(messages[messages.length - 1].id) : (after || 0),
-    online: Number(onlineRow?.online || 0),
+    online,
     onlineMembers: onlineMemberRows.map((row) => ({
       id: Number(row.id),
       username: row.username,
@@ -463,27 +506,7 @@ async function handleLobbyChatCreateRoute(request, env, url, path, method, ctx) 
   await assertNotBanned(env, session.user.id);
   await rateLimit(request, env, "write");
   const body = await readJson(request);
-  const message = applyWordFilter(
-    String(body.body ?? "").trim().slice(0, LOBBY_CHAT_MAX_CHARS),
-    filterWords(env),
-  );
-  if (!message) throw new HttpError(400, "Write a message first.");
-  const result = await env.FORUM_DB.prepare(
-    "INSERT INTO chat_messages (user_id, body, created_at) VALUES (?, ?, ?)",
-  ).bind(session.user.id, message, nowSeconds()).run();
-  const row = await env.FORUM_DB.prepare(
-    LOBBY_CHAT_SELECT + "WHERE c.id = ? LIMIT 1",
-  ).bind(Number(result.meta?.last_row_id)).first();
-  try {
-    const mentionStatements = await mentionFanOutStatements(env.FORUM_DB, message, {
-      actorId: session.user.id, now: nowSeconds(),
-      actorUsername: session.user.username,
-      label: "You were mentioned by " + session.user.username + " in chat",
-    });
-    if (mentionStatements.length > 0) await env.FORUM_DB.batch(mentionStatements);
-  } catch {
-    // Mentions never fail the send.
-  }
+  const row = await insertLobbyMessage(env, session.user, body.body);
   return json({ message: publicChatMessage(row) }, 201);
 }
 
@@ -522,4 +545,5 @@ export async function handleChatRoutes(request, env, url, path, method, ctx) {
   return null;
 }
 
+export { LOBBY_CHAT_MAX_CHARS, insertLobbyMessage, lobbyMessageRows, lobbyOnlineCount };
 export { DM_MAX_BODY_CHARS, PRESENCE_WINDOW, PRESENCE_UPSERT_SQL, PRESENCE_KEEP_SQL, DM_THREAD_OPEN_SQL, DM_THREAD_FIND_SQL };
