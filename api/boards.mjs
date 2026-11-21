@@ -28,7 +28,7 @@ import { ACTIVE_BAN_SQL } from "./core/visibility.mjs";
 // category (everyone reads and replies; only admins/owners may start
 // topics). The whitelist lives here because SQLite cannot gain a CHECK via
 // ALTER TABLE ADD COLUMN — the handler layer is the gate.
-export const BOARD_VALUES = ["general", "suggestions", "game-dev", "showcase", "help", "updates"];
+export const BOARD_VALUES = ["general", "suggestions", "game-dev", "showcase", "help", "updates", "polls"];
 export const SUGGESTIONS_BOARD = "suggestions";
 export const UPDATES_BOARD = "updates";
 export const GENERAL_BOARD_DEFAULT = "general";
