@@ -41,12 +41,14 @@ import { renderTurnstileSlots } from "../turnstile.js";
 import { applyCatchUp } from "../catch-up.js";
 import { createThreadGlance, summarizeThread } from "../thread-glance.js";
 import { markThreadStarterReplies, threadStarterId } from "../thread-starter.js";
+import { bindPostKeys, createPostKeysHint } from "../post-keys.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
   if (version !== state.renderVersion) return;
   addHeading(main, t("post.conversationTitle"), 1);
-  main.append(createPostCard(post, document, context.session.user));
+  const rootCard = createPostCard(post, document, context.session.user);
+  main.append(rootCard);
   // Thread at a glance (wave 2026-11-21): from the posts already loaded.
   if (post.replies.length) {
     main.append(createThreadGlance(document, summarizeThread(post, post.replies), main));
@@ -54,6 +56,8 @@ async function renderPostRoute(route, context, version) {
   addHeading(main, t("post.repliesTitle"), 2);
   let replyList = null;
   if (post.replies.length) {
+    // J/K post navigation (wave 2026-11-21-8 F3): hint shown only with replies.
+    main.append(createPostKeysHint(document));
     replyList = element("div", "post-list replies-list");
     replyList.dataset.repliesFor = String(post.id);
     for (const reply of post.replies) replyList.append(createPostCard(reply, document, context.session.user));
@@ -65,6 +69,7 @@ async function renderPostRoute(route, context, version) {
   } else {
     addText(document, main, "p", t("post.noReplies"), "empty-state");
   }
+  bindPostKeys(main, [rootCard, replyList]);
   // "New since your last visit" (wave 2026-11-21): local read marks only.
   applyCatchUp(document, post.id, post.replies, replyList, { accountId: state.currentUser?.id });
   if (post.repliesNextBefore) {

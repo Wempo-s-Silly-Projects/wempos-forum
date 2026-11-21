@@ -2559,8 +2559,12 @@ dialog h2 {
   padding: 0.15rem 0.5rem;
   cursor: pointer;
 }
-.chat-widget-pin[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); }
+.chat-widget-pin[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); font-weight: 700; }
 .chat-widget-pin:disabled { cursor: not-allowed; opacity: 0.6; }
+/* v4.13: the label no longer flips, so a pressed pin shows a check (silent to
+   screen readers, which hear aria-pressed); a full list explains itself. */
+.chat-widget-pin[aria-pressed="true"]::before { content: "\2713\00a0" / ""; }
+.chat-widget-pin-note { align-self: flex-end; margin: 0.15rem 0.75rem 0; color: var(--muted); font-size: 0.7rem; }
 .chat-widget-thread-pin { display: inline-flex; margin-inline-start: 0.3rem; color: var(--muted); vertical-align: middle; }
 .chat-widget-thread-pin svg { width: 0.8rem; height: 0.8rem; fill: none; stroke: currentColor; stroke-width: 2; }
 .chat-widget-older-groups { display: block; margin: 0.5rem auto; }
@@ -2919,3 +2923,5 @@ dialog h2 {
   white-space: nowrap;
 }
 .read-aloud-button[aria-pressed="true"] { color: var(--green-ink); }
+/* v4.13 J/K post navigation hint. */
+.post-keys-hint { margin: 0 0 0.5rem; color: var(--muted); font-size: 0.8rem; }

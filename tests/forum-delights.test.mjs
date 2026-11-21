@@ -29,47 +29,11 @@ import {
   createReadAloud, pickLocalVoice, speakableText, stopReadAloud,
 } from "../public/js/read-aloud.js";
 
+import { FakeNode, makeFakeDocument, findByClass, countByClass } from "./helpers/fake-dom.mjs";
+
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-class FakeNode {
-  constructor(tagName) {
-    this.tagName = tagName.toUpperCase();
-    this.children = [];
-    this.attributes = {};
-    this.listeners = {};
-    this.dataset = {};
-    this.className = "";
-    this._text = "";
-  }
-  get textContent() {
-    return this.children.length ? this.children.map((child) => child.textContent ?? "").join("") : this._text;
-  }
-  set textContent(value) { this.children = []; this._text = String(value); }
-  setAttribute(name, value) { this.attributes[name] = String(value); }
-  getAttribute(name) { return this.attributes[name] ?? null; }
-  append(...nodes) { this.children.push(...nodes); }
-  replaceChildren(...nodes) { this.children = [...nodes]; }
-  addEventListener(type, listener) { (this.listeners[type] ??= []).push(listener); }
-  async fire(type) {
-    for (const listener of this.listeners[type] ?? []) await listener({ preventDefault() {} });
-  }
-}
-const fakeDocument = {
-  createElement: (tag) => new FakeNode(tag),
-  createElementNS: (ns, tag) => new FakeNode(tag),
-  createTextNode: (text) => ({ nodeType: 3, textContent: text }),
-};
-const findByClass = (node, name) => {
-  if (node.className?.split?.(" ").includes(name)) return node;
-  for (const child of node.children ?? []) {
-    const hit = findByClass(child, name);
-    if (hit) return hit;
-  }
-  return null;
-};
-const countByClass = (node, name) =>
-  (node.className?.split?.(" ").includes(name) ? 1 : 0)
-  + (node.children ?? []).reduce((sum, child) => sum + countByClass(child, name), 0);
+const fakeDocument = makeFakeDocument();
 
 // --- F2: thread-author chip ---------------------------------------------------
 

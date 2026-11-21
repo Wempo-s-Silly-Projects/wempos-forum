@@ -567,7 +567,7 @@ export const createEditComposer = (post, document) => {
 const isEditBodyBlock = (node) =>
   node.className === "post-body" || node.className === "post-quote" ||
   node.className === "post-codeblock" || node.className === "post-heading" ||
-  Array.isArray(node.children) && node.className === "post-list";
+  node.className === "md-list";
 
 // Swap (openEditForm) / restore (closeEditForm) are pure DOM-in/DOM-out so the
 // mock-element render suite can pin the whole cycle. The card's raw body must
