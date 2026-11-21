@@ -13,6 +13,22 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.17.0] - 2026-11-21
+
+### Added
+- You can now run your own copy of Wempo's Forum. The forum's address, the
+  Wempo Accounts sign-in address and the Turnstile settings now come from
+  each copy's own settings instead of being built in, and a new guide,
+  [Running your own Wempo's Forum](docs/self-hosting.md), walks through
+  setting one up with Wempo Accounts alongside it. `wrangler.example.toml`
+  and `.dev.vars.example` list every setting.
+- Turnstile is optional for your own copy: it runs only when a Turnstile
+  secret is set. Rate limits are always on.
+
+### Changed
+- robots.txt is now served by the forum itself, so its sitemap link always
+  names the right address. Nothing changes on wempos-forum.com.
+
 ## [5.16.0] - 2026-11-21
 
 ### Security
