@@ -43,7 +43,7 @@ import { createThreadGlance, summarizeThread } from "../thread-glance.js";
 import { markThreadStarterReplies, threadStarterId } from "../thread-starter.js";
 import { bindPostKeys, createPostKeysHint } from "../post-keys.js";
 import { createFirstPostJump, createLatestReplyJump, createMyReplyJump } from "../latest-reply.js";
-import { addReplyFolds } from "../reply-fold.js";
+import { addReplyFolds, createFoldAllToggle } from "../reply-fold.js";
 import { openLightbox } from "../lightbox.js";
 
 async function renderPostRoute(route, context, version) {
@@ -70,6 +70,9 @@ async function renderPostRoute(route, context, version) {
     // Jump to my reply (wave 2026-11-21-15 F2): only when the viewer replied.
     const myJump = createMyReplyJump(document, replyList, post.replies, context.session.user?.id);
     if (myJump) main.append(myJump);
+    // Fold all replies (wave 2026-11-21-22 F2): long threads only.
+    const foldAll = createFoldAllToggle(document, replyList, post.replies.length);
+    if (foldAll) main.append(foldAll);
     main.append(replyList);
     // Thread-author chip (wave 2026-11-21-7 F2): the starter's own replies.
     const starterId = threadStarterId(post);
