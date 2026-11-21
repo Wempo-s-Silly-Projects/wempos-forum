@@ -30,6 +30,11 @@ export const VOICE_WAIT_MS = 1000;
 const SPOILER_MASK_PATTERN = /▒+/g;
 
 let activeStop = null;
+// Each Listen click (and every stop) bumps the ticket; a click whose voice
+// wait finishes after a newer ticket was issued speaks nothing, so two
+// clicks while voices load never queue both posts (wave 12).
+let speakTicket = 0;
+let activeUtterance = null;
 
 // Plain words to speak: spoilers removed, "> " quote lines skipped, code
 // fences, heading/list markers and inline emphasis marks dropped.
@@ -70,8 +75,10 @@ function loadVoices(synth, waitMs) {
 }
 
 export function stopReadAloud(synth = globalThis.speechSynthesis) {
+  speakTicket += 1;
   activeStop?.();
   activeStop = null;
+  activeUtterance = null;
   try {
     synth?.cancel?.();
   } catch {
@@ -114,8 +121,10 @@ export function createReadAloud(document, getText, {
       return;
     }
     stopReadAloud(synth);
+    const ticket = speakTicket;
     status.textContent = "";
     const voice = pickLocalVoice(await loadVoices(synth, voiceWaitMs), lang);
+    if (ticket !== speakTicket) return;
     const text = speakableText(getText());
     if (!voice || !text) {
       status.textContent = voice ? "" : t("render.noLocalVoice");
@@ -124,8 +133,20 @@ export function createReadAloud(document, getText, {
     const utterance = new Utterance(text);
     utterance.voice = voice;
     utterance.lang = voice.lang;
-    utterance.onend = () => { if (activeStop === reset) activeStop = null; reset(); };
+    // A late end event from a cancelled utterance must not reset the new one.
+    utterance.onend = () => {
+      if (activeUtterance !== utterance) return;
+      activeUtterance = null;
+      activeStop = null;
+      reset();
+    };
     utterance.onerror = utterance.onend;
+    try {
+      synth.cancel?.();
+    } catch {
+      // Nothing queued to drop.
+    }
+    activeUtterance = utterance;
     activeStop = reset;
     setPressed(button, true);
     synth.speak(utterance);

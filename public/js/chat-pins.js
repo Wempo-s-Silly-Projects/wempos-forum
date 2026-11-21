@@ -22,13 +22,15 @@
 // member's own key, the server never learns them, and sign-out wipes them
 // with the drafts. Pins are conversation keys ("dm:12", "group:3"); anything
 // else read back from storage is dropped. Storage failures read as no pins.
+// No account id (session still loading or /api/session failed) means no key:
+// pins are neither read nor written until the account is known (wave 12).
 
 export const PINS_STORAGE_KEY = "forum-chat-pins";
 export const MAX_PINNED_CHATS = 5;
 
 const PIN_KEY_SHAPE = /^(dm|group):[0-9]{1,15}$/;
 
-export const pinsKey = (accountId = null) => PINS_STORAGE_KEY + (accountId ? ":u" + accountId : "");
+export const pinsKey = (accountId = null) => (accountId ? PINS_STORAGE_KEY + ":u" + accountId : null);
 
 const browserStorage = () => {
   try {
@@ -40,7 +42,8 @@ const browserStorage = () => {
 
 export function readPins(storage = browserStorage(), accountId = null) {
   try {
-    const raw = storage ? storage.getItem(pinsKey(accountId)) : null;
+    const key = pinsKey(accountId);
+    const raw = storage && key ? storage.getItem(key) : null;
     const parsed = raw ? JSON.parse(raw) : [];
     if (!Array.isArray(parsed)) return [];
     return parsed.filter((key) => typeof key === "string" && PIN_KEY_SHAPE.test(key)).slice(0, MAX_PINNED_CHATS);
@@ -50,8 +53,10 @@ export function readPins(storage = browserStorage(), accountId = null) {
 }
 
 export function writePins(storage = browserStorage(), pins = [], accountId = null) {
+  const key = pinsKey(accountId);
+  if (!key) return;
   try {
-    storage?.setItem(pinsKey(accountId), JSON.stringify(pins));
+    storage?.setItem(key, JSON.stringify(pins));
   } catch {
     // Quota or blocked storage: pins just won't persist.
   }
@@ -76,7 +81,7 @@ export function sortPinnedFirst(rows, pins, keyOf) {
   return [...pinned, ...rest];
 }
 
-// Sign-out wipe: every account's pins (and the unscoped key) go.
+// Sign-out wipe: every account's pins (and any pre-wave-12 unscoped key) go.
 export function clearAllPins(storage = browserStorage()) {
   try {
     if (!storage) return;
