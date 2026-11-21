@@ -13,3 +13,6 @@ coverage/
 *.kate-swp
 .claude/
 .superpowers/
+
+# Fleet ops state (taskboard, tick/cost logs, alerts): local only
+.team/
