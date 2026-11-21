@@ -21,9 +21,10 @@
 // target thread (handled by app.js's data-action="open-notification"). All DOM
 // building is textContent-based.
 import { addText } from "./forms.js";
-import { t, tn } from "./i18n.js";
+import { currentLocale, t, tn } from "./i18n.js";
 import { maskSpoilers } from "./markdown.js";
 import { createUnreadOnlyToggle } from "./notification-filter.js";
+import { formatRelative } from "./reltime.js";
 
 const SPOILER_MARK = "||";
 
@@ -81,6 +82,7 @@ export const notificationItemView = (item) => {
     targetPostId,
     read: Boolean(item?.read),
     href: targetPostId ? `/posts/${targetPostId}` : null,
+    createdAt: typeof item?.createdAt === "string" ? item.createdAt : null,
     // The server-stored label wins (mentions: "You were mentioned by X");
     // every other (or pre-0017) row keeps the generic reply copy.
     label: item.label
@@ -177,6 +179,20 @@ function markUnread(document, row) {
   row.prepend(tag);
 }
 
+// v4.43: when the notification arrived ("5 min. ago"), as a <time> stamp at
+// the end of the row. Intl.RelativeTimeFormat localizes it, so there is no
+// new string; runtimes without it get the locale's date and time. No stamp
+// when the time is missing or does not parse.
+function addTimeStamp(document, row, createdAt) {
+  if (!createdAt || !Number.isFinite(new Date(createdAt).getTime())) return;
+  const locale = currentLocale();
+  const stamp = document.createElement("time");
+  stamp.className = "notification-time";
+  stamp.setAttribute("datetime", createdAt);
+  stamp.textContent = formatRelative(createdAt, { locale }) || new Date(createdAt).toLocaleString(locale);
+  row.append(" ", stamp);
+}
+
 function notificationRow(document, item) {
   const row = document.createElement("button");
   row.type = "button";
@@ -185,9 +201,10 @@ function notificationRow(document, item) {
   row.dataset.notificationId = String(item.id);
   // Post-less items carry no postId — the click marks read without navigating.
   if (item.targetPostId) row.dataset.postId = String(item.targetPostId);
-  row.textContent = item.label;
+  row.append(document.createTextNode(item.label));
   if (item.read) row.setAttribute("aria-disabled", "false");
   else markUnread(document, row);
+  addTimeStamp(document, row, item.createdAt);
   return row;
 }
 
@@ -200,10 +217,12 @@ function threadGroupRow(document, group) {
   row.className = "notification-item notification-group" + (group.read ? "" : " notification-unread");
   row.dataset.action = "open-notification-thread";
   row.dataset.postId = String(group.targetPostId);
-  row.textContent = preview
+  row.append(document.createTextNode(preview
     ? tn("bell.threadGroupPreview", group.count, { preview })
-    : tn("bell.threadGroup", group.count);
+    : tn("bell.threadGroup", group.count)));
   if (group.read) row.setAttribute("aria-disabled", "false");
   else markUnread(document, row);
+  // Rows arrive newest first, so the group's first entry is its newest.
+  addTimeStamp(document, row, notificationItemView(group.first).createdAt);
   return row;
 }
