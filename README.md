@@ -82,7 +82,8 @@ code. Database migrations are a separate step. The full steps are in
 - [Architecture overview](docs/architecture.md)
 - [Public API](docs/api.md) — read endpoints, the MCP tool server, discovery
 - [Running your own Wempo's Forum](docs/self-hosting.md) — host your own copy
-- [Release checklist](docs/release-checklist.md)
+- [Release checklist](docs/release-checklist.md) and the
+  [versioning policy](CONTRIBUTING.md#versioning)
 - [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) ·
   [Code of Conduct](CODE_OF_CONDUCT.md) · [Changelog](CHANGELOG.md)
 
@@ -109,7 +110,9 @@ PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
 
 If you run a modified version that people use over a network, the AGPL
 (section 13) asks you to offer those users the source of the version you're
-running. A visible link to your source, or to the repository above, does it.
+running. The footer's **Source code** link does this: it points at the
+repository at the running commit, or at your own copy once you set
+`SOURCE_URL` (see [self-hosting](docs/self-hosting.md#sharing-your-source-code)).
 
 ## Contributors
 <a href="https://github.com/inttter/md-badges/graphs/contributors">

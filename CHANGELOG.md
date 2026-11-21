@@ -2,7 +2,9 @@
 
 All notable changes to Wempo's Forum, newest first. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html). What counts as
+the public API, and what MAJOR, MINOR and PATCH mean here, is in the
+[versioning policy](CONTRIBUTING.md#versioning).
 
 The live version is shown at <https://wempos-forum.com/api/version>.
 

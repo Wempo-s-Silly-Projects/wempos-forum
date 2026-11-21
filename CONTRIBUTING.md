@@ -69,10 +69,18 @@ rejection.
 Wempo's Forum is licensed under the GNU AGPL, version 3 or later. By
 contributing, you agree your contribution is licensed the same way.
 
-Every new `.js` or `.mjs` file must start with the 17-line license notice
-(copy it from the top of any existing file, such as `public/js/api.js`),
-followed by a blank line. New `.css` files carry the same notice in a
-`/* ... */` comment. The test suite checks this.
+Every new `.js` or `.mjs` file must start with the 17-line license notice,
+then the two SPDX lines (the license identifier and the copyright line),
+then a blank line. Copy all 19 lines from the top of any existing file, such
+as `public/js/api.js`. New `.css` files carry the same notice and SPDX lines
+in `/* ... */` comments (copy them from `public/styles.css`). The test suite
+checks this.
+
+Files that cannot hold a comment (JSON, images, config) get their license
+from `REUSE.toml`, and the license texts live in `LICENSES/`. The project
+follows the [REUSE](https://reuse.software/) specification; `reuse lint` (run
+by CI) must pass. If you add such a file somewhere `REUSE.toml` does not
+already cover, add its path there.
 
 Any third-party code you bring in must be compatible with the AGPLv3.
 
@@ -109,6 +117,37 @@ Examples:
 fix: keep the chat badge in sync after muting a group
 docs: explain backup codes in the member guide
 ```
+
+## Versioning
+
+Wempo's Forum follows [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html).
+Every release is tagged `vX.Y.Z` and gets a GitHub Release. The live version
+is shown at `/api/version`.
+
+SemVer needs a declared public API. For the forum it is:
+
+1. the documented HTTP routes under `/api/` and their JSON request and
+   response shapes (see [docs/api.md](docs/api.md));
+2. the MCP tool names and their arguments;
+3. the self-hosting config vars in `wrangler.example.toml`;
+4. the `migrations/` chain, which self-hosters apply in order.
+
+What each part of the number means:
+
+- **MAJOR** — an incompatible change to any of the above: removing or
+  renaming a route, a JSON field, an MCP tool or argument, or a config var,
+  or a migration that is not purely additive.
+- **MINOR** — new features that keep everything above working. Every
+  feature release is a MINOR.
+- **PATCH** — bug fixes only.
+
+Deprecations: before something in the public API is removed, a MINOR
+release marks it in `CHANGELOG.md` under **Deprecated**, at least one MINOR
+release before the MAJOR release that removes it.
+
+We considered [CalVer](https://calver.org/) (versions made from release
+dates) and did not choose it: people who run their own copy need to know
+whether an update is safe to take, and a date does not tell them that.
 
 ## Releases
 
