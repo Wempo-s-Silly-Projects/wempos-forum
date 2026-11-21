@@ -41,6 +41,13 @@ const LOBBY_POLL_MS = 15_000;
 const PANEL_WIDTH_MAX = 360;
 const MESSAGE_PREVIEW_MAX = 60;
 const LOBBY_MESSAGE_MAX = 500;
+// GIFs in chat: a message whose WHOLE body is `[gif:<library-id>]` renders as
+// the library image — the same by-reference convention posts use (gifIds
+// point at the approved library; no byte copies), served from the existing
+// /api/gifs/:id route. Bodies stay plain text on the wire and in D1.
+const GIF_ID_SHAPE = /^[0-9a-f-]{36}$/;
+const GIF_TOKEN = /^\[gif:([0-9a-f-]{36})\]$/;
+const GIF_PREVIEW_LABEL = "GIF";
 
 let launcher = null;
 let badge = null;
@@ -76,6 +83,11 @@ let lobbyVersion = 0;
 let lobbySendInFlight = false;
 let widgetUser = null;
 let activeTab = "dms";
+// The GIF picker: the approved library list is read once per panel open; the
+// DM picker survives the conversation's 5s full repaint (its nodes are
+// re-attached, not rebuilt).
+let gifLibrary = null;
+let dmGifPicker = null;
 
 const isStaff = () => Boolean(widgetUser && (widgetUser.role === "owner" || widgetUser.role === "admin"));
 
@@ -97,6 +109,110 @@ const el = (tagName, className, text) => {
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
+};
+
+const gifIdOf = (body) => {
+  const match = typeof body === "string" ? body.trim().match(GIF_TOKEN) : null;
+  return match ? match[1] : null;
+};
+
+const gifToken = (gifId) => `[gif:${gifId}]`;
+
+// A message body node: a GIF token becomes a lazy <img> from the library's
+// serving route; anything else (and a token whose image 404s — unknown or
+// unapproved ids) stays plain text. createElement/textContent only.
+const messageBodyNode = (className, body) => {
+  const node = el("p", className);
+  const gifId = gifIdOf(body);
+  if (!gifId) {
+    if (body !== undefined) node.textContent = body;
+    return node;
+  }
+  node.classList.add("chat-gif-body");
+  const img = el("img", "chat-gif");
+  img.src = "/api/gifs/" + encodeURIComponent(gifId);
+  img.alt = "GIF";
+  img.loading = "lazy";
+  img.decoding = "async";
+  img.addEventListener("error", () => {
+    node.classList.remove("chat-gif-body");
+    node.replaceChildren();
+    node.textContent = body;
+  }, { once: true });
+  node.append(img);
+  return node;
+};
+
+// The approved library (GET /api/gifs, the post composer picker's own list),
+// cached for the panel's lifetime; ids are shape-checked before use.
+const loadGifLibrary = async () => {
+  if (gifLibrary) return gifLibrary;
+  const data = await api("/api/gifs");
+  const rows = Array.isArray(data?.gifs) ? data.gifs : [];
+  gifLibrary = rows.filter((gif) => typeof gif?.id === "string" && GIF_ID_SHAPE.test(gif.id));
+  return gifLibrary;
+};
+
+// The GIF button + its grid. The caller seats the toggle beside its Send
+// button and the grid inside its composer (CSS floats it above). Picking a
+// GIF closes the grid and hands the id to onPick.
+const buildGifPicker = (onPick) => {
+  const toggle = el("button", "chat-widget-gif-button", "GIF");
+  toggle.type = "button";
+  toggle.setAttribute("aria-label", "Send a GIF");
+  toggle.setAttribute("aria-expanded", "false");
+  const grid = el("div", "chat-widget-gif-grid");
+  grid.setAttribute("role", "group");
+  grid.setAttribute("aria-label", "GIF library");
+  grid.hidden = true;
+  const closeGrid = () => {
+    grid.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+  };
+  const paintGrid = (gifs) => {
+    grid.replaceChildren();
+    if (gifs.length === 0) {
+      grid.append(el("p", "chat-widget-gif-note", "No GIFs in the library yet."));
+      return;
+    }
+    for (const gif of gifs) {
+      const pick = el("button", "chat-widget-gif-pick");
+      pick.type = "button";
+      pick.setAttribute("aria-label", "Send this GIF");
+      const img = el("img");
+      img.src = typeof gif.url === "string" && gif.url.startsWith("/api/gifs/")
+        ? gif.url : "/api/gifs/" + encodeURIComponent(gif.id);
+      img.alt = "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      pick.append(img);
+      pick.addEventListener("click", () => {
+        closeGrid();
+        onPick(gif.id);
+      });
+      grid.append(pick);
+    }
+  };
+  toggle.addEventListener("click", async () => {
+    if (!grid.hidden) {
+      closeGrid();
+      return;
+    }
+    grid.hidden = false;
+    toggle.setAttribute("aria-expanded", "true");
+    grid.replaceChildren(el("p", "chat-widget-gif-note", "Loading GIFs…"));
+    try {
+      paintGrid(await loadGifLibrary());
+    } catch {
+      grid.replaceChildren(el("p", "chat-widget-gif-note", "The GIF library did not load. Try again."));
+    }
+  });
+  grid.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    closeGrid();
+    toggle.focus();
+  });
+  return { toggle, grid };
 };
 
 const loadThreads = async () => {
@@ -261,6 +377,8 @@ const closePanel = () => {
   sendButton = null;
   activeThread = null;
   conversation = null;
+  gifLibrary = null;
+  dmGifPicker = null;
 };
 
 // The tab switcher: the Lobby stream and the DMs pair are mutually exclusive
@@ -318,7 +436,8 @@ const paintThreadList = () => {
 };
 
 const previewOf = (thread) => {
-  const preview = typeof thread.lastMessagePreview === "string" ? thread.lastMessagePreview : "";
+  const raw = typeof thread.lastMessagePreview === "string" ? thread.lastMessagePreview : "";
+  const preview = gifIdOf(raw) ? GIF_PREVIEW_LABEL : raw;
   if (thread.unread > 0) return preview;
   const clipped = preview.length > MESSAGE_PREVIEW_MAX
     ? `${preview.slice(0, MESSAGE_PREVIEW_MAX - 1)}…` : preview;
@@ -364,6 +483,7 @@ const paintConversation = () => {
   back.type = "button";
   back.textContent = "← All chats";
   back.addEventListener("click", () => {
+    dmGifPicker = null;
     activeThread = null;
     conversation = null;
     conversationEl.hidden = true;
@@ -382,7 +502,7 @@ const paintConversation = () => {
       who.append(buildAvatar(message), el("span", "chat-widget-message-who-name", message.authorUsername || ""));
       bubble.append(who);
     }
-    const body = el("p", "chat-widget-message-body", message.body);
+    const body = messageBodyNode("chat-widget-message-body", message.body);
     const time = el("span", "chat-widget-message-time", relativeTime(message.createdAt));
     time.title = message.createdAt || "";
     bubble.append(body, time);
@@ -420,15 +540,18 @@ const paintConversation = () => {
   sendButton.type = "button";
   sendButton.textContent = "Send";
   sendButton.addEventListener("click", sendMessage);
-  composer.append(composerEl, sendButton);
+  if (!dmGifPicker) dmGifPicker = buildGifPicker((gifId) => sendDmBody(gifToken(gifId)));
+  composer.append(dmGifPicker.grid, composerEl, dmGifPicker.toggle, sendButton);
   conversationEl.append(composer);
   conversationEl.hidden = false;
   if (listSideEl) listSideEl.hidden = true;
 };
 
-const sendMessage = async () => {
+const sendMessage = () => sendDmBody(composerEl ? composerEl.value.trim() : "", { clearComposer: true });
+
+// One DM send (typed text or a GIF token); a GIF send leaves the typed draft.
+const sendDmBody = async (body, { clearComposer = false } = {}) => {
   if (sendInFlight || !activeThread || !composerEl) return;
-  const body = composerEl.value.trim();
   if (!body) return;
   sendInFlight = true;
   sendButton.disabled = true;
@@ -437,7 +560,7 @@ const sendMessage = async () => {
       method: "POST",
       body: { body },
     });
-    composerEl.value = "";
+    if (clearComposer && composerEl) composerEl.value = "";
     if (data?.message?.id && !((conversation?.messages || []).some((row) => row.id === data.message.id))) {
       conversation = { ...conversation, messages: [...(conversation.messages || []), data.message] };
     }
@@ -499,7 +622,8 @@ const buildLobby = () => {
   input.setAttribute("aria-label", "Message the lobby");
   const send = el("button", "button button-primary chat-widget-lobby-send-button", "Send");
   send.type = "submit";
-  form.append(input, send);
+  const gifPicker = buildGifPicker((gifId) => sendLobbyBody(gifToken(gifId), null));
+  form.append(gifPicker.grid, input, gifPicker.toggle, send);
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     sendLobbyMessage(input);
@@ -531,7 +655,7 @@ const lobbyMessageRow = (message) => {
   when.dateTime = message.createdAt;
   when.textContent = new Date(message.createdAt).toLocaleString();
   head.append(when);
-  row.append(head, el("p", "chat-message-body", message.body));
+  row.append(head, messageBodyNode("chat-message-body", message.body));
   if (isStaff()) {
     const remove = el("button", "chat-message-delete", "×");
     remove.type = "button";
@@ -593,13 +717,16 @@ const pollLobby = async () => {
 
 // Room send: POST then append locally (the poll dedupe skips the echo) — the
 // old submitChatMessage's shape, single-flighted for the widget's form.
-const sendLobbyMessage = async (input) => {
-  const body = String(input?.value ?? "").trim();
+const sendLobbyMessage = (input) => sendLobbyBody(String(input?.value ?? "").trim(), input);
+
+// One lobby send (typed text or a GIF token); clearInput is null for a GIF
+// send so the typed draft survives.
+const sendLobbyBody = async (body, clearInput) => {
   if (!body || lobbySendInFlight) return;
   lobbySendInFlight = true;
   try {
     const data = await api("/api/chat", { method: "POST", body: { body } });
-    input.value = "";
+    if (clearInput) clearInput.value = "";
     appendLobbyMessages(data?.message ? [data.message] : []);
   } catch (error) {
     showLobbySendError(error?.message || "The message did not send. Try again.");
