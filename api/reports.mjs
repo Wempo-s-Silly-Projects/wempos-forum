@@ -222,7 +222,10 @@ async function handleHiddenPostsRoute(request, env, url, path, method) {
       // Root link: a reply links to its thread (level-2 replies walk to the
       // level-1 parent's parent); roots link to themselves.
       "(SELECT CASE WHEN parent.parent_id IS NOT NULL THEN parent.parent_id ELSE parent.id END " +
-      "FROM posts parent WHERE parent.id = p.parent_id) AS thread_root_id " +
+      "FROM posts parent WHERE parent.id = p.parent_id) AS thread_root_id, " +
+      // v5.18: the latest AutoMod hide reason, so the desk labels its hides.
+      "(SELECT a.reason FROM automod_actions a WHERE a.action = 'hide' AND a.target_type = 'post' " +
+      "AND a.target_id = p.id ORDER BY a.id DESC LIMIT 1) AS automod_reason " +
       "FROM posts p JOIN users author ON author.id = p.author_id " +
       "WHERE p.visibility <> 'public' " +
       "OR EXISTS (SELECT 1 FROM bans b WHERE b.user_id = p.author_id AND b.revoked_at IS NULL " +
@@ -244,6 +247,7 @@ async function handleHiddenPostsRoute(request, env, url, path, method) {
         : Number(row.id),
       author: { id: Number(row.author_id), username: row.author_username },
       banReason: row.ban_reason || null,
+      autoModReason: row.visibility === "hidden" && row.automod_reason ? row.automod_reason : null,
       banExpiresAt: row.ban_expires_at === null || row.ban_expires_at === undefined
         ? null
         : new Date(Number(row.ban_expires_at) * 1000).toISOString(),

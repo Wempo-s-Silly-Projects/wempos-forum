@@ -101,6 +101,24 @@ function readCount(body) {
   return count;
 }
 
+// The hide core (v5.18 extraction, SQL unchanged): hide the author's PUBLIC
+// posts among ids and close their open reports as actioned. Shared by the
+// hide-recent route and AutoMod (resolverId null); the Restore route below
+// reverses either. Returns how many posts actually went hidden.
+export async function hidePostsBatch(db, ids, authorId, resolverId) {
+  const inList = placeholders(ids.length);
+  // The visibility guard keeps a concurrent hide from being double-counted.
+  const results = await db.batch([
+    db.prepare(
+      `UPDATE posts SET visibility = 'hidden' WHERE id IN (${inList}) AND author_id = ? AND visibility = 'public'`,
+    ).bind(...ids, authorId),
+    db.prepare(
+      `UPDATE reports SET status = 'actioned', resolved_at = ?, resolved_by = ? WHERE post_id IN (${inList}) AND status = 'open'`,
+    ).bind(nowSeconds(), resolverId, ...ids),
+  ]);
+  return Number(results[0]?.meta?.changes) || 0;
+}
+
 async function handleHideRecentRoute(request, env, path, method) {
   const match = path.match(HIDE_RECENT_ROUTE);
   if (!match || method !== "POST") return null;
@@ -120,17 +138,7 @@ async function handleHideRecentRoute(request, env, path, method) {
   ).bind(target.id, count).all();
   const ids = (picked.results || []).map((row) => Number(row.id));
   if (!ids.length) throw new HttpError(409, "This member has no public posts left to hide.");
-  const inList = placeholders(ids.length);
-  // The visibility guard keeps a concurrent hide from being double-counted.
-  const results = await db.batch([
-    db.prepare(
-      `UPDATE posts SET visibility = 'hidden' WHERE id IN (${inList}) AND author_id = ? AND visibility = 'public'`,
-    ).bind(...ids, target.id),
-    db.prepare(
-      `UPDATE reports SET status = 'actioned', resolved_at = ?, resolved_by = ? WHERE post_id IN (${inList}) AND status = 'open'`,
-    ).bind(nowSeconds(), session.user.id, ...ids),
-  ]);
-  const hidden = Number(results[0]?.meta?.changes) || 0;
+  const hidden = await hidePostsBatch(db, ids, target.id, session.user.id);
   if (!hidden) throw new HttpError(409, "Those posts were already hidden by another mod.");
   return json({ ok: true, hidden, postIds: ids });
 }
