@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Day dividers on the Notifications page (wave 2026-11-21-39, v4.44): rows
 // arrive newest first and sit under "Today", "Yesterday" and "Earlier"

@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Profile wall (v4.0, owner's ask): visitors leave short posts on a member's
 // profile; the profile OWNER may pin/unpin wall posts and can do nothing else

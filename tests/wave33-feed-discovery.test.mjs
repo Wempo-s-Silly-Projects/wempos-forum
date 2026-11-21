@@ -15,6 +15,9 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
 // Wave 2026-11-21-33 — feed discovery: the Unanswered filter (unanswered=1)
 // and the Newest sort (sort=new). Both ride listRootPosts' existing root
 // WHERE (public root, banFilterSql, viewer block pair), and "answered" is

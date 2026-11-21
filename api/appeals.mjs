@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Member appeals (v3.1, auto-mod appeals removed v4.2): the only appeal is a
 // BAN appeal, decided on the desk. It comes from the ban screen, where there

@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // @mentions (C2): the body scan, user resolution, and the deduped notification
 // fan-out for post + reply creation. The scan runs AFTER the word filter (the

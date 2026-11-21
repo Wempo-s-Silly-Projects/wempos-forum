@@ -15,6 +15,9 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
 // Wave 2026-11-21-35 F1 — hostile-cursor sweep over every /api/posts variant
 // (activity, category, Suggestions score, Newest bare id, Unanswered, My
 // posts, signed-in with a block pair). Each request must answer 200 or 400 —

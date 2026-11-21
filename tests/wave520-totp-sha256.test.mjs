@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // v5.20.0: opt-in SHA-256 TOTP. Existing members (no totp_algorithms row)
 // keep verifying with SHA-1 exactly as before; a member who opts in at setup

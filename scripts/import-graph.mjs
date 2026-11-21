@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Static import graph of the browser client (wave 2026-11-21-10 F2). Walks
 // every `import … from "…"`, bare `import "…"` and `export … from "…"` out of

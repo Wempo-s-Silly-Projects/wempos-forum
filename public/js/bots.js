@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Trusted bot accounts (MCP agent writes, api/core/agent-auth.mjs): the
 // renderer chips these usernames with a "Bot" badge so readers can tell an

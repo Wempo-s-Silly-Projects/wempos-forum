@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Thread subscriptions (C1): member follow/unfollow of a ROOT thread, plus the
 // reply fan-out that notifies every subscriber when a reply lands on the root.

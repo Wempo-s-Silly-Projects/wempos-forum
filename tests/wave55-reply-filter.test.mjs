@@ -15,6 +15,9 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
 // Wave 5.5 F2: filter replies on a thread page — narrow the replies to the
 // ones that mention a word. Page view only: nothing stored, nothing sent.
 import { test } from "node:test";

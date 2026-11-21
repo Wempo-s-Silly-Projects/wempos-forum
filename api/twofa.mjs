@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // TOTP two-factor sign-in (v4.0.1, backup codes v4.8.1): setup/confirm/
 // disable on the member's own hand, plus the login-step verification.

@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // v4.0 plan 3, Task 2: the avatar topic module — one lifecycle, one file.
 // Intake lives here (upload + limits, from profiles.mjs), serving lives here

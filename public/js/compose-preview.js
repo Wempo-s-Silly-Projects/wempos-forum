@@ -15,6 +15,9 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
 // Wave 2026-11-21-3 F3: composer Preview. A toggle under the textarea opens
 // a live pane rendered by the SAME renderer posts use (markdown, mentions,
 // links, spoilers) and refreshed on every keystroke while open. The textarea

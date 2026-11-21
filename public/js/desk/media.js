@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // v4.0 plan 5 (spec step 6), task 1: the moderation desk's media review queues (attachments, avatars, GIFs) section
 // builders — bodies moved verbatim out of ../admin.js (now dissolved).

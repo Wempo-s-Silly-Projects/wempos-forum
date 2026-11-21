@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Instance branding (v5.19.0, self-hosting part 2): the forum's name, tagline
 // and footer live in site_settings (site_name / site_tagline / site_footer).

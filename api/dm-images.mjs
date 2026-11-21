@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Pictures in DMs (v4.7, migration 0044). Intake is the attachment
 // pipeline's: the 10 MiB per-image cap, the magic-byte sniff (the client's
