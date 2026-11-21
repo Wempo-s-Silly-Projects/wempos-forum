@@ -49,7 +49,7 @@ import {
 import { renderProfileWall } from "../wall.js";
 import { openChatThread } from "../chat-widget.js";
 import { currentLocale, t, tn } from "../i18n.js";
-import { createRecentThreads, formatJoinedDate } from "../profile-extras.js";
+import { createPronouns, createRecentThreads, formatJoinedDate } from "../profile-extras.js";
 import { badgeKeyFor, createNextBadge } from "../badge-progress.js";
 
 async function renderProfileRoute(route, context, version) {
@@ -129,7 +129,11 @@ function renderProfile(profile, session) {
     image.alt = t("profile.avatarOf", { name: profile.username });
     heading.append(image);
   }
-  addHeading(heading, profile.username, 1).classList.add("profile-name");
+  const nameHeading = addHeading(heading, profile.username, 1);
+  nameHeading.classList.add("profile-name");
+  // Pronouns (v5.23.0 F2): opt-in, next to the name; nothing when unset.
+  const pronouns = createPronouns(document, profile.pronouns);
+  if (pronouns) nameHeading.append(pronouns);
   // Flair (v2.5): a short filtered label under the name; next to it the
   // milestone badge (v2.5, display-only, computed from the counter). The
   // role badge (v3.1) leads the row for staff — Owner or Admin, from the
@@ -297,6 +301,12 @@ async function submitProfileEditorForm(form, text) {
   const invalid = invalidSocialKeys(socials);
   if (invalid.length) {
     throw new Error(t("profile.invalidHandle", { platform: SOCIAL_LABELS[invalid[0]] }));
+  }
+  // Pronouns (v5.23.0 F2) have their own route; only a changed value is sent
+  // ("" clears). It runs first so an invalid value stops the whole save.
+  const pronouns = text("pronouns").trim();
+  if (pronouns !== (form.dataset.pronouns || "")) {
+    await api("/api/me/pronouns", { method: "PUT", body: { pronouns } });
   }
   // bio + socials in one PATCH /api/me (64 KB route cap covers a 10000-char
   // bio). The PATCH echo is asymmetric, so the rerender below re-fetches the

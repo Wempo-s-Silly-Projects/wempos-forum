@@ -45,6 +45,8 @@ import { CUSTOM_CSS_MAX_BYTES, scopeProfileCss } from "./profile-css.mjs";
 // Wave 2026-11-21-13 F2: a member's recent threads on their profile.
 import { handleProfileThreadsRoute } from "./profile-threads.mjs";
 import { recordProfileEdit } from "./automod.mjs";
+// v5.23.0 F2: optional pronouns (own table, own write route).
+import { handlePronounsRoutes, readPronouns } from "./pronouns.mjs";
 
 // PATCH /api/me carries up to a 10,000-character bio, so this route lifts the
 // 16 KB global JSON cap to 64 KB (Task 2 pre-approved per-route interface).
@@ -132,6 +134,9 @@ async function handleUserProfileRoute(request, env, url, path, method) {
         ? String(user.pending_css ?? user.approved_css ?? "")
         : undefined,
       bio: user.bio || "",
+      // v5.23.0: opt-in pronouns ("" when unset). Only this visible-profile
+      // branch carries them; the block-pair refusal above never does.
+      pronouns: await readPronouns(env.FORUM_DB, user.id),
       socials: socialsFromRow(user),
       polytoriaUsername: user.polytoria_username || null,
       avatarUrl: user.avatar_mime ? "/api/avatars/" + user.id + "?v=" + user.avatar_version : null,
@@ -603,6 +608,7 @@ async function handleProfileRoutes(request, env, url, path, method, ctx) {
     handleUserProfileRoute,
     handleProfileThreadsRoute,
     handleProfileUpdateRoute,
+    handlePronounsRoutes,
     handleCssSetRoute,
     handleCssClearRoute,
     handleProfileReportRoute,
