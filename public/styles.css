@@ -1660,6 +1660,33 @@ dialog h2 {
   background: var(--yellow);
 }
 
+/* Wave 2026-11-21-33: feed views (Active / Newest / Unanswered) under the
+   feed heading. Smaller than the category tabs; the current view is
+   aria-current="page". */
+.feed-views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.75rem;
+}
+.feed-view {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.25rem 0.8rem;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.feed-view[aria-current="page"] {
+  border-color: var(--ink);
+  color: var(--ink);
+  background: var(--yellow);
+}
+
 .profile-post-counts {
   color: var(--muted);
   font-size: 0.9rem;

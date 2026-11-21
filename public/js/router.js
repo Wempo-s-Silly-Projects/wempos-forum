@@ -22,6 +22,16 @@ export const isPlainLeftClick = (event) =>
   event.button === 0 && !event.metaKey && !event.ctrlKey &&
   !event.shiftKey && !event.altKey;
 
+// Feed views (wave 33): `?view=new|unanswered` on the home and category
+// feeds. Anything else (or Suggestions, which keeps its vote order) is the
+// default view, and the route object stays exactly { name, board? }.
+export const FEED_VIEWS = ["new", "unanswered"];
+
+const withFeedView = (route, search) => {
+  const view = new URLSearchParams(search).get("view");
+  return FEED_VIEWS.includes(view) && route.board !== "suggestions" ? { ...route, view } : route;
+};
+
 export const routeForPath = (pathname, search = "") => {
   if (pathname === "/setup") return { name: "setup" };
   // The §4b door-swap: the password login/register pages are gone — any stale
@@ -50,7 +60,7 @@ export const routeForPath = (pathname, search = "") => {
   const category = pathname.match(/^\/c\/([a-z0-9-]+)$/);
   if (category) {
     return BOARD_BY_SLUG[category[1]]
-      ? { name: "category", board: category[1] }
+      ? withFeedView({ name: "category", board: category[1] }, search)
       : { name: "not-found" };
   }
   const post = pathname.match(/^\/posts\/(\d+)$/);
@@ -66,7 +76,7 @@ export const routeForPath = (pathname, search = "") => {
   }
   if (pathname === "/") {
     const query = new URLSearchParams(search).get("q")?.trim() ?? "";
-    return query ? { name: "search", query } : { name: "home" };
+    return query ? { name: "search", query } : withFeedView({ name: "home" }, search);
   }
   return { name: "not-found" };
 }

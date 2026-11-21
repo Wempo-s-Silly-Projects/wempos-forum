@@ -50,6 +50,7 @@ import { createDataExportPanel, downloadMyData } from "../data-export.js";
 import { addSectionAnchors, createSettingsFilter } from "../settings-tools.js";
 import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
 import { renderNewcomerCards } from "../newcomer.js";
+import { createFeedViews, feedViewEmptyText, feedViewQuery } from "../feed-views.js";
 
 // Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
 // its composer tags root posts with board=suggestions (form dataset flag read
@@ -98,12 +99,15 @@ function renderHomeContent(session, data, route) {
     renderSearchResults(main, data.search, route.query);
     return;
   }
-  appendPostList(main, data.feed.posts, document, session.user);
+  // Feed views (wave 33): Active / Newest / Unanswered chips under the heading.
+  main.append(createFeedViews(document, "/", route.view));
+  appendPostList(main, data.feed.posts, document, session.user, feedViewEmptyText(route.view));
   if (!data.feed.nextBefore) return;
   const older = element("button", "button button-secondary", t("feed.loadOlderPosts"));
   older.type = "button";
   older.dataset.action = "load-more";
   older.dataset.before = String(data.feed.nextBefore);
+  if (route.view) older.dataset.view = route.view;
   main.append(older);
 }
 function renderAccountSettings(session) {
@@ -275,7 +279,7 @@ function renderSearchResults(container, results, query = "") {
 async function renderHomeRoute(route, context, version) {
   const data = route.name === "search"
     ? { search: await api(`/api/search?q=${encodeURIComponent(route.query)}&in=replies`) }
-    : { feed: await api("/api/posts") };
+    : { feed: await api("/api/posts" + (feedViewQuery(route.view) ? "?" + feedViewQuery(route.view) : "")) };
   if (version !== state.renderVersion) return;
   renderHome(context.session, context.setupRequired, context.setupConfigured, data, route);
 }
@@ -345,7 +349,9 @@ async function renderCategoryRoute(route, context, version) {
   // route wraps it in the exact { feed: ... } shape renderHomeRoute builds —
   // the feed routes stay structurally identical, and the shared
   // data.feed.* reads below are correct.
-  const data = { feed: await api("/api/posts?board=" + encodeURIComponent(board.slug)) };
+  const viewQuery = feedViewQuery(route.view);
+  const data = { feed: await api("/api/posts?board=" + encodeURIComponent(board.slug) +
+    (viewQuery ? "&" + viewQuery : "")) };
   if (version !== state.renderVersion) return;
   main.append(renderFeedTabs(board.slug));
   const user = context.session.user;
@@ -361,16 +367,19 @@ async function renderCategoryRoute(route, context, version) {
   addHeading(main, board.label, 2);
   addText(document, main, "p", board.blurb, "muted");
   if (board.slug === "showcase") renderShowcaseGallery();
+  // Feed views (wave 33): not on Suggestions, which keeps its vote order.
+  if (board.slug !== SUGGESTIONS_BOARD) main.append(createFeedViews(document, "/c/" + board.slug, route.view));
   appendPostList(main, data.feed.posts, document, user,
     board.slug === SUGGESTIONS_BOARD
       ? suggestionsEmptyText()
-      : t("feed.categoryEmpty", { board: board.label }));
+      : (feedViewEmptyText(route.view) || t("feed.categoryEmpty", { board: board.label })));
   if (!data.feed.nextBefore) return;
   const older = element("button", "button button-secondary", t("feed.loadOlderPosts"));
   older.type = "button";
   older.dataset.action = "load-more";
   older.dataset.before = String(data.feed.nextBefore);
   older.dataset.board = board.slug;
+  if (route.view) older.dataset.view = route.view;
   main.append(older);
 }
 
@@ -448,8 +457,11 @@ async function loadMorePosts(button) {
   // keep walking the same keyset they started on.
   const board = button.dataset.board;
   const mine = button.dataset.mine;
+  const view = button.dataset.view;
+  const viewQuery = feedViewQuery(view);
   const older = await api("/api/posts?before=" + button.dataset.before +
-    (board ? "&board=" + board : "") + (mine ? "&mine=" + mine : ""));
+    (board ? "&board=" + board : "") + (mine ? "&mine=" + mine : "") +
+    (viewQuery ? "&" + viewQuery : ""));
   appendPostList(main, older.posts, document, state.currentUser,
     board === SUGGESTIONS_BOARD ? suggestionsEmptyText() : undefined);
   button.remove();
@@ -461,6 +473,7 @@ async function loadMorePosts(button) {
   next.dataset.before = String(older.nextBefore);
   if (board) next.dataset.board = board;
   if (mine) next.dataset.mine = mine;
+  if (view) next.dataset.view = view;
   main.append(next);
 }
 
