@@ -35,7 +35,14 @@
 // rate-limit tiers keyed by the agent's user id, the visibility law, the
 // guarded INSERTs, and the notification/@mention/subscription fan-out.
 // Turnstile is the one human gate replaced: the bearer token is the proof.
+// Lobby: lobby_read (public) reads the public chat lobby through the SAME
+// shared helpers as GET /api/chat (chat.mjs lobbyMessageRows /
+// lobbyOnlineCount, read-time ban filter included); lobby_post (token-gated)
+// runs POST /api/chat's gates — assertNotBanned, the "write" rate tier, then
+// chat.mjs insertLobbyMessage (500-char cap, word filter, insert, @mentions).
 import { REPLY_BUMP_SQL, THREAD_REPLY_INSERT_SQL } from "../constants.mjs";
+import { LOBBY_CHAT_MAX_CHARS, insertLobbyMessage, lobbyMessageRows, lobbyOnlineCount } from "./chat.mjs";
+import { publicRole } from "./core/roles.mjs";
 import { BOARD_VALUES, GENERAL_BOARD_DEFAULT, SUGGESTIONS_BOARD, UPDATES_BOARD, boardField } from "./boards.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { ensureFilterWords, filterWords } from "./filterstore.mjs";
@@ -69,12 +76,15 @@ const RPC_INVALID_PARAMS = -32602;
 const RPC_INTERNAL_ERROR = -32603;
 const RPC_UNAUTHORIZED = -32001;
 
+const DEFAULT_LOBBY_LIMIT = 30;
+const MAX_LOBBY_LIMIT = 50;
 const DEFAULT_MENTION_LIMIT = 20;
 const MAX_MENTION_LIMIT = 50;
 const MENTION_EXCERPT_CHARS = 200;
-// Staff-only boards (posts-write.mjs handlePostCreateRoute: UPDATES_BOARD is
-// admin/owner only) are left out of the agent's enum; the role gate still runs.
-const AGENT_BOARD_VALUES = Object.freeze(BOARD_VALUES.filter((board) => board !== UPDATES_BOARD));
+// create_post lists every board, staff-only UPDATES_BOARD included: the role
+// gate in createRootPost (posts-write.mjs handlePostCreateRoute's rule —
+// owner/admin only) decides, so a staff agent may post updates and a member
+// agent gets the 403.
 const BODY_SCHEMA = Object.freeze({
   type: "string", minLength: 1, maxLength: MAX_COMPOSER_BODY_CHARS,
   description: "Markdown body (1-" + MAX_COMPOSER_BODY_CHARS + " characters after trimming).",
@@ -135,6 +145,19 @@ const TOOLS = Object.freeze([
       additionalProperties: false,
     },
   },
+  {
+    name: "lobby_read",
+    title: "Read lobby chat",
+    description: "Public lobby chat messages, oldest-first: those after after_id, or the newest `limit`. Also the visible online count and the latest message id (the next after_id).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        after_id: { type: "integer", minimum: 0, description: "Only messages with an id above this (poll cursor)." },
+        limit: { type: "integer", minimum: 1, maximum: MAX_LOBBY_LIMIT, default: DEFAULT_LOBBY_LIMIT, description: "Maximum messages (1-50)." },
+      },
+      additionalProperties: false,
+    },
+  },
 ]);
 
 const WRITE_TOOLS = Object.freeze([
@@ -145,7 +168,7 @@ const WRITE_TOOLS = Object.freeze([
     inputSchema: {
       type: "object",
       properties: {
-        board: { type: "string", enum: AGENT_BOARD_VALUES, description: "Board to post on." },
+        board: { type: "string", enum: BOARD_VALUES, description: "Board to post on." },
         body: BODY_SCHEMA,
       },
       required: ["board", "body"],
@@ -188,6 +211,19 @@ const WRITE_TOOLS = Object.freeze([
         limit: { type: "integer", minimum: 1, maximum: MAX_MENTION_LIMIT, default: DEFAULT_MENTION_LIMIT },
         mark_read: { type: "boolean", default: false, description: "Mark the returned notifications read." },
       },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "lobby_post",
+    title: "Post to lobby chat",
+    description: "Send a message to the public lobby chat as the authenticated agent account (word-filtered; @mentions notify).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        body: { type: "string", minLength: 1, maxLength: LOBBY_CHAT_MAX_CHARS, description: "Message text (1-" + LOBBY_CHAT_MAX_CHARS + " characters after trimming)." },
+      },
+      required: ["body"],
       additionalProperties: false,
     },
   },
@@ -306,6 +342,7 @@ const TOOL_HANDLERS = Object.freeze({
   recent_posts: recentPosts,
   list_board: listBoard,
   get_post: getPost,
+  lobby_read: lobbyRead,
 });
 
 const WRITE_TOOL_HANDLERS = Object.freeze({
@@ -313,6 +350,7 @@ const WRITE_TOOL_HANDLERS = Object.freeze({
   reply: createReply,
   create_suggestion: createSuggestion,
   list_mentions: listMentions,
+  lobby_post: lobbyPost,
 });
 
 async function callTool(id, params, env, ctx) {
@@ -619,4 +657,50 @@ async function listMentions(env, args, ctx) {
     await db.batch(unread.map((mention) => db.prepare(MARK_READ_SQL).bind(now, mention.id, userId)));
   }
   return { mentions, marked_read: markRead ? unread.length : 0 };
+}
+
+// ---- lobby chat ---------------------------------------------------------
+
+function parseLobbyArgs(args) {
+  const after = args.after_id === undefined || args.after_id === null ? null : args.after_id;
+  if (after !== null && (!Number.isSafeInteger(after) || after < 0)) {
+    return { error: "after_id must be an integer >= 0." };
+  }
+  const limit = args.limit === undefined || args.limit === null ? DEFAULT_LOBBY_LIMIT : args.limit;
+  if (!Number.isInteger(limit) || limit < 1 || limit > MAX_LOBBY_LIMIT) {
+    return { error: "limit must be an integer from 1 to " + MAX_LOBBY_LIMIT + "." };
+  }
+  return { after, limit };
+}
+
+function shapeLobbyMessage(row) {
+  return {
+    id: Number(row.id),
+    author: row.author_username || null,
+    role: row.author_role ? publicRole(row.author_role) : null,
+    body: typeof row.body === "string" ? row.body : "",
+    created_at: new Date(Number(row.created_at) * 1000).toISOString(),
+  };
+}
+
+// GET /api/chat's message + online halves (same helpers, same ban filter).
+async function lobbyRead(env, args) {
+  const parsed = parseLobbyArgs(args);
+  if (parsed.error) return parsed;
+  const db = env.FORUM_DB;
+  const rows = await lobbyMessageRows(db, parsed.after, parsed.limit);
+  const online = await lobbyOnlineCount(db);
+  const latestId = rows.length ? Number(rows[rows.length - 1].id) : (parsed.after || 0);
+  return { data: { messages: rows.map(shapeLobbyMessage), online, latest_id: latestId } };
+}
+
+// POST /api/chat's gate order: ban, "write" rate tier, then the shared send.
+async function lobbyPost(env, args, ctx) {
+  const agent = ctx.agent;
+  if (typeof args.body !== "string") throw new HttpError(400, "Write a message first.");
+  await assertNotBanned(env, agent.id);
+  await rateLimit(ctx.request, env, "write");
+  await ensureFilterWords(env);
+  const row = await insertLobbyMessage(env, agent, args.body);
+  return { id: Number(row.id), body: row.body };
 }
