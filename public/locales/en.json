@@ -842,5 +842,18 @@
   "settings.dataNote": "Download a copy of what you wrote and set here (profile, posts, replies, saved posts, followed threads, blocks, wall posts and the direct messages you sent) as a JSON file. It is only fetched when you press the button and goes straight to your device.",
   "settings.dataDownload": "Download my data",
   "settings.dataPreparing": "Preparing your file…",
-  "settings.dataReady": "Your data file is downloading."
+  "settings.dataReady": "Your data file is downloading.",
+  "format.summary": "Formatting help",
+  "format.bold": "Bold",
+  "format.italic": "Italic",
+  "format.strike": "Strikethrough",
+  "format.code": "Inline code",
+  "format.spoiler": "Spoiler (hidden until pressed)",
+  "format.link": "Link (http, https or a site path)",
+  "format.mention": "Mention a member",
+  "format.list": "Bullet list item (at line start)",
+  "format.quote": "Quote (at line start)",
+  "format.heading": "Heading (at line start)",
+  "format.codeBlock": "Code block (a line before and after)",
+  "format.note": "HTML and images stay as plain text."
 }

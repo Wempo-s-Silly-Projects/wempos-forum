@@ -842,5 +842,18 @@
   "settings.dataNote": "Télécharge une copie de ce que tu as écrit et réglé ici (profil, publications, réponses, publications enregistrées, fils suivis, blocages, messages de mur et les messages privés que tu as envoyés) sous forme de fichier JSON. Il n'est récupéré que lorsque tu appuies sur le bouton et arrive directement sur ton appareil.",
   "settings.dataDownload": "Télécharger mes données",
   "settings.dataPreparing": "Préparation de ton fichier…",
-  "settings.dataReady": "Ton fichier de données est en cours de téléchargement."
+  "settings.dataReady": "Ton fichier de données est en cours de téléchargement.",
+  "format.summary": "Aide à la mise en forme",
+  "format.bold": "Gras",
+  "format.italic": "Italique",
+  "format.strike": "Barré",
+  "format.code": "Code en ligne",
+  "format.spoiler": "Spoiler (masqué jusqu’au clic)",
+  "format.link": "Lien (http, https ou un chemin du site)",
+  "format.mention": "Mentionner un membre",
+  "format.list": "Élément de liste à puces (en début de ligne)",
+  "format.quote": "Citation (en début de ligne)",
+  "format.heading": "Titre (en début de ligne)",
+  "format.codeBlock": "Bloc de code (une ligne avant et une après)",
+  "format.note": "Le HTML et les images restent du texte brut."
 }

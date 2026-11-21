@@ -842,5 +842,18 @@
   "settings.dataNote": "ここで書いたものと設定した内容（プロフィール、投稿、返信、保存した投稿、フォロー中のスレッド、ブロック、ウォール投稿、あなたが送ったダイレクトメッセージ）のコピーを JSON ファイルとしてダウンロードします。ボタンを押したときだけ取得され、そのままあなたの端末に保存されます。",
   "settings.dataDownload": "データをダウンロード",
   "settings.dataPreparing": "ファイルを準備しています…",
-  "settings.dataReady": "データファイルをダウンロードしています。"
+  "settings.dataReady": "データファイルをダウンロードしています。",
+  "format.summary": "書式のヘルプ",
+  "format.bold": "太字",
+  "format.italic": "斜体",
+  "format.strike": "取り消し線",
+  "format.code": "インラインコード",
+  "format.spoiler": "ネタバレ（押すまで非表示）",
+  "format.link": "リンク（http、https、またはサイト内のパス）",
+  "format.mention": "メンバーをメンション",
+  "format.list": "箇条書きの項目（行頭）",
+  "format.quote": "引用（行頭）",
+  "format.heading": "見出し（行頭）",
+  "format.codeBlock": "コードブロック（前後に1行ずつ）",
+  "format.note": "HTMLと画像はそのままのテキストになります。"
 }

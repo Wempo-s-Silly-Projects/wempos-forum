@@ -842,5 +842,18 @@
   "settings.dataNote": "以 JSON 文件下载你在这里写下和设置的内容副本（个人资料、帖子、回复、收藏的帖子、关注的主题、屏蔽列表、留言墙帖子以及你发送的私信）。只有在你按下按钮时才会获取，并直接保存到你的设备。",
   "settings.dataDownload": "下载我的数据",
   "settings.dataPreparing": "正在准备文件…",
-  "settings.dataReady": "你的数据文件正在下载。"
+  "settings.dataReady": "你的数据文件正在下载。",
+  "format.summary": "格式帮助",
+  "format.bold": "粗体",
+  "format.italic": "斜体",
+  "format.strike": "删除线",
+  "format.code": "行内代码",
+  "format.spoiler": "剧透（点按前隐藏）",
+  "format.link": "链接（http、https 或站内路径）",
+  "format.mention": "提及成员",
+  "format.list": "项目符号列表项（行首）",
+  "format.quote": "引用（行首）",
+  "format.heading": "标题（行首）",
+  "format.codeBlock": "代码块（前后各一行）",
+  "format.note": "HTML 和图片会保留为纯文本。"
 }

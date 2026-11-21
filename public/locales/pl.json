@@ -842,5 +842,18 @@
   "settings.dataNote": "Pobierz kopię tego, co tu napisałeś i ustawiłeś (profil, posty, odpowiedzi, zapisane posty, obserwowane wątki, blokady, wpisy na tablicy i wysłane przez ciebie wiadomości prywatne) jako plik JSON. Jest pobierany dopiero po naciśnięciu przycisku i trafia prosto na twoje urządzenie.",
   "settings.dataDownload": "Pobierz moje dane",
   "settings.dataPreparing": "Przygotowywanie pliku…",
-  "settings.dataReady": "Twój plik z danymi jest pobierany."
+  "settings.dataReady": "Twój plik z danymi jest pobierany.",
+  "format.summary": "Pomoc w formatowaniu",
+  "format.bold": "Pogrubienie",
+  "format.italic": "Kursywa",
+  "format.strike": "Przekreślenie",
+  "format.code": "Kod w tekście",
+  "format.spoiler": "Spoiler (ukryty do kliknięcia)",
+  "format.link": "Link (http, https lub ścieżka w serwisie)",
+  "format.mention": "Wspomnij członka",
+  "format.list": "Element listy punktowanej (na początku wiersza)",
+  "format.quote": "Cytat (na początku wiersza)",
+  "format.heading": "Nagłówek (na początku wiersza)",
+  "format.codeBlock": "Blok kodu (wiersz przed i po)",
+  "format.note": "HTML i obrazy pozostają zwykłym tekstem."
 }

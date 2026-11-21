@@ -842,5 +842,18 @@
   "settings.dataNote": "Lade eine Kopie dessen herunter, was du hier geschrieben und eingestellt hast (Profil, Beiträge, Antworten, gespeicherte Beiträge, gefolgte Themen, Blockierungen, Pinnwandbeiträge und die Direktnachrichten, die du gesendet hast), als JSON-Datei. Sie wird erst abgerufen, wenn du auf die Schaltfläche drückst, und landet direkt auf deinem Gerät.",
   "settings.dataDownload": "Meine Daten herunterladen",
   "settings.dataPreparing": "Deine Datei wird vorbereitet…",
-  "settings.dataReady": "Deine Datendatei wird heruntergeladen."
+  "settings.dataReady": "Deine Datendatei wird heruntergeladen.",
+  "format.summary": "Formatierungshilfe",
+  "format.bold": "Fett",
+  "format.italic": "Kursiv",
+  "format.strike": "Durchgestrichen",
+  "format.code": "Code im Text",
+  "format.spoiler": "Spoiler (verborgen bis zum Antippen)",
+  "format.link": "Link (http, https oder ein Pfad der Seite)",
+  "format.mention": "Ein Mitglied erwähnen",
+  "format.list": "Aufzählungspunkt (am Zeilenanfang)",
+  "format.quote": "Zitat (am Zeilenanfang)",
+  "format.heading": "Überschrift (am Zeilenanfang)",
+  "format.codeBlock": "Codeblock (je eine Zeile davor und danach)",
+  "format.note": "HTML und Bilder bleiben reiner Text."
 }

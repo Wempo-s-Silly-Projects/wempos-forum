@@ -842,5 +842,18 @@
   "settings.dataNote": "Scarica una copia di ciò che hai scritto e impostato qui (profilo, post, risposte, post salvati, discussioni seguite, blocchi, post in bacheca e i messaggi diretti che hai inviato) come file JSON. Viene recuperato solo quando premi il pulsante e arriva direttamente sul tuo dispositivo.",
   "settings.dataDownload": "Scarica i miei dati",
   "settings.dataPreparing": "Preparazione del file…",
-  "settings.dataReady": "Il file dei tuoi dati è in download."
+  "settings.dataReady": "Il file dei tuoi dati è in download.",
+  "format.summary": "Guida alla formattazione",
+  "format.bold": "Grassetto",
+  "format.italic": "Corsivo",
+  "format.strike": "Barrato",
+  "format.code": "Codice in linea",
+  "format.spoiler": "Spoiler (nascosto finché non lo premi)",
+  "format.link": "Link (http, https o un percorso del sito)",
+  "format.mention": "Menziona un membro",
+  "format.list": "Voce di elenco puntato (a inizio riga)",
+  "format.quote": "Citazione (a inizio riga)",
+  "format.heading": "Titolo (a inizio riga)",
+  "format.codeBlock": "Blocco di codice (una riga prima e una dopo)",
+  "format.note": "HTML e immagini restano testo semplice."
 }

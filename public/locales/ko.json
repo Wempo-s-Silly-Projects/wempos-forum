@@ -842,5 +842,18 @@
   "settings.dataNote": "여기서 작성하고 설정한 내용(프로필, 게시물, 답글, 저장한 게시물, 팔로우한 스레드, 차단 목록, 담벼락 게시물, 내가 보낸 다이렉트 메시지)의 사본을 JSON 파일로 내려받습니다. 버튼을 누를 때만 가져오며 바로 내 기기로 저장됩니다.",
   "settings.dataDownload": "내 데이터 내려받기",
   "settings.dataPreparing": "파일을 준비하는 중…",
-  "settings.dataReady": "데이터 파일을 내려받는 중입니다."
+  "settings.dataReady": "데이터 파일을 내려받는 중입니다.",
+  "format.summary": "서식 도움말",
+  "format.bold": "굵게",
+  "format.italic": "기울임꼴",
+  "format.strike": "취소선",
+  "format.code": "인라인 코드",
+  "format.spoiler": "스포일러 (누르기 전까지 숨김)",
+  "format.link": "링크 (http, https 또는 사이트 경로)",
+  "format.mention": "회원 멘션",
+  "format.list": "글머리 기호 목록 항목 (줄 맨 앞)",
+  "format.quote": "인용 (줄 맨 앞)",
+  "format.heading": "제목 (줄 맨 앞)",
+  "format.codeBlock": "코드 블록 (앞뒤로 한 줄씩)",
+  "format.note": "HTML과 이미지는 일반 텍스트로 남습니다."
 }

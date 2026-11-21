@@ -18,6 +18,7 @@
 
 import { charsLeftLabel } from "./composer-limits.js";
 import { attachSubmitShortcut } from "./submit-shortcut.js";
+import { createFormatHelp } from "./format-help.js";
 
 export function createForm(document, name, fields, submitLabel) {
   const form = document.createElement("form");
@@ -96,7 +97,7 @@ export const createSelect = (document, { id, name = id, label, options, required
 
 export function createTextarea(document, {
   id, name = id, label, rows = 3, maxLength, required = false, description, counter = false, value,
-  submitShortcut = false,
+  submitShortcut = false, formatHelp = false,
 }) {
   const wrapper = document.createElement("div");
   wrapper.className = "form-field";
@@ -130,6 +131,8 @@ export function createTextarea(document, {
   }
   // Ctrl/Cmd+Enter posts (wave 19): forum composers opt in.
   if (submitShortcut) wrapper.append(attachSubmitShortcut(document, textarea));
+  // Formatting help (wave 23): the forum composers opt in.
+  if (formatHelp) wrapper.append(createFormatHelp(document));
   if (description) {
     const help = document.createElement("small");
     help.id = `${id}-description`;

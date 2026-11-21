@@ -842,5 +842,18 @@
   "settings.dataNote": "Download een kopie van wat je hier hebt geschreven en ingesteld (profiel, berichten, reacties, opgeslagen berichten, gevolgde topics, blokkades, prikbordberichten en de privéberichten die je hebt verstuurd) als JSON-bestand. Het wordt pas opgehaald als je op de knop drukt en gaat rechtstreeks naar je apparaat.",
   "settings.dataDownload": "Mijn gegevens downloaden",
   "settings.dataPreparing": "Je bestand wordt voorbereid…",
-  "settings.dataReady": "Je gegevensbestand wordt gedownload."
+  "settings.dataReady": "Je gegevensbestand wordt gedownload.",
+  "format.summary": "Hulp bij opmaak",
+  "format.bold": "Vet",
+  "format.italic": "Cursief",
+  "format.strike": "Doorgehaald",
+  "format.code": "Code in de tekst",
+  "format.spoiler": "Spoiler (verborgen tot je erop drukt)",
+  "format.link": "Link (http, https of een pad op de site)",
+  "format.mention": "Een lid vermelden",
+  "format.list": "Opsommingsitem (aan het begin van de regel)",
+  "format.quote": "Citaat (aan het begin van de regel)",
+  "format.heading": "Kop (aan het begin van de regel)",
+  "format.codeBlock": "Codeblok (een regel ervoor en erna)",
+  "format.note": "HTML en afbeeldingen blijven platte tekst."
 }

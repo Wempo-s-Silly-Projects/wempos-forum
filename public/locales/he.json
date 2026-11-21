@@ -842,5 +842,18 @@
   "settings.dataNote": "הורדת עותק של מה שכתבת והגדרת כאן (פרופיל, פוסטים, תגובות, פוסטים שמורים, שרשורים במעקב, חסימות, פוסטים בקיר וההודעות הפרטיות ששלחת) כקובץ JSON. הוא נשלף רק כשלוחצים על הכפתור ומגיע ישר למכשיר שלך.",
   "settings.dataDownload": "הורדת הנתונים שלי",
   "settings.dataPreparing": "מכינים את הקובץ…",
-  "settings.dataReady": "קובץ הנתונים שלך יורד."
+  "settings.dataReady": "קובץ הנתונים שלך יורד.",
+  "format.summary": "עזרה בעיצוב",
+  "format.bold": "מודגש",
+  "format.italic": "נטוי",
+  "format.strike": "קו חוצה",
+  "format.code": "קוד בתוך השורה",
+  "format.spoiler": "ספוילר (מוסתר עד הלחיצה)",
+  "format.link": "קישור (http‏, https או נתיב באתר)",
+  "format.mention": "אזכור חבר",
+  "format.list": "פריט ברשימת תבליטים (בתחילת שורה)",
+  "format.quote": "ציטוט (בתחילת שורה)",
+  "format.heading": "כותרת (בתחילת שורה)",
+  "format.codeBlock": "בלוק קוד (שורה לפניו ושורה אחריו)",
+  "format.note": "HTML ותמונות נשארים טקסט רגיל."
 }

@@ -3199,3 +3199,22 @@ mark.search-hit {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+/* Formatting help (wave 2026-11-21-23): a closed-by-default disclosure under
+   the forum composers. Tokens only, so both themes follow. */
+.format-help {
+  margin-block: 0.35rem 0.5rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.format-help > summary { cursor: pointer; width: fit-content; }
+.format-help-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 0.75rem;
+  margin: 0.5rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+}
+.format-help-list dt, .format-help-list dd { margin: 0; }
+.format-help-note { margin-block: 0.35rem 0; }
