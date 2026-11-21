@@ -402,7 +402,7 @@ function showBootBanScreen(error) {
 
 // Every other refused redeem (the audit's fix: no catch-all redirect) stops
 // the boot into the static can't-sign-in card. The Accounts link on it is
-// MANUAL — a burned ticket, a timed-out redeem, or a degraded relay can all
+// MANUAL — a burned ticket, or a a timed-out redeem can all
 // land here, and an automatic bounce would loop members cross-origin until a
 // rate limiter parks them; a person clicking the link chooses the retry.
 function showBootSignInCard() {
