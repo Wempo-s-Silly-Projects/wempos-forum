@@ -13,6 +13,16 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.19.0] - 2026-11-21
+
+### Added
+- You can now give your forum its own name, tagline and footer. Staff set
+  them on a new **Branding** page on the moderation desk, and the name shows
+  up in the header, the browser tab, the home page, two-factor app entries
+  and the pages written for search engines and agents. Empty boxes keep the
+  defaults, so wempos-forum.com looks exactly the same. See "Name your forum"
+  in [Running your own Wempo's Forum](docs/self-hosting.md).
+
 ## [5.18.0] - 2026-11-21
 
 ### Added
