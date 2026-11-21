@@ -1,7 +1,7 @@
 // v4.0 plan 4 Task 2 + the §4b door-swap: the auth concern is now only the
 // first-owner setup screens and the home route's guest access gate. The
 // password login/register forms are GONE — Wempo Accounts
-// (accounts.itswempo.workers.dev) is the one sign-in surface: the header's
+// (accounts.wempos-forum.com) is the one sign-in surface: the header's
 // Sign in link, the mobile bar's guest rung, and the home route's door panel
 // all point there, and a `?wt` ticket redeems at boot (sso.js, called from
 // app.js) before any route renders. No form here posts /api/login or
