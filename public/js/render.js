@@ -5,6 +5,7 @@ import { createTextarea } from "./forms.js";
 import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
 import { collapseWhitespace } from "./quotes.js";
 import { renderPollBlock } from "./polls.js";
+import { isBotUsername } from "./bots.js";
 
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
@@ -201,6 +202,10 @@ export const createPostCard = (post, document, currentUser = null) => {
       author.append(createElement(document, "span",
         "role-badge role-badge-" + post.author.role,
         post.author.role === "owner" ? "Owner" : "Admin"));
+    }
+    // Bot badge: trusted agent accounts (bots.js) are chipped "Bot".
+    if (isBotUsername(post.author.username)) {
+      author.append(createElement(document, "span", "role-badge role-badge-bot", "Bot"));
     }
     // Flair on cards (v3.0.1): the profile flair chip shown next to the name.
     if (post.author.flair) author.append(createElement(document, "span", "post-flair", post.author.flair));

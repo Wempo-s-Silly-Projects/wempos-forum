@@ -230,6 +230,21 @@ export async function persistStagedPostAttachments(db, postId, authorId, files, 
   }
 }
 
+// The guarded root-post INSERT, shared by the human create route below and
+// the MCP agent write path (api/mcp.mjs). visibilitySql is a fixed
+// server-owned SQL literal ("'public'" or "'hidden'"), never user input.
+// Bind order: author_id, body, created_at, last_activity_at, board,
+// idempotency_key, idempotency_fingerprint, staged_at, ban user_id, ban now,
+// archive-guard key, archive-guard author_id, archive-guard key.
+export function rootPostInsertSql(visibilitySql) {
+  return "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint, staged_at) " +
+    "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
+    "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
+    "AND (expires_at IS NULL OR expires_at > ?)) " +
+    "AND (? IS NULL OR NOT EXISTS (SELECT 1 FROM post_archive archived " +
+    "WHERE archived.author_id = ? AND archived.idempotency_key = ?))";
+}
+
 export async function handlePostCreateRoute(request, env, url, path, method, ctx) {
   const db = env.FORUM_DB;
   if (path === "/api/posts" && method === "POST") {
@@ -282,14 +297,7 @@ export async function handlePostCreateRoute(request, env, url, path, method, ctx
     const visibilitySql = hasAttachments ? "'hidden'" : "'public'";
     let result;
     try {
-      result = await db.prepare(
-        "INSERT INTO posts (author_id, parent_id, body, visibility, created_at, last_activity_at, board, idempotency_key, idempotency_fingerprint, staged_at) " +
-          "SELECT ?, NULL, ?, " + visibilitySql + ", ?, ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
-          "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
-          "AND (expires_at IS NULL OR expires_at > ?)) " +
-          "AND (? IS NULL OR NOT EXISTS (SELECT 1 FROM post_archive archived " +
-          "WHERE archived.author_id = ? AND archived.idempotency_key = ?))",
-      ).bind(session.user.id, message, now, now, board, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, session.user.id, now, idempotencyKey, session.user.id, idempotencyKey).run();
+      result = await db.prepare(rootPostInsertSql(visibilitySql)).bind(session.user.id, message, now, now, board, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, session.user.id, now, idempotencyKey, session.user.id, idempotencyKey).run();
     } catch (error) {
       await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
       const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
