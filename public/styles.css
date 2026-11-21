@@ -2673,3 +2673,40 @@ dialog h2 {
   background: var(--soft-green);
   color: var(--green-ink);
 }
+
+/* "New since your last visit" (wave 2026-11-21 F3): the divider, the chip on
+   fresh replies, and the jump button above the reply list. */
+.catch-up-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  color: var(--coral-dark);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.catch-up-divider::before,
+.catch-up-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 2px solid var(--coral);
+}
+
+.post-card.post-new {
+  box-shadow: inset 4px 0 0 var(--coral);
+}
+
+.new-chip {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--coral);
+  color: var(--paper);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.catch-up-jump {
+  margin: 0 0 10px;
+}

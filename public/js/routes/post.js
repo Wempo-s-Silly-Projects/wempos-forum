@@ -37,6 +37,7 @@ import {
 import { createComposer } from "./composer.js";
 import { prefillQuote } from "../quotes.js";
 import { renderTurnstileSlots } from "../turnstile.js";
+import { applyCatchUp } from "../catch-up.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -44,14 +45,17 @@ async function renderPostRoute(route, context, version) {
   addHeading(main, "Conversation", 1);
   main.append(createPostCard(post, document, context.session.user));
   addHeading(main, "Replies", 2);
+  let replyList = null;
   if (post.replies.length) {
-    const replyList = element("div", "post-list replies-list");
+    replyList = element("div", "post-list replies-list");
     replyList.dataset.repliesFor = String(post.id);
     for (const reply of post.replies) replyList.append(createPostCard(reply, document, context.session.user));
     main.append(replyList);
   } else {
     addText(document, main, "p", "No replies yet!", "empty-state");
   }
+  // "New since your last visit" (wave 2026-11-21): local read marks only.
+  applyCatchUp(document, post.id, post.replies, replyList);
   if (post.repliesNextBefore) {
     const olderReplies = element("button", "button button-secondary", "Load older replies");
     olderReplies.type = "button";

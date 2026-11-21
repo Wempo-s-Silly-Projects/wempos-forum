@@ -1,0 +1,118 @@
+// Copyright 2026 ItsWempo
+//
+// This file is part of Wempo's Forum.
+//
+// Wempo's Forum is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
+
+// "New since your last visit" (wave 2026-11-21 F3): the thread page remembers,
+// in this browser only, the highest reply id the member has seen per thread.
+// Coming back, replies above that mark get a "New" chip, a divider marks where
+// they left off, and a jump button scrolls there. The server never learns what
+// anyone has read (limit collection, not access). First visit marks nothing.
+// Storage failures fall back to "no markers" — never an error.
+
+export const CATCH_UP_STORAGE_KEY = "forum-seen-replies";
+export const CATCH_UP_MAX_THREADS = 300;
+
+const isPlainObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+
+export function readSeenMap(storage) {
+  try {
+    const raw = storage ? storage.getItem(CATCH_UP_STORAGE_KEY) : null;
+    const parsed = raw ? JSON.parse(raw) : null;
+    return isPlainObject(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+export function writeSeenMap(storage, map) {
+  try {
+    storage?.setItem(CATCH_UP_STORAGE_KEY, JSON.stringify(map));
+  } catch {
+    // Quota or blocked storage: markers just won't persist.
+  }
+}
+
+export function lastSeenFor(map, threadId) {
+  const entry = isPlainObject(map) ? map[String(threadId)] : null;
+  return entry && Number.isFinite(entry.id) ? entry.id : null;
+}
+
+// Reply ids above the mark, in the given order; none on a first visit.
+export function newReplyIds(replies, lastSeen) {
+  if (lastSeen === null || lastSeen === undefined) return [];
+  return (Array.isArray(replies) ? replies : [])
+    .map((reply) => Number(reply?.id))
+    .filter((id) => Number.isFinite(id) && id > lastSeen);
+}
+
+// Returns a NEW map with the thread's mark raised (never lowered) and stamped
+// at `now`; beyond the cap the least recently seen threads are dropped.
+export function recordSeen(map, threadId, maxId, now = Date.now()) {
+  const key = String(threadId);
+  const previous = lastSeenFor(map, key);
+  const id = Math.max(Number(maxId) || 0, previous ?? 0);
+  const next = { ...(isPlainObject(map) ? map : {}), [key]: { id, at: now } };
+  const keys = Object.keys(next);
+  if (keys.length <= CATCH_UP_MAX_THREADS) return next;
+  const kept = keys
+    .sort((a, b) => (Number(next[b].at) || 0) - (Number(next[a].at) || 0))
+    .slice(0, CATCH_UP_MAX_THREADS);
+  return Object.fromEntries(kept.map((k) => [k, next[k]]));
+}
+
+const browserStorage = () => {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+};
+
+// Paints the markers onto an already-rendered reply list, then records the
+// visit. `replyList` may be null (no replies yet) — the visit still counts, so
+// the first reply after it shows as new next time.
+export function applyCatchUp(document, threadId, replies, replyList, storage = browserStorage()) {
+  const map = readSeenMap(storage);
+  const freshIds = newReplyIds(replies, lastSeenFor(map, threadId));
+  const ids = (Array.isArray(replies) ? replies : []).map((reply) => Number(reply?.id) || 0);
+  writeSeenMap(storage, recordSeen(map, threadId, Math.max(0, ...ids)));
+  if (!replyList || freshIds.length === 0) return;
+  const fresh = new Set(freshIds);
+  const cards = [...replyList.children].filter((card) => fresh.has(Number(card.dataset.postId)));
+  if (cards.length === 0) return;
+  for (const card of cards) {
+    card.classList.add("post-new");
+    const chip = document.createElement("span");
+    chip.className = "new-chip";
+    chip.textContent = "New";
+    (card.querySelector(".post-header") ?? card).append(chip);
+  }
+  const divider = document.createElement("div");
+  divider.className = "catch-up-divider";
+  divider.setAttribute("role", "separator");
+  divider.textContent = "New since your last visit";
+  cards[0].before(divider);
+  const jump = document.createElement("button");
+  jump.type = "button";
+  jump.className = "button button-secondary catch-up-jump";
+  jump.textContent = cards.length === 1 ? "Jump to 1 new reply" : "Jump to " + cards.length + " new replies";
+  jump.addEventListener("click", () => {
+    divider.scrollIntoView({ behavior: "smooth", block: "start" });
+    cards[0].focus?.({ preventScroll: true });
+  });
+  replyList.before(jump);
+}
