@@ -480,6 +480,7 @@
   "feed.signInSaved": "سجّل الدخول لرؤية منشوراتك المحفوظة.",
   "feed.squareCorners": "زوايا مربعة",
   "feed.startThreadIn": "ابدأ موضوعًا في {board}",
+  "feed.suggestionRank": "المرتبة {rank} حسب الأصوات",
   "feed.subscribed": "ستصلك إشعارات بالردود هنا.",
   "feed.suggestionDeclined": "تم تعليم الاقتراح كمرفوض.",
   "feed.suggestionReopened": "أُعيد فتح الاقتراح.",

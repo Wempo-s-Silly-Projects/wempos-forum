@@ -480,6 +480,7 @@
   "feed.signInSaved": "अपनी सेव की गई पोस्ट देखने के लिए साइन इन करें।",
   "feed.squareCorners": "चौकोर कोने",
   "feed.startThreadIn": "{board} में थ्रेड शुरू करें",
+  "feed.suggestionRank": "वोटों के अनुसार स्थान {rank}",
   "feed.subscribed": "यहाँ आने वाले जवाबों के नोटिफ़िकेशन आपको मिलेंगे।",
   "feed.suggestionDeclined": "सुझाव को 'नामंज़ूर' मार्क किया गया।",
   "feed.suggestionReopened": "सुझाव फिर से खोला गया।",

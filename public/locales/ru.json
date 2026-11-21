@@ -480,6 +480,7 @@
   "feed.signInSaved": "Войди, чтобы увидеть сохранённые посты.",
   "feed.squareCorners": "Квадратные углы",
   "feed.startThreadIn": "Начать тему в разделе {board}",
+  "feed.suggestionRank": "Место {rank} по голосам",
   "feed.subscribed": "Ты будешь получать уведомления об ответах здесь.",
   "feed.suggestionDeclined": "Предложение отмечено как отклонённое.",
   "feed.suggestionReopened": "Предложение снова открыто.",

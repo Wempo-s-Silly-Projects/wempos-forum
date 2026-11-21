@@ -480,6 +480,7 @@
   "feed.signInSaved": "Entre para ver seus posts salvos.",
   "feed.squareCorners": "Cantos retos",
   "feed.startThreadIn": "Crie um tópico em {board}",
+  "feed.suggestionRank": "Posição {rank} por votos",
   "feed.subscribed": "Você vai receber notificações das respostas aqui.",
   "feed.suggestionDeclined": "Sugestão marcada como recusada.",
   "feed.suggestionReopened": "Sugestão reaberta.",

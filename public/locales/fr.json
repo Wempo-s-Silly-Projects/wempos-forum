@@ -480,6 +480,7 @@
   "feed.signInSaved": "Connecte-toi pour voir tes posts enregistrés.",
   "feed.squareCorners": "Coins carrés",
   "feed.startThreadIn": "Lancer une discussion dans {board}",
+  "feed.suggestionRank": "Rang {rank} selon les votes",
   "feed.subscribed": "Tu recevras des notifications pour les réponses ici.",
   "feed.suggestionDeclined": "Suggestion marquée comme refusée.",
   "feed.suggestionReopened": "Suggestion rouverte.",

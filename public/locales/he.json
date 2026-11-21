@@ -480,6 +480,7 @@
   "feed.signInSaved": "התחברו כדי לראות את הפוסטים השמורים שלכם.",
   "feed.squareCorners": "פינות מרובעות",
   "feed.startThreadIn": "פתיחת שרשור ב־{board}",
+  "feed.suggestionRank": "מקום {rank} לפי הצבעות",
   "feed.subscribed": "תקבלו התראות על תגובות כאן.",
   "feed.suggestionDeclined": "ההצעה סומנה כנדחתה.",
   "feed.suggestionReopened": "ההצעה נפתחה מחדש.",

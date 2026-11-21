@@ -480,6 +480,7 @@
   "feed.signInSaved": "Sign in to see your saved posts.",
   "feed.squareCorners": "Square corners",
   "feed.startThreadIn": "Start a thread in {board}",
+  "feed.suggestionRank": "Rank {rank} by votes",
   "feed.subscribed": "You will get notifications for replies here.",
   "feed.suggestionDeclined": "Suggestion marked declined.",
   "feed.suggestionReopened": "Suggestion reopened.",

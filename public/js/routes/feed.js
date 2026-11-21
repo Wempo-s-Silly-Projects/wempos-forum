@@ -51,6 +51,7 @@ import { addSectionAnchors, createSettingsFilter } from "../settings-tools.js";
 import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
 import { renderNewcomerCards } from "../newcomer.js";
 import { createFeedViews, feedViewEmptyText, feedViewQuery } from "../feed-views.js";
+import { numberSuggestionCards } from "../suggestion-rank.js";
 
 // Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
 // its composer tags root posts with board=suggestions (form dataset flag read
@@ -373,6 +374,8 @@ async function renderCategoryRoute(route, context, version) {
     board.slug === SUGGESTIONS_BOARD
       ? suggestionsEmptyText()
       : (feedViewEmptyText(route.view) || t("feed.categoryEmpty", { board: board.label })));
+  // Suggestion rank (wave 34): each card shows its place in the vote order.
+  if (board.slug === SUGGESTIONS_BOARD) numberSuggestionCards(document, main);
   if (!data.feed.nextBefore) return;
   const older = element("button", "button button-secondary", t("feed.loadOlderPosts"));
   older.type = "button";
@@ -464,6 +467,7 @@ async function loadMorePosts(button) {
     (viewQuery ? "&" + viewQuery : ""));
   appendPostList(main, older.posts, document, state.currentUser,
     board === SUGGESTIONS_BOARD ? suggestionsEmptyText() : undefined);
+  if (board === SUGGESTIONS_BOARD) numberSuggestionCards(document, main);
   button.remove();
   if (older.posts.length !== 20 || !older.nextBefore) return;
   const next = element("button", "button button-secondary",

@@ -480,6 +480,7 @@
   "feed.signInSaved": "Inicia sesión para ver tus publicaciones guardadas.",
   "feed.squareCorners": "Esquinas rectas",
   "feed.startThreadIn": "Inicia un hilo en {board}",
+  "feed.suggestionRank": "Puesto {rank} por votos",
   "feed.subscribed": "Recibirás notificaciones de las respuestas aquí.",
   "feed.suggestionDeclined": "Sugerencia marcada como rechazada.",
   "feed.suggestionReopened": "Sugerencia reabierta.",

@@ -2035,6 +2035,14 @@ mark.search-hit {
 }
 .suggestion-badge-resolved { color: var(--green-ink); border-color: var(--green-ink); }
 .suggestion-badge-declined { color: #b3261e; border-color: #b3261e; }
+/* Suggestion rank (wave 34): the card's place in the vote order, leading
+   the author row on the Suggestions board. */
+.suggestion-rank {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
 
 /* Live chat + online presence (v3.1): the header's count chip and the
    slide-over panel. The panel is fixed to the right edge, above the mobile
