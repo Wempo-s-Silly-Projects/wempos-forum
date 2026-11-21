@@ -441,7 +441,9 @@ export const ACTIONS = {
     await state.renderRoute(state.activeRoute);
     setMessage(button.dataset.status === "open"
       ? t("feed.suggestionReopened")
-      : t("feed.suggestionMarked", { status: button.dataset.status }));
+      : button.dataset.status === "declined"
+        ? t("feed.suggestionDeclined")
+        : t("feed.suggestionResolved"));
   },
   "presence-invisible": async (button) => {
     // One handler for both arms (dataset.invisible picks 0/1 as a boolean per
