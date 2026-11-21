@@ -44,6 +44,7 @@ import { maskSpoilers } from "../markdown.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
+import { createTextSizePicker } from "../text-size.js";
 
 // Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
 // its composer tags root posts with board=suggestions (form dataset flag read
@@ -111,6 +112,13 @@ function renderAccountSettings(session) {
     try { window.localStorage.setItem("forum-corners", square ? "square" : "round"); } catch {}
     document.documentElement.dataset.corners = square ? "square" : "round";
   });
+  // Appearance panel (wave 2026-11-21-4): the corners checkbox and the
+  // reader text size, both stored only in this browser.
+  const appearance = createPanel(t("feed.appearanceTitle"), t("feed.appearanceNote"));
+  let storage = null;
+  try { storage = window.localStorage; } catch {}
+  appearance.append(corners, createTextSizePicker(document, storage));
+  account.append(appearance);
 
   const passwordPanel = createPanel(t("feed.changePasswordTitle"), t("feed.changePasswordNote"));
   passwordPanel.append(createForm(document, "password", [
