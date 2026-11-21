@@ -34,7 +34,7 @@ import { publicUser, userById } from "./core/shapers.mjs";
 // exactly the 32 bytes accounts' login issues, 64 hex characters.
 const SSO_CODE_PATTERN = /^[0-9a-f]{64}$/i;
 
-// The one shared refusal copy — an expired code, a relay refusal, a degraded
+// The one shared refusal copy — an expired code, a degraded
 // binding, and an unknown member all answer the same 401, exactly like the
 // login route's uniform invalid-credentials 401.
 const SSO_REFUSED = "That sign-in link has expired. Sign in again.";
