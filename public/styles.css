@@ -1778,6 +1778,8 @@ dialog h2 {
 }
 .role-badge-owner { color: #8d690f; border-color: #8d690f; }
 .role-badge-admin { color: var(--green-ink); }
+/* Thread-author chip (wave 2026-11-21-7): the starter's own replies. */
+.role-badge-op { color: var(--muted); text-transform: none; }
 
 /* Suggestion status (v3.1): resolved/declined chips on suggestion roots.
    Same pill shape as the role badges; resolved reads the soft green ink,
@@ -2895,9 +2897,25 @@ dialog h2 {
 }
 
 /* Copy link (wave 2026-11-21-4): the brief "Link copied" status rides
-   inside the icon button. */
+   beside the icon button (wave 7: moved out so it is announced). */
+.copy-link-wrap {
+  display: inline-flex;
+  align-items: center;
+}
 .copy-link-status {
   margin-inline-start: 0.35rem;
   font-size: 0.85rem;
   white-space: nowrap;
 }
+
+/* Read aloud (wave 2026-11-21-7): the toggle plus its polite status; the
+   status stays mounted (empty) so screen readers announce it. */
+.read-aloud {
+  display: inline-flex;
+  align-items: center;
+}
+.read-aloud-status {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.read-aloud-button[aria-pressed="true"] { color: var(--green-ink); }

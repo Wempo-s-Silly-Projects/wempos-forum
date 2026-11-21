@@ -92,8 +92,10 @@ test("revealing drops the button semantics; click, Enter and Space reveal", () =
   assert.match(direct.className, /spoiler-revealed/);
   assert.equal(direct.getAttribute("role"), null);
   assert.equal(direct.getAttribute("aria-label"), null);
-  assert.equal(direct.getAttribute("tabindex"), null);
-  assert.equal(direct.getAttribute("aria-expanded"), "true");
+  // Wave 7 a11y: tabindex -1 keeps keyboard focus in place after a reveal,
+  // and aria-expanded leaves with the button role.
+  assert.equal(direct.getAttribute("tabindex"), "-1");
+  assert.equal(direct.getAttribute("aria-expanded"), null);
   const clicked = spoilersIn(parseInline(fakeDocument, "||b||"))[0];
   clicked.dispatch("click");
   assert.match(clicked.className, /spoiler-revealed/);

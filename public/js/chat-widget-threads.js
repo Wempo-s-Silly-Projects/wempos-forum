@@ -117,6 +117,8 @@ export const paintThreadList = () => {
   const rows = sortPinnedFirst(filterConversations(allRows, ui.listFilter, rowLabel).sort((a, b) =>
     String(b.lastMessageAt || "").localeCompare(String(a.lastMessageAt || ""))), pins, conversationKey);
   if (rows.length === 0) ui.threadListEl.append(el("p", "chat-widget-empty", t("chat.noFilterMatch")));
+  // Screen readers hear an emptied filter through the status beside the input.
+  if (ui.filterStatusEl) ui.filterStatusEl.textContent = rows.length === 0 ? t("chat.noFilterMatch") : "";
   for (const thread of rows) {
     const row = el("button", "chat-widget-thread");
     row.type = "button";
@@ -165,7 +167,13 @@ export const buildListFilter = () => {
     ui.listFilter = input.value;
     paintThreadList();
   });
-  return input;
+  // A polite status mounted empty beside the input (outside the repainted
+  // rows) so "No chats match" is announced, not just painted.
+  const wrap = el("div", "chat-widget-filter-wrap");
+  ui.filterStatusEl = el("span", "visually-hidden");
+  ui.filterStatusEl.setAttribute("role", "status");
+  wrap.append(input, ui.filterStatusEl);
+  return wrap;
 };
 
 const previewOf = (thread) => {

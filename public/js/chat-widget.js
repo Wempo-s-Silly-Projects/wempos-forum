@@ -143,7 +143,7 @@ const openPanel = async () => {
   const lobbyTab = el("button", "chat-widget-tab", t("chat.tabLobby"));
   lobbyTab.type = "button";
   lobbyTab.dataset.widgetTab = "lobby";
-  lobbyTab.setAttribute("aria-selected", "false");
+  lobbyTab.setAttribute("aria-pressed", "false");
   lobbyTab.hidden = true;
   lobbyTab.addEventListener("click", () => {
     showTab("lobby");
@@ -151,7 +151,7 @@ const openPanel = async () => {
   const dmsTab = el("button", "chat-widget-tab", t("chat.tabDms"));
   dmsTab.type = "button";
   dmsTab.dataset.widgetTab = "dms";
-  dmsTab.setAttribute("aria-selected", "false");
+  dmsTab.setAttribute("aria-pressed", "false");
   dmsTab.addEventListener("click", () => {
     showTab("dms");
   });
@@ -183,6 +183,16 @@ const openPanel = async () => {
   ui.lobbyEl = buildLobby();
   panel.append(head, ui.listSideEl, ui.conversationEl, ui.lobbyEl);
   document.body.append(panel);
+  // Keyboard reach (wave 7 a11y): focus lands in the panel on open, Escape
+  // closes it (unless an inner picker already handled the key), and
+  // closePanel hands focus back to the launcher.
+  panel.setAttribute("tabindex", "-1");
+  panel.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || event.defaultPrevented) return;
+    event.preventDefault();
+    closePanel();
+  });
+  panel.focus();
   // Session identity (mine rows, the staff delete arm) rides one probe per
   // open; a failure just drops the perks, never the stream.
   ui.widgetUser = await api("/api/session")
@@ -221,7 +231,9 @@ const closePanel = () => {
   panelTimer = null;
   clearInterval(lobbyTimer);
   lobbyTimer = null;
+  const focusWasInside = panel.contains(document.activeElement);
   panel.remove();
+  if (focusWasInside && launcher) launcher.focus();
   panel = null;
   ui.threadListEl = null;
   ui.conversationEl = null;
@@ -238,6 +250,7 @@ const closePanel = () => {
   ui.dmGifPicker = null;
   ui.lastPainted = { key: null, maxId: 0 };
   ui.listFilter = "";
+  ui.filterStatusEl = null;
 };
 
 // The tab switcher: the Lobby stream and the DMs pair are mutually exclusive
@@ -251,8 +264,8 @@ const showTab = (nextTab) => {
   const showLobby = nextTab === "lobby";
   const lobbyTab = panel.querySelector('[data-widget-tab="lobby"]');
   const dmsTab = panel.querySelector('[data-widget-tab="dms"]');
-  if (lobbyTab) lobbyTab.setAttribute("aria-selected", String(showLobby));
-  if (dmsTab) dmsTab.setAttribute("aria-selected", String(!showLobby));
+  if (lobbyTab) lobbyTab.setAttribute("aria-pressed", String(showLobby));
+  if (dmsTab) dmsTab.setAttribute("aria-pressed", String(!showLobby));
   if (ui.lobbyEl) ui.lobbyEl.hidden = !showLobby;
   if (ui.listSideEl) ui.listSideEl.hidden = showLobby || Boolean(ui.activeThread);
   if (ui.conversationEl) ui.conversationEl.hidden = showLobby || !ui.activeThread;

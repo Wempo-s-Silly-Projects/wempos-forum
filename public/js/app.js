@@ -151,6 +151,7 @@ import {
 // routes/blocks.js (rendered into the account area by routes/feed.js, like
 // the two-factor section); its Unblock action merges here.
 import { ACTIONS as blockActions } from "./routes/blocks.js";
+import { stopReadAloud } from "./read-aloud.js";
 
 async function prepareRouteContext(version) {
   const [session, setup] = await Promise.all([
@@ -201,6 +202,8 @@ function renderNotFoundRoute() {
 
 async function renderRoute(route) {
   const version = ++state.renderVersion;
+  // Read aloud (wave 2026-11-21-7): speech never outlives the page it read.
+  stopReadAloud();
   state.activeRoute = route;
   main.classList.toggle("home-page", route.name === "home");
   // Profile themes (v2.5): main outlives routes — a member's accent class

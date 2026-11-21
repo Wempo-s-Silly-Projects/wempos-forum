@@ -39,6 +39,7 @@ export const ui = {
   // and the chat list's quick-filter text (cleared on close).
   dmUnread: null,
   listFilter: "",
+  filterStatusEl: null,
   activeThread: null,
   conversation: null, // GET /api/dm/threads/:id result for activeThread
   open: false,

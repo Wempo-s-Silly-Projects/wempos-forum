@@ -17,6 +17,7 @@
 // see <https://www.gnu.org/licenses/>.
 
 import { t, tn } from "./i18n.js";
+import { jumpToNode } from "./focus-utils.js";
 // Thread at a glance (wave 2026-11-21 F4): a compact strip above a thread's
 // replies — how many people are talking, an estimated read time, and a jump to
 // the most-liked reply. Computed only from the posts already on the page (the
@@ -58,6 +59,7 @@ export function summarizeThread(root, replies) {
 export function createThreadGlance(document, summary, scope) {
   const strip = document.createElement("div");
   strip.className = "thread-glance";
+  strip.setAttribute("role", "group");
   strip.setAttribute("aria-label", t("glance.label"));
   const facts = [
     tn("glance.people", summary.participants),
@@ -79,7 +81,7 @@ export function createThreadGlance(document, summary, scope) {
     jump.addEventListener("click", () => {
       const card = scope?.querySelector('[data-post-id="' + Number(summary.topReply.id) + '"]');
       if (!card) return;
-      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      jumpToNode(card, { block: "center" });
       card.classList.add("post-spotlight");
       setTimeout(() => card.classList.remove("post-spotlight"), 1600);
     });

@@ -21,6 +21,7 @@
 // the 5s repaint), and the single-flight text, GIF and image sends.
 import { api } from "./api.js";
 import { t } from "./i18n.js";
+import { focusSelector, restoreFocus } from "./focus-utils.js";
 import { MAX_PINNED_CHATS, isPinned, readPins, togglePin, writePins } from "./chat-pins.js";
 import {
   buildGroupManage, buildImageButton, conversationBase, groupTitle, uploadDmImage,
@@ -124,6 +125,9 @@ export const paintConversation = () => {
   const sameAsBefore = ui.composerEl?.dataset.threadId === conversationKey(ui.conversation);
   const manageWasOpen = sameAsBefore && Boolean(ui.conversationEl.querySelector(".chat-widget-group-manage")?.open);
   const addDraft = sameAsBefore ? ui.conversationEl.querySelector(".chat-widget-group-add-input")?.value || "" : "";
+  // Keyboard focus (pin toggle, add-member input, remove buttons, an empty
+  // composer) survives the repaint too — same conversation only.
+  const keptFocus = sameAsBefore ? focusSelector(ui.conversationEl, document.activeElement) : null;
   ui.conversationEl.replaceChildren();
   const back = el("button", "chat-widget-back");
   back.type = "button";
@@ -232,6 +236,7 @@ export const paintConversation = () => {
   ui.conversationEl.append(composer);
   ui.conversationEl.hidden = false;
   if (ui.listSideEl) ui.listSideEl.hidden = true;
+  restoreFocus(ui.conversationEl, keptFocus);
 };
 
 const sendMessage = () => sendDmBody(ui.composerEl ? ui.composerEl.value.trim() : "", { clearComposer: true });

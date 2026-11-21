@@ -56,7 +56,7 @@ export const messageBodyNode = (className, body, { dm = false, authorName = "" }
   node.classList.add("chat-gif-body");
   const img = el("img", "chat-gif");
   img.src = "/api/gifs/" + encodeURIComponent(gifId);
-  img.alt = "GIF";
+  img.alt = t("chat.gifAlt");
   img.loading = "lazy";
   img.decoding = "async";
   img.addEventListener("error", () => {
@@ -134,6 +134,7 @@ export const buildGifPicker = (onPick) => {
   });
   grid.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
+    event.preventDefault(); // handled here: the panel's own Escape stays put
     closeGrid();
     toggle.focus();
   });

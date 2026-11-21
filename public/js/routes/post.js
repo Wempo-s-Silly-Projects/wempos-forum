@@ -40,6 +40,7 @@ import { prefillQuote } from "../quotes.js";
 import { renderTurnstileSlots } from "../turnstile.js";
 import { applyCatchUp } from "../catch-up.js";
 import { createThreadGlance, summarizeThread } from "../thread-glance.js";
+import { markThreadStarterReplies, threadStarterId } from "../thread-starter.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -57,6 +58,10 @@ async function renderPostRoute(route, context, version) {
     replyList.dataset.repliesFor = String(post.id);
     for (const reply of post.replies) replyList.append(createPostCard(reply, document, context.session.user));
     main.append(replyList);
+    // Thread-author chip (wave 2026-11-21-7 F2): the starter's own replies.
+    const starterId = threadStarterId(post);
+    if (starterId) replyList.dataset.starterId = String(starterId);
+    markThreadStarterReplies(document, replyList, post.replies, starterId);
   } else {
     addText(document, main, "p", t("post.noReplies"), "empty-state");
   }
@@ -139,6 +144,8 @@ async function toggleSubReplies(button) {
     const container = createSubReplyContainer(postId, page.replies, document, state.currentUser);
     const article = main.querySelector(`article[data-post-id="${postId}"]`);
     if (article) article.after(container);
+    const starterId = Number(main.querySelector(".replies-list")?.dataset.starterId);
+    markThreadStarterReplies(document, container, page.replies, starterId);
     button.dataset.replyCount = String(page.replies.length);
     button.setAttribute("aria-expanded", "true");
     if (page.replies.length) button.textContent = tn("post.hideReplies", page.replies.length);
@@ -210,6 +217,7 @@ async function loadOlderReplies(button) {
   const fragment = document.createDocumentFragment();
   for (const reply of older.replies) fragment.append(createPostCard(reply, document, state.currentUser));
   replyList.prepend(fragment);
+  markThreadStarterReplies(document, replyList, older.replies, Number(replyList.dataset.starterId));
   if (older.nextBefore) button.dataset.before = String(older.nextBefore);
   else button.remove();
 }
