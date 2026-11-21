@@ -1,0 +1,9 @@
+# Paths Semgrep skips. A .semgrepignore replaces Semgrep's built-in defaults,
+# so the usual dependency and build paths are listed here too.
+node_modules/
+.git/
+.wrangler/
+coverage/
+# Vendored code, kept byte-for-byte as upstream ships it.
+api/vendor/
+public/js/vendor/
