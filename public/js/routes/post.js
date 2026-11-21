@@ -44,6 +44,7 @@ import { markThreadStarterReplies, threadStarterId } from "../thread-starter.js"
 import { bindPostKeys, createPostKeysHint } from "../post-keys.js";
 import { createFirstPostJump, createLatestReplyJump, createMyReplyJump } from "../latest-reply.js";
 import { addReplyFolds } from "../reply-fold.js";
+import { openLightbox } from "../lightbox.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -216,17 +217,12 @@ function quoteIntoComposer(button) {
 }
 
 // Click-to-expand attachments (micro-batch): the strip caps render size with
-// CSS, but the stored bytes are full-size — the lightbox just swaps in the
-// same versioned URL uncapped (capped only by the viewport in CSS). The
-// native <dialog> supplies Escape and focus handling for free; a click
-// anywhere on the dialog or its backdrop closes it (wired once at load).
+// CSS, but the stored bytes are full-size — the lightbox swaps in the same
+// versioned URL uncapped. Wave 21 moved the viewer into lightbox.js (close
+// and previous/next buttons, counter, arrow keys within this post's strip,
+// focus back to the last-viewed thumbnail).
 function openAttachmentLightbox(button) {
-  const stripImage = button.querySelector("img.post-attachment");
-  if (!stripImage || !attachmentLightbox) return;
-  const fullImage = attachmentLightbox.querySelector("img");
-  if (!fullImage) return;
-  fullImage.src = stripImage.src;
-  attachmentLightbox.showModal();
+  openLightbox(attachmentLightbox, button);
 }
 async function loadOlderReplies(button) {
   const postId = button.dataset.postId;

@@ -29,6 +29,7 @@ import { clearAllDrafts } from "../drafts.js";
 import { clearAllCatchUp } from "../catch-up.js";
 import { clearAllNewcomer } from "../newcomer.js";
 import { clearAllPins } from "../chat-pins.js";
+import { clearAllRecents } from "../gallery-picks.js";
 import { createNotificationBell } from "../notifications.js";
 // The §4b door-swap: every auth link (header Sign in, mobile guest rung)
 // targets Wempo Accounts with an origin-only return; logout hands the browser
@@ -271,6 +272,7 @@ export const ACTIONS = {
     clearAllCatchUp();
     clearAllNewcomer();
     clearAllPins();
+    clearAllRecents();
 
     setCsrfToken("");
     window.location.assign(wempoAccountsSignOutUrl());

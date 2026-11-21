@@ -30,7 +30,6 @@ import {
 // v4.0 plan 4 Task 1: the shell singletons + panel helpers live in dom.js.
 import {
   addHeading,
-  attachmentLightbox,
   clearConfirmHandler,
   confirmDialog,
   confirmBlock,
@@ -378,9 +377,8 @@ async function handleClick(event) {
   }
 }
 document.addEventListener("click", handleClick);
-// The attachment lightbox closes on any click inside it (image included) or on
-// its backdrop; Escape is native to <dialog>.
-attachmentLightbox?.addEventListener("click", () => attachmentLightbox.close());
+// The attachment lightbox wires its own close/step listeners on first open
+// (lightbox.js, wave 21); Escape is native to <dialog>.
 // Composer file inputs: folder/picker selections are folded into the form's
 // chosen list at change time (cap + size messages surface on the status bar).
 document.addEventListener("change", (event) => {

@@ -123,6 +123,15 @@
         <button class="button button-secondary" type="button" data-action="choose-gif-upload" data-i18n="shell.galleryUpload">Upload an image for review</button>
         <span class="form-note" data-i18n="shell.galleryFormats">GIF, JPEG, PNG, or WebP, up to 10 MiB.</span>
       </div>
+      <!-- Wave 21: sort + this account's recently used images (local-only). -->
+      <label class="gif-sort-label"><span data-i18n="shell.gallerySort">Sort</span>
+        <select id="gif-sort">
+          <option value="newest" data-i18n="shell.gallerySortNewest">Newest</option>
+          <option value="popular" data-i18n="shell.gallerySortPopular">Most used</option>
+        </select>
+      </label>
+      <h3 id="gif-recents-title" class="gif-recents-title" hidden data-i18n="shell.galleryRecent">Recently used</h3>
+      <div id="gif-recents" class="gif-grid gif-recents" role="listbox" aria-labelledby="gif-recents-title" hidden></div>
       <div id="gif-grid" class="gif-grid" role="listbox" aria-label="Gallery uploads" data-i18n-aria-label="shell.galleryUploads"></div>
       <div class="gif-picker-foot">
         <button class="button" type="button" data-action="confirm-gif-picker" data-i18n="shell.galleryInsert">Insert selected</button>

@@ -1111,6 +1111,69 @@ dialog h2 {
   max-height: calc(100dvh - 2rem);
 }
 
+/* Image viewer controls (wave 2026-11-21-21 F1): overlaid on the image,
+   logical sides so right-to-left pages mirror them. The fade-in only runs
+   when the reader has not asked for reduced motion. */
+.attachment-lightbox::backdrop {
+  background: rgb(0 0 0 / 0.78);
+}
+.lightbox-close,
+.lightbox-step {
+  position: absolute;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  border: 2px solid var(--paper);
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.6);
+  color: var(--paper);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.lightbox-close:focus-visible,
+.lightbox-step:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+.lightbox-close {
+  inset-block-start: 0.5rem;
+  inset-inline-end: 0.5rem;
+}
+.lightbox-step {
+  inset-block-start: 50%;
+  translate: 0 -50%;
+}
+.lightbox-previous { inset-inline-start: 0.5rem; }
+.lightbox-next { inset-inline-end: 0.5rem; }
+.lightbox-step:dir(rtl) { scale: -1 1; }
+.lightbox-step[hidden],
+.lightbox-counter[hidden] { display: none; }
+.lightbox-step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.lightbox-counter {
+  position: absolute;
+  inset-block-end: 0.5rem;
+  inset-inline: 0;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.6);
+  color: var(--paper);
+  font-size: 0.9rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .attachment-lightbox[open] img {
+    animation: lightbox-fade 160ms ease-out;
+  }
+}
+@keyframes lightbox-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .composer-attach-row {
   display: flex;
   flex-direction: column;
@@ -1674,6 +1737,22 @@ dialog h2 {
 .gif-picker-foot {
   text-align: end;
 }
+/* Wave 21: gallery sort + recently used row. */
+.gif-sort-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-block: 0.4rem;
+}
+.gif-recents-title {
+  margin-block: 0.4rem 0;
+  font-size: 1rem;
+}
+.gif-recents {
+  max-height: 11rem;
+}
+.gif-recents[hidden],
+.gif-recents-title[hidden] { display: none; }
 .gif-thumbs {
   display: inline-flex;
   gap: 0.4rem;
