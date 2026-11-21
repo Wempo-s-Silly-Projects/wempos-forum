@@ -22,8 +22,8 @@ import { makeEnv } from "./helpers/d1.mjs";
 import { call, now, seedPost, seedUser, sha256 } from "./helpers/seed.mjs";
 
 const TOKEN = "agent-token-for-tests-ABCDEFGHIJ0123456789";
-const READ_TOOLS = ["search_posts", "recent_posts", "list_board", "get_post"];
-const WRITE_TOOLS = ["create_post", "reply", "create_suggestion", "list_mentions"];
+const READ_TOOLS = ["search_posts", "recent_posts", "list_board", "get_post", "lobby_read"];
+const WRITE_TOOLS = ["create_post", "reply", "create_suggestion", "list_mentions", "lobby_post"];
 const bodies = [];
 let env;
 let claudeId;
@@ -75,7 +75,7 @@ test("initialize falls back to the default protocol version for an unknown one",
   assert.equal(json.result.protocolVersion, "2025-06-18");
 });
 
-test("tools/list: 4 anonymous, 8 with a valid bearer, 4 with a wrong token", async () => {
+test("tools/list: 5 anonymous, 10 with a valid bearer, 5 with a wrong token", async () => {
   const names = async (token) => (await rpc({ jsonrpc: "2.0", id: 3, method: "tools/list" }, { token })).json.result.tools.map((t) => t.name);
   assert.deepEqual(await names(null), READ_TOOLS);
   assert.deepEqual(await names(TOKEN), [...READ_TOOLS, ...WRITE_TOOLS]);
@@ -84,7 +84,7 @@ test("tools/list: 4 anonymous, 8 with a valid bearer, 4 with a wrong token", asy
 
 test("every write tool without a token answers -32001 and inserts nothing", async () => {
   const before = postCount();
-  const args = { create_post: { board: "general", body: "x" }, reply: { post_id: publicRoot, body: "x" }, create_suggestion: { body: "x" }, list_mentions: {} };
+  const args = { create_post: { board: "general", body: "x" }, reply: { post_id: publicRoot, body: "x" }, create_suggestion: { body: "x" }, list_mentions: {}, lobby_post: { body: "x" } };
   for (const name of WRITE_TOOLS) {
     for (const token of [null, "wrong-token-but-long-enough-1234"]) {
       const { json } = await tool(10, name, args[name], token);
