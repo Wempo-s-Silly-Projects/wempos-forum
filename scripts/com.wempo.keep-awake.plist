@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!--
+This file is part of Wempo's Forum, Copyright 2026 ItsWempo. Wempo's Forum is
+free software: you can redistribute it and/or modify it under the terms of
+the GNU Affero General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero
+General Public License for more details, and see
+https://www.gnu.org/licenses/ for a full copy.
+-->
+<dict>
+    <key>Label</key>
+    <string>com.wempo.keep-awake</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/caffeinate</string>
+        <string>-dims</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+</dict>
+</plist>
