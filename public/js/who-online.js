@@ -26,6 +26,7 @@
 // boot and every 60s after, sleeping while document.hidden.
 import { api, setCsrfToken } from "./api.js";
 import { i18nReady, t } from "./i18n.js";
+import { paintRosterGroups } from "./who-online-groups.js";
 
 const ROSTER_REFRESH_MS = 60_000;
 const BEACON_INTERVAL_MS = 60_000;
@@ -63,17 +64,8 @@ const probeSession = async () => {
 
 const paintRoster = (online) => {
   if (!card || !listEl || !countEl) return;
-  listEl.replaceChildren();
-  for (const member of online.slice(0, ROSTER_NAME_MAX)) {
-    const name = member.username || "";
-    if (!name) continue;
-    const link = el("a", "who-online-name", name);
-    link.href = profileHref(name);
-    link.setAttribute("data-app-link", "");
-    listEl.append(link);
-  }
-  const overflow = online.length - ROSTER_NAME_MAX;
-  if (overflow > 0) listEl.append(el("span", "who-online-more", t("online.more", { count: overflow })));
+  // Wave 36: grouped by role (Staff, Members) with a count on each heading.
+  paintRosterGroups(document, listEl, online, ROSTER_NAME_MAX, profileHref);
   countEl.textContent = String(online.length);
   card.hidden = false;
 };
