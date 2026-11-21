@@ -913,5 +913,10 @@
   "capsGuard.notice": "Tekst je uglavnom velikim slovima, što može da deluje kao vikanje.",
   "capsGuard.fix": "Smanji velika slova",
   "capsGuard.lowered": "Velika slova su smanjena.",
-  "capsGuard.undo": "Opozovi"
+  "capsGuard.undo": "Opozovi",
+  "replyFilter.label": "Filtriraj odgovore",
+  "replyFilter.placeholder": "Prikaži samo odgovore koji pominju…",
+  "replyFilter.clear": "Obriši",
+  "replyFilter.matches.one": "{count} od {total} odgovora se poklapa",
+  "replyFilter.matches.other": "{count} od {total} odgovora se poklapa"
 }

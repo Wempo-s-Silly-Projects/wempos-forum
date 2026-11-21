@@ -913,5 +913,10 @@
   "capsGuard.notice": "معظم النص بأحرف كبيرة، وقد يبدو كأنه صراخ.",
   "capsGuard.fix": "خفّض الأحرف الكبيرة",
   "capsGuard.lowered": "تم تخفيض الأحرف الكبيرة.",
-  "capsGuard.undo": "تراجع"
+  "capsGuard.undo": "تراجع",
+  "replyFilter.label": "تصفية الردود",
+  "replyFilter.placeholder": "اعرض فقط الردود التي تذكر…",
+  "replyFilter.clear": "مسح",
+  "replyFilter.matches.one": "{count} من {total} ردود يطابق",
+  "replyFilter.matches.other": "الردود المطابقة: {count} من {total}"
 }

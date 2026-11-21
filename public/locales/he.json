@@ -913,5 +913,10 @@
   "capsGuard.notice": "רוב הטקסט באותיות גדולות, וזה עלול להיראות כמו צעקה.",
   "capsGuard.fix": "הקטן את האותיות הגדולות",
   "capsGuard.lowered": "האותיות הגדולות הוקטנו.",
-  "capsGuard.undo": "ביטול"
+  "capsGuard.undo": "ביטול",
+  "replyFilter.label": "סינון תגובות",
+  "replyFilter.placeholder": "הצג רק תגובות שמזכירות…",
+  "replyFilter.clear": "ניקוי",
+  "replyFilter.matches.one": "{count} מתוך {total} תגובות תואמת",
+  "replyFilter.matches.other": "{count} מתוך {total} תגובות תואמות"
 }

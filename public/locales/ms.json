@@ -913,5 +913,10 @@
   "capsGuard.notice": "Kebanyakannya huruf besar, yang boleh kedengaran seperti menjerit.",
   "capsGuard.fix": "Kecilkan huruf besar",
   "capsGuard.lowered": "Huruf besar telah dikecilkan.",
-  "capsGuard.undo": "Buat asal"
+  "capsGuard.undo": "Buat asal",
+  "replyFilter.label": "Tapis balasan",
+  "replyFilter.placeholder": "Tunjukkan hanya balasan yang menyebut…",
+  "replyFilter.clear": "Kosongkan",
+  "replyFilter.matches.one": "{count} daripada {total} balasan sepadan",
+  "replyFilter.matches.other": "{count} daripada {total} balasan sepadan"
 }

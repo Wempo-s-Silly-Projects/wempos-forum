@@ -913,5 +913,10 @@
   "capsGuard.notice": "Sebagian besar ditulis dengan huruf kapital, yang bisa terkesan berteriak.",
   "capsGuard.fix": "Kecilkan huruf kapital",
   "capsGuard.lowered": "Huruf kapital sudah dikecilkan.",
-  "capsGuard.undo": "Urungkan"
+  "capsGuard.undo": "Urungkan",
+  "replyFilter.label": "Saring balasan",
+  "replyFilter.placeholder": "Tampilkan hanya balasan yang menyebut…",
+  "replyFilter.clear": "Bersihkan",
+  "replyFilter.matches.one": "{count} dari {total} balasan cocok",
+  "replyFilter.matches.other": "{count} dari {total} balasan cocok"
 }

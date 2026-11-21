@@ -913,5 +913,10 @@
   "capsGuard.notice": "Halos puro malalaking titik ito, na puwedeng magmukhang sumisigaw.",
   "capsGuard.fix": "Ibaba ang malalaking titik",
   "capsGuard.lowered": "Naibaba na ang malalaking titik.",
-  "capsGuard.undo": "I-undo"
+  "capsGuard.undo": "I-undo",
+  "replyFilter.label": "I-filter ang mga sagot",
+  "replyFilter.placeholder": "Ipakita lang ang mga sagot na bumabanggit ng…",
+  "replyFilter.clear": "I-clear",
+  "replyFilter.matches.one": "{count} sa {total} sagot ang tugma",
+  "replyFilter.matches.other": "{count} sa {total} sagot ang tugma"
 }

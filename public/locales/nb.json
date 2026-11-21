@@ -913,5 +913,10 @@
   "capsGuard.notice": "Det er mest store bokstaver, og det kan virke som roping.",
   "capsGuard.fix": "Gjør bokstavene små",
   "capsGuard.lowered": "Store bokstaver gjort små.",
-  "capsGuard.undo": "Angre"
+  "capsGuard.undo": "Angre",
+  "replyFilter.label": "Filtrer svar",
+  "replyFilter.placeholder": "Vis bare svar som nevner…",
+  "replyFilter.clear": "Tøm",
+  "replyFilter.matches.one": "{count} av {total} svar passer",
+  "replyFilter.matches.other": "{count} av {total} svar passer"
 }

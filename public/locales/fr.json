@@ -913,5 +913,10 @@
   "capsGuard.notice": "C'est presque tout en majuscules, ce qui peut sembler crié.",
   "capsGuard.fix": "Baisser les majuscules",
   "capsGuard.lowered": "Majuscules baissées.",
-  "capsGuard.undo": "Annuler"
+  "capsGuard.undo": "Annuler",
+  "replyFilter.label": "Filtrer les réponses",
+  "replyFilter.placeholder": "N'afficher que les réponses qui mentionnent…",
+  "replyFilter.clear": "Effacer",
+  "replyFilter.matches.one": "{count} réponse sur {total} correspond",
+  "replyFilter.matches.other": "{count} réponses sur {total} correspondent"
 }

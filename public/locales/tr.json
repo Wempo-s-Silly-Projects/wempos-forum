@@ -913,5 +913,10 @@
   "capsGuard.notice": "Metin çoğunlukla büyük harf; bu bağırıyormuş gibi okunabilir.",
   "capsGuard.fix": "Büyük harfleri küçült",
   "capsGuard.lowered": "Büyük harfler küçültüldü.",
-  "capsGuard.undo": "Geri al"
+  "capsGuard.undo": "Geri al",
+  "replyFilter.label": "Yanıtları süz",
+  "replyFilter.placeholder": "Yalnızca şunu anan yanıtları göster…",
+  "replyFilter.clear": "Temizle",
+  "replyFilter.matches.one": "{total} yanıttan {count} tanesi eşleşiyor",
+  "replyFilter.matches.other": "{total} yanıttan {count} tanesi eşleşiyor"
 }

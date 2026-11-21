@@ -913,5 +913,10 @@
   "capsGuard.notice": "بیشتر متن با حروف بزرگ است و ممکن است مثل فریاد به نظر برسد.",
   "capsGuard.fix": "حروف بزرگ را کوچک کن",
   "capsGuard.lowered": "حروف بزرگ کوچک شد.",
-  "capsGuard.undo": "واگرد"
+  "capsGuard.undo": "واگرد",
+  "replyFilter.label": "فیلتر پاسخ‌ها",
+  "replyFilter.placeholder": "فقط پاسخ‌هایی را نشان بده که اشاره می‌کنند به…",
+  "replyFilter.clear": "پاک کردن",
+  "replyFilter.matches.one": "{count} از {total} پاسخ مطابقت دارد",
+  "replyFilter.matches.other": "{count} از {total} پاسخ مطابقت دارند"
 }

@@ -913,5 +913,10 @@
   "capsGuard.notice": "Això és gairebé tot en majúscules, i pot semblar que cridis.",
   "capsGuard.fix": "Baixa les majúscules",
   "capsGuard.lowered": "Majúscules rebaixades.",
-  "capsGuard.undo": "Desfés"
+  "capsGuard.undo": "Desfés",
+  "replyFilter.label": "Filtra les respostes",
+  "replyFilter.placeholder": "Mostra només les respostes que esmentin…",
+  "replyFilter.clear": "Esborra",
+  "replyFilter.matches.one": "{count} de {total} respostes coincideix",
+  "replyFilter.matches.other": "{count} de {total} respostes coincideixen"
 }

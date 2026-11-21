@@ -913,5 +913,10 @@
   "capsGuard.notice": "Ez szinte csupa nagybetű, ami kiabálásnak tűnhet.",
   "capsGuard.fix": "Nagybetűk kisbetűsítése",
   "capsGuard.lowered": "A nagybetűk kisbetűsítve.",
-  "capsGuard.undo": "Visszavonás"
+  "capsGuard.undo": "Visszavonás",
+  "replyFilter.label": "Válaszok szűrése",
+  "replyFilter.placeholder": "Csak azokat a válaszokat mutasd, amelyek említik…",
+  "replyFilter.clear": "Törlés",
+  "replyFilter.matches.one": "{total} válaszból {count} egyezik",
+  "replyFilter.matches.other": "{total} válaszból {count} egyezik"
 }

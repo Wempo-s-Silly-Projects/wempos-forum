@@ -3434,3 +3434,9 @@ mark.search-hit {
 /* v5.5 caps guard: the quiet "reads as shouting" note under a composer. */
 .caps-guard { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-block: 0.3rem; color: var(--muted); font-size: 0.85rem; }
 .caps-guard[hidden], .caps-guard [hidden] { display: none; }
+/* v5.5 filter replies (page view only). */
+.reply-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0 0 0.5rem; }
+.reply-filter-input { flex: 1 1 12rem; min-width: 0; max-width: 24rem; }
+.reply-filter-status { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 0.85rem; }
+.reply-filter [hidden] { display: none; }
+.replies-list > [data-filtered-out] { display: none; }

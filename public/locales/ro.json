@@ -913,5 +913,10 @@
   "capsGuard.notice": "Textul este mai ales cu majuscule, ceea ce poate părea strigat.",
   "capsGuard.fix": "Coboară majusculele",
   "capsGuard.lowered": "Majusculele au fost coborâte.",
-  "capsGuard.undo": "Anulează"
+  "capsGuard.undo": "Anulează",
+  "replyFilter.label": "Filtrează răspunsurile",
+  "replyFilter.placeholder": "Arată doar răspunsurile care menționează…",
+  "replyFilter.clear": "Golește",
+  "replyFilter.matches.one": "{count} din {total} răspunsuri se potrivește",
+  "replyFilter.matches.other": "{count} din {total} răspunsuri se potrivesc"
 }

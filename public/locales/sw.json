@@ -913,5 +913,10 @@
   "capsGuard.notice": "Sehemu kubwa ni herufi kubwa, jambo linaloweza kusomeka kama kupiga kelele.",
   "capsGuard.fix": "Punguza herufi kubwa",
   "capsGuard.lowered": "Herufi kubwa zimepunguzwa.",
-  "capsGuard.undo": "Tendua"
+  "capsGuard.undo": "Tendua",
+  "replyFilter.label": "Chuja majibu",
+  "replyFilter.placeholder": "Onyesha tu majibu yanayotaja…",
+  "replyFilter.clear": "Futa",
+  "replyFilter.matches.one": "Jibu {count} kati ya {total} linalingana",
+  "replyFilter.matches.other": "Majibu {count} kati ya {total} yanalingana"
 }

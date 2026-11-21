@@ -913,5 +913,10 @@
   "capsGuard.notice": "That's mostly capital letters, which can read as shouting.",
   "capsGuard.fix": "Lower the caps",
   "capsGuard.lowered": "Caps lowered.",
-  "capsGuard.undo": "Undo"
+  "capsGuard.undo": "Undo",
+  "replyFilter.label": "Filter replies",
+  "replyFilter.placeholder": "Show only replies that mention…",
+  "replyFilter.clear": "Clear",
+  "replyFilter.matches.one": "{count} of {total} replies matches",
+  "replyFilter.matches.other": "{count} of {total} replies match"
 }

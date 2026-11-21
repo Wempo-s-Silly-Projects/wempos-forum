@@ -913,5 +913,10 @@
   "capsGuard.notice": "Phần lớn là chữ in hoa, có thể trông như đang hét.",
   "capsGuard.fix": "Hạ chữ in hoa",
   "capsGuard.lowered": "Đã hạ chữ in hoa.",
-  "capsGuard.undo": "Hoàn tác"
+  "capsGuard.undo": "Hoàn tác",
+  "replyFilter.label": "Lọc trả lời",
+  "replyFilter.placeholder": "Chỉ hiện các trả lời có nhắc đến…",
+  "replyFilter.clear": "Xóa",
+  "replyFilter.matches.one": "{count} trên {total} trả lời khớp",
+  "replyFilter.matches.other": "{count} trên {total} trả lời khớp"
 }

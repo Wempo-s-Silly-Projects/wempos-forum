@@ -913,5 +913,10 @@
   "capsGuard.notice": "Teksti on enimmäkseen isoilla kirjaimilla, ja se voi kuulostaa huutamiselta.",
   "capsGuard.fix": "Pienennä isot kirjaimet",
   "capsGuard.lowered": "Isot kirjaimet pienennetty.",
-  "capsGuard.undo": "Kumoa"
+  "capsGuard.undo": "Kumoa",
+  "replyFilter.label": "Suodata vastauksia",
+  "replyFilter.placeholder": "Näytä vain vastaukset, joissa mainitaan…",
+  "replyFilter.clear": "Tyhjennä",
+  "replyFilter.matches.one": "{count}/{total} vastauksesta täsmää",
+  "replyFilter.matches.other": "{count}/{total} vastauksesta täsmää"
 }

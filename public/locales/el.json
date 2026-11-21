@@ -913,5 +913,10 @@
   "capsGuard.notice": "Είναι κυρίως κεφαλαία γράμματα, που μπορεί να μοιάζουν με φωνές.",
   "capsGuard.fix": "Κάνε τα κεφαλαία πεζά",
   "capsGuard.lowered": "Τα κεφαλαία έγιναν πεζά.",
-  "capsGuard.undo": "Αναίρεση"
+  "capsGuard.undo": "Αναίρεση",
+  "replyFilter.label": "Φιλτράρισμα απαντήσεων",
+  "replyFilter.placeholder": "Εμφάνιση μόνο απαντήσεων που αναφέρουν…",
+  "replyFilter.clear": "Καθαρισμός",
+  "replyFilter.matches.one": "{count} από {total} απαντήσεις ταιριάζει",
+  "replyFilter.matches.other": "{count} από {total} απαντήσεις ταιριάζουν"
 }

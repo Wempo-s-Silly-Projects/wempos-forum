@@ -913,5 +913,10 @@
   "capsGuard.notice": "Това е предимно с главни букви и може да звучи като крясък.",
   "capsGuard.fix": "Смали главните букви",
   "capsGuard.lowered": "Главните букви са смалени.",
-  "capsGuard.undo": "Отмяна"
+  "capsGuard.undo": "Отмяна",
+  "replyFilter.label": "Филтрирай отговорите",
+  "replyFilter.placeholder": "Покажи само отговорите, които споменават…",
+  "replyFilter.clear": "Изчисти",
+  "replyFilter.matches.one": "{count} от {total} отговора съвпада",
+  "replyFilter.matches.other": "{count} от {total} отговора съвпадат"
 }

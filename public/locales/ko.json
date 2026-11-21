@@ -913,5 +913,10 @@
   "capsGuard.notice": "대부분 대문자라서 소리치는 것처럼 보일 수 있어요.",
   "capsGuard.fix": "대문자 낮추기",
   "capsGuard.lowered": "대문자를 낮췄어요.",
-  "capsGuard.undo": "실행 취소"
+  "capsGuard.undo": "실행 취소",
+  "replyFilter.label": "답글 필터",
+  "replyFilter.placeholder": "다음을 언급한 답글만 보기…",
+  "replyFilter.clear": "지우기",
+  "replyFilter.matches.one": "답글 {total}개 중 {count}개 일치",
+  "replyFilter.matches.other": "답글 {total}개 중 {count}개 일치"
 }

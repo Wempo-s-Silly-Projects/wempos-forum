@@ -913,5 +913,10 @@
   "capsGuard.notice": "È quasi tutto in maiuscolo, e può sembrare che tu stia urlando.",
   "capsGuard.fix": "Abbassa le maiuscole",
   "capsGuard.lowered": "Maiuscole abbassate.",
-  "capsGuard.undo": "Annulla"
+  "capsGuard.undo": "Annulla",
+  "replyFilter.label": "Filtra le risposte",
+  "replyFilter.placeholder": "Mostra solo le risposte che citano…",
+  "replyFilter.clear": "Cancella",
+  "replyFilter.matches.one": "{count} risposta su {total} corrisponde",
+  "replyFilter.matches.other": "{count} risposte su {total} corrispondono"
 }

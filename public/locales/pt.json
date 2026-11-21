@@ -913,5 +913,10 @@
   "capsGuard.notice": "Está quase tudo em maiúsculas, o que pode parecer um grito.",
   "capsGuard.fix": "Baixar as maiúsculas",
   "capsGuard.lowered": "Maiúsculas baixadas.",
-  "capsGuard.undo": "Desfazer"
+  "capsGuard.undo": "Desfazer",
+  "replyFilter.label": "Filtrar respostas",
+  "replyFilter.placeholder": "Mostrar só respostas que mencionem…",
+  "replyFilter.clear": "Limpar",
+  "replyFilter.matches.one": "{count} de {total} respostas corresponde",
+  "replyFilter.matches.other": "{count} de {total} respostas correspondem"
 }

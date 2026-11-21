@@ -913,5 +913,10 @@
   "capsGuard.notice": "Текст почти весь заглавными буквами — это может выглядеть как крик.",
   "capsGuard.fix": "Убрать заглавные",
   "capsGuard.lowered": "Заглавные буквы убраны.",
-  "capsGuard.undo": "Отменить"
+  "capsGuard.undo": "Отменить",
+  "replyFilter.label": "Фильтр ответов",
+  "replyFilter.placeholder": "Показывать только ответы, где упоминается…",
+  "replyFilter.clear": "Очистить",
+  "replyFilter.matches.one": "Совпадает {count} из {total} ответов",
+  "replyFilter.matches.other": "Совпадений: {count} из {total} ответов"
 }

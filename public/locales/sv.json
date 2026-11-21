@@ -913,5 +913,10 @@
   "capsGuard.notice": "Det är mest versaler, och det kan läsas som att du skriker.",
   "capsGuard.fix": "Gör om till gemener",
   "capsGuard.lowered": "Versalerna är borta.",
-  "capsGuard.undo": "Ångra"
+  "capsGuard.undo": "Ångra",
+  "replyFilter.label": "Filtrera svar",
+  "replyFilter.placeholder": "Visa bara svar som nämner…",
+  "replyFilter.clear": "Rensa",
+  "replyFilter.matches.one": "{count} av {total} svar matchar",
+  "replyFilter.matches.other": "{count} av {total} svar matchar"
 }

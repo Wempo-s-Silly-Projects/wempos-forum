@@ -48,6 +48,7 @@ import {
   createFirstPostJump, createLatestReplyJump, createMyReplyJump, createNextAuthorReplyJump,
 } from "../latest-reply.js";
 import { addReplyFolds, createFoldAllToggle, ensureFoldAllToggle } from "../reply-fold.js";
+import { createReplyFilter, refreshReplyFilter } from "../reply-filter.js";
 import { selectedQuoteText } from "../quote-selection.js";
 import { openLightbox } from "../lightbox.js";
 
@@ -84,6 +85,9 @@ async function renderPostRoute(route, context, version) {
     // Fold all replies (wave 2026-11-21-22 F2): long threads only.
     const foldAll = createFoldAllToggle(document, replyList, knownReplyTotal(post));
     if (foldAll) main.append(foldAll);
+    // Filter replies (wave 5.5 F2): page view only, nothing stored or sent.
+    const replyFilter = createReplyFilter(document, replyList, knownReplyTotal(post));
+    if (replyFilter) main.append(replyFilter);
     main.append(replyList);
     // Thread-author chip (wave 2026-11-21-7 F2): the starter's own replies.
     if (starterId) replyList.dataset.starterId = String(starterId);
@@ -256,6 +260,7 @@ async function loadOlderReplies(button) {
   markThreadStarterReplies(document, replyList, older.replies, Number(replyList.dataset.starterId));
   addReplyFolds(document, replyList);
   ensureFoldAllToggle(document, replyList);
+  refreshReplyFilter(replyList);
   if (older.nextBefore) button.dataset.before = String(older.nextBefore);
   else button.remove();
 }

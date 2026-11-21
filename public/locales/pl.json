@@ -913,5 +913,10 @@
   "capsGuard.notice": "Tekst jest głównie wielkimi literami, co może wyglądać na krzyk.",
   "capsGuard.fix": "Zmniejsz wielkie litery",
   "capsGuard.lowered": "Wielkie litery zmniejszone.",
-  "capsGuard.undo": "Cofnij"
+  "capsGuard.undo": "Cofnij",
+  "replyFilter.label": "Filtruj odpowiedzi",
+  "replyFilter.placeholder": "Pokaż tylko odpowiedzi, które wspominają…",
+  "replyFilter.clear": "Wyczyść",
+  "replyFilter.matches.one": "Pasuje {count} z {total} odpowiedzi",
+  "replyFilter.matches.other": "Pasuje {count} z {total} odpowiedzi"
 }

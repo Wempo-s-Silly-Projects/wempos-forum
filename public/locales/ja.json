@@ -913,5 +913,10 @@
   "capsGuard.notice": "ほとんどが大文字なので、叫んでいるように見えるかもしれません。",
   "capsGuard.fix": "大文字を小文字に直す",
   "capsGuard.lowered": "大文字を直しました。",
-  "capsGuard.undo": "元に戻す"
+  "capsGuard.undo": "元に戻す",
+  "replyFilter.label": "返信を絞り込む",
+  "replyFilter.placeholder": "次を含む返信だけを表示…",
+  "replyFilter.clear": "クリア",
+  "replyFilter.matches.one": "{total} 件中 {count} 件の返信が一致",
+  "replyFilter.matches.other": "{total} 件中 {count} 件の返信が一致"
 }

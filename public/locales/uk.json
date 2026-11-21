@@ -913,5 +913,10 @@
   "capsGuard.notice": "Текст майже весь великими літерами — це може виглядати як крик.",
   "capsGuard.fix": "Прибрати великі літери",
   "capsGuard.lowered": "Великі літери прибрано.",
-  "capsGuard.undo": "Скасувати"
+  "capsGuard.undo": "Скасувати",
+  "replyFilter.label": "Фільтр відповідей",
+  "replyFilter.placeholder": "Показувати лише відповіді, де згадується…",
+  "replyFilter.clear": "Очистити",
+  "replyFilter.matches.one": "Збігається {count} з {total} відповідей",
+  "replyFilter.matches.other": "Збігів: {count} з {total} відповідей"
 }

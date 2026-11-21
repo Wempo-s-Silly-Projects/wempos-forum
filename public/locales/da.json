@@ -913,5 +913,10 @@
   "capsGuard.notice": "Det er mest store bogstaver, og det kan virke som råb.",
   "capsGuard.fix": "Gør bogstaverne små",
   "capsGuard.lowered": "Store bogstaver gjort små.",
-  "capsGuard.undo": "Fortryd"
+  "capsGuard.undo": "Fortryd",
+  "replyFilter.label": "Filtrér svar",
+  "replyFilter.placeholder": "Vis kun svar, der nævner…",
+  "replyFilter.clear": "Ryd",
+  "replyFilter.matches.one": "{count} af {total} svar passer",
+  "replyFilter.matches.other": "{count} af {total} svar passer"
 }

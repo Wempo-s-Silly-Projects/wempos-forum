@@ -913,5 +913,10 @@
   "capsGuard.notice": "这段文字大多是大写字母，读起来可能像在大喊。",
   "capsGuard.fix": "改成小写",
   "capsGuard.lowered": "已改成小写。",
-  "capsGuard.undo": "撤销"
+  "capsGuard.undo": "撤销",
+  "replyFilter.label": "筛选回复",
+  "replyFilter.placeholder": "只显示提到以下内容的回复…",
+  "replyFilter.clear": "清除",
+  "replyFilter.matches.one": "{total} 条回复中有 {count} 条匹配",
+  "replyFilter.matches.other": "{total} 条回复中有 {count} 条匹配"
 }

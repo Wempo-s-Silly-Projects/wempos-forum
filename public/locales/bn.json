@@ -913,5 +913,10 @@
   "capsGuard.notice": "এটি বেশিরভাগই বড় হাতের অক্ষরে, যা চিৎকারের মতো শোনাতে পারে।",
   "capsGuard.fix": "বড় হাতের অক্ষর ছোট করুন",
   "capsGuard.lowered": "বড় হাতের অক্ষর ছোট করা হয়েছে।",
-  "capsGuard.undo": "পূর্বাবস্থায় ফেরান"
+  "capsGuard.undo": "পূর্বাবস্থায় ফেরান",
+  "replyFilter.label": "উত্তর ফিল্টার করুন",
+  "replyFilter.placeholder": "শুধু সেই উত্তরগুলো দেখান যেগুলোতে আছে…",
+  "replyFilter.clear": "মুছুন",
+  "replyFilter.matches.one": "{total}টি উত্তরের মধ্যে {count}টি মিলেছে",
+  "replyFilter.matches.other": "{total}টি উত্তরের মধ্যে {count}টি মিলেছে"
 }

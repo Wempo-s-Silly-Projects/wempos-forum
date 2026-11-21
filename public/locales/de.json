@@ -913,5 +913,10 @@
   "capsGuard.notice": "Das ist fast nur in Großbuchstaben und kann wie Schreien wirken.",
   "capsGuard.fix": "Großbuchstaben senken",
   "capsGuard.lowered": "Großbuchstaben gesenkt.",
-  "capsGuard.undo": "Rückgängig"
+  "capsGuard.undo": "Rückgängig",
+  "replyFilter.label": "Antworten filtern",
+  "replyFilter.placeholder": "Nur Antworten zeigen, die Folgendes erwähnen…",
+  "replyFilter.clear": "Leeren",
+  "replyFilter.matches.one": "{count} von {total} Antworten passt",
+  "replyFilter.matches.other": "{count} von {total} Antworten passen"
 }

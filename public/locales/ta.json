@@ -913,5 +913,10 @@
   "capsGuard.notice": "இது பெரும்பாலும் பெரிய எழுத்துகளில் உள்ளது, இது கத்துவது போல் தோன்றலாம்.",
   "capsGuard.fix": "பெரிய எழுத்துகளைக் குறை",
   "capsGuard.lowered": "பெரிய எழுத்துகள் குறைக்கப்பட்டன.",
-  "capsGuard.undo": "செயல்தவிர்"
+  "capsGuard.undo": "செயல்தவிர்",
+  "replyFilter.label": "பதில்களை வடிகட்டு",
+  "replyFilter.placeholder": "இதைக் குறிப்பிடும் பதில்களை மட்டும் காட்டு…",
+  "replyFilter.clear": "அழி",
+  "replyFilter.matches.one": "{total} பதில்களில் {count} பொருந்துகிறது",
+  "replyFilter.matches.other": "{total} பதில்களில் {count} பொருந்துகின்றன"
 }

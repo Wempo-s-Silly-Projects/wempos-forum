@@ -913,5 +913,10 @@
   "capsGuard.notice": "यह ज़्यादातर बड़े अक्षरों में है, जो चिल्लाने जैसा लग सकता है।",
   "capsGuard.fix": "बड़े अक्षर छोटे करें",
   "capsGuard.lowered": "बड़े अक्षर छोटे कर दिए गए।",
-  "capsGuard.undo": "पूर्ववत करें"
+  "capsGuard.undo": "पूर्ववत करें",
+  "replyFilter.label": "जवाब फ़िल्टर करें",
+  "replyFilter.placeholder": "सिर्फ़ वे जवाब दिखाएँ जिनमें ज़िक्र हो…",
+  "replyFilter.clear": "साफ़ करें",
+  "replyFilter.matches.one": "{total} में से {count} जवाब मेल खाता है",
+  "replyFilter.matches.other": "{total} में से {count} जवाब मेल खाते हैं"
 }

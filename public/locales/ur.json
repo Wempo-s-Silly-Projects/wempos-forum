@@ -913,5 +913,10 @@
   "capsGuard.notice": "یہ زیادہ تر بڑے حروف میں ہے، جو چیخنے جیسا لگ سکتا ہے۔",
   "capsGuard.fix": "بڑے حروف چھوٹے کریں",
   "capsGuard.lowered": "بڑے حروف چھوٹے کر دیے گئے۔",
-  "capsGuard.undo": "کالعدم کریں"
+  "capsGuard.undo": "کالعدم کریں",
+  "replyFilter.label": "جوابات فلٹر کریں",
+  "replyFilter.placeholder": "صرف وہ جوابات دکھائیں جن میں ذکر ہو…",
+  "replyFilter.clear": "صاف کریں",
+  "replyFilter.matches.one": "{total} میں سے {count} جواب ملتا ہے",
+  "replyFilter.matches.other": "{total} میں سے {count} جوابات ملتے ہیں"
 }

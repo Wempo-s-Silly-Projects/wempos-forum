@@ -913,5 +913,10 @@
   "capsGuard.notice": "Text je převážně velkými písmeny a může působit jako křik.",
   "capsGuard.fix": "Zmenšit velká písmena",
   "capsGuard.lowered": "Velká písmena zmenšena.",
-  "capsGuard.undo": "Zpět"
+  "capsGuard.undo": "Zpět",
+  "replyFilter.label": "Filtrovat odpovědi",
+  "replyFilter.placeholder": "Zobrazit jen odpovědi, které zmiňují…",
+  "replyFilter.clear": "Vymazat",
+  "replyFilter.matches.one": "Shoduje se {count} z {total} odpovědí",
+  "replyFilter.matches.other": "Shoduje se {count} z {total} odpovědí"
 }

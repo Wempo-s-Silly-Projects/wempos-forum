@@ -913,5 +913,10 @@
   "capsGuard.notice": "ข้อความเกือบทั้งหมดเป็นตัวพิมพ์ใหญ่ ซึ่งอาจดูเหมือนตะโกน",
   "capsGuard.fix": "ลดตัวพิมพ์ใหญ่",
   "capsGuard.lowered": "ลดตัวพิมพ์ใหญ่แล้ว",
-  "capsGuard.undo": "เลิกทำ"
+  "capsGuard.undo": "เลิกทำ",
+  "replyFilter.label": "กรองการตอบกลับ",
+  "replyFilter.placeholder": "แสดงเฉพาะการตอบกลับที่พูดถึง…",
+  "replyFilter.clear": "ล้าง",
+  "replyFilter.matches.one": "ตรงกัน {count} จาก {total} การตอบกลับ",
+  "replyFilter.matches.other": "ตรงกัน {count} จาก {total} การตอบกลับ"
 }
