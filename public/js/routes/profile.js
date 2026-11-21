@@ -46,7 +46,8 @@ import {
 } from "../profile-editor.js";
 import { renderProfileWall } from "../wall.js";
 import { openChatThread } from "../chat-widget.js";
-import { t, tn } from "../i18n.js";
+import { currentLocale, t, tn } from "../i18n.js";
+import { createRecentThreads, formatJoinedDate } from "../profile-extras.js";
 
 async function renderProfileRoute(route, context, version) {
   const profile = await api(`/api/users/${encodeURIComponent(route.username)}`);
@@ -150,6 +151,10 @@ function renderProfile(profile, session) {
   heading.append(element("p", "profile-post-counts",
     [tn("counts.posts", Number(profile.postsCount || 0)), tn("counts.replies", Number(profile.repliesCount || 0))]
       .join(t("counts.separator"))));
+  // Member since (wave 2026-11-21-13 F1): the join date in the reader's own
+  // locale; omitted when the payload carries none.
+  const joined = formatJoinedDate(profile.joinedAt, currentLocale());
+  if (joined) heading.append(element("p", "profile-joined", t("profile.joined", { date: joined })));
   // Banner (any hex, v3.0.2): the hex rides --banner-color (the CSS default
   // stays transparent for none) + the filtered banner text.
   if (profile.bannerColor) {
@@ -236,9 +241,29 @@ function renderProfile(profile, session) {
     pictures.append(avatarForm);
     main.append(pictures);
   }
+  // Recent threads (wave 2026-11-21-13 F2) sit above the wall; both fetch
+  // their own payloads and never block the profile render. The threads panel
+  // is appended synchronously so the order holds whichever fetch lands first.
+  renderRecentThreads(profile);
   // Profile wall (v4.0): it fetches its own payload and never blocks the
   // profile render on the wall fetch.
   renderProfileWall(profile);
+}
+
+async function renderRecentThreads(profile) {
+  const panel = createPanel(t("profile.threadsTitle"));
+  panel.classList.add("profile-threads");
+  main.append(panel);
+  const version = state.renderVersion;
+  let data;
+  try {
+    data = await api(`/api/users/${encodeURIComponent(profile.id)}/threads`);
+  } catch {
+    if (version === state.renderVersion) panel.append(element("p", "empty-state", t("profile.threadsLoadFailed")));
+    return;
+  }
+  if (version !== state.renderVersion) return;
+  panel.append(createRecentThreads(document, Array.isArray(data?.threads) ? data.threads : [], currentLocale()));
 }
 
 // Spec §8: promote/demote is owner-only (v3.1 rename: mod → admin, admin →

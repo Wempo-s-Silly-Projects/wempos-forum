@@ -1546,6 +1546,29 @@ dialog h2 {
   margin: 0.2rem 0 0;
 }
 
+/* Wave 2026-11-21-13: member since + recent threads on profiles. */
+.profile-joined {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0.1rem 0 0;
+}
+.recent-threads {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+.recent-thread {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.2rem 0.8rem;
+}
+.recent-thread-link { overflow-wrap: anywhere; min-width: 0; }
+.recent-thread-time { color: var(--muted); font-size: 0.85rem; }
+
 /* Markdown blocks (v2.5): distinct classes (md-*) — the feed's .post-list
    grid class must never style body lists (review-caught collision). */
 .md-list {

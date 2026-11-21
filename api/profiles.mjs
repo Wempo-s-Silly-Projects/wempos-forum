@@ -39,6 +39,8 @@ import { handleAvatarReadRoute, handleAvatarUploadRoute } from "./avatars.mjs";
 import { handleProfileReportAdminRoute, handleProfileReportRoute } from "./reports.mjs";
 // v4.0 plan 3, Task 1: the custom-CSS sandbox moved to its topic module.
 import { CUSTOM_CSS_MAX_BYTES, scopeProfileCss } from "./profile-css.mjs";
+// Wave 2026-11-21-13 F2: a member's recent threads on their profile.
+import { handleProfileThreadsRoute } from "./profile-threads.mjs";
 
 // PATCH /api/me carries up to a 10,000-character bio, so this route lifts the
 // 16 KB global JSON cap to 64 KB (Task 2 pre-approved per-route interface).
@@ -88,8 +90,11 @@ async function handleUserProfileRoute(request, env, url, path, method) {
     const counts = await env.FORUM_DB.prepare(
       "SELECT " +
       "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NULL) AS posts_count, " +
-      "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NOT NULL) AS replies_count",
-    ).bind(Number(user.id), Number(user.id)).first();
+      "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NOT NULL) AS replies_count, " +
+      // Member since (wave 2026-11-21-13 F1): the account's creation stamp
+      // rides this same round trip — shapers' shared user select stays put.
+      "(SELECT created_at FROM users WHERE id = ?) AS joined_at",
+    ).bind(Number(user.id), Number(user.id), Number(user.id)).first();
     // Banned-profile banner (v3.1): the PUBLIC payload carries only the
     // active-ban flag and expiry (the same predicate every read path uses) —
     // the reason rides along only for staff, matching member search. Guests
@@ -104,6 +109,7 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       role: publicRole(user.role),
       postsCount: Number(counts && counts.posts_count || 0),
       repliesCount: Number(counts && counts.replies_count || 0),
+      joinedAt: counts && counts.joined_at ? new Date(Number(counts.joined_at) * 1000).toISOString() : null,
       // Profile themes (v2.5): the whitelisted accent KEY for the client's
       // per-key CSS class ("" normalizes rows missing the projection).
       profileAccent: normalizeProfileAccent(user.profile_accent || ""),
@@ -576,6 +582,7 @@ async function handleProfileRoutes(request, env, url, path, method, ctx) {
   const handlers = [
     handleAvatarReadRoute,
     handleUserProfileRoute,
+    handleProfileThreadsRoute,
     handleProfileUpdateRoute,
     handleCssSetRoute,
     handleCssClearRoute,
