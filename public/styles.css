@@ -1563,6 +1563,22 @@ dialog h2 {
   border-radius: 0.4rem;
   overflow-x: auto;
 }
+/* Copy code (wave 2026-11-21-10): the tool row stays pinned to the start
+   edge while a wide block scrolls; its status rides beside the button. */
+.codeblock-tools {
+  position: sticky;
+  inset-inline-start: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  margin-block-end: 0.25rem;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.copy-code-status {
+  font-size: 0.85rem;
+}
 .post-codeblock code {
   font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
   font-size: 0.9rem;

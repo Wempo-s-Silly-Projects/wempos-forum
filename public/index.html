@@ -22,6 +22,27 @@
     <script type="module" src="/js/chat-widget.js"></script>
     <script type="module" src="/js/who-online.js"></script>
     <script type="module" src="/js/webmcp.js"></script>
+    <!-- Feed/thread hot path (wave 2026-11-21-10): these modules sit two or
+         three imports deep under app.js, so without a hint the browser only
+         learns they exist after each parent arrives. modulepreload fetches
+         them alongside the entry instead. Same plain URLs as the imports, so
+         the cache entry is shared; tests/load-path.test.mjs pins every href. -->
+    <link rel="modulepreload" href="/js/render.js">
+    <link rel="modulepreload" href="/js/markdown.js">
+    <link rel="modulepreload" href="/js/attachments.js">
+    <link rel="modulepreload" href="/js/quotes.js">
+    <link rel="modulepreload" href="/js/composer-limits.js">
+    <link rel="modulepreload" href="/js/polls.js">
+    <link rel="modulepreload" href="/js/bots.js">
+    <link rel="modulepreload" href="/js/copy-link.js">
+    <link rel="modulepreload" href="/js/copy-code.js">
+    <link rel="modulepreload" href="/js/home-intro.js">
+    <link rel="modulepreload" href="/js/text-size.js">
+    <link rel="modulepreload" href="/js/catch-up.js">
+    <link rel="modulepreload" href="/js/thread-glance.js">
+    <link rel="modulepreload" href="/js/thread-starter.js">
+    <link rel="modulepreload" href="/js/post-keys.js">
+    <link rel="modulepreload" href="/js/latest-reply.js">
   </head>
   <body>
     <a class="skip-link" href="#main-content" data-i18n="shell.skipToContent">Skip to content</a>
