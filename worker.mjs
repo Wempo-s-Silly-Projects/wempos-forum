@@ -47,6 +47,8 @@ import { handleAccountsRoutes } from "./api/accounts.mjs";
 import { ensureFilterWords, handleFilterAdminRoutes } from "./api/filterstore.mjs";
 import { handleChatRoutes } from "./api/chat.mjs";
 import { handleRelayRoutes } from "./api/relay.mjs";
+import { handleDiscovery, withDiscoveryHeaders } from "./api/discovery.mjs";
+import { handleMcp } from "./api/mcp.mjs";
 
 // The one canonical origin; workers.dev hosts redirect here.
 const CANONICAL_ORIGIN = "https://wempos-forum.com";
@@ -162,9 +164,30 @@ export default {
         return errorReply(error, "Forum request failed:");
       }
     }
+    // Agent surfaces (MCP + discovery documents + markdown negotiation) answer
+    // BEFORE the assets fallback — the SPA's not_found_handling would serve
+    // index.html for every one of these paths otherwise.
+    if (url.pathname === "/mcp") {
+      try {
+        return await handleMcp(request, env);
+      } catch (error) {
+        return errorReply(error, "MCP request failed:");
+      }
+    }
+    try {
+      const discovery = await handleDiscovery(request, env, url.pathname);
+      if (discovery) return discovery;
+    } catch (error) {
+      return errorReply(error, "Discovery request failed:");
+    }
     if (!env.ASSETS) return json({ error: "Static assets are not configured." }, 503);
     try {
-      return secureResponse(await stampedAssetResponse(await env.ASSETS.fetch(unconditional(request)), env));
+      // Negotiable pages vary on Accept; the homepage also advertises the
+      // discovery documents in its Link header.
+      return withDiscoveryHeaders(
+        secureResponse(await stampedAssetResponse(await env.ASSETS.fetch(unconditional(request)), env)),
+        url.pathname,
+      );
     } catch (error) {
       console.error("Static asset request failed:", error);
       return json({ error: "The requested page could not be loaded." }, 500);
