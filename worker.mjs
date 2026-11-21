@@ -55,6 +55,7 @@ import { handleTraditionRoutes } from "./api/traditions.mjs";
 import { handleExportRoutes } from "./api/export.mjs";
 import { handleAutoModRoutes } from "./api/automod.mjs";
 import { handleDmReportRoutes } from "./api/dm-reports.mjs";
+import { handleBrandingRoutes, readStoredBranding } from "./api/branding.mjs";
 import { handleDiscovery, withDiscoveryHeaders } from "./api/discovery.mjs";
 import { handleMcp } from "./api/mcp.mjs";
 import { accountsOrigin, configuredOrigin } from "./api/core/site.mjs";
@@ -105,7 +106,7 @@ function notFound(request, env, url, path) {
 // dispatch context and answers only the paths it owns; `undefined` falls
 // through to the next handler or the notFound tail — the vendor's dispatch()
 // replaces the inlined handlers-for-loop, built once from the vendor import.
-const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes];
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
@@ -116,24 +117,30 @@ const answerApiRoute = dispatch(API_HANDLERS, notFound);
 // misbehavior comes from; a mismatch offers the reload instead.
 // Self-hosting (v5.17.0): the same stamp carries the instance's client config
 // (Accounts origin, Turnstile sitekey) — each meta only when configured.
+// Branding (v5.19.0): the owner-saved name/tagline/footer ride the same stamp,
+// each only when saved, so a forum with no settings row serves today's bytes.
 function attributeEscape(value) {
   return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function shellMetas(env) {
+function shellMetas(env, branding) {
   const build = env.VERSION ? [env.VERSION, env.COMMIT_SHA].filter(Boolean).join("@") : "";
   const sitekey = typeof env.TURNSTILE_SITEKEY === "string" ? env.TURNSTILE_SITEKEY.trim() : "";
   const accounts = accountsOrigin(env);
-  return [["app-build", build], ["accounts-origin", accounts], ["turnstile-sitekey", sitekey]]
+  return [
+    ["app-build", build], ["accounts-origin", accounts], ["turnstile-sitekey", sitekey],
+    ["site-name", branding.name], ["site-tagline", branding.tagline], ["site-footer", branding.footer],
+  ]
     .filter(([, content]) => content)
     .map(([name, content]) => `<meta name="${name}" content="${attributeEscape(content)}">`)
     .join("");
 }
 
 async function stampedAssetResponse(assetResponse, env) {
-  const stamp = shellMetas(env);
   const type = assetResponse.headers.get("Content-Type") || "";
-  if (!stamp || !type.includes("text/html")) return assetResponse;
+  if (!type.includes("text/html")) return assetResponse;
+  const stamp = shellMetas(env, await readStoredBranding(env));
+  if (!stamp) return assetResponse;
   const html = await assetResponse.text();
   // The served bytes change length, so the original Content-Length must go —
   // a stale length would truncate the stamped document. HTML also revalidates

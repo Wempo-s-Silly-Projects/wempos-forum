@@ -111,10 +111,45 @@ export function interpolate(template, vars) {
     Object.hasOwn(vars, name) ? String(vars[name]) : whole);
 }
 
+// Instance branding (v5.19.0): locale strings name the forum through
+// {siteName}, filled from the owner-saved name the worker stamps into the
+// shell (<meta name="site-name">), else the default below. An owner-saved
+// tagline/footer replaces the translated default copy verbatim.
+export const DEFAULT_SITE_NAME = "Wempo's Forum";
+const BRAND_METAS = Object.freeze({ siteName: "site-name", tagline: "site-tagline", footer: "site-footer" });
+
+// readBrand(doc) -> { siteName, tagline, footer } from the stamped metas
+// (attribute values only; every surface paints them with textContent).
+export function readBrand(doc) {
+  const read = (name) => {
+    const value = doc?.querySelector?.(`meta[name="${name}"]`)?.getAttribute?.("content");
+    return typeof value === "string" ? value.trim() : "";
+  };
+  return {
+    siteName: read(BRAND_METAS.siteName) || DEFAULT_SITE_NAME,
+    tagline: read(BRAND_METAS.tagline),
+    footer: read(BRAND_METAS.footer),
+  };
+}
+
+// Owner-saved tagline/footer: { key: text } painted as-is (no placeholders).
+function brandOverrides(siteName, brand) {
+  const overrides = {};
+  if (brand.tagline) {
+    const heading = `${siteName}: ${brand.tagline}`;
+    overrides["shell.tagline"] = heading;
+    overrides["feed.introTitle"] = heading;
+  }
+  if (brand.footer) overrides["shell.footer"] = brand.footer;
+  return overrides;
+}
+
 // Pure translator: messages for the active locale, English as the fallback.
 // Plural keys come in pairs (key.one / key.other) in every locale, so the key
 // sets stay identical; Intl.PluralRules picks the pair member.
-export function createTranslator(locale, messages = {}, fallback = {}) {
+export function createTranslator(locale, messages = {}, fallback = {}, brand = {}) {
+  const siteName = typeof brand.siteName === "string" && brand.siteName ? brand.siteName : DEFAULT_SITE_NAME;
+  const overrides = brandOverrides(siteName, brand);
   let rules;
   try {
     rules = new Intl.PluralRules(locale);
@@ -126,11 +161,13 @@ export function createTranslator(locale, messages = {}, fallback = {}) {
     if (typeof fallback[key] === "string") return fallback[key];
     return null;
   };
-  const t = (key, vars) => interpolate(lookup(key) ?? key, vars);
+  const t = (key, vars) => (Object.hasOwn(overrides, key)
+    ? overrides[key]
+    : interpolate(lookup(key) ?? key, { siteName, ...vars }));
   const tn = (key, count, vars = {}) => {
     const form = rules.select(Number(count)) === PLURAL_ONE ? PLURAL_ONE : PLURAL_OTHER;
     const template = lookup(`${key}.${form}`) ?? lookup(`${key}.${PLURAL_OTHER}`) ?? key;
-    return interpolate(template, { ...vars, count });
+    return interpolate(template, { siteName, ...vars, count });
   };
   return { locale, t, tn };
 }
@@ -190,7 +227,7 @@ async function init() {
     fetchMessages(DEFAULT_LOCALE),
     code === DEFAULT_LOCALE ? null : fetchMessages(code),
   ]);
-  active = createTranslator(code, messages ?? fallback, fallback);
+  active = createTranslator(code, messages ?? fallback, fallback, readBrand(document));
   applyDocumentLocale(document, code);
   translateStatic(document);
   return code;

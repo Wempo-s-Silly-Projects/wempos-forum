@@ -41,8 +41,8 @@ import { securityHeaders } from "./core/http.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
 import { accountsOrigin, siteOrigin } from "./core/site.mjs";
+import { siteName } from "./branding.mjs";
 
-const SITE_NAME = "Wempo's Forum";
 const README_URL = "https://github.com/Wempo-s-Silly-Projects/wempos-forum#readme";
 const DEFAULT_VERSION = "4.4.0";
 const SITEMAP_URL_CAP = 50000;
@@ -227,8 +227,9 @@ function feedSection(rows, origin) {
 
 async function homeMarkdown(env, origin) {
   const rows = await recentRoots(env, null);
+  const name = await siteName(env);
   const boards = BOARD_VALUES.map((slug) => "- [" + slug + "](" + origin + "/c/" + slug + ")").join("\n");
-  return "# " + SITE_NAME + "\n\n" +
+  return "# " + name + "\n\n" +
     "A community forum. This is the markdown rendering of " + origin + "/ for automated readers.\n\n" +
     "## Boards\n\n" + boards + "\n\n" +
     "## Recent public posts\n\n" + feedSection(rows, origin) + "\n\n" +
@@ -238,7 +239,7 @@ async function homeMarkdown(env, origin) {
 
 async function boardMarkdown(env, board, origin) {
   const rows = await recentRoots(env, board);
-  return "# " + SITE_NAME + " — " + board + "\n\n" +
+  return "# " + (await siteName(env)) + " — " + board + "\n\n" +
     "Recent public posts in the " + board + " board (" + origin + "/c/" + board + ").\n\n" +
     feedSection(rows, origin) + "\n";
 }
@@ -652,11 +653,11 @@ const OPENAPI_PATHS = {
   },
 };
 
-export function openApiDocument(env, origin) {
+export function openApiDocument(env, origin, name) {
   return {
     openapi: "3.1.0",
     info: {
-      title: SITE_NAME + " public read API",
+      title: name + " public read API",
       version: typeof env.VERSION === "string" && env.VERSION ? env.VERSION : DEFAULT_VERSION,
       description: "Unauthenticated read endpoints for public forum content. Hidden posts and " +
         "content by banned members are never returned. Writes require a browser session and are not described here.",
@@ -674,7 +675,8 @@ export function openApiDocument(env, origin) {
 const DOCUMENT_ROUTES = {
   "/robots.txt": (request, env, origin) => respond(request, robotsTxt(origin), "text/plain; charset=utf-8"),
   "/.well-known/api-catalog": (request, env, origin) => jsonDoc(request, apiCatalog(origin), "application/linkset+json"),
-  "/openapi.json": (request, env, origin) => jsonDoc(request, openApiDocument(env, origin), "application/openapi+json"),
+  "/openapi.json": async (request, env, origin) =>
+    jsonDoc(request, openApiDocument(env, origin, await siteName(env)), "application/openapi+json"),
   "/auth.md": (request, env, origin) => respond(request, authMarkdown(origin, accountsOrigin(env)), MARKDOWN_TYPE),
   "/.well-known/mcp/server-card.json": (request, env, origin) => jsonDoc(request, serverCard(env, origin), "application/json"),
   "/sitemap.xml": async (request, env, origin) => env.FORUM_DB

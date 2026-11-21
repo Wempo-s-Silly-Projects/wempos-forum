@@ -47,6 +47,7 @@ import { createReportQueue } from "../desk/reports.js";
 import { createAutoModLog, createDmReportQueue } from "../desk/automod.js";
 import { createMemberPeek } from "../desk/member-tools.js";
 import { createFilterEditor } from "../desk/filter.js";
+import { createBrandingEditor, submitBrandingSave } from "../desk/branding.js";
 import { focusPageHeading } from "../focus-utils.js";
 
 // The desk (v4.2 redesign): /admin is a section-routed panel — a sidebar rail
@@ -71,6 +72,7 @@ const DESK_SECTIONS = [
   { slug: "automod", labelKey: "admin.section.automod" },
   { slug: "rules", labelKey: "admin.section.rules" },
   { slug: "filter", labelKey: "admin.section.filter" },
+  { slug: "branding", labelKey: "admin.section.branding" },
 ];
 
 // slug → { lede, load(), build() }. Every build() appends the section's body
@@ -153,6 +155,11 @@ const DESK_BUILDERS = {
     ledeKey: "admin.lede.filter",
     load: () => api("/api/admin/filter"),
     build: (data) => createFilterEditor(data, document),
+  },
+  "branding": {
+    ledeKey: "admin.lede.branding",
+    load: () => api("/api/branding"),
+    build: (data) => createBrandingEditor(data, document),
   },
 };
 
@@ -494,6 +501,10 @@ export const FORM_HANDLERS = {
   "admin-hide-recent": (form, text) => submitHideRecent(form, text),
   "filter-save": async (form, text) => submitFilterSave(form, text),
   "filter-bulk-add": async (form, text) => submitFilterBulkAdd(form, text),
+  "branding-save": async (form, text) => {
+    await submitBrandingSave(text);
+    setMessage(t("admin.msg.brandingSaved"));
+  },
 };
 
 // Filter store (v4.3): the desk's two writes. Save replaces the whole list
