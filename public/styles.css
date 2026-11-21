@@ -2647,3 +2647,99 @@ dialog h2 {
   border-radius: 4px;
 }
 .chat-widget-gif-note { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 0.8rem; }
+
+/* @mention autocomplete (wave 2026-11-21 F2): the composer's suggestion
+   listbox, painted under the textarea from theme tokens only. */
+.mention-picker {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 4px;
+  max-width: 320px;
+  background: var(--field);
+  border: 1px solid var(--field-line);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px var(--paper-shadow);
+}
+
+.mention-option {
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.mention-option[aria-selected="true"],
+.mention-option:hover {
+  background: var(--soft-green);
+  color: var(--green-ink);
+}
+
+/* "New since your last visit" (wave 2026-11-21 F3): the divider, the chip on
+   fresh replies, and the jump button above the reply list. */
+.catch-up-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  color: var(--coral-dark);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.catch-up-divider::before,
+.catch-up-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 2px solid var(--coral);
+}
+
+.post-card.post-new {
+  box-shadow: inset 4px 0 0 var(--coral);
+}
+
+.new-chip {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--coral);
+  color: var(--paper);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.catch-up-jump {
+  margin: 0 0 10px;
+}
+
+/* Thread at a glance (wave 2026-11-21 F4): the summary strip above replies
+   and the brief spotlight on the jumped-to top reply. */
+.thread-glance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin: 10px 0 4px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.thread-glance-fact + .thread-glance-fact::before {
+  content: "·";
+  margin-right: 14px;
+}
+
+.post-card.post-spotlight {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+  transition: outline-color 0.3s;
+}
+
+@media (max-width: 640px) {
+  .thread-glance {
+    font-size: 0.85rem;
+  }
+
+  .thread-glance-top {
+    width: 100%;
+  }
+}

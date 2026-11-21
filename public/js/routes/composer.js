@@ -35,6 +35,8 @@ import {
 import { addGifsToComposer, removeGifFromComposer, renderGifThumbs, spareComposerSlots } from "../gifs.js";
 import { addTurnstileSlot, refreshTurnstile, takeTurnstileToken } from "../turnstile.js";
 import { COMPOSER_MAX_CHARS } from "../composer-limits.js";
+import { attachDraftAutosave, clearFormDraft, draftKey } from "../drafts.js";
+import { attachMentionPicker } from "../mention-picker.js";
 
 let activeGifComposerForm = null;
 let activePollComposerForm = null;
@@ -69,6 +71,11 @@ function createComposer(name, label, buttonLabel, postID = null,
     id: `${name}-${postID ?? "new"}-body`, name: "body", label,
     rows: 4, maxLength: COMPOSER_MAX_CHARS, required: true, counter: true,
   }));
+  // Draft autosave (wave 2026-11-21): per composer + thread, local-only.
+  const bodyField = form.querySelector('textarea[name="body"]');
+  attachDraftAutosave(form, bodyField, draftKey(name, postID, board));
+  // @mention autocomplete (wave 2026-11-21): suggestions from /api/search.
+  attachMentionPicker(bodyField, document);
   form.append(createComposerAttachmentRow(name === "post-create"));
   addTurnstileSlot(form, turnstileAction ?? (name === "post-create" ? "post" : "reply"));
   addSubmit(form, buttonLabel);
@@ -223,6 +230,7 @@ async function submitNewPost(form, text) {
   }
   delete form.dataset.idempotencyKey;
   delete form.dataset.idempotencySignature;
+  clearFormDraft(form);
   // Polls (C3): a stashed poll attaches to the fresh thread BEFORE the
   // navigation; a failed attach never loses the (already live) post.
   let pollNote = "";
@@ -268,6 +276,7 @@ async function submitReplyForm(form, text) {
   }
   delete form.dataset.idempotencyKey;
   delete form.dataset.idempotencySignature;
+  clearFormDraft(form);
   // Reply-to-reply composers remember the thread root (declared above) so the
   // rerender lands back on the conversation, not on the level-1 reply's page.
   await state.renderRoute({ name: "post", id: Number(threadId) });
