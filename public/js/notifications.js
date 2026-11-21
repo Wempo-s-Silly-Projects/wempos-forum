@@ -21,12 +21,56 @@
 // target thread (handled by app.js's data-action="open-notification"). All DOM
 // building is textContent-based.
 import { addText } from "./forms.js";
-import { t } from "./i18n.js";
+import { t, tn } from "./i18n.js";
+import { maskSpoilers } from "./markdown.js";
+
+const SPOILER_MARK = "||";
+
+// v4.21: previews pass through maskSpoilers (the v4.20 law). The server cuts
+// bodies at 80 chars, which can leave a spoiler's opener without its closer
+// ("the twist: ||he di") — maskSpoilers cannot pair that, so anything from a
+// leftover "||" on is dropped behind an ellipsis.
+export const notificationPreview = (raw) => {
+  const masked = maskSpoilers(String(raw ?? ""));
+  const open = masked.indexOf(SPOILER_MARK);
+  if (open === -1) return masked;
+  return masked.slice(0, open).trim() + "\u2026";
+};
+
+// v4.21: label-less reply notifications that share a thread fold into one
+// row, sitting where the newest of them sat. Labelled rows (mentions, appeal
+// outcomes, chat pings) and post-less rows stay their own items. Pure.
+export const groupNotifications = (items) => {
+  const groups = [];
+  const byThread = new Map();
+  for (const entry of items ?? []) {
+    const target = Number(entry?.targetPostId);
+    const groupable = !entry?.label && target > 0;
+    const existing = groupable ? byThread.get(target) : null;
+    if (existing) {
+      existing.ids.push(Number(entry.id));
+      existing.count += 1;
+      existing.read = existing.read && Boolean(entry.read);
+      continue;
+    }
+    const group = {
+      ids: [Number(entry?.id)],
+      count: 1,
+      read: Boolean(entry?.read),
+      targetPostId: target > 0 ? target : null,
+      preview: String(entry?.postPreview ?? ""),
+      first: entry,
+    };
+    if (groupable) byThread.set(target, group);
+    groups.push(group);
+  }
+  return groups;
+};
 
 // Pure, DOM-free. Returns { id, targetPostId, read, href, label }. The payload
 // never includes the replier's identity, so the label stays generic.
 export const notificationItemView = (item) => {
-  const preview = String(item?.postPreview ?? "");
+  const preview = notificationPreview(item?.postPreview);
   const rawTarget = Number(item?.targetPostId);
   // NULL = a label-only notification (appeal outcome, chat ping): nothing to
   // navigate to — clicking just marks it read.
@@ -97,25 +141,17 @@ export function renderNotificationsPage(main, items) {
   heading.className = "page-heading";
   heading.textContent = t("bell.label");
   section.append(heading);
-  const list = (items ?? []).map(notificationItemView);
-  if (!list.length) {
+  const groups = groupNotifications(items);
+  if (!groups.length) {
     addText(document, section, "p",
       t("bell.empty"), "empty-state");
     main.append(section);
     return section;
   }
-  for (const item of list) {
-    const row = document.createElement("button");
-    row.type = "button";
-    row.className = "notification-item" + (item.read ? "" : " notification-unread");
-    row.dataset.action = "open-notification";
-    row.dataset.notificationId = String(item.id);
-    // Post-less items carry no postId — the click marks read without navigating.
-    if (item.targetPostId) row.dataset.postId = String(item.targetPostId);
-    row.textContent = item.label;
-    if (item.read) row.setAttribute("aria-disabled", "false");
-    else row.setAttribute("aria-current", "true");
-    section.append(row);
+  for (const group of groups) {
+    section.append(group.count > 1
+      ? threadGroupRow(document, group)
+      : notificationRow(document, notificationItemView(group.first)));
   }
   const markAll = document.createElement("button");
   markAll.type = "button";
@@ -125,4 +161,35 @@ export function renderNotificationsPage(main, items) {
   section.append(markAll);
   main.append(section);
   return section;
+}
+
+function notificationRow(document, item) {
+  const row = document.createElement("button");
+  row.type = "button";
+  row.className = "notification-item" + (item.read ? "" : " notification-unread");
+  row.dataset.action = "open-notification";
+  row.dataset.notificationId = String(item.id);
+  // Post-less items carry no postId — the click marks read without navigating.
+  if (item.targetPostId) row.dataset.postId = String(item.targetPostId);
+  row.textContent = item.label;
+  if (item.read) row.setAttribute("aria-disabled", "false");
+  else row.setAttribute("aria-current", "true");
+  return row;
+}
+
+// One row for several replies in one thread: the click marks the whole
+// thread's reply notifications read (POST read-thread) and opens the thread.
+function threadGroupRow(document, group) {
+  const preview = notificationPreview(group.preview);
+  const row = document.createElement("button");
+  row.type = "button";
+  row.className = "notification-item notification-group" + (group.read ? "" : " notification-unread");
+  row.dataset.action = "open-notification-thread";
+  row.dataset.postId = String(group.targetPostId);
+  row.textContent = preview
+    ? tn("bell.threadGroupPreview", group.count, { preview })
+    : tn("bell.threadGroup", group.count);
+  if (group.read) row.setAttribute("aria-disabled", "false");
+  else row.setAttribute("aria-current", "true");
+  return row;
 }

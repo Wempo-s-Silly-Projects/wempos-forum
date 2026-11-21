@@ -41,6 +41,7 @@ import { createComposer } from "./composer.js";
 import { wempoAccountsSignInUrl } from "../sso.js";
 import { appendPostList } from "../render.js";
 import { maskSpoilers } from "../markdown.js";
+import { appendHighlighted } from "../search-highlight.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
@@ -86,7 +87,7 @@ function renderHomeContent(session, data, route) {
   addHeading(main, route.name === "search" ? t("feed.searchResults") : t("feed.recentActivity"), 2);
   if (route.name === "search") {
     addText(document, main, "p", t("feed.searchResultsFor", { query: route.query }), "muted");
-    renderSearchResults(main, data.search);
+    renderSearchResults(main, data.search, route.query);
     return;
   }
   appendPostList(main, data.feed.posts, document, session.user);
@@ -206,7 +207,7 @@ function renderInvisibleToggle(account) {
       account.querySelectorAll(".presence-invisible-toggle")))
     .catch(() => {});
 }
-function renderSearchResults(container, results) {
+function renderSearchResults(container, results, query = "") {
   // Deep reply results (v2.5): a Replies section under the Posts one.
   if (Array.isArray(results.replies)) {
     addHeading(container, t("feed.repliesTitle"), 2);
@@ -219,7 +220,8 @@ function renderSearchResults(container, results) {
         miniCard.append(element("a", "reply-search-thread",
           reply.parent ? t("feed.replyThreadByParent") : t("feed.replyThreadBySomeone")));
         const bodyBlock = element("p", "reply-search-body");
-        bodyBlock.textContent = maskSpoilers(reply.body);
+        // Mask first, then highlight: a search hit never reveals a spoiler.
+        appendHighlighted(document, bodyBlock, maskSpoilers(reply.body), query);
         const link = element("a", "button button-quiet", t("feed.openThread"));
         link.href = "/posts/" + reply.threadId;
         link.setAttribute("data-app-link", "");
@@ -234,7 +236,7 @@ function renderSearchResults(container, results) {
     const list = element("ul", "result-list");
     for (const user of results.users) {
       const item = element("li");
-      const link = element("a", "", user.username);
+      const link = appendHighlighted(document, element("a", ""), user.username, query);
       link.href = `/users/${encodeURIComponent(user.username)}`;
       item.append(link);
       if (user.bio) addText(document, item, "p", user.bio, "muted");
