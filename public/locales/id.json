@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "{count} postingan disembunyikan.",
   "admin.msg.restored.one": "{count} postingan dipulihkan.",
   "admin.msg.restored.other": "{count} postingan dipulihkan.",
+  "composer.sendShortcut": "Tips: Ctrl+Enter (⌘+Enter di Mac) untuk mengirim.",
   "post.latestReply": "Lompat ke balasan terbaru",
   "post.foldReply": "Lipat",
   "post.foldReplyTitle": "Lipat balasan ini hingga baris penulisnya — hanya untuk Anda, sampai Anda meninggalkan halaman",

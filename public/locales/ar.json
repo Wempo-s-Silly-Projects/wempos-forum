@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "المنشورات المخفية: {count}.",
   "admin.msg.restored.one": "تمت استعادة {count} منشور.",
   "admin.msg.restored.other": "المنشورات المستعادة: {count}.",
+  "composer.sendShortcut": "تلميح: اضغط Ctrl+Enter (أو ⌘+Enter على Mac) للنشر.",
   "post.latestReply": "الانتقال إلى أحدث رد",
   "post.foldReply": "طيّ",
   "post.foldReplyTitle": "اطوِ هذا الرد إلى سطر كاتبه — لك وحدك، حتى تغادر الصفحة",

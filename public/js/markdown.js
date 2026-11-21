@@ -67,6 +67,7 @@ export function isSafeLinkUrl(raw) {
 // segment; hrefs stay relative, and internal anchors (unlike links) get no
 // target attribute — they ride the SPA router like profile links.
 const MENTION_PATTERN = /(?:^|[^a-zA-Z0-9_])@([a-zA-Z0-9_]+)/g;
+const MENTION_LOOKBEHIND = 1; // the non-word char MENTION_PATTERN consumes before "@"
 
 // The next mention token at or after `from`; -1 when there is none.
 function nextMentionOpen(value, from) {
@@ -84,21 +85,58 @@ function mentionHandleAt(value, at) {
   return match ? match[1] : null;
 }
 
+// Wave 19: parseInline only ever scans forward, so the next occurrence of a
+// marker at or after `from` stays valid until the scan passes it, and a miss
+// stays a miss. Caching each marker's last answer keeps marker-heavy bodies
+// (a capped post of "**…" or "[…") linear instead of rescanning to the end on
+// every step — this parser runs on the worker's spoiler-masked output paths.
+// `lookbehind` is how many chars before a hit its match consumed (the mention
+// pattern eats the char before "@"): a hit is reusable only while that whole
+// match still starts at or after `from`, so results never change.
+function forwardFinder(search, lookbehind = 0) {
+  let lastFrom = -1;
+  let lastAt = -1;
+  return (from) => {
+    const reusable = lastFrom !== -1 && from >= lastFrom && (lastAt === -1 || lastAt - lookbehind >= from);
+    if (reusable) return lastAt;
+    lastFrom = from;
+    lastAt = search(from);
+    return lastAt;
+  };
+}
+
+function inlineFinders(value) {
+  const seek = (needle) => forwardFinder((from) => value.indexOf(needle, from));
+  return {
+    code: seek("`"),
+    bold: seek("**"),
+    strike: seek("~~"),
+    spoiler: seek(SPOILER_MARK),
+    link: seek("["),
+    star: seek("*"),
+    closeBracket: seek("]"),
+    closeParen: seek(")"),
+    em: forwardFinder((from) => nextItalicOpen(value, from)),
+    mention: forwardFinder((from) => nextMentionOpen(value, from), MENTION_LOOKBEHIND),
+  };
+}
+
 // `spoilerRanges` (optional): each consumed spoiler's [start, end) span in
 // `text` is pushed onto it, so maskSpoilers hides exactly what renders hidden.
 export function parseInline(document, text, spoilerRanges = null) {
   const value = String(text ?? "");
+  const find = inlineFinders(value);
   const nodes = [];
   let start = 0;
   let index = 0;
   while (index < value.length) {
-    const codeOpen = value.indexOf("`", index);
-    const boldOpen = value.indexOf("**", index);
-    const strikeOpen = value.indexOf("~~", index);
-    const spoilerOpen = value.indexOf(SPOILER_MARK, index);
-    const linkOpen = value.indexOf("[", index);
-    const emOpen = nextItalicOpen(value, index);
-    const mentionOpen = nextMentionOpen(value, index);
+    const codeOpen = find.code(index);
+    const boldOpen = find.bold(index);
+    const strikeOpen = find.strike(index);
+    const spoilerOpen = find.spoiler(index);
+    const linkOpen = find.link(index);
+    const emOpen = find.em(index);
+    const mentionOpen = find.mention(index);
     const next = pickFirst([codeOpen, boldOpen, strikeOpen, spoilerOpen, emOpen, linkOpen, mentionOpen]);
     if (next === -1 || next >= value.length) break;
     const emitPre = () => {
@@ -106,7 +144,7 @@ export function parseInline(document, text, spoilerRanges = null) {
     };
 
     if (next === codeOpen) {
-      const close = value.indexOf("`", next + 1);
+      const close = find.code(next + 1);
       if (close === -1 || close === next + 1) {
         emitPre();
         start = next;
@@ -119,7 +157,7 @@ export function parseInline(document, text, spoilerRanges = null) {
       continue;
     }
     if (next === boldOpen) {
-      const close = value.indexOf("**", next + 2);
+      const close = find.bold(next + 2);
       if (close === -1 || close === next + 2) {
         emitPre();
         start = next;
@@ -132,7 +170,7 @@ export function parseInline(document, text, spoilerRanges = null) {
       continue;
     }
     if (next === strikeOpen) {
-      const close = value.indexOf("~~", next + 2);
+      const close = find.strike(next + 2);
       if (close === -1 || close === next + 2) {
         emitPre();
         start = next;
@@ -145,7 +183,7 @@ export function parseInline(document, text, spoilerRanges = null) {
       continue;
     }
     if (next === spoilerOpen) {
-      const close = value.indexOf(SPOILER_MARK, next + 2);
+      const close = find.spoiler(next + 2);
       if (close === -1 || close === next + 2) {
         emitPre();
         start = next;
@@ -159,7 +197,7 @@ export function parseInline(document, text, spoilerRanges = null) {
       continue;
     }
     if (next === emOpen) {
-      const close = value.indexOf("*", next + 1);
+      const close = find.star(next + 1);
       const emBody = close === -1 ? "" : value.slice(next + 1, close);
       if (close === -1 || emBody.length === 0 || emBody.startsWith("*") || emBody.endsWith("*")) {
         emitPre();
@@ -186,9 +224,9 @@ export function parseInline(document, text, spoilerRanges = null) {
     }
     // linkOpen: [text](url) — images ("![") are always refused.
     const isImage = next > 0 && value[next - 1] === "!";
-    const closeBracket = value.indexOf("]", next + 1);
+    const closeBracket = find.closeBracket(next + 1);
     const parenOpen = closeBracket === -1 ? -1 : value.indexOf("(", closeBracket + 1);
-    const parenClose = value.indexOf(")", closeBracket === -1 ? -1 : closeBracket + 1);
+    const parenClose = closeBracket === -1 ? -1 : find.closeParen(closeBracket + 1);
     const wellFormed = closeBracket !== -1 && parenOpen === closeBracket + 1 && parenClose !== -1;
     const label = wellFormed ? value.slice(next + 1, closeBracket) : null;
     const url = wellFormed ? value.slice(parenOpen + 1, parenClose) : null;
@@ -329,10 +367,16 @@ export function maskSpoilers(text) {
 // cut, so a spoiler split by the cut is already ▒▒▒ (wave 17). Shared by the
 // client and the server (api/core/spoilers.mjs) — one implementation.
 const ELLIPSIS = "\u2026";
+const HIGH_SURROGATE_MIN = 0xd800;
+const HIGH_SURROGATE_MAX = 0xdbff;
 
 export function maskedExcerpt(text, max) {
   const masked = maskSpoilers(text);
-  return masked.length > max ? masked.slice(0, max) + ELLIPSIS : masked;
+  if (masked.length <= max) return masked;
+  // Wave 19: never cut between an emoji's two UTF-16 halves.
+  const lead = masked.charCodeAt(max - 1);
+  const cut = lead >= HIGH_SURROGATE_MIN && lead <= HIGH_SURROGATE_MAX ? max - 1 : max;
+  return masked.slice(0, cut) + ELLIPSIS;
 }
 
 // Block shape of a body: fenced code (```…```), "# " headings (1–3 hashes —

@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "{count} publications masquées.",
   "admin.msg.restored.one": "{count} publication restaurée.",
   "admin.msg.restored.other": "{count} publications restaurées.",
+  "composer.sendShortcut": "Astuce : Ctrl+Entrée (⌘+Entrée sur Mac) publie.",
   "post.latestReply": "Aller à la dernière réponse",
   "post.foldReply": "Replier",
   "post.foldReplyTitle": "Replier cette réponse jusqu’à la ligne de l’auteur — pour vous seul, jusqu’à ce que vous quittiez la page",

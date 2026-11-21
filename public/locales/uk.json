@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "Приховано дописів: {count}.",
   "admin.msg.restored.one": "Відновлено {count} допис.",
   "admin.msg.restored.other": "Відновлено дописів: {count}.",
+  "composer.sendShortcut": "Порада: Ctrl+Enter (⌘+Enter на Mac) — надіслати.",
   "post.latestReply": "До останньої відповіді",
   "post.foldReply": "Згорнути",
   "post.foldReplyTitle": "Згорнути цю відповідь до рядка автора — лише для вас, доки ви не покинете сторінку",

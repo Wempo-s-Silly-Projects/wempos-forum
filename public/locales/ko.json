@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "게시물 {count}개를 숨겼습니다.",
   "admin.msg.restored.one": "게시물 {count}개를 복원했습니다.",
   "admin.msg.restored.other": "게시물 {count}개를 복원했습니다.",
+  "composer.sendShortcut": "팁: Ctrl+Enter(Mac에서는 ⌘+Enter)로 게시할 수 있어요.",
   "post.latestReply": "최신 답글로 이동",
   "post.foldReply": "접기",
   "post.foldReplyTitle": "이 답글을 작성자 줄만 남기고 접습니다 — 나에게만, 페이지를 떠날 때까지",

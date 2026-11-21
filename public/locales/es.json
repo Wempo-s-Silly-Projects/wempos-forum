@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "Se ocultaron {count} publicaciones.",
   "admin.msg.restored.one": "Se restauró {count} publicación.",
   "admin.msg.restored.other": "Se restauraron {count} publicaciones.",
+  "composer.sendShortcut": "Consejo: Ctrl+Intro (⌘+Intro en Mac) publica.",
   "post.latestReply": "Ir a la respuesta más reciente",
   "post.foldReply": "Plegar",
   "post.foldReplyTitle": "Pliega esta respuesta hasta la línea del autor — solo para ti, hasta que salgas de la página",

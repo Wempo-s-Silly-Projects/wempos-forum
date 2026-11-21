@@ -3088,3 +3088,9 @@ mark.search-hit {
   margin-block: 0.5rem 1rem;
 }
 .settings-jump-link[hidden] { display: none; }
+/* Ctrl/Cmd+Enter hint (wave 19): shown where a keyboard is likely, hidden on
+   touch-only screens where the shortcut cannot be typed. */
+.composer-shortcut { display: block; }
+@media (hover: none) and (pointer: coarse) {
+  .composer-shortcut { display: none; }
+}

@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "Скрыто постов: {count}.",
   "admin.msg.restored.one": "Восстановлен {count} пост.",
   "admin.msg.restored.other": "Восстановлено постов: {count}.",
+  "composer.sendShortcut": "Совет: Ctrl+Enter (⌘+Enter на Mac) — отправить.",
   "post.latestReply": "К последнему ответу",
   "post.foldReply": "Свернуть",
   "post.foldReplyTitle": "Свернуть этот ответ до строки автора — только для вас, пока вы не покинете страницу",

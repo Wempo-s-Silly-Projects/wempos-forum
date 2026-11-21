@@ -47,7 +47,7 @@ export async function renderProfileWall(profile) {
     form.dataset.ownerId = String(profile.id);
     form.append(createTextarea(document, {
       id: `${profile.id}-wall-body`, name: "body", label: t("wall.postLabel"),
-      rows: 3, maxLength: WALL_MAX_CHARS, required: true, counter: true,
+      rows: 3, maxLength: WALL_MAX_CHARS, required: true, counter: true, submitShortcut: true,
     }));
     addSubmit(form, t("wall.postButton"));
     panel.append(form);
