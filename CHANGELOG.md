@@ -15,6 +15,23 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.23.0] - 2026-11-21
+
+### Added
+- **Print-friendly threads.** Printing a thread (or saving it as a PDF) now
+  leaves out the header, menus, buttons, reply box, chat and footer, and
+  prints the thread title and every post with its author and date, in black
+  on white. Folded replies and long posts print in full, a post stays on one
+  page where it fits, and links to other sites print their address after the
+  link text. This is a stylesheet change only.
+- **Optional pronouns on profiles.** Members can add pronouns in the profile
+  editor (letters, spaces, / and - only, up to 24 characters). They show next
+  to the name on the profile, are empty unless you set them, and clearing the
+  field removes them. They are included in Download my data and deleted with
+  the account. Blocked members don't see them, the same as the rest of the
+  profile. New API route: `PUT /api/me/pronouns`. Database migration
+  `0062_profile_pronouns` adds one new table.
+
 ## [5.22.0] - 2026-11-21
 
 ### Changed
