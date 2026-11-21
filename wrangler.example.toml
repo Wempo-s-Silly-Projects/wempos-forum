@@ -1,0 +1,152 @@
+# Wempo's Forum — example Wrangler configuration for your own copy.
+#
+# Copy this file to wrangler.toml (git-ignored) and fill in the values marked
+# CHANGE ME. Full steps: docs/self-hosting.md.
+#
+#   cp wrangler.example.toml wrangler.toml
+
+# Your worker's name. Wempo Accounts' FORUM_WORKER service binding must name
+# this same worker.
+name = "wempos-forum"  # CHANGE ME if you like
+main = "worker.mjs"
+compatibility_date = "2026-10-13"
+# The forum answers on <name>.<your-subdomain>.workers.dev. To use your own
+# domain, add a custom domain in the Cloudflare dashboard (or a `routes` entry
+# here) and set SITE_ORIGIN below to it.
+workers_dev = true
+
+[vars]
+# The forum's public origin, e.g. "https://forum.example.org". When set, the
+# workers.dev address 301s here and every sitemap/robots/MCP/OpenAPI link uses
+# it. Leave it empty to serve everything on whatever address the request used
+# (no redirect).
+SITE_ORIGIN = ""
+# Your Wempo Accounts origin, e.g. "https://accounts.example.org". Every Sign
+# in / Sign out link targets it; sign-in does not work until it is set.
+ACCOUNTS_ORIGIN = ""
+# Optional Cloudflare Turnstile. Turnstile runs only when the TURNSTILE_SECRET
+# secret is set; then also set the public sitekey and the hostnames the widget
+# is allowed on (comma-separated, e.g. "forum.example.org"). Leave all three
+# unset to run without it (rate limits always apply).
+TURNSTILE_SITEKEY = ""
+TURNSTILE_HOSTNAMES = ""
+# The slug this forum sends to Wempo Accounts when it redeems a sign-in ticket.
+# Must match the site name your Accounts copy expects for this forum.
+RELAY_WORKER_NAME = "wempos-forum"
+VERSION = "5.17.0"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+# Worker-first: the worker serves every request (build stamp, security headers).
+run_worker_first = true
+
+# Create it first:  pnpm exec wrangler d1 create <database-name>
+# then paste the printed database_id here. Wempo Accounts uses this SAME
+# database (one shared D1 for the pair).
+[[d1_databases]]
+binding = "FORUM_DB"
+database_name = "wempo-forum-data"  # CHANGE ME (then run migrations with D1_DATABASE=<name>)
+database_id = "00000000-0000-0000-0000-000000000000"  # CHANGE ME
+migrations_dir = "migrations"
+
+# Rate limits (always on). namespace_id is any number unique within your
+# Cloudflare account.
+[[ratelimits]]
+name = "READ_RATE_LIMITER"
+namespace_id = "614202610141001"
+[ratelimits.simple]
+limit = 180
+period = 60
+
+[[ratelimits]]
+name = "WRITE_RATE_LIMITER"
+namespace_id = "614202610141002"
+[ratelimits.simple]
+limit = 45
+period = 60
+
+[[ratelimits]]
+name = "GUEST_SESSION_RATE_LIMITER"
+namespace_id = "614202610141003"
+[ratelimits.simple]
+limit = 120
+period = 60
+
+[[ratelimits]]
+name = "REGISTER_RATE_LIMITER"
+namespace_id = "614202610141004"
+[ratelimits.simple]
+limit = 5
+period = 60
+
+[[ratelimits]]
+name = "LOGIN_RATE_LIMITER"
+namespace_id = "614202610141005"
+[ratelimits.simple]
+limit = 10
+period = 60
+
+[[ratelimits]]
+name = "SETUP_RATE_LIMITER"
+namespace_id = "614202610141006"
+[ratelimits.simple]
+limit = 5
+period = 60
+
+[[ratelimits]]
+name = "POST_WRITE_RATE_LIMITER"
+namespace_id = "614202610141007"
+[ratelimits.simple]
+limit = 20
+period = 60
+
+[[ratelimits]]
+name = "PASSWORD_CHANGE_RATE_LIMITER"
+namespace_id = "614202610141008"
+[ratelimits.simple]
+limit = 6
+period = 60
+
+[[ratelimits]]
+name = "REPORT_RATE_LIMITER"
+namespace_id = "614202610141009"
+[ratelimits.simple]
+limit = 5
+period = 60
+
+[[ratelimits]]
+name = "AVATAR_UPLOAD_RATE_LIMITER"
+namespace_id = "614202610141010"
+[ratelimits.simple]
+limit = 5
+period = 60
+
+[[ratelimits]]
+name = "REACTION_RATE_LIMITER"
+namespace_id = "614202610141011"
+[ratelimits.simple]
+limit = 30
+period = 60
+
+[[ratelimits]]
+name = "TOTP_RATE_LIMITER"
+namespace_id = "614202610141013"
+[ratelimits.simple]
+limit = 10
+period = 60
+[[ratelimits]]
+name = "IMAGE_UPLOAD_RATE_LIMITER"
+namespace_id = "614202610141012"
+[ratelimits.simple]
+limit = 5
+period = 60
+
+# Wempo Accounts sign-in handshake: POST /api/auth/sso/redeem trades the
+# Accounts one-time ?wt= code for a forum session over this service binding.
+# Deploy Wempo Accounts first (same Cloudflare account, same D1), then set
+# `service` to its worker name.
+[[services]]
+binding = "ACCOUNTS_WORKER"
+service = "accounts"  # CHANGE ME to your Wempo Accounts worker name
