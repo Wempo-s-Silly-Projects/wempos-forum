@@ -85,6 +85,13 @@ code. Database migrations are a separate step. The full steps are in
 - [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) ·
   [Code of Conduct](CODE_OF_CONDUCT.md) · [Changelog](CHANGELOG.md)
 
+## Feedback & bugs
+
+Found a bug or have an idea? Open an issue at
+<https://github.com/Wempo-s-Silly-Projects/wempos-forum/issues/new/choose>,
+or post on the forum's **Bugs & Troubleshooting & Help** or **Suggestions**
+boards. Security problems go privately instead — see [SECURITY.md](SECURITY.md).
+
 ## License
 
 Wempo's Forum is free software, licensed under the **GNU Affero General Public
