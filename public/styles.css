@@ -3094,3 +3094,28 @@ mark.search-hit {
 @media (hover: none) and (pointer: coarse) {
   .composer-shortcut { display: none; }
 }
+/* Wave 2026-11-21-20 newcomer cards: the welcome card for new accounts and
+   the "new tricks" tips card on the signed-in home feed. Tokens only, so both
+   themes follow; the fade-in only runs when motion is welcome. */
+.newcomer-card {
+  margin: 0 0 0.8rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line);
+  border-inline-start: 4px solid var(--green);
+  border-radius: var(--button-radius);
+  background: var(--paper);
+}
+.newcomer-title { margin: 0 0 0.4rem; font-size: 1.1rem; }
+.newcomer-title:focus { outline: 2px solid var(--green); outline-offset: 2px; }
+.newcomer-copy, .newcomer-nudge { margin: 0 0 0.5rem; }
+.newcomer-links, .newcomer-tips { margin: 0 0 0.6rem; padding-inline-start: 1.2rem; }
+.newcomer-links li, .newcomer-tips li { margin: 0.2rem 0; overflow-wrap: anywhere; }
+.newcomer-nudge { font-style: italic; }
+.newcomer-done { margin: 0 0 0.8rem; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .newcomer-card { animation: newcomer-fade 180ms ease-out; }
+}
+@keyframes newcomer-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

@@ -27,6 +27,7 @@ import { iconButton } from "../icons.js";
 import { createLanguagePicker, t } from "../i18n.js";
 import { clearAllDrafts } from "../drafts.js";
 import { clearAllCatchUp } from "../catch-up.js";
+import { clearAllNewcomer } from "../newcomer.js";
 import { clearAllPins } from "../chat-pins.js";
 import { createNotificationBell } from "../notifications.js";
 // The §4b door-swap: every auth link (header Sign in, mobile guest rung)
@@ -265,9 +266,10 @@ export const ACTIONS = {
   logout: async () => {
     await api("/api/auth/logout", { method: "POST" });
     // Shared-browser privacy: unsent drafts, read marks and chat pins leave
-    // with the member.
+    // with the member (newcomer-card dismissals too).
     clearAllDrafts();
     clearAllCatchUp();
+    clearAllNewcomer();
     clearAllPins();
 
     setCsrfToken("");
