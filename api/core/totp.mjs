@@ -14,7 +14,7 @@
 //
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
-// see <https://www.gnu.org/licenses/>
+// see <https://www.gnu.org/licenses/>.
 
 // v4.0 core leaf: TOTP (RFC 6238) — the two-factor primitives everything
 // 2FA bottoms out on. Web Crypto carries the HMAC (SHA-1 is what every

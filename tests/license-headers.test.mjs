@@ -60,8 +60,24 @@ test("api/** and worker.mjs headers carry the 17-line template shape", () => {
   assert.deepEqual(badShape(serverFiles), []);
 });
 
-test("public/js/** (non-vendor) start with the AGPLv3 header", {
-  todo: "BUG: 45 of 47 public/js files carry no AGPLv3 header (e.g. public/js/api.js:1, public/js/app.js:1)",
-}, () => {
+test("public/js/** (non-vendor) start with the AGPLv3 header", () => {
   assert.deepEqual(missingHeader(clientFiles), []);
+});
+
+test("public/js/** (non-vendor) headers carry the 17-line template shape", () => {
+  assert.deepEqual(badShape(clientFiles), []);
+});
+
+const cssFiles = readdirSync(join(ROOT, "public"))
+  .filter((name) => name.endsWith(".css"))
+  .map((name) => join(ROOT, "public", name));
+
+test("public/*.css start with the AGPLv3 header in /* */ form", () => {
+  assert.ok(cssFiles.length > 0, "css files: " + cssFiles.length);
+  const bad = cssFiles.filter((file) => {
+    const lines = readFileSync(file, "utf8").split("\n");
+    return !(lines[0] === "/*" && lines[1] === " * Copyright 2026 ItsWempo"
+      && lines[17] === " * see <https://www.gnu.org/licenses/>." && lines[18] === " */");
+  }).map((file) => relative(ROOT, file));
+  assert.deepEqual(bad, []);
 });
