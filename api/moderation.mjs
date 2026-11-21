@@ -42,6 +42,7 @@ import { createUserBan, handleBanListRoute, handleBanMutationRoute } from "./ban
 // v4.0 plan 3, Task 5: promote/demote + member search moved to
 // api/members-admin.mjs ("who manages roles" — the spec's third seam).
 import { handleMemberSearchRoute, handleRoleChangeRoute } from "./members-admin.mjs";
+import { handleModToolRoutes } from "./mod-tools.mjs";
 
 async function handleModerationRoutes(request, env, url, path, method, ctx) {
   const handlers = [
@@ -56,6 +57,7 @@ async function handleModerationRoutes(request, env, url, path, method, ctx) {
     handleAvatarModerationRoute,
     handleHiddenPostsRoute,
     handleThreadPinRoute,
+    handleModToolRoutes,
   ];
   for (const handler of handlers) {
     const response = await handler(request, env, url, path, method, ctx);

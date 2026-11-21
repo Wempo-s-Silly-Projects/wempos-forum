@@ -44,6 +44,7 @@ import {
   createGifQueue,
 } from "../desk/media.js";
 import { createReportQueue } from "../desk/reports.js";
+import { createMemberPeek } from "../desk/member-tools.js";
 import { createFilterEditor } from "../desk/filter.js";
 
 // The desk (v4.2 redesign): /admin is a section-routed panel — a sidebar rail
@@ -312,6 +313,15 @@ function createHiddenPostsQueue(items, document) {
     link.href = "/posts/" + item.threadId;
     link.setAttribute("data-app-link", "");
     card.append(head, body, when, link);
+    // Wave 2026-11-21-9: moderator-hidden posts can be restored in place
+    // (banned-author rows return on unban; staged uploads publish themselves).
+    if (item.visibility === "hidden" && !item.staged) {
+      const restore = element("button", "button", t("admin.restore"));
+      restore.type = "button";
+      restore.dataset.action = "post-restore";
+      restore.dataset.postId = String(item.id);
+      card.append(restore);
+    }
     container.append(card);
   }
   return container;
@@ -373,6 +383,19 @@ async function submitReportResolution(form) {
   });
   await state.renderRoute({ name: "admin" });
   setMessage(t("admin.msg.reportUpdated"));
+}
+
+// Hide a spam run (wave 2026-11-21-9): destructive, so it confirms first;
+// every hidden post can be restored from the Hidden posts page.
+async function submitHideRecent(form, text) {
+  const count = Number(text("count"));
+  if (!window.confirm(tn("desk.hideRecent.confirm", count, { username: form.dataset.username }))) return;
+  const data = await api("/api/admin/users/" + form.dataset.userId + "/hide-recent", {
+    method: "POST",
+    body: { count },
+  });
+  await state.renderRoute(state.activeRoute);
+  setMessage(tn("admin.msg.hidRecent", data.hidden));
 }
 
 async function submitBanForm(form, text) {
@@ -450,6 +473,7 @@ export const FORM_HANDLERS = {
   "admin-attachment-approve": (form) => submitAttachmentModeration(form, "approve"),
   "admin-attachment-reject": (form) => submitAttachmentModeration(form, "reject"),
   "admin-member-search": (form, text) => submitMemberSearch(form, text),
+  "admin-hide-recent": (form, text) => submitHideRecent(form, text),
   "filter-save": async (form, text) => submitFilterSave(form, text),
   "filter-bulk-add": async (form, text) => submitFilterBulkAdd(form, text),
 };
@@ -475,7 +499,28 @@ async function submitFilterBulkAdd(form, text) {
   );
 }
 
+// Recent-activity peek (wave 2026-11-21-9): loads once into the card's region,
+// then the toggle only shows/hides it.
+async function toggleMemberPeek(button) {
+  const region = document.getElementById(button.getAttribute("aria-controls"));
+  if (!region) return;
+  const opening = button.getAttribute("aria-expanded") !== "true";
+  if (opening && !region.childElementCount) {
+    const data = await api("/api/admin/users/" + encodeURIComponent(button.dataset.userId) + "/recent-posts");
+    region.replaceChildren(createMemberPeek(document, data));
+  }
+  region.hidden = !opening;
+  button.setAttribute("aria-expanded", String(opening));
+  button.textContent = t(opening ? "desk.peek.hide" : "desk.peek.show");
+}
+
 export const ACTIONS = {
+    "member-peek": (button) => toggleMemberPeek(button),
+    "post-restore": async (button) => {
+      const data = await api("/api/admin/posts/unhide", { method: "POST", body: { ids: [Number(button.dataset.postId)] } });
+      await state.renderRoute(state.activeRoute);
+      setMessage(tn("admin.msg.restored", data.restored));
+    },
     // Pinned (C5): the mod desk's pin/unpin — POST to the admin route and
     // re-render; the payload's pinnedAt decides which control each card shows.
     "thread-pin": async (button) => {

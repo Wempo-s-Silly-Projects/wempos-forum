@@ -213,7 +213,7 @@ async function handleHiddenPostsRoute(request, env, url, path, method) {
   if (path !== "/api/admin/hidden" || method !== "GET") return null;
   await requireStaff(request, env, false);
   const result = await db.prepare(
-    "SELECT p.id, p.body, p.visibility, p.board, p.created_at, p.parent_id, " +
+    "SELECT p.id, p.body, p.visibility, p.board, p.created_at, p.parent_id, p.staged_at, " +
       "author.id AS author_id, author.username AS author_username, " +
       "(SELECT b.reason FROM bans b WHERE b.user_id = p.author_id AND b.revoked_at IS NULL " +
       "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)) LIMIT 1) AS ban_reason, " +
@@ -234,6 +234,9 @@ async function handleHiddenPostsRoute(request, env, url, path, method) {
       id: Number(row.id),
       body: row.body,
       visibility: row.visibility,
+      // Staged uploads publish on their own path; the desk offers Restore only
+      // for moderator-hidden rows (wave 2026-11-21-9).
+      staged: row.staged_at !== null && row.staged_at !== undefined,
       board: row.board || "general",
       createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
       threadId: row.parent_id !== null && row.parent_id !== undefined

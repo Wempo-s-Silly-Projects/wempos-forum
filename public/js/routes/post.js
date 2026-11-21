@@ -42,6 +42,7 @@ import { applyCatchUp } from "../catch-up.js";
 import { createThreadGlance, summarizeThread } from "../thread-glance.js";
 import { markThreadStarterReplies, threadStarterId } from "../thread-starter.js";
 import { bindPostKeys, createPostKeysHint } from "../post-keys.js";
+import { createLatestReplyJump } from "../latest-reply.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -61,6 +62,9 @@ async function renderPostRoute(route, context, version) {
     replyList = element("div", "post-list replies-list");
     replyList.dataset.repliesFor = String(post.id);
     for (const reply of post.replies) replyList.append(createPostCard(reply, document, context.session.user));
+    // Jump to the latest reply (wave 2026-11-21-9 F3): long threads only.
+    const latestJump = createLatestReplyJump(document, replyList, post.replies.length);
+    if (latestJump) main.append(latestJump);
     main.append(replyList);
     // Thread-author chip (wave 2026-11-21-7 F2): the starter's own replies.
     const starterId = threadStarterId(post);
