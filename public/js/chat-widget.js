@@ -74,6 +74,7 @@ let listSideEl = null;
 // beacon stays with who-online.js; this module never sends it.
 let lobbyEl = null;
 let lobbyOnlineEl = null;
+let lobbyOnline = 0;
 let lobbyMessagesEl = null;
 let lobbyAvailable = false;
 let lobbyLog = [];
@@ -478,6 +479,13 @@ const paintConversation = () => {
   const pinned = previousScroll
     ? previousScroll.scrollHeight - previousScroll.scrollTop - previousScroll.clientHeight < 60
     : true;
+  // The 5s poll rebuilds the composer; carry a half-typed draft (and focus)
+  // over — but only within the SAME thread, never into another conversation.
+  const draft = composerEl && composerEl.value
+    ? { threadId: composerEl.dataset.threadId, value: composerEl.value,
+      focused: document.activeElement === composerEl,
+      start: composerEl.selectionStart, end: composerEl.selectionEnd }
+    : null;
   conversationEl.replaceChildren();
   const back = el("button", "chat-widget-back");
   back.type = "button";
@@ -530,6 +538,17 @@ const paintConversation = () => {
   composerEl.rows = 1;
   composerEl.placeholder = "Write a message…";
   composerEl.setAttribute("aria-label", `Message ${title.textContent}`);
+  composerEl.dataset.threadId = String(activeThread?.id ?? "");
+  if (draft && draft.threadId === composerEl.dataset.threadId) {
+    composerEl.value = draft.value;
+    if (draft.focused) {
+      const restored = composerEl;
+      queueMicrotask(() => {
+        restored.focus();
+        restored.setSelectionRange(draft.start, draft.end);
+      });
+    }
+  }
   composerEl.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
