@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Bookmarks (C4): PUT/DELETE /api/posts/:id/bookmark (member gates mirroring
 // the reaction/subscribe routes; idempotent in both directions — a missing row

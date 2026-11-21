@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Wave 2026-11-21-27 F2 (v4.32): "Unread only" on the chat list. A checkbox
 // beside the quick filter narrows the loaded DM and group rows to the ones

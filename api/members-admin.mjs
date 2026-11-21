@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // v4.0 plan 3, Task 5: the "who manages roles" module — promote/demote
 // (owner-only gate) and the member search that feeds the desk's unban flow.

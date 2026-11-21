@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Gallery picker (v3.0.1, was the GIF picker): the composer's Gallery button opens a dialog of the
 // APPROVED library; members multi-select up to the composer's spare

@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Wave 5.16 security review of v5.12.0..v5.15.0 (docs/drafts/security-review-5.16.md).
 // S1: a close that lands between a vote's (or a take-back's) poll read and its

@@ -42,10 +42,12 @@ verbatim into any brief you hand to another agent.
 
 - Everything is AGPLv3-or-later. All third-party code must be
   AGPLv3-compatible.
-- Every `.js` / `.mjs` file starts with the 17-line `//` license notice plus a
-  blank line (copy it from any existing file, e.g. `public/js/api.js`). Every
-  `.css` file carries the same notice in a `/* */` block.
-  `tests/license-headers.test.mjs` enforces this.
+- Every `.js` / `.mjs` file starts with the 17-line `//` license notice, the
+  two SPDX lines (license identifier + copyright), then a blank line (copy all
+  19 lines from any existing file, e.g. `public/js/api.js`). Every `.css` file
+  carries the same notice and SPDX lines in `/* */` comments.
+  `tests/license-headers.test.mjs` enforces this. Uncommentable files are
+  covered by `REUSE.toml`; `reuse lint` (CI) must exit 0.
 - Vendored-verbatim files (`public/js/vendor/**`, when present) are exempt from
   the template: they keep their own VENDORED VERBATIM banner, and swapping in
   the template would break that banner contract.

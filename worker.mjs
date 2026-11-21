@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Route composition and the Worker entrypoint. All handler logic lives under
 // api/; worker.mjs re-exports the functions that tests import. workerd
@@ -59,6 +61,7 @@ import { handleBrandingRoutes, readStoredBranding } from "./api/branding.mjs";
 import { handleDiscovery, withDiscoveryHeaders } from "./api/discovery.mjs";
 import { handleMcp } from "./api/mcp.mjs";
 import { accountsOrigin, configuredOrigin } from "./api/core/site.mjs";
+import { sourceUrl } from "./api/core/source-url.mjs";
 // The client router is the single source of truth for page routes (v5.2): a
 // path it can't match answers the shell with an honest 404.
 import { routeForPath } from "./public/js/router.js";
@@ -119,6 +122,8 @@ const answerApiRoute = dispatch(API_HANDLERS, notFound);
 // (Accounts origin, Turnstile sitekey) — each meta only when configured.
 // Branding (v5.19.0): the owner-saved name/tagline/footer ride the same stamp,
 // each only when saved, so a forum with no settings row serves today's bytes.
+// Source link (v5.21.0, AGPL-3.0 §13): SOURCE_URL or the repo tree at
+// COMMIT_SHA rides the stamp as source-url; neither set → no meta.
 function attributeEscape(value) {
   return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -130,6 +135,7 @@ function shellMetas(env, branding) {
   return [
     ["app-build", build], ["accounts-origin", accounts], ["turnstile-sitekey", sitekey],
     ["site-name", branding.name], ["site-tagline", branding.tagline], ["site-footer", branding.footer],
+    ["source-url", sourceUrl(env)],
   ]
     .filter(([, content]) => content)
     .map(([name, content]) => `<meta name="${name}" content="${attributeEscape(content)}">`)

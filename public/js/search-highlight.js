@@ -15,6 +15,9 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
 // v4.21 search highlighting: the searched words light up in reply results and
 // member names. The server matches with instr(lower(body), lower(q)), so the
 // client mirrors it with toLowerCase. Pure splitter + a DOM builder that only

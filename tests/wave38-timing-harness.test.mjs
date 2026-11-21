@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Wave 2026-11-21-38. The speed pins in wave19/wave23 now assert growth
 // shape (4x input -> < 8x cost) instead of trusting one millisecond reading.

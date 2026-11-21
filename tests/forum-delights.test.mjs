@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Wave 2026-11-21-7 F2 (thread-author chip) + F3 (read aloud): both
 // client-only, built from data the post payload already carries; read aloud

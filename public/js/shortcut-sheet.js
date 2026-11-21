@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Keyboard shortcuts sheet (wave 2026-11-21-29 F2): a closed-by-default
 // <details> beside the J/K hint on a thread page, listing the shortcuts the

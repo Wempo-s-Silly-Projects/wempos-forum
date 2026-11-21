@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // v4.3: the desk's word-filter section builder. The filter list lives in D1
 // (api/filterstore.mjs) and is edited from here — a full-list editor (save

@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Wave 2026-11-21-6: the Lobby history paint on open (F1), the two wave-5
 // reviewer LOWs — stale older group pages and the badge's loaded-pages-only

@@ -17,6 +17,8 @@
  * GNU Affero General Public License along with this program.  If not,
  * see <https://www.gnu.org/licenses/>.
  */
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* SPDX-FileCopyrightText: 2026 ItsWempo */
 
 /* The v4.0 responsive layer (spec step 7): every rule below this file owns
    the narrow-viewport presentation, and styles.css (loaded before it) is

@@ -15,6 +15,9 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
 // Wave 2026-11-21-35 F1 — restored drafts read a timestamp from localStorage,
 // which is member-editable and can be corrupted. A savedAt in the future
 // (clock jump, hand-edited storage) used to dodge the 7-day expiry forever,

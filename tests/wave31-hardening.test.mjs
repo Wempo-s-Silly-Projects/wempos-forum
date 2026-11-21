@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Wave 2026-11-21-31 F1 hardening over v4.32-v4.35.
 // 1. Upload count gate (MEDIUM): the 3-file cap must refuse a multipart body

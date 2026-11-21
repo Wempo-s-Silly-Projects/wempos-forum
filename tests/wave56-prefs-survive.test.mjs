@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Wave 5.6 F2 (owner: "it keeps forgetting local storage stuff (like theme
 // and anything else)"). Audit result: NOT reproduced in code. The only

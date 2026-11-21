@@ -15,6 +15,9 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
 // Wave 5.5 F1: caps guard — a quiet "that reads as shouting" note under the
 // composer with a one-click sentence-case fix and an Undo.
 import { test } from "node:test";

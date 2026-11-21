@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // DM extras (v4.7): the group-DM and DM-image pieces of the chat widget,
 // kept out of chat-widget.js so that file stays focused. Builders return

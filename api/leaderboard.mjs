@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // All-time leaderboard (v2.5 weekly → permanent, owner's call): the top ten
 // contributors ever — threads started (×2), replies written, and reactions

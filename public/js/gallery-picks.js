@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Gallery picker extras (wave 2026-11-21-21 F2 + F3), DOM-free.
 // F2 recents: the last MAX_RECENT_GALLERY library images a member inserted

@@ -15,6 +15,9 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
 // Wave 2026-11-21-16: notifications grouped by thread (with a mark-the-thread
 // read endpoint and spoiler-safe previews), clearer poll results, and search
 // term highlighting. Server bits are driven through the real worker.

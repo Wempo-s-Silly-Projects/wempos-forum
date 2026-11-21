@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Markdown rendering (v2.5): a small, deliberate subset — bold, italics,
 // inline code, fenced code blocks, headings, bullet lists, blockquotes (the

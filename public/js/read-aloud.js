@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Read aloud (wave 2026-11-21-7 F3): a "Listen" toggle on post cards that
 // reads the post out with the browser's speech engine. Privacy: only voices

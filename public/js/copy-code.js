@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Copy code (wave 2026-11-21-10 F3): a quiet icon button on every fenced code
 // block in a post, reply, the rules page and the compose preview; it copies

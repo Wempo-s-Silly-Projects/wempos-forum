@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Unread count in the tab title (wave 5.3 F2, opt-in): with the box ticked,
 // a signed-in member's browser tab reads "(3) Wempo's Forum", so a pinned

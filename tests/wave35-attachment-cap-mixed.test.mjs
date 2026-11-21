@@ -15,6 +15,9 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
 // Wave 2026-11-21-35 F1 — re-check of the wave-31 early attachment cap with
 // images and library GIFs interleaved in one multipart body. Exactly the cap
 // (any mix) gets past the count gate; the first part past the cap is refused

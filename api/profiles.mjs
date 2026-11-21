@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // v4.0 plan 3 composer: profile-group dispatcher. Avatar upload/serve and the
 // moderation queue moved to api/avatars.mjs (Task 2); the CSS routes moved to

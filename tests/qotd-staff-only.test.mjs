@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Owner, Nov 21: QOTD is the owner's and admins' job ("there is only owner
 // me and admins", "admins can do it to"). Only a QOTD written by an owner or

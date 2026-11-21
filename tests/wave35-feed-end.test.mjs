@@ -15,6 +15,9 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
 // Wave 2026-11-21-35 F2 — End of feed + Back to top. After Load older brings
 // in a feed's final page, the list closes with "You've reached the end of
 // this feed." and a Back to top button that scrolls to and focuses the

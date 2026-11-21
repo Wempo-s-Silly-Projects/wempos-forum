@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Ctrl+Enter / Cmd+Enter posts (wave 2026-11-21-19). The forum composers opt
 // in through createTextarea({ submitShortcut: true }); plain Enter keeps

@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // v4.0 plan 4 Task 2 + the §4b door-swap: the auth concern is now only the
 // first-owner setup screens and the home route's guest access gate. The

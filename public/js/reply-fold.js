@@ -15,6 +15,8 @@
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Fold a reply (wave 2026-11-21-12 F2): each reply on a thread page carries a
 // small "Fold" toggle in its header. Folding hides that one reply down to its
