@@ -925,5 +925,13 @@
   "feed.resetAppearance": "தோற்றத்தை மீட்டமை",
   "feed.appearanceResetDone": "தோற்றம் இயல்புநிலைக்குத் திரும்பியது.",
   "dm.newMessages.one": "{count} புதிய செய்தி",
-  "dm.newMessages.other": "{count} புதிய செய்திகள்"
+  "dm.newMessages.other": "{count} புதிய செய்திகள்",
+  "search.jumpTo": "இங்கே செல்:",
+  "search.summaryLabel": "தேடல் முடிவுகளின் சுருக்கம்",
+  "search.jumpReplies.one": "{count} பதில்",
+  "search.jumpReplies.other": "{count} பதில்கள்",
+  "search.jumpPeople.one": "{count} உறுப்பினர்",
+  "search.jumpPeople.other": "{count} உறுப்பினர்கள்",
+  "search.jumpPosts.one": "{count} இடுகை",
+  "search.jumpPosts.other": "{count} இடுகைகள்"
 }

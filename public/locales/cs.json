@@ -925,5 +925,13 @@
   "feed.resetAppearance": "Obnovit vzhled",
   "feed.appearanceResetDone": "Vzhled je zpět na výchozím nastavení.",
   "dm.newMessages.one": "{count} nová zpráva",
-  "dm.newMessages.other": "Nové zprávy: {count}"
+  "dm.newMessages.other": "Nové zprávy: {count}",
+  "search.jumpTo": "Přejít na:",
+  "search.summaryLabel": "Souhrn výsledků hledání",
+  "search.jumpReplies.one": "{count} odpověď",
+  "search.jumpReplies.other": "Odpovědi: {count}",
+  "search.jumpPeople.one": "{count} člen",
+  "search.jumpPeople.other": "Členové: {count}",
+  "search.jumpPosts.one": "{count} příspěvek",
+  "search.jumpPosts.other": "Příspěvky: {count}"
 }

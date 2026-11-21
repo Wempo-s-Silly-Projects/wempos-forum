@@ -925,5 +925,13 @@
   "feed.resetAppearance": "Reset appearance",
   "feed.appearanceResetDone": "Appearance is back to the defaults.",
   "dm.newMessages.one": "{count} new message",
-  "dm.newMessages.other": "{count} new messages"
+  "dm.newMessages.other": "{count} new messages",
+  "search.jumpTo": "Jump to:",
+  "search.summaryLabel": "Search results summary",
+  "search.jumpReplies.one": "{count} reply",
+  "search.jumpReplies.other": "{count} replies",
+  "search.jumpPeople.one": "{count} member",
+  "search.jumpPeople.other": "{count} members",
+  "search.jumpPosts.one": "{count} post",
+  "search.jumpPosts.other": "{count} posts"
 }

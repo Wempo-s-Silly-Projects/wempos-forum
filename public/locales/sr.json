@@ -925,5 +925,13 @@
   "feed.resetAppearance": "Врати изглед",
   "feed.appearanceResetDone": "Изглед је враћен на подразумеване поставке.",
   "dm.newMessages.one": "{count} нова порука",
-  "dm.newMessages.other": "Нове поруке: {count}"
+  "dm.newMessages.other": "Нове поруке: {count}",
+  "search.jumpTo": "Иди на:",
+  "search.summaryLabel": "Сажетак резултата претраге",
+  "search.jumpReplies.one": "{count} одговор",
+  "search.jumpReplies.other": "Одговори: {count}",
+  "search.jumpPeople.one": "{count} члан",
+  "search.jumpPeople.other": "Чланови: {count}",
+  "search.jumpPosts.one": "{count} објава",
+  "search.jumpPosts.other": "Објаве: {count}"
 }

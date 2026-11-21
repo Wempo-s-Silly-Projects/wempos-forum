@@ -925,5 +925,13 @@
   "feed.resetAppearance": "Megjelenés visszaállítása",
   "feed.appearanceResetDone": "A megjelenés visszaállt az alapértelmezésre.",
   "dm.newMessages.one": "{count} új üzenet",
-  "dm.newMessages.other": "{count} új üzenet"
+  "dm.newMessages.other": "{count} új üzenet",
+  "search.jumpTo": "Ugrás ide:",
+  "search.summaryLabel": "A keresési találatok összefoglalója",
+  "search.jumpReplies.one": "{count} válasz",
+  "search.jumpReplies.other": "{count} válasz",
+  "search.jumpPeople.one": "{count} tag",
+  "search.jumpPeople.other": "{count} tag",
+  "search.jumpPosts.one": "{count} bejegyzés",
+  "search.jumpPosts.other": "{count} bejegyzés"
 }

@@ -925,5 +925,13 @@
   "feed.resetAppearance": "Darstellung zurücksetzen",
   "feed.appearanceResetDone": "Die Darstellung ist wieder auf den Standardwerten.",
   "dm.newMessages.one": "{count} neue Nachricht",
-  "dm.newMessages.other": "{count} neue Nachrichten"
+  "dm.newMessages.other": "{count} neue Nachrichten",
+  "search.jumpTo": "Springe zu:",
+  "search.summaryLabel": "Übersicht der Suchergebnisse",
+  "search.jumpReplies.one": "{count} Antwort",
+  "search.jumpReplies.other": "{count} Antworten",
+  "search.jumpPeople.one": "{count} Mitglied",
+  "search.jumpPeople.other": "{count} Mitglieder",
+  "search.jumpPosts.one": "{count} Beitrag",
+  "search.jumpPosts.other": "{count} Beiträge"
 }

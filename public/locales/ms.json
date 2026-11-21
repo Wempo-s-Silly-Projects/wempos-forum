@@ -925,5 +925,13 @@
   "feed.resetAppearance": "Tetapkan semula paparan",
   "feed.appearanceResetDone": "Paparan kembali kepada lalai.",
   "dm.newMessages.one": "{count} mesej baharu",
-  "dm.newMessages.other": "{count} mesej baharu"
+  "dm.newMessages.other": "{count} mesej baharu",
+  "search.jumpTo": "Pergi ke:",
+  "search.summaryLabel": "Ringkasan hasil carian",
+  "search.jumpReplies.one": "{count} balasan",
+  "search.jumpReplies.other": "{count} balasan",
+  "search.jumpPeople.one": "{count} ahli",
+  "search.jumpPeople.other": "{count} ahli",
+  "search.jumpPosts.one": "{count} hantaran",
+  "search.jumpPosts.other": "{count} hantaran"
 }

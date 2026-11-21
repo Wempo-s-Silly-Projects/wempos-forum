@@ -925,5 +925,13 @@
   "feed.resetAppearance": "চেহারা রিসেট করুন",
   "feed.appearanceResetDone": "চেহারা ডিফল্টে ফিরে গেছে।",
   "dm.newMessages.one": "{count}টি নতুন বার্তা",
-  "dm.newMessages.other": "{count}টি নতুন বার্তা"
+  "dm.newMessages.other": "{count}টি নতুন বার্তা",
+  "search.jumpTo": "এখানে যান:",
+  "search.summaryLabel": "অনুসন্ধানের ফলাফলের সারাংশ",
+  "search.jumpReplies.one": "{count}টি উত্তর",
+  "search.jumpReplies.other": "{count}টি উত্তর",
+  "search.jumpPeople.one": "{count} জন সদস্য",
+  "search.jumpPeople.other": "{count} জন সদস্য",
+  "search.jumpPosts.one": "{count}টি পোস্ট",
+  "search.jumpPosts.other": "{count}টি পোস্ট"
 }

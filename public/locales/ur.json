@@ -925,5 +925,13 @@
   "feed.resetAppearance": "ظاہری شکل ری سیٹ کریں",
   "feed.appearanceResetDone": "ظاہری شکل پہلے سے طے شدہ پر واپس آ گئی۔",
   "dm.newMessages.one": "{count} نیا پیغام",
-  "dm.newMessages.other": "{count} نئے پیغامات"
+  "dm.newMessages.other": "{count} نئے پیغامات",
+  "search.jumpTo": "یہاں جائیں:",
+  "search.summaryLabel": "تلاش کے نتائج کا خلاصہ",
+  "search.jumpReplies.one": "{count} جواب",
+  "search.jumpReplies.other": "{count} جوابات",
+  "search.jumpPeople.one": "{count} رکن",
+  "search.jumpPeople.other": "{count} اراکین",
+  "search.jumpPosts.one": "{count} پوسٹ",
+  "search.jumpPosts.other": "{count} پوسٹس"
 }

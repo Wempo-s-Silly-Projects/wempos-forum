@@ -925,5 +925,13 @@
   "feed.resetAppearance": "Скинути вигляд",
   "feed.appearanceResetDone": "Вигляд повернуто до типових налаштувань.",
   "dm.newMessages.one": "{count} нове повідомлення",
-  "dm.newMessages.other": "Нових повідомлень: {count}"
+  "dm.newMessages.other": "Нових повідомлень: {count}",
+  "search.jumpTo": "Перейти до:",
+  "search.summaryLabel": "Підсумок результатів пошуку",
+  "search.jumpReplies.one": "{count} відповідь",
+  "search.jumpReplies.other": "Відповідей: {count}",
+  "search.jumpPeople.one": "{count} учасник",
+  "search.jumpPeople.other": "Учасників: {count}",
+  "search.jumpPosts.one": "{count} допис",
+  "search.jumpPosts.other": "Дописів: {count}"
 }

@@ -42,6 +42,7 @@ import { wempoAccountsSignInUrl } from "../sso.js";
 import { appendPostList } from "../render.js";
 import { maskSpoilers } from "../markdown.js";
 import { appendHighlighted } from "../search-highlight.js";
+import { SEARCH_SECTION_IDS, createSearchSummary } from "../search-summary.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
@@ -251,9 +252,12 @@ function renderInvisibleToggle(account) {
     .catch(() => {});
 }
 function renderSearchResults(container, results, query = "") {
+  // Wave 5.9 F2: the "Jump to:" row (null when nothing matched).
+  const summary = createSearchSummary(document, results, (id) => document.getElementById(id));
+  if (summary) container.append(summary);
   // Deep reply results (v2.5): a Replies section under the Posts one.
   if (Array.isArray(results.replies)) {
-    addHeading(container, t("feed.repliesTitle"), 2);
+    addHeading(container, t("feed.repliesTitle"), 2).id = SEARCH_SECTION_IDS.replies;
     if (!results.replies.length) {
       addText(document, container, "p", t("feed.noReplyMatches"), "empty-state");
     } else {
@@ -275,6 +279,7 @@ function renderSearchResults(container, results, query = "") {
     }
   }
   const people = createPanel(t("feed.peopleTitle"));
+  people.id = SEARCH_SECTION_IDS.people;
   if (results.users.length) {
     const list = element("ul", "result-list");
     for (const user of results.users) {
@@ -290,7 +295,7 @@ function renderSearchResults(container, results, query = "") {
     addText(document, people, "p", t("feed.noUserMatches"), "empty-state");
   }
   container.append(people);
-  addHeading(container, t("feed.postsTitle"), 2);
+  addHeading(container, t("feed.postsTitle"), 2).id = SEARCH_SECTION_IDS.posts;
   appendPostList(container, results.posts, document, state.currentUser);
 }
 async function renderHomeRoute(route, context, version) {

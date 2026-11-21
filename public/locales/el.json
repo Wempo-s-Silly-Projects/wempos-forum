@@ -925,5 +925,13 @@
   "feed.resetAppearance": "Επαναφορά εμφάνισης",
   "feed.appearanceResetDone": "Η εμφάνιση επανήλθε στις προεπιλογές.",
   "dm.newMessages.one": "{count} νέο μήνυμα",
-  "dm.newMessages.other": "{count} νέα μηνύματα"
+  "dm.newMessages.other": "{count} νέα μηνύματα",
+  "search.jumpTo": "Μετάβαση σε:",
+  "search.summaryLabel": "Σύνοψη αποτελεσμάτων αναζήτησης",
+  "search.jumpReplies.one": "{count} απάντηση",
+  "search.jumpReplies.other": "{count} απαντήσεις",
+  "search.jumpPeople.one": "{count} μέλος",
+  "search.jumpPeople.other": "{count} μέλη",
+  "search.jumpPosts.one": "{count} ανάρτηση",
+  "search.jumpPosts.other": "{count} αναρτήσεις"
 }

@@ -925,5 +925,13 @@
   "feed.resetAppearance": "Resetează aspectul",
   "feed.appearanceResetDone": "Aspectul a revenit la valorile implicite.",
   "dm.newMessages.one": "{count} mesaj nou",
-  "dm.newMessages.other": "Mesaje noi: {count}"
+  "dm.newMessages.other": "Mesaje noi: {count}",
+  "search.jumpTo": "Salt la:",
+  "search.summaryLabel": "Rezumatul rezultatelor căutării",
+  "search.jumpReplies.one": "{count} răspuns",
+  "search.jumpReplies.other": "Răspunsuri: {count}",
+  "search.jumpPeople.one": "{count} membru",
+  "search.jumpPeople.other": "Membri: {count}",
+  "search.jumpPosts.one": "{count} postare",
+  "search.jumpPosts.other": "Postări: {count}"
 }

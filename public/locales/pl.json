@@ -925,5 +925,13 @@
   "feed.resetAppearance": "Przywróć wygląd",
   "feed.appearanceResetDone": "Wygląd wrócił do ustawień domyślnych.",
   "dm.newMessages.one": "{count} nowa wiadomość",
-  "dm.newMessages.other": "Nowe wiadomości: {count}"
+  "dm.newMessages.other": "Nowe wiadomości: {count}",
+  "search.jumpTo": "Przejdź do:",
+  "search.summaryLabel": "Podsumowanie wyników wyszukiwania",
+  "search.jumpReplies.one": "{count} odpowiedź",
+  "search.jumpReplies.other": "Odpowiedzi: {count}",
+  "search.jumpPeople.one": "{count} członek",
+  "search.jumpPeople.other": "Członkowie: {count}",
+  "search.jumpPosts.one": "{count} wpis",
+  "search.jumpPosts.other": "Wpisy: {count}"
 }

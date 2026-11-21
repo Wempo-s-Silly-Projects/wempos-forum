@@ -925,5 +925,13 @@
   "feed.resetAppearance": "Återställ utseende",
   "feed.appearanceResetDone": "Utseendet är tillbaka till standard.",
   "dm.newMessages.one": "{count} nytt meddelande",
-  "dm.newMessages.other": "{count} nya meddelanden"
+  "dm.newMessages.other": "{count} nya meddelanden",
+  "search.jumpTo": "Gå till:",
+  "search.summaryLabel": "Sammanfattning av sökresultaten",
+  "search.jumpReplies.one": "{count} svar",
+  "search.jumpReplies.other": "{count} svar",
+  "search.jumpPeople.one": "{count} medlem",
+  "search.jumpPeople.other": "{count} medlemmar",
+  "search.jumpPosts.one": "{count} inlägg",
+  "search.jumpPosts.other": "{count} inlägg"
 }

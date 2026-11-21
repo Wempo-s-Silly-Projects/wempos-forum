@@ -1960,6 +1960,9 @@ dialog h2 {
 }
 
 /* v4.21 search highlighting: the searched words in results. */
+/* Wave 5.9 F2: search results at a glance ("Jump to:" row). */
+.search-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0.25rem 0 0.75rem; }
+.search-summary-label { color: var(--muted); }
 mark.search-hit {
   padding: 0 0.1em;
   border-radius: 0.2em;

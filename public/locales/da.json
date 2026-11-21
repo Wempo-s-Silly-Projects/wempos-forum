@@ -925,5 +925,13 @@
   "feed.resetAppearance": "Nulstil udseende",
   "feed.appearanceResetDone": "Udseendet er tilbage til standard.",
   "dm.newMessages.one": "{count} ny besked",
-  "dm.newMessages.other": "{count} nye beskeder"
+  "dm.newMessages.other": "{count} nye beskeder",
+  "search.jumpTo": "Gå til:",
+  "search.summaryLabel": "Oversigt over søgeresultater",
+  "search.jumpReplies.one": "{count} svar",
+  "search.jumpReplies.other": "{count} svar",
+  "search.jumpPeople.one": "{count} medlem",
+  "search.jumpPeople.other": "{count} medlemmer",
+  "search.jumpPosts.one": "{count} indlæg",
+  "search.jumpPosts.other": "{count} indlæg"
 }

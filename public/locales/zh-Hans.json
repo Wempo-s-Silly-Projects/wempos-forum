@@ -925,5 +925,13 @@
   "feed.resetAppearance": "重置外观",
   "feed.appearanceResetDone": "外观已恢复为默认设置。",
   "dm.newMessages.one": "{count} 条新消息",
-  "dm.newMessages.other": "{count} 条新消息"
+  "dm.newMessages.other": "{count} 条新消息",
+  "search.jumpTo": "跳转到：",
+  "search.summaryLabel": "搜索结果摘要",
+  "search.jumpReplies.one": "{count} 条回复",
+  "search.jumpReplies.other": "{count} 条回复",
+  "search.jumpPeople.one": "{count} 位成员",
+  "search.jumpPeople.other": "{count} 位成员",
+  "search.jumpPosts.one": "{count} 篇帖子",
+  "search.jumpPosts.other": "{count} 篇帖子"
 }
