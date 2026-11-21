@@ -42,6 +42,7 @@ import { t, tn } from "../i18n.js";
 import { createComposePreview } from "../compose-preview.js";
 import { attachPasteAndDrop, confirmPendingFiles, dismissPendingFiles } from "../composer-paste.js";
 import { createDraftNotice } from "../draft-notice.js";
+import { attachPollHelpers, duplicatePollSlots, refreshPollHelpers } from "../poll-preview.js";
 
 let activeGifComposerForm = null;
 let activePollComposerForm = null;
@@ -415,6 +416,7 @@ function openPollDialog(button) {
   const dialog = pollDialog();
   if (!form || !dialog) return;
   activePollComposerForm = form;
+  attachPollHelpers(dialog, document);
   dialog.showModal();
 }
 
@@ -435,9 +437,15 @@ function confirmPollDialog() {
     setMessage(t("composer.pollInvalid"), true);
     return;
   }
+  // Wave 36: the server's duplicate rule, said before the post goes out.
+  if (duplicatePollSlots(options).size) {
+    setMessage(t("composer.pollDuplicate"), true);
+    return;
+  }
   form.composerPoll = { question, options };
   activePollComposerForm = null;
   dialog.querySelector("form").reset();
+  refreshPollHelpers(dialog, document);
   dialog.close();
   setMessage(t("composer.pollAttached"));
 }

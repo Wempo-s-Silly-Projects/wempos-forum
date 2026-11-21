@@ -2915,6 +2915,20 @@ mark.search-hit {
 }
 .who-online-name:hover { text-decoration: underline; }
 .who-online-more { color: var(--muted); }
+/* Wave 36: Who's Online grouped by role. */
+.who-online-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.6rem;
+  width: 100%;
+}
+.who-online-group-heading {
+  width: 100%;
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
 @media (max-width: 640px) {
   .who-online { display: none; }
 }
@@ -3353,3 +3367,32 @@ mark.search-hit {
 }
 .format-help-list dt, .format-help-list dd { margin: 0; }
 .format-help-note { margin-block: 0.35rem 0; }
+
+/* Wave 36: saved posts by board, poll dialog duplicate warning + preview. */
+.saved-board-remove { margin: 0 0 0.75rem; }
+.poll-duplicate {
+  margin: 0.35rem 0;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.5rem;
+  color: var(--error-ink);
+  background: var(--error-soft);
+  font-size: 0.85rem;
+}
+.poll-duplicate[hidden] { display: none; }
+#poll-dialog input[aria-invalid="true"] { border-color: var(--error-ink); }
+.poll-preview {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed var(--line);
+  border-radius: 0.5rem;
+}
+.poll-preview-title {
+  margin: 0 0 0.25rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.poll-preview-question { margin: 0 0 0.25rem; font-weight: 700; overflow-wrap: anywhere; }
+.poll-preview-empty { margin: 0; font-size: 0.85rem; }
+.poll-preview-options { margin: 0; padding-inline-start: 1.25rem; }
+.poll-preview-option { overflow-wrap: anywhere; }
