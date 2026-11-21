@@ -36,7 +36,7 @@ test("caps guard keeps a link exactly as typed even with an upper-case scheme", 
   assert.ok(out.includes(url), "the link survives the rewrite byte-for-byte: " + out);
   assert.ok(out.startsWith("Please read this "));
   const mixed = "Http://Example.com/XyZ";
-  assert.ok(toSentenceCase("LOOK AT " + mixed).includes(mixed));
+  assert.equal(toSentenceCase("LOOK AT " + mixed), "Look at " + mixed);
   // A shouted link alone never counts toward the shouting ratio.
   assert.equal(isShouting("ok " + "HTTPS://EXAMPLE.COM/AAAAAAAAAAAAAAAAAAAA"), false);
 });
