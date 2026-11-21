@@ -264,7 +264,7 @@ const showTab = (nextTab) => {
   if (showLobby) pollLobbySafely();
 };
 
-// GC polish: the initial-circle avatar the DM rail and the conversation's
+// DM polish: the initial-circle avatar the DM rail and the conversation's
 // theirs rows ride. Role seats are colored from the forum's role-badge tokens
 // when the payload carries one.
 const buildAvatar = (other) => {
@@ -359,7 +359,7 @@ const paintConversation = () => {
   for (const message of messages) {
     const bubble = el("div", message.mine ? "chat-widget-message mine" : "chat-widget-message");
     if (!message.mine) {
-      // The GC whose-row: the leading initial-circle avatar before the name.
+      // The whose-row: the leading initial-circle avatar before the name.
       const who = el("span", "chat-widget-message-who");
       who.append(buildAvatar(message), el("span", "chat-widget-message-who-name", message.authorUsername || ""));
       bubble.append(who);

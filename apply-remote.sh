@@ -1,5 +1,5 @@
 #!/bin/bash
-# One-shot: apply pending GC D1 migrations to the REMOTE shared database.
+# One-shot: apply pending D1 migrations to the REMOTE shared database.
 # Usage: ~/wempos-forum/apply-remote.sh
 set -euo pipefail
 cd "$(dirname "$0")"

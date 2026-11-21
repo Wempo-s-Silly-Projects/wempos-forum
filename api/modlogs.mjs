@@ -17,8 +17,8 @@
 // see <https://www.gnu.org/licenses/>.
 
 // The desk's chat + DM logs (v3.1), lifted verbatim out of api/chat.mjs and
-// api/dms.mjs when the site's chat page and DM panel retired (GooberCord
-// became the chat surface — site routes out, tables and moderation stay).
+// api/dms.mjs when the site's standalone chat page and DM panel retired (the
+// site routes went out; the tables and their moderation stay).
 // Everything here is staff-only: the two full logs (unfiltered — messages by
 // actively banned members stay visible for review) and the two delete routes
 // the logs' in-place cleanup buttons ride. Chat and DMs remain ephemeral:

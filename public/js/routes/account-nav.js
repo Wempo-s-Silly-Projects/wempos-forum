@@ -233,7 +233,7 @@ function markMobileBarItem(user) {
 }
 
 export const ACTIONS = {
-  // The §4b sign-out handoff (the GooberCord twin's shape): the forum's own
+  // The §4b sign-out handoff: the forum's own
   // session clears first (logout POST + CSRF reset), THEN the browser rides
   // to the Accounts sign-out land (?signout=1, no return parameter — with
   // one, the Accounts arrival auto-issues a fresh ticket and bounces the

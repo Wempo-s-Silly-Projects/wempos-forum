@@ -487,7 +487,7 @@ export const ACTIONS = {
       setMessage("CSS rejected.");
     },
     // The desk's chat/DM log cleanup buttons (the site's chat page and DM
-    // panel retired to GooberCord — the logs and their in-place deletes
+    // panel retired — the logs and their in-place deletes
     // stay). Both rows carry the id on chatMessageId; the routes differ.
     "chat-delete": async (button) => {
       await api("/api/chat/" + encodeURIComponent(button.dataset.chatMessageId), { method: "DELETE" });
