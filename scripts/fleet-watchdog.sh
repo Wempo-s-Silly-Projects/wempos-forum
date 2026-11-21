@@ -25,16 +25,11 @@
 set -u
 cd /Users/itswempo/wempos-forum || exit 1
 STATE_DIR=".team"
-STATE_FILE="$STATE_DIR/watchdog-state.json"
 LOG_FILE="$STATE_DIR/tick.log"
 NOW="$(date -u +%FT%TZ)"
 
 FORUM_VERSION="$(curl -s --max-time 20 https://wempos-forum.com/api/version)"
 ACCOUNTS_STATUS="$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://accounts.wempos-forum.com/)"
-PREV_BUILD=""
-if [ -f "$STATE_FILE" ]; then
-  PREV_BUILD="$(printf '%s' "$(cat "$STATE_FILE")" | sed -n 's/.*"build":"\([0-9a-f]*\)".*/\1/p')"
-fi
 
 alert=""
 if ! printf '%s' "$FORUM_VERSION" | grep -q '"commit"'; then
@@ -52,6 +47,7 @@ if [ -n "$alert" ]; then
   printf '# Fleet watchdog alert %s\n\n%s\n\n- forum: %s\n- accounts: HTTP %s\n' "$NOW" "$alert" "$FORUM_VERSION" "$ACCOUNTS_STATUS" > "$ALERT_FILE"
   # ecc-security LOW rider (2026-11-19): the alert text may carry raw probe
   # bodies — quote/backslash characters never ride the AppleScript string.
+  # shellcheck disable=SC1003  # '"\\' is the tr delete-set (quote + backslash), not an escaped quote
   SAFE_ALERT="$(printf '%s' "$alert" | tr -d '"\\')"
   osascript -e "display notification \"Fleet watchdog: $SAFE_ALERT\" with title \"Wempo's Forum fleet\"" >/dev/null 2>&1 &
 else
@@ -103,6 +99,7 @@ EOF
     done
     if [ -n "$spike_alert" ]; then
       SPIKE_ALERT_FILE="$STATE_DIR/ALERT-$(date -u +%Y%m%dT%H%M%SZ)-cost.md"
+      # shellcheck disable=SC2016  # "$1000" is literal prose (the budget ceiling), not an expansion
       printf '# Fleet watchdog cost-activity spike %s\n\n%s\n\n(a canary, not a dollar meter: token spend is not CLI-observable — the owner reads the true number on claude.ai against the $1000 ceiling)\n' "$NOW" "$spike_alert" > "$SPIKE_ALERT_FILE"
       osascript -e "display notification \"Fleet watchdog: $spike_alert\" with title \"Wempo's Forum fleet\"" >/dev/null 2>&1 &
     fi
