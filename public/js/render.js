@@ -615,13 +615,17 @@ export const openEditForm = (article, document) => {
 
 // Wave 30: true when an open edit form's text differs from the post's raw
 // body — Cancel then asks before throwing the change away.
+const normalizeLineBreaks = (text) => String(text ?? "").replace(/\r\n?/g, "\n");
+
 export const editHasUnsavedChanges = (article) => {
   if (!article || typeof article.postBody !== "string") return false;
   const form = [...article.children].find(
     (node) => node.dataset && node.dataset.form === "post-edit",
   );
   const textarea = form?.querySelector("textarea");
-  return Boolean(textarea) && textarea.value !== article.postBody;
+  // Wave 31: a textarea reports CR/CRLF as LF, so compare normalized text —
+  // a body stored with CRLF is not "changed" until the member types.
+  return Boolean(textarea) && normalizeLineBreaks(textarea.value) !== normalizeLineBreaks(article.postBody);
 };
 
 export const closeEditForm = (article) => {

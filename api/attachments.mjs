@@ -56,6 +56,13 @@ const ATTACHMENT_FIELD = "images";
 // stream unbounded, and a 128 MiB isolate is not a safe place for that — so
 // that branch keeps readLimitedBody's counted buffering as the cap. The JSON
 // branch is unchanged.
+// Throws the cap error when one more image/GIF would exceed the 3-item cap.
+function assertAttachmentRoom(alreadyTaken) {
+  if (alreadyTaken >= MAX_ATTACHMENT_FILES) {
+    throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
+  }
+}
+
 export async function readComposedBody(request, env, options = {}) {
   const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
   if (!contentType.startsWith("multipart/form-data")) {
@@ -108,6 +115,10 @@ export async function readComposedBody(request, env, options = {}) {
     const [name, value] = entry;
     if (name === ATTACHMENT_FIELD) {
       if (typeof value === "string") continue;
+      // Wave 31: refuse the over-cap part BEFORE reading, sanitizing, hashing
+      // and looking it up — the post-loop gate alone let one request drive a
+      // D1 lookup per tiny image inside the byte ceiling.
+      assertAttachmentRoom(files.length + gifIds.length);
       if (value.size > MAX_ATTACHMENT_BYTES) {
         throw new HttpError(413, "Each image must be 10 MiB or smaller.");
       }
@@ -135,6 +146,7 @@ export async function readComposedBody(request, env, options = {}) {
       // Library GIFs attach BY REFERENCE (v2.5): repeatable gifIds text
       // fields; only ids resolving to an APPROVED gif pass — anything else
       // is a 400 (a pending/rejected gif cannot be attached).
+      assertAttachmentRoom(files.length + gifIds.length);
       gifIds.push(String(value));
     } else if (typeof value === "string") {
       fields[name] = value;
