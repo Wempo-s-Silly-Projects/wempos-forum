@@ -217,6 +217,19 @@ export function banFilterSql(alias) {
     "CAST(strftime('%s','now') AS INTEGER)))";
 }
 
+// Unanswered filter (wave 33): a root with no reply the viewer could see.
+// "Answered" uses the card's replyCount semantics (withReplyMetadata's nuke
+// rule): a level-1 reply counts only when public, its author has no active
+// ban, and it is not from a block pair with the viewer — so a thread whose
+// only replies come from someone you blocked reads unanswered for you, and
+// its card shows 0. Level 2 needs no arm: a sub-reply under an invisible
+// level-1 parent is invisible too. Binds: the viewer block pair, or none.
+export function unansweredSql(viewer) {
+  return "AND NOT EXISTS (SELECT 1 FROM posts r WHERE r.parent_id = p.id " +
+    "AND r.visibility = 'public' AND " + banFilterSql("r") +
+    viewerBlockFilterSql(viewer, "r.author_id") + ") ";
+}
+
 export async function listRootPosts(env, viewer, options = {}) {
   const viewerId = viewer ? viewer.id : null;
   let sql = POST_SELECT + "WHERE p.parent_id IS NULL AND p.visibility = 'public' AND " +
@@ -228,6 +241,10 @@ export async function listRootPosts(env, viewer, options = {}) {
   if (rootBlockClause) {
     sql += rootBlockClause;
     values.push(viewerId, viewerId);
+  }
+  if (options.unanswered) {
+    sql += unansweredSql(viewer);
+    if (viewerBlockFilterSql(viewer, "r.author_id")) values.push(viewerId, viewerId);
   }
   if (options.byActivity) {
     // Feed order: most recently bumped conversation first, id as the tiebreaker.
@@ -314,6 +331,12 @@ export async function listRootPosts(env, viewer, options = {}) {
     sql += "AND p.author_id = ? ";
     values.push(options.authorId);
   }
+  // Newest sort (wave 33): the same id-keyset walk, scoped to a board when
+  // the category page asks — pins and bumps play no part in this order.
+  if (options.board) {
+    sql += "AND p.board = ? ";
+    values.push(options.board);
+  }
   if (options.searchTerm) {
     sql += "AND instr(lower(p.body), ?) > 0 ";
     values.push(options.searchTerm);
@@ -393,8 +416,12 @@ export async function handlePostFeedRoute(request, env, url, path, method) {
     if (mineOnly && !(session && session.user)) {
       throw new HttpError(401, "Sign in to see your posts.");
     }
+    // Feed discovery (wave 33): `unanswered=0|1` filters any public feed;
+    // `sort=new` orders by creation on a bare-id cursor. Suggestions keeps
+    // its vote order and My posts its own shape, so those pairings 400.
+    const discovery = readDiscoveryParams(url.searchParams, { mineOnly, isSuggestions });
     let before = null;
-    if (mineOnly) {
+    if (mineOnly || discovery.sortNew) {
       if (beforeRaw !== null) {
         if (!/^[0-9]{1,15}$/.test(beforeRaw)) throw new HttpError(400, "That page cursor is invalid.");
         before = Number(beforeRaw);
@@ -415,13 +442,37 @@ export async function handlePostFeedRoute(request, env, url, path, method) {
       env, session && session.user ? session.user : null,
       mineOnly
         ? { before, authorId: Number(session.user.id) }
-        : (board
-          ? { before, board, byActivity: true }
-          : { before, byActivity: true }),
+        : {
+          before,
+          ...(board ? { board } : {}),
+          ...(discovery.sortNew ? {} : { byActivity: true }),
+          ...(discovery.unanswered ? { unanswered: true } : {}),
+        },
     );
     return json(feed);
   }
   return null;
+}
+
+// Validates the wave-33 discovery params; throws 400 before any database work.
+function readDiscoveryParams(params, { mineOnly, isSuggestions }) {
+  const unansweredRaw = params.get("unanswered");
+  if (unansweredRaw !== null && !/^[01]$/.test(unansweredRaw)) {
+    throw new HttpError(400, "The unanswered param must be 0 or 1.");
+  }
+  const sortRaw = params.get("sort");
+  if (sortRaw !== null && sortRaw !== "new") {
+    throw new HttpError(400, "The sort param must be new.");
+  }
+  const unanswered = unansweredRaw === "1";
+  const sortNew = sortRaw === "new";
+  if (mineOnly && (unanswered || sortNew)) {
+    throw new HttpError(400, "My posts has no sort or unanswered filter.");
+  }
+  if (isSuggestions && sortNew) {
+    throw new HttpError(400, "Suggestions are sorted by votes.");
+  }
+  return { unanswered, sortNew };
 }
 
 // Per-reply sub-reply counts go out as ONE D1 batch (one subrequest) — a
