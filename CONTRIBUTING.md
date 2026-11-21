@@ -41,7 +41,8 @@ never commit it, or any `.env` file. This repository is public.
 2. Make your change. Keep it focused: one fix or feature per pull request.
 3. Add or update tests. Bug fixes should come with a test that fails without
    the fix.
-4. Run `pnpm test` and make sure everything passes.
+4. Run `pnpm test` and make sure everything passes. CI also runs Semgrep
+   (`.github/workflows/semgrep.yml`), a security scan that fails on findings.
 5. Open a pull request against `main`. Say what changed and why, and how you
    tested it. Screenshots help for anything visual.
 

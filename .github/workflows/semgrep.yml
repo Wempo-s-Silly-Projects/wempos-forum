@@ -1,0 +1,28 @@
+name: Semgrep
+
+# Security-focused static analysis with Semgrep (LGPL-2.1). Uses public
+# registry rule packs only: no Semgrep account, no token, no uploads.
+# Skipped paths live in .semgrepignore.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep@sha256:6e1b04340e60e910fbb4ddbf3c857ab0918f064417ad5ac530014ccb3cf8c8f1 # v1.186.0
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: >-
+          semgrep scan
+          --config p/javascript
+          --config p/nodejs
+          --config p/secrets
+          --metrics=off
+          --error
