@@ -28,7 +28,6 @@ import { t } from "./i18n.js";
 const SAFE_PREFIXES = ["http://", "https://", "/"];
 const SPOILER_MARK = "||";
 const SPOILER_MASK = "\u2592\u2592\u2592";
-const SPOILER_PATTERN = /\|\|(?!\|)([\s\S]+?)\|\|/g;
 const REVEAL_KEYS = new Set(["Enter", " "]);
 
 // A link target is safe only when it starts with a known-safe scheme or is a
@@ -85,7 +84,9 @@ function mentionHandleAt(value, at) {
   return match ? match[1] : null;
 }
 
-export function parseInline(document, text) {
+// `spoilerRanges` (optional): each consumed spoiler's [start, end) span in
+// `text` is pushed onto it, so maskSpoilers hides exactly what renders hidden.
+export function parseInline(document, text, spoilerRanges = null) {
   const value = String(text ?? "");
   const nodes = [];
   let start = 0;
@@ -152,6 +153,7 @@ export function parseInline(document, text) {
         continue;
       }
       emitPre();
+      spoilerRanges?.push([next, close + 2]);
       nodes.push(makeSpoiler(document, value.slice(next + 2, close)));
       start = index = close + 2;
       continue;
@@ -279,8 +281,48 @@ export function revealSpoiler(spoiler) {
 
 // Raw-text surfaces (preview snippets, reply context, search hits) never
 // give a spoiler away.
+// The mask follows the renderer, not a standalone regex: every inline run the
+// post page parses (paragraph/heading text, each quote line, each list item;
+// never code fences) goes through parseInline, and only the spans it turns
+// into spoilers are masked. A "||" inside code or bold can then never pair
+// with a real spoiler's opener and leave the spoiler's words bare (wave 15).
+const MASK_DOCUMENT = {
+  createTextNode: (text) => ({ text }),
+  createElement: () => ({ setAttribute() {}, addEventListener() {} }),
+};
+
+const inlineRuns = (block) => {
+  if (block.kind === "code") return [];
+  const lines = block.text.map((line, i) => ({ line, at: block.at[i] }));
+  if (block.kind === "list" || block.kind === "quote") return lines.map((entry) => [entry]);
+  return [lines];
+};
+
+// Raw [start, end) spans of the spoilers one run renders.
+function runSpoilerSpans(run) {
+  const offsets = [];
+  run.forEach(({ line, at }, i) => {
+    for (let k = 0; k < line.length; k += 1) offsets.push(at + k);
+    if (i < run.length - 1) offsets.push(at + line.length);
+  });
+  const ranges = [];
+  parseInline(MASK_DOCUMENT, run.map(({ line }) => line).join("\n"), ranges);
+  return ranges.map(([start, end]) => [offsets[start], offsets[end - 1] + 1]);
+}
+
 export function maskSpoilers(text) {
-  return String(text ?? "").replace(SPOILER_PATTERN, SPOILER_MASK);
+  const value = String(text ?? "");
+  if (!value.includes(SPOILER_MARK)) return value;
+  const spans = scanBlocks(value).flatMap(inlineRuns).flatMap(runSpoilerSpans)
+    .sort((a, b) => a[0] - b[0]);
+  let out = "";
+  let cursor = 0;
+  for (const [start, end] of spans) {
+    if (start < cursor) continue;
+    out += value.slice(cursor, start) + SPOILER_MASK;
+    cursor = end;
+  }
+  return out + value.slice(cursor);
 }
 
 // Block shape of a body: fenced code (```…```), "# " headings (1–3 hashes —
@@ -288,12 +330,22 @@ export function maskSpoilers(text) {
 // and quote/paragraph runs (the pre-existing convention). Blocks keep their
 // RAW text (inline rendering happens at build time).
 export function parseBlocks(body) {
+  return scanBlocks(body).map(({ at, ...block }) => block);
+}
+
+// parseBlocks plus `at`: each text entry's raw offset in the body (internal,
+// for maskSpoilers).
+function scanBlocks(body) {
   const lines = String(body ?? "").split("\n");
   const blocks = [];
   let fence = null;
   let list = null;
+  let lineStart = 0;
   for (const line of lines) {
+    const at = lineStart;
+    lineStart += line.length + 1;
     const trimmed = line.trim();
+    const lead = at + line.length - line.trimStart().length;
     const fenceMark = trimmed.startsWith("```");
     if (fence !== null) {
       if (fenceMark) {
@@ -307,7 +359,7 @@ export function parseBlocks(body) {
     if (fenceMark) {
       flushList(blocks, () => list);
       list = null;
-      fence = { kind: "code", text: [] };
+      fence = { kind: "code", text: [], at: [] };
       continue;
     }
     const heading = /^#{1,6} /.exec(trimmed);
@@ -315,23 +367,29 @@ export function parseBlocks(body) {
       flushList(blocks, () => list);
       list = null;
       // Level = the HASH count (the match includes the separating space).
-      blocks.push({ kind: "heading", text: [trimmed.slice(heading[0].length)], level: heading[0].length - 1 });
+      blocks.push({
+        kind: "heading", text: [trimmed.slice(heading[0].length)], at: [lead + heading[0].length],
+        level: heading[0].length - 1,
+      });
       continue;
     }
     if (trimmed.startsWith("- ")) {
-      if (!list) list = { kind: "list", text: [] };
+      if (!list) list = { kind: "list", text: [], at: [] };
       list.text.push(trimmed.slice(2));
+      list.at.push(lead + 2);
       continue;
     }
     flushList(blocks, () => list);
     list = null;
     const isQuote = trimmed.startsWith("> ");
     const content = isQuote ? trimmed.slice(2) : line;
+    const contentAt = isQuote ? lead + 2 : at;
     const last = blocks[blocks.length - 1];
     if (last && last.kind === (isQuote ? "quote" : "paragraph")) {
       last.text.push(content);
+      last.at.push(contentAt);
     } else {
-      blocks.push({ kind: isQuote ? "quote" : "paragraph", text: [content] });
+      blocks.push({ kind: isQuote ? "quote" : "paragraph", text: [content], at: [contentAt] });
     }
   }
   flushList(blocks, () => list);
