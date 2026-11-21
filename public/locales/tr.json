@@ -188,6 +188,8 @@
   "chat.replyTo": "{name} adlı kişiye yanıt ver",
   "chat.filterChats": "Sohbetleri filtrele",
   "chat.noFilterMatch": "Bu adla eşleşen sohbet yok.",
+  "chat.unreadOnly": "Yalnızca okunmamış",
+  "chat.noUnreadChats": "Okunmamış sohbet yok.",
   "chat.noMessages": "Henüz mesaj yok",
   "chat.onlineNow.one": "Şu an {count} kişi çevrimiçi",
   "chat.onlineNow.other": "Şu an {count} kişi çevrimiçi",

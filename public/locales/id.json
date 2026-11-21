@@ -188,6 +188,8 @@
   "chat.replyTo": "Balas ke {name}",
   "chat.filterChats": "Saring obrolan",
   "chat.noFilterMatch": "Tidak ada obrolan yang cocok dengan nama itu.",
+  "chat.unreadOnly": "Hanya yang belum dibaca",
+  "chat.noUnreadChats": "Tidak ada obrolan yang belum dibaca.",
   "chat.noMessages": "Belum ada pesan",
   "chat.onlineNow.one": "{count} sedang online",
   "chat.onlineNow.other": "{count} sedang online",

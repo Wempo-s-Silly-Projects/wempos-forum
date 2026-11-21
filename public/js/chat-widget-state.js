@@ -39,6 +39,8 @@ export const ui = {
   // and the chat list's quick-filter text (cleared on close).
   dmUnread: null,
   listFilter: "",
+  // v4.32: the "Unread only" checkbox (page-view only, cleared on close).
+  listUnreadOnly: false,
   filterStatusEl: null,
   activeThread: null,
   conversation: null, // GET /api/dm/threads/:id result for activeThread

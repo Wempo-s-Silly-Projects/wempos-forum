@@ -188,6 +188,8 @@
   "chat.replyTo": "回复 {name}",
   "chat.filterChats": "筛选聊天",
   "chat.noFilterMatch": "没有与该名称匹配的聊天。",
+  "chat.unreadOnly": "仅未读",
+  "chat.noUnreadChats": "没有未读聊天。",
   "chat.noMessages": "还没有消息",
   "chat.onlineNow.one": "{count} 人在线",
   "chat.onlineNow.other": "{count} 人在线",

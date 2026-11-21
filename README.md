@@ -37,11 +37,11 @@ A small, friendly community forum. It's live at **<https://wempos-forum.com>**.
 - **Community traditions**: Question of the Day threads (a thread that starts with "QOTD") get a chip, and the home feed shows a "Today's question" banner with a "You answered" chip once you've replied. The showcase board opens with an image gallery of its threads.
 - **Notifications**: mentions, replies, and wall posts land in your bell. Several replies on the same thread are grouped into one row.
 - **Search and bookmarks**: find old threads and save the ones you want to come back to. Your search words are highlighted in the results.
-- **Chat**: a floating chat button on every page, with a public Lobby, private direct messages, and group chats of up to 10 people. You can send images in DMs and pin up to 5 chats to the top. See [docs/chat-widget.md](docs/chat-widget.md).
+- **Chat**: a floating chat button on every page, with a public Lobby, private direct messages, and group chats of up to 10 people. You can send images in DMs and pin up to 5 chats to the top. Tick "Unread only" to list just the chats with new messages. See [docs/chat-widget.md](docs/chat-widget.md).
 - **Who's Online**: a small roster of who's around right now. You can go invisible from your account page.
 - **New here**: new accounts get a welcome card with a few places to start, and everyone gets a "New tricks to try" card. Each one goes away for good when you dismiss it.
 - **Your settings, your data**: account settings have a "Find a setting" box and a "Jump to a section" list. "Download my data" saves a copy of what you wrote and set (profile, posts and replies, saved posts, followed threads, blocks, wall posts you wrote, and messages you sent). It never includes passwords, two-factor secrets, sign-in sessions, network addresses, image files, or anything other members wrote.
-- **Signing out cleans up**: signing out clears your drafts, read marks, pinned chats, gallery recents and dismissed cards from this browser, even if the sign-out request fails. Device settings like theme, text size and language stay.
+- **Signing out cleans up**: signing out clears your drafts, read marks, pinned and muted chats, gallery recents and dismissed cards from this browser, even if the sign-out request fails. Device settings like theme, text size and language stay.
 - **Safety tools**: block members you don't want to hear from, report posts, and turn on two-factor sign-in (authenticator app plus backup codes).
 - **Moderation desk**: staff work through reports, bans, ban appeals, auto-moderation, and the word filter in one place. See [docs/moderation.md](docs/moderation.md).
 

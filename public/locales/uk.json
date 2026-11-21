@@ -188,6 +188,8 @@
   "chat.replyTo": "Відповісти {name}",
   "chat.filterChats": "Фільтр чатів",
   "chat.noFilterMatch": "Немає чатів із таким ім’ям.",
+  "chat.unreadOnly": "Лише непрочитані",
+  "chat.noUnreadChats": "Немає непрочитаних чатів.",
   "chat.noMessages": "Повідомлень ще немає",
   "chat.onlineNow.one": "{count} людина онлайн",
   "chat.onlineNow.other": "Зараз онлайн: {count}",

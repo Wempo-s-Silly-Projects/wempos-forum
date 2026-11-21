@@ -188,6 +188,8 @@
   "chat.replyTo": "Trả lời {name}",
   "chat.filterChats": "Lọc cuộc trò chuyện",
   "chat.noFilterMatch": "Không có cuộc trò chuyện nào khớp với tên đó.",
+  "chat.unreadOnly": "Chỉ chưa đọc",
+  "chat.noUnreadChats": "Không có cuộc trò chuyện chưa đọc.",
   "chat.noMessages": "Chưa có tin nhắn",
   "chat.onlineNow.one": "{count} người đang online",
   "chat.onlineNow.other": "{count} người đang online",

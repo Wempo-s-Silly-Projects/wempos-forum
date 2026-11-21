@@ -188,6 +188,8 @@
   "chat.replyTo": "Répondre à {name}",
   "chat.filterChats": "Filtrer les discussions",
   "chat.noFilterMatch": "Aucune discussion ne correspond à ce nom.",
+  "chat.unreadOnly": "Non lus uniquement",
+  "chat.noUnreadChats": "Aucune discussion non lue.",
   "chat.noMessages": "Pas encore de messages",
   "chat.onlineNow.one": "{count} en ligne",
   "chat.onlineNow.other": "{count} en ligne",

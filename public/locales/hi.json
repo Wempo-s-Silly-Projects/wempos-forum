@@ -188,6 +188,8 @@
   "chat.replyTo": "{name} को जवाब दें",
   "chat.filterChats": "चैट फ़िल्टर करें",
   "chat.noFilterMatch": "इस नाम से कोई चैट मेल नहीं खाती।",
+  "chat.unreadOnly": "केवल अपठित",
+  "chat.noUnreadChats": "कोई अपठित चैट नहीं।",
   "chat.noMessages": "अभी कोई मैसेज नहीं",
   "chat.onlineNow.one": "{count} अभी ऑनलाइन",
   "chat.onlineNow.other": "{count} अभी ऑनलाइन",

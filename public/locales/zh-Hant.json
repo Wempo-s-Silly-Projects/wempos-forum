@@ -188,6 +188,8 @@
   "chat.replyTo": "回覆 {name}",
   "chat.filterChats": "篩選聊天",
   "chat.noFilterMatch": "沒有符合該名稱的聊天。",
+  "chat.unreadOnly": "僅未讀",
+  "chat.noUnreadChats": "沒有未讀聊天。",
   "chat.noMessages": "還沒有訊息",
   "chat.onlineNow.one": "{count} 人在線上",
   "chat.onlineNow.other": "{count} 人在線上",

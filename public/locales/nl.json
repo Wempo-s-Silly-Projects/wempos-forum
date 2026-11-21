@@ -188,6 +188,8 @@
   "chat.replyTo": "{name} beantwoorden",
   "chat.filterChats": "Chats filteren",
   "chat.noFilterMatch": "Geen chats komen overeen met die naam.",
+  "chat.unreadOnly": "Alleen ongelezen",
+  "chat.noUnreadChats": "Geen ongelezen chats.",
   "chat.noMessages": "Nog geen berichten",
   "chat.onlineNow.one": "{count} nu online",
   "chat.onlineNow.other": "{count} nu online",

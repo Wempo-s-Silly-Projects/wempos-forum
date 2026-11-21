@@ -25,7 +25,7 @@ import { t } from "./i18n.js";
 import { readPins, sortPinnedFirst } from "./chat-pins.js";
 import { isMuted, readMutes, unmutedUnreadTotal } from "./chat-mutes.js";
 import { state } from "./state.js";
-import { FILTER_QUERY_MAX, filterConversations } from "./chat-filter.js";
+import { FILTER_QUERY_MAX, filterConversations, onlyUnread } from "./chat-filter.js";
 import { groupTitle, imageIdOf } from "./dm-extras.js";
 import { buildAvatar, conversationKey, el, kindOf, ui } from "./chat-widget-state.js";
 import { GIF_PREVIEW_LABEL, gifIdOf } from "./chat-widget-gifs.js";
@@ -127,12 +127,14 @@ export const paintThreadList = () => {
     ui.threadListEl.append(el("p", "chat-widget-empty", t("chat.noChats")));
     return;
   }
-  // The quick filter (v4.11) narrows the rows by name; local-only, no request.
-  const rows = sortPinnedFirst(filterConversations(allRows, ui.listFilter, rowLabel).sort((a, b) =>
-    String(b.lastMessageAt || "").localeCompare(String(a.lastMessageAt || ""))), pins, conversationKey);
-  if (rows.length === 0) ui.threadListEl.append(el("p", "chat-widget-empty", t("chat.noFilterMatch")));
+  // The quick filter (v4.11) narrows the rows by name, and "Unread only"
+  // (v4.32) by unread; both local-only, no request.
+  const rows = sortPinnedFirst(onlyUnread(filterConversations(allRows, ui.listFilter, rowLabel), ui.listUnreadOnly)
+    .sort((a, b) => String(b.lastMessageAt || "").localeCompare(String(a.lastMessageAt || ""))), pins, conversationKey);
+  const emptyLine = ui.listUnreadOnly ? t("chat.noUnreadChats") : t("chat.noFilterMatch");
+  if (rows.length === 0) ui.threadListEl.append(el("p", "chat-widget-empty", emptyLine));
   // Screen readers hear an emptied filter through the status beside the input.
-  if (ui.filterStatusEl) ui.filterStatusEl.textContent = rows.length === 0 ? t("chat.noFilterMatch") : "";
+  if (ui.filterStatusEl) ui.filterStatusEl.textContent = rows.length === 0 ? emptyLine : "";
   for (const thread of rows) {
     const row = el("button", "chat-widget-thread");
     row.type = "button";
@@ -190,8 +192,23 @@ export const buildListFilter = () => {
   const wrap = el("div", "chat-widget-filter-wrap");
   ui.filterStatusEl = el("span", "visually-hidden");
   ui.filterStatusEl.setAttribute("role", "status");
-  wrap.append(input, ui.filterStatusEl);
+  wrap.append(input, buildUnreadOnlyToggle(), ui.filterStatusEl);
   return wrap;
+};
+
+// "Unread only" (v4.32): a labelled checkbox beside the filter box; it lives
+// outside the repainted rows, so the 5s refresh keeps its state.
+const buildUnreadOnlyToggle = () => {
+  const label = el("label", "chat-widget-unread-only");
+  const box = el("input");
+  box.type = "checkbox";
+  box.checked = ui.listUnreadOnly;
+  box.addEventListener("change", () => {
+    ui.listUnreadOnly = box.checked;
+    paintThreadList();
+  });
+  label.append(box, el("span", "", t("chat.unreadOnly")));
+  return label;
 };
 
 const previewOf = (thread) => {
