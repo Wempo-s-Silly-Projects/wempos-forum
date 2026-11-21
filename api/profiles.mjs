@@ -136,7 +136,9 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       bio: user.bio || "",
       // v5.23.0: opt-in pronouns ("" when unset). Only this visible-profile
       // branch carries them; the block-pair refusal above never does.
-      pronouns: await readPronouns(env.FORUM_DB, user.id),
+      // v5.24.0 S1: masked at read like flair, so a word added to the filter
+      // after the save stops showing.
+      pronouns: applyWordFilter(await readPronouns(env.FORUM_DB, user.id), filterWords(env)) || "",
       socials: socialsFromRow(user),
       polytoriaUsername: user.polytoria_username || null,
       avatarUrl: user.avatar_mime ? "/api/avatars/" + user.id + "?v=" + user.avatar_version : null,

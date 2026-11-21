@@ -43,7 +43,7 @@ SOURCE_URL = ""
 # unless this is exactly "true" AND the AUTOMOD_KEY secret is set — the key
 # alone never turns it on. Uncomment to opt in.
 # AUTOMOD_ENABLED = "true"
-VERSION = "5.23.0"
+VERSION = "5.24.0"
 
 [assets]
 directory = "./public"
