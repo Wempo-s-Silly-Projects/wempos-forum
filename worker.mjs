@@ -25,6 +25,7 @@ import { HttpError, json, rateLimit, secureResponse, unconditional } from "./api
 // come from the vendored framework (core re-exports both; the byte-pin keeps
 // them identical). worker.mjs stops carrying its second copy of the mapping.
 import { dispatch, errorReply } from "./api/vendor/http.mjs";
+import { codedErrorReply } from "./api/core/error-codes.mjs";
 import { handleAuthRoutes } from "./api/session.mjs";
 import { handlePostRoutes } from "./api/posts.mjs";
 import { handleProfileRoutes } from "./api/profiles.mjs";
@@ -161,9 +162,9 @@ export default {
       try {
         return await routeApi(request, env, ctx);
       } catch (error) {
-        // The error classifier is the vendor's errorReply (imported above);
-        // the console label keeps the pair's literal, byte-for-byte.
-        return errorReply(error, "Forum request failed:");
+        // The vendor's errorReply classifies; codedErrorReply (wave
+        // 2026-11-21-3) adds the stable `code` for member-facing messages.
+        return codedErrorReply(error, "Forum request failed:");
       }
     }
     // Agent surfaces (MCP + discovery documents + markdown negotiation) answer

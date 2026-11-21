@@ -18,7 +18,7 @@
 
 import { attachmentUrl } from "./attachments.js";
 import { createIcon } from "./icons.js";
-import { parseBlocks, parseInline } from "./markdown.js";
+import { maskSpoilers, parseBlocks, parseInline } from "./markdown.js";
 import { createTextarea } from "./forms.js";
 import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
 import { collapseWhitespace } from "./quotes.js";
@@ -176,7 +176,7 @@ const renderLatestReplies = (post, document, article) => {
       row.append(avatar);
     }
     row.append(createElement(document, "span", "preview-author", reply.authorUsername ?? ""));
-    row.append(createElement(document, "span", "preview-snippet", collapseWhitespace(reply.snippet)));
+    row.append(createElement(document, "span", "preview-snippet", collapseWhitespace(maskSpoilers(reply.snippet))));
     const when = createElement(document, "time", "preview-time");
     when.dateTime = reply.createdAt;
     when.textContent = new Date(reply.createdAt).toLocaleString(currentLocale());
@@ -271,7 +271,7 @@ export const createPostCard = (post, document, currentUser = null) => {
 
   renderBodyBlocks(post, document, article);
   if (post.parent) {
-    const parentLink = createElement(document, "a", "parent-context", t("render.inReplyTo", { body: post.parent.body }));
+    const parentLink = createElement(document, "a", "parent-context", t("render.inReplyTo", { body: maskSpoilers(post.parent.body) }));
     parentLink.href = `/posts/${post.parent.id}`;
     article.append(parentLink);
   }

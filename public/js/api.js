@@ -23,6 +23,24 @@ export const setCsrfToken = (token) => {
   csrfToken = typeof token === "string" ? token : "";
 };
 
+// Error copy (wave 2026-11-21-3): a stable snake_case `code` from the server
+// paints the member's own language via errors.<camelCaseCode> (locale keys
+// are camelCase); unknown codes fall back to the server's English text, and
+// an empty body to the generic status line.
+export const errorKeyFor = (code) =>
+  `errors.${code.replace(/_([a-z0-9])/g, (whole, next) => next.toUpperCase())}`;
+
+export function errorMessageFor(result, status, translate = t) {
+  const code = typeof result?.code === "string" ? result.code : "";
+  if (/^[a-z][a-z0-9_]*$/.test(code)) {
+    const key = errorKeyFor(code);
+    const translated = translate(key);
+    if (translated && translated !== key) return translated;
+  }
+  if (typeof result?.error === "string" && result.error) return result.error;
+  return translate("api.requestFailed", { status });
+}
+
 export const api = async (path, { method = "GET", body, idempotencyKey, signal } = {}) => {
   const headers = { Accept: "application/json" };
   const mutating = !["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase());
@@ -53,10 +71,7 @@ export const api = async (path, { method = "GET", body, idempotencyKey, signal }
     throw error;
   }
   if (!response.ok) {
-    const message = typeof result?.error === "string" && result.error
-      ? result.error
-      : t("api.requestFailed", { status: response.status });
-    const error = new Error(message);
+    const error = new Error(errorMessageFor(result, response.status));
     error.status = response.status;
     // Copy the JSON body's extra fields onto the error (banned/reason/expiresAt
     // for the login ban screen, but additive for every response). "error" is

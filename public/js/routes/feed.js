@@ -40,6 +40,7 @@ import { createComposer } from "./composer.js";
 // the Accounts handoff — the join panel they used to point at is gone.
 import { wempoAccountsSignInUrl } from "../sso.js";
 import { appendPostList } from "../render.js";
+import { maskSpoilers } from "../markdown.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
@@ -208,7 +209,7 @@ function renderSearchResults(container, results) {
         miniCard.append(element("a", "reply-search-thread",
           reply.parent ? t("feed.replyThreadByParent") : t("feed.replyThreadBySomeone")));
         const bodyBlock = element("p", "reply-search-body");
-        bodyBlock.textContent = reply.body;
+        bodyBlock.textContent = maskSpoilers(reply.body);
         const link = element("a", "button button-quiet", t("feed.openThread"));
         link.href = "/posts/" + reply.threadId;
         link.setAttribute("data-app-link", "");

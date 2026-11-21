@@ -38,6 +38,7 @@ import { COMPOSER_MAX_CHARS } from "../composer-limits.js";
 import { attachDraftAutosave, clearFormDraft, draftKey } from "../drafts.js";
 import { attachMentionPicker } from "../mention-picker.js";
 import { t, tn } from "../i18n.js";
+import { createComposePreview } from "../compose-preview.js";
 
 let activeGifComposerForm = null;
 let activePollComposerForm = null;
@@ -77,6 +78,8 @@ function createComposer(name, label, buttonLabel, postID = null,
   attachDraftAutosave(form, bodyField, draftKey(name, postID, board));
   // @mention autocomplete (wave 2026-11-21): suggestions from /api/search.
   attachMentionPicker(bodyField, document);
+  // Live Preview toggle (wave 2026-11-21-3): client-only, opt-in per click.
+  form.append(createComposePreview(bodyField, document));
   form.append(createComposerAttachmentRow(name === "post-create"));
   addTurnstileSlot(form, turnstileAction ?? (name === "post-create" ? "post" : "reply"));
   addSubmit(form, buttonLabel);

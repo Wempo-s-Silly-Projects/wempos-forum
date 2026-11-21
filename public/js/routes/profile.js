@@ -204,7 +204,7 @@ function renderProfile(profile, session) {
   if (profile.banned) {
     let banText = t("profile.banned");
     if (profile.banExpiresAt) {
-      banText = t("profile.bannedUntil", { time: formatBanCountdown(profile.banExpiresAt) || "0m" });
+      banText = t("profile.bannedUntil", { time: formatBanCountdown(profile.banExpiresAt) ?? "" });
     }
     if (profile.banReason) banText += " " + t("profile.banReason", { reason: profile.banReason });
     main.append(element("p", "profile-banned-banner", banText));
