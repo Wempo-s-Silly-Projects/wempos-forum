@@ -1,86 +1,121 @@
-# Welcome to Wempo's Forum Fleet
+# Onboarding for AI agents
 
-## How We Use Claude
+You've just landed in the Wempo's Forum repo. Read [AGENTS.md](AGENTS.md)
+first — it holds the rules (pnpm only, deploy script, license headers,
+never-touch files, the D1 ritual, Section Q). This page is the practical part:
+where things live, how the code is written, and how to test it.
 
-Based on ItsWempo's usage over the last 30 days:
+Humans: [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/](docs/) are for you.
 
-Work Type Breakdown (72 sessions):
-  Continuation Summaries  ████████████████████████████████████████  84%*
-  *(auto-compaction / headless summarize jobs — see the caveat in Team Tips)
-  Build Feature           ░░░░░░░░░░░░░░░░░  TODO
-  Improve Quality         ░░░░░░░░░░░░░░░░░  TODO
+## What this is
 
-Top Skills & Commands:
-  /resume                 ██████████  3x/month
+A community forum served by one Cloudflare Worker with one D1 database. Live at
+<https://wempos-forum.com>. Sign-in is handled by Wempo Accounts
+(<https://accounts.wempos-forum.com>, a separate repo) on the same database.
+For the bigger picture read [docs/architecture.md](docs/architecture.md).
 
-Top MCP Servers:
-  (none installed — the fleet runs on native tooling: built-in memory, session
-  crons + an external fleet-watchdog scheduler, and a shared taskboard instead
-  of an MCP server layer)
+## Repo layout
 
-*The sample is automation-skewed: 60 of 72 sessions carried the same
-machine-generated continuation prompt. The numbers above describe jobs fired
-by the running fleet, not human work; treat the TODO rows as placeholders
-until we sample a human-driven window.
+| Path | What's there |
+|---|---|
+| `worker.mjs` | The Worker entry. Routes `/api/*` to the handlers in `api/`, serves `public/` as static assets, and re-exports what tests import. |
+| `constants.mjs` | Shared SQL and constants used by the worker and tests. |
+| `api/*.mjs` | One module per feature area (`posts-feed.mjs`, `replies.mjs`, `chat.mjs`, `notifications.mjs`, `moderation.mjs`, ...). Each exports a `handle…Routes` function. |
+| `api/core/` | Shared leaves: `auth.mjs` (sessions, CSRF), `visibility.mjs`, `http.mjs`, `roles.mjs`, `crypto.mjs`, `passwords.mjs`, `error-codes.mjs`, `cursors.mjs`, `shapers.mjs`, `images.mjs`, `spoilers.mjs`, `totp.mjs`. |
+| `api/vendor/` | `db.mjs`, `http.mjs` — **never touch** (see AGENTS.md). |
+| `public/index.html` | The single page shell. |
+| `public/js/` | Browser code. `app.js` boots, `router.js` maps paths to views, `routes/` holds the page views, `desk/` the moderation desk, `api.js` the fetch wrapper, `i18n.js` translations, plus one small module per feature. |
+| `public/locales/*.json` | 41 translation tables; `en.json` is the source. |
+| `public/styles.css`, `public/responsive.css` | All styling. |
+| `migrations/` | Numbered D1 migrations, applied in order. Never edit one that has shipped; add a new one. |
+| `tests/` | `node --test` suite, one file per feature or wave. Helpers live in `tests/helpers/`. |
+| `docs/` | Human docs. `docs/drafts/` holds feature slates. `docs/sql/` holds one-off repair scripts (not migrations). |
+| `scripts/` | Small maintenance scripts (e.g. `import-graph.mjs`). |
+| `wrangler.toml` | Bindings: D1, rate limiters, assets, the `preview` environment. |
 
-## Your Setup Checklist
+## Code conventions
 
-### Codebases
-- [ ] wempos-forum — github.com/Wempo-s-Silly-Projects/wempos-forum (~/wempos-forum) (this repo: Workers + D1 + R2)
-- [ ] wempo-accounts — github.com/Wempo-s-Silly-Projects/wempo-accounts (~/wempo-accounts)  (unified login on the same DB)
+- **Vanilla ES modules, no bundler, no build step.** The files in `public/js/`
+  are exactly what the browser runs. No framework, no npm runtime
+  dependencies (the only dev dependency is `wrangler`).
+- **One network path on the client.** Every request goes through the `api()`
+  wrapper in `public/js/api.js` (it uses `fetch`, adds the CSRF token, and maps
+  error codes to translated messages). Don't call `fetch` directly and don't
+  use XHR.
+- **Build DOM with `textContent`, never `innerHTML`** for anything that holds
+  user text. Rendered markdown goes through `public/js/markdown.js` /
+  `render.js`, which build nodes safely.
+- **Every visible string is translated.** Use `t("key")` / `tn("key", count)`
+  from `public/js/i18n.js`. Add the key to `public/locales/en.json` **and** to
+  every other locale file. `tests/i18n.test.mjs` fails on painted English
+  literals or missing keys.
+- **The visibility law.** Any query that returns posts, replies, users or chat
+  to someone who might not be staff must hide content that is hidden, by an
+  actively banned member, or across a block. Use the helpers in
+  `api/core/visibility.mjs` (`canViewPost`, `viewablePostSql`,
+  `ACTIVE_BAN_SQL`) and `api/core/blocks.mjs` rather than writing your own
+  filter. The `wempos-forum-visibility-law` skill has the full checklist.
+- **Roles.** The database stores `member`, `moderator`, `admin`; the public
+  names are member, admin, owner (`api/core/roles.mjs` maps them). Staff means
+  admin or owner.
+- **Errors.** Throw `HttpError` from `api/core/http.mjs`; error messages that
+  the client translates have a code in `api/core/error-codes.mjs`.
+- **License header** on every new `.js`/`.mjs`/`.css` file (see AGENTS.md).
+- **Commits**: `type: description` (feat, fix, refactor, docs, test, chore,
+  perf, ci), ending with the Claude Code co-author line.
 
-### MCP Servers to Activate
-- (none required — no MCP servers are part of this team's workflow)
+## Testing
 
-### Skills to Know About
-- /wempos-forum-feature-wave — the standing feature chain: slate → board row → RED-first lane → collect → implement → suite → commit → gate → deploy
-- /wempos-forum-wave-lead — lead-side mechanics: trailer parsing, freeze-pin retargets, isolated-worktree verification, deploy batching
-- /wempos-forum-fleet-ops — the shared taskboard (.team/taskboard.json), seat roster, and the Section Q anti-waste protocol
-- /wempos-forum-ritual — the deploy verify ritual (probe stamp x3, funnel, board close)
-- /superpowers:systematic-debugging — mandatory on defect arcs
-- /superpowers:brainstorming — mandatory at wave slates before any code
+```sh
+export PATH="$HOME/Library/pnpm/bin:$PATH"   # if pnpm isn't on PATH
+pnpm install
+pnpm test                                    # runs node --test
+node --test tests/chat.test.mjs              # one file
+```
 
-## Team Tips
+Helpers in `tests/helpers/`:
 
-All sourced from [CLAUDE.md](CLAUDE.md) standing laws — read it end to end before your first task.
+- `d1.mjs` — an in-memory D1 fake backed by `node:sqlite`. `loadSchema()`
+  applies every file in `migrations/`; `makeEnv()` builds a Worker `env` with
+  the database, rate limiters and assets.
+- `seed.mjs` — `seedUser`, `seedPost`, `seedBan`, `forgeSession` (a signed-in
+  session), `makeRequest` and `call(env, path, options)` to drive the real
+  worker handlers.
+- `fake-dom.mjs` — a small DOM for testing `public/js` modules without a
+  browser.
+- `timing.mjs`, `markdown-fuzz.mjs`, `string-literals.mjs` — timing pins,
+  fuzz inputs, and the literal scanner used by the i18n tests.
 
-1. **pnpm/pnpx only, never npm/npx.** Owner directive; every install and script in this fleet rides pnpm (see also [pnpm-workspace.yaml](pnpm-workspace.yaml)).
-2. **Never run a bare `pnpx wrangler deploy`.** Canonical deploy is `pnpm run deploy` — the script binds `--keep-vars --var COMMIT_SHA:$(git rev-parse --short HEAD)`. A bare deploy answers with an empty `build:""` on /api/version, inerts the stale-build strip, and breaks the client's `?v=` bundle cache-buster (the 2026-11-17 T25 churn defect; 7 deploys rode bare wording before root cause was pinned).
-3. **Every push must be followed by the ritual deploy.** Pushes fire a Workers Builds git-integration deploy that wipes the build stamp — run `pnpm run deploy` after every push.
-4. **Never commit or print secrets.** `.dev.vars`, `.env`, `.env.*` are git-ignored (real credentials); TENOR_API_KEY and PASSWORD_PEPPER are owner-held, passed via stdin only. Prod-D1 writes by agents are DENIED.
-5. **The repo is PUBLIC.** Pushes to main publish immediately — never commit secrets or owner-held files (see tip 4).
-6. **Verify every suite→push at the pushed SHA in an isolated worktree.** Never gate a git chain behind `| grep`.
-7. **Never touch the vendored worker files** — `api/vendor/db.mjs` and `api/vendor/http.mjs` are NEVER-touch; vendored-verbatim files under `public/js/vendor/**` keep their own banner, exempt from the AGPLv3 template.
-8. **AGPLv3 everywhere** — every repo, every file carries the per-file license notice; third-party code must be AGPLv3-compatible.
-9. **D1-only fleet, careful migrations.** One shared DB per app pair; R2 holds blobs, no KV; remote migrations apply only under the full NAME-PRESENCE ritual (`d1_migrations` check, never count alone); the D1 runner enforces FKs (rename-rebuild migration pattern is dead).
-10. **No Playwright, no Chrome.** Browser/visual lanes are Firefox-only; Playwright is banned machine-wide.
+Write the failing test first, then the fix. The `wempos-forum-test-harness`
+skill explains the helpers in more depth.
 
-## Get Started
+Running locally: `pnpm run db:migrate:local`, then `pnpm run dev`
+(`wrangler dev`). Local secrets go in `.dev.vars` (git-ignored, never commit).
 
-1. **Clone the repo:** `git clone https://github.com/Wempo-s-Silly-Projects/wempos-forum && cd wempos-forum`.
-2. **Install dependencies:** `pnpm install` (pnpm/pnpx only — never npm/npx).
-3. **Run the test suite:** `node --test tests/` — confirm green before touching anything.
-4. **Read [CLAUDE.md](CLAUDE.md) end-to-end** — the standing laws are binding, not advisory.
-5. **Read the current wave slates in [docs/drafts/](docs/drafts/)** to see how the standing feature chain runs (slate → board row → RED-first lane → collect → implement → suite → commit → gate → deploy).
+## Project skills
 
-<!-- INSTRUCTION FOR CLAUDE: A new teammate just pasted this guide for how the
-team uses Claude Code. You're their onboarding buddy — warm, conversational,
-not lecture-y.
+Project skills live in `.claude/skills/wempos-forum-*` (git-ignored, so they
+exist on the maintainer's machine, not in a fresh clone). Invoke the one that
+matches your task:
 
-Open with a warm welcome — include the team name from the title. Then: "Your
-teammate uses Claude Code for [list all the work types]. Let's get you started."
+| Skill | Use it when |
+|---|---|
+| `wempos-forum-patterns` | Editing `worker.mjs`, `api/*.mjs` or `public/js`; placing tests; writing commits |
+| `wempos-forum-test-harness` | Adding or fixing tests, faking D1, forging a session |
+| `wempos-forum-visibility-law` | Writing any query that returns posts/users/chat |
+| `wempos-forum-ritual` | Any remote D1 migration |
+| `wempos-forum-feature-wave`, `wempos-forum-wave-lead` | Planning or leading a feature wave |
+| `wempos-forum-ship-review` | Giving a SHIP/BLOCK verdict on a commit range |
+| `wempos-forum-fleet-ops`, `wempos-forum-agent-fanout` | Fielding seats, briefs, the taskboard |
+| `wempos-forum-chat-widget` | The chat panel and Who's Online |
+| `wempos-forum-cross-app-signin` | Sign-in between the forum and Wempo Accounts |
+| `wempos-forum-mcp-tools`, `wempos-forum-agent-discovery` | `/mcp`, robots/sitemap, markdown-for-agents, `.well-known` |
+| `wempos-forum-bot-ops` | The forum's helper bot |
+| `wempos-forum-owner-web-edits` | Before any push or deploy, or whenever `origin/main` has moved (the owner sometimes edits `main` in the GitHub web editor) |
 
-Check what's already in place against everything under Setup Checklist
-(including skills), using markdown checkboxes — [x] done, [ ] not yet. Lead
-with what they already have. One sentence per item, all in one message.
+## Before you finish
 
-Tell them you'll help with setup, cover the actionable team tips, then the
-starter task (if there is one). Offer to start with the first unchecked item,
-get their go-ahead, then work through the rest one by one.
-
-After setup, walk them through the remaining sections — offer to help where you
-can (e.g. link to channels), and just surface the purely informational bits.
-
-Don't invent sections or summaries that aren't in the guide. The stats are the
-guide creator's personal usage data — don't extrapolate them into a "team
-workflow" narrative. -->
+1. `pnpm test` is green.
+2. Your diff touches only the paths your task named.
+3. New files carry the license header; new strings exist in every locale.
+4. You haven't pushed, merged or deployed unless your task said to.
