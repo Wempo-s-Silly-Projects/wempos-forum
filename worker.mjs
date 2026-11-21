@@ -26,7 +26,6 @@ import { HttpError, json, rateLimit, secureResponse, unconditional } from "./api
 // them identical). worker.mjs stops carrying its second copy of the mapping.
 import { dispatch, errorReply } from "./api/vendor/http.mjs";
 import { handleAuthRoutes } from "./api/session.mjs";
-import { handleBoostRoutes } from "./api/boost.mjs";
 import { handlePostRoutes } from "./api/posts.mjs";
 import { handleProfileRoutes } from "./api/profiles.mjs";
 import { handleModerationRoutes } from "./api/moderation.mjs";
@@ -47,6 +46,9 @@ import { handleTotpRoutes } from "./api/twofa.mjs";
 import { handleAccountsRoutes } from "./api/accounts.mjs";
 import { ensureFilterWords, handleFilterAdminRoutes } from "./api/filterstore.mjs";
 import { handleChatRoutes } from "./api/chat.mjs";
+
+// The one canonical origin; workers.dev hosts redirect here.
+const CANONICAL_ORIGIN = "https://wempos-forum.com";
 
 export { canViewPost } from "./api/core/visibility.mjs";
 export { isValidUsername } from "./api/core/shapers.mjs";
@@ -91,7 +93,7 @@ function notFound(request, env, url, path) {
 // dispatch context and answers only the paths it owns; `undefined` falls
 // through to the next handler or the notFound tail — the vendor's dispatch()
 // replaces the inlined handlers-for-loop, built once from the vendor import.
-const API_HANDLERS = [handleAuthRoutes, handleBoostRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleChatRoutes];
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleChatRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
@@ -145,14 +147,11 @@ async function routeApi(request, env, ctx) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    const targetDomain = "https://wempos-forum.com"
-    const destination = `${targetDomain}${url.pathname}${url.search}`;
-
+    // Canonical host: every *.workers.dev request (API or page) answers a 301
+    // to the canonical origin with its path and query intact.
     if (url.hostname.endsWith(".workers.dev")) {
-      const destination = `https://${targetDomain}${url.pathname}${url.search}`;
-      return Response.redirect(destination, 301);
+      return Response.redirect(`${CANONICAL_ORIGIN}${url.pathname}${url.search}`, 301);
     }
-    
     if (url.pathname.startsWith("/api/")) {
       try {
         return await routeApi(request, env, ctx);
@@ -162,9 +161,6 @@ export default {
         return errorReply(error, "Forum request failed:");
       }
     }
-  },
-};
-
     if (!env.ASSETS) return json({ error: "Static assets are not configured." }, 503);
     try {
       return secureResponse(await stampedAssetResponse(await env.ASSETS.fetch(unconditional(request)), env));

@@ -2407,7 +2407,7 @@ dialog h2 {
 
 /* Old-UI revival (lobby-frontend lane): the widget's interior becomes the old
    /chat page's two tabs — the Lobby stream rides the .chat-message family
-   that survived for the desk's log, and the DM rail grows the GC polish
+   that survived for the desk's log, and the DM rail grows its polish
    (avatar initial circles, role-colored seats). The Lobby tab stays hidden
    until its own boot probe succeeds (the degrade law), and the flex surfaces
    carry explicit [hidden] guards — an author display rule beats the UA's

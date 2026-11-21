@@ -23,15 +23,14 @@
 # .team/ALERT-<ts>.md + a macOS notification on failure. Never deploys,
 # never writes D1, never pushes.
 set -u
-cd /Users/itswempo/GooberCord || exit 1
+cd /Users/itswempo/wempos-forum || exit 1
 STATE_DIR=".team"
 STATE_FILE="$STATE_DIR/watchdog-state.json"
 LOG_FILE="$STATE_DIR/tick.log"
 NOW="$(date -u +%FT%TZ)"
 
 FORUM_VERSION="$(curl -s --max-time 20 https://wempos-forum.com/api/version)"
-
-GC_BUILD="$(printf '%s' "$GC_VERSION" | sed -n 's/.*"build":"\([0-9a-f]*\)".*/\1/p')"
+ACCOUNTS_STATUS="$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://accounts.wempos-forum.com/)"
 PREV_BUILD=""
 if [ -f "$STATE_FILE" ]; then
   PREV_BUILD="$(printf '%s' "$(cat "$STATE_FILE")" | sed -n 's/.*"build":"\([0-9a-f]*\)".*/\1/p')"
@@ -41,13 +40,16 @@ alert=""
 if ! printf '%s' "$FORUM_VERSION" | grep -q '"commit"'; then
   alert="${alert:+$alert; }Forum version probe failed: ${FORUM_VERSION:-<empty>}"
 fi
+if [ "$ACCOUNTS_STATUS" != "200" ]; then
+  alert="${alert:+$alert; }Accounts probe failed: HTTP ${ACCOUNTS_STATUS:-<none>}"
+fi
 
-printf '%s WATCHDOG forum=%s' "$NOW" "$FORUM_VERSION" >> "$LOG_FILE"
+printf '%s WATCHDOG forum=%s accounts=%s' "$NOW" "$FORUM_VERSION" "$ACCOUNTS_STATUS" >> "$LOG_FILE"
 if [ -n "$alert" ]; then
   printf ' ALERT=%s\n' "$alert" >> "$LOG_FILE"
   # Re-seed state so a one-off stamp change does not loop-alert forever.
   ALERT_FILE="$STATE_DIR/ALERT-$(date -u +%Y%m%dT%H%M%SZ).md"
-  printf '# Fleet watchdog alert %s\n\n%s\n\n- forum: %s\n' "$NOW" "$alert" "$GC_BUILD" "$GC_INDEX" "$FORUM_VERSION" > "$ALERT_FILE"
+  printf '# Fleet watchdog alert %s\n\n%s\n\n- forum: %s\n- accounts: HTTP %s\n' "$NOW" "$alert" "$FORUM_VERSION" "$ACCOUNTS_STATUS" > "$ALERT_FILE"
   # ecc-security LOW rider (2026-11-19): the alert text may carry raw probe
   # bodies — quote/backslash characters never ride the AppleScript string.
   SAFE_ALERT="$(printf '%s' "$alert" | tr -d '"\\')"

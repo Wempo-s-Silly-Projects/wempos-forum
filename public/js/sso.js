@@ -10,7 +10,7 @@
 //
 // Everything here is pure and DOM-free (win/api ride in as arguments), so
 // node --test pins the behavior; app.js supplies the real api()/window at
-// boot, exactly like the GooberCord twin's state.js door.
+// boot.
 
 // The query-string parameter the Accounts worker redirects back with.
 export const SSO_TICKET_PARAM = "wt";

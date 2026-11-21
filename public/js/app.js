@@ -428,7 +428,7 @@ async function boot() {
     initTheme(document, storage);
     applyCornerPreference(document, storage);
     fillVersionTag().catch(() => {});
-    // The §4b door-swap: GooberCord's twin landed first — the forum has no
+    // The §4b door-swap: the forum has no
     // password sign-in UI anymore, so a signed-out open carrying
     // ?wt=<ticket> redeems the one-time ticket RIGHT HERE, before the
     // router mounts (the redeem must run on the forum's origin, where the
