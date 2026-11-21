@@ -33,6 +33,7 @@ import {
   buildComposerBody,
 } from "../attachments.js";
 import { addGifsToComposer, removeGifFromComposer, renderGifThumbs, spareComposerSlots } from "../gifs.js";
+import { arrangeGallery, readRecents, rememberRecents, writeRecents } from "../gallery-picks.js";
 import { addTurnstileSlot, refreshTurnstile, takeTurnstileToken } from "../turnstile.js";
 import { COMPOSER_MAX_CHARS } from "../composer-limits.js";
 import { attachDraftAutosave, clearFormDraft, draftKey } from "../drafts.js";
@@ -289,39 +290,63 @@ const gifPickerActiveForm = () => null;
 function gifPickerDialog() {
   return document.querySelector("#gif-picker");
 }
+// Wave 21 (F2 recents + F3 sort): the picker paints two grids, the
+// account's "Recently used" row (only ids the approved list still carries)
+// and the rest of the library in the chosen order. Selection spans both
+// grids, so the spare-slot cap and the confirm read every pressed thumb.
+const galleryView = { gifs: [], spare: 0 };
+const selectedGalleryIds = (dialog) =>
+  [...dialog.querySelectorAll('.gif-grid-item[aria-pressed="true"]')].map((node) => node.dataset.gifId);
+function galleryThumb(dialog, gif, pressed) {
+  const thumb = element("button", "gif-grid-item");
+  thumb.type = "button";
+  thumb.dataset.gifId = gif.id;
+  thumb.setAttribute("role", "option");
+  thumb.setAttribute("aria-pressed", pressed ? "true" : "false");
+  thumb.title = t("composer.useImage");
+  const img = element("img");
+  img.src = gif.url;
+  img.loading = "lazy";
+  img.alt = t("composer.libraryImage");
+  thumb.append(img);
+  thumb.addEventListener("click", () => {
+    const isPressed = thumb.getAttribute("aria-pressed") === "true";
+    if (!isPressed && selectedGalleryIds(dialog).length >= galleryView.spare) {
+      setMessage(t("composer.slotsExceeded", { max: MAX_COMPOSER_FILES }), true);
+      return;
+    }
+    thumb.setAttribute("aria-pressed", isPressed ? "false" : "true");
+  });
+  return thumb;
+}
+function paintGallery(dialog, keepSelection) {
+  const pressed = new Set(keepSelection ? selectedGalleryIds(dialog) : []);
+  const sort = dialog.querySelector("#gif-sort")?.value ?? "newest";
+  const recents = readRecents(undefined, state.currentUser?.id);
+  const { recent, rest } = arrangeGallery(galleryView.gifs, recents, sort);
+  const thumbs = (list) => list.map((gif) => galleryThumb(dialog, gif, pressed.has(gif.id)));
+  const recentGrid = dialog.querySelector("#gif-recents");
+  const recentTitle = dialog.querySelector("#gif-recents-title");
+  recentGrid?.replaceChildren(...thumbs(recent));
+  if (recentGrid) recentGrid.hidden = recent.length === 0;
+  if (recentTitle) recentTitle.hidden = recent.length === 0;
+  dialog.querySelector("#gif-grid")?.replaceChildren(...thumbs(rest));
+}
 async function openGifPicker(button) {
   const form = button.closest("form");
   if (!form) return;
   const dialog = gifPickerDialog();
   if (!dialog) return;
   activeGifComposerForm = form;
-  const grid = dialog.querySelector("#gif-grid");
   const data = await api("/api/gifs");
-  grid.replaceChildren();
-  const spare = spareComposerSlots(form);
-  for (const gif of data.gifs) {
-    const thumb = element("button", "gif-grid-item");
-    thumb.type = "button";
-    thumb.dataset.gifId = gif.id;
-    thumb.setAttribute("role", "option");
-    thumb.setAttribute("aria-pressed", "false");
-    thumb.title = t("composer.useImage");
-    const img = element("img");
-    img.src = gif.url;
-    img.loading = "lazy";
-    img.alt = t("composer.libraryImage");
-    thumb.append(img);
-    thumb.addEventListener("click", () => {
-      const pressed = thumb.getAttribute("aria-pressed") === "true";
-      const selectedCount = [...grid.children].filter((node) => node.getAttribute("aria-pressed") === "true");
-      if (!pressed && selectedCount.length >= spare) {
-        setMessage(t("composer.slotsExceeded", { max: MAX_COMPOSER_FILES }), true);
-        return;
-      }
-      thumb.setAttribute("aria-pressed", pressed ? "false" : "true");
-    });
-    grid.append(thumb);
+  galleryView.gifs = Array.isArray(data.gifs) ? data.gifs : [];
+  galleryView.spare = spareComposerSlots(form);
+  const sortSelect = dialog.querySelector("#gif-sort");
+  if (sortSelect && !sortSelect.dataset.bound) {
+    sortSelect.dataset.bound = "true";
+    sortSelect.addEventListener("change", () => paintGallery(dialog, true));
   }
+  paintGallery(dialog, false);
   dialog.showModal();
 }
 function confirmGifPicker(button) {
@@ -329,14 +354,15 @@ function confirmGifPicker(button) {
   if (!dialog) return;
   const form = connectedComposer(activeGifComposerForm);
   activeGifComposerForm = null;
-  const grid = dialog.querySelector("#gif-grid");
-  const selected = [...grid.children].filter((node) => node.getAttribute("aria-pressed") === "true").map((node) => node.dataset.gifId);
+  const selected = selectedGalleryIds(dialog);
   dialog.close();
   if (!form || selected.length === 0) return;
   const { added } = addGifsToComposer(form, selected);
   if (added.length < selected.length) {
     setMessage(tn("composer.slotsPartial", added.length), true);
   }
+  const accountId = state.currentUser?.id;
+  writeRecents(undefined, rememberRecents(readRecents(undefined, accountId), added), accountId);
   renderComposerGifStrip(form);
 }
 async function uploadCommunityGif(input) {
