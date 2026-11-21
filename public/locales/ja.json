@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "添付待ちの画像が {count} 枚あります: {names}。添付して投稿するまで何もアップロードされません。",
   "composer.pendingAttach": "添付",
   "composer.pendingDismiss": "取り消す",
-  "render.discardEditConfirm": "この投稿への変更を破棄しますか?"
+  "render.discardEditConfirm": "この投稿への変更を破棄しますか?",
+  "drafts.restored": "未送信の下書きを復元しました（{when}に保存）。",
+  "drafts.discard": "下書きを破棄",
+  "drafts.discardConfirm": "この下書きを破棄しますか？入力欄のテキストは消去されます。"
 }

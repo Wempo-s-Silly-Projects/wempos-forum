@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "{count} imágenes listas para adjuntar: {names}. No se sube nada hasta que las adjuntes y publiques.",
   "composer.pendingAttach": "Adjuntar",
   "composer.pendingDismiss": "Descartar",
-  "render.discardEditConfirm": "¿Descartar tus cambios en esta publicación?"
+  "render.discardEditConfirm": "¿Descartar tus cambios en esta publicación?",
+  "drafts.restored": "Se restauró tu borrador sin enviar (guardado {when}).",
+  "drafts.discard": "Descartar borrador",
+  "drafts.discardConfirm": "¿Descartar este borrador? Se borrará el texto del cuadro."
 }

@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "Obrazy gotowe do załączenia ({count}): {names}. Nic nie zostanie wysłane, dopóki ich nie załączysz i nie opublikujesz.",
   "composer.pendingAttach": "Załącz",
   "composer.pendingDismiss": "Odrzuć",
-  "render.discardEditConfirm": "Odrzucić zmiany w tym poście?"
+  "render.discardEditConfirm": "Odrzucić zmiany w tym poście?",
+  "drafts.restored": "Przywrócono niewysłany szkic (zapisany {when}).",
+  "drafts.discard": "Odrzuć szkic",
+  "drafts.discardConfirm": "Odrzucić ten szkic? Tekst w polu zostanie wyczyszczony."
 }

@@ -29,7 +29,8 @@ import { join, relative } from "node:path";
 
 const JS_ROOT = new URL("../public/js/", import.meta.url).pathname;
 const VENDOR_DIR = "vendor";
-const STORAGE_WRITE = /\b(?:setItem\s*\(|(?:local|session)Storage\s*\[[^\]]+\]\s*=)/;
+// Wave 31: also dot-assignment (`localStorage.key = v`); `==` compares are not writes.
+const STORAGE_WRITE = /\b(?:setItem\s*\(|(?:local|session)Storage\s*(?:\[[^\]]+\]|\.(?!getItem|setItem|removeItem|clear|key|length)\w+)\s*=(?!=))/;
 const ACCOUNT_SCOPE = /":u"/;
 
 // Device preferences: shared by everyone on the browser, kept on sign-out.
@@ -57,6 +58,15 @@ const wipeImports = new Map([...NAV.matchAll(/import\s*\{([^}]*)\}\s*from\s*"\.\
   .flatMap(([, names, from]) => names.split(",").map((name) => name.trim())
     .filter((name) => name.startsWith("clearAll")).map((name) => [name, from])));
 const calledInWipe = (name) => new RegExp("\\b" + name + "\\(\\)").test(wipeBody);
+
+test("the write pattern catches every storage write shape and skips reads", () => {
+  for (const write of ['storage.setItem("k", v)', 'localStorage["k"] = v', "sessionStorage.k = v", "localStorage.draft=v"]) {
+    assert.ok(STORAGE_WRITE.test(write), write);
+  }
+  for (const read of ['localStorage.getItem("k")', "localStorage.length === 0", "if (localStorage.k == null) {}"]) {
+    assert.ok(!STORAGE_WRITE.test(read), read);
+  }
+});
 
 test("the wipe function and its imports are where the sweep expects them", () => {
   assert.ok(wipeBody.trim(), "wipeAccountLocalData() body not found in routes/account-nav.js");

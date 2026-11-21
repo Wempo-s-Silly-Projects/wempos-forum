@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "{count} images ready to attach: {names}. Nothing uploads until you attach them and post.",
   "composer.pendingAttach": "Attach",
   "composer.pendingDismiss": "Dismiss",
-  "render.discardEditConfirm": "Discard your changes to this post?"
+  "render.discardEditConfirm": "Discard your changes to this post?",
+  "drafts.restored": "Restored your unsent draft (saved {when}).",
+  "drafts.discard": "Discard draft",
+  "drafts.discardConfirm": "Discard this draft? The text in the box will be cleared."
 }

@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "{count} imagens prontas para anexar: {names}. Nada é enviado até você anexá-las e publicar.",
   "composer.pendingAttach": "Anexar",
   "composer.pendingDismiss": "Descartar",
-  "render.discardEditConfirm": "Descartar suas alterações nesta publicação?"
+  "render.discardEditConfirm": "Descartar suas alterações nesta publicação?",
+  "drafts.restored": "Seu rascunho não enviado foi restaurado (salvo {when}).",
+  "drafts.discard": "Descartar rascunho",
+  "drafts.discardConfirm": "Descartar este rascunho? O texto da caixa será apagado."
 }

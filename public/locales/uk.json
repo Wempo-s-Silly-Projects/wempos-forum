@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "Зображень готово до прикріплення: {count} ({names}). Нічого не завантажиться, доки ви не прикріпите їх і не опублікуєте.",
   "composer.pendingAttach": "Прикріпити",
   "composer.pendingDismiss": "Відхилити",
-  "render.discardEditConfirm": "Скасувати зміни в цьому дописі?"
+  "render.discardEditConfirm": "Скасувати зміни в цьому дописі?",
+  "drafts.restored": "Відновлено ненадіслану чернетку (збережено {when}).",
+  "drafts.discard": "Видалити чернетку",
+  "drafts.discardConfirm": "Видалити цю чернетку? Текст у полі буде очищено."
 }

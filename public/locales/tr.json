@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "Eklenmeye hazır {count} görsel: {names}. Ekleyip gönderene kadar hiçbir şey yüklenmez.",
   "composer.pendingAttach": "Ekle",
   "composer.pendingDismiss": "Vazgeç",
-  "render.discardEditConfirm": "Bu gönderideki değişiklikleriniz silinsin mi?"
+  "render.discardEditConfirm": "Bu gönderideki değişiklikleriniz silinsin mi?",
+  "drafts.restored": "Gönderilmemiş taslağın geri yüklendi ({when} kaydedildi).",
+  "drafts.discard": "Taslağı sil",
+  "drafts.discardConfirm": "Bu taslak silinsin mi? Kutudaki metin temizlenecek."
 }

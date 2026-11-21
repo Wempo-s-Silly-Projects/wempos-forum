@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "{count} afbeeldingen klaar om bij te voegen: {names}. Er wordt niets geüpload tot je ze bijvoegt en plaatst.",
   "composer.pendingAttach": "Bijvoegen",
   "composer.pendingDismiss": "Negeren",
-  "render.discardEditConfirm": "Je wijzigingen aan dit bericht weggooien?"
+  "render.discardEditConfirm": "Je wijzigingen aan dit bericht weggooien?",
+  "drafts.restored": "Je niet-verzonden concept is hersteld (opgeslagen {when}).",
+  "drafts.discard": "Concept weggooien",
+  "drafts.discardConfirm": "Dit concept weggooien? De tekst in het vak wordt gewist."
 }

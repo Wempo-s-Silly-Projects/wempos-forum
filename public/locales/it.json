@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "{count} immagini pronte da allegare: {names}. Niente viene caricato finché non le alleghi e pubblichi.",
   "composer.pendingAttach": "Allega",
   "composer.pendingDismiss": "Scarta",
-  "render.discardEditConfirm": "Scartare le modifiche a questo post?"
+  "render.discardEditConfirm": "Scartare le modifiche a questo post?",
+  "drafts.restored": "Bozza non inviata ripristinata (salvata {when}).",
+  "drafts.discard": "Elimina bozza",
+  "drafts.discardConfirm": "Eliminare questa bozza? Il testo nella casella verrà cancellato."
 }

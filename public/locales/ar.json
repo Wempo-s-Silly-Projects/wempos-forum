@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "{count} صور جاهزة للإرفاق: {names}. لا يُرفع شيء حتى ترفقها وتنشر.",
   "composer.pendingAttach": "إرفاق",
   "composer.pendingDismiss": "تجاهل",
-  "render.discardEditConfirm": "هل تريد تجاهل تعديلاتك على هذا المنشور؟"
+  "render.discardEditConfirm": "هل تريد تجاهل تعديلاتك على هذا المنشور؟",
+  "drafts.restored": "تمت استعادة مسودتك غير المرسلة (حُفظت {when}).",
+  "drafts.discard": "تجاهل المسودة",
+  "drafts.discardConfirm": "هل تريد تجاهل هذه المسودة؟ سيتم مسح النص في المربع."
 }

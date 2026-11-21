@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "有 {count} 張圖片待附加：{names}。在你附加並發佈之前不會上傳任何內容。",
   "composer.pendingAttach": "附加",
   "composer.pendingDismiss": "略過",
-  "render.discardEditConfirm": "要放棄對這篇貼文的修改嗎？"
+  "render.discardEditConfirm": "要放棄對這篇貼文的修改嗎？",
+  "drafts.restored": "已還原你未送出的草稿（儲存於{when}）。",
+  "drafts.discard": "捨棄草稿",
+  "drafts.discardConfirm": "要捨棄這份草稿嗎？輸入框中的文字將被清除。"
 }
