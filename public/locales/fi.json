@@ -164,6 +164,8 @@
   "boards.generalLabel": "Yleistä",
   "boards.helpBlurb": "Meni jokin rikki tai oletko jumissa? Kysy täällä.",
   "boards.helpLabel": "Viat, vianmääritys ja apu",
+  "boards.pollsBlurb": "Kyselyt, jotka ratkaisevat foorumin muutokset!",
+  "boards.pollsLabel": "Kyselyt",
   "boards.showcaseBlurb": "Esittele tekemäsi — pelit, taide, sivustot, mitä vain.",
   "boards.showcaseLabel": "Esittely",
   "boards.suggestionsBlurb": "Ideoita foorumille — järjestetty tykkäysten mukaan, ja ylläpitäjät voivat merkitä ne ratkaistuiksi tai hylätyiksi.",
