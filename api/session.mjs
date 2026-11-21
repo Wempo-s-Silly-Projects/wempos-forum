@@ -115,7 +115,7 @@ async function handleSessionRoute(request, env, url, path, method) {
       return json({
         user: existing.user,
         csrfToken: existing.csrfToken,
-        unreadNotifications: await unreadCount(env, existing.user.id),
+        unreadNotifications: await unreadCount(env, existing.user.id, existing.user.role),
       }, 200, existing.migrateCookies ? migrateHeaders() : undefined);
     }
     await rateLimit(request, env, "guest-session");
