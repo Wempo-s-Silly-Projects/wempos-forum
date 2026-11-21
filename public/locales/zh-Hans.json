@@ -629,6 +629,8 @@
   "render.copyLink": "复制链接",
   "render.threadAuthor": "楼主",
   "render.threadAuthorTitle": "发起了这个帖子",
+  "render.you": "你",
+  "render.youTitle": "这是你写的",
   "render.readAloud": "朗读",
   "render.stopReading": "停止朗读",
   "render.noLocalVoice": "设备上没有可用的语音",

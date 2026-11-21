@@ -1796,6 +1796,7 @@ dialog h2 {
 .role-badge-admin { color: var(--green-ink); }
 /* Thread-author chip (wave 2026-11-21-7): the starter's own replies. */
 .role-badge-op { color: var(--muted); text-transform: none; }
+.role-badge-you { color: var(--muted); text-transform: none; }
 
 /* Suggestion status (v3.1): resolved/declined chips on suggestion roots.
    Same pill shape as the role badges; resolved reads the soft green ink,

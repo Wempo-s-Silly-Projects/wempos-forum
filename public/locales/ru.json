@@ -629,6 +629,8 @@
   "render.copyLink": "Копировать ссылку",
   "render.threadAuthor": "Автор",
   "render.threadAuthorTitle": "Начал(а) эту тему",
+  "render.you": "Вы",
+  "render.youTitle": "Это написали вы",
   "render.readAloud": "Прочитать вслух",
   "render.stopReading": "Остановить чтение",
   "render.noLocalVoice": "На устройстве нет доступного голоса",

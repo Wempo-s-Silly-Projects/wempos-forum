@@ -629,6 +629,8 @@
   "render.copyLink": "نسخ الرابط",
   "render.threadAuthor": "المؤلف",
   "render.threadAuthorTitle": "بدأ هذا الموضوع",
+  "render.you": "أنت",
+  "render.youTitle": "أنت كتبت هذا",
   "render.readAloud": "قراءة بصوت عالٍ",
   "render.stopReading": "إيقاف القراءة",
   "render.noLocalVoice": "لا يتوفر صوت على الجهاز",

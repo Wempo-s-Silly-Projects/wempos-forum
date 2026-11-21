@@ -629,6 +629,8 @@
   "render.copyLink": "คัดลอกลิงก์",
   "render.threadAuthor": "ผู้เขียน",
   "render.threadAuthorTitle": "เริ่มกระทู้นี้",
+  "render.you": "คุณ",
+  "render.youTitle": "คุณเขียนสิ่งนี้",
   "render.readAloud": "อ่านออกเสียง",
   "render.stopReading": "หยุดอ่าน",
   "render.noLocalVoice": "ไม่มีเสียงบนอุปกรณ์",

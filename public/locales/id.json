@@ -629,6 +629,8 @@
   "render.copyLink": "Salin tautan",
   "render.threadAuthor": "Penulis",
   "render.threadAuthorTitle": "Memulai utas ini",
+  "render.you": "Anda",
+  "render.youTitle": "Anda yang menulis ini",
   "render.readAloud": "Bacakan",
   "render.stopReading": "Berhenti membacakan",
   "render.noLocalVoice": "Tidak ada suara di perangkat",

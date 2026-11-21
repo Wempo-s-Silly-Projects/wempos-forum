@@ -629,6 +629,8 @@
   "render.copyLink": "Копіювати посилання",
   "render.threadAuthor": "Автор",
   "render.threadAuthorTitle": "Розпочав(-ла) цю тему",
+  "render.you": "Ви",
+  "render.youTitle": "Це написали ви",
   "render.readAloud": "Прочитати вголос",
   "render.stopReading": "Зупинити читання",
   "render.noLocalVoice": "На пристрої немає доступного голосу",

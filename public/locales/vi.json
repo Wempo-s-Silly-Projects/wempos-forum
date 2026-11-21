@@ -629,6 +629,8 @@
   "render.copyLink": "Sao chép liên kết",
   "render.threadAuthor": "Tác giả",
   "render.threadAuthorTitle": "Đã mở chủ đề này",
+  "render.you": "Bạn",
+  "render.youTitle": "Bạn đã viết bài này",
   "render.readAloud": "Đọc to",
   "render.stopReading": "Dừng đọc",
   "render.noLocalVoice": "Không có giọng đọc trên thiết bị",

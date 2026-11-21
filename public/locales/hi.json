@@ -629,6 +629,8 @@
   "render.copyLink": "लिंक कॉपी करें",
   "render.threadAuthor": "लेखक",
   "render.threadAuthorTitle": "यह थ्रेड शुरू किया",
+  "render.you": "आप",
+  "render.youTitle": "यह आपने लिखा है",
   "render.readAloud": "पढ़कर सुनाएँ",
   "render.stopReading": "पढ़ना बंद करें",
   "render.noLocalVoice": "डिवाइस पर कोई आवाज़ उपलब्ध नहीं",

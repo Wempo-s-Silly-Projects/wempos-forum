@@ -25,6 +25,7 @@
 // what notifies. Options are built with createElement/textContent only.
 import { api } from "./api.js";
 import { t } from "./i18n.js";
+import { isImeComposing } from "./focus-utils.js";
 
 export const MAX_MENTION_SUGGESTIONS = 6;
 export const MENTION_SEARCH_DELAY_MS = 200;
@@ -153,7 +154,7 @@ export function attachMentionPicker(textarea, document) {
   });
 
   textarea.addEventListener("keydown", (event) => {
-    if (list.hidden || users.length === 0) return;
+    if (list.hidden || users.length === 0 || isImeComposing(event)) return;
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
       const step = event.key === "ArrowDown" ? 1 : -1;

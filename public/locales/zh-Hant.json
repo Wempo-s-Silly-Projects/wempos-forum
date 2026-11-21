@@ -629,6 +629,8 @@
   "render.copyLink": "複製連結",
   "render.threadAuthor": "樓主",
   "render.threadAuthorTitle": "發起了這個討論串",
+  "render.you": "你",
+  "render.youTitle": "這是你寫的",
   "render.readAloud": "朗讀",
   "render.stopReading": "停止朗讀",
   "render.noLocalVoice": "裝置上沒有可用的語音",
