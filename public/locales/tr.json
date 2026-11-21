@@ -781,5 +781,8 @@
   "admin.msg.hidRecent.other": "{count} gönderi gizlendi.",
   "admin.msg.restored.one": "{count} gönderi geri yüklendi.",
   "admin.msg.restored.other": "{count} gönderi geri yüklendi.",
-  "post.latestReply": "En son yanıta git"
+  "post.latestReply": "En son yanıta git",
+  "post.foldReply": "Daralt",
+  "post.foldReplyTitle": "Bu yanıtı yazar satırına kadar daraltın — yalnızca sizin için, sayfadan ayrılana dek",
+  "post.firstPost": "İlk gönderiye dön"
 }

@@ -781,5 +781,8 @@
   "admin.msg.hidRecent.other": "{count} Beiträge verborgen.",
   "admin.msg.restored.one": "{count} Beitrag wiederhergestellt.",
   "admin.msg.restored.other": "{count} Beiträge wiederhergestellt.",
-  "post.latestReply": "Zur neuesten Antwort springen"
+  "post.latestReply": "Zur neuesten Antwort springen",
+  "post.foldReply": "Einklappen",
+  "post.foldReplyTitle": "Diese Antwort bis auf die Autorenzeile einklappen — nur für dich, bis du die Seite verlässt",
+  "post.firstPost": "Zurück zum ersten Beitrag"
 }

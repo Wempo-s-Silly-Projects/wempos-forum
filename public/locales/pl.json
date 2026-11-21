@@ -781,5 +781,8 @@
   "admin.msg.hidRecent.other": "Ukryte posty: {count}.",
   "admin.msg.restored.one": "Przywrócono {count} post.",
   "admin.msg.restored.other": "Przywrócone posty: {count}.",
-  "post.latestReply": "Przejdź do najnowszej odpowiedzi"
+  "post.latestReply": "Przejdź do najnowszej odpowiedzi",
+  "post.foldReply": "Zwiń",
+  "post.foldReplyTitle": "Zwiń tę odpowiedź do wiersza autora — tylko dla ciebie, dopóki nie opuścisz strony",
+  "post.firstPost": "Wróć do pierwszego posta"
 }

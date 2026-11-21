@@ -781,5 +781,8 @@
   "admin.msg.hidRecent.other": "已隐藏 {count} 篇帖子。",
   "admin.msg.restored.one": "已恢复 {count} 篇帖子。",
   "admin.msg.restored.other": "已恢复 {count} 篇帖子。",
-  "post.latestReply": "跳到最新回复"
+  "post.latestReply": "跳到最新回复",
+  "post.foldReply": "折叠",
+  "post.foldReplyTitle": "将这条回复折叠到只剩作者一行——仅你可见，离开页面后恢复",
+  "post.firstPost": "回到第一篇帖子"
 }

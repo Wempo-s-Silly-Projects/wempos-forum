@@ -42,7 +42,8 @@ import { applyCatchUp } from "../catch-up.js";
 import { createThreadGlance, summarizeThread } from "../thread-glance.js";
 import { markThreadStarterReplies, threadStarterId } from "../thread-starter.js";
 import { bindPostKeys, createPostKeysHint } from "../post-keys.js";
-import { createLatestReplyJump } from "../latest-reply.js";
+import { createFirstPostJump, createLatestReplyJump } from "../latest-reply.js";
+import { addReplyFolds } from "../reply-fold.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -70,6 +71,8 @@ async function renderPostRoute(route, context, version) {
     const starterId = threadStarterId(post);
     if (starterId) replyList.dataset.starterId = String(starterId);
     markThreadStarterReplies(document, replyList, post.replies, starterId);
+    // Fold a reply (wave 2026-11-21-12 F2): page-view only, nothing stored.
+    addReplyFolds(document, replyList);
   } else {
     addText(document, main, "p", t("post.noReplies"), "empty-state");
   }
@@ -84,6 +87,9 @@ async function renderPostRoute(route, context, version) {
     olderReplies.dataset.before = String(post.repliesNextBefore);
     main.append(olderReplies);
   }
+  // Back to the first post (wave 2026-11-21-12 F3): long threads only.
+  const firstJump = createFirstPostJump(document, rootCard, post.replies.length);
+  if (firstJump) main.append(firstJump);
   if (context.session.user && post.visibility !== "hidden" && !post.parent) {
     main.append(createComposer("reply", t("post.replyPlaceholder"), t("common.reply"), post.id));
   }
@@ -155,6 +161,7 @@ async function toggleSubReplies(button) {
     if (article) article.after(container);
     const starterId = Number(main.querySelector(".replies-list")?.dataset.starterId);
     markThreadStarterReplies(document, container, page.replies, starterId);
+    addReplyFolds(document, container);
     button.dataset.replyCount = String(page.replies.length);
     button.setAttribute("aria-expanded", "true");
     if (page.replies.length) button.textContent = tn("post.hideReplies", page.replies.length);
@@ -227,6 +234,7 @@ async function loadOlderReplies(button) {
   for (const reply of older.replies) fragment.append(createPostCard(reply, document, state.currentUser));
   replyList.prepend(fragment);
   markThreadStarterReplies(document, replyList, older.replies, Number(replyList.dataset.starterId));
+  addReplyFolds(document, replyList);
   if (older.nextBefore) button.dataset.before = String(older.nextBefore);
   else button.remove();
 }
