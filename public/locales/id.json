@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "Buang perubahanmu pada postingan ini?",
   "drafts.restored": "Draf yang belum terkirim dipulihkan (disimpan {when}).",
   "drafts.discard": "Buang draf",
-  "drafts.discardConfirm": "Buang draf ini? Teks di kotak akan dihapus."
+  "drafts.discardConfirm": "Buang draf ini? Teks di kotak akan dihapus.",
+  "longPost.showMore": "Tampilkan lebih banyak",
+  "longPost.showLess": "Tampilkan lebih sedikit"
 }

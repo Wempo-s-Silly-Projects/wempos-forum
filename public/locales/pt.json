@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "Descartar suas alterações nesta publicação?",
   "drafts.restored": "Seu rascunho não enviado foi restaurado (salvo {when}).",
   "drafts.discard": "Descartar rascunho",
-  "drafts.discardConfirm": "Descartar este rascunho? O texto da caixa será apagado."
+  "drafts.discardConfirm": "Descartar este rascunho? O texto da caixa será apagado.",
+  "longPost.showMore": "Mostrar mais",
+  "longPost.showLess": "Mostrar menos"
 }

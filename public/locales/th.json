@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "ทิ้งการแก้ไขโพสต์นี้หรือไม่?",
   "drafts.restored": "กู้คืนฉบับร่างที่ยังไม่ได้ส่งแล้ว (บันทึกเมื่อ {when})",
   "drafts.discard": "ทิ้งฉบับร่าง",
-  "drafts.discardConfirm": "ทิ้งฉบับร่างนี้ไหม? ข้อความในช่องจะถูกล้าง"
+  "drafts.discardConfirm": "ทิ้งฉบับร่างนี้ไหม? ข้อความในช่องจะถูกล้าง",
+  "longPost.showMore": "แสดงเพิ่มเติม",
+  "longPost.showLess": "แสดงน้อยลง"
 }

@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "Scartare le modifiche a questo post?",
   "drafts.restored": "Bozza non inviata ripristinata (salvata {when}).",
   "drafts.discard": "Elimina bozza",
-  "drafts.discardConfirm": "Eliminare questa bozza? Il testo nella casella verrà cancellato."
+  "drafts.discardConfirm": "Eliminare questa bozza? Il testo nella casella verrà cancellato.",
+  "longPost.showMore": "Mostra di più",
+  "longPost.showLess": "Mostra di meno"
 }

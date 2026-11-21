@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "Отменить изменения в этом посте?",
   "drafts.restored": "Восстановлен неотправленный черновик (сохранён {when}).",
   "drafts.discard": "Удалить черновик",
-  "drafts.discardConfirm": "Удалить этот черновик? Текст в поле будет очищен."
+  "drafts.discardConfirm": "Удалить этот черновик? Текст в поле будет очищен.",
+  "longPost.showMore": "Показать больше",
+  "longPost.showLess": "Свернуть"
 }

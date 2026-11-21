@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "이 게시물의 변경 사항을 버릴까요?",
   "drafts.restored": "보내지 않은 임시 글을 복원했어요 ({when} 저장됨).",
   "drafts.discard": "임시 글 삭제",
-  "drafts.discardConfirm": "이 임시 글을 삭제할까요? 입력란의 텍스트가 지워집니다."
+  "drafts.discardConfirm": "이 임시 글을 삭제할까요? 입력란의 텍스트가 지워집니다.",
+  "longPost.showMore": "더 보기",
+  "longPost.showLess": "접기"
 }

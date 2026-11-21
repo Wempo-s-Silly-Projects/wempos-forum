@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "Deine Änderungen an diesem Beitrag verwerfen?",
   "drafts.restored": "Dein nicht gesendeter Entwurf wurde wiederhergestellt (gespeichert {when}).",
   "drafts.discard": "Entwurf verwerfen",
-  "drafts.discardConfirm": "Diesen Entwurf verwerfen? Der Text im Feld wird gelöscht."
+  "drafts.discardConfirm": "Diesen Entwurf verwerfen? Der Text im Feld wird gelöscht.",
+  "longPost.showMore": "Mehr anzeigen",
+  "longPost.showLess": "Weniger anzeigen"
 }

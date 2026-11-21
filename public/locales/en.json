@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "Discard your changes to this post?",
   "drafts.restored": "Restored your unsent draft (saved {when}).",
   "drafts.discard": "Discard draft",
-  "drafts.discardConfirm": "Discard this draft? The text in the box will be cleared."
+  "drafts.discardConfirm": "Discard this draft? The text in the box will be cleared.",
+  "longPost.showMore": "Show more",
+  "longPost.showLess": "Show less"
 }

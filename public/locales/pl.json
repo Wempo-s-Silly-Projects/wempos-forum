@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "Odrzucić zmiany w tym poście?",
   "drafts.restored": "Przywrócono niewysłany szkic (zapisany {when}).",
   "drafts.discard": "Odrzuć szkic",
-  "drafts.discardConfirm": "Odrzucić ten szkic? Tekst w polu zostanie wyczyszczony."
+  "drafts.discardConfirm": "Odrzucić ten szkic? Tekst w polu zostanie wyczyszczony.",
+  "longPost.showMore": "Pokaż więcej",
+  "longPost.showLess": "Pokaż mniej"
 }

@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "Je wijzigingen aan dit bericht weggooien?",
   "drafts.restored": "Je niet-verzonden concept is hersteld (opgeslagen {when}).",
   "drafts.discard": "Concept weggooien",
-  "drafts.discardConfirm": "Dit concept weggooien? De tekst in het vak wordt gewist."
+  "drafts.discardConfirm": "Dit concept weggooien? De tekst in het vak wordt gewist.",
+  "longPost.showMore": "Meer tonen",
+  "longPost.showLess": "Minder tonen"
 }

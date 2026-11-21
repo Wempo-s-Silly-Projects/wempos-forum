@@ -879,5 +879,7 @@
   "render.discardEditConfirm": "هل تريد تجاهل تعديلاتك على هذا المنشور؟",
   "drafts.restored": "تمت استعادة مسودتك غير المرسلة (حُفظت {when}).",
   "drafts.discard": "تجاهل المسودة",
-  "drafts.discardConfirm": "هل تريد تجاهل هذه المسودة؟ سيتم مسح النص في المربع."
+  "drafts.discardConfirm": "هل تريد تجاهل هذه المسودة؟ سيتم مسح النص في المربع.",
+  "longPost.showMore": "عرض المزيد",
+  "longPost.showLess": "عرض أقل"
 }

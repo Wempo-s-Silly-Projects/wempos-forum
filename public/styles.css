@@ -1221,6 +1221,18 @@ dialog h2 {
   display: none;
 }
 
+/* Wave 32: long posts fold on feed cards, with a Show more / Show less toggle. */
+.post-body-fold[data-folded="true"] .post-body-fold-content {
+  max-height: 18rem;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+
+.post-fold-toggle {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 0.85rem;
+}
+
 .composer-drop-target {
   outline: 2px dashed var(--green);
   outline-offset: 4px;
