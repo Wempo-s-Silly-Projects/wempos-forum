@@ -281,7 +281,8 @@ async function handleGroupReadRoute(request, env, url, path, method) {
     creatorId: group.creator_id === null ? null : Number(group.creator_id),
     canManage: Number(group.creator_id) === Number(viewerId),
     members: members.map(shapeMember),
-    unread: Number(group.unread),
+    // Wave 40: the visible unread, the same number the group list shows.
+    unread: (await visibleGroupUnreadMap(env.FORUM_DB, viewerId)).get(Number(group.id)) ?? 0,
     messages: rows.map((row) => dmMessageShape(row, viewerId)),
   });
 }

@@ -139,9 +139,11 @@ test("presence GET lists fresh visible members only, never invisible or stale, n
 
 test("presence heartbeat requires a session; a signed-in heartbeat lands", async () => {
   assert.equal((await call(env, "/api/presence", { method: "POST", body: {}, headers: SAME_ORIGIN })).status, 401);
-  const response = await call(env, "/api/presence", { method: "POST", body: { invisible: true }, session: s.dave });
+  // Wave 40 F2: dave is banned by an earlier test here, and a banned member's
+  // heartbeat writes nothing now — the landing heartbeat is an unbanned one.
+  const response = await call(env, "/api/presence", { method: "POST", body: { invisible: true }, session: s.alice });
   assert.equal(response.status, 200);
-  assert.equal(db.prepare("SELECT invisible FROM presence WHERE user_id = ?").get(u.dave).invisible, 1);
+  assert.equal(db.prepare("SELECT invisible FROM presence WHERE user_id = ?").get(u.alice).invisible, 1);
 });
 
 test("lobby GET is readable signed-out with zeroed unread extras", async () => {
