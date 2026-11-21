@@ -21,8 +21,12 @@ import assert from "node:assert/strict";
 import worker from "../worker.mjs";
 import { makeEnv } from "./helpers/d1.mjs";
 
+// v5.17.0: the redirect target is the configured SITE_ORIGIN (the owner's
+// wrangler.toml sets it); tests/self-hosting.test.mjs covers it unset.
+const SITE_ORIGIN = "https://wempos-forum.com";
+
 test("*.workers.dev answers 301 to the canonical origin with path + query intact", async () => {
-  const env = makeEnv();
+  const env = makeEnv({ SITE_ORIGIN });
   for (const host of ["wempos-forum.itswempo.workers.dev", "x.workers.dev"]) {
     const response = await worker.fetch(new Request("https://" + host + "/posts/12?tab=replies&x=1"), env, {});
     assert.equal(response.status, 301);
@@ -31,13 +35,13 @@ test("*.workers.dev answers 301 to the canonical origin with path + query intact
 });
 
 test("API paths on workers.dev redirect too (no DB work before the redirect)", async () => {
-  const response = await worker.fetch(new Request("https://a.workers.dev/api/version"), {}, {});
+  const response = await worker.fetch(new Request("https://a.workers.dev/api/version"), { SITE_ORIGIN }, {});
   assert.equal(response.status, 301);
   assert.equal(response.headers.get("Location"), "https://wempos-forum.com/api/version");
 });
 
 test("the canonical host is not redirected", async () => {
-  const env = makeEnv();
+  const env = makeEnv({ SITE_ORIGIN });
   const response = await worker.fetch(new Request("https://wempos-forum.com/about?q=1"), env, {});
   assert.notEqual(response.status, 301);
   assert.equal(response.headers.get("Location"), null);
@@ -45,7 +49,7 @@ test("the canonical host is not redirected", async () => {
 });
 
 test("a look-alike host that merely contains workers.dev is not redirected", async () => {
-  const env = makeEnv();
+  const env = makeEnv({ SITE_ORIGIN });
   const response = await worker.fetch(new Request("https://workers.dev.example.com/"), env, {});
   assert.notEqual(response.status, 301);
 });

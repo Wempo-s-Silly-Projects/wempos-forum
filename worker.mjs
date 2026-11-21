@@ -55,12 +55,10 @@ import { handleTraditionRoutes } from "./api/traditions.mjs";
 import { handleExportRoutes } from "./api/export.mjs";
 import { handleDiscovery, withDiscoveryHeaders } from "./api/discovery.mjs";
 import { handleMcp } from "./api/mcp.mjs";
+import { accountsOrigin, configuredOrigin } from "./api/core/site.mjs";
 // The client router is the single source of truth for page routes (v5.2): a
 // path it can't match answers the shell with an honest 404.
 import { routeForPath } from "./public/js/router.js";
-
-// The one canonical origin; workers.dev hosts redirect here.
-const CANONICAL_ORIGIN = "https://wempos-forum.com";
 
 export { canViewPost } from "./api/core/visibility.mjs";
 export { isValidUsername } from "./api/core/shapers.mjs";
@@ -114,10 +112,26 @@ const answerApiRoute = dispatch(API_HANDLERS, notFound);
 // JS it was served with across deploys, and old JS talking to the newer
 // backend is where the "page doesn't update after an action" class of
 // misbehavior comes from; a mismatch offers the reload instead.
-async function stampedAssetResponse(assetResponse, env) {
+// Self-hosting (v5.17.0): the same stamp carries the instance's client config
+// (Accounts origin, Turnstile sitekey) — each meta only when configured.
+function attributeEscape(value) {
+  return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function shellMetas(env) {
   const build = env.VERSION ? [env.VERSION, env.COMMIT_SHA].filter(Boolean).join("@") : "";
+  const sitekey = typeof env.TURNSTILE_SITEKEY === "string" ? env.TURNSTILE_SITEKEY.trim() : "";
+  const accounts = accountsOrigin(env);
+  return [["app-build", build], ["accounts-origin", accounts], ["turnstile-sitekey", sitekey]]
+    .filter(([, content]) => content)
+    .map(([name, content]) => `<meta name="${name}" content="${attributeEscape(content)}">`)
+    .join("");
+}
+
+async function stampedAssetResponse(assetResponse, env) {
+  const stamp = shellMetas(env);
   const type = assetResponse.headers.get("Content-Type") || "";
-  if (!build || !type.includes("text/html")) return assetResponse;
+  if (!stamp || !type.includes("text/html")) return assetResponse;
   const html = await assetResponse.text();
   // The served bytes change length, so the original Content-Length must go —
   // a stale length would truncate the stamped document. HTML also revalidates
@@ -132,7 +146,6 @@ async function stampedAssetResponse(assetResponse, env) {
   // describes these bytes — a retained Last-Modified would advertise a lie.
   headers.delete("Last-Modified");
   headers.set("Cache-Control", "no-store");
-  const stamp = `<meta name="app-build" content="${build}">`;
   return new Response(html.includes("</head>") ? html.replace("</head>", stamp + "</head>") : html, {
     status: assetResponse.status,
     statusText: assetResponse.statusText,
@@ -183,10 +196,13 @@ async function routeApi(request, env, ctx) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    // Canonical host: every *.workers.dev request (API or page) answers a 301
-    // to the canonical origin with its path and query intact.
-    if (url.hostname.endsWith(".workers.dev")) {
-      return Response.redirect(`${CANONICAL_ORIGIN}${url.pathname}${url.search}`, 301);
+    // Canonical host: with SITE_ORIGIN configured, every *.workers.dev request
+    // (API or page) answers a 301 there with its path and query intact. Unset
+    // (a fresh self-hosted copy) nothing redirects; a SITE_ORIGIN that is the
+    // request's own origin never redirects to itself.
+    const canonicalOrigin = configuredOrigin(env && env.SITE_ORIGIN);
+    if (canonicalOrigin && url.hostname.endsWith(".workers.dev") && url.origin !== canonicalOrigin) {
+      return Response.redirect(`${canonicalOrigin}${url.pathname}${url.search}`, 301);
     }
     if (url.pathname.startsWith("/api/")) {
       try {

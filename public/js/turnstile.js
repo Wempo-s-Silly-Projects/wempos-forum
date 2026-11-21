@@ -17,7 +17,14 @@
 // see <https://www.gnu.org/licenses/>.
 
 import { t } from "./i18n.js";
-const TURNSTILE_SITEKEY = "0x4AAAAAAFXrK9dxFMt6fp46";
+// Self-hosting (v5.17.0): the sitekey is the instance's TURNSTILE_SITEKEY,
+// stamped into the HTML shell as <meta name="turnstile-sitekey">. None means
+// the instance runs without Turnstile: no widget, no token sent (the worker
+// skips the check when it has no secret either).
+export function turnstileSitekey() {
+  const meta = globalThis.document?.querySelector?.('meta[name="turnstile-sitekey"]');
+  return typeof meta?.content === "string" ? meta.content : "";
+}
 const TURNSTILE_SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js";
 
 const widgets = new Map();
@@ -49,6 +56,7 @@ export async function ensureTurnstile(timeoutMs = 15_000) {
 }
 
 export function addTurnstileSlot(form, action) {
+  if (!turnstileSitekey()) return;
   const slot = document.createElement("div");
   slot.className = "turnstile-slot";
   slot.dataset.turnstileAction = action;
@@ -78,7 +86,7 @@ export async function renderTurnstileSlots(root) {
       const turnstile = await ensureTurnstile();
       if (slot.isConnected && !state.widgetId) {
         state.widgetId = turnstile.render(slot, {
-          sitekey: TURNSTILE_SITEKEY,
+          sitekey: turnstileSitekey(),
           theme: resolvedTurnstileTheme(),
           action: slot.dataset.turnstileAction,
           callback: (token) => {
@@ -123,6 +131,7 @@ export function teardownTurnstile() {
 }
 
 export function takeTurnstileToken(form) {
+  if (!turnstileSitekey()) return "";
   const state = widgets.get(form);
   if (!state || !state.token) {
     throw new Error(t("turnstile.incomplete"));
