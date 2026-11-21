@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "Галерея",
   "traditions.galleryEmpty": "Пока нет изображений — поделитесь рисунком или постройкой!",
   "traditions.galleryLoadFailed": "Не удалось загрузить галерею. Попробуйте ещё раз чуть позже.",
-  "traditions.galleryAlt": "Изображение из витрины: {title}"
+  "traditions.galleryAlt": "Изображение из витрины: {title}",
+  "render.revealSpoilers": "Показать спойлеры"
 }

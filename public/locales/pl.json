@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "Galeria",
   "traditions.galleryEmpty": "Jeszcze brak obrazów — podziel się rysunkiem lub budowlą!",
   "traditions.galleryLoadFailed": "Nie udało się wczytać galerii. Spróbuj ponownie za chwilę.",
-  "traditions.galleryAlt": "Obraz z prezentacji: {title}"
+  "traditions.galleryAlt": "Obraz z prezentacji: {title}",
+  "render.revealSpoilers": "Pokaż spoilery"
 }

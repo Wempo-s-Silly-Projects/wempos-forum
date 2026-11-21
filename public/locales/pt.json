@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "Galeria",
   "traditions.galleryEmpty": "Ainda não há imagens — compartilhe um desenho ou uma construção!",
   "traditions.galleryLoadFailed": "Não foi possível carregar a galeria. Tente novamente em instantes.",
-  "traditions.galleryAlt": "Imagem da vitrine: {title}"
+  "traditions.galleryAlt": "Imagem da vitrine: {title}",
+  "render.revealSpoilers": "Mostrar spoilers"
 }

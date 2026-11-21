@@ -28,6 +28,7 @@ import { t, tn, currentLocale } from "./i18n.js";
 import { createCopyLinkButton } from "./copy-link.js";
 import { createCopyCodeButton } from "./copy-code.js";
 import { createReadAloud } from "./read-aloud.js";
+import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";
 import { isQotdBody } from "./traditions.js";
 
 const createElement = (document, tagName, className, text) => {
@@ -374,6 +375,8 @@ export const createPostCard = (post, document, currentUser = null) => {
   // Copy link (wave 2026-11-21-4): one click puts the card's link on the
   // clipboard; client-only.
   actions.append(createCopyLinkButton(document, post.id));
+  // Show spoilers (wave 2026-11-21-17 F2): only on cards that have some.
+  if (hasSpoilers(post.body)) actions.append(createRevealSpoilersButton(document, article));
   // Read aloud (wave 2026-11-21-7 F3): on-device voices only, per click.
   const readAloud = createReadAloud(document, () => article.postBody);
   if (readAloud) actions.append(readAloud);

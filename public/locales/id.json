@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "Galeri",
   "traditions.galleryEmpty": "Belum ada gambar — bagikan gambar atau bangunanmu!",
   "traditions.galleryLoadFailed": "Galeri tidak dapat dimuat. Coba lagi sebentar lagi.",
-  "traditions.galleryAlt": "Gambar pameran: {title}"
+  "traditions.galleryAlt": "Gambar pameran: {title}",
+  "render.revealSpoilers": "Tampilkan spoiler"
 }

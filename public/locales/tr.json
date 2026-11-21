@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "Galeri",
   "traditions.galleryEmpty": "Henüz resim yok — bir çizim ya da yapı paylaş!",
   "traditions.galleryLoadFailed": "Galeri yüklenemedi. Birazdan tekrar dene.",
-  "traditions.galleryAlt": "Vitrin görseli: {title}"
+  "traditions.galleryAlt": "Vitrin görseli: {title}",
+  "render.revealSpoilers": "Spoiler'ları göster"
 }

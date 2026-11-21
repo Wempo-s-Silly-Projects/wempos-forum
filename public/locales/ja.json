@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "ギャラリー",
   "traditions.galleryEmpty": "まだ画像がありません — 絵や作品をシェアしよう！",
   "traditions.galleryLoadFailed": "ギャラリーを読み込めませんでした。少ししてからもう一度お試しください。",
-  "traditions.galleryAlt": "ショーケースの画像: {title}"
+  "traditions.galleryAlt": "ショーケースの画像: {title}",
+  "render.revealSpoilers": "ネタバレを表示"
 }
