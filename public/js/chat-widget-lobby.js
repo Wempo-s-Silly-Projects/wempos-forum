@@ -197,6 +197,8 @@ const sendLobbyBody = async (body, clearInput) => {
   try {
     const data = await api("/api/chat", { method: "POST", body: { body } });
     if (clearInput) clearInput.value = "";
+    // A landed send retires the previous refusal's line (wave 5.6 F3).
+    ui.lobbyEl?.querySelector(".chat-widget-lobby-error")?.remove();
     appendLobbyMessages(data?.message ? [data.message] : []);
   } catch (error) {
     showLobbySendError(error?.message || t("chat.sendFailed"));

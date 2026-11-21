@@ -278,7 +278,6 @@ async function submitForm(form) {
   const values = readForm(form);
   const type = form.dataset.form;
   const text = (name) => String(values.get(name) ?? "");
-  setMessage(t("app.saving"));
 
   const handlers = {
     ...authFormHandlers,
@@ -301,9 +300,13 @@ async function submitForm(form) {
     ...twofaFormHandlers,
   };
   const handler = handlers[type];
+  // Forms this layer does not own (the chat lobby's) handle their own submit;
+  // painting Saving… for them left it stuck on the status bar (wave 5.6 F3).
+  if (!handler) return;
+  setMessage(t("app.saving"));
   // Route-module handlers take (form, text, values); entries still owned in
   // app.js are zero-arg closures that ignore the arguments — call uniformly.
-  if (handler) await handler(form, text, values);
+  await handler(form, text, values);
 }
 
 function handleInternalNavigation(event) {
