@@ -100,7 +100,7 @@ export async function readSession(request, env) {
   const row = await env.FORUM_DB.prepare(
     "SELECT s.token_hash, s.user_id, s.csrf_token, s.expires_at, " +
       "u.username, u.role, u.bio, u.avatar_status, u.avatar_mime, u.avatar_updated_at, u.avatar_version, " +
-      "u.totp_enabled " +
+      "u.totp_enabled, u.created_at " +
       "FROM sessions s LEFT JOIN users u ON u.id = s.user_id " +
       "WHERE s.token_hash = ? AND s.expires_at > ? LIMIT 1",
   ).bind(tokenHash, nowSeconds()).first();
@@ -119,6 +119,9 @@ export async function readSession(request, env) {
       // real state from the session payload. Additive — nothing else in the
       // session shape moves.
       totpEnabled: Number(row.totp_enabled) === 1,
+      // Newcomer cards (wave 2026-11-21-20): the member's own join date, the
+      // same value their public profile already shows. Additive.
+      joinedAt: row.created_at ? new Date(Number(row.created_at) * 1000).toISOString() : null,
     };
   }
   const session = { tokenHash: row.token_hash, csrfToken: row.csrf_token, expiresAt: Number(row.expires_at), user };
