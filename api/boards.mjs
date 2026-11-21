@@ -31,6 +31,13 @@ import { ACTIVE_BAN_SQL } from "./core/visibility.mjs";
 export const BOARD_VALUES = ["general", "suggestions", "game-dev", "showcase", "help", "updates", "polls"];
 export const SUGGESTIONS_BOARD = "suggestions";
 export const UPDATES_BOARD = "updates";
+export const POLLS_BOARD = "polls";
+// Staff-only boards (v5.15): everyone reads and replies, only the owner and
+// admins start topics. One list, checked by every topic-creating path
+// (posts-write.mjs and the MCP create_post tool), so a new staff-only board
+// can never be gated in one place and open in another.
+export const STAFF_ONLY_BOARDS = Object.freeze([UPDATES_BOARD, POLLS_BOARD]);
+export const isStaffOnlyBoard = (board) => STAFF_ONLY_BOARDS.includes(board);
 export const GENERAL_BOARD_DEFAULT = "general";
 
 export function boardField(value) {

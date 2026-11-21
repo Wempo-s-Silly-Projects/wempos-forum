@@ -45,7 +45,7 @@
 import { REPLY_BUMP_SQL, THREAD_REPLY_INSERT_SQL } from "../constants.mjs";
 import { LOBBY_CHAT_MAX_CHARS, insertLobbyMessage, lobbyMessageRows, lobbyOnlineCount } from "./chat.mjs";
 import { publicRole } from "./core/roles.mjs";
-import { BOARD_VALUES, GENERAL_BOARD_DEFAULT, SUGGESTIONS_BOARD, UPDATES_BOARD, boardField } from "./boards.mjs";
+import { BOARD_VALUES, GENERAL_BOARD_DEFAULT, SUGGESTIONS_BOARD, boardField, isStaffOnlyBoard } from "./boards.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { ensureFilterWords, filterWords } from "./filterstore.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
@@ -568,8 +568,8 @@ async function createRootPost(env, ctx, rawBody, rawBoard) {
   const agent = ctx.agent;
   const message = await filteredBody(env, agent, rawBody, "post");
   const board = boardField(rawBoard);
-  if (board === UPDATES_BOARD && agent.role !== "owner" && agent.role !== "admin") {
-    throw new HttpError(403, "Only admins can post updates.");
+  if (isStaffOnlyBoard(board) && agent.role !== "owner" && agent.role !== "admin") {
+    throw new HttpError(403, "Only admins can start topics on this board.");
   }
   await writeRateLimits(env, ctx);
   const now = nowSeconds();

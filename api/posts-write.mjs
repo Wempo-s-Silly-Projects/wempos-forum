@@ -31,7 +31,7 @@ import {
 } from "./attachments.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
-import { UPDATES_BOARD, boardField } from "./boards.mjs";
+import { boardField, isStaffOnlyBoard } from "./boards.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
 import { archivePostRowsStatement } from "./core/archive.mjs";
 import { assertNotBanned, readSession, requireUser } from "./core/auth.mjs";
@@ -269,9 +269,10 @@ export async function handlePostCreateRoute(request, env, url, path, method, ctx
     // Updates category (v3.1): staff-only topics — everyone can read and
     // reply, but only admins and the owner start them. The session's public
     // role is the gate (member → 403).
-    if (board === UPDATES_BOARD &&
+    // v5.15: every staff-only board (Updates, Polls) shares this gate.
+    if (isStaffOnlyBoard(board) &&
         session.user.role !== "owner" && session.user.role !== "admin") {
-      throw new HttpError(403, "Only admins can post updates.");
+      throw new HttpError(403, "Only admins can start topics on this board.");
     }
     const idempotencyFingerprint = idempotencyKey
       ? await postCreationFingerprint({ kind: "post", message, board, files, gifEntries })
