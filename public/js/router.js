@@ -47,7 +47,12 @@ export const routeForPath = (pathname, search = "") => {
   const adminSection = pathname.match(/^\/admin(?:\/([\w-]+))?$/);
   if (adminSection) return { name: "admin", section: adminSection[1] || "dashboard" };
   if (pathname === "/notifications") return { name: "notifications" };
-  if (pathname === "/bookmarks") return { name: "bookmarks" };
+  // Saved posts by board (wave 36): /bookmarks?board=<slug>; an unknown
+  // slug degrades to the whole list rather than a 404.
+  if (pathname === "/bookmarks") {
+    const board = new URLSearchParams(search).get("board");
+    return board && Object.hasOwn(BOARD_BY_SLUG, board) ? { name: "bookmarks", board } : { name: "bookmarks" };
+  }
   // Categories (v3.1, Discourse-style): /c/<slug> is the canonical category
   // route; /suggestions stays as a live alias (the header lightbulb and the
   // mobile bar's Suggest item both point at it). Unknown slugs 404 like any

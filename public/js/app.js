@@ -241,7 +241,7 @@ async function renderRoute(route) {
     profile: () => renderProfileRoute(route, context, version),
     admin: () => renderAdminRoute(route, context, version),
     notifications: () => renderNotificationsRoute(context, version),
-    bookmarks: () => renderBookmarksRoute(context, version),
+    bookmarks: () => renderBookmarksRoute(route, context, version),
     "not-found": () => renderNotFoundRoute(),
   };
   const renderPage = renderers[route.name] || renderNotFoundRoute;

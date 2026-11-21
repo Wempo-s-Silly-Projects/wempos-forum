@@ -53,6 +53,14 @@ import { renderNewcomerCards } from "../newcomer.js";
 import { createFeedViews, feedViewEmptyText, feedViewQuery } from "../feed-views.js";
 import { numberSuggestionCards } from "../suggestion-rank.js";
 import { createFeedEnd, reachedFeedEnd } from "../feed-end.js";
+import {
+  createRemoveSavedBoard,
+  createSavedBoardFilter,
+  removedSavedMessage,
+  removeSavedBoard,
+  savedEmptyText,
+  savedListPath,
+} from "../saved-boards.js";
 
 // Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
 // its composer tags root posts with board=suggestions (form dataset flag read
@@ -429,8 +437,16 @@ async function renderShowcaseGallery() {
 
 // Bookmarks (C4): the private "Saved" page — the member's own saved list.
 // Guests get a sign-in prompt (the API 401s the private list regardless).
-const bookmarksEmptyText = () => t("feed.bookmarksEmpty");
-async function renderBookmarksRoute(context, version) {
+// Wave 36: board chips + "Remove all saved from <board>" (saved-boards.js).
+function appendOlderSaved(board, nextBefore) {
+  const older = element("button", "button button-secondary", t("feed.loadOlderSaved"));
+  older.type = "button";
+  older.dataset.action = "load-more-bookmarks";
+  older.dataset.before = String(nextBefore);
+  if (board) older.dataset.board = board;
+  main.append(older);
+}
+async function renderBookmarksRoute(route, context, version) {
   if (!context.session.user) {
     addHeading(main, t("feed.savedTitle"), 2);
     addText(document, main, "p", t("feed.signInSaved"), "muted");
@@ -439,20 +455,19 @@ async function renderBookmarksRoute(context, version) {
     main.append(signIn);
     return;
   }
-  const data = await api("/api/me/bookmarks");
+  const board = route?.board;
+  const data = await api(savedListPath(board));
   if (version !== state.renderVersion) return;
   addHeading(main, t("feed.savedTitle"), 2);
   // Privacy note: this list belongs to the signed-in account.
   addText(document, main, "p", t("feed.savedPrivate"), "muted");
+  main.append(createSavedBoardFilter(document, board));
+  if (board && data.bookmarks.length) main.append(createRemoveSavedBoard(document, board));
   appendPostList(main, data.bookmarks, document, context.session.user,
-    bookmarksEmptyText());
+    savedEmptyText(board));
   // Pagination (fix round 1): the composite (bookmarked_at, id) cursor.
   if (!data.nextBefore || data.bookmarks.length !== 20) return;
-  const older = element("button", "button button-secondary", t("feed.loadOlderSaved"));
-  older.type = "button";
-  older.dataset.action = "load-more-bookmarks";
-  older.dataset.before = String(data.nextBefore);
-  main.append(older);
+  appendOlderSaved(board, data.nextBefore);
 }
 async function loadMorePosts(button) {
   // Board-aware (v2.4.1): the suggestions route's button carries dataset.board
@@ -563,16 +578,26 @@ export const ACTIONS = {
     }
   },
   "load-more-bookmarks": async (button) => {
-    const older = await api("/api/me/bookmarks?before=" + button.dataset.before);
+    const board = button.dataset.board;
+    const older = await api(savedListPath(board, button.dataset.before));
     appendPostList(main, older.bookmarks, document, state.currentUser,
-      bookmarksEmptyText());
+      savedEmptyText(board));
     button.remove();
     if (!older.nextBefore || older.bookmarks.length !== 20) return;
-    const next = element("button", "button button-secondary", t("feed.loadOlderSaved"));
-    next.type = "button";
-    next.dataset.action = "load-more-bookmarks";
-    next.dataset.before = String(older.nextBefore);
-    main.append(next);
+    appendOlderSaved(board, older.nextBefore);
+  },
+  "remove-saved-board": async (button) => {
+    button.disabled = true;
+    try {
+      const removed = await removeSavedBoard({
+        api, confirm: (text) => window.confirm(text), board: button.dataset.board,
+      });
+      if (removed === null) return;
+      await state.renderRoute(state.activeRoute);
+      setMessage(removedSavedMessage(removed));
+    } finally {
+      button.disabled = false;
+    }
   },
 };
 
