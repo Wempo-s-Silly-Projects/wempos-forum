@@ -20,6 +20,7 @@
 // builders — bodies moved verbatim out of ../admin.js (now dissolved).
 import { createForm, createInput, addText } from "../forms.js";
 import { createBanForm } from "./bans.js";
+import { createHideRecentForm, createMemberPeekToggle } from "./member-tools.js";
 import { t } from "../i18n.js";
 
 const createReportQueue = (reports, document, currentUser = null) => {
@@ -55,6 +56,8 @@ const createReportQueue = (reports, document, currentUser = null) => {
     }
     const banForm = createBanForm(document, report.post.author.id, report.post.author.username);
     actions.append(banForm);
+    // Wave 2026-11-21-9: hide the author's spam run in one confirmed action.
+    actions.append(createHideRecentForm(document, report.post.author.id, report.post.author.username, report.id));
     // Role changes are strictly owner-only (v3.1: the report queue itself is
     // open to admins); target start roles are not known from the payload, so
     // both forms are offered and the server reports a stale-role 409 if the
@@ -80,7 +83,7 @@ const createReportQueue = (reports, document, currentUser = null) => {
       demoteForm.dataset.userId = String(report.post.author.id);
       actions.append(promoteForm, demoteForm);
     }
-    card.append(actions);
+    card.append(createMemberPeekToggle(document, report.post.author.id, report.id), actions);
     list.append(card);
   }
   return list;

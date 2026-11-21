@@ -2925,3 +2925,14 @@ dialog h2 {
 .read-aloud-button[aria-pressed="true"] { color: var(--green-ink); }
 /* v4.13 J/K post navigation hint. */
 .post-keys-hint { margin: 0 0 0.5rem; color: var(--muted); font-size: 0.8rem; }
+/* v4.14 mod tools: recent-activity peek + hide-a-spam-run form. */
+.member-peek { display: grid; gap: 0.35rem; margin-top: 0.5rem; border: 1px solid var(--line); border-radius: var(--button-radius); padding: 0.6rem 0.8rem; }
+.member-peek-title { margin: 0; font-size: 0.95rem; }
+.member-peek-list { display: grid; gap: 0.5rem; margin: 0; padding-inline-start: 1.2rem; }
+.member-peek-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; color: var(--muted); font-size: 0.8rem; }
+.member-peek-hidden { color: var(--coral-dark); font-weight: 600; }
+.member-peek-body { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.hide-recent-form { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.hide-recent-form input { width: 5rem; }
+/* v4.14 jump to the latest reply. */
+.latest-reply-jump { margin: 0 0 0.5rem; }
