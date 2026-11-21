@@ -41,7 +41,7 @@ export async function handleRulesRoutes(request, env, url, path, method) {
     });
   }
   if (method === "POST") {
-    const session = await requireStaff(request, env);
+    await requireStaff(request, env);
     await rateLimit(request, env, "write");
     const raw = await readLimitedBody(request, RULES_MAX_BYTES + 1024);
     const text = new TextDecoder().decode(raw);

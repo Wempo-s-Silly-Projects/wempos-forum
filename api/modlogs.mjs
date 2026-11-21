@@ -176,7 +176,7 @@ async function handleAdminDmLogRoute(request, env, url, path, method) {
   });
 }
 
-export async function handleModLogRoutes(request, env, url, path, method, ctx) {
+export async function handleModLogRoutes(request, env, url, path, method) {
   const remove = await handleChatDeleteRoute(request, env, url, path, method);
   if (remove) return remove;
   const dmRemove = await handleDmMessageDeleteRoute(request, env, url, path, method);

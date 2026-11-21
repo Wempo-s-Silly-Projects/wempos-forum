@@ -122,6 +122,6 @@ test("wipeAccountLocalData runs only from the logout action's finally", () => {
   const nav = sources.get("routes/account-nav.js");
   const calls = [...nav.matchAll(/wipeAccountLocalData\(\);/g)];
   assert.equal(calls.length, 1, "one call site");
-  const logout = nav.match(/logout: async \(\) => \{([\s\S]*?)\n  \},/)[1];
+  const logout = nav.match(/logout: async \(\) => \{([\s\S]*?)\n {2}\},/)[1];
   assert.match(logout, /finally \{\s*wipeAccountLocalData\(\);\s*\}/);
 });

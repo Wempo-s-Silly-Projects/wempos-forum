@@ -63,7 +63,7 @@ export function wempoAccountsSignOutUrl() {
 // (the redeem endpoint tolerates it either way); a malformed search never
 // throws.
 export function ssoTicketFromSearch(search) {
-  let value = null;
+  let value;
   try {
     value = new URLSearchParams(search || "").get(SSO_TICKET_PARAM);
   } catch {

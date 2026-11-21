@@ -245,7 +245,7 @@ export function rootPostInsertSql(visibilitySql) {
     "WHERE archived.author_id = ? AND archived.idempotency_key = ?))";
 }
 
-export async function handlePostCreateRoute(request, env, url, path, method, ctx) {
+export async function handlePostCreateRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/posts" && method === "POST") {
     const session = await requireUser(request, env);
@@ -316,7 +316,7 @@ export async function handlePostCreateRoute(request, env, url, path, method, ctx
     }
     const postId = Number(result.meta.last_row_id);
     if (hasAttachments) {
-      const attachmentIds = await persistStagedPostAttachments(db, postId, session.user.id, files, gifEntries);
+      await persistStagedPostAttachments(db, postId, session.user.id, files, gifEntries);
     } else {
       await insertAttachments(db, postId, session.user.id, files, gifEntries);
     }
@@ -353,7 +353,7 @@ export async function handlePostCreateRoute(request, env, url, path, method, ctx
 // requireUser) and the content path reuses create's filter/limit gates, so a
 // token would add friction without any new trust decision. Edits are text-only
 // in v1: attachments stay exactly as originally posted.
-export async function handlePostEditRoute(request, env, url, path, method, ctx) {
+export async function handlePostEditRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   const editMatch = path.match(/^\/api\/posts\/([0-9]+)$/);
   if (editMatch && method === "PATCH") {

@@ -22,7 +22,7 @@
 // bodies re-read the boot state through the bag (state.renderRoute). The
 // composer family (builder, submits, gif/poll dialogs) lives in composer.js
 // since the plan 7 follow-up; createComposer's consumers import it there.
-import { addText, createForm, createInput, createTextarea } from "../forms.js";
+import { addText, createForm, createInput } from "../forms.js";
 import { api } from "../api.js";
 import {
   addHeading,
@@ -140,19 +140,19 @@ function renderAccountSettings(session) {
   corners.className = "corner-pref";
   const cornersBox = document.createElement("input");
   cornersBox.type = "checkbox";
-  try { cornersBox.checked = window.localStorage.getItem("forum-corners") === "square"; } catch {}
+  try { cornersBox.checked = window.localStorage.getItem("forum-corners") === "square"; } catch { /* storage blocked: keep the default */ }
   cornersBox.dataset.actionPref = "corners";
   corners.append(cornersBox, document.createTextNode(" " + t("feed.squareCorners")));
   cornersBox.addEventListener("change", () => {
     const square = cornersBox.checked;
-    try { window.localStorage.setItem("forum-corners", square ? "square" : "round"); } catch {}
+    try { window.localStorage.setItem("forum-corners", square ? "square" : "round"); } catch { /* storage blocked: the pref stays session-only */ }
     document.documentElement.dataset.corners = square ? "square" : "round";
   });
   // Appearance panel (wave 2026-11-21-4): the corners checkbox and the
   // reader text size, both stored only in this browser.
   const appearance = createPanel(t("feed.appearanceTitle"), t("feed.appearanceNote"));
   let storage = null;
-  try { storage = window.localStorage; } catch {}
+  try { storage = window.localStorage; } catch { /* storage blocked: storage stays null */ }
   // Wave 5.3: plus the opt-in unread count in the browser tab title; wave
   // 5.7 F3: then one button that puts the panel's choices back to defaults.
   appearance.append(corners, createTextSizePicker(document, storage),

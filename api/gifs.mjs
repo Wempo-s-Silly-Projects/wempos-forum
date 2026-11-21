@@ -90,7 +90,7 @@ export async function handleGifServingRoute(request, env, path, method) {
 // hash-dedup: uploading bytes whose hash already has an APPROVED gif returns
 // that gif (reuse: true) instead of storing anything; anything else lands a
 // pending row with its chunks.
-export async function handleGifUploadRoute(request, env, path, method, ctx) {
+export async function handleGifUploadRoute(request, env, path, method) {
   const db = env.FORUM_DB;
   if (path !== "/api/gifs" || method !== "POST") return null;
   const session = await requireUser(request, env);

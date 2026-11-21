@@ -24,6 +24,7 @@
 export const EFFECTS_STORAGE_KEY = "wempo-dm-effects";
 const EMOJI_MAX = 3;
 const EMOJI_BODY_MAX_CHARS = 64;
+// eslint-disable-next-line no-misleading-character-class -- ZWJ and VS16 are listed as standalone code points on purpose (the u flag matches them singly)
 const EMOJI_GRAPHEME = /^[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}‍️\u{e0020}-\u{e007f}]+$/u;
 const EMOJI_BASE = /[\p{Extended_Pictographic}\p{Regional_Indicator}]/u;
 

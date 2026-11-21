@@ -30,7 +30,7 @@ import { HttpError, json, rateLimit, readJson, requireMutationApplied, requiredT
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 
-async function handleReportCreateRoute(request, env, url, path, method, ctx) {
+async function handleReportCreateRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   const reportMatch = path.match(/^\/api\/posts\/([0-9]+)\/reports$/);
   if (reportMatch && method === "POST") {
@@ -253,7 +253,7 @@ async function handleHiddenPostsRoute(request, env, url, path, method) {
 // Report-a-profile (v2.5): members report another member's profile surface
 // (bio/flair/banner/custom CSS) — the moderation desk handles the queue
 // (open first, resolve mirrors the post-reports route).
-async function handleProfileReportRoute(request, env, url, path, method, ctx) {
+async function handleProfileReportRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   const reportMatch = path.match(/^\/api\/users\/([0-9]+)\/reports$/);
   if (reportMatch && method === "POST") {

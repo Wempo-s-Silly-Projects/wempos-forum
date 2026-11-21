@@ -52,14 +52,11 @@ import { openThread, paintConversation } from "./chat-widget-composer.js";
 const PANEL_POLL_MS = 5_000;
 const UNREAD_POLL_MS = 30_000;
 const LOBBY_POLL_MS = 15_000;
-const PANEL_WIDTH_MAX = 360;
 
 let launcher = null;
 let panel = null;
 let panelTimer = null;
-let unreadTimer = null;
 let lobbyTimer = null;
-let activeTab = "dms";
 
 // Locale-aware stamp (wave 2026-11-21-3); the keyed short forms below stay
 // only for runtimes without Intl.RelativeTimeFormat.
@@ -117,7 +114,7 @@ const boot = async () => {
     ui.lobbyAvailable = false;
   }
   paintBadge();
-  unreadTimer = setInterval(() => {
+  setInterval(() => {
     if (document.hidden || ui.open) return;
     refreshUnread().catch(() => { /* transient — the ui.badge keeps its last value */ });
   }, UNREAD_POLL_MS);
@@ -260,7 +257,6 @@ const closePanel = () => {
 const showTab = (nextTab) => {
   if (nextTab !== "lobby" && nextTab !== "dms") return;
   if (nextTab === "lobby" && !ui.lobbyAvailable) return;
-  activeTab = nextTab;
   if (!panel) return;
   const showLobby = nextTab === "lobby";
   const lobbyTab = panel.querySelector('[data-widget-tab="lobby"]');

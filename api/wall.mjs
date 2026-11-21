@@ -96,7 +96,7 @@ async function handleWallReadRoute(request, env, url, path, method) {
 // POST /api/users/:id/wall — signed-in members only (the wall owner included;
 // writing on your own wall is fine). Word filter, 280-char cap, then a
 // background text auto-mod score that never blocks the response.
-async function handleWallCreateRoute(request, env, url, path, method, ctx) {
+async function handleWallCreateRoute(request, env, url, path, method) {
   const match = path.match(/^\/api\/users\/([0-9]{1,15})\/wall$/);
   if (!match || method !== "POST") return null;
   const ownerId = Number(match[1]);

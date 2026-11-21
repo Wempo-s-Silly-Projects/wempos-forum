@@ -36,15 +36,12 @@ import { handleSuggestionStatusRoute } from "./suggestions.mjs";
 // by tests/posts-write-module.test.mjs; the composer re-exports several
 // until the final sweep re-points importers).
 import {
-  POST_DELETE_SQL,
-  REPLY_REPARENT_SQL,
   handlePostCreateRoute,
   handlePostDeleteRoute,
   handlePostEditHistoryRoute,
   handlePostEditRoute,
   handleReactionDeleteRoute,
   handleReactionRoute,
-  postDeletionStatements,
 } from "./posts-write.mjs";
 // v4.0 plan 2, Task 4: the reply routes moved to api/replies.mjs.
 import {

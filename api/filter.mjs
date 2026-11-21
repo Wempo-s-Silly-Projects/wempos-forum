@@ -92,6 +92,7 @@ const compileCache = new Map();
 const TOKEN_MATCH_MAX_CHARS = 96;
 
 // Zero-width and invisible characters contribute nothing anywhere — the
+// eslint-disable-next-line no-irregular-whitespace -- the comment shows a literal zero-width space on purpose
 // cheapest and most common injection bypass ("w​ord" looks like "word").
 const INVISIBLE_UNITS = new Set(["​", "‌", "‍", "⁠", "﻿", "­"]);
 
@@ -637,6 +638,7 @@ export function applyWordFilter(text, wordsRaw) {
 // normalized form contains an entry. This normalizer runs the full skeleton
 // pipeline (zero-width, NFKD accent/fullwidth folds, homoglyphs, leet) and
 // strips every remaining non-letter, so "b_a_d_w_o_r_d", "badw0rd",
+// eslint-disable-next-line no-irregular-whitespace -- the comment shows a literal zero-width space on purpose
 // "badwоrd" (Cyrillic о) and "badw​ord" (zero-width) all normalize to the
 // same thing. The companion containsFilteredWord also runs each entry's
 // elongation pattern, so "theapplee" in a handle matches the entry "apple".

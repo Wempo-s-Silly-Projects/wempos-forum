@@ -35,7 +35,6 @@ const ROSTER_NAME_MAX = 12;
 let card = null;
 let listEl = null;
 let countEl = null;
-let beaconOn = false;
 
 const el = (tagName, className, text) => {
   const node = document.createElement(tagName);
@@ -104,7 +103,6 @@ const boot = async () => {
   await refreshRoster();
   setInterval(() => refreshRoster().catch(() => { /* the card keeps its last paint */ }), ROSTER_REFRESH_MS);
   if (!signedIn) return;
-  beaconOn = true;
   const beacon = () => {
     if (document.hidden) return;
     api("/api/presence", { method: "POST", body: {} }).catch(() => { /* the next tick re-acks */ });

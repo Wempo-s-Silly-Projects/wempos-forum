@@ -27,7 +27,7 @@
 // revoking by hand, so the read-time unhide semantics for the member's posts
 // come for free. Appeal bodies run the word filter like every other stored
 // member-written text.
-import { assertNotBanned, assertSameOrigin, readSession, requireStaff } from "./core/auth.mjs";
+import { assertNotBanned, assertSameOrigin, requireStaff } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson, requiredText } from "./core/http.mjs";
 import { verifyPassword } from "./core/passwords.mjs";

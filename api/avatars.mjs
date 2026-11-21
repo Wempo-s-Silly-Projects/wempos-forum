@@ -69,7 +69,7 @@ async function handleAvatarReadRoute(request, env, url, path, method) {
   return null;
 }
 
-async function handleAvatarUploadRoute(request, env, url, path, method, ctx) {
+async function handleAvatarUploadRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/me/avatar" && method === "POST") {
     const session = await requireUser(request, env);
@@ -217,7 +217,7 @@ async function handleAvatarModerationRoute(request, env, url, path, method) {
   // pendingVersion, round-tripped by the client); rejects don't need it —
   // clearing the pending set is safe under any replacement timing.
   let pendingVersion = null;
-  let body = {};
+  let body;
   try {
     body = await readJson(request);
   } catch {

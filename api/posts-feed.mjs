@@ -166,7 +166,7 @@ export async function withReplyMetadata(db, viewer, posts) {
   const viewerId = viewer ? Number(viewer.id) : null;
   // Blocks (v4.4): the pair's rows drop out of the counts and preview
   // snippets too — mirroring the ban filter, not leaking through decoration.
-  const blockBinds = Boolean(viewerBlockFilterSql(viewer, "r.author_id"))
+  const blockBinds = viewerBlockFilterSql(viewer, "r.author_id")
     ? [viewerId, viewerId] : [];
   const countsStatement = db.prepare(replyCountsSql(ids, showAll, viewer))
     .bind(...replyCountsBinds(ids, showAll, blockBinds));

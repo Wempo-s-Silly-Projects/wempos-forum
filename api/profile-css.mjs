@@ -155,7 +155,7 @@ export function scopeProfileCss(rawCss) {
         const condition = selectorText.slice("@media".length).trim();
         // A condition could not smuggle structure (braces) or extra
         // declarations (semicolons) into the emitted sheet.
-        if (/[\{};\\]/.test(condition)) continue;
+        if (/[{};\\]/.test(condition)) continue;
         sanitizedRules.push("@media" + " " + condition + "{" + scopeProfileCss(bodyText) + "}");
       } else if (atName === "@keyframes" || atName === "@-webkit-keyframes") {
         // Keyframes: the inner blocks are step selectors (from/to/percentage

@@ -124,7 +124,7 @@ export function checkConservation(input, nodes) {
     return `${what} at ${cursor}: expected ${JSON.stringify(piece)}`;
   };
   for (const node of nodes) {
-    let fault = null;
+    let fault;
     if (node.nodeType === 3) {
       fault = expect(node.textContent, "text");
     } else if (node.tagName in WRAP) {

@@ -22,7 +22,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
-import { FakeNode, makeFakeDocument, findByClass, countByClass } from "./helpers/fake-dom.mjs";
+import { makeFakeDocument, findByClass, countByClass } from "./helpers/fake-dom.mjs";
 import { createTranslator, t, tn as activeTn } from "../public/js/i18n.js";
 import { routeForPath } from "../public/js/router.js";
 import { BOARDS } from "../public/js/boards.js";
@@ -189,7 +189,7 @@ test("poll helpers: composer confirm refuses duplicates before stashing the poll
   const dupAt = confirm.indexOf("duplicatePollSlots(options).size");
   assert.ok(dupAt > 0);
   assert.ok(dupAt < confirm.indexOf("form.composerPoll ="));
-  assert.match(composer, /attachPollHelpers\(dialog, document\);\n  dialog\.showModal\(\)/);
+  assert.match(composer, /attachPollHelpers\(dialog, document\);\n {2}dialog\.showModal\(\)/);
 });
 
 // ---- F3 ---------------------------------------------------------------

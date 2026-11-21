@@ -36,7 +36,7 @@ async function handleRoleChangeRoute(request, env, url, path, method) {
   const match = path.match(/^\/api\/admin\/users\/([0-9]+)\/(promote|demote)$/);
   if (!match || method !== "POST") return null;
 
-  const session = await requireAdmin(request, env);
+  await requireAdmin(request, env);
   const targetId = Number(match[1]);
   if (!Number.isSafeInteger(targetId) || targetId < 1) {
     throw new HttpError(404, "Member not found.");

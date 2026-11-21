@@ -24,7 +24,7 @@
 // several surfaces (reaction/bookmark/subscribe/suggestion status) live in
 // composer.js, and the report dialog in routes/reports.js.
 import { api } from "../api.js";
-import { addHeading, attachmentLightbox, createPanel, element, main, setMessage } from "../dom.js";
+import { addHeading, attachmentLightbox, element, main, setMessage } from "../dom.js";
 import { addText } from "../forms.js";
 import { state } from "../state.js";
 import {
