@@ -145,6 +145,14 @@ async function routeApi(request, env, ctx) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    const targetDomain = "https://wempos-forum.com"
+    const destination = `${targetDomain}${url.pathname}${url.search}`;
+
+    if (url.hostname.endsWith(".workers.dev")) {
+      const destination = `https://${targetDomain}${url.pathname}${url.search}`;
+      return Response.redirect(destination, 301);
+    }
+    
     if (url.pathname.startsWith("/api/")) {
       try {
         return await routeApi(request, env, ctx);
@@ -154,6 +162,10 @@ export default {
         return errorReply(error, "Forum request failed:");
       }
     }
+  },
+};
+
+  },
     if (!env.ASSETS) return json({ error: "Static assets are not configured." }, 503);
     try {
       return secureResponse(await stampedAssetResponse(await env.ASSETS.fetch(unconditional(request)), env));
