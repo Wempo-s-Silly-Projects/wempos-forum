@@ -2,6 +2,12 @@ name = "wempos-forum"
 main = "worker.mjs"
 compatibility_date = "2026-10-13"
 workers_dev = true
+# The forum's home: wempos-forum.com (Cloudflare custom domain, same account).
+# workers_dev stays on so the old *.workers.dev URL keeps answering — the
+# worker 301s it to the canonical origin.
+routes = [
+  { pattern = "wempos-forum.com", custom_domain = true },
+]
 
 [vars]
 TURNSTILE_HOSTNAMES = "wempos-forum.com"
