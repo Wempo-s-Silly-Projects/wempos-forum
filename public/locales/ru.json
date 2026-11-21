@@ -136,6 +136,8 @@
   "bell.labelUnread": "Уведомления, непрочитанных: {count}",
   "bell.unreadTag": "Не прочитано",
   "bell.markAllRead": "Прочитать все",
+  "bell.unreadOnly": "Только непрочитанные",
+  "bell.noUnread": "Нет непрочитанных уведомлений.",
   "bell.newReply": "Новый ответ на твой пост",
   "bell.newReplyPreview": "Новый ответ на твой пост: {preview}",
   "bell.threadGroup.one": "{count} новый ответ на ваш пост",

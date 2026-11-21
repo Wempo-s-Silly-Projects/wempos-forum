@@ -136,6 +136,8 @@
   "bell.labelUnread": "Notifications, {count} unread",
   "bell.unreadTag": "Unread",
   "bell.markAllRead": "Mark all read",
+  "bell.unreadOnly": "Unread only",
+  "bell.noUnread": "No unread notifications.",
   "bell.newReply": "New reply on your post",
   "bell.newReplyPreview": "New reply on your post: {preview}",
   "bell.threadGroup.one": "{count} new reply on your post",

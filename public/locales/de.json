@@ -136,6 +136,8 @@
   "bell.labelUnread": "Benachrichtigungen, {count} ungelesen",
   "bell.unreadTag": "Ungelesen",
   "bell.markAllRead": "Alle als gelesen markieren",
+  "bell.unreadOnly": "Nur ungelesene",
+  "bell.noUnread": "Keine ungelesenen Benachrichtigungen.",
   "bell.newReply": "Neue Antwort auf deinen Beitrag",
   "bell.newReplyPreview": "Neue Antwort auf deinen Beitrag: {preview}",
   "bell.threadGroup.one": "{count} neue Antwort auf deinen Beitrag",

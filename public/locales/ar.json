@@ -136,6 +136,8 @@
   "bell.labelUnread": "الإشعارات، غير المقروءة: {count}",
   "bell.unreadTag": "غير مقروء",
   "bell.markAllRead": "تعليم الكل كمقروء",
+  "bell.unreadOnly": "غير المقروءة فقط",
+  "bell.noUnread": "لا توجد إشعارات غير مقروءة.",
   "bell.newReply": "رد جديد على منشورك",
   "bell.newReplyPreview": "رد جديد على منشورك: {preview}",
   "bell.threadGroup.one": "{count} رد جديد على منشورك",

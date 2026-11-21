@@ -136,6 +136,8 @@
   "bell.labelUnread": "Notifikasi, {count} belum dibaca",
   "bell.unreadTag": "Belum dibaca",
   "bell.markAllRead": "Tandai semua sudah dibaca",
+  "bell.unreadOnly": "Hanya yang belum dibaca",
+  "bell.noUnread": "Tidak ada notifikasi yang belum dibaca.",
   "bell.newReply": "Balasan baru di postinganmu",
   "bell.newReplyPreview": "Balasan baru di postinganmu: {preview}",
   "bell.threadGroup.one": "{count} balasan baru di postinganmu",

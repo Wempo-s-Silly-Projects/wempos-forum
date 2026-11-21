@@ -136,6 +136,8 @@
   "bell.labelUnread": "Notificaties, {count} ongelezen",
   "bell.unreadTag": "Ongelezen",
   "bell.markAllRead": "Alles als gelezen markeren",
+  "bell.unreadOnly": "Alleen ongelezen",
+  "bell.noUnread": "Geen ongelezen meldingen.",
   "bell.newReply": "Nieuwe reactie op je bericht",
   "bell.newReplyPreview": "Nieuwe reactie op je bericht: {preview}",
   "bell.threadGroup.one": "{count} nieuwe reactie op je bericht",

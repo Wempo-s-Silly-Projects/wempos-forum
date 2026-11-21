@@ -56,5 +56,18 @@ page heading, so screen reader and keyboard users don't lose their place.
   Today's question banner and every other public list.
 - A member with an active ban has their threads left out of public lists
   until the ban ends or is lifted, without anyone editing those posts.
+- Hidden replies and replies by actively banned members don't count toward a
+  thread's reply count. A thread whose only replies are hidden shows up in the
+  feed's **Unanswered** view, and comes out of it again once a reply is
+  restored or the ban ends.
+- Hidden suggestions drop out of the Suggestions board's vote order, so the
+  rank numbers (#1, #2, ...) skip them.
+- A hidden post drops out of members' saved lists, and so does a saved reply
+  whose thread or parent reply is hidden. It isn't unsaved: it comes back
+  when you restore it. "Remove all saved from" a board only removes what the
+  member can see, so hidden saved posts survive it.
+- Who's Online lists staff (owner and admins) under a **Staff** heading. Staff
+  who turn on invisible mode stay off the roster entirely, so the heading never
+  gives them away.
 - The desk shows post text as written, spoilers included, so you can judge
   what was actually posted.

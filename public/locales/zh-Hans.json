@@ -136,6 +136,8 @@
   "bell.labelUnread": "通知，{count} 条未读",
   "bell.unreadTag": "未读",
   "bell.markAllRead": "全部标为已读",
+  "bell.unreadOnly": "仅未读",
+  "bell.noUnread": "没有未读通知。",
   "bell.newReply": "你的帖子有新回复",
   "bell.newReplyPreview": "你的帖子有新回复：{preview}",
   "bell.threadGroup.one": "你的帖子有 {count} 条新回复",

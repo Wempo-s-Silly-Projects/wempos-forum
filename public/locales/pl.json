@@ -136,6 +136,8 @@
   "bell.labelUnread": "Powiadomienia, nieprzeczytane: {count}",
   "bell.unreadTag": "Nieprzeczytane",
   "bell.markAllRead": "Oznacz wszystkie jako przeczytane",
+  "bell.unreadOnly": "Tylko nieprzeczytane",
+  "bell.noUnread": "Brak nieprzeczytanych powiadomień.",
   "bell.newReply": "Nowa odpowiedź na twój post",
   "bell.newReplyPreview": "Nowa odpowiedź na twój post: {preview}",
   "bell.threadGroup.one": "{count} nowa odpowiedź na Twój post",

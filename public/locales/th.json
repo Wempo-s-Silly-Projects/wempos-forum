@@ -136,6 +136,8 @@
   "bell.labelUnread": "การแจ้งเตือน ยังไม่อ่าน {count} รายการ",
   "bell.unreadTag": "ยังไม่ได้อ่าน",
   "bell.markAllRead": "ทำเครื่องหมายว่าอ่านทั้งหมด",
+  "bell.unreadOnly": "เฉพาะที่ยังไม่อ่าน",
+  "bell.noUnread": "ไม่มีการแจ้งเตือนที่ยังไม่อ่าน",
   "bell.newReply": "มีการตอบกลับใหม่ในโพสต์ของคุณ",
   "bell.newReplyPreview": "มีการตอบกลับใหม่ในโพสต์ของคุณ: {preview}",
   "bell.threadGroup.one": "มีการตอบกลับใหม่ {count} รายการในโพสต์ของคุณ",
