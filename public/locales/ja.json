@@ -864,5 +864,11 @@
   "dm.mutedLabel": "ミュート中",
   "dm.muteFull": "ミュートできるチャットは最大{count}件です",
   "dm.renameGroup": "名前を変更",
-  "dm.groupNameLabel": "グループ名"
+  "dm.groupNameLabel": "グループ名",
+  "shortcuts.title": "キーボードショートカット",
+  "shortcuts.posts": "J / K：投稿にフォーカスがあるとき、次または前の投稿へ",
+  "shortcuts.submit": "Ctrl+Enter（Mac では ⌘+Enter）：返信欄や投稿欄に書いた内容を投稿",
+  "shortcuts.images": "矢印キー：画像ビューアーで投稿の画像を切り替え。Home / End で最初または最後へ",
+  "shortcuts.mentions": "↑ / ↓ のあと Enter または Tab：@メンションの候補を選択",
+  "shortcuts.close": "Esc：画像ビューアーや @メンションの候補を閉じる"
 }

@@ -864,5 +864,11 @@
   "dm.mutedLabel": "알림 꺼짐",
   "dm.muteFull": "채팅은 최대 {count}개까지 알림을 끌 수 있어요",
   "dm.renameGroup": "이름 바꾸기",
-  "dm.groupNameLabel": "그룹 이름"
+  "dm.groupNameLabel": "그룹 이름",
+  "shortcuts.title": "키보드 단축키",
+  "shortcuts.posts": "J / K: 게시물에 포커스가 있을 때 다음 또는 이전 게시물로",
+  "shortcuts.submit": "Ctrl+Enter (Mac에서는 ⌘+Enter): 답글 또는 게시물 상자에 쓴 내용을 게시",
+  "shortcuts.images": "화살표 키: 이미지 뷰어에서 게시물 이미지 넘기기; Home / End로 처음 또는 마지막으로 이동",
+  "shortcuts.mentions": "↑ / ↓ 후 Enter 또는 Tab: @멘션 추천 선택",
+  "shortcuts.close": "Esc: 이미지 뷰어나 @멘션 추천 닫기"
 }

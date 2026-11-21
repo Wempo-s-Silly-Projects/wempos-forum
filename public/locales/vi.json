@@ -864,5 +864,11 @@
   "dm.mutedLabel": "Đã tắt tiếng",
   "dm.muteFull": "Bạn có thể tắt tiếng tối đa {count} cuộc trò chuyện",
   "dm.renameGroup": "Đổi tên",
-  "dm.groupNameLabel": "Tên nhóm"
+  "dm.groupNameLabel": "Tên nhóm",
+  "shortcuts.title": "Phím tắt",
+  "shortcuts.posts": "J / K: bài tiếp theo hoặc bài trước, khi tiêu điểm đang ở trong một bài",
+  "shortcuts.submit": "Ctrl+Enter (⌘+Enter trên Mac): đăng nội dung bạn viết trong ô trả lời hoặc ô bài viết",
+  "shortcuts.images": "Phím mũi tên: xem lần lượt ảnh của bài trong trình xem ảnh; Home / End nhảy tới ảnh đầu hoặc cuối",
+  "shortcuts.mentions": "↑ / ↓, rồi Enter hoặc Tab: chọn một gợi ý @nhắc tên",
+  "shortcuts.close": "Esc: đóng trình xem ảnh hoặc các gợi ý @nhắc tên"
 }

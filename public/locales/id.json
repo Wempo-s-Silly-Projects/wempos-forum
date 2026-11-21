@@ -864,5 +864,11 @@
   "dm.mutedLabel": "Dibisukan",
   "dm.muteFull": "Kamu bisa membisukan hingga {count} chat",
   "dm.renameGroup": "Ganti nama",
-  "dm.groupNameLabel": "Nama grup"
+  "dm.groupNameLabel": "Nama grup",
+  "shortcuts.title": "Pintasan keyboard",
+  "shortcuts.posts": "J / K: postingan berikutnya atau sebelumnya, saat fokus ada di sebuah postingan",
+  "shortcuts.submit": "Ctrl+Enter (⌘+Enter di Mac): kirim yang kamu tulis di kotak balasan atau postingan",
+  "shortcuts.images": "Tombol panah: telusuri gambar postingan di penampil gambar; Home / End melompat ke yang pertama atau terakhir",
+  "shortcuts.mentions": "↑ / ↓, lalu Enter atau Tab: pilih saran @mention",
+  "shortcuts.close": "Esc: tutup penampil gambar atau saran @mention"
 }

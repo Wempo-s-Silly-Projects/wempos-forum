@@ -864,5 +864,11 @@
   "dm.mutedLabel": "Silenciado",
   "dm.muteFull": "Puedes silenciar hasta {count} chats",
   "dm.renameGroup": "Renombrar",
-  "dm.groupNameLabel": "Nombre del grupo"
+  "dm.groupNameLabel": "Nombre del grupo",
+  "shortcuts.title": "Atajos de teclado",
+  "shortcuts.posts": "J / K: publicación siguiente o anterior, mientras una publicación tiene el foco",
+  "shortcuts.submit": "Ctrl+Intro (⌘+Intro en Mac): publica lo que escribiste en un cuadro de respuesta o de publicación",
+  "shortcuts.images": "Flechas: recorre las imágenes de una publicación en el visor; Inicio / Fin saltan a la primera o la última",
+  "shortcuts.mentions": "↑ / ↓ y luego Intro o Tab: elige una sugerencia de @mención",
+  "shortcuts.close": "Esc: cierra el visor de imágenes o las sugerencias de @mención"
 }

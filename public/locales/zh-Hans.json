@@ -864,5 +864,11 @@
   "dm.mutedLabel": "已静音",
   "dm.muteFull": "最多可以静音 {count} 个聊天",
   "dm.renameGroup": "重命名",
-  "dm.groupNameLabel": "群组名称"
+  "dm.groupNameLabel": "群组名称",
+  "shortcuts.title": "键盘快捷键",
+  "shortcuts.posts": "J / K：焦点在帖子内时，跳到下一个或上一个帖子",
+  "shortcuts.submit": "Ctrl+Enter（Mac 上为 ⌘+Enter）：发布你在回复框或发帖框中写的内容",
+  "shortcuts.images": "方向键：在图片查看器中切换帖子的图片；Home / End 跳到第一张或最后一张",
+  "shortcuts.mentions": "↑ / ↓，然后按 Enter 或 Tab：选择一个 @提及 建议",
+  "shortcuts.close": "Esc：关闭图片查看器或 @提及 建议"
 }

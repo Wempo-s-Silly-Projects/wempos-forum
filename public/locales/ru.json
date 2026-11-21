@@ -864,5 +864,11 @@
   "dm.mutedLabel": "Без звука",
   "dm.muteFull": "Можно отключить звук максимум у {count} чатов",
   "dm.renameGroup": "Переименовать",
-  "dm.groupNameLabel": "Название группы"
+  "dm.groupNameLabel": "Название группы",
+  "shortcuts.title": "Сочетания клавиш",
+  "shortcuts.posts": "J / K: следующий или предыдущий пост, когда фокус на посте",
+  "shortcuts.submit": "Ctrl+Enter (⌘+Enter на Mac): опубликовать написанное в поле ответа или поста",
+  "shortcuts.images": "Стрелки: листать изображения поста в просмотрщике; Home / End — к первому или последнему",
+  "shortcuts.mentions": "↑ / ↓, затем Enter или Tab: выбрать подсказку @упоминания",
+  "shortcuts.close": "Esc: закрыть просмотрщик изображений или подсказки @упоминаний"
 }

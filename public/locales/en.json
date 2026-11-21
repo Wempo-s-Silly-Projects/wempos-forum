@@ -864,5 +864,11 @@
   "dm.mutedLabel": "Muted",
   "dm.muteFull": "You can mute up to {count} chats",
   "dm.renameGroup": "Rename",
-  "dm.groupNameLabel": "Group name"
+  "dm.groupNameLabel": "Group name",
+  "shortcuts.title": "Keyboard shortcuts",
+  "shortcuts.posts": "J / K: next or previous post, while a post has focus",
+  "shortcuts.submit": "Ctrl+Enter (⌘+Enter on Mac): post what you wrote in a reply or post box",
+  "shortcuts.images": "Arrow keys: step through a post's images in the image viewer; Home / End jump to the first or last",
+  "shortcuts.mentions": "↑ / ↓, then Enter or Tab: pick an @mention suggestion",
+  "shortcuts.close": "Esc: close the image viewer or the @mention suggestions"
 }
