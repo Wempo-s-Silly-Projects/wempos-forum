@@ -686,6 +686,7 @@
   "render.pin": "Vastzetten",
   "render.pinned": "Vastgezet",
   "render.quote": "Citeren",
+  "render.quoteTitle": "Tip: selecteer eerst een deel van deze reactie om alleen dat deel te citeren",
   "render.removedAccount": "Verwijderd account",
   "render.reopen": "Heropenen",
   "render.replies": "reacties",

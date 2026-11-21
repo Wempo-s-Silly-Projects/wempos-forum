@@ -686,6 +686,7 @@
   "render.pin": "ปักหมุด",
   "render.pinned": "ปักหมุดแล้ว",
   "render.quote": "อ้างอิง",
+  "render.quoteTitle": "เคล็ดลับ: เลือกบางส่วนของการตอบกลับนี้ก่อน เพื่ออ้างอิงเฉพาะส่วนนั้น",
   "render.removedAccount": "บัญชีที่ถูกลบ",
   "render.reopen": "เปิดอีกครั้ง",
   "render.replies": "การตอบกลับ",

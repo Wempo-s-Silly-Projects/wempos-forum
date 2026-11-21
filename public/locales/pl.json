@@ -686,6 +686,7 @@
   "render.pin": "Przypnij",
   "render.pinned": "Przypięty",
   "render.quote": "Cytuj",
+  "render.quoteTitle": "Wskazówka: najpierw zaznacz fragment tej odpowiedzi, aby zacytować tylko ten fragment",
   "render.removedAccount": "Usunięte konto",
   "render.reopen": "Otwórz ponownie",
   "render.replies": "odpowiedzi",

@@ -53,6 +53,8 @@ export function stripThumbs(button) {
   return [...strip.querySelectorAll(THUMB_SELECTOR)];
 }
 
+const hasImage = (thumb) => Boolean(thumb?.querySelector?.("img"));
+
 const iconlessButton = (document, className, label, text) => {
   const button = document.createElement("button");
   button.type = "button";
@@ -132,10 +134,15 @@ function createController(dialog, document) {
 
   return {
     open(button) {
-      const thumbs = stripThumbs(button);
-      const index = Math.max(0, thumbs.indexOf(button));
+      // Wave 24: a thumbnail with no <img> is skipped, and clicking one never
+      // reopens the viewer on the previously shown image.
+      const thumbs = stripThumbs(button).filter(hasImage);
+      if (!thumbs.includes(button)) {
+        image?.removeAttribute("src");
+        return;
+      }
       view.thumbs = thumbs;
-      show(index);
+      show(thumbs.indexOf(button));
       if (!dialog.open) dialog.showModal();
       controls.close.focus();
     },

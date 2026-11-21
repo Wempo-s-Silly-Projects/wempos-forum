@@ -258,6 +258,17 @@ function markMobileBarItem(user) {
   }
 }
 
+// Shared-browser privacy: unsent drafts, read marks, chat pins, gallery
+// recents and newcomer-card dismissals leave with the member. Device
+// preferences (theme, text size, locale, DM effects) stay.
+function wipeAccountLocalData() {
+  clearAllDrafts();
+  clearAllCatchUp();
+  clearAllNewcomer();
+  clearAllPins();
+  clearAllRecents();
+}
+
 export const ACTIONS = {
   // The §4b sign-out handoff: the forum's own
   // session clears first (logout POST + CSRF reset), THEN the browser rides
@@ -265,14 +276,14 @@ export const ACTIONS = {
   // one, the Accounts arrival auto-issues a fresh ticket and bounces the
   // member straight back signed in).
   logout: async () => {
-    await api("/api/auth/logout", { method: "POST" });
-    // Shared-browser privacy: unsent drafts, read marks and chat pins leave
-    // with the member (newcomer-card dismissals too).
-    clearAllDrafts();
-    clearAllCatchUp();
-    clearAllNewcomer();
-    clearAllPins();
-    clearAllRecents();
+    // Wave 24: the local wipe rides a finally, so a network error or 5xx on
+    // the POST still cleans a shared browser; the error then propagates to
+    // handleClick's status line and the browser stays put (no fake success).
+    try {
+      await api("/api/auth/logout", { method: "POST" });
+    } finally {
+      wipeAccountLocalData();
+    }
 
     setCsrfToken("");
     window.location.assign(wempoAccountsSignOutUrl());

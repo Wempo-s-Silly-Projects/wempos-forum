@@ -686,6 +686,7 @@
   "render.pin": "पिन करें",
   "render.pinned": "पिन किया गया",
   "render.quote": "कोट करें",
+  "render.quoteTitle": "सुझाव: केवल उसी हिस्से को उद्धृत करने के लिए पहले इस जवाब का कुछ हिस्सा चुनें",
   "render.removedAccount": "हटाया गया अकाउंट",
   "render.reopen": "फिर से खोलें",
   "render.replies": "जवाब",

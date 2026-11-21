@@ -686,6 +686,7 @@
   "render.pin": "تثبيت",
   "render.pinned": "مثبّت",
   "render.quote": "اقتباس",
+  "render.quoteTitle": "تلميح: حدّد جزءًا من هذا الرد أولًا لاقتباس هذا الجزء فقط",
   "render.removedAccount": "حساب محذوف",
   "render.reopen": "إعادة فتح",
   "render.replies": "ردود",

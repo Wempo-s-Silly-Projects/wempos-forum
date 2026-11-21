@@ -686,6 +686,7 @@
   "render.pin": "Épingler",
   "render.pinned": "Épinglé",
   "render.quote": "Citer",
+  "render.quoteTitle": "Astuce : sélectionnez d’abord une partie de cette réponse pour ne citer que cette partie",
   "render.removedAccount": "Compte supprimé",
   "render.reopen": "Rouvrir",
   "render.replies": "réponses",

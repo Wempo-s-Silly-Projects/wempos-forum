@@ -686,6 +686,7 @@
   "render.pin": "Anheften",
   "render.pinned": "Angeheftet",
   "render.quote": "Zitieren",
+  "render.quoteTitle": "Tipp: Markiere zuerst einen Teil dieser Antwort, um nur diesen Teil zu zitieren",
   "render.removedAccount": "Entferntes Konto",
   "render.reopen": "Wieder öffnen",
   "render.replies": "Antworten",

@@ -178,10 +178,12 @@ test("profile route wires member since and recent threads", () => {
 
 // --- F3: wall posts get inline formatting + spoilers ---------------------------
 
-test("wall: post bodies render through parseInline (formatting + click-to-reveal spoilers)", () => {
+// Wave 24 moved the wall onto the post page's per-block renderer (which runs
+// parseInline on every block); behavior pinned in tests/wave24-fixes.test.mjs.
+test("wall: post bodies render through the block renderer (formatting + click-to-reveal spoilers)", () => {
   const wall = read("public/js/wall.js");
-  assert.match(wall, /import \{ parseInline \} from "\.\/markdown\.js";/);
-  assert.match(wall, /body\.append\(\.\.\.parseInline\(document, post\.body\)\)/);
+  assert.match(wall, /import \{ renderBodyBlocks \} from "\.\/render\.js";/);
+  assert.match(wall, /renderBodyBlocks\(\{ body: text \}, document, body\)/);
   assert.doesNotMatch(wall, /element\("p", "wall-post-body", post\.body\)/);
 });
 

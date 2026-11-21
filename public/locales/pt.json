@@ -686,6 +686,7 @@
   "render.pin": "Fixar",
   "render.pinned": "Fixado",
   "render.quote": "Citar",
+  "render.quoteTitle": "Dica: selecione primeiro uma parte desta resposta para citar só essa parte",
   "render.removedAccount": "Conta removida",
   "render.reopen": "Reabrir",
   "render.replies": "respostas",

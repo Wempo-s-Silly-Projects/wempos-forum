@@ -2149,6 +2149,8 @@ mark.search-hit {
 .wall-post-author { font-weight: 700; color: inherit; }
 .wall-post-time { color: var(--muted, #666); font-size: 0.85rem; margin-inline-start: auto; }
 .wall-post-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+/* Wave 24: wall bodies use the post block renderer; keep its paragraphs tight. */
+.wall-post-body .post-body { margin: 0.25rem 0; }
 .profile-wall form { margin-bottom: 0.4rem; }
 
 /* Chat + DM polish (v4.2): unread badges, ping pulse, and message bubbles.

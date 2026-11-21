@@ -468,6 +468,7 @@ export const createPostCard = (post, document, currentUser = null) => {
     const quoteButton = createElement(document, "button", "button button-quiet", t("render.quote"));
     quoteButton.type = "button";
     quoteButton.dataset.action = "quote";
+    quoteButton.title = t("render.quoteTitle");
     quoteButton.dataset.postId = String(post.id);
     quoteButton.dataset.quoteUsername = post.author.username;
     // Wave 17: masked first — the 120-char quote cut can split a spoiler.

@@ -27,7 +27,7 @@ import { t } from "./i18n.js";
 
 const SAFE_PREFIXES = ["http://", "https://", "/"];
 const SPOILER_MARK = "||";
-const SPOILER_MASK = "\u2592\u2592\u2592";
+export const SPOILER_MASK = "\u2592\u2592\u2592";
 const REVEAL_KEYS = new Set(["Enter", " "]);
 
 // A link target is safe only when it starts with a known-safe scheme or is a
