@@ -130,6 +130,37 @@ test("discovery variants (unanswered, sort=new) bind < 100 params at a full page
   }
 });
 
+// Wave 34: Suggestions pages on its own vote-score branch; page 1 and the
+// score-cursor page 2 ride the same pin (a full reply forest arms the rollup).
+test("Suggestions (score sort, both pages, unanswered) bind < 100 params", async () => {
+  const { env, viewer } = await seedWorstCase();
+  const db = env.__sqlite;
+  const author = db.prepare("SELECT id FROM users WHERE username = 'author'").get().id;
+  for (let i = 0; i < FEED_PAGE_SIZE + EXTRA_ROOTS; i += 1) {
+    const root = seedPost(db, { authorId: author, body: "idea " + i, board: "suggestions" });
+    const reply = seedPost(db, { authorId: author, body: "re " + i, parentId: root, board: "suggestions" });
+    seedPost(db, { authorId: author, body: "sub " + i, parentId: reply, board: "suggestions" });
+    seedPost(db, { authorId: author, body: "open idea " + i, board: "suggestions" });
+    db.prepare("INSERT INTO reactions (post_id, user_id, value, created_at) VALUES (?, ?, 'like', ?)").run(root, viewer, now());
+    db.prepare("INSERT INTO bookmarks (user_id, post_id, created_at) VALUES (?, ?, ?)").run(viewer, root, now());
+  }
+  const session = forgeSession(db, viewer);
+  const first = await call(env, "/api/posts?board=suggestions", { session });
+  const cursor = (await first.json()).nextBefore;
+  assert.match(cursor, /^-?[0-9]+_[0-9]+$/);
+  for (const query of ["board=suggestions", "board=suggestions&before=" + cursor,
+    "board=suggestions&unanswered=1"]) {
+    const spied = spyBinds(env);
+    const res = await call(spied.env, "/api/posts?" + query, { session });
+    assert.equal(res.status, 200, query);
+    const body = await res.json();
+    assert.equal(body.posts.length, FEED_PAGE_SIZE, query);
+    const worst = Math.max(...spied.counts);
+    assert.ok(worst < D1_MAX_BOUND_PARAMS, query + " worst-case bind count " + worst);
+    assert.equal(worst, 2 * FEED_PAGE_SIZE + 11, query + ": the rollup stays the widest statement");
+  }
+});
+
 test("posts-feed.mjs has no options.limit and no bare page-size literals", () => {
   const source = readFileSync(new URL("../api/posts-feed.mjs", import.meta.url), "utf8");
   assert.doesNotMatch(source, /options\.limit/);

@@ -445,7 +445,10 @@ export async function handlePostFeedRoute(request, env, url, path, method) {
         : {
           before,
           ...(board ? { board } : {}),
-          ...(discovery.sortNew ? {} : { byActivity: true }),
+          // Suggestions take their own vote-score branch (wave 34 fix: the
+          // activity flag used to win, so the score sort never ran and the
+          // score cursor reached the activity keyset).
+          ...(discovery.sortNew || isSuggestions ? {} : { byActivity: true }),
           ...(discovery.unanswered ? { unanswered: true } : {}),
         },
     );
