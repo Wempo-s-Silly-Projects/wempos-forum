@@ -101,3 +101,13 @@ export const SEARCH_USERS_SQL =
   "WHERE (instr(username_key, ?) > 0 OR instr(lower(bio), ?) > 0) ORDER BY username_key LIMIT 20";
 
 export const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+
+// v4.7 group DMs: members per group INCLUDING the creator, and the optional
+// group name's length (the dm_groups.name CHECK in migration 0044 matches).
+export const DM_GROUP_MAX_MEMBERS = 10;
+export const DM_GROUP_NAME_MAX_CHARS = 60;
+
+// v4.7 DM images: a message whose whole body is this token renders the
+// conversation's image from /api/dm/images/:id. Only the upload routes write
+// it; a typed text body of this shape is refused.
+export const DM_IMAGE_TOKEN_PATTERN = /^\[img:[0-9a-f-]{36}\]$/;

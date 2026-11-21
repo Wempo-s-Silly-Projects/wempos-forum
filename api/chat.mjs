@@ -33,6 +33,7 @@ import { publicRole } from "./core/roles.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
+import { listViewerGroups, readDmMessageBody, viewerGroupUnread } from "./dm-groups.mjs";
 
 // Lobby stream (old-ui-return lane): the retired public "Let's chat" surface
 // that rode migration 0032's chat_messages table comes back with the old UI —
@@ -261,7 +262,11 @@ async function handleThreadListRoute(request, env, url, path, method) {
     "ORDER BY (SELECT m.id FROM dm_messages m WHERE m.thread_id = t.id " +
     "ORDER BY m.id DESC LIMIT 1) DESC",
   ).bind(viewerId, viewerId, viewerId).all()).results || [];
+  // v4.7: the viewer's group DMs ride the same response (additive key), so
+  // the widget's one probe paints both kinds of conversation.
+  const groups = await listViewerGroups(env, viewerId);
   return json({
+    groups,
     threads: rows.map((row) => {
       const preview = String(row.last_body ?? "").trim();
       const viewerIsUserA = Number(row.user_a) === Number(viewerId);
@@ -340,12 +345,7 @@ async function handleThreadSendRoute(request, env, url, path, method) {
     Number(row.user_a) === Number(viewerId) ? Number(row.user_b) : Number(row.user_a))) {
     throw new HttpError(403, "That conversation is not available.");
   }
-  const body = await readJson(request);
-  const message = applyWordFilter(
-    String(body.body ?? "").trim().slice(0, DM_MAX_BODY_CHARS),
-    filterWords(env),
-  );
-  if (!message) throw new HttpError(400, "Write something first.");
+  const message = readDmMessageBody(env, (await readJson(request)).body);
   const result = await env.FORUM_DB.prepare(
     "INSERT INTO dm_messages (thread_id, user_id, body, created_at) VALUES (?, ?, ?, ?)",
   ).bind(threadId, viewerId, message, nowSeconds()).run();
@@ -475,7 +475,7 @@ async function handleLobbyChatReadRoute(request, env, url, path, method) {
       "bk.blocker_id IN (user_a, user_b)))",
     ).bind(session.user.id, session.user.id, session.user.id,
       session.user.id, session.user.id).first();
-    dmUnread = Number(dmRow?.unread || 0);
+    dmUnread = Number(dmRow?.unread || 0) + await viewerGroupUnread(db, session.user.id);
     const bellRow = await db.prepare(
       "SELECT COUNT(*) AS unread FROM notifications WHERE user_id = ? AND read_at IS NULL",
     ).bind(session.user.id).first();
@@ -546,4 +546,5 @@ export async function handleChatRoutes(request, env, url, path, method, ctx) {
 }
 
 export { LOBBY_CHAT_MAX_CHARS, insertLobbyMessage, lobbyMessageRows, lobbyOnlineCount };
+export { dmMessageShape, isoTime };
 export { DM_MAX_BODY_CHARS, PRESENCE_WINDOW, PRESENCE_UPSERT_SQL, PRESENCE_KEEP_SQL, DM_THREAD_OPEN_SQL, DM_THREAD_FIND_SQL };
