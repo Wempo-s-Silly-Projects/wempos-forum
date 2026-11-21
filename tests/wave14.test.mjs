@@ -40,7 +40,9 @@ before(async () => {
   env = makeEnv();
   db = env.__sqlite;
   for (const name of ["author", "reader", "staff", "other"]) {
-    u[name] = await seedUser(db, { username: name, role: name === "staff" ? "admin" : "member" });
+    // QOTD authors (author, other) are site admins: only owner/admin QOTDs count
+    // (owner, Nov 21). Stored role "moderator" = public admin (api/core/roles.mjs).
+    u[name] = await seedUser(db, { username: name, role: name === "staff" ? "admin" : name === "reader" ? "member" : "moderator" });
     s[name] = forgeSession(db, u[name]);
   }
 });
