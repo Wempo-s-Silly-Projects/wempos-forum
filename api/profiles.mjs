@@ -85,12 +85,16 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       });
     }
     // Per-user post counter (v2.6): two COUNT subselects — threads started
-    // and replies written (any post row with a parent). Display-only; it
-    // does not filter by visibility (the author's own-view semantics).
+    // and replies written (any post row with a parent). Wave 40: the author
+    // and staff count every row (own-view semantics); everyone else counts
+    // only public posts, so hidden or staged posts never show through a
+    // number.
+    const fullCount = viewerIsStaff || Boolean(viewer && viewer.id === Number(user.id));
+    const publicOnly = fullCount ? "" : " AND visibility = 'public'";
     const counts = await env.FORUM_DB.prepare(
       "SELECT " +
-      "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NULL) AS posts_count, " +
-      "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NOT NULL) AS replies_count, " +
+      "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NULL" + publicOnly + ") AS posts_count, " +
+      "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NOT NULL" + publicOnly + ") AS replies_count, " +
       // Member since (wave 2026-11-21-13 F1): the account's creation stamp
       // rides this same round trip — shapers' shared user select stays put.
       "(SELECT created_at FROM users WHERE id = ?) AS joined_at",
@@ -367,6 +371,14 @@ async function handleCssStylesheetRoute(request, env, url, path, method) {
     const row = await env.FORUM_DB.prepare(
       "SELECT approved_css FROM users WHERE id = ? LIMIT 1",
     ).bind(userId).first();
+    // Wave 40: a block pair (either direction) gets the same 404 as no theme,
+    // matching the profile's unavailable strip; staff and the member bypass.
+    const session = await readSession(request, env);
+    const viewer = session && session.user ? session.user : null;
+    if (viewer && viewer.id !== userId && viewer.role !== "owner" && viewer.role !== "admin" &&
+        (await blockPairExists(env, viewer.id, userId))) {
+      throw new HttpError(404, "Not found.");
+    }
     const scoped = scopeProfileCss(row && row.approved_css ? row.approved_css : "");
     if (!scoped) throw new HttpError(404, "Not found.");
     return new Response(scoped, {

@@ -23,29 +23,32 @@
 // mirrors). Zero-activity members never appear.
 import { readSession } from "./core/auth.mjs";
 import { json } from "./core/http.mjs";
+import { viewerBlockFilterSql } from "./core/blocks.mjs";
+import { ACTIVE_BAN_SQL } from "./core/visibility.mjs";
 
 const LEADERBOARD_SIZE = 10;
 
 export async function handleLeaderboardRoutes(request, env, url, path, method) {
   if (path !== "/api/leaderboard" || method !== "GET") return null;
   const session = await readSession(request, env);
+  // Wave 40: only what a guest could see counts — public posts, and
+  // reactions on public posts by members who are not actively banned — and a
+  // signed-in non-staff viewer never sees a block-paired member listed.
+  const viewer = session && session.user ? session.user : null;
+  const blocks = viewerBlockFilterSql(viewer, "u.id");
   const result = await env.FORUM_DB.prepare(
-    "SELECT u.id, u.username, " +
-    "(SELECT COUNT(*) FROM posts WHERE author_id = u.id AND parent_id IS NULL) AS threads, " +
-    "(SELECT COUNT(*) FROM posts WHERE author_id = u.id AND parent_id IS NOT NULL) AS replies, " +
+    "SELECT id, username, threads, replies, reactions_received FROM (" +
+    "SELECT u.id, u.username, u.username_key, " +
+    "(SELECT COUNT(*) FROM posts WHERE author_id = u.id AND parent_id IS NULL AND visibility = 'public') AS threads, " +
+    "(SELECT COUNT(*) FROM posts WHERE author_id = u.id AND parent_id IS NOT NULL AND visibility = 'public') AS replies, " +
     "(SELECT COUNT(*) FROM reactions rr JOIN posts p ON p.id = rr.post_id " +
-    "WHERE p.author_id = u.id) AS reactions_received " +
+    "WHERE p.author_id = u.id AND p.visibility = 'public' AND NOT " + ACTIVE_BAN_SQL("rr.user_id") +
+    ") AS reactions_received " +
     "FROM users u WHERE u.role IN ('member', 'moderator', 'admin') " +
-    "AND NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = u.id AND b.revoked_at IS NULL " +
-    "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER))) " +
-    "AND ((SELECT COUNT(*) FROM posts WHERE author_id = u.id) > 0 OR " +
-    "(SELECT COUNT(*) FROM reactions rr JOIN posts p ON p.id = rr.post_id " +
-    "WHERE p.author_id = u.id) > 0) " +
-    "ORDER BY (2 * (SELECT COUNT(*) FROM posts WHERE author_id = u.id AND parent_id IS NULL) " +
-    "+ (SELECT COUNT(*) FROM posts WHERE author_id = u.id AND parent_id IS NOT NULL) " +
-    "+ (SELECT COUNT(*) FROM reactions rr JOIN posts p ON p.id = rr.post_id WHERE p.author_id = u.id)) DESC, " +
-    "u.username_key ASC LIMIT " + LEADERBOARD_SIZE,
-  ).all();
+    "AND NOT " + ACTIVE_BAN_SQL("u.id") + blocks +
+    ") WHERE threads + replies + reactions_received > 0 " +
+    "ORDER BY 2 * threads + replies + reactions_received DESC, username_key ASC LIMIT " + LEADERBOARD_SIZE,
+  ).bind(...(blocks ? [viewer.id, viewer.id] : [])).all();
   return json({
     allTime: {
       leaderboard: (result.results || []).map((row) => ({

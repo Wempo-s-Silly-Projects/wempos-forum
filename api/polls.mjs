@@ -24,7 +24,7 @@ import { assertNotBanned, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson, requiredText } from "./core/http.mjs";
 import { postById } from "./core/shapers.mjs";
-import { canViewPost } from "./core/visibility.mjs";
+import { ACTIVE_BAN_SQL, canViewPost } from "./core/visibility.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 
@@ -39,7 +39,9 @@ const MIN_POLL_OPTIONS = 2;
 const POLL_BY_POST_SQL = "SELECT id, question, closed_at FROM polls WHERE post_id = ? LIMIT 1";
 const POLL_OPTION_COUNTS_SQL =
   "SELECT o.id, o.label, o.position, " +
-    "(SELECT COUNT(*) FROM poll_votes v WHERE v.option_id = o.id) AS vote_count " +
+    // Wave 40: a vote by an actively-banned member never counts (read time).
+    "(SELECT COUNT(*) FROM poll_votes v WHERE v.option_id = o.id AND NOT " +
+    ACTIVE_BAN_SQL("v.user_id") + ") AS vote_count " +
   "FROM polls p JOIN poll_options o ON o.poll_id = p.id " +
   "WHERE p.post_id = ? ORDER BY o.position ASC";
 const VIEWER_OPTION_SQL =

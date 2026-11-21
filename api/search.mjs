@@ -25,7 +25,7 @@ import { readSession } from "./core/auth.mjs";
 import { HttpError, json } from "./core/http.mjs";
 import { publicPost, publicUser, userByUsernameKey } from "./core/shapers.mjs";
 import { viewerBlockFilterSql } from "./core/blocks.mjs";
-import { canViewPost } from "./core/visibility.mjs";
+import { ACTIVE_BAN_SQL, canViewPost } from "./core/visibility.mjs";
 
 export async function handleSearchRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
@@ -83,8 +83,10 @@ export async function searchReplies(env, viewer, query, authorId) {
   const viewerId = viewer ? viewer.id : null;
   const sql =
     "SELECT r.id, r.author_id, r.parent_id, r.body, r.visibility, r.created_at, r.board, r.view_count, r.pinned_at, r.edited_at, " +
-    "(SELECT COUNT(*) FROM reactions rx WHERE rx.post_id = r.id AND rx.value = 'like') AS like_count, " +
-    "(SELECT COUNT(*) FROM reactions rx WHERE rx.post_id = r.id AND rx.value = 'dislike') AS dislike_count, " +
+    "(SELECT COUNT(*) FROM reactions rx WHERE rx.post_id = r.id AND rx.value = 'like' AND NOT " +
+    ACTIVE_BAN_SQL("rx.user_id") + ") AS like_count, " +
+    "(SELECT COUNT(*) FROM reactions rx WHERE rx.post_id = r.id AND rx.value = 'dislike' AND NOT " +
+    ACTIVE_BAN_SQL("rx.user_id") + ") AS dislike_count, " +
     "(SELECT rx.value FROM reactions rx WHERE rx.post_id = r.id AND rx.user_id = ?) AS viewer_reaction, " +
     "(SELECT parent.body FROM posts parent WHERE parent.id = r.parent_id) AS parent_body, " +
     "r.last_activity_at, " +
