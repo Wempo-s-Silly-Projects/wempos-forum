@@ -258,7 +258,15 @@ async function renderRoute(route) {
     "not-found": () => renderNotFoundRoute(),
   };
   const renderPage = renderers[route.name] || renderNotFoundRoute;
-  await renderPage();
+  try {
+    await renderPage();
+  } catch (error) {
+    // A post that no longer exists (deleted, or a stale link/history entry)
+    // is a 404 page, not an error bar (wave 5.6 F1).
+    if (route.name !== "post" || error?.status !== 404 || version !== state.renderVersion) throw error;
+    main.replaceChildren();
+    renderNotFoundRoute();
+  }
   await renderTurnstileSlots(main);
 }
 
@@ -270,7 +278,6 @@ async function submitForm(form) {
   const values = readForm(form);
   const type = form.dataset.form;
   const text = (name) => String(values.get(name) ?? "");
-  setMessage(t("app.saving"));
 
   const handlers = {
     ...authFormHandlers,
@@ -293,9 +300,13 @@ async function submitForm(form) {
     ...twofaFormHandlers,
   };
   const handler = handlers[type];
+  // Forms this layer does not own (the chat lobby's) handle their own submit;
+  // painting Saving… for them left it stuck on the status bar (wave 5.6 F3).
+  if (!handler) return;
+  setMessage(t("app.saving"));
   // Route-module handlers take (form, text, values); entries still owned in
   // app.js are zero-arg closures that ignore the arguments — call uniformly.
-  if (handler) await handler(form, text, values);
+  await handler(form, text, values);
 }
 
 function handleInternalNavigation(event) {

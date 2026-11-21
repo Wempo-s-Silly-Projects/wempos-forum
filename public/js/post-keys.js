@@ -45,13 +45,28 @@ export function postKeyStep(event) {
   return Object.hasOwn(POST_KEY_STEPS, key) ? POST_KEY_STEPS[key] : 0;
 }
 
-// Pure: the post `step` places away from `current` in `posts`, or null at
-// either end (no wrap-around, so the edge is never a surprise jump).
-export function adjacentPost(posts, current, step) {
+// A card the page is not showing (wave 5.6 F4): set aside by the reply
+// filter ([data-filtered-out]) or inside a collapsed group ([hidden]),
+// checked up to `scope`.
+const HIDDEN_SELECTOR = "[hidden],[data-filtered-out]";
+export function isHiddenPost(card, scope) {
+  for (let node = card; node && node !== scope; node = node.parentElement) {
+    if (node.hidden === true || node.matches?.(HIDDEN_SELECTOR)) return true;
+  }
+  return false;
+}
+
+// Pure: the post `step` places away from `current` in `posts`, skipping any
+// card `isSkipped` rejects, or null at either end (no wrap-around, so the
+// edge is never a surprise jump).
+export function adjacentPost(posts, current, step, isSkipped = () => false) {
   const list = Array.from(posts ?? []);
   const at = list.indexOf(current);
   if (at < 0 || !step) return null;
-  return list[at + step] ?? null;
+  for (let index = at + step; index >= 0 && index < list.length; index += step) {
+    if (!isSkipped(list[index])) return list[index];
+  }
+  return null;
 }
 
 // Wires J/K on each container (the root card and the reply list). `scope`
@@ -62,7 +77,8 @@ export function bindPostKeys(scope, containers) {
     const step = postKeyStep(event);
     if (!step) return;
     const current = event.target?.closest?.(POST_CARD_SELECTOR);
-    const target = adjacentPost(scope.querySelectorAll(POST_CARD_SELECTOR), current, step);
+    const target = adjacentPost(scope.querySelectorAll(POST_CARD_SELECTOR), current, step,
+      (card) => isHiddenPost(card, scope));
     if (!target) return;
     event.preventDefault();
     jumpToNode(target, { block: "start" });

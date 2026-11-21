@@ -93,8 +93,12 @@ export const startRouter = (onRoute) => {
   window.addEventListener("popstate", dispatch);
   dispatch();
   return {
-    navigate(path) {
-      history.pushState({}, "", path);
+    // replace (wave 5.6 F1): swap the current entry instead of adding one, so
+    // a page that no longer exists (a just-deleted thread) leaves history and
+    // Back never asks the server for it again.
+    navigate(path, { replace = false } = {}) {
+      if (replace) history.replaceState({}, "", path);
+      else history.pushState({}, "", path);
       dispatch();
     },
   };
