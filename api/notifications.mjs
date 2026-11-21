@@ -23,7 +23,7 @@ import { requireSignedInRead, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json } from "./core/http.mjs";
 import { maskedExcerpt } from "./core/spoilers.mjs";
-import { VIEWABLE_POST_BINDS, viewablePostSql } from "./core/visibility.mjs";
+import { ACTIVE_BAN_SQL, VIEWABLE_POST_BINDS, viewablePostSql } from "./core/visibility.mjs";
 
 const NOTIFICATIONS_PER_USER = 50;
 
@@ -67,8 +67,24 @@ const NOTIFICATION_SELECT =
 // it; an unban/unblock restores the row with no write. Label-only rows
 // (reply_id NULL: appeal outcomes, chat pings) always show.
 // Bind order: recipient (list WHERE), then recipient x VIEWABLE_POST_BINDS.
+//
+// Wave 5.10: a lobby @mention row is label-only but NAMES its actor
+// (chatMentionLabel). It drops while that member is actively banned or in a
+// block pair with the recipient, read-time like every other row (an unban or
+// unblock restores it). The actor resolves from the server-built label by
+// username_key (an index probe); the pair check keys on n.user_id, so the
+// filter adds no binds.
+const CHAT_MENTION_PREFIX = "You were mentioned by ";
+const CHAT_MENTION_SUFFIX = " in chat";
+export const chatMentionLabel = (username) => CHAT_MENTION_PREFIX + username + CHAT_MENTION_SUFFIX;
+const CHAT_MENTION_ACTOR_HIDDEN_SQL =
+  "(n.label LIKE '" + CHAT_MENTION_PREFIX + "%" + CHAT_MENTION_SUFFIX + "' AND EXISTS (SELECT 1 FROM users au " +
+  "WHERE au.username_key = lower(substr(n.label, " + (CHAT_MENTION_PREFIX.length + 1) + ", length(n.label) - " +
+  (CHAT_MENTION_PREFIX.length + CHAT_MENTION_SUFFIX.length) + ")) AND (" + ACTIVE_BAN_SQL("au.id") +
+  " OR EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = n.user_id AND bk.blocked_id = au.id) " +
+  "OR (bk.blocked_id = n.user_id AND bk.blocker_id = au.id)))))";
 const MEMBER_ROW_FILTER =
-  "(n.reply_id IS NULL OR " + viewablePostSql("n.reply_id") + ")";
+  "((n.reply_id IS NULL AND NOT " + CHAT_MENTION_ACTOR_HIDDEN_SQL + ") OR " + viewablePostSql("n.reply_id") + ")";
 const NOTIFICATION_SELECT_FILTERED =
   "SELECT n.id, n.target_post_id, n.reply_id, n.created_at, n.read_at, n.label, " +
     "(SELECT body FROM posts WHERE id = n.reply_id) AS reply_body " +

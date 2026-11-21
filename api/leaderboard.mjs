@@ -24,7 +24,7 @@
 import { readSession } from "./core/auth.mjs";
 import { json } from "./core/http.mjs";
 import { viewerBlockFilterSql } from "./core/blocks.mjs";
-import { ACTIVE_BAN_SQL } from "./core/visibility.mjs";
+import { ACTIVE_BAN_SQL, publicChainSql } from "./core/visibility.mjs";
 
 const LEADERBOARD_SIZE = 10;
 
@@ -34,15 +34,18 @@ export async function handleLeaderboardRoutes(request, env, url, path, method) {
   // Wave 40: only what a guest could see counts — public posts, and
   // reactions on public posts by members who are not actively banned — and a
   // signed-in non-staff viewer never sees a block-paired member listed.
+  // Wave 5.10: "public" means the whole chain (publicChainSql) — a public
+  // reply under a hidden or banned-author root counts nowhere.
   const viewer = session && session.user ? session.user : null;
   const blocks = viewerBlockFilterSql(viewer, "u.id");
   const result = await env.FORUM_DB.prepare(
     "SELECT id, username, threads, replies, reactions_received FROM (" +
     "SELECT u.id, u.username, u.username_key, " +
     "(SELECT COUNT(*) FROM posts WHERE author_id = u.id AND parent_id IS NULL AND visibility = 'public') AS threads, " +
-    "(SELECT COUNT(*) FROM posts WHERE author_id = u.id AND parent_id IS NOT NULL AND visibility = 'public') AS replies, " +
+    "(SELECT COUNT(*) FROM posts lr WHERE lr.author_id = u.id AND lr.parent_id IS NOT NULL AND " +
+    publicChainSql("lr") + ") AS replies, " +
     "(SELECT COUNT(*) FROM reactions rr JOIN posts p ON p.id = rr.post_id " +
-    "WHERE p.author_id = u.id AND p.visibility = 'public' AND NOT " + ACTIVE_BAN_SQL("rr.user_id") +
+    "WHERE p.author_id = u.id AND " + publicChainSql("p") + " AND NOT " + ACTIVE_BAN_SQL("rr.user_id") +
     ") AS reactions_received " +
     "FROM users u WHERE u.role IN ('member', 'moderator', 'admin') " +
     "AND NOT " + ACTIVE_BAN_SQL("u.id") + blocks +

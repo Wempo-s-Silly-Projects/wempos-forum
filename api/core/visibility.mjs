@@ -84,6 +84,20 @@ const viewableLevelSql = (alias) =>
   " AND NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND bk.blocked_id = " +
   alias + ".author_id) OR (bk.blocked_id = ? AND bk.blocker_id = " + alias + ".author_id))";
 
+// Wave 5.10: canViewPost for a GUEST as one bind-free predicate on a posts
+// alias — the row, its parent and the root each public and by an author with
+// no active ban. Public numbers (leaderboard, profile counts) and the
+// archive's deletion-time visibility read through it, so a public reply under
+// a hidden or banned-author root never counts and never archives as public.
+const publicLevelSql = (alias) =>
+  alias + ".visibility = 'public' AND NOT " + ACTIVE_BAN_SQL(alias + ".author_id");
+export function publicChainSql(alias) {
+  return "(" + publicLevelSql(alias) + " AND (" + alias + ".parent_id IS NULL OR EXISTS (SELECT 1 FROM posts pc1 " +
+    "WHERE pc1.id = " + alias + ".parent_id AND " + publicLevelSql("pc1") +
+    " AND (pc1.parent_id IS NULL OR EXISTS (SELECT 1 FROM posts pc2 WHERE pc2.id = pc1.parent_id AND " +
+    publicLevelSql("pc2") + ")))))";
+}
+
 // canViewPost for a signed-in NON-STAFF viewer, as one EXISTS over a post id
 // expression: the post, its parent and the root are each public, by an
 // unbanned author, and not block-paired with the viewer (either direction).

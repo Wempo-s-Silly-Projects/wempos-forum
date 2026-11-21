@@ -20,6 +20,7 @@
 // out of shared.mjs into its own core leaf — its only consumers are the
 // posts-write and account-deletion batches in api/posts-write.mjs and
 // api/profiles.mjs.
+import { publicChainSql } from "./visibility.mjs";
 
 // Accountability archive (v2.4.1): builds the INSERT..SELECT that copies the
 // doomed post rows into post_archive — run FIRST in the same atomic batch as
@@ -27,6 +28,13 @@
 // set (by original post column alias `p`); the NOT EXISTS guard keeps a row
 // from being archived twice (e.g. an own reply that is also a child of an own
 // root). COALESCE keeps the name even when the users row is about to vanish.
+//
+// Wave 5.10: the archived visibility is judged at deletion time over the
+// whole chain (publicChainSql) — a reply under a hidden or banned-author root,
+// or a post by an actively-banned author, archives as 'hidden'. The read
+// filter alone cannot judge these later: the ancestors are deleted with the
+// thread, and an account wipe deletes the member's ban rows.
+
 export function archivePostRowsStatement(
   db, whereSql, binds, reason, deletedAt, deletedByUserId = null, deletedByName = null,
 ) {
@@ -46,7 +54,8 @@ export function archivePostRowsStatement(
 
   return db.prepare(
     "INSERT INTO post_archive (original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because, deleted_by_user_id, deleted_by_name, idempotency_key, idempotency_fingerprint, visibility) " +
-    "SELECT p.id, p.author_id, COALESCE(u.username, 'removed'), p.body, p.board, p.created_at, ?, ?, ?, ?, p.idempotency_key, p.idempotency_fingerprint, p.visibility " +
+    "SELECT p.id, p.author_id, COALESCE(u.username, 'removed'), p.body, p.board, p.created_at, ?, ?, ?, ?, p.idempotency_key, p.idempotency_fingerprint, " +
+    "CASE WHEN " + publicChainSql("p") + " THEN 'public' ELSE 'hidden' END " +
     "FROM posts p LEFT JOIN users u ON u.id = p.author_id " +
     "WHERE (" + whereSql + ") AND NOT EXISTS (SELECT 1 FROM post_archive a WHERE a.original_post_id = p.id)",
   ).bind(deletedAt, reason, deletedByUserId, deletedByName, ...binds);

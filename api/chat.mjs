@@ -34,7 +34,7 @@ import { publicRole } from "./core/roles.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
-import { unreadCount } from "./notifications.mjs";
+import { chatMentionLabel, unreadCount } from "./notifications.mjs";
 import { activeBanSql, listViewerGroups, parseGroupCursor, readDmMessageBody, viewerGroupUnread } from "./dm-groups.mjs";
 import { DM_THREAD_LIST_LIMIT } from "../constants.mjs";
 
@@ -125,7 +125,7 @@ async function insertLobbyMessage(env, user, rawBody) {
     const mentionStatements = await mentionFanOutStatements(env.FORUM_DB, message, {
       actorId: user.id, now: nowSeconds(),
       actorUsername: user.username,
-      label: "You were mentioned by " + user.username + " in chat",
+      label: chatMentionLabel(user.username),
     });
     if (mentionStatements.length > 0) await env.FORUM_DB.batch(mentionStatements);
   } catch {
@@ -188,8 +188,8 @@ const PRESENCE_SELECT_SQL =
   // Wave 39: actively-banned members drop at read time, like the lobby count
   // (expired/revoked bans don't count; an unban restores with no write).
   "AND NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = p.user_id AND b.revoked_at IS NULL " +
-  "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER))) " +
-  "ORDER BY u.id";
+  "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER))) ";
+const PRESENCE_ORDER_SQL = "ORDER BY u.id";
 
 function isoTime(seconds) {
   return new Date(Number(seconds) * 1000).toISOString();
@@ -254,13 +254,17 @@ async function handlePresenceWriteRoute(request, env, url, path, method) {
 
 // GET /api/presence — the roster. Guests read; the window and the invisible
 // flag live entirely in the statement, and the payload carries roles but
-// never a last_seen timestamp.
+// never a last_seen timestamp. Wave 5.10: a signed-in non-staff viewer
+// never sees a block-paired member online (both directions; guests and
+// staff bind nothing extra).
 async function handlePresenceReadRoute(request, env, url, path, method) {
   if (path !== "/api/presence" || method !== "GET") return null;
-  await readSession(request, env);
+  const session = await readSession(request, env);
+  const viewer = session && session.user ? session.user : null;
+  const blocks = viewerBlockFilterSql(viewer, "p.user_id");
   const now = nowSeconds();
-  const rows = (await env.FORUM_DB.prepare(PRESENCE_SELECT_SQL)
-    .bind(now - PRESENCE_WINDOW).all()).results || [];
+  const rows = (await env.FORUM_DB.prepare(PRESENCE_SELECT_SQL + blocks.trim() + " " + PRESENCE_ORDER_SQL)
+    .bind(now - PRESENCE_WINDOW, ...(blocks ? [viewer.id, viewer.id] : [])).all()).results || [];
   return json({
     now,
     online: rows.map((row) => ({
@@ -526,14 +530,18 @@ async function handleLobbyChatReadRoute(request, env, url, path, method) {
   // Who's online: the same window, naming the visible (non-lurking) members
   // so the lobby can list them. Invisible members stay off the list, exactly
   // matching the count; the count itself is uncapped, the roster is not.
+  // Wave 5.10: block-paired members drop from the roster both ways (the
+  // anonymous count stays a plain total).
+  const rosterBlocks = viewerBlockFilterSql(session?.user || null, "u.id");
   const onlineMemberRows = (await db.prepare(
     "SELECT p.user_id AS id, u.username, u.role " +
     "FROM presence p JOIN users u ON u.id = p.user_id " +
     "WHERE p.invisible = 0 AND p.last_seen > ? " +
     "AND NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = u.id AND b.revoked_at IS NULL " +
-    "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER))) " +
-    "ORDER BY u.username LIMIT " + LOBBY_ONLINE_ROSTER_LIMIT,
-  ).bind(nowSeconds() - LOBBY_PRESENCE_WINDOW_SECONDS).all()).results || [];
+    "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER)))" + rosterBlocks +
+    " ORDER BY u.username LIMIT " + LOBBY_ONLINE_ROSTER_LIMIT,
+  ).bind(nowSeconds() - LOBBY_PRESENCE_WINDOW_SECONDS,
+    ...(rosterBlocks ? [session.user.id, session.user.id] : [])).all()).results || [];
   let dmUnread = 0;
   let bellUnread = 0;
   if (session && session.user) {
