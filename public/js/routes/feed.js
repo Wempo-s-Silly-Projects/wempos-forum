@@ -367,7 +367,7 @@ async function renderCategoryRoute(route, context, version) {
   addHeading(main, board.label, 2);
   addText(document, main, "p", board.blurb, "muted");
   if (board.slug === "showcase") renderShowcaseGallery();
-  // Feed views (wave 33): not on Suggestions, which keeps its vote order.
+  // Feed views (wave 33): not on Suggestions, which has its own order.
   if (board.slug !== SUGGESTIONS_BOARD) main.append(createFeedViews(document, "/c/" + board.slug, route.view));
   appendPostList(main, data.feed.posts, document, user,
     board.slug === SUGGESTIONS_BOARD

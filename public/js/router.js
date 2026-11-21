@@ -23,7 +23,7 @@ export const isPlainLeftClick = (event) =>
   !event.shiftKey && !event.altKey;
 
 // Feed views (wave 33): `?view=new|unanswered` on the home and category
-// feeds. Anything else (or Suggestions, which keeps its vote order) is the
+// feeds. Anything else (or Suggestions, which has its own order) is the
 // default view, and the route object stays exactly { name, board? }.
 export const FEED_VIEWS = ["new", "unanswered"];
 

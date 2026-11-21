@@ -417,8 +417,8 @@ export async function handlePostFeedRoute(request, env, url, path, method) {
       throw new HttpError(401, "Sign in to see your posts.");
     }
     // Feed discovery (wave 33): `unanswered=0|1` filters any public feed;
-    // `sort=new` orders by creation on a bare-id cursor. Suggestions keeps
-    // its vote order and My posts its own shape, so those pairings 400.
+    // `sort=new` orders by creation on a bare-id cursor. Suggestions has its
+    // own board order and My posts its own shape, so those pairings 400.
     const discovery = readDiscoveryParams(url.searchParams, { mineOnly, isSuggestions });
     let before = null;
     if (mineOnly || discovery.sortNew) {
@@ -470,7 +470,7 @@ function readDiscoveryParams(params, { mineOnly, isSuggestions }) {
     throw new HttpError(400, "My posts has no sort or unanswered filter.");
   }
   if (isSuggestions && sortNew) {
-    throw new HttpError(400, "Suggestions are sorted by votes.");
+    throw new HttpError(400, "The newest sort is not available on Suggestions.");
   }
   return { unanswered, sortNew };
 }
