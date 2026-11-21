@@ -288,6 +288,20 @@ export const ACTIONS = {
     });
     await state.renderRoute(state.activeRoute);
   },
+  // Wave 5.13: take back my vote (F2) and close/reopen voting (F1).
+  "poll-unvote": async () => {
+    if (state.activeRoute.name !== "post") return;
+    await api("/api/posts/" + state.activeRoute.id + "/poll", { method: "DELETE" });
+    await state.renderRoute(state.activeRoute);
+  },
+  "poll-close": async (button) => {
+    if (state.activeRoute.name !== "post") return;
+    await api("/api/posts/" + state.activeRoute.id + "/poll", {
+      method: "PATCH",
+      body: { closed: button.dataset.closed === "true" },
+    });
+    await state.renderRoute(state.activeRoute);
+  },
   "edit-post": (button) => {
     const article = editTargetArticle(button);
     if (article) openEditForm(article, document);

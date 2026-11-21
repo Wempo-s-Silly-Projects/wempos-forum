@@ -556,7 +556,9 @@ export async function handlePostDetailRoute(request, env, url, path, method) {
     // Polls (C3): the poll rides the ROOT's detail read (replies carry none).
     // Results are always visible; the viewer's own option rides for members.
     if (!row.parent_id) {
-      const poll = await pollPayload(env.FORUM_DB, postId, viewerId);
+      const canManagePoll = Boolean(viewer) && (viewer.id === Number(row.author_id) ||
+        viewer.role === "owner" || viewer.role === "admin");
+      const poll = await pollPayload(env.FORUM_DB, postId, viewerId, canManagePoll);
       if (poll) post.poll = poll;
     }
     return json(post);

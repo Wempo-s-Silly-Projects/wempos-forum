@@ -30,12 +30,22 @@ const createReportQueue = (reports, document, currentUser = null) => {
     addText(document, list, "p", t("desk.reports.empty"), "empty-state");
     return list;
   }
+  // Wave 5.13 F3: open reports per post, so a pile-up reads at a glance.
+  const openPerPost = new Map();
+  for (const report of reports) {
+    openPerPost.set(report.post.id, (openPerPost.get(report.post.id) || 0) + 1);
+  }
   for (const report of reports) {
     const card = document.createElement("article");
     card.className = "report-card";
     card.dataset.reportId = String(report.id);
     addText(document, card, "h2", t("desk.reports.title", { id: report.id }));
     addText(document, card, "p", t("desk.reports.reportedBy", { username: report.reporter.username, reason: report.reason }));
+    const openCount = openPerPost.get(report.post.id);
+    if (openCount > 1) {
+      const repeat = addText(document, card, "p", t("desk.reports.repeat", { count: openCount }), "report-repeat");
+      repeat.dataset.count = String(openCount);
+    }
     const postLink = document.createElement("a");
     postLink.href = `/posts/${report.post.id}`;
     postLink.textContent = t("desk.reports.postBy", { username: report.post.author.username, body: report.post.body });

@@ -13,6 +13,17 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.13.0] - 2026-11-21
+
+### Added
+- Polls can be closed: the thread's author (or staff) can close voting and
+  reopen it later. Results stay visible to everyone; a closed poll says
+  "Voting is closed." and no longer takes votes.
+- Take back my vote: if you voted on an open poll, you can now withdraw your
+  vote entirely instead of only moving it.
+- Moderation desk: when several open reports point at the same post, each of
+  its cards shows how many, so a pile-up stands out.
+
 ## [5.12.0] - 2026-11-21
 
 ### Security
