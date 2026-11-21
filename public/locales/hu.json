@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Add hozzá a titkot a hitelesítődhöz, majd erősítsd meg egy kóddal.",
   "twofa.setupNote": "Írd be ezt a titkot a hitelesítő alkalmazásodba (vagy illeszd be az otpauth sort). Csak egyszer jelenik meg — az újratöltés eldobja, amíg meg nem erősíted.",
   "twofa.title": "Kétlépcsős bejelentkezés",
+  "twofa.useSha256": "SHA-256 használata (erősebb)",
+  "twofa.useSha256Help": "Csak ha a hitelesítő alkalmazásod támogatja — pl. Aegis, 2FAS, 1Password, Bitwarden; a Google Authenticator NEM támogatja.",
   "wall.emptyGuest": "A fal üres.",
   "wall.emptyViewer": "Légy te az első, aki ír a falra!",
   "wall.intro": "Írj valami kedveset ennek a tagnak a falára. A profil tulajdonosa kitűzhet bejegyzéseket — mást nem.",

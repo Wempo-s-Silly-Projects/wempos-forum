@@ -830,6 +830,8 @@
   "twofa.setupMessage": "시크릿을 인증 앱에 추가한 다음, 코드로 확인하세요.",
   "twofa.setupNote": "이 시크릿을 인증 앱에 입력하세요(또는 otpauth 줄을 붙여 넣으세요). 한 번만 표시되며, 확인하기 전에 새로고침하면 사라져요.",
   "twofa.title": "2단계 인증",
+  "twofa.useSha256": "SHA-256 사용(더 강력함)",
+  "twofa.useSha256Help": "인증 앱이 지원하는 경우에만 — 예: Aegis, 2FAS, 1Password, Bitwarden. Google Authenticator은(는) 지원하지 않습니다.",
   "wall.emptyGuest": "방명록이 비어 있어요.",
   "wall.emptyViewer": "방명록에 첫 글을 남겨 봐요!",
   "wall.intro": "이 멤버의 방명록에 좋은 말을 남겨 주세요. 프로필 주인은 글을 고정하는 것만 할 수 있어요.",

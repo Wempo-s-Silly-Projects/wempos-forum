@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Ongeza siri kwenye kithibitishaji chako, kisha thibitisha kwa msimbo.",
   "twofa.setupNote": "Andika siri hii kwenye programu yako ya uthibitishaji (au bandika mstari wa otpauth). Inaonyeshwa mara moja — kupakia upya kunaitupa hadi uthibitishe.",
   "twofa.title": "Kuingia kwa hatua mbili",
+  "twofa.useSha256": "Tumia SHA-256 (imara zaidi)",
+  "twofa.useSha256Help": "Ikiwa tu programu yako ya uthibitishaji inaiunga mkono — k.m. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator HAIUNGI mkono.",
   "wall.emptyGuest": "Ukuta ni tupu.",
   "wall.emptyViewer": "Kuwa wa kwanza kuandika ukutani!",
   "wall.intro": "Sema neno zuri kwenye ukuta wa mwanachama huyu. Mmiliki wa wasifu anaweza kubandika machapisho — hakuna kingine.",

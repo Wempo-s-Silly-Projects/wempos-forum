@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Dodaj tajnu u svoju aplikaciju za autentifikaciju, pa potvrdi kôdom.",
   "twofa.setupNote": "Upiši ovu tajnu u aplikaciju za autentifikaciju (ili nalepi otpauth red). Prikazuje se jednom — osvežavanje je odbacuje dok ne potvrdiš.",
   "twofa.title": "Dvostepena prijava",
+  "twofa.useSha256": "Koristi SHA-256 (jače)",
+  "twofa.useSha256Help": "Samo ako ga tvoja aplikacija za potvrdu identiteta podržava — npr. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator ga NE podržava.",
   "wall.emptyGuest": "Zid je prazan.",
   "wall.emptyViewer": "Budi prvi/a koji će nešto napisati na zid!",
   "wall.intro": "Napiši nešto lepo na zidu ovog člana. Vlasnik profila može da zakači objave — ništa više.",

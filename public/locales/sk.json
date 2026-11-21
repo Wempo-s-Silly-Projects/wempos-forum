@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Pridaj tajný kľúč do overovacej aplikácie a potvrď ho kódom.",
   "twofa.setupNote": "Opíš tento tajný kľúč do overovacej aplikácie (alebo vlož riadok otpauth). Zobrazí sa len raz — obnovením stránky zmizne, kým ho nepotvrdíš.",
   "twofa.title": "Dvojfázové prihlásenie",
+  "twofa.useSha256": "Použiť SHA-256 (silnejšie)",
+  "twofa.useSha256Help": "Len ak to vaša overovacia aplikácia podporuje — napr. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator to NEPODPORUJE.",
   "wall.emptyGuest": "Stena je prázdna.",
   "wall.emptyViewer": "Buď prvý, kto napíše na stenu!",
   "wall.intro": "Napíš niečo pekné na stenu tohto člena. Majiteľ profilu môže príspevky pripínať — nič viac.",

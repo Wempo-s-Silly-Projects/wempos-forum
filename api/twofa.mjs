@@ -25,12 +25,15 @@
 // the login step's short-lived challenge tokens are stored as SHA-256 hashes
 // in totp_challenges, single-use — claimed with a conditional DELETE before
 // the code check, so a challenge can never verify twice under any retry.
+// v5.20.0: the HMAC algorithm is per member (totp_algorithms, migration
+// 0061) — SHA1 by default and for every member without a row, SHA256 only
+// when chosen at setup; every verify below reads it with the secret.
 import { requireCsrf, requireUser, assertNetworkNotBanned, createSession } from "./core/auth.mjs";
 import { nowSeconds, randomToken, sha256Hex } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { verifyPassword } from "./core/passwords.mjs";
 import { publicUser, userByUsernameKey } from "./core/shapers.mjs";
-import { generateTotpSecret, otpauthUri, verifyTotpCode } from "./core/totp.mjs";
+import { generateTotpSecret, normalizeTotpAlgorithm, otpauthUri, verifyTotpCode } from "./core/totp.mjs";
 import { siteName } from "./branding.mjs";
 
 // Backup codes (v4.8.1): the Discord-style single-use sign-in codes used
@@ -56,9 +59,9 @@ function codeAnswer(value) {
 // AND used_at IS NULL — and 1 changed row is the only accept. Each shape's
 // failure is the same boolean false, so a wrong code can never reveal which
 // family a real code would have belonged to.
-async function verifyCodeAnswer(db, userId, secret, code) {
+async function verifyCodeAnswer(db, userId, secret, code, algorithm) {
   if (isSixDigitCode(code)) {
-    return verifyTotpCode(secret, code, nowSeconds());
+    return verifyTotpCode(secret, code, nowSeconds(), normalizeTotpAlgorithm(algorithm));
   }
   if (BACKUP_CODE_PATTERN.test(code)) {
     const burned = await db.prepare(
@@ -107,12 +110,22 @@ async function handleTotpRoutes(request, env, url, path, method) {
     if (Number(row.totp_enabled) === 1 && row.totp_secret) {
       throw new HttpError(409, "Two-factor authentication is already on. Turn it off first.");
     }
+    // The algorithm rides the staged secret in ONE batch, and its upsert is
+    // gated on totp_enabled = 0 — a live enrollment's algorithm can never be
+    // rewritten by a setup racing a confirm in another tab.
+    const algorithm = normalizeTotpAlgorithm(body.algorithm);
     const secret = generateTotpSecret();
-    await db.prepare("UPDATE users SET totp_pending_secret = ? WHERE id = ?")
-      .bind(secret, session.user.id).run();
+    await db.batch([
+      db.prepare("UPDATE users SET totp_pending_secret = ? WHERE id = ?").bind(secret, session.user.id),
+      db.prepare(
+        "INSERT INTO totp_algorithms (user_id, algorithm, created_at) " +
+          "SELECT id, ?, ? FROM users WHERE id = ? AND totp_enabled = 0 " +
+          "ON CONFLICT(user_id) DO UPDATE SET algorithm = excluded.algorithm, created_at = excluded.created_at",
+      ).bind(algorithm, nowSeconds(), session.user.id),
+    ]);
     return json({
       secret,
-      otpauth: otpauthUri(secret, await siteName(env), session.user.username),
+      otpauth: otpauthUri(secret, await siteName(env), session.user.username, algorithm),
     });
   }
 
@@ -125,16 +138,21 @@ async function handleTotpRoutes(request, env, url, path, method) {
     const code = isSixDigitCode(body.code) ? body.code.trim() : null;
     if (!code) throw new HttpError(400, "Enter the 6-digit code from your authenticator app.");
     const row = await db.prepare(
-      "SELECT totp_pending_secret FROM users WHERE id = ? AND totp_pending_secret IS NOT NULL LIMIT 1",
+      "SELECT u.totp_pending_secret, a.algorithm FROM users u " +
+        "LEFT JOIN totp_algorithms a ON a.user_id = u.id " +
+        "WHERE u.id = ? AND u.totp_pending_secret IS NOT NULL LIMIT 1",
     ).bind(session.user.id).first();
     if (!row) throw new HttpError(400, "Start the two-factor setup first — there is no pending secret.");
-    if (!(await verifyTotpCode(row.totp_pending_secret, code, nowSeconds()))) {
+    const algorithm = normalizeTotpAlgorithm(row.algorithm);
+    if (!(await verifyTotpCode(row.totp_pending_secret, code, nowSeconds(), algorithm))) {
       throw new HttpError(401, "That code is not correct. Nothing has been changed.");
     }
+    // Promote only the secret the code was verified against: a setup re-run
+    // in another tab (new secret + algorithm, one batch) makes this match 0.
     const result = await db.prepare(
       "UPDATE users SET totp_secret = totp_pending_secret, totp_pending_secret = NULL, totp_enabled = 1 " +
-        "WHERE id = ? AND totp_enabled = 0 AND totp_pending_secret IS NOT NULL",
-    ).bind(session.user.id).run();
+        "WHERE id = ? AND totp_enabled = 0 AND totp_pending_secret = ?",
+    ).bind(session.user.id, row.totp_pending_secret).run();
     if (Number(result.meta?.changes) !== 1) {
       throw new HttpError(409, "Two-factor setup has already completed in another tab.");
     }
@@ -157,10 +175,11 @@ async function handleTotpRoutes(request, env, url, path, method) {
       throw new HttpError(400, "Enter the 6-digit code from your authenticator app, or a backup code.");
     }
     const row = await db.prepare(
-      "SELECT totp_secret FROM users WHERE id = ? AND totp_enabled = 1 AND totp_secret IS NOT NULL LIMIT 1",
+      "SELECT u.totp_secret, a.algorithm FROM users u LEFT JOIN totp_algorithms a ON a.user_id = u.id " +
+        "WHERE u.id = ? AND u.totp_enabled = 1 AND u.totp_secret IS NOT NULL LIMIT 1",
     ).bind(session.user.id).first();
     if (!row) throw new HttpError(409, "Two-factor authentication is not on.");
-    if (!(await verifyCodeAnswer(db, session.user.id, row.totp_secret, code))) {
+    if (!(await verifyCodeAnswer(db, session.user.id, row.totp_secret, code, row.algorithm))) {
       throw new HttpError(401, "That code is not correct. Nothing has been changed.");
     }
     await db.batch([
@@ -168,6 +187,7 @@ async function handleTotpRoutes(request, env, url, path, method) {
         "UPDATE users SET totp_secret = NULL, totp_pending_secret = NULL, totp_enabled = 0 WHERE id = ?",
       ).bind(session.user.id),
       db.prepare("DELETE FROM totp_backup_codes WHERE user_id = ?").bind(session.user.id),
+      db.prepare("DELETE FROM totp_algorithms WHERE user_id = ?").bind(session.user.id),
     ]);
     return json({ totpEnabled: false });
   }
@@ -188,7 +208,8 @@ async function handleTotpRoutes(request, env, url, path, method) {
       throw new HttpError(400, "Enter your current password to generate new backup codes.");
     }
     const row = await db.prepare(
-      "SELECT totp_enabled, totp_secret, password_salt, password_hash FROM users WHERE id = ? LIMIT 1",
+      "SELECT u.totp_enabled, u.totp_secret, u.password_salt, u.password_hash, a.algorithm FROM users u " +
+        "LEFT JOIN totp_algorithms a ON a.user_id = u.id WHERE u.id = ? LIMIT 1",
     ).bind(session.user.id).first();
     if (!row) throw new HttpError(404, "Your account could not be found.");
     if (!(await verifyPassword(currentPassword, row.password_salt, row.password_hash, env.PASSWORD_PEPPER))) {
@@ -199,7 +220,7 @@ async function handleTotpRoutes(request, env, url, path, method) {
       if (!code) {
         throw new HttpError(400, "Enter the 6-digit code from your authenticator app, or a backup code.");
       }
-      if (!(await verifyCodeAnswer(db, session.user.id, row.totp_secret, code))) {
+      if (!(await verifyCodeAnswer(db, session.user.id, row.totp_secret, code, row.algorithm))) {
         throw new HttpError(401, "That code is not correct. Nothing has been changed.");
       }
     }
@@ -256,7 +277,8 @@ async function handleTotpRoutes(request, env, url, path, method) {
     // row by username_key only to render the same publicUser payload the
     // password-first login returns.
     const keyRow = await db.prepare(
-      "SELECT username_key, totp_enabled, totp_secret FROM users WHERE id = ? LIMIT 1",
+      "SELECT u.username_key, u.totp_enabled, u.totp_secret, a.algorithm FROM users u " +
+        "LEFT JOIN totp_algorithms a ON a.user_id = u.id WHERE u.id = ? LIMIT 1",
     ).bind(userId).first();
     if (!keyRow || Number(keyRow.totp_enabled) !== 1 || !keyRow.totp_secret) {
       throw new HttpError(401, "This verification request has expired. Sign in again.");
@@ -265,7 +287,7 @@ async function handleTotpRoutes(request, env, url, path, method) {
     if (!user) {
       throw new HttpError(401, "This verification request has expired. Sign in again.");
     }
-    if (!(await verifyCodeAnswer(db, userId, keyRow.totp_secret, code))) {
+    if (!(await verifyCodeAnswer(db, userId, keyRow.totp_secret, code, keyRow.algorithm))) {
       throw new HttpError(401, "That code is not correct.");
     }
     // Consume at the LAST step, gated on the delete's own changes count: a

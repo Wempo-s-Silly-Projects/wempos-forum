@@ -18,8 +18,9 @@
 
 // v4.0 core leaf: TOTP (RFC 6238) — the two-factor primitives everything
 // 2FA bottoms out on. Web Crypto carries the HMAC (SHA-1 is what every
-// authenticator app expects for TOTP); no dependency, no re-derivation of
-// anything else. Imports nothing (crypto.getRandomValues only). The 2FA
+// authenticator app expects for TOTP and stays the default; v5.20.0 adds
+// an opt-in per-member SHA-256, RFC 6238's HMAC-SHA-256 mode); no
+// dependency, no re-derivation of anything else. Imports nothing (crypto.getRandomValues only). The 2FA
 // feature is verification-only: no recovery codes, no email fallback (per
 // the feature spec) — losing the secret is losing the account until the
 // owner intervenes, which is exactly why confirmation requires a real code.
@@ -69,6 +70,19 @@ export function base32Decode(text) {
 export const TOTP_STEP = 30;
 export const TOTP_DIGITS = 6;
 
+// The two algorithms a member can enroll with, mapped to their Web Crypto
+// hash names. SHA1 is the default and the meaning of a missing
+// totp_algorithms row (every pre-v5.20 enrollment).
+const TOTP_HASHES = { SHA1: "SHA-1", SHA256: "SHA-256" };
+export const TOTP_DEFAULT_ALGORITHM = "SHA1";
+
+// Exactly "SHA256" opts in; anything else (null, a missing row, junk input)
+// is SHA1 — so an unknown value can never move a member off the algorithm
+// their authenticator already uses.
+export function normalizeTotpAlgorithm(value) {
+  return value === "SHA256" ? "SHA256" : TOTP_DEFAULT_ALGORITHM;
+}
+
 export function generateTotpSecret() {
   // 160 bits — the default secret size from RFC 4226 (same length Google
   // Authenticator's key URI guide asks for).
@@ -77,9 +91,10 @@ export function generateTotpSecret() {
 
 // HMAC-based one-time password at a given counter (RFC 4226, dynamic
 // truncation). digits 8 lets the RFC 6238 test vectors be asserted verbatim.
-export async function hotpAt(keyBytes, counter, digits = TOTP_DIGITS) {
+export async function hotpAt(keyBytes, counter, digits = TOTP_DIGITS, algorithm = TOTP_DEFAULT_ALGORITHM) {
+  const hash = TOTP_HASHES[normalizeTotpAlgorithm(algorithm)];
   const key = await crypto.subtle.importKey(
-    "raw", new Uint8Array(keyBytes), { name: "HMAC", hash: "SHA-1" }, false, ["sign"],
+    "raw", new Uint8Array(keyBytes), { name: "HMAC", hash }, false, ["sign"],
   );
   const claim = new Uint8Array(8);
   for (let i = 7; i >= 0; i--) {
@@ -98,19 +113,19 @@ export async function hotpAt(keyBytes, counter, digits = TOTP_DIGITS) {
 }
 
 // The time-based code a given secret shows at `time` (seconds since epoch).
-export async function totpAt(base32Secret, time, digits = TOTP_DIGITS) {
-  return hotpAt(base32Decode(base32Secret), Math.floor(time / TOTP_STEP), digits);
+export async function totpAt(base32Secret, time, digits = TOTP_DIGITS, algorithm = TOTP_DEFAULT_ALGORITHM) {
+  return hotpAt(base32Decode(base32Secret), Math.floor(time / TOTP_STEP), digits, algorithm);
 }
 
 // The ±1-step verifying window authenticators and servers share: a drifted
 // clock on one side never locks the member out. Comparison uses the
 // constant-time comparator (equality, not order) per candidate step.
-export async function verifyTotpCode(base32Secret, code, time) {
+export async function verifyTotpCode(base32Secret, code, time, algorithm = TOTP_DEFAULT_ALGORITHM) {
   if (typeof code !== "string" || !/^\d{6}$/.test(code)) return false;
   const keyBytes = base32Decode(base32Secret);
   const counter = Math.floor(time / TOTP_STEP);
   for (const drift of [-1, 0, 1]) {
-    const candidate = await hotpAt(keyBytes, counter + drift);
+    const candidate = await hotpAt(keyBytes, counter + drift, TOTP_DIGITS, algorithm);
     let difference = 0;
     for (let i = 0; i < 6; i++) {
       difference |= candidate.charCodeAt(i) ^ code.charCodeAt(i);
@@ -122,12 +137,12 @@ export async function verifyTotpCode(base32Secret, code, time) {
 
 // The provisioning URI authenticator apps scan or paste. PCT-encoded
 // account/issuer keep colons from splitting the label.
-export function otpauthUri(base32Secret, issuer, accountName) {
+export function otpauthUri(base32Secret, issuer, accountName, algorithm = TOTP_DEFAULT_ALGORITHM) {
   const encode = (value) => encodeURIComponent(value ?? "");
   return (
     "otpauth://totp/" + encode(issuer) + ":" + encode(accountName) +
     "?secret=" + base32Secret +
     "&issuer=" + encode(issuer) +
-    "&algorithm=SHA1&digits=" + TOTP_DIGITS + "&period=" + TOTP_STEP
+    "&algorithm=" + normalizeTotpAlgorithm(algorithm) + "&digits=" + TOTP_DIGITS + "&period=" + TOTP_STEP
   );
 }

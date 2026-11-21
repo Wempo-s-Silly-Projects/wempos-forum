@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Thêm mã bí mật vào ứng dụng xác thực, rồi xác nhận bằng một mã.",
   "twofa.setupNote": "Nhập mã bí mật này vào ứng dụng xác thực (hoặc dán dòng otpauth). Nó chỉ hiện một lần — tải lại trang sẽ bỏ nó cho đến khi bạn xác nhận.",
   "twofa.title": "Xác thực hai lớp",
+  "twofa.useSha256": "Dùng SHA-256 (mạnh hơn)",
+  "twofa.useSha256Help": "Chỉ khi ứng dụng xác thực của bạn hỗ trợ — vd. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator KHÔNG hỗ trợ.",
   "wall.emptyGuest": "Tường đang trống.",
   "wall.emptyViewer": "Hãy là người đầu tiên viết lên tường!",
   "wall.intro": "Viết điều gì đó dễ thương lên tường của thành viên này. Chủ hồ sơ chỉ có thể ghim bài — ngoài ra không làm gì khác.",

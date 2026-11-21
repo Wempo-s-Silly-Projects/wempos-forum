@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Agrega el secreto a tu autenticador y luego confirma con un código.",
   "twofa.setupNote": "Escribe este secreto en tu app de autenticación (o pega la línea otpauth). Se muestra una sola vez: si recargas, se descarta hasta que confirmes.",
   "twofa.title": "Verificación en dos pasos",
+  "twofa.useSha256": "Usar SHA-256 (más fuerte)",
+  "twofa.useSha256Help": "Solo si tu app de autenticación lo admite — p. ej. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator NO lo admite.",
   "wall.emptyGuest": "El muro está vacío.",
   "wall.emptyViewer": "¡Sé el primero en escribir en el muro!",
   "wall.intro": "Dile algo bonito en el muro de este miembro. El dueño del perfil puede fijar publicaciones, nada más.",

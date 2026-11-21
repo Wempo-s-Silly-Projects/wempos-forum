@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Tambahkan secret ke authenticator-mu, lalu konfirmasi dengan kode.",
   "twofa.setupNote": "Ketik secret ini ke aplikasi authenticator-mu (atau tempel baris otpauth). Hanya tampil sekali — memuat ulang akan membuangnya sampai kamu konfirmasi.",
   "twofa.title": "Verifikasi dua langkah",
+  "twofa.useSha256": "Gunakan SHA-256 (lebih kuat)",
+  "twofa.useSha256Help": "Hanya jika aplikasi autentikator Anda mendukungnya — mis. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator TIDAK mendukung.",
   "wall.emptyGuest": "Dindingnya masih kosong.",
   "wall.emptyViewer": "Jadilah yang pertama menulis di dinding!",
   "wall.intro": "Tulis sesuatu yang baik di dinding member ini. Pemilik profil bisa menyematkan postingan — tidak lebih.",

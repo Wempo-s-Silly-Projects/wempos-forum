@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Füge das Geheimnis zu deiner Authenticator-App hinzu und bestätige dann mit einem Code.",
   "twofa.setupNote": "Gib dieses Geheimnis in deine Authenticator-App ein (oder füge die otpauth-Zeile ein). Es wird nur einmal angezeigt – Neuladen verwirft es, bis du bestätigst.",
   "twofa.title": "Zwei-Faktor-Anmeldung",
+  "twofa.useSha256": "SHA-256 verwenden (stärker)",
+  "twofa.useSha256Help": "Nur wenn deine Authenticator-App es unterstützt — z. B. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator unterstützt es NICHT.",
   "wall.emptyGuest": "Die Pinnwand ist leer.",
   "wall.emptyViewer": "Schreib als Erste:r etwas an die Pinnwand!",
   "wall.intro": "Schreib etwas Nettes an die Pinnwand dieses Mitglieds. Der Profilinhaber kann Beiträge anheften – mehr nicht.",
