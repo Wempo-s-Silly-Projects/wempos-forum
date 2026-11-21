@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "لا توجد صور بعد — شارك رسمة أو بناء!",
   "traditions.galleryLoadFailed": "تعذّر تحميل المعرض. حاول مرة أخرى بعد قليل.",
   "traditions.galleryAlt": "صورة من المعرض: {title}",
-  "render.revealSpoilers": "إظهار المحتوى المخفي"
+  "render.revealSpoilers": "إظهار المحتوى المخفي",
+  "settings.title": "إعدادات الحساب",
+  "settings.filterLabel": "ابحث عن إعداد",
+  "settings.filterEmpty": "لا توجد إعدادات مطابقة.",
+  "settings.jumpLabel": "انتقل إلى قسم",
+  "settings.dataTitle": "بياناتك",
+  "settings.dataNote": "نزّل نسخة مما كتبته وضبطته هنا (الملف الشخصي والمنشورات والردود والمنشورات المحفوظة والمواضيع المتابَعة والحظر ومنشورات الحائط والرسائل الخاصة التي أرسلتها) كملف JSON. لا يُجلب إلا عند الضغط على الزر ويذهب مباشرة إلى جهازك.",
+  "settings.dataDownload": "نزّل بياناتي",
+  "settings.dataPreparing": "جارٍ تجهيز ملفك…",
+  "settings.dataReady": "يجري تنزيل ملف بياناتك."
 }

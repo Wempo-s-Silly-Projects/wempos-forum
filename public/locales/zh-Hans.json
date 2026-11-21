@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "还没有图片——分享一幅画或一个作品吧！",
   "traditions.galleryLoadFailed": "画廊加载失败，请稍后再试。",
   "traditions.galleryAlt": "展示图片：{title}",
-  "render.revealSpoilers": "显示剧透"
+  "render.revealSpoilers": "显示剧透",
+  "settings.title": "账户设置",
+  "settings.filterLabel": "查找设置",
+  "settings.filterEmpty": "没有匹配的设置。",
+  "settings.jumpLabel": "跳转到某个部分",
+  "settings.dataTitle": "你的数据",
+  "settings.dataNote": "以 JSON 文件下载你在这里写下和设置的内容副本（个人资料、帖子、回复、收藏的帖子、关注的主题、屏蔽列表、留言墙帖子以及你发送的私信）。只有在你按下按钮时才会获取，并直接保存到你的设备。",
+  "settings.dataDownload": "下载我的数据",
+  "settings.dataPreparing": "正在准备文件…",
+  "settings.dataReady": "你的数据文件正在下载。"
 }

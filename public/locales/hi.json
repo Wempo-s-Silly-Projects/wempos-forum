@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "अभी कोई तस्वीर नहीं — कोई ड्रॉइंग या बिल्ड साझा करें!",
   "traditions.galleryLoadFailed": "गैलरी लोड नहीं हो सकी। थोड़ी देर में फिर कोशिश करें।",
   "traditions.galleryAlt": "शोकेस तस्वीर: {title}",
-  "render.revealSpoilers": "स्पॉइलर दिखाएँ"
+  "render.revealSpoilers": "स्पॉइलर दिखाएँ",
+  "settings.title": "खाते की सेटिंग्स",
+  "settings.filterLabel": "कोई सेटिंग खोजें",
+  "settings.filterEmpty": "कोई सेटिंग मेल नहीं खाती।",
+  "settings.jumpLabel": "किसी अनुभाग पर जाएँ",
+  "settings.dataTitle": "आपका डेटा",
+  "settings.dataNote": "आपने यहाँ जो लिखा और सेट किया है (प्रोफ़ाइल, पोस्ट, जवाब, सहेजी गई पोस्ट, फ़ॉलो किए गए थ्रेड, ब्लॉक, वॉल पोस्ट और आपके भेजे गए सीधे संदेश) उसकी एक कॉपी JSON फ़ाइल के रूप में डाउनलोड करें। यह सिर्फ़ बटन दबाने पर लाई जाती है और सीधे आपके डिवाइस पर जाती है।",
+  "settings.dataDownload": "मेरा डेटा डाउनलोड करें",
+  "settings.dataPreparing": "आपकी फ़ाइल तैयार हो रही है…",
+  "settings.dataReady": "आपकी डेटा फ़ाइल डाउनलोड हो रही है।"
 }

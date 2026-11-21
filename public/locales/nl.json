@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "Nog geen afbeeldingen — deel een tekening of een bouwwerk!",
   "traditions.galleryLoadFailed": "De galerij kon niet worden geladen. Probeer het zo opnieuw.",
   "traditions.galleryAlt": "Showcase-afbeelding: {title}",
-  "render.revealSpoilers": "Spoilers tonen"
+  "render.revealSpoilers": "Spoilers tonen",
+  "settings.title": "Accountinstellingen",
+  "settings.filterLabel": "Zoek een instelling",
+  "settings.filterEmpty": "Geen instelling komt overeen.",
+  "settings.jumpLabel": "Naar een onderdeel springen",
+  "settings.dataTitle": "Jouw gegevens",
+  "settings.dataNote": "Download een kopie van wat je hier hebt geschreven en ingesteld (profiel, berichten, reacties, opgeslagen berichten, gevolgde topics, blokkades, prikbordberichten en de privéberichten die je hebt verstuurd) als JSON-bestand. Het wordt pas opgehaald als je op de knop drukt en gaat rechtstreeks naar je apparaat.",
+  "settings.dataDownload": "Mijn gegevens downloaden",
+  "settings.dataPreparing": "Je bestand wordt voorbereid…",
+  "settings.dataReady": "Je gegevensbestand wordt gedownload."
 }

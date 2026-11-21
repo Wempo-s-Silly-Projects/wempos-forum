@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "No pictures yet — share a drawing or a build!",
   "traditions.galleryLoadFailed": "The gallery couldn't load. Try again in a moment.",
   "traditions.galleryAlt": "Showcase picture: {title}",
-  "render.revealSpoilers": "Show spoilers"
+  "render.revealSpoilers": "Show spoilers",
+  "settings.title": "Account settings",
+  "settings.filterLabel": "Find a setting",
+  "settings.filterEmpty": "No settings match that.",
+  "settings.jumpLabel": "Jump to a section",
+  "settings.dataTitle": "Your data",
+  "settings.dataNote": "Download a copy of what you wrote and set here (profile, posts, replies, saved posts, followed threads, blocks, wall posts and the direct messages you sent) as a JSON file. It is only fetched when you press the button and goes straight to your device.",
+  "settings.dataDownload": "Download my data",
+  "settings.dataPreparing": "Preparing your file…",
+  "settings.dataReady": "Your data file is downloading."
 }

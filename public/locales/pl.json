@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "Jeszcze brak obrazów — podziel się rysunkiem lub budowlą!",
   "traditions.galleryLoadFailed": "Nie udało się wczytać galerii. Spróbuj ponownie za chwilę.",
   "traditions.galleryAlt": "Obraz z prezentacji: {title}",
-  "render.revealSpoilers": "Pokaż spoilery"
+  "render.revealSpoilers": "Pokaż spoilery",
+  "settings.title": "Ustawienia konta",
+  "settings.filterLabel": "Znajdź ustawienie",
+  "settings.filterEmpty": "Żadne ustawienie nie pasuje.",
+  "settings.jumpLabel": "Przejdź do sekcji",
+  "settings.dataTitle": "Twoje dane",
+  "settings.dataNote": "Pobierz kopię tego, co tu napisałeś i ustawiłeś (profil, posty, odpowiedzi, zapisane posty, obserwowane wątki, blokady, wpisy na tablicy i wysłane przez ciebie wiadomości prywatne) jako plik JSON. Jest pobierany dopiero po naciśnięciu przycisku i trafia prosto na twoje urządzenie.",
+  "settings.dataDownload": "Pobierz moje dane",
+  "settings.dataPreparing": "Przygotowywanie pliku…",
+  "settings.dataReady": "Twój plik z danymi jest pobierany."
 }

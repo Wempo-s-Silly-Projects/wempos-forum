@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "Pas encore d'images — partage un dessin ou une création !",
   "traditions.galleryLoadFailed": "Impossible de charger la galerie. Réessaie dans un instant.",
   "traditions.galleryAlt": "Image de la vitrine : {title}",
-  "render.revealSpoilers": "Révéler les spoilers"
+  "render.revealSpoilers": "Révéler les spoilers",
+  "settings.title": "Paramètres du compte",
+  "settings.filterLabel": "Trouver un paramètre",
+  "settings.filterEmpty": "Aucun paramètre ne correspond.",
+  "settings.jumpLabel": "Aller à une section",
+  "settings.dataTitle": "Tes données",
+  "settings.dataNote": "Télécharge une copie de ce que tu as écrit et réglé ici (profil, publications, réponses, publications enregistrées, fils suivis, blocages, messages de mur et les messages privés que tu as envoyés) sous forme de fichier JSON. Il n'est récupéré que lorsque tu appuies sur le bouton et arrive directement sur ton appareil.",
+  "settings.dataDownload": "Télécharger mes données",
+  "settings.dataPreparing": "Préparation de ton fichier…",
+  "settings.dataReady": "Ton fichier de données est en cours de téléchargement."
 }
