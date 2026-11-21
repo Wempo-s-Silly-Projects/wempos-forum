@@ -44,6 +44,7 @@ import { handleWallRoutes } from "./api/wall.mjs";
 import { handleModLogRoutes } from "./api/modlogs.mjs";
 import { handleBlockRoutes } from "./api/blocks.mjs";
 import { handleTotpRoutes } from "./api/twofa.mjs";
+import { handleAccountSecurityRoutes } from "./api/account-security.mjs";
 import { handleAccountsRoutes } from "./api/accounts.mjs";
 import { ensureFilterWords, handleFilterAdminRoutes } from "./api/filterstore.mjs";
 import { handleChatRoutes } from "./api/chat.mjs";
@@ -104,7 +105,7 @@ function notFound(request, env, url, path) {
 // dispatch context and answers only the paths it owns; `undefined` falls
 // through to the next handler or the notFound tail — the vendor's dispatch()
 // replaces the inlined handlers-for-loop, built once from the vendor import.
-const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes];
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries

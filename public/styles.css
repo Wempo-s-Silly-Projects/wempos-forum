@@ -1188,6 +1188,37 @@ dialog h2 {
   color: var(--paper);
   font-size: 0.9rem;
 }
+/* Wave 5.14 F3: "Actual size" — the image drops its viewport cap and the
+   dialog scrolls instead; the toggle sits beside the close button. */
+.attachment-lightbox[data-size="actual"] {
+  overflow: auto;
+}
+.attachment-lightbox[data-size="actual"] img {
+  max-width: none;
+  max-height: none;
+  cursor: zoom-out;
+}
+.lightbox-size {
+  position: absolute;
+  inset-block-start: 0.5rem;
+  inset-inline-end: 3.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+  border: 2px solid var(--paper);
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.6);
+  color: var(--paper);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.lightbox-size:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+.lightbox-size[aria-pressed="true"] {
+  background: var(--paper);
+  color: #000;
+}
 @media (prefers-reduced-motion: no-preference) {
   .attachment-lightbox[open] img {
     animation: lightbox-fade 160ms ease-out;

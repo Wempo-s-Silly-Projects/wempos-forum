@@ -27,6 +27,10 @@ import { t } from "./i18n.js";
 // goes back to the thumbnail of the image last shown (not merely the one
 // first clicked). A click on the backdrop or the image closes, as before.
 // The controls are built once per dialog, lazily, with createElement.
+// Wave 5.14 F3: an "Actual size" toggle flips the dialog's data-size between
+// "fit" (viewport-capped, the default) and "actual" (natural pixels, the
+// dialog scrolls); stepping to another image or closing resets it to fit.
+// Page-view only: nothing is stored and nothing is fetched.
 
 const STRIP_SELECTOR = ".post-attachments";
 const THUMB_SELECTOR = ".attachment-expand";
@@ -68,11 +72,13 @@ function buildControls(dialog, document) {
   const close = iconlessButton(document, "lightbox-close", t("common.close"), "×");
   const previous = iconlessButton(document, "lightbox-step lightbox-previous", t("lightbox.previous"), "‹");
   const next = iconlessButton(document, "lightbox-step lightbox-next", t("lightbox.next"), "›");
+  const size = iconlessButton(document, "lightbox-size", t("lightbox.actualSize"), t("lightbox.actualSize"));
+  size.setAttribute("aria-pressed", "false");
   const counter = document.createElement("p");
   counter.className = "lightbox-counter";
   counter.setAttribute("aria-live", "polite");
-  dialog.append(close, previous, next, counter);
-  return { close, previous, next, counter };
+  dialog.append(close, size, previous, next, counter);
+  return { close, size, previous, next, counter };
 }
 
 function createController(dialog, document) {
@@ -80,6 +86,10 @@ function createController(dialog, document) {
   const controls = buildControls(dialog, document);
   const view = { thumbs: [], index: 0 };
   const isRtl = () => document.documentElement?.dir === "rtl";
+  const setActualSize = (actual) => {
+    dialog.dataset.size = actual ? "actual" : "fit";
+    controls.size.setAttribute("aria-pressed", actual ? "true" : "false");
+  };
 
   const show = (index) => {
     const thumb = view.thumbs[index];
@@ -87,6 +97,7 @@ function createController(dialog, document) {
     if (!source || !image) return;
     view.index = index;
     image.src = source.src;
+    setActualSize(false);
     const total = view.thumbs.length;
     controls.counter.hidden = total < 2;
     controls.counter.textContent = total < 2 ? "" : t("lightbox.counter", { index: index + 1, total });
@@ -106,6 +117,7 @@ function createController(dialog, document) {
     (other.disabled || other.hidden ? controls.close : other).focus();
   };
   controls.close.addEventListener("click", () => dialog.close());
+  controls.size.addEventListener("click", () => setActualSize(dialog.dataset.size !== "actual"));
   controls.previous.addEventListener("click", () => {
     show(Math.max(0, view.index - 1));
     keepStepFocus(controls.previous);
@@ -115,6 +127,11 @@ function createController(dialog, document) {
     keepStepFocus(controls.next);
   });
   dialog.addEventListener("click", (event) => {
+    // At actual size a click on the image zooms back out to fit first.
+    if (event.target === image && dialog.dataset.size === "actual") {
+      setActualSize(false);
+      return;
+    }
     if (event.target === dialog || event.target === image) dialog.close();
   });
   dialog.addEventListener("keydown", (event) => {
@@ -130,6 +147,7 @@ function createController(dialog, document) {
     const thumb = view.thumbs[view.index];
     if (thumb?.isConnected !== false) thumb?.focus?.();
     view.thumbs = [];
+    setActualSize(false);
   });
 
   return {
