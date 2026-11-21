@@ -17,6 +17,7 @@
 // see <https://www.gnu.org/licenses/>.
 
 import { t, tn } from "./i18n.js";
+import { jumpToNode } from "./focus-utils.js";
 // "New since your last visit" (wave 2026-11-21 F3): the thread page remembers,
 // in this browser only, the highest reply id the member has seen per thread.
 // Coming back, replies above that mark get a "New" chip, a divider marks where
@@ -128,7 +129,6 @@ export function applyCatchUp(document, threadId, replies, replyList, { accountId
   }
   const divider = document.createElement("div");
   divider.className = "catch-up-divider";
-  divider.setAttribute("role", "separator");
   divider.textContent = t("catchUp.divider");
   cards[0].before(divider);
   const jump = document.createElement("button");
@@ -136,8 +136,9 @@ export function applyCatchUp(document, threadId, replies, replyList, { accountId
   jump.className = "button button-secondary catch-up-jump";
   jump.textContent = tn("catchUp.jump", cards.length);
   jump.addEventListener("click", () => {
-    divider.scrollIntoView({ behavior: "smooth", block: "start" });
-    cards[0].focus?.({ preventScroll: true });
+    // Focus lands on the divider (tabindex=-1, its words read out) right
+    // above the first new reply; smooth scroll only when motion is allowed.
+    jumpToNode(divider, { block: "start" });
   });
   replyList.before(jump);
 }

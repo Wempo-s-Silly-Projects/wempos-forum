@@ -92,31 +92,33 @@ test("postPermalink builds an absolute same-origin /posts/<id> link from numeric
 test("copy-link button writes the permalink and announces it in a polite status", async () => {
   const written = [];
   const timers = [];
-  const button = createCopyLinkButton(fakeDocument, 42, {
+  const wrap = createCopyLinkButton(fakeDocument, 42, {
     origin: "https://wempos-forum.com",
     clipboard: { writeText: async (text) => { written.push(text); } },
     schedule: (fn, ms) => timers.push([fn, ms]),
   });
+  const button = findByClass(wrap, "copy-link");
   assert.equal(button.type, "button");
   assert.ok(button.getAttribute("aria-label"));
   await button.fire("click");
   assert.deepEqual(written, ["https://wempos-forum.com/posts/42"]);
-  const status = findByClass(button, "copy-link-status");
+  const status = findByClass(wrap, "copy-link-status");
   assert.ok(status, "a status node is painted");
   assert.equal(status.getAttribute("role"), "status");
   assert.ok(status.textContent.length > 0);
   assert.equal(timers[0][1], COPIED_STATUS_MS);
   timers[0][0]();
-  assert.equal(findByClass(button, "copy-link-status"), null, "the status clears itself");
+  assert.equal(status.textContent, "", "the status clears itself");
 });
 
 test("copy-link falls back to a failure status when the clipboard is missing or refuses", async () => {
   for (const clipboard of [null, { writeText: async () => { throw new Error("denied"); } }]) {
-    const button = createCopyLinkButton(fakeDocument, 9, {
+    const wrap = createCopyLinkButton(fakeDocument, 9, {
       origin: "https://wempos-forum.com", clipboard, schedule: () => {},
     });
+    const button = findByClass(wrap, "copy-link");
     await button.fire("click");
-    const status = findByClass(button, "copy-link-status");
+    const status = findByClass(wrap, "copy-link-status");
     assert.ok(status && status.textContent.length > 0);
     assert.equal(button.dataset.copied, "false");
   }

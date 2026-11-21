@@ -270,9 +270,11 @@ export function revealSpoiler(spoiler) {
   if (/\bspoiler-revealed\b/.test(spoiler.className)) return;
   spoiler.className = `${spoiler.className} spoiler-revealed`;
   spoiler.removeAttribute("role");
-  spoiler.removeAttribute("tabindex");
+  // tabindex -1 (not removed) so a keyboard reveal keeps focus in place;
+  // aria-expanded goes with the button role (invalid on a plain span).
+  spoiler.setAttribute("tabindex", "-1");
   spoiler.removeAttribute("aria-label");
-  spoiler.setAttribute("aria-expanded", "true");
+  spoiler.removeAttribute("aria-expanded");
 }
 
 // Raw-text surfaces (preview snippets, reply context, search hits) never
