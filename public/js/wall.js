@@ -26,6 +26,7 @@ import { addSubmit, createPanel, element, main, setMessage } from "./dom.js";
 import { createTextarea } from "./forms.js";
 import { state } from "./state.js";
 import { currentLocale, t } from "./i18n.js";
+import { parseInline } from "./markdown.js";
 
 const WALL_MAX_CHARS = 280;
 
@@ -80,7 +81,11 @@ export async function renderProfileWall(profile) {
     when.textContent = new Date(post.createdAt).toLocaleString(currentLocale());
     header.append(when);
     row.append(header);
-    const body = element("p", "wall-post-body", post.body);
+    // Wave 2026-11-21-13 F3: wall posts read like posts — the same inline
+    // renderer (bold, italics, code, safe links, click-to-reveal spoilers),
+    // built with createElement/textContent only.
+    const body = element("p", "wall-post-body");
+    body.append(...parseInline(document, post.body));
     row.append(body);
     // Pin control: the wall OWNER's single affordance. The dataset rides the
     // payload's pinnedAt, so a re-render refetch decides the state.
