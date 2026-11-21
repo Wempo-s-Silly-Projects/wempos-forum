@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "สมาชิก {count} คน",
   "search.jumpPeople.other": "สมาชิก {count} คน",
   "search.jumpPosts.one": "{count} โพสต์",
-  "search.jumpPosts.other": "{count} โพสต์"
+  "search.jumpPosts.other": "{count} โพสต์",
+  "wall.reply": "ตอบกลับ",
+  "wall.replyAria": "ตอบกลับ {name}"
 }

@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "חבר אחד ({count})",
   "search.jumpPeople.other": "{count} חברים",
   "search.jumpPosts.one": "פוסט אחד ({count})",
-  "search.jumpPosts.other": "{count} פוסטים"
+  "search.jumpPosts.other": "{count} פוסטים",
+  "wall.reply": "השב",
+  "wall.replyAria": "השב ל-{name}"
 }

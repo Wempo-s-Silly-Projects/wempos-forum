@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "Mwanachama {count}",
   "search.jumpPeople.other": "Wanachama {count}",
   "search.jumpPosts.one": "Chapisho {count}",
-  "search.jumpPosts.other": "Machapisho {count}"
+  "search.jumpPosts.other": "Machapisho {count}",
+  "wall.reply": "Jibu",
+  "wall.replyAria": "Mjibu {name}"
 }

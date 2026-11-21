@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} μέλος",
   "search.jumpPeople.other": "{count} μέλη",
   "search.jumpPosts.one": "{count} ανάρτηση",
-  "search.jumpPosts.other": "{count} αναρτήσεις"
+  "search.jumpPosts.other": "{count} αναρτήσεις",
+  "wall.reply": "Απάντηση",
+  "wall.replyAria": "Απάντηση στον/στην {name}"
 }

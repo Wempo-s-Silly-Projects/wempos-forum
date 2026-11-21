@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} medlem",
   "search.jumpPeople.other": "{count} medlemmer",
   "search.jumpPosts.one": "{count} indlæg",
-  "search.jumpPosts.other": "{count} indlæg"
+  "search.jumpPosts.other": "{count} indlæg",
+  "wall.reply": "Svar",
+  "wall.replyAria": "Svar {name}"
 }

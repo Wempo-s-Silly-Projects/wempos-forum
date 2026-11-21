@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} tag",
   "search.jumpPeople.other": "{count} tag",
   "search.jumpPosts.one": "{count} bejegyzés",
-  "search.jumpPosts.other": "{count} bejegyzés"
+  "search.jumpPosts.other": "{count} bejegyzés",
+  "wall.reply": "Válasz",
+  "wall.replyAria": "Válasz neki: {name}"
 }

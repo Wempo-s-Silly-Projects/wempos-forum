@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} Mitglied",
   "search.jumpPeople.other": "{count} Mitglieder",
   "search.jumpPosts.one": "{count} Beitrag",
-  "search.jumpPosts.other": "{count} Beiträge"
+  "search.jumpPosts.other": "{count} Beiträge",
+  "wall.reply": "Antworten",
+  "wall.replyAria": "{name} antworten"
 }

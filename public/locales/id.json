@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} anggota",
   "search.jumpPeople.other": "{count} anggota",
   "search.jumpPosts.one": "{count} postingan",
-  "search.jumpPosts.other": "{count} postingan"
+  "search.jumpPosts.other": "{count} postingan",
+  "wall.reply": "Balas",
+  "wall.replyAria": "Balas {name}"
 }

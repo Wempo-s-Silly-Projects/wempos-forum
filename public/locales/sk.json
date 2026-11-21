@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} člen",
   "search.jumpPeople.other": "Členovia: {count}",
   "search.jumpPosts.one": "{count} príspevok",
-  "search.jumpPosts.other": "Príspevky: {count}"
+  "search.jumpPosts.other": "Príspevky: {count}",
+  "wall.reply": "Odpovedať",
+  "wall.replyAria": "Odpovedať používateľovi {name}"
 }

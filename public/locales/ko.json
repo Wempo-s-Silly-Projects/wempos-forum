@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "회원 {count}명",
   "search.jumpPeople.other": "회원 {count}명",
   "search.jumpPosts.one": "게시물 {count}개",
-  "search.jumpPosts.other": "게시물 {count}개"
+  "search.jumpPosts.other": "게시물 {count}개",
+  "wall.reply": "답글",
+  "wall.replyAria": "{name}님에게 답글"
 }

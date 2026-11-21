@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} thành viên",
   "search.jumpPeople.other": "{count} thành viên",
   "search.jumpPosts.one": "{count} bài viết",
-  "search.jumpPosts.other": "{count} bài viết"
+  "search.jumpPosts.other": "{count} bài viết",
+  "wall.reply": "Trả lời",
+  "wall.replyAria": "Trả lời {name}"
 }

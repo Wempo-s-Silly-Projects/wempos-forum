@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} عضو",
   "search.jumpPeople.other": "{count} أعضاء",
   "search.jumpPosts.one": "{count} منشور",
-  "search.jumpPosts.other": "{count} منشورات"
+  "search.jumpPosts.other": "{count} منشورات",
+  "wall.reply": "رد",
+  "wall.replyAria": "الرد على {name}"
 }

@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} lid",
   "search.jumpPeople.other": "{count} leden",
   "search.jumpPosts.one": "{count} bericht",
-  "search.jumpPosts.other": "{count} berichten"
+  "search.jumpPosts.other": "{count} berichten",
+  "wall.reply": "Reageren",
+  "wall.replyAria": "Reageer op {name}"
 }

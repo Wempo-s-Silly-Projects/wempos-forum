@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} رکن",
   "search.jumpPeople.other": "{count} اراکین",
   "search.jumpPosts.one": "{count} پوسٹ",
-  "search.jumpPosts.other": "{count} پوسٹس"
+  "search.jumpPosts.other": "{count} پوسٹس",
+  "wall.reply": "جواب دیں",
+  "wall.replyAria": "{name} کو جواب دیں"
 }

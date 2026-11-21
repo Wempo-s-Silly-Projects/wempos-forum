@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} জন সদস্য",
   "search.jumpPeople.other": "{count} জন সদস্য",
   "search.jumpPosts.one": "{count}টি পোস্ট",
-  "search.jumpPosts.other": "{count}টি পোস্ট"
+  "search.jumpPosts.other": "{count}টি পোস্ট",
+  "wall.reply": "উত্তর দিন",
+  "wall.replyAria": "{name}-কে উত্তর দিন"
 }

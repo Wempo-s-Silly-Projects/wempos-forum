@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} jäsen",
   "search.jumpPeople.other": "{count} jäsentä",
   "search.jumpPosts.one": "{count} viesti",
-  "search.jumpPosts.other": "{count} viestiä"
+  "search.jumpPosts.other": "{count} viestiä",
+  "wall.reply": "Vastaa",
+  "wall.replyAria": "Vastaa käyttäjälle {name}"
 }

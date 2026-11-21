@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} 位成員",
   "search.jumpPeople.other": "{count} 位成員",
   "search.jumpPosts.one": "{count} 篇貼文",
-  "search.jumpPosts.other": "{count} 篇貼文"
+  "search.jumpPosts.other": "{count} 篇貼文",
+  "wall.reply": "回覆",
+  "wall.replyAria": "回覆 {name}"
 }

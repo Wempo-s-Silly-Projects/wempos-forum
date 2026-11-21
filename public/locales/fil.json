@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} miyembro",
   "search.jumpPeople.other": "{count} miyembro",
   "search.jumpPosts.one": "{count} post",
-  "search.jumpPosts.other": "{count} na post"
+  "search.jumpPosts.other": "{count} na post",
+  "wall.reply": "Sumagot",
+  "wall.replyAria": "Sagutin si {name}"
 }

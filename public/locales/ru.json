@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} участник",
   "search.jumpPeople.other": "Участников: {count}",
   "search.jumpPosts.one": "{count} публикация",
-  "search.jumpPosts.other": "Публикаций: {count}"
+  "search.jumpPosts.other": "Публикаций: {count}",
+  "wall.reply": "Ответить",
+  "wall.replyAria": "Ответить {name}"
 }

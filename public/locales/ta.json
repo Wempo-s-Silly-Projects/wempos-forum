@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} உறுப்பினர்",
   "search.jumpPeople.other": "{count} உறுப்பினர்கள்",
   "search.jumpPosts.one": "{count} இடுகை",
-  "search.jumpPosts.other": "{count} இடுகைகள்"
+  "search.jumpPosts.other": "{count} இடுகைகள்",
+  "wall.reply": "பதிலளி",
+  "wall.replyAria": "{name}-க்கு பதிலளி"
 }

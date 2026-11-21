@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} üye",
   "search.jumpPeople.other": "{count} üye",
   "search.jumpPosts.one": "{count} gönderi",
-  "search.jumpPosts.other": "{count} gönderi"
+  "search.jumpPosts.other": "{count} gönderi",
+  "wall.reply": "Yanıtla",
+  "wall.replyAria": "{name} adlı kişiye yanıt ver"
 }

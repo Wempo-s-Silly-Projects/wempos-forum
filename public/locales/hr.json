@@ -933,5 +933,7 @@
   "search.jumpPeople.one": "{count} član",
   "search.jumpPeople.other": "Članovi: {count}",
   "search.jumpPosts.one": "{count} objava",
-  "search.jumpPosts.other": "Objave: {count}"
+  "search.jumpPosts.other": "Objave: {count}",
+  "wall.reply": "Odgovori",
+  "wall.replyAria": "Odgovori korisniku {name}"
 }
