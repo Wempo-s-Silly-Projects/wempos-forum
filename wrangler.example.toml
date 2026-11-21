@@ -37,7 +37,7 @@ RELAY_WORKER_NAME = "wempos-forum"
 # unless this is exactly "true" AND the AUTOMOD_KEY secret is set — the key
 # alone never turns it on. Uncomment to opt in.
 # AUTOMOD_ENABLED = "true"
-VERSION = "5.18.0"
+VERSION = "5.19.0"
 
 [assets]
 directory = "./public"

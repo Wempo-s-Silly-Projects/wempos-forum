@@ -31,6 +31,7 @@ import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { verifyPassword } from "./core/passwords.mjs";
 import { publicUser, userByUsernameKey } from "./core/shapers.mjs";
 import { generateTotpSecret, otpauthUri, verifyTotpCode } from "./core/totp.mjs";
+import { siteName } from "./branding.mjs";
 
 // Backup codes (v4.8.1): the Discord-style single-use sign-in codes used
 // INSTEAD of the authenticator code when the app is lost or renamed. The raw
@@ -111,7 +112,7 @@ async function handleTotpRoutes(request, env, url, path, method) {
       .bind(secret, session.user.id).run();
     return json({
       secret,
-      otpauth: otpauthUri(secret, "Wempo's Forum", session.user.username),
+      otpauth: otpauthUri(secret, await siteName(env), session.user.username),
     });
   }
 

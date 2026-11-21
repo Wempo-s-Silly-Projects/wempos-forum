@@ -131,6 +131,23 @@ line and its address in `ACCOUNTS_ORIGIN`, and run `pnpm run deploy` again.
 Visit `https://<your forum>/setup` and enter your `SETUP_SECRET` to create
 the owner account. The setup page only works while the forum has no owner.
 
+## 10. Name your forum
+
+Signed in as the owner, open **Admin**, then **Branding**
+(`https://<your forum>/admin/branding`). Fill in:
+
+- **Forum name**: shown in the header, the browser tab, the home page, the
+  two-factor app entry and the pages written for search engines and agents
+  (up to 60 characters).
+- **Tagline**: shown after the name at the top of the home page (up to 120
+  characters).
+- **Footer**: the line at the bottom of every page (up to 200 characters).
+
+Press **Save branding**, then reload the page. Leave a box empty to go back
+to the default (the name "Wempo's Forum" and its tagline and footer). The
+default tagline and footer are translated for each language; your own are
+shown exactly as you typed them. Admins can change these too.
+
 ## Updating later
 
 ```sh
