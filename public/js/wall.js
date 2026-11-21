@@ -67,7 +67,7 @@ export async function renderProfileWall(profile) {
   let data;
   try {
     data = await api("/api/users/" + encodeURIComponent(profile.id) + "/wall");
-  } catch (error) {
+  } catch {
     panel.append(element("p", "empty-state", t("wall.loadFailed")));
     return;
   }

@@ -78,14 +78,14 @@ export function loadDraft(storage, key, now = Date.now()) {
 
 // Wave 31: the body plus when it was saved, for the "draft restored" notice.
 export function loadDraftEntry(storage, key, now = Date.now()) {
-  let raw = null;
+  let raw;
   try {
     raw = storage ? storage.getItem(key) : null;
   } catch {
     return null;
   }
   if (!raw) return null;
-  let draft = null;
+  let draft;
   try {
     draft = JSON.parse(raw);
   } catch {

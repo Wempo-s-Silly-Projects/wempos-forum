@@ -91,7 +91,7 @@ test("copy-link mounts an empty polite status beside the button and never relies
   const wrap = createCopyLinkButton(fakeDocument, 5, {
     origin: "https://wempos-forum.com",
     clipboard: { writeText: async () => {} },
-    schedule: (fn, ms) => timers.push(fn),
+    schedule: (fn) => timers.push(fn),
   });
   const button = findByClass(wrap, "copy-link");
   const status = findByClass(wrap, "copy-link-status");

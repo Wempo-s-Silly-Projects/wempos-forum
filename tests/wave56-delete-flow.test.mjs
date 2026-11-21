@@ -151,13 +151,13 @@ test("deleting the viewed thread root: home, success line, and Back never refetc
   await openAt("/c/general");
   await openAt("/posts/41");
   await confirmDelete(41, "thread");
-  assert.equal(location.pathname, "/");
+  assert.equal(globalThis.location.pathname, "/");
   assert.notEqual(statusMessage.textContent, "", "the success line shows");
-  history.back();
+  globalThis.history.back();
   await settle();
   assert.deepEqual(requestsAfterDelete(41), [], "nothing asks for the deleted thread again");
   assert.deepEqual(flashes, [], "no error follows the success line");
-  assert.equal(location.pathname, "/c/general", "Back skips the dead thread entry");
+  assert.equal(globalThis.location.pathname, "/c/general", "Back skips the dead thread entry");
 });
 
 test("deleting a level-1 or level-2 reply on a thread page re-renders the thread only", async () => {
@@ -165,7 +165,7 @@ test("deleting a level-1 or level-2 reply on a thread page re-renders the thread
   for (const replyId of [51, 52]) {
     await confirmDelete(replyId, "reply");
     assert.deepEqual(requestsAfterDelete(replyId), []);
-    assert.equal(location.pathname, "/posts/50");
+    assert.equal(globalThis.location.pathname, "/posts/50");
     assert.notEqual(statusMessage.textContent, "");
     assert.equal(errorMessage.textContent, "");
   }
@@ -176,7 +176,7 @@ test("deleting a root from the feed, a profile list or search results never refe
   for (const [path, id] of [["/", 60], ["/users/wempo", 61], ["/?q=games", 62]]) {
     await openAt(path);
     await confirmDelete(id, "thread");
-    history.back();
+    globalThis.history.back();
     await settle();
     assert.deepEqual(requestsAfterDelete(id), [], path);
     assert.equal(errorMessage.textContent, "", path);

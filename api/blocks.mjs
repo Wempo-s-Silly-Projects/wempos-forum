@@ -26,7 +26,7 @@
 // only Unblock surface.
 import { assertNotBanned, requireSignedInRead, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { blockPairExists, viewerBlockFilterSql } from "./core/blocks.mjs";
+import { blockPairExists } from "./core/blocks.mjs";
 import { HttpError, json, rateLimit } from "./core/http.mjs";
 
 export async function handleBlockRoutes(request, env, url, path, method) {

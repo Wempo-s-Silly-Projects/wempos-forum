@@ -87,7 +87,7 @@ export async function handleRepliesReadRoute(request, env, url, path, method) {
   return null;
 }
 
-export async function handleReplyCreateRoute(request, env, url, path, method, ctx) {
+export async function handleReplyCreateRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   const replyMatch = path.match(/^\/api\/posts\/([0-9]+)\/replies$/);
   if (replyMatch && method === "POST") {
@@ -185,7 +185,7 @@ export async function handleReplyCreateRoute(request, env, url, path, method, ct
     // Attachment-bearing replies stay hidden until the entire attachment batch
     // succeeds. The row id is always the new reply, not its bump target.
     if (hasAttachments) {
-      const attachmentIds = await persistStagedPostAttachments(db, replyId, session.user.id, files, gifEntries, {
+      await persistStagedPostAttachments(db, replyId, session.user.id, files, gifEntries, {
         bumpTargetId,
       });
     } else {

@@ -91,7 +91,7 @@ function validateNewCredentials(body) {
 
 // __Host- wave: the clear rides the prefixed name; Secure is unconditional
 // with it.
-function expiredCookie(request) {
+function expiredCookie() {
   return "__Host-wempo_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure";
 }
 

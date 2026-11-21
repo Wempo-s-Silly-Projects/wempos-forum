@@ -152,6 +152,7 @@ const PLATFORM_WORDS = new Set([
 // True when a literal reads like copy a member would see.
 export function looksLikeCopy(literal) {
   const raw = literal.text;
+  // eslint-disable-next-line no-control-regex -- strips the NUL placeholder on purpose
   const text = raw.replace(/\u0000/g, " ").trim();
   if (!/[A-Za-z]{2,}/.test(text)) return false;
   if (/^(\/|#|\.|\[|:|https?:|data:|mailto:)/.test(text)) return false;
@@ -162,6 +163,7 @@ export function looksLikeCopy(literal) {
   }
   if (/[A-Z][a-z]/.test(text)) return true;
   if (/[a-z][.!?…,;:]\s|[a-z][.!?…]$|\w'\w/.test(text)) return true;
+  // eslint-disable-next-line no-control-regex -- strips the NUL placeholder on purpose
   if (/^\s|\s$/.test(raw.replace(/\u0000/g, "")) && /[a-z]{2,}/.test(raw)) return true;
   if (literal.kind === "string" && /^[a-z]{2,}( [a-z]{2,})+$/.test(text)) return true;
   if (literal.kind === "template" && raw.includes("\u0000")) {

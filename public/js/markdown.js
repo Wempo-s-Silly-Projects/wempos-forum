@@ -384,6 +384,7 @@ export function maskedExcerpt(text, max) {
 // and quote/paragraph runs (the pre-existing convention). Blocks keep their
 // RAW text (inline rendering happens at build time).
 export function parseBlocks(body) {
+  // eslint-disable-next-line no-unused-vars -- `at` is destructured only to omit it from the rest copy
   return scanBlocks(body).map(({ at, ...block }) => block);
 }
 

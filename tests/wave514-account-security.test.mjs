@@ -38,7 +38,7 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf
 const fakeDocument = makeFakeDocument();
 const now = () => Math.floor(Date.now() / 1000);
 
-let env, db, alice, bob, sA, sB;
+let env, db, alice, bob, sA;
 
 const seedCodes = (userId, count) => {
   for (let index = 0; index < count; index++) {
@@ -60,7 +60,7 @@ beforeEach(async () => {
   alice = await seedUser(db, { username: "Alice" });
   bob = await seedUser(db, { username: "Bob" });
   sA = forgeSession(db, alice);
-  sB = forgeSession(db, bob);
+  forgeSession(db, bob);
 });
 
 // --- F1: backup codes left ------------------------------------------------------

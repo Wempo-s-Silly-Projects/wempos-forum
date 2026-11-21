@@ -568,7 +568,7 @@ async function handleLobbyChatReadRoute(request, env, url, path, method) {
 // the 500-char word-filtered body, the insert, and the @mention pings through
 // the same fan-out as posts (label-only rows, best-effort — mentions are a
 // convenience, never a chat precondition).
-async function handleLobbyChatCreateRoute(request, env, url, path, method, ctx) {
+async function handleLobbyChatCreateRoute(request, env, url, path, method) {
   if (path !== "/api/chat" || method !== "POST") return null;
   const session = await requireUser(request, env);
   await assertNotBanned(env, session.user.id);

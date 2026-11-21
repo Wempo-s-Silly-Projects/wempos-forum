@@ -50,7 +50,7 @@ import { rethemeTurnstile } from "./turnstile.js";
 // Corners (v2.5): "round" is the default; the account-settings checkbox
 // flips the appearance pref. Same client-side persistence as the theme.
 export function applyCornerPreference(doc, storage) {
-  let corners = "round";
+  let corners;
   try {
     corners = storage.getItem("forum-corners") === "square" ? "square" : "round";
   } catch {

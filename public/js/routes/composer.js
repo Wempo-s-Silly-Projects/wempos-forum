@@ -254,7 +254,7 @@ async function submitNewPost(form, text) {
         method: "POST",
         body: form.composerPoll,
       });
-    } catch (error) {
+    } catch {
       pollFailed = true;
     }
   }
@@ -297,7 +297,6 @@ async function submitReplyForm(form, text) {
   setMessage(t("composer.replyAdded"));
 }
 
-const gifPickerActiveForm = () => null;
 function gifPickerDialog() {
   return document.querySelector("#gif-picker");
 }
@@ -361,7 +360,7 @@ async function openGifPicker(button) {
   paintGallery(dialog, false);
   dialog.showModal();
 }
-function confirmGifPicker(button) {
+function confirmGifPicker() {
   const dialog = gifPickerDialog();
   if (!dialog) return;
   const form = connectedComposer(activeGifComposerForm);

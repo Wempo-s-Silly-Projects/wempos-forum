@@ -74,7 +74,7 @@ export async function mentionFanOutStatements(db, body, {
   );
   const recipients = new Set();
   for (const key of names) {
-    let user = null;
+    let user;
     try {
       user = await db.prepare(USER_BY_NAME_SQL).bind(key).first();
     } catch {

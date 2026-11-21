@@ -116,7 +116,7 @@ const DESK_BUILDERS = {
   "bans": {
     ledeKey: "admin.lede.bans",
     load: () => api("/api/admin/bans"),
-    build: (data, user) => [
+    build: (data) => [
       createActiveBanList(data.bans, document),
       createMemberSearch(document),
     ],
@@ -134,7 +134,7 @@ const DESK_BUILDERS = {
   "rules": {
     ledeKey: "admin.lede.rules",
     load: () => api("/api/rules"),
-    build: (data) => createRulesEditor(data.rules, document),
+    build: (data) => createRulesEditor(data.rules),
   },
   "filter": {
     ledeKey: "admin.lede.filter",
@@ -328,7 +328,7 @@ function createHiddenPostsQueue(items, document) {
   return container;
 }
 
-function createRulesEditor(rulesData, document) {
+function createRulesEditor(rulesData) {
   const container = element("div", "rules-editor");
   const label = element("p", "accent-picker-label", t("admin.rulesLabel"));
   const textarea = element("textarea", "css-editor-input");

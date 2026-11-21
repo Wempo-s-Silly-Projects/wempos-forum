@@ -91,7 +91,7 @@ export async function handleFilterAdminRoutes(request, env, url, path, method) {
   if (method === "GET" && path === "/api/admin/filter") {
     // Read-only: mutating=false skips the same-origin/CSRF gates (fetch GETs
     // carry no Origin header — the desk section loads via a plain read).
-    const session = await requireStaff(request, env, false);
+    await requireStaff(request, env, false);
     await rateLimit(request, env, "read");
     const row = await env.FORUM_DB.prepare(
       "SELECT value, updated_at FROM site_settings WHERE key = ? LIMIT 1",
@@ -111,7 +111,7 @@ export async function handleFilterAdminRoutes(request, env, url, path, method) {
     // appends to the stored list. Reuses the filter's own entry-splitting so
     // a parsed line that is really one regex pattern (commas inside a char
     // class) stays whole, exactly like the filter will read it.
-    const session = await requireStaff(request, env);
+    await requireStaff(request, env);
     await rateLimit(request, env, "write");
     const body = await readJsonBody(request, 512 * 1024);
     const incoming = splitFilterEntries(String(body.entries ?? ""))
@@ -147,7 +147,7 @@ export async function handleFilterAdminRoutes(request, env, url, path, method) {
 
   if (method === "PUT" && path === "/api/admin/filter") {
     // Full-list replace: the editor's textarea is the new truth.
-    const session = await requireStaff(request, env);
+    await requireStaff(request, env);
     await rateLimit(request, env, "write");
     const body = await readJsonBody(request, FILTER_MAX_BYTES * 2);
     const words = typeof body.words === "string" ? body.words : "";
