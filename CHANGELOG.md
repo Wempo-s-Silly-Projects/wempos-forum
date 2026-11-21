@@ -15,6 +15,25 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.22.0] - 2026-11-21
+
+### Changed
+- The weekly ZAP security scan now checks a copy of the forum that it starts
+  inside the scan job, instead of the live site. Cloudflare answered the
+  scanner at the live site with its bot-check page, so the forum itself was
+  never scanned. Details are in
+  [Security tooling](docs/security-tooling.md).
+
+### Added
+- Fuzz tests (`tests/fuzz-*.test.mjs`) that throw random and malformed input
+  at username checks, the page router, two-factor code checks, the source
+  link, post excerpts, the JSON body reader, and the sign-in, sign-up,
+  search and new-post routes. They run with `pnpm test` with a fixed seed
+  and a bounded number of runs, so they add under a second. They found no
+  bugs. `fast-check` is a new development-only dependency (MIT license);
+  nothing changes for people running the forum. No database migration in
+  this release.
+
 ## [5.21.0] - 2026-11-21
 
 ### Added
