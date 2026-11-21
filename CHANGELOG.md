@@ -13,6 +13,18 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.9.0] - 2026-11-21
+
+### Added
+- **New messages line** in direct messages and group chats: opening a chat
+  with unread messages shows "3 new messages" right above the first one you
+  hadn't read, and it stays put while you read.
+- **Search results at a glance**: a "Jump to:" row under the search heading
+  counts the replies, members and posts found and takes you straight to each
+  section.
+- **Reply on a wall post**: a Reply button on other members' wall posts puts
+  their @name in the wall box for you. Nothing is sent until you post.
+
 ## [5.8.0] - 2026-11-21
 
 ### Fixed
