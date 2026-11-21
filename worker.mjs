@@ -165,7 +165,6 @@ export default {
   },
 };
 
-  },
     if (!env.ASSETS) return json({ error: "Static assets are not configured." }, 503);
     try {
       return secureResponse(await stampedAssetResponse(await env.ASSETS.fetch(unconditional(request)), env));
