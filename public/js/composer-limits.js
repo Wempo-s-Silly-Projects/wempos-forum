@@ -36,7 +36,21 @@ const groupDigits = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ",
 // count as nothing left — the textarea's maxLength attribute truncates first,
 // so a negative remaining count can never occur in real use, but the clamp
 // keeps the label sensible if one ever reaches this function.
+const remainingChars = (maxChars, value) =>
+  Math.max(0, Number(maxChars) - String(value ?? "").length);
+
 export function charsLeftLabel(maxChars, value) {
-  const remaining = Math.max(0, Number(maxChars) - String(value ?? "").length);
-  return t("limits.charsLeft", { remaining: groupDigits(remaining) });
+  return t("limits.charsLeft", { remaining: groupDigits(remainingChars(maxChars, value)) });
+}
+
+// Wave 30: the counter is announced to screen readers only near the cap —
+// once on entering the last 10% ("near") and once on reaching it ("full") —
+// instead of on every keystroke.
+export const NEAR_LIMIT_RATIO = 0.1;
+export const nearLimitThreshold = (maxChars) => Math.ceil(Number(maxChars) * NEAR_LIMIT_RATIO);
+
+export function counterBand(maxChars, value) {
+  const remaining = remainingChars(maxChars, value);
+  if (remaining === 0) return "full";
+  return remaining <= nearLimitThreshold(maxChars) ? "near" : "ok";
 }

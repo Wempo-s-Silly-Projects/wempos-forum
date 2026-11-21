@@ -870,5 +870,11 @@
   "shortcuts.submit": "Strg+Enter (⌘+Enter auf dem Mac): sendet, was du in ein Antwort- oder Beitragsfeld geschrieben hast",
   "shortcuts.images": "Pfeiltasten: durch die Bilder eines Beitrags in der Bildansicht blättern; Pos1 / Ende springen zum ersten oder letzten",
   "shortcuts.mentions": "↑ / ↓, dann Enter oder Tab: einen @Erwähnungs-Vorschlag auswählen",
-  "shortcuts.close": "Esc: Bildansicht oder @Erwähnungs-Vorschläge schließen"
+  "shortcuts.close": "Esc: Bildansicht oder @Erwähnungs-Vorschläge schließen",
+  "attachments.wrongType": "„{name}“ wurde nicht hinzugefügt: Nur JPEG-, PNG-, WebP- und GIF-Bilder können angehängt werden.",
+  "composer.pendingImages.one": "1 Bild bereit zum Anhängen: {names}. Nichts wird hochgeladen, bis du es anhängst und postest.",
+  "composer.pendingImages.other": "{count} Bilder bereit zum Anhängen: {names}. Nichts wird hochgeladen, bis du sie anhängst und postest.",
+  "composer.pendingAttach": "Anhängen",
+  "composer.pendingDismiss": "Verwerfen",
+  "render.discardEditConfirm": "Deine Änderungen an diesem Beitrag verwerfen?"
 }

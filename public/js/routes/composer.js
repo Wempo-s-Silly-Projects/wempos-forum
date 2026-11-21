@@ -40,6 +40,7 @@ import { attachDraftAutosave, clearFormDraft, draftKey } from "../drafts.js";
 import { attachMentionPicker } from "../mention-picker.js";
 import { t, tn } from "../i18n.js";
 import { createComposePreview } from "../compose-preview.js";
+import { attachPasteAndDrop, confirmPendingFiles, dismissPendingFiles } from "../composer-paste.js";
 
 let activeGifComposerForm = null;
 let activePollComposerForm = null;
@@ -81,6 +82,9 @@ function createComposer(name, label, buttonLabel, postID = null,
   attachMentionPicker(bodyField, document);
   // Live Preview toggle (wave 2026-11-21-3): client-only, opt-in per click.
   form.append(createComposePreview(bodyField, document));
+  // Paste / drop an image (wave 30): staged as pending until Attach.
+  form.append(attachPasteAndDrop(form, bodyField, document,
+    (notices) => setMessage(notices.join(" "), true)));
   form.append(createComposerAttachmentRow(name === "post-create"));
   addTurnstileSlot(form, turnstileAction ?? (name === "post-create" ? "post" : "reply"));
   addSubmit(form, buttonLabel);
@@ -470,6 +474,14 @@ export const ACTIONS = {
   "cancel-gif-picker": () => { activeGifComposerForm = null; gifPickerDialog()?.close(); },
   "choose-gif-upload": () => document.querySelector("#gif-marketplace-file")?.click(),
   "remove-composer-file": (button) => removeComposerFile(button),
+  "attach-pending-files": (button) => {
+    const form = button.closest("form");
+    if (!form) return;
+    const notices = confirmPendingFiles(form);
+    renderComposerFileStrip(form);
+    if (notices.length) setMessage(notices.join(" "), true);
+  },
+  "dismiss-pending-files": (button) => dismissPendingFiles(button.closest("form")),
   "remove-gif": (button) => {
     const form = button.closest("form");
     if (!form) return;

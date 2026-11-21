@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Enter (⌘+Enter на Mac): опубликовать написанное в поле ответа или поста",
   "shortcuts.images": "Стрелки: листать изображения поста в просмотрщике; Home / End — к первому или последнему",
   "shortcuts.mentions": "↑ / ↓, затем Enter или Tab: выбрать подсказку @упоминания",
-  "shortcuts.close": "Esc: закрыть просмотрщик изображений или подсказки @упоминаний"
+  "shortcuts.close": "Esc: закрыть просмотрщик изображений или подсказки @упоминаний",
+  "attachments.wrongType": "«{name}» не добавлен: можно прикреплять только изображения JPEG, PNG, WebP и GIF.",
+  "composer.pendingImages.one": "1 изображение готово к прикреплению: {names}. Ничего не загрузится, пока вы не прикрепите его и не опубликуете.",
+  "composer.pendingImages.other": "Изображений готово к прикреплению: {count} ({names}). Ничего не загрузится, пока вы не прикрепите их и не опубликуете.",
+  "composer.pendingAttach": "Прикрепить",
+  "composer.pendingDismiss": "Отклонить",
+  "render.discardEditConfirm": "Отменить изменения в этом посте?"
 }

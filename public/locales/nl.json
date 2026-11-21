@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Enter (⌘+Enter op Mac): plaatst wat je in een antwoord- of berichtvak hebt geschreven",
   "shortcuts.images": "Pijltjestoetsen: blader door de afbeeldingen van een bericht in de afbeeldingsviewer; Home / End springen naar de eerste of laatste",
   "shortcuts.mentions": "↑ / ↓, dan Enter of Tab: kies een @vermelding-suggestie",
-  "shortcuts.close": "Esc: sluit de afbeeldingsviewer of de @vermelding-suggesties"
+  "shortcuts.close": "Esc: sluit de afbeeldingsviewer of de @vermelding-suggesties",
+  "attachments.wrongType": "“{name}” is niet toegevoegd: alleen JPEG-, PNG-, WebP- en GIF-afbeeldingen kunnen worden bijgevoegd.",
+  "composer.pendingImages.one": "1 afbeelding klaar om bij te voegen: {names}. Er wordt niets geüpload tot je hem bijvoegt en plaatst.",
+  "composer.pendingImages.other": "{count} afbeeldingen klaar om bij te voegen: {names}. Er wordt niets geüpload tot je ze bijvoegt en plaatst.",
+  "composer.pendingAttach": "Bijvoegen",
+  "composer.pendingDismiss": "Negeren",
+  "render.discardEditConfirm": "Je wijzigingen aan dit bericht weggooien?"
 }

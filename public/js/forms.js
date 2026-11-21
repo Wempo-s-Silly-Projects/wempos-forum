@@ -16,7 +16,7 @@
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
 
-import { charsLeftLabel } from "./composer-limits.js";
+import { charsLeftLabel, counterBand } from "./composer-limits.js";
 import { attachSubmitShortcut } from "./submit-shortcut.js";
 import { createFormatHelp } from "./format-help.js";
 
@@ -95,6 +95,31 @@ export const createSelect = (document, { id, name = id, label, options, required
   return wrapper;
 }
 
+// Wave 30: the visible count updates per keystroke but is NOT a live region;
+// a visually hidden role=status announcer speaks only when the band changes
+// into "near" (last 10%) or "full", and goes quiet again below it.
+function createCharCounter(document, id, textarea, maxLength, value) {
+  const counterElement = document.createElement("div");
+  counterElement.dataset.charCounter = id;
+  const announcer = document.createElement("span");
+  announcer.className = "visually-hidden";
+  announcer.dataset.charAnnouncer = id;
+  announcer.setAttribute("role", "status");
+  let band = counterBand(maxLength, value ?? "");
+  const paint = (text) => {
+    counterElement.textContent = charsLeftLabel(maxLength, text);
+    counterElement.className = band === "ok" ? "char-counter" : "char-counter char-counter-near";
+  };
+  paint(value ?? "");
+  textarea.addEventListener("input", () => {
+    const next = counterBand(maxLength, textarea.value);
+    if (next !== band) announcer.textContent = next === "ok" ? "" : charsLeftLabel(maxLength, textarea.value);
+    band = next;
+    paint(textarea.value);
+  });
+  return [counterElement, announcer];
+}
+
 export function createTextarea(document, {
   id, name = id, label, rows = 3, maxLength, required = false, description, counter = false, value,
   submitShortcut = false, formatHelp = false,
@@ -118,17 +143,7 @@ export function createTextarea(document, {
   // always visible and muted via the .char-counter CSS class; the label text
   // comes from the DOM-free composer-limits.js so tests own the math. The
   // initial label reflects any prefill so the count is honest from first paint.
-  if (counter && maxLength !== undefined) {
-    const counterElement = document.createElement("div");
-    counterElement.className = "char-counter";
-    counterElement.dataset.charCounter = id;
-    counterElement.setAttribute("aria-live", "polite");
-    counterElement.textContent = charsLeftLabel(maxLength, value ?? "");
-    textarea.addEventListener("input", () => {
-      counterElement.textContent = charsLeftLabel(maxLength, textarea.value);
-    });
-    wrapper.append(counterElement);
-  }
+  if (counter && maxLength !== undefined) wrapper.append(...createCharCounter(document, id, textarea, maxLength, value));
   // Ctrl/Cmd+Enter posts (wave 19): forum composers opt in.
   if (submitShortcut) wrapper.append(attachSubmitShortcut(document, textarea));
   // Formatting help (wave 23): the forum composers opt in.

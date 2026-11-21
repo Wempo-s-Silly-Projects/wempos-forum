@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Enter (Mac'te ⌘+Enter): yanıt ya da gönderi kutusuna yazdığını paylaşır",
   "shortcuts.images": "Ok tuşları: görüntüleyicide bir gönderinin görselleri arasında gezin; Home / End ilkine ya da sonuncuya atlar",
   "shortcuts.mentions": "↑ / ↓, ardından Enter veya Tab: bir @bahsetme önerisi seç",
-  "shortcuts.close": "Esc: görsel görüntüleyiciyi veya @bahsetme önerilerini kapatır"
+  "shortcuts.close": "Esc: görsel görüntüleyiciyi veya @bahsetme önerilerini kapatır",
+  "attachments.wrongType": "\"{name}\" eklenmedi: yalnızca JPEG, PNG, WebP ve GIF görselleri eklenebilir.",
+  "composer.pendingImages.one": "Eklenmeye hazır 1 görsel: {names}. Ekleyip gönderene kadar hiçbir şey yüklenmez.",
+  "composer.pendingImages.other": "Eklenmeye hazır {count} görsel: {names}. Ekleyip gönderene kadar hiçbir şey yüklenmez.",
+  "composer.pendingAttach": "Ekle",
+  "composer.pendingDismiss": "Vazgeç",
+  "render.discardEditConfirm": "Bu gönderideki değişiklikleriniz silinsin mi?"
 }

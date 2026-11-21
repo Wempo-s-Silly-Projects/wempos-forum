@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Enter（Mac 上为 ⌘+Enter）：发布你在回复框或发帖框中写的内容",
   "shortcuts.images": "方向键：在图片查看器中切换帖子的图片；Home / End 跳到第一张或最后一张",
   "shortcuts.mentions": "↑ / ↓，然后按 Enter 或 Tab：选择一个 @提及 建议",
-  "shortcuts.close": "Esc：关闭图片查看器或 @提及 建议"
+  "shortcuts.close": "Esc：关闭图片查看器或 @提及 建议",
+  "attachments.wrongType": "未添加“{name}”：只能附加 JPEG、PNG、WebP 和 GIF 图片。",
+  "composer.pendingImages.one": "有 1 张图片待附加：{names}。在你附加并发布之前不会上传任何内容。",
+  "composer.pendingImages.other": "有 {count} 张图片待附加：{names}。在你附加并发布之前不会上传任何内容。",
+  "composer.pendingAttach": "附加",
+  "composer.pendingDismiss": "忽略",
+  "render.discardEditConfirm": "要放弃对这篇帖子的修改吗？"
 }

@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Enter (⌘+Enter di Mac): kirim yang kamu tulis di kotak balasan atau postingan",
   "shortcuts.images": "Tombol panah: telusuri gambar postingan di penampil gambar; Home / End melompat ke yang pertama atau terakhir",
   "shortcuts.mentions": "↑ / ↓, lalu Enter atau Tab: pilih saran @mention",
-  "shortcuts.close": "Esc: tutup penampil gambar atau saran @mention"
+  "shortcuts.close": "Esc: tutup penampil gambar atau saran @mention",
+  "attachments.wrongType": "\"{name}\" tidak ditambahkan: hanya gambar JPEG, PNG, WebP, dan GIF yang bisa dilampirkan.",
+  "composer.pendingImages.one": "1 gambar siap dilampirkan: {names}. Tidak ada yang diunggah sampai kamu melampirkannya dan memposting.",
+  "composer.pendingImages.other": "{count} gambar siap dilampirkan: {names}. Tidak ada yang diunggah sampai kamu melampirkannya dan memposting.",
+  "composer.pendingAttach": "Lampirkan",
+  "composer.pendingDismiss": "Abaikan",
+  "render.discardEditConfirm": "Buang perubahanmu pada postingan ini?"
 }

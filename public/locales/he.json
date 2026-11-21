@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Enter (או ⌘+Enter ב-Mac): מפרסם את מה שכתבת בתיבת תגובה או פוסט",
   "shortcuts.images": "מקשי החצים: מעבר בין תמונות הפוסט במציג התמונות; Home / End קופצים לראשונה או לאחרונה",
   "shortcuts.mentions": "↑ / ↓ ואז Enter או Tab: בחירת הצעה ל-@אזכור",
-  "shortcuts.close": "Esc: סגירת מציג התמונות או הצעות ה-@אזכור"
+  "shortcuts.close": "Esc: סגירת מציג התמונות או הצעות ה-@אזכור",
+  "attachments.wrongType": "„{name}” לא נוסף: אפשר לצרף רק תמונות JPEG,‏ PNG,‏ WebP ו‑GIF.",
+  "composer.pendingImages.one": "תמונה אחת מוכנה לצירוף: {names}. שום דבר לא עולה עד שתצרף ותפרסם.",
+  "composer.pendingImages.other": "{count} תמונות מוכנות לצירוף: {names}. שום דבר לא עולה עד שתצרף ותפרסם.",
+  "composer.pendingAttach": "צירוף",
+  "composer.pendingDismiss": "ביטול",
+  "render.discardEditConfirm": "לבטל את השינויים שלך בפוסט הזה?"
 }

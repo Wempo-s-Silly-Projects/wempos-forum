@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Enter (⌘+Enter na Macu): publikuje to, co wpisano w polu odpowiedzi lub posta",
   "shortcuts.images": "Strzałki: przeglądaj obrazy posta w przeglądarce obrazów; Home / End przechodzą do pierwszego lub ostatniego",
   "shortcuts.mentions": "↑ / ↓, potem Enter lub Tab: wybierz podpowiedź @wzmianki",
-  "shortcuts.close": "Esc: zamyka przeglądarkę obrazów lub podpowiedzi @wzmianek"
+  "shortcuts.close": "Esc: zamyka przeglądarkę obrazów lub podpowiedzi @wzmianek",
+  "attachments.wrongType": "Nie dodano „{name}”: można załączać tylko obrazy JPEG, PNG, WebP i GIF.",
+  "composer.pendingImages.one": "1 obraz gotowy do załączenia: {names}. Nic nie zostanie wysłane, dopóki go nie załączysz i nie opublikujesz.",
+  "composer.pendingImages.other": "Obrazy gotowe do załączenia ({count}): {names}. Nic nie zostanie wysłane, dopóki ich nie załączysz i nie opublikujesz.",
+  "composer.pendingAttach": "Załącz",
+  "composer.pendingDismiss": "Odrzuć",
+  "render.discardEditConfirm": "Odrzucić zmiany w tym poście?"
 }

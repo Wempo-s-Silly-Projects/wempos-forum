@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Enter（Mac では ⌘+Enter）：返信欄や投稿欄に書いた内容を投稿",
   "shortcuts.images": "矢印キー：画像ビューアーで投稿の画像を切り替え。Home / End で最初または最後へ",
   "shortcuts.mentions": "↑ / ↓ のあと Enter または Tab：@メンションの候補を選択",
-  "shortcuts.close": "Esc：画像ビューアーや @メンションの候補を閉じる"
+  "shortcuts.close": "Esc：画像ビューアーや @メンションの候補を閉じる",
+  "attachments.wrongType": "「{name}」は追加されませんでした: 添付できるのは JPEG・PNG・WebP・GIF 画像のみです。",
+  "composer.pendingImages.one": "添付待ちの画像が 1 枚あります: {names}。添付して投稿するまで何もアップロードされません。",
+  "composer.pendingImages.other": "添付待ちの画像が {count} 枚あります: {names}。添付して投稿するまで何もアップロードされません。",
+  "composer.pendingAttach": "添付",
+  "composer.pendingDismiss": "取り消す",
+  "render.discardEditConfirm": "この投稿への変更を破棄しますか?"
 }
