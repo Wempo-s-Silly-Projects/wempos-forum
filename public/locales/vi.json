@@ -539,6 +539,7 @@
   "post.editSaved": "Đã lưu chỉnh sửa của bạn.",
   "post.hideReplies.one": "Ẩn {count} phản hồi",
   "post.hideReplies.other": "Ẩn {count} phản hồi",
+  "post.keysHint": "Mẹo bàn phím: khi đang ở một bài viết, nhấn J để sang bài tiếp theo hoặc K để về bài trước.",
   "post.loadOlderReplies": "Tải phản hồi cũ hơn",
   "post.miniReplyPlaceholder": "Viết phản hồi",
   "post.noReplies": "Chưa có phản hồi nào!",

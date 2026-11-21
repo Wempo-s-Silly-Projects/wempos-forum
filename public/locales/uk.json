@@ -539,6 +539,7 @@
   "post.editSaved": "Твою правку збережено.",
   "post.hideReplies.one": "Приховати {count} відповідь",
   "post.hideReplies.other": "Приховати відповіді ({count})",
+  "post.keysHint": "Порада: перебуваючи в дописі, натисніть J, щоб перейти до наступного, або K — до попереднього.",
   "post.loadOlderReplies": "Завантажити старіші відповіді",
   "post.miniReplyPlaceholder": "Напиши відповідь",
   "post.noReplies": "Відповідей ще немає!",

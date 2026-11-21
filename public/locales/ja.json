@@ -539,6 +539,7 @@
   "post.editSaved": "編集を保存しました。",
   "post.hideReplies.one": "返信 {count} 件を隠す",
   "post.hideReplies.other": "返信 {count} 件を隠す",
+  "post.keysHint": "キーボードのヒント：投稿内で J を押すと次の投稿へ、K を押すと前の投稿へ移動します。",
   "post.loadOlderReplies": "過去の返信を読み込む",
   "post.miniReplyPlaceholder": "返信を書く",
   "post.noReplies": "まだ返信はありません！",

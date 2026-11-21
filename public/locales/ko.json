@@ -539,6 +539,7 @@
   "post.editSaved": "수정한 내용을 저장했어요.",
   "post.hideReplies.one": "답글 {count}개 숨기기",
   "post.hideReplies.other": "답글 {count}개 숨기기",
+  "post.keysHint": "키보드 팁: 게시물 안에서 J를 누르면 다음 게시물로, K를 누르면 이전 게시물로 이동합니다.",
   "post.loadOlderReplies": "이전 답글 불러오기",
   "post.miniReplyPlaceholder": "답글 쓰기",
   "post.noReplies": "아직 답글이 없어요!",

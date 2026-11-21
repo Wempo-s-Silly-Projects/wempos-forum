@@ -539,6 +539,7 @@
   "post.editSaved": "आपका एडिट सेव हो गया।",
   "post.hideReplies.one": "{count} जवाब छिपाएँ",
   "post.hideReplies.other": "{count} जवाब छिपाएँ",
+  "post.keysHint": "कीबोर्ड टिप: किसी पोस्ट के अंदर से, अगली पोस्ट के लिए J या पिछली पोस्ट के लिए K दबाएँ।",
   "post.loadOlderReplies": "पुराने जवाब लोड करें",
   "post.miniReplyPlaceholder": "जवाब लिखो",
   "post.noReplies": "अभी कोई जवाब नहीं!",

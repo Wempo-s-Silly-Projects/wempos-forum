@@ -539,6 +539,7 @@
   "post.editSaved": "تم حفظ تعديلك.",
   "post.hideReplies.one": "إخفاء {count} رد",
   "post.hideReplies.other": "إخفاء الردود ({count})",
+  "post.keysHint": "تلميح لوحة المفاتيح: من داخل منشور، اضغط J للانتقال إلى المنشور التالي أو K للعودة إلى السابق.",
   "post.loadOlderReplies": "تحميل ردود أقدم",
   "post.miniReplyPlaceholder": "اكتب ردًا",
   "post.noReplies": "لا توجد ردود بعد!",

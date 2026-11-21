@@ -539,6 +539,7 @@
   "post.editSaved": "บันทึกการแก้ไขแล้ว",
   "post.hideReplies.one": "ซ่อนการตอบกลับ {count} รายการ",
   "post.hideReplies.other": "ซ่อนการตอบกลับ {count} รายการ",
+  "post.keysHint": "เคล็ดลับแป้นพิมพ์: เมื่ออยู่ในโพสต์ กด J เพื่อไปโพสต์ถัดไป หรือ K เพื่อกลับไปโพสต์ก่อนหน้า",
   "post.loadOlderReplies": "โหลดการตอบกลับเก่า",
   "post.miniReplyPlaceholder": "เขียนการตอบกลับ",
   "post.noReplies": "ยังไม่มีการตอบกลับ!",

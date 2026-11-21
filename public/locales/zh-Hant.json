@@ -539,6 +539,7 @@
   "post.editSaved": "你的修改已儲存。",
   "post.hideReplies.one": "隱藏 {count} 則回覆",
   "post.hideReplies.other": "隱藏 {count} 則回覆",
+  "post.keysHint": "鍵盤提示：在貼文中按 J 跳到下一篇，按 K 回到上一篇。",
   "post.loadOlderReplies": "載入較早的回覆",
   "post.miniReplyPlaceholder": "寫下回覆",
   "post.noReplies": "還沒有回覆！",

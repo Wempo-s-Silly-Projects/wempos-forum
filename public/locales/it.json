@@ -539,6 +539,7 @@
   "post.editSaved": "La tua modifica è stata salvata.",
   "post.hideReplies.one": "Nascondi {count} risposta",
   "post.hideReplies.other": "Nascondi {count} risposte",
+  "post.keysHint": "Suggerimento da tastiera: da un post, premi J per il successivo o K per il precedente.",
   "post.loadOlderReplies": "Carica risposte precedenti",
   "post.miniReplyPlaceholder": "Scrivi una risposta",
   "post.noReplies": "Ancora nessuna risposta!",

@@ -539,6 +539,7 @@
   "post.editSaved": "Ta modification a été enregistrée.",
   "post.hideReplies.one": "Masquer {count} réponse",
   "post.hideReplies.other": "Masquer {count} réponses",
+  "post.keysHint": "Astuce clavier : depuis un message, appuyez sur J pour le suivant ou sur K pour le précédent.",
   "post.loadOlderReplies": "Charger des réponses plus anciennes",
   "post.miniReplyPlaceholder": "Écris une réponse",
   "post.noReplies": "Pas encore de réponses !",

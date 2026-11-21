@@ -24,6 +24,9 @@ import { readFileSync } from "node:fs";
 import { FakeNode, makeFakeDocument } from "./helpers/fake-dom.mjs";
 import { closeEditForm, openEditForm } from "../public/js/render.js";
 import { attachMentionPicker } from "../public/js/mention-picker.js";
+import {
+  adjacentPost, bindPostKeys, createPostKeysHint, isTypingTarget, postKeyStep,
+} from "../public/js/post-keys.js";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const fakeDocument = makeFakeDocument();
@@ -106,4 +109,86 @@ test("mention textarea: ARIA 1.2 textbox popup — haspopup/controls/activedesce
   assert.equal(textarea.hasAttribute("aria-activedescendant"), false);
   assert.equal(textarea.hasAttribute("aria-expanded"), false);
   assert.doesNotMatch(read("public/js/mention-picker.js"), /setAttribute\("aria-expanded"/);
+});
+
+// --- F3: J/K keyboard post navigation -----------------------------------------------
+
+const keyEvent = (key, target, extra = {}) => ({
+  key, target, defaultPrevented: false, prevented: false,
+  preventDefault() { this.prevented = true; }, ...extra,
+});
+
+test("postKeyStep: bare j/k only — never while typing, with modifiers, or mid-IME", () => {
+  const button = el("button", "");
+  assert.equal(postKeyStep(keyEvent("j", button)), 1);
+  assert.equal(postKeyStep(keyEvent("k", button)), -1);
+  assert.equal(postKeyStep(keyEvent("x", button)), 0);
+  assert.equal(postKeyStep(keyEvent("J", button, { shiftKey: true })), 0);
+  for (const mod of ["altKey", "ctrlKey", "metaKey"]) assert.equal(postKeyStep(keyEvent("j", button, { [mod]: true })), 0);
+  assert.equal(postKeyStep(keyEvent("j", button, { isComposing: true })), 0);
+  assert.equal(postKeyStep(keyEvent("j", button, { defaultPrevented: true })), 0);
+  for (const tag of ["input", "textarea", "select"]) assert.equal(postKeyStep(keyEvent("j", el(tag, ""))), 0);
+  assert.equal(postKeyStep(keyEvent("j", Object.assign(el("div", ""), { isContentEditable: true }))), 0);
+  assert.equal(isTypingTarget(null), false);
+});
+
+test("adjacentPost walks reading order with no wrap-around and takes array-likes", () => {
+  const [a, b, c] = [el("article", "post-card"), el("article", "post-card"), el("article", "post-card")];
+  const root = el("div", "");
+  root.append(a, b, c);
+  const posts = root.querySelectorAll("article.post-card");
+  assert.equal(adjacentPost(posts, a, 1), b);
+  assert.equal(adjacentPost(posts, c, -1), b);
+  assert.equal(adjacentPost(posts, c, 1), null, "no wrap past the last post");
+  assert.equal(adjacentPost(posts, a, -1), null, "no wrap before the first post");
+  assert.equal(adjacentPost(posts, el("article", "post-card"), 1), null, "focus outside the thread does nothing");
+  assert.equal(adjacentPost(posts, a, 0), null);
+});
+
+test("bindPostKeys: J/K from inside the thread move focus between root, replies and sub-replies", () => {
+  const main = el("main", "");
+  const rootCard = el("article", "post-card");
+  const replyList = el("div", "post-list replies-list");
+  const first = el("article", "post-card");
+  const subContainer = el("div", "sub-replies");
+  const sub = el("article", "post-card");
+  subContainer.append(sub);
+  const second = el("article", "post-card");
+  replyList.append(first, subContainer, second);
+  const composer = el("textarea", "composer");
+  main.append(rootCard, replyList, composer);
+  bindPostKeys(main, [rootCard, replyList, null]);
+
+  const reaction = el("button", "reaction");
+  first.append(reaction);
+  const down = keyEvent("j", reaction);
+  replyList.dispatch("keydown", down);
+  assert.ok(down.prevented);
+  assert.equal(sub.ownerFocused, true, "j from the first reply lands on its sub-reply");
+  assert.equal(sub.getAttribute("tabindex"), "-1", "jumpToNode makes the card focusable");
+
+  const up = keyEvent("k", first);
+  replyList.dispatch("keydown", up);
+  assert.equal(rootCard.ownerFocused, true, "k from the first reply goes back to the opening post");
+
+  const last = keyEvent("j", second);
+  replyList.dispatch("keydown", last);
+  assert.equal(last.prevented, false, "the last post leaves the key alone");
+
+  const typing = keyEvent("j", el("textarea", ""));
+  replyList.dispatch("keydown", typing);
+  assert.equal(typing.prevented, false, "typing a j in a reply box never jumps");
+});
+
+test("hint is keyed, wired only with replies, and the module stays client-only", () => {
+  const hint = createPostKeysHint(fakeDocument);
+  assert.equal(hint.className, "post-keys-hint");
+  assert.ok(hint.textContent.length > 0);
+  const post = read("public/js/routes/post.js");
+  assert.match(post, /bindPostKeys\(main, \[rootCard, replyList\]\)/);
+  assert.ok(post.indexOf("createPostKeysHint(document)") > post.indexOf("if (post.replies.length) {\n    // J/K"),
+    "the hint sits inside the has-replies branch");
+  const source = read("public/js/post-keys.js");
+  assert.doesNotMatch(source, /innerHTML|\bapi\(|fetch\(|localStorage|document\.addEventListener/);
+  assert.match(read("public/styles.css"), /\.post-keys-hint\s*\{/);
 });

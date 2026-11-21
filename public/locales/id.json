@@ -539,6 +539,7 @@
   "post.editSaved": "Suntinganmu disimpan.",
   "post.hideReplies.one": "Sembunyikan {count} balasan",
   "post.hideReplies.other": "Sembunyikan {count} balasan",
+  "post.keysHint": "Tips keyboard: dari dalam sebuah postingan, tekan J untuk postingan berikutnya atau K untuk sebelumnya.",
   "post.loadOlderReplies": "Muat balasan lama",
   "post.miniReplyPlaceholder": "Tulis balasan",
   "post.noReplies": "Belum ada balasan!",

@@ -539,6 +539,7 @@
   "post.editSaved": "Deine Änderung wurde gespeichert.",
   "post.hideReplies.one": "{count} Antwort ausblenden",
   "post.hideReplies.other": "{count} Antworten ausblenden",
+  "post.keysHint": "Tastatur-Tipp: Drücke in einem Beitrag J für den nächsten oder K für den vorherigen Beitrag.",
   "post.loadOlderReplies": "Ältere Antworten laden",
   "post.miniReplyPlaceholder": "Schreib eine Antwort",
   "post.noReplies": "Noch keine Antworten!",

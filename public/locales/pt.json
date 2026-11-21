@@ -539,6 +539,7 @@
   "post.editSaved": "Sua edição foi salva.",
   "post.hideReplies.one": "Ocultar {count} resposta",
   "post.hideReplies.other": "Ocultar {count} respostas",
+  "post.keysHint": "Dica de teclado: a partir de uma publicação, pressione J para a próxima ou K para a anterior.",
   "post.loadOlderReplies": "Carregar respostas anteriores",
   "post.miniReplyPlaceholder": "Escreva uma resposta",
   "post.noReplies": "Nenhuma resposta ainda!",

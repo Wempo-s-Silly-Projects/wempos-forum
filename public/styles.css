@@ -2923,3 +2923,5 @@ dialog h2 {
   white-space: nowrap;
 }
 .read-aloud-button[aria-pressed="true"] { color: var(--green-ink); }
+/* v4.13 J/K post navigation hint. */
+.post-keys-hint { margin: 0 0 0.5rem; color: var(--muted); font-size: 0.8rem; }

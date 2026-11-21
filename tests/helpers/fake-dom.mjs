@@ -202,11 +202,16 @@ export class FakeNode {
   removeEventListener(type, listener) {
     this.listeners[type] = (this.listeners[type] ?? []).filter((fn) => fn !== listener);
   }
+  // A caller-built event (one with its own preventDefault) is passed through
+  // as-is so the caller can read back what the listener did to it.
+  _event(event) {
+    return typeof event.preventDefault === "function" ? event : { preventDefault() {}, target: this, ...event };
+  }
   async fire(type, event = {}) {
-    for (const listener of this.listeners[type] ?? []) await listener({ preventDefault() {}, target: this, ...event });
+    for (const listener of this.listeners[type] ?? []) await listener(this._event(event));
   }
   dispatch(type, event = {}) {
-    for (const listener of this.listeners[type] ?? []) listener({ preventDefault() {}, target: this, ...event });
+    for (const listener of this.listeners[type] ?? []) listener(this._event(event));
   }
   focus() { this.ownerFocused = true; }
 }
