@@ -46,6 +46,19 @@ test("feed end: only a non-empty final page reaches the end", () => {
   assert.equal(reachedFeedEnd({ posts: "nope" }), false);
 });
 
+test("feed end (wave 40): an empty Load older page after a full page closes the list", () => {
+  // A feed of exactly FEED_PAGE_SIZE posts still carries a cursor, so Load
+  // older shows; the page it fetches is empty and must end the list.
+  assert.equal(reachedFeedEnd({ posts: [], nextBefore: null }, { olderPage: true }), true);
+  assert.equal(reachedFeedEnd(null, { olderPage: true }), true);
+  // The first page keeps its empty-state line instead.
+  assert.equal(reachedFeedEnd({ posts: [], nextBefore: null }, { olderPage: false }), false);
+  const source = read("public/js/routes/feed.js");
+  assert.match(source, /if \(reachedFeedEnd\(older, \{ olderPage: true \}\)\) main\.append\(createFeedEnd\(document, main\)\);/);
+  // No "No posts yet" line under a feed that already shows posts.
+  assert.match(source, /if \(older\.posts\.length\) appendPostList\(main, older\.posts,/);
+});
+
 test("feed end: renders the line and a Back to top button that focuses the first heading", () => {
   const document = makeFakeDocument();
   const scope = document.createElement("main");
@@ -87,7 +100,7 @@ test("feed end: page-view only, textContent only", () => {
 test("feed end: Load older closes the list on the final page", () => {
   const source = read("public/js/routes/feed.js");
   assert.match(source, /import \{ createFeedEnd, reachedFeedEnd \} from "\.\.\/feed-end\.js";/);
-  assert.match(source, /if \(reachedFeedEnd\(older\)\) main\.append\(createFeedEnd\(document, main\)\);/);
+  assert.match(source, /if \(reachedFeedEnd\(older, \{ olderPage: true \}\)\) main\.append\(createFeedEnd\(document, main\)\);/);
   assert.match(read("public/index.html"), /<link rel="modulepreload" href="\/js\/feed-end\.js">/);
   assert.match(read("public/styles.css"), /\.feed-end \{/);
 });

@@ -481,12 +481,12 @@ async function loadMorePosts(button) {
   const older = await api("/api/posts?before=" + button.dataset.before +
     (board ? "&board=" + board : "") + (mine ? "&mine=" + mine : "") +
     (viewQuery ? "&" + viewQuery : ""));
-  appendPostList(main, older.posts, document, state.currentUser,
+  if (older.posts.length) appendPostList(main, older.posts, document, state.currentUser,
     board === SUGGESTIONS_BOARD ? suggestionsEmptyText() : undefined);
   if (board === SUGGESTIONS_BOARD) numberSuggestionCards(document, main);
   button.remove();
   // Wave 35: the final page closes the list with End of feed + Back to top.
-  if (reachedFeedEnd(older)) main.append(createFeedEnd(document, main));
+  if (reachedFeedEnd(older, { olderPage: true })) main.append(createFeedEnd(document, main));
   if (older.posts.length !== 20 || !older.nextBefore) return;
   const next = element("button", "button button-secondary",
     board === SUGGESTIONS_BOARD ? t("feed.loadOlderSuggestions") : t("feed.loadOlderPosts"));
