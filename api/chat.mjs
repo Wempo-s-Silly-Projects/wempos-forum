@@ -26,13 +26,15 @@
 // directions, and the unread counters are the canonical thread row's own —
 // a send bumps the OTHER side, a read zeroes the viewer's own.
 import { assertNotBanned, readSession, requireSignedInRead, requireStaff, requireUser } from "./core/auth.mjs";
-import { blockPairExists } from "./core/blocks.mjs";
+import { blockPairExists, viewerBlockFilterSql } from "./core/blocks.mjs";
+import { ACTIVE_BAN_SQL } from "./core/visibility.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
+import { unreadCount } from "./notifications.mjs";
 import { activeBanSql, listViewerGroups, parseGroupCursor, readDmMessageBody, viewerGroupUnread } from "./dm-groups.mjs";
 import { DM_THREAD_LIST_LIMIT } from "../constants.mjs";
 
@@ -79,15 +81,19 @@ function publicChatMessage(row) {
 
 // Messages after the cursor (oldest-first, up to limit), or the newest
 // `limit` when after is null — re-ordered oldest-first for append rendering.
-async function lobbyMessageRows(db, after, limit) {
+// Wave 40: a signed-in non-staff viewer never reads a block-paired member's
+// lines (either direction); guests and staff read every unbanned line.
+async function lobbyMessageRows(db, after, limit, viewer = null) {
+  const blocks = viewerBlockFilterSql(viewer, "c.user_id");
+  const blockBinds = blocks ? [viewer.id, viewer.id] : [];
   const rows = after === null
     ? (await db.prepare(
-      LOBBY_CHAT_SELECT + "WHERE " + LOBBY_CHAT_BAN_FILTER_SQL + " ORDER BY c.id DESC LIMIT ?",
-    ).bind(limit).all()).results || []
+      LOBBY_CHAT_SELECT + "WHERE " + LOBBY_CHAT_BAN_FILTER_SQL + blocks + " ORDER BY c.id DESC LIMIT ?",
+    ).bind(...blockBinds, limit).all()).results || []
     : (await db.prepare(
-      LOBBY_CHAT_SELECT + "WHERE c.id > ? AND " + LOBBY_CHAT_BAN_FILTER_SQL +
+      LOBBY_CHAT_SELECT + "WHERE c.id > ? AND " + LOBBY_CHAT_BAN_FILTER_SQL + blocks +
       " ORDER BY c.id ASC LIMIT ?",
-    ).bind(after, limit).all()).results || [];
+    ).bind(after, ...blockBinds, limit).all()).results || [];
   return after === null ? rows.slice().reverse() : rows;
 }
 
@@ -148,10 +154,19 @@ const DM_BAN_FILTER_SQL =
   "AND b.revoked_at IS NULL AND (b.expires_at IS NULL OR b.expires_at > " +
   "CAST(strftime('%s','now') AS INTEGER)))";
 
+// Wave 40: a block pair (either direction) hides the paired member's
+// messages at read time too, as group reads already do. Binds the viewer
+// id twice.
+const DM_BLOCK_FILTER_SQL =
+  "NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND bk.blocked_id = m.user_id) " +
+  "OR (bk.blocked_id = ? AND bk.blocker_id = m.user_id))";
+const DM_VISIBLE_MESSAGE_SQL = DM_BAN_FILTER_SQL + " AND " + DM_BLOCK_FILTER_SQL;
+
+// Bind order: thread id, viewer, viewer.
 const DM_MESSAGES_SELECT_SQL =
   "SELECT m.id, m.body, m.user_id, m.created_at, u.username AS author_username " +
   "FROM dm_messages m JOIN users u ON u.id = m.user_id " +
-  "WHERE m.thread_id = ? AND " + DM_BAN_FILTER_SQL;
+  "WHERE m.thread_id = ? AND " + DM_VISIBLE_MESSAGE_SQL;
 const DM_OLDER_PAGES_SQL = " AND m.id < ? ";
 const DM_MESSAGES_TAIL_SQL =
   " ORDER BY m.id DESC LIMIT " + DM_MESSAGE_PAGE_LIMIT;
@@ -218,6 +233,12 @@ async function handlePresenceWriteRoute(request, env, url, path, method) {
       body.invisible === false || body.invisible === 0 ? 0 : null;
     if (invisible === null) throw new HttpError(400, "That presence flag is not valid.");
   }
+  // Wave 40 F2: an actively-banned member keeps no presence row (every read
+  // already hides them); the ping answers without writing.
+  const banned = await env.FORUM_DB.prepare(
+    "SELECT 1 AS banned WHERE " + ACTIVE_BAN_SQL("?"),
+  ).bind(session.user.id).first();
+  if (banned) return json({ ok: true, invisible: invisible ?? 0 });
   if (invisible !== null) {
     await env.FORUM_DB.prepare(PRESENCE_UPSERT_SQL)
       .bind(session.user.id, nowSeconds(), invisible).run();
@@ -275,8 +296,9 @@ async function viewerDmUnread(db, viewerId) {
 
 // GET /api/dm/threads — the signed-in member's thread list, newest activity
 // first (a thread with no messages sorts last), capped at the newest
-// DM_THREAD_LIST_LIMIT. The preview reads the newest dm_messages row
-// verbatim — stored bodies, no read-time filtering. ?before=<group cursor>
+// DM_THREAD_LIST_LIMIT. The preview (and its time and the sort) read the
+// newest dm_messages row the viewer may see (wave 40: banned or block-paired
+// authors skipped, as the thread read does). ?before=<group cursor>
 // asks for the next page of groups only (threads come back empty).
 async function handleThreadListRoute(request, env, url, path, method) {
   if (path !== "/api/dm/threads" || method !== "GET") return null;
@@ -291,16 +313,16 @@ async function handleThreadListRoute(request, env, url, path, method) {
     "SELECT t.id, t.user_a, t.user_b, t.unread_a, t.unread_b, " +
     "u.username AS other_username, u.role AS other_role, " +
     dmOtherHiddenSql() + " AS other_hidden, " +
-    "(SELECT m.body FROM dm_messages m WHERE m.thread_id = t.id " +
-    "ORDER BY m.id DESC LIMIT 1) AS last_body, " +
-    "(SELECT m.created_at FROM dm_messages m WHERE m.thread_id = t.id " +
-    "ORDER BY m.id DESC LIMIT 1) AS last_at " +
+    "(SELECT m.body FROM dm_messages m WHERE m.thread_id = t.id AND " + DM_VISIBLE_MESSAGE_SQL +
+    " ORDER BY m.id DESC LIMIT 1) AS last_body, " +
+    "(SELECT m.created_at FROM dm_messages m WHERE m.thread_id = t.id AND " + DM_VISIBLE_MESSAGE_SQL +
+    " ORDER BY m.id DESC LIMIT 1) AS last_at " +
     "FROM dm_threads t JOIN users u ON u.id = " +
     "(CASE WHEN t.user_a = ? THEN t.user_b ELSE t.user_a END) " +
     "WHERE t.user_a = ? OR t.user_b = ? " +
-    "ORDER BY (SELECT m.id FROM dm_messages m WHERE m.thread_id = t.id " +
-    "ORDER BY m.id DESC LIMIT 1) DESC LIMIT " + DM_THREAD_LIST_LIMIT,
-  ).bind(viewerId, viewerId, viewerId, viewerId, viewerId).all()).results || [];
+    "ORDER BY (SELECT m.id FROM dm_messages m WHERE m.thread_id = t.id AND " + DM_VISIBLE_MESSAGE_SQL +
+    " ORDER BY m.id DESC LIMIT 1) DESC LIMIT " + DM_THREAD_LIST_LIMIT,
+  ).bind(...Array(11).fill(viewerId)).all()).results || [];
   // v4.7: the viewer's group DMs ride the same response (additive key), so
   // the widget's one probe paints both kinds of conversation.
   const page = await listViewerGroups(env, viewerId);
@@ -343,13 +365,20 @@ async function handleThreadReadRoute(request, env, url, path, method) {
   const statement = DM_MESSAGES_SELECT_SQL + (older ? DM_OLDER_PAGES_SQL : "") +
     DM_MESSAGES_TAIL_SQL;
   const bound = older
-    ? env.FORUM_DB.prepare(statement).bind(threadId, after)
-    : env.FORUM_DB.prepare(statement).bind(threadId);
+    ? env.FORUM_DB.prepare(statement).bind(threadId, viewerId, viewerId, after)
+    : env.FORUM_DB.prepare(statement).bind(threadId, viewerId, viewerId);
   const rows = (await bound.all()).results || [];
+  // Wave 40: unread matches the thread list — zero while the other member is
+  // actively banned or block-paired (all their messages are hidden).
+  const otherId = otherMember(row, viewerId).id;
+  const otherHidden = await env.FORUM_DB.prepare(
+    "SELECT 1 AS hidden WHERE " + ACTIVE_BAN_SQL("?") + " OR EXISTS (SELECT 1 FROM blocks bk WHERE " +
+    "(bk.blocker_id = ? AND bk.blocked_id = ?) OR (bk.blocked_id = ? AND bk.blocker_id = ?))",
+  ).bind(otherId, viewerId, otherId, viewerId, otherId).first();
   return json({
     id: Number(row.id),
     other: otherMember(row, viewerId),
-    unread: viewerUnread(row, viewerId),
+    unread: otherHidden ? 0 : viewerUnread(row, viewerId),
     messages: rows.map((message) => dmMessageShape(message, viewerId)),
   });
 }
@@ -491,7 +520,8 @@ async function handleLobbyChatReadRoute(request, env, url, path, method) {
     if (!/^[0-9]{1,15}$/.test(afterRaw)) throw new HttpError(400, "That chat cursor is invalid.");
     after = Number(afterRaw);
   }
-  const messages = await lobbyMessageRows(db, after, LOBBY_CHAT_PAGE_LIMIT);
+  const session = await readSession(request, env).catch(() => null);
+  const messages = await lobbyMessageRows(db, after, LOBBY_CHAT_PAGE_LIMIT, session?.user || null);
   const online = await lobbyOnlineCount(db);
   // Who's online: the same window, naming the visible (non-lurking) members
   // so the lobby can list them. Invisible members stay off the list, exactly
@@ -504,15 +534,12 @@ async function handleLobbyChatReadRoute(request, env, url, path, method) {
     "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER))) " +
     "ORDER BY u.username LIMIT " + LOBBY_ONLINE_ROSTER_LIMIT,
   ).bind(nowSeconds() - LOBBY_PRESENCE_WINDOW_SECONDS).all()).results || [];
-  const session = await readSession(request, env).catch(() => null);
   let dmUnread = 0;
   let bellUnread = 0;
   if (session && session.user) {
     dmUnread = await viewerDmUnread(db, session.user.id);
-    const bellRow = await db.prepare(
-      "SELECT COUNT(*) AS unread FROM notifications WHERE user_id = ? AND read_at IS NULL",
-    ).bind(session.user.id).first();
-    bellUnread = Number(bellRow?.unread || 0);
+    // Wave 40: the same visible-row count as the bell and GET /api/session.
+    bellUnread = await unreadCount(env, session.user.id, session.user.role);
   }
   return json({
     messages: messages.map(publicChatMessage),

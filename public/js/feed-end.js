@@ -28,10 +28,12 @@ import { jumpToNode } from "./focus-utils.js";
 export const FEED_END_PAGE_SIZE = 20;
 
 // True for a non-empty final page: short, or full with no further cursor.
-// An empty page already shows the feed's empty-state line.
-export function reachedFeedEnd(page) {
+// An empty first page already shows the feed's empty-state line; an empty
+// Load older page (wave 40: the feed held exactly FEED_END_PAGE_SIZE posts,
+// so a cursor came back) is the end of the feed too.
+export function reachedFeedEnd(page, { olderPage = false } = {}) {
   const posts = page && Array.isArray(page.posts) ? page.posts : [];
-  if (!posts.length) return false;
+  if (!posts.length) return olderPage;
   return posts.length !== FEED_END_PAGE_SIZE || !page.nextBefore;
 }
 

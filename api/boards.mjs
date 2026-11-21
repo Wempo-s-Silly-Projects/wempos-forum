@@ -20,6 +20,7 @@
 // verbatim from api/posts.mjs (which read it before any SQL ran — the same
 // contract holds here: every writer must pass through boardField).
 import { HttpError } from "./core/http.mjs";
+import { ACTIVE_BAN_SQL } from "./core/visibility.mjs";
 
 // Board whitelist (categories, v3.1, Discourse-style): general chatter,
 // game dev/work, showing things off, bugs & troubleshooting, suggestions
@@ -48,4 +49,6 @@ export function boardField(value) {
 // feed's ORDER BY, pure board semantics.)
 export const SUGGESTION_SCORE_SQL =
   "(SELECT COALESCE(SUM(CASE r.value WHEN 'like' THEN 1 ELSE -1 END), 0) " +
-  "FROM reactions r WHERE r.post_id = p.id)";
+  // Wave 40: banned reactors drop out, matching POST_SELECT's like/dislike
+  // counts (the score cursor is encoded from those).
+  "FROM reactions r WHERE r.post_id = p.id AND NOT " + ACTIVE_BAN_SQL("r.user_id") + ")";

@@ -69,3 +69,31 @@ export async function canViewPost(env, row, viewer) {
   }
   return true;
 }
+
+// Wave 40 (whole-repo visibility audit): the SQL twins of canViewPost for
+// list reads that cannot loop per row. ACTIVE_BAN_SQL(column) is the active-
+// ban predicate keyed on any user-id column (expired/revoked bans don't
+// count); it binds nothing.
+export const ACTIVE_BAN_SQL = (column) =>
+  "EXISTS (SELECT 1 FROM bans b WHERE b.user_id = " + column +
+  " AND b.revoked_at IS NULL AND (b.expires_at IS NULL OR b.expires_at > " +
+  "CAST(strftime('%s','now') AS INTEGER)))";
+
+const viewableLevelSql = (alias) =>
+  alias + ".visibility = 'public' AND NOT " + ACTIVE_BAN_SQL(alias + ".author_id") +
+  " AND NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND bk.blocked_id = " +
+  alias + ".author_id) OR (bk.blocked_id = ? AND bk.blocker_id = " + alias + ".author_id))";
+
+// canViewPost for a signed-in NON-STAFF viewer, as one EXISTS over a post id
+// expression: the post, its parent and the root are each public, by an
+// unbanned author, and not block-paired with the viewer (either direction).
+// Binds the viewer id VIEWABLE_POST_BINDS times, in text order. Staff callers
+// skip it (their reads bypass, as canViewPost does).
+export const VIEWABLE_POST_BINDS = 6;
+export function viewablePostSql(idExpr) {
+  return "EXISTS (SELECT 1 FROM posts vp0 WHERE vp0.id = " + idExpr + " AND " + viewableLevelSql("vp0") +
+    " AND (vp0.parent_id IS NULL OR EXISTS (SELECT 1 FROM posts vp1 WHERE vp1.id = vp0.parent_id AND " +
+    viewableLevelSql("vp1") +
+    " AND (vp1.parent_id IS NULL OR EXISTS (SELECT 1 FROM posts vp2 WHERE vp2.id = vp1.parent_id AND " +
+    viewableLevelSql("vp2") + ")))))";
+}

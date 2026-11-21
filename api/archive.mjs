@@ -21,7 +21,9 @@
 // point is that deletion is never a way to scrub words (rooman98's ask), so
 // this read is unauthenticated: anyone who can visit the forum can view what
 // was destroyed, marked with who wrote it and why it's gone.
+import { readSession } from "./core/auth.mjs";
 import { HttpError, json } from "./core/http.mjs";
+import { ACTIVE_BAN_SQL } from "./core/visibility.mjs";
 import { maskSpoilers } from "./core/spoilers.mjs";
 
 const ARCHIVE_PAGE_SIZE = 51;
@@ -39,14 +41,27 @@ async function handleArchiveRoute(request, env, url, path, method) {
       throw new HttpError(400, "A before cursor must be a positive id.");
     }
   }
+  const session = await readSession(request, env);
+  const viewer = session && session.user ? session.user : null;
+  const archiveBlocks = viewer && viewer.role !== "owner" && viewer.role !== "admin"
+    ? " AND NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND bk.blocked_id = post_archive.author_id) " +
+      "OR (bk.blocked_id = ? AND bk.blocker_id = post_archive.author_id))"
+    : "";
   const sql = "SELECT id, original_post_id, author_id, author_name, body, board, created_at, deleted_at, deleted_because, deleted_by_user_id, deleted_by_name " +
     // visibility (migration 0041): the public accountability read carries only
     // rows that were PUBLIC when deleted — moderation-hidden or banned-author
     // posts were not public content at deletion time. Rows kept hidden from
     // this read (staff still see them in D1) count against the page size, so
     // a sparse page is possible; the cursor keeps its id monotonicity either way.
-    "FROM post_archive WHERE visibility = 'public' AND id < ? ORDER BY id DESC LIMIT " + ARCHIVE_PAGE_SIZE;
-  const result = await env.FORUM_DB.prepare(sql).bind(before ?? Number.MAX_SAFE_INTEGER).all();
+    "FROM post_archive WHERE visibility = 'public' AND id < ? " +
+    // Wave 40: the visibility law at read time — an actively-banned author's
+    // rows stay off the page (an unban restores them), and a signed-in
+    // non-staff viewer never reads a block-paired author's rows. NOT EXISTS
+    // keeps wiped-account rows (author_id NULL) on the page.
+    "AND NOT " + ACTIVE_BAN_SQL("post_archive.author_id") + archiveBlocks +
+    " ORDER BY id DESC LIMIT " + ARCHIVE_PAGE_SIZE;
+  const result = await env.FORUM_DB.prepare(sql)
+    .bind(before ?? Number.MAX_SAFE_INTEGER, ...(archiveBlocks ? [viewer.id, viewer.id] : [])).all();
   const rows = result.results || [];
   const hasMore = rows.length === ARCHIVE_PAGE_SIZE;
   const last = rows[rows.length - 1] || null;

@@ -23,6 +23,7 @@
 // than in the profiles topic; core never imports a topic module). Imports only
 // the roles leaf.
 import { publicRole } from "./roles.mjs";
+import { ACTIVE_BAN_SQL } from "./visibility.mjs";
 
 export const POST_SELECT =
   "SELECT p.id, p.author_id, p.parent_id, p.body, p.visibility, p.created_at, p.last_activity_at, p.edited_at, p.board, p.view_count, p.pinned_at, " +
@@ -38,8 +39,12 @@ export const POST_SELECT =
   // can chip owners/admins next to the name.
   "u.role AS author_role, " +
   "(SELECT parent.body FROM posts parent WHERE parent.id = p.parent_id) AS parent_body, " +
-  "(SELECT COUNT(*) FROM reactions r WHERE r.post_id = p.id AND r.value = 'like') AS like_count, " +
-  "(SELECT COUNT(*) FROM reactions r WHERE r.post_id = p.id AND r.value = 'dislike') AS dislike_count, " +
+  // Wave 40: a reaction by an actively-banned member never counts (read
+  // time; an unban restores it) — the same tally SUGGESTION_SCORE_SQL sums.
+  "(SELECT COUNT(*) FROM reactions r WHERE r.post_id = p.id AND r.value = 'like' AND NOT " +
+  ACTIVE_BAN_SQL("r.user_id") + ") AS like_count, " +
+  "(SELECT COUNT(*) FROM reactions r WHERE r.post_id = p.id AND r.value = 'dislike' AND NOT " +
+  ACTIVE_BAN_SQL("r.user_id") + ") AS dislike_count, " +
   "(SELECT r.value FROM reactions r WHERE r.post_id = p.id AND r.user_id = ?) AS viewer_reaction " +
   "FROM posts p JOIN users u ON u.id = p.author_id ";
 

@@ -58,7 +58,8 @@ import { assertNotBanned } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, rateLimit, readLimitedBody, requireMutationApplied, requiredText } from "./core/http.mjs";
 import { postById } from "./core/shapers.mjs";
-import { canViewPost } from "./core/visibility.mjs";
+import { VIEWABLE_POST_BINDS, canViewPost, viewablePostSql } from "./core/visibility.mjs";
+import { viewerBlockFilterSql } from "./core/blocks.mjs";
 import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
 
 const SUPPORTED_PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
@@ -401,7 +402,9 @@ async function callTool(id, params, env, ctx) {
   if (!handler) return rpcError(id, RPC_INVALID_PARAMS, "Unknown tool: " + String(params.name));
   const throttled = await chargeReadTier(env, ctx);
   if (throttled) return rpcResult(id, throttled);
-  const outcome = await handler(env, args);
+  // Wave 40: an agent token reads as its member (block pairs apply); an
+  // anonymous caller reads as a guest (viewer null).
+  const outcome = await handler(env, args, ctx.agent || null);
   return rpcResult(id, outcome.error ? toolError(outcome.error) : toolText(outcome.data));
 }
 
@@ -434,7 +437,14 @@ function parseLimit(raw) {
   return { limit: raw };
 }
 
-async function searchPosts(env, args) {
+// Wave 40: the viewer's both-direction block clause on the root author, with
+// its binds (none for guests and staff — viewerBlockFilterSql decides).
+function rootBlockFilter(viewer) {
+  const sql = viewerBlockFilterSql(viewer, "p.author_id");
+  return { sql: sql ? sql + " " : "", binds: sql ? [viewer.id, viewer.id] : [] };
+}
+
+async function searchPosts(env, args, viewer = null) {
   const query = typeof args.query === "string" ? args.query.trim().toLowerCase() : "";
   if (!query || query.length > MAX_QUERY_LENGTH) {
     return { error: "query must be a string of 1-" + MAX_QUERY_LENGTH + " characters." };
@@ -443,25 +453,28 @@ async function searchPosts(env, args) {
   if (parsed.error) return parsed;
   // Mirrors api/search.mjs / listRootPosts: instr(lower(body), ?) — no LIKE
   // wildcards to escape.
-  const sql = ROW_SELECT + PUBLIC_ROOT_WHERE + "AND instr(lower(p.body), ?) > 0 ORDER BY p.id DESC LIMIT ?";
-  return { data: await listRows(env, sql, [query, parsed.limit]) };
+  const blocks = rootBlockFilter(viewer);
+  const sql = ROW_SELECT + PUBLIC_ROOT_WHERE + blocks.sql + "AND instr(lower(p.body), ?) > 0 ORDER BY p.id DESC LIMIT ?";
+  return { data: await listRows(env, sql, [...blocks.binds, query, parsed.limit]) };
 }
 
-async function recentPosts(env, args) {
+async function recentPosts(env, args, viewer = null) {
   const parsed = parseLimit(args.limit);
   if (parsed.error) return parsed;
-  const sql = ROW_SELECT + PUBLIC_ROOT_WHERE + "ORDER BY p.id DESC LIMIT ?";
-  return { data: await listRows(env, sql, [parsed.limit]) };
+  const blocks = rootBlockFilter(viewer);
+  const sql = ROW_SELECT + PUBLIC_ROOT_WHERE + blocks.sql + "ORDER BY p.id DESC LIMIT ?";
+  return { data: await listRows(env, sql, [...blocks.binds, parsed.limit]) };
 }
 
-async function listBoard(env, args) {
+async function listBoard(env, args, viewer = null) {
   if (!BOARD_VALUES.includes(args.board)) {
     return { error: "board must be one of: " + BOARD_VALUES.join(", ") + "." };
   }
   const parsed = parseLimit(args.limit);
   if (parsed.error) return parsed;
-  const sql = ROW_SELECT + PUBLIC_ROOT_WHERE + "AND p.board = ? ORDER BY p.id DESC LIMIT ?";
-  return { data: await listRows(env, sql, [args.board, parsed.limit]) };
+  const blocks = rootBlockFilter(viewer);
+  const sql = ROW_SELECT + PUBLIC_ROOT_WHERE + blocks.sql + "AND p.board = ? ORDER BY p.id DESC LIMIT ?";
+  return { data: await listRows(env, sql, [...blocks.binds, args.board, parsed.limit]) };
 }
 
 async function listRows(env, sql, values) {
@@ -469,19 +482,22 @@ async function listRows(env, sql, values) {
   return (result.results || []).map((row) => shapePost(row, LIST_BODY_CHARS));
 }
 
-async function getPost(env, args) {
+async function getPost(env, args, viewer = null) {
   if (!Number.isInteger(args.id) || args.id < 1) return { error: "id must be an integer >= 1." };
   const row = await env.FORUM_DB.prepare(ROW_SELECT + "WHERE p.id = ? LIMIT 1").bind(args.id).first();
-  // The visibility law for an anonymous viewer: public, author unbanned, and
-  // every ancestor the same.
-  if (!row || !(await canViewPost(env, row, null))) return { error: "Post not found." };
-  return { data: { ...shapePost(row, null), replies: await publicReplies(env, args.id) } };
+  // The visibility law: public, author unbanned, every ancestor the same,
+  // and (wave 40) no block pair with an agent caller's member.
+  if (!row || !(await canViewPost(env, row, viewer))) return { error: "Post not found." };
+  return { data: { ...shapePost(row, null), replies: await publicReplies(env, args.id, viewer) } };
 }
 
 // Direct replies plus level-2 replies (replies to a direct reply). The target
 // post is already gated; l1 is each reply's parent (the target itself, or the
 // intermediate reply) and must pass the same law in SQL.
-async function publicReplies(env, postId) {
+async function publicReplies(env, postId, viewer = null) {
+  const replyBlocks = viewerBlockFilterSql(viewer, "p.author_id");
+  const parentBlocks = viewerBlockFilterSql(viewer, "l1.author_id");
+  const blockBinds = replyBlocks ? [viewer.id, viewer.id, viewer.id, viewer.id] : [];
   const sql =
     "SELECT p.id, p.author_id, p.parent_id, p.body, p.visibility, p.created_at, p.board, " +
     "u.username AS author_username FROM posts p JOIN users u ON u.id = p.author_id " +
@@ -489,8 +505,8 @@ async function publicReplies(env, postId) {
     "WHERE (p.parent_id = ? OR l1.parent_id = ?) " +
     "AND p.visibility = 'public' AND " + banFilterSql("p") + " " +
     "AND l1.visibility = 'public' AND " + banFilterSql("l1") + " " +
-    "ORDER BY p.id ASC LIMIT ?";
-  const result = await env.FORUM_DB.prepare(sql).bind(postId, postId, MAX_REPLIES).all();
+    replyBlocks + parentBlocks + " ORDER BY p.id ASC LIMIT ?";
+  const result = await env.FORUM_DB.prepare(sql).bind(postId, postId, ...blockBinds, MAX_REPLIES).all();
   return (result.results || []).map((row) => ({ ...shapePost(row, null), parent_id: Number(row.parent_id) }));
 }
 
@@ -651,20 +667,18 @@ async function replyFanOut(db, { agent, message, targetId, replyId, recipientId,
   }
 }
 
-// The member-shape gating of notifications.mjs NOTIFICATION_SELECT_FILTERED
-// (public reply, author unbanned, no block pair) applied to the row itself,
-// plus the reply author's username. Post-targeted rows only (replies,
-// mentions, thread-subscription replies); label-only rows are skipped.
-// Bind order: recipient, since_id, recipient (blocks), recipient (blocks), limit.
+// The member-shape gating of notifications.mjs NOTIFICATION_SELECT_FILTERED:
+// wave 40 walks the reply's whole chain (canViewPost's SQL twin — the reply,
+// its parent and its root public, unbanned, no block pair either way), plus
+// the reply author's username. Post-targeted rows only (replies, mentions,
+// thread-subscription replies); label-only rows are skipped.
+// Bind order: recipient, since_id, recipient x VIEWABLE_POST_BINDS, limit.
 const MENTIONS_SQL =
   "SELECT n.id, n.target_post_id, n.reply_id, n.created_at, n.read_at, n.label, " +
     "p.body AS reply_body, u.username AS author_username " +
   "FROM notifications n JOIN posts p ON p.id = n.reply_id JOIN users u ON u.id = p.author_id " +
-  "WHERE n.user_id = ? AND n.id > ? AND n.target_post_id IS NOT NULL AND p.visibility = 'public' AND " +
-    "NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = p.author_id AND b.revoked_at IS NULL " +
-    "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER))) AND " +
-    "NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND bk.blocked_id = p.author_id) " +
-    "OR (bk.blocker_id = p.author_id AND bk.blocked_id = ?)) " +
+  "WHERE n.user_id = ? AND n.id > ? AND n.target_post_id IS NOT NULL AND " +
+    viewablePostSql("n.reply_id") + " " +
   "ORDER BY n.id DESC LIMIT ?";
 
 // notifications.mjs read-one route: own rows only, unread only.
@@ -703,7 +717,8 @@ async function listMentions(env, args, ctx) {
   const db = env.FORUM_DB;
   const userId = ctx.agent.id;
   const { sinceId, limit, markRead } = parseMentionArgs(args);
-  const result = await db.prepare(MENTIONS_SQL).bind(userId, sinceId, userId, userId, limit).all();
+  const result = await db.prepare(MENTIONS_SQL)
+    .bind(userId, sinceId, ...Array(VIEWABLE_POST_BINDS).fill(userId), limit).all();
   const mentions = (result.results || []).map(shapeMention);
   const unread = mentions.filter((mention) => !mention.read);
   if (markRead && unread.length > 0) {
@@ -738,11 +753,11 @@ function shapeLobbyMessage(row) {
 }
 
 // GET /api/chat's message + online halves (same helpers, same ban filter).
-async function lobbyRead(env, args) {
+async function lobbyRead(env, args, viewer = null) {
   const parsed = parseLobbyArgs(args);
   if (parsed.error) return parsed;
   const db = env.FORUM_DB;
-  const rows = await lobbyMessageRows(db, parsed.after, parsed.limit);
+  const rows = await lobbyMessageRows(db, parsed.after, parsed.limit, viewer);
   const online = await lobbyOnlineCount(db);
   const latestId = rows.length ? Number(rows[rows.length - 1].id) : (parsed.after || 0);
   return { data: { messages: rows.map(shapeLobbyMessage), online, latest_id: latestId } };
