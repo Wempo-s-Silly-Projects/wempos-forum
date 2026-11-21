@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "اعرض فقط الردود التي تذكر…",
   "replyFilter.clear": "مسح",
   "replyFilter.matches.one": "{count} من {total} ردود يطابق",
-  "replyFilter.matches.other": "الردود المطابقة: {count} من {total}"
+  "replyFilter.matches.other": "الردود المطابقة: {count} من {total}",
+  "profile.nextBadge": "الشارة التالية: {badge} ({done} من {goal})",
+  "profile.topBadge": "لديك أعلى شارة.",
+  "feed.regularsHere": "الأعضاء الدائمون في هذه الصفحة:",
+  "feed.resetAppearance": "إعادة تعيين المظهر",
+  "feed.appearanceResetDone": "عاد المظهر إلى الإعدادات الافتراضية."
 }

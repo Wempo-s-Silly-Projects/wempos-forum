@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "다음을 언급한 답글만 보기…",
   "replyFilter.clear": "지우기",
   "replyFilter.matches.one": "답글 {total}개 중 {count}개 일치",
-  "replyFilter.matches.other": "답글 {total}개 중 {count}개 일치"
+  "replyFilter.matches.other": "답글 {total}개 중 {count}개 일치",
+  "profile.nextBadge": "다음 배지: {badge} ({goal} 중 {done})",
+  "profile.topBadge": "최고 배지를 가지고 있습니다.",
+  "feed.regularsHere": "이 페이지의 단골:",
+  "feed.resetAppearance": "모양 초기화",
+  "feed.appearanceResetDone": "모양이 기본값으로 돌아갔습니다."
 }

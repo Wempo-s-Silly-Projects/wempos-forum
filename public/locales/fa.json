@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "فقط پاسخ‌هایی را نشان بده که اشاره می‌کنند به…",
   "replyFilter.clear": "پاک کردن",
   "replyFilter.matches.one": "{count} از {total} پاسخ مطابقت دارد",
-  "replyFilter.matches.other": "{count} از {total} پاسخ مطابقت دارند"
+  "replyFilter.matches.other": "{count} از {total} پاسخ مطابقت دارند",
+  "profile.nextBadge": "نشان بعدی: {badge} ({done} از {goal})",
+  "profile.topBadge": "شما بالاترین نشان را دارید.",
+  "feed.regularsHere": "اعضای همیشگی این صفحه:",
+  "feed.resetAppearance": "بازنشانی ظاهر",
+  "feed.appearanceResetDone": "ظاهر به حالت پیش‌فرض برگشت."
 }

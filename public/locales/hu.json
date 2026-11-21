@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Csak azokat a válaszokat mutasd, amelyek említik…",
   "replyFilter.clear": "Törlés",
   "replyFilter.matches.one": "{total} válaszból {count} egyezik",
-  "replyFilter.matches.other": "{total} válaszból {count} egyezik"
+  "replyFilter.matches.other": "{total} válaszból {count} egyezik",
+  "profile.nextBadge": "Következő jelvény: {badge} ({done}/{goal})",
+  "profile.topBadge": "Megvan a legmagasabb jelvényed.",
+  "feed.regularsHere": "Törzstagok ezen az oldalon:",
+  "feed.resetAppearance": "Megjelenés visszaállítása",
+  "feed.appearanceResetDone": "A megjelenés visszaállt az alapértelmezésre."
 }

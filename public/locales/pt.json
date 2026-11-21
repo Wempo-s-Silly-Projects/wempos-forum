@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Mostrar só respostas que mencionem…",
   "replyFilter.clear": "Limpar",
   "replyFilter.matches.one": "{count} de {total} respostas corresponde",
-  "replyFilter.matches.other": "{count} de {total} respostas correspondem"
+  "replyFilter.matches.other": "{count} de {total} respostas correspondem",
+  "profile.nextBadge": "Próximo emblema: {badge} ({done} de {goal})",
+  "profile.topBadge": "Você tem o emblema mais alto.",
+  "feed.regularsHere": "Frequentadores desta página:",
+  "feed.resetAppearance": "Redefinir aparência",
+  "feed.appearanceResetDone": "A aparência voltou ao padrão."
 }

@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Ipakita lang ang mga sagot na bumabanggit ng…",
   "replyFilter.clear": "I-clear",
   "replyFilter.matches.one": "{count} sa {total} sagot ang tugma",
-  "replyFilter.matches.other": "{count} sa {total} sagot ang tugma"
+  "replyFilter.matches.other": "{count} sa {total} sagot ang tugma",
+  "profile.nextBadge": "Susunod na badge: {badge} ({done} sa {goal})",
+  "profile.topBadge": "Nasa iyo na ang pinakamataas na badge.",
+  "feed.regularsHere": "Mga madalas dito sa pahinang ito:",
+  "feed.resetAppearance": "I-reset ang itsura",
+  "feed.appearanceResetDone": "Bumalik na sa default ang itsura."
 }

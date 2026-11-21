@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "শুধু সেই উত্তরগুলো দেখান যেগুলোতে আছে…",
   "replyFilter.clear": "মুছুন",
   "replyFilter.matches.one": "{total}টি উত্তরের মধ্যে {count}টি মিলেছে",
-  "replyFilter.matches.other": "{total}টি উত্তরের মধ্যে {count}টি মিলেছে"
+  "replyFilter.matches.other": "{total}টি উত্তরের মধ্যে {count}টি মিলেছে",
+  "profile.nextBadge": "পরবর্তী ব্যাজ: {badge} ({goal}-এর মধ্যে {done})",
+  "profile.topBadge": "আপনার কাছে সর্বোচ্চ ব্যাজ আছে।",
+  "feed.regularsHere": "এই পাতার নিয়মিত সদস্যরা:",
+  "feed.resetAppearance": "চেহারা রিসেট করুন",
+  "feed.appearanceResetDone": "চেহারা ডিফল্টে ফিরে গেছে।"
 }

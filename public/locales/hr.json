@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Prikaži samo odgovore koji spominju…",
   "replyFilter.clear": "Očisti",
   "replyFilter.matches.one": "{count} od {total} odgovora odgovara",
-  "replyFilter.matches.other": "{count} od {total} odgovora odgovara"
+  "replyFilter.matches.other": "{count} od {total} odgovora odgovara",
+  "profile.nextBadge": "Sljedeća značka: {badge} ({done} od {goal})",
+  "profile.topBadge": "Imate najvišu značku.",
+  "feed.regularsHere": "Stalni članovi na ovoj stranici:",
+  "feed.resetAppearance": "Vrati izgled",
+  "feed.appearanceResetDone": "Izgled je vraćen na zadane postavke."
 }

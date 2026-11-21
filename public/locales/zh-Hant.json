@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "只顯示提到以下內容的回覆…",
   "replyFilter.clear": "清除",
   "replyFilter.matches.one": "{total} 則回覆中有 {count} 則相符",
-  "replyFilter.matches.other": "{total} 則回覆中有 {count} 則相符"
+  "replyFilter.matches.other": "{total} 則回覆中有 {count} 則相符",
+  "profile.nextBadge": "下一個徽章：{badge}（{done}/{goal}）",
+  "profile.topBadge": "你已擁有最高徽章。",
+  "feed.regularsHere": "本頁常客：",
+  "feed.resetAppearance": "重設外觀",
+  "feed.appearanceResetDone": "外觀已恢復為預設設定。"
 }

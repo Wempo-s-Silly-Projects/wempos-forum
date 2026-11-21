@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Visa bara svar som nämner…",
   "replyFilter.clear": "Rensa",
   "replyFilter.matches.one": "{count} av {total} svar matchar",
-  "replyFilter.matches.other": "{count} av {total} svar matchar"
+  "replyFilter.matches.other": "{count} av {total} svar matchar",
+  "profile.nextBadge": "Nästa märke: {badge} ({done} av {goal})",
+  "profile.topBadge": "Du har det högsta märket.",
+  "feed.regularsHere": "Stamgäster på den här sidan:",
+  "feed.resetAppearance": "Återställ utseende",
+  "feed.appearanceResetDone": "Utseendet är tillbaka till standard."
 }

@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Näytä vain vastaukset, joissa mainitaan…",
   "replyFilter.clear": "Tyhjennä",
   "replyFilter.matches.one": "{count}/{total} vastauksesta täsmää",
-  "replyFilter.matches.other": "{count}/{total} vastauksesta täsmää"
+  "replyFilter.matches.other": "{count}/{total} vastauksesta täsmää",
+  "profile.nextBadge": "Seuraava merkki: {badge} ({done}/{goal})",
+  "profile.topBadge": "Sinulla on korkein merkki.",
+  "feed.regularsHere": "Vakiokävijät tällä sivulla:",
+  "feed.resetAppearance": "Palauta ulkoasu",
+  "feed.appearanceResetDone": "Ulkoasu on palautettu oletuksiin."
 }

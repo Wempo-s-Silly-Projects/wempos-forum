@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Onyesha tu majibu yanayotaja…",
   "replyFilter.clear": "Futa",
   "replyFilter.matches.one": "Jibu {count} kati ya {total} linalingana",
-  "replyFilter.matches.other": "Majibu {count} kati ya {total} yanalingana"
+  "replyFilter.matches.other": "Majibu {count} kati ya {total} yanalingana",
+  "profile.nextBadge": "Beji inayofuata: {badge} ({done} kati ya {goal})",
+  "profile.topBadge": "Una beji ya juu kabisa.",
+  "feed.regularsHere": "Wanachama wa kawaida kwenye ukurasa huu:",
+  "feed.resetAppearance": "Rejesha mwonekano",
+  "feed.appearanceResetDone": "Mwonekano umerudi kwenye chaguo-msingi."
 }

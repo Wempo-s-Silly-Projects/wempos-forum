@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Mostra solo le risposte che citano…",
   "replyFilter.clear": "Cancella",
   "replyFilter.matches.one": "{count} risposta su {total} corrisponde",
-  "replyFilter.matches.other": "{count} risposte su {total} corrispondono"
+  "replyFilter.matches.other": "{count} risposte su {total} corrispondono",
+  "profile.nextBadge": "Prossimo badge: {badge} ({done} su {goal})",
+  "profile.topBadge": "Hai il badge più alto.",
+  "feed.regularsHere": "Habitué in questa pagina:",
+  "feed.resetAppearance": "Ripristina aspetto",
+  "feed.appearanceResetDone": "L'aspetto è tornato alle impostazioni predefinite."
 }

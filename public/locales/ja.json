@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "次を含む返信だけを表示…",
   "replyFilter.clear": "クリア",
   "replyFilter.matches.one": "{total} 件中 {count} 件の返信が一致",
-  "replyFilter.matches.other": "{total} 件中 {count} 件の返信が一致"
+  "replyFilter.matches.other": "{total} 件中 {count} 件の返信が一致",
+  "profile.nextBadge": "次のバッジ: {badge}（{goal} 中 {done}）",
+  "profile.topBadge": "最上位のバッジを獲得しています。",
+  "feed.regularsHere": "このページの常連:",
+  "feed.resetAppearance": "外観をリセット",
+  "feed.appearanceResetDone": "外観を既定に戻しました。"
 }

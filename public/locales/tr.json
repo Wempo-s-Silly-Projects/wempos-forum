@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Yalnızca şunu anan yanıtları göster…",
   "replyFilter.clear": "Temizle",
   "replyFilter.matches.one": "{total} yanıttan {count} tanesi eşleşiyor",
-  "replyFilter.matches.other": "{total} yanıttan {count} tanesi eşleşiyor"
+  "replyFilter.matches.other": "{total} yanıttan {count} tanesi eşleşiyor",
+  "profile.nextBadge": "Sonraki rozet: {badge} ({goal} içinde {done})",
+  "profile.topBadge": "En yüksek rozete sahipsiniz.",
+  "feed.regularsHere": "Bu sayfanın müdavimleri:",
+  "feed.resetAppearance": "Görünümü sıfırla",
+  "feed.appearanceResetDone": "Görünüm varsayılanlara döndü."
 }

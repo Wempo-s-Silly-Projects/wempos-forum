@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Nur Antworten zeigen, die Folgendes erwähnen…",
   "replyFilter.clear": "Leeren",
   "replyFilter.matches.one": "{count} von {total} Antworten passt",
-  "replyFilter.matches.other": "{count} von {total} Antworten passen"
+  "replyFilter.matches.other": "{count} von {total} Antworten passen",
+  "profile.nextBadge": "Nächstes Abzeichen: {badge} ({done} von {goal})",
+  "profile.topBadge": "Du hast das höchste Abzeichen.",
+  "feed.regularsHere": "Stammgäste auf dieser Seite:",
+  "feed.resetAppearance": "Darstellung zurücksetzen",
+  "feed.appearanceResetDone": "Die Darstellung ist wieder auf den Standardwerten."
 }

@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Показывать только ответы, где упоминается…",
   "replyFilter.clear": "Очистить",
   "replyFilter.matches.one": "Совпадает {count} из {total} ответов",
-  "replyFilter.matches.other": "Совпадений: {count} из {total} ответов"
+  "replyFilter.matches.other": "Совпадений: {count} из {total} ответов",
+  "profile.nextBadge": "Следующий значок: {badge} ({done} из {goal})",
+  "profile.topBadge": "У вас самый высокий значок.",
+  "feed.regularsHere": "Завсегдатаи на этой странице:",
+  "feed.resetAppearance": "Сбросить оформление",
+  "feed.appearanceResetDone": "Оформление возвращено к настройкам по умолчанию."
 }

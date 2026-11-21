@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Prikaži samo odgovore koji pominju…",
   "replyFilter.clear": "Obriši",
   "replyFilter.matches.one": "{count} od {total} odgovora se poklapa",
-  "replyFilter.matches.other": "{count} od {total} odgovora se poklapa"
+  "replyFilter.matches.other": "{count} od {total} odgovora se poklapa",
+  "profile.nextBadge": "Следећа значка: {badge} ({done} од {goal})",
+  "profile.topBadge": "Имате највишу значку.",
+  "feed.regularsHere": "Стални чланови на овој страници:",
+  "feed.resetAppearance": "Врати изглед",
+  "feed.appearanceResetDone": "Изглед је враћен на подразумеване поставке."
 }
