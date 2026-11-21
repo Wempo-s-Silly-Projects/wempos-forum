@@ -909,5 +909,9 @@
   "longPost.showMore": "Magpakita pa",
   "longPost.showLess": "Magpakita ng mas kaunti",
   "feed.endOfFeed": "Narating mo na ang dulo ng feed na ito.",
-  "feed.backToTop": "Bumalik sa itaas"
+  "feed.backToTop": "Bumalik sa itaas",
+  "capsGuard.notice": "Halos puro malalaking titik ito, na puwedeng magmukhang sumisigaw.",
+  "capsGuard.fix": "Ibaba ang malalaking titik",
+  "capsGuard.lowered": "Naibaba na ang malalaking titik.",
+  "capsGuard.undo": "I-undo"
 }

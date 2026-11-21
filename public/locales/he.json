@@ -909,5 +909,9 @@
   "longPost.showMore": "הצג עוד",
   "longPost.showLess": "הצג פחות",
   "feed.endOfFeed": "הגעת לסוף הפיד הזה.",
-  "feed.backToTop": "חזרה למעלה"
+  "feed.backToTop": "חזרה למעלה",
+  "capsGuard.notice": "רוב הטקסט באותיות גדולות, וזה עלול להיראות כמו צעקה.",
+  "capsGuard.fix": "הקטן את האותיות הגדולות",
+  "capsGuard.lowered": "האותיות הגדולות הוקטנו.",
+  "capsGuard.undo": "ביטול"
 }

@@ -909,5 +909,9 @@
   "longPost.showMore": "Arată mai mult",
   "longPost.showLess": "Arată mai puțin",
   "feed.endOfFeed": "Ai ajuns la sfârșitul acestui flux.",
-  "feed.backToTop": "Înapoi sus"
+  "feed.backToTop": "Înapoi sus",
+  "capsGuard.notice": "Textul este mai ales cu majuscule, ceea ce poate părea strigat.",
+  "capsGuard.fix": "Coboară majusculele",
+  "capsGuard.lowered": "Majusculele au fost coborâte.",
+  "capsGuard.undo": "Anulează"
 }

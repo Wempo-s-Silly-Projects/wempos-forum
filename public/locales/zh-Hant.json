@@ -909,5 +909,9 @@
   "longPost.showMore": "顯示更多",
   "longPost.showLess": "收合",
   "feed.endOfFeed": "你已經看到這個動態的結尾了。",
-  "feed.backToTop": "回到頂端"
+  "feed.backToTop": "回到頂端",
+  "capsGuard.notice": "這段文字大多是大寫字母，讀起來可能像在大喊。",
+  "capsGuard.fix": "改成小寫",
+  "capsGuard.lowered": "已改成小寫。",
+  "capsGuard.undo": "復原"
 }

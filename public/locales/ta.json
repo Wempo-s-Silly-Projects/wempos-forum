@@ -909,5 +909,9 @@
   "longPost.showMore": "மேலும் காட்டு",
   "longPost.showLess": "குறைவாகக் காட்டு",
   "feed.endOfFeed": "இந்த ஓடையின் முடிவுக்கு வந்துவிட்டீர்கள்.",
-  "feed.backToTop": "மேலே செல்"
+  "feed.backToTop": "மேலே செல்",
+  "capsGuard.notice": "இது பெரும்பாலும் பெரிய எழுத்துகளில் உள்ளது, இது கத்துவது போல் தோன்றலாம்.",
+  "capsGuard.fix": "பெரிய எழுத்துகளைக் குறை",
+  "capsGuard.lowered": "பெரிய எழுத்துகள் குறைக்கப்பட்டன.",
+  "capsGuard.undo": "செயல்தவிர்"
 }

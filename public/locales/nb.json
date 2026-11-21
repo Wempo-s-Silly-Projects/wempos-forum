@@ -909,5 +909,9 @@
   "longPost.showMore": "Vis mer",
   "longPost.showLess": "Vis mindre",
   "feed.endOfFeed": "Du har nådd slutten av denne feeden.",
-  "feed.backToTop": "Tilbake til toppen"
+  "feed.backToTop": "Tilbake til toppen",
+  "capsGuard.notice": "Det er mest store bokstaver, og det kan virke som roping.",
+  "capsGuard.fix": "Gjør bokstavene små",
+  "capsGuard.lowered": "Store bokstaver gjort små.",
+  "capsGuard.undo": "Angre"
 }

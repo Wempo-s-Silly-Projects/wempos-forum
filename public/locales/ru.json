@@ -909,5 +909,9 @@
   "longPost.showMore": "Показать больше",
   "longPost.showLess": "Свернуть",
   "feed.endOfFeed": "Вы дошли до конца этой ленты.",
-  "feed.backToTop": "Наверх"
+  "feed.backToTop": "Наверх",
+  "capsGuard.notice": "Текст почти весь заглавными буквами — это может выглядеть как крик.",
+  "capsGuard.fix": "Убрать заглавные",
+  "capsGuard.lowered": "Заглавные буквы убраны.",
+  "capsGuard.undo": "Отменить"
 }

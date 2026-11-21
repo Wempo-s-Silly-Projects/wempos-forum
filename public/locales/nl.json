@@ -909,5 +909,9 @@
   "longPost.showMore": "Meer tonen",
   "longPost.showLess": "Minder tonen",
   "feed.endOfFeed": "Je hebt het einde van deze feed bereikt.",
-  "feed.backToTop": "Terug naar boven"
+  "feed.backToTop": "Terug naar boven",
+  "capsGuard.notice": "Dit is bijna allemaal hoofdletters, en dat kan overkomen als schreeuwen.",
+  "capsGuard.fix": "Hoofdletters verlagen",
+  "capsGuard.lowered": "Hoofdletters verlaagd.",
+  "capsGuard.undo": "Ongedaan maken"
 }

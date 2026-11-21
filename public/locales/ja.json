@@ -909,5 +909,9 @@
   "longPost.showMore": "もっと見る",
   "longPost.showLess": "折りたたむ",
   "feed.endOfFeed": "このフィードの最後まで来ました。",
-  "feed.backToTop": "トップへ戻る"
+  "feed.backToTop": "トップへ戻る",
+  "capsGuard.notice": "ほとんどが大文字なので、叫んでいるように見えるかもしれません。",
+  "capsGuard.fix": "大文字を小文字に直す",
+  "capsGuard.lowered": "大文字を直しました。",
+  "capsGuard.undo": "元に戻す"
 }

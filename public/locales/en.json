@@ -909,5 +909,9 @@
   "longPost.showMore": "Show more",
   "longPost.showLess": "Show less",
   "feed.endOfFeed": "You've reached the end of this feed.",
-  "feed.backToTop": "Back to top"
+  "feed.backToTop": "Back to top",
+  "capsGuard.notice": "That's mostly capital letters, which can read as shouting.",
+  "capsGuard.fix": "Lower the caps",
+  "capsGuard.lowered": "Caps lowered.",
+  "capsGuard.undo": "Undo"
 }

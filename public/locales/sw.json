@@ -909,5 +909,9 @@
   "longPost.showMore": "Onyesha zaidi",
   "longPost.showLess": "Onyesha kidogo",
   "feed.endOfFeed": "Umefika mwisho wa mlisho huu.",
-  "feed.backToTop": "Rudi juu"
+  "feed.backToTop": "Rudi juu",
+  "capsGuard.notice": "Sehemu kubwa ni herufi kubwa, jambo linaloweza kusomeka kama kupiga kelele.",
+  "capsGuard.fix": "Punguza herufi kubwa",
+  "capsGuard.lowered": "Herufi kubwa zimepunguzwa.",
+  "capsGuard.undo": "Tendua"
 }

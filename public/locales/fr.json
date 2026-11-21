@@ -909,5 +909,9 @@
   "longPost.showMore": "Afficher plus",
   "longPost.showLess": "Afficher moins",
   "feed.endOfFeed": "Vous avez atteint la fin de ce fil.",
-  "feed.backToTop": "Retour en haut"
+  "feed.backToTop": "Retour en haut",
+  "capsGuard.notice": "C'est presque tout en majuscules, ce qui peut sembler crié.",
+  "capsGuard.fix": "Baisser les majuscules",
+  "capsGuard.lowered": "Majuscules baissées.",
+  "capsGuard.undo": "Annuler"
 }

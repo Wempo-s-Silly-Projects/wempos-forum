@@ -909,5 +909,9 @@
   "longPost.showMore": "نمایش بیشتر",
   "longPost.showLess": "نمایش کمتر",
   "feed.endOfFeed": "به انتهای این فید رسیدید.",
-  "feed.backToTop": "بازگشت به بالا"
+  "feed.backToTop": "بازگشت به بالا",
+  "capsGuard.notice": "بیشتر متن با حروف بزرگ است و ممکن است مثل فریاد به نظر برسد.",
+  "capsGuard.fix": "حروف بزرگ را کوچک کن",
+  "capsGuard.lowered": "حروف بزرگ کوچک شد.",
+  "capsGuard.undo": "واگرد"
 }

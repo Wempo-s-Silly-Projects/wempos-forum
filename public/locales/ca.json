@@ -909,5 +909,9 @@
   "longPost.showMore": "Mostra'n més",
   "longPost.showLess": "Mostra'n menys",
   "feed.endOfFeed": "Has arribat al final d'aquest flux.",
-  "feed.backToTop": "Torna a dalt"
+  "feed.backToTop": "Torna a dalt",
+  "capsGuard.notice": "Això és gairebé tot en majúscules, i pot semblar que cridis.",
+  "capsGuard.fix": "Baixa les majúscules",
+  "capsGuard.lowered": "Majúscules rebaixades.",
+  "capsGuard.undo": "Desfés"
 }

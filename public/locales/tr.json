@@ -909,5 +909,9 @@
   "longPost.showMore": "Daha fazla göster",
   "longPost.showLess": "Daha az göster",
   "feed.endOfFeed": "Bu akışın sonuna geldin.",
-  "feed.backToTop": "Başa dön"
+  "feed.backToTop": "Başa dön",
+  "capsGuard.notice": "Metin çoğunlukla büyük harf; bu bağırıyormuş gibi okunabilir.",
+  "capsGuard.fix": "Büyük harfleri küçült",
+  "capsGuard.lowered": "Büyük harfler küçültüldü.",
+  "capsGuard.undo": "Geri al"
 }

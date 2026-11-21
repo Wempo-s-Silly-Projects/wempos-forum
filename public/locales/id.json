@@ -909,5 +909,9 @@
   "longPost.showMore": "Tampilkan lebih banyak",
   "longPost.showLess": "Tampilkan lebih sedikit",
   "feed.endOfFeed": "Kamu sudah sampai di akhir umpan ini.",
-  "feed.backToTop": "Kembali ke atas"
+  "feed.backToTop": "Kembali ke atas",
+  "capsGuard.notice": "Sebagian besar ditulis dengan huruf kapital, yang bisa terkesan berteriak.",
+  "capsGuard.fix": "Kecilkan huruf kapital",
+  "capsGuard.lowered": "Huruf kapital sudah dikecilkan.",
+  "capsGuard.undo": "Urungkan"
 }

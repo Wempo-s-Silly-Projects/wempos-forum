@@ -3430,3 +3430,7 @@ mark.search-hit {
 .not-found-code { margin: 1rem 0 0; font-size: clamp(4rem, 18vw, 7.5rem); font-weight: 800; line-height: 1; letter-spacing: 0.04em; color: var(--coral); font-variant-numeric: tabular-nums; }
 .not-found-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin: 1rem 0 0; }
 .not-found-links a { overflow-wrap: anywhere; font-weight: 700; }
+
+/* v5.5 caps guard: the quiet "reads as shouting" note under a composer. */
+.caps-guard { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-block: 0.3rem; color: var(--muted); font-size: 0.85rem; }
+.caps-guard[hidden], .caps-guard [hidden] { display: none; }

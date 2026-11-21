@@ -909,5 +909,9 @@
   "longPost.showMore": "আরও দেখুন",
   "longPost.showLess": "কম দেখুন",
   "feed.endOfFeed": "আপনি এই ফিডের শেষে পৌঁছে গেছেন।",
-  "feed.backToTop": "ওপরে ফিরে যান"
+  "feed.backToTop": "ওপরে ফিরে যান",
+  "capsGuard.notice": "এটি বেশিরভাগই বড় হাতের অক্ষরে, যা চিৎকারের মতো শোনাতে পারে।",
+  "capsGuard.fix": "বড় হাতের অক্ষর ছোট করুন",
+  "capsGuard.lowered": "বড় হাতের অক্ষর ছোট করা হয়েছে।",
+  "capsGuard.undo": "পূর্বাবস্থায় ফেরান"
 }

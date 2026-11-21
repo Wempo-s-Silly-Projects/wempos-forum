@@ -909,5 +909,9 @@
   "longPost.showMore": "显示更多",
   "longPost.showLess": "收起",
   "feed.endOfFeed": "你已经看到这个信息流的末尾了。",
-  "feed.backToTop": "回到顶部"
+  "feed.backToTop": "回到顶部",
+  "capsGuard.notice": "这段文字大多是大写字母，读起来可能像在大喊。",
+  "capsGuard.fix": "改成小写",
+  "capsGuard.lowered": "已改成小写。",
+  "capsGuard.undo": "撤销"
 }

@@ -909,5 +909,9 @@
   "longPost.showMore": "Näytä lisää",
   "longPost.showLess": "Näytä vähemmän",
   "feed.endOfFeed": "Olet saavuttanut tämän syötteen lopun.",
-  "feed.backToTop": "Takaisin ylös"
+  "feed.backToTop": "Takaisin ylös",
+  "capsGuard.notice": "Teksti on enimmäkseen isoilla kirjaimilla, ja se voi kuulostaa huutamiselta.",
+  "capsGuard.fix": "Pienennä isot kirjaimet",
+  "capsGuard.lowered": "Isot kirjaimet pienennetty.",
+  "capsGuard.undo": "Kumoa"
 }

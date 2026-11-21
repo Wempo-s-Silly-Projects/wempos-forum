@@ -909,5 +909,9 @@
   "longPost.showMore": "แสดงเพิ่มเติม",
   "longPost.showLess": "แสดงน้อยลง",
   "feed.endOfFeed": "คุณมาถึงท้ายฟีดนี้แล้ว",
-  "feed.backToTop": "กลับขึ้นด้านบน"
+  "feed.backToTop": "กลับขึ้นด้านบน",
+  "capsGuard.notice": "ข้อความเกือบทั้งหมดเป็นตัวพิมพ์ใหญ่ ซึ่งอาจดูเหมือนตะโกน",
+  "capsGuard.fix": "ลดตัวพิมพ์ใหญ่",
+  "capsGuard.lowered": "ลดตัวพิมพ์ใหญ่แล้ว",
+  "capsGuard.undo": "เลิกทำ"
 }

@@ -909,5 +909,9 @@
   "longPost.showMore": "Mehr anzeigen",
   "longPost.showLess": "Weniger anzeigen",
   "feed.endOfFeed": "Du hast das Ende dieses Feeds erreicht.",
-  "feed.backToTop": "Nach oben"
+  "feed.backToTop": "Nach oben",
+  "capsGuard.notice": "Das ist fast nur in Großbuchstaben und kann wie Schreien wirken.",
+  "capsGuard.fix": "Großbuchstaben senken",
+  "capsGuard.lowered": "Großbuchstaben gesenkt.",
+  "capsGuard.undo": "Rückgängig"
 }

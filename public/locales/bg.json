@@ -909,5 +909,9 @@
   "longPost.showMore": "Покажи повече",
   "longPost.showLess": "Покажи по-малко",
   "feed.endOfFeed": "Стигна до края на този поток.",
-  "feed.backToTop": "Към началото"
+  "feed.backToTop": "Към началото",
+  "capsGuard.notice": "Това е предимно с главни букви и може да звучи като крясък.",
+  "capsGuard.fix": "Смали главните букви",
+  "capsGuard.lowered": "Главните букви са смалени.",
+  "capsGuard.undo": "Отмяна"
 }

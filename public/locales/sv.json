@@ -909,5 +909,9 @@
   "longPost.showMore": "Visa mer",
   "longPost.showLess": "Visa mindre",
   "feed.endOfFeed": "Du har nått slutet av det här flödet.",
-  "feed.backToTop": "Tillbaka till toppen"
+  "feed.backToTop": "Tillbaka till toppen",
+  "capsGuard.notice": "Det är mest versaler, och det kan läsas som att du skriker.",
+  "capsGuard.fix": "Gör om till gemener",
+  "capsGuard.lowered": "Versalerna är borta.",
+  "capsGuard.undo": "Ångra"
 }

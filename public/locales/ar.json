@@ -909,5 +909,9 @@
   "longPost.showMore": "عرض المزيد",
   "longPost.showLess": "عرض أقل",
   "feed.endOfFeed": "لقد وصلت إلى نهاية هذه الصفحة.",
-  "feed.backToTop": "العودة إلى الأعلى"
+  "feed.backToTop": "العودة إلى الأعلى",
+  "capsGuard.notice": "معظم النص بأحرف كبيرة، وقد يبدو كأنه صراخ.",
+  "capsGuard.fix": "خفّض الأحرف الكبيرة",
+  "capsGuard.lowered": "تم تخفيض الأحرف الكبيرة.",
+  "capsGuard.undo": "تراجع"
 }

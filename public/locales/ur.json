@@ -909,5 +909,9 @@
   "longPost.showMore": "مزید دکھائیں",
   "longPost.showLess": "کم دکھائیں",
   "feed.endOfFeed": "آپ اس فیڈ کے آخر تک پہنچ گئے ہیں۔",
-  "feed.backToTop": "اوپر واپس"
+  "feed.backToTop": "اوپر واپس",
+  "capsGuard.notice": "یہ زیادہ تر بڑے حروف میں ہے، جو چیخنے جیسا لگ سکتا ہے۔",
+  "capsGuard.fix": "بڑے حروف چھوٹے کریں",
+  "capsGuard.lowered": "بڑے حروف چھوٹے کر دیے گئے۔",
+  "capsGuard.undo": "کالعدم کریں"
 }

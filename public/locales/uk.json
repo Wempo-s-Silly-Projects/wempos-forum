@@ -909,5 +909,9 @@
   "longPost.showMore": "Показати більше",
   "longPost.showLess": "Згорнути",
   "feed.endOfFeed": "Ви дійшли до кінця цієї стрічки.",
-  "feed.backToTop": "Догори"
+  "feed.backToTop": "Догори",
+  "capsGuard.notice": "Текст майже весь великими літерами — це може виглядати як крик.",
+  "capsGuard.fix": "Прибрати великі літери",
+  "capsGuard.lowered": "Великі літери прибрано.",
+  "capsGuard.undo": "Скасувати"
 }

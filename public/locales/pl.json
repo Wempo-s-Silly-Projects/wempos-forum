@@ -909,5 +909,9 @@
   "longPost.showMore": "Pokaż więcej",
   "longPost.showLess": "Pokaż mniej",
   "feed.endOfFeed": "To już koniec tego kanału.",
-  "feed.backToTop": "Wróć na górę"
+  "feed.backToTop": "Wróć na górę",
+  "capsGuard.notice": "Tekst jest głównie wielkimi literami, co może wyglądać na krzyk.",
+  "capsGuard.fix": "Zmniejsz wielkie litery",
+  "capsGuard.lowered": "Wielkie litery zmniejszone.",
+  "capsGuard.undo": "Cofnij"
 }

@@ -909,5 +909,9 @@
   "longPost.showMore": "Vis mere",
   "longPost.showLess": "Vis mindre",
   "feed.endOfFeed": "Du er nået til slutningen af dette feed.",
-  "feed.backToTop": "Tilbage til toppen"
+  "feed.backToTop": "Tilbage til toppen",
+  "capsGuard.notice": "Det er mest store bogstaver, og det kan virke som råb.",
+  "capsGuard.fix": "Gør bogstaverne små",
+  "capsGuard.lowered": "Store bogstaver gjort små.",
+  "capsGuard.undo": "Fortryd"
 }

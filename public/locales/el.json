@@ -909,5 +909,9 @@
   "longPost.showMore": "Εμφάνιση περισσότερων",
   "longPost.showLess": "Εμφάνιση λιγότερων",
   "feed.endOfFeed": "Έφτασες στο τέλος αυτής της ροής.",
-  "feed.backToTop": "Επιστροφή στην κορυφή"
+  "feed.backToTop": "Επιστροφή στην κορυφή",
+  "capsGuard.notice": "Είναι κυρίως κεφαλαία γράμματα, που μπορεί να μοιάζουν με φωνές.",
+  "capsGuard.fix": "Κάνε τα κεφαλαία πεζά",
+  "capsGuard.lowered": "Τα κεφαλαία έγιναν πεζά.",
+  "capsGuard.undo": "Αναίρεση"
 }

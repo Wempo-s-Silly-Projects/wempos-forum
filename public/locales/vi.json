@@ -909,5 +909,9 @@
   "longPost.showMore": "Xem thêm",
   "longPost.showLess": "Thu gọn",
   "feed.endOfFeed": "Bạn đã đến cuối bảng tin này.",
-  "feed.backToTop": "Lên đầu trang"
+  "feed.backToTop": "Lên đầu trang",
+  "capsGuard.notice": "Phần lớn là chữ in hoa, có thể trông như đang hét.",
+  "capsGuard.fix": "Hạ chữ in hoa",
+  "capsGuard.lowered": "Đã hạ chữ in hoa.",
+  "capsGuard.undo": "Hoàn tác"
 }

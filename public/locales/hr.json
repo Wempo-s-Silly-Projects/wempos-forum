@@ -909,5 +909,9 @@
   "longPost.showMore": "Prikaži više",
   "longPost.showLess": "Prikaži manje",
   "feed.endOfFeed": "Stigao/la si do kraja ovog toka.",
-  "feed.backToTop": "Natrag na vrh"
+  "feed.backToTop": "Natrag na vrh",
+  "capsGuard.notice": "Tekst je uglavnom velikim slovima, što može djelovati kao vikanje.",
+  "capsGuard.fix": "Smanji velika slova",
+  "capsGuard.lowered": "Velika slova su smanjena.",
+  "capsGuard.undo": "Poništi"
 }

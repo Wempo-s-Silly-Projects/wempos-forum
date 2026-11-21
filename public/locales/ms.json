@@ -909,5 +909,9 @@
   "longPost.showMore": "Papar lagi",
   "longPost.showLess": "Papar kurang",
   "feed.endOfFeed": "Anda sudah sampai ke penghujung suapan ini.",
-  "feed.backToTop": "Kembali ke atas"
+  "feed.backToTop": "Kembali ke atas",
+  "capsGuard.notice": "Kebanyakannya huruf besar, yang boleh kedengaran seperti menjerit.",
+  "capsGuard.fix": "Kecilkan huruf besar",
+  "capsGuard.lowered": "Huruf besar telah dikecilkan.",
+  "capsGuard.undo": "Buat asal"
 }

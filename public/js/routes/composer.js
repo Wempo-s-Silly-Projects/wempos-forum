@@ -43,6 +43,7 @@ import { createComposePreview } from "../compose-preview.js";
 import { attachPasteAndDrop, confirmPendingFiles, dismissPendingFiles } from "../composer-paste.js";
 import { createDraftNotice } from "../draft-notice.js";
 import { attachPollHelpers, duplicatePollSlots, refreshPollHelpers } from "../poll-preview.js";
+import { createCapsGuard } from "../caps-guard.js";
 
 let activeGifComposerForm = null;
 let activePollComposerForm = null;
@@ -84,6 +85,8 @@ function createComposer(name, label, buttonLabel, postID = null,
   if (restoredDraft) form.append(createDraftNotice(document, { form, textarea: bodyField, savedAt: restoredDraft.savedAt }));
   // @mention autocomplete (wave 2026-11-21): suggestions from /api/search.
   attachMentionPicker(bodyField, document);
+  // Caps guard (wave 5.5 F1): a shouting note + one-click fix, local only.
+  form.append(createCapsGuard(bodyField, document));
   // Live Preview toggle (wave 2026-11-21-3): client-only, opt-in per click.
   form.append(createComposePreview(bodyField, document));
   // Paste / drop an image (wave 30): staged as pending until Attach.

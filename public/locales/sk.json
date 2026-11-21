@@ -909,5 +909,9 @@
   "longPost.showMore": "Zobraziť viac",
   "longPost.showLess": "Zobraziť menej",
   "feed.endOfFeed": "Došiel(la) si na koniec tohto kanála.",
-  "feed.backToTop": "Späť hore"
+  "feed.backToTop": "Späť hore",
+  "capsGuard.notice": "Text je prevažne veľkými písmenami a môže pôsobiť ako krik.",
+  "capsGuard.fix": "Zmenšiť veľké písmená",
+  "capsGuard.lowered": "Veľké písmená zmenšené.",
+  "capsGuard.undo": "Späť"
 }

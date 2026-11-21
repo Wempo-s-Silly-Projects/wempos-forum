@@ -909,5 +909,9 @@
   "longPost.showMore": "더 보기",
   "longPost.showLess": "접기",
   "feed.endOfFeed": "이 피드의 끝에 도달했습니다.",
-  "feed.backToTop": "맨 위로"
+  "feed.backToTop": "맨 위로",
+  "capsGuard.notice": "대부분 대문자라서 소리치는 것처럼 보일 수 있어요.",
+  "capsGuard.fix": "대문자 낮추기",
+  "capsGuard.lowered": "대문자를 낮췄어요.",
+  "capsGuard.undo": "실행 취소"
 }

@@ -909,5 +909,9 @@
   "longPost.showMore": "Továbbiak megjelenítése",
   "longPost.showLess": "Kevesebb megjelenítése",
   "feed.endOfFeed": "Elérted ennek a hírfolyamnak a végét.",
-  "feed.backToTop": "Vissza a tetejére"
+  "feed.backToTop": "Vissza a tetejére",
+  "capsGuard.notice": "Ez szinte csupa nagybetű, ami kiabálásnak tűnhet.",
+  "capsGuard.fix": "Nagybetűk kisbetűsítése",
+  "capsGuard.lowered": "A nagybetűk kisbetűsítve.",
+  "capsGuard.undo": "Visszavonás"
 }
