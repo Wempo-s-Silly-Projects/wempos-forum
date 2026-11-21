@@ -2928,7 +2928,7 @@ dialog h2 {
 /* v4.14 mod tools: recent-activity peek + hide-a-spam-run form. */
 .member-peek { display: grid; gap: 0.35rem; margin-top: 0.5rem; border: 1px solid var(--line); border-radius: var(--button-radius); padding: 0.6rem 0.8rem; }
 .member-peek-title { margin: 0; font-size: 0.95rem; }
-.member-peek-list { display: grid; gap: 0.5rem; margin: 0; padding-left: 1.2rem; }
+.member-peek-list { display: grid; gap: 0.5rem; margin: 0; padding-inline-start: 1.2rem; }
 .member-peek-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; color: var(--muted); font-size: 0.8rem; }
 .member-peek-hidden { color: var(--coral-dark); font-weight: 600; }
 .member-peek-body { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
