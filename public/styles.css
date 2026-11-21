@@ -927,6 +927,15 @@ dialog h2 {
   font-weight: 700;
 }
 
+/* v4.43: when each notification arrived, after its label. */
+.notification-time {
+  margin-inline-start: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 .sub-replies {
   margin: 0.5rem 0 0.5rem 1.4rem;
   padding-inline-start: 0.6rem;
