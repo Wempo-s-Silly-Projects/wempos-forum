@@ -887,5 +887,7 @@
   "drafts.discard": "Odrzuć szkic",
   "drafts.discardConfirm": "Odrzucić ten szkic? Tekst w polu zostanie wyczyszczony.",
   "longPost.showMore": "Pokaż więcej",
-  "longPost.showLess": "Pokaż mniej"
+  "longPost.showLess": "Pokaż mniej",
+  "feed.endOfFeed": "To już koniec tego kanału.",
+  "feed.backToTop": "Wróć na górę"
 }

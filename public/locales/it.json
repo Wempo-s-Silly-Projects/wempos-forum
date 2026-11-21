@@ -887,5 +887,7 @@
   "drafts.discard": "Elimina bozza",
   "drafts.discardConfirm": "Eliminare questa bozza? Il testo nella casella verrà cancellato.",
   "longPost.showMore": "Mostra di più",
-  "longPost.showLess": "Mostra di meno"
+  "longPost.showLess": "Mostra di meno",
+  "feed.endOfFeed": "Hai raggiunto la fine di questo feed.",
+  "feed.backToTop": "Torna su"
 }

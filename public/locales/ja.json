@@ -887,5 +887,7 @@
   "drafts.discard": "下書きを破棄",
   "drafts.discardConfirm": "この下書きを破棄しますか？入力欄のテキストは消去されます。",
   "longPost.showMore": "もっと見る",
-  "longPost.showLess": "折りたたむ"
+  "longPost.showLess": "折りたたむ",
+  "feed.endOfFeed": "このフィードの最後まで来ました。",
+  "feed.backToTop": "トップへ戻る"
 }

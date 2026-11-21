@@ -26,6 +26,10 @@
 export const DRAFT_PREFIX = "forum-draft:";
 export const DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 export const DRAFT_SAVE_DELAY_MS = 400;
+// Wave 35: a savedAt further ahead than this is corrupt (clock jump or
+// edited storage) — it would dodge the expiry forever and can fall outside
+// Date's range ("Invalid Date" in the restored notice), so it reads as none.
+export const DRAFT_FUTURE_SKEW_MS = 24 * 60 * 60 * 1000;
 
 // The optional account id scopes a draft to the member who typed it, so a
 // shared browser never restores one member's unsent text for another.
@@ -88,7 +92,8 @@ export function loadDraftEntry(storage, key, now = Date.now()) {
     return null;
   }
   if (!draft || typeof draft.body !== "string" || !Number.isFinite(draft.savedAt)) return null;
-  if (now - draft.savedAt > DRAFT_MAX_AGE_MS) {
+  const age = now - draft.savedAt;
+  if (age > DRAFT_MAX_AGE_MS || age < -DRAFT_FUTURE_SKEW_MS) {
     clearDraft(storage, key);
     return null;
   }

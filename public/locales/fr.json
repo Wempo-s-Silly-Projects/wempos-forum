@@ -887,5 +887,7 @@
   "drafts.discard": "Supprimer le brouillon",
   "drafts.discardConfirm": "Supprimer ce brouillon ? Le texte de la zone sera effacé.",
   "longPost.showMore": "Afficher plus",
-  "longPost.showLess": "Afficher moins"
+  "longPost.showLess": "Afficher moins",
+  "feed.endOfFeed": "Vous avez atteint la fin de ce fil.",
+  "feed.backToTop": "Retour en haut"
 }

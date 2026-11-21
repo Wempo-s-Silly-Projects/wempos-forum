@@ -887,5 +887,7 @@
   "drafts.discard": "Descartar rascunho",
   "drafts.discardConfirm": "Descartar este rascunho? O texto da caixa será apagado.",
   "longPost.showMore": "Mostrar mais",
-  "longPost.showLess": "Mostrar menos"
+  "longPost.showLess": "Mostrar menos",
+  "feed.endOfFeed": "Você chegou ao fim deste feed.",
+  "feed.backToTop": "Voltar ao topo"
 }

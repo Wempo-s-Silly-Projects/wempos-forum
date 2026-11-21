@@ -887,5 +887,7 @@
   "drafts.discard": "Удалить черновик",
   "drafts.discardConfirm": "Удалить этот черновик? Текст в поле будет очищен.",
   "longPost.showMore": "Показать больше",
-  "longPost.showLess": "Свернуть"
+  "longPost.showLess": "Свернуть",
+  "feed.endOfFeed": "Вы дошли до конца этой ленты.",
+  "feed.backToTop": "Наверх"
 }

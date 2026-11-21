@@ -887,5 +887,7 @@
   "drafts.discard": "Discard draft",
   "drafts.discardConfirm": "Discard this draft? The text in the box will be cleared.",
   "longPost.showMore": "Show more",
-  "longPost.showLess": "Show less"
+  "longPost.showLess": "Show less",
+  "feed.endOfFeed": "You've reached the end of this feed.",
+  "feed.backToTop": "Back to top"
 }

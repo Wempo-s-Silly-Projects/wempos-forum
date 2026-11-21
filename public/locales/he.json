@@ -887,5 +887,7 @@
   "drafts.discard": "מחק טיוטה",
   "drafts.discardConfirm": "למחוק את הטיוטה? הטקסט בתיבה יימחק.",
   "longPost.showMore": "הצג עוד",
-  "longPost.showLess": "הצג פחות"
+  "longPost.showLess": "הצג פחות",
+  "feed.endOfFeed": "הגעת לסוף הפיד הזה.",
+  "feed.backToTop": "חזרה למעלה"
 }

@@ -887,5 +887,7 @@
   "drafts.discard": "捨棄草稿",
   "drafts.discardConfirm": "要捨棄這份草稿嗎？輸入框中的文字將被清除。",
   "longPost.showMore": "顯示更多",
-  "longPost.showLess": "收合"
+  "longPost.showLess": "收合",
+  "feed.endOfFeed": "你已經看到這個動態的結尾了。",
+  "feed.backToTop": "回到頂端"
 }

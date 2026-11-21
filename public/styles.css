@@ -2044,6 +2044,22 @@ mark.search-hit {
   font-variant-numeric: tabular-nums;
 }
 
+/* End of feed (wave 35): closes the list after the final Load older page. */
+.feed-end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1rem;
+  margin: 1.5rem 0 0.5rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.feed-end-text {
+  margin: 0;
+}
+
 /* Live chat + online presence (v3.1): the header's count chip and the
    slide-over panel. The panel is fixed to the right edge, above the mobile
    bar; its stream lives outside <main> so route renders never wipe it. */
