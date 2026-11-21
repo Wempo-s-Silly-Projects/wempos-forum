@@ -29,4 +29,7 @@ export const state = {
   activeRoute: { name: "home" },
   renderVersion: 0,
   renderRoute: null,
+  // Wave 5.3: the signed-in member's unread notification count from the
+  // last session read (0 for guests), for the opt-in tab-title count.
+  unreadNotifications: 0,
 };

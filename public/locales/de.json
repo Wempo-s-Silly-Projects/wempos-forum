@@ -507,6 +507,7 @@
   "feed.textSizeDefault": "Standard",
   "feed.textSizeLarge": "Groß",
   "feed.textSizeLarger": "Größer",
+  "feed.tabUnread": "Anzahl ungelesener Benachrichtigungen im Browser-Tab anzeigen",
   "feed.unsubscribed": "Du hast diesen Thread abbestellt.",
   "feed.updatePassword": "Passwort aktualisieren",
   "gifs.removeImage": "Dieses Bild entfernen",

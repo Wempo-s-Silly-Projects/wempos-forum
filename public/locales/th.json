@@ -507,6 +507,7 @@
   "feed.textSizeDefault": "ค่าเริ่มต้น",
   "feed.textSizeLarge": "ใหญ่",
   "feed.textSizeLarger": "ใหญ่ขึ้น",
+  "feed.tabUnread": "แสดงจำนวนที่ยังไม่ได้อ่านในแท็บเบราว์เซอร์",
   "feed.unsubscribed": "คุณเลิกติดตามกระทู้นี้แล้ว",
   "feed.updatePassword": "อัปเดตรหัสผ่าน",
   "gifs.removeImage": "นำรูปนี้ออก",

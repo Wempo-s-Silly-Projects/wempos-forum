@@ -46,6 +46,7 @@ import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
 import { createTextSizePicker } from "../text-size.js";
+import { createTabUnreadToggle } from "../tab-unread.js";
 import { createDataExportPanel, downloadMyData } from "../data-export.js";
 import { addSectionAnchors, createSettingsFilter } from "../settings-tools.js";
 import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
@@ -148,7 +149,9 @@ function renderAccountSettings(session) {
   const appearance = createPanel(t("feed.appearanceTitle"), t("feed.appearanceNote"));
   let storage = null;
   try { storage = window.localStorage; } catch {}
-  appearance.append(corners, createTextSizePicker(document, storage));
+  // Wave 5.3: plus the opt-in unread count in the browser tab title.
+  appearance.append(corners, createTextSizePicker(document, storage),
+    createTabUnreadToggle(document, storage, () => state.unreadNotifications));
   account.append(appearance);
 
   const passwordPanel = createPanel(t("feed.changePasswordTitle"), t("feed.changePasswordNote"));

@@ -152,6 +152,7 @@ import {
 // the two-factor section); its Unblock action merges here.
 import { ACTIONS as blockActions } from "./routes/blocks.js";
 import { stopReadAloud } from "./read-aloud.js";
+import { applyTabUnread, normaliseTabCount, pageStorage } from "./tab-unread.js";
 
 async function prepareRouteContext(version) {
   const [session, setup] = await Promise.all([
@@ -160,6 +161,7 @@ async function prepareRouteContext(version) {
   ]);
   if (version !== state.renderVersion) return null;
   state.currentUser = session.user;
+  state.unreadNotifications = session.user ? normaliseTabCount(session.unreadNotifications) : 0;
   setCsrfToken(session.csrfToken);
   renderAccountNavigation(session.user, session.unreadNotifications ?? 0);
   return {
@@ -237,6 +239,7 @@ async function renderRoute(route) {
   const context = await prepareRouteContext(version);
   if (!context) return;
   setRouteTitle(route);
+  applyTabUnread(document, state.unreadNotifications, pageStorage());
 
   const renderers = {
     setup: () => renderSetupRoute(context),

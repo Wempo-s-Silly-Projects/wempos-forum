@@ -507,6 +507,7 @@
   "feed.textSizeDefault": "Типовий",
   "feed.textSizeLarge": "Великий",
   "feed.textSizeLarger": "Ще більший",
+  "feed.tabUnread": "Показувати кількість непрочитаних у вкладці браузера",
   "feed.unsubscribed": "Ти відписався(-лася) від цієї теми.",
   "feed.updatePassword": "Оновити пароль",
   "gifs.removeImage": "Прибрати це зображення",
