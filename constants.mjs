@@ -102,6 +102,15 @@ export const SEARCH_USERS_SQL =
 
 export const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
+// v4.37 feed page size: every listRootPosts branch (activity, suggestions,
+// id-cursor/search) shows this many roots per page. The per-page reply-count
+// rollup binds 2n+11 values for a blocking member (api/posts-feed.mjs
+// replyCountsBinds), so n must stay <= 44 under D1's bound-parameter ceiling;
+// tests/wave32-feed-page-size.test.mjs measures the worst case. A larger page
+// needs the IN-lists chunked first.
+export const FEED_PAGE_SIZE = 20;
+export const D1_MAX_BOUND_PARAMS = 100;
+
 // v4.7 group DMs: members per group INCLUDING the creator, and the optional
 // group name's length (the dm_groups.name CHECK in migration 0044 matches).
 export const DM_GROUP_MAX_MEMBERS = 10;

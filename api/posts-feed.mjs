@@ -48,6 +48,7 @@ import { HttpError, json } from "./core/http.mjs";
 import { POST_SELECT, postById, publicPost, VIEW_INCREMENT_SQL } from "./core/shapers.mjs";
 import { viewerBlockFilterSql } from "./core/blocks.mjs";
 import { canViewPost } from "./core/visibility.mjs";
+import { FEED_PAGE_SIZE } from "../constants.mjs";
 import { maskedExcerpt } from "./core/spoilers.mjs";
 
 export { POST_SELECT };
@@ -254,12 +255,11 @@ export async function listRootPosts(env, viewer, options = {}) {
       sql += "AND p.board = ? ";
       values.push(options.board);
     }
-    const pageSize = options.limit || 20;
-    sql += "ORDER BY (p.pinned_at IS NULL) ASC, p.last_activity_at DESC, p.id DESC LIMIT " + (pageSize + 1);
+    sql += "ORDER BY (p.pinned_at IS NULL) ASC, p.last_activity_at DESC, p.id DESC LIMIT " + (FEED_PAGE_SIZE + 1);
     const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
     const rows = result.results || [];
-    const hasMore = rows.length > pageSize;
-    const shown = rows.slice(0, pageSize);
+    const hasMore = rows.length > FEED_PAGE_SIZE;
+    const shown = rows.slice(0, FEED_PAGE_SIZE);
     const last = shown.length ? shown[shown.length - 1] : null;
     return {
       // Root queries only (parent_id IS NULL): every shown row is a level-0 root.
@@ -285,11 +285,11 @@ export async function listRootPosts(env, viewer, options = {}) {
       values.push(cursor.score, cursor.score, cursor.id);
     }
     sql += "AND p.board = 'suggestions' ORDER BY " + SUGGESTION_SCORE_SQL +
-      " DESC, p.id DESC LIMIT 21";
+      " DESC, p.id DESC LIMIT " + (FEED_PAGE_SIZE + 1);
     const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
     const rows = result.results || [];
-    const hasMore = rows.length > 20;
-    const shown = rows.slice(0, 20);
+    const hasMore = rows.length > FEED_PAGE_SIZE;
+    const shown = rows.slice(0, FEED_PAGE_SIZE);
     const last = shown.length ? shown[shown.length - 1] : null;
     return {
       // The suggestions feed rides the same decorator path as the activity
@@ -318,11 +318,11 @@ export async function listRootPosts(env, viewer, options = {}) {
     sql += "AND instr(lower(p.body), ?) > 0 ";
     values.push(options.searchTerm);
   }
-  sql += "ORDER BY p.id DESC LIMIT 21";
+  sql += "ORDER BY p.id DESC LIMIT " + (FEED_PAGE_SIZE + 1);
   const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
   const rows = result.results || [];
-  const hasMore = rows.length > 20;
-  const shown = rows.slice(0, 20).map((row) => publicPost(row, 0));
+  const hasMore = rows.length > FEED_PAGE_SIZE;
+  const shown = rows.slice(0, FEED_PAGE_SIZE).map((row) => publicPost(row, 0));
   const posts = await withSubscriptionFlags(env.FORUM_DB, viewer, await withBookmarkFlags(env.FORUM_DB, viewer, await withReplyMetadata(env.FORUM_DB, viewer,
     await withAttachments(env.FORUM_DB, viewer, shown))));
   return { posts, nextBefore: hasMore && shown.length ? shown[shown.length - 1].id : null };

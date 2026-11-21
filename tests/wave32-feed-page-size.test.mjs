@@ -1,0 +1,114 @@
+// Copyright 2026 ItsWempo
+//
+// This file is part of Wempo's Forum.
+//
+// Wempo's Forum is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
+
+// Wave 2026-11-21-32 F1 (LOW): the feed's page size is a named constant and
+// the per-page decorator statements stay under D1's 100-bound-parameter
+// ceiling at that size. listRootPosts used to accept an `options.limit` no
+// caller passed; the reply-count rollup binds 2n+11 values for a blocking
+// member, so any n >= 45 would 500 the feed on D1. The option is gone, the
+// page size lives in constants.mjs, and the worst case is measured by
+// spying on every bind() a real signed-in feed read issues.
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { makeEnv } from "./helpers/d1.mjs";
+import { call, forgeSession, now, seedPost, seedUser } from "./helpers/seed.mjs";
+import { D1_MAX_BOUND_PARAMS, FEED_PAGE_SIZE } from "../constants.mjs";
+import { listRootPosts, replyCountsBinds } from "../api/posts-feed.mjs";
+
+const EXTRA_ROOTS = 5;
+
+function spyBinds(env) {
+  const real = env.FORUM_DB;
+  const counts = [];
+  const db = {
+    prepare(sql) {
+      const statement = real.prepare(sql);
+      const bind = statement.bind.bind(statement);
+      statement.bind = (...values) => {
+        counts.push(values.length);
+        return bind(...values);
+      };
+      return statement;
+    },
+    batch: (statements) => real.batch(statements),
+    exec: (sql) => real.exec(sql),
+  };
+  return { env: { ...env, FORUM_DB: db }, counts };
+}
+
+async function seedWorstCase() {
+  const env = makeEnv();
+  const db = env.__sqlite;
+  const viewer = await seedUser(db, { username: "viewer" });
+  const author = await seedUser(db, { username: "author" });
+  const blocked = await seedUser(db, { username: "blocked" });
+  // An active block pair arms every block-filter bind slot.
+  db.prepare("INSERT INTO blocks (blocker_id, blocked_id, created_at) VALUES (?, ?, ?)")
+    .run(viewer, blocked, now());
+  for (let i = 0; i < FEED_PAGE_SIZE + EXTRA_ROOTS; i += 1) {
+    const root = seedPost(db, { authorId: author, body: "root " + i });
+    const reply = seedPost(db, { authorId: author, body: "reply " + i, parentId: root });
+    seedPost(db, { authorId: author, body: "sub " + i, parentId: reply });
+    db.prepare("INSERT INTO bookmarks (user_id, post_id, created_at) VALUES (?, ?, ?)").run(viewer, root, now());
+  }
+  return { env, viewer };
+}
+
+test("FEED_PAGE_SIZE is a named constant comfortably under the bind ceiling", () => {
+  assert.equal(Number.isInteger(FEED_PAGE_SIZE) && FEED_PAGE_SIZE > 0, true);
+  assert.equal(D1_MAX_BOUND_PARAMS, 100);
+  const ids = Array.from({ length: FEED_PAGE_SIZE }, (_, i) => i + 1);
+  const worst = replyCountsBinds(ids, false, [1, 1]).length;
+  assert.equal(worst, 2 * FEED_PAGE_SIZE + 11);
+  assert.ok(worst < D1_MAX_BOUND_PARAMS, "rollup binds " + worst + " at page " + FEED_PAGE_SIZE);
+});
+
+test("a blocking member's full feed page binds < 100 params on every statement", async () => {
+  const { env, viewer } = await seedWorstCase();
+  const session = forgeSession(env.__sqlite, viewer);
+  const spied = spyBinds(env);
+  const res = await call(spied.env, "/api/posts", { session });
+  assert.equal(res.status, 200);
+  const body = await res.json();
+  assert.equal(body.posts.length, FEED_PAGE_SIZE);
+  assert.ok(body.nextBefore, "the extra roots page on");
+  const worst = Math.max(...spied.counts);
+  assert.ok(worst < D1_MAX_BOUND_PARAMS, "worst-case bind count " + worst);
+  assert.equal(worst, 2 * FEED_PAGE_SIZE + 11, "the reply-count rollup is the widest statement");
+});
+
+test("listRootPosts ignores a caller-supplied limit; every branch caps at FEED_PAGE_SIZE", async () => {
+  const { env, viewer } = await seedWorstCase();
+  const member = { id: viewer, role: "member" };
+  const spied = spyBinds(env);
+  const feeds = [
+    await listRootPosts(spied.env, member, { byActivity: true, limit: 60 }),
+    await listRootPosts(spied.env, member, { limit: 60 }),
+    await listRootPosts(spied.env, member, { searchTerm: "root", limit: 60 }),
+  ];
+  for (const feed of feeds) assert.equal(feed.posts.length, FEED_PAGE_SIZE);
+  assert.ok(Math.max(...spied.counts) < D1_MAX_BOUND_PARAMS);
+});
+
+test("posts-feed.mjs has no options.limit and no bare page-size literals", () => {
+  const source = readFileSync(new URL("../api/posts-feed.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /options\.limit/);
+  assert.doesNotMatch(source, /LIMIT 21|slice\(0, 20\)|> 20;/);
+  assert.match(source, /FEED_PAGE_SIZE/);
+});
