@@ -170,6 +170,8 @@
   "boards.suggestionsLabel": "Suggestions",
   "boards.updatesBlurb": "Site news from the admins. Everyone can read and reply; only admins can post.",
   "boards.updatesLabel": "Updates",
+  "boards.pollsLabel": "Polls",
+  "boards.pollsBlurb": "Polls that drive decisions for changes to the forum!",
   "catchUp.divider": "New since your last visit",
   "catchUp.jump.one": "Jump to {count} new reply",
   "catchUp.jump.other": "Jump to {count} new replies",
