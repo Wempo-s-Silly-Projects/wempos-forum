@@ -857,5 +857,10 @@
   "format.quote": "Citation (en début de ligne)",
   "format.heading": "Titre (en début de ligne)",
   "format.codeBlock": "Bloc de code (une ligne avant et une après)",
-  "format.note": "Le HTML et les images restent du texte brut."
+  "format.note": "Le HTML et les images restent du texte brut.",
+  "dm.muteChat": "Mettre en sourdine",
+  "dm.mutedLabel": "En sourdine",
+  "dm.muteFull": "Vous pouvez mettre jusqu'à {count} discussions en sourdine",
+  "dm.renameGroup": "Renommer",
+  "dm.groupNameLabel": "Nom du groupe"
 }

@@ -857,5 +857,10 @@
   "format.quote": "引用（行頭）",
   "format.heading": "見出し（行頭）",
   "format.codeBlock": "コードブロック（前後に1行ずつ）",
-  "format.note": "HTMLと画像はそのままのテキストになります。"
+  "format.note": "HTMLと画像はそのままのテキストになります。",
+  "dm.muteChat": "チャットをミュート",
+  "dm.mutedLabel": "ミュート中",
+  "dm.muteFull": "ミュートできるチャットは最大{count}件です",
+  "dm.renameGroup": "名前を変更",
+  "dm.groupNameLabel": "グループ名"
 }

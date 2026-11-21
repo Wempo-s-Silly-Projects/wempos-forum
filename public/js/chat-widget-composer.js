@@ -23,6 +23,7 @@ import { api } from "./api.js";
 import { t } from "./i18n.js";
 import { focusSelector, isImeComposing, restoreFocus } from "./focus-utils.js";
 import { MAX_PINNED_CHATS, isPinned, readPins, togglePin, writePins } from "./chat-pins.js";
+import { MAX_MUTED_CHATS, isMuted, readMutes, toggleMute, writeMutes } from "./chat-mutes.js";
 import {
   buildGroupManage, buildImageButton, conversationBase, groupTitle, uploadDmImage,
 } from "./dm-extras.js";
@@ -111,6 +112,32 @@ const buildPinToggle = (current) => {
   return [toggle, note];
 };
 
+// Muted chats (v4.31): the header toggle beside Pin. Muting silences this
+// chat's unread on the launcher badge only (local, per account); aria-pressed
+// carries the state, a full list disables an add with a visible note.
+const MUTE_NOTE_ID = "chat-widget-mute-note";
+const buildMuteToggle = (current) => {
+  const key = conversationKey(current);
+  const accountId = ui.widgetUser?.id;
+  if (!accountId) return [];
+  const mutes = readMutes(undefined, accountId);
+  const muted = isMuted(mutes, key);
+  const toggle = el("button", "chat-widget-mute", t("dm.muteChat"));
+  toggle.type = "button";
+  toggle.setAttribute("aria-pressed", String(muted));
+  toggle.addEventListener("click", () => {
+    writeMutes(undefined, toggleMute(readMutes(undefined, accountId), key), accountId);
+    paintBadge();
+    paintConversation();
+  });
+  if (muted || mutes.length < MAX_MUTED_CHATS) return [toggle];
+  toggle.disabled = true;
+  const note = el("span", "chat-widget-pin-note", t("dm.muteFull", { count: MAX_MUTED_CHATS }));
+  note.id = MUTE_NOTE_ID;
+  toggle.setAttribute("aria-describedby", MUTE_NOTE_ID);
+  return [toggle, note];
+};
+
 export const paintConversation = () => {
   if (!ui.conversationEl || !ui.conversation) return;
   // The reader's scroll: a full re-render (the 5s poll replaces every node)
@@ -131,6 +158,9 @@ export const paintConversation = () => {
   const sameAsBefore = ui.composerEl?.dataset.threadId === conversationKey(ui.conversation);
   const manageWasOpen = sameAsBefore && Boolean(ui.conversationEl.querySelector(".chat-widget-group-manage")?.open);
   const addDraft = sameAsBefore ? ui.conversationEl.querySelector(".chat-widget-group-add-input")?.value || "" : "";
+  // v4.31: a half-typed rename survives too (null = nothing to carry).
+  const renameInput = sameAsBefore ? ui.conversationEl.querySelector(".chat-widget-group-rename-input") : null;
+  const renameDraft = renameInput ? renameInput.value : null;
   // Keyboard focus (pin toggle, add-member input, remove buttons, an empty
   // composer) survives the repaint too — same conversation only.
   const keptFocus = sameAsBefore ? focusSelector(ui.conversationEl, document.activeElement) : null;
@@ -149,7 +179,7 @@ export const paintConversation = () => {
   const isGroup = kindOf(ui.conversation) === "group";
   const title = el("span", "chat-widget-peer", isGroup
     ? groupTitle(ui.conversation, ui.widgetUser?.id) : ui.conversation.other?.username || "unknown");
-  ui.conversationEl.append(back, title, ...buildPinToggle(ui.conversation));
+  ui.conversationEl.append(back, title, ...buildPinToggle(ui.conversation), ...buildMuteToggle(ui.conversation));
   if (isGroup) {
     const leaveToList = () => {
       const leftKey = conversationKey(ui.conversation);
@@ -166,6 +196,8 @@ export const paintConversation = () => {
     manage.open = manageWasOpen;
     const addInput = manage.querySelector(".chat-widget-group-add-input");
     if (addInput) addInput.value = addDraft;
+    const renameField = manage.querySelector(".chat-widget-group-rename-input");
+    if (renameField && renameDraft !== null) renameField.value = renameDraft;
     ui.conversationEl.append(manage);
   }
   const messages = [...(ui.conversation.messages || [])].reverse();

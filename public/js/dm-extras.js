@@ -25,6 +25,7 @@
 import { api } from "./api.js";
 import { t, tn } from "./i18n.js";
 import { readEffectsPref, writeEffectsPref } from "./dm-effects.js";
+import { buildGroupRename } from "./group-rename.js";
 
 const IMAGE_TOKEN = /^\[img:([0-9a-f-]{36})\]$/;
 const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
@@ -188,6 +189,13 @@ export const buildGroupManage = (group, { viewerId, onChange, onLeft, onError })
   }
   strip.append(list);
   if (group.canManage) {
+    // v4.31: the creator renames (PATCH; "" clears back to the member names).
+    strip.append(buildGroupRename(document, group, {
+      onSave: (name) => run(async () => {
+        await api(base, { method: "PATCH", body: { name } });
+        await onChange();
+      }),
+    }));
     const add = el("form", "chat-widget-group-add");
     const input = el("input", "chat-widget-group-add-input");
     input.type = "text";

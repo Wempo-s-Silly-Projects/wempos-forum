@@ -857,5 +857,10 @@
   "format.quote": "Alıntı (satır başında)",
   "format.heading": "Başlık (satır başında)",
   "format.codeBlock": "Kod bloğu (öncesinde ve sonrasında birer satır)",
-  "format.note": "HTML ve görseller düz metin olarak kalır."
+  "format.note": "HTML ve görseller düz metin olarak kalır.",
+  "dm.muteChat": "Sohbeti sessize al",
+  "dm.mutedLabel": "Sessizde",
+  "dm.muteFull": "En fazla {count} sohbeti sessize alabilirsin",
+  "dm.renameGroup": "Yeniden adlandır",
+  "dm.groupNameLabel": "Grup adı"
 }

@@ -857,5 +857,10 @@
   "format.quote": "اقتباس (في بداية السطر)",
   "format.heading": "عنوان (في بداية السطر)",
   "format.codeBlock": "كتلة رمز (سطر قبلها وسطر بعدها)",
-  "format.note": "يبقى HTML والصور نصًا عاديًا."
+  "format.note": "يبقى HTML والصور نصًا عاديًا.",
+  "dm.muteChat": "كتم الدردشة",
+  "dm.mutedLabel": "مكتومة",
+  "dm.muteFull": "يمكنك كتم حتى {count} دردشات",
+  "dm.renameGroup": "إعادة التسمية",
+  "dm.groupNameLabel": "اسم المجموعة"
 }

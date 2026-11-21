@@ -2703,7 +2703,8 @@ mark.search-hit {
   font-weight: 800;
 }
 /* v4.10 pinned chats + older groups. */
-.chat-widget-pin {
+.chat-widget-pin,
+.chat-widget-mute {
   align-self: flex-end;
   margin: 0.3rem 0.75rem 0;
   background: none;
@@ -2715,15 +2716,20 @@ mark.search-hit {
   padding: 0.15rem 0.5rem;
   cursor: pointer;
 }
-.chat-widget-pin[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); font-weight: 700; }
-.chat-widget-pin:disabled { cursor: not-allowed; opacity: 0.6; }
+.chat-widget-pin[aria-pressed="true"],
+.chat-widget-mute[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); font-weight: 700; }
+.chat-widget-pin:disabled,
+.chat-widget-mute:disabled { cursor: not-allowed; opacity: 0.6; }
 /* v4.13: the label no longer flips, so a pressed pin shows a check (silent to
    screen readers, which hear aria-pressed); a full list explains itself. */
-.chat-widget-pin[aria-pressed="true"]::before { content: "\2713\00a0" / ""; }
+.chat-widget-pin[aria-pressed="true"]::before,
+.chat-widget-mute[aria-pressed="true"]::before { content: "\2713\00a0" / ""; }
 .chat-widget-pin-note { align-self: flex-end; margin: 0.15rem 0.75rem 0; color: var(--muted); font-size: 0.7rem; }
 .chat-widget-thread-pin { display: inline-flex; margin-inline-start: 0.3rem; color: var(--muted); vertical-align: middle; }
 .chat-widget-thread-pin svg { width: 0.8rem; height: 0.8rem; fill: none; stroke: currentColor; stroke-width: 2; }
 .chat-widget-older-groups { display: block; margin: 0.5rem auto; }
+/* v4.31 muted chats: the quiet row mark (the badge skips these rows). */
+.chat-widget-thread-muted { margin-inline-start: 0.35rem; color: var(--muted); font-size: 0.7rem; font-weight: 400; }
 .chat-widget-avatar.role-badge-owner { background: #8d690f; }
 .chat-widget-avatar.role-badge-admin { background: var(--green-ink); }
 .chat-widget-thread {
@@ -3003,6 +3009,9 @@ mark.search-hit {
 .chat-widget-group-remove { padding: 0 0.15rem; background: none; border: 0; color: var(--muted); cursor: pointer; }
 .chat-widget-group-add { display: flex; gap: 0.3rem; margin: 0.3rem 0; }
 .chat-widget-group-add-input { flex: 1; min-width: 0; }
+/* v4.31 group rename (creator only). */
+.chat-widget-group-rename { display: flex; gap: 0.3rem; margin: 0.3rem 0; }
+.chat-widget-group-rename-input { flex: 1; min-width: 0; }
 .chat-emoji-jumbo { font-size: 2.4rem; line-height: 1.15; }
 .chat-emoji-pop { animation: chat-emoji-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) 1; }
 @keyframes chat-emoji-pop {

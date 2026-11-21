@@ -857,5 +857,10 @@
   "format.quote": "引用（行首）",
   "format.heading": "標題（行首）",
   "format.codeBlock": "程式碼區塊（前後各一行）",
-  "format.note": "HTML 和圖片會保留為純文字。"
+  "format.note": "HTML 和圖片會保留為純文字。",
+  "dm.muteChat": "靜音聊天",
+  "dm.mutedLabel": "已靜音",
+  "dm.muteFull": "最多可以靜音 {count} 個聊天",
+  "dm.renameGroup": "重新命名",
+  "dm.groupNameLabel": "群組名稱"
 }

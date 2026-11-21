@@ -857,5 +857,10 @@
   "format.quote": "Kutipan (di awal baris)",
   "format.heading": "Judul (di awal baris)",
   "format.codeBlock": "Blok kode (satu baris sebelum dan sesudah)",
-  "format.note": "HTML dan gambar tetap menjadi teks biasa."
+  "format.note": "HTML dan gambar tetap menjadi teks biasa.",
+  "dm.muteChat": "Bisukan chat",
+  "dm.mutedLabel": "Dibisukan",
+  "dm.muteFull": "Kamu bisa membisukan hingga {count} chat",
+  "dm.renameGroup": "Ganti nama",
+  "dm.groupNameLabel": "Nama grup"
 }

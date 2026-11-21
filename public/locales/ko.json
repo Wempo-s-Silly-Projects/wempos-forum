@@ -857,5 +857,10 @@
   "format.quote": "인용 (줄 맨 앞)",
   "format.heading": "제목 (줄 맨 앞)",
   "format.codeBlock": "코드 블록 (앞뒤로 한 줄씩)",
-  "format.note": "HTML과 이미지는 일반 텍스트로 남습니다."
+  "format.note": "HTML과 이미지는 일반 텍스트로 남습니다.",
+  "dm.muteChat": "채팅 알림 끄기",
+  "dm.mutedLabel": "알림 꺼짐",
+  "dm.muteFull": "채팅은 최대 {count}개까지 알림을 끌 수 있어요",
+  "dm.renameGroup": "이름 바꾸기",
+  "dm.groupNameLabel": "그룹 이름"
 }

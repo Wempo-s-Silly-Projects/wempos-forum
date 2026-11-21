@@ -857,5 +857,10 @@
   "format.quote": "Cytat (na początku wiersza)",
   "format.heading": "Nagłówek (na początku wiersza)",
   "format.codeBlock": "Blok kodu (wiersz przed i po)",
-  "format.note": "HTML i obrazy pozostają zwykłym tekstem."
+  "format.note": "HTML i obrazy pozostają zwykłym tekstem.",
+  "dm.muteChat": "Wycisz czat",
+  "dm.mutedLabel": "Wyciszony",
+  "dm.muteFull": "Możesz wyciszyć do {count} czatów",
+  "dm.renameGroup": "Zmień nazwę",
+  "dm.groupNameLabel": "Nazwa grupy"
 }

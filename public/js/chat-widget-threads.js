@@ -23,6 +23,8 @@ import { api } from "./api.js";
 import { createIcon } from "./icons.js";
 import { t } from "./i18n.js";
 import { readPins, sortPinnedFirst } from "./chat-pins.js";
+import { isMuted, readMutes, unmutedUnreadTotal } from "./chat-mutes.js";
+import { state } from "./state.js";
 import { FILTER_QUERY_MAX, filterConversations } from "./chat-filter.js";
 import { groupTitle, imageIdOf } from "./dm-extras.js";
 import { buildAvatar, conversationKey, el, kindOf, ui } from "./chat-widget-state.js";
@@ -96,9 +98,20 @@ export const refreshUnread = async () => {
   if (ui.open && !ui.activeThread) paintThreadList();
 };
 
+// The account the per-member lists (mutes) are keyed on: the panel's own
+// probe once opened, else the app's signed-in user — the badge paints while
+// the panel is still closed.
+const accountId = () => ui.widgetUser?.id ?? state.currentUser?.id ?? null;
+
+// v4.31: muted chats (local, per account) stop counting toward the badge.
 export const paintBadge = () => {
   if (!ui.badge) return;
-  const total = ui.dmUnread ?? [...ui.threads, ...ui.groups].reduce((sum, thread) => sum + (thread.unread || 0), 0);
+  const total = unmutedUnreadTotal({
+    serverTotal: ui.dmUnread,
+    rows: [...ui.threads, ...ui.groups],
+    mutes: readMutes(undefined, accountId()),
+    keyOf: conversationKey,
+  });
   ui.badge.textContent = String(total);
   ui.badge.hidden = total === 0;
 };
@@ -108,6 +121,7 @@ export const paintThreadList = () => {
   ui.threadListEl.replaceChildren();
   // Pinned chats (v4.10, local-only) float above the activity order.
   const pins = readPins(undefined, ui.widgetUser?.id);
+  const mutes = readMutes(undefined, accountId());
   const allRows = [...ui.threads, ...ui.groups];
   if (allRows.length === 0) {
     ui.threadListEl.append(el("p", "chat-widget-empty", t("chat.noChats")));
@@ -130,6 +144,10 @@ export const paintThreadList = () => {
       const mark = el("span", "chat-widget-thread-pin");
       mark.append(createIcon(document, "pin"), el("span", "visually-hidden", t("dm.pinnedLabel")));
       name.append(mark);
+    }
+    if (isMuted(mutes, conversationKey(thread))) {
+      row.classList.add("is-muted");
+      name.append(el("span", "chat-widget-thread-muted", t("dm.mutedLabel")));
     }
     const preview = el("span", "chat-widget-thread-preview", previewOf(thread));
     const time = el("span", "chat-widget-thread-time", thread.lastMessageAt ? relativeTime(thread.lastMessageAt) : "");

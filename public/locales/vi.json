@@ -857,5 +857,10 @@
   "format.quote": "Trích dẫn (đầu dòng)",
   "format.heading": "Tiêu đề (đầu dòng)",
   "format.codeBlock": "Khối mã (một dòng trước và sau)",
-  "format.note": "HTML và hình ảnh vẫn là văn bản thuần."
+  "format.note": "HTML và hình ảnh vẫn là văn bản thuần.",
+  "dm.muteChat": "Tắt tiếng cuộc trò chuyện",
+  "dm.mutedLabel": "Đã tắt tiếng",
+  "dm.muteFull": "Bạn có thể tắt tiếng tối đa {count} cuộc trò chuyện",
+  "dm.renameGroup": "Đổi tên",
+  "dm.groupNameLabel": "Tên nhóm"
 }
