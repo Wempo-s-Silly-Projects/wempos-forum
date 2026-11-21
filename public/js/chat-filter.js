@@ -32,3 +32,12 @@ export const filterConversations = (rows, query, labelOf) => {
   if (needle.length > FILTER_QUERY_MAX) return [];
   return list.filter((row) => String(labelOf(row) ?? "").toLocaleLowerCase().includes(needle));
 };
+
+// "Unread only" (wave 2026-11-21-27, v4.32): a NEW array of the rows that
+// carry unread messages when `on`, else a copy of every row. Muted chats
+// stay in (a mute quiets only the launcher badge).
+export const onlyUnread = (rows, on) => {
+  const list = Array.isArray(rows) ? rows : [];
+  if (!on) return [...list];
+  return list.filter((row) => Number(row?.unread) > 0);
+};

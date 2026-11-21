@@ -2602,6 +2602,16 @@ mark.search-hit {
   padding: 0.3rem 0.5rem;
 }
 .chat-widget-new-send:disabled { opacity: 0.6; cursor: default; }
+/* v4.32 "Unread only": a labelled checkbox under the chat-list filter box. */
+.chat-widget-unread-only {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0.75rem 0.4rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  cursor: pointer;
+}
 .chat-widget-new-error {
   margin: 0;
   padding: 0.4rem 0.75rem;

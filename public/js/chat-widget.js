@@ -250,6 +250,7 @@ const closePanel = () => {
   ui.dmGifPicker = null;
   ui.lastPainted = { key: null, maxId: 0 };
   ui.listFilter = "";
+  ui.listUnreadOnly = false;
   ui.filterStatusEl = null;
 };
 

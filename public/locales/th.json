@@ -188,6 +188,8 @@
   "chat.replyTo": "ตอบกลับ {name}",
   "chat.filterChats": "กรองแชท",
   "chat.noFilterMatch": "ไม่มีแชทที่ตรงกับชื่อนี้",
+  "chat.unreadOnly": "เฉพาะที่ยังไม่อ่าน",
+  "chat.noUnreadChats": "ไม่มีแชตที่ยังไม่อ่าน",
   "chat.noMessages": "ยังไม่มีข้อความ",
   "chat.onlineNow.one": "ออนไลน์อยู่ {count} คน",
   "chat.onlineNow.other": "ออนไลน์อยู่ {count} คน",

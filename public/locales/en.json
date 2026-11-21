@@ -188,6 +188,8 @@
   "chat.replyTo": "Reply to {name}",
   "chat.filterChats": "Filter chats",
   "chat.noFilterMatch": "No chats match that name.",
+  "chat.unreadOnly": "Unread only",
+  "chat.noUnreadChats": "No unread chats.",
   "chat.noMessages": "No messages yet",
   "chat.onlineNow.one": "{count} online now",
   "chat.onlineNow.other": "{count} online now",

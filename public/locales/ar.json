@@ -188,6 +188,8 @@
   "chat.replyTo": "رد على {name}",
   "chat.filterChats": "تصفية المحادثات",
   "chat.noFilterMatch": "لا توجد محادثات تطابق هذا الاسم.",
+  "chat.unreadOnly": "غير المقروءة فقط",
+  "chat.noUnreadChats": "لا توجد محادثات غير مقروءة.",
   "chat.noMessages": "لا توجد رسائل بعد",
   "chat.onlineNow.one": "{count} متصل الآن",
   "chat.onlineNow.other": "المتصلون الآن: {count}",

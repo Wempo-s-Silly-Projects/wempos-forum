@@ -188,6 +188,8 @@
   "chat.replyTo": "השב ל-{name}",
   "chat.filterChats": "סינון צ׳אטים",
   "chat.noFilterMatch": "אין צ׳אטים שתואמים לשם הזה.",
+  "chat.unreadOnly": "רק שלא נקראו",
+  "chat.noUnreadChats": "אין צ'אטים שלא נקראו.",
   "chat.noMessages": "אין עדיין הודעות",
   "chat.onlineNow.one": "{count} מחובר/ת עכשיו",
   "chat.onlineNow.other": "מחוברים עכשיו: {count}",

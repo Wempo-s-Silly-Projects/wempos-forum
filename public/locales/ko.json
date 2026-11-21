@@ -188,6 +188,8 @@
   "chat.replyTo": "{name}님에게 답장",
   "chat.filterChats": "채팅 필터",
   "chat.noFilterMatch": "해당 이름과 일치하는 채팅이 없습니다.",
+  "chat.unreadOnly": "읽지 않은 항목만",
+  "chat.noUnreadChats": "읽지 않은 채팅이 없습니다.",
   "chat.noMessages": "아직 메시지가 없어요",
   "chat.onlineNow.one": "지금 {count}명 접속 중",
   "chat.onlineNow.other": "지금 {count}명 접속 중",

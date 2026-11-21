@@ -188,6 +188,8 @@
   "chat.replyTo": "{name} に返信",
   "chat.filterChats": "チャットを絞り込む",
   "chat.noFilterMatch": "その名前に一致するチャットはありません。",
+  "chat.unreadOnly": "未読のみ",
+  "chat.noUnreadChats": "未読のチャットはありません。",
   "chat.noMessages": "まだメッセージはありません",
   "chat.onlineNow.one": "{count} 人がオンライン",
   "chat.onlineNow.other": "{count} 人がオンライン",

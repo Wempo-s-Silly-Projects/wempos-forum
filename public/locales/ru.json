@@ -188,6 +188,8 @@
   "chat.replyTo": "Ответить {name}",
   "chat.filterChats": "Фильтр чатов",
   "chat.noFilterMatch": "Нет чатов с таким именем.",
+  "chat.unreadOnly": "Только непрочитанные",
+  "chat.noUnreadChats": "Нет непрочитанных чатов.",
   "chat.noMessages": "Сообщений пока нет",
   "chat.onlineNow.one": "{count} в сети",
   "chat.onlineNow.other": "В сети: {count}",

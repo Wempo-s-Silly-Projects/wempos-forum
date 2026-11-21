@@ -188,6 +188,8 @@
   "chat.replyTo": "Odpowiedz {name}",
   "chat.filterChats": "Filtruj czaty",
   "chat.noFilterMatch": "Żaden czat nie pasuje do tej nazwy.",
+  "chat.unreadOnly": "Tylko nieprzeczytane",
+  "chat.noUnreadChats": "Brak nieprzeczytanych czatów.",
   "chat.noMessages": "Brak wiadomości",
   "chat.onlineNow.one": "{count} osoba online",
   "chat.onlineNow.other": "Teraz online: {count}",
