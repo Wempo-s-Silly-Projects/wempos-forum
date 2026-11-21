@@ -374,3 +374,39 @@ test("staff DM report desk lists open reports and resolves them", async () => {
   assert.equal((await (await call(env, "/api/admin/dm-reports", { session: staff })).json()).dmReports.length, 0);
   assert.equal((await call(env, "/api/admin/dm-reports", { session })).status, 403);
 });
+
+// Client pins: the member-facing DM report and the desk's two new sections.
+import { readFileSync } from "node:fs";
+import { findByClass, makeFakeDocument } from "./helpers/fake-dom.mjs";
+import { createAutoModLog, createDmReportQueue } from "../public/js/desk/automod.js";
+
+const read = (file) => readFileSync(new URL("../" + file, import.meta.url), "utf8");
+
+test("client: 1:1 conversations carry Report conversation; groups do not; textContent only", () => {
+  const extras = read("public/js/dm-extras.js");
+  assert.match(extras, /export const buildDmReport/);
+  assert.match(extras, /\$\{conversationBase\(conversation\)\}\/reports/);
+  assert.match(extras, /t\("dm\.reportConversation"\)/);
+  assert.ok(!extras.includes("innerHTML"));
+  const composer = read("public/js/chat-widget-composer.js");
+  assert.match(composer, /\} else \{\n\s+ui\.conversationEl\.append\(buildDmReport\(/);
+});
+
+test("client: the desk lists DM reports and the AutoMod log, with Restore on live hides", () => {
+  const admin = read("public/js/routes/admin.js");
+  assert.match(admin, /slug: "dm-reports"/);
+  assert.match(admin, /slug: "automod"/);
+  assert.match(admin, /"resolve-dm-report": async/);
+  const doc = makeFakeDocument();
+  const log = createAutoModLog([
+    { id: 2, action: "hide", type: "post", targetId: 7, target: { id: 3, username: "m" }, reason: "spam", stillHidden: true, createdAt: new Date().toISOString() },
+    { id: 1, action: "ban", type: "post", targetId: 8, target: { id: 3, username: "m" }, reason: "abuse", banHours: 24, stillHidden: false, createdAt: new Date().toISOString() },
+  ], doc);
+  const restore = findByClass(log, "button");
+  assert.equal(restore.dataset.action, "post-restore");
+  assert.equal(restore.dataset.postId, "7");
+  const queue = createDmReportQueue([{ id: 5, reporter: "a", other: "b", reason: "<b>x</b>" }], doc);
+  assert.equal(findByClass(queue, "report-queue-reason").textContent, "<b>x</b>");
+  assert.equal(findByClass(queue, "button").dataset.action, "resolve-dm-report");
+  assert.equal(findByClass(createAutoModLog([], doc), "empty-state").className, "empty-state");
+});
