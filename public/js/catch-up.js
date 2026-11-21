@@ -27,11 +27,34 @@ import { t, tn } from "./i18n.js";
 export const CATCH_UP_STORAGE_KEY = "forum-seen-replies";
 export const CATCH_UP_MAX_THREADS = 300;
 
+// The optional account id scopes the marks to the member who read them (the
+// drafts.js idiom), so a shared browser never shows one member's read state
+// to another. A guest keeps the unscoped key.
+export const catchUpKey = (accountId = null) =>
+  CATCH_UP_STORAGE_KEY + (accountId ? ":u" + accountId : "");
+
+// Sign-out wipe: every account's marks (and the guest key) go, other keys stay.
+export function clearAllCatchUp(storage = browserStorage()) {
+  try {
+    if (!storage) return;
+    const keys = [];
+    for (let index = 0; index < storage.length; index += 1) {
+      const key = storage.key(index);
+      if (key === CATCH_UP_STORAGE_KEY || (typeof key === "string" && key.startsWith(CATCH_UP_STORAGE_KEY + ":"))) {
+        keys.push(key);
+      }
+    }
+    keys.forEach((key) => storage.removeItem(key));
+  } catch {
+    // Blocked storage: nothing was stored to wipe.
+  }
+}
+
 const isPlainObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 
-export function readSeenMap(storage) {
+export function readSeenMap(storage, accountId = null) {
   try {
-    const raw = storage ? storage.getItem(CATCH_UP_STORAGE_KEY) : null;
+    const raw = storage ? storage.getItem(catchUpKey(accountId)) : null;
     const parsed = raw ? JSON.parse(raw) : null;
     return isPlainObject(parsed) ? parsed : {};
   } catch {
@@ -39,9 +62,9 @@ export function readSeenMap(storage) {
   }
 }
 
-export function writeSeenMap(storage, map) {
+export function writeSeenMap(storage, map, accountId = null) {
   try {
-    storage?.setItem(CATCH_UP_STORAGE_KEY, JSON.stringify(map));
+    storage?.setItem(catchUpKey(accountId), JSON.stringify(map));
   } catch {
     // Quota or blocked storage: markers just won't persist.
   }
@@ -85,12 +108,13 @@ const browserStorage = () => {
 
 // Paints the markers onto an already-rendered reply list, then records the
 // visit. `replyList` may be null (no replies yet) — the visit still counts, so
-// the first reply after it shows as new next time.
-export function applyCatchUp(document, threadId, replies, replyList, storage = browserStorage()) {
-  const map = readSeenMap(storage);
+// the first reply after it shows as new next time. `accountId` picks the
+// signed-in member's own marks.
+export function applyCatchUp(document, threadId, replies, replyList, { accountId = null, storage = browserStorage() } = {}) {
+  const map = readSeenMap(storage, accountId);
   const freshIds = newReplyIds(replies, lastSeenFor(map, threadId));
   const ids = (Array.isArray(replies) ? replies : []).map((reply) => Number(reply?.id) || 0);
-  writeSeenMap(storage, recordSeen(map, threadId, Math.max(0, ...ids)));
+  writeSeenMap(storage, recordSeen(map, threadId, Math.max(0, ...ids)), accountId);
   if (!replyList || freshIds.length === 0) return;
   const fresh = new Set(freshIds);
   const cards = [...replyList.children].filter((card) => fresh.has(Number(card.dataset.postId)));

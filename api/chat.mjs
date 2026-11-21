@@ -33,7 +33,8 @@ import { publicRole } from "./core/roles.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
-import { listViewerGroups, readDmMessageBody, viewerGroupUnread } from "./dm-groups.mjs";
+import { activeBanSql, listViewerGroups, parseGroupCursor, readDmMessageBody, viewerGroupUnread } from "./dm-groups.mjs";
+import { DM_THREAD_LIST_LIMIT } from "../constants.mjs";
 
 // Lobby stream (old-ui-return lane): the retired public "Let's chat" surface
 // that rode migration 0032's chat_messages table comes back with the old UI —
@@ -242,16 +243,33 @@ async function handlePresenceReadRoute(request, env, url, path, method) {
   });
 }
 
+// A 1:1 thread whose other member is actively banned or in a block pair
+// with the viewer shows zero unread: every unread message there is that
+// member's, and all of them are hidden at read time (the visibility law on
+// the counters). Binds the viewer id twice. A function, not a constant:
+// dm-groups.mjs imports this module back, so its export is read at call time.
+const dmOtherHiddenSql = () =>
+  "(" + activeBanSql("u.id") + " OR EXISTS (SELECT 1 FROM blocks bk WHERE " +
+  "(bk.blocker_id = ? AND bk.blocked_id = u.id) OR (bk.blocked_id = ? AND bk.blocker_id = u.id)))";
+
 // GET /api/dm/threads — the signed-in member's thread list, newest activity
-// first (a thread with no messages sorts last). The preview reads the newest
-// dm_messages row verbatim — stored bodies, no read-time filtering.
+// first (a thread with no messages sorts last), capped at the newest
+// DM_THREAD_LIST_LIMIT. The preview reads the newest dm_messages row
+// verbatim — stored bodies, no read-time filtering. ?before=<group cursor>
+// asks for the next page of groups only (threads come back empty).
 async function handleThreadListRoute(request, env, url, path, method) {
   if (path !== "/api/dm/threads" || method !== "GET") return null;
   const session = await requireSignedInRead(request, env);
   const viewerId = session.user.id;
+  const cursor = parseGroupCursor(url.searchParams.get("before"));
+  if (cursor) {
+    const page = await listViewerGroups(env, viewerId, cursor);
+    return json({ groups: page.groups, groupsCursor: page.cursor, threads: [] });
+  }
   const rows = (await env.FORUM_DB.prepare(
     "SELECT t.id, t.user_a, t.user_b, t.unread_a, t.unread_b, " +
     "u.username AS other_username, u.role AS other_role, " +
+    dmOtherHiddenSql() + " AS other_hidden, " +
     "(SELECT m.body FROM dm_messages m WHERE m.thread_id = t.id " +
     "ORDER BY m.id DESC LIMIT 1) AS last_body, " +
     "(SELECT m.created_at FROM dm_messages m WHERE m.thread_id = t.id " +
@@ -260,13 +278,14 @@ async function handleThreadListRoute(request, env, url, path, method) {
     "(CASE WHEN t.user_a = ? THEN t.user_b ELSE t.user_a END) " +
     "WHERE t.user_a = ? OR t.user_b = ? " +
     "ORDER BY (SELECT m.id FROM dm_messages m WHERE m.thread_id = t.id " +
-    "ORDER BY m.id DESC LIMIT 1) DESC",
-  ).bind(viewerId, viewerId, viewerId).all()).results || [];
+    "ORDER BY m.id DESC LIMIT 1) DESC LIMIT " + DM_THREAD_LIST_LIMIT,
+  ).bind(viewerId, viewerId, viewerId, viewerId, viewerId).all()).results || [];
   // v4.7: the viewer's group DMs ride the same response (additive key), so
   // the widget's one probe paints both kinds of conversation.
-  const groups = await listViewerGroups(env, viewerId);
+  const page = await listViewerGroups(env, viewerId);
   return json({
-    groups,
+    groups: page.groups,
+    groupsCursor: page.cursor,
     threads: rows.map((row) => {
       const preview = String(row.last_body ?? "").trim();
       const viewerIsUserA = Number(row.user_a) === Number(viewerId);
@@ -275,7 +294,7 @@ async function handleThreadListRoute(request, env, url, path, method) {
         other: viewerIsUserA
           ? { id: Number(row.user_b), username: row.other_username, role: publicRole(row.other_role) }
           : { id: Number(row.user_a), username: row.other_username, role: publicRole(row.other_role) },
-        unread: viewerUnread(row, viewerId),
+        unread: Number(row.other_hidden) ? 0 : viewerUnread(row, viewerId),
         lastMessageAt: row.last_at ? isoTime(row.last_at) : null,
         lastMessagePreview: preview.length > DM_PREVIEW_MAX_CHARS
           ? preview.slice(0, DM_PREVIEW_MAX_CHARS) : preview,
@@ -472,9 +491,10 @@ async function handleLobbyChatReadRoute(request, env, url, path, method) {
       "FROM dm_threads WHERE (user_a = ? OR user_b = ?) " +
       "AND NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND " +
       "bk.blocked_id IN (user_a, user_b)) OR (bk.blocked_id = ? AND " +
-      "bk.blocker_id IN (user_a, user_b)))",
+      "bk.blocker_id IN (user_a, user_b))) " +
+      "AND NOT " + activeBanSql("(CASE WHEN user_a = ? THEN user_b ELSE user_a END)"),
     ).bind(session.user.id, session.user.id, session.user.id,
-      session.user.id, session.user.id).first();
+      session.user.id, session.user.id, session.user.id).first();
     dmUnread = Number(dmRow?.unread || 0) + await viewerGroupUnread(db, session.user.id);
     const bellRow = await db.prepare(
       "SELECT COUNT(*) AS unread FROM notifications WHERE user_id = ? AND read_at IS NULL",

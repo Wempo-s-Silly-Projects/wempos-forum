@@ -61,7 +61,7 @@ async function renderPostRoute(route, context, version) {
     addText(document, main, "p", t("post.noReplies"), "empty-state");
   }
   // "New since your last visit" (wave 2026-11-21): local read marks only.
-  applyCatchUp(document, post.id, post.replies, replyList);
+  applyCatchUp(document, post.id, post.replies, replyList, { accountId: state.currentUser?.id });
   if (post.repliesNextBefore) {
     const olderReplies = element("button", "button button-secondary", t("post.loadOlderReplies"));
     olderReplies.type = "button";
