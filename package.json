@@ -12,9 +12,13 @@
     "deploy": "wrangler deploy --keep-vars --var COMMIT_SHA:$(git rev-parse --short HEAD)",
     "db:migrate:local": "wrangler d1 migrations apply ${D1_DATABASE:-wempo-forum-data} --local",
     "db:migrate:remote": "wrangler d1 migrations apply ${D1_DATABASE:-wempo-forum-data} --remote",
-    "test": "node --test"
+    "test": "node --test",
+    "lint": "eslint ."
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
     "wrangler": "latest"
   }
 }
