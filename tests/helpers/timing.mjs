@@ -67,19 +67,50 @@ const median = (values) => {
 // alternating order to cancel drift — and gives its own ratio; the median
 // pair ratio is reported, so fewer than half the pairs being disturbed
 // cannot move it.
+// v5.3 flake fix: a preemption lands in a sample with odds proportional to
+// its length, so under CPU load the 4x-longer large sample is hit far more
+// often than its small partner, and single readings skewed whole pairs
+// upward (wave23 parseInline on "*`[~" read 8.6x, 1 run in 3 under 6
+// burners). Each pair now takes the fastest of PAIR_TRIES interleaved
+// readings per size: a minimum can only be low if the code is fast, so a
+// quadratic scan still reads ~16x while a preempted reading drops out.
+const PAIR_TRIES = 3;
+
+function timedPair(runSmall, runLarge, smallFirst) {
+  let smallMs = Infinity;
+  let largeMs = Infinity;
+  for (let i = 0; i < PAIR_TRIES; i += 1) {
+    const first = timeOnce(smallFirst ? runSmall : runLarge);
+    const second = timeOnce(smallFirst ? runLarge : runSmall);
+    smallMs = Math.min(smallMs, smallFirst ? first : second);
+    largeMs = Math.min(largeMs, smallFirst ? second : first);
+  }
+  return largeMs / Math.max(smallMs, 1e-6);
+}
+
+// A sustained disturbance (a burst of load spanning most of one window)
+// can still skew a whole measurement (~1 in 300 under 6 burners after the
+// pair fix). A reading at or over the ceiling is measured again, up to
+// GROWTH_ATTEMPTS windows, keeping the lowest median — the same best-of
+// logic as bestOf: noise only ever raises a ratio, and a real quadratic
+// reads ~16x in every window (pinned by wave38-timing-harness).
+const GROWTH_ATTEMPTS = 3;
+
+function measureGrowth(runSmall, runLarge, pairs) {
+  const ratios = Array.from({ length: pairs }, (_, i) => timedPair(runSmall, runLarge, i % 2 === 0));
+  return { ratio: median(ratios), ratios };
+}
+
 export function growthRatio(fn, small, large, pairs = GROWTH_PAIRS) {
   for (let i = 0; i < 3; i += 1) { consume(fn(small)); consume(fn(large)); } // warm the JIT
   const single = bestOf(() => consume(fn(large)), 3);
   const times = Math.min(MAX_REPEAT, Math.max(1, Math.ceil(MIN_SAMPLE_MS / Math.max(single, 1e-3))));
   const runSmall = repeated(fn, small, times);
   const runLarge = repeated(fn, large, times);
-  const ratios = [];
-  for (let i = 0; i < pairs; i += 1) {
-    const smallFirst = i % 2 === 0;
-    const first = timeOnce(smallFirst ? runSmall : runLarge);
-    const second = timeOnce(smallFirst ? runLarge : runSmall);
-    const [smallMs, largeMs] = smallFirst ? [first, second] : [second, first];
-    ratios.push(largeMs / Math.max(smallMs, 1e-6));
+  let best = measureGrowth(runSmall, runLarge, pairs);
+  for (let attempt = 1; attempt < GROWTH_ATTEMPTS && best.ratio >= LINEAR_GROWTH_CEILING; attempt += 1) {
+    const next = measureGrowth(runSmall, runLarge, pairs);
+    if (next.ratio < best.ratio) best = next;
   }
-  return { ratio: median(ratios), ratios, times, sink };
+  return { ratio: best.ratio, ratios: best.ratios, times, sink };
 }
