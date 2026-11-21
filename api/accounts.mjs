@@ -17,7 +17,7 @@
 // see <https://www.gnu.org/licenses/>.
 
 // Wempo Accounts SSO (the alternate front door): the member signs in at
-// accounts.itswempo.workers.dev, accounts bounces back with ?wt=<one-time
+// accounts.wempos-forum.com, accounts bounces back with ?wt=<one-time
 // 32-byte-hex code>, and the client POSTs it here. This route trades the code
 // for the forum's OWN session through the forum's existing machinery — same
 // cookie, same TTL, same ban gate as a normal login — mirroring the login
