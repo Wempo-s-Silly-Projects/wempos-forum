@@ -58,6 +58,12 @@ export const BOARDS = [
     get blurb() { return t("boards.updatesBlurb"); },
     staffOnly: true,
   },
+  {
+    slug: "polls",
+    get label() { return t("boards.pollsLabel"); },
+    get blurb() { return t("boards.pollsBlurb"); },
+    staffOnly: true,
+  },
 ];
 
 export const BOARD_BY_SLUG = Object.fromEntries(BOARDS.map((board) => [board.slug, board]));
