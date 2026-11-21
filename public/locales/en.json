@@ -789,5 +789,12 @@
   "post.latestReply": "Jump to latest reply",
   "post.foldReply": "Fold",
   "post.foldReplyTitle": "Fold this reply down to its author line — just for you, until you leave the page",
-  "post.firstPost": "Back to the first post"
+  "post.firstPost": "Back to the first post",
+  "traditions.qotdTitle": "Question of the Day",
+  "traditions.qotdToday": "Today's question",
+  "traditions.qotdAnswered": "You answered",
+  "traditions.galleryTitle": "Gallery",
+  "traditions.galleryEmpty": "No pictures yet — share a drawing or a build!",
+  "traditions.galleryLoadFailed": "The gallery couldn't load. Try again in a moment.",
+  "traditions.galleryAlt": "Showcase picture: {title}"
 }

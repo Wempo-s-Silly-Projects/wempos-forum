@@ -789,5 +789,12 @@
   "post.latestReply": "Đến câu trả lời mới nhất",
   "post.foldReply": "Thu gọn",
   "post.foldReplyTitle": "Thu gọn trả lời này chỉ còn dòng tác giả — chỉ với bạn, cho đến khi bạn rời trang",
-  "post.firstPost": "Về bài viết đầu tiên"
+  "post.firstPost": "Về bài viết đầu tiên",
+  "traditions.qotdTitle": "Câu hỏi của ngày",
+  "traditions.qotdToday": "Câu hỏi hôm nay",
+  "traditions.qotdAnswered": "Bạn đã trả lời",
+  "traditions.galleryTitle": "Thư viện ảnh",
+  "traditions.galleryEmpty": "Chưa có hình nào — hãy chia sẻ một bức vẽ hoặc công trình!",
+  "traditions.galleryLoadFailed": "Không thể tải thư viện ảnh. Hãy thử lại sau giây lát.",
+  "traditions.galleryAlt": "Hình trưng bày: {title}"
 }

@@ -45,6 +45,7 @@ import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
 import { createTextSizePicker } from "../text-size.js";
+import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
 
 // Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
 // its composer tags root posts with board=suggestions (form dataset flag read
@@ -81,6 +82,7 @@ function renderHomeContent(session, data, route) {
   }
   // Recent activity (v3.1): the homepage mixes every category, 10 posts at a
   // time (the server's no-board feed page size).
+  if (route.name === "home") renderTodaysQotd();
   addHeading(main, route.name === "search" ? t("feed.searchResults") : t("feed.recentActivity"), 2);
   if (route.name === "search") {
     addText(document, main, "p", t("feed.searchResultsFor", { query: route.query }), "muted");
@@ -334,6 +336,7 @@ async function renderCategoryRoute(route, context, version) {
   }
   addHeading(main, board.label, 2);
   addText(document, main, "p", board.blurb, "muted");
+  if (board.slug === "showcase") renderShowcaseGallery();
   appendPostList(main, data.feed.posts, document, user,
     board.slug === SUGGESTIONS_BOARD
       ? suggestionsEmptyText()
@@ -345,6 +348,46 @@ async function renderCategoryRoute(route, context, version) {
   older.dataset.before = String(data.feed.nextBefore);
   older.dataset.board = board.slug;
   main.append(older);
+}
+
+// Community traditions (wave 2026-11-21-14). Both slots are appended
+// synchronously (so they keep their place above the list) and filled after
+// the fetch, re-checking renderVersion so a fast route switch never paints
+// into the next page. No QOTD today removes the slot; a failed gallery read
+// says so in place.
+async function renderTodaysQotd() {
+  const slot = element("div", "qotd-slot");
+  main.append(slot);
+  const version = state.renderVersion;
+  let data;
+  try {
+    data = await api("/api/traditions/qotd");
+  } catch {
+    slot.remove();
+    return;
+  }
+  if (version !== state.renderVersion) return;
+  if (!data?.qotd) {
+    slot.remove();
+    return;
+  }
+  slot.append(createQotdBanner(document, data.qotd));
+}
+
+async function renderShowcaseGallery() {
+  const panel = createPanel(t("traditions.galleryTitle"));
+  panel.classList.add("showcase-gallery-panel");
+  main.append(panel);
+  const version = state.renderVersion;
+  let data;
+  try {
+    data = await api("/api/traditions/showcase");
+  } catch {
+    if (version === state.renderVersion) panel.append(element("p", "empty-state", t("traditions.galleryLoadFailed")));
+    return;
+  }
+  if (version !== state.renderVersion) return;
+  panel.append(createShowcaseGallery(document, Array.isArray(data?.items) ? data.items : []));
 }
 
 // Bookmarks (C4): the private "Saved" page — the member's own saved list.

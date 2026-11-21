@@ -789,5 +789,12 @@
   "post.latestReply": "Zur neuesten Antwort springen",
   "post.foldReply": "Einklappen",
   "post.foldReplyTitle": "Diese Antwort bis auf die Autorenzeile einklappen — nur für dich, bis du die Seite verlässt",
-  "post.firstPost": "Zurück zum ersten Beitrag"
+  "post.firstPost": "Zurück zum ersten Beitrag",
+  "traditions.qotdTitle": "Frage des Tages",
+  "traditions.qotdToday": "Heutige Frage",
+  "traditions.qotdAnswered": "Du hast geantwortet",
+  "traditions.galleryTitle": "Galerie",
+  "traditions.galleryEmpty": "Noch keine Bilder — teile eine Zeichnung oder einen Build!",
+  "traditions.galleryLoadFailed": "Die Galerie konnte nicht geladen werden. Versuch es gleich noch einmal.",
+  "traditions.galleryAlt": "Showcase-Bild: {title}"
 }

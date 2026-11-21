@@ -789,5 +789,12 @@
   "post.latestReply": "Aller à la dernière réponse",
   "post.foldReply": "Replier",
   "post.foldReplyTitle": "Replier cette réponse jusqu’à la ligne de l’auteur — pour vous seul, jusqu’à ce que vous quittiez la page",
-  "post.firstPost": "Revenir au premier message"
+  "post.firstPost": "Revenir au premier message",
+  "traditions.qotdTitle": "Question du jour",
+  "traditions.qotdToday": "La question du jour",
+  "traditions.qotdAnswered": "Tu as répondu",
+  "traditions.galleryTitle": "Galerie",
+  "traditions.galleryEmpty": "Pas encore d'images — partage un dessin ou une création !",
+  "traditions.galleryLoadFailed": "Impossible de charger la galerie. Réessaie dans un instant.",
+  "traditions.galleryAlt": "Image de la vitrine : {title}"
 }

@@ -789,5 +789,12 @@
   "post.latestReply": "Przejdź do najnowszej odpowiedzi",
   "post.foldReply": "Zwiń",
   "post.foldReplyTitle": "Zwiń tę odpowiedź do wiersza autora — tylko dla ciebie, dopóki nie opuścisz strony",
-  "post.firstPost": "Wróć do pierwszego posta"
+  "post.firstPost": "Wróć do pierwszego posta",
+  "traditions.qotdTitle": "Pytanie dnia",
+  "traditions.qotdToday": "Dzisiejsze pytanie",
+  "traditions.qotdAnswered": "Odpowiedziałeś",
+  "traditions.galleryTitle": "Galeria",
+  "traditions.galleryEmpty": "Jeszcze brak obrazów — podziel się rysunkiem lub budowlą!",
+  "traditions.galleryLoadFailed": "Nie udało się wczytać galerii. Spróbuj ponownie za chwilę.",
+  "traditions.galleryAlt": "Obraz z prezentacji: {title}"
 }

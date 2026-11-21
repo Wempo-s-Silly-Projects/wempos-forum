@@ -789,5 +789,12 @@
   "post.latestReply": "Naar de nieuwste reactie",
   "post.foldReply": "Inklappen",
   "post.foldReplyTitle": "Klap deze reactie in tot de auteursregel — alleen voor jou, tot je de pagina verlaat",
-  "post.firstPost": "Terug naar het eerste bericht"
+  "post.firstPost": "Terug naar het eerste bericht",
+  "traditions.qotdTitle": "Vraag van de dag",
+  "traditions.qotdToday": "De vraag van vandaag",
+  "traditions.qotdAnswered": "Je hebt geantwoord",
+  "traditions.galleryTitle": "Galerij",
+  "traditions.galleryEmpty": "Nog geen afbeeldingen — deel een tekening of een bouwwerk!",
+  "traditions.galleryLoadFailed": "De galerij kon niet worden geladen. Probeer het zo opnieuw.",
+  "traditions.galleryAlt": "Showcase-afbeelding: {title}"
 }

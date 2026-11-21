@@ -789,5 +789,12 @@
   "post.latestReply": "跳到最新回覆",
   "post.foldReply": "摺疊",
   "post.foldReplyTitle": "將這則回覆摺疊到只剩作者一行——僅你可見，離開頁面後恢復",
-  "post.firstPost": "回到第一篇貼文"
+  "post.firstPost": "回到第一篇貼文",
+  "traditions.qotdTitle": "每日一問",
+  "traditions.qotdToday": "今天的問題",
+  "traditions.qotdAnswered": "你已回答",
+  "traditions.galleryTitle": "畫廊",
+  "traditions.galleryEmpty": "還沒有圖片——分享一幅畫或一個作品吧！",
+  "traditions.galleryLoadFailed": "畫廊載入失敗，請稍後再試。",
+  "traditions.galleryAlt": "展示圖片：{title}"
 }

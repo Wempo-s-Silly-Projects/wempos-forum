@@ -789,5 +789,12 @@
   "post.latestReply": "До останньої відповіді",
   "post.foldReply": "Згорнути",
   "post.foldReplyTitle": "Згорнути цю відповідь до рядка автора — лише для вас, доки ви не покинете сторінку",
-  "post.firstPost": "До першого допису"
+  "post.firstPost": "До першого допису",
+  "traditions.qotdTitle": "Питання дня",
+  "traditions.qotdToday": "Сьогоднішнє питання",
+  "traditions.qotdAnswered": "Ви відповіли",
+  "traditions.galleryTitle": "Галерея",
+  "traditions.galleryEmpty": "Поки немає зображень — поділіться малюнком або будівлею!",
+  "traditions.galleryLoadFailed": "Не вдалося завантажити галерею. Спробуйте ще раз трохи згодом.",
+  "traditions.galleryAlt": "Зображення з вітрини: {title}"
 }

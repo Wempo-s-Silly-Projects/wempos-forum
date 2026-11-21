@@ -789,5 +789,12 @@
   "post.latestReply": "Ir para a resposta mais recente",
   "post.foldReply": "Recolher",
   "post.foldReplyTitle": "Recolhe esta resposta até a linha do autor — só para você, até sair da página",
-  "post.firstPost": "Voltar à primeira publicação"
+  "post.firstPost": "Voltar à primeira publicação",
+  "traditions.qotdTitle": "Pergunta do dia",
+  "traditions.qotdToday": "A pergunta de hoje",
+  "traditions.qotdAnswered": "Você respondeu",
+  "traditions.galleryTitle": "Galeria",
+  "traditions.galleryEmpty": "Ainda não há imagens — compartilhe um desenho ou uma construção!",
+  "traditions.galleryLoadFailed": "Não foi possível carregar a galeria. Tente novamente em instantes.",
+  "traditions.galleryAlt": "Imagem da vitrine: {title}"
 }

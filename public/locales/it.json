@@ -789,5 +789,12 @@
   "post.latestReply": "Vai all'ultima risposta",
   "post.foldReply": "Comprimi",
   "post.foldReplyTitle": "Comprimi questa risposta fino alla riga dell’autore — solo per te, finché non lasci la pagina",
-  "post.firstPost": "Torna al primo post"
+  "post.firstPost": "Torna al primo post",
+  "traditions.qotdTitle": "Domanda del giorno",
+  "traditions.qotdToday": "La domanda di oggi",
+  "traditions.qotdAnswered": "Hai risposto",
+  "traditions.galleryTitle": "Galleria",
+  "traditions.galleryEmpty": "Ancora nessuna immagine — condividi un disegno o una costruzione!",
+  "traditions.galleryLoadFailed": "Impossibile caricare la galleria. Riprova tra un momento.",
+  "traditions.galleryAlt": "Immagine della vetrina: {title}"
 }

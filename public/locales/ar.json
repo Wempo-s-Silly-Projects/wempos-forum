@@ -789,5 +789,12 @@
   "post.latestReply": "الانتقال إلى أحدث رد",
   "post.foldReply": "طيّ",
   "post.foldReplyTitle": "اطوِ هذا الرد إلى سطر كاتبه — لك وحدك، حتى تغادر الصفحة",
-  "post.firstPost": "العودة إلى المنشور الأول"
+  "post.firstPost": "العودة إلى المنشور الأول",
+  "traditions.qotdTitle": "سؤال اليوم",
+  "traditions.qotdToday": "سؤال اليوم",
+  "traditions.qotdAnswered": "لقد أجبت",
+  "traditions.galleryTitle": "المعرض",
+  "traditions.galleryEmpty": "لا توجد صور بعد — شارك رسمة أو بناء!",
+  "traditions.galleryLoadFailed": "تعذّر تحميل المعرض. حاول مرة أخرى بعد قليل.",
+  "traditions.galleryAlt": "صورة من المعرض: {title}"
 }
