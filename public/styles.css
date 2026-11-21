@@ -2710,3 +2710,36 @@ dialog h2 {
 .catch-up-jump {
   margin: 0 0 10px;
 }
+
+/* Thread at a glance (wave 2026-11-21 F4): the summary strip above replies
+   and the brief spotlight on the jumped-to top reply. */
+.thread-glance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin: 10px 0 4px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.thread-glance-fact + .thread-glance-fact::before {
+  content: "·";
+  margin-right: 14px;
+}
+
+.post-card.post-spotlight {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+  transition: outline-color 0.3s;
+}
+
+@media (max-width: 640px) {
+  .thread-glance {
+    font-size: 0.85rem;
+  }
+
+  .thread-glance-top {
+    width: 100%;
+  }
+}

@@ -38,12 +38,17 @@ import { createComposer } from "./composer.js";
 import { prefillQuote } from "../quotes.js";
 import { renderTurnstileSlots } from "../turnstile.js";
 import { applyCatchUp } from "../catch-up.js";
+import { createThreadGlance, summarizeThread } from "../thread-glance.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
   if (version !== state.renderVersion) return;
   addHeading(main, "Conversation", 1);
   main.append(createPostCard(post, document, context.session.user));
+  // Thread at a glance (wave 2026-11-21): from the posts already loaded.
+  if (post.replies.length) {
+    main.append(createThreadGlance(document, summarizeThread(post, post.replies), main));
+  }
   addHeading(main, "Replies", 2);
   let replyList = null;
   if (post.replies.length) {
