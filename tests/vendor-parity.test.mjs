@@ -75,7 +75,7 @@ test("the migrated core leaf answers through the vendor vocabulary", async () =>
 
   const limiterless = { RATE_LIMITS: undefined };
   await assert.rejects(
-    core.rateLimit(new Request("https://wempos-forum.itswempo.workers.dev/"), limiterless, "login"),
+    core.rateLimit(new Request("https://wempos-forum.com/"), limiterless, "login"),
     (error) => error instanceof core.HttpError && error.status === 503,
     "a missing limiter stays the hard 503, never a silently unlimited route",
   );
