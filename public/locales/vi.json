@@ -136,6 +136,8 @@
   "bell.labelUnread": "Thông báo, {count} chưa đọc",
   "bell.unreadTag": "Chưa đọc",
   "bell.markAllRead": "Đánh dấu đã đọc hết",
+  "bell.unreadOnly": "Chỉ chưa đọc",
+  "bell.noUnread": "Không có thông báo chưa đọc.",
   "bell.newReply": "Có phản hồi mới trong bài của bạn",
   "bell.newReplyPreview": "Có phản hồi mới trong bài của bạn: {preview}",
   "bell.threadGroup.one": "{count} trả lời mới cho bài viết của bạn",

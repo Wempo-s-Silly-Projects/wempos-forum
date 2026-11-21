@@ -136,6 +136,8 @@
   "bell.labelUnread": "알림, 읽지 않음 {count}개",
   "bell.unreadTag": "읽지 않음",
   "bell.markAllRead": "모두 읽음으로 표시",
+  "bell.unreadOnly": "읽지 않은 항목만",
+  "bell.noUnread": "읽지 않은 알림이 없습니다.",
   "bell.newReply": "내 게시물에 새 답글",
   "bell.newReplyPreview": "내 게시물에 새 답글: {preview}",
   "bell.threadGroup.one": "내 글에 새 답글 {count}개",

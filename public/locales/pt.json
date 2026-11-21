@@ -136,6 +136,8 @@
   "bell.labelUnread": "Notificações, {count} não lidas",
   "bell.unreadTag": "Não lida",
   "bell.markAllRead": "Marcar tudo como lido",
+  "bell.unreadOnly": "Só não lidas",
+  "bell.noUnread": "Nenhuma notificação por ler.",
   "bell.newReply": "Nova resposta no seu post",
   "bell.newReplyPreview": "Nova resposta no seu post: {preview}",
   "bell.threadGroup.one": "{count} nova resposta na sua publicação",

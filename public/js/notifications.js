@@ -23,6 +23,7 @@
 import { addText } from "./forms.js";
 import { t, tn } from "./i18n.js";
 import { maskSpoilers } from "./markdown.js";
+import { createUnreadOnlyToggle } from "./notification-filter.js";
 
 const SPOILER_MARK = "||";
 
@@ -148,6 +149,8 @@ export function renderNotificationsPage(main, items) {
     main.append(section);
     return section;
   }
+  // v4.42: "Unread only" hides read rows in place (page-view only).
+  section.append(createUnreadOnlyToggle(document, section));
   for (const group of groups) {
     section.append(group.count > 1
       ? threadGroupRow(document, group)
