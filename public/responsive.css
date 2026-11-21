@@ -260,6 +260,7 @@ table,
    }
   .button,
   .feed-tab,
+  .feed-view,
   .form-actions button {
     min-height: 2.75rem;
     padding: 0.6rem 0.95rem;

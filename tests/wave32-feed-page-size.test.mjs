@@ -106,6 +106,30 @@ test("listRootPosts ignores a caller-supplied limit; every branch caps at FEED_P
   assert.ok(Math.max(...spied.counts) < D1_MAX_BOUND_PARAMS);
 });
 
+// Wave 33: the discovery variants (Unanswered filter, Newest sort) ride the
+// same pin. Bare roots (no replies) give the unanswered views a full page.
+test("discovery variants (unanswered, sort=new) bind < 100 params at a full page", async () => {
+  const { env, viewer } = await seedWorstCase();
+  const db = env.__sqlite;
+  const author = db.prepare("SELECT id FROM users WHERE username = 'author'").get().id;
+  for (let i = 0; i < FEED_PAGE_SIZE + EXTRA_ROOTS; i += 1) {
+    const root = seedPost(db, { authorId: author, body: "open " + i });
+    db.prepare("INSERT INTO bookmarks (user_id, post_id, created_at) VALUES (?, ?, ?)").run(viewer, root, now());
+  }
+  const session = forgeSession(db, viewer);
+  for (const query of ["unanswered=1", "sort=new", "sort=new&unanswered=1", "unanswered=1&board=general",
+    "sort=new&board=general"]) {
+    const spied = spyBinds(env);
+    const res = await call(spied.env, "/api/posts?" + query, { session });
+    assert.equal(res.status, 200, query);
+    const body = await res.json();
+    assert.equal(body.posts.length, FEED_PAGE_SIZE, query);
+    const worst = Math.max(...spied.counts);
+    assert.ok(worst < D1_MAX_BOUND_PARAMS, query + " worst-case bind count " + worst);
+    assert.equal(worst, 2 * FEED_PAGE_SIZE + 11, query + ": the rollup stays the widest statement");
+  }
+});
+
 test("posts-feed.mjs has no options.limit and no bare page-size literals", () => {
   const source = readFileSync(new URL("../api/posts-feed.mjs", import.meta.url), "utf8");
   assert.doesNotMatch(source, /options\.limit/);
