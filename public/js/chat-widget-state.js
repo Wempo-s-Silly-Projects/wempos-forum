@@ -35,6 +35,10 @@ export const ui = {
   groupsCursor: null,
   olderGroups: [],
   olderGroupsCursor: null,
+  // v4.11: the server's whole DM unread total (null = sum the loaded rows),
+  // and the chat list's quick-filter text (cleared on close).
+  dmUnread: null,
+  listFilter: "",
   activeThread: null,
   conversation: null, // GET /api/dm/threads/:id result for activeThread
   open: false,

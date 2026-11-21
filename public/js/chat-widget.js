@@ -42,9 +42,10 @@ import { currentLocale, i18nReady, t } from "./i18n.js";
 import { formatRelative } from "./reltime.js";
 import { buildEffectsToggle, buildNewGroupForm, effectsEnabled } from "./dm-extras.js";
 import { el, ui } from "./chat-widget-state.js";
-import { buildLobby, pollLobbySafely } from "./chat-widget-lobby.js";
+import { buildLobby, paintLobbyLog, pollLobbySafely, seedLobby } from "./chat-widget-lobby.js";
 import {
-  applyConversations, buildNewChatForm, loadThreads, paintBadge, paintThreadList, refreshUnread, showNewChatError,
+  applyConversations, buildListFilter, buildNewChatForm, loadThreads, paintBadge, paintThreadList, refreshUnread,
+  showNewChatError,
 } from "./chat-widget-threads.js";
 import { openThread, paintConversation } from "./chat-widget-composer.js";
 
@@ -110,8 +111,7 @@ const boot = async () => {
   try {
     const lobbyData = await api("/api/chat");
     ui.lobbyAvailable = true;
-    ui.lobbyLog = Array.isArray(lobbyData?.messages) ? lobbyData.messages : [];
-    ui.lobbyLastId = Number(lobbyData?.lastId || 0);
+    seedLobby(lobbyData);
   } catch {
     // The lobby lane is unshipped (or signed-out): the tab stays hidden.
     ui.lobbyAvailable = false;
@@ -179,7 +179,7 @@ const openPanel = async () => {
     ui.effectsOn = on;
     paintConversation();
   });
-  ui.listSideEl.append(ui.newChatFormEl, newGroupEl, effectsEl, ui.threadListEl);
+  ui.listSideEl.append(ui.newChatFormEl, newGroupEl, effectsEl, buildListFilter(), ui.threadListEl);
   ui.lobbyEl = buildLobby();
   panel.append(head, ui.listSideEl, ui.conversationEl, ui.lobbyEl);
   document.body.append(panel);
@@ -188,6 +188,9 @@ const openPanel = async () => {
   ui.widgetUser = await api("/api/session")
     .then((data) => (data?.user ? data.user : null))
     .catch(() => null);
+  // The seeded Lobby history paints here, once identity is known (mine rows,
+  // the staff delete arm); the poll below only appends past lobbyLastId.
+  paintLobbyLog();
   paintThreadList();
   panelTimer = setInterval(() => {
     if (document.hidden) return;
@@ -234,6 +237,7 @@ const closePanel = () => {
   ui.gifLibrary = null;
   ui.dmGifPicker = null;
   ui.lastPainted = { key: null, maxId: 0 };
+  ui.listFilter = "";
 };
 
 // The tab switcher: the Lobby stream and the DMs pair are mutually exclusive
