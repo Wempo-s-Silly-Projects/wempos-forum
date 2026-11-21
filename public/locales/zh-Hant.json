@@ -864,5 +864,11 @@
   "dm.mutedLabel": "已靜音",
   "dm.muteFull": "最多可以靜音 {count} 個聊天",
   "dm.renameGroup": "重新命名",
-  "dm.groupNameLabel": "群組名稱"
+  "dm.groupNameLabel": "群組名稱",
+  "shortcuts.title": "鍵盤快速鍵",
+  "shortcuts.posts": "J / K：焦點在貼文內時，跳到下一則或上一則貼文",
+  "shortcuts.submit": "Ctrl+Enter（Mac 上為 ⌘+Enter）：發佈你在回覆框或發文框中寫的內容",
+  "shortcuts.images": "方向鍵：在圖片檢視器中切換貼文的圖片；Home / End 跳到第一張或最後一張",
+  "shortcuts.mentions": "↑ / ↓，然後按 Enter 或 Tab：選擇一個 @提及 建議",
+  "shortcuts.close": "Esc：關閉圖片檢視器或 @提及 建議"
 }

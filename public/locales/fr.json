@@ -864,5 +864,11 @@
   "dm.mutedLabel": "En sourdine",
   "dm.muteFull": "Vous pouvez mettre jusqu'à {count} discussions en sourdine",
   "dm.renameGroup": "Renommer",
-  "dm.groupNameLabel": "Nom du groupe"
+  "dm.groupNameLabel": "Nom du groupe",
+  "shortcuts.title": "Raccourcis clavier",
+  "shortcuts.posts": "J / K : message suivant ou précédent, quand un message a le focus",
+  "shortcuts.submit": "Ctrl+Entrée (⌘+Entrée sur Mac) : publie ce que vous avez écrit dans une zone de réponse ou de message",
+  "shortcuts.images": "Flèches : parcourez les images d'un message dans la visionneuse ; Début / Fin vont à la première ou à la dernière",
+  "shortcuts.mentions": "↑ / ↓, puis Entrée ou Tab : choisissez une suggestion de @mention",
+  "shortcuts.close": "Échap : ferme la visionneuse ou les suggestions de @mention"
 }

@@ -3100,6 +3100,10 @@ mark.search-hit {
 .read-aloud-button[aria-pressed="true"] { color: var(--green-ink); }
 /* v4.13 J/K post navigation hint. */
 .post-keys-hint { margin: 0 0 0.5rem; color: var(--muted); font-size: 0.8rem; }
+.shortcut-sheet { margin: 0 0 0.75rem; color: var(--muted); font-size: 0.8rem; }
+.shortcut-sheet > summary { cursor: pointer; width: fit-content; }
+.shortcut-sheet-list { margin: 0.35rem 0 0; padding-inline-start: 1.25rem; }
+.shortcut-sheet-list li { margin: 0.15rem 0; }
 /* v4.14 mod tools: recent-activity peek + hide-a-spam-run form. */
 .member-peek { display: grid; gap: 0.35rem; margin-top: 0.5rem; border: 1px solid var(--line); border-radius: var(--button-radius); padding: 0.6rem 0.8rem; }
 .member-peek-title { margin: 0; font-size: 0.95rem; }

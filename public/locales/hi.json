@@ -864,5 +864,11 @@
   "dm.mutedLabel": "म्यूट",
   "dm.muteFull": "आप {count} चैट तक म्यूट कर सकते हैं",
   "dm.renameGroup": "नाम बदलें",
-  "dm.groupNameLabel": "समूह का नाम"
+  "dm.groupNameLabel": "समूह का नाम",
+  "shortcuts.title": "कीबोर्ड शॉर्टकट",
+  "shortcuts.posts": "J / K: अगली या पिछली पोस्ट, जब किसी पोस्ट पर फ़ोकस हो",
+  "shortcuts.submit": "Ctrl+Enter (Mac पर ⌘+Enter): जवाब या पोस्ट बॉक्स में लिखा हुआ पोस्ट करें",
+  "shortcuts.images": "तीर कुंजियाँ: इमेज व्यूअर में पोस्ट की तस्वीरों के बीच जाएँ; Home / End पहली या आख़िरी पर ले जाते हैं",
+  "shortcuts.mentions": "↑ / ↓, फिर Enter या Tab: कोई @मेंशन सुझाव चुनें",
+  "shortcuts.close": "Esc: इमेज व्यूअर या @मेंशन सुझाव बंद करें"
 }

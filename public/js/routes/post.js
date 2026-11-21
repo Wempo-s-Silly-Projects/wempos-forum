@@ -42,6 +42,7 @@ import { applyCatchUp } from "../catch-up.js";
 import { createThreadGlance, summarizeThread } from "../thread-glance.js";
 import { markThreadStarterReplies, threadStarterId } from "../thread-starter.js";
 import { bindPostKeys, createPostKeysHint } from "../post-keys.js";
+import { createShortcutSheet } from "../shortcut-sheet.js";
 import {
   createFirstPostJump, createLatestReplyJump, createMyReplyJump, createNextAuthorReplyJump,
 } from "../latest-reply.js";
@@ -64,6 +65,8 @@ async function renderPostRoute(route, context, version) {
   if (post.replies.length) {
     // J/K post navigation (wave 2026-11-21-8 F3): hint shown only with replies.
     main.append(createPostKeysHint(document));
+    // Keyboard shortcuts sheet (wave 2026-11-21-29 F2): closed by default.
+    main.append(createShortcutSheet(document));
     replyList = element("div", "post-list replies-list");
     replyList.dataset.repliesFor = String(post.id);
     for (const reply of post.replies) replyList.append(createPostCard(reply, document, context.session.user));

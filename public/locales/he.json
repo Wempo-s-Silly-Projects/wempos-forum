@@ -864,5 +864,11 @@
   "dm.mutedLabel": "מושתק",
   "dm.muteFull": "אפשר להשתיק עד {count} צ'אטים",
   "dm.renameGroup": "שינוי שם",
-  "dm.groupNameLabel": "שם הקבוצה"
+  "dm.groupNameLabel": "שם הקבוצה",
+  "shortcuts.title": "קיצורי מקלדת",
+  "shortcuts.posts": "J / K: הפוסט הבא או הקודם, כשהמיקוד נמצא בתוך פוסט",
+  "shortcuts.submit": "Ctrl+Enter (או ⌘+Enter ב-Mac): מפרסם את מה שכתבת בתיבת תגובה או פוסט",
+  "shortcuts.images": "מקשי החצים: מעבר בין תמונות הפוסט במציג התמונות; Home / End קופצים לראשונה או לאחרונה",
+  "shortcuts.mentions": "↑ / ↓ ואז Enter או Tab: בחירת הצעה ל-@אזכור",
+  "shortcuts.close": "Esc: סגירת מציג התמונות או הצעות ה-@אזכור"
 }

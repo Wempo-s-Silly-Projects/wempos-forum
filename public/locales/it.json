@@ -864,5 +864,11 @@
   "dm.mutedLabel": "Silenziata",
   "dm.muteFull": "Puoi silenziare fino a {count} chat",
   "dm.renameGroup": "Rinomina",
-  "dm.groupNameLabel": "Nome del gruppo"
+  "dm.groupNameLabel": "Nome del gruppo",
+  "shortcuts.title": "Scorciatoie da tastiera",
+  "shortcuts.posts": "J / K: post successivo o precedente, mentre un post ha il focus",
+  "shortcuts.submit": "Ctrl+Invio (⌘+Invio su Mac): pubblica ciò che hai scritto in una casella di risposta o di post",
+  "shortcuts.images": "Frecce: scorri le immagini di un post nel visualizzatore; Home / Fine vanno alla prima o all'ultima",
+  "shortcuts.mentions": "↑ / ↓, poi Invio o Tab: scegli un suggerimento di @menzione",
+  "shortcuts.close": "Esc: chiude il visualizzatore di immagini o i suggerimenti di @menzione"
 }

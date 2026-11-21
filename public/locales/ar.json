@@ -864,5 +864,11 @@
   "dm.mutedLabel": "مكتومة",
   "dm.muteFull": "يمكنك كتم حتى {count} دردشات",
   "dm.renameGroup": "إعادة التسمية",
-  "dm.groupNameLabel": "اسم المجموعة"
+  "dm.groupNameLabel": "اسم المجموعة",
+  "shortcuts.title": "اختصارات لوحة المفاتيح",
+  "shortcuts.posts": "J / K: المنشور التالي أو السابق، عندما يكون التركيز داخل منشور",
+  "shortcuts.submit": "Ctrl+Enter (أو ⌘+Enter على Mac): انشر ما كتبته في مربع الرد أو المنشور",
+  "shortcuts.images": "مفاتيح الأسهم: تنقّل بين صور المنشور في عارض الصور؛ Home / End للانتقال إلى الأولى أو الأخيرة",
+  "shortcuts.mentions": "↑ / ↓ ثم Enter أو Tab: اختر اقتراح @إشارة",
+  "shortcuts.close": "Esc: أغلق عارض الصور أو اقتراحات @الإشارة"
 }

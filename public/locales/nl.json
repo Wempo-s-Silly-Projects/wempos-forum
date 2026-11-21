@@ -864,5 +864,11 @@
   "dm.mutedLabel": "Gedempt",
   "dm.muteFull": "Je kunt tot {count} chats dempen",
   "dm.renameGroup": "Hernoemen",
-  "dm.groupNameLabel": "Groepsnaam"
+  "dm.groupNameLabel": "Groepsnaam",
+  "shortcuts.title": "Sneltoetsen",
+  "shortcuts.posts": "J / K: volgend of vorig bericht, terwijl een bericht de focus heeft",
+  "shortcuts.submit": "Ctrl+Enter (⌘+Enter op Mac): plaatst wat je in een antwoord- of berichtvak hebt geschreven",
+  "shortcuts.images": "Pijltjestoetsen: blader door de afbeeldingen van een bericht in de afbeeldingsviewer; Home / End springen naar de eerste of laatste",
+  "shortcuts.mentions": "↑ / ↓, dan Enter of Tab: kies een @vermelding-suggestie",
+  "shortcuts.close": "Esc: sluit de afbeeldingsviewer of de @vermelding-suggesties"
 }

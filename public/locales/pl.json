@@ -864,5 +864,11 @@
   "dm.mutedLabel": "Wyciszony",
   "dm.muteFull": "Możesz wyciszyć do {count} czatów",
   "dm.renameGroup": "Zmień nazwę",
-  "dm.groupNameLabel": "Nazwa grupy"
+  "dm.groupNameLabel": "Nazwa grupy",
+  "shortcuts.title": "Skróty klawiszowe",
+  "shortcuts.posts": "J / K: następny lub poprzedni post, gdy fokus jest na poście",
+  "shortcuts.submit": "Ctrl+Enter (⌘+Enter na Macu): publikuje to, co wpisano w polu odpowiedzi lub posta",
+  "shortcuts.images": "Strzałki: przeglądaj obrazy posta w przeglądarce obrazów; Home / End przechodzą do pierwszego lub ostatniego",
+  "shortcuts.mentions": "↑ / ↓, potem Enter lub Tab: wybierz podpowiedź @wzmianki",
+  "shortcuts.close": "Esc: zamyka przeglądarkę obrazów lub podpowiedzi @wzmianek"
 }

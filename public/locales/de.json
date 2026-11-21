@@ -864,5 +864,11 @@
   "dm.mutedLabel": "Stumm",
   "dm.muteFull": "Du kannst bis zu {count} Chats stummschalten",
   "dm.renameGroup": "Umbenennen",
-  "dm.groupNameLabel": "Gruppenname"
+  "dm.groupNameLabel": "Gruppenname",
+  "shortcuts.title": "Tastenkürzel",
+  "shortcuts.posts": "J / K: nächster oder vorheriger Beitrag, solange ein Beitrag den Fokus hat",
+  "shortcuts.submit": "Strg+Enter (⌘+Enter auf dem Mac): sendet, was du in ein Antwort- oder Beitragsfeld geschrieben hast",
+  "shortcuts.images": "Pfeiltasten: durch die Bilder eines Beitrags in der Bildansicht blättern; Pos1 / Ende springen zum ersten oder letzten",
+  "shortcuts.mentions": "↑ / ↓, dann Enter oder Tab: einen @Erwähnungs-Vorschlag auswählen",
+  "shortcuts.close": "Esc: Bildansicht oder @Erwähnungs-Vorschläge schließen"
 }

@@ -864,5 +864,11 @@
   "dm.mutedLabel": "ปิดเสียงแล้ว",
   "dm.muteFull": "คุณปิดเสียงแชทได้สูงสุด {count} รายการ",
   "dm.renameGroup": "เปลี่ยนชื่อ",
-  "dm.groupNameLabel": "ชื่อกลุ่ม"
+  "dm.groupNameLabel": "ชื่อกลุ่ม",
+  "shortcuts.title": "แป้นพิมพ์ลัด",
+  "shortcuts.posts": "J / K: โพสต์ถัดไปหรือก่อนหน้า ขณะที่โฟกัสอยู่ในโพสต์",
+  "shortcuts.submit": "Ctrl+Enter (⌘+Enter บน Mac): โพสต์สิ่งที่คุณเขียนในช่องตอบกลับหรือช่องโพสต์",
+  "shortcuts.images": "ปุ่มลูกศร: เลื่อนดูรูปของโพสต์ในตัวดูรูป; Home / End ไปที่รูปแรกหรือรูปสุดท้าย",
+  "shortcuts.mentions": "↑ / ↓ แล้วกด Enter หรือ Tab: เลือกคำแนะนำ @กล่าวถึง",
+  "shortcuts.close": "Esc: ปิดตัวดูรูปหรือคำแนะนำ @กล่าวถึง"
 }

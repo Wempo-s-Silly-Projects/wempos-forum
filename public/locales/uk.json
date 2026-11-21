@@ -864,5 +864,11 @@
   "dm.mutedLabel": "Без сповіщень",
   "dm.muteFull": "Можна вимкнути сповіщення щонайбільше для {count} чатів",
   "dm.renameGroup": "Перейменувати",
-  "dm.groupNameLabel": "Назва групи"
+  "dm.groupNameLabel": "Назва групи",
+  "shortcuts.title": "Комбінації клавіш",
+  "shortcuts.posts": "J / K: наступний або попередній допис, коли фокус на дописі",
+  "shortcuts.submit": "Ctrl+Enter (⌘+Enter на Mac): опублікувати написане в полі відповіді чи допису",
+  "shortcuts.images": "Стрілки: гортати зображення допису в переглядачі; Home / End — до першого або останнього",
+  "shortcuts.mentions": "↑ / ↓, потім Enter або Tab: вибрати підказку @згадки",
+  "shortcuts.close": "Esc: закрити переглядач зображень або підказки @згадок"
 }
