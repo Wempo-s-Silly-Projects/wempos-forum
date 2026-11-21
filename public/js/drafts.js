@@ -27,14 +27,32 @@ export const DRAFT_PREFIX = "forum-draft:";
 export const DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 export const DRAFT_SAVE_DELAY_MS = 400;
 
-export const draftKey = (formName, postId, board = null) =>
-  DRAFT_PREFIX + formName + ":" + (postId ?? "new") + (board ? ":" + board : "");
+// The optional account id scopes a draft to the member who typed it, so a
+// shared browser never restores one member's unsent text for another.
+export const draftKey = (formName, postId, board = null, accountId = null) =>
+  DRAFT_PREFIX + (accountId ? "u" + accountId + ":" : "") +
+  formName + ":" + (postId ?? "new") + (board ? ":" + board : "");
 
 export function clearDraft(storage, key) {
   try {
     storage?.removeItem(key);
   } catch {
     // Blocked storage: nothing to clear.
+  }
+}
+
+// Sign-out wipe: every forum draft in this browser goes, other keys stay.
+export function clearAllDrafts(storage = browserStorage()) {
+  try {
+    if (!storage) return;
+    const keys = [];
+    for (let index = 0; index < storage.length; index += 1) {
+      const key = storage.key(index);
+      if (typeof key === "string" && key.startsWith(DRAFT_PREFIX)) keys.push(key);
+    }
+    keys.forEach((key) => storage.removeItem(key));
+  } catch {
+    // Blocked storage: nothing was stored to wipe.
   }
 }
 

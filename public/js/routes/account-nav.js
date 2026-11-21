@@ -25,6 +25,7 @@ import { api, setCsrfToken } from "../api.js";
 import { accountActions, element } from "../dom.js";
 import { iconButton } from "../icons.js";
 import { createLanguagePicker, t } from "../i18n.js";
+import { clearAllDrafts } from "../drafts.js";
 import { createNotificationBell } from "../notifications.js";
 // The §4b door-swap: every auth link (header Sign in, mobile guest rung)
 // targets Wempo Accounts with an origin-only return; logout hands the browser
@@ -261,6 +262,8 @@ export const ACTIONS = {
   // member straight back signed in).
   logout: async () => {
     await api("/api/auth/logout", { method: "POST" });
+    // Shared-browser privacy: unsent drafts leave with the member.
+    clearAllDrafts();
 
     setCsrfToken("");
     window.location.assign(wempoAccountsSignOutUrl());
