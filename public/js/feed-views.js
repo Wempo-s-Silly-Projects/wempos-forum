@@ -18,20 +18,20 @@
 
 import { t } from "./i18n.js";
 
-// Feed views (wave 2026-11-21-33): the home and category feeds offer three
-// views as anchor chips — Active (the default bump order), Newest (threads by
-// when they were started) and Unanswered (threads nobody has replied to yet,
-// as far as you can see). The view rides the URL (`?view=new|unanswered`), so
-// the chips are shareable and the back button works. The server judges
-// "unanswered" with the same visibility rules as the card's reply count.
-const VIEW_QUERY = Object.freeze({ new: "sort=new", unanswered: "unanswered=1" });
+// Feed views (wave 2026-11-21-33): the home and category feeds offer two
+// views as anchor chips — Active (the default bump order) and Newest (threads
+// by when they were started). The view rides the URL (`?view=new`), so the
+// chips are shareable and the back button works. The Unanswered chip was
+// removed on the owner's call (Nov 21); the server's `unanswered=1` filter
+// remains but nothing in the UI links to it.
+const VIEW_QUERY = Object.freeze({ new: "sort=new" });
 
 // The /api/posts query fragment for a view; "" for the default view.
 export function feedViewQuery(view) {
   return Object.hasOwn(VIEW_QUERY, view) ? VIEW_QUERY[view] : "";
 }
 
-// basePath is "/" or "/c/<slug>"; activeView is undefined, "new" or "unanswered".
+// basePath is "/" or "/c/<slug>"; activeView is undefined or "new".
 export function createFeedViews(document, basePath, activeView) {
   const nav = document.createElement("nav");
   nav.className = "feed-views";
@@ -39,7 +39,6 @@ export function createFeedViews(document, basePath, activeView) {
   const spec = [
     [undefined, t("feed.viewActive")],
     ["new", t("feed.viewNewest")],
-    ["unanswered", t("feed.viewUnanswered")],
   ];
   for (const [view, label] of spec) {
     const chip = document.createElement("a");
@@ -54,7 +53,6 @@ export function createFeedViews(document, basePath, activeView) {
 }
 
 // The empty-state line for a view; undefined keeps the caller's default.
-export function feedViewEmptyText(view) {
-  if (view === "unanswered") return t("feed.unansweredEmpty");
+export function feedViewEmptyText() {
   return undefined;
 }

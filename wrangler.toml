@@ -11,7 +11,7 @@ routes = [
 
 [vars]
 TURNSTILE_HOSTNAMES = "wempos-forum.com"
-VERSION = "4.45.0"
+VERSION = "4.45.1"
 
 [assets]
 directory = "./public"

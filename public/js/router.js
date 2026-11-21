@@ -22,10 +22,11 @@ export const isPlainLeftClick = (event) =>
   event.button === 0 && !event.metaKey && !event.ctrlKey &&
   !event.shiftKey && !event.altKey;
 
-// Feed views (wave 33): `?view=new|unanswered` on the home and category
-// feeds. Anything else (or Suggestions, which has its own order) is the
-// default view, and the route object stays exactly { name, board? }.
-export const FEED_VIEWS = ["new", "unanswered"];
+// Feed views (wave 33): `?view=new` on the home and category feeds (the
+// Unanswered view was removed Nov 21). Anything else (or Suggestions, which has
+// its own order) is the default view, and the route object stays exactly
+// { name, board? } — so an old `?view=unanswered` link just opens the default.
+export const FEED_VIEWS = ["new"];
 
 const withFeedView = (route, search) => {
   const view = new URLSearchParams(search).get("view");

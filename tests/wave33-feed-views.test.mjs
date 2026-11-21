@@ -31,13 +31,14 @@ const NEW_KEYS = ["feed.viewLabel", "feed.viewActive", "feed.viewNewest", "feed.
 const LOCALES = ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant"];
 
 test("the router carries only a known view on home and category feeds", () => {
-  assert.deepEqual(FEED_VIEWS, ["new", "unanswered"]);
+  assert.deepEqual(FEED_VIEWS, ["new"]);
   assert.deepEqual(routeForPath("/", ""), { name: "home" });
   assert.deepEqual(routeForPath("/", "?view=new"), { name: "home", view: "new" });
-  assert.deepEqual(routeForPath("/", "?view=unanswered"), { name: "home", view: "unanswered" });
+  // Unanswered was removed Nov 21: an old link falls back to the default view.
+  assert.deepEqual(routeForPath("/", "?view=unanswered"), { name: "home" });
   assert.deepEqual(routeForPath("/", "?view=hot"), { name: "home" });
   assert.deepEqual(routeForPath("/", "?q=cats&view=new"), { name: "search", query: "cats" });
-  assert.deepEqual(routeForPath("/c/help", "?view=unanswered"), { name: "category", board: "help", view: "unanswered" });
+  assert.deepEqual(routeForPath("/c/help", "?view=unanswered"), { name: "category", board: "help" });
   assert.deepEqual(routeForPath("/c/help", "?view=__proto__"), { name: "category", board: "help" });
   assert.deepEqual(routeForPath("/c/suggestions", "?view=new"), { name: "category", board: "suggestions" });
   assert.deepEqual(routeForPath("/suggestions", "?view=new"), { name: "category", board: "suggestions" });
@@ -46,22 +47,22 @@ test("the router carries only a known view on home and category feeds", () => {
 test("feedViewQuery maps views to the server params and nothing else", () => {
   assert.equal(feedViewQuery(undefined), "");
   assert.equal(feedViewQuery("new"), "sort=new");
-  assert.equal(feedViewQuery("unanswered"), "unanswered=1");
+  assert.equal(feedViewQuery("unanswered"), "");
   assert.equal(feedViewQuery("toString"), "");
   assert.equal(feedViewQuery("__proto__"), "");
-  assert.equal(typeof feedViewEmptyText("unanswered"), "string");
+  assert.equal(feedViewEmptyText("unanswered"), undefined);
   assert.equal(feedViewEmptyText(undefined), undefined);
   assert.equal(feedViewEmptyText("new"), undefined);
 });
 
-test("the chips are three app-link anchors with exactly one current view", () => {
-  for (const [active, currentIndex] of [[undefined, 0], ["new", 1], ["unanswered", 2]]) {
+test("the chips are two app-link anchors with exactly one current view", () => {
+  for (const [active, currentIndex] of [[undefined, 0], ["new", 1]]) {
     const nav = createFeedViews(makeFakeDocument(), "/c/help", active);
     assert.equal(nav.tagName.toLowerCase(), "nav");
     assert.ok(nav.getAttribute("aria-label"));
     const chips = [...nav.children];
-    assert.equal(chips.length, 3);
-    assert.deepEqual(chips.map((chip) => chip.href), ["/c/help", "/c/help?view=new", "/c/help?view=unanswered"]);
+    assert.equal(chips.length, 2);
+    assert.deepEqual(chips.map((chip) => chip.href), ["/c/help", "/c/help?view=new"]);
     for (const chip of chips) {
       assert.equal(chip.tagName.toLowerCase(), "a");
       assert.equal(chip.getAttribute("data-app-link"), "");
@@ -71,7 +72,7 @@ test("the chips are three app-link anchors with exactly one current view", () =>
       chips.map((_, i) => (i === currentIndex ? "page" : null)));
   }
   const home = [...createFeedViews(makeFakeDocument(), "/", "new").children].map((chip) => chip.href);
-  assert.deepEqual(home, ["/", "/?view=new", "/?view=unanswered"]);
+  assert.deepEqual(home, ["/", "/?view=new"]);
 });
 
 test("feed.js threads the view through every feed fetch and the load-more button", () => {
