@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Enter (⌘+Enter no Mac): publica o que você escreveu numa caixa de resposta ou de publicação",
   "shortcuts.images": "Setas: percorra as imagens de uma publicação no visualizador; Home / End saltam para a primeira ou a última",
   "shortcuts.mentions": "↑ / ↓ e depois Enter ou Tab: escolha uma sugestão de @menção",
-  "shortcuts.close": "Esc: fecha o visualizador de imagens ou as sugestões de @menção"
+  "shortcuts.close": "Esc: fecha o visualizador de imagens ou as sugestões de @menção",
+  "attachments.wrongType": "“{name}” não foi adicionado: só é possível anexar imagens JPEG, PNG, WebP e GIF.",
+  "composer.pendingImages.one": "1 imagem pronta para anexar: {names}. Nada é enviado até você anexá-la e publicar.",
+  "composer.pendingImages.other": "{count} imagens prontas para anexar: {names}. Nada é enviado até você anexá-las e publicar.",
+  "composer.pendingAttach": "Anexar",
+  "composer.pendingDismiss": "Descartar",
+  "render.discardEditConfirm": "Descartar suas alterações nesta publicação?"
 }

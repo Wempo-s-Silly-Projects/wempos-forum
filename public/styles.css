@@ -657,11 +657,17 @@ textarea {
   color: var(--muted);
 }
 
-/* Composer character counter: always visible, muted, polite live region. */
+/* Composer character counter: always visible, muted; announced near the cap only. */
 .char-counter {
   color: var(--muted);
   margin: 0.35rem 0 0;
   font-size: 0.85rem;
+}
+
+/* Wave 30: the last 10% before the cap. */
+.char-counter-near {
+  color: var(--coral);
+  font-weight: 600;
 }
 
 .form-note,
@@ -1179,6 +1185,29 @@ dialog h2 {
   flex-direction: column;
   align-items: flex-start;
   gap: 0.4rem;
+}
+
+/* Wave 30: pasted/dropped images wait here until the member attaches them. */
+.composer-pending {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.35rem 0;
+  padding: 0.4rem 0.6rem;
+  border: 1.5px dashed var(--line);
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.composer-pending[hidden] {
+  display: none;
+}
+
+.composer-drop-target {
+  outline: 2px dashed var(--green);
+  outline-offset: 4px;
 }
 
 .composer-files {

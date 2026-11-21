@@ -29,6 +29,7 @@ import { addText } from "../forms.js";
 import { state } from "../state.js";
 import {
   closeEditForm,
+  editHasUnsavedChanges,
   createPostCard,
   createSubReplyContainer,
   openEditForm,
@@ -288,7 +289,9 @@ export const ACTIONS = {
   },
   "cancel-edit": (button) => {
     const article = editTargetArticle(button);
-    if (article) closeEditForm(article);
+    if (!article) return;
+    if (editHasUnsavedChanges(article) && !window.confirm(t("render.discardEditConfirm"))) return;
+    closeEditForm(article);
   },
   "edit-history": async (button) => {
     // Toggle: an open panel for this card closes; otherwise the past

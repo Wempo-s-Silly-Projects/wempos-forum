@@ -613,6 +613,17 @@ export const openEditForm = (article, document) => {
   return true;
 };
 
+// Wave 30: true when an open edit form's text differs from the post's raw
+// body — Cancel then asks before throwing the change away.
+export const editHasUnsavedChanges = (article) => {
+  if (!article || typeof article.postBody !== "string") return false;
+  const form = [...article.children].find(
+    (node) => node.dataset && node.dataset.form === "post-edit",
+  );
+  const textarea = form?.querySelector("textarea");
+  return Boolean(textarea) && textarea.value !== article.postBody;
+};
+
 export const closeEditForm = (article) => {
   if (!article) return false;
   const form = [...article.children].find(

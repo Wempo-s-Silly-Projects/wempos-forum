@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Enter (⌘+Enter บน Mac): โพสต์สิ่งที่คุณเขียนในช่องตอบกลับหรือช่องโพสต์",
   "shortcuts.images": "ปุ่มลูกศร: เลื่อนดูรูปของโพสต์ในตัวดูรูป; Home / End ไปที่รูปแรกหรือรูปสุดท้าย",
   "shortcuts.mentions": "↑ / ↓ แล้วกด Enter หรือ Tab: เลือกคำแนะนำ @กล่าวถึง",
-  "shortcuts.close": "Esc: ปิดตัวดูรูปหรือคำแนะนำ @กล่าวถึง"
+  "shortcuts.close": "Esc: ปิดตัวดูรูปหรือคำแนะนำ @กล่าวถึง",
+  "attachments.wrongType": "ไม่ได้เพิ่ม \"{name}\": แนบได้เฉพาะรูปภาพ JPEG, PNG, WebP และ GIF",
+  "composer.pendingImages.one": "มีรูปภาพ 1 รูปพร้อมแนบ: {names} จะไม่มีการอัปโหลดจนกว่าคุณจะแนบและโพสต์",
+  "composer.pendingImages.other": "มีรูปภาพ {count} รูปพร้อมแนบ: {names} จะไม่มีการอัปโหลดจนกว่าคุณจะแนบและโพสต์",
+  "composer.pendingAttach": "แนบ",
+  "composer.pendingDismiss": "ยกเลิก",
+  "render.discardEditConfirm": "ทิ้งการแก้ไขโพสต์นี้หรือไม่?"
 }

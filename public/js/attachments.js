@@ -30,6 +30,14 @@ export const COMPOSER_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
 export const MAX_COMPOSER_FILES = 3;
 export const MAX_COMPOSER_FILE_BYTES = 10 * 1024 * 1024;
 export const MAX_COMPOSER_FILE_BYTES_LABEL = "10 MiB"; // i18n-ignore
+const COMPOSER_IMAGE_TYPES = Object.freeze(COMPOSER_ACCEPT.split(","));
+
+// Wave 30: pasted or dropped files skip the picker's accept filter, so the
+// type check lives here beside the size and count caps — every route into the
+// composer (picker, paste, drop) shares one gate. The server still sniffs the
+// bytes; this only spares a doomed round trip.
+export const isComposerImageType = (file) =>
+  COMPOSER_IMAGE_TYPES.includes(String(file?.type ?? "").toLowerCase());
 
 // Folds a picker selection into the composer's chosen list. Oversized choices
 // are refused (with a per-file notice) and the 3-file cap is enforced with a
@@ -39,7 +47,9 @@ export function addComposerFiles(currentFiles, pickedFiles) {
   const files = [...(currentFiles ?? [])];
   const notices = [];
   for (const picked of pickedFiles ?? []) {
-    if (picked.size > MAX_COMPOSER_FILE_BYTES) {
+    if (!isComposerImageType(picked)) {
+      notices.push(t("attachments.wrongType", { name: picked.name }));
+    } else if (picked.size > MAX_COMPOSER_FILE_BYTES) {
       notices.push(
         t("attachments.tooLarge", { name: picked.name, limit: MAX_COMPOSER_FILE_BYTES_LABEL }),
       );

@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Enter (أو ⌘+Enter على Mac): انشر ما كتبته في مربع الرد أو المنشور",
   "shortcuts.images": "مفاتيح الأسهم: تنقّل بين صور المنشور في عارض الصور؛ Home / End للانتقال إلى الأولى أو الأخيرة",
   "shortcuts.mentions": "↑ / ↓ ثم Enter أو Tab: اختر اقتراح @إشارة",
-  "shortcuts.close": "Esc: أغلق عارض الصور أو اقتراحات @الإشارة"
+  "shortcuts.close": "Esc: أغلق عارض الصور أو اقتراحات @الإشارة",
+  "attachments.wrongType": "لم تتم إضافة «{name}»: يمكن إرفاق صور JPEG وPNG وWebP وGIF فقط.",
+  "composer.pendingImages.one": "صورة واحدة جاهزة للإرفاق: {names}. لا يُرفع شيء حتى ترفقها وتنشر.",
+  "composer.pendingImages.other": "{count} صور جاهزة للإرفاق: {names}. لا يُرفع شيء حتى ترفقها وتنشر.",
+  "composer.pendingAttach": "إرفاق",
+  "composer.pendingDismiss": "تجاهل",
+  "render.discardEditConfirm": "هل تريد تجاهل تعديلاتك على هذا المنشور؟"
 }

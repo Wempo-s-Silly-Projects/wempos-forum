@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Enter (Mac पर ⌘+Enter): जवाब या पोस्ट बॉक्स में लिखा हुआ पोस्ट करें",
   "shortcuts.images": "तीर कुंजियाँ: इमेज व्यूअर में पोस्ट की तस्वीरों के बीच जाएँ; Home / End पहली या आख़िरी पर ले जाते हैं",
   "shortcuts.mentions": "↑ / ↓, फिर Enter या Tab: कोई @मेंशन सुझाव चुनें",
-  "shortcuts.close": "Esc: इमेज व्यूअर या @मेंशन सुझाव बंद करें"
+  "shortcuts.close": "Esc: इमेज व्यूअर या @मेंशन सुझाव बंद करें",
+  "attachments.wrongType": "\"{name}\" नहीं जोड़ी गई: केवल JPEG, PNG, WebP और GIF छवियाँ जोड़ी जा सकती हैं।",
+  "composer.pendingImages.one": "1 छवि जोड़ने के लिए तैयार: {names}. जब तक आप उसे जोड़कर पोस्ट नहीं करते, कुछ भी अपलोड नहीं होता।",
+  "composer.pendingImages.other": "{count} छवियाँ जोड़ने के लिए तैयार: {names}. जब तक आप उन्हें जोड़कर पोस्ट नहीं करते, कुछ भी अपलोड नहीं होता।",
+  "composer.pendingAttach": "जोड़ें",
+  "composer.pendingDismiss": "हटाएँ",
+  "render.discardEditConfirm": "इस पोस्ट में किए गए बदलाव छोड़ दें?"
 }

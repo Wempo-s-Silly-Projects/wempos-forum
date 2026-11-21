@@ -870,5 +870,11 @@
   "shortcuts.submit": "Ctrl+Invio (⌘+Invio su Mac): pubblica ciò che hai scritto in una casella di risposta o di post",
   "shortcuts.images": "Frecce: scorri le immagini di un post nel visualizzatore; Home / Fine vanno alla prima o all'ultima",
   "shortcuts.mentions": "↑ / ↓, poi Invio o Tab: scegli un suggerimento di @menzione",
-  "shortcuts.close": "Esc: chiude il visualizzatore di immagini o i suggerimenti di @menzione"
+  "shortcuts.close": "Esc: chiude il visualizzatore di immagini o i suggerimenti di @menzione",
+  "attachments.wrongType": "«{name}» non è stato aggiunto: si possono allegare solo immagini JPEG, PNG, WebP e GIF.",
+  "composer.pendingImages.one": "1 immagine pronta da allegare: {names}. Niente viene caricato finché non la alleghi e pubblichi.",
+  "composer.pendingImages.other": "{count} immagini pronte da allegare: {names}. Niente viene caricato finché non le alleghi e pubblichi.",
+  "composer.pendingAttach": "Allega",
+  "composer.pendingDismiss": "Scarta",
+  "render.discardEditConfirm": "Scartare le modifiche a questo post?"
 }
