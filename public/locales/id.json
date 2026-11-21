@@ -480,6 +480,7 @@
   "feed.signInSaved": "Masuk untuk melihat postingan tersimpanmu.",
   "feed.squareCorners": "Sudut kotak",
   "feed.startThreadIn": "Mulai thread di {board}",
+  "feed.suggestionRank": "Peringkat {rank} menurut suara",
   "feed.subscribed": "Kamu akan mendapat notifikasi untuk balasan di sini.",
   "feed.suggestionDeclined": "Saran ditandai ditolak.",
   "feed.suggestionReopened": "Saran dibuka kembali.",

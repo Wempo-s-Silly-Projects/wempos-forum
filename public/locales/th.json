@@ -480,6 +480,7 @@
   "feed.signInSaved": "ลงชื่อเข้าใช้เพื่อดูโพสต์ที่บันทึกไว้",
   "feed.squareCorners": "มุมเหลี่ยม",
   "feed.startThreadIn": "ตั้งกระทู้ใน {board}",
+  "feed.suggestionRank": "อันดับ {rank} ตามคะแนนโหวต",
   "feed.subscribed": "คุณจะได้รับการแจ้งเตือนเมื่อมีการตอบกลับที่นี่",
   "feed.suggestionDeclined": "ทำเครื่องหมายข้อเสนอแนะว่าปฏิเสธแล้ว",
   "feed.suggestionReopened": "เปิดข้อเสนอแนะอีกครั้งแล้ว",

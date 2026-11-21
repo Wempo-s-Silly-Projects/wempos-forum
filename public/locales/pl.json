@@ -480,6 +480,7 @@
   "feed.signInSaved": "Zaloguj się, żeby zobaczyć zapisane posty.",
   "feed.squareCorners": "Kwadratowe rogi",
   "feed.startThreadIn": "Załóż wątek w dziale {board}",
+  "feed.suggestionRank": "Miejsce {rank} według głosów",
   "feed.subscribed": "Będziesz dostawać powiadomienia o odpowiedziach tutaj.",
   "feed.suggestionDeclined": "Sugestia oznaczona jako odrzucona.",
   "feed.suggestionReopened": "Propozycja ponownie otwarta.",

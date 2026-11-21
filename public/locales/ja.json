@@ -480,6 +480,7 @@
   "feed.signInSaved": "保存した投稿を見るにはログインしてください。",
   "feed.squareCorners": "角を四角にする",
   "feed.startThreadIn": "{board} でスレッドを立てる",
+  "feed.suggestionRank": "投票順位 {rank} 位",
   "feed.subscribed": "ここへの返信が通知されるようになります。",
   "feed.suggestionDeclined": "提案を「見送り」にしました。",
   "feed.suggestionReopened": "提案を再オープンしました。",

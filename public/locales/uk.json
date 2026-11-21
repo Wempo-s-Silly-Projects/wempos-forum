@@ -480,6 +480,7 @@
   "feed.signInSaved": "Увійди, щоб побачити збережені дописи.",
   "feed.squareCorners": "Квадратні кути",
   "feed.startThreadIn": "Створити тему в розділі {board}",
+  "feed.suggestionRank": "Місце {rank} за голосами",
   "feed.subscribed": "Ти отримуватимеш сповіщення про відповіді тут.",
   "feed.suggestionDeclined": "Пропозицію позначено як відхилену.",
   "feed.suggestionReopened": "Пропозицію знову відкрито.",

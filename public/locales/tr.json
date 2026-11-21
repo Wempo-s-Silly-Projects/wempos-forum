@@ -480,6 +480,7 @@
   "feed.signInSaved": "Kaydedilen gönderilerini görmek için giriş yap.",
   "feed.squareCorners": "Köşeli kenarlar",
   "feed.startThreadIn": "{board} içinde konu başlat",
+  "feed.suggestionRank": "Oylara göre {rank}. sıra",
   "feed.subscribed": "Buradaki yanıtlar için bildirim alacaksın.",
   "feed.suggestionDeclined": "Öneri reddedildi olarak işaretlendi.",
   "feed.suggestionReopened": "Öneri yeniden açıldı.",

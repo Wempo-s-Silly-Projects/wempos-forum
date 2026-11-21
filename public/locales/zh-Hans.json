@@ -480,6 +480,7 @@
   "feed.signInSaved": "登录后即可查看你的收藏。",
   "feed.squareCorners": "直角边框",
   "feed.startThreadIn": "在 {board} 发起主题帖",
+  "feed.suggestionRank": "按票数排名第 {rank}",
   "feed.subscribed": "这里有新回复时你会收到通知。",
   "feed.suggestionDeclined": "已将建议标记为已拒绝。",
   "feed.suggestionReopened": "建议已重新开放。",

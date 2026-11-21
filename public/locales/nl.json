@@ -480,6 +480,7 @@
   "feed.signInSaved": "Log in om je opgeslagen berichten te zien.",
   "feed.squareCorners": "Vierkante hoeken",
   "feed.startThreadIn": "Begin een topic in {board}",
+  "feed.suggestionRank": "Plaats {rank} op stemmen",
   "feed.subscribed": "Je krijgt notificaties bij reacties hier.",
   "feed.suggestionDeclined": "Suggestie gemarkeerd als afgewezen.",
   "feed.suggestionReopened": "Suggestie heropend.",

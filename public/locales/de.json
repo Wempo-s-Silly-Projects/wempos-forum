@@ -480,6 +480,7 @@
   "feed.signInSaved": "Melde dich an, um deine gespeicherten Beiträge zu sehen.",
   "feed.squareCorners": "Eckige Ecken",
   "feed.startThreadIn": "Starte einen Thread in {board}",
+  "feed.suggestionRank": "Platz {rank} nach Stimmen",
   "feed.subscribed": "Du bekommst Benachrichtigungen für Antworten hier.",
   "feed.suggestionDeclined": "Vorschlag als abgelehnt markiert.",
   "feed.suggestionReopened": "Vorschlag wieder geöffnet.",

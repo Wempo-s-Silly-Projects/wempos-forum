@@ -480,6 +480,7 @@
   "feed.signInSaved": "Đăng nhập để xem bài đã lưu của bạn.",
   "feed.squareCorners": "Góc vuông",
   "feed.startThreadIn": "Mở chủ đề trong {board}",
+  "feed.suggestionRank": "Hạng {rank} theo lượt bình chọn",
   "feed.subscribed": "Bạn sẽ nhận thông báo khi có phản hồi ở đây.",
   "feed.suggestionDeclined": "Đã đánh dấu góp ý là bị từ chối.",
   "feed.suggestionReopened": "Đã mở lại góp ý.",

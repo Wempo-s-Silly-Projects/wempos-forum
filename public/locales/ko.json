@@ -480,6 +480,7 @@
   "feed.signInSaved": "저장한 게시물을 보려면 로그인하세요.",
   "feed.squareCorners": "모서리 각지게",
   "feed.startThreadIn": "{board}에 스레드 시작하기",
+  "feed.suggestionRank": "투표 순위 {rank}위",
   "feed.subscribed": "이제 여기 달리는 답글을 알림으로 받아요.",
   "feed.suggestionDeclined": "제안을 보류됨으로 표시했어요.",
   "feed.suggestionReopened": "건의를 다시 열었어요.",
