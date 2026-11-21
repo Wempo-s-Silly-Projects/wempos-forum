@@ -52,26 +52,13 @@ async function handleBanListRoute(request, env, url, path, method) {
   return null;
 }
 
-export async function createUserBan(db, targetId, modId, request, env) {
-  const body = await readJson(request);
-  const reason = applyWordFilter(requiredText(body.reason, "ban reason", 500), filterWords(env));
+// The ban core (v5.18 extraction, body unchanged): expire stale timed bans,
+// insert the new ban unless one is active (409), drop the member's sessions,
+// and — opt-in — copy known network hashes to banned_ips. Shared by the mod
+// ban route (createUserBan) and AutoMod (api/automod.mjs, modId null), so a
+// mod's normal unban reverses either. Returns the new ban id.
+export async function applyUserBan(db, { targetId, modId, reason, expiresAt, ipBan = false }) {
   const now = nowSeconds();
-  // Timed bans (v3.0.2): every read path (the ban screen's reactivation
-  // countdown, the visibility filters, the auto-expire sweep above) already
-  // honored expires_at — but the write path never accepted one, so all bans
-  // were permanent regardless of intent. An optional expiresAt (epoch
-  // seconds) now rides the body: absent/null = permanent; anything else
-  // must be a safe integer more than a minute and less than a year out
-  // (the 60-second floor absorbs client clock skew).
-  let expiresAt = null;
-  if (body.expiresAt !== undefined && body.expiresAt !== null && body.expiresAt !== "") {
-    const candidate = Number(body.expiresAt);
-    if (!Number.isSafeInteger(candidate) || candidate <= now + 60 ||
-        candidate > now + 366 * 86400) {
-      throw new HttpError(400, "The ban duration must be between a minute and a year from now.");
-    }
-    expiresAt = candidate;
-  }
   const results = await db.batch([
     db.prepare(
       "UPDATE bans SET revoked_at = ?, revoked_by = ?, revocation_reason = 'Expired automatically' " +
@@ -95,7 +82,7 @@ export async function createUserBan(db, targetId, modId, request, env) {
   // IP bans (v3.1, opt-in per ban form): copy the member's KNOWN network
   // hashes to banned_ips so sign-in and registration from them is refused.
   // Best-effort and additive — an unbanning mod removes the ban's rows.
-  if (body.ipBan === true || body.ipBan === "true") {
+  if (ipBan) {
     const banId = Number(results[1]?.meta?.last_row_id);
     if (Number.isSafeInteger(banId) && banId > 0) {
       await db.batch([
@@ -106,6 +93,30 @@ export async function createUserBan(db, targetId, modId, request, env) {
       ]);
     }
   }
+  return Number(results[1]?.meta?.last_row_id);
+}
+
+export async function createUserBan(db, targetId, modId, request, env) {
+  const body = await readJson(request);
+  const reason = applyWordFilter(requiredText(body.reason, "ban reason", 500), filterWords(env));
+  const now = nowSeconds();
+  // Timed bans (v3.0.2): every read path (the ban screen's reactivation
+  // countdown, the visibility filters, the auto-expire sweep above) already
+  // honored expires_at — but the write path never accepted one, so all bans
+  // were permanent regardless of intent. An optional expiresAt (epoch
+  // seconds) now rides the body: absent/null = permanent; anything else
+  // must be a safe integer more than a minute and less than a year out
+  // (the 60-second floor absorbs client clock skew).
+  let expiresAt = null;
+  if (body.expiresAt !== undefined && body.expiresAt !== null && body.expiresAt !== "") {
+    const candidate = Number(body.expiresAt);
+    if (!Number.isSafeInteger(candidate) || candidate <= now + 60 ||
+        candidate > now + 366 * 86400) {
+      throw new HttpError(400, "The ban duration must be between a minute and a year from now.");
+    }
+    expiresAt = candidate;
+  }
+  await applyUserBan(db, { targetId, modId, reason, expiresAt, ipBan: body.ipBan === true || body.ipBan === "true" });
   return json({ ok: true, expiresAt }, 201);
 }
 

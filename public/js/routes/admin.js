@@ -44,6 +44,7 @@ import {
   createGifQueue,
 } from "../desk/media.js";
 import { createReportQueue } from "../desk/reports.js";
+import { createAutoModLog, createDmReportQueue } from "../desk/automod.js";
 import { createMemberPeek } from "../desk/member-tools.js";
 import { createFilterEditor } from "../desk/filter.js";
 import { focusPageHeading } from "../focus-utils.js";
@@ -66,6 +67,8 @@ const DESK_SECTIONS = [
   { slug: "bans", labelKey: "admin.section.bans" },
   { slug: "chat-log", labelKey: "admin.section.chatLog" },
   { slug: "dm-log", labelKey: "admin.section.dmLog" },
+  { slug: "dm-reports", labelKey: "admin.section.dmReports" },
+  { slug: "automod", labelKey: "admin.section.automod" },
   { slug: "rules", labelKey: "admin.section.rules" },
   { slug: "filter", labelKey: "admin.section.filter" },
 ];
@@ -130,6 +133,16 @@ const DESK_BUILDERS = {
     ledeKey: "admin.lede.dmLog",
     load: () => api("/api/admin/dms"),
     build: (data) => createDmLog(data.messages, document),
+  },
+  "dm-reports": {
+    ledeKey: "admin.lede.dmReports",
+    load: () => api("/api/admin/dm-reports"),
+    build: (data) => createDmReportQueue(data.dmReports, document),
+  },
+  "automod": {
+    ledeKey: "admin.lede.automod",
+    load: () => api("/api/admin/automod"),
+    build: (data) => createAutoModLog(data.actions, document),
   },
   "rules": {
     ledeKey: "admin.lede.rules",
@@ -291,6 +304,9 @@ function hiddenHeadText(item) {
     reason: item.banReason,
     when: item.banExpiresAt ? new Date(item.banExpiresAt).toLocaleString(currentLocale()) : "",
   };
+  if (item.autoModReason && !item.banReason) {
+    return t("admin.hiddenByAutoMod", { author: item.author.username, reason: item.autoModReason });
+  }
   if (item.banReason) {
     return item.banExpiresAt ? t("admin.hiddenBanUntil", vars) : t("admin.hiddenBanPermanent", vars);
   }
@@ -548,6 +564,11 @@ export const ACTIONS = {
     },
     "resolve-profile-report": async (button) => {
       await api("/api/admin/profile-reports/" + encodeURIComponent(button.dataset.reportId) + "/resolve", { method: "POST" });
+      button.closest(".report-queue-item")?.remove();
+      setMessage(t("admin.msg.reportResolved"));
+    },
+    "resolve-dm-report": async (button) => {
+      await api("/api/admin/dm-reports/" + encodeURIComponent(button.dataset.reportId) + "/resolve", { method: "POST" });
       button.closest(".report-queue-item")?.remove();
       setMessage(t("admin.msg.reportResolved"));
     },

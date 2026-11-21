@@ -42,6 +42,7 @@ import { handleProfileReportAdminRoute, handleProfileReportRoute } from "./repor
 import { CUSTOM_CSS_MAX_BYTES, scopeProfileCss } from "./profile-css.mjs";
 // Wave 2026-11-21-13 F2: a member's recent threads on their profile.
 import { handleProfileThreadsRoute } from "./profile-threads.mjs";
+import { recordProfileEdit } from "./automod.mjs";
 
 // PATCH /api/me carries up to a 10,000-character bio, so this route lifts the
 // 16 KB global JSON cap to 64 KB (Task 2 pre-approved per-route interface).
@@ -277,6 +278,8 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
         "AND (expires_at IS NULL OR expires_at > ?))",
     ).bind(...params, session.user.id, session.user.id, nowSeconds()).run();
     requireMutationApplied(result);
+    // v5.18: queue the edit for AutoMod review (a no-op while AutoMod is off).
+    await recordProfileEdit(env, session.user.id);
 
     const response = { bio: hasBio ? bio : session.user.bio || "" };
     if (hasSocials) {

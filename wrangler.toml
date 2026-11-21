@@ -18,7 +18,7 @@ SITE_ORIGIN = "https://wempos-forum.com"
 ACCOUNTS_ORIGIN = "https://accounts.wempos-forum.com"
 TURNSTILE_SITEKEY = "0x4AAAAAAFXrK9dxFMt6fp46"
 RELAY_WORKER_NAME = "wempos-forum"
-VERSION = "5.17.0"
+VERSION = "5.18.0"
 
 [assets]
 directory = "./public"

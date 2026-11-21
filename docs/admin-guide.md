@@ -44,6 +44,10 @@ sections:
   profile styling waiting for approval. Nothing a member uploads goes public
   until it's approved here.
 - **Chat log** and **DM log**.
+- **DM reports** — 1:1 conversations a member reported with **Report
+  conversation**. Read them in the DM log, then resolve.
+- **AutoMod** — everything AutoMod did, with its reason. Restore a hide right
+  there; lift an AutoMod ban from **Bans & members** like any other ban.
 
 The full details, including exactly what members see after a hide or a ban,
 are in [moderation.md](moderation.md).
@@ -54,6 +58,36 @@ The ban form has an option to also block the member's known networks. It
 refuses sign-in and new accounts from every network address they've signed in
 from, and unbanning removes it. Shared connections (schools, homes, cafés)
 get blocked too, so only use it when you really need it.
+
+## AutoMod API
+
+AutoMod is an optional automatic moderator: a program you run yourself polls
+the forum and acts on what breaks the rules. It ships **switched off**. The
+API answers 404 unless `AUTOMOD_ENABLED = "true"` is set in `[vars]` **and**
+the `AUTOMOD_KEY` secret is set (`wrangler secret put AUTOMOD_KEY`). The key
+alone never turns it on.
+
+Every request sends `Authorization: Bearer <AUTOMOD_KEY>`. A wrong or missing
+key gets 401. AutoMod has no account, no cookies and no session.
+
+- `GET /api/automod/queue?after=<cursor>&limit=<1-50>` lists new posts,
+  replies, Lobby messages, wall posts, profile edits and **reported** DM
+  conversations, oldest first, and returns the next `cursor`. Leave out
+  `after` to start from now. Nothing written by staff ever appears, and no
+  DM appears unless one of its two members reported it.
+- `POST /api/automod/action` with
+  `{"type", "id", "action", "reason", "ban_hours"}`. `type` is one of `post`,
+  `reply`, `lobby`, `wall`, `profile` or `dm` (a DM message in a reported
+  conversation). `action` is one of:
+  - `hide` hides a post or reply, the same way staff hide one.
+  - `ban` bans the author. Bans last at most 24 hours (longer requests are
+    cut to 24), and the member can appeal like any other ban.
+  - `report` flags the item for staff on the desk's AutoMod page.
+
+AutoMod can never act on staff (403). Repeating an action does nothing new.
+Every action shows on the desk's **AutoMod** page with its reason, and its
+bans read "AutoMod: …". Staff undo anything with the normal Restore and
+Unban.
 
 ## What a hide or ban does
 

@@ -27,3 +27,8 @@ FILTERED_WORDS=
 # Optional: bearer tokens for your own bot on /mcp, as JSON
 # {"<sha256 hex of the token>": <user id>}.
 AGENT_TOKENS=
+
+# Optional: the bearer key your AutoMod runner sends to /api/automod/*. It does
+# nothing on its own: AutoMod also needs AUTOMOD_ENABLED = "true" in
+# wrangler.toml [vars]. Set the real value with `wrangler secret put`.
+AUTOMOD_KEY=

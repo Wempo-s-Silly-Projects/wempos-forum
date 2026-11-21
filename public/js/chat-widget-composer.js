@@ -25,7 +25,7 @@ import { focusSelector, isImeComposing, restoreFocus } from "./focus-utils.js";
 import { MAX_PINNED_CHATS, isPinned, readPins, togglePin, writePins } from "./chat-pins.js";
 import { MAX_MUTED_CHATS, isMuted, readMutes, toggleMute, writeMutes } from "./chat-mutes.js";
 import {
-  buildGroupManage, buildImageButton, conversationBase, groupTitle, uploadDmImage,
+  buildDmReport, buildGroupManage, buildImageButton, conversationBase, groupTitle, uploadDmImage,
 } from "./dm-extras.js";
 import { buildAvatar, conversationKey, el, kindOf, sameConversation, ui } from "./chat-widget-state.js";
 import { buildGifPicker, gifToken, messageBodyNode } from "./chat-widget-gifs.js";
@@ -203,6 +203,8 @@ export const paintConversation = () => {
     const renameField = manage.querySelector(".chat-widget-group-rename-input");
     if (renameField && renameDraft !== null) renameField.value = renameDraft;
     ui.conversationEl.append(manage);
+  } else {
+    ui.conversationEl.append(buildDmReport(ui.conversation, { onError: showSendError }));
   }
   const messages = [...(ui.conversation.messages || [])].reverse();
   const scroll = el("div", "chat-widget-messages");

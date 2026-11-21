@@ -230,6 +230,28 @@ export const buildGroupManage = (group, { viewerId, onChange, onLeft, onError })
   return strip;
 };
 
+// v5.18 "Report this conversation" (1:1 DMs): a reported conversation is the
+// only kind staff review and AutoMod can read. The reason is typed into a
+// prompt; success relabels the button.
+export const buildDmReport = (conversation, { onError }) => {
+  const button = el("button", "button chat-widget-report", t("dm.reportConversation"));
+  button.type = "button";
+  button.addEventListener("click", async () => {
+    const reason = window.prompt(t("dm.reportPrompt"));
+    if (reason === null || !reason.trim()) return;
+    button.disabled = true;
+    try {
+      // The server caps the reason (500 chars) and answers with its message.
+      await api(`${conversationBase(conversation)}/reports`, { method: "POST", body: { reason: reason.trim() } });
+      button.textContent = t("dm.reportSent");
+    } catch (error) {
+      button.disabled = false;
+      onError(error?.message || t("dm.manageFailed"));
+    }
+  });
+  return button;
+};
+
 // The opt-in Message effects switch (off by default, this device only).
 export const effectsEnabled = () => readEffectsPref(safeStorage());
 
