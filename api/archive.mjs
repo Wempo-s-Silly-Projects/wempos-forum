@@ -22,6 +22,7 @@
 // this read is unauthenticated: anyone who can visit the forum can view what
 // was destroyed, marked with who wrote it and why it's gone.
 import { HttpError, json } from "./core/http.mjs";
+import { maskSpoilers } from "./core/spoilers.mjs";
 
 const ARCHIVE_PAGE_SIZE = 51;
 
@@ -54,7 +55,8 @@ async function handleArchiveRoute(request, env, url, path, method) {
       originalPostId: row.original_post_id,
       authorId: row.author_id === null ? null : Number(row.author_id),
       authorName: row.author_name,
-      body: row.body,
+      // Wave 17: the archive shows plain text, so spoilers are masked here.
+      body: maskSpoilers(row.body),
       board: row.board,
       createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
       deletedAt: new Date(Number(row.deleted_at) * 1000).toISOString(),

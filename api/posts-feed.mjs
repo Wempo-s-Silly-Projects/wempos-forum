@@ -48,6 +48,7 @@ import { HttpError, json } from "./core/http.mjs";
 import { POST_SELECT, postById, publicPost, VIEW_INCREMENT_SQL } from "./core/shapers.mjs";
 import { viewerBlockFilterSql } from "./core/blocks.mjs";
 import { canViewPost } from "./core/visibility.mjs";
+import { maskedExcerpt } from "./core/spoilers.mjs";
 
 export { POST_SELECT };
 
@@ -71,8 +72,8 @@ export async function withAttachments(db, viewer, posts) {
 export const REPLY_SNIPPET_MAX = 80;
 
 export function replySnippet(body) {
-  const text = typeof body === "string" ? body : "";
-  return text.length > REPLY_SNIPPET_MAX ? text.slice(0, REPLY_SNIPPET_MAX) + "…" : text;
+  // Wave 17: masked BEFORE the cut, so a spoiler split by it never shows.
+  return maskedExcerpt(typeof body === "string" ? body : "", REPLY_SNIPPET_MAX);
 }
 
 // One query for every root on the page. Level-1 replies join their root

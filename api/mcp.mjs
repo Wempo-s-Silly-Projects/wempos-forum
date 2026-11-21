@@ -59,6 +59,7 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, rateLimit, readLimitedBody, requireMutationApplied, requiredText } from "./core/http.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
+import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
 
 const SUPPORTED_PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 const DEFAULT_PROTOCOL_VERSION = "2025-06-18";
@@ -494,7 +495,10 @@ async function publicReplies(env, postId) {
 }
 
 function shapePost(row, maxChars) {
-  const body = typeof row.body === "string" ? row.body : "";
+  // Wave 17: agents (the forum's own bot included) read spoilers masked,
+  // exactly as the post page shows them before a click.
+  const raw = typeof row.body === "string" ? row.body : "";
+  const body = maskSpoilers(raw);
   const truncated = maxChars !== null && body.length > maxChars;
   return {
     id: Number(row.id),
@@ -502,7 +506,7 @@ function shapePost(row, maxChars) {
     board: row.board || null,
     author: row.author_username || null,
     created_at: new Date(Number(row.created_at) * 1000).toISOString(),
-    body: truncated ? body.slice(0, maxChars) + "…" : body,
+    body: truncated ? maskedExcerpt(raw, maxChars) : body,
     ...(truncated ? { truncated: true } : {}),
   };
 }
@@ -689,7 +693,7 @@ function shapeMention(row) {
     post_url: SITE_ORIGIN + "/posts/" + Number(row.reply_id),
     author: row.author_username || null,
     label: row.label !== null && row.label !== undefined ? String(row.label) : null,
-    excerpt: body.length > MENTION_EXCERPT_CHARS ? body.slice(0, MENTION_EXCERPT_CHARS) + "…" : body,
+    excerpt: maskedExcerpt(body, MENTION_EXCERPT_CHARS),
     read: row.read_at !== null && row.read_at !== undefined,
     created_at: new Date(Number(row.created_at) * 1000).toISOString(),
   };

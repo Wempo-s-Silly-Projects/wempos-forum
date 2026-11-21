@@ -22,6 +22,7 @@
 import { requireSignedInRead, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json } from "./core/http.mjs";
+import { maskedExcerpt } from "./core/spoilers.mjs";
 
 const NOTIFICATIONS_PER_USER = 50;
 
@@ -82,7 +83,8 @@ function publicNotification(row) {
     replyId: hasTarget ? Number(row.reply_id) : null,
     createdAt: new Date(Number(row.created_at) * 1000).toISOString(),
     read: row.read_at !== null && row.read_at !== undefined,
-    postPreview: String(row.reply_body || "").slice(0, 80),
+    // Wave 17: spoilers masked before the 80-char cut (output only).
+    postPreview: maskedExcerpt(String(row.reply_body || ""), 80),
     // The fan-out source's own copy (mentions C2/fix round 1); null keeps the
     // generic reply copy. Only ever set by the server — user text reaches the
     // DOM through textContent in the renderer.

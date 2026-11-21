@@ -467,7 +467,8 @@ export const createPostCard = (post, document, currentUser = null) => {
     quoteButton.dataset.action = "quote";
     quoteButton.dataset.postId = String(post.id);
     quoteButton.dataset.quoteUsername = post.author.username;
-    quoteButton.dataset.quoteSnippet = collapseWhitespace(post.body);
+    // Wave 17: masked first — the 120-char quote cut can split a spoiler.
+    quoteButton.dataset.quoteSnippet = collapseWhitespace(maskSpoilers(post.body));
     if (!currentUser) quoteButton.disabled = true;
     actions.append(quoteButton);
   }
@@ -636,7 +637,8 @@ export function renderEditHistoryPanel(document, edits) {
     const time = createElement(document, "time", "edit-history-time");
     time.dateTime = edit.editedAt;
     time.textContent = new Date(edit.editedAt).toLocaleString(currentLocale());
-    const body = createElement(document, "p", "edit-history-body", String(edit.body ?? ""));
+    // Earlier versions show as plain text, so their spoilers stay masked.
+    const body = createElement(document, "p", "edit-history-body", maskSpoilers(edit.body));
     entry.append(time, body);
     panel.append(entry);
   }
