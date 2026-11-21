@@ -41,6 +41,7 @@ const DEVICE_PREF_FILES = new Map([
   ["routes/feed.js", "square/round corners preference"],
   ["dm-effects.js", "DM effects on/off"],
   ["i18n.js", "interface language"],
+  ["appearance-reset.js", "corners, text size and tab-title count back to defaults (wave 5.7)"],
 ]);
 
 const walk = (dir) => readdirSync(dir).flatMap((name) => {

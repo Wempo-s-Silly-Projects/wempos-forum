@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Vis bare svar som nevner…",
   "replyFilter.clear": "Tøm",
   "replyFilter.matches.one": "{count} av {total} svar passer",
-  "replyFilter.matches.other": "{count} av {total} svar passer"
+  "replyFilter.matches.other": "{count} av {total} svar passer",
+  "profile.nextBadge": "Neste merke: {badge} ({done} av {goal})",
+  "profile.topBadge": "Du har det høyeste merket.",
+  "feed.regularsHere": "Faste deltakere på denne siden:",
+  "feed.resetAppearance": "Tilbakestill utseende",
+  "feed.appearanceResetDone": "Utseendet er tilbake til standard."
 }

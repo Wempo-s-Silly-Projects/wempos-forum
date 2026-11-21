@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Mostra només les respostes que esmentin…",
   "replyFilter.clear": "Esborra",
   "replyFilter.matches.one": "{count} de {total} respostes coincideix",
-  "replyFilter.matches.other": "{count} de {total} respostes coincideixen"
+  "replyFilter.matches.other": "{count} de {total} respostes coincideixen",
+  "profile.nextBadge": "Insígnia següent: {badge} ({done} de {goal})",
+  "profile.topBadge": "Tens la insígnia màxima.",
+  "feed.regularsHere": "Habituals en aquesta pàgina:",
+  "feed.resetAppearance": "Restableix l'aparença",
+  "feed.appearanceResetDone": "L'aparença torna a ser la predeterminada."
 }

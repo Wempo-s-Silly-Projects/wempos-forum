@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Vis kun svar, der nævner…",
   "replyFilter.clear": "Ryd",
   "replyFilter.matches.one": "{count} af {total} svar passer",
-  "replyFilter.matches.other": "{count} af {total} svar passer"
+  "replyFilter.matches.other": "{count} af {total} svar passer",
+  "profile.nextBadge": "Næste badge: {badge} ({done} af {goal})",
+  "profile.topBadge": "Du har det højeste badge.",
+  "feed.regularsHere": "Faste deltagere på denne side:",
+  "feed.resetAppearance": "Nulstil udseende",
+  "feed.appearanceResetDone": "Udseendet er tilbage til standard."
 }

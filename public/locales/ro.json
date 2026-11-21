@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Arată doar răspunsurile care menționează…",
   "replyFilter.clear": "Golește",
   "replyFilter.matches.one": "{count} din {total} răspunsuri se potrivește",
-  "replyFilter.matches.other": "{count} din {total} răspunsuri se potrivesc"
+  "replyFilter.matches.other": "{count} din {total} răspunsuri se potrivesc",
+  "profile.nextBadge": "Insigna următoare: {badge} ({done} din {goal})",
+  "profile.topBadge": "Ai cea mai înaltă insignă.",
+  "feed.regularsHere": "Obișnuiți pe această pagină:",
+  "feed.resetAppearance": "Resetează aspectul",
+  "feed.appearanceResetDone": "Aspectul a revenit la valorile implicite."
 }

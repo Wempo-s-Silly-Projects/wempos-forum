@@ -48,6 +48,7 @@ import { renderProfileWall } from "../wall.js";
 import { openChatThread } from "../chat-widget.js";
 import { currentLocale, t, tn } from "../i18n.js";
 import { createRecentThreads, formatJoinedDate } from "../profile-extras.js";
+import { badgeKeyFor, createNextBadge } from "../badge-progress.js";
 
 async function renderProfileRoute(route, context, version) {
   const profile = await api(`/api/users/${encodeURIComponent(route.username)}`);
@@ -98,14 +99,9 @@ export function clearProfileTheme() {
 
 // Milestone badges (v2.5): display-only, computed from the profile's
 // contribution counts — the thresholds graduate as the member posts.
-function profileBadgeFor(totalContributions) {
-  if (totalContributions >= 10000) return t("profile.badgeFamous");
-  if (totalContributions >= 1000) return t("profile.badgeMega");
-  if (totalContributions >= 100) return t("profile.badgeBig");
-  if (totalContributions >= 20) return t("profile.badgeStandard");
-  if (totalContributions < 20) return t("profile.badgeNew");
-  return null;
-}
+// Wave 5.7: the thresholds live in badge-progress.js (shared with the
+// own-profile "Next badge" line).
+const profileBadgeFor = (totalContributions) => t(badgeKeyFor(totalContributions));
 
 function renderProfile(profile, session) {
   // Custom profile CSS (v2.5): the payload's css is ALREADY scoped (the
@@ -143,9 +139,12 @@ function renderProfile(profile, session) {
       profile.role === "owner" ? t("profile.roleOwner") : t("profile.roleAdmin")));
   }
   if (profile.flair) flairRow.append(element("span", "profile-flair", profile.flair));
-  const badgeText = profileBadgeFor(Number(profile.postsCount || 0) + Number(profile.repliesCount || 0));
+  const totalContributions = Number(profile.postsCount || 0) + Number(profile.repliesCount || 0);
+  const badgeText = profileBadgeFor(totalContributions);
   if (badgeText) flairRow.append(element("span", "profile-badge", badgeText));
   if (flairRow.children.length) heading.append(flairRow);
+  // Next badge (wave 5.7 F1): the member's own profile only.
+  if (session.user?.id === profile.id) heading.append(createNextBadge(document, totalContributions));
   // Per-user post counter (v2.5): threads started + replies written, in the
   // profile heading (muted; display-only).
   heading.append(element("p", "profile-post-counts",

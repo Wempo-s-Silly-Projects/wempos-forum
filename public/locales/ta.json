@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "இதைக் குறிப்பிடும் பதில்களை மட்டும் காட்டு…",
   "replyFilter.clear": "அழி",
   "replyFilter.matches.one": "{total} பதில்களில் {count} பொருந்துகிறது",
-  "replyFilter.matches.other": "{total} பதில்களில் {count} பொருந்துகின்றன"
+  "replyFilter.matches.other": "{total} பதில்களில் {count} பொருந்துகின்றன",
+  "profile.nextBadge": "அடுத்த பதக்கம்: {badge} ({goal} இல் {done})",
+  "profile.topBadge": "உங்களிடம் உயர்ந்த பதக்கம் உள்ளது.",
+  "feed.regularsHere": "இந்தப் பக்கத்தின் வழக்கமானவர்கள்:",
+  "feed.resetAppearance": "தோற்றத்தை மீட்டமை",
+  "feed.appearanceResetDone": "தோற்றம் இயல்புநிலைக்குத் திரும்பியது."
 }

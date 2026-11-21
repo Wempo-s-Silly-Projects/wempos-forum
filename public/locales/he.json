@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "הצג רק תגובות שמזכירות…",
   "replyFilter.clear": "ניקוי",
   "replyFilter.matches.one": "{count} מתוך {total} תגובות תואמת",
-  "replyFilter.matches.other": "{count} מתוך {total} תגובות תואמות"
+  "replyFilter.matches.other": "{count} מתוך {total} תגובות תואמות",
+  "profile.nextBadge": "התג הבא: {badge} ({done} מתוך {goal})",
+  "profile.topBadge": "יש לך את התג הגבוה ביותר.",
+  "feed.regularsHere": "קבועים בעמוד הזה:",
+  "feed.resetAppearance": "איפוס המראה",
+  "feed.appearanceResetDone": "המראה חזר לברירת המחדל."
 }

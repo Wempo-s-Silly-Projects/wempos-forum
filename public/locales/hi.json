@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "सिर्फ़ वे जवाब दिखाएँ जिनमें ज़िक्र हो…",
   "replyFilter.clear": "साफ़ करें",
   "replyFilter.matches.one": "{total} में से {count} जवाब मेल खाता है",
-  "replyFilter.matches.other": "{total} में से {count} जवाब मेल खाते हैं"
+  "replyFilter.matches.other": "{total} में से {count} जवाब मेल खाते हैं",
+  "profile.nextBadge": "अगला बैज: {badge} ({goal} में से {done})",
+  "profile.topBadge": "आपके पास सबसे ऊँचा बैज है।",
+  "feed.regularsHere": "इस पेज के नियमित सदस्य:",
+  "feed.resetAppearance": "दिखावट रीसेट करें",
+  "feed.appearanceResetDone": "दिखावट डिफ़ॉल्ट पर वापस आ गई है।"
 }

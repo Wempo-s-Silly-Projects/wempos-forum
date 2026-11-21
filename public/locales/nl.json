@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Toon alleen reacties die dit noemen…",
   "replyFilter.clear": "Wissen",
   "replyFilter.matches.one": "{count} van {total} reacties komt overeen",
-  "replyFilter.matches.other": "{count} van {total} reacties komen overeen"
+  "replyFilter.matches.other": "{count} van {total} reacties komen overeen",
+  "profile.nextBadge": "Volgende badge: {badge} ({done} van {goal})",
+  "profile.topBadge": "Je hebt de hoogste badge.",
+  "feed.regularsHere": "Vaste bezoekers op deze pagina:",
+  "feed.resetAppearance": "Weergave herstellen",
+  "feed.appearanceResetDone": "De weergave staat weer op de standaardwaarden."
 }

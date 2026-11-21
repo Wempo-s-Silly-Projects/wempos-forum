@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Pokaż tylko odpowiedzi, które wspominają…",
   "replyFilter.clear": "Wyczyść",
   "replyFilter.matches.one": "Pasuje {count} z {total} odpowiedzi",
-  "replyFilter.matches.other": "Pasuje {count} z {total} odpowiedzi"
+  "replyFilter.matches.other": "Pasuje {count} z {total} odpowiedzi",
+  "profile.nextBadge": "Następna odznaka: {badge} ({done} z {goal})",
+  "profile.topBadge": "Masz najwyższą odznakę.",
+  "feed.regularsHere": "Stali bywalcy na tej stronie:",
+  "feed.resetAppearance": "Przywróć wygląd",
+  "feed.appearanceResetDone": "Wygląd wrócił do ustawień domyślnych."
 }

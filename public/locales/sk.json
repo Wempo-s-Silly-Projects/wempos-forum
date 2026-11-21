@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Zobraziť len odpovede, ktoré spomínajú…",
   "replyFilter.clear": "Vymazať",
   "replyFilter.matches.one": "Zhoduje sa {count} z {total} odpovedí",
-  "replyFilter.matches.other": "Zhoduje sa {count} z {total} odpovedí"
+  "replyFilter.matches.other": "Zhoduje sa {count} z {total} odpovedí",
+  "profile.nextBadge": "Ďalší odznak: {badge} ({done} z {goal})",
+  "profile.topBadge": "Máte najvyšší odznak.",
+  "feed.regularsHere": "Štamgasti na tejto stránke:",
+  "feed.resetAppearance": "Obnoviť vzhľad",
+  "feed.appearanceResetDone": "Vzhľad je späť na predvolenom nastavení."
 }

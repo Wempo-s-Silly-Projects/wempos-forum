@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Показувати лише відповіді, де згадується…",
   "replyFilter.clear": "Очистити",
   "replyFilter.matches.one": "Збігається {count} з {total} відповідей",
-  "replyFilter.matches.other": "Збігів: {count} з {total} відповідей"
+  "replyFilter.matches.other": "Збігів: {count} з {total} відповідей",
+  "profile.nextBadge": "Наступний значок: {badge} ({done} з {goal})",
+  "profile.topBadge": "У вас найвищий значок.",
+  "feed.regularsHere": "Постійні учасники на цій сторінці:",
+  "feed.resetAppearance": "Скинути вигляд",
+  "feed.appearanceResetDone": "Вигляд повернуто до типових налаштувань."
 }

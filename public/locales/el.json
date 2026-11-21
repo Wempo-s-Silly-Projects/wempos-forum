@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Εμφάνιση μόνο απαντήσεων που αναφέρουν…",
   "replyFilter.clear": "Καθαρισμός",
   "replyFilter.matches.one": "{count} από {total} απαντήσεις ταιριάζει",
-  "replyFilter.matches.other": "{count} από {total} απαντήσεις ταιριάζουν"
+  "replyFilter.matches.other": "{count} από {total} απαντήσεις ταιριάζουν",
+  "profile.nextBadge": "Επόμενο σήμα: {badge} ({done} από {goal})",
+  "profile.topBadge": "Έχετε το ανώτερο σήμα.",
+  "feed.regularsHere": "Τακτικά μέλη σε αυτή τη σελίδα:",
+  "feed.resetAppearance": "Επαναφορά εμφάνισης",
+  "feed.appearanceResetDone": "Η εμφάνιση επανήλθε στις προεπιλογές."
 }

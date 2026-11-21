@@ -47,6 +47,8 @@ import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
 import { createTextSizePicker } from "../text-size.js";
 import { createTabUnreadToggle } from "../tab-unread.js";
+import { createAppearanceReset } from "../appearance-reset.js";
+import { createBoardRegulars } from "../board-regulars.js";
 import { createDataExportPanel, downloadMyData } from "../data-export.js";
 import { addSectionAnchors, createSettingsFilter } from "../settings-tools.js";
 import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
@@ -149,9 +151,11 @@ function renderAccountSettings(session) {
   const appearance = createPanel(t("feed.appearanceTitle"), t("feed.appearanceNote"));
   let storage = null;
   try { storage = window.localStorage; } catch {}
-  // Wave 5.3: plus the opt-in unread count in the browser tab title.
+  // Wave 5.3: plus the opt-in unread count in the browser tab title; wave
+  // 5.7 F3: then one button that puts the panel's choices back to defaults.
   appearance.append(corners, createTextSizePicker(document, storage),
     createTabUnreadToggle(document, storage, () => state.unreadNotifications));
+  appearance.append(createAppearanceReset(document, storage, appearance));
   account.append(appearance);
 
   const passwordPanel = createPanel(t("feed.changePasswordTitle"), t("feed.changePasswordNote"));
@@ -379,6 +383,8 @@ async function renderCategoryRoute(route, context, version) {
   }
   addHeading(main, board.label, 2);
   addText(document, main, "p", board.blurb, "muted");
+  const regulars = board.staffOnly ? null : createBoardRegulars(document, data.feed.posts);
+  if (regulars) main.append(regulars);
   if (board.slug === "showcase") renderShowcaseGallery();
   // Feed views (wave 33): not on Suggestions, which has its own order.
   if (board.slug !== SUGGESTIONS_BOARD) main.append(createFeedViews(document, "/c/" + board.slug, route.view));

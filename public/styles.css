@@ -3440,3 +3440,11 @@ mark.search-hit {
 .reply-filter-status { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 0.85rem; }
 .reply-filter [hidden] { display: none; }
 .replies-list > [data-filtered-out] { display: none; }
+
+/* Wave 5.7: Next badge (own profile), category regulars, reset appearance. */
+.profile-next-badge { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.25rem 0; color: var(--muted); font-size: 0.9rem; }
+.profile-next-badge-bar { inline-size: 10rem; max-inline-size: 100%; accent-color: var(--profile-accent, currentColor); }
+.board-regulars { margin-block: 0 0.75rem; }
+.board-regular { font-weight: 600; }
+.appearance-reset { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-block-start: 0.75rem; }
+.appearance-reset-status { margin: 0; }

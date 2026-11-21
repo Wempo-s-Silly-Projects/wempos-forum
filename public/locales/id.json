@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Tampilkan hanya balasan yang menyebut…",
   "replyFilter.clear": "Bersihkan",
   "replyFilter.matches.one": "{count} dari {total} balasan cocok",
-  "replyFilter.matches.other": "{count} dari {total} balasan cocok"
+  "replyFilter.matches.other": "{count} dari {total} balasan cocok",
+  "profile.nextBadge": "Lencana berikutnya: {badge} ({done} dari {goal})",
+  "profile.topBadge": "Anda sudah punya lencana tertinggi.",
+  "feed.regularsHere": "Anggota tetap di halaman ini:",
+  "feed.resetAppearance": "Atur ulang tampilan",
+  "feed.appearanceResetDone": "Tampilan kembali ke bawaan."
 }

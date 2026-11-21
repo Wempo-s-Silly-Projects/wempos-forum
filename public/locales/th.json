@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "แสดงเฉพาะการตอบกลับที่พูดถึง…",
   "replyFilter.clear": "ล้าง",
   "replyFilter.matches.one": "ตรงกัน {count} จาก {total} การตอบกลับ",
-  "replyFilter.matches.other": "ตรงกัน {count} จาก {total} การตอบกลับ"
+  "replyFilter.matches.other": "ตรงกัน {count} จาก {total} การตอบกลับ",
+  "profile.nextBadge": "เหรียญถัดไป: {badge} ({done} จาก {goal})",
+  "profile.topBadge": "คุณมีเหรียญสูงสุดแล้ว",
+  "feed.regularsHere": "ขาประจำในหน้านี้:",
+  "feed.resetAppearance": "รีเซ็ตรูปลักษณ์",
+  "feed.appearanceResetDone": "รูปลักษณ์กลับเป็นค่าเริ่มต้นแล้ว"
 }

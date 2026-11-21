@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Show only replies that mention…",
   "replyFilter.clear": "Clear",
   "replyFilter.matches.one": "{count} of {total} replies matches",
-  "replyFilter.matches.other": "{count} of {total} replies match"
+  "replyFilter.matches.other": "{count} of {total} replies match",
+  "profile.nextBadge": "Next badge: {badge} ({done} of {goal})",
+  "profile.topBadge": "You have the top badge.",
+  "feed.regularsHere": "Regulars on this page:",
+  "feed.resetAppearance": "Reset appearance",
+  "feed.appearanceResetDone": "Appearance is back to the defaults."
 }

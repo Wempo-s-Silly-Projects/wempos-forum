@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Покажи само отговорите, които споменават…",
   "replyFilter.clear": "Изчисти",
   "replyFilter.matches.one": "{count} от {total} отговора съвпада",
-  "replyFilter.matches.other": "{count} от {total} отговора съвпадат"
+  "replyFilter.matches.other": "{count} от {total} отговора съвпадат",
+  "profile.nextBadge": "Следваща значка: {badge} ({done} от {goal})",
+  "profile.topBadge": "Имате най-високата значка.",
+  "feed.regularsHere": "Редовни участници на тази страница:",
+  "feed.resetAppearance": "Нулиране на външния вид",
+  "feed.appearanceResetDone": "Външният вид е върнат към настройките по подразбиране."
 }

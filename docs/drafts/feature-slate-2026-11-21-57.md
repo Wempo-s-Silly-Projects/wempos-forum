@@ -58,16 +58,18 @@ to their defaults in this browser, updates the controls at once and says
 
 Why: three device prefs now live in the panel; one click undoes an
 experiment (or a shared computer's choices) without hunting each control.
-Only removes this browser's own device-pref keys; touches no account data,
-no network, adds no storage key.
+Writes each of this browser's three device-pref keys back to the value its
+own control writes for the default (never a removal: the wave 5.6 sweep
+keeps device prefs out of every removal); touches no account data, no
+network, adds no storage key.
 
 Files: new `public/js/appearance-reset.js` (`APPEARANCE_KEYS`,
 `resetAppearance`, `createAppearanceReset`); `public/js/routes/feed.js`
 (append to the Appearance panel); `public/index.html` (modulepreload);
 `public/styles.css`; `public/locales/*.json` (2 keys x 41).
 
-Tests (`tests/wave57-appearance-reset.test.mjs`): removes exactly the three
-keys and nothing else (theme and account keys survive), resets the html
+Tests (`tests/wave57-appearance-reset.test.mjs`): writes exactly the three
+keys' defaults and nothing else (theme and account keys survive), resets the html
 dataset and strips a title prefix, unticks/resets the panel controls,
 status line text, survives blocked storage, wiring, no api()/innerHTML.
 

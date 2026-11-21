@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Zobrazit jen odpovědi, které zmiňují…",
   "replyFilter.clear": "Vymazat",
   "replyFilter.matches.one": "Shoduje se {count} z {total} odpovědí",
-  "replyFilter.matches.other": "Shoduje se {count} z {total} odpovědí"
+  "replyFilter.matches.other": "Shoduje se {count} z {total} odpovědí",
+  "profile.nextBadge": "Další odznak: {badge} ({done} z {goal})",
+  "profile.topBadge": "Máte nejvyšší odznak.",
+  "feed.regularsHere": "Štamgasti na této stránce:",
+  "feed.resetAppearance": "Obnovit vzhled",
+  "feed.appearanceResetDone": "Vzhled je zpět na výchozím nastavení."
 }

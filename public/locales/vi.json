@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "Chỉ hiện các trả lời có nhắc đến…",
   "replyFilter.clear": "Xóa",
   "replyFilter.matches.one": "{count} trên {total} trả lời khớp",
-  "replyFilter.matches.other": "{count} trên {total} trả lời khớp"
+  "replyFilter.matches.other": "{count} trên {total} trả lời khớp",
+  "profile.nextBadge": "Huy hiệu tiếp theo: {badge} ({done}/{goal})",
+  "profile.topBadge": "Bạn đã có huy hiệu cao nhất.",
+  "feed.regularsHere": "Thành viên quen thuộc trên trang này:",
+  "feed.resetAppearance": "Đặt lại giao diện",
+  "feed.appearanceResetDone": "Giao diện đã trở về mặc định."
 }

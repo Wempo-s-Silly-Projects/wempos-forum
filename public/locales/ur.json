@@ -918,5 +918,10 @@
   "replyFilter.placeholder": "صرف وہ جوابات دکھائیں جن میں ذکر ہو…",
   "replyFilter.clear": "صاف کریں",
   "replyFilter.matches.one": "{total} میں سے {count} جواب ملتا ہے",
-  "replyFilter.matches.other": "{total} میں سے {count} جوابات ملتے ہیں"
+  "replyFilter.matches.other": "{total} میں سے {count} جوابات ملتے ہیں",
+  "profile.nextBadge": "اگلا بیج: {badge} ({goal} میں سے {done})",
+  "profile.topBadge": "آپ کے پاس سب سے اونچا بیج ہے۔",
+  "feed.regularsHere": "اس صفحے کے مستقل ارکان:",
+  "feed.resetAppearance": "ظاہری شکل ری سیٹ کریں",
+  "feed.appearanceResetDone": "ظاہری شکل پہلے سے طے شدہ پر واپس آ گئی۔"
 }
