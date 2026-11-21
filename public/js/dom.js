@@ -30,6 +30,7 @@
 // getConfirmHandler/clearConfirmHandler accessors instead of the bare binding
 // the monolith shared.
 import { addText } from "./forms.js";
+import { t } from "./i18n.js";
 
 export const main = document.querySelector("#main-content");
 export const accountActions = document.querySelector("#account-actions");
@@ -66,7 +67,7 @@ export function openConfirmDialog(title, message, actionType, onConfirm) {
   const isBlock = actionType === "block";
   confirmBlock.hidden = !isBlock;
   confirmDelete.hidden = isBlock;
-  confirmDelete.textContent = actionType === "unblock" ? "Unblock" : "Delete";
+  confirmDelete.textContent = actionType === "unblock" ? t("common.unblock") : t("common.delete");
 
   action = actionType;
   confirmHandler = onConfirm;

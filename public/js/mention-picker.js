@@ -24,6 +24,7 @@
 // MENTION_SCAN_PATTERN (api/mentions.mjs) so what the picker offers is exactly
 // what notifies. Options are built with createElement/textContent only.
 import { api } from "./api.js";
+import { t } from "./i18n.js";
 
 export const MAX_MENTION_SUGGESTIONS = 6;
 export const MENTION_SEARCH_DELAY_MS = 200;
@@ -71,7 +72,7 @@ export function attachMentionPicker(textarea, document) {
   list.id = listId;
   list.className = "mention-picker";
   list.setAttribute("role", "listbox");
-  list.setAttribute("aria-label", "Mention a member");
+  list.setAttribute("aria-label", t("mentions.listLabel"));
   list.hidden = true;
   textarea.insertAdjacentElement("afterend", list);
   textarea.setAttribute("aria-autocomplete", "list");

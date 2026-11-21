@@ -26,11 +26,12 @@ import { api } from "../api.js";
 import { setMessage } from "../dom.js";
 import { addText } from "../forms.js";
 import { state } from "../state.js";
+import { t } from "../i18n.js";
 
 async function submitAppealDecision(form) {
   await api("/api/admin/appeals/" + encodeURIComponent(form.dataset.appealId) + "/" + form.dataset.decision, { method: "POST" });
   await state.renderRoute(state.activeRoute);
-  setMessage(form.dataset.decision === "approve" ? "Appeal approved." : "Appeal denied.");
+  setMessage(form.dataset.decision === "approve" ? t("appeals.approved") : t("appeals.denied"));
 }
 
 async function submitBanAppealForm(form, text) {
@@ -41,9 +42,9 @@ async function submitBanAppealForm(form, text) {
     method: "POST",
     body: { username: text("username"), password: text("password"), body: text("body") },
   });
-  setMessage("Appeal filed — an admin will review it.");
+  setMessage(t("appeals.filed"));
   form.replaceChildren();
-  addText(document, form, "p", "Appeal received. You can close this page now.", "empty-state");
+  addText(document, form, "p", t("appeals.received"), "empty-state");
 }
 
 export const FORM_HANDLERS = {

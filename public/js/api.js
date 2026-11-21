@@ -16,6 +16,7 @@
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
 
+import { t } from "./i18n.js";
 let csrfToken = "";
 
 export const setCsrfToken = (token) => {
@@ -44,7 +45,9 @@ export const api = async (path, { method = "GET", body, idempotencyKey, signal }
     result = await response.json();
   } catch {
     const error = new Error(
-      response.ok ? `Invalid response (${response.status})` : `Request failed (${response.status})`,
+      response.ok
+        ? t("api.invalidResponse", { status: response.status })
+        : t("api.requestFailed", { status: response.status }),
     );
     error.status = response.status;
     throw error;
@@ -52,7 +55,7 @@ export const api = async (path, { method = "GET", body, idempotencyKey, signal }
   if (!response.ok) {
     const message = typeof result?.error === "string" && result.error
       ? result.error
-      : `Request failed (${response.status})`;
+      : t("api.requestFailed", { status: response.status });
     const error = new Error(message);
     error.status = response.status;
     // Copy the JSON body's extra fields onto the error (banned/reason/expiresAt

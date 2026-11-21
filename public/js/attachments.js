@@ -16,6 +16,7 @@
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
 
+import { t, tn } from "./i18n.js";
 // Pure, DOM-free helpers for post/reply image attachments (plan Task 7).
 // Both helpers are safe to import under node --test: no document access, and
 // Node 22 (like every browser) ships File and FormData globals.
@@ -28,7 +29,7 @@
 export const COMPOSER_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
 export const MAX_COMPOSER_FILES = 3;
 export const MAX_COMPOSER_FILE_BYTES = 10 * 1024 * 1024;
-export const MAX_COMPOSER_FILE_BYTES_LABEL = "10 MiB";
+export const MAX_COMPOSER_FILE_BYTES_LABEL = "10 MiB"; // i18n-ignore
 
 // Folds a picker selection into the composer's chosen list. Oversized choices
 // are refused (with a per-file notice) and the 3-file cap is enforced with a
@@ -40,11 +41,11 @@ export function addComposerFiles(currentFiles, pickedFiles) {
   for (const picked of pickedFiles ?? []) {
     if (picked.size > MAX_COMPOSER_FILE_BYTES) {
       notices.push(
-        `"${picked.name}" is larger than ${MAX_COMPOSER_FILE_BYTES_LABEL} and was not added.`,
+        t("attachments.tooLarge", { name: picked.name, limit: MAX_COMPOSER_FILE_BYTES_LABEL }),
       );
     } else if (files.length >= MAX_COMPOSER_FILES) {
       notices.push(
-        `"${picked.name}" was not added: a post can attach at most ${MAX_COMPOSER_FILES} images.`,
+        tn("attachments.tooMany", MAX_COMPOSER_FILES, { name: picked.name }),
       );
     } else {
       files.push(picked);

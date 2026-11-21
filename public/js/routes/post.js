@@ -35,6 +35,7 @@ import {
   renderEditHistoryPanel,
 } from "../render.js";
 import { createComposer } from "./composer.js";
+import { t, tn } from "../i18n.js";
 import { prefillQuote } from "../quotes.js";
 import { renderTurnstileSlots } from "../turnstile.js";
 import { applyCatchUp } from "../catch-up.js";
@@ -43,13 +44,13 @@ import { createThreadGlance, summarizeThread } from "../thread-glance.js";
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
   if (version !== state.renderVersion) return;
-  addHeading(main, "Conversation", 1);
+  addHeading(main, t("post.conversationTitle"), 1);
   main.append(createPostCard(post, document, context.session.user));
   // Thread at a glance (wave 2026-11-21): from the posts already loaded.
   if (post.replies.length) {
     main.append(createThreadGlance(document, summarizeThread(post, post.replies), main));
   }
-  addHeading(main, "Replies", 2);
+  addHeading(main, t("post.repliesTitle"), 2);
   let replyList = null;
   if (post.replies.length) {
     replyList = element("div", "post-list replies-list");
@@ -57,12 +58,12 @@ async function renderPostRoute(route, context, version) {
     for (const reply of post.replies) replyList.append(createPostCard(reply, document, context.session.user));
     main.append(replyList);
   } else {
-    addText(document, main, "p", "No replies yet!", "empty-state");
+    addText(document, main, "p", t("post.noReplies"), "empty-state");
   }
   // "New since your last visit" (wave 2026-11-21): local read marks only.
   applyCatchUp(document, post.id, post.replies, replyList);
   if (post.repliesNextBefore) {
-    const olderReplies = element("button", "button button-secondary", "Load older replies");
+    const olderReplies = element("button", "button button-secondary", t("post.loadOlderReplies"));
     olderReplies.type = "button";
     olderReplies.dataset.action = "load-older-replies";
     olderReplies.dataset.postId = String(post.id);
@@ -70,7 +71,7 @@ async function renderPostRoute(route, context, version) {
     main.append(olderReplies);
   }
   if (context.session.user && post.visibility !== "hidden" && !post.parent) {
-    main.append(createComposer("reply", "Write a thoughtful reply", "Reply", post.id));
+    main.append(createComposer("reply", t("post.replyPlaceholder"), t("common.reply"), post.id));
   }
 }
 // Author edit save (v2.4): JSON {body} to PATCH /api/posts/:id (api.js adds the
@@ -86,7 +87,7 @@ async function submitPostEditForm(form, text) {
     body: { body: text("body") },
   });
   await state.renderRoute(state.activeRoute);
-  setMessage("Your edit was saved.");
+  setMessage(t("post.editSaved"));
 }
 async function toggleReplyComposer(button) {
   const postId = button.dataset.postId;
@@ -99,7 +100,7 @@ async function toggleReplyComposer(button) {
   }
   // Mini composer under the level-1 reply; replies go to /api/posts/:thatId
   // with Turnstile action "reply".
-  const panel = createComposer("reply", "Write a reply", "Reply", postId, "reply");
+  const panel = createComposer("reply", t("post.miniReplyPlaceholder"), t("common.reply"), postId, "reply");
   panel.dataset.replyComposerFor = postId;
   // submitReplyForm reads the FORM's dataset (the thread root it should
   // re-render after a successful reply), not the marker panel's — so the
@@ -124,8 +125,8 @@ async function toggleSubReplies(button) {
     else existing.setAttribute("hidden", "");
     button.setAttribute("aria-expanded", String(hidden));
     button.textContent = hidden
-      ? `Hide ${button.dataset.replyCount} replies`
-      : `Show ${button.dataset.replyCount} replies`;
+      ? tn("post.hideReplies", Number(button.dataset.replyCount))
+      : tn("post.showReplies", Number(button.dataset.replyCount));
     return;
   }
   button.dataset.loading = "1";
@@ -140,7 +141,7 @@ async function toggleSubReplies(button) {
     if (article) article.after(container);
     button.dataset.replyCount = String(page.replies.length);
     button.setAttribute("aria-expanded", "true");
-    if (page.replies.length) button.textContent = `Hide ${page.replies.length} replies`;
+    if (page.replies.length) button.textContent = tn("post.hideReplies", page.replies.length);
   } finally {
     delete button.dataset.loading;
     button.disabled = false;
@@ -205,7 +206,7 @@ async function loadOlderReplies(button) {
   const postId = button.dataset.postId;
   const older = await api("/api/posts/" + postId + "/replies?before=" + button.dataset.before);
   const replyList = main.querySelector('.replies-list[data-replies-for="' + postId + '"]');
-  if (!replyList) throw new Error("The reply list is no longer available. Reload the conversation.");
+  if (!replyList) throw new Error(t("post.replyListGone"));
   const fragment = document.createDocumentFragment();
   for (const reply of older.replies) fragment.append(createPostCard(reply, document, state.currentUser));
   replyList.prepend(fragment);

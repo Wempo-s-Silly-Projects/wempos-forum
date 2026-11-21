@@ -21,6 +21,7 @@
 // target thread (handled by app.js's data-action="open-notification"). All DOM
 // building is textContent-based.
 import { addText } from "./forms.js";
+import { t } from "./i18n.js";
 
 // Pure, DOM-free. Returns { id, targetPostId, read, href, label }. The payload
 // never includes the replier's identity, so the label stays generic.
@@ -39,7 +40,7 @@ export const notificationItemView = (item) => {
     // every other (or pre-0017) row keeps the generic reply copy.
     label: item.label
       ? String(item.label)
-      : (preview ? `New reply on your post: ${preview}` : "New reply on your post"),
+      : (preview ? t("bell.newReplyPreview", { preview }) : t("bell.newReply")),
   };
 };
 
@@ -56,7 +57,7 @@ export const createNotificationBell = (unreadCount, document) => {
   bell.href = "/notifications";
   const count = Number(unreadCount) || 0;
   bell.setAttribute("aria-label",
-    count ? `Notifications, ${count} unread` : "Notifications");
+    count ? t("bell.labelUnread", { count }) : t("bell.label"));
   bell.append(createIcon(document, "bell"));
   // The unread indicator is a tiny red (coral) DOT — the count lives in the
   // bell's aria-label, not in a number pill (owner spec, v2.5).
@@ -80,7 +81,7 @@ export function updateBell(unreadCount) {
   const bell = document.querySelector("#notification-bell");
   if (bell) {
     bell.setAttribute("aria-label",
-      count ? `Notifications, ${count} unread` : "Notifications");
+      count ? t("bell.labelUnread", { count }) : t("bell.label"));
   }
 }
 
@@ -94,12 +95,12 @@ export function renderNotificationsPage(main, items) {
   section.className = "panel notifications-panel";
   const heading = document.createElement("h1");
   heading.className = "page-heading";
-  heading.textContent = "Notifications";
+  heading.textContent = t("bell.label");
   section.append(heading);
   const list = (items ?? []).map(notificationItemView);
   if (!list.length) {
     addText(document, section, "p",
-      "No notifications yet. Replies to your posts will show up here.", "empty-state");
+      t("bell.empty"), "empty-state");
     main.append(section);
     return section;
   }
@@ -120,7 +121,7 @@ export function renderNotificationsPage(main, items) {
   markAll.type = "button";
   markAll.className = "button button-secondary";
   markAll.dataset.action = "mark-notifications-read";
-  markAll.textContent = "Mark all read";
+  markAll.textContent = t("bell.markAllRead");
   section.append(markAll);
   main.append(section);
   return section;

@@ -16,6 +16,7 @@
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
 
+import { t, tn } from "./i18n.js";
 // Thread at a glance (wave 2026-11-21 F4): a compact strip above a thread's
 // replies — how many people are talking, an estimated read time, and a jump to
 // the most-liked reply. Computed only from the posts already on the page (the
@@ -52,17 +53,15 @@ export function summarizeThread(root, replies) {
   };
 }
 
-const plural = (count, one, many) => count + " " + (count === 1 ? one : many);
-
 // The strip itself. The top-reply button looks the card up at click time, so
 // it keeps working after "Load older replies" repaints the list.
 export function createThreadGlance(document, summary, scope) {
   const strip = document.createElement("div");
   strip.className = "thread-glance";
-  strip.setAttribute("aria-label", "Thread at a glance");
+  strip.setAttribute("aria-label", t("glance.label"));
   const facts = [
-    plural(summary.participants, "person talking", "people talking"),
-    "about " + plural(summary.readMinutes, "minute", "minutes") + " to read",
+    tn("glance.people", summary.participants),
+    tn("glance.readTime", summary.readMinutes),
   ];
   for (const fact of facts) {
     const span = document.createElement("span");
@@ -74,8 +73,9 @@ export function createThreadGlance(document, summary, scope) {
     const jump = document.createElement("button");
     jump.type = "button";
     jump.className = "button button-quiet thread-glance-top";
-    jump.textContent = "Top reply by " + (summary.topReply.author?.username ?? "a member") +
-      " (" + plural(Number(summary.topReply.likeCount) || 0, "like", "likes") + ")";
+    jump.textContent = tn("glance.topReply", Number(summary.topReply.likeCount) || 0, {
+      name: summary.topReply.author?.username ?? t("glance.aMember"),
+    });
     jump.addEventListener("click", () => {
       const card = scope?.querySelector('[data-post-id="' + Number(summary.topReply.id) + '"]');
       if (!card) return;

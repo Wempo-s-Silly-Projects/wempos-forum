@@ -23,6 +23,7 @@
 // (fetch only). One AbortController unregisters all tools on pagehide.
 import { api } from "./api.js";
 import { BOARDS } from "./boards.js";
+import { i18nReady } from "./i18n.js";
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 20;
@@ -57,24 +58,24 @@ const summarizePosts = (posts, limit) =>
 const goTo = (path) => {
   const url = new URL(path, location.origin).href;
   location.assign(url);
-  return textResult(`Navigating to ${url}`);
+  return textResult(`Navigating to ${url}`); // i18n-ignore
 };
 
 const limitSchema = {
   type: "integer",
   minimum: 1,
   maximum: MAX_LIMIT,
-  description: `Maximum number of posts to return (default ${DEFAULT_LIMIT}).`,
+  description: `Maximum number of posts to return (default ${DEFAULT_LIMIT}).`, // i18n-ignore
 };
 
 const TOOLS = [
   {
     name: "search_posts",
-    description: "Search Wempo's Forum posts by text. Returns matching posts with id, URL, board, author, date, reply count, and a body excerpt.",
+    description: "Search Wempo's Forum posts by text. Returns matching posts with id, URL, board, author, date, reply count, and a body excerpt.", // i18n-ignore
     inputSchema: {
       type: "object",
       properties: {
-        query: { type: "string", minLength: 1, maxLength: MAX_QUERY_CHARS, description: "Text to search for." },
+        query: { type: "string", minLength: 1, maxLength: MAX_QUERY_CHARS, description: "Text to search for." }, // i18n-ignore
         limit: limitSchema,
       },
       required: ["query"],
@@ -82,7 +83,7 @@ const TOOLS = [
     async execute({ query, limit } = {}) {
       const term = typeof query === "string" ? query.trim() : "";
       if (!term || term.length > MAX_QUERY_CHARS) {
-        return textResult(`query must be 1-${MAX_QUERY_CHARS} characters.`);
+        return textResult(`query must be 1-${MAX_QUERY_CHARS} characters.`); // i18n-ignore
       }
       const result = await api(`/api/search?q=${encodeURIComponent(term)}`);
       return textResult(summarizePosts(result?.posts, limit));
@@ -90,7 +91,7 @@ const TOOLS = [
   },
   {
     name: "recent_posts",
-    description: "List the most recently active posts across all boards of Wempo's Forum.",
+    description: "List the most recently active posts across all boards of Wempo's Forum.", // i18n-ignore
     inputSchema: { type: "object", properties: { limit: limitSchema } },
     async execute({ limit } = {}) {
       const feed = await api("/api/posts");
@@ -99,42 +100,43 @@ const TOOLS = [
   },
   {
     name: "open_post",
-    description: "Open a forum post (thread) by its numeric id in the current page. Returns the post URL.",
+    description: "Open a forum post (thread) by its numeric id in the current page. Returns the post URL.", // i18n-ignore
     inputSchema: {
       type: "object",
-      properties: { id: { type: "integer", minimum: 1, description: "The post id." } },
+      properties: { id: { type: "integer", minimum: 1, description: "The post id." } }, // i18n-ignore
       required: ["id"],
     },
     async execute({ id } = {}) {
       const postId = Number(id);
-      if (!Number.isInteger(postId) || postId < 1) return textResult("id must be a positive integer.");
+      if (!Number.isInteger(postId) || postId < 1) return textResult("id must be a positive integer."); // i18n-ignore
       return goTo(`/posts/${postId}`);
     },
   },
   {
     name: "open_board",
-    description: "Open a forum board (category) in the current page. Returns the board URL.",
+    description: "Open a forum board (category) in the current page. Returns the board URL.", // i18n-ignore
     inputSchema: {
       type: "object",
       properties: {
         board: {
           type: "string",
           enum: BOARDS.map((board) => board.slug),
-          description: "Board slug: " + BOARDS.map((board) => `${board.slug} (${board.label})`).join(", ") + ".",
+          description: "Board slug: " + BOARDS.map((board) => `${board.slug} (${board.label})`).join(", ") + ".", // i18n-ignore
         },
       },
       required: ["board"],
     },
     async execute({ board } = {}) {
-      if (!BOARDS.some((entry) => entry.slug === board)) return textResult("Unknown board slug.");
+      if (!BOARDS.some((entry) => entry.slug === board)) return textResult("Unknown board slug."); // i18n-ignore
       return goTo(`/c/${board}`);
     },
   },
 ];
 
-const mountWebMcp = () => {
+const mountWebMcp = async () => {
   const modelContext = globalThis.navigator?.modelContext;
   if (!modelContext || typeof modelContext.registerTool !== "function") return;
+  await i18nReady();
   const controller = new AbortController();
   for (const tool of TOOLS) {
     try {
@@ -147,4 +149,4 @@ const mountWebMcp = () => {
   globalThis.addEventListener?.("pagehide", () => controller.abort(), { once: true });
 };
 
-mountWebMcp();
+await mountWebMcp();

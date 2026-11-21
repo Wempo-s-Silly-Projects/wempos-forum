@@ -26,6 +26,7 @@
 // with — the password proof keeps anyone from filing (or locking out) an
 // appeal in a banned member's name.
 import { addText, createForm, createInput, createTextarea } from "./forms.js";
+import { t } from "./i18n.js";
 
 // Pure, DOM-free. expiresAt is an epoch-seconds number from the login 403
 // payload (null for permanent bans). Returns "3d 2h 14m"-style text with the
@@ -54,10 +55,10 @@ export function renderBannedScreen(main, { reason, expiresAt, username = "", pas
   panel.className = "panel banned-screen";
   const heading = document.createElement("h1");
   heading.className = "page-heading";
-  heading.textContent = "Oh noes:( You are banned!";
+  heading.textContent = t("banned.heading");
   panel.append(heading);
   addText(document, panel, "p",
-    typeof reason === "string" && reason ? reason : "No reason was provided.",
+    typeof reason === "string" && reason ? reason : t("banned.noReason"),
     "banned-reason");
   if (typeof expiresAt === "number" && Number.isFinite(expiresAt)) {
     const countdown = addText(document, panel, "p", "", "banned-countdown");
@@ -67,12 +68,12 @@ export function renderBannedScreen(main, { reason, expiresAt, username = "", pas
         clearInterval(timer);
         return;
       }
-      countdown.textContent = `Reactivates in ${formatBanCountdown(expiresAt)}`;
+      countdown.textContent = t("banned.reactivates", { time: formatBanCountdown(expiresAt) });
     };
     const timer = setInterval(tick, 1000);
     tick();
   } else {
-    addText(document, panel, "p", "No reactivation time set....", "banned-countdown");
+    addText(document, panel, "p", t("banned.noReactivation"), "banned-countdown");
   }
   // Ban appeals (v3.1): no session exists here, so the form posts the
   // username and password it carries plus the appeal text; the server verifies
@@ -84,7 +85,7 @@ export function renderBannedScreen(main, { reason, expiresAt, username = "", pas
     createInput(document, {
       id: "ban-appeal-username",
       name: "username",
-      label: "Username",
+      label: t("banned.username"),
       required: true,
       minLength: 3,
       maxLength: 24,
@@ -93,7 +94,7 @@ export function renderBannedScreen(main, { reason, expiresAt, username = "", pas
     createInput(document, {
       id: "ban-appeal-password",
       name: "password",
-      label: "Password (proves this is really you)",
+      label: t("banned.password"),
       type: "password",
       autoComplete: "current-password",
       required: true,
@@ -103,12 +104,12 @@ export function renderBannedScreen(main, { reason, expiresAt, username = "", pas
     createTextarea(document, {
       id: "ban-appeal-body",
       name: "body",
-      label: "Why should this ban be lifted?",
+      label: t("banned.appealBody"),
       required: true,
       maxLength: 1000,
       rows: 4,
     }),
-  ], "Appeal this ban");
+  ], t("banned.appealButton"));
   panel.append(appealForm);
   main.append(panel);
   return panel;

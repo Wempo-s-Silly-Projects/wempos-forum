@@ -29,6 +29,7 @@ import { api } from "../api.js";
 import { createPanel, element, setMessage } from "../dom.js";
 import { createForm, createInput, addText } from "../forms.js";
 import { state } from "../state.js";
+import { t } from "../i18n.js";
 
 // The account settings section. Appended by renderAccountSettings into the
 // settings `details` panel; the panel body swaps between the off and on
@@ -36,10 +37,8 @@ import { state } from "../state.js";
 export function renderTotpSettings(container, session) {
   const enabled = Boolean(session.user && session.user.totpEnabled);
   const panel = createPanel(
-    "Two-factor sign-in",
-    enabled
-      ? "Signing in needs your password and a 6-digit code from your authenticator app. Turn it off here only if you still hold the secret."
-      : "Add a second step to sign-in: an authenticator app (like Google Authenticator or Aegis) generates the 6-digit code. Keep the secret safe — there is no email recovery.",
+    t("twofa.title"),
+    enabled ? t("twofa.introOn") : t("twofa.introOff"),
   );
   panel.dataset.totpPanel = enabled ? "on" : "off";
 
@@ -49,22 +48,22 @@ export function renderTotpSettings(container, session) {
     // a 2FA takeover on a standing session.
     panel.append(createForm(document, "totp-setup", [
       createInput(document, {
-        id: "totp-setup-password", name: "currentPassword", label: "Current password",
+        id: "totp-setup-password", name: "currentPassword", label: t("twofa.currentPassword"),
         type: "password", maxLength: 128, required: true, autoComplete: "current-password",
-        description: "Enter your current password — the secret is shown only after it verifies.",
+        description: t("twofa.currentPasswordHelp"),
       }),
-    ], "Enable two-factor"));
+    ], t("twofa.enable")));
     container.append(panel);
     return;
   }
 
   panel.append(createForm(document, "totp-disable", [
     createInput(document, {
-      id: "totp-disable-code", name: "code", label: "6-digit code or backup code",
+      id: "totp-disable-code", name: "code", label: t("twofa.codeOrBackup"),
       maxLength: 8, required: true,
-      description: "The authenticator's 6-digit code — or, if you lost your authenticator, an unburned backup code.",
+      description: t("twofa.disableCodeHelp"),
     }),
-  ], "Turn off two-factor"));
+  ], t("twofa.disable")));
   container.append(panel);
 
   // Backup codes (v4.8.1): the settings section rides only the ON branch —
@@ -72,11 +71,11 @@ export function renderTotpSettings(container, session) {
   // wipes them server-side. Stage one is a button; the password/code form
   // (the regenerate's own confirmation) swaps in on click.
   const backupPanel = createPanel(
-    "Backup codes",
-    "If you lose your authenticator, a backup code signs you in once. Each code works a single time.",
+    t("twofa.backupTitle"),
+    t("twofa.backupIntro"),
   );
   backupPanel.dataset.backupPanel = "ready";
-  const ask = element("button", "button button-primary", "Generate new codes");
+  const ask = element("button", "button button-primary", t("twofa.generateAsk"));
   ask.type = "button";
   ask.dataset.action = "backup-generate-ask";
   backupPanel.append(ask);
@@ -94,20 +93,20 @@ function openBackupCodeForm(panel) {
     document,
     panel,
     "p",
-    "Generate 10 new codes? Your current backup codes stop working the moment the new set is created.",
+    t("twofa.generateWarn"),
     "form-note",
   );
   panel.append(createForm(document, "totp-backups-generate", [
     createInput(document, {
-      id: "totp-backups-password", name: "currentPassword", label: "Current password",
+      id: "totp-backups-password", name: "currentPassword", label: t("twofa.currentPassword"),
       type: "password", maxLength: 128, required: true, autoComplete: "current-password",
     }),
     createInput(document, {
-      id: "totp-backups-code", name: "code", label: "6-digit code or backup code",
+      id: "totp-backups-code", name: "code", label: t("twofa.codeOrBackup"),
       maxLength: 8, required: true,
-      description: "The 6-digit code proves the authenticator; a backup code works instead if the app is lost.",
+      description: t("twofa.generateCodeHelp"),
     }),
-  ], "Generate codes"));
+  ], t("twofa.generate")));
 }
 
 // The one look at a new set: a read-only block the member copies or writes
@@ -117,10 +116,10 @@ function renderBackupCodes(panel, codes) {
   for (const node of [...panel.children]) {
     if (node.tagName !== "H2" && node.tagName !== "P") node.remove();
   }
-  addText(document, panel, "p", "Each code signs you in once. These are shown only now — copy or write them down.", "form-note");
+  addText(document, panel, "p", t("twofa.backupShownOnce"), "form-note");
   const block = element("pre", "backup-codes", codes.join("\n"));
   panel.append(block);
-  const done = element("button", "button button-quiet", "Done");
+  const done = element("button", "button button-quiet", t("common.done"));
   done.type = "button";
   done.addEventListener("click", async () => {
     await state.renderRoute(state.activeRoute);
@@ -145,17 +144,16 @@ async function submitTotpSetup(form, text) {
 }
 
 async function openSetupStep(panel, result) {
-  setMessage("Add the secret to your authenticator, then confirm with a code.");
+  setMessage(t("twofa.setupMessage"));
   // Swap only the body — the panel's h2 heading and lede stay put.
   for (const node of [...panel.children]) {
     if (node.tagName !== "H2" && node.tagName !== "P") node.remove();
   }
   const note = element("p", "form-note");
-  note.textContent =
-    "Type this secret into your authenticator app (or paste the otpauth line). It shows once — reload throws it away until you confirm.";
+  note.textContent = t("twofa.setupNote");
   panel.append(note);
   const secretLabel = element("label", "form-label");
-  secretLabel.append(document.createTextNode("Secret"));
+  secretLabel.append(document.createTextNode(t("twofa.secret")));
   const secretInput = element("input", "form-input");
   secretInput.type = "text";
   secretInput.readOnly = true;
@@ -163,7 +161,7 @@ async function openSetupStep(panel, result) {
   secretLabel.append(secretInput);
   panel.append(secretLabel);
   const uriLabel = element("label", "form-label");
-  uriLabel.append(document.createTextNode("otpauth URI"));
+  uriLabel.append(document.createTextNode(t("twofa.otpauthUri")));
   const uriInput = element("input", "form-input");
   uriInput.type = "text";
   uriInput.readOnly = true;
@@ -172,11 +170,11 @@ async function openSetupStep(panel, result) {
   panel.append(uriLabel);
   panel.append(createForm(document, "totp-confirm", [
     createInput(document, {
-      id: "totp-confirm-code", name: "code", label: "6-digit code from your app",
+      id: "totp-confirm-code", name: "code", label: t("twofa.confirmCode"),
       inputMode: "numeric", pattern: "[0-9]*", maxLength: 6, required: true,
       autoComplete: "one-time-code",
     }),
-  ], "Turn on two-factor"));
+  ], t("twofa.confirmButton")));
 }
 
 async function submitTotpConfirm(form, text) {
@@ -186,7 +184,7 @@ async function submitTotpConfirm(form, text) {
   });
   if (state.currentUser) state.currentUser.totpEnabled = result.totpEnabled;
   await state.renderRoute(state.activeRoute);
-  setMessage("Two-factor sign-in is on. Keep your authenticator safe.");
+  setMessage(t("twofa.nowOn"));
 }
 
 async function submitTotpDisable(form, text) {
@@ -196,7 +194,7 @@ async function submitTotpDisable(form, text) {
   });
   if (state.currentUser) state.currentUser.totpEnabled = result.totpEnabled;
   await state.renderRoute(state.activeRoute);
-  setMessage("Two-factor sign-in is off. Your backup codes were wiped.");
+  setMessage(t("twofa.nowOff"));
 }
 
 async function submitBackupGenerate(form, text) {

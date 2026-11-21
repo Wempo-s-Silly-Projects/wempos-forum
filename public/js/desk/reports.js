@@ -20,27 +20,28 @@
 // builders — bodies moved verbatim out of ../admin.js (now dissolved).
 import { createForm, createInput, addText } from "../forms.js";
 import { createBanForm } from "./bans.js";
+import { t } from "../i18n.js";
 
 const createReportQueue = (reports, document, currentUser = null) => {
   const list = document.createElement("div");
   list.className = "report-list";
   if (!reports.length) {
-    addText(document, list, "p", "The report queue is clear.", "empty-state");
+    addText(document, list, "p", t("desk.reports.empty"), "empty-state");
     return list;
   }
   for (const report of reports) {
     const card = document.createElement("article");
     card.className = "report-card";
     card.dataset.reportId = String(report.id);
-    addText(document, card, "h2", `Report #${report.id}`);
-    addText(document, card, "p", `Reported by ${report.reporter.username}: ${report.reason}`);
+    addText(document, card, "h2", t("desk.reports.title", { id: report.id }));
+    addText(document, card, "p", t("desk.reports.reportedBy", { username: report.reporter.username, reason: report.reason }));
     const postLink = document.createElement("a");
     postLink.href = `/posts/${report.post.id}`;
-    postLink.textContent = `Post by ${report.post.author.username}: ${report.post.body}`;
+    postLink.textContent = t("desk.reports.postBy", { username: report.post.author.username, body: report.post.body });
     card.append(postLink);
     const actions = document.createElement("div");
     actions.className = "form-actions";
-    for (const [action, label] of [["dismiss", "Dismiss"], ["hide_post", "Hide post"]]) {
+    for (const [action, label] of [["dismiss", t("desk.reports.dismiss")], ["hide_post", t("desk.reports.hidePost")]]) {
       const form = document.createElement("form");
       form.dataset.form = "admin-resolve";
       form.dataset.reportId = String(report.id);
@@ -63,19 +64,19 @@ const createReportQueue = (reports, document, currentUser = null) => {
         createInput(document, {
           id: `promote-reason-${report.id}`,
           name: "reason",
-          label: `Reason to promote ${report.post.author.username} (optional)`,
+          label: t("desk.reports.promoteReason", { username: report.post.author.username }),
           maxLength: 500,
         }),
-      ], "Promote to mod");
+      ], t("desk.reports.promoteButton"));
       promoteForm.dataset.userId = String(report.post.author.id);
       const demoteForm = createForm(document, "admin-demote", [
         createInput(document, {
           id: `demote-reason-${report.id}`,
           name: "reason",
-          label: `Reason to demote ${report.post.author.username} (optional)`,
+          label: t("desk.reports.demoteReason", { username: report.post.author.username }),
           maxLength: 500,
         }),
-      ], "Demote to member");
+      ], t("desk.reports.demoteButton"));
       demoteForm.dataset.userId = String(report.post.author.id);
       actions.append(promoteForm, demoteForm);
     }

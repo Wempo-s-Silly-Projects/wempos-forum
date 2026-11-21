@@ -37,6 +37,7 @@ import { addTurnstileSlot, refreshTurnstile, takeTurnstileToken } from "../turns
 import { COMPOSER_MAX_CHARS } from "../composer-limits.js";
 import { attachDraftAutosave, clearFormDraft, draftKey } from "../drafts.js";
 import { attachMentionPicker } from "../mention-picker.js";
+import { t, tn } from "../i18n.js";
 
 let activeGifComposerForm = null;
 let activePollComposerForm = null;
@@ -51,8 +52,8 @@ let activePollComposerForm = null;
 function createComposer(name, label, buttonLabel, postID = null,
   turnstileAction = null, board = null, boardChoices = null) {
   const panel = createPanel(board === "suggestions"
-    ? "Share a suggestion"
-    : name === "post-create" ? "Start a conversation" : "Reply");
+    ? t("composer.shareSuggestion")
+    : name === "post-create" ? t("composer.startConversation") : t("common.reply"));
   const form = document.createElement("form");
   form.dataset.form = name;
   if (postID !== null) form.dataset.postId = String(postID);
@@ -60,7 +61,7 @@ function createComposer(name, label, buttonLabel, postID = null,
   if (boardChoices) {
     form.append(createSelect(document, {
       id: `${name}-${postID ?? "new"}-board`, name: "board",
-      label: "Category",
+      label: t("composer.category"),
       options: boardChoices,
     }));
   }
@@ -99,12 +100,12 @@ function createComposerAttachmentRow(withPollButton = false) {
   input.setAttribute("aria-hidden", "true");
   input.tabIndex = -1;
   input.dataset.composerInput = "images";
-  const attach = element("button", "button button-quiet", "📎 Attach images");
+  const attach = element("button", "button button-quiet", t("composer.attachImages"));
   attach.type = "button";
   attach.dataset.action = "composer-attach";
   // GIF picker (v2.5): the library dialog — approved community GIFs attach
   // by reference (no re-upload bytes; the marketplace's dedup covers them).
-  const gifButton = element("button", "button button-quiet", "Gallery");
+  const gifButton = element("button", "button button-quiet", t("composer.gallery"));
   gifButton.type = "button";
   gifButton.dataset.action = "open-gif-picker";
   // Polls (C3): the Poll button — root composers only. The dialog stashes a
@@ -112,7 +113,7 @@ function createComposerAttachmentRow(withPollButton = false) {
   // submit posts it to /api/posts/:id/poll once the thread exists.
   const pollBits = [];
   if (withPollButton) {
-    const pollButton = element("button", "button button-quiet", "📊 Poll");
+    const pollButton = element("button", "button button-quiet", t("composer.poll"));
     pollButton.type = "button";
     pollButton.dataset.action = "open-poll-dialog";
     pollBits.push(pollButton);
@@ -121,9 +122,7 @@ function createComposerAttachmentRow(withPollButton = false) {
   gifStrip.dataset.composerStrip = "gifs";
   gifStrip.hidden = true;
   const description = element("span", "form-note");
-  description.textContent =
-    `Images are reviewed before they show publicly. Up to ${MAX_COMPOSER_FILES}, ` +
-    "10 MiB or less each (JPEG, PNG, WebP, or GIF).";
+  description.textContent = t("composer.imageNote", { max: MAX_COMPOSER_FILES });
   const strip = element("div", "composer-files");
   strip.dataset.composerStrip = "images";
   strip.hidden = true;
@@ -141,7 +140,7 @@ function renderComposerFileStrip(form) {
   renderComposerGifStrip(form);
   for (const [index, file] of files.entries()) {
     const chip = element("span", "composer-file", file.name);
-    const remove = element("button", "button button-quiet composer-file-remove", "Remove");
+    const remove = element("button", "button button-quiet composer-file-remove", t("common.remove"));
     remove.type = "button";
     remove.dataset.action = "remove-composer-file";
     remove.dataset.fileIndex = String(index);
@@ -233,7 +232,7 @@ async function submitNewPost(form, text) {
   clearFormDraft(form);
   // Polls (C3): a stashed poll attaches to the fresh thread BEFORE the
   // navigation; a failed attach never loses the (already live) post.
-  let pollNote = "";
+  let pollFailed = false;
   if (form.composerPoll) {
     try {
       await api("/api/posts/" + post.id + "/poll", {
@@ -241,11 +240,11 @@ async function submitNewPost(form, text) {
         body: form.composerPoll,
       });
     } catch (error) {
-      pollNote = " (the poll could not be attached)";
+      pollFailed = true;
     }
   }
   state.router.navigate("/posts/" + post.id);
-  setMessage("Your post is live!" + pollNote);
+  setMessage(pollFailed ? t("composer.postLivePollFailed") : t("composer.postLive"));
 }
 
 async function submitReplyForm(form, text) {
@@ -280,7 +279,7 @@ async function submitReplyForm(form, text) {
   // Reply-to-reply composers remember the thread root (declared above) so the
   // rerender lands back on the conversation, not on the level-1 reply's page.
   await state.renderRoute({ name: "post", id: Number(threadId) });
-  setMessage("Your reply was added!");
+  setMessage(t("composer.replyAdded"));
 }
 
 const gifPickerActiveForm = () => null;
@@ -303,17 +302,17 @@ async function openGifPicker(button) {
     thumb.dataset.gifId = gif.id;
     thumb.setAttribute("role", "option");
     thumb.setAttribute("aria-pressed", "false");
-    thumb.title = "Use this image";
+    thumb.title = t("composer.useImage");
     const img = element("img");
     img.src = gif.url;
     img.loading = "lazy";
-    img.alt = "Library image";
+    img.alt = t("composer.libraryImage");
     thumb.append(img);
     thumb.addEventListener("click", () => {
       const pressed = thumb.getAttribute("aria-pressed") === "true";
       const selectedCount = [...grid.children].filter((node) => node.getAttribute("aria-pressed") === "true");
       if (!pressed && selectedCount.length >= spare) {
-        setMessage("That would exceed your " + MAX_COMPOSER_FILES + " attachment slots.", true);
+        setMessage(t("composer.slotsExceeded", { max: MAX_COMPOSER_FILES }), true);
         return;
       }
       thumb.setAttribute("aria-pressed", pressed ? "false" : "true");
@@ -333,7 +332,7 @@ function confirmGifPicker(button) {
   if (!form || selected.length === 0) return;
   const { added } = addGifsToComposer(form, selected);
   if (added.length < selected.length) {
-    setMessage("Only " + added.length + " image(s) fit your attachment slots.", true);
+    setMessage(tn("composer.slotsPartial", added.length), true);
   }
   renderComposerGifStrip(form);
 }
@@ -351,14 +350,14 @@ async function uploadCommunityGif(input) {
       if (added.length) {
         gifPickerDialog()?.close();
         activeGifComposerForm = null;
-        setMessage("That image is already approved and has been attached.");
+        setMessage(t("composer.gifAttached"));
       } else {
-        setMessage("That image is approved, but this composer has no free attachment slots.", true);
+        setMessage(t("composer.gifNoSlots"), true);
       }
     } else {
       setMessage(result.reuse
-        ? "That image is already in the approved library!"
-        : "Upload submitted for mod review.");
+        ? t("composer.gifAlreadyApproved")
+        : t("composer.gifSubmitted"));
     }
   } finally {
     input.value = "";
@@ -388,7 +387,7 @@ function confirmPollDialog() {
   if (!form || !dialog) {
     activePollComposerForm = null;
     if (dialog) dialog.close();
-    setMessage("That composer is no longer on the page. Open the poll tool again.", true);
+    setMessage(t("composer.pollComposerGone"), true);
     return;
   }
   const question = dialog.querySelector("#poll-question").value.trim();
@@ -396,14 +395,14 @@ function confirmPollDialog() {
     .map((slot) => dialog.querySelector("#poll-option-" + slot)?.value.trim() ?? "")
     .filter(Boolean);
   if (!question || options.length < 2 || options.length > 4) {
-    setMessage("Give the poll a question and 2 to 4 options.", true);
+    setMessage(t("composer.pollInvalid"), true);
     return;
   }
   form.composerPoll = { question, options };
   activePollComposerForm = null;
   dialog.querySelector("form").reset();
   dialog.close();
-  setMessage("Poll attached — it posts with your message!");
+  setMessage(t("composer.pollAttached"));
 }
 
 function attachComposerImages(button) {

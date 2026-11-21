@@ -25,6 +25,7 @@
 // double-send it): when a signed-in session exists, one POST /api/presence on
 // boot and every 60s after, sleeping while document.hidden.
 import { api, setCsrfToken } from "./api.js";
+import { i18nReady, t } from "./i18n.js";
 
 const ROSTER_REFRESH_MS = 60_000;
 const BEACON_INTERVAL_MS = 60_000;
@@ -72,7 +73,7 @@ const paintRoster = (online) => {
     listEl.append(link);
   }
   const overflow = online.length - ROSTER_NAME_MAX;
-  if (overflow > 0) listEl.append(el("span", "who-online-more", `+${overflow} more`));
+  if (overflow > 0) listEl.append(el("span", "who-online-more", t("online.more", { count: overflow })));
   countEl.textContent = String(online.length);
   card.hidden = false;
 };
@@ -92,11 +93,11 @@ const mount = () => {
   if (card) return;
   card = el("aside", "who-online");
   card.hidden = true;
-  const heading = el("h2", "who-online-heading", "Who's Online");
+  const heading = el("h2", "who-online-heading", t("online.heading"));
   countEl = el("span", "who-online-count", "");
   heading.append(countEl);
   listEl = el("div", "who-online-list");
-  card.append(heading, el("p", "who-online-note", "Active in the last 5 minutes"), listEl);
+  card.append(heading, el("p", "who-online-note", t("online.note")), listEl);
   document.body.append(card);
 };
 
@@ -106,6 +107,7 @@ const hideRoster = () => {
 
 const boot = async () => {
   if (document.querySelector(".who-online")) return;
+  await i18nReady();
   const signedIn = await probeSession();
   await refreshRoster();
   setInterval(() => refreshRoster().catch(() => { /* the card keeps its last paint */ }), ROSTER_REFRESH_MS);

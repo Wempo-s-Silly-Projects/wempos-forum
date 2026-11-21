@@ -29,6 +29,7 @@ import { api } from "../api.js";
 import { addHeading, element, main, setMessage } from "../dom.js";
 import { addText } from "../forms.js";
 import { state } from "../state.js";
+import { currentLocale, t, tn } from "../i18n.js";
 import { createAppealQueue } from "../desk/appeals.js";
 import {
   createActiveBanList,
@@ -51,67 +52,67 @@ import { createFilterEditor } from "../desk/filter.js";
 // The old single page stacked all fourteen payloads fetch-at-once; sections
 // keep the same endpoint surface, just one fetch per visit.
 const DESK_SECTIONS = [
-  { slug: "dashboard", label: "Overview" },
-  { slug: "reports", label: "Post reports" },
-  { slug: "profile-reports", label: "Profile reports" },
-  { slug: "appeals", label: "Appeals" },
-  { slug: "images", label: "Images" },
-  { slug: "avatars", label: "Avatars" },
-  { slug: "gifs", label: "GIF library" },
-  { slug: "css", label: "Profile CSS" },
-  { slug: "hidden", label: "Hidden posts" },
-  { slug: "bans", label: "Bans & members" },
-  { slug: "chat-log", label: "Chat log" },
-  { slug: "dm-log", label: "DM log" },
-  { slug: "rules", label: "Rules" },
-  { slug: "filter", label: "Word filter" },
+  { slug: "dashboard", labelKey: "admin.section.dashboard" },
+  { slug: "reports", labelKey: "admin.section.reports" },
+  { slug: "profile-reports", labelKey: "admin.section.profileReports" },
+  { slug: "appeals", labelKey: "admin.section.appeals" },
+  { slug: "images", labelKey: "admin.section.images" },
+  { slug: "avatars", labelKey: "admin.section.avatars" },
+  { slug: "gifs", labelKey: "admin.section.gifs" },
+  { slug: "css", labelKey: "admin.section.css" },
+  { slug: "hidden", labelKey: "admin.section.hidden" },
+  { slug: "bans", labelKey: "admin.section.bans" },
+  { slug: "chat-log", labelKey: "admin.section.chatLog" },
+  { slug: "dm-log", labelKey: "admin.section.dmLog" },
+  { slug: "rules", labelKey: "admin.section.rules" },
+  { slug: "filter", labelKey: "admin.section.filter" },
 ];
 
 // slug → { lede, load(), build() }. Every build() appends the section's body
 // to `main` after the shell; each loads only what it renders.
 const DESK_BUILDERS = {
   "reports": {
-    lede: "Open post reports, newest first — resolve, ban, or dismiss.",
+    ledeKey: "admin.lede.reports",
     load: () => api("/api/admin/reports"),
     build: (data, user) => createReportQueue(data.reports, document, user),
   },
   "profile-reports": {
-    lede: "Reported profiles — resolve, view, or ban the reported member.",
+    ledeKey: "admin.lede.profileReports",
     load: () => api("/api/admin/profile-reports"),
     build: (data) => createProfileReportQueue(data.profileReports, document),
   },
   "appeals": {
-    lede: "Second looks at bans a member appealed. Approve to revoke the ban — approval notifies the member.",
+    ledeKey: "admin.lede.appeals",
     load: () => api("/api/admin/appeals"),
     build: (data) => createAppealQueue(data.appeals, document),
   },
   "images": {
-    lede: "Attachments awaiting review. Author sees their own pending images; approve makes them public.",
+    ledeKey: "admin.lede.images",
     load: () => api("/api/admin/attachments"),
     build: (data) => createAttachmentQueue(data.attachments, document),
   },
   "avatars": {
-    lede: "Avatar uploads awaiting review. The previous avatar keeps serving until you decide.",
+    ledeKey: "admin.lede.avatars",
     load: () => api("/api/admin/avatars"),
     build: (data) => createAvatarQueue(data.avatars, document),
   },
   "gifs": {
-    lede: "GIF submissions for the shared library.",
+    ledeKey: "admin.lede.gifs",
     load: () => api("/api/admin/gifs"),
     build: (data) => createGifQueue(data.gifs, document),
   },
   "css": {
-    lede: "Custom profile CSS awaiting review. Approved themes serve scoped and sandboxed.",
+    ledeKey: "admin.lede.css",
     load: () => api("/api/admin/css"),
     build: (data) => createCssQueue(data.cssSubmissions, document),
   },
   "hidden": {
-    lede: "Hidden posts and everything by actively banned members, bodies included.",
+    ledeKey: "admin.lede.hidden",
     load: () => api("/api/admin/hidden"),
     build: (data) => createHiddenPostsQueue(data.hidden, document),
   },
   "bans": {
-    lede: "Active bans with unban forms, plus member search to act on anyone directly.",
+    ledeKey: "admin.lede.bans",
     load: () => api("/api/admin/bans"),
     build: (data, user) => [
       createActiveBanList(data.bans, document),
@@ -119,22 +120,22 @@ const DESK_BUILDERS = {
     ],
   },
   "chat-log": {
-    lede: "The full public chat stream — banned authors included, deletable in place.",
+    ledeKey: "admin.lede.chatLog",
     load: () => api("/api/admin/chat"),
     build: (data) => createChatLog(data.messages, document),
   },
   "dm-log": {
-    lede: "The full 1:1 stream with both participants named — same scrutiny as the chat.",
+    ledeKey: "admin.lede.dmLog",
     load: () => api("/api/admin/dms"),
     build: (data) => createDmLog(data.messages, document),
   },
   "rules": {
-    lede: "The site copy every /rules visitor reads — markdown subset, word-filtered.",
+    ledeKey: "admin.lede.rules",
     load: () => api("/api/rules"),
     build: (data) => createRulesEditor(data.rules, document),
   },
   "filter": {
-    lede: "The word filter — edit the full list, or bulk-add pasted entries (duplicates skip).",
+    ledeKey: "admin.lede.filter",
     load: () => api("/api/admin/filter"),
     build: (data) => createFilterEditor(data, document),
   },
@@ -144,8 +145,8 @@ async function renderAdminRoute(route, context, version) {
   const user = context.session.user;
   const staff = Boolean(user && (user.role === "owner" || user.role === "admin"));
   if (!staff) {
-    addHeading(main, "Moderation desk", 1);
-    addText(document, main, "p", "Only staff can use the desk.", "muted");
+    addHeading(main, t("admin.staffOnlyTitle"), 1);
+    addText(document, main, "p", t("admin.staffOnly"), "muted");
     return;
   }
   const slug = DESK_BUILDERS[route.section] ? route.section : "dashboard";
@@ -154,8 +155,8 @@ async function renderAdminRoute(route, context, version) {
     const section = DESK_BUILDERS[slug];
     const data = await section.load();
     if (version !== state.renderVersion) return;
-    addHeading(content, DESK_SECTIONS.find((s) => s.slug === slug).label, 1);
-    addText(document, content, "p", section.lede, "page-lede");
+    addHeading(content, t(DESK_SECTIONS.find((s) => s.slug === slug).labelKey), 1);
+    addText(document, content, "p", t(section.ledeKey), "page-lede");
     const body = section.build(data, user);
     for (const node of Array.isArray(body) ? body : [body]) {
       node && content.append(node);
@@ -175,10 +176,9 @@ async function renderAdminRoute(route, context, version) {
     api("/api/admin/hidden"),
   ]);
   if (version !== state.renderVersion) return;
-  addHeading(content, "Overview", 1);
+  addHeading(content, t("admin.section.dashboard"), 1);
   addText(document, content, "p",
-    "Everything the desk watches, one glance: the queues with work show their counts. " +
-    "Open a section from the rail to work it.", "page-lede");
+    t("admin.overviewLede"), "page-lede");
   const counts = {
     "reports": reports.reports.length,
     "appeals": appeals.appeals.filter((a) => a.status === "pending").length,
@@ -192,7 +192,7 @@ async function renderAdminRoute(route, context, version) {
   content.append(createDashboardBoard(
     DESK_SECTIONS
       .filter((s) => s.slug !== "dashboard" && DESK_BUILDERS[s.slug])
-      .map((s) => ({ slug: s.slug, label: s.label, count: counts[s.slug] })),
+      .map((s) => ({ slug: s.slug, label: t(s.labelKey), count: counts[s.slug] })),
     document,
   ));
 }
@@ -204,10 +204,10 @@ function renderAdminShell(user, activeSlug) {
   shell.className = "desk-shell";
   const nav = document.createElement("nav");
   nav.className = "desk-nav";
-  nav.setAttribute("aria-label", "Moderation desk sections");
+  nav.setAttribute("aria-label", t("admin.navLabel"));
   const name = document.createElement("p");
   name.className = "desk-signin";
-  name.textContent = "Signed in as " + user.username;
+  name.textContent = t("admin.signedInAs", { username: user.username });
   nav.append(name);
   const list = document.createElement("ul");
   list.className = "desk-nav-list";
@@ -218,7 +218,7 @@ function renderAdminShell(user, activeSlug) {
     link.href = section.slug === "dashboard" ? "/admin" : "/admin/" + section.slug;
     link.setAttribute("data-app-link", "");
     if (section.slug === activeSlug) link.setAttribute("aria-current", "page");
-    link.textContent = section.label;
+    link.textContent = t(section.labelKey);
     item.append(link);
     list.append(item);
   }
@@ -256,20 +256,20 @@ function createDashboardBoard(tiles, document) {
 function createProfileReportQueue(reports, document) {
   const container = element("div", "profile-report-queue");
   if (!reports.length) {
-    addText(document, container, "p", "No profile reports.", "empty-state");
+    addText(document, container, "p", t("admin.noProfileReports"), "empty-state");
     return container;
   }
   for (const report of reports) {
     const item = element("div", "report-queue-item");
     const head = element("p", "report-queue-head",
-      report.profileUsername + " (reported by " + report.reporter + ")");
+      t("admin.profileReportHead", { profile: report.profileUsername, reporter: report.reporter }));
     const reason = element("p", "report-queue-reason");
     reason.textContent = report.reason;
-    const resolve = element("button", "button", "Resolve");
+    const resolve = element("button", "button", t("admin.resolve"));
     resolve.type = "button";
     resolve.dataset.action = "resolve-profile-report";
     resolve.dataset.reportId = String(report.id);
-    const visit = element("a", "button button-quiet", "View profile");
+    const visit = element("a", "button button-quiet", t("admin.viewProfile"));
     visit.href = "/users/" + encodeURIComponent(report.profileUsername);
     visit.setAttribute("data-app-link", "");
     // Ban affordance (v3.0.2): a profile report used to be resolve-only —
@@ -282,22 +282,33 @@ function createProfileReportQueue(reports, document) {
   return container;
 }
 
+// Hidden-post card head: author — ban reason or "hidden post" — expiry.
+function hiddenHeadText(item) {
+  const vars = {
+    author: item.author.username,
+    reason: item.banReason,
+    when: item.banExpiresAt ? new Date(item.banExpiresAt).toLocaleString(currentLocale()) : "",
+  };
+  if (item.banReason) {
+    return item.banExpiresAt ? t("admin.hiddenBanUntil", vars) : t("admin.hiddenBanPermanent", vars);
+  }
+  return item.banExpiresAt ? t("admin.hiddenPostUntil", vars) : t("admin.hiddenPostPermanent", vars);
+}
+
 function createHiddenPostsQueue(items, document) {
   const container = element("div", "hidden-posts-queue");
   if (!items.length) {
-    addText(document, container, "p", "Nothing hidden right now.", "empty-state");
+    addText(document, container, "p", t("admin.nothingHidden"), "empty-state");
     return container;
   }
   for (const item of items) {
     const card = element("div", "hidden-post-item");
     const head = element("p", "hidden-post-head",
-      item.author.username + " — " +
-      (item.banReason ? "ban: " + item.banReason : "hidden post") +
-      (item.banExpiresAt ? " (until " + new Date(item.banExpiresAt).toLocaleString() + ")" : " (permanent)"));
+      hiddenHeadText(item));
     const body = element("p", "hidden-post-body");
     body.textContent = item.body;
-    const when = element("p", "hidden-post-when", new Date(item.createdAt).toLocaleString());
-    const link = element("a", "button button-quiet", item.threadId === item.id ? "Open post" : "Open thread");
+    const when = element("p", "hidden-post-when", new Date(item.createdAt).toLocaleString(currentLocale()));
+    const link = element("a", "button button-quiet", item.threadId === item.id ? t("admin.openPost") : t("admin.openThread"));
     link.href = "/posts/" + item.threadId;
     link.setAttribute("data-app-link", "");
     card.append(head, body, when, link);
@@ -308,13 +319,13 @@ function createHiddenPostsQueue(items, document) {
 
 function createRulesEditor(rulesData, document) {
   const container = element("div", "rules-editor");
-  const label = element("p", "accent-picker-label", "Forum rules (markdown — the subset bodies use)");
+  const label = element("p", "accent-picker-label", t("admin.rulesLabel"));
   const textarea = element("textarea", "css-editor-input");
   textarea.id = "rules-input";
   textarea.rows = 10;
   textarea.maxLength = 1000000;
   textarea.value = typeof rulesData.rules === "string" ? rulesData.rules : "";
-  const save = element("button", "button", "Save rules");
+  const save = element("button", "button", t("admin.saveRules"));
   save.type = "button";
   save.dataset.action = "save-forum-rules";
   container.append(label, textarea, save);
@@ -324,20 +335,20 @@ function createRulesEditor(rulesData, document) {
 function createCssQueue(submissions, document) {
   const container = element("div", "css-queue");
   if (!submissions.length) {
-    addText(document, container, "p", "No CSS waiting for review.", "empty-state");
+    addText(document, container, "p", t("admin.noCss"), "empty-state");
     return container;
   }
   for (const submission of submissions) {
     const item = element("div", "css-queue-item");
-    const head = element("p", "css-queue-head", submission.username + " — " + submission.bytes + " chars");
+    const head = element("p", "css-queue-head", t("admin.cssHead", { username: submission.username, bytes: submission.bytes }));
     const preview = element("pre", "css-queue-preview");
     preview.textContent = submission.css;
-    const approve = element("button", "button", "Approve");
+    const approve = element("button", "button", t("admin.approve"));
     approve.type = "button";
     approve.dataset.action = "css-approve";
     approve.dataset.userId = String(submission.userId);
     approve.dataset.version = String(submission.version || "");
-    const reject = element("button", "button button-quiet", "Reject");
+    const reject = element("button", "button button-quiet", t("admin.reject"));
     reject.type = "button";
     reject.dataset.action = "css-reject";
     reject.dataset.userId = String(submission.userId);
@@ -361,7 +372,7 @@ async function submitReportResolution(form) {
     body: { action: form.dataset.action },
   });
   await state.renderRoute({ name: "admin" });
-  setMessage("The report was updated.");
+  setMessage(t("admin.msg.reportUpdated"));
 }
 
 async function submitBanForm(form, text) {
@@ -380,8 +391,8 @@ async function submitBanForm(form, text) {
   });
   await state.renderRoute({ name: "admin" });
   setMessage(hours > 0
-    ? "The user was banned and their sessions revoked. Their account reactivates when the ban expires."
-    : "The user was banned and their sessions revoked.");
+    ? t("admin.msg.bannedTimed")
+    : t("admin.msg.banned"));
 }
 
 async function submitUnbanForm(form, text) {
@@ -390,7 +401,7 @@ async function submitUnbanForm(form, text) {
     body: { reason: text("reason") },
   });
   await state.renderRoute({ name: "admin" });
-  setMessage("The ban was lifted.");
+  setMessage(t("admin.msg.unbanned"));
 }
 
 async function submitRoleChange(form, action, text) {
@@ -403,8 +414,8 @@ async function submitRoleChange(form, action, text) {
   // re-rendering the current route refreshes whichever surface is showing.
   await state.renderRoute(state.activeRoute);
   setMessage(action === "promote"
-    ? "The member was promoted to mod."
-    : "The member was demoted to member.");
+    ? t("admin.msg.promoted")
+    : t("admin.msg.demoted"));
 }
 
 async function submitAvatarModeration(form, action) {
@@ -415,7 +426,7 @@ async function submitAvatarModeration(form, action) {
     body: form.dataset.pendingVersion ? { pendingVersion: form.dataset.pendingVersion } : {},
   });
   await state.renderRoute({ name: "admin" });
-  setMessage(action === "approve" ? "The avatar was approved." : "The avatar was rejected.");
+  setMessage(action === "approve" ? t("admin.msg.avatarApproved") : t("admin.msg.avatarRejected"));
 }
 
 // Attachment rows are per-post ids, not replaceable profile pairs, and an
@@ -426,7 +437,7 @@ async function submitAttachmentModeration(form, action) {
     method: "POST",
   });
   await state.renderRoute({ name: "admin" });
-  setMessage(action === "approve" ? "The image was approved." : "The image was rejected.");
+  setMessage(action === "approve" ? t("admin.msg.imageApproved") : t("admin.msg.imageRejected"));
 }
 export const FORM_HANDLERS = {
   "admin-resolve": (form) => submitReportResolution(form),
@@ -449,7 +460,7 @@ export const FORM_HANDLERS = {
 async function submitFilterSave(form, text) {
   await api("/api/admin/filter", { method: "PUT", body: { words: text("words") } });
   await state.renderRoute(state.activeRoute);
-  setMessage("The filter list was saved.");
+  setMessage(t("admin.msg.filterSaved"));
 }
 
 async function submitFilterBulkAdd(form, text) {
@@ -459,8 +470,8 @@ async function submitFilterBulkAdd(form, text) {
   });
   await state.renderRoute(state.activeRoute);
   setMessage(
-    data.added + (data.added === 1 ? " entry added" : " entries added") +
-    (data.skipped ? " · " + data.skipped + (data.skipped === 1 ? " duplicate skipped." : " duplicates skipped.") : "."),
+    tn("admin.msg.filterAdded", data.added) +
+    (data.skipped ? tn("admin.msg.filterSkipped", data.skipped) : "."),
   );
 }
 
@@ -470,39 +481,39 @@ export const ACTIONS = {
     "thread-pin": async (button) => {
       await api("/api/admin/threads/" + button.dataset.postId + "/pin", { method: "POST" });
       await state.renderRoute(state.activeRoute);
-      setMessage("Thread pinned.");
+      setMessage(t("admin.msg.threadPinned"));
     },
     "thread-unpin": async (button) => {
       await api("/api/admin/threads/" + button.dataset.postId + "/unpin", { method: "POST" });
       await state.renderRoute(state.activeRoute);
-      setMessage("Thread unpinned.");
+      setMessage(t("admin.msg.threadUnpinned"));
     },
     "gif-approve": async (button) => {
       await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/approve", { method: "POST" });
       await state.renderRoute(state.activeRoute);
-      setMessage("GIF approved and added to the public library.");
+      setMessage(t("admin.msg.gifApproved"));
     },
     "gif-reject": async (button) => {
       await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/reject", { method: "POST" });
       await state.renderRoute(state.activeRoute);
-      setMessage("GIF submission rejected.");
+      setMessage(t("admin.msg.gifRejected"));
     },
     "resolve-profile-report": async (button) => {
       await api("/api/admin/profile-reports/" + encodeURIComponent(button.dataset.reportId) + "/resolve", { method: "POST" });
       button.closest(".report-queue-item")?.remove();
-      setMessage("Report resolved.");
+      setMessage(t("admin.msg.reportResolved"));
     },
     "css-approve": async (button) => {
       const version = encodeURIComponent(button.dataset.version || "");
       await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/approve?version=" + version, { method: "POST" });
       await state.renderRoute(state.activeRoute);
-      setMessage("CSS approved.");
+      setMessage(t("admin.msg.cssApproved"));
     },
     "css-reject": async (button) => {
       const version = encodeURIComponent(button.dataset.version || "");
       await api("/api/admin/css/" + encodeURIComponent(button.dataset.userId) + "/reject?version=" + version, { method: "POST" });
       await state.renderRoute(state.activeRoute);
-      setMessage("CSS rejected.");
+      setMessage(t("admin.msg.cssRejected"));
     },
     // The desk's chat/DM log cleanup buttons (the site's chat page and DM
     // panel retired — the logs and their in-place deletes
@@ -510,12 +521,12 @@ export const ACTIONS = {
     "chat-delete": async (button) => {
       await api("/api/chat/" + encodeURIComponent(button.dataset.chatMessageId), { method: "DELETE" });
       button.closest("[data-chat-message-id]")?.remove();
-      setMessage("Chat message deleted.");
+      setMessage(t("admin.msg.chatDeleted"));
     },
     "dm-delete": async (button) => {
       await api("/api/dm-messages/" + encodeURIComponent(button.dataset.chatMessageId), { method: "DELETE" });
       button.closest("[data-dm-message-id]")?.remove();
-      setMessage("DM message deleted.");
+      setMessage(t("admin.msg.dmDeleted"));
     },
 };
 

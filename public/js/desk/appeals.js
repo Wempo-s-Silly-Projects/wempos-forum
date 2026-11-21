@@ -19,6 +19,7 @@
 // v4.0 plan 5 (spec step 6), task 1: the moderation desk's appeals section
 // builders — bodies moved verbatim out of ../admin.js (now dissolved).
 import { addText } from "../forms.js";
+import { currentLocale, t } from "../i18n.js";
 
 // The appeals queue (v3.1): one card per appeal. Pending appeals carry the
 // decision pair; decided ones show their outcome. Appeals are BAN appeals
@@ -28,31 +29,31 @@ function createAppealQueue(appeals, document) {
   const list = document.createElement("div");
   list.className = "appeal-list";
   if (!appeals.length) {
-    addText(document, list, "p", "There are no appeals.", "empty-state");
+    addText(document, list, "p", t("desk.appeals.empty"), "empty-state");
     return list;
   }
   for (const appeal of appeals) {
     const card = document.createElement("article");
     card.className = "appeal-card";
-    addText(document, card, "h3", `Appeal #${appeal.id} — ${appeal.username}`);
+    addText(document, card, "h3", t("desk.appeals.title", { id: appeal.id, username: appeal.username }));
     addText(document, card, "p",
-      appeal.kind === "ban" ? "Ban appeal" : "Legacy appeal",
+      appeal.kind === "ban" ? t("desk.appeals.kindBan") : t("desk.appeals.kindLegacy"),
       "muted");
-    addText(document, card, "p", "Ban reason: " + (appeal.banReason || "No reason was provided."));
+    addText(document, card, "p", t("desk.appeals.banReason", { reason: appeal.banReason || t("desk.appeals.noReason") }));
     addText(document, card, "p", '"' + appeal.body + '"', "appeal-body");
     addText(document, card, "p",
       appeal.status === "pending"
-        ? "Waiting for review — filed " + new Date(appeal.createdAt).toLocaleString()
+        ? t("desk.appeals.pending", { when: new Date(appeal.createdAt).toLocaleString(currentLocale()) })
         : appeal.status === "approved"
-          ? "Approved " + (appeal.decidedAt ? new Date(appeal.decidedAt).toLocaleString() : "")
-          : "Denied " + (appeal.decidedAt ? new Date(appeal.decidedAt).toLocaleString() : ""),
+          ? t("desk.appeals.approved", { when: appeal.decidedAt ? new Date(appeal.decidedAt).toLocaleString(currentLocale()) : "" })
+          : t("desk.appeals.denied", { when: appeal.decidedAt ? new Date(appeal.decidedAt).toLocaleString(currentLocale()) : "" }),
       "muted");
     if (appeal.status === "pending") {
       const actions = document.createElement("div");
       actions.className = "form-actions";
       for (const [decision, label, className] of [
-        ["approve", "Approve appeal", "button button-primary"],
-        ["deny", "Deny appeal", "button button-danger"],
+        ["approve", t("desk.appeals.approveButton"), "button button-primary"],
+        ["deny", t("desk.appeals.denyButton"), "button button-danger"],
       ]) {
         const form = document.createElement("form");
         form.dataset.form = "admin-appeal";

@@ -19,6 +19,7 @@
 // v4.0 plan 5 (spec step 6), task 1: the moderation desk's chat + DM logs section
 // builders — bodies moved verbatim out of ../admin.js (now dissolved).
 import { addText } from "../forms.js";
+import { currentLocale, t } from "../i18n.js";
 
 // DM log (v3.1): the desk's full 1:1 stream — newest first, both participants
 // named per message ("A ↔ B"), banned authors marked. Same review-and-delete
@@ -28,7 +29,7 @@ function createDmLog(messages, document) {
   const list = document.createElement("div");
   list.className = "chat-log";
   if (!messages.length) {
-    addText(document, list, "p", "There are no DMs yet.", "empty-state");
+    addText(document, list, "p", t("desk.chatLog.dmEmpty"), "empty-state");
     return list;
   }
   for (const message of messages) {
@@ -41,11 +42,11 @@ function createDmLog(messages, document) {
       (message.between?.[0] ?? "?") + " ↔ " + (message.between?.[1] ?? "?"),
       "chat-log-pair");
     const when = document.createElement("time");
-    when.textContent = new Date(message.createdAt).toLocaleString() + " — by " + message.author.username;
+    when.textContent = t("desk.chatLog.dmWhen", { when: new Date(message.createdAt).toLocaleString(currentLocale()), username: message.author.username });
     head.append(when);
     row.append(head);
     if (message.authorBanned) {
-      addText(document, row, "p", "Banned author", "chat-log-banned");
+      addText(document, row, "p", t("desk.chatLog.bannedAuthor"), "chat-log-banned");
     }
     addText(document, row, "p", message.body, "chat-log-body");
     const remove = document.createElement("button");
@@ -53,7 +54,7 @@ function createDmLog(messages, document) {
     remove.className = "button button-danger";
     remove.dataset.action = "dm-delete";
     remove.dataset.chatMessageId = String(message.id);
-    remove.textContent = "Delete message";
+    remove.textContent = t("desk.chatLog.deleteMessage");
     row.append(remove);
     list.append(row);
   }
@@ -70,7 +71,7 @@ function createChatLog(messages, document) {
   const list = document.createElement("div");
   list.className = "chat-log";
   if (!messages.length) {
-    addText(document, list, "p", "The chat has no messages yet.", "empty-state");
+    addText(document, list, "p", t("desk.chatLog.chatEmpty"), "empty-state");
     return list;
   }
   for (const message of messages) {
@@ -86,14 +87,14 @@ function createChatLog(messages, document) {
     head.append(link);
     if (message.author.role === "owner" || message.author.role === "admin") {
       addText(document, head, "span",
-        message.author.role === "owner" ? "Owner" : "Admin",
+        message.author.role === "owner" ? t("desk.chatLog.owner") : t("desk.chatLog.admin"),
         "role-badge role-badge-" + message.author.role);
     }
     if (message.authorBanned) {
-      addText(document, head, "span", "Banned author — hidden from chat", "chat-log-banned");
+      addText(document, head, "span", t("desk.chatLog.bannedHidden"), "chat-log-banned");
     }
     const when = document.createElement("time");
-    when.textContent = new Date(message.createdAt).toLocaleString();
+    when.textContent = new Date(message.createdAt).toLocaleString(currentLocale());
     head.append(when);
     row.append(head);
     addText(document, row, "p", message.body, "chat-log-body");
@@ -102,7 +103,7 @@ function createChatLog(messages, document) {
     remove.className = "button button-danger";
     remove.dataset.action = "chat-delete";
     remove.dataset.chatMessageId = String(message.id);
-    remove.textContent = "Delete message";
+    remove.textContent = t("desk.chatLog.deleteMessage");
     row.append(remove);
     list.append(row);
   }

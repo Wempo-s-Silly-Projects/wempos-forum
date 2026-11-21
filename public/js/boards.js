@@ -16,6 +16,7 @@
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
 
+import { t } from "./i18n.js";
 // Category set (v3.1, Discourse-style): one list shared by the sidebar, the
 // composer's category picker, and the /c/<slug> routes. The slugs are the
 // STORED posts.board values — api/posts.mjs whitelists the identical set
@@ -24,43 +25,44 @@
 // staffOnly: the Updates category — everyone reads and replies, but only
 // admins and the owner may start topics there (server-enforced 403; the
 // composer is simply not offered to members).
+// label/blurb are getters so they translate at read time, never at import.
 export const BOARDS = [
   {
     slug: "general",
-    label: "General",
-    blurb: "Everyday chatter — talk about whatever's on your mind.",
+    get label() { return t("boards.generalLabel"); },
+    get blurb() { return t("boards.generalBlurb"); },
   },
   {
     slug: "game-dev",
-    label: "Game development",
-    blurb: "Devlogs, works in progress, and hangout builds — see what everyone is working on.",
+    get label() { return t("boards.gameDevLabel"); },
+    get blurb() { return t("boards.gameDevBlurb"); },
   },
   {
     slug: "showcase",
-    label: "Showcase",
-    blurb: "Show off what you made — games, art, sites, anything.",
+    get label() { return t("boards.showcaseLabel"); },
+    get blurb() { return t("boards.showcaseBlurb"); },
   },
   {
     slug: "help",
-    label: "Bugs & Troubleshooting & Help",
-    blurb: "Something broke or you're stuck? Ask here.",
+    get label() { return t("boards.helpLabel"); },
+    get blurb() { return t("boards.helpBlurb"); },
   },
   {
     slug: "suggestions",
-    label: "Suggestions",
-    blurb: "Ideas for the forum — sorted by likes, and admins can mark them resolved or declined.",
+    get label() { return t("boards.suggestionsLabel"); },
+    get blurb() { return t("boards.suggestionsBlurb"); },
   },
   {
     slug: "updates",
-    label: "Updates",
-    blurb: "Site news from the admins. Everyone can read and reply; only admins can post.",
+    get label() { return t("boards.updatesLabel"); },
+    get blurb() { return t("boards.updatesBlurb"); },
     staffOnly: true,
   },
 ];
 
 export const BOARD_BY_SLUG = Object.fromEntries(BOARDS.map((board) => [board.slug, board]));
 
-export const boardLabel = (slug) => BOARD_BY_SLUG[slug]?.label || "General";
+export const boardLabel = (slug) => BOARD_BY_SLUG[slug]?.label || t("boards.generalLabel");
 
 // The composer's category picker: every category the given session member may
 // start a topic in (staff-only categories appear for staff alone).

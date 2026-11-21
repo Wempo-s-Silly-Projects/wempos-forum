@@ -25,13 +25,14 @@ import { api } from "./api.js";
 import { addSubmit, createPanel, element, main, setMessage } from "./dom.js";
 import { createTextarea } from "./forms.js";
 import { state } from "./state.js";
+import { currentLocale, t } from "./i18n.js";
 
 const WALL_MAX_CHARS = 280;
 
 // Builds the wall panel and fills it from the API (the caller does not
 // await — the profile render never blocks on the wall fetch).
 export async function renderProfileWall(profile) {
-  const panel = createPanel("Wall", "Say something nice on this member's wall. The profile owner can pin posts — nothing else.");
+  const panel = createPanel(t("wall.title"), t("wall.intro"));
   panel.classList.add("profile-wall");
   main.append(panel);
   const viewer = state.currentUser;
@@ -44,22 +45,22 @@ export async function renderProfileWall(profile) {
     form.dataset.form = "wall-post";
     form.dataset.ownerId = String(profile.id);
     form.append(createTextarea(document, {
-      id: `${profile.id}-wall-body`, name: "body", label: "Post to the wall",
+      id: `${profile.id}-wall-body`, name: "body", label: t("wall.postLabel"),
       rows: 3, maxLength: WALL_MAX_CHARS, required: true, counter: true,
     }));
-    addSubmit(form, "Post to wall");
+    addSubmit(form, t("wall.postButton"));
     panel.append(form);
   }
   let data;
   try {
     data = await api("/api/users/" + encodeURIComponent(profile.id) + "/wall");
   } catch (error) {
-    panel.append(element("p", "empty-state", "The wall could not be loaded."));
+    panel.append(element("p", "empty-state", t("wall.loadFailed")));
     return;
   }
   const list = element("div", "wall-list");
   if (!data.wall.length) {
-    list.append(element("p", "empty-state", viewer ? "Be the first to write on the wall!" : "The wall is empty."));
+    list.append(element("p", "empty-state", viewer ? t("wall.emptyViewer") : t("wall.emptyGuest")));
   }
   for (const post of data.wall) {
     const row = element("div", "wall-post");
@@ -71,12 +72,12 @@ export async function renderProfileWall(profile) {
     header.append(author);
     if (post.author.role === "owner" || post.author.role === "admin") {
       header.append(element("span", "role-badge role-badge-" + post.author.role,
-        post.author.role === "owner" ? "Owner" : "Admin"));
+        post.author.role === "owner" ? t("wall.roleOwner") : t("wall.roleAdmin")));
     }
-    if (post.pinnedAt) header.append(element("span", "post-pinned", "Pinned"));
+    if (post.pinnedAt) header.append(element("span", "post-pinned", t("wall.pinned")));
     const when = element("time", "wall-post-time");
     when.dateTime = post.createdAt;
-    when.textContent = new Date(post.createdAt).toLocaleString();
+    when.textContent = new Date(post.createdAt).toLocaleString(currentLocale());
     header.append(when);
     row.append(header);
     const body = element("p", "wall-post-body", post.body);
@@ -85,12 +86,12 @@ export async function renderProfileWall(profile) {
     // payload's pinnedAt, so a re-render refetch decides the state.
     if (isOwner) {
       const pin = element("button", "button button-quiet",
-        post.pinnedAt ? "Unpin" : "Pin");
+        post.pinnedAt ? t("wall.unpin") : t("wall.pin"));
       pin.type = "button";
       pin.dataset.action = post.pinnedAt ? "wall-unpin" : "wall-pin";
       pin.dataset.wallPostId = String(post.id);
       pin.setAttribute("aria-label",
-        (post.pinnedAt ? "Unpin" : "Pin") + " this wall post");
+        post.pinnedAt ? t("wall.unpinAria") : t("wall.pinAria"));
       row.append(pin);
     }
     list.append(row);
@@ -107,7 +108,7 @@ export const FORM_HANDLERS = {
       body: { body: text("body") },
     });
     await state.renderRoute(state.activeRoute);
-    setMessage("Posted to the wall.");
+    setMessage(t("wall.posted"));
   },
 };
 
@@ -115,11 +116,11 @@ export const ACTIONS = {
   "wall-pin": async (button) => {
     await api("/api/wall/" + encodeURIComponent(button.dataset.wallPostId) + "/pin", { method: "POST" });
     await state.renderRoute(state.activeRoute);
-    setMessage("Pinned to the wall.");
+    setMessage(t("wall.pinnedMsg"));
   },
   "wall-unpin": async (button) => {
     await api("/api/wall/" + encodeURIComponent(button.dataset.wallPostId) + "/pin", { method: "DELETE" });
     await state.renderRoute(state.activeRoute);
-    setMessage("Unpinned from the wall.");
+    setMessage(t("wall.unpinnedMsg"));
   },
 };

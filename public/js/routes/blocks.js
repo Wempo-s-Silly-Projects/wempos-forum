@@ -25,10 +25,11 @@
 import { api } from "../api.js";
 import { confirmDialog, createPanel, element, openConfirmDialog, setMessage } from "../dom.js";
 import { state } from "../state.js";
+import { t } from "../i18n.js";
 
 export async function renderBlockedSettings(account, session) {
-  const panel = createPanel("Blocked members",
-    "Blocked members cannot see your profile or posts, and cannot reply, react, message, or sign your wall — and you cannot see theirs.");
+  const panel = createPanel(t("blocks.title"),
+    t("blocks.description"));
   const list = element("div", "blocked-list");
   panel.append(list);
   account.append(panel);
@@ -36,27 +37,27 @@ export async function renderBlockedSettings(account, session) {
   try {
     data = await api("/api/me/blocks");
   } catch {
-    list.append(element("p", "empty-state", "Could not load your block list."));
+    list.append(element("p", "empty-state", t("blocks.loadError")));
     return;
   }
   if (!versionCurrent(session)) return;
   list.replaceChildren();
   if (!data.blocks.length) {
-    list.append(element("p", "empty-state", "You have not blocked any members."));
+    list.append(element("p", "empty-state", t("blocks.empty")));
     return;
   }
   for (const row of data.blocks) {
     const item = element("div", "blocked-row");
     item.append(element("span", "blocked-name", "@" + row.username));
     if (row.ownDirection) {
-      const button = element("button", "button button-secondary", "Unblock");
+      const button = element("button", "button button-secondary", t("common.unblock"));
       button.type = "button";
       button.dataset.action = "unblock-user";
       button.dataset.userId = String(row.id);
       button.dataset.username = row.username;
       item.append(button);
     } else {
-      item.append(element("span", "muted", "Blocked by them"));
+      item.append(element("span", "muted", t("blocks.blockedByThem")));
     }
     list.append(item);
   }
@@ -70,15 +71,15 @@ function versionCurrent(session) {
 
 async function unblock(button) {
   const userId = Number(button.dataset.userId);
-  const username = button.dataset.username || "this member";
+  const username = button.dataset.username || t("blocks.thisMember");
   openConfirmDialog(
-    `Unblock @${username}?`,
-    "They will be able to see your profile and posts, and interact with them again (unless you take other action).",
+    t("blocks.unblockTitle", { username }),
+    t("blocks.unblockMessage"),
     "unblock",
     async () => {
       await api(`/api/users/${userId}/block`, { method: "DELETE" });
       confirmDialog.close();
-      setMessage(`Unblocked @${username}.`);
+      setMessage(t("blocks.unblocked", { username }));
       await state.renderRoute(state.activeRoute);
     },
   );

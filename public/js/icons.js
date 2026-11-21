@@ -16,6 +16,7 @@
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
 
+import { t } from "./i18n.js";
 // Inline SVG icon kit (v2.4.1): single-stroke geometric icons drawn via
 // createElementNS — CSP-safe (no library, no innerHTML) and token-colored
 // through `currentColor`. Every icon is decorative inside an accessible
@@ -58,18 +59,17 @@ const ICON_PATHS = {
   bookmarks: ["M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z", "M9 7h6"],
 };
 
-const ICON_ARIA = {
-  logout: "Log out",
-  bell: "Notifications",
-  person: "Profile",
-  magnifier: "Search",
-  archive: "Archive",
-  shield: "Moderation",
-  lightbulb: "Suggestions",
-  bookmarks: "Save",
-  trophy: "Leaderboard",
-  trophy: "Leaderboard",
-};
+const iconAria = (name) => ({
+  logout: t("icons.logout"),
+  bell: t("icons.bell"),
+  person: t("icons.profile"),
+  magnifier: t("icons.search"),
+  archive: t("icons.archive"),
+  shield: t("icons.moderation"),
+  lightbulb: t("icons.suggestions"),
+  bookmarks: t("icons.save"),
+  trophy: t("icons.leaderboard"),
+})[name];
 
 export const ICON_NAMES = Object.keys(ICON_PATHS);
 
@@ -78,7 +78,7 @@ export const ICON_NAMES = Object.keys(ICON_PATHS);
 // ICON_NAMES keys only.
 export function createIcon(document, name) {
   const paths = ICON_PATHS[name];
-  if (!paths) throw new Error("No such icon: " + name);
+  if (!paths) throw new Error("No such icon: " + name); // i18n-ignore
   const svg = document.createElementNS(SVG_NS, "svg");
   svg.setAttribute("viewBox", "0 0 24 24");
   svg.setAttribute("aria-hidden", "true");
@@ -92,13 +92,13 @@ export function createIcon(document, name) {
 }
 
 // An icon-only button inheriting the quiet-button look. The actionable label
-// lives in aria-label (from ICON_ARIA or the caller), never as visible text.
+// lives in aria-label (from iconAria or the caller), never as visible text.
 export function iconButton(document, name, { className, ariaLabel, dataset, tagName } = {}) {
   const element = document.createElement(tagName || "button");
   if (tagName === "a") element.href = dataset?.href || "#";
   element.type = tagName === "a" ? undefined : "button";
   element.className = className || "icon-button";
-  const label = ariaLabel || ICON_ARIA[name];
+  const label = ariaLabel || iconAria(name);
   if (label) {
     element.setAttribute("aria-label", label);
     // Native hover tooltip: the button's name, per the owner's ask.

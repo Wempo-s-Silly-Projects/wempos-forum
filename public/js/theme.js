@@ -40,9 +40,10 @@ function readPreference(storage) {
 
 function readOsPreference(doc) {
   const view = doc.defaultView;
-  return view !== null && !!view.matchMedia("(prefers-color-scheme: dark)").matches;
+  return view !== null && !!view.matchMedia("(prefers-color-scheme: dark)").matches; // i18n-ignore
 }
 
+import { t } from "./i18n.js";
 import { createIcon } from "./icons.js";
 import { rethemeTurnstile } from "./turnstile.js";
 
@@ -82,10 +83,10 @@ export function initTheme(doc, storage) {
       // reflects the CURRENT mode — sun in light, moon in dark (owner spec).
       toggle.setAttribute(
         "aria-label",
-        theme === "dark" ? "Switch to light theme" : "Switch to dark theme",
+        theme === "dark" ? t("theme.switchToLight") : t("theme.switchToDark"),
       );
       toggle.replaceChildren(createIcon(doc, theme === "dark" ? "moon" : "sun"));
-      toggle.title = theme === "dark" ? "Switch to light theme" : "Switch to dark theme";
+      toggle.title = theme === "dark" ? t("theme.switchToLight") : t("theme.switchToDark");
       rethemeTurnstile();
     }
   };

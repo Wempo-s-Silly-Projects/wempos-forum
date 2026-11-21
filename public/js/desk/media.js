@@ -19,6 +19,7 @@
 // v4.0 plan 5 (spec step 6), task 1: the moderation desk's media review queues (attachments, avatars, GIFs) section
 // builders — bodies moved verbatim out of ../admin.js (now dissolved).
 import { addText } from "../forms.js";
+import { currentLocale, t, tn } from "../i18n.js";
 
 // Pending image moderation queue (plan Task 6/7): oldest uploads first from
 // GET /api/admin/attachments. Mirrors the avatar queue above, sized down to a
@@ -28,7 +29,7 @@ function createAttachmentQueue(attachments, document) {
   const list = document.createElement("div");
   list.className = "attachment-queue";
   if (!attachments.length) {
-    addText(document, list, "p", "No images are awaiting review.", "empty-state");
+    addText(document, list, "p", t("desk.media.attachmentsEmpty"), "empty-state");
     return list;
   }
   for (const attachment of attachments) {
@@ -36,23 +37,23 @@ function createAttachmentQueue(attachments, document) {
     card.className = "attachment-card";
     addText(document, card, "h3", attachment.uploader);
     addText(document, card, "p",
-      `Image for post #${attachment.postId} · uploaded ${new Date(attachment.createdAt).toLocaleString()}`);
+      t("desk.media.attachmentPost", { postId: attachment.postId, when: new Date(attachment.createdAt).toLocaleString(currentLocale()) }));
     addText(document, card, "p",
       // sizeBytes/chunkCount come from SQL aggregation over the attachment's
       // D1 chunks (display-only; size is what moderation acts on).
-      `${attachment.mime} · ${Math.max(1, Math.ceil(attachment.sizeBytes / 1024))} KB · ${attachment.chunkCount} chunk${attachment.chunkCount === 1 ? "" : "s"}`, "muted");
+      tn("desk.media.attachmentMeta", attachment.chunkCount, { mime: attachment.mime, kb: Math.max(1, Math.ceil(attachment.sizeBytes / 1024)) }), "muted");
     const image = document.createElement("img");
     image.className = "attachment-preview";
     image.src = `/api/attachments/${attachment.id}`;
-    image.alt = `Pending image from ${attachment.uploader}`;
+    image.alt = t("desk.media.attachmentAlt", { uploader: attachment.uploader });
     image.loading = "lazy";
     image.addEventListener("error", () => image.remove());
     card.append(image);
     const actions = document.createElement("div");
     actions.className = "form-actions";
     for (const [formName, label, className] of [
-      ["admin-attachment-approve", "Approve", "button button-primary"],
-      ["admin-attachment-reject", "Reject", "button button-danger"],
+      ["admin-attachment-approve", t("desk.media.approve"), "button button-primary"],
+      ["admin-attachment-reject", t("desk.media.reject"), "button button-danger"],
     ]) {
       const form = document.createElement("form");
       form.dataset.form = formName;
@@ -77,25 +78,25 @@ function createAvatarQueue(avatars, document) {
   const list = document.createElement("div");
   list.className = "avatar-queue";
   if (!avatars.length) {
-    addText(document, list, "p", "No avatars are awaiting review.", "empty-state");
+    addText(document, list, "p", t("desk.media.avatarsEmpty"), "empty-state");
     return list;
   }
   for (const avatar of avatars) {
     const card = document.createElement("article");
     card.className = "avatar-card";
     addText(document, card, "h3", avatar.username);
-    addText(document, card, "p", `Uploaded ${new Date(avatar.uploadedAt).toLocaleString()}`);
+    addText(document, card, "p", t("desk.media.avatarUploaded", { when: new Date(avatar.uploadedAt).toLocaleString(currentLocale()) }));
     const image = document.createElement("img");
     image.className = "avatar avatar-preview";
     image.src = avatar.avatarUrl;
-    image.alt = `Pending avatar of ${avatar.username}`;
+    image.alt = t("desk.media.avatarAlt", { username: avatar.username });
     image.addEventListener("error", () => image.remove());
     card.append(image);
     const actions = document.createElement("div");
     actions.className = "form-actions";
     for (const [formName, label, className] of [
-      ["admin-avatar-approve", "Approve", "button button-primary"],
-      ["admin-avatar-reject", "Reject", "button button-danger"],
+      ["admin-avatar-approve", t("desk.media.approve"), "button button-primary"],
+      ["admin-avatar-reject", t("desk.media.reject"), "button button-danger"],
     ]) {
       const form = document.createElement("form");
       form.dataset.form = formName;
@@ -121,21 +122,21 @@ function createGifQueue(gifs, document) {
   const list = document.createElement("div");
   list.className = "gif-review-queue";
   if (!gifs.length) {
-    addText(document, list, "p", "No GIFs are awaiting review.", "empty-state");
+    addText(document, list, "p", t("desk.media.gifsEmpty"), "empty-state");
     return list;
   }
   for (const gif of gifs) {
     const card = document.createElement("article");
     card.className = "attachment-card gif-review-card";
-    addText(document, card, "p", `${gif.uploader} · uploaded ${new Date(gif.createdAt).toLocaleString()}`);
+    addText(document, card, "p", t("desk.media.gifUploaded", { uploader: gif.uploader, when: new Date(gif.createdAt).toLocaleString(currentLocale()) }));
     const image = document.createElement("img");
     image.src = gif.previewUrl;
-    image.alt = "GIF submitted for moderation";
+    image.alt = t("desk.media.gifAlt");
     image.loading = "lazy";
     image.addEventListener("error", () => { image.hidden = true; });
     const actions = document.createElement("div");
     actions.className = "form-actions";
-    for (const [decision, label] of [["approve", "Approve GIF"], ["reject", "Reject GIF"]]) {
+    for (const [decision, label] of [["approve", t("desk.media.approveGif")], ["reject", t("desk.media.rejectGif")]]) {
       const button = document.createElement("button");
       button.type = "button";
       button.className = decision === "approve" ? "button" : "button button-danger";

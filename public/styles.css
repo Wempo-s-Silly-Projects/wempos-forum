@@ -2743,3 +2743,16 @@ dialog h2 {
     width: 100%;
   }
 }
+
+/* Wave i18n (v4.6.0): the header language menu. Native select, sized to sit
+   in the account nav at icon-button height; works the same in rtl. */
+.language-picker select {
+  height: 2.5rem;
+  max-width: 9.5rem;
+  padding: 0 0.5rem;
+  color: var(--ink);
+  background: var(--field);
+  border: 1px solid var(--field-line);
+  border-radius: var(--button-radius);
+  cursor: pointer;
+}

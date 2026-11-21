@@ -16,6 +16,7 @@
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
 
+import { t } from "./i18n.js";
 // Composer body limits, shared by forms.js (live counter wiring) and app.js
 // (the composer textarea's maxLength). DOM-free at import time and at runtime —
 // no document/window access anywhere — so node --test can load this module
@@ -37,5 +38,5 @@ const groupDigits = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ",
 // keeps the label sensible if one ever reaches this function.
 export function charsLeftLabel(maxChars, value) {
   const remaining = Math.max(0, Number(maxChars) - String(value ?? "").length);
-  return groupDigits(remaining) + " chars left";
+  return t("limits.charsLeft", { remaining: groupDigits(remaining) });
 }

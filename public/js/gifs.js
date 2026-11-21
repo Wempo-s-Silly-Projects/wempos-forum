@@ -23,6 +23,7 @@
 // apply identically. Lazy <img> in the grid (modern-web: offscreen media
 // defers its network request).
 import { MAX_COMPOSER_FILES } from "./attachments.js";
+import { t } from "./i18n.js";
 
 export const GIF_PICKER_DIALOG_ID = "gif-picker";
 
@@ -55,12 +56,12 @@ export function renderGifThumbs(document, form) {
     const img = document.createElement("img");
     img.src = "/api/gifs/" + encodeURIComponent(gifId);
     img.loading = "lazy";
-    img.alt = "Selected image";
+    img.alt = t("gifs.selectedImage");
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "gif-remove";
     remove.textContent = "×";
-    remove.setAttribute("aria-label", "Remove this image");
+    remove.setAttribute("aria-label", t("gifs.removeImage"));
     remove.dataset.action = "remove-gif";
     remove.dataset.gifId = gifId;
     chip.append(img, remove);
