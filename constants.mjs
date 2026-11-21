@@ -107,6 +107,11 @@ export const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turns
 export const DM_GROUP_MAX_MEMBERS = 10;
 export const DM_GROUP_NAME_MAX_CHARS = 60;
 
+// v4.10: the 1:1 half of GET /api/dm/threads lists the newest N threads, and
+// the groups half pages N at a time behind a ?before= cursor.
+export const DM_THREAD_LIST_LIMIT = 50;
+export const DM_GROUP_LIST_LIMIT = 50;
+
 // v4.7 DM images: a message whose whole body is this token renders the
 // conversation's image from /api/dm/images/:id. Only the upload routes write
 // it; a typed text body of this shape is refused.

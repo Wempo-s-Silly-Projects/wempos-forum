@@ -31,13 +31,17 @@ import { publicRole } from "./core/roles.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 import { DM_MAX_BODY_CHARS, dmMessageShape, isoTime } from "./chat.mjs";
-import { DM_GROUP_MAX_MEMBERS, DM_GROUP_NAME_MAX_CHARS, DM_IMAGE_TOKEN_PATTERN } from "../constants.mjs";
+import {
+  DM_GROUP_LIST_LIMIT, DM_GROUP_MAX_MEMBERS, DM_GROUP_NAME_MAX_CHARS, DM_IMAGE_TOKEN_PATTERN,
+} from "../constants.mjs";
 
 const GROUP_MESSAGE_PAGE_LIMIT = 50;
 const GROUP_PREVIEW_MAX_CHARS = 80;
-// Adds need no consent, so the thread list's group key is bounded (and the
-// member IN-list stays well under D1's 100 bound parameters).
-const GROUP_LIST_LIMIT = 50;
+// Adds need no consent, so the thread list's group key is paged
+// DM_GROUP_LIST_LIMIT at a time (and the member IN-list stays well under
+// D1's 100 bound parameters). The cursor is "<activity seconds>.<group id>"
+// of the page's last group — the same key the list sorts on.
+const GROUP_CURSOR_PATTERN = /^([0-9]{1,12})\.([0-9]{1,15})$/;
 const GROUP_ROUTE = /^\/api\/dm\/groups\/([0-9]{1,15})$/;
 const GROUP_READ_MARK_ROUTE = /^\/api\/dm\/groups\/([0-9]{1,15})\/read$/;
 const GROUP_LEAVE_ROUTE = /^\/api\/dm\/groups\/([0-9]{1,15})\/leave$/;
@@ -88,43 +92,80 @@ export function groupMessageStatements(db, groupId, userId, body, now) {
   ];
 }
 
+// Parses the ?before= group cursor; null when absent, 400 when malformed.
+export function parseGroupCursor(raw) {
+  if (raw === null || raw === "") return null;
+  const match = GROUP_CURSOR_PATTERN.exec(raw);
+  if (!match) throw new HttpError(400, "That list cursor is invalid.");
+  return { sortAt: Number(match[1]), id: Number(match[2]) };
+}
+
+// Visible unread per group (the visibility law applied to the counters): the
+// stored counter says how many of the newest messages by OTHER members are
+// unread; only those whose author is not actively banned and not in a block
+// pair with the viewer count. Groups with a zero counter are skipped outright.
+const VISIBLE_UNREAD_SQL =
+  "SELECT r.group_id, COUNT(*) AS unread FROM (" +
+  "SELECT m.group_id, m.user_id, ROW_NUMBER() OVER (PARTITION BY m.group_id ORDER BY m.id DESC) AS rn " +
+  "FROM dm_group_messages m WHERE m.user_id <> ? AND m.group_id IN " +
+  "(SELECT group_id FROM dm_group_members WHERE user_id = ? AND unread > 0)) r " +
+  "JOIN dm_group_members gm ON gm.group_id = r.group_id AND gm.user_id = ? " +
+  "WHERE r.rn <= gm.unread AND NOT " + activeBanSql("r.user_id") + " AND NOT " + blockPairSql("r.user_id") +
+  " GROUP BY r.group_id";
+
+async function visibleGroupUnreadMap(db, viewerId) {
+  const rows = (await db.prepare(VISIBLE_UNREAD_SQL)
+    .bind(viewerId, viewerId, viewerId, viewerId, viewerId).all()).results || [];
+  return new Map(rows.map((row) => [Number(row.group_id), Number(row.unread)]));
+}
+
 // The signed-in member's groups for GET /api/dm/threads: newest activity
-// first, the preview honoring the same ban/block hiding as the read.
-export async function listViewerGroups(env, viewerId) {
+// first, one page behind an optional cursor, the preview honoring the same
+// ban/block hiding as the read. Returns { groups, cursor } — cursor is null
+// on the last page.
+export async function listViewerGroups(env, viewerId, cursor = null) {
   const db = env.FORUM_DB;
   const lastVisible = (column) =>
     "(SELECT m." + column + " FROM dm_group_messages m WHERE m.group_id = g.id AND " +
     VISIBLE_GROUP_MESSAGE_SQL + " ORDER BY m.id DESC LIMIT 1)";
-  const rows = (await db.prepare(
-    "SELECT g.id, g.name, g.created_at, gm.unread, " +
+  const pageRows = (await db.prepare(
+    "SELECT * FROM (SELECT g.id, g.name, g.created_at, " +
     lastVisible("body") + " AS last_body, " + lastVisible("created_at") + " AS last_at " +
-    "FROM dm_group_members gm JOIN dm_groups g ON g.id = gm.group_id WHERE gm.user_id = ? " +
-    "ORDER BY COALESCE(last_at, g.created_at) DESC, g.id DESC LIMIT " + GROUP_LIST_LIMIT,
-  ).bind(viewerId, viewerId, viewerId, viewerId, viewerId).all()).results || [];
-  if (rows.length === 0) return [];
+    "FROM dm_group_members gm JOIN dm_groups g ON g.id = gm.group_id WHERE gm.user_id = ?) " +
+    "WHERE ? IS NULL OR COALESCE(last_at, created_at) < ? OR (COALESCE(last_at, created_at) = ? AND id < ?) " +
+    "ORDER BY COALESCE(last_at, created_at) DESC, id DESC LIMIT " + (DM_GROUP_LIST_LIMIT + 1),
+  ).bind(viewerId, viewerId, viewerId, viewerId, viewerId,
+    cursor?.sortAt ?? null, cursor?.sortAt ?? null, cursor?.sortAt ?? null, cursor?.id ?? null).all()).results || [];
+  const rows = pageRows.slice(0, DM_GROUP_LIST_LIMIT);
+  if (rows.length === 0) return { groups: [], cursor: null };
+  const last = rows[rows.length - 1];
+  const nextCursor = pageRows.length > DM_GROUP_LIST_LIMIT
+    ? Number(last.last_at ?? last.created_at) + "." + Number(last.id) : null;
+  const unreadByGroup = await visibleGroupUnreadMap(db, viewerId);
   const groupIds = rows.map((row) => Number(row.id));
   const memberRows = (await db.prepare(
     MEMBER_ROWS_SQL + " AND gm.group_id IN (" + groupIds.map(() => "?").join(", ") + ") " +
     "ORDER BY u.username_key",
   ).bind(...groupIds).all()).results || [];
-  return rows.map((row) => {
+  const groups = rows.map((row) => {
     const preview = String(row.last_body ?? "").trim();
     return {
       id: Number(row.id),
       name: row.name,
       members: memberRows.filter((member) => Number(member.group_id) === Number(row.id)).map(shapeMember),
-      unread: Number(row.unread),
+      unread: unreadByGroup.get(Number(row.id)) ?? 0,
       lastMessageAt: row.last_at ? isoTime(row.last_at) : null,
       lastMessagePreview: preview.slice(0, GROUP_PREVIEW_MAX_CHARS),
     };
   });
+  return { groups, cursor: nextCursor };
 }
 
+// The lobby badge's group half: the same visible counts, summed.
 export async function viewerGroupUnread(db, viewerId) {
-  const row = await db.prepare(
-    "SELECT COALESCE(SUM(unread), 0) AS unread FROM dm_group_members WHERE user_id = ?",
-  ).bind(viewerId).first();
-  return Number(row?.unread || 0);
+  let total = 0;
+  for (const unread of (await visibleGroupUnreadMap(db, viewerId)).values()) total += unread;
+  return total;
 }
 
 // Resolves one invitee by username key: must exist, must not be the actor,
@@ -295,8 +336,10 @@ async function loadManagedGroup(request, env, groupId) {
   return { session, group };
 }
 
-// POST /api/dm/groups/:id/members {username} — the cap rides the INSERT's
-// own WHERE, so two racing adds can never overfill the group.
+// POST /api/dm/groups/:id/members {username} — the cap AND the creator's
+// own membership ride the INSERT's WHERE, so two racing adds can never
+// overfill the group, and an add that loses the race to the creator's
+// last-member leave (group deleted) inserts nothing and answers the 404.
 async function handleGroupAddRoute(request, env, url, path, method) {
   const match = path.match(GROUP_MEMBERS_ROUTE);
   if (!match || method !== "POST") return null;
@@ -312,9 +355,14 @@ async function handleGroupAddRoute(request, env, url, path, method) {
   }
   const added = await env.FORUM_DB.prepare(
     "INSERT INTO dm_group_members (group_id, user_id, joined_at) SELECT ?, ?, ? " +
-    "WHERE (SELECT COUNT(*) FROM dm_group_members WHERE group_id = ?) < ?",
-  ).bind(groupId, inviteeId, nowSeconds(), groupId, DM_GROUP_MAX_MEMBERS).run();
+    "WHERE EXISTS (SELECT 1 FROM dm_group_members WHERE group_id = ? AND user_id = ?) " +
+    "AND (SELECT COUNT(*) FROM dm_group_members WHERE group_id = ?) < ?",
+  ).bind(groupId, inviteeId, nowSeconds(), groupId, Number(session.user.id), groupId, DM_GROUP_MAX_MEMBERS).run();
   if (Number(added.meta?.changes) !== 1) {
+    const stillMember = await env.FORUM_DB.prepare(
+      "SELECT 1 FROM dm_group_members WHERE group_id = ? AND user_id = ? LIMIT 1",
+    ).bind(groupId, Number(session.user.id)).first();
+    if (!stillMember) throw new HttpError(404, NOT_AVAILABLE);
     throw new HttpError(400, "Groups can have up to " + DM_GROUP_MAX_MEMBERS + " members.");
   }
   return json({ ok: true, member: shapeMember(invitee) });
