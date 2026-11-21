@@ -5,9 +5,9 @@ When you're signed in, every page has a chat button in the bottom-right corner. 
 - **Lobby**: one public room for everyone on the forum.
 - **Messages**: private direct messages (DMs), one-to-one or in a group of up to 10 people. You can send images in any DM.
 
-Who's Online is a separate small card in the bottom-left corner. It lists the members active right now and is hidden on narrow screens (640px and below).
+Who's Online is a separate small card in the bottom-left corner. It lists the members active right now, split into Staff (owner and admins) and Members with a count on each heading, and is hidden on narrow screens (640px and below). It shows up to 12 names, then "+N more".
 
-All of this lives in `api/chat.mjs`, `api/dm-groups.mjs` and `api/dm-images.mjs` (server), plus `public/js/chat-widget*.js`, `public/js/dm-extras.js` and `public/js/who-online.js` (browser). The tables come from migrations `0032_presence_chat.sql` and `0038_dm_unread_counters.sql`.
+All of this lives in `api/chat.mjs`, `api/dm-groups.mjs` and `api/dm-images.mjs` (server), plus `public/js/chat-widget*.js`, `public/js/dm-extras.js`, `public/js/chat-mutes.js`, `public/js/group-rename.js`, `public/js/who-online.js` and `public/js/who-online-groups.js` (browser). The tables come from migrations `0032_presence_chat.sql` and `0038_dm_unread_counters.sql`. Migration `0059_forum_perf_indexes.sql` adds an index that makes the chat list and the unread counts faster to load.
 
 ## Lobby
 
@@ -31,7 +31,7 @@ The lobby counts someone as online if they were seen in the last 3 minutes.
 
 ## Group chats
 
-A group holds up to 10 members, counting the person who made it, and can have a name of up to 60 characters. Whoever made the group adds and removes members. Anyone can leave, and the group is deleted when its last member leaves. Group chats show up in the same Messages list as one-to-one chats.
+A group holds up to 10 members, counting the person who made it, and can have a name of up to 60 characters. Whoever made the group adds and removes members, and can rename it. Anyone can leave, and the group is deleted when its last member leaves. Group chats show up in the same Messages list as one-to-one chats.
 
 | Route | Who | What it does |
 |---|---|---|
@@ -39,6 +39,7 @@ A group holds up to 10 members, counting the person who made it, and can have a 
 | `GET /api/dm/groups/:id` | members | The member list and the newest 50 messages. |
 | `POST /api/dm/groups/:id` | members | Sends a message to the group. |
 | `POST /api/dm/groups/:id/read` | members | Marks the group read for you. |
+| `PATCH /api/dm/groups/:id` | creator | Renames the group with `{name}` (up to 60 characters, word filter applied). An empty name clears it back to the member-list title. Other members get a 403. |
 | `POST /api/dm/groups/:id/members` | creator | Adds a member by `{username}`, up to the 10-member limit. |
 | `DELETE /api/dm/groups/:id/members/:userId` | creator | Removes a member. |
 | `POST /api/dm/groups/:id/leave` | members | Leaves the group. |
@@ -66,6 +67,8 @@ Accepted formats are JPEG, PNG, WebP and GIF, at up to 10 MiB per image. Image m
 - `who-online.js` draws the roster for everyone, signed in or not. For signed-in members it also sends the presence heartbeat, on load and every 60 seconds.
 - You can turn invisible mode on or off from your account page.
 - **Pinned chats**: pin up to 5 conversations, one-to-one or group, to keep them at the top of the list. Pins are kept in your browser only and are cleared when you sign out.
+- **Mute chat**: the toggle beside Pin chat in an open conversation stops it counting toward the chat button's unread badge, and the row gets a quiet "Muted" mark. Messages still arrive and the row still shows its own unread count. Up to 50 muted chats, kept in your browser only and cleared when you sign out. Nothing about it reaches the server.
+- **Group name**: the group's creator gets a Group name field with a Rename button in the member strip. It sends nothing if the name hasn't changed.
 - **Filter chats**: the box above the list narrows it by name. It only filters what's already loaded and sends nothing.
 - **Unread only** (v4.32): the checkbox under the filter box shows only chats with unread messages (muted ones included). Page-view only: nothing is stored or sent, and it resets when the panel closes. `onlyUnread` in `public/js/chat-filter.js`.
 - **Typing in Japanese, Chinese or Korean**: pressing Enter to confirm a word while your keyboard is still composing it never sends the message, and never picks a name from the @mention list. The check is `isImeComposing` in `public/js/focus-utils.js`.
