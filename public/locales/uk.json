@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "Закріплено",
   "dm.removeMember": "Видалити {name} з групи",
   "dm.sendImage": "Надіслати зображення",
-  "dm.unpinChat": "Відкріпити чат",
   "errors.accountBanned": "Цей обліковий запис наразі забанено.",
   "errors.appealNotFound": "Апеляцію не знайдено.",
   "errors.attachmentNotFound": "Вкладення не знайдено.",

@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "מוצמד",
   "dm.removeMember": "הסרת {name} מהקבוצה",
   "dm.sendImage": "שליחת תמונה",
-  "dm.unpinChat": "ביטול הצמדת הצ׳אט",
   "errors.accountBanned": "החשבון הזה מורחק כרגע.",
   "errors.appealNotFound": "הערעור לא נמצא.",
   "errors.attachmentNotFound": "הקובץ המצורף לא נמצא.",

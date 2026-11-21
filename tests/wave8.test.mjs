@@ -23,6 +23,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { FakeNode, makeFakeDocument } from "./helpers/fake-dom.mjs";
 import { closeEditForm, openEditForm } from "../public/js/render.js";
+import { attachMentionPicker } from "../public/js/mention-picker.js";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const fakeDocument = makeFakeDocument();
@@ -62,4 +63,47 @@ test("BUG(render.js:570): editing a post hides its markdown lists along with the
 
   assert.equal(closeEditForm(article), true);
   assert.equal(list.hidden, false, "cancel restores the list");
+});
+
+// --- F2: accessibility LOWs -----------------------------------------------------
+
+test("pin toggle keeps a stable label; aria-pressed alone carries the state", () => {
+  const source = read("public/js/chat-widget-composer.js");
+  assert.match(source, /el\("button", "chat-widget-pin", t\("dm\.pinChat"\)\)/);
+  assert.match(source, /setAttribute\("aria-pressed", String\(pinned\)\)/);
+  assert.doesNotMatch(source, /dm\.unpinChat/, "the label no longer flips to Unpin");
+  const en = JSON.parse(read("public/locales/en.json"));
+  assert.equal(en["dm.unpinChat"], undefined, "the dead key is gone");
+  assert.match(read("public/styles.css"), /\.chat-widget-pin\[aria-pressed="true"\]::before/, "sighted users still see the state");
+});
+
+test("a full pin list explains the disabled button in visible text tied by aria-describedby", () => {
+  const source = read("public/js/chat-widget-composer.js");
+  assert.match(source, /el\("span", "chat-widget-pin-note", t\("dm\.pinFull"/);
+  assert.match(source, /toggle\.setAttribute\("aria-describedby", PIN_NOTE_ID\)/);
+  assert.match(source, /note\.id = PIN_NOTE_ID/);
+  assert.doesNotMatch(source, /toggle\.title\s*=/, "no hover-only explanation");
+  assert.match(source, /\.\.\.buildPinToggle\(/, "the header appends the toggle and its note");
+  assert.match(read("public/styles.css"), /\.chat-widget-pin-note\s*\{/);
+});
+
+test("mention textarea: ARIA 1.2 textbox popup — haspopup/controls/activedescendant, no combobox role or aria-expanded", () => {
+  const form = new FakeNode("form");
+  const textarea = new FakeNode("textarea");
+  textarea.id = "reply-body";
+  form.append(textarea);
+  attachMentionPicker(textarea, fakeDocument);
+  const list = form.children[1];
+  assert.equal(list.getAttribute("role"), "listbox");
+  assert.equal(list.id, "reply-body-mentions");
+  assert.equal(list.hidden, true);
+  assert.equal(textarea.getAttribute("aria-controls"), "reply-body-mentions");
+  assert.equal(textarea.getAttribute("aria-haspopup"), "listbox");
+  assert.equal(textarea.getAttribute("aria-autocomplete"), "list");
+  assert.equal(textarea.hasAttribute("aria-expanded"), false, "aria-expanded is not allowed on a textbox");
+  assert.equal(textarea.hasAttribute("role"), false, "no role=combobox on the textarea");
+  textarea.dispatch("blur");
+  assert.equal(textarea.hasAttribute("aria-activedescendant"), false);
+  assert.equal(textarea.hasAttribute("aria-expanded"), false);
+  assert.doesNotMatch(read("public/js/mention-picker.js"), /setAttribute\("aria-expanded"/);
 });

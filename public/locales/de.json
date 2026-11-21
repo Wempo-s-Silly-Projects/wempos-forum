@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "Angeheftet",
   "dm.removeMember": "{name} aus der Gruppe entfernen",
   "dm.sendImage": "Bild senden",
-  "dm.unpinChat": "Chat lösen",
   "errors.accountBanned": "Dieses Konto ist derzeit gesperrt.",
   "errors.appealNotFound": "Einspruch nicht gefunden.",
   "errors.attachmentNotFound": "Anhang nicht gefunden.",

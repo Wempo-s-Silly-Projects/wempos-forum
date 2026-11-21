@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "مثبّتة",
   "dm.removeMember": "إزالة {name} من المجموعة",
   "dm.sendImage": "أرسل صورة",
-  "dm.unpinChat": "إلغاء تثبيت المحادثة",
   "errors.accountBanned": "هذا الحساب محظور حاليًا.",
   "errors.appealNotFound": "الطعن غير موجود.",
   "errors.attachmentNotFound": "المرفق غير موجود.",

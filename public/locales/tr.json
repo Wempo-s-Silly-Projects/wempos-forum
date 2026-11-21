@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "Sabitlendi",
   "dm.removeMember": "{name} adlı kişiyi gruptan çıkar",
   "dm.sendImage": "Görsel gönder",
-  "dm.unpinChat": "Sabitlemeyi kaldır",
   "errors.accountBanned": "Bu hesap şu anda banlı.",
   "errors.appealNotFound": "İtiraz bulunamadı.",
   "errors.attachmentNotFound": "Ek bulunamadı.",

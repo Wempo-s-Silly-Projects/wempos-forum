@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "Przypięty",
   "dm.removeMember": "Usuń {name} z grupy",
   "dm.sendImage": "Wyślij obraz",
-  "dm.unpinChat": "Odepnij czat",
   "errors.accountBanned": "To konto jest obecnie zbanowane.",
   "errors.appealNotFound": "Nie znaleziono odwołania.",
   "errors.attachmentNotFound": "Nie znaleziono załącznika.",

@@ -162,6 +162,13 @@ export class FakeNode {
     return node;
   }
   removeChild(node) { this._release(node); return node; }
+  insertAdjacentElement(position, node) {
+    if (position !== "afterend" || !this.parentNode) throw new Error(`fake-dom: insertAdjacentElement("${position}") unsupported`);
+    const parent = this.parentNode;
+    const at = parent._nodes.indexOf(this);
+    parent.insertBefore(node, parent._nodes[at + 1] ?? null);
+    return node;
+  }
   replaceChildren(...nodes) {
     this._detachAll();
     this._text = "";

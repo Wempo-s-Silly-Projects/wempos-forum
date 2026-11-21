@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "Disematkan",
   "dm.removeMember": "Keluarkan {name} dari grup",
   "dm.sendImage": "Kirim gambar",
-  "dm.unpinChat": "Lepas sematan obrolan",
   "errors.accountBanned": "Akun ini sedang di-ban.",
   "errors.appealNotFound": "Banding tidak ditemukan.",
   "errors.attachmentNotFound": "Lampiran tidak ditemukan.",

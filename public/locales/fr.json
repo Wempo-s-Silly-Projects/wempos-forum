@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "Épinglée",
   "dm.removeMember": "Retirer {name} du groupe",
   "dm.sendImage": "Envoyer une image",
-  "dm.unpinChat": "Désépingler la discussion",
   "errors.accountBanned": "Ce compte est actuellement banni.",
   "errors.appealNotFound": "Contestation introuvable.",
   "errors.attachmentNotFound": "Pièce jointe introuvable.",

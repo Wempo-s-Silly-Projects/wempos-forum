@@ -75,9 +75,11 @@ export function attachMentionPicker(textarea, document) {
   list.setAttribute("aria-label", t("mentions.listLabel"));
   list.hidden = true;
   textarea.insertAdjacentElement("afterend", list);
+  // ARIA 1.2 textbox popup pattern without role=combobox on the textarea:
+  // aria-expanded is not allowed on a textbox, aria-haspopup is.
   textarea.setAttribute("aria-autocomplete", "list");
+  textarea.setAttribute("aria-haspopup", "listbox");
   textarea.setAttribute("aria-controls", listId);
-  textarea.setAttribute("aria-expanded", "false");
 
   let users = [];
   let active = 0;
@@ -90,7 +92,6 @@ export function attachMentionPicker(textarea, document) {
     token = null;
     list.hidden = true;
     list.replaceChildren();
-    textarea.setAttribute("aria-expanded", "false");
     textarea.removeAttribute("aria-activedescendant");
   };
 
@@ -121,7 +122,6 @@ export function attachMentionPicker(textarea, document) {
       return option;
     }));
     list.hidden = users.length === 0;
-    textarea.setAttribute("aria-expanded", users.length ? "true" : "false");
     if (users.length) textarea.setAttribute("aria-activedescendant", listId + "-" + active);
     else textarea.removeAttribute("aria-activedescendant");
   };

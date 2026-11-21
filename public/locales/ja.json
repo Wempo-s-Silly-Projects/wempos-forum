@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "ピン留め済み",
   "dm.removeMember": "{name} をグループから外す",
   "dm.sendImage": "画像を送る",
-  "dm.unpinChat": "ピン留めを解除",
   "errors.accountBanned": "このアカウントは現在利用停止（BAN）になっています。",
   "errors.appealNotFound": "異議申し立てが見つかりません。",
   "errors.attachmentNotFound": "添付ファイルが見つかりません。",

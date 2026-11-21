@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "पिन किया गया",
   "dm.removeMember": "{name} को ग्रुप से हटाओ",
   "dm.sendImage": "तस्वीर भेजो",
-  "dm.unpinChat": "चैट अनपिन करें",
   "errors.accountBanned": "यह अकाउंट अभी बैन है।",
   "errors.appealNotFound": "अपील नहीं मिली।",
   "errors.attachmentNotFound": "अटैचमेंट नहीं मिला।",

@@ -85,24 +85,28 @@ const leaveGoneGroup = (thread) => {
 // from the 5s poll keep the scroll pinned to the bottom only when the reader
 // already sat there.
 // Pinned chats (v4.10): the header toggle. A full pin list disables an add
-// with a note instead of silently dropping an older pin.
+// with a note instead of silently dropping an older pin. The label stays
+// "Pin chat"; aria-pressed alone carries the state (v4.13). The full-list
+// note is visible text tied by aria-describedby, not a hover-only title.
+const PIN_NOTE_ID = "chat-widget-pin-note";
 const buildPinToggle = (current) => {
   const key = conversationKey(current);
   const accountId = ui.widgetUser?.id;
   const pins = readPins(undefined, accountId);
   const pinned = isPinned(pins, key);
-  const toggle = el("button", "chat-widget-pin", pinned ? t("dm.unpinChat") : t("dm.pinChat"));
+  const toggle = el("button", "chat-widget-pin", t("dm.pinChat"));
   toggle.type = "button";
   toggle.setAttribute("aria-pressed", String(pinned));
-  if (!pinned && pins.length >= MAX_PINNED_CHATS) {
-    toggle.disabled = true;
-    toggle.title = t("dm.pinFull", { count: MAX_PINNED_CHATS });
-  }
   toggle.addEventListener("click", () => {
     writePins(undefined, togglePin(readPins(undefined, accountId), key), accountId);
     paintConversation();
   });
-  return toggle;
+  if (pinned || pins.length < MAX_PINNED_CHATS) return [toggle];
+  toggle.disabled = true;
+  const note = el("span", "chat-widget-pin-note", t("dm.pinFull", { count: MAX_PINNED_CHATS }));
+  note.id = PIN_NOTE_ID;
+  toggle.setAttribute("aria-describedby", PIN_NOTE_ID);
+  return [toggle, note];
 };
 
 export const paintConversation = () => {
@@ -143,7 +147,7 @@ export const paintConversation = () => {
   const isGroup = kindOf(ui.conversation) === "group";
   const title = el("span", "chat-widget-peer", isGroup
     ? groupTitle(ui.conversation, ui.widgetUser?.id) : ui.conversation.other?.username || "unknown");
-  ui.conversationEl.append(back, title, buildPinToggle(ui.conversation));
+  ui.conversationEl.append(back, title, ...buildPinToggle(ui.conversation));
   if (isGroup) {
     const leaveToList = () => {
       const leftKey = conversationKey(ui.conversation);

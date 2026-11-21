@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "Fissata",
   "dm.removeMember": "Rimuovi {name} dal gruppo",
   "dm.sendImage": "Invia un’immagine",
-  "dm.unpinChat": "Rimuovi fissaggio",
   "errors.accountBanned": "Questo account è attualmente bannato.",
   "errors.appealNotFound": "Contestazione non trovata.",
   "errors.attachmentNotFound": "Allegato non trovato.",

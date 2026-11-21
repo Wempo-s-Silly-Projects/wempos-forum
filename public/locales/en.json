@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "Pinned",
   "dm.removeMember": "Remove {name} from the group",
   "dm.sendImage": "Send an image",
-  "dm.unpinChat": "Unpin chat",
   "errors.accountBanned": "This account is currently banned.",
   "errors.appealNotFound": "Appeal not found.",
   "errors.attachmentNotFound": "Attachment not found.",

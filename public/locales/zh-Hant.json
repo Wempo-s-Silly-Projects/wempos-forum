@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "已置頂",
   "dm.removeMember": "將 {name} 移出群組",
   "dm.sendImage": "傳送圖片",
-  "dm.unpinChat": "取消置頂",
   "errors.accountBanned": "此帳號目前已被封鎖。",
   "errors.appealNotFound": "找不到該申訴。",
   "errors.attachmentNotFound": "找不到該附件。",

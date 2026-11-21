@@ -365,7 +365,6 @@
   "dm.pinnedLabel": "ปักหมุดแล้ว",
   "dm.removeMember": "นำ {name} ออกจากกลุ่ม",
   "dm.sendImage": "ส่งรูปภาพ",
-  "dm.unpinChat": "เลิกปักหมุดแชท",
   "errors.accountBanned": "บัญชีนี้ถูกแบนอยู่ในขณะนี้",
   "errors.appealNotFound": "ไม่พบคำอุทธรณ์",
   "errors.attachmentNotFound": "ไม่พบไฟล์แนบ",
