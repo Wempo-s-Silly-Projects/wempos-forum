@@ -1,0 +1,56 @@
+# SPDX-FileCopyrightText: 2026 ItsWempo
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# REUSE 3.3 (https://reuse.software/spec-3.3/): licensing for the files that
+# cannot carry a comment header (JSON, images, the lockfile, config files),
+# plus the documentation. Every .js/.mjs/.css file carries its own SPDX lines
+# and is pinned by tests/license-headers.test.mjs. Check with `reuse lint`.
+version = 1
+
+[[annotations]]
+path = [
+  "public/locales/**",
+  "public/icons/**",
+  "public/index.html",
+  "public/.well-known/**",
+  "package.json",
+  "pnpm-lock.yaml",
+  "pnpm-workspace.yaml",
+  "wrangler.toml",
+  "wrangler.example.toml",
+  ".dev.vars.example",
+  ".gitignore",
+  ".gitleaks.toml",
+  ".mcp.json",
+  ".semgrepignore",
+  ".github/**",
+  "config/**",
+  "scripts/*.sh",
+  "scripts/*.plist",
+  "apply-remote.sh",
+  "migrations/**",
+  "docs/**",
+  "*.md",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 ItsWempo"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+# The code of conduct is adapted from the Contributor Covenant 3.0, which is
+# licensed under CC BY-SA 4.0 (see its Attribution section).
+[[annotations]]
+path = "CODE_OF_CONDUCT.md"
+precedence = "override"
+SPDX-FileCopyrightText = ["Organization for Ethical Source", "2026 ItsWempo"]
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# Vendored files, kept byte-for-byte and never edited (AGENTS.md). Their
+# banner names the upstream "Project Designer — experience/*" module, which
+# was itself extracted from this forum's own api/core code by its author, so
+# the upstream license is this project's license. REUSE.toml annotates them
+# here instead of a header so the files themselves stay untouched.
+[[annotations]]
+path = "api/vendor/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2026 ItsWempo"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
