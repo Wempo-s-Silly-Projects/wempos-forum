@@ -163,6 +163,17 @@ export function renderNotificationsPage(main, items) {
   return section;
 }
 
+// Wave 22 a11y: unread used to ride aria-current="true", which screen readers
+// announce as "current", not "unread". The state is now spoken as a
+// visually-hidden "Unread" word at the start of the row's name (the bold +
+// border styling stays for sighted readers).
+function markUnread(document, row) {
+  const tag = document.createElement("span");
+  tag.className = "visually-hidden";
+  tag.textContent = t("bell.unreadTag") + " ";
+  row.prepend(tag);
+}
+
 function notificationRow(document, item) {
   const row = document.createElement("button");
   row.type = "button";
@@ -173,7 +184,7 @@ function notificationRow(document, item) {
   if (item.targetPostId) row.dataset.postId = String(item.targetPostId);
   row.textContent = item.label;
   if (item.read) row.setAttribute("aria-disabled", "false");
-  else row.setAttribute("aria-current", "true");
+  else markUnread(document, row);
   return row;
 }
 
@@ -190,6 +201,6 @@ function threadGroupRow(document, group) {
     ? tn("bell.threadGroupPreview", group.count, { preview })
     : tn("bell.threadGroup", group.count);
   if (group.read) row.setAttribute("aria-disabled", "false");
-  else row.setAttribute("aria-current", "true");
+  else markUnread(document, row);
   return row;
 }

@@ -63,6 +63,13 @@ export function jumpToNode(node, { block = "start", reducedMotion = prefersReduc
   node.focus?.({ preventScroll: true });
 }
 
+// After a full route repaint (main.replaceChildren) the focused control is
+// gone and focus falls to <body>; this lands it on the page's h1 instead
+// (wave 22 a11y: mod desk restore / hide-recent).
+export function focusPageHeading(root, options = {}) {
+  jumpToNode(root?.querySelector?.("h1") ?? null, { block: "start", ...options });
+}
+
 // Safari reports the keydown that commits an IME candidate with
 // isComposing false but keyCode 229, so both signals count.
 const IME_PROCESS_KEY_CODE = 229;

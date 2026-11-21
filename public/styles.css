@@ -3090,6 +3090,7 @@ mark.search-hit {
 .hide-recent-form input { width: 5rem; }
 /* v4.14 jump to the latest reply. */
 .latest-reply-jump { margin: 0 0 0.5rem; }
+.fold-all-replies { margin: 0 0 0.5rem; }
 /* v4.17 fold a reply (page view only) and back to the first post. */
 .reply-fold { margin-inline-start: auto; font-size: 0.85em; }
 .post-card[data-folded] > :not(.post-header) { display: none; }

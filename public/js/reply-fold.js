@@ -52,3 +52,45 @@ export function addReplyFolds(document, container) {
     header.append(createFoldButton(document, card));
   }
 }
+
+// Fold all replies (wave 2026-11-21-22 F2): one toggle above a long thread's
+// replies folds every top-level reply at once, or unfolds them all again.
+// Cards are read at click time (so "Load older replies" stays covered) and
+// each card's own Fold toggle is kept in sync. A press folds whatever is
+// still open; only when every reply is already folded does it unfold. The
+// bulk toggle's aria-pressed follows the cards, so a manual unfold shows it
+// as not pressed. Page view only: nothing stored, nothing sent.
+export const FOLD_ALL_MIN_REPLIES = 3;
+
+const topLevelCards = (list) => [...list.children].filter((node) => node.matches?.(CARD_SELECTOR));
+
+const setCardFolded = (card, folded) => {
+  card.toggleAttribute("data-folded", folded);
+  card.querySelector(HEADER_SELECTOR)?.querySelector("." + FOLD_BUTTON_CLASS)
+    ?.setAttribute("aria-pressed", String(folded));
+};
+
+export function createFoldAllToggle(document, replyList, replyCount) {
+  if (!replyList || replyCount < FOLD_ALL_MIN_REPLIES) return null;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "button button-quiet fold-all-replies";
+  button.textContent = t("post.foldAll");
+  button.setAttribute("title", t("post.foldAllTitle"));
+  button.setAttribute("aria-pressed", "false");
+  const allFolded = () => {
+    const cards = topLevelCards(replyList);
+    return cards.length > 0 && cards.every((card) => card.hasAttribute("data-folded"));
+  };
+  button.addEventListener("click", () => {
+    const fold = !allFolded();
+    for (const card of topLevelCards(replyList)) setCardFolded(card, fold);
+    button.setAttribute("aria-pressed", String(fold));
+  });
+  // A single card's Fold toggle bubbles a click up the list: re-sync.
+  replyList.addEventListener?.("click", (event) => {
+    if (!event?.target?.matches?.("." + FOLD_BUTTON_CLASS)) return;
+    button.setAttribute("aria-pressed", String(allFolded()));
+  });
+  return button;
+}

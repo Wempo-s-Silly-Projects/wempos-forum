@@ -301,7 +301,8 @@ function galleryThumb(dialog, gif, pressed) {
   const thumb = element("button", "gif-grid-item");
   thumb.type = "button";
   thumb.dataset.gifId = gif.id;
-  thumb.setAttribute("role", "option");
+  // Wave 22 a11y: a plain toggle button (aria-pressed) inside a role=group;
+  // role=option ignored aria-pressed, so the selection was never spoken.
   thumb.setAttribute("aria-pressed", pressed ? "true" : "false");
   thumb.title = t("composer.useImage");
   const img = element("img");

@@ -94,9 +94,24 @@ function createController(dialog, document) {
     controls.next.disabled = index === total - 1;
   };
 
+  // Wave 22 a11y: reaching an end disables the step button that has focus;
+  // a disabled control drops focus out of the dialog, so hand it to the
+  // opposite step button instead.
+  const keepStepFocus = (from) => {
+    if (from !== controls.previous && from !== controls.next) return;
+    if (!from.disabled) return;
+    const other = from === controls.next ? controls.previous : controls.next;
+    (other.disabled || other.hidden ? controls.close : other).focus();
+  };
   controls.close.addEventListener("click", () => dialog.close());
-  controls.previous.addEventListener("click", () => show(Math.max(0, view.index - 1)));
-  controls.next.addEventListener("click", () => show(Math.min(view.thumbs.length - 1, view.index + 1)));
+  controls.previous.addEventListener("click", () => {
+    show(Math.max(0, view.index - 1));
+    keepStepFocus(controls.previous);
+  });
+  controls.next.addEventListener("click", () => {
+    show(Math.min(view.thumbs.length - 1, view.index + 1));
+    keepStepFocus(controls.next);
+  });
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog || event.target === image) dialog.close();
   });
@@ -105,6 +120,7 @@ function createController(dialog, document) {
     if (target === null) return;
     event.preventDefault();
     show(target);
+    keepStepFocus(event.target);
   });
   // The close event fires after the dialog's own focus restore, so this
   // focus call wins: the reader lands on the image they were last viewing.

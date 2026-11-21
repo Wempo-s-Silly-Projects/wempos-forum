@@ -86,15 +86,21 @@ export function createSettingsFilter(doc, panels, jumpNav = null) {
   empty.className = "muted settings-filter-empty";
   empty.textContent = t("settings.filterEmpty");
   empty.hidden = true;
+  // Wave 22 a11y: a hidden node that unhides is not announced, so the
+  // no-match result also goes to a status mounted (empty) from the start.
+  const status = doc.createElement("p");
+  status.className = "visually-hidden settings-filter-status";
+  status.setAttribute("role", "status");
   input.addEventListener("input", () => {
     const shown = filterSettingsPanels(panels, input.value);
     empty.hidden = shown !== 0;
+    status.textContent = shown === 0 ? t("settings.filterEmpty") : "";
     // A jump button for a filtered-out section would scroll to nothing.
     for (const button of jumpNav ? Array.from(jumpNav.querySelectorAll("button")) : []) {
       const target = panels.find((panel) => panel.id === button.dataset.target);
       button.hidden = Boolean(target?.hidden);
     }
   });
-  wrapper.append(label, input, empty);
+  wrapper.append(label, input, empty, status);
   return wrapper;
 }
