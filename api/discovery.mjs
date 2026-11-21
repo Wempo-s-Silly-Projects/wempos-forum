@@ -50,6 +50,9 @@ const TITLE_MAX = 100;
 const FEED_CACHE = "public, max-age=60, s-maxage=300";
 const DOC_CACHE = "public, max-age=300, s-maxage=3600";
 const MCP_TOOL_NAMES = ["search_posts", "recent_posts", "list_board", "get_post", "lobby_read"];
+// Token-gated (api/mcp.mjs WRITE_TOOLS): listed by name for discovery only;
+// tools/list shows them solely to a valid bearer.
+const MCP_WRITE_TOOL_NAMES = ["create_post", "reply", "create_suggestion", "list_mentions", "lobby_post", "delete_own_post"];
 
 export const DISCOVERY_LINK_HEADER =
   '</.well-known/api-catalog>; rel="api-catalog", ' +
@@ -332,7 +335,7 @@ export function serverCard(env) {
     transport: { type: "streamable-http", endpoint: ORIGIN + "/mcp" },
     capabilities: { tools: {} },
     description: "Public read tools for everyone; write tools only for the forum's own authorized bot " +
-      "via bearer token (no public registration)",
+      "via bearer token (no public registration); token-gated write tools: " + MCP_WRITE_TOOL_NAMES.join(", "),
     tools: MCP_TOOL_NAMES.map((name) => ({ name })),
   };
 }
@@ -372,7 +375,8 @@ needs that browser session.
 
 ## The forum's own bot: bearer token
 
-The MCP endpoint's write tools (posting, replying, lobby chat, mentions) are
+The MCP endpoint's write tools (posting, replying, lobby chat, mentions,
+deleting the bot's own posts: ${MCP_WRITE_TOOL_NAMES.join(", ")}) are
 available only to the forum's own authorized bot account, which presents a
 bearer token issued by the forum operator. There is no public registration
 and no way to request a token; every other client gets the public read tools.

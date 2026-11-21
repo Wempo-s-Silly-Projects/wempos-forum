@@ -51,7 +51,7 @@ import { ensureFilterWords, filterWords } from "./filterstore.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
 import { notificationBatchStatements } from "./notifications.mjs";
 import { banFilterSql } from "./posts-feed.mjs";
-import { MAX_COMPOSER_BODY_CHARS, rootPostInsertSql } from "./posts-write.mjs";
+import { MAX_COMPOSER_BODY_CHARS, deleteAuthoredPost, rootPostInsertSql } from "./posts-write.mjs";
 import { runFanOutChunks, subscriptionReplyFanOut } from "./subscriptions.mjs";
 import { agentFromRequest } from "./core/agent-auth.mjs";
 import { assertNotBanned } from "./core/auth.mjs";
@@ -229,6 +229,19 @@ const WRITE_TOOLS = Object.freeze([
       additionalProperties: false,
     },
   },
+  {
+    name: "delete_own_post",
+    title: "Delete own post",
+    description: "Delete a post or reply the authenticated agent account wrote (archived like a member's own delete; deleting a topic removes its replies).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        post_id: { type: "integer", minimum: 1, description: "Id of a post the agent account authored." },
+      },
+      required: ["post_id"],
+      additionalProperties: false,
+    },
+  },
 ]);
 const AGENT_TOOLS = Object.freeze([...TOOLS, ...WRITE_TOOLS]);
 
@@ -368,6 +381,7 @@ const WRITE_TOOL_HANDLERS = Object.freeze({
   create_suggestion: createSuggestion,
   list_mentions: listMentions,
   lobby_post: lobbyPost,
+  delete_own_post: deleteOwnPost,
 });
 
 // Token-gated tools that only read (no write tier of their own).
@@ -731,6 +745,29 @@ async function lobbyRead(env, args) {
 }
 
 // POST /api/chat's gate order: ban, "write" rate tier, then the shared send.
+// Author-only by identity (agent.id === post.author_id) through the human
+// route's shared core (posts-write.mjs deleteAuthoredPost) — staff roles grant
+// nothing here. Missing and not-own answer the same refusal so the tool never
+// confirms another member's post id.
+const DELETE_REFUSAL = "Post not found or not yours.";
+
+async function deleteOwnPost(env, args, ctx) {
+  const agent = ctx.agent;
+  await assertNotBanned(env, agent.id);
+  await writeRateLimits(env, ctx);
+  const postId = args.post_id;
+  if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, DELETE_REFUSAL);
+  try {
+    await deleteAuthoredPost(env, agent, postId);
+  } catch (error) {
+    if (error instanceof HttpError && (error.status === 404 || error.status === 403)) {
+      throw new HttpError(404, DELETE_REFUSAL);
+    }
+    throw error;
+  }
+  return { deleted: true, id: postId };
+}
+
 async function lobbyPost(env, args, ctx) {
   const agent = ctx.agent;
   if (typeof args.body !== "string") throw new HttpError(400, "Write a message first.");

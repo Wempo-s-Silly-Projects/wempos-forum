@@ -25,7 +25,8 @@ import { agentFromRequest } from "../api/core/agent-auth.mjs";
 
 const TOKEN = "agent-token-for-tests-ABCDEFGHIJ0123456789";
 const READ_TOOLS = ["search_posts", "recent_posts", "list_board", "get_post", "lobby_read"];
-const WRITE_TOOLS = ["create_post", "reply", "create_suggestion", "list_mentions", "lobby_post"];
+const STAFF_TOKEN = "staff-agent-token-for-tests-ZYXWVU9876543210";
+const WRITE_TOOLS = ["create_post", "reply", "create_suggestion", "list_mentions", "lobby_post", "delete_own_post"];
 const bodies = [];
 let env;
 let claudeId;
@@ -34,10 +35,11 @@ let publicRoot;
 let hiddenRoot;
 
 before(async () => {
-  env = makeEnv({ AGENT_TOKENS: JSON.stringify({ [sha256(TOKEN)]: "WemposClaude" }) });
+  env = makeEnv({ AGENT_TOKENS: JSON.stringify({ [sha256(TOKEN)]: "WemposClaude", [sha256(STAFF_TOKEN)]: "StaffBot" }) });
   const db = env.__sqlite;
   claudeId = await seedUser(db, { username: "WemposClaude" });
   aliceId = await seedUser(db, { username: "Alice" });
+  await seedUser(db, { username: "StaffBot", role: "admin" });
   publicRoot = seedPost(db, { authorId: aliceId, body: "A public topic" });
   hiddenRoot = seedPost(db, { authorId: aliceId, body: "A hidden topic", visibility: "hidden" });
   // The filter list the way api/filterstore.mjs loads it: site_settings "filtered_words".
@@ -45,7 +47,10 @@ before(async () => {
 });
 
 after(() => {
-  for (const text of bodies) assert.ok(!text.includes(TOKEN), "bearer token echoed in a response body");
+  for (const text of bodies) {
+    assert.ok(!text.includes(TOKEN), "bearer token echoed in a response body");
+    assert.ok(!text.includes(STAFF_TOKEN), "staff bearer token echoed in a response body");
+  }
 });
 
 async function rpc(message, { token = null, raw = false } = {}) {
@@ -77,16 +82,18 @@ test("initialize falls back to the default protocol version for an unknown one",
   assert.equal(json.result.protocolVersion, "2025-06-18");
 });
 
-test("tools/list: 5 anonymous, 10 with a valid bearer, 5 with a wrong token", async () => {
+test("tools/list: 5 anonymous, 11 with a valid bearer, 5 with a wrong token", async () => {
   const names = async (token) => (await rpc({ jsonrpc: "2.0", id: 3, method: "tools/list" }, { token })).json.result.tools.map((t) => t.name);
   assert.deepEqual(await names(null), READ_TOOLS);
   assert.deepEqual(await names(TOKEN), [...READ_TOOLS, ...WRITE_TOOLS]);
+  assert.equal((await names(null)).length, 5);
+  assert.equal((await names(TOKEN)).length, 11);
   assert.deepEqual(await names(TOKEN.replace("A", "B")), READ_TOOLS);
 });
 
 test("every write tool without a token answers -32001 and inserts nothing", async () => {
   const before = postCount();
-  const args = { create_post: { board: "general", body: "x" }, reply: { post_id: publicRoot, body: "x" }, create_suggestion: { body: "x" }, list_mentions: {}, lobby_post: { body: "x" } };
+  const args = { create_post: { board: "general", body: "x" }, reply: { post_id: publicRoot, body: "x" }, create_suggestion: { body: "x" }, list_mentions: {}, lobby_post: { body: "x" }, delete_own_post: { post_id: publicRoot } };
   for (const name of WRITE_TOOLS) {
     for (const token of [null, "wrong-token-but-long-enough-1234"]) {
       const { json } = await tool(10, name, args[name], token);
@@ -156,6 +163,39 @@ test("list_mentions returns a seeded mention and mark_read marks it", async () =
   assert.notEqual(db.prepare("SELECT read_at FROM notifications WHERE id = ?").get(notificationId).read_at, null);
   const again = toolData(await tool(52, "list_mentions", {}, TOKEN));
   assert.equal(again.mentions.find((m) => m.id === notificationId).read, true);
+});
+
+test("delete_own_post deletes the agent's own topic, cascades its replies, and archives both", async () => {
+  const db = env.__sqlite;
+  const own = seedPost(db, { authorId: claudeId, body: "agent topic to delete" });
+  const reply = seedPost(db, { authorId: aliceId, body: "reply under agent topic", parentId: own });
+  const result = await tool(40, "delete_own_post", { post_id: own }, TOKEN);
+  assert.equal(result.json.result.isError, false, result.text);
+  assert.deepEqual(toolData(result), { deleted: true, id: own });
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM posts WHERE id IN (?, ?)").get(own, reply).n, 0);
+  const archived = db.prepare(
+    "SELECT original_post_id, deleted_because, deleted_by_user_id FROM post_archive WHERE original_post_id IN (?, ?) ORDER BY original_post_id",
+  ).all(own, reply);
+  assert.equal(archived.length, 2);
+  for (const row of archived) {
+    assert.equal(row.deleted_because, "post-delete");
+    assert.equal(row.deleted_by_user_id, claudeId);
+  }
+});
+
+test("delete_own_post refuses another member's post even for a staff agent", async () => {
+  const before = postCount();
+  const result = await tool(41, "delete_own_post", { post_id: publicRoot }, STAFF_TOKEN);
+  assert.equal(result.json.result.isError, true);
+  assert.equal(result.json.result.content[0].text, "Post not found or not yours.");
+  assert.equal(postCount(), before);
+  assert.ok(env.__sqlite.prepare("SELECT 1 FROM posts WHERE id = ?").get(publicRoot));
+});
+
+test("delete_own_post answers the same refusal for a missing post id", async () => {
+  const result = await tool(42, "delete_own_post", { post_id: 987654 }, TOKEN);
+  assert.equal(result.json.result.isError, true);
+  assert.equal(result.json.result.content[0].text, "Post not found or not yours.");
 });
 
 test("notifications (no id) answer 202 with no body", async () => {

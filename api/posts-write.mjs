@@ -486,37 +486,45 @@ export function postDeletionStatements(db, authorId, postId, parentId, { archive
 }
 
 export async function handlePostDeleteRoute(request, env, url, path, method) {
-  const db = env.FORUM_DB;
   const deleteMatch = path.match(/^\/api\/posts\/([0-9]+)$/);
   if (deleteMatch && method === "DELETE") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
     await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
-    const postId = Number(deleteMatch[1]);
-    if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
-    const post = await postById(env, postId, session.user.id);
-    if (!post) throw new HttpError(404, "Post not found.");
-    if (Number(post.author_id) !== session.user.id) {
-      throw new HttpError(403, "Only the author can delete this post.");
-    }
-    const parentId = post.parent_id === null || post.parent_id === undefined
-      ? null
-      : Number(post.parent_id);
-    const results = await db.batch(postDeletionStatements(
-      db, session.user.id, postId, parentId,
-      { archiveReason: "post-delete", deletedAt: nowSeconds(), deletedByUserId: session.user.id, deletedByName: session.user.username },
-    ));
-    // The author-guarded DELETE must be the statement that changed exactly one
-    // row; a 0-change delete means the post vanished between the read and the
-    // write (or ownership shifted) — report 404, never a false success. A
-    // 0-change reparent only means the reply had no sub-replies.
-    if (Number(results[results.length - 1]?.meta?.changes) !== 1) {
-      throw new HttpError(404, "Post not found.");
-    }
+    await deleteAuthoredPost(env, session.user, Number(deleteMatch[1]));
     return json({ deleted: true });
   }
   return null;
+}
+
+// Shared author-delete core: the DELETE /api/posts/:id route and the MCP
+// delete_own_post tool both run it, so archival ('post-delete'), the reply
+// reparent / root cascade, and the 0-change 404 are identical. The caller
+// owns the gates (auth, ban, rate limits). Ownership is identity-only — no
+// role path. Throws 404 (missing/vanished) or 403 (not the author).
+export async function deleteAuthoredPost(env, user, postId) {
+  const db = env.FORUM_DB;
+  if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
+  const post = await postById(env, postId, user.id);
+  if (!post) throw new HttpError(404, "Post not found.");
+  if (Number(post.author_id) !== user.id) {
+    throw new HttpError(403, "Only the author can delete this post.");
+  }
+  const parentId = post.parent_id === null || post.parent_id === undefined
+    ? null
+    : Number(post.parent_id);
+  const results = await db.batch(postDeletionStatements(
+    db, user.id, postId, parentId,
+    { archiveReason: "post-delete", deletedAt: nowSeconds(), deletedByUserId: user.id, deletedByName: user.username },
+  ));
+  // The author-guarded DELETE must be the statement that changed exactly one
+  // row; a 0-change delete means the post vanished between the read and the
+  // write (or ownership shifted) — report 404, never a false success. A
+  // 0-change reparent only means the reply had no sub-replies.
+  if (Number(results[results.length - 1]?.meta?.changes) !== 1) {
+    throw new HttpError(404, "Post not found.");
+  }
 }
 
 export async function handleReactionRoute(request, env, url, path, method) {
