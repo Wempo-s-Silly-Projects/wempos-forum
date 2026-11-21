@@ -21,7 +21,7 @@
 // the 5s repaint), and the single-flight text, GIF and image sends.
 import { api } from "./api.js";
 import { t } from "./i18n.js";
-import { focusSelector, restoreFocus } from "./focus-utils.js";
+import { focusSelector, isImeComposing, restoreFocus } from "./focus-utils.js";
 import { MAX_PINNED_CHATS, isPinned, readPins, togglePin, writePins } from "./chat-pins.js";
 import {
   buildGroupManage, buildImageButton, conversationBase, groupTitle, uploadDmImage,
@@ -225,7 +225,7 @@ export const paintConversation = () => {
     }
   }
   ui.composerEl.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (event.key === "Enter" && !event.shiftKey && !isImeComposing(event)) {
       event.preventDefault();
       sendMessage();
     }

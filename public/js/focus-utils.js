@@ -62,3 +62,13 @@ export function jumpToNode(node, { block = "start", reducedMotion = prefersReduc
   node.scrollIntoView?.({ behavior: reducedMotion ? "auto" : "smooth", block });
   node.focus?.({ preventScroll: true });
 }
+
+// Safari reports the keydown that commits an IME candidate with
+// isComposing false but keyCode 229, so both signals count.
+const IME_PROCESS_KEY_CODE = 229;
+
+// True while a keydown belongs to IME composition (Japanese, Chinese, Korean
+// input): an Enter there confirms a candidate and must not send or pick.
+export function isImeComposing(event) {
+  return Boolean(event) && (event.isComposing === true || event.keyCode === IME_PROCESS_KEY_CODE);
+}
