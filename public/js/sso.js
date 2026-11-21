@@ -1,4 +1,4 @@
-// The §4b door-swap, client half: Wempo Accounts (accounts.itswempo.workers.dev)
+// The §4b door-swap, client half: Wempo Accounts (accounts.wempos-forum.com)
 // is the ONE sign-in surface for every Wempo site. The forum keeps its guest
 // browsing, but every auth surface — the header's Sign in link, the home
 // route's door panel, and the boot-level ?wt redemption — points at Accounts.
@@ -16,7 +16,7 @@
 export const SSO_TICKET_PARAM = "wt";
 
 // The exact Accounts origin every auth link targets.
-export const WEMPO_ACCOUNTS_ORIGIN = "https://accounts.itswempo.workers.dev";
+export const WEMPO_ACCOUNTS_ORIGIN = "https://accounts.wempos-forum.com";
 
 // wempoAccountsSignInUrl(origin) -> the Accounts sign-in handoff. The return
 // parameter carries the EXACT ORIGIN and nothing more (no query string, no
