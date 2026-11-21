@@ -13,6 +13,15 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.16.0] - 2026-11-21
+
+### Security
+- Polls: closing a poll now takes effect immediately for every vote in
+  flight, so no vote can change or be taken back on a poll that has just
+  closed.
+- Added regression tests for poll permissions, signing out other devices,
+  and the staff-only Updates and Polls boards.
+
 ## [5.15.0] - 2026-11-21
 
 ### Added
