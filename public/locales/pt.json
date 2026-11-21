@@ -842,5 +842,18 @@
   "settings.dataNote": "Baixe uma cópia do que você escreveu e configurou aqui (perfil, publicações, respostas, publicações salvas, tópicos seguidos, bloqueios, publicações no mural e as mensagens diretas que você enviou) como um arquivo JSON. Ele só é buscado quando você aperta o botão e vai direto para o seu dispositivo.",
   "settings.dataDownload": "Baixar meus dados",
   "settings.dataPreparing": "Preparando seu arquivo…",
-  "settings.dataReady": "Seu arquivo de dados está sendo baixado."
+  "settings.dataReady": "Seu arquivo de dados está sendo baixado.",
+  "format.summary": "Ajuda de formatação",
+  "format.bold": "Negrito",
+  "format.italic": "Itálico",
+  "format.strike": "Tachado",
+  "format.code": "Código em linha",
+  "format.spoiler": "Spoiler (oculto até tocar)",
+  "format.link": "Link (http, https ou um caminho do site)",
+  "format.mention": "Mencionar um membro",
+  "format.list": "Item de lista com marcadores (no início da linha)",
+  "format.quote": "Citação (no início da linha)",
+  "format.heading": "Título (no início da linha)",
+  "format.codeBlock": "Bloco de código (uma linha antes e outra depois)",
+  "format.note": "HTML e imagens continuam como texto simples."
 }

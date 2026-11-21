@@ -567,7 +567,7 @@ export const createEditComposer = (post, document) => {
   form.dataset.postId = String(post.id);
   form.append(createTextarea(document, {
     id: `post-edit-${post.id}-body`, name: "body", label: t("render.editPostLabel"),
-    rows: 4, maxLength: COMPOSER_MAX_CHARS, required: true, counter: true, submitShortcut: true,
+    rows: 4, maxLength: COMPOSER_MAX_CHARS, required: true, counter: true, submitShortcut: true, formatHelp: true,
     value: post.body,
   }));
   const actions = createElement(document, "div", "post-actions form-actions");

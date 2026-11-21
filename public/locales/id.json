@@ -842,5 +842,18 @@
   "settings.dataNote": "Unduh salinan apa yang kamu tulis dan atur di sini (profil, postingan, balasan, postingan tersimpan, utas yang diikuti, blokir, postingan dinding, dan pesan langsung yang kamu kirim) sebagai file JSON. File hanya diambil saat kamu menekan tombol dan langsung masuk ke perangkatmu.",
   "settings.dataDownload": "Unduh dataku",
   "settings.dataPreparing": "Menyiapkan filemu…",
-  "settings.dataReady": "File datamu sedang diunduh."
+  "settings.dataReady": "File datamu sedang diunduh.",
+  "format.summary": "Bantuan format",
+  "format.bold": "Tebal",
+  "format.italic": "Miring",
+  "format.strike": "Coret",
+  "format.code": "Kode dalam baris",
+  "format.spoiler": "Spoiler (tersembunyi sampai ditekan)",
+  "format.link": "Tautan (http, https, atau jalur situs)",
+  "format.mention": "Sebut seorang anggota",
+  "format.list": "Butir daftar poin (di awal baris)",
+  "format.quote": "Kutipan (di awal baris)",
+  "format.heading": "Judul (di awal baris)",
+  "format.codeBlock": "Blok kode (satu baris sebelum dan sesudah)",
+  "format.note": "HTML dan gambar tetap menjadi teks biasa."
 }

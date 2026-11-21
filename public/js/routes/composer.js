@@ -72,7 +72,7 @@ function createComposer(name, label, buttonLabel, postID = null,
   // keep label/for pairs unique in the document.
   form.append(createTextarea(document, {
     id: `${name}-${postID ?? "new"}-body`, name: "body", label,
-    rows: 4, maxLength: COMPOSER_MAX_CHARS, required: true, counter: true, submitShortcut: true,
+    rows: 4, maxLength: COMPOSER_MAX_CHARS, required: true, counter: true, submitShortcut: true, formatHelp: true,
   }));
   // Draft autosave (wave 2026-11-21): per composer + thread, local-only.
   const bodyField = form.querySelector('textarea[name="body"]');

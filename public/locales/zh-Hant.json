@@ -842,5 +842,18 @@
   "settings.dataNote": "以 JSON 檔案下載你在這裡寫下和設定的內容副本（個人檔案、貼文、回覆、收藏的貼文、追蹤的討論串、封鎖名單、留言牆貼文以及你傳送的私訊）。只有在你按下按鈕時才會取得，並直接存到你的裝置。",
   "settings.dataDownload": "下載我的資料",
   "settings.dataPreparing": "正在準備檔案…",
-  "settings.dataReady": "你的資料檔案正在下載。"
+  "settings.dataReady": "你的資料檔案正在下載。",
+  "format.summary": "格式說明",
+  "format.bold": "粗體",
+  "format.italic": "斜體",
+  "format.strike": "刪除線",
+  "format.code": "行內程式碼",
+  "format.spoiler": "劇透（點按前隱藏）",
+  "format.link": "連結（http、https 或站內路徑）",
+  "format.mention": "提及成員",
+  "format.list": "項目符號清單項目（行首）",
+  "format.quote": "引用（行首）",
+  "format.heading": "標題（行首）",
+  "format.codeBlock": "程式碼區塊（前後各一行）",
+  "format.note": "HTML 和圖片會保留為純文字。"
 }

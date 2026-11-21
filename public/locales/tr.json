@@ -842,5 +842,18 @@
   "settings.dataNote": "Burada yazdıklarının ve ayarladıklarının (profil, gönderiler, yanıtlar, kaydedilen gönderiler, takip edilen konular, engellemeler, duvar gönderileri ve gönderdiğin özel mesajlar) bir kopyasını JSON dosyası olarak indir. Yalnızca düğmeye bastığında alınır ve doğrudan cihazına gelir.",
   "settings.dataDownload": "Verilerimi indir",
   "settings.dataPreparing": "Dosyan hazırlanıyor…",
-  "settings.dataReady": "Veri dosyan indiriliyor."
+  "settings.dataReady": "Veri dosyan indiriliyor.",
+  "format.summary": "Biçimlendirme yardımı",
+  "format.bold": "Kalın",
+  "format.italic": "İtalik",
+  "format.strike": "Üstü çizili",
+  "format.code": "Satır içi kod",
+  "format.spoiler": "Spoiler (basılana kadar gizli)",
+  "format.link": "Bağlantı (http, https veya site içi yol)",
+  "format.mention": "Bir üyeden bahset",
+  "format.list": "Madde işaretli liste öğesi (satır başında)",
+  "format.quote": "Alıntı (satır başında)",
+  "format.heading": "Başlık (satır başında)",
+  "format.codeBlock": "Kod bloğu (öncesinde ve sonrasında birer satır)",
+  "format.note": "HTML ve görseller düz metin olarak kalır."
 }

@@ -842,5 +842,18 @@
   "settings.dataNote": "Tải về bản sao những gì bạn đã viết và cài đặt ở đây (hồ sơ, bài viết, trả lời, bài đã lưu, chủ đề đang theo dõi, danh sách chặn, bài trên tường và tin nhắn riêng bạn đã gửi) dưới dạng tệp JSON. Tệp chỉ được tải khi bạn bấm nút và đi thẳng về thiết bị của bạn.",
   "settings.dataDownload": "Tải dữ liệu của tôi",
   "settings.dataPreparing": "Đang chuẩn bị tệp…",
-  "settings.dataReady": "Tệp dữ liệu của bạn đang được tải về."
+  "settings.dataReady": "Tệp dữ liệu của bạn đang được tải về.",
+  "format.summary": "Trợ giúp định dạng",
+  "format.bold": "Đậm",
+  "format.italic": "Nghiêng",
+  "format.strike": "Gạch ngang",
+  "format.code": "Mã trong dòng",
+  "format.spoiler": "Spoiler (ẩn cho đến khi nhấn)",
+  "format.link": "Liên kết (http, https hoặc đường dẫn trong trang)",
+  "format.mention": "Nhắc đến một thành viên",
+  "format.list": "Mục danh sách gạch đầu dòng (đầu dòng)",
+  "format.quote": "Trích dẫn (đầu dòng)",
+  "format.heading": "Tiêu đề (đầu dòng)",
+  "format.codeBlock": "Khối mã (một dòng trước và sau)",
+  "format.note": "HTML và hình ảnh vẫn là văn bản thuần."
 }
