@@ -100,8 +100,11 @@ export function attachDraftAutosave(form, textarea, key, storage = browserStorag
   });
 }
 
+// Clears the stored draft AND disarms the form's key, so a debounced save
+// still pending from the last keystroke can't write the sent text back.
 export function clearFormDraft(form, storage = browserStorage()) {
   const key = form?.dataset?.draftKey;
   if (!key) return;
+  delete form.dataset.draftKey;
   clearDraft(storage, key);
 }

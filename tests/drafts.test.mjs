@@ -21,7 +21,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  DRAFT_MAX_AGE_MS, clearDraft, draftKey, loadDraft, saveDraft,
+  DRAFT_MAX_AGE_MS, clearDraft, clearFormDraft, draftKey, loadDraft, saveDraft,
 } from "../public/js/drafts.js";
 
 const memoryStorage = () => {
@@ -82,6 +82,17 @@ test("a throwing or missing storage never throws", () => {
     assert.equal(loadDraft(storage, "k", 1), null);
     assert.doesNotThrow(() => clearDraft(storage, "k"));
   }
+});
+
+test("clearFormDraft removes the draft and disarms the form key (no late debounced resave)", () => {
+  const storage = memoryStorage();
+  const key = draftKey("reply", 11);
+  saveDraft(storage, key, "sent already", 1);
+  const form = { dataset: { draftKey: key } };
+  clearFormDraft(form, storage);
+  assert.equal(storage.data.has(key), false);
+  assert.equal(form.dataset.draftKey, undefined);
+  assert.doesNotThrow(() => clearFormDraft({ dataset: {} }, storage));
 });
 
 test("composer.js restores drafts on build and clears them after both submits", () => {
