@@ -77,6 +77,8 @@
   "app.errorHeading": "Có gì đó không ổn:(",
   "app.notFoundBody": "Trang đó không khả dụng.",
   "app.notFoundHeading": "Không tìm thấy trang",
+  "app.notFoundHome": "Quay lại trang chủ",
+  "app.notFoundSearch": "Tìm “{query}” trên diễn đàn",
   "app.pageAdmin": "Kiểm duyệt",
   "app.pageAppeals": "Kháng nghị",
   "app.pageArchive": "Lưu trữ",

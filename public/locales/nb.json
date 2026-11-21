@@ -77,6 +77,8 @@
   "app.errorHeading": "Noe gikk galt:(",
   "app.notFoundBody": "Den siden finnes ikke.",
   "app.notFoundHeading": "Siden ble ikke funnet",
+  "app.notFoundHome": "Tilbake til forsiden",
+  "app.notFoundSearch": "Søk i forumet etter «{query}»",
   "app.pageAdmin": "Moderering",
   "app.pageAppeals": "Anker",
   "app.pageArchive": "Arkiv",

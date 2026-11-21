@@ -77,6 +77,8 @@
   "app.errorHeading": "یه مشکلی پیش اومد :(",
   "app.notFoundBody": "این صفحه در دسترس نیست.",
   "app.notFoundHeading": "صفحه پیدا نشد",
+  "app.notFoundHome": "بازگشت به صفحهٔ اصلی",
+  "app.notFoundSearch": "جست‌وجوی «{query}» در انجمن",
   "app.pageAdmin": "نظارت",
   "app.pageAppeals": "اعتراض‌ها",
   "app.pageArchive": "بایگانی",

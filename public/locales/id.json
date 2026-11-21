@@ -77,6 +77,8 @@
   "app.errorHeading": "Ada yang salah:(",
   "app.notFoundBody": "Halaman itu tidak tersedia.",
   "app.notFoundHeading": "Halaman tidak ditemukan",
+  "app.notFoundHome": "Kembali ke beranda",
+  "app.notFoundSearch": "Cari “{query}” di forum",
   "app.pageAdmin": "Moderasi",
   "app.pageAppeals": "Banding",
   "app.pageArchive": "Arsip",

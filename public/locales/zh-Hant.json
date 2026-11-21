@@ -77,6 +77,8 @@
   "app.errorHeading": "出錯了 :(",
   "app.notFoundBody": "這個頁面不存在。",
   "app.notFoundHeading": "找不到頁面",
+  "app.notFoundHome": "返回首頁",
+  "app.notFoundSearch": "在論壇中搜尋「{query}」",
   "app.pageAdmin": "管理",
   "app.pageAppeals": "申訴",
   "app.pageArchive": "封存",

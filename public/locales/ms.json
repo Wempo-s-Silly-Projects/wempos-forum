@@ -77,6 +77,8 @@
   "app.errorHeading": "Ada yang tidak kena:(",
   "app.notFoundBody": "Halaman itu tidak tersedia.",
   "app.notFoundHeading": "Halaman tidak ditemui",
+  "app.notFoundHome": "Kembali ke laman utama",
+  "app.notFoundSearch": "Cari “{query}” dalam forum",
   "app.pageAdmin": "Moderasi",
   "app.pageAppeals": "Rayuan",
   "app.pageArchive": "Arkib",

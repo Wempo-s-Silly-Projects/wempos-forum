@@ -77,6 +77,8 @@
   "app.errorHeading": "Algo deu errado :(",
   "app.notFoundBody": "Essa página não está disponível.",
   "app.notFoundHeading": "Página não encontrada",
+  "app.notFoundHome": "Voltar ao início",
+  "app.notFoundSearch": "Pesquisar “{query}” no fórum",
   "app.pageAdmin": "Moderação",
   "app.pageAppeals": "Recursos",
   "app.pageArchive": "Arquivo",

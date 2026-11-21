@@ -3427,3 +3427,5 @@ mark.search-hit {
 
 /* v5.2 not-found view: the large 404 above "Page not found" (aria-hidden; the h1 announces). */
 .not-found-code { margin: 1rem 0 0; font-size: clamp(4rem, 18vw, 7.5rem); font-weight: 800; line-height: 1; letter-spacing: 0.04em; color: var(--coral); font-variant-numeric: tabular-nums; }
+.not-found-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin: 1rem 0 0; }
+.not-found-links a { overflow-wrap: anywhere; font-weight: 700; }

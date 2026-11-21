@@ -77,6 +77,8 @@
   "app.errorHeading": "Κάτι πήγε στραβά:(",
   "app.notFoundBody": "Αυτή η σελίδα δεν είναι διαθέσιμη.",
   "app.notFoundHeading": "Η σελίδα δεν βρέθηκε",
+  "app.notFoundHome": "Επιστροφή στην αρχική",
+  "app.notFoundSearch": "Αναζήτηση στο φόρουμ για «{query}»",
   "app.pageAdmin": "Συντονισμός",
   "app.pageAppeals": "Προσφυγές",
   "app.pageArchive": "Αρχείο",

@@ -77,6 +77,8 @@
   "app.errorHeading": "Un truc a planté :(",
   "app.notFoundBody": "Cette page n’est pas disponible.",
   "app.notFoundHeading": "Page introuvable",
+  "app.notFoundHome": "Retour à l'accueil",
+  "app.notFoundSearch": "Rechercher « {query} » sur le forum",
   "app.pageAdmin": "Modération",
   "app.pageAppeals": "Recours",
   "app.pageArchive": "Archives",

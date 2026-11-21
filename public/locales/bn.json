@@ -77,6 +77,8 @@
   "app.errorHeading": "কিছু একটা গড়বড় হয়ে গেছে :(",
   "app.notFoundBody": "এই পৃষ্ঠাটি পাওয়া যাচ্ছে না।",
   "app.notFoundHeading": "পৃষ্ঠা পাওয়া যায়নি",
+  "app.notFoundHome": "হোম ফিডে ফিরে যান",
+  "app.notFoundSearch": "ফোরামে “{query}” খুঁজুন",
   "app.pageAdmin": "মডারেশন",
   "app.pageAppeals": "আপিল",
   "app.pageArchive": "আর্কাইভ",

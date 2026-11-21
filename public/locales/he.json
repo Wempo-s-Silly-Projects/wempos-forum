@@ -77,6 +77,8 @@
   "app.errorHeading": "משהו השתבש :(",
   "app.notFoundBody": "הדף הזה לא זמין.",
   "app.notFoundHeading": "הדף לא נמצא",
+  "app.notFoundHome": "חזרה לדף הבית",
+  "app.notFoundSearch": "חיפוש “{query}” בפורום",
   "app.pageAdmin": "ניהול",
   "app.pageAppeals": "ערעורים",
   "app.pageArchive": "ארכיון",

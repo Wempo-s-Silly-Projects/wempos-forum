@@ -77,6 +77,8 @@
   "app.errorHeading": "Alguna cosa ha anat malament :(",
   "app.notFoundBody": "Aquesta pàgina no està disponible.",
   "app.notFoundHeading": "No s'ha trobat la pàgina",
+  "app.notFoundHome": "Torna a l'inici",
+  "app.notFoundSearch": "Cerca «{query}» al fòrum",
   "app.pageAdmin": "Moderació",
   "app.pageAppeals": "Apel·lacions",
   "app.pageArchive": "Arxiu",

@@ -77,6 +77,8 @@
   "app.errorHeading": "May nangyaring mali:(",
   "app.notFoundBody": "Hindi available ang pahinang iyan.",
   "app.notFoundHeading": "Hindi nahanap ang pahina",
+  "app.notFoundHome": "Bumalik sa home feed",
+  "app.notFoundSearch": "Hanapin sa forum ang “{query}”",
   "app.pageAdmin": "Moderasyon",
   "app.pageAppeals": "Mga apela",
   "app.pageArchive": "Arkibo",

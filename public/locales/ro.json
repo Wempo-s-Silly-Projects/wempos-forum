@@ -77,6 +77,8 @@
   "app.errorHeading": "Ceva n-a mers bine:(",
   "app.notFoundBody": "Pagina aceea nu este disponibilă.",
   "app.notFoundHeading": "Pagina nu a fost găsită",
+  "app.notFoundHome": "Înapoi la pagina principală",
+  "app.notFoundSearch": "Caută „{query}” pe forum",
   "app.pageAdmin": "Moderare",
   "app.pageAppeals": "Contestații",
   "app.pageArchive": "Arhivă",

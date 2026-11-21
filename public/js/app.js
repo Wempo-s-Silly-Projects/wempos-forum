@@ -22,6 +22,7 @@ import { addText } from "./forms.js";
 import { renderBannedScreen } from "./banned.js";
 import { boardLabel } from "./boards.js";
 import { isPlainLeftClick, startRouter } from "./router.js";
+import { buildNotFoundLinks } from "./not-found.js";
 import { applyCornerPreference, initTheme } from "./theme.js";
 import {
   renderTurnstileSlots,
@@ -205,6 +206,7 @@ function renderNotFoundRoute() {
   main.append(code);
   addHeading(main, t("app.notFoundHeading"), 1);
   addText(document, main, "p", t("app.notFoundBody"), "muted");
+  main.append(buildNotFoundLinks(document, t, location.pathname));
 }
 
 async function renderRoute(route) {

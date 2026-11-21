@@ -77,6 +77,8 @@
   "app.errorHeading": "Nešto je pošlo naopako:(",
   "app.notFoundBody": "Ta stranica nije dostupna.",
   "app.notFoundHeading": "Stranica nije pronađena",
+  "app.notFoundHome": "Nazad na početnu stranicu",
+  "app.notFoundSearch": "Pretraži forum za „{query}“",
   "app.pageAdmin": "Moderacija",
   "app.pageAppeals": "Žalbe",
   "app.pageArchive": "Arhiva",

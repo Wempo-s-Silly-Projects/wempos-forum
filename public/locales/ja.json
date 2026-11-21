@@ -77,6 +77,8 @@
   "app.errorHeading": "問題が発生しました:(",
   "app.notFoundBody": "そのページは利用できません。",
   "app.notFoundHeading": "ページが見つかりません",
+  "app.notFoundHome": "ホームに戻る",
+  "app.notFoundSearch": "フォーラムで「{query}」を検索",
   "app.pageAdmin": "モデレーション",
   "app.pageAppeals": "異議申し立て",
   "app.pageArchive": "アーカイブ",

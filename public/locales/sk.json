@@ -77,6 +77,8 @@
   "app.errorHeading": "Niečo sa pokazilo:(",
   "app.notFoundBody": "Táto stránka nie je dostupná.",
   "app.notFoundHeading": "Stránka sa nenašla",
+  "app.notFoundHome": "Späť na hlavnú stránku",
+  "app.notFoundSearch": "Hľadať vo fóre „{query}“",
   "app.pageAdmin": "Moderovanie",
   "app.pageAppeals": "Odvolania",
   "app.pageArchive": "Archív",
