@@ -30,3 +30,7 @@ test("the app shell carries a static English meta description", () => {
   assert.ok(match, "missing <meta name=\"description\">");
   assert.ok(match[1].length >= 50 && match[1].length <= 160, "description length " + match[1].length);
 });
+
+test("package.json declares the AGPL-3.0-or-later license", () => {
+  assert.equal(JSON.parse(read("package.json")).license, "AGPL-3.0-or-later");
+});
