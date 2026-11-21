@@ -13,6 +13,21 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.10.0] - 2026-11-21
+
+### Fixed
+- **Privacy fixes from a full visibility check.** Every page and tool that
+  shows posts, replies, members or chat was checked again:
+  - The deleted-posts archive no longer shows replies from a thread that
+    moderators had hidden, or posts by a banned member who later deleted
+    their account.
+  - A chat @mention in your notifications no longer names a member who is
+    banned or who you've blocked (or who blocked you).
+  - The "who's online" lists no longer show a member you've blocked, or who
+    blocked you.
+  - Leaderboard and profile counts no longer include replies under hidden
+    threads or under posts by banned members.
+
 ## [5.9.0] - 2026-11-21
 
 ### Added
