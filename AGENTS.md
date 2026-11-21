@@ -1,7 +1,7 @@
 # Wempo’s Forum fleet — standing laws
 
 The fleet's anti-waste protocol (Section Q), inherited by every teammate and subagent — echo it verbatim into any spawned brief.
-Also read agents-nboarding.md
+Also read AGENTS-ONBOARDING.md
 
 ## STRICT ANTI-WASTE PROTOCOL (Section Q)
 

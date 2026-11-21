@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy --var COMMIT_SHA:$(git rev-parse --short HEAD)",
+    "deploy": "wrangler deploy --keep-vars --var COMMIT_SHA:$(git rev-parse --short HEAD)",
     "db:migrate:local": "wrangler d1 migrations apply wempo-forum-data --local",
     "db:migrate:remote": "wrangler d1 migrations apply wempo-forum-data --remote",
     "test": "node --test"

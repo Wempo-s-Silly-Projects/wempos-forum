@@ -1,11 +1,5 @@
 name: Crowdin translations
 
-# Community-translations pull: a manual dispatch (no cron while the string
-# extraction is pending — see the PREREQUISITE note in crowdin.yml, the
-# owner's issue #41). Once public/locales/en.json exists, flip to cron the
-# same way Wempo's Forum's is.
-
-on:
 # Community-translations pull: daily sync uploads the en.json source and
 # opens one PR per new batch of Crowdin community translations. Locales are
 # enabled/managed on the Crowdin project side — no code change per language.
