@@ -195,7 +195,7 @@ a:hover {
   position: fixed;
   z-index: 10;
   top: 0.75rem;
-  left: 0.75rem;
+  inset-inline-start: 0.75rem;
   transform: translateY(-180%);
   padding: 0.7rem 1rem;
   border: 2px solid var(--ink);
@@ -326,11 +326,11 @@ a:hover {
 .personal-intro::before {
   position: absolute;
   top: -0.8rem;
-  left: 1.4rem;
+  inset-inline-start: 1.4rem;
   width: 5.5rem;
   height: 1.35rem;
-  border-right: 1px solid #d3a954;
-  border-left: 1px solid #d3a954;
+  border-inline-end: 1px solid #d3a954;
+  border-inline-start: 1px solid #d3a954;
   background: rgb(243 207 103 / 72%);
   content: "";
   transform: rotate(-3deg);
@@ -388,7 +388,7 @@ a:hover {
 
 .intro-doodle {
   position: absolute;
-  right: 1.2rem;
+  inset-inline-end: 1.2rem;
   bottom: 1rem;
   color: var(--coral);
   font-family: "Comic Sans MS", "Chalkboard SE", cursive;
@@ -428,16 +428,16 @@ a:hover {
 
 .post-card {
   padding: clamp(1rem, 4vw, 1.35rem);
-  border-left: 6px solid #7d9b66;
+  border-inline-start: 6px solid #7d9b66;
   overflow-wrap: anywhere;
 }
 
 .post-list .post-card:nth-child(3n + 2) {
-  border-left-color: #d48764;
+  border-inline-start-color: #d48764;
 }
 
 .post-list .post-card:nth-child(3n) {
-  border-left-color: #6d9ba4;
+  border-inline-start-color: #6d9ba4;
 }
 
 .post-hidden {
@@ -886,7 +886,7 @@ dialog h2 {
 .notification-badge {
   position: absolute;
   top: -0.25rem;
-  right: -0.25rem;
+  inset-inline-end: -0.25rem;
   width: 0.62rem;
   height: 0.62rem;
   padding: 0;
@@ -903,7 +903,7 @@ dialog h2 {
   padding: 0.55rem 0.75rem;
   border: 1px solid var(--line);
   border-radius: 0.4rem;
-  text-align: left;
+  text-align: start;
   color: var(--ink);
   background: var(--paper);
   cursor: pointer;
@@ -923,8 +923,8 @@ dialog h2 {
 
 .sub-replies {
   margin: 0.5rem 0 0.5rem 1.4rem;
-  padding-left: 0.6rem;
-  border-left: 3px solid var(--line);
+  padding-inline-start: 0.6rem;
+  border-inline-start: 3px solid var(--line);
   display: grid;
   gap: 0.7rem;
 }
@@ -940,12 +940,12 @@ dialog h2 {
 
 .profile-social .social-label {
   color: var(--muted);
-  margin-right: 0.25rem;
+  margin-inline-end: 0.25rem;
 }
 
 .avatar-pending-badge {
   display: inline-block;
-  margin-left: 0.75rem;
+  margin-inline-start: 0.75rem;
   padding: 0.15rem 0.5rem;
   border-radius: 0.35rem;
   font-size: 0.85rem;
@@ -1239,7 +1239,7 @@ dialog h2 {
 
 .preview-caption {
   align-self: flex-start;
-  padding-right: 0.5rem;
+  padding-inline-end: 0.5rem;
   color: var(--muted);
   font-size: 0.78rem;
   letter-spacing: 0.04em;
@@ -1289,7 +1289,7 @@ dialog h2 {
 .post-quote {
   margin: 0.75rem 0;
   padding: 0.35rem 0.9rem;
-  border-left: 4px solid var(--line);
+  border-inline-start: 4px solid var(--line);
   border-radius: 0 0.55rem 0.55rem 0;
   background: var(--soft-green);
 }
@@ -1307,7 +1307,7 @@ dialog h2 {
    parent + children stack reads as one thread. */
 .cascade-replies .post-card {
   padding: clamp(0.6rem, 3vw, 0.85rem);
-  border-left-width: 3px;
+  border-inline-start-width: 3px;
 }
 
 .socials-details {
@@ -1633,7 +1633,7 @@ dialog h2 {
   outline: 2px solid var(--green);
 }
 .gif-picker-foot {
-  text-align: right;
+  text-align: end;
 }
 .gif-thumbs {
   display: inline-flex;
@@ -1752,7 +1752,7 @@ dialog h2 {
   color: var(--muted);
   font-size: 0.85rem;
   flex: 1;
-  text-align: right;
+  text-align: end;
 }
 .leaderboard-score {
   font-weight: 800;
@@ -1819,7 +1819,7 @@ dialog h2 {
   flex-shrink: 0;
 }
 .chat-count {
-  margin-left: 0.25rem;
+  margin-inline-start: 0.25rem;
   padding: 0;
   border: 0;
   background: none;
@@ -1863,7 +1863,7 @@ dialog h2 {
   font-size: 0.8rem;
 }
 .chat-message-author { font-weight: 700; }
-.chat-message-head time { margin-left: auto; color: var(--muted); font-size: 0.72rem; }
+.chat-message-head time { margin-inline-start: auto; color: var(--muted); font-size: 0.72rem; }
 .chat-message-body {
   margin: 0;
   white-space: pre-wrap;
@@ -1901,7 +1901,7 @@ dialog h2 {
   border-radius: var(--button-radius);
   background: none;
   cursor: pointer;
-  text-align: left;
+  text-align: start;
 }
 .dm-thread-name { font-weight: 700; }
 .dm-thread-preview {
@@ -1978,7 +1978,7 @@ dialog h2 {
 .wall-post-pinned { border-color: var(--profile-accent, var(--green)); border-width: 2px; }
 .wall-post-header { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
 .wall-post-author { font-weight: 700; color: inherit; }
-.wall-post-time { color: var(--muted, #666); font-size: 0.85rem; margin-left: auto; }
+.wall-post-time { color: var(--muted, #666); font-size: 0.85rem; margin-inline-start: auto; }
 .wall-post-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .profile-wall form { margin-bottom: 0.4rem; }
 
@@ -1989,7 +1989,7 @@ dialog h2 {
 .chat-unread-dot {
   position: absolute;
   top: -0.25rem;
-  right: -0.35rem;
+  inset-inline-end: -0.35rem;
   width: 0.6rem;
   height: 0.6rem;
   border-radius: 50%;
@@ -2018,10 +2018,10 @@ dialog h2 {
   margin: 0;
 }
 .chat-message { align-items: flex-start; }
-.chat-message-head time { margin-left: 0.5rem; }
+.chat-message-head time { margin-inline-start: 0.5rem; }
 .dm-thread-view .chat-message.chat-mine {
   align-items: flex-end;
-  text-align: right;
+  text-align: end;
 }
 .dm-thread-view .chat-message.chat-mine .chat-message-author { color: var(--muted); }
 .dm-thread-view .chat-message.chat-mine .chat-message-body {
@@ -2037,7 +2037,7 @@ dialog h2 {
 .dm-thread-badge {
   position: absolute;
   top: -0.45rem;
-  right: -0.45rem;
+  inset-inline-end: -0.45rem;
   min-width: 1.25rem;
   padding: 0 0.3rem;
   border-radius: 999px;
@@ -2054,18 +2054,18 @@ dialog h2 {
   display: inline-block;
   width: 0.45rem;
   height: 0.45rem;
-  margin-left: 0.35rem;
+  margin-inline-start: 0.35rem;
   border-radius: 50%;
   background: var(--coral);
 }
-.chat-lurk input { margin-right: 0.3rem; }
+.chat-lurk input { margin-inline-end: 0.3rem; }
 .dm-thread-list { padding: 0.6rem 0.4rem; }
 
 /* Flagged-content snapshot on the appeals cards (v4.2). */
 .flagged-content {
   margin: 0.4rem 0;
   padding: 0.5rem 0.7rem;
-  border-left: 3px solid var(--coral);
+  border-inline-start: 3px solid var(--coral);
   background: var(--error-soft, #f5d5c5);
   border-radius: var(--button-radius);
   font-size: 0.85rem;
@@ -2201,7 +2201,7 @@ dialog h2 {
    the floating layer's motion disappears under prefers-reduced-motion. */
 .chat-widget-launcher {
   position: fixed;
-  right: 16px;
+  inset-inline-end: 16px;
   bottom: 16px;
   z-index: 40;
   width: 52px;
@@ -2223,7 +2223,7 @@ dialog h2 {
 .chat-widget-badge {
   position: absolute;
   top: -4px;
-  right: -4px;
+  inset-inline-end: -4px;
   min-width: 20px;
   padding: 0 5px;
   border-radius: 999px;
@@ -2237,7 +2237,7 @@ dialog h2 {
 
 .chat-widget-panel {
   position: fixed;
-  right: 16px;
+  inset-inline-end: 16px;
   bottom: 80px;
   z-index: 40;
   width: min(360px, calc(100vw - 16px));
@@ -2292,7 +2292,7 @@ dialog h2 {
   border-bottom: 1px solid var(--line);
   cursor: pointer;
   font: inherit;
-  text-align: left;
+  text-align: start;
   width: 100%;
 }
 .chat-widget-thread:hover { background: var(--field); }
@@ -2350,7 +2350,7 @@ dialog h2 {
   display: block;
   font-size: 0.72rem;
   color: var(--muted);
-  text-align: right;
+  text-align: end;
 }
 .chat-widget-message.mine .chat-widget-message-time { color: rgb(255 255 255 / 0.8); }
 .chat-widget-message.mine .chat-widget-message-who { display: none; }
@@ -2435,7 +2435,7 @@ dialog h2 {
 .chat-widget-tabs {
   display: flex;
   gap: 0.25rem;
-  margin-left: 0.4rem;
+  margin-inline-start: 0.4rem;
 }
 .chat-widget-tab {
   background: none;
@@ -2543,7 +2543,7 @@ dialog h2 {
    entirely when the presence read fails, and simply absent on narrow phones. */
 .who-online {
   position: fixed;
-  left: 16px;
+  inset-inline-start: 16px;
   bottom: 16px;
   z-index: 40;
   width: 220px;
@@ -2698,7 +2698,7 @@ dialog h2 {
 }
 
 .new-chip {
-  margin-left: 8px;
+  margin-inline-start: 8px;
   padding: 1px 8px;
   border-radius: 999px;
   background: var(--coral);
@@ -2725,7 +2725,7 @@ dialog h2 {
 
 .thread-glance-fact + .thread-glance-fact::before {
   content: "·";
-  margin-right: 14px;
+  margin-inline-end: 14px;
 }
 
 .post-card.post-spotlight {
