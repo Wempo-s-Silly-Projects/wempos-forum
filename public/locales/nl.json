@@ -629,6 +629,8 @@
   "render.copyLink": "Link kopiëren",
   "render.threadAuthor": "Auteur",
   "render.threadAuthorTitle": "Is dit topic begonnen",
+  "render.you": "Jij",
+  "render.youTitle": "Dit heb jij geschreven",
   "render.readAloud": "Voorlezen",
   "render.stopReading": "Stoppen met voorlezen",
   "render.noLocalVoice": "Geen stem op het apparaat beschikbaar",

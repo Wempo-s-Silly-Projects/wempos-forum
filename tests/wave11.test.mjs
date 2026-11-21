@@ -47,3 +47,32 @@ test("the mention picker's keys stand down during IME composition", () => {
   assert.match(text, /import \{[^}]*isImeComposing[^}]*\} from "\.\/focus-utils\.js"/);
   assert.match(text, /if \(list\.hidden \|\| users\.length === 0 \|\| isImeComposing\(event\)\) return;/);
 });
+
+// Wave 2026-11-21-11 F2: a "You" chip on the signed-in member's own cards.
+import { createPostCard } from "../public/js/render.js";
+import { countByClass, makeFakeDocument } from "./helpers/fake-dom.mjs";
+
+const card = (authorId, viewer) => createPostCard({
+  id: 5, body: "hi", createdAt: "2026-11-21T00:00:00Z", visibility: "public",
+  author: { id: authorId, username: "ann", role: null },
+}, makeFakeDocument(), viewer);
+
+test("your own post carries the You chip", () => {
+  assert.equal(countByClass(card(7, { id: 7, role: null }), "role-badge-you"), 1);
+});
+
+test("someone else's post, a guest view, or a removed author carries no You chip", () => {
+  assert.equal(countByClass(card(8, { id: 7, role: null }), "role-badge-you"), 0);
+  assert.equal(countByClass(card(7, null), "role-badge-you"), 0);
+  const removed = createPostCard({ id: 6, body: "x", createdAt: "2026-11-21T00:00:00Z", author: null },
+    makeFakeDocument(), { id: 7 });
+  assert.equal(countByClass(removed, "role-badge-you"), 0);
+});
+
+test("the You chip strings exist in every locale", () => {
+  for (const file of ["en", "ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt",
+    "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant"]) {
+    const bundle = JSON.parse(readFileSync(new URL(`../public/locales/${file}.json`, import.meta.url), "utf8"));
+    assert.ok(bundle["render.you"] && bundle["render.youTitle"], file);
+  }
+});

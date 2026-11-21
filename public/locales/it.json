@@ -629,6 +629,8 @@
   "render.copyLink": "Copia link",
   "render.threadAuthor": "Autore",
   "render.threadAuthorTitle": "Ha aperto questa discussione",
+  "render.you": "Tu",
+  "render.youTitle": "L'hai scritto tu",
   "render.readAloud": "Leggi ad alta voce",
   "render.stopReading": "Interrompi lettura",
   "render.noLocalVoice": "Nessuna voce disponibile sul dispositivo",

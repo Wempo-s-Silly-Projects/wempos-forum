@@ -231,6 +231,14 @@ export const createPostCard = (post, document, currentUser = null) => {
     }
     // Flair on cards (v3.0.1): the profile flair chip shown next to the name.
     if (post.author.flair) author.append(createElement(document, "span", "post-flair", post.author.flair));
+    // "You" chip (wave 2026-11-21-11 F2): the signed-in member's own posts
+    // and replies are chipped so they can spot their part of a thread.
+    // Client-only, from ids the card already has.
+    if (currentUser && Number(currentUser.id) === Number(post.author.id)) {
+      const youChip = createElement(document, "span", "role-badge role-badge-you", t("render.you"));
+      youChip.setAttribute("title", t("render.youTitle"));
+      author.append(youChip);
+    }
   } else {
     author.append(createElement(document, "span", "author-name", t("render.removedAccount")));
   }

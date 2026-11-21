@@ -629,6 +629,8 @@
   "render.copyLink": "העתקת קישור",
   "render.threadAuthor": "מחבר",
   "render.threadAuthorTitle": "פתח את השרשור הזה",
+  "render.you": "שלך",
+  "render.youTitle": "כתבת את זה",
   "render.readAloud": "הקראה",
   "render.stopReading": "הפסקת ההקראה",
   "render.noLocalVoice": "אין קול זמין במכשיר",

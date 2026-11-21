@@ -629,6 +629,8 @@
   "render.copyLink": "リンクをコピー",
   "render.threadAuthor": "投稿者",
   "render.threadAuthorTitle": "このスレッドを始めた人",
+  "render.you": "あなた",
+  "render.youTitle": "あなたが書いた投稿",
   "render.readAloud": "読み上げ",
   "render.stopReading": "読み上げを停止",
   "render.noLocalVoice": "端末内の音声がありません",

@@ -629,6 +629,8 @@
   "render.copyLink": "Bağlantıyı kopyala",
   "render.threadAuthor": "Yazar",
   "render.threadAuthorTitle": "Bu konuyu başlattı",
+  "render.you": "Sen",
+  "render.youTitle": "Bunu sen yazdın",
   "render.readAloud": "Sesli oku",
   "render.stopReading": "Okumayı durdur",
   "render.noLocalVoice": "Cihazda kullanılabilir ses yok",
