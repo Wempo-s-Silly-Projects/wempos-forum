@@ -15,6 +15,24 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.24.0] - 2026-11-21
+
+### Security
+- Security review of everything shipped in 5.20–5.23 (SHA-256 two-factor,
+  the source code link, the ZAP and fuzz checks, print styles and pronouns).
+  The full write-up is in
+  [docs/security-reviews/2026-11-21-v5.20-v5.23.md](docs/security-reviews/2026-11-21-v5.20-v5.23.md).
+- Fixed: pronouns are now checked against the word filter every time a
+  profile is shown, the same as flair. Before, pronouns saved before a word
+  was added to the filter kept showing that word.
+- New automated checks that two-factor's algorithm can't change while it is
+  on (even when two tabs race), that Download my data never contains
+  two-factor secrets, that pronouns with HTML in them show as plain text,
+  that a `javascript:` or `http:` `SOURCE_URL` never becomes the source code
+  link, that printing never hides that link, and that the new CI workflows
+  stay read-only with every action pinned. No database migration in this
+  release.
+
 ## [5.23.0] - 2026-11-21
 
 ### Added
