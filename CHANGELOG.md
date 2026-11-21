@@ -13,6 +13,15 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.12.0] - 2026-11-21
+
+### Security
+- Security review of the 5.9 to 5.11 changes (new-messages line, search
+  "Jump to" row, wall Reply, the visibility fixes and the staff-only question
+  of the day). No problems were found; new automated checks now guard the
+  chat-mention bell filter, the question-of-the-day role check and the
+  public reply counts so they stay correct.
+
 ## [5.11.0] - 2026-11-21
 
 ### Changed
