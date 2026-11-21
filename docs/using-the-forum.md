@@ -20,7 +20,10 @@ back to the forum already signed in.
 Want extra protection? Turn on **two-factor sign-in** from your account page:
 you'll use an authenticator app, plus a set of one-time backup codes in case
 you lose your phone. Each backup code works once, and they're only shown when
-you create them, so write them down.
+you create them, so write them down. When you set it up you can tick **Use
+SHA-256** for a stronger code, but only if your app supports it (Aegis, 2FAS,
+1Password and Bitwarden do; Google Authenticator does not); left unticked it
+works with every app.
 
 ## The boards
 
