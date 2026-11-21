@@ -36,6 +36,7 @@ import { api } from "./api.js";
 import { createIcon } from "./icons.js";
 import { currentLocale, i18nReady, t, tn } from "./i18n.js";
 import { isEmojiOnly } from "./dm-effects.js";
+import { formatRelative } from "./reltime.js";
 import {
   buildEffectsToggle, buildGroupManage, buildImageButton, buildNewGroupForm, conversationBase,
   effectsEnabled, fillImageBody, groupTitle, imageIdOf, uploadDmImage,
@@ -109,7 +110,11 @@ const sameConversation = (a, b) => Boolean(a && b) && conversationKey(a) === con
 
 const isStaff = () => Boolean(widgetUser && (widgetUser.role === "owner" || widgetUser.role === "admin"));
 
+// Locale-aware stamp (wave 2026-11-21-3); the keyed short forms below stay
+// only for runtimes without Intl.RelativeTimeFormat.
 const relativeTime = (iso) => {
+  const localized = formatRelative(iso, { locale: currentLocale() });
+  if (localized !== null) return localized;
   const then = new Date(iso).getTime();
   if (!Number.isFinite(then)) return "";
   const minutes = Math.max(0, Math.round((Date.now() - then) / 60_000));
