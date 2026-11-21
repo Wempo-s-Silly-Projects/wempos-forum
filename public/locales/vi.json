@@ -923,5 +923,17 @@
   "profile.topBadge": "Bạn đã có huy hiệu cao nhất.",
   "feed.regularsHere": "Thành viên quen thuộc trên trang này:",
   "feed.resetAppearance": "Đặt lại giao diện",
-  "feed.appearanceResetDone": "Giao diện đã trở về mặc định."
+  "feed.appearanceResetDone": "Giao diện đã trở về mặc định.",
+  "dm.newMessages.one": "{count} tin nhắn mới",
+  "dm.newMessages.other": "{count} tin nhắn mới",
+  "search.jumpTo": "Chuyển đến:",
+  "search.summaryLabel": "Tóm tắt kết quả tìm kiếm",
+  "search.jumpReplies.one": "{count} trả lời",
+  "search.jumpReplies.other": "{count} trả lời",
+  "search.jumpPeople.one": "{count} thành viên",
+  "search.jumpPeople.other": "{count} thành viên",
+  "search.jumpPosts.one": "{count} bài viết",
+  "search.jumpPosts.other": "{count} bài viết",
+  "wall.reply": "Trả lời",
+  "wall.replyAria": "Trả lời {name}"
 }

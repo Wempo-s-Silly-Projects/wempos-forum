@@ -923,5 +923,17 @@
   "profile.topBadge": "최고 배지를 가지고 있습니다.",
   "feed.regularsHere": "이 페이지의 단골:",
   "feed.resetAppearance": "모양 초기화",
-  "feed.appearanceResetDone": "모양이 기본값으로 돌아갔습니다."
+  "feed.appearanceResetDone": "모양이 기본값으로 돌아갔습니다.",
+  "dm.newMessages.one": "새 메시지 {count}개",
+  "dm.newMessages.other": "새 메시지 {count}개",
+  "search.jumpTo": "바로 가기:",
+  "search.summaryLabel": "검색 결과 요약",
+  "search.jumpReplies.one": "답글 {count}개",
+  "search.jumpReplies.other": "답글 {count}개",
+  "search.jumpPeople.one": "회원 {count}명",
+  "search.jumpPeople.other": "회원 {count}명",
+  "search.jumpPosts.one": "게시물 {count}개",
+  "search.jumpPosts.other": "게시물 {count}개",
+  "wall.reply": "답글",
+  "wall.replyAria": "{name}님에게 답글"
 }

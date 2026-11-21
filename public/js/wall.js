@@ -27,6 +27,7 @@ import { createTextarea } from "./forms.js";
 import { state } from "./state.js";
 import { currentLocale, t } from "./i18n.js";
 import { renderBodyBlocks } from "./render.js";
+import { createWallReplyButton } from "./wall-reply.js";
 
 const WALL_MAX_CHARS = 280;
 
@@ -93,6 +94,12 @@ export async function renderProfileWall(profile) {
     header.append(when);
     row.append(header);
     row.append(renderWallBody(document, post.body));
+    // Wave 5.9 F3: Reply puts "@name " in the wall box (members, not on
+    // their own posts; nothing is sent until they post).
+    if (viewer && Number(post.author.id) !== Number(viewer.id)) {
+      row.append(createWallReplyButton(document, post.author.username,
+        () => document.getElementById(`${profile.id}-wall-body`), WALL_MAX_CHARS));
+    }
     // Pin control: the wall OWNER's single affordance. The dataset rides the
     // payload's pinnedAt, so a re-render refetch decides the state.
     if (isOwner) {

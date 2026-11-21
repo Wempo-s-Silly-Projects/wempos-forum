@@ -923,5 +923,17 @@
   "profile.topBadge": "У вас самый высокий значок.",
   "feed.regularsHere": "Завсегдатаи на этой странице:",
   "feed.resetAppearance": "Сбросить оформление",
-  "feed.appearanceResetDone": "Оформление возвращено к настройкам по умолчанию."
+  "feed.appearanceResetDone": "Оформление возвращено к настройкам по умолчанию.",
+  "dm.newMessages.one": "{count} новое сообщение",
+  "dm.newMessages.other": "Новых сообщений: {count}",
+  "search.jumpTo": "Перейти к:",
+  "search.summaryLabel": "Сводка результатов поиска",
+  "search.jumpReplies.one": "{count} ответ",
+  "search.jumpReplies.other": "Ответов: {count}",
+  "search.jumpPeople.one": "{count} участник",
+  "search.jumpPeople.other": "Участников: {count}",
+  "search.jumpPosts.one": "{count} публикация",
+  "search.jumpPosts.other": "Публикаций: {count}",
+  "wall.reply": "Ответить",
+  "wall.replyAria": "Ответить {name}"
 }

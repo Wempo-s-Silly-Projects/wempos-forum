@@ -923,5 +923,17 @@
   "profile.topBadge": "Tens la insígnia màxima.",
   "feed.regularsHere": "Habituals en aquesta pàgina:",
   "feed.resetAppearance": "Restableix l'aparença",
-  "feed.appearanceResetDone": "L'aparença torna a ser la predeterminada."
+  "feed.appearanceResetDone": "L'aparença torna a ser la predeterminada.",
+  "dm.newMessages.one": "{count} missatge nou",
+  "dm.newMessages.other": "{count} missatges nous",
+  "search.jumpTo": "Ves a:",
+  "search.summaryLabel": "Resum dels resultats de la cerca",
+  "search.jumpReplies.one": "{count} resposta",
+  "search.jumpReplies.other": "{count} respostes",
+  "search.jumpPeople.one": "{count} membre",
+  "search.jumpPeople.other": "{count} membres",
+  "search.jumpPosts.one": "{count} publicació",
+  "search.jumpPosts.other": "{count} publicacions",
+  "wall.reply": "Respon",
+  "wall.replyAria": "Respon a {name}"
 }

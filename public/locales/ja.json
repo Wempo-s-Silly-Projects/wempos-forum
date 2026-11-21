@@ -923,5 +923,17 @@
   "profile.topBadge": "最上位のバッジを獲得しています。",
   "feed.regularsHere": "このページの常連:",
   "feed.resetAppearance": "外観をリセット",
-  "feed.appearanceResetDone": "外観を既定に戻しました。"
+  "feed.appearanceResetDone": "外観を既定に戻しました。",
+  "dm.newMessages.one": "新着メッセージ {count} 件",
+  "dm.newMessages.other": "新着メッセージ {count} 件",
+  "search.jumpTo": "移動:",
+  "search.summaryLabel": "検索結果の概要",
+  "search.jumpReplies.one": "返信 {count} 件",
+  "search.jumpReplies.other": "返信 {count} 件",
+  "search.jumpPeople.one": "メンバー {count} 人",
+  "search.jumpPeople.other": "メンバー {count} 人",
+  "search.jumpPosts.one": "投稿 {count} 件",
+  "search.jumpPosts.other": "投稿 {count} 件",
+  "wall.reply": "返信する",
+  "wall.replyAria": "{name} さんに返信"
 }

@@ -923,5 +923,17 @@
   "profile.topBadge": "Você tem o emblema mais alto.",
   "feed.regularsHere": "Frequentadores desta página:",
   "feed.resetAppearance": "Redefinir aparência",
-  "feed.appearanceResetDone": "A aparência voltou ao padrão."
+  "feed.appearanceResetDone": "A aparência voltou ao padrão.",
+  "dm.newMessages.one": "{count} mensagem nova",
+  "dm.newMessages.other": "{count} mensagens novas",
+  "search.jumpTo": "Ir para:",
+  "search.summaryLabel": "Resumo dos resultados da pesquisa",
+  "search.jumpReplies.one": "{count} resposta",
+  "search.jumpReplies.other": "{count} respostas",
+  "search.jumpPeople.one": "{count} membro",
+  "search.jumpPeople.other": "{count} membros",
+  "search.jumpPosts.one": "{count} publicação",
+  "search.jumpPosts.other": "{count} publicações",
+  "wall.reply": "Responder",
+  "wall.replyAria": "Responder a {name}"
 }

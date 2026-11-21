@@ -20,7 +20,7 @@
 // that the widget's feature modules (lobby, thread list, composer) all read
 // and write, as one mutable property bag — the public/js/state.js idiom, since
 // a `let` cannot be re-exported — plus the tiny DOM helpers they share.
-
+import { NO_NEW_MARKER } from "./chat-new-divider.js";
 
 export const ui = {
   badge: null,
@@ -69,6 +69,8 @@ export const ui = {
   // painted per conversation so only fresh arrivals pop.
   effectsOn: false,
   lastPainted: { key: null, maxId: 0 },
+  // Wave 5.9 F1: where the "New messages" line goes ({ key, id, count }).
+  newSince: NO_NEW_MARKER,
 };
 
 export const kindOf = (conversation) => (conversation?.kind === "group" ? "group" : "dm");

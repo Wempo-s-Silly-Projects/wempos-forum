@@ -923,5 +923,17 @@
   "profile.topBadge": "你已擁有最高徽章。",
   "feed.regularsHere": "本頁常客：",
   "feed.resetAppearance": "重設外觀",
-  "feed.appearanceResetDone": "外觀已恢復為預設設定。"
+  "feed.appearanceResetDone": "外觀已恢復為預設設定。",
+  "dm.newMessages.one": "{count} 則新訊息",
+  "dm.newMessages.other": "{count} 則新訊息",
+  "search.jumpTo": "跳至：",
+  "search.summaryLabel": "搜尋結果摘要",
+  "search.jumpReplies.one": "{count} 則回覆",
+  "search.jumpReplies.other": "{count} 則回覆",
+  "search.jumpPeople.one": "{count} 位成員",
+  "search.jumpPeople.other": "{count} 位成員",
+  "search.jumpPosts.one": "{count} 篇貼文",
+  "search.jumpPosts.other": "{count} 篇貼文",
+  "wall.reply": "回覆",
+  "wall.replyAria": "回覆 {name}"
 }

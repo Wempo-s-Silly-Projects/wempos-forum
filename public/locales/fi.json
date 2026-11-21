@@ -923,5 +923,17 @@
   "profile.topBadge": "Sinulla on korkein merkki.",
   "feed.regularsHere": "Vakiokävijät tällä sivulla:",
   "feed.resetAppearance": "Palauta ulkoasu",
-  "feed.appearanceResetDone": "Ulkoasu on palautettu oletuksiin."
+  "feed.appearanceResetDone": "Ulkoasu on palautettu oletuksiin.",
+  "dm.newMessages.one": "{count} uusi viesti",
+  "dm.newMessages.other": "{count} uutta viestiä",
+  "search.jumpTo": "Siirry:",
+  "search.summaryLabel": "Hakutulosten yhteenveto",
+  "search.jumpReplies.one": "{count} vastaus",
+  "search.jumpReplies.other": "{count} vastausta",
+  "search.jumpPeople.one": "{count} jäsen",
+  "search.jumpPeople.other": "{count} jäsentä",
+  "search.jumpPosts.one": "{count} viesti",
+  "search.jumpPosts.other": "{count} viestiä",
+  "wall.reply": "Vastaa",
+  "wall.replyAria": "Vastaa käyttäjälle {name}"
 }

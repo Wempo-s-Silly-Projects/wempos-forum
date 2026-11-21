@@ -923,5 +923,17 @@
   "profile.topBadge": "יש לך את התג הגבוה ביותר.",
   "feed.regularsHere": "קבועים בעמוד הזה:",
   "feed.resetAppearance": "איפוס המראה",
-  "feed.appearanceResetDone": "המראה חזר לברירת המחדל."
+  "feed.appearanceResetDone": "המראה חזר לברירת המחדל.",
+  "dm.newMessages.one": "הודעה חדשה אחת ({count})",
+  "dm.newMessages.other": "{count} הודעות חדשות",
+  "search.jumpTo": "מעבר אל:",
+  "search.summaryLabel": "סיכום תוצאות החיפוש",
+  "search.jumpReplies.one": "תגובה אחת ({count})",
+  "search.jumpReplies.other": "{count} תגובות",
+  "search.jumpPeople.one": "חבר אחד ({count})",
+  "search.jumpPeople.other": "{count} חברים",
+  "search.jumpPosts.one": "פוסט אחד ({count})",
+  "search.jumpPosts.other": "{count} פוסטים",
+  "wall.reply": "השב",
+  "wall.replyAria": "השב ל-{name}"
 }

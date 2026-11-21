@@ -923,5 +923,17 @@
   "profile.topBadge": "คุณมีเหรียญสูงสุดแล้ว",
   "feed.regularsHere": "ขาประจำในหน้านี้:",
   "feed.resetAppearance": "รีเซ็ตรูปลักษณ์",
-  "feed.appearanceResetDone": "รูปลักษณ์กลับเป็นค่าเริ่มต้นแล้ว"
+  "feed.appearanceResetDone": "รูปลักษณ์กลับเป็นค่าเริ่มต้นแล้ว",
+  "dm.newMessages.one": "ข้อความใหม่ {count} ข้อความ",
+  "dm.newMessages.other": "ข้อความใหม่ {count} ข้อความ",
+  "search.jumpTo": "ไปที่:",
+  "search.summaryLabel": "สรุปผลการค้นหา",
+  "search.jumpReplies.one": "{count} การตอบกลับ",
+  "search.jumpReplies.other": "{count} การตอบกลับ",
+  "search.jumpPeople.one": "สมาชิก {count} คน",
+  "search.jumpPeople.other": "สมาชิก {count} คน",
+  "search.jumpPosts.one": "{count} โพสต์",
+  "search.jumpPosts.other": "{count} โพสต์",
+  "wall.reply": "ตอบกลับ",
+  "wall.replyAria": "ตอบกลับ {name}"
 }

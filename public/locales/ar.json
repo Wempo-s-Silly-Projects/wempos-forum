@@ -923,5 +923,17 @@
   "profile.topBadge": "لديك أعلى شارة.",
   "feed.regularsHere": "الأعضاء الدائمون في هذه الصفحة:",
   "feed.resetAppearance": "إعادة تعيين المظهر",
-  "feed.appearanceResetDone": "عاد المظهر إلى الإعدادات الافتراضية."
+  "feed.appearanceResetDone": "عاد المظهر إلى الإعدادات الافتراضية.",
+  "dm.newMessages.one": "{count} رسالة جديدة",
+  "dm.newMessages.other": "{count} رسائل جديدة",
+  "search.jumpTo": "انتقل إلى:",
+  "search.summaryLabel": "ملخص نتائج البحث",
+  "search.jumpReplies.one": "{count} رد",
+  "search.jumpReplies.other": "{count} ردود",
+  "search.jumpPeople.one": "{count} عضو",
+  "search.jumpPeople.other": "{count} أعضاء",
+  "search.jumpPosts.one": "{count} منشور",
+  "search.jumpPosts.other": "{count} منشورات",
+  "wall.reply": "رد",
+  "wall.replyAria": "الرد على {name}"
 }

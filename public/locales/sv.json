@@ -923,5 +923,17 @@
   "profile.topBadge": "Du har det högsta märket.",
   "feed.regularsHere": "Stamgäster på den här sidan:",
   "feed.resetAppearance": "Återställ utseende",
-  "feed.appearanceResetDone": "Utseendet är tillbaka till standard."
+  "feed.appearanceResetDone": "Utseendet är tillbaka till standard.",
+  "dm.newMessages.one": "{count} nytt meddelande",
+  "dm.newMessages.other": "{count} nya meddelanden",
+  "search.jumpTo": "Gå till:",
+  "search.summaryLabel": "Sammanfattning av sökresultaten",
+  "search.jumpReplies.one": "{count} svar",
+  "search.jumpReplies.other": "{count} svar",
+  "search.jumpPeople.one": "{count} medlem",
+  "search.jumpPeople.other": "{count} medlemmar",
+  "search.jumpPosts.one": "{count} inlägg",
+  "search.jumpPosts.other": "{count} inlägg",
+  "wall.reply": "Svara",
+  "wall.replyAria": "Svara {name}"
 }

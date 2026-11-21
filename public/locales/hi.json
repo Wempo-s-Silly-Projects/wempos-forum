@@ -923,5 +923,17 @@
   "profile.topBadge": "आपके पास सबसे ऊँचा बैज है।",
   "feed.regularsHere": "इस पेज के नियमित सदस्य:",
   "feed.resetAppearance": "दिखावट रीसेट करें",
-  "feed.appearanceResetDone": "दिखावट डिफ़ॉल्ट पर वापस आ गई है।"
+  "feed.appearanceResetDone": "दिखावट डिफ़ॉल्ट पर वापस आ गई है।",
+  "dm.newMessages.one": "{count} नया संदेश",
+  "dm.newMessages.other": "{count} नए संदेश",
+  "search.jumpTo": "यहाँ जाएँ:",
+  "search.summaryLabel": "खोज परिणामों का सारांश",
+  "search.jumpReplies.one": "{count} जवाब",
+  "search.jumpReplies.other": "{count} जवाब",
+  "search.jumpPeople.one": "{count} सदस्य",
+  "search.jumpPeople.other": "{count} सदस्य",
+  "search.jumpPosts.one": "{count} पोस्ट",
+  "search.jumpPosts.other": "{count} पोस्ट",
+  "wall.reply": "जवाब दें",
+  "wall.replyAria": "{name} को जवाब दें"
 }

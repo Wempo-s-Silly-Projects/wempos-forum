@@ -923,5 +923,17 @@
   "profile.topBadge": "Je hebt de hoogste badge.",
   "feed.regularsHere": "Vaste bezoekers op deze pagina:",
   "feed.resetAppearance": "Weergave herstellen",
-  "feed.appearanceResetDone": "De weergave staat weer op de standaardwaarden."
+  "feed.appearanceResetDone": "De weergave staat weer op de standaardwaarden.",
+  "dm.newMessages.one": "{count} nieuw bericht",
+  "dm.newMessages.other": "{count} nieuwe berichten",
+  "search.jumpTo": "Ga naar:",
+  "search.summaryLabel": "Overzicht van de zoekresultaten",
+  "search.jumpReplies.one": "{count} reactie",
+  "search.jumpReplies.other": "{count} reacties",
+  "search.jumpPeople.one": "{count} lid",
+  "search.jumpPeople.other": "{count} leden",
+  "search.jumpPosts.one": "{count} bericht",
+  "search.jumpPosts.other": "{count} berichten",
+  "wall.reply": "Reageren",
+  "wall.replyAria": "Reageer op {name}"
 }

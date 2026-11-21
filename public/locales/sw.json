@@ -923,5 +923,17 @@
   "profile.topBadge": "Una beji ya juu kabisa.",
   "feed.regularsHere": "Wanachama wa kawaida kwenye ukurasa huu:",
   "feed.resetAppearance": "Rejesha mwonekano",
-  "feed.appearanceResetDone": "Mwonekano umerudi kwenye chaguo-msingi."
+  "feed.appearanceResetDone": "Mwonekano umerudi kwenye chaguo-msingi.",
+  "dm.newMessages.one": "Ujumbe {count} mpya",
+  "dm.newMessages.other": "Jumbe {count} mpya",
+  "search.jumpTo": "Nenda kwa:",
+  "search.summaryLabel": "Muhtasari wa matokeo ya utafutaji",
+  "search.jumpReplies.one": "Jibu {count}",
+  "search.jumpReplies.other": "Majibu {count}",
+  "search.jumpPeople.one": "Mwanachama {count}",
+  "search.jumpPeople.other": "Wanachama {count}",
+  "search.jumpPosts.one": "Chapisho {count}",
+  "search.jumpPosts.other": "Machapisho {count}",
+  "wall.reply": "Jibu",
+  "wall.replyAria": "Mjibu {name}"
 }

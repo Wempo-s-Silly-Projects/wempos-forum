@@ -923,5 +923,17 @@
   "profile.topBadge": "Hai il badge più alto.",
   "feed.regularsHere": "Habitué in questa pagina:",
   "feed.resetAppearance": "Ripristina aspetto",
-  "feed.appearanceResetDone": "L'aspetto è tornato alle impostazioni predefinite."
+  "feed.appearanceResetDone": "L'aspetto è tornato alle impostazioni predefinite.",
+  "dm.newMessages.one": "{count} nuovo messaggio",
+  "dm.newMessages.other": "{count} nuovi messaggi",
+  "search.jumpTo": "Vai a:",
+  "search.summaryLabel": "Riepilogo dei risultati di ricerca",
+  "search.jumpReplies.one": "{count} risposta",
+  "search.jumpReplies.other": "{count} risposte",
+  "search.jumpPeople.one": "{count} membro",
+  "search.jumpPeople.other": "{count} membri",
+  "search.jumpPosts.one": "{count} post",
+  "search.jumpPosts.other": "{count} post",
+  "wall.reply": "Rispondi",
+  "wall.replyAria": "Rispondi a {name}"
 }

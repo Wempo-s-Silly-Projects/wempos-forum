@@ -923,5 +923,17 @@
   "profile.topBadge": "Имате най-високата значка.",
   "feed.regularsHere": "Редовни участници на тази страница:",
   "feed.resetAppearance": "Нулиране на външния вид",
-  "feed.appearanceResetDone": "Външният вид е върнат към настройките по подразбиране."
+  "feed.appearanceResetDone": "Външният вид е върнат към настройките по подразбиране.",
+  "dm.newMessages.one": "{count} ново съобщение",
+  "dm.newMessages.other": "{count} нови съобщения",
+  "search.jumpTo": "Към:",
+  "search.summaryLabel": "Обобщение на резултатите от търсенето",
+  "search.jumpReplies.one": "{count} отговор",
+  "search.jumpReplies.other": "{count} отговора",
+  "search.jumpPeople.one": "{count} член",
+  "search.jumpPeople.other": "{count} членове",
+  "search.jumpPosts.one": "{count} публикация",
+  "search.jumpPosts.other": "{count} публикации",
+  "wall.reply": "Отговор",
+  "wall.replyAria": "Отговор на {name}"
 }

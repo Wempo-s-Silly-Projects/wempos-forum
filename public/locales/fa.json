@@ -923,5 +923,17 @@
   "profile.topBadge": "شما بالاترین نشان را دارید.",
   "feed.regularsHere": "اعضای همیشگی این صفحه:",
   "feed.resetAppearance": "بازنشانی ظاهر",
-  "feed.appearanceResetDone": "ظاهر به حالت پیش‌فرض برگشت."
+  "feed.appearanceResetDone": "ظاهر به حالت پیش‌فرض برگشت.",
+  "dm.newMessages.one": "{count} پیام جدید",
+  "dm.newMessages.other": "{count} پیام جدید",
+  "search.jumpTo": "رفتن به:",
+  "search.summaryLabel": "خلاصهٔ نتایج جستجو",
+  "search.jumpReplies.one": "{count} پاسخ",
+  "search.jumpReplies.other": "{count} پاسخ",
+  "search.jumpPeople.one": "{count} عضو",
+  "search.jumpPeople.other": "{count} عضو",
+  "search.jumpPosts.one": "{count} پست",
+  "search.jumpPosts.other": "{count} پست",
+  "wall.reply": "پاسخ",
+  "wall.replyAria": "پاسخ به {name}"
 }

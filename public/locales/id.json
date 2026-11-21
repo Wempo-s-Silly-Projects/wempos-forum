@@ -923,5 +923,17 @@
   "profile.topBadge": "Anda sudah punya lencana tertinggi.",
   "feed.regularsHere": "Anggota tetap di halaman ini:",
   "feed.resetAppearance": "Atur ulang tampilan",
-  "feed.appearanceResetDone": "Tampilan kembali ke bawaan."
+  "feed.appearanceResetDone": "Tampilan kembali ke bawaan.",
+  "dm.newMessages.one": "{count} pesan baru",
+  "dm.newMessages.other": "{count} pesan baru",
+  "search.jumpTo": "Langsung ke:",
+  "search.summaryLabel": "Ringkasan hasil pencarian",
+  "search.jumpReplies.one": "{count} balasan",
+  "search.jumpReplies.other": "{count} balasan",
+  "search.jumpPeople.one": "{count} anggota",
+  "search.jumpPeople.other": "{count} anggota",
+  "search.jumpPosts.one": "{count} postingan",
+  "search.jumpPosts.other": "{count} postingan",
+  "wall.reply": "Balas",
+  "wall.replyAria": "Balas {name}"
 }

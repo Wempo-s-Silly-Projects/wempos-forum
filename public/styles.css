@@ -1960,6 +1960,9 @@ dialog h2 {
 }
 
 /* v4.21 search highlighting: the searched words in results. */
+/* Wave 5.9 F2: search results at a glance ("Jump to:" row). */
+.search-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0.25rem 0 0.75rem; }
+.search-summary-label { color: var(--muted); }
 mark.search-hit {
   padding: 0 0.1em;
   border-radius: 0.2em;
@@ -2874,6 +2877,17 @@ mark.search-hit {
 .chat-widget-thread-pin { display: inline-flex; margin-inline-start: 0.3rem; color: var(--muted); vertical-align: middle; }
 .chat-widget-thread-pin svg { width: 0.8rem; height: 0.8rem; fill: none; stroke: currentColor; stroke-width: 2; }
 .chat-widget-older-groups { display: block; margin: 0.5rem auto; }
+/* Wave 5.9 F1: the "New messages" line above the first unread message. */
+.chat-widget-new-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.4rem 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.chat-widget-new-divider::before,
+.chat-widget-new-divider::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
 /* v4.31 muted chats: the quiet row mark (the badge skips these rows). */
 .chat-widget-thread-muted { margin-inline-start: 0.35rem; color: var(--muted); font-size: 0.7rem; font-weight: 400; }
 .chat-widget-avatar.role-badge-owner { background: #8d690f; }

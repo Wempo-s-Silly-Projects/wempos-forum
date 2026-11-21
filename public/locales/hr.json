@@ -923,5 +923,17 @@
   "profile.topBadge": "Imate najvišu značku.",
   "feed.regularsHere": "Stalni članovi na ovoj stranici:",
   "feed.resetAppearance": "Vrati izgled",
-  "feed.appearanceResetDone": "Izgled je vraćen na zadane postavke."
+  "feed.appearanceResetDone": "Izgled je vraćen na zadane postavke.",
+  "dm.newMessages.one": "{count} nova poruka",
+  "dm.newMessages.other": "Nove poruke: {count}",
+  "search.jumpTo": "Idi na:",
+  "search.summaryLabel": "Sažetak rezultata pretrage",
+  "search.jumpReplies.one": "{count} odgovor",
+  "search.jumpReplies.other": "Odgovori: {count}",
+  "search.jumpPeople.one": "{count} član",
+  "search.jumpPeople.other": "Članovi: {count}",
+  "search.jumpPosts.one": "{count} objava",
+  "search.jumpPosts.other": "Objave: {count}",
+  "wall.reply": "Odgovori",
+  "wall.replyAria": "Odgovori korisniku {name}"
 }
