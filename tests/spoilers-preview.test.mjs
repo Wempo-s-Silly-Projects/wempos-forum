@@ -111,6 +111,7 @@ test("maskSpoilers hides spoiler text in preview snippets", () => {
   assert.equal(maskSpoilers("a || b"), "a || b");
   assert.equal(maskSpoilers(null), "");
   assert.match(read("public/js/render.js"), /maskSpoilers\(/);
+  assert.match(read("public/js/routes/feed.js"), /maskSpoilers\(reply\.body\)/);
 });
 
 test("spoiler styling exists and keeps the text unreadable until revealed", () => {

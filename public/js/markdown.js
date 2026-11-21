@@ -23,7 +23,13 @@
 // the owner asked for), external images/embeds are never rendered ("![…](…)"
 // stays literal text), and link URLs must pass a scheme check before they
 // ever reach an href. No dependencies: the parser is plain string walking.
+import { t } from "./i18n.js";
+
 const SAFE_PREFIXES = ["http://", "https://", "/"];
+const SPOILER_MARK = "||";
+const SPOILER_MASK = "\u2592\u2592\u2592";
+const SPOILER_PATTERN = /\|\|(?!\|)([\s\S]+?)\|\|/g;
+const REVEAL_KEYS = new Set(["Enter", " "]);
 
 // A link target is safe only when it starts with a known-safe scheme or is a
 // same-origin absolute path. "javascript:", "data:", "vbscript:", malformed
@@ -49,7 +55,7 @@ export function isSafeLinkUrl(raw) {
 }
 
 // Inline scan of ONE text run: `code`, **bold**, *italic*, ~~strike~~,
-// [text](url). Markers are CONSUMED or REFUSED:
+// ||spoiler|| (wave 2026-11-21-3), [text](url). Markers are CONSUMED or REFUSED:
 // - consumed → the pre-marker text run emits, then the element; start walks
 //   past the close.
 // - refused (unterminated marker, refused image, unsafe/malformed link) →
@@ -88,10 +94,11 @@ export function parseInline(document, text) {
     const codeOpen = value.indexOf("`", index);
     const boldOpen = value.indexOf("**", index);
     const strikeOpen = value.indexOf("~~", index);
+    const spoilerOpen = value.indexOf(SPOILER_MARK, index);
     const linkOpen = value.indexOf("[", index);
     const emOpen = nextItalicOpen(value, index);
     const mentionOpen = nextMentionOpen(value, index);
-    const next = pickFirst([codeOpen, boldOpen, strikeOpen, emOpen, linkOpen, mentionOpen]);
+    const next = pickFirst([codeOpen, boldOpen, strikeOpen, spoilerOpen, emOpen, linkOpen, mentionOpen]);
     if (next === -1 || next >= value.length) break;
     const emitPre = () => {
       if (next > start) nodes.push(makeText(document, value.slice(start, next)));
@@ -133,6 +140,19 @@ export function parseInline(document, text) {
       }
       emitPre();
       nodes.push(makeInline(document, "del", value.slice(next + 2, close)));
+      start = index = close + 2;
+      continue;
+    }
+    if (next === spoilerOpen) {
+      const close = value.indexOf(SPOILER_MARK, next + 2);
+      if (close === -1 || close === next + 2) {
+        emitPre();
+        start = next;
+        index = next + 2;
+        continue;
+      }
+      emitPre();
+      nodes.push(makeSpoiler(document, value.slice(next + 2, close)));
       start = index = close + 2;
       continue;
     }
@@ -220,6 +240,45 @@ function makeInline(document, tagName, text) {
   const element = document.createElement(tagName);
   element.textContent = text;
   return element;
+}
+
+// Spoiler (wave 2026-11-21-3): blacked-out text behind a focusable button;
+// screen readers hear the label, not the hidden text, until it is revealed.
+function makeSpoiler(document, text) {
+  const spoiler = makeInline(document, "span", text);
+  spoiler.className = "spoiler";
+  spoiler.setAttribute("role", "button");
+  spoiler.setAttribute("tabindex", "0");
+  spoiler.setAttribute("aria-expanded", "false");
+  spoiler.setAttribute("aria-label", t("markdown.spoiler"));
+  spoiler.addEventListener("click", (event) => {
+    if (spoiler.getAttribute("role") !== "button") return;
+    event.preventDefault();
+    event.stopPropagation?.();
+    revealSpoiler(spoiler);
+  });
+  spoiler.addEventListener("keydown", (event) => {
+    if (!REVEAL_KEYS.has(event.key) || spoiler.getAttribute("role") !== "button") return;
+    event.preventDefault();
+    revealSpoiler(spoiler);
+  });
+  return spoiler;
+}
+
+// Reveal for this reader only: the text stays, the button semantics go.
+export function revealSpoiler(spoiler) {
+  if (/\bspoiler-revealed\b/.test(spoiler.className)) return;
+  spoiler.className = `${spoiler.className} spoiler-revealed`;
+  spoiler.removeAttribute("role");
+  spoiler.removeAttribute("tabindex");
+  spoiler.removeAttribute("aria-label");
+  spoiler.setAttribute("aria-expanded", "true");
+}
+
+// Raw-text surfaces (preview snippets, reply context, search hits) never
+// give a spoiler away.
+export function maskSpoilers(text) {
+  return String(text ?? "").replace(SPOILER_PATTERN, SPOILER_MASK);
 }
 
 // Block shape of a body: fenced code (```…```), "# " headings (1–3 hashes —

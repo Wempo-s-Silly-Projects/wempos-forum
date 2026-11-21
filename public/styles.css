@@ -2806,3 +2806,20 @@ dialog h2 {
 @media (prefers-reduced-motion: reduce) {
   .chat-emoji-pop { animation: none; }
 }
+
+/* Spoiler tags (wave 2026-11-21-3): blacked out until the reader reveals. */
+.spoiler {
+  padding: 0 0.15em;
+  border-radius: 3px;
+  background: var(--ink);
+  color: transparent;
+  cursor: pointer;
+  user-select: none;
+}
+.spoiler:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.spoiler-revealed {
+  background: var(--paper-shadow);
+  color: inherit;
+  cursor: auto;
+  user-select: text;
+}
