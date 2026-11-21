@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Lägg till hemligheten i din autentiserare och bekräfta sedan med en kod.",
   "twofa.setupNote": "Skriv in den här hemligheten i din autentiseringsapp (eller klistra in otpauth-raden). Den visas bara en gång — om du laddar om sidan försvinner den tills du har bekräftat.",
   "twofa.title": "Tvåfaktorsinloggning",
+  "twofa.useSha256": "Använd SHA-256 (starkare)",
+  "twofa.useSha256Help": "Bara om din autentiseringsapp stöder det — t.ex. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator gör det INTE.",
   "wall.emptyGuest": "Väggen är tom.",
   "wall.emptyViewer": "Bli först med att skriva på väggen!",
   "wall.intro": "Säg något snällt på den här medlemmens vägg. Profilens ägare kan fästa inlägg — inget mer.",

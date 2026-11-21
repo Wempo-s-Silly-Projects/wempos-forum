@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Føj hemmeligheden til din autentificeringsapp, og bekræft derefter med en kode.",
   "twofa.setupNote": "Skriv denne hemmelighed ind i din autentificeringsapp (eller indsæt otpauth-linjen). Den vises kun én gang — genindlæsning kasserer den, indtil du bekræfter.",
   "twofa.title": "Tofaktorlogin",
+  "twofa.useSha256": "Brug SHA-256 (stærkere)",
+  "twofa.useSha256Help": "Kun hvis din godkendelsesapp understøtter det — f.eks. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator gør IKKE.",
   "wall.emptyGuest": "Væggen er tom.",
   "wall.emptyViewer": "Vær den første til at skrive på væggen!",
   "wall.intro": "Sig noget pænt på dette medlems væg. Profilens ejer kan fastgøre indlæg — ikke andet.",

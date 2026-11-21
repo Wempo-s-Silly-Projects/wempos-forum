@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Přidej tajný klíč do ověřovací aplikace a potvrď ho kódem.",
   "twofa.setupNote": "Opiš tenhle tajný klíč do ověřovací aplikace (nebo vlož řádek otpauth). Zobrazí se jen jednou — obnovením stránky zmizí, dokud ho nepotvrdíš.",
   "twofa.title": "Dvoufázové přihlášení",
+  "twofa.useSha256": "Použít SHA-256 (silnější)",
+  "twofa.useSha256Help": "Jen pokud to vaše ověřovací aplikace podporuje — např. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator to NEPODPORUJE.",
   "wall.emptyGuest": "Zeď je prázdná.",
   "wall.emptyViewer": "Buď první, kdo napíše na zeď!",
   "wall.intro": "Napiš něco hezkého na zeď tohoto člena. Majitel profilu může příspěvky připínat — nic víc.",

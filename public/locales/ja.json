@@ -830,6 +830,8 @@
   "twofa.setupMessage": "シークレットを認証アプリに追加してから、コードで確認してください。",
   "twofa.setupNote": "このシークレットを認証アプリに入力してください（または otpauth の行を貼り付け）。表示は一度だけで、確認する前に再読み込みすると破棄されます。",
   "twofa.title": "二段階認証",
+  "twofa.useSha256": "SHA-256 を使う(より強力)",
+  "twofa.useSha256Help": "認証アプリが対応している場合のみ — 例: Aegis, 2FAS, 1Password, Bitwarden。Google Authenticator は非対応です。",
   "wall.emptyGuest": "ウォールには何もありません。",
   "wall.emptyViewer": "ウォールに最初の書き込みをしよう！",
   "wall.intro": "このメンバーのウォールにすてきな一言を書こう。プロフィールの持ち主ができるのは投稿のピン留めだけです。",

@@ -27,7 +27,7 @@
 // exactly once, at generation.
 import { api } from "../api.js";
 import { createPanel, element, setMessage } from "../dom.js";
-import { createForm, createInput, addText } from "../forms.js";
+import { createCheckbox, createForm, createInput, addText } from "../forms.js";
 import { state } from "../state.js";
 import { t } from "../i18n.js";
 
@@ -51,6 +51,13 @@ export function renderTotpSettings(container, session) {
         id: "totp-setup-password", name: "currentPassword", label: t("twofa.currentPassword"),
         type: "password", maxLength: 128, required: true, autoComplete: "current-password",
         description: t("twofa.currentPasswordHelp"),
+      }),
+      // v5.20.0: opt-in SHA-256, unchecked by default — SHA-1 works with
+      // every authenticator app. The confirm step proves a code under the
+      // chosen algorithm, so a wrong app choice fails here, never at sign-in.
+      createCheckbox(document, {
+        id: "totp-setup-sha256", name: "sha256", label: t("twofa.useSha256"),
+        description: t("twofa.useSha256Help"),
       }),
     ], t("twofa.enable")));
     container.append(panel);
@@ -137,7 +144,10 @@ function renderBackupCodes(panel, codes) {
 async function submitTotpSetup(form, text) {
   const result = await api("/api/me/totp/setup", {
     method: "POST",
-    body: { currentPassword: text("currentPassword") },
+    body: {
+      currentPassword: text("currentPassword"),
+      algorithm: text("sha256") === "on" ? "SHA256" : "SHA1",
+    },
   });
   const panel = form.closest("[data-totp-panel]");
   if (panel) await openSetupStep(panel, result);

@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Voeg het geheim toe aan je authenticator en bevestig daarna met een code.",
   "twofa.setupNote": "Typ dit geheim in je authenticator-app (of plak de otpauth-regel). Het wordt maar één keer getoond — herladen gooit het weg tot je bevestigt.",
   "twofa.title": "Tweestapsverificatie",
+  "twofa.useSha256": "SHA-256 gebruiken (sterker)",
+  "twofa.useSha256Help": "Alleen als je authenticator-app het ondersteunt — bijv. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator ondersteunt het NIET.",
   "wall.emptyGuest": "Het prikbord is leeg.",
   "wall.emptyViewer": "Schrijf als eerste iets op het prikbord!",
   "wall.intro": "Zeg iets aardigs op het prikbord van dit lid. De eigenaar van het profiel kan berichten vastzetten — verder niets.",

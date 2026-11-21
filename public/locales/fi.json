@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Lisää salaisuus todennussovellukseesi ja vahvista sitten koodilla.",
   "twofa.setupNote": "Kirjoita tämä salaisuus todennussovellukseesi (tai liitä otpauth-rivi). Se näytetään vain kerran — uudelleenlataus hävittää sen, kunnes vahvistat.",
   "twofa.title": "Kaksivaiheinen kirjautuminen",
+  "twofa.useSha256": "Käytä SHA-256:ta (vahvempi)",
+  "twofa.useSha256Help": "Vain jos todennussovelluksesi tukee sitä — esim. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator EI tue.",
   "wall.emptyGuest": "Seinä on tyhjä.",
   "wall.emptyViewer": "Ole ensimmäinen, joka kirjoittaa seinälle!",
   "wall.intro": "Sano jotain mukavaa tämän jäsenen seinällä. Profiilin omistaja voi kiinnittää viestejä — ei muuta.",

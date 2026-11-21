@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Dodaj sekret do aplikacji uwierzytelniającej, a potem potwierdź kodem.",
   "twofa.setupNote": "Wpisz ten sekret w aplikacji uwierzytelniającej (albo wklej linię otpauth). Pokazuje się raz — odświeżenie strony go odrzuca, dopóki nie potwierdzisz.",
   "twofa.title": "Weryfikacja dwuetapowa",
+  "twofa.useSha256": "Użyj SHA-256 (silniejsze)",
+  "twofa.useSha256Help": "Tylko jeśli Twoja aplikacja uwierzytelniająca to obsługuje — np. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator tego NIE obsługuje.",
   "wall.emptyGuest": "Tablica jest pusta.",
   "wall.emptyViewer": "Wpisz się na tablicę jako pierwszy(-a)!",
   "wall.intro": "Napisz coś miłego na tablicy tego członka. Właściciel profilu może przypinać wpisy — nic więcej.",

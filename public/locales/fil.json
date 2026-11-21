@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Idagdag ang secret sa authenticator mo, saka kumpirmahin gamit ang isang code.",
   "twofa.setupNote": "I-type ang secret na ito sa authenticator app mo (o idikit ang otpauth na linya). Isang beses lang itong ipapakita — mawawala ito kapag nag-reload ka hangga't hindi mo pa nakukumpirma.",
   "twofa.title": "Sign-in na may dalawang hakbang",
+  "twofa.useSha256": "Gamitin ang SHA-256 (mas malakas)",
+  "twofa.useSha256Help": "Kung sinusuportahan lang ito ng iyong authenticator app — hal. Aegis, 2FAS, 1Password, Bitwarden; HINDI ito sinusuportahan ng Google Authenticator.",
   "wall.emptyGuest": "Walang laman ang wall.",
   "wall.emptyViewer": "Ikaw ang unang sumulat sa wall!",
   "wall.intro": "Magsabi ng magandang bagay sa wall ng miyembrong ito. Ang may-ari ng profile lang ang puwedeng mag-pin ng mga post — wala nang iba.",

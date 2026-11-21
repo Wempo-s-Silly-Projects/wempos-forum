@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Gizli anahtarı doğrulayıcına ekle, ardından bir kodla onayla.",
   "twofa.setupNote": "Bu gizli anahtarı doğrulayıcı uygulamana yaz (ya da otpauth satırını yapıştır). Yalnızca bir kez gösterilir — onaylamadan sayfayı yenilersen kaybolur.",
   "twofa.title": "İki adımlı giriş",
+  "twofa.useSha256": "SHA-256 kullan (daha güçlü)",
+  "twofa.useSha256Help": "Yalnızca kimlik doğrulama uygulamanız destekliyorsa — ör. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator DESTEKLEMEZ.",
   "wall.emptyGuest": "Duvar boş.",
   "wall.emptyViewer": "Duvara ilk yazan sen ol!",
   "wall.intro": "Bu üyenin duvarına güzel bir şey yaz. Profil sahibi yalnızca gönderileri sabitleyebilir — başka bir şey yapamaz.",

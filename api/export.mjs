@@ -37,6 +37,7 @@
 import { requireSignedInRead } from "./core/auth.mjs";
 import { json, rateLimit } from "./core/http.mjs";
 import { socialsFromRow, SOCIAL_PLATFORMS } from "./core/shapers.mjs";
+import { normalizeTotpAlgorithm } from "./core/totp.mjs";
 import { EXPORT_SECTION_CAPS } from "../constants.mjs";
 
 const EXPORT_FORMAT = "wempos-forum-export";
@@ -59,6 +60,10 @@ async function rowsCapped(db, sql, binds, cap) {
 async function readProfile(db, userId) {
   const row = await db.prepare(`SELECT ${PROFILE_COLUMNS} FROM users WHERE id = ? LIMIT 1`).bind(userId).first();
   const presence = await db.prepare("SELECT invisible FROM presence WHERE user_id = ? LIMIT 1").bind(userId).first();
+  // v5.20.0: the 2FA algorithm name only (never the secret); no row = SHA1.
+  const totpAlgorithm = await db.prepare("SELECT algorithm FROM totp_algorithms WHERE user_id = ? LIMIT 1")
+    .bind(userId).first();
+  const twoFactorEnabled = Boolean(Number(row.totp_enabled));
   const profile = {
     id: Number(row.id),
     username: row.username,
@@ -77,7 +82,8 @@ async function readProfile(db, userId) {
     joinedAt: isoOrNull(row.created_at),
   };
   const settings = {
-    twoFactorEnabled: Boolean(Number(row.totp_enabled)),
+    twoFactorEnabled,
+    twoFactorAlgorithm: twoFactorEnabled ? normalizeTotpAlgorithm(totpAlgorithm?.algorithm) : null,
     invisibleOnline: Boolean(Number(presence?.invisible)),
   };
   return { profile, settings };

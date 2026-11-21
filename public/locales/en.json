@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Add the secret to your authenticator, then confirm with a code.",
   "twofa.setupNote": "Type this secret into your authenticator app (or paste the otpauth line). It shows once — reload throws it away until you confirm.",
   "twofa.title": "Two-factor sign-in",
+  "twofa.useSha256": "Use SHA-256 (stronger)",
+  "twofa.useSha256Help": "Only if your authenticator app supports it — e.g. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator does NOT.",
   "wall.emptyGuest": "The wall is empty.",
   "wall.emptyViewer": "Be the first to write on the wall!",
   "wall.intro": "Say something nice on this member's wall. The profile owner can pin posts — nothing else.",

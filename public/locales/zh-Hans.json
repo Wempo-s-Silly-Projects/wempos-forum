@@ -830,6 +830,8 @@
   "twofa.setupMessage": "将密钥添加到你的身份验证器，然后输入验证码确认。",
   "twofa.setupNote": "把这个密钥输入你的身份验证器应用（或粘贴 otpauth 那一行）。它只显示一次——在你确认之前重新加载页面就会作废。",
   "twofa.title": "两步验证登录",
+  "twofa.useSha256": "使用 SHA-256(更强)",
+  "twofa.useSha256Help": "仅当你的身份验证器应用支持时 — 例如 Aegis, 2FAS, 1Password, Bitwarden;Google Authenticator 不支持。",
   "wall.emptyGuest": "留言墙上空空如也。",
   "wall.emptyViewer": "来当第一个在留言墙上留言的人吧！",
   "wall.intro": "在这位成员的留言墙上说点好听的吧。主页主人可以置顶留言——仅此而已。",

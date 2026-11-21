@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Afegeix el secret al teu autenticador i confirma'l amb un codi.",
   "twofa.setupNote": "Escriu aquest secret a l'aplicació d'autenticació (o enganxa-hi la línia otpauth). Només es mostra un cop — si recarregues, es perd fins que ho confirmis.",
   "twofa.title": "Inici de sessió en dos passos",
+  "twofa.useSha256": "Fes servir SHA-256 (més fort)",
+  "twofa.useSha256Help": "Només si la teva aplicació d'autenticació ho admet — p. ex. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator NO ho admet.",
   "wall.emptyGuest": "El mur és buit.",
   "wall.emptyViewer": "Sigues el primer a escriure al mur!",
   "wall.intro": "Digues alguna cosa maca al mur d'aquest membre. El propietari del perfil pot fixar missatges — res més.",

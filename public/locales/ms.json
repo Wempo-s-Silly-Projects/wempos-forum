@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Tambahkan rahsia ke pengesah anda, kemudian sahkan dengan satu kod.",
   "twofa.setupNote": "Taip rahsia ini ke dalam aplikasi pengesah anda (atau tampal baris otpauth). Ia dipaparkan sekali sahaja — memuat semula akan membuangnya sehingga anda mengesahkan.",
   "twofa.title": "Log masuk dua faktor",
+  "twofa.useSha256": "Guna SHA-256 (lebih kukuh)",
+  "twofa.useSha256Help": "Hanya jika aplikasi pengesah anda menyokongnya — cth. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator TIDAK menyokong.",
   "wall.emptyGuest": "Dinding ini kosong.",
   "wall.emptyViewer": "Jadilah yang pertama menulis di dinding!",
   "wall.intro": "Tulis sesuatu yang baik di dinding ahli ini. Pemilik profil boleh menyemat siaran — tiada yang lain.",

@@ -830,6 +830,8 @@
   "twofa.setupMessage": "Adaugă secretul în aplicația ta de autentificare, apoi confirmă cu un cod.",
   "twofa.setupNote": "Scrie acest secret în aplicația ta de autentificare (sau lipește linia otpauth). Apare o singură dată — reîncărcarea îl aruncă până confirmi.",
   "twofa.title": "Conectare în doi pași",
+  "twofa.useSha256": "Folosește SHA-256 (mai puternic)",
+  "twofa.useSha256Help": "Doar dacă aplicația ta de autentificare îl acceptă — de ex. Aegis, 2FAS, 1Password, Bitwarden; Google Authenticator NU îl acceptă.",
   "wall.emptyGuest": "Peretele este gol.",
   "wall.emptyViewer": "Fii primul care scrie pe perete!",
   "wall.intro": "Spune ceva frumos pe peretele acestui membru. Proprietarul profilului poate fixa postări — nimic altceva.",
