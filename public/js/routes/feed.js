@@ -34,6 +34,7 @@ import {
 import { state } from "../state.js";
 import { renderHomeAccess } from "./auth.js";
 import { renderTotpSettings } from "./twofa.js";
+import { renderAccountSecurity } from "../account-security.js";
 import { renderBlockedSettings } from "./blocks.js";
 import { createComposer } from "./composer.js";
 // The §4b door-swap: the guests' sign-in prompts (mine/bookmarks gates) are
@@ -181,6 +182,9 @@ function renderAccountSettings(session) {
   // off branch stages an authenticator secret, the on branch takes a disable
   // code. No recovery exists, by the feature's own spec.
   renderTotpSettings(account, session);
+  // Wave 5.14: backup codes left (fills the 2FA backup panel) + signed-in
+  // devices with "Sign out everywhere else" (public/js/account-security.js).
+  renderAccountSecurity(account);
   // Blocks (v4.4): the blocked-members list + Unblock controls ride the
   // account settings area right after the two-factor section.
   renderBlockedSettings(account, session);

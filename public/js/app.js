@@ -80,6 +80,8 @@ import {
   ACTIONS as twofaActions,
   FORM_HANDLERS as twofaFormHandlers,
 } from "./routes/twofa.js";
+// Wave 5.14: "Sign out everywhere else" lives in account-security.js.
+import { ACTIONS as accountSecurityActions } from "./account-security.js";
 // v4.0 profile wall: its module owns the render + the post/pin registrations.
 import {
   ACTIONS as wallActions,
@@ -346,6 +348,8 @@ async function handleButtonAction(button) {
     ...blockActions,
     // Two-factor setup lives in routes/twofa.js.
     ...twofaActions,
+    // Signed-in devices (wave 5.14) live in account-security.js.
+    ...accountSecurityActions,
     "confirm-block": async () => {
       if (!getConfirmHandler()) return;
       const handler = getConfirmHandler();
