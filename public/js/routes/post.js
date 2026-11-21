@@ -42,7 +42,9 @@ import { applyCatchUp } from "../catch-up.js";
 import { createThreadGlance, summarizeThread } from "../thread-glance.js";
 import { markThreadStarterReplies, threadStarterId } from "../thread-starter.js";
 import { bindPostKeys, createPostKeysHint } from "../post-keys.js";
-import { createFirstPostJump, createLatestReplyJump, createMyReplyJump } from "../latest-reply.js";
+import {
+  createFirstPostJump, createLatestReplyJump, createMyReplyJump, createNextAuthorReplyJump,
+} from "../latest-reply.js";
 import { addReplyFolds, createFoldAllToggle, ensureFoldAllToggle } from "../reply-fold.js";
 import { selectedQuoteText } from "../quote-selection.js";
 import { openLightbox } from "../lightbox.js";
@@ -71,12 +73,15 @@ async function renderPostRoute(route, context, version) {
     // Jump to my reply (wave 2026-11-21-15 F2): only when the viewer replied.
     const myJump = createMyReplyJump(document, replyList, post.replies, context.session.user?.id);
     if (myJump) main.append(myJump);
+    // Next reply from the author (wave 2026-11-21-25 F3): starter replies only.
+    const starterId = threadStarterId(post);
+    const authorJump = createNextAuthorReplyJump(document, replyList, post.replies, starterId);
+    if (authorJump) main.append(authorJump);
     // Fold all replies (wave 2026-11-21-22 F2): long threads only.
     const foldAll = createFoldAllToggle(document, replyList, knownReplyTotal(post));
     if (foldAll) main.append(foldAll);
     main.append(replyList);
     // Thread-author chip (wave 2026-11-21-7 F2): the starter's own replies.
-    const starterId = threadStarterId(post);
     if (starterId) replyList.dataset.starterId = String(starterId);
     markThreadStarterReplies(document, replyList, post.replies, starterId);
     // Fold a reply (wave 2026-11-21-12 F2): page-view only, nothing stored.

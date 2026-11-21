@@ -21,6 +21,7 @@
 // after "Load older replies" repaints the list. No request, no storage.
 import { t } from "./i18n.js";
 import { jumpToNode } from "./focus-utils.js";
+import { isThreadStarterReply } from "./thread-starter.js";
 
 export const LATEST_JUMP_MIN_REPLIES = 3;
 
@@ -77,6 +78,43 @@ export function createMyReplyJump(document, replyList, replies, viewerId) {
   button.addEventListener("click", (event) => {
     event.preventDefault?.();
     jumpToNode(myLastReplyCard(replyList), { block: "center" });
+  });
+  return button;
+}
+
+// Next reply from the author (wave 2026-11-21-25 F3): shown only when a
+// loaded reply came from the member who started the thread. Each press moves
+// focus (and the view) to the starter's next top-level reply, the cards that
+// carry the "Author" chip in their own header, and wraps back to the first
+// after the last. Cards are read at click time, so it stays right after
+// "Load older replies". No request, no storage.
+const STARTER_CHIP_CLASS = "role-badge-op";
+
+const hasOwnStarterChip = (card) => {
+  // The first .post-author in document order is the card's own header row;
+  // a nested sub-reply's row comes later.
+  const row = card.querySelector?.(".post-author");
+  return Boolean(row) && [...row.children].some((node) => node.matches?.("." + STARTER_CHIP_CLASS));
+};
+
+const starterReplyCards = (list) => [...list.children]
+  .filter((node) => node.matches?.(".post-card") && hasOwnStarterChip(node));
+
+export function createNextAuthorReplyJump(document, replyList, replies, starterId) {
+  if (!replyList || !Array.isArray(replies)) return null;
+  if (!replies.some((reply) => isThreadStarterReply(reply, starterId))) return null;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "button button-quiet author-reply-jump";
+  button.textContent = t("post.nextAuthorReply");
+  let lastCard = null;
+  button.addEventListener("click", (event) => {
+    event.preventDefault?.();
+    const cards = starterReplyCards(replyList);
+    if (!cards.length) return;
+    const next = cards[cards.indexOf(lastCard) + 1] ?? cards[0];
+    lastCard = next;
+    jumpToNode(next, { block: "center" });
   });
   return button;
 }

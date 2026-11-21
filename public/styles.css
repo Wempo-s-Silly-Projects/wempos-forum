@@ -3098,6 +3098,8 @@ mark.search-hit {
 .post-card[data-folded] > :not(.post-header) { display: none; }
 .first-post-jump { margin: 0.5rem 0; }
 .my-reply-jump { margin: 0 0 0.5rem 0.5rem; }
+/* v4.30 next reply from the thread author (page view only). */
+.author-reply-jump { margin: 0 0 0.5rem 0.5rem; }
 /* v4.19 community traditions: the QOTD chip, today's question on the home
    feed, and the showcase board's image-first gallery. Tokens only, so both
    themes follow. */
