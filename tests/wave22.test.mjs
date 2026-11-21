@@ -247,7 +247,8 @@ test("fold all: wired on the thread page above the replies, nothing stored", () 
 test("wave-22 strings exist and are translated in every locale", () => {
   const en = JSON.parse(read("public/locales/en.json"));
   const locales = ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt",
-    "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant"];
+    "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant",
+    "bg", "bn", "ca", "cs", "da", "el", "fa", "fi", "fil", "hr", "hu", "ms", "nb", "ro", "sk", "sr", "sv", "sw", "ta", "ur"];
   for (const key of ["bell.unreadTag", "post.foldAll", "post.foldAllTitle"]) {
     assert.ok(en[key], `en has ${key}`);
     for (const locale of locales) {

@@ -27,7 +27,8 @@ import { numberSuggestionCards } from "../public/js/suggestion-rank.js";
 import { t } from "../public/js/i18n.js";
 
 const read = (path) => readFileSync(new URL("../" + path, import.meta.url), "utf8");
-const LOCALES = ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant"];
+const LOCALES = ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant",
+  "bg", "bn", "ca", "cs", "da", "el", "fa", "fi", "fil", "hr", "hu", "ms", "nb", "ro", "sk", "sr", "sv", "sw", "ta", "ur"];
 
 function card(document, id) {
   const article = document.createElement("article");

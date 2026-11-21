@@ -105,7 +105,7 @@ test("render.quoteTitle exists and is translated in every locale", () => {
   const en = JSON.parse(readFileSync(new URL("en.json", dir), "utf8"));
   assert.ok(en["render.quoteTitle"]);
   const files = readdirSync(dir).filter((name) => name.endsWith(".json"));
-  assert.equal(files.length, 21);
+  assert.equal(files.length, 41);
   for (const file of files.filter((name) => name !== "en.json")) {
     const locale = JSON.parse(readFileSync(new URL(file, dir), "utf8"));
     assert.ok(locale["render.quoteTitle"], file);

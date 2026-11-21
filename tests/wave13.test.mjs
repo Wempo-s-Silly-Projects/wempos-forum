@@ -194,7 +194,7 @@ test("strings: the five new keys exist in every locale, translated, placeholders
   const keys = ["profile.joined", "profile.threadsTitle", "profile.threadsEmpty", "profile.threadsLoadFailed", "profile.threadUntitled"];
   const en = JSON.parse(read("public/locales/en.json"));
   const files = readdirSync(new URL("../public/locales/", import.meta.url)).filter((name) => name.endsWith(".json"));
-  assert.equal(files.length, 21);
+  assert.equal(files.length, 41);
   for (const file of files) {
     const bundle = JSON.parse(read("public/locales/" + file));
     for (const key of keys) {
