@@ -2,7 +2,7 @@
 
 Scope: `git diff --stat 1499918..dfe106e` (81 files; client JS, tests, workflows, locales). No server path (api/*, worker.mjs, migrations) changed, so the visibility law, bind budget, LIMITs and server-side CSRF are untouched by this range.
 
-Totals: CRITICAL 0 · HIGH 0 · MEDIUM 0 · LOW 1 (fixed) · INFO 6 (no fix).
+Totals: CRITICAL 0 · HIGH 0 · MEDIUM 0 · LOW 1 (fixed) · INFO 7 (no fix).
 
 | # | Sev | File:line | Scenario | Verdict |
 |---|-----|-----------|----------|---------|
