@@ -1,0 +1,19 @@
+# Gitleaks configuration for Wempo's Forum (AGPL-3.0-or-later).
+# Extends the upstream default ruleset; only exact, PUBLIC, fake test-fixture
+# values are allowlisted here. Never add a real credential pattern to this file.
+title = "Wempo's Forum gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Fake test fixtures (public by design, never real credentials)"
+regexTarget = "secret"
+regexes = [
+  # RFC 6238 Appendix B TOTP seed ("12345678901234567890" in base32).
+  '''^GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ$''',
+  # Placeholder PASSWORD_PEPPER used only by tests/totp-routes.test.mjs.
+  '''^0123456789abcdef0123456789abcdef$''',
+  # Placeholder password in tests/worker.test.mjs.
+  '''^fixture-phrase-27$''',
+]

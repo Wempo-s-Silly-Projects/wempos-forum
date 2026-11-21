@@ -100,6 +100,10 @@ the real handlers against an in-memory SQLite database built from
 modules are tested against a small fake DOM (`tests/helpers/fake-dom.mjs`).
 No browser or network is needed.
 
+Security analysis tools (ESLint, CodeQL, ShellCheck, Gitleaks, pnpm audit,
+OWASP ZAP) and how to run each one are listed in
+[security-tooling.md](security-tooling.md).
+
 ## Deploys
 
 `pnpm run deploy` deploys the worker and stamps it with the current commit,
