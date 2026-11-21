@@ -13,6 +13,19 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.14.0] - 2026-11-21
+
+### Added
+- Backup codes left: with two-factor sign-in on, Settings now shows how many
+  unused backup codes you still have, warns when 3 or fewer remain, and says
+  so plainly when none are left.
+- Sign out my other devices: Settings shows how many other devices or
+  browsers are signed in to this forum and a "Sign out everywhere else"
+  button. The device you are using stays signed in.
+- Image viewer: an "Actual size" button shows a picture at its real size
+  (scroll to look around), handy for screenshots with small text. Click the
+  picture or move to the next one to go back to fitting the screen.
+
 ## [5.13.0] - 2026-11-21
 
 ### Added
