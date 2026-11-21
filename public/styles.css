@@ -1778,6 +1778,8 @@ dialog h2 {
 }
 .role-badge-owner { color: #8d690f; border-color: #8d690f; }
 .role-badge-admin { color: var(--green-ink); }
+/* Thread-author chip (wave 2026-11-21-7): the starter's own replies. */
+.role-badge-op { color: var(--muted); text-transform: none; }
 
 /* Suggestion status (v3.1): resolved/declined chips on suggestion roots.
    Same pill shape as the role badges; resolved reads the soft green ink,
@@ -2901,3 +2903,15 @@ dialog h2 {
   font-size: 0.85rem;
   white-space: nowrap;
 }
+
+/* Read aloud (wave 2026-11-21-7): the toggle plus its polite status; the
+   status stays mounted (empty) so screen readers announce it. */
+.read-aloud {
+  display: inline-flex;
+  align-items: center;
+}
+.read-aloud-status {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.read-aloud-button[aria-pressed="true"] { color: var(--green-ink); }

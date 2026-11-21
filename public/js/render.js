@@ -26,6 +26,7 @@ import { renderPollBlock } from "./polls.js";
 import { isBotUsername } from "./bots.js";
 import { t, tn, currentLocale } from "./i18n.js";
 import { createCopyLinkButton } from "./copy-link.js";
+import { createReadAloud } from "./read-aloud.js";
 
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
@@ -356,6 +357,9 @@ export const createPostCard = (post, document, currentUser = null) => {
   // Copy link (wave 2026-11-21-4): one click puts the card's link on the
   // clipboard; client-only.
   actions.append(createCopyLinkButton(document, post.id));
+  // Read aloud (wave 2026-11-21-7 F3): on-device voices only, per click.
+  const readAloud = createReadAloud(document, () => article.postBody);
+  if (readAloud) actions.append(readAloud);
   if (currentUser && post.visibility !== "hidden") {
     const report = createElement(document, "button", "button button-quiet icon-button");
     report.type = "button";
