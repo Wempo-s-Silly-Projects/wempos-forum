@@ -80,10 +80,18 @@ code. Database migrations are a separate step. The full steps are in
   [moderation desk reference](docs/moderation.md)
 - [Chat and Who's Online](docs/chat-widget.md)
 - [Architecture overview](docs/architecture.md)
+- [Public API](docs/api.md) — read endpoints, the MCP tool server, discovery
 - [Running your own Wempo's Forum](docs/self-hosting.md) — host your own copy
 - [Release checklist](docs/release-checklist.md)
 - [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) ·
   [Code of Conduct](CODE_OF_CONDUCT.md) · [Changelog](CHANGELOG.md)
+
+## Feedback & bugs
+
+Found a bug or have an idea? Open an issue at
+<https://github.com/Wempo-s-Silly-Projects/wempos-forum/issues/new/choose>,
+or post on the forum's **Bugs & Troubleshooting & Help** or **Suggestions**
+boards. Security problems go privately instead — see [SECURITY.md](SECURITY.md).
 
 ## License
 

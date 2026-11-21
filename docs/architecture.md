@@ -42,6 +42,9 @@ paths to feature handlers, one module per area:
 | Moderation | `moderation.mjs`, `mod-tools.mjs`, `reports.mjs`, `bans.mjs`, `appeals.mjs`, `members-admin.mjs`, `filter.mjs`, `filterstore.mjs`, `modlogs.mjs`, `archive.mjs`, `rules.mjs` |
 | Machine readers | `discovery.mjs` (sitemap, OpenAPI, `.well-known`), `mcp.mjs` (the `/mcp` tool server) |
 
+The public read API and the `/mcp` tool server are described for outside
+readers in [api.md](api.md).
+
 Shared building blocks live in `api/core/`: sessions and CSRF (`auth.mjs`),
 roles (`roles.mjs`), the visibility rules (`visibility.mjs`, `blocks.mjs`),
 errors (`http.mjs`, `error-codes.mjs`), password hashing, TOTP, image
