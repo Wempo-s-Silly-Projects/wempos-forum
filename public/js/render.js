@@ -28,6 +28,7 @@ import { t, tn, currentLocale } from "./i18n.js";
 import { createCopyLinkButton } from "./copy-link.js";
 import { createCopyCodeButton } from "./copy-code.js";
 import { createReadAloud } from "./read-aloud.js";
+import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";
 import { isQotdBody } from "./traditions.js";
 
 const createElement = (document, tagName, className, text) => {
@@ -374,6 +375,8 @@ export const createPostCard = (post, document, currentUser = null) => {
   // Copy link (wave 2026-11-21-4): one click puts the card's link on the
   // clipboard; client-only.
   actions.append(createCopyLinkButton(document, post.id));
+  // Show spoilers (wave 2026-11-21-17 F2): only on cards that have some.
+  if (hasSpoilers(post.body)) actions.append(createRevealSpoilersButton(document, article));
   // Read aloud (wave 2026-11-21-7 F3): on-device voices only, per click.
   const readAloud = createReadAloud(document, () => article.postBody);
   if (readAloud) actions.append(readAloud);
@@ -467,7 +470,8 @@ export const createPostCard = (post, document, currentUser = null) => {
     quoteButton.dataset.action = "quote";
     quoteButton.dataset.postId = String(post.id);
     quoteButton.dataset.quoteUsername = post.author.username;
-    quoteButton.dataset.quoteSnippet = collapseWhitespace(post.body);
+    // Wave 17: masked first — the 120-char quote cut can split a spoiler.
+    quoteButton.dataset.quoteSnippet = collapseWhitespace(maskSpoilers(post.body));
     if (!currentUser) quoteButton.disabled = true;
     actions.append(quoteButton);
   }
@@ -636,7 +640,8 @@ export function renderEditHistoryPanel(document, edits) {
     const time = createElement(document, "time", "edit-history-time");
     time.dateTime = edit.editedAt;
     time.textContent = new Date(edit.editedAt).toLocaleString(currentLocale());
-    const body = createElement(document, "p", "edit-history-body", String(edit.body ?? ""));
+    // Earlier versions show as plain text, so their spoilers stay masked.
+    const body = createElement(document, "p", "edit-history-body", maskSpoilers(edit.body));
     entry.append(time, body);
     panel.append(entry);
   }

@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "แกลเลอรี",
   "traditions.galleryEmpty": "ยังไม่มีรูปภาพ — แชร์ภาพวาดหรือผลงานของคุณสิ!",
   "traditions.galleryLoadFailed": "โหลดแกลเลอรีไม่ได้ ลองอีกครั้งในอีกสักครู่",
-  "traditions.galleryAlt": "รูปภาพจากโชว์เคส: {title}"
+  "traditions.galleryAlt": "รูปภาพจากโชว์เคส: {title}",
+  "render.revealSpoilers": "แสดงสปอยเลอร์"
 }

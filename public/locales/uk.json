@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "Галерея",
   "traditions.galleryEmpty": "Поки немає зображень — поділіться малюнком або будівлею!",
   "traditions.galleryLoadFailed": "Не вдалося завантажити галерею. Спробуйте ще раз трохи згодом.",
-  "traditions.galleryAlt": "Зображення з вітрини: {title}"
+  "traditions.galleryAlt": "Зображення з вітрини: {title}",
+  "render.revealSpoilers": "Показати спойлери"
 }

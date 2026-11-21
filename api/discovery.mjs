@@ -35,6 +35,7 @@ import { BOARD_VALUES } from "./boards.mjs";
 import { banFilterSql } from "./posts-feed.mjs";
 import { securityHeaders } from "./core/http.mjs";
 import { canViewPost } from "./core/visibility.mjs";
+import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
 
 const ORIGIN = "https://wempos-forum.com";
 const SITE_NAME = "Wempo's Forum";
@@ -182,8 +183,9 @@ const STRUCTURAL_LINE = /^ {0,3}(?:[#><]|```|~~~|[-*_=][-*_=\s]*$)/;
 // Escapes the leading marker of structural lines with a backslash, so a post
 // body can never forge a "## Replies" section, a separator, or an attribution
 // heading; ordinary prose, lists, links, and emphasis render unchanged.
+// Spoilers are masked first (wave 17): markdown readers get no reveal click.
 function safeBody(text) {
-  return String(text || "").split("\n")
+  return maskSpoilers(text).split("\n")
     .map((line) => (STRUCTURAL_LINE.test(line) ? line.replace(/^( {0,3})/, "$1\\") : line))
     .join("\n");
 }
@@ -193,9 +195,9 @@ function isoDate(seconds) {
 }
 
 function titleOf(row) {
-  const firstLine = String(row.body || "").split("\n").map((line) => line.trim()).find(Boolean) || "";
+  const firstLine = maskSpoilers(row.body).split("\n").map((line) => line.trim()).find(Boolean) || "";
   if (!firstLine) return "Post #" + row.id;
-  return firstLine.length > TITLE_MAX ? firstLine.slice(0, TITLE_MAX) + "…" : firstLine;
+  return maskedExcerpt(firstLine, TITLE_MAX);
 }
 
 function userLink(username) {

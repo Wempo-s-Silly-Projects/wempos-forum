@@ -24,6 +24,7 @@
 import { api } from "./api.js";
 import { BOARDS } from "./boards.js";
 import { i18nReady } from "./i18n.js";
+import { maskedExcerpt } from "./markdown.js";
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 20;
@@ -48,7 +49,7 @@ const summarizePost = (post) => {
     author: post?.author?.username ?? null,
     createdAt: post?.createdAt,
     replyCount: post?.replyCount ?? 0,
-    excerpt: body.length > EXCERPT_CHARS ? body.slice(0, EXCERPT_CHARS) + "…" : body,
+    excerpt: maskedExcerpt(body, EXCERPT_CHARS),
   };
 };
 

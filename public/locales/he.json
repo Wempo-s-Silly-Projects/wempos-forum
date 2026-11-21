@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "גלריה",
   "traditions.galleryEmpty": "עדיין אין תמונות — שתפו ציור או בנייה!",
   "traditions.galleryLoadFailed": "לא ניתן לטעון את הגלריה. נסו שוב בעוד רגע.",
-  "traditions.galleryAlt": "תמונה מהתצוגה: {title}"
+  "traditions.galleryAlt": "תמונה מהתצוגה: {title}",
+  "render.revealSpoilers": "הצגת ספוילרים"
 }

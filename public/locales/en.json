@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "Gallery",
   "traditions.galleryEmpty": "No pictures yet — share a drawing or a build!",
   "traditions.galleryLoadFailed": "The gallery couldn't load. Try again in a moment.",
-  "traditions.galleryAlt": "Showcase picture: {title}"
+  "traditions.galleryAlt": "Showcase picture: {title}",
+  "render.revealSpoilers": "Show spoilers"
 }

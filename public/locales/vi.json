@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "Thư viện ảnh",
   "traditions.galleryEmpty": "Chưa có hình nào — hãy chia sẻ một bức vẽ hoặc công trình!",
   "traditions.galleryLoadFailed": "Không thể tải thư viện ảnh. Hãy thử lại sau giây lát.",
-  "traditions.galleryAlt": "Hình trưng bày: {title}"
+  "traditions.galleryAlt": "Hình trưng bày: {title}",
+  "render.revealSpoilers": "Hiện nội dung tiết lộ"
 }

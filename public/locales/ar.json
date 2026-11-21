@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "المعرض",
   "traditions.galleryEmpty": "لا توجد صور بعد — شارك رسمة أو بناء!",
   "traditions.galleryLoadFailed": "تعذّر تحميل المعرض. حاول مرة أخرى بعد قليل.",
-  "traditions.galleryAlt": "صورة من المعرض: {title}"
+  "traditions.galleryAlt": "صورة من المعرض: {title}",
+  "render.revealSpoilers": "إظهار المحتوى المخفي"
 }

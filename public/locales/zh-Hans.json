@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "画廊",
   "traditions.galleryEmpty": "还没有图片——分享一幅画或一个作品吧！",
   "traditions.galleryLoadFailed": "画廊加载失败，请稍后再试。",
-  "traditions.galleryAlt": "展示图片：{title}"
+  "traditions.galleryAlt": "展示图片：{title}",
+  "render.revealSpoilers": "显示剧透"
 }

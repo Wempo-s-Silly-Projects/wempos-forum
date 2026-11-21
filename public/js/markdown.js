@@ -325,6 +325,16 @@ export function maskSpoilers(text) {
   return out + value.slice(cursor);
 }
 
+// A cut-down preview that can never give a spoiler away: mask FIRST, then
+// cut, so a spoiler split by the cut is already ▒▒▒ (wave 17). Shared by the
+// client and the server (api/core/spoilers.mjs) — one implementation.
+const ELLIPSIS = "\u2026";
+
+export function maskedExcerpt(text, max) {
+  const masked = maskSpoilers(text);
+  return masked.length > max ? masked.slice(0, max) + ELLIPSIS : masked;
+}
+
 // Block shape of a body: fenced code (```…```), "# " headings (1–3 hashes —
 // the post page's own h1/h2 hierarchy is not for post bodies), "- " lists,
 // and quote/paragraph runs (the pre-existing convention). Blocks keep their

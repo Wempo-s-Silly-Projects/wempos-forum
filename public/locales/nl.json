@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "Galerij",
   "traditions.galleryEmpty": "Nog geen afbeeldingen — deel een tekening of een bouwwerk!",
   "traditions.galleryLoadFailed": "De galerij kon niet worden geladen. Probeer het zo opnieuw.",
-  "traditions.galleryAlt": "Showcase-afbeelding: {title}"
+  "traditions.galleryAlt": "Showcase-afbeelding: {title}",
+  "render.revealSpoilers": "Spoilers tonen"
 }

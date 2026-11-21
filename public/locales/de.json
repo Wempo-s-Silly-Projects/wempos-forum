@@ -805,5 +805,6 @@
   "traditions.galleryTitle": "Galerie",
   "traditions.galleryEmpty": "Noch keine Bilder — teile eine Zeichnung oder einen Build!",
   "traditions.galleryLoadFailed": "Die Galerie konnte nicht geladen werden. Versuch es gleich noch einmal.",
-  "traditions.galleryAlt": "Showcase-Bild: {title}"
+  "traditions.galleryAlt": "Showcase-Bild: {title}",
+  "render.revealSpoilers": "Spoiler aufdecken"
 }
