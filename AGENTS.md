@@ -165,7 +165,7 @@ governance (board, ritual, compliance, roster) -> these seats.
 ## Cross-system cohesion & rewrite survival
 
 - **dependency-sync** — Fleet cross-app sync seat — watches shared package/version surfaces across Wempo's Forum and Wempo Accounts.
-- **sso-tester** — Fleet federation seat — browser-tests the cross-app door swap (accounts login → forum ↔ GooberCord) for token 
+- **sso-tester** — Fleet federation seat — browser-tests the cross-app door swap (accounts login ↔ forum) for token 
 - **dx-critic** — Fleet first-user seat — approaches Kitskey (or any fleet surface) as a brand-new developer with ONLY its gener
 - **fanout-sim** — Fleet load seat — simulated concurrent-user pressure (logins, messages, thread posts, joins) against LOCAL wra
 - **reconnect-saboteur** — Fleet session-adversary seat — drops connections, expires sessions mid-write, and simulates backgrounded tabs 

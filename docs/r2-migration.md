@@ -1,92 +1,57 @@
-# Migrating media storage from D1 to R2
+# Moving image storage from D1 to R2
 
-The forum currently stores every image byte inside D1 (avatars in `users.avatar_data`
-/ `pending_avatar_data`, post/reply attachments chunked across `attachment_chunks`,
-gallery images across `gif_chunks`). D1 caps a single row at ~2 MB and is a poor fit
-for large media at scale. R2 is the intended store — this is the path for when the
-account has R2 enabled. **Nothing in the shipped code reads the binding yet**; the
-commented `[[r2_buckets]]` block in `wrangler.toml` is the only preparation.
+**Status: not started.** R2 isn't wired up yet. The `[[r2_buckets]]` block in `wrangler.toml` is commented out, and no code reads a `MEDIA` binding. This page is the plan for when it's turned on.
 
-## Why this is safe to do in phases
+## Where image bytes live today
 
-Every media read already resolves through a canonical lookup keyed by the
-content-addressed SHA-256 (`lookupCanonicalByHash` in `api/attachments.mjs`), and
-serving is fail-safe: missing bytes are the route's normal 404, never a crash. That
-means R2 can be introduced as the *source of bytes* while D1 keeps all metadata
-(status, hashes, moderation state) — the read path just changes WHERE the byte
-concatenation comes from.
+Everything is in D1:
 
-## Phase 0 — enable (when you pay for R2)
+| Content | Where | Size cap |
+|---|---|---|
+| Post and reply attachments | chunked across `attachment_chunks` (`api/attachments.mjs`) | 10 MiB each, up to 3 per post |
+| GIF gallery | chunked across `gif_chunks` (`api/gifs.mjs`) | 10 MiB |
+| Avatars | `users.avatar_data` and `users.pending_avatar_data` (`api/avatars.mjs`) | 1 MiB |
 
-1. `wrangler r2 bucket create wempo-forum-media`
-2. Uncomment the `[[r2_buckets]]` block in `wrangler.toml` (`binding = "MEDIA"`).
-3. `wrangler deploy` — the binding exists but nothing uses it yet.
+D1 limits a single row to about 2 MB, which is why attachments and GIFs are split into chunks. R2 is a better home for large files.
 
-## Phase 1 — backfill: copy existing D1 bytes into R2
+## Why it can be done in steps
 
-Object keys mirror the current canonical shape, so dedup keeps working:
+Attachments are content-addressed: each one is looked up by its SHA-256 (`lookupCanonicalByHash` in `api/attachments.mjs`), and a missing file is a normal 404, never a crash. So R2 can become the place the bytes come from while D1 keeps all the metadata (status, hashes, moderation state). Only the byte source changes.
 
-| Content            | R2 key                                   | Source                                     |
-|--------------------|------------------------------------------|--------------------------------------------|
-| Attachment bytes   | `attachments/<attachment-id>`             | `attachment_chunks` in `seq` order         |
-| Gallery bytes      | `gifs/<gif-id>`                          | `gif_chunks` in `seq` order                 |
-| Approved avatar    | `avatars/<user-id>/<avatar-version>`     | `users.avatar_data`                         |
-| Pending avatar     | `avatars/<user-id>/pending-<version>`     | `users.pending_avatar_data`                |
+## Step 0: turn it on
 
-Backfill script sketch (`scripts/`, run against a local checkout with both bindings;
-idempotent — `put` overwrites harmlessly, and content hashes make re-runs no-ops):
+1. Create the bucket: `pnpm exec wrangler r2 bucket create wempo-forum-media`
+2. Uncomment the `[[r2_buckets]]` block in `wrangler.toml` (binding `MEDIA`).
+3. Deploy with `pnpm run deploy`. The binding exists, but nothing uses it yet.
 
-```js
-// scripts/backfill-media-to-r2.mjs — sketch, write for real when Phase 0 is live
-// 1. Page through attachment_chunks ORDER BY attachment_id, seq — concatenate
-//    each attachment's chunks, `await env.MEDIA.put("attachments/" + id, bytes)`.
-// 2. Same for gif_chunks → "gifs/" + id.
-// 3. SELECT id, avatar_version, avatar_data, pending_avatar_version,
-//    pending_avatar_data FROM users — put each non-null blob under its key.
-// 4. After each successful batch, mark progress in a `media_migration_state`
-//    table (or just resume by page number) so an interrupted run re-enters.
-```
+## Step 1: copy existing bytes into R2
 
-Verify with `wrangler r2 object get` spot-checks against known attachments.
+| Content | R2 key | Source |
+|---|---|---|
+| Attachment | `attachments/<attachment-id>` | `attachment_chunks`, in `seq` order |
+| GIF | `gifs/<gif-id>` | `gif_chunks`, in `seq` order |
+| Approved avatar | `avatars/<user-id>/<avatar-version>` | `users.avatar_data` |
+| Pending avatar | `avatars/<user-id>/pending-<version>` | `users.pending_avatar_data` |
 
-## Phase 2 — write path: new uploads go to R2, D1 stores metadata only
+Write a backfill script in `scripts/` that pages through each source and `put`s the bytes. It should be safe to re-run (a repeat `put` just overwrites) and able to resume where it stopped. Spot-check a few objects with `pnpm exec wrangler r2 object get` afterwards.
 
-- `api/attachments.mjs` (`readComposedBody` + `insertAttachments`): after
-  `sanitizeImage`, `await env.MEDIA.put("attachments/" + id, clean)` replaces the
-  chunk INSERT loop. Keep the `attachments` metadata row exactly as-is (status,
-  hash, mime, version) — moderation flow untouched. The 10 MiB cap can be RAISED
-  later, but keep it for phase 2 so the change is storage-only.
-- `api/gifs.mjs` (upload route): same — `MEDIA.put("gifs/" + id, bytes)`, keep the
-  `gifs` row.
-- `api/profiles.mjs` (avatar upload): store the pending blob in R2, keep
-  `pending_avatar_mime` / `avatar_status` in D1. Consider dropping the 1 MiB
-  avatar cap to R2-comfortable sizes at the same time.
-- Delete paths (`DELETE /api/posts/:id` cascades, attachment reject, avatar
-  reject, account deletion): add the matching `MEDIA.delete(key)` alongside each
-  D1 delete — best-effort (a missed delete is an orphaned object, not a leak of
-  served content; add a periodic sweep later if orphans bother you).
+## Step 2: new uploads go to R2
 
-## Phase 3 — read path: serve from R2, D1 as fallback
+- Attachments (`insertAttachments` in `api/attachments.mjs`): after the image is sanitized, `put` it to R2 instead of inserting chunks. Keep the `attachments` metadata row exactly as it is, so moderation doesn't change.
+- GIF uploads (`api/gifs.mjs`) and avatar uploads (`api/avatars.mjs`): same idea, with metadata staying in D1.
+- Everywhere bytes get deleted (post deletion, rejected attachments or avatars, account deletion), also delete the R2 object. A missed delete just leaves an orphaned object, not visible content.
+- Keep the current size caps for this step so it's a storage-only change.
 
-- `assembledChunkBytes` (attachments) / `assembledGifBytes` (gifs): try
-  `MEDIA.get(key)` first; if the object is missing, fall back to the D1 chunk
-  concatenation (covers anything the backfill missed), else the existing 404.
-- Avatar serving in `api/shared.mjs` (`handleAvatarReadRoute`): same try-R2,
-  fall back to the D1 blob columns.
-- Keep the `imageResponse` egress contract untouched — sniffed MIME,
-  `nosniff`, `Content-Disposition` all stay.
-- Longer term (optional): redirect to R2 public access or a custom domain
-  instead of proxying bytes through the Worker; that changes URLs, so it needs
-  its own migration note.
+## Step 3: serve from R2, with D1 as a fallback
 
-## Phase 4 — cleanup
+- `assembledChunkBytes` (`api/attachments.mjs`) and `assembledGifBytes` (`api/gifs.mjs`): try R2 first, fall back to the D1 chunks, then 404.
+- `handleAvatarReadRoute` (`api/avatars.mjs`): try R2, then the D1 columns.
+- Leave `imageResponse` (`api/core/images.mjs`) alone so the response headers stay the same.
 
-After a soak period with zero D1 fallback hits: stop writing chunks (drop the
-chunk INSERTs), add a migration to drop the chunk tables and the avatar blob
-columns, and sweep orphaned R2 objects. Only THEN delete any bytes.
+## Step 4: clean up
 
-## Rollback
+Once nothing has needed the D1 fallback for a good while, stop writing chunks, add a migration that drops the chunk tables and avatar blob columns, and sweep orphaned R2 objects. Only delete D1 bytes at this point.
 
-Every phase is independently reversible because D1 keeps metadata at all times:
-comment the binding back out and the chunk-fallback path resumes serving. Do not
-drop D1 bytes (phase 4) until the R2 path has been boring for a while.
+## Rolling back
+
+D1 keeps the metadata the whole time, so every step can be undone: comment the binding back out and the D1 path serves again. Don't run step 4 until R2 has been running without problems for a while.
