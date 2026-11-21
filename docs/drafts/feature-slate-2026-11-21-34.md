@@ -23,8 +23,8 @@
 
 Not shipped before (checked feature-slate-2026-11-21*.md and public/js; the
 only rank today is the leaderboard). Each Suggestions card leads its author
-row with its place in the vote order: `#1`, `#2`, ... with an aria-label
-"Rank N by votes". Load older continues the count; a numbered card is never
+row with its place in the vote order: `#1`, `#2`, ... (aria-hidden) plus a
+visually-hidden "Rank N by votes" label. Load older continues the count; a numbered card is never
 re-numbered; nested cards are skipped (only direct children of
 `.post-list`). `public/js/suggestion-rank.js`, page-view only
 (source-pinned: no storage, no requests, no innerHTML), modulepreload hint.
