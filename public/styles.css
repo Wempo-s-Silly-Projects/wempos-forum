@@ -2823,3 +2823,16 @@ dialog h2 {
   cursor: auto;
   user-select: text;
 }
+
+/* Composer Preview (wave 2026-11-21-3): live pane under the textarea. */
+.compose-preview { display: flex; flex-direction: column; gap: 0.4rem; margin-block: 0.4rem; }
+.compose-preview-toggle { align-self: flex-start; }
+.compose-preview-toggle[aria-pressed="true"] { border-color: var(--focus); }
+.compose-preview-pane {
+  padding: 0.6rem 0.8rem;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  overflow-wrap: anywhere;
+}
+.compose-preview-empty { margin: 0; color: var(--muted); }
