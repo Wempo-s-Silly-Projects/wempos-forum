@@ -923,5 +923,7 @@
   "profile.topBadge": "لديك أعلى شارة.",
   "feed.regularsHere": "الأعضاء الدائمون في هذه الصفحة:",
   "feed.resetAppearance": "إعادة تعيين المظهر",
-  "feed.appearanceResetDone": "عاد المظهر إلى الإعدادات الافتراضية."
+  "feed.appearanceResetDone": "عاد المظهر إلى الإعدادات الافتراضية.",
+  "dm.newMessages.one": "{count} رسالة جديدة",
+  "dm.newMessages.other": "{count} رسائل جديدة"
 }

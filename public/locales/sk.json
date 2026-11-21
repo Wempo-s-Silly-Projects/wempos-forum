@@ -923,5 +923,7 @@
   "profile.topBadge": "Máte najvyšší odznak.",
   "feed.regularsHere": "Štamgasti na tejto stránke:",
   "feed.resetAppearance": "Obnoviť vzhľad",
-  "feed.appearanceResetDone": "Vzhľad je späť na predvolenom nastavení."
+  "feed.appearanceResetDone": "Vzhľad je späť na predvolenom nastavení.",
+  "dm.newMessages.one": "{count} nová správa",
+  "dm.newMessages.other": "Nové správy: {count}"
 }

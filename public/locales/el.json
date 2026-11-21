@@ -923,5 +923,7 @@
   "profile.topBadge": "Έχετε το ανώτερο σήμα.",
   "feed.regularsHere": "Τακτικά μέλη σε αυτή τη σελίδα:",
   "feed.resetAppearance": "Επαναφορά εμφάνισης",
-  "feed.appearanceResetDone": "Η εμφάνιση επανήλθε στις προεπιλογές."
+  "feed.appearanceResetDone": "Η εμφάνιση επανήλθε στις προεπιλογές.",
+  "dm.newMessages.one": "{count} νέο μήνυμα",
+  "dm.newMessages.other": "{count} νέα μηνύματα"
 }

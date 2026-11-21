@@ -923,5 +923,7 @@
   "profile.topBadge": "உங்களிடம் உயர்ந்த பதக்கம் உள்ளது.",
   "feed.regularsHere": "இந்தப் பக்கத்தின் வழக்கமானவர்கள்:",
   "feed.resetAppearance": "தோற்றத்தை மீட்டமை",
-  "feed.appearanceResetDone": "தோற்றம் இயல்புநிலைக்குத் திரும்பியது."
+  "feed.appearanceResetDone": "தோற்றம் இயல்புநிலைக்குத் திரும்பியது.",
+  "dm.newMessages.one": "{count} புதிய செய்தி",
+  "dm.newMessages.other": "{count} புதிய செய்திகள்"
 }

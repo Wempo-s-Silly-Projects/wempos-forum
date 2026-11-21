@@ -923,5 +923,7 @@
   "profile.topBadge": "You have the top badge.",
   "feed.regularsHere": "Regulars on this page:",
   "feed.resetAppearance": "Reset appearance",
-  "feed.appearanceResetDone": "Appearance is back to the defaults."
+  "feed.appearanceResetDone": "Appearance is back to the defaults.",
+  "dm.newMessages.one": "{count} new message",
+  "dm.newMessages.other": "{count} new messages"
 }

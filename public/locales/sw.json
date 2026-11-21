@@ -923,5 +923,7 @@
   "profile.topBadge": "Una beji ya juu kabisa.",
   "feed.regularsHere": "Wanachama wa kawaida kwenye ukurasa huu:",
   "feed.resetAppearance": "Rejesha mwonekano",
-  "feed.appearanceResetDone": "Mwonekano umerudi kwenye chaguo-msingi."
+  "feed.appearanceResetDone": "Mwonekano umerudi kwenye chaguo-msingi.",
+  "dm.newMessages.one": "Ujumbe {count} mpya",
+  "dm.newMessages.other": "Jumbe {count} mpya"
 }

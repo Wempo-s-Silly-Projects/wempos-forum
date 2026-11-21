@@ -923,5 +923,7 @@
   "profile.topBadge": "Anda sudah punya lencana tertinggi.",
   "feed.regularsHere": "Anggota tetap di halaman ini:",
   "feed.resetAppearance": "Atur ulang tampilan",
-  "feed.appearanceResetDone": "Tampilan kembali ke bawaan."
+  "feed.appearanceResetDone": "Tampilan kembali ke bawaan.",
+  "dm.newMessages.one": "{count} pesan baru",
+  "dm.newMessages.other": "{count} pesan baru"
 }

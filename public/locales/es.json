@@ -923,5 +923,7 @@
   "profile.topBadge": "Tienes la insignia más alta.",
   "feed.regularsHere": "Habituales en esta página:",
   "feed.resetAppearance": "Restablecer apariencia",
-  "feed.appearanceResetDone": "La apariencia ha vuelto a los valores predeterminados."
+  "feed.appearanceResetDone": "La apariencia ha vuelto a los valores predeterminados.",
+  "dm.newMessages.one": "{count} mensaje nuevo",
+  "dm.newMessages.other": "{count} mensajes nuevos"
 }

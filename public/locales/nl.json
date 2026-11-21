@@ -923,5 +923,7 @@
   "profile.topBadge": "Je hebt de hoogste badge.",
   "feed.regularsHere": "Vaste bezoekers op deze pagina:",
   "feed.resetAppearance": "Weergave herstellen",
-  "feed.appearanceResetDone": "De weergave staat weer op de standaardwaarden."
+  "feed.appearanceResetDone": "De weergave staat weer op de standaardwaarden.",
+  "dm.newMessages.one": "{count} nieuw bericht",
+  "dm.newMessages.other": "{count} nieuwe berichten"
 }

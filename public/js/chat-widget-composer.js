@@ -31,6 +31,7 @@ import { buildAvatar, conversationKey, el, kindOf, sameConversation, ui } from "
 import { buildGifPicker, gifToken, messageBodyNode } from "./chat-widget-gifs.js";
 import { dropGroup, paintBadge, paintThreadList, refreshUnread } from "./chat-widget-threads.js";
 import { relativeTime } from "./chat-widget.js";
+import { buildNewDivider, newMarkerFor } from "./chat-new-divider.js";
 
 let sendInFlight = false;
 
@@ -51,6 +52,9 @@ export const openThread = async (thread, { silent = false } = {}) => {
   }
   if (!ui.open || !sameConversation(ui.activeThread, thread)) return;
   ui.conversation = { ...data, kind: kindOf(thread) };
+  // Wave 5.9 F1: a fresh open remembers where the unread run starts; the 5s
+  // silent repaint never moves the line.
+  if (!silent) ui.newSince = newMarkerFor(conversationKey(thread), data);
   if (data.unread > 0) {
     api(`${conversationBase(thread)}/read`, { method: "POST" })
       .then(() => {
@@ -208,6 +212,9 @@ export const paintConversation = () => {
   const maxId = messages.reduce((max, message) => Math.max(max, Number(message.id) || 0), 0);
   ui.lastPainted = { key, maxId: Math.max(maxId, ui.lastPainted.key === key ? ui.lastPainted.maxId : 0) };
   for (const message of messages) {
+    if (ui.newSince.key === key && Number(message.id) === Number(ui.newSince.id)) {
+      scroll.append(buildNewDivider(document, ui.newSince.count));
+    }
     const bubble = el("div", message.mine ? "chat-widget-message mine" : "chat-widget-message");
     if (!message.mine) {
       // The whose-row: the leading initial-circle avatar before the name.

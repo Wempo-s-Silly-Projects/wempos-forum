@@ -923,5 +923,7 @@
   "profile.topBadge": "У вас самый высокий значок.",
   "feed.regularsHere": "Завсегдатаи на этой странице:",
   "feed.resetAppearance": "Сбросить оформление",
-  "feed.appearanceResetDone": "Оформление возвращено к настройкам по умолчанию."
+  "feed.appearanceResetDone": "Оформление возвращено к настройкам по умолчанию.",
+  "dm.newMessages.one": "{count} новое сообщение",
+  "dm.newMessages.other": "Новых сообщений: {count}"
 }

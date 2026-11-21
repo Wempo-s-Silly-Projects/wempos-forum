@@ -923,5 +923,7 @@
   "profile.topBadge": "Ai cea mai înaltă insignă.",
   "feed.regularsHere": "Obișnuiți pe această pagină:",
   "feed.resetAppearance": "Resetează aspectul",
-  "feed.appearanceResetDone": "Aspectul a revenit la valorile implicite."
+  "feed.appearanceResetDone": "Aspectul a revenit la valorile implicite.",
+  "dm.newMessages.one": "{count} mesaj nou",
+  "dm.newMessages.other": "Mesaje noi: {count}"
 }

@@ -923,5 +923,7 @@
   "profile.topBadge": "Имате най-високата значка.",
   "feed.regularsHere": "Редовни участници на тази страница:",
   "feed.resetAppearance": "Нулиране на външния вид",
-  "feed.appearanceResetDone": "Външният вид е върнат към настройките по подразбиране."
+  "feed.appearanceResetDone": "Външният вид е върнат към настройките по подразбиране.",
+  "dm.newMessages.one": "{count} ново съобщение",
+  "dm.newMessages.other": "{count} нови съобщения"
 }

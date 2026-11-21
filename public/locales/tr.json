@@ -923,5 +923,7 @@
   "profile.topBadge": "En yüksek rozete sahipsiniz.",
   "feed.regularsHere": "Bu sayfanın müdavimleri:",
   "feed.resetAppearance": "Görünümü sıfırla",
-  "feed.appearanceResetDone": "Görünüm varsayılanlara döndü."
+  "feed.appearanceResetDone": "Görünüm varsayılanlara döndü.",
+  "dm.newMessages.one": "{count} yeni mesaj",
+  "dm.newMessages.other": "{count} yeni mesaj"
 }

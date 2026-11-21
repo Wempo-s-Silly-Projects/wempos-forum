@@ -923,5 +923,7 @@
   "profile.topBadge": "Masz najwyższą odznakę.",
   "feed.regularsHere": "Stali bywalcy na tej stronie:",
   "feed.resetAppearance": "Przywróć wygląd",
-  "feed.appearanceResetDone": "Wygląd wrócił do ustawień domyślnych."
+  "feed.appearanceResetDone": "Wygląd wrócił do ustawień domyślnych.",
+  "dm.newMessages.one": "{count} nowa wiadomość",
+  "dm.newMessages.other": "Nowe wiadomości: {count}"
 }

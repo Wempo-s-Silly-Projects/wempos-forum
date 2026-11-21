@@ -923,5 +923,7 @@
   "profile.topBadge": "Du har det högsta märket.",
   "feed.regularsHere": "Stamgäster på den här sidan:",
   "feed.resetAppearance": "Återställ utseende",
-  "feed.appearanceResetDone": "Utseendet är tillbaka till standard."
+  "feed.appearanceResetDone": "Utseendet är tillbaka till standard.",
+  "dm.newMessages.one": "{count} nytt meddelande",
+  "dm.newMessages.other": "{count} nya meddelanden"
 }

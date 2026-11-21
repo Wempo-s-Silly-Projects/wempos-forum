@@ -923,5 +923,7 @@
   "profile.topBadge": "آپ کے پاس سب سے اونچا بیج ہے۔",
   "feed.regularsHere": "اس صفحے کے مستقل ارکان:",
   "feed.resetAppearance": "ظاہری شکل ری سیٹ کریں",
-  "feed.appearanceResetDone": "ظاہری شکل پہلے سے طے شدہ پر واپس آ گئی۔"
+  "feed.appearanceResetDone": "ظاہری شکل پہلے سے طے شدہ پر واپس آ گئی۔",
+  "dm.newMessages.one": "{count} نیا پیغام",
+  "dm.newMessages.other": "{count} نئے پیغامات"
 }

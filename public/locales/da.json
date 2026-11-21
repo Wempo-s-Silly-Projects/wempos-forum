@@ -923,5 +923,7 @@
   "profile.topBadge": "Du har det højeste badge.",
   "feed.regularsHere": "Faste deltagere på denne side:",
   "feed.resetAppearance": "Nulstil udseende",
-  "feed.appearanceResetDone": "Udseendet er tilbage til standard."
+  "feed.appearanceResetDone": "Udseendet er tilbage til standard.",
+  "dm.newMessages.one": "{count} ny besked",
+  "dm.newMessages.other": "{count} nye beskeder"
 }

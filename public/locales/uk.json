@@ -923,5 +923,7 @@
   "profile.topBadge": "У вас найвищий значок.",
   "feed.regularsHere": "Постійні учасники на цій сторінці:",
   "feed.resetAppearance": "Скинути вигляд",
-  "feed.appearanceResetDone": "Вигляд повернуто до типових налаштувань."
+  "feed.appearanceResetDone": "Вигляд повернуто до типових налаштувань.",
+  "dm.newMessages.one": "{count} нове повідомлення",
+  "dm.newMessages.other": "Нових повідомлень: {count}"
 }

@@ -923,5 +923,7 @@
   "profile.topBadge": "Nasa iyo na ang pinakamataas na badge.",
   "feed.regularsHere": "Mga madalas dito sa pahinang ito:",
   "feed.resetAppearance": "I-reset ang itsura",
-  "feed.appearanceResetDone": "Bumalik na sa default ang itsura."
+  "feed.appearanceResetDone": "Bumalik na sa default ang itsura.",
+  "dm.newMessages.one": "{count} bagong mensahe",
+  "dm.newMessages.other": "{count} bagong mensahe"
 }

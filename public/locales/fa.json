@@ -923,5 +923,7 @@
   "profile.topBadge": "شما بالاترین نشان را دارید.",
   "feed.regularsHere": "اعضای همیشگی این صفحه:",
   "feed.resetAppearance": "بازنشانی ظاهر",
-  "feed.appearanceResetDone": "ظاهر به حالت پیش‌فرض برگشت."
+  "feed.appearanceResetDone": "ظاهر به حالت پیش‌فرض برگشت.",
+  "dm.newMessages.one": "{count} پیام جدید",
+  "dm.newMessages.other": "{count} پیام جدید"
 }

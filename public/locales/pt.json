@@ -923,5 +923,7 @@
   "profile.topBadge": "Você tem o emblema mais alto.",
   "feed.regularsHere": "Frequentadores desta página:",
   "feed.resetAppearance": "Redefinir aparência",
-  "feed.appearanceResetDone": "A aparência voltou ao padrão."
+  "feed.appearanceResetDone": "A aparência voltou ao padrão.",
+  "dm.newMessages.one": "{count} mensagem nova",
+  "dm.newMessages.other": "{count} mensagens novas"
 }

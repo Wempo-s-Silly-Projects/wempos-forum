@@ -923,5 +923,7 @@
   "profile.topBadge": "最上位のバッジを獲得しています。",
   "feed.regularsHere": "このページの常連:",
   "feed.resetAppearance": "外観をリセット",
-  "feed.appearanceResetDone": "外観を既定に戻しました。"
+  "feed.appearanceResetDone": "外観を既定に戻しました。",
+  "dm.newMessages.one": "新着メッセージ {count} 件",
+  "dm.newMessages.other": "新着メッセージ {count} 件"
 }

@@ -923,5 +923,7 @@
   "profile.topBadge": "Du har det høyeste merket.",
   "feed.regularsHere": "Faste deltakere på denne siden:",
   "feed.resetAppearance": "Tilbakestill utseende",
-  "feed.appearanceResetDone": "Utseendet er tilbake til standard."
+  "feed.appearanceResetDone": "Utseendet er tilbake til standard.",
+  "dm.newMessages.one": "{count} ny melding",
+  "dm.newMessages.other": "{count} nye meldinger"
 }

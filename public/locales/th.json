@@ -923,5 +923,7 @@
   "profile.topBadge": "คุณมีเหรียญสูงสุดแล้ว",
   "feed.regularsHere": "ขาประจำในหน้านี้:",
   "feed.resetAppearance": "รีเซ็ตรูปลักษณ์",
-  "feed.appearanceResetDone": "รูปลักษณ์กลับเป็นค่าเริ่มต้นแล้ว"
+  "feed.appearanceResetDone": "รูปลักษณ์กลับเป็นค่าเริ่มต้นแล้ว",
+  "dm.newMessages.one": "ข้อความใหม่ {count} ข้อความ",
+  "dm.newMessages.other": "ข้อความใหม่ {count} ข้อความ"
 }

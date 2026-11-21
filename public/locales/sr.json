@@ -923,5 +923,7 @@
   "profile.topBadge": "Имате највишу значку.",
   "feed.regularsHere": "Стални чланови на овој страници:",
   "feed.resetAppearance": "Врати изглед",
-  "feed.appearanceResetDone": "Изглед је враћен на подразумеване поставке."
+  "feed.appearanceResetDone": "Изглед је враћен на подразумеване поставке.",
+  "dm.newMessages.one": "{count} нова порука",
+  "dm.newMessages.other": "Нове поруке: {count}"
 }

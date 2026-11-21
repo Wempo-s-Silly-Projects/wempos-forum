@@ -923,5 +923,7 @@
   "profile.topBadge": "Du hast das höchste Abzeichen.",
   "feed.regularsHere": "Stammgäste auf dieser Seite:",
   "feed.resetAppearance": "Darstellung zurücksetzen",
-  "feed.appearanceResetDone": "Die Darstellung ist wieder auf den Standardwerten."
+  "feed.appearanceResetDone": "Die Darstellung ist wieder auf den Standardwerten.",
+  "dm.newMessages.one": "{count} neue Nachricht",
+  "dm.newMessages.other": "{count} neue Nachrichten"
 }

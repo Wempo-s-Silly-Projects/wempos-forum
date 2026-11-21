@@ -923,5 +923,7 @@
   "profile.topBadge": "최고 배지를 가지고 있습니다.",
   "feed.regularsHere": "이 페이지의 단골:",
   "feed.resetAppearance": "모양 초기화",
-  "feed.appearanceResetDone": "모양이 기본값으로 돌아갔습니다."
+  "feed.appearanceResetDone": "모양이 기본값으로 돌아갔습니다.",
+  "dm.newMessages.one": "새 메시지 {count}개",
+  "dm.newMessages.other": "새 메시지 {count}개"
 }

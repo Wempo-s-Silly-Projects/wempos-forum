@@ -923,5 +923,7 @@
   "profile.topBadge": "Bạn đã có huy hiệu cao nhất.",
   "feed.regularsHere": "Thành viên quen thuộc trên trang này:",
   "feed.resetAppearance": "Đặt lại giao diện",
-  "feed.appearanceResetDone": "Giao diện đã trở về mặc định."
+  "feed.appearanceResetDone": "Giao diện đã trở về mặc định.",
+  "dm.newMessages.one": "{count} tin nhắn mới",
+  "dm.newMessages.other": "{count} tin nhắn mới"
 }
