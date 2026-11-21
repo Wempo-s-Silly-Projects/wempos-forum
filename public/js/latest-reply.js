@@ -55,3 +55,28 @@ export function createFirstPostJump(document, rootCard, replyCount) {
   });
   return button;
 }
+
+// Jump to my reply (wave 2026-11-21-15 F2): shown only when the signed-in
+// member has a reply among the loaded ones. It moves focus (and the view) to
+// their newest top-level reply — the card carrying the "You" chip — looked
+// up at click time, so it stays right after older replies load. No request,
+// no storage.
+const YOU_CHIP_SELECTOR = ".role-badge-you";
+
+const myLastReplyCard = (list) => [...list.children]
+  .filter((node) => node.matches?.(".post-card") && node.querySelector?.(YOU_CHIP_SELECTOR))
+  .at(-1) ?? null;
+
+export function createMyReplyJump(document, replyList, replies, viewerId) {
+  if (!replyList || !viewerId || !Array.isArray(replies)) return null;
+  if (!replies.some((reply) => Number(reply?.author?.id) === Number(viewerId))) return null;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "button button-quiet my-reply-jump";
+  button.textContent = t("post.myReply");
+  button.addEventListener("click", (event) => {
+    event.preventDefault?.();
+    jumpToNode(myLastReplyCard(replyList), { block: "center" });
+  });
+  return button;
+}

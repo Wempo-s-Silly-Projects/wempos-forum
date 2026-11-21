@@ -25,6 +25,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { maskSpoilers } from "../public/js/markdown.js";
 import { threadExcerpt } from "../public/js/profile-extras.js";
+import { readFileSync } from "node:fs";
+import { FakeNode, makeFakeDocument } from "./helpers/fake-dom.mjs";
+import { createMyReplyJump } from "../public/js/latest-reply.js";
 
 const LEAKY_BODIES = [
   "run `a || b` first. Ending: ||he dies||",
@@ -47,4 +50,59 @@ test("maskSpoilers keeps ordinary text and plain spoilers as before", () => {
   assert.equal(maskSpoilers("- one ||x||\n- two"), "- one ▒▒▒\n- two");
   assert.equal(maskSpoilers("```\n||kept||\n```"), "```\n||kept||\n```");
   assert.equal(maskSpoilers(null), "");
+});
+
+// --- F2: jump to my reply ---------------------------------------------------------
+
+const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+const fakeDocument = makeFakeDocument();
+
+const card = (mine) => {
+  const article = new FakeNode("article");
+  article.className = "post-card";
+  article.scrollIntoView = () => {};
+  if (mine) {
+    const chip = new FakeNode("span");
+    chip.className = "role-badge role-badge-you";
+    article.append(chip);
+  }
+  return article;
+};
+
+test("my-reply jump: only when the viewer has a loaded reply; focuses their newest at click", () => {
+  const list = new FakeNode("div");
+  const older = card(true);
+  const newer = card(true);
+  list.append(older, card(false), newer, card(false));
+  const replies = [{ author: { id: 7 } }, { author: { id: 8 } }];
+  assert.equal(createMyReplyJump(fakeDocument, list, replies, null), null);
+  assert.equal(createMyReplyJump(fakeDocument, list, replies, 9), null);
+  assert.equal(createMyReplyJump(fakeDocument, null, replies, 7), null);
+  const button = createMyReplyJump(fakeDocument, list, replies, 7);
+  assert.equal(button.type, "button");
+  assert.ok(button.textContent.length > 0);
+  button.dispatch("click", { preventDefault() {} });
+  assert.equal(newer.ownerFocused, true);
+  assert.notEqual(older.ownerFocused, true);
+});
+
+test("my-reply jump is wired on the thread page and stays local", () => {
+  assert.match(read("public/js/routes/post.js"),
+    /createMyReplyJump\(document, replyList, post\.replies, context\.session\.user\?\.id\)/);
+  assert.match(read("public/styles.css"), /\.my-reply-jump \{/);
+  assert.doesNotMatch(read("public/js/latest-reply.js"), /localStorage|sessionStorage|api\(/);
+});
+
+test("i18n: wave-15 keys exist and are translated in every locale", () => {
+  const keys = ["post.myReply"];
+  const en = JSON.parse(read("public/locales/en.json"));
+  const locales = ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant"];
+  for (const key of keys) assert.equal(typeof en[key], "string", key);
+  for (const code of locales) {
+    const bundle = JSON.parse(read(`public/locales/${code}.json`));
+    for (const key of keys) {
+      assert.equal(typeof bundle[key], "string", `${code} ${key}`);
+      assert.notEqual(bundle[key], en[key], `${code} ${key} is translated`);
+    }
+  }
 });
