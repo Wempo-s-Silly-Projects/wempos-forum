@@ -16,6 +16,7 @@
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
 
+import { t } from "./i18n.js";
 const TURNSTILE_SITEKEY = "0x4AAAAAAFXrK9dxFMt6fp46";
 const TURNSTILE_SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js";
 
@@ -33,7 +34,7 @@ export async function ensureTurnstile(timeoutMs = 15_000) {
       const deadline = Date.now() + timeoutMs;
       while (!window.turnstile) {
         if (Date.now() > deadline) {
-          throw new Error("The human-verification widget failed to load. Refresh the page and try again.");
+          throw new Error(t("turnstile.loadFailed"));
         }
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
@@ -124,7 +125,7 @@ export function teardownTurnstile() {
 export function takeTurnstileToken(form) {
   const state = widgets.get(form);
   if (!state || !state.token) {
-    throw new Error("Please complete the human-verification step first.");
+    throw new Error(t("turnstile.incomplete"));
   }
   const token = state.token;
   state.token = "";

@@ -26,28 +26,29 @@ import { addHeading, element, main, setMessage } from "../dom.js";
 import { addText } from "../forms.js";
 import { state } from "../state.js";
 import { renderBodyBlocks } from "../render.js";
+import { t, tn, currentLocale } from "../i18n.js";
 
 async function renderRulesRoute(context, version) {
   const data = await api("/api/rules");
   if (version !== state.renderVersion) return;
-  addHeading(main, "Forum rules", 2);
+  addHeading(main, t("pages.rulesTitle"), 2);
   if (!data.rules) {
-    addText(document, main, "p", "The rules haven't been written yet.", "empty-state");
+    addText(document, main, "p", t("pages.rulesEmpty"), "empty-state");
     return;
   }
   renderBodyBlocks({ body: data.rules }, document, main);
   if (data.updatedAt) {
-    addText(document, main, "p", `Last updated ${new Date(data.updatedAt).toLocaleString()}`, "muted");
+    addText(document, main, "p", t("pages.rulesUpdated", { date: new Date(data.updatedAt).toLocaleString(currentLocale()) }), "muted");
   }
 }
 
 async function renderLeaderboardRoute(context, version) {
   const data = await api("/api/leaderboard");
   if (version !== state.renderVersion) return;
-  addHeading(main, "Leaderboard", 2);
+  addHeading(main, t("pages.leaderboardTitle"), 2);
   const rows = data.allTime.leaderboard;
   if (!rows.length) {
-    addText(document, main, "p", "Nothing yet — be the first!", "empty-state");
+    addText(document, main, "p", t("pages.leaderboardEmpty"), "empty-state");
     return;
   }
   const list = element("ol", "leaderboard-list");
@@ -58,7 +59,8 @@ async function renderLeaderboardRoute(context, version) {
     link.href = "/users/" + encodeURIComponent(entry.username);
     link.setAttribute("data-app-link", "");
     row.append(link, element("span", "leaderboard-stats",
-      `${entry.threads} threads · ${entry.replies} replies · ${entry.reactionsReceived} reactions received`));
+      [tn("counts.threads", entry.threads), tn("counts.replies", entry.replies), tn("counts.reactionsReceived", entry.reactionsReceived)]
+        .join(t("counts.separator"))));
     row.append(element("span", "leaderboard-score", String(entry.score)));
     list.append(row);
   }
@@ -70,14 +72,14 @@ async function renderArchiveRoute(context, version) {
   // so no auth is needed — this route renders for guests too.
   const data = await api("/api/archive");
   if (version !== state.renderVersion) return;
-  addHeading(main, "Archive", 2);
+  addHeading(main, t("pages.archiveTitle"), 2);
   if (!data.archive.length) {
-    main.append(element("p", "archive-empty", "Nothing has been deleted yet."));
+    main.append(element("p", "archive-empty", t("pages.archiveEmpty")));
     return;
   }
   main.append(await renderArchiveListFragment(data.archive));
   if (!data.nextBefore) return;
-  const older = element("button", "button button-secondary", "Load older archive");
+  const older = element("button", "button button-secondary", t("pages.archiveLoadOlder"));
   older.type = "button";
   older.dataset.action = "load-more-archive";
   older.dataset.before = String(data.nextBefore);
@@ -89,11 +91,12 @@ async function renderArchiveListFragment(entries) {
   for (const entry of entries) {
     const card = element("article", "archive-card");
     const header = element("p", "archive-header");
-    header.append(element("span", "archive-author", "post by " + entry.authorName));
+    header.append(element("span", "archive-author", t("pages.archiveAuthor", { name: entry.authorName })));
     header.append(element("span", "archive-meta",
-      "deleted " + new Date(entry.deletedAt).toLocaleString() + " · " +
-      (entry.deletedBecause === "account-delete" ? "account deleted" : "post deleted") +
-      " · deleted by " + (entry.deletedByName || "unknown")));
+      t(entry.deletedBecause === "account-delete" ? "pages.archiveMetaAccount" : "pages.archiveMetaPost", {
+        date: new Date(entry.deletedAt).toLocaleString(currentLocale()),
+        by: entry.deletedByName || t("pages.archiveUnknown"),
+      })));
     card.append(header);
     const bodyBlock = element("p", "archive-body");
     bodyBlock.textContent = entry.body;
@@ -111,7 +114,7 @@ async function loadMoreArchive(button) {
   button.before(rendered);
   button.remove();
   if (!older.nextBefore) return;
-  const next = element("button", "button button-secondary", "Load older archive");
+  const next = element("button", "button button-secondary", t("pages.archiveLoadOlder"));
   next.type = "button";
   next.dataset.action = "load-more-archive";
   next.dataset.before = String(older.nextBefore);
@@ -131,7 +134,7 @@ export const ACTIONS = {
       if (!input) return;
       await api("/api/rules", { method: "POST", body: input.value });
       state.router.navigate("/rules");
-      setMessage("Rules saved.");
+      setMessage(t("pages.rulesSaved"));
     },
     "load-more-archive": (button) => loadMoreArchive(button),
 };

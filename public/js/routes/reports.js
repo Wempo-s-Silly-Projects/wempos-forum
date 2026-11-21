@@ -22,6 +22,7 @@
 // out of app.js. The dialog + form singletons live in ../dom.js.
 import { api } from "../api.js";
 import { reportDialog, reportForm, setMessage } from "../dom.js";
+import { t } from "../i18n.js";
 
 // The dialog opener: a card's Report button passes the button (the post id
 // rides its dataset); the profile button passes a {type, id} pair.
@@ -30,12 +31,12 @@ function openReportDialog(target) {
   const targetType = isButton ? "post" : target.type;
   const targetId = isButton ? target.dataset.postId : target.id;
   if (!["post", "profile"].includes(targetType) || !targetId) {
-    throw new Error("That report target is no longer available.");
+    throw new Error(t("reports.targetGone"));
   }
   reportForm.dataset.targetType = targetType;
   reportForm.dataset.targetId = String(targetId);
   document.querySelector("#report-title").textContent =
-    targetType === "profile" ? "Report this profile" : "Report this post";
+    targetType === "profile" ? t("reports.titleProfile") : t("reports.titlePost");
   reportDialog.showModal();
   reportForm.querySelector("textarea").focus();
 }
@@ -51,8 +52,8 @@ async function submitReportForm(text) {
   reportForm.reset();
   delete reportForm.dataset.targetType;
   delete reportForm.dataset.targetId;
-  document.querySelector("#report-title").textContent = "Report this post";
-  setMessage("Your report was sent to the mods.");
+  document.querySelector("#report-title").textContent = t("reports.titlePost");
+  setMessage(t("reports.sent"));
 }
 
 // The registration seam: the report form submits through FORM_HANDLERS; the

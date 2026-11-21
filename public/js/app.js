@@ -17,6 +17,7 @@
 // see <https://www.gnu.org/licenses/>.
 
 import { api, setCsrfToken } from "./api.js";
+import { i18nReady, t } from "./i18n.js";
 import { addText } from "./forms.js";
 import { renderBannedScreen } from "./banned.js";
 import { boardLabel } from "./boards.js";
@@ -169,33 +170,33 @@ async function prepareRouteContext(version) {
 
 function setRouteTitle(route) {
   const pageNames = {
-    home: "Wempo's Forum",
-    search: "Search",
-    suggestions: "Suggestions",
-    archive: "Archive",
-    mine: "My posts",
-    leaderboard: "Leaderboard",
-    rules: "Rules",
-    post: "Post",
-    profile: "Profile",
-    admin: "Moderation",
-    appeals: "Appeals",
-    notifications: "Notifications",
-    bookmarks: "Saved posts",
-    setup: "First-time setup",
-    "not-found": "Not found",
+    home: t("app.siteName"),
+    search: t("app.pageSearch"),
+    suggestions: t("app.pageSuggestions"),
+    archive: t("app.pageArchive"),
+    mine: t("app.pageMine"),
+    leaderboard: t("app.pageLeaderboard"),
+    rules: t("app.pageRules"),
+    post: t("app.pagePost"),
+    profile: t("app.pageProfile"),
+    admin: t("app.pageAdmin"),
+    appeals: t("app.pageAppeals"),
+    notifications: t("app.pageNotifications"),
+    bookmarks: t("app.pageBookmarks"),
+    setup: t("app.pageSetup"),
+    "not-found": t("app.pageNotFound"),
   };
   document.title = route.name === "home"
-    ? "Wempo's Forum"
+    ? t("app.siteName")
     : route.name === "category"
       // Categories (v3.1): the title carries the category's display name.
-      ? `${route.board ? boardLabel(route.board) : "Category"} · Wempo's Forum`
-      : `${pageNames[route.name] || pageNames.home} · Wempo's Forum`;
+      ? t("app.titleWithPage", { page: route.board ? boardLabel(route.board) : t("app.pageCategory") })
+      : t("app.titleWithPage", { page: pageNames[route.name] || pageNames.home });
 }
 
 function renderNotFoundRoute() {
-  addHeading(main, "Page not found", 1);
-  addText(document, main, "p", "That page isn't available.", "muted");
+  addHeading(main, t("app.notFoundHeading"), 1);
+  addText(document, main, "p", t("app.notFoundBody"), "muted");
 }
 
 async function renderRoute(route) {
@@ -254,7 +255,7 @@ async function submitForm(form) {
   const values = readForm(form);
   const type = form.dataset.form;
   const text = (name) => String(values.get(name) ?? "");
-  setMessage("Saving…");
+  setMessage(t("app.saving"));
 
   const handlers = {
     ...authFormHandlers,
@@ -426,10 +427,10 @@ function showBootBanScreen(error) {
 function showBootSignInCard() {
   main.replaceChildren();
   const panel = createPanel(
-    "Can't sign in right now",
-    "The Wempo Accounts sign-in isn't completing. Your sign-in link is single-use and may have expired or already been used.",
+    t("app.signInFailedTitle"),
+    t("app.signInFailedBody"),
   );
-  const again = element("a", "button button-secondary sso-entry-button", "Try again from Wempo Accounts");
+  const again = element("a", "button button-secondary sso-entry-button", t("app.signInFailedRetry"));
   again.href = wempoAccountsSignInUrl(location.origin);
   panel.append(again);
   main.append(panel);
@@ -439,6 +440,7 @@ function showBootSignInCard() {
 // never prevent the application state.router from running or leave the HTML shell
 // stuck at its initial placeholder.
 async function boot() {
+  await i18nReady();
   try {
     let storage;
     try { storage = window.localStorage; }
@@ -464,16 +466,16 @@ async function boot() {
       renderRoute(route).catch((error) => {
         setMessage(error.message, true);
         main.replaceChildren();
-        addHeading(main, "Something went wrong:(", 1);
+        addHeading(main, t("app.errorHeading"), 1);
         addText(document, main, "p", error.message, "error-copy");
       });
     });
   } catch (error) {
     console.error("Forum startup failed:", error);
     main.replaceChildren();
-    addHeading(main, "The forum could not start:(", 1);
+    addHeading(main, t("app.startupHeading"), 1);
     addText(document, main, "p",
-      "A startup error interrupted the forum! Refresh after the site is updated.",
+      t("app.startupBody"),
       "error-copy");
   }
 }
@@ -518,11 +520,11 @@ function showStaleBuildBanner() {
   const bar = document.createElement("div");
   bar.className = "stale-build-banner";
   const note = document.createElement("span");
-  note.textContent = "The forum was updated while this page was open. Reload for the newest version.";
+  note.textContent = t("app.staleBanner");
   const reload = document.createElement("button");
   reload.type = "button";
   reload.className = "button button-secondary";
-  reload.textContent = "Reload";
+  reload.textContent = t("app.reload");
   reload.addEventListener("click", () => location.reload());
   bar.append(note, reload);
   document.body.prepend(bar);

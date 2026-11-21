@@ -22,18 +22,19 @@
 // SOCIAL_PLATFORMS — the server re-validates everything; these only steer the
 // editor. All DOM building is textContent-based (no innerHTML).
 import { createForm, createInput, createTextarea } from "./forms.js";
+import { t, tn } from "./i18n.js";
 
 export const SOCIAL_LABELS = {
   youtube: "YouTube",
   x: "X",
-  reddit: "Reddit",
+  reddit: "Reddit", // i18n-ignore
   github: "GitHub",
-  discord: "Discord",
+  discord: "Discord", // i18n-ignore
   gitlab: "GitLab",
-  instagram: "Instagram",
+  instagram: "Instagram", // i18n-ignore
   tiktok: "TikTok",
-  twitch: "Twitch",
-  polytoria: "Polytoria",
+  twitch: "Twitch", // i18n-ignore
+  polytoria: "Polytoria", // i18n-ignore
 };
 
 // Field order for the editor; spec §10 (Polytoria last).
@@ -129,7 +130,7 @@ export function renderProfileSocials(document, profile, isOwnProfile = false) {
   container.open = isOwnProfile;
   const summary = document.createElement("summary");
   summary.className = "socials-summary";
-  summary.textContent = links.length === 1 ? "1 link" : `${links.length} links`;
+  summary.textContent = tn("profileEditor.links", links.length);
   container.append(summary);
   const list = document.createElement("ul");
   list.className = "profile-socials";
@@ -167,37 +168,37 @@ export function renderProfileEditor(main, user) {
   const panel = document.createElement("section");
   panel.className = "panel profile-editor-panel";
   const heading = document.createElement("h2");
-  heading.textContent = "Edit your profile";
+  heading.textContent = t("profileEditor.title");
   panel.append(heading);
   const socials = user && user.socials && typeof user.socials === "object"
     ? user.socials
     : {};
   const fields = [
     createTextarea(document, {
-      id: "profile-bio", name: "bio", label: "Bio", rows: 4, maxLength: 10000,
-      description: "Up to 10000 characters. Shown on your profile.",
+      id: "profile-bio", name: "bio", label: t("profileEditor.bio"), rows: 4, maxLength: 10000,
+      description: t("profileEditor.bioHelp"),
     }),
     ...SOCIAL_PLATFORM_ORDER.map((key) => createInput(document, {
       id: `profile-social-${key}`, name: key, label: SOCIAL_LABELS[key],
       maxLength: 120,
       description: key === "polytoria"
-        ? "Your Polytoria username."
-        : SOCIAL_PATTERNS[key] ? `Just the ${SOCIAL_LABELS[key]} handle, not the whole URL.` : "",
+        ? t("profileEditor.polytoriaHelp")
+        : SOCIAL_PATTERNS[key] ? t("profileEditor.handleHelp", { platform: SOCIAL_LABELS[key] }) : "",
     })),
     createInput(document, {
-      id: "profile-banner-color", name: "bannerColor", label: "Banner color",
-      maxLength: 7, description: "Any hex like #4d8fc4, or blank to clear.",
+      id: "profile-banner-color", name: "bannerColor", label: t("profileEditor.bannerColor"),
+      maxLength: 7, description: t("profileEditor.bannerColorHelp"),
     }),
     createInput(document, {
-      id: "profile-banner-text", name: "bannerText", label: "Banner text",
-      maxLength: 80, description: "Optional text displayed in your profile banner.",
+      id: "profile-banner-text", name: "bannerText", label: t("profileEditor.bannerText"),
+      maxLength: 80, description: t("profileEditor.bannerTextHelp"),
     }),
     createInput(document, {
-      id: "profile-flair", name: "flair", label: "Profile flair",
-      maxLength: 32, description: "A short label shown below your name.",
+      id: "profile-flair", name: "flair", label: t("profileEditor.flair"),
+      maxLength: 32, description: t("profileEditor.flairHelp"),
     }),
   ];
-  const form = createForm(document, "profile-editor", fields, "Save profile");
+  const form = createForm(document, "profile-editor", fields, t("profileEditor.save"));
   form.querySelector("#profile-bio").value =
     typeof user?.bio === "string" ? user.bio : "";
   for (const key of SOCIAL_PLATFORM_ORDER) {
@@ -225,14 +226,14 @@ export function renderProfileEditor(main, user) {
 // server already normalized to hex, so pressed-state compares hex-to-hex.
 // The color input (wired by app.js) offers any #rrggbb beyond the presets.
 export const PROFILE_ACCENT_PRESETS = [
-  { key: "", label: "Default", hex: "" },
-  { key: "forest", label: "Forest", hex: "#3f8a63" },
-  { key: "coral", label: "Coral", hex: "#d05f4c" },
-  { key: "gold", label: "Gold", hex: "#d9a627" },
-  { key: "sky", label: "Sky", hex: "#4d8fc4" },
-  { key: "violet", label: "Violet", hex: "#8b6cc4" },
-  { key: "rose", label: "Rose", hex: "#c95f86" },
-  { key: "teal", label: "Teal", hex: "#3d9aa0" },
+  { key: "", labelKey: "profileEditor.colorDefault", hex: "" },
+  { key: "forest", labelKey: "profileEditor.colorForest", hex: "#3f8a63" },
+  { key: "coral", labelKey: "profileEditor.colorCoral", hex: "#d05f4c" },
+  { key: "gold", labelKey: "profileEditor.colorGold", hex: "#d9a627" },
+  { key: "sky", labelKey: "profileEditor.colorSky", hex: "#4d8fc4" },
+  { key: "violet", labelKey: "profileEditor.colorViolet", hex: "#8b6cc4" },
+  { key: "rose", labelKey: "profileEditor.colorRose", hex: "#c95f86" },
+  { key: "teal", labelKey: "profileEditor.colorTeal", hex: "#3d9aa0" },
 ];
 
 export function renderProfileAccentPicker(document, currentAccent = "") {
@@ -240,7 +241,7 @@ export function renderProfileAccentPicker(document, currentAccent = "") {
   field.className = "accent-picker";
   const label = document.createElement("p");
   label.className = "accent-picker-label";
-  label.textContent = "Profile color";
+  label.textContent = t("profileEditor.colorTitle");
   field.append(label);
   const current = String(currentAccent || "").toLowerCase();
   for (const preset of PROFILE_ACCENT_PRESETS) {
@@ -249,8 +250,9 @@ export function renderProfileAccentPicker(document, currentAccent = "") {
     swatch.className = "accent-swatch" + (preset.key ? " accent-" + preset.key : " accent-default");
     swatch.dataset.accent = preset.hex;
     swatch.dataset.action = "set-profile-accent";
-    swatch.setAttribute("aria-label", "Profile color: " + preset.label);
-    swatch.setAttribute("title", preset.label);
+    const presetLabel = t(preset.labelKey);
+    swatch.setAttribute("aria-label", t("profileEditor.colorNamed", { name: presetLabel }));
+    swatch.setAttribute("title", presetLabel);
     swatch.setAttribute("aria-pressed", preset.hex.toLowerCase() === current ? "true" : "false");
     field.append(swatch);
   }
@@ -260,8 +262,8 @@ export function renderProfileAccentPicker(document, currentAccent = "") {
   colorInput.type = "color";
   colorInput.className = "accent-color-input";
   colorInput.value = /^#[0-9a-fA-F]{6}$/.test(String(currentAccent || "")) ? currentAccent : "#3f8a63";
-  colorInput.setAttribute("aria-label", "Custom profile color");
-  colorInput.setAttribute("title", "Custom color — any hex");
+  colorInput.setAttribute("aria-label", t("profileEditor.customColor"));
+  colorInput.setAttribute("title", t("profileEditor.customColorTitle"));
   field.append(colorInput);
   return field;
 }
@@ -274,29 +276,29 @@ export function renderProfileCssEditor(document, user) {
   panel.className = "css-editor";
   const label = document.createElement("label");
   label.className = "css-editor-label";
-  label.textContent = "Custom profile CSS (moderated)";
+  label.textContent = t("profileEditor.cssLabel");
   const textarea = document.createElement("textarea");
   textarea.id = "profile-css-input";
   textarea.className = "css-editor-input";
   textarea.dataset.cssInput = "true";
   textarea.maxLength = 20000;
   textarea.rows = 6;
-  textarea.placeholder = "body { font-family: serif; } — every rule is scoped to your profile.";
+  textarea.placeholder = t("profileEditor.cssPlaceholder");
   textarea.value = typeof user.customCssRaw === "string" ? user.customCssRaw : "";
   const note = document.createElement("p");
   note.className = "form-note";
-  note.textContent = "CSS saves as PENDING: a mod approves it before it goes live. Scoped to your profile container by the server.";
+  note.textContent = t("profileEditor.cssNote");
   panel.append(label, textarea, note);
   const save = document.createElement("button");
   save.type = "button";
   save.className = "button";
   save.dataset.action = "save-profile-css";
-  save.textContent = "Save CSS for review";
+  save.textContent = t("profileEditor.cssSave");
   const clear = document.createElement("button");
   clear.type = "button";
   clear.className = "button button-quiet";
   clear.dataset.action = "clear-profile-css";
-  clear.textContent = "Remove my CSS";
+  clear.textContent = t("profileEditor.cssRemove");
   panel.append(save, clear);
   return panel;
 }

@@ -24,6 +24,7 @@ import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
 import { collapseWhitespace } from "./quotes.js";
 import { renderPollBlock } from "./polls.js";
 import { isBotUsername } from "./bots.js";
+import { t, tn, currentLocale } from "./i18n.js";
 
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
@@ -73,13 +74,13 @@ const renderAttachments = (post, document, article) => {
     // post tell a screen-reader user nothing about which was activated.
     expand.setAttribute(
       "aria-label",
-      total > 1 ? `View full image ${index + 1} of ${total}` : "View full image",
+      total > 1 ? t("render.viewFullImageOf", { index: index + 1, total }) : t("render.viewFullImage"),
     );
     expand.append(image);
     strip.append(expand);
     if (attachment.awaiting) {
       const pending = createElement(document, "p", "attachment-pending icon-inline");
-      pending.append(createIcon(document, "image"), document.createTextNode("image awaiting review"));
+      pending.append(createIcon(document, "image"), document.createTextNode(t("render.imageAwaitingReview")));
       strip.append(pending);
     }
   }
@@ -164,7 +165,7 @@ const renderLatestReplies = (post, document, article) => {
   const latest = Array.isArray(post.latestReplies) ? post.latestReplies.slice(0, 3) : [];
   if (!latest.length) return;
   const container = createElement(document, "div", "preview-replies");
-  container.append(createElement(document, "span", "preview-caption", "Replies"));
+  container.append(createElement(document, "span", "preview-caption", t("render.repliesCaption")));
   for (const reply of latest) {
     const row = createElement(document, "a", "preview-reply");
     row.href = `/posts/${post.id}`;
@@ -178,7 +179,7 @@ const renderLatestReplies = (post, document, article) => {
     row.append(createElement(document, "span", "preview-snippet", collapseWhitespace(reply.snippet)));
     const when = createElement(document, "time", "preview-time");
     when.dateTime = reply.createdAt;
-    when.textContent = new Date(reply.createdAt).toLocaleString();
+    when.textContent = new Date(reply.createdAt).toLocaleString(currentLocale());
     row.append(when);
     container.append(row);
   }
@@ -208,7 +209,7 @@ export const createPostCard = (post, document, currentUser = null) => {
     if (post.author.avatarUrl) {
       const avatar = createElement(document, "img", "avatar");
       avatar.src = post.author.avatarUrl;
-      avatar.alt = `Avatar of ${post.author.username}`;
+      avatar.alt = t("render.avatarOf", { name: post.author.username });
       author.append(avatar);
     }
     const profileLink = createElement(document, "a", "author-name", post.author.username);
@@ -219,32 +220,32 @@ export const createPostCard = (post, document, currentUser = null) => {
     if (post.author.role === "owner" || post.author.role === "admin") {
       author.append(createElement(document, "span",
         "role-badge role-badge-" + post.author.role,
-        post.author.role === "owner" ? "Owner" : "Admin"));
+        post.author.role === "owner" ? t("render.roleOwner") : t("render.roleAdmin")));
     }
     // Bot badge: trusted agent accounts (bots.js) are chipped "Bot".
     if (isBotUsername(post.author.username)) {
-      author.append(createElement(document, "span", "role-badge role-badge-bot", "Bot"));
+      author.append(createElement(document, "span", "role-badge role-badge-bot", t("render.roleBot")));
     }
     // Flair on cards (v3.0.1): the profile flair chip shown next to the name.
     if (post.author.flair) author.append(createElement(document, "span", "post-flair", post.author.flair));
   } else {
-    author.append(createElement(document, "span", "author-name", "Removed account"));
+    author.append(createElement(document, "span", "author-name", t("render.removedAccount")));
   }
   const time = createElement(document, "time", "post-time");
   // lastActivityAt (bump activity, spec §4) is exposed machine-readably; the
   // visible label intentionally stays the creation time.
   time.dateTime = post.lastActivityAt ?? post.createdAt;
-  time.textContent = new Date(post.createdAt).toLocaleString();
+  time.textContent = new Date(post.createdAt).toLocaleString(currentLocale());
   header.append(author, time);
   // (edited) marker (v2.4): data-driven off editedAt, which every serialized
   // post carries (null until the author's first edit). A muted token-styled
   // token next to the creation time; never a link or tooltip markup.
   if (post.editedAt) {
-    header.append(createElement(document, "span", "post-edited", "(edited)"));
+    header.append(createElement(document, "span", "post-edited", t("render.edited")));
     // Edit history (v2.4.1): a small toggle that fetches and expands the
     // post's past versions. Everyone gets it — the point is that edits can't
     // quietly rewrite context (trouserpants' anti-abuse ask).
-    const historyToggle = createElement(document, "button", "post-edited-history", "history");
+    const historyToggle = createElement(document, "button", "post-edited-history", t("render.history"));
     historyToggle.type = "button";
     historyToggle.dataset.action = "edit-history";
     historyToggle.dataset.postId = String(post.id);
@@ -255,7 +256,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   if (post.pinnedAt && !post.parent) {
     const chip = createElement(document, "span", "post-pinned icon-inline");
     chip.append(createIcon(document, "pin"));
-    chip.append(createElement(document, "span", "visually-hidden", "Pinned"));
+    chip.append(createElement(document, "span", "visually-hidden", t("render.pinned")));
     header.append(chip);
   }
   // Suggestion status (v3.1): resolved/declined chip on suggestions-board
@@ -264,13 +265,13 @@ export const createPostCard = (post, document, currentUser = null) => {
   if (post.board === "suggestions" && !post.parent && post.suggestionStatus) {
     header.append(createElement(document, "span",
       "suggestion-badge suggestion-badge-" + post.suggestionStatus,
-      post.suggestionStatus === "resolved" ? "Resolved" : "Declined"));
+      post.suggestionStatus === "resolved" ? t("render.resolved") : t("render.declined")));
   }
   article.append(header);
 
   renderBodyBlocks(post, document, article);
   if (post.parent) {
-    const parentLink = createElement(document, "a", "parent-context", `In reply to: ${post.parent.body}`);
+    const parentLink = createElement(document, "a", "parent-context", t("render.inReplyTo", { body: post.parent.body }));
     parentLink.href = `/posts/${post.parent.id}`;
     article.append(parentLink);
   }
@@ -286,15 +287,14 @@ export const createPostCard = (post, document, currentUser = null) => {
 
   const actions = createElement(document, "div", "post-actions");
   for (const [value, label, count] of [
-    ["like", "Like", post.likeCount ?? 0],
-    ["dislike", "Dislike", post.dislikeCount ?? 0],
+    ["like", t("render.like"), post.likeCount ?? 0],
+    ["dislike", t("render.dislike"), post.dislikeCount ?? 0],
   ]) {
     const button = createElement(document, "button", "button button-quiet reaction-button icon-inline");
     button.type = "button";
     button.dataset.action = "reaction";
     button.dataset.postId = String(post.id);
     button.dataset.value = value;
-    const rxLabel = `${label} this post`;
     button.setAttribute("aria-label", `${label} (${count})`);
     button.setAttribute("title", `${label} (${count})`);
     button.setAttribute("aria-pressed", String(post.viewerReaction === value));
@@ -314,7 +314,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // owner's whole ask, unlike the reply chip which hides at 0).
   const views = createElement(document, "span", "view-count icon-inline");
   views.append(createIcon(document, "eye"));
-  const viewsHidden = createElement(document, "span", "visually-hidden", "views");
+  const viewsHidden = createElement(document, "span", "visually-hidden", t("render.views"));
   views.append(viewsHidden, document.createTextNode(String(Number(post.viewCount || 0))));
   actions.append(views);
   // Bookmarks (C4): signed-in members get a save toggle on every card; the
@@ -326,7 +326,7 @@ export const createPostCard = (post, document, currentUser = null) => {
     bookmarkButton.dataset.action = "toggle-bookmark";
     bookmarkButton.dataset.postId = String(post.id);
     bookmarkButton.setAttribute("aria-pressed", String(Boolean(post.viewerBookmarked)));
-    const bookmarkLabel = post.viewerBookmarked ? "Remove from saved posts" : "Save this post";
+    const bookmarkLabel = post.viewerBookmarked ? t("render.unsavePost") : t("render.savePost");
     bookmarkButton.setAttribute("aria-label", bookmarkLabel);
     bookmarkButton.setAttribute("title", bookmarkLabel);
     bookmarkButton.replaceChildren(createIcon(document, post.viewerBookmarked ? "bookmarks" : "bookmark"));
@@ -341,14 +341,15 @@ export const createPostCard = (post, document, currentUser = null) => {
     // The bare number alone is meaningless to a screen reader: "replies" is
     // supplied via a visually-hidden word, per the modern-web accessibility
     // guidance (icon-only controls keep an accessible name).
-    const hiddenLabel = createElement(document, "span", "visually-hidden", "replies");
+    const hiddenLabel = createElement(document, "span", "visually-hidden", t("render.replies"));
     chat.append(hiddenLabel, document.createTextNode(String(post.replyCount)));
     actions.append(chat);
   }
   const threadLink = createElement(document, "a", "button button-quiet icon-button");
   threadLink.href = `/posts/${post.id}`;
-  threadLink.setAttribute("aria-label", "Open post and replies");
-  threadLink.setAttribute("title", "Open post and replies");
+  const openLabel = t("render.openPost");
+  threadLink.setAttribute("aria-label", openLabel);
+  threadLink.setAttribute("title", openLabel);
   threadLink.append(createIcon(document, "open"));
   actions.append(threadLink);
   if (currentUser && post.visibility !== "hidden") {
@@ -356,8 +357,9 @@ export const createPostCard = (post, document, currentUser = null) => {
     report.type = "button";
     report.dataset.action = "report";
     report.dataset.postId = String(post.id);
-    report.setAttribute("aria-label", "Report this post");
-    report.setAttribute("title", "Report this post");
+    const reportLabel = t("render.reportPost");
+    report.setAttribute("aria-label", reportLabel);
+    report.setAttribute("title", reportLabel);
     report.append(createIcon(document, "flag"));
     actions.append(report);
   }
@@ -372,8 +374,8 @@ export const createPostCard = (post, document, currentUser = null) => {
     editButton.type = "button";
     editButton.dataset.action = "edit-post";
     editButton.dataset.postId = String(post.id);
-    editButton.setAttribute("aria-label", "Edit this post");
-    editButton.setAttribute("title", "Edit");
+    editButton.setAttribute("aria-label", t("render.editPost"));
+    editButton.setAttribute("title", t("common.edit"));
     editButton.append(createIcon(document, "pen"));
     actions.append(editButton);
   }
@@ -390,7 +392,7 @@ export const createPostCard = (post, document, currentUser = null) => {
     deleteButton.dataset.action = "delete-post";
     deleteButton.dataset.postId = String(post.id);
     deleteButton.dataset.deleteScope = post.parent ? "reply" : "thread";
-    const deleteLabel = post.parent ? "Delete this reply" : "Delete this thread";
+    const deleteLabel = post.parent ? t("render.deleteReply") : t("render.deleteThread");
     deleteButton.setAttribute("aria-label", deleteLabel);
     deleteButton.setAttribute("title", deleteLabel);
     deleteButton.append(createIcon(document, "trash"));
@@ -410,8 +412,8 @@ export const createPostCard = (post, document, currentUser = null) => {
     subscribeButton.dataset.subscribed = post.subscribed ? "1" : "0";
     subscribeButton.setAttribute("aria-pressed", String(Boolean(post.subscribed)));
     const subscribeLabel = post.subscribed
-      ? "Unsubscribe from this thread"
-      : "Subscribe to this thread";
+      ? t("render.unsubscribe")
+      : t("render.subscribe");
     subscribeButton.setAttribute("aria-label", subscribeLabel);
     subscribeButton.setAttribute("title", subscribeLabel);
     subscribeButton.append(createIcon(document, post.subscribed ? "bell-check" : "bell"));
@@ -421,7 +423,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // on explicitly level-1 rows only (publicLevel 2 and undefined publicLevel
   // never show it; replying to level-2 targets is server-forbidden).
   if (replyAffordances(post, currentUser).canReply) {
-    const replyButton = createElement(document, "button", "button button-quiet", "Reply");
+    const replyButton = createElement(document, "button", "button button-quiet", t("common.reply"));
     replyButton.type = "button";
     replyButton.dataset.action = "reply-to";
     replyButton.dataset.postId = String(post.id);
@@ -435,7 +437,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // prefill limit happens in quotes.js at prefill time. Cards by a removed
   // account have nothing to attribute the quote to and skip the button.
   if (post.author && post.parent) {
-    const quoteButton = createElement(document, "button", "button button-quiet", "Quote");
+    const quoteButton = createElement(document, "button", "button button-quiet", t("render.quote"));
     quoteButton.type = "button";
     quoteButton.dataset.action = "quote";
     quoteButton.dataset.postId = String(post.id);
@@ -449,7 +451,7 @@ export const createPostCard = (post, document, currentUser = null) => {
       document,
       "button",
       "button button-quiet",
-      `Show ${post.subReplyCount} replies`,
+      tn("render.showReplies", post.subReplyCount),
     );
     expandButton.type = "button";
     expandButton.dataset.action = "expand-sub-replies";
@@ -465,7 +467,7 @@ export const createPostCard = (post, document, currentUser = null) => {
       (currentUser.role === "owner" || currentUser.role === "admin")) {
     const isPinned = Boolean(post.pinnedAt);
     const pinButton = createElement(document, "button", "button button-quiet",
-      isPinned ? "Unpin" : "Pin");
+      isPinned ? t("render.unpin") : t("render.pin"));
     pinButton.type = "button";
     pinButton.dataset.action = isPinned ? "thread-unpin" : "thread-pin";
     pinButton.dataset.postId = String(post.id);
@@ -476,8 +478,8 @@ export const createPostCard = (post, document, currentUser = null) => {
     // open one offers the decision pair.
     if (post.board === "suggestions") {
       const choices = post.suggestionStatus
-        ? [["open", "Reopen"]]
-        : [["resolved", "Resolve"], ["declined", "Decline"]];
+        ? [["open", t("render.reopen")]]
+        : [["resolved", t("render.resolve")], ["declined", t("render.decline")]];
       for (const [status, statusLabel] of choices) {
         const statusButton = createElement(document, "button",
           "button button-quiet", statusLabel);
@@ -497,7 +499,7 @@ export const createPostCard = (post, document, currentUser = null) => {
 // suggestions yet — be the first!"); every existing caller omits it and keeps
 // the general feed's copy byte-identical.
 export function appendPostList(container, posts, document, currentUser = null,
-  emptyText = "No posts to show yet. Start the conversation.") {
+  emptyText = t("render.noPosts")) {
   if (!posts.length) {
     container.append(createElement(document, "p", "empty-state", emptyText));
     return;
@@ -516,7 +518,7 @@ export const createSubReplyContainer = (postId, replies, document, currentUser =
   const container = createElement(document, "div", "sub-replies cascade-replies");
   container.dataset.subRepliesFor = String(postId);
   if (!replies.length) {
-    container.append(createElement(document, "p", "empty-state", "No replies to show yet."));
+    container.append(createElement(document, "p", "empty-state", t("render.noReplies")));
     return container;
   }
   for (const reply of replies) container.append(createPostCard(reply, document, currentUser));
@@ -535,14 +537,14 @@ export const createEditComposer = (post, document) => {
   form.dataset.form = "post-edit";
   form.dataset.postId = String(post.id);
   form.append(createTextarea(document, {
-    id: `post-edit-${post.id}-body`, name: "body", label: "Edit post",
+    id: `post-edit-${post.id}-body`, name: "body", label: t("render.editPostLabel"),
     rows: 4, maxLength: COMPOSER_MAX_CHARS, required: true, counter: true,
     value: post.body,
   }));
   const actions = createElement(document, "div", "post-actions form-actions");
-  const save = createElement(document, "button", "button button-primary", "Save");
+  const save = createElement(document, "button", "button button-primary", t("common.save"));
   save.type = "submit";
-  const cancel = createElement(document, "button", "button button-quiet", "Cancel");
+  const cancel = createElement(document, "button", "button button-quiet", t("common.cancel"));
   cancel.type = "button";
   cancel.dataset.action = "cancel-edit";
   cancel.dataset.postId = String(post.id);
@@ -598,17 +600,17 @@ export const closeEditForm = (article) => {
 // muted placeholder so the toggle never feels broken.
 export function renderEditHistoryPanel(document, edits) {
   const panel = createElement(document, "div", "edit-history-panel");
-  const title = createElement(document, "p", "edit-history-title", "Earlier versions (newest first)");
+  const title = createElement(document, "p", "edit-history-title", t("render.earlierVersions"));
   panel.append(title);
   if (!Array.isArray(edits) || edits.length === 0) {
-    panel.append(createElement(document, "p", "edit-history-empty", "No earlier versions."));
+    panel.append(createElement(document, "p", "edit-history-empty", t("render.noEarlierVersions")));
     return panel;
   }
   for (const edit of edits) {
     const entry = createElement(document, "div", "edit-history-entry");
     const time = createElement(document, "time", "edit-history-time");
     time.dateTime = edit.editedAt;
-    time.textContent = new Date(edit.editedAt).toLocaleString();
+    time.textContent = new Date(edit.editedAt).toLocaleString(currentLocale());
     const body = createElement(document, "p", "edit-history-body", String(edit.body ?? ""));
     entry.append(time, body);
     panel.append(entry);

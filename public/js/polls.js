@@ -23,6 +23,7 @@
 // changeable). Widths are CSSOM width assignments (never inline style
 // attributes in markup — CSP-compatible), and every color reads the theme
 // tokens via classes, so the block renders correctly in light and dark.
+import { t } from "./i18n.js";
 import { createIcon } from "./icons.js";
 
 export function renderPollBlock(poll, document, currentUser = null) {
@@ -46,7 +47,7 @@ export function renderPollBlock(poll, document, currentUser = null) {
       vote.dataset.action = "poll-vote";
       vote.dataset.optionId = String(option.id);
       vote.setAttribute("aria-pressed", String(poll.viewerOption === option.id));
-      vote.setAttribute("aria-label", "Vote: " + option.label);
+      vote.setAttribute("aria-label", t("polls.voteFor", { label: option.label }));
       vote.append(createIcon(document, "poll"));
       row.append(vote);
     }

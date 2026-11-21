@@ -24,6 +24,7 @@
 import { api, setCsrfToken } from "../api.js";
 import { accountActions, element } from "../dom.js";
 import { iconButton } from "../icons.js";
+import { createLanguagePicker, t } from "../i18n.js";
 import { createNotificationBell } from "../notifications.js";
 // The §4b door-swap: every auth link (header Sign in, mobile guest rung)
 // targets Wempo Accounts with an origin-only return; logout hands the browser
@@ -66,13 +67,13 @@ function updateMobileIdentity(user) {
 
   mobileItem.setAttribute(
     "aria-label",
-    user ? "Profile" : "Sign in",
+    user ? t("common.profile") : t("common.signIn"),
   );
 
-  mobileItem.title = user ? "Profile" : "Sign in";
+  mobileItem.title = user ? t("common.profile") : t("common.signIn");
 
   if (span) {
-    span.textContent = user ? "Profile" : "Sign in";
+    span.textContent = user ? t("common.profile") : t("common.signIn");
   }
 
   if (user) {
@@ -117,20 +118,20 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   // members alike; internal navigation handles it like every other header
   // anchor. The brand stays Home.
   accountActions.append(
-    createSectionLink("lightbulb", "/suggestions", "Suggestions"),
+    createSectionLink("lightbulb", "/suggestions", t("nav.suggestions")),
   );
 
   // Accountability archive (v2.4.1): public to guests and members alike.
   accountActions.append(
-    createSectionLink("archive", "/archive", "Archive"),
+    createSectionLink("archive", "/archive", t("nav.archive")),
   );
 
   accountActions.append(
-    createSectionLink("trophy", "/leaderboard", "Leaderboard"),
+    createSectionLink("trophy", "/leaderboard", t("nav.leaderboard")),
   );
 
   accountActions.append(
-    createSectionLink("scroll", "/rules", "Rules"),
+    createSectionLink("scroll", "/rules", t("nav.rules")),
   );
 
 
@@ -138,13 +139,14 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
     const signIn = element(
       "a",
       "button button-secondary",
-      "Sign in",
+      t("common.signIn"),
     );
 
     signIn.href = wempoAccountsSignInUrl(location.origin);
     signIn.setAttribute("data-app-link", "");
 
     accountActions.append(signIn);
+    accountActions.append(createLanguagePicker(document));
 
     markMobileBarItem(null);
     return;
@@ -153,14 +155,14 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   const profile = createSectionLink(
     "person",
     "/users/" + encodeURIComponent(currentUser.username),
-    "Profile — " + currentUser.username,
+    t("nav.profileOf", { name: currentUser.username }),
   );
 
   accountActions.append(profile);
 
   // Bookmarks (C4): the private saved list — members only.
   accountActions.append(
-    createSectionLink("bookmarks", "/bookmarks", "Saved posts"),
+    createSectionLink("bookmarks", "/bookmarks", t("nav.savedPosts")),
   );
 
   accountActions.append(
@@ -177,7 +179,7 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
     const reports = createSectionLink(
       "shield",
       "/admin",
-      "Moderation desk",
+      t("nav.moderationDesk"),
     );
 
     accountActions.append(reports);
@@ -186,10 +188,11 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
   const logout = iconButton(document, "logout", {
     className: "button button-quiet icon-button",
     dataset: { action: "logout" },
-    ariaLabel: "Sign out",
+    ariaLabel: t("common.signOut"),
   });
 
   accountActions.append(logout);
+  accountActions.append(createLanguagePicker(document));
 
   markMobileBarItem(currentUser);
 }

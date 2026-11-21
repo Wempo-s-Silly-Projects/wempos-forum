@@ -26,12 +26,13 @@ import { state } from "../state.js";
 import { renderNotificationsPage, updateBell } from "../notifications.js";
 // The §4b door-swap: the guest gate's sign-in prompt is the Accounts handoff.
 import { wempoAccountsSignInUrl } from "../sso.js";
+import { t } from "../i18n.js";
 
 async function renderNotificationsRoute(context, version) {
   if (!context.session.user) {
-    addHeading(main, "Notifications", 1);
-    addText(document, main, "p", "Sign in to see your notifications.", "muted");
-    const signIn = element("a", "button button-secondary", "Sign in");
+    addHeading(main, t("notificationsPage.title"), 1);
+    addText(document, main, "p", t("notificationsPage.signInPrompt"), "muted");
+    const signIn = element("a", "button button-secondary", t("common.signIn"));
     signIn.href = wempoAccountsSignInUrl(location.origin);
     main.append(signIn);
     return;
@@ -61,7 +62,7 @@ async function markAllNotificationsRead() {
   // local update keeps the header honest even if the route render is slowed.
   updateBell(0);
   await state.renderRoute({ name: "notifications" });
-  setMessage("All notifications were marked read.");
+  setMessage(t("notificationsPage.allRead"));
 }
 
 export const ACTIONS = {

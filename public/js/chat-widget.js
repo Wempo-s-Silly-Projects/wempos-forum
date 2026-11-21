@@ -34,6 +34,7 @@
 // two POSTs for one message (the 11-12 double-send defect, killed at the UI).
 import { api } from "./api.js";
 import { createIcon } from "./icons.js";
+import { currentLocale, i18nReady, t, tn } from "./i18n.js";
 
 const PANEL_POLL_MS = 5_000;
 const UNREAD_POLL_MS = 30_000;
@@ -96,13 +97,13 @@ const relativeTime = (iso) => {
   const then = new Date(iso).getTime();
   if (!Number.isFinite(then)) return "";
   const minutes = Math.max(0, Math.round((Date.now() - then) / 60_000));
-  if (minutes < 1) return "now";
-  if (minutes < 60) return `${minutes}m`;
+  if (minutes < 1) return t("chat.timeNow");
+  if (minutes < 60) return t("chat.timeMinutes", { count: minutes });
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h`;
+  if (hours < 24) return t("chat.timeHours", { count: hours });
   const days = Math.round(hours / 24);
-  if (days < 7) return `${days}d`;
-  return `${Math.round(days / 7)}w`;
+  if (days < 7) return t("chat.timeDays", { count: days });
+  return t("chat.timeWeeks", { count: Math.round(days / 7) });
 };
 
 const el = (tagName, className, text) => {
@@ -160,11 +161,11 @@ const loadGifLibrary = async () => {
 const buildGifPicker = (onPick) => {
   const toggle = el("button", "chat-widget-gif-button", "GIF");
   toggle.type = "button";
-  toggle.setAttribute("aria-label", "Send a GIF");
+  toggle.setAttribute("aria-label", t("chat.sendGif"));
   toggle.setAttribute("aria-expanded", "false");
   const grid = el("div", "chat-widget-gif-grid");
   grid.setAttribute("role", "group");
-  grid.setAttribute("aria-label", "GIF library");
+  grid.setAttribute("aria-label", t("chat.gifLibrary"));
   grid.hidden = true;
   const closeGrid = () => {
     grid.hidden = true;
@@ -173,13 +174,13 @@ const buildGifPicker = (onPick) => {
   const paintGrid = (gifs) => {
     grid.replaceChildren();
     if (gifs.length === 0) {
-      grid.append(el("p", "chat-widget-gif-note", "No GIFs in the library yet."));
+      grid.append(el("p", "chat-widget-gif-note", t("chat.gifsEmpty")));
       return;
     }
     for (const gif of gifs) {
       const pick = el("button", "chat-widget-gif-pick");
       pick.type = "button";
-      pick.setAttribute("aria-label", "Send this GIF");
+      pick.setAttribute("aria-label", t("chat.sendThisGif"));
       const img = el("img");
       img.src = typeof gif.url === "string" && gif.url.startsWith("/api/gifs/")
         ? gif.url : "/api/gifs/" + encodeURIComponent(gif.id);
@@ -201,11 +202,11 @@ const buildGifPicker = (onPick) => {
     }
     grid.hidden = false;
     toggle.setAttribute("aria-expanded", "true");
-    grid.replaceChildren(el("p", "chat-widget-gif-note", "Loading GIFs…"));
+    grid.replaceChildren(el("p", "chat-widget-gif-note", t("chat.gifsLoading")));
     try {
       paintGrid(await loadGifLibrary());
     } catch {
-      grid.replaceChildren(el("p", "chat-widget-gif-note", "The GIF library did not load. Try again."));
+      grid.replaceChildren(el("p", "chat-widget-gif-note", t("chat.gifsFailed")));
     }
   });
   grid.addEventListener("keydown", (event) => {
@@ -231,9 +232,10 @@ const boot = async () => {
   } catch {
     return;
   }
+  await i18nReady();
   launcher = el("button", "chat-widget-launcher");
   launcher.type = "button";
-  launcher.setAttribute("aria-label", "Chat");
+  launcher.setAttribute("aria-label", t("chat.title"));
   launcher.setAttribute("aria-expanded", "false");
   // The launcher rides the site's own icon system (the stroke "chat" icon,
   // currentColor) — not an emoji text node; the glyph span stays the seat.
@@ -290,13 +292,13 @@ const openPanel = async () => {
   launcher.setAttribute("aria-expanded", "true");
   panel = el("div", "chat-widget-panel");
   panel.setAttribute("role", "dialog");
-  panel.setAttribute("aria-label", "Chat");
+  panel.setAttribute("aria-label", t("chat.title"));
   // The two-tab head: the Lobby stream and the DMs rail (the shipped
   // interior). The Lobby tab stays hidden until the stream is available.
   const head = el("div", "chat-widget-head");
-  head.append(el("span", "chat-widget-title", "Chats"));
+  head.append(el("span", "chat-widget-title", t("chat.heading")));
   const tabs = el("div", "chat-widget-tabs");
-  const lobbyTab = el("button", "chat-widget-tab", "Lobby");
+  const lobbyTab = el("button", "chat-widget-tab", t("chat.tabLobby"));
   lobbyTab.type = "button";
   lobbyTab.dataset.widgetTab = "lobby";
   lobbyTab.setAttribute("aria-selected", "false");
@@ -304,7 +306,7 @@ const openPanel = async () => {
   lobbyTab.addEventListener("click", () => {
     showTab("lobby");
   });
-  const dmsTab = el("button", "chat-widget-tab", "DMs");
+  const dmsTab = el("button", "chat-widget-tab", t("chat.tabDms"));
   dmsTab.type = "button";
   dmsTab.dataset.widgetTab = "dms";
   dmsTab.setAttribute("aria-selected", "false");
@@ -316,7 +318,7 @@ const openPanel = async () => {
   const close = el("button", "chat-widget-close");
   close.type = "button";
   close.textContent = "×";
-  close.setAttribute("aria-label", "Close chat panel");
+  close.setAttribute("aria-label", t("chat.closePanel"));
   close.addEventListener("click", closePanel);
   head.append(close);
   threadListEl = el("div", "chat-widget-threads");
@@ -418,7 +420,7 @@ const paintThreadList = () => {
   if (!threadListEl) return;
   threadListEl.replaceChildren();
   if (threads.length === 0) {
-    threadListEl.append(el("p", "chat-widget-empty", "No chats yet. Say hi from a profile or wait for a message:3"));
+    threadListEl.append(el("p", "chat-widget-empty", t("chat.noChats")));
     return;
   }
   for (const thread of threads) {
@@ -442,7 +444,7 @@ const previewOf = (thread) => {
   if (thread.unread > 0) return preview;
   const clipped = preview.length > MESSAGE_PREVIEW_MAX
     ? `${preview.slice(0, MESSAGE_PREVIEW_MAX - 1)}…` : preview;
-  return clipped || "No messages yet";
+  return clipped || t("chat.noMessages");
 };
 
 const openThread = async (thread, { silent = false } = {}) => {
@@ -489,7 +491,7 @@ const paintConversation = () => {
   conversationEl.replaceChildren();
   const back = el("button", "chat-widget-back");
   back.type = "button";
-  back.textContent = "← All chats";
+  back.textContent = t("chat.allChats");
   back.addEventListener("click", () => {
     dmGifPicker = null;
     activeThread = null;
@@ -518,7 +520,7 @@ const paintConversation = () => {
   }
   const older = el("button", "chat-widget-older");
   older.type = "button";
-  older.textContent = "Load older";
+  older.textContent = t("chat.loadOlder");
   older.hidden = messages.length === 0;
   const oldest = messages[0];
   older.addEventListener("click", async () => {
@@ -536,8 +538,8 @@ const paintConversation = () => {
   const composer = el("div", "chat-widget-composer");
   composerEl = el("textarea", "chat-widget-input");
   composerEl.rows = 1;
-  composerEl.placeholder = "Write a message…";
-  composerEl.setAttribute("aria-label", `Message ${title.textContent}`);
+  composerEl.placeholder = t("chat.writeMessage");
+  composerEl.setAttribute("aria-label", t("chat.messageUser", { name: title.textContent }));
   composerEl.dataset.threadId = String(activeThread?.id ?? "");
   if (draft && draft.threadId === composerEl.dataset.threadId) {
     composerEl.value = draft.value;
@@ -557,7 +559,7 @@ const paintConversation = () => {
   });
   sendButton = el("button", "button button-primary chat-widget-send");
   sendButton.type = "button";
-  sendButton.textContent = "Send";
+  sendButton.textContent = t("common.send");
   sendButton.addEventListener("click", sendMessage);
   if (!dmGifPicker) dmGifPicker = buildGifPicker((gifId) => sendDmBody(gifToken(gifId)));
   composer.append(dmGifPicker.grid, composerEl, dmGifPicker.toggle, sendButton);
@@ -586,7 +588,7 @@ const sendDmBody = async (body, { clearComposer = false } = {}) => {
     paintConversation();
     refreshUnread().catch(() => { /* badge catches up on its next tick */ });
   } catch (error) {
-    showSendError(error?.message || "The message did not send. Try again.");
+    showSendError(error?.message || t("chat.sendFailed"));
   } finally {
     sendInFlight = false;
     if (sendButton) sendButton.disabled = false;
@@ -637,9 +639,9 @@ const buildLobby = () => {
   input.name = "body";
   input.maxLength = LOBBY_MESSAGE_MAX;
   input.required = true;
-  input.placeholder = "Message the lobby";
-  input.setAttribute("aria-label", "Message the lobby");
-  const send = el("button", "button button-primary chat-widget-lobby-send-button", "Send");
+  input.placeholder = t("chat.messageLobby");
+  input.setAttribute("aria-label", t("chat.messageLobby"));
+  const send = el("button", "button button-primary chat-widget-lobby-send-button", t("common.send"));
   send.type = "submit";
   const gifPicker = buildGifPicker((gifId) => sendLobbyBody(gifToken(gifId), null));
   form.append(gifPicker.grid, input, gifPicker.toggle, send);
@@ -667,19 +669,19 @@ const lobbyMessageRow = (message) => {
     message.author.role === "admin"
   ) {
     head.append(
-      el("span", "role-badge role-badge-" + message.author.role, message.author.role === "owner" ? "Owner" : "Admin"),
+      el("span", "role-badge role-badge-" + message.author.role, message.author.role === "owner" ? t("chat.roleOwner") : t("chat.roleAdmin")),
     );
   }
   const when = el("time");
   when.dateTime = message.createdAt;
-  when.textContent = new Date(message.createdAt).toLocaleString();
+  when.textContent = new Date(message.createdAt).toLocaleString(currentLocale());
   head.append(when);
   row.append(head, messageBodyNode("chat-message-body", message.body));
   if (isStaff()) {
     const remove = el("button", "chat-message-delete", "×");
     remove.type = "button";
     remove.dataset.chatMessageId = String(message.id);
-    remove.setAttribute("aria-label", "Delete this lobby message");
+    remove.setAttribute("aria-label", t("chat.deleteLobbyMessage"));
     remove.addEventListener("click", () => {
       deleteLobbyMessage(remove).catch(() => { /* the row stays for a retry */ });
     });
@@ -714,7 +716,7 @@ const appendLobbyMessages = (messages) => {
 
 const lobbyOnlineText = () => {
   // The old line ("N online now"); the zero case renders its own quiet note.
-  return lobbyOnline === 1 ? "1 online now" : lobbyOnline + " online now";
+  return tn("chat.onlineNow", lobbyOnline);
 };
 
 const pollLobby = async () => {
@@ -748,7 +750,7 @@ const sendLobbyBody = async (body, clearInput) => {
     if (clearInput) clearInput.value = "";
     appendLobbyMessages(data?.message ? [data.message] : []);
   } catch (error) {
-    showLobbySendError(error?.message || "The message did not send. Try again.");
+    showLobbySendError(error?.message || t("chat.sendFailed"));
   } finally {
     lobbySendInFlight = false;
   }
@@ -785,10 +787,10 @@ const buildNewChatForm = () => {
   const input = el("input", "chat-widget-new-input");
   input.type = "text";
   input.name = "username";
-  input.placeholder = "New chat by username…";
-  input.setAttribute("aria-label", "New chat username");
+  input.placeholder = t("chat.newChatPlaceholder");
+  input.setAttribute("aria-label", t("chat.newChatUsername"));
   input.setAttribute("autocomplete", "off");
-  const newChatButton = el("button", "button button-primary chat-widget-new-send", "New chat");
+  const newChatButton = el("button", "button button-primary chat-widget-new-send", t("chat.newChat"));
   newChatButton.type = "submit";
   form.append(input, newChatButton);
   form.addEventListener("submit", (event) => {
@@ -806,13 +808,13 @@ const createThreadByUsername = async (rawUsername) => {
   if (newChatButton) newChatButton.disabled = true;
   try {
     const data = await api("/api/dm/threads", { method: "POST", body: { username } });
-    if (data?.id == null) throw new Error("The chat could not be started. Try again.");
+    if (data?.id == null) throw new Error(t("chat.chatFailed"));
     if (newChatFormEl) newChatFormEl.querySelector(".chat-widget-new-input").value = "";
     // The door re-reads the list first, so the new row is on it before the
     // conversation opens.
     await openChatThread(data.id);
   } catch (error) {
-    showNewChatError(error?.message || "The chat could not be started. Try again.");
+    showNewChatError(error?.message || t("chat.chatFailed"));
   } finally {
     newChatInFlight = false;
     if (newChatButton) newChatButton.disabled = false;

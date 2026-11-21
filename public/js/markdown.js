@@ -183,7 +183,7 @@ export function parseInline(document, text) {
       anchor.setAttribute("rel", "internal");
     } else {
       anchor.setAttribute("target", "_blank");
-      anchor.setAttribute("rel", "noopener noreferrer");
+      anchor.setAttribute("rel", "noopener noreferrer"); // i18n-ignore
     }
     nodes.push(anchor);
     start = index = parenClose + 1;

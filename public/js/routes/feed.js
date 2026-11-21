@@ -42,19 +42,20 @@ import { wempoAccountsSignInUrl } from "../sso.js";
 import { appendPostList } from "../render.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
+import { t } from "../i18n.js";
 
 // Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
 // its composer tags root posts with board=suggestions (form dataset flag read
 // by submitNewPost) and its empty state speaks the board's copy.
 const SUGGESTIONS_BOARD = "suggestions";
-const SUGGESTIONS_EMPTY_TEXT = "No suggestions yet — be the first!";
+const suggestionsEmptyText = () => t("feed.suggestionsEmpty");
 
 function renderIntroduction() {
   const intro = element("section", "personal-intro");
-  addHeading(intro, "Wempo's Forum: Have fun and meet new people!", 1);
-  addText(document, intro, "p", homepageIntro, "personal-intro-copy");
+  addHeading(intro, t("feed.introTitle"), 1);
+  addText(document, intro, "p", homepageIntro(), "personal-intro-copy");
   const interests = element("ul", "personal-tags");
-  for (const interest of homepageInterests) interests.append(element("li", "", interest));
+  for (const interest of homepageInterests()) interests.append(element("li", "", interest));
   intro.append(interests);
   const doodle = element("span", "intro-doodle", ":3");
   doodle.setAttribute("aria-hidden", "true");
@@ -73,20 +74,20 @@ function renderHomeContent(session, data, route) {
     // The home composer picks its category from a select (members post in
     // every category; the staff-only Updates category appears for staff
     // alone — the server 403s everyone else regardless).
-    main.append(createComposer("post-create", "What's on your mind?", "Post message",
+    main.append(createComposer("post-create", t("feed.composerLabel"), t("feed.postMessage"),
       null, null, null, composerBoardChoices(session.user)));
   }
   // Recent activity (v3.1): the homepage mixes every category, 10 posts at a
   // time (the server's no-board feed page size).
-  addHeading(main, route.name === "search" ? "Search results" : "Recent activity", 2);
+  addHeading(main, route.name === "search" ? t("feed.searchResults") : t("feed.recentActivity"), 2);
   if (route.name === "search") {
-    addText(document, main, "p", `Results for “${route.query}”`, "muted");
+    addText(document, main, "p", t("feed.searchResultsFor", { query: route.query }), "muted");
     renderSearchResults(main, data.search);
     return;
   }
   appendPostList(main, data.feed.posts, document, session.user);
   if (!data.feed.nextBefore) return;
-  const older = element("button", "button button-secondary", "Load older posts");
+  const older = element("button", "button button-secondary", t("feed.loadOlderPosts"));
   older.type = "button";
   older.dataset.action = "load-more";
   older.dataset.before = String(data.feed.nextBefore);
@@ -103,24 +104,24 @@ function renderAccountSettings(session) {
   cornersBox.type = "checkbox";
   try { cornersBox.checked = window.localStorage.getItem("forum-corners") === "square"; } catch {}
   cornersBox.dataset.actionPref = "corners";
-  corners.append(cornersBox, document.createTextNode(" Square corners"));
+  corners.append(cornersBox, document.createTextNode(" " + t("feed.squareCorners")));
   cornersBox.addEventListener("change", () => {
     const square = cornersBox.checked;
     try { window.localStorage.setItem("forum-corners", square ? "square" : "round"); } catch {}
     document.documentElement.dataset.corners = square ? "square" : "round";
   });
 
-  const passwordPanel = createPanel("Change your password", "There is no email-based recovery; choose a password you can keep safe.");
+  const passwordPanel = createPanel(t("feed.changePasswordTitle"), t("feed.changePasswordNote"));
   passwordPanel.append(createForm(document, "password", [
     createInput(document, {
-      id: "current-password", name: "currentPassword", label: "Current password",
+      id: "current-password", name: "currentPassword", label: t("feed.currentPassword"),
       type: "password", autoComplete: "current-password", required: true, minLength: 12, maxLength: 128,
     }),
     createInput(document, {
-      id: "new-password", name: "newPassword", label: "New password",
+      id: "new-password", name: "newPassword", label: t("feed.newPassword"),
       type: "password", autoComplete: "new-password", required: true, minLength: 12, maxLength: 128,
     }),
-  ], "Update password"));
+  ], t("feed.updatePassword")));
   account.append(passwordPanel);
   // Delete account control (v2.4.1 feature): lives in the signed-in account
   // settings area only (this renderer never runs for guests), confirming
@@ -143,9 +144,8 @@ function renderAccountSettings(session) {
   // guess; a failed read just leaves both buttons unmarked. No roster wiring
   // rides here: an invisible member drops off the list on its next refresh.
   renderInvisibleToggle(account);
-  const deletePanel = createPanel("Delete your Wempo Account",
-    "This permanently deletes your Wempo Account and everything it owns: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo. Are you really sure?");
-  const deleteButton = element("button", "button button-danger", "Delete Wempo Account");
+  const deletePanel = createPanel(t("feed.deleteAccountTitle"), t("feed.deleteAccountNote"));
+  const deleteButton = element("button", "button button-danger", t("feed.deleteAccount"));
   deleteButton.type = "button";
   deleteButton.dataset.action = "delete-account";
   deletePanel.append(deleteButton);
@@ -173,17 +173,15 @@ const presenceInvisibleMark = (choice, toggles) => {
 };
 
 function renderInvisibleToggle(account) {
-  const panel = createPanel("Who can see me online",
-    "Pick whether your name shows on the Who's Online roster. Invisible still " +
-    "delivers your messages and notifications — only the list changes.");
+  const panel = createPanel(t("feed.presenceTitle"), t("feed.presenceNote"));
   const toggles = element("div", "presence-toggle");
   const visibleButton = element("button", "button button-secondary presence-invisible-toggle",
-    "Visible");
+    t("feed.presenceVisible"));
   visibleButton.type = "button";
   visibleButton.dataset.action = "presence-invisible";
   visibleButton.dataset.invisible = "0";
   const invisibleButton = element("button", "button button-secondary presence-invisible-toggle",
-    "Invisible on the Who's Online roster");
+    t("feed.presenceInvisible"));
   invisibleButton.type = "button";
   invisibleButton.dataset.action = "presence-invisible";
   invisibleButton.dataset.invisible = "1";
@@ -200,18 +198,18 @@ function renderInvisibleToggle(account) {
 function renderSearchResults(container, results) {
   // Deep reply results (v2.5): a Replies section under the Posts one.
   if (Array.isArray(results.replies)) {
-    addHeading(container, "Replies", 2);
+    addHeading(container, t("feed.repliesTitle"), 2);
     if (!results.replies.length) {
-      addText(document, container, "p", "It's pretty empty here....", "There is no replies that match!", "empty-state");
+      addText(document, container, "p", t("feed.noReplyMatches"), "empty-state");
     } else {
       const replyList = element("div", "reply-search-results");
       for (const reply of results.replies) {
         const miniCard = element("article", "reply-search-card");
         miniCard.append(element("a", "reply-search-thread",
-          "in a conversation by " + (reply.parent ? "…" : "someone")));
+          reply.parent ? t("feed.replyThreadByParent") : t("feed.replyThreadBySomeone")));
         const bodyBlock = element("p", "reply-search-body");
         bodyBlock.textContent = reply.body;
-        const link = element("a", "button button-quiet", "Open thread");
+        const link = element("a", "button button-quiet", t("feed.openThread"));
         link.href = "/posts/" + reply.threadId;
         link.setAttribute("data-app-link", "");
         miniCard.append(bodyBlock, link);
@@ -220,7 +218,7 @@ function renderSearchResults(container, results) {
       container.append(replyList);
     }
   }
-  const people = createPanel("People");
+  const people = createPanel(t("feed.peopleTitle"));
   if (results.users.length) {
     const list = element("ul", "result-list");
     for (const user of results.users) {
@@ -233,10 +231,10 @@ function renderSearchResults(container, results) {
     }
     people.append(list);
   } else {
-    addText(document, people, "p", "It's pretty empty here", "There are no users that match!", "empty-state");
+    addText(document, people, "p", t("feed.noUserMatches"), "empty-state");
   }
   container.append(people);
-  addHeading(container, "Posts", 2);
+  addHeading(container, t("feed.postsTitle"), 2);
   appendPostList(container, results.posts, document, state.currentUser);
 }
 async function renderHomeRoute(route, context, version) {
@@ -263,8 +261,8 @@ function renderFeedTabs(active) {
   // category slug on category pages ("all" home, "mine" on /mine); a slug
   // match highlights that category's tab.
   const spec = [
-    ["/", "Recent activity", active === "all"],
-    ["/mine", "My posts", active === "mine"],
+    ["/", t("feed.recentActivity"), active === "all"],
+    ["/mine", t("feed.myPosts"), active === "mine"],
     ...BOARDS.map((board) => ["/c/" + board.slug, board.label, active === board.slug]),
   ];
   for (const [href, label, isActive] of spec) {
@@ -279,9 +277,9 @@ function renderFeedTabs(active) {
 async function renderMineRoute(context, version) {
   if (!context.session.user) {
     // A hand-typed /mine URL while signed out: a sign-in prompt, not an error.
-    addHeading(main, "My posts", 2);
-    addText(document, main, "p", "Sign in to see your posts.", "muted");
-    const signIn = element("a", "button button-secondary", "Sign in");
+    addHeading(main, t("feed.myPosts"), 2);
+    addText(document, main, "p", t("feed.signInMine"), "muted");
+    const signIn = element("a", "button button-secondary", t("common.signIn"));
     signIn.href = wempoAccountsSignInUrl(location.origin);
     main.append(signIn);
     return;
@@ -289,11 +287,11 @@ async function renderMineRoute(context, version) {
   const data = { feed: await api("/api/posts?mine=1") };
   if (version !== state.renderVersion) return;
   main.append(renderFeedTabs("mine"));
-  main.append(createComposer("post-create", "What's on your mind?", "Post message"));
-  addHeading(main, "My posts", 2);
+  main.append(createComposer("post-create", t("feed.composerLabel"), t("feed.postMessage")));
+  addHeading(main, t("feed.myPosts"), 2);
   appendPostList(main, data.feed.posts, document, context.session.user);
   if (!data.feed.nextBefore || data.feed.posts.length !== 20) return;
-  const older = element("button", "button button-secondary", "Load older posts");
+  const older = element("button", "button button-secondary", t("feed.loadOlderPosts"));
   older.type = "button";
   older.dataset.action = "load-more";
   older.dataset.before = String(data.feed.nextBefore);
@@ -320,8 +318,8 @@ async function renderCategoryRoute(route, context, version) {
   if (user && (!board.staffOnly || isStaff)) {
     main.append(createComposer(
       "post-create",
-      board.staffOnly ? "Post a site update" : `Start a thread in ${board.label}`,
-      board.staffOnly ? "Post update" : "Post message",
+      board.staffOnly ? t("feed.postSiteUpdate") : t("feed.startThreadIn", { board: board.label }),
+      board.staffOnly ? t("feed.postUpdate") : t("feed.postMessage"),
       null, null, board.slug,
     ));
   }
@@ -329,10 +327,10 @@ async function renderCategoryRoute(route, context, version) {
   addText(document, main, "p", board.blurb, "muted");
   appendPostList(main, data.feed.posts, document, user,
     board.slug === SUGGESTIONS_BOARD
-      ? SUGGESTIONS_EMPTY_TEXT
-      : `Nothing in ${board.label} yet — start the conversation!`);
+      ? suggestionsEmptyText()
+      : t("feed.categoryEmpty", { board: board.label }));
   if (!data.feed.nextBefore) return;
-  const older = element("button", "button button-secondary", "Load older posts");
+  const older = element("button", "button button-secondary", t("feed.loadOlderPosts"));
   older.type = "button";
   older.dataset.action = "load-more";
   older.dataset.before = String(data.feed.nextBefore);
@@ -342,26 +340,26 @@ async function renderCategoryRoute(route, context, version) {
 
 // Bookmarks (C4): the private "Saved" page — the member's own saved list.
 // Guests get a sign-in prompt (the API 401s the private list regardless).
-const BOOKMARKS_EMPTY_TEXT = "Nothing saved yet. Use the Save button on a post.";
+const bookmarksEmptyText = () => t("feed.bookmarksEmpty");
 async function renderBookmarksRoute(context, version) {
   if (!context.session.user) {
-    addHeading(main, "Saved posts", 2);
-    addText(document, main, "p", "Sign in to see your saved posts.", "muted");
-    const signIn = element("a", "button button-secondary", "Sign in");
+    addHeading(main, t("feed.savedTitle"), 2);
+    addText(document, main, "p", t("feed.signInSaved"), "muted");
+    const signIn = element("a", "button button-secondary", t("common.signIn"));
     signIn.href = wempoAccountsSignInUrl(location.origin);
     main.append(signIn);
     return;
   }
   const data = await api("/api/me/bookmarks");
   if (version !== state.renderVersion) return;
-  addHeading(main, "Saved posts", 2);
+  addHeading(main, t("feed.savedTitle"), 2);
   // Privacy note: this list belongs to the signed-in account.
-  addText(document, main, "p", "Your saved list is private to you.", "muted");
+  addText(document, main, "p", t("feed.savedPrivate"), "muted");
   appendPostList(main, data.bookmarks, document, context.session.user,
-    BOOKMARKS_EMPTY_TEXT);
+    bookmarksEmptyText());
   // Pagination (fix round 1): the composite (bookmarked_at, id) cursor.
   if (!data.nextBefore || data.bookmarks.length !== 20) return;
-  const older = element("button", "button button-secondary", "Load older saved posts");
+  const older = element("button", "button button-secondary", t("feed.loadOlderSaved"));
   older.type = "button";
   older.dataset.action = "load-more-bookmarks";
   older.dataset.before = String(data.nextBefore);
@@ -377,11 +375,11 @@ async function loadMorePosts(button) {
   const older = await api("/api/posts?before=" + button.dataset.before +
     (board ? "&board=" + board : "") + (mine ? "&mine=" + mine : ""));
   appendPostList(main, older.posts, document, state.currentUser,
-    board === SUGGESTIONS_BOARD ? SUGGESTIONS_EMPTY_TEXT : undefined);
+    board === SUGGESTIONS_BOARD ? suggestionsEmptyText() : undefined);
   button.remove();
   if (older.posts.length !== 20 || !older.nextBefore) return;
   const next = element("button", "button button-secondary",
-    board === SUGGESTIONS_BOARD ? "Load older suggestions" : "Load older posts");
+    board === SUGGESTIONS_BOARD ? t("feed.loadOlderSuggestions") : t("feed.loadOlderPosts"));
   next.type = "button";
   next.dataset.action = "load-more";
   next.dataset.before = String(older.nextBefore);
@@ -422,7 +420,7 @@ export const ACTIONS = {
       method: bookmarked ? "DELETE" : "PUT",
     });
     await state.renderRoute(state.activeRoute);
-    setMessage(bookmarked ? "Removed from your saved posts." : "Saved.");
+    setMessage(bookmarked ? t("feed.bookmarkRemoved") : t("feed.bookmarkSaved"));
   },
   "toggle-subscribe": async (button) => {
     const subscribed = button.dataset.subscribed === "1";
@@ -430,7 +428,7 @@ export const ACTIONS = {
       method: subscribed ? "DELETE" : "POST",
     });
     await state.renderRoute(state.activeRoute);
-    setMessage(subscribed ? "You unsubscribed from this thread." : "You will get notifications for replies here.");
+    setMessage(subscribed ? t("feed.unsubscribed") : t("feed.subscribed"));
   },
   // Suggestion status (v3.1): staff flip resolved/declined/open; the
   // route re-render refetches the payload so the chip and buttons come
@@ -442,8 +440,8 @@ export const ACTIONS = {
     });
     await state.renderRoute(state.activeRoute);
     setMessage(button.dataset.status === "open"
-      ? "Suggestion reopened."
-      : "Suggestion marked " + button.dataset.status + ".");
+      ? t("feed.suggestionReopened")
+      : t("feed.suggestionMarked", { status: button.dataset.status }));
   },
   "presence-invisible": async (button) => {
     // One handler for both arms (dataset.invisible picks 0/1 as a boolean per
@@ -459,10 +457,10 @@ export const ACTIONS = {
   "load-more-bookmarks": async (button) => {
     const older = await api("/api/me/bookmarks?before=" + button.dataset.before);
     appendPostList(main, older.bookmarks, document, state.currentUser,
-      BOOKMARKS_EMPTY_TEXT);
+      bookmarksEmptyText());
     button.remove();
     if (!older.nextBefore || older.bookmarks.length !== 20) return;
-    const next = element("button", "button button-secondary", "Load older saved posts");
+    const next = element("button", "button button-secondary", t("feed.loadOlderSaved"));
     next.type = "button";
     next.dataset.action = "load-more-bookmarks";
     next.dataset.before = String(older.nextBefore);

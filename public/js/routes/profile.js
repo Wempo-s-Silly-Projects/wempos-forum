@@ -46,6 +46,7 @@ import {
 } from "../profile-editor.js";
 import { renderProfileWall } from "../wall.js";
 import { openChatThread } from "../chat-widget.js";
+import { t, tn } from "../i18n.js";
 
 async function renderProfileRoute(route, context, version) {
   const profile = await api(`/api/users/${encodeURIComponent(route.username)}`);
@@ -53,8 +54,8 @@ async function renderProfileRoute(route, context, version) {
   // Blocks (v4.4): a block pair (either direction) refuses the profile —
   // render the plain unavailable strip instead of the surface.
   if (profile.unavailable) {
-    addHeading(main, "Profile unavailable", 1);
-    addText(document, main, "p", "This profile is not available to you.", "empty-state");
+    addHeading(main, t("profile.unavailableTitle"), 1);
+    addText(document, main, "p", t("profile.unavailableBody"), "empty-state");
     return;
   }
   renderProfile(profile, context.session);
@@ -97,11 +98,11 @@ export function clearProfileTheme() {
 // Milestone badges (v2.5): display-only, computed from the profile's
 // contribution counts — the thresholds graduate as the member posts.
 function profileBadgeFor(totalContributions) {
-  if (totalContributions >= 10000) return "Famous Forumer";
-  if (totalContributions >= 1000) return "Mega Forumer";
-  if (totalContributions >= 100) return "Big Forumer";
-  if (totalContributions >= 20) return "Standard forumer";
-  if (totalContributions < 20) return "New Forumer";
+  if (totalContributions >= 10000) return t("profile.badgeFamous");
+  if (totalContributions >= 1000) return t("profile.badgeMega");
+  if (totalContributions >= 100) return t("profile.badgeBig");
+  if (totalContributions >= 20) return t("profile.badgeStandard");
+  if (totalContributions < 20) return t("profile.badgeNew");
   return null;
 }
 
@@ -126,7 +127,7 @@ function renderProfile(profile, session) {
   if (profile.avatarUrl) {
     const image = element("img", "avatar profile-avatar");
     image.src = profile.avatarUrl;
-    image.alt = `Avatar of ${profile.username}`;
+    image.alt = t("profile.avatarOf", { name: profile.username });
     heading.append(image);
   }
   addHeading(heading, profile.username, 1).classList.add("profile-name");
@@ -138,7 +139,7 @@ function renderProfile(profile, session) {
   if (profile.role === "owner" || profile.role === "admin") {
     flairRow.append(element("span",
       "role-badge role-badge-" + profile.role,
-      profile.role === "owner" ? "Owner" : "Admin"));
+      profile.role === "owner" ? t("profile.roleOwner") : t("profile.roleAdmin")));
   }
   if (profile.flair) flairRow.append(element("span", "profile-flair", profile.flair));
   const badgeText = profileBadgeFor(Number(profile.postsCount || 0) + Number(profile.repliesCount || 0));
@@ -147,7 +148,8 @@ function renderProfile(profile, session) {
   // Per-user post counter (v2.5): threads started + replies written, in the
   // profile heading (muted; display-only).
   heading.append(element("p", "profile-post-counts",
-    `${Number(profile.postsCount || 0)} posts · ${Number(profile.repliesCount || 0)} replies`));
+    [tn("counts.posts", Number(profile.postsCount || 0)), tn("counts.replies", Number(profile.repliesCount || 0))]
+      .join(t("counts.separator"))));
   // Banner (any hex, v3.0.2): the hex rides --banner-color (the CSS default
   // stays transparent for none) + the filtered banner text.
   if (profile.bannerColor) {
@@ -164,13 +166,13 @@ function renderProfile(profile, session) {
   // payload does not carry avatarStatus), so only the owner sees the badge —
   // everyone else just sees the currently approved avatar.
   if (session.user?.id === profile.id && session.user.avatarStatus === "pending") {
-    heading.append(element("span", "avatar-pending-badge", "Avatar awaiting review"));
+    heading.append(element("span", "avatar-pending-badge", t("profile.avatarAwaitingReview")));
   }
   if (session.user && session.user.id !== profile.id) {
     // Day-2 widget wave: the Chat button boots the DM widget on this profile.
     // The numeric id is the primary seat (the backend's open-or-return keys
     // on { userId }); the username rides as a fallback seat.
-    const chatButton = element("button", "button button-quiet", "Chat");
+    const chatButton = element("button", "button button-quiet", t("profile.chat"));
     chatButton.type = "button";
     chatButton.dataset.action = "chat-user";
     chatButton.dataset.profileId = String(profile.id);
@@ -179,7 +181,7 @@ function renderProfile(profile, session) {
     // Blocks (v4.4): the Block toggle lives beside the report control. Once a
     // pair exists this profile becomes unavailable (both directions), so the
     // Unblock controls live in the account settings' blocked-members list.
-    const blockButton = element("button", "button button-quiet", "Block");
+    const blockButton = element("button", "button button-quiet", t("common.block"));
     blockButton.type = "button";
     blockButton.dataset.action = "block-user";
     blockButton.dataset.profileId = String(profile.id);
@@ -187,7 +189,7 @@ function renderProfile(profile, session) {
     heading.append(blockButton);
     // Report-a-profile (v2.5): the bio/flair/banner/css surface is
     // reportable like post content — same desk, same resolve flow.
-    const reportProfile = element("button", "button button-quiet", "Report profile");
+    const reportProfile = element("button", "button button-quiet", t("profile.reportProfile"));
     reportProfile.type = "button";
     reportProfile.dataset.action = "report-profile";
     reportProfile.dataset.profileId = String(profile.id);
@@ -200,15 +202,14 @@ function renderProfile(profile, session) {
   // like member search). Everyone sees the banner — banning already hides the
   // member's posts, so the profile explains why the page reads empty.
   if (profile.banned) {
-    let banText = "This user is banned.";
+    let banText = t("profile.banned");
     if (profile.banExpiresAt) {
-      banText = "This user is banned — reactivates in " +
-        (formatBanCountdown(profile.banExpiresAt) || "0m") + ".";
+      banText = t("profile.bannedUntil", { time: formatBanCountdown(profile.banExpiresAt) || "0m" });
     }
-    if (profile.banReason) banText += " Reason: " + profile.banReason;
+    if (profile.banReason) banText += " " + t("profile.banReason", { reason: profile.banReason });
     main.append(element("p", "profile-banned-banner", banText));
   }
-  addText(document, main, "p", profile.bio || "This member hasn't added a bio yet.", "profile-bio");
+  addText(document, main, "p", profile.bio || t("profile.noBio"), "profile-bio");
   appendProfileSocials(profile, session.user?.id === profile.id);
   if (session.user?.id === profile.id) {
     // Bio (10,000 chars) plus the ten social fields; submission re-fetches the
@@ -223,15 +224,15 @@ function renderProfile(profile, session) {
         await state.renderRoute(state.activeRoute);
       });
     }
-    const pictures = createPanel("Profile picture",
-      "Uploads are reviewed by mods before they appear publicly.");
+    const pictures = createPanel(t("profile.pictureTitle"),
+      t("profile.pictureNote"));
     const avatarForm = document.createElement("form");
     avatarForm.dataset.form = "avatar";
     avatarForm.append(createInput(document, {
-      id: "profile-avatar", name: "avatar", label: "Profile picture (JPEG, PNG, or WebP; up to 1 MiB)",
+      id: "profile-avatar", name: "avatar", label: t("profile.pictureLabel"),
       type: "file", accept: "image/jpeg,image/png,image/webp", required: true,
     }));
-    addSubmit(avatarForm, "Upload picture");
+    addSubmit(avatarForm, t("profile.uploadPicture"));
     pictures.append(avatarForm);
     main.append(pictures);
   }
@@ -250,8 +251,8 @@ function appendProfileRoleControls(profile, session, container) {
   if (!session.user || session.user.role !== "owner") return;
   if (session.user.id === profile.id || profile.role === "owner") return;
   const [formName, label] = profile.role === "member"
-    ? ["admin-promote", "Promote to admin"]
-    : ["admin-demote", "Demote to member"];
+    ? ["admin-promote", t("profile.promote")]
+    : ["admin-demote", t("profile.demote")];
   const form = document.createElement("form");
   form.dataset.form = formName;
   form.dataset.userId = String(profile.id);
@@ -269,7 +270,7 @@ async function submitProfileEditorForm(form, text) {
   }
   const invalid = invalidSocialKeys(socials);
   if (invalid.length) {
-    throw new Error(`Enter a valid ${SOCIAL_LABELS[invalid[0]]} handle.`);
+    throw new Error(t("profile.invalidHandle", { platform: SOCIAL_LABELS[invalid[0]] }));
   }
   // bio + socials in one PATCH /api/me (64 KB route cap covers a 10000-char
   // bio). The PATCH echo is asymmetric, so the rerender below re-fetches the
@@ -285,7 +286,7 @@ async function submitProfileEditorForm(form, text) {
     },
   });
   await state.renderRoute({ name: "profile", username: state.currentUser.username });
-  setMessage("Your profile was updated.");
+  setMessage(t("profile.updated"));
 }
 
 async function submitAvatarForm(values) {
@@ -293,7 +294,7 @@ async function submitAvatarForm(values) {
   upload.append("avatar", values.get("avatar"));
   await api("/api/me/avatar", { method: "POST", body: upload });
   await state.renderRoute({ name: "profile", username: state.currentUser.username });
-  setMessage("Your profile picture was updated.");
+  setMessage(t("profile.pictureUpdated"));
 }
 
 async function submitPasswordForm(text) {
@@ -302,7 +303,7 @@ async function submitPasswordForm(text) {
     body: { currentPassword: text("currentPassword"), newPassword: text("newPassword") },
   });
   await state.renderRoute({ name: "home" });
-  setMessage("Your password was changed. Other signed-in sessions were revoked.");
+  setMessage(t("profile.passwordChanged"));
 }
 
 // Post deletion (v2.4.1 feature): the confirm dialog's copy comes from the
@@ -316,10 +317,10 @@ function openDeletePostDialog(button) {
   const postId = Number(button.dataset.postId);
   const isThreadRoot = button.dataset.deleteScope !== "reply";
   openConfirmDialog(
-    isThreadRoot ? "Delete this thread?" : "Delete this reply?", 
+    isThreadRoot ? t("profile.deleteThreadTitle") : t("profile.deleteReplyTitle"),
     isThreadRoot
-      ? "Your post and the entire conversation under it are deleted — including other people's replies. This cannot be undone."
-      : "Your reply is deleted. Its replies stay in the thread. This cannot be undone.",
+      ? t("profile.deleteThreadBody")
+      : t("profile.deleteReplyBody"),
     "delete",
     async () => {
       const viewedThreadId = state.activeRoute.name === "post" ? state.activeRoute.id : null;
@@ -330,7 +331,7 @@ function openDeletePostDialog(button) {
       } else {
         await state.renderRoute(state.activeRoute);
       }
-      setMessage("The post was deleted.");
+      setMessage(t("profile.postDeleted"));
     },
   );
 }
@@ -340,16 +341,16 @@ function openDeletePostDialog(button) {
 // so the route re-render lands on the unavailable strip).
 function openBlockDialog(button) {
   const userId = Number(button.dataset.profileId);
-  const username = button.dataset.username || "this member";
+  const username = button.dataset.username || t("profile.thisMember");
   openConfirmDialog(
-    `Block @${username}?`,
-    "You will no longer see their posts, and they can no longer see your profile or posts, reply, react, or message. You can undo it from your account settings.",
+    t("profile.blockTitle", { name: username }),
+    t("profile.blockBody"),
     "block",
     async () => {
       await api(`/api/users/${userId}/block`, { method: "POST" });
       confirmDialog.close();
       await state.renderRoute(state.activeRoute);
-      setMessage(`Blocked @${username}.`);
+      setMessage(t("profile.blocked", { name: username }));
     },
   );
 }
@@ -362,15 +363,15 @@ function openBlockDialog(button) {
 // refetches the session, which is now anonymous.
 function openDeleteAccountDialog() {
   openConfirmDialog(
-    "Delete your Wempo Account?",
-    "Your Wempo Account and everything it owns is permanently deleted: your posts — and every thread you started, including other people's replies inside those threads — plus your replies — and any sub-replies hanging off your replies in other members' threads go too — reactions, reports, notifications, and profile. There is no undo.",
+    t("profile.deleteAccountTitle"),
+    t("profile.deleteAccountBody"),
     "delete",
     async () => {
       await api("/api/me/delete", { method: "POST" });
       setCsrfToken("");
       confirmDialog.close();
       state.router.navigate("/");
-      setMessage("Your Wempo Account was deleted. You are signed out.");
+      setMessage(t("profile.accountDeleted"));
     },
   );
 }
@@ -387,7 +388,7 @@ async function openProfileChat(button) {
   const body = Number.isInteger(profileId) && profileId > 0 ? { userId: profileId } : { username };
   const thread = await api("/api/dm/threads", { method: "POST", body });
   const threadId = thread?.id;
-  if (threadId == null) throw new Error("The chat could not be started.");
+  if (threadId == null) throw new Error(t("profile.chatFailed"));
   await openChatThread(threadId);
 }
 
@@ -419,16 +420,16 @@ export const ACTIONS = {
       const input = form?.querySelector("[data-css-input]");
       if (!input) return;
       if (!input.value.trim()) {
-        setMessage("Write some CSS first, or use Remove to clear it.", true);
+        setMessage(t("profile.cssEmpty"), true);
         return;
       }
       await api("/api/me/css", { method: "POST", body: input.value });
-      setMessage("CSS saved — a mod will review it.");
+      setMessage(t("profile.cssSaved"));
     },
     "clear-profile-css": async () => {
       await api("/api/me/css", { method: "DELETE" });
       await state.renderRoute({ name: "profile", username: state.currentUser.username });
-      setMessage("Custom CSS removed.");
+      setMessage(t("profile.cssRemoved"));
     },
     "set-profile-accent": async (button) => {
       // Profile colors (any hex, v3.0.2): the swatch's data-accent is the

@@ -16,6 +16,7 @@
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
 
+import { t, tn } from "./i18n.js";
 // "New since your last visit" (wave 2026-11-21 F3): the thread page remembers,
 // in this browser only, the highest reply id the member has seen per thread.
 // Coming back, replies above that mark get a "New" chip, a divider marks where
@@ -98,18 +99,18 @@ export function applyCatchUp(document, threadId, replies, replyList, storage = b
     card.classList.add("post-new");
     const chip = document.createElement("span");
     chip.className = "new-chip";
-    chip.textContent = "New";
+    chip.textContent = t("catchUp.newChip");
     (card.querySelector(".post-header") ?? card).append(chip);
   }
   const divider = document.createElement("div");
   divider.className = "catch-up-divider";
   divider.setAttribute("role", "separator");
-  divider.textContent = "New since your last visit";
+  divider.textContent = t("catchUp.divider");
   cards[0].before(divider);
   const jump = document.createElement("button");
   jump.type = "button";
   jump.className = "button button-secondary catch-up-jump";
-  jump.textContent = cards.length === 1 ? "Jump to 1 new reply" : "Jump to " + cards.length + " new replies";
+  jump.textContent = tn("catchUp.jump", cards.length);
   jump.addEventListener("click", () => {
     divider.scrollIntoView({ behavior: "smooth", block: "start" });
     cards[0].focus?.({ preventScroll: true });

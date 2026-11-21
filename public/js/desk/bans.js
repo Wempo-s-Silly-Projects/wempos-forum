@@ -19,16 +19,17 @@
 // v4.0 plan 5 (spec step 6), task 1: the moderation desk's bans + member search (the unban/role surfaces live with them) section
 // builders — bodies moved verbatim out of ../admin.js (now dissolved).
 import { createCheckbox, createForm, createInput, createSelect, addText } from "../forms.js";
+import { currentLocale, t } from "../i18n.js";
 
 // Timed bans (v3.0.2): the duration picker's hours; 0 = permanent. The form
 // submit handler (submitBanForm in app.js) turns hours into an absolute
 // expiresAt, which the server validates (a minute to a year out).
-const BAN_DURATION_HOURS = [
-  { value: "0", label: "Permanent" },
-  { value: "24", label: "1 day" },
-  { value: "72", label: "3 days" },
-  { value: "168", label: "7 days" },
-  { value: "720", label: "30 days" },
+const banDurationHours = () => [
+  { value: "0", label: t("desk.bans.durPermanent") },
+  { value: "24", label: t("desk.bans.dur1d") },
+  { value: "72", label: t("desk.bans.dur3d") },
+  { value: "168", label: t("desk.bans.dur7d") },
+  { value: "720", label: t("desk.bans.dur30d") },
 ];
 
 // One ban form — reason + duration + the opt-in IP ban — shared by the
@@ -39,24 +40,24 @@ const createBanForm = (document, userId, username) => {
     createInput(document, {
       id: `ban-reason-${userId}-${Math.random().toString(36).slice(2, 8)}`,
       name: "reason",
-      label: `Reason to ban ${username}`,
+      label: t("desk.bans.reasonLabel", { username }),
       required: true,
       maxLength: 500,
     }),
     createSelect(document, {
       id: `ban-duration-${userId}-${Math.random().toString(36).slice(2, 8)}`,
       name: "duration",
-      label: "Ban duration",
-      options: BAN_DURATION_HOURS,
-      description: "Timed bans auto-reactivate the account when they expire.",
+      label: t("desk.bans.durationLabel"),
+      options: banDurationHours(),
+      description: t("desk.bans.durationHelp"),
     }),
     createCheckbox(document, {
       id: `ban-ip-${userId}-${Math.random().toString(36).slice(2, 8)}`,
       name: "ipBan",
-      label: "Also block this member's known networks (IP ban)",
-      description: "Refuses sign-in and new accounts from every network they signed in from. Unbanning removes it. Shared connections (school/home networks) are blocked too — use with care.",
+      label: t("desk.bans.ipLabel"),
+      description: t("desk.bans.ipHelp"),
     }),
-  ], "Ban member");
+  ], t("desk.bans.banButton"));
   form.dataset.userId = String(userId);
   return form;
 };
@@ -71,11 +72,11 @@ function createMemberSearch(document) {
     createInput(document, {
       id: "member-search-q",
       name: "q",
-      label: "Find a member",
+      label: t("desk.bans.searchLabel"),
       maxLength: 24,
-      description: "Search by username to find members and unban them.",
+      description: t("desk.bans.searchHelp"),
     }),
-  ], "Search");
+  ], t("desk.bans.searchButton"));
   const results = document.createElement("div");
   results.className = "member-search-results";
   results.dataset.memberSearchResults = "";
@@ -87,7 +88,7 @@ function renderMemberSearchResults(members, document) {
   const list = document.createElement("div");
   list.className = "member-search-result-list";
   if (!members.length) {
-    addText(document, list, "p", "No members matched.", "empty-state");
+    addText(document, list, "p", t("desk.bans.noMatch"), "empty-state");
     return list;
   }
   for (const member of members) {
@@ -100,29 +101,31 @@ function renderMemberSearchResults(members, document) {
     row.append(link);
     if (member.role === "owner" || member.role === "admin") {
       addText(document, row, "span",
-        member.role === "owner" ? "Owner" : "Admin",
+        member.role === "owner" ? t("desk.bans.owner") : t("desk.bans.admin"),
         "role-badge role-badge-" + member.role);
     }
     if (member.banned) {
       addText(document, row, "p",
-        "Banned: " + (member.banReason || "no reason recorded") +
-        (member.banExpiresAt
-          ? " — expires " + new Date(member.banExpiresAt * 1000).toLocaleString()
-          : " — permanent"),
+        member.banExpiresAt
+          ? t("desk.bans.bannedInfoExpires", {
+            reason: member.banReason || t("desk.bans.noReasonRecorded"),
+            when: new Date(member.banExpiresAt * 1000).toLocaleString(currentLocale()),
+          })
+          : t("desk.bans.bannedInfoPermanent", { reason: member.banReason || t("desk.bans.noReasonRecorded") }),
         "member-search-ban-info");
       const unbanForm = createForm(document, "admin-unban", [
         createInput(document, {
           id: `unban-reason-search-${member.id}`,
           name: "reason",
-          label: `Reason to unban ${member.username}`,
+          label: t("desk.bans.unbanReason", { username: member.username }),
           required: true,
           maxLength: 500,
         }),
-      ], "Unban member");
+      ], t("desk.bans.unbanMember"));
       unbanForm.dataset.userId = String(member.id);
       row.append(unbanForm);
     } else {
-      addText(document, row, "p", "Not banned.", "muted");
+      addText(document, row, "p", t("desk.bans.notBanned"), "muted");
     }
     list.append(row);
   }
@@ -136,26 +139,26 @@ function createActiveBanList(bans, document) {
   const list = document.createElement("div");
   list.className = "ban-list";
   if (!bans.length) {
-    addText(document, list, "p", "There are no active bans.", "empty-state");
+    addText(document, list, "p", t("desk.bans.empty"), "empty-state");
     return list;
   }
   for (const ban of bans) {
     const card = document.createElement("article");
     card.className = "ban-card";
     addText(document, card, "h3", ban.user.username);
-    addText(document, card, "p", `Reason: ${ban.reason}`);
+    addText(document, card, "p", t("desk.bans.reason", { reason: ban.reason }));
     if (ban.expiresAt) {
-      addText(document, card, "p", `Expires: ${new Date(ban.expiresAt).toLocaleString()}`);
+      addText(document, card, "p", t("desk.bans.expires", { when: new Date(ban.expiresAt).toLocaleString(currentLocale()) }));
     }
     const form = createForm(document, "admin-unban", [
       createInput(document, {
         id: `unban-reason-${ban.id}`,
         name: "reason",
-        label: `Reason to unban ${ban.user.username}`,
+        label: t("desk.bans.unbanReason", { username: ban.user.username }),
         required: true,
         maxLength: 500,
       }),
-    ], "Unban user");
+    ], t("desk.bans.unbanUser"));
     form.dataset.userId = String(ban.user.id);
     card.append(form);
     list.append(card);

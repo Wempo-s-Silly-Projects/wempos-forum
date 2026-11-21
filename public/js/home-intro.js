@@ -16,5 +16,12 @@
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
 
-export const homepageIntro = "Welcome to my Forum! Anyone is welcome. Anyways bye, and I hope you enjoy:3";
-export const homepageInterests = ["Always Online", "Custom Profile Themes", "Flairs", "Banners", "And more!"];
+import { t } from "./i18n.js";
+export const homepageIntro = () => t("intro.welcome");
+export const homepageInterests = () => [
+  t("intro.interestOnline"),
+  t("intro.interestThemes"),
+  t("intro.interestFlairs"),
+  t("intro.interestBanners"),
+  t("intro.interestMore"),
+];

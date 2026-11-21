@@ -23,20 +23,21 @@
 // server-side, so a pasted line that is really one regex pattern (commas
 // inside a char class) stays whole, exactly like the filter will read it.
 import { createForm, createTextarea, addText } from "../forms.js";
+import { currentLocale, t, tn } from "../i18n.js";
 
 export function createFilterEditor(data, document) {
   const section = document.createElement("div");
   section.className = "filter-editor";
   const sourceNote = data.source === "database"
-    ? "The list is stored in the database — edits apply everywhere within about 30 seconds."
+    ? t("desk.filter.sourceDatabase")
     : data.source === "secret"
-      ? "Currently serving from the FILTERED_WORDS secret. Saving here copies the list into the database (prefilled with the secret's entries); after that the database wins and the secret stops mattering."
-      : "No filter is set yet. Save entries here to turn it on — nothing is filtered until then.";
+      ? t("desk.filter.sourceSecret")
+      : t("desk.filter.sourceNone");
   addText(document, section, "p", sourceNote, "muted");
   const stats = document.createElement("p");
   stats.className = "muted";
-  stats.textContent = data.totalEntries + " entries" +
-    (data.updatedAt ? " · last saved " + new Date(data.updatedAt).toLocaleString() : "");
+  stats.textContent = tn("desk.filter.stats", data.totalEntries) +
+    (data.updatedAt ? t("desk.filter.lastSaved", { when: new Date(data.updatedAt).toLocaleString(currentLocale()) }) : "");
   // The full-list editor: the textarea IS the new truth on save. Prefilled
   // with the effective list (D1 when present, else the secret) so a first
   // save migrates the list in place. Saving an empty list turns the filter
@@ -45,26 +46,26 @@ export function createFilterEditor(data, document) {
     createTextarea(document, {
       id: "filter-list",
       name: "words",
-      label: "The full filter list",
+      label: t("desk.filter.listLabel"),
       rows: 14,
       maxLength: 262144,
       counter: true,
       value: data.words,
-      description: "One entry per line (commas separate too). Plain words mask exactly as whole tokens; /regex/, bare regex, and *glob* entries keep their full pattern power. Saving an empty list turns the filter off.",
+      description: t("desk.filter.listHelp"),
     }),
-  ], "Save filter list");
+  ], t("desk.filter.saveButton"));
   // Bulk add: paste a batch, duplicates skip, the rest of the list untouched.
   const bulk = createForm(document, "filter-bulk-add", [
     createTextarea(document, {
       id: "filter-bulk",
       name: "entries",
-      label: "Bulk add entries",
+      label: t("desk.filter.bulkLabel"),
       rows: 6,
       maxLength: 262144,
       counter: true,
-      description: "One entry per line or comma-separated. Duplicates are skipped; nothing else in the list changes.",
+      description: t("desk.filter.bulkHelp"),
     }),
-  ], "Add entries");
+  ], t("desk.filter.bulkButton"));
   section.append(stats, editor, bulk);
   return section;
 }
