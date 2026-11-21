@@ -11,15 +11,25 @@ A small, friendly community forum. It's live at **<https://wempos-forum.com>**.
 ## What's in it
 
 - **Boards, threads and replies**: start a thread on a board, reply, quote, and follow along.
+- **Writing tools**: your unsent post or reply is saved as a draft in your browser, so a refresh never loses it. Type `@` and a letter to pick a member to mention. A preview pane shows your post as it will look. Hide a punchline or plot twist with `||spoiler||` text, which stays covered until a reader taps it.
+- **Reading tools**:
+  - When you come back to a thread, replies you haven't seen get a "New" mark, with a button to jump to where you left off. This is remembered in your browser only.
+  - A strip above the replies shows how many people are talking, a rough read time, and a link to the most-liked reply.
+  - Long threads have a "Jump to latest reply" button.
+  - Replies from the person who started the thread carry an "Author" chip.
+  - "Listen" reads a post aloud, using only voices that run on your device.
+  - On a thread page, press J and K to move between posts.
+- **Sharing**: copy a link to any post or reply in one click. Fenced code blocks also get a copy button.
+- **Your language, your size**: the forum is translated into 21 languages, with a language menu in the header. Arabic and Hebrew display right-to-left. You can also pick Default, Large or Larger text.
 - **Reactions and polls**: react to posts, or attach a poll to a thread.
 - **Images and GIFs**: attach up to three images to a post, or pick from the community GIF gallery.
 - **Profiles and walls**: avatars, bios, socials, custom profile styling, and a wall where other members can leave messages.
 - **Notifications**: mentions, replies, and wall posts land in your bell.
 - **Search and bookmarks**: find old threads and save the ones you want to come back to.
-- **Chat**: a floating chat button on every page, with a public Lobby and private direct messages. See [docs/chat-widget.md](docs/chat-widget.md).
+- **Chat**: a floating chat button on every page, with a public Lobby, private direct messages, and group chats of up to 10 people. You can send images in DMs and pin up to 5 chats to the top. See [docs/chat-widget.md](docs/chat-widget.md).
 - **Who's Online**: a small roster of who's around right now. You can go invisible from your account page.
 - **Safety tools**: block members you don't want to hear from, report posts, and turn on two-factor sign-in (authenticator app plus backup codes).
-- **Moderation desk**: staff work through reports, bans, ban appeals, auto-moderation, and the word filter in one place.
+- **Moderation desk**: staff work through reports, bans, ban appeals, auto-moderation, and the word filter in one place. From a report, a moderator can peek at the member's 10 newest posts. If it's a spam run, they can hide up to 50 of the member's latest posts at once, and restore any of them later from the Hidden posts desk.
 
 ## Signing in
 
