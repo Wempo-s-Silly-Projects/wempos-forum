@@ -1,0 +1,152 @@
+// Copyright 2026 ItsWempo
+//
+// This file is part of Wempo's Forum.
+//
+// Wempo's Forum is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
+
+// Chat widget DM thread list (wave 2026-11-21-5 split): the one-probe list
+// read, the launcher badge and unread refresh, the list rows (1:1 and group),
+// and the New-chat strip above them.
+import { api } from "./api.js";
+import { t } from "./i18n.js";
+import { groupTitle, imageIdOf } from "./dm-extras.js";
+import { buildAvatar, el, kindOf, ui } from "./chat-widget-state.js";
+import { GIF_PREVIEW_LABEL, gifIdOf } from "./chat-widget-gifs.js";
+import { openThread } from "./chat-widget-composer.js";
+import { openChatThread, relativeTime } from "./chat-widget.js";
+
+const MESSAGE_PREVIEW_MAX = 60;
+
+let newChatInFlight = false;
+
+export const loadThreads = async () => {
+  const data = await api("/api/dm/threads");
+  return {
+    threads: Array.isArray(data?.threads) ? data.threads : [],
+    groups: Array.isArray(data?.groups) ? data.groups.map((group) => ({ ...group, kind: "group" })) : [],
+  };
+};
+
+export const applyConversations = (data) => {
+  ui.threads = data.threads;
+  ui.groups = data.groups;
+};
+
+export const refreshUnread = async () => {
+  applyConversations(await loadThreads());
+  paintBadge();
+  if (ui.open && !ui.activeThread) paintThreadList();
+};
+
+export const paintBadge = () => {
+  if (!ui.badge) return;
+  const total = [...ui.threads, ...ui.groups].reduce((sum, thread) => sum + (thread.unread || 0), 0);
+  ui.badge.textContent = String(total);
+  ui.badge.hidden = total === 0;
+};
+
+export const paintThreadList = () => {
+  if (!ui.threadListEl) return;
+  ui.threadListEl.replaceChildren();
+  const rows = [...ui.threads, ...ui.groups].sort((a, b) =>
+    String(b.lastMessageAt || "").localeCompare(String(a.lastMessageAt || "")));
+  if (rows.length === 0) {
+    ui.threadListEl.append(el("p", "chat-widget-empty", t("chat.noChats")));
+    return;
+  }
+  for (const thread of rows) {
+    const row = el("button", "chat-widget-thread");
+    row.type = "button";
+    const label = kindOf(thread) === "group"
+      ? groupTitle(thread, ui.widgetUser?.id)
+      : thread.other?.username || "unknown";
+    const name = el("span", "chat-widget-thread-name", label);
+    if (thread.unread > 0) name.classList.add("has-unread");
+    const preview = el("span", "chat-widget-thread-preview", previewOf(thread));
+    const time = el("span", "chat-widget-thread-time", thread.lastMessageAt ? relativeTime(thread.lastMessageAt) : "");
+    time.title = thread.lastMessageAt || "";
+    const avatar = buildAvatar(kindOf(thread) === "group" ? { username: label } : thread.other);
+    if (kindOf(thread) === "group") avatar.classList.add("is-group");
+    row.append(avatar, name, preview, time);
+    row.addEventListener("click", () => openThread(thread).catch(() => { /* the row stays clickable */ }));
+    ui.threadListEl.append(row);
+  }
+};
+
+const previewOf = (thread) => {
+  const raw = typeof thread.lastMessagePreview === "string" ? thread.lastMessagePreview : "";
+  const preview = gifIdOf(raw) ? GIF_PREVIEW_LABEL : imageIdOf(raw) ? t("dm.imagePreview") : raw;
+  if (thread.unread > 0) return preview;
+  const clipped = preview.length > MESSAGE_PREVIEW_MAX
+    ? `${preview.slice(0, MESSAGE_PREVIEW_MAX - 1)}…` : preview;
+  return clipped || t("chat.noMessages");
+};
+
+// The New-chat affordance: a compact strip above the thread rows (a username
+// input + one submit button). It lives OUTSIDE the rows container —
+// paintThreadList's replaceChildren would otherwise wipe a half-typed
+// username on every 5s poll repaint — so it mounts once per open and only
+// paints its refusal line into the list.
+export const buildNewChatForm = () => {
+  const form = el("form", "chat-widget-new");
+  const input = el("input", "chat-widget-new-input");
+  input.type = "text";
+  input.name = "username";
+  input.placeholder = t("chat.newChatPlaceholder");
+  input.setAttribute("aria-label", t("chat.newChatUsername"));
+  input.setAttribute("autocomplete", "off");
+  const newChatButton = el("button", "button button-primary chat-widget-new-send", t("chat.newChat"));
+  newChatButton.type = "submit";
+  form.append(input, newChatButton);
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    createThreadByUsername(input.value);
+  });
+  return form;
+};
+
+const createThreadByUsername = async (rawUsername) => {
+  const username = rawUsername.trim();
+  if (!username || newChatInFlight) return;
+  const newChatButton = ui.newChatFormEl?.querySelector(".chat-widget-new-send");
+  newChatInFlight = true;
+  if (newChatButton) newChatButton.disabled = true;
+  try {
+    const data = await api("/api/dm/threads", { method: "POST", body: { username } });
+    if (data?.id == null) throw new Error(t("chat.chatFailed"));
+    if (ui.newChatFormEl) ui.newChatFormEl.querySelector(".chat-widget-new-input").value = "";
+    // The door re-reads the list first, so the new row is on it before the
+    // conversation opens.
+    await openChatThread(data.id);
+  } catch (error) {
+    showNewChatError(error?.message || t("chat.chatFailed"));
+  } finally {
+    newChatInFlight = false;
+    if (newChatButton) newChatButton.disabled = false;
+  }
+};
+
+// The refusal rides the send-error slot idiom: one textContent-only line
+// appended at the list's tail; a second failure rewrites it, and the next
+// repaint wipes it.
+export const showNewChatError = (message) => {
+  if (!ui.threadListEl) return;
+  const existing = ui.threadListEl.querySelector(".chat-widget-new-error");
+  if (existing) {
+    existing.textContent = message;
+    return;
+  }
+  ui.threadListEl.append(el("p", "chat-widget-new-error", message));
+};
