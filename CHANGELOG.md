@@ -13,6 +13,12 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.15.0] - 2026-11-21
+
+### Added
+- New staff-only Polls board: polls that drive decisions for changes to the
+  forum. Everyone can read and vote; only the owner and admins start topics.
+
 ## [5.14.0] - 2026-11-21
 
 ### Added
