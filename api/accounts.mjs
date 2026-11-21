@@ -25,13 +25,6 @@
 // redeem rides the guest session the client already holds), then the login
 // limiter tier. The code never touches credential internals, and the pepper
 // and TOTP primitives stay exactly as they were.
-//
-// The relay call mirrors api/relay.mjs's outbound cousin on GooberCord:
-// a service binding to the accounts worker over https://sso.internal/, gated
-// by the shared RELAY_TOKEN secret (installed on BOTH workers — that token is
-// the whole auth, so it is never echoed, logged, or embedded in an error).
-// Every relay failure degrades to null and answers the shared 401, so probing
-// the endpoint without the handshake learns nothing.
 import { assertNetworkNotBanned, createSession, requireCsrf } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
