@@ -16,8 +16,8 @@
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
 
-// The §4b door-swap, client half: Wempo Accounts (accounts.wempos-forum.com)
-// is the ONE sign-in surface for every Wempo site. The forum keeps its guest
+// The §4b door-swap, client half: Wempo Accounts (the configured
+// ACCOUNTS_ORIGIN) is the ONE sign-in surface for every Wempo site. The forum keeps its guest
 // browsing, but every auth surface — the header's Sign in link, the home
 // route's door panel, and the boot-level ?wt redemption — points at Accounts.
 // A member site arrival carrying ?wt=<ticket> redeems the ticket HERE (on the
@@ -33,15 +33,20 @@
 // The query-string parameter the Accounts worker redirects back with.
 export const SSO_TICKET_PARAM = "wt";
 
-// The exact Accounts origin every auth link targets.
-export const WEMPO_ACCOUNTS_ORIGIN = "https://accounts.wempos-forum.com";
+// The exact Accounts origin every auth link targets. Self-hosting (v5.17.0):
+// it is the instance's ACCOUNTS_ORIGIN, which the worker stamps into the HTML
+// shell as <meta name="accounts-origin">; read per call (no DOM = none set).
+export function wempoAccountsOrigin() {
+  const meta = globalThis.document?.querySelector?.('meta[name="accounts-origin"]');
+  return typeof meta?.content === "string" ? meta.content : "";
+}
 
 // wempoAccountsSignInUrl(origin) -> the Accounts sign-in handoff. The return
 // parameter carries the EXACT ORIGIN and nothing more (no query string, no
 // path): the Accounts side exact-match checks it, so this page can never
 // widen what it sends.
 export function wempoAccountsSignInUrl(origin) {
-  return WEMPO_ACCOUNTS_ORIGIN + "/?return=" + encodeURIComponent(origin || "");
+  return wempoAccountsOrigin() + "/?return=" + encodeURIComponent(origin || "");
 }
 
 // The sign-out handoff: the forum's logout clears its own session, then hands
@@ -49,7 +54,7 @@ export function wempoAccountsSignInUrl(origin) {
 // on purpose — with one, the Accounts arrival auto-issues a fresh ticket and
 // bounces the member straight back signed in.
 export function wempoAccountsSignOutUrl() {
-  return WEMPO_ACCOUNTS_ORIGIN + "/?signout=1";
+  return wempoAccountsOrigin() + "/?signout=1";
 }
 
 // ssoTicketFromSearch(search) -> the ticket, or "". A 32-byte-hex one-time

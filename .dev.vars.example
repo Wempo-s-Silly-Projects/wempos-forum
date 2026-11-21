@@ -1,0 +1,29 @@
+# Local secrets for `pnpm run dev`. Copy to .dev.vars (git-ignored) and fill
+# in your own values. NEVER commit .dev.vars. In production set each one with:
+#   pnpm exec wrangler secret put <NAME>
+# Names only below — this file never holds real values.
+
+# Required. Mixed into every password hash; 32-256 characters. Generate a long
+# random value once and never change it (changing it locks everyone out).
+PASSWORD_PEPPER=
+
+# Required for the first visit to /setup, where you create the owner account;
+# 32+ characters.
+SETUP_SECRET=
+
+# Required for Wempo Accounts sign-in. The SAME value must be set on your
+# Wempo Accounts worker; it authenticates the calls between the two workers.
+RELAY_TOKEN=
+
+# Optional: Cloudflare Turnstile. When set, sign-up, sign-in, posts and
+# replies require the Turnstile check (also set TURNSTILE_SITEKEY and
+# TURNSTILE_HOSTNAMES in wrangler.toml). Unset = no Turnstile.
+TURNSTILE_SECRET=
+
+# Optional: extra filtered words, comma-separated (the admin page can also
+# manage this list in the database).
+FILTERED_WORDS=
+
+# Optional: bearer tokens for your own bot on /mcp, as JSON
+# {"<sha256 hex of the token>": <user id>}.
+AGENT_TOKENS=

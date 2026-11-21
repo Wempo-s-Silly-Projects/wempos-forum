@@ -29,6 +29,7 @@ import { assertNetworkNotBanned, createSession, requireCsrf } from "./core/auth.
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicUser, userById } from "./core/shapers.mjs";
+import { relayWorkerName } from "./core/site.mjs";
 
 // Anchored both ends (the unanchored-regex advisory lesson): the code is
 // exactly the 32 bytes accounts' login issues, 64 hex characters.
@@ -61,8 +62,9 @@ async function redeemCode(env, code) {
         // The calling worker's declared identity: accounts makes this slug
         // the enforced return_site predicate (a ticket minted for one member
         // site redeems only here). A convenience stamp, NOT an auth boundary
-        // — the relay token is the whole auth.
-        "X-Relay-Worker": "wempos-forum",
+        // — the relay token is the whole auth. RELAY_WORKER_NAME (v5.17.0)
+        // names it per instance; unset keeps "wempos-forum".
+        "X-Relay-Worker": relayWorkerName(env),
       },
       body: JSON.stringify({ code }),
     }));

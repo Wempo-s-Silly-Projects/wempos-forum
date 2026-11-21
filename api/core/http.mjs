@@ -68,14 +68,19 @@ export { unconditional, isDocumentRequest } from "../vendor/http.mjs";
 
 const TURNSTILE_TOKEN_MAX_LENGTH = 2048;
 
+// Self-hosting (v5.17.0): Turnstile is optional per instance. No
+// TURNSTILE_SECRET configured = no human check at all (the rate limits still
+// apply); a configured secret keeps the full check, failing closed on a
+// missing token or an empty TURNSTILE_HOSTNAMES list.
 export async function requireTurnstile(request, env, body, expectedAction) {
   const secret = env.TURNSTILE_SECRET;
+  if (!secret) return;
   const hostnames = String(env.TURNSTILE_HOSTNAMES || "")
     .split(",")
     .map((hostname) => hostname.trim())
     .filter(Boolean);
   const token = typeof body["cf-turnstile-response"] === "string" ? body["cf-turnstile-response"] : "";
-  if (!secret || hostnames.length === 0 || !token || token.length > TURNSTILE_TOKEN_MAX_LENGTH) {
+  if (hostnames.length === 0 || !token || token.length > TURNSTILE_TOKEN_MAX_LENGTH) {
     throw new HttpError(403, "Human verification is required.");
   }
   let result;

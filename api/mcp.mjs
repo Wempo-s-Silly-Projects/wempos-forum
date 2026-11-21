@@ -61,10 +61,10 @@ import { postById } from "./core/shapers.mjs";
 import { VIEWABLE_POST_BINDS, canViewPost, viewablePostSql } from "./core/visibility.mjs";
 import { viewerBlockFilterSql } from "./core/blocks.mjs";
 import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
+import { siteOrigin } from "./core/site.mjs";
 
 const SUPPORTED_PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 const DEFAULT_PROTOCOL_VERSION = "2025-06-18";
-const SITE_ORIGIN = "https://wempos-forum.com";
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 25;
 const MAX_QUERY_LENGTH = 100;
@@ -272,7 +272,9 @@ export async function handleMcp(request, env) {
   } catch {
     return jsonResponse(rpcError(null, RPC_PARSE_ERROR, "Parse error: body is not valid JSON."));
   }
-  const ctx = { request, agent: await agentFromRequest(request, env) };
+  // Self-hosting (v5.17.0): every post URL is built on the instance origin
+  // (configured SITE_ORIGIN, else this request's origin).
+  const ctx = { request, origin: siteOrigin(env, request), agent: await agentFromRequest(request, env) };
   if (Array.isArray(message)) return handleBatch(message, env, ctx);
   const reply = await dispatch(message, env, ctx);
   return reply === null ? new Response(null, { status: 202 }) : jsonResponse(reply);
@@ -404,7 +406,7 @@ async function callTool(id, params, env, ctx) {
   if (throttled) return rpcResult(id, throttled);
   // Wave 40: an agent token reads as its member (block pairs apply); an
   // anonymous caller reads as a guest (viewer null).
-  const outcome = await handler(env, args, ctx.agent || null);
+  const outcome = await handler(env, args, ctx.agent || null, ctx.origin);
   return rpcResult(id, outcome.error ? toolError(outcome.error) : toolText(outcome.data));
 }
 
@@ -444,7 +446,7 @@ function rootBlockFilter(viewer) {
   return { sql: sql ? sql + " " : "", binds: sql ? [viewer.id, viewer.id] : [] };
 }
 
-async function searchPosts(env, args, viewer = null) {
+async function searchPosts(env, args, viewer, origin) {
   const query = typeof args.query === "string" ? args.query.trim().toLowerCase() : "";
   if (!query || query.length > MAX_QUERY_LENGTH) {
     return { error: "query must be a string of 1-" + MAX_QUERY_LENGTH + " characters." };
@@ -455,18 +457,18 @@ async function searchPosts(env, args, viewer = null) {
   // wildcards to escape.
   const blocks = rootBlockFilter(viewer);
   const sql = ROW_SELECT + PUBLIC_ROOT_WHERE + blocks.sql + "AND instr(lower(p.body), ?) > 0 ORDER BY p.id DESC LIMIT ?";
-  return { data: await listRows(env, sql, [...blocks.binds, query, parsed.limit]) };
+  return { data: await listRows(env, sql, [...blocks.binds, query, parsed.limit], origin) };
 }
 
-async function recentPosts(env, args, viewer = null) {
+async function recentPosts(env, args, viewer, origin) {
   const parsed = parseLimit(args.limit);
   if (parsed.error) return parsed;
   const blocks = rootBlockFilter(viewer);
   const sql = ROW_SELECT + PUBLIC_ROOT_WHERE + blocks.sql + "ORDER BY p.id DESC LIMIT ?";
-  return { data: await listRows(env, sql, [...blocks.binds, parsed.limit]) };
+  return { data: await listRows(env, sql, [...blocks.binds, parsed.limit], origin) };
 }
 
-async function listBoard(env, args, viewer = null) {
+async function listBoard(env, args, viewer, origin) {
   if (!BOARD_VALUES.includes(args.board)) {
     return { error: "board must be one of: " + BOARD_VALUES.join(", ") + "." };
   }
@@ -474,27 +476,27 @@ async function listBoard(env, args, viewer = null) {
   if (parsed.error) return parsed;
   const blocks = rootBlockFilter(viewer);
   const sql = ROW_SELECT + PUBLIC_ROOT_WHERE + blocks.sql + "AND p.board = ? ORDER BY p.id DESC LIMIT ?";
-  return { data: await listRows(env, sql, [...blocks.binds, args.board, parsed.limit]) };
+  return { data: await listRows(env, sql, [...blocks.binds, args.board, parsed.limit], origin) };
 }
 
-async function listRows(env, sql, values) {
+async function listRows(env, sql, values, origin) {
   const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
-  return (result.results || []).map((row) => shapePost(row, LIST_BODY_CHARS));
+  return (result.results || []).map((row) => shapePost(row, LIST_BODY_CHARS, origin));
 }
 
-async function getPost(env, args, viewer = null) {
+async function getPost(env, args, viewer, origin) {
   if (!Number.isInteger(args.id) || args.id < 1) return { error: "id must be an integer >= 1." };
   const row = await env.FORUM_DB.prepare(ROW_SELECT + "WHERE p.id = ? LIMIT 1").bind(args.id).first();
   // The visibility law: public, author unbanned, every ancestor the same,
   // and (wave 40) no block pair with an agent caller's member.
   if (!row || !(await canViewPost(env, row, viewer))) return { error: "Post not found." };
-  return { data: { ...shapePost(row, null), replies: await publicReplies(env, args.id, viewer) } };
+  return { data: { ...shapePost(row, null, origin), replies: await publicReplies(env, args.id, viewer, origin) } };
 }
 
 // Direct replies plus level-2 replies (replies to a direct reply). The target
 // post is already gated; l1 is each reply's parent (the target itself, or the
 // intermediate reply) and must pass the same law in SQL.
-async function publicReplies(env, postId, viewer = null) {
+async function publicReplies(env, postId, viewer, origin) {
   const replyBlocks = viewerBlockFilterSql(viewer, "p.author_id");
   const parentBlocks = viewerBlockFilterSql(viewer, "l1.author_id");
   const blockBinds = replyBlocks ? [viewer.id, viewer.id, viewer.id, viewer.id] : [];
@@ -507,10 +509,10 @@ async function publicReplies(env, postId, viewer = null) {
     "AND l1.visibility = 'public' AND " + banFilterSql("l1") + " " +
     replyBlocks + parentBlocks + " ORDER BY p.id ASC LIMIT ?";
   const result = await env.FORUM_DB.prepare(sql).bind(postId, postId, ...blockBinds, MAX_REPLIES).all();
-  return (result.results || []).map((row) => ({ ...shapePost(row, null), parent_id: Number(row.parent_id) }));
+  return (result.results || []).map((row) => ({ ...shapePost(row, null, origin), parent_id: Number(row.parent_id) }));
 }
 
-function shapePost(row, maxChars) {
+function shapePost(row, maxChars, origin) {
   // Wave 17: agents (the forum's own bot included) read spoilers masked,
   // exactly as the post page shows them before a click.
   const raw = typeof row.body === "string" ? row.body : "";
@@ -518,7 +520,7 @@ function shapePost(row, maxChars) {
   const truncated = maxChars !== null && body.length > maxChars;
   return {
     id: Number(row.id),
-    url: SITE_ORIGIN + "/posts/" + Number(row.id),
+    url: origin + "/posts/" + Number(row.id),
     board: row.board || null,
     author: row.author_username || null,
     created_at: new Date(Number(row.created_at) * 1000).toISOString(),
@@ -590,7 +592,7 @@ async function createRootPost(env, ctx, rawBody, rawBoard) {
   } catch (error) {
     console.error("mcp: mention fan-out failed", postId, error && error.message ? error.message : error);
   }
-  return { id: postId, url: SITE_ORIGIN + "/posts/" + postId, board };
+  return { id: postId, url: ctx.origin + "/posts/" + postId, board };
 }
 
 const REPLY_TARGET_REFUSAL = "Replies must be attached to a public conversation, not another reply.";
@@ -638,7 +640,7 @@ async function createReply(env, args, ctx) {
   const replyId = Number(results[0].meta.last_row_id);
   const recipientId = target.author_id === null || target.author_id === undefined ? null : Number(target.author_id);
   await replyFanOut(db, { agent, message, targetId, replyId, recipientId, bumpTargetId, now });
-  return { id: replyId, url: SITE_ORIGIN + "/posts/" + replyId, parent_id: targetId };
+  return { id: replyId, url: ctx.origin + "/posts/" + replyId, parent_id: targetId };
 }
 
 // Best-effort, exactly the reply route's three fan-out sources.
@@ -698,13 +700,13 @@ function parseMentionArgs(args) {
   return { sinceId, limit, markRead: args.mark_read === true };
 }
 
-function shapeMention(row) {
+function shapeMention(row, origin) {
   const body = typeof row.reply_body === "string" ? row.reply_body : "";
   return {
     id: Number(row.id),
     post_id: Number(row.reply_id),
     target_post_id: Number(row.target_post_id),
-    post_url: SITE_ORIGIN + "/posts/" + Number(row.reply_id),
+    post_url: origin + "/posts/" + Number(row.reply_id),
     author: row.author_username || null,
     label: row.label !== null && row.label !== undefined ? String(row.label) : null,
     excerpt: maskedExcerpt(body, MENTION_EXCERPT_CHARS),
@@ -719,7 +721,7 @@ async function listMentions(env, args, ctx) {
   const { sinceId, limit, markRead } = parseMentionArgs(args);
   const result = await db.prepare(MENTIONS_SQL)
     .bind(userId, sinceId, ...Array(VIEWABLE_POST_BINDS).fill(userId), limit).all();
-  const mentions = (result.results || []).map(shapeMention);
+  const mentions = (result.results || []).map((row) => shapeMention(row, ctx.origin));
   const unread = mentions.filter((mention) => !mention.read);
   if (markRead && unread.length > 0) {
     const now = nowSeconds();

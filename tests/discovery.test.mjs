@@ -21,14 +21,18 @@ import assert from "node:assert/strict";
 import { makeAssets, makeEnv } from "./helpers/d1.mjs";
 import { call, seedPost, seedUser } from "./helpers/seed.mjs";
 
-test("/robots.txt is served by ASSETS, not intercepted", async () => {
-  const assets = makeAssets(() => new Response("User-agent: *\nAllow: /\n", { headers: { "Content-Type": "text/plain" } }));
-  const env = makeEnv({ ASSETS: assets });
+// v5.17.0: robots.txt moved from a static asset into the worker so its
+// Sitemap line names the instance origin (SITE_ORIGIN, else the request's).
+test("/robots.txt is served by the worker, never the ASSETS fallback", async () => {
+  const assets = makeAssets(() => new Response("<!doctype html>", { headers: { "Content-Type": "text/html" } }));
+  const env = makeEnv({ ASSETS: assets, SITE_ORIGIN: "https://wempos-forum.com" });
   const response = await call(env, "/robots.txt");
   assert.equal(response.status, 200);
-  assert.equal(assets.requests.length, 1);
-  assert.equal(new URL(assets.requests[0].url).pathname, "/robots.txt");
-  assert.match(await response.text(), /User-agent: \*/);
+  assert.match(response.headers.get("Content-Type"), /^text\/plain/);
+  assert.equal(assets.requests.length, 0);
+  const body = await response.text();
+  assert.match(body, /User-agent: \*/);
+  assert.match(body, /^Sitemap: https:\/\/wempos-forum\.com\/sitemap\.xml$/m);
 });
 
 test("/.well-known/api-catalog is a linkset+json document with an anchor", async () => {
