@@ -22,40 +22,11 @@ import { readFileSync } from "node:fs";
 import { maskSpoilers, parseInline, revealSpoiler } from "../public/js/markdown.js";
 import { createComposePreview } from "../public/js/compose-preview.js";
 
+import { FakeNode, makeFakeDocument } from "./helpers/fake-dom.mjs";
+
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-class FakeNode {
-  constructor(tagName) {
-    this.tagName = tagName.toUpperCase();
-    this.children = [];
-    this.attributes = {};
-    this.listeners = {};
-    this.className = "";
-    this.hidden = false;
-    this.value = "";
-    this._text = "";
-  }
-  get textContent() {
-    return this.children.length ? this.children.map((child) => child.textContent).join("") : this._text;
-  }
-  set textContent(value) { this.children = []; this._text = String(value); }
-  setAttribute(name, value) {
-    if (name === "class") this.className = String(value);
-    this.attributes[name] = String(value);
-  }
-  getAttribute(name) { return name === "class" ? this.className : this.attributes[name] ?? null; }
-  removeAttribute(name) { delete this.attributes[name]; }
-  append(...nodes) { this.children.push(...nodes); }
-  replaceChildren(...nodes) { this.children = [...nodes]; }
-  addEventListener(type, listener) { (this.listeners[type] ??= []).push(listener); }
-  dispatch(type, event = {}) {
-    for (const listener of this.listeners[type] ?? []) listener({ preventDefault() {}, ...event });
-  }
-}
-const fakeDocument = {
-  createElement: (tag) => new FakeNode(tag),
-  createTextNode: (text) => ({ nodeType: 3, textContent: text }),
-};
+const fakeDocument = makeFakeDocument();
 const spoilersIn = (nodes) => nodes.filter((node) => node.className?.split(" ").includes("spoiler"));
 
 // --- F2: spoiler tags ------------------------------------------------------------
@@ -128,8 +99,8 @@ test("preview toggle renders the draft through the post renderer, never edits it
   const field = new FakeNode("textarea");
   field.value = "hello **world** ||shh||";
   const wrapper = createComposePreview(field, fakeDocument);
-  const button = wrapper.children.find((node) => node.tagName === "BUTTON");
-  const pane = wrapper.children.find((node) => node.tagName === "DIV");
+  const button = Array.from(wrapper.children).find((node) => node.tagName === "BUTTON");
+  const pane = Array.from(wrapper.children).find((node) => node.tagName === "DIV");
   assert.equal(button.type, "button");
   assert.equal(button.getAttribute("aria-pressed"), "false");
   assert.equal(pane.hidden, true);
@@ -150,8 +121,8 @@ test("an empty draft previews as a friendly note", () => {
   const field = new FakeNode("textarea");
   field.value = "   ";
   const wrapper = createComposePreview(field, fakeDocument);
-  wrapper.children.find((node) => node.tagName === "BUTTON").dispatch("click");
-  const pane = wrapper.children.find((node) => node.tagName === "DIV");
+  Array.from(wrapper.children).find((node) => node.tagName === "BUTTON").dispatch("click");
+  const pane = Array.from(wrapper.children).find((node) => node.tagName === "DIV");
   assert.equal(pane.children.length, 1);
   assert.match(pane.children[0].className, /compose-preview-empty/);
 });

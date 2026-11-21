@@ -27,38 +27,11 @@ import {
   TEXT_SIZES, TEXT_SIZE_STORAGE_KEY, applyTextSize, createTextSizePicker, normalizeTextSize, readTextSize,
 } from "../public/js/text-size.js";
 
+import { makeFakeDocument, findByClass } from "./helpers/fake-dom.mjs";
+
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-class FakeNode {
-  constructor(tagName) {
-    this.tagName = tagName.toUpperCase();
-    this.children = [];
-    this.attributes = {};
-    this.listeners = {};
-    this.dataset = {};
-    this.className = "";
-    this.value = "";
-    this._text = "";
-  }
-  get textContent() {
-    return this.children.length ? this.children.map((child) => child.textContent ?? "").join("") : this._text;
-  }
-  set textContent(value) { this.children = []; this._text = String(value); }
-  setAttribute(name, value) { this.attributes[name] = String(value); }
-  getAttribute(name) { return this.attributes[name] ?? null; }
-  append(...nodes) { this.children.push(...nodes); }
-  replaceChildren(...nodes) { this.children = [...nodes]; }
-  addEventListener(type, listener) { (this.listeners[type] ??= []).push(listener); }
-  async fire(type) {
-    for (const listener of this.listeners[type] ?? []) await listener({ preventDefault() {} });
-  }
-}
-const fakeDocument = {
-  createElement: (tag) => new FakeNode(tag),
-  createElementNS: (ns, tag) => new FakeNode(tag),
-  createTextNode: (text) => ({ nodeType: 3, textContent: text }),
-  documentElement: { dataset: {} },
-};
+const fakeDocument = makeFakeDocument({ documentElement: { dataset: {} } });
 const memoryStorage = (seed = {}) => {
   const data = new Map(Object.entries(seed));
   return {
@@ -71,14 +44,7 @@ const throwingStorage = {
   getItem() { throw new Error("blocked"); },
   setItem() { throw new Error("blocked"); },
 };
-const findByClass = (node, name) => {
-  if (node.className?.split?.(" ").includes(name)) return node;
-  for (const child of node.children ?? []) {
-    const hit = findByClass(child, name);
-    if (hit) return hit;
-  }
-  return null;
-};
+
 
 // --- F2: copy link ---------------------------------------------------------------
 
@@ -154,7 +120,7 @@ test("the picker shows the stored size, and a change stores + applies it", async
   const storage = memoryStorage({ [TEXT_SIZE_STORAGE_KEY]: "large" });
   const doc = { ...fakeDocument, documentElement: { dataset: {} } };
   const picker = createTextSizePicker(doc, storage);
-  const select = picker.children.find((child) => child.tagName === "SELECT");
+  const select = Array.from(picker.children).find((child) => child.tagName === "SELECT");
   assert.equal(select.children.length, 3);
   assert.equal(select.value, "large");
   select.value = "larger";

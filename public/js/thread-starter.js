@@ -50,7 +50,7 @@ function createChip(document) {
 
 function hasChip(row) {
   if (typeof row.querySelector === "function") return Boolean(row.querySelector("." + CHIP_CLASS));
-  return (row.children ?? []).some((child) => child.className?.split?.(" ").includes(CHIP_CLASS));
+  return Array.from(row.children ?? []).some((child) => child.className?.split?.(" ").includes(CHIP_CLASS));
 }
 
 // Appends the chip to each starter reply's author row inside `container`.

@@ -27,45 +27,11 @@ import {
 } from "../public/js/focus-utils.js";
 import { createCopyLinkButton } from "../public/js/copy-link.js";
 
+import { FakeNode, makeFakeDocument, findByClass } from "./helpers/fake-dom.mjs";
+
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-class FakeNode {
-  constructor(tagName) {
-    this.tagName = tagName.toUpperCase();
-    this.children = [];
-    this.attributes = {};
-    this.listeners = {};
-    this.dataset = {};
-    this.className = "";
-    this._text = "";
-  }
-  get textContent() {
-    return this.children.length ? this.children.map((child) => child.textContent ?? "").join("") : this._text;
-  }
-  set textContent(value) { this.children = []; this._text = String(value); }
-  setAttribute(name, value) { this.attributes[name] = String(value); }
-  getAttribute(name) { return this.attributes[name] ?? null; }
-  hasAttribute(name) { return name in this.attributes; }
-  append(...nodes) { this.children.push(...nodes); }
-  replaceChildren(...nodes) { this.children = [...nodes]; }
-  addEventListener(type, listener) { (this.listeners[type] ??= []).push(listener); }
-  async fire(type) {
-    for (const listener of this.listeners[type] ?? []) await listener({ preventDefault() {} });
-  }
-}
-const fakeDocument = {
-  createElement: (tag) => new FakeNode(tag),
-  createElementNS: (ns, tag) => new FakeNode(tag),
-  createTextNode: (text) => ({ nodeType: 3, textContent: text }),
-};
-const findByClass = (node, name) => {
-  if (node.className?.split?.(" ").includes(name)) return node;
-  for (const child of node.children ?? []) {
-    const hit = findByClass(child, name);
-    if (hit) return hit;
-  }
-  return null;
-};
+const fakeDocument = makeFakeDocument();
 
 // --- focus helpers -----------------------------------------------------------------
 
@@ -131,7 +97,7 @@ test("copy-link mounts an empty polite status beside the button and never relies
   const status = findByClass(wrap, "copy-link-status");
   assert.equal(status.getAttribute("role"), "status");
   assert.equal(status.textContent, "", "mounted empty before any click");
-  assert.ok(!button.children.includes(status), "the status is not inside the labelled button");
+  assert.ok(!Array.from(button.children).includes(status), "the status is not inside the labelled button");
   await button.fire("click");
   assert.ok(status.textContent.length > 0);
   timers[0]();
