@@ -184,3 +184,21 @@ test("wall: post bodies render through parseInline (formatting + click-to-reveal
   assert.match(wall, /body\.append\(\.\.\.parseInline\(document, post\.body\)\)/);
   assert.doesNotMatch(wall, /element\("p", "wall-post-body", post\.body\)/);
 });
+
+// --- Strings -------------------------------------------------------------------
+
+test("strings: the five new keys exist in every locale, translated, placeholders intact", async () => {
+  const { readdirSync } = await import("node:fs");
+  const keys = ["profile.joined", "profile.threadsTitle", "profile.threadsEmpty", "profile.threadsLoadFailed", "profile.threadUntitled"];
+  const en = JSON.parse(read("public/locales/en.json"));
+  const files = readdirSync(new URL("../public/locales/", import.meta.url)).filter((name) => name.endsWith(".json"));
+  assert.equal(files.length, 21);
+  for (const file of files) {
+    const bundle = JSON.parse(read("public/locales/" + file));
+    for (const key of keys) {
+      assert.equal(typeof bundle[key], "string", file + " " + key);
+      if (file !== "en.json") assert.notEqual(bundle[key], en[key], file + " " + key + " left in English");
+    }
+    assert.match(bundle["profile.joined"], /\{date\}/, file);
+  }
+});
