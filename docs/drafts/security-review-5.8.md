@@ -1,0 +1,18 @@
+# Security review — v5.4.0..v5.7.0 (1499918..dfe106e), wave 5.8
+
+Scope: `git diff --stat 1499918..dfe106e` (81 files; client JS, tests, workflows, locales). No server path (api/*, worker.mjs, migrations) changed, so the visibility law, bind budget, LIMITs and server-side CSRF are untouched by this range.
+
+Totals: CRITICAL 0 · HIGH 0 · MEDIUM 0 · LOW 1 (fixed) · INFO 6 (no fix).
+
+| # | Sev | File:line | Scenario | Verdict |
+|---|-----|-----------|----------|---------|
+| 1 | LOW | public/js/caps-guard.js:31 (`KEPT_TOKENS`) | "Lower the caps" promised links are kept as typed, but the token regex was case-sensitive: `HTTPS://EXAMPLE.COM/Path/AbC` was not a link, so the rewrite lowercased it and silently changed the member's URL (case-sensitive paths/queries break or point elsewhere). Content-integrity defect, member-initiated, no injection. | FIXED: regex gains `i`. Pinned in tests/wave58-security-pins.test.mjs. |
+| 2 | INFO | public/js/board-regulars.js:52-56 | Crafted username vs link breakout. Name goes in via `textContent`; href is `"/users/" + encodeURIComponent(name)` via setAttribute, so `"`, `<`, `/` are encoded; `..` would survive encoding but `isValidUsername` (api/core/shapers.mjs:58, `^[A-Za-z0-9_]{3,24}$`) makes it unreachable. Names come only from the server feed payload (visibility-filtered). Updates excluded by `board.staffOnly ? null :` (public/js/routes/feed.js:386). | No fix; pinned. |
+| 3 | INFO | public/js/reply-filter.js:38-45 | Filter query is split on whitespace and matched with `String#includes` on `maskSpoilers(body)`; no RegExp built from input (no ReDoS/regex injection), status via `textContent`/`tn`. Spoilers masked before matching. | No fix; pinned (metacharacters literal). |
+| 4 | INFO | public/js/badge-progress.js, public/js/routes/profile.js:147 | Gate `session.user?.id === profile.id` (guest: undefined ≠ id). Counts are `postsCount + repliesCount`, already shown to every visitor; nothing fetched or stored. | No leak; no fix. |
+| 5 | INFO | public/js/appearance-reset.js:29-46 | Writes exactly `forum-corners`, `forum-text-size`, `forum-tab-unread` (device prefs); never theme or `:u<id>` keys; each setItem wrapped in try/catch. | No fix; pinned. |
+| 6 | INFO | public/js/app.js:261-269, public/js/router.js:96-101 | 404 catch rethrows unless route is `post` AND status 404 AND render current — 401/403/5xx and other routes still reach the error bar. `navigate(path,{replace})` only used with the literal `"/"` (profile.js delete); internal-link navigation already checks `anchor.origin === location.origin`; pushState/replaceState reject cross-origin URLs, so no open redirect. | No fix; pinned. |
+| 7 | INFO | public/js/app.js:300-305 | `submitForm` early return applies only to forms with no handler (chat lobby owns its submit). CSRF lives in the `api()` wrapper, not submitForm, so no write lost its CSRF path; every handled form still goes through the same handler. | No fix (existing pin wave56-after-success). |
+| 8 | INFO | .github/workflows/claude.yml:35, claude-code-review.yml:36 | `acfe7992852970efb4fee683d63d628e3e52df67` == `gh api repos/anthropics/claude-code-action/commits/v1` (2026-11-21; repo `fork:false`, commit 2026-11-20 "bump Claude Code to 2.1.330"). Permissions read-only + `id-token: write` (OIDC for the action) + `actions: read`. Pre-existing, outside this diff: `actions/checkout@v4` is tag-pinned (first-party, low risk). | Verified; pinned SHA + read-only perms in test. |
+
+Test-only CodeQL changes (fake-dom selector regex, sitemap Set lookup, URL-origin assertion, TOCTOU try/read, comment-strip loop): no assertion weakened.

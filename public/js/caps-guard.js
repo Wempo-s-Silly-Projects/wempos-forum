@@ -27,8 +27,9 @@ import { t } from "./i18n.js";
 export const CAPS_GUARD_RATIO = 0.7;
 export const CAPS_GUARD_MIN_LETTERS = 12;
 
-// Odd split() slots are the kept-as-typed tokens.
-const KEPT_TOKENS = /(https?:\/\/\S+|`[^`\n]*`|@[\w-]+)/g;
+// Odd split() slots are the kept-as-typed tokens; `i` so an upper-case
+// scheme (HTTPS://...) is a link too (wave 5.8 security review).
+const KEPT_TOKENS = /(https?:\/\/\S+|`[^`\n]*`|@[\w-]+)/gi;
 const SENTENCE_END = /[.!?\n]/;
 const LONE_I = /(^|[^\p{L}\p{N}_])i(?=$|[^\p{L}\p{N}_])/gu;
 
