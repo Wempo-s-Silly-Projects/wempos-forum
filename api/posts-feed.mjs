@@ -84,23 +84,46 @@ export function replySnippet(body) {
 // the level-2 rows additionally require a viewable level-1 parent — the
 // remaining canViewPost ancestor (the root) is guaranteed public by the feed's
 // own WHERE. Admin viewers (showAll) drop the member clauses, like everywhere
-// else counts run. Irrelevant rows from threads off this page group under ids
-// the map lookup simply never reads. Block pairs (v4.4) hide the pair's rows
-// from the counts the same way banFilterSql hides banned ones — bind order
-// follows SQL text order: ids, member bypasses, then the block viewer binds.
+// else counts run. Block pairs (v4.4) hide the pair's rows from the counts the
+// same way banFilterSql hides banned ones.
+//
+// Wave 29 (perf): the pre-v4.34 form filtered `l1.parent_id IS NULL OR
+// l1.parent_id IN (ids)`, so its level-1 arm joined EVERY level-1 reply in
+// the table and grouped them all (6.2-7.8 ms at 20k posts). The two arms now
+// run separately, each scoped to the page's ids through the parent_id
+// indexes, and UNION ALL back together. The split is on l1.parent_id IS NULL,
+// so the arms are disjoint and the counts for the page's ids are identical
+// (tests/wave29-feed-rollup.test.mjs diffs old vs new over a seeded volume).
+// Bind order: see replyCountsBinds.
 export function replyCountsSql(ids, showAll, viewer = null) {
   const placeholders = ids.map(() => "?").join(", ");
+  const replyClause = showAll ? "" :
+    " AND ((r.visibility = 'public' AND " + banFilterSql("r") + ") OR r.author_id = ?)";
+  const parentClause = showAll ? "" :
+    " AND ((l1.visibility = 'public' AND " + banFilterSql("l1") + ") OR l1.author_id = ?)";
   const blockClause = showAll ? "" :
     viewerBlockFilterSql(viewer, "r.author_id") + viewerBlockFilterSql(viewer, "l1.author_id");
-  return "SELECT COALESCE(l1.parent_id, r.parent_id) AS thread_root, COUNT(*) AS reply_count " +
+  const levelOne = "SELECT r.parent_id AS thread_root " +
     "FROM posts r JOIN posts l1 ON l1.id = r.parent_id " +
-    "WHERE (l1.parent_id IS NULL OR l1.parent_id IN (" + placeholders + ")) " +
-    (showAll
-      ? "GROUP BY thread_root"
-      : "AND ((r.visibility = 'public' AND " + banFilterSql("r") + ") OR r.author_id = ?) " +
-        "AND (l1.parent_id IS NULL OR (l1.visibility = 'public' AND " + banFilterSql("l1") + ") OR l1.author_id = ?) " +
-        blockClause +
-        "GROUP BY thread_root");
+    "WHERE r.parent_id IN (" + placeholders + ") AND l1.parent_id IS NULL" +
+    replyClause + blockClause;
+  const levelTwo = "SELECT l1.parent_id AS thread_root " +
+    "FROM posts l1 JOIN posts r ON r.parent_id = l1.id " +
+    "WHERE l1.parent_id IN (" + placeholders + ")" +
+    replyClause + parentClause + blockClause;
+  return "SELECT thread_root, COUNT(*) AS reply_count FROM (" +
+    levelOne + " UNION ALL " + levelTwo + ") GROUP BY thread_root";
+}
+
+// Binds for replyCountsSql, in SQL text order per arm: the ids, the member
+// bypass slot(s), then the block pair binds (r, then l1). The bypass binds -1
+// (nuke rule, see withReplyMetadata); blockBinds is [] or [viewerId, viewerId].
+export function replyCountsBinds(ids, showAll, blockBinds) {
+  if (showAll) return [...ids, ...ids];
+  return [
+    ...ids, -1, ...blockBinds, ...blockBinds,
+    ...ids, -1, -1, ...blockBinds, ...blockBinds,
+  ];
 }
 
 // Per root, at most the 3 most recent level-1 replies, ranked in SQL. Each row
@@ -145,7 +168,7 @@ export async function withReplyMetadata(db, viewer, posts) {
   const blockBinds = Boolean(viewerBlockFilterSql(viewer, "r.author_id"))
     ? [viewerId, viewerId] : [];
   const countsStatement = db.prepare(replyCountsSql(ids, showAll, viewer))
-    .bind(...(showAll ? ids : [...ids, -1, -1, ...blockBinds, ...blockBinds]));
+    .bind(...replyCountsBinds(ids, showAll, blockBinds));
   // Block binds appear TWICE in latestRepliesSql (sub-count's c.author_id
   // filter, then the level-1 r.author_id filter), first set right after the
   // sub-count's viewer bind per SQL text order.
