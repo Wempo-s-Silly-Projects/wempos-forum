@@ -69,6 +69,11 @@ export function saveDraft(storage, key, body, now = Date.now()) {
 }
 
 export function loadDraft(storage, key, now = Date.now()) {
+  return loadDraftEntry(storage, key, now)?.body ?? null;
+}
+
+// Wave 31: the body plus when it was saved, for the "draft restored" notice.
+export function loadDraftEntry(storage, key, now = Date.now()) {
   let raw = null;
   try {
     raw = storage ? storage.getItem(key) : null;
@@ -87,7 +92,7 @@ export function loadDraft(storage, key, now = Date.now()) {
     clearDraft(storage, key);
     return null;
   }
-  return draft.body;
+  return { body: draft.body, savedAt: draft.savedAt };
 }
 
 const browserStorage = () => {
@@ -100,14 +105,17 @@ const browserStorage = () => {
 
 // Wires one composer form: restores a saved draft into the empty textarea and
 // saves (debounced) on every input. The key rides on the form's dataset so the
-// submit handlers can clear it without recomputing it.
+// submit handlers can clear it without recomputing it. Returns { savedAt }
+// when a draft was restored into the box (wave 31 notice), otherwise null.
 export function attachDraftAutosave(form, textarea, key, storage = browserStorage()) {
-  if (!form || !textarea) return;
+  if (!form || !textarea) return null;
   form.dataset.draftKey = key;
-  const saved = loadDraft(storage, key);
+  const saved = loadDraftEntry(storage, key);
+  let restored = null;
   if (saved && !textarea.value) {
-    textarea.value = saved;
+    textarea.value = saved.body;
     textarea.dispatchEvent(new Event("input", { bubbles: true }));
+    restored = { savedAt: saved.savedAt };
   }
   let timer = null;
   textarea.addEventListener("input", () => {
@@ -116,6 +124,7 @@ export function attachDraftAutosave(form, textarea, key, storage = browserStorag
       if (form.dataset.draftKey) saveDraft(storage, key, textarea.value);
     }, DRAFT_SAVE_DELAY_MS);
   });
+  return restored;
 }
 
 // Clears the stored draft AND disarms the form's key, so a debounced save

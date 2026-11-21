@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "มีรูปภาพ {count} รูปพร้อมแนบ: {names} จะไม่มีการอัปโหลดจนกว่าคุณจะแนบและโพสต์",
   "composer.pendingAttach": "แนบ",
   "composer.pendingDismiss": "ยกเลิก",
-  "render.discardEditConfirm": "ทิ้งการแก้ไขโพสต์นี้หรือไม่?"
+  "render.discardEditConfirm": "ทิ้งการแก้ไขโพสต์นี้หรือไม่?",
+  "drafts.restored": "กู้คืนฉบับร่างที่ยังไม่ได้ส่งแล้ว (บันทึกเมื่อ {when})",
+  "drafts.discard": "ทิ้งฉบับร่าง",
+  "drafts.discardConfirm": "ทิ้งฉบับร่างนี้ไหม? ข้อความในช่องจะถูกล้าง"
 }

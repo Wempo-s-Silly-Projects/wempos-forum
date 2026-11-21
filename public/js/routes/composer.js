@@ -41,6 +41,7 @@ import { attachMentionPicker } from "../mention-picker.js";
 import { t, tn } from "../i18n.js";
 import { createComposePreview } from "../compose-preview.js";
 import { attachPasteAndDrop, confirmPendingFiles, dismissPendingFiles } from "../composer-paste.js";
+import { createDraftNotice } from "../draft-notice.js";
 
 let activeGifComposerForm = null;
 let activePollComposerForm = null;
@@ -77,7 +78,9 @@ function createComposer(name, label, buttonLabel, postID = null,
   }));
   // Draft autosave (wave 2026-11-21): per composer + thread, local-only.
   const bodyField = form.querySelector('textarea[name="body"]');
-  attachDraftAutosave(form, bodyField, draftKey(name, postID, board, state.currentUser?.id));
+  const restoredDraft = attachDraftAutosave(form, bodyField, draftKey(name, postID, board, state.currentUser?.id));
+  // Restored-draft notice + Discard draft (wave 31): only after a restore.
+  if (restoredDraft) form.append(createDraftNotice(document, { form, textarea: bodyField, savedAt: restoredDraft.savedAt }));
   // @mention autocomplete (wave 2026-11-21): suggestions from /api/search.
   attachMentionPicker(bodyField, document);
   // Live Preview toggle (wave 2026-11-21-3): client-only, opt-in per click.

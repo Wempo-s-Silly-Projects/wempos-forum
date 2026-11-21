@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "{count} छवियाँ जोड़ने के लिए तैयार: {names}. जब तक आप उन्हें जोड़कर पोस्ट नहीं करते, कुछ भी अपलोड नहीं होता।",
   "composer.pendingAttach": "जोड़ें",
   "composer.pendingDismiss": "हटाएँ",
-  "render.discardEditConfirm": "इस पोस्ट में किए गए बदलाव छोड़ दें?"
+  "render.discardEditConfirm": "इस पोस्ट में किए गए बदलाव छोड़ दें?",
+  "drafts.restored": "आपका न भेजा गया ड्राफ़्ट वापस लाया गया ({when} सहेजा गया)।",
+  "drafts.discard": "ड्राफ़्ट हटाएँ",
+  "drafts.discardConfirm": "यह ड्राफ़्ट हटाएँ? बॉक्स का टेक्स्ट मिटा दिया जाएगा।"
 }

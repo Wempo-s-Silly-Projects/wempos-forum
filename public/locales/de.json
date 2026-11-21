@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "{count} Bilder bereit zum Anhängen: {names}. Nichts wird hochgeladen, bis du sie anhängst und postest.",
   "composer.pendingAttach": "Anhängen",
   "composer.pendingDismiss": "Verwerfen",
-  "render.discardEditConfirm": "Deine Änderungen an diesem Beitrag verwerfen?"
+  "render.discardEditConfirm": "Deine Änderungen an diesem Beitrag verwerfen?",
+  "drafts.restored": "Dein nicht gesendeter Entwurf wurde wiederhergestellt (gespeichert {when}).",
+  "drafts.discard": "Entwurf verwerfen",
+  "drafts.discardConfirm": "Diesen Entwurf verwerfen? Der Text im Feld wird gelöscht."
 }

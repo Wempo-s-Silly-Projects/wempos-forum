@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "{count} images prêtes à joindre : {names}. Rien n’est envoyé tant que vous ne les joignez pas et ne publiez pas.",
   "composer.pendingAttach": "Joindre",
   "composer.pendingDismiss": "Ignorer",
-  "render.discardEditConfirm": "Abandonner vos modifications de ce message ?"
+  "render.discardEditConfirm": "Abandonner vos modifications de ce message ?",
+  "drafts.restored": "Ton brouillon non envoyé a été restauré (enregistré {when}).",
+  "drafts.discard": "Supprimer le brouillon",
+  "drafts.discardConfirm": "Supprimer ce brouillon ? Le texte de la zone sera effacé."
 }

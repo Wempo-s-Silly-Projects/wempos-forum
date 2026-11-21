@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "Изображений готово к прикреплению: {count} ({names}). Ничего не загрузится, пока вы не прикрепите их и не опубликуете.",
   "composer.pendingAttach": "Прикрепить",
   "composer.pendingDismiss": "Отклонить",
-  "render.discardEditConfirm": "Отменить изменения в этом посте?"
+  "render.discardEditConfirm": "Отменить изменения в этом посте?",
+  "drafts.restored": "Восстановлен неотправленный черновик (сохранён {when}).",
+  "drafts.discard": "Удалить черновик",
+  "drafts.discardConfirm": "Удалить этот черновик? Текст в поле будет очищен."
 }

@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "{count} ảnh sẵn sàng đính kèm: {names}. Không có gì được tải lên cho đến khi bạn đính kèm và đăng.",
   "composer.pendingAttach": "Đính kèm",
   "composer.pendingDismiss": "Bỏ qua",
-  "render.discardEditConfirm": "Hủy các thay đổi của bạn cho bài viết này?"
+  "render.discardEditConfirm": "Hủy các thay đổi của bạn cho bài viết này?",
+  "drafts.restored": "Đã khôi phục bản nháp chưa gửi (lưu {when}).",
+  "drafts.discard": "Bỏ bản nháp",
+  "drafts.discardConfirm": "Bỏ bản nháp này? Nội dung trong ô sẽ bị xóa."
 }

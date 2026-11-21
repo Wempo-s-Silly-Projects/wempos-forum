@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "{count} תמונות מוכנות לצירוף: {names}. שום דבר לא עולה עד שתצרף ותפרסם.",
   "composer.pendingAttach": "צירוף",
   "composer.pendingDismiss": "ביטול",
-  "render.discardEditConfirm": "לבטל את השינויים שלך בפוסט הזה?"
+  "render.discardEditConfirm": "לבטל את השינויים שלך בפוסט הזה?",
+  "drafts.restored": "הטיוטה שלא נשלחה שוחזרה (נשמרה {when}).",
+  "drafts.discard": "מחק טיוטה",
+  "drafts.discardConfirm": "למחוק את הטיוטה? הטקסט בתיבה יימחק."
 }

@@ -1205,6 +1205,22 @@ dialog h2 {
   display: none;
 }
 
+/* Wave 31: "Restored your unsent draft" line with its Discard draft button. */
+.draft-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.35rem 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.draft-notice[hidden] {
+  display: none;
+}
+
 .composer-drop-target {
   outline: 2px dashed var(--green);
   outline-offset: 4px;

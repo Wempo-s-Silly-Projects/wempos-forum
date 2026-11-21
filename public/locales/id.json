@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "{count} gambar siap dilampirkan: {names}. Tidak ada yang diunggah sampai kamu melampirkannya dan memposting.",
   "composer.pendingAttach": "Lampirkan",
   "composer.pendingDismiss": "Abaikan",
-  "render.discardEditConfirm": "Buang perubahanmu pada postingan ini?"
+  "render.discardEditConfirm": "Buang perubahanmu pada postingan ini?",
+  "drafts.restored": "Draf yang belum terkirim dipulihkan (disimpan {when}).",
+  "drafts.discard": "Buang draf",
+  "drafts.discardConfirm": "Buang draf ini? Teks di kotak akan dihapus."
 }

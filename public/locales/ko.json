@@ -876,5 +876,8 @@
   "composer.pendingImages.other": "첨부할 이미지 {count}개 준비됨: {names}. 첨부하고 게시하기 전에는 아무것도 업로드되지 않습니다.",
   "composer.pendingAttach": "첨부",
   "composer.pendingDismiss": "닫기",
-  "render.discardEditConfirm": "이 게시물의 변경 사항을 버릴까요?"
+  "render.discardEditConfirm": "이 게시물의 변경 사항을 버릴까요?",
+  "drafts.restored": "보내지 않은 임시 글을 복원했어요 ({when} 저장됨).",
+  "drafts.discard": "임시 글 삭제",
+  "drafts.discardConfirm": "이 임시 글을 삭제할까요? 입력란의 텍스트가 지워집니다."
 }
