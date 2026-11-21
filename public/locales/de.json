@@ -887,5 +887,7 @@
   "drafts.discard": "Entwurf verwerfen",
   "drafts.discardConfirm": "Diesen Entwurf verwerfen? Der Text im Feld wird gelöscht.",
   "longPost.showMore": "Mehr anzeigen",
-  "longPost.showLess": "Weniger anzeigen"
+  "longPost.showLess": "Weniger anzeigen",
+  "feed.endOfFeed": "Du hast das Ende dieses Feeds erreicht.",
+  "feed.backToTop": "Nach oben"
 }

@@ -887,5 +887,7 @@
   "drafts.discard": "Bỏ bản nháp",
   "drafts.discardConfirm": "Bỏ bản nháp này? Nội dung trong ô sẽ bị xóa.",
   "longPost.showMore": "Xem thêm",
-  "longPost.showLess": "Thu gọn"
+  "longPost.showLess": "Thu gọn",
+  "feed.endOfFeed": "Bạn đã đến cuối bảng tin này.",
+  "feed.backToTop": "Lên đầu trang"
 }

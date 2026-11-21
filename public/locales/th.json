@@ -887,5 +887,7 @@
   "drafts.discard": "ทิ้งฉบับร่าง",
   "drafts.discardConfirm": "ทิ้งฉบับร่างนี้ไหม? ข้อความในช่องจะถูกล้าง",
   "longPost.showMore": "แสดงเพิ่มเติม",
-  "longPost.showLess": "แสดงน้อยลง"
+  "longPost.showLess": "แสดงน้อยลง",
+  "feed.endOfFeed": "คุณมาถึงท้ายฟีดนี้แล้ว",
+  "feed.backToTop": "กลับขึ้นด้านบน"
 }

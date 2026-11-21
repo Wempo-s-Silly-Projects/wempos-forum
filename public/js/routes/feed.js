@@ -52,6 +52,7 @@ import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
 import { renderNewcomerCards } from "../newcomer.js";
 import { createFeedViews, feedViewEmptyText, feedViewQuery } from "../feed-views.js";
 import { numberSuggestionCards } from "../suggestion-rank.js";
+import { createFeedEnd, reachedFeedEnd } from "../feed-end.js";
 
 // Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
 // its composer tags root posts with board=suggestions (form dataset flag read
@@ -469,6 +470,8 @@ async function loadMorePosts(button) {
     board === SUGGESTIONS_BOARD ? suggestionsEmptyText() : undefined);
   if (board === SUGGESTIONS_BOARD) numberSuggestionCards(document, main);
   button.remove();
+  // Wave 35: the final page closes the list with End of feed + Back to top.
+  if (reachedFeedEnd(older)) main.append(createFeedEnd(document, main));
   if (older.posts.length !== 20 || !older.nextBefore) return;
   const next = element("button", "button button-secondary",
     board === SUGGESTIONS_BOARD ? t("feed.loadOlderSuggestions") : t("feed.loadOlderPosts"));

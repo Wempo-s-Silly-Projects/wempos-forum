@@ -887,5 +887,7 @@
   "drafts.discard": "丢弃草稿",
   "drafts.discardConfirm": "要丢弃这份草稿吗？输入框中的文字将被清空。",
   "longPost.showMore": "显示更多",
-  "longPost.showLess": "收起"
+  "longPost.showLess": "收起",
+  "feed.endOfFeed": "你已经看到这个信息流的末尾了。",
+  "feed.backToTop": "回到顶部"
 }

@@ -887,5 +887,7 @@
   "drafts.discard": "임시 글 삭제",
   "drafts.discardConfirm": "이 임시 글을 삭제할까요? 입력란의 텍스트가 지워집니다.",
   "longPost.showMore": "더 보기",
-  "longPost.showLess": "접기"
+  "longPost.showLess": "접기",
+  "feed.endOfFeed": "이 피드의 끝에 도달했습니다.",
+  "feed.backToTop": "맨 위로"
 }

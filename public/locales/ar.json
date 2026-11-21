@@ -887,5 +887,7 @@
   "drafts.discard": "تجاهل المسودة",
   "drafts.discardConfirm": "هل تريد تجاهل هذه المسودة؟ سيتم مسح النص في المربع.",
   "longPost.showMore": "عرض المزيد",
-  "longPost.showLess": "عرض أقل"
+  "longPost.showLess": "عرض أقل",
+  "feed.endOfFeed": "لقد وصلت إلى نهاية هذه الصفحة.",
+  "feed.backToTop": "العودة إلى الأعلى"
 }

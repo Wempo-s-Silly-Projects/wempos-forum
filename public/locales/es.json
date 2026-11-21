@@ -887,5 +887,7 @@
   "drafts.discard": "Descartar borrador",
   "drafts.discardConfirm": "¿Descartar este borrador? Se borrará el texto del cuadro.",
   "longPost.showMore": "Mostrar más",
-  "longPost.showLess": "Mostrar menos"
+  "longPost.showLess": "Mostrar menos",
+  "feed.endOfFeed": "Has llegado al final de este feed.",
+  "feed.backToTop": "Volver arriba"
 }

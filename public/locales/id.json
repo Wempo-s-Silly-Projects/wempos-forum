@@ -887,5 +887,7 @@
   "drafts.discard": "Buang draf",
   "drafts.discardConfirm": "Buang draf ini? Teks di kotak akan dihapus.",
   "longPost.showMore": "Tampilkan lebih banyak",
-  "longPost.showLess": "Tampilkan lebih sedikit"
+  "longPost.showLess": "Tampilkan lebih sedikit",
+  "feed.endOfFeed": "Kamu sudah sampai di akhir umpan ini.",
+  "feed.backToTop": "Kembali ke atas"
 }

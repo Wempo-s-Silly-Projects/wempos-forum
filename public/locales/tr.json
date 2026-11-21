@@ -887,5 +887,7 @@
   "drafts.discard": "Taslağı sil",
   "drafts.discardConfirm": "Bu taslak silinsin mi? Kutudaki metin temizlenecek.",
   "longPost.showMore": "Daha fazla göster",
-  "longPost.showLess": "Daha az göster"
+  "longPost.showLess": "Daha az göster",
+  "feed.endOfFeed": "Bu akışın sonuna geldin.",
+  "feed.backToTop": "Başa dön"
 }

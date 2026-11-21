@@ -887,5 +887,7 @@
   "drafts.discard": "ड्राफ़्ट हटाएँ",
   "drafts.discardConfirm": "यह ड्राफ़्ट हटाएँ? बॉक्स का टेक्स्ट मिटा दिया जाएगा।",
   "longPost.showMore": "और दिखाएँ",
-  "longPost.showLess": "कम दिखाएँ"
+  "longPost.showLess": "कम दिखाएँ",
+  "feed.endOfFeed": "आप इस फ़ीड के अंत तक पहुँच गए हैं।",
+  "feed.backToTop": "ऊपर जाएँ"
 }

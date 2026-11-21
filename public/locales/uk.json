@@ -887,5 +887,7 @@
   "drafts.discard": "Видалити чернетку",
   "drafts.discardConfirm": "Видалити цю чернетку? Текст у полі буде очищено.",
   "longPost.showMore": "Показати більше",
-  "longPost.showLess": "Згорнути"
+  "longPost.showLess": "Згорнути",
+  "feed.endOfFeed": "Ви дійшли до кінця цієї стрічки.",
+  "feed.backToTop": "Догори"
 }
