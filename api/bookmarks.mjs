@@ -30,6 +30,50 @@ import { viewerBlockFilterSql } from "./core/blocks.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 import { attachmentRowsForView } from "./attachments.mjs";
 import { banFilterSql } from "./posts-feed.mjs";
+import { BOARD_VALUES } from "./boards.mjs";
+
+const SAVED_PAGE_SIZE = 20;
+// One "remove all from this board" run removes at most this many rows; the
+// response's count lets the client say how many went.
+export const SAVED_BOARD_REMOVE_CAP = 500;
+
+// A visible ancestor (wave 36): a saved reply shows only while its parent —
+// and, for a level-2 reply, the root — is public with an unbanned author.
+// Replies sit at most two levels deep, so two nested probes cover the chain.
+const visibleAncestorSql = (alias) =>
+  "(" + alias + ".parent_id IS NULL OR EXISTS (SELECT 1 FROM posts pa WHERE pa.id = " + alias +
+  ".parent_id AND pa.visibility = 'public' AND " + banFilterSql("pa") + " AND " +
+  "(pa.parent_id IS NULL OR EXISTS (SELECT 1 FROM posts pg WHERE pg.id = pa.parent_id " +
+  "AND pg.visibility = 'public' AND " + banFilterSql("pg") + "))))";
+
+// The saved rows a member may see, shared by the list and the board removal
+// so "remove all from this board" removes exactly what the list showed.
+// Returns the SQL tail (starts with " AND") and its bind values.
+function visibleSavedFilter(user, board) {
+  let sql = " AND p.visibility = 'public' AND " + banFilterSql("p") + " AND " + visibleAncestorSql("p");
+  const values = [];
+  const blockFilter = viewerBlockFilterSql(user, "p.author_id");
+  if (blockFilter) {
+    sql += blockFilter;
+    values.push(user.id, user.id);
+  }
+  if (board) {
+    sql += " AND p.board = ?";
+    values.push(board);
+  }
+  return { sql: sql + " ", values };
+}
+
+// ?board= is optional on the list and required on the removal; when present
+// it must be one of the whitelisted board slugs.
+function boardParam(url, required) {
+  const raw = url.searchParams.get("board");
+  if (raw === null && !required) return null;
+  if (raw === null || !BOARD_VALUES.includes(raw)) {
+    throw new HttpError(400, "That board is not available.");
+  }
+  return raw;
+}
 
 // The detail/feed flag read: one query for the (member, post) pair.
 export const BOOKMARK_EXISTS_SQL =
@@ -75,26 +119,22 @@ async function handleBookmarkListRoute(request, env, url, path, method) {
       if (!cursorMatch) throw new HttpError(400, "That page cursor is invalid.");
       before = { seconds: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
     }
-    let sql = POST_SELECT + "JOIN bookmarks b ON b.post_id = p.id " +
-      "WHERE b.user_id = ? AND p.visibility = 'public' AND " + banFilterSql("p") + " ";
-    const values = [user.id, user.id];
+    const board = boardParam(url, false);
     // Blocks (v4.4): a saved post whose author is now block-paired with the
-    // viewer drops from the list (both directions) — a private list is still
-    // a place the pair's rows shouldn't surface. Staff keep their saved rows.
-    const blockFilter = viewerBlockFilterSql(user, "p.author_id");
-    if (blockFilter) {
-      sql += blockFilter;
-      values.push(user.id, user.id);
-    }
+    // viewer drops from the list (both directions). Staff keep their saved
+    // rows. Board filter + visible ancestors: wave 36 (visibleSavedFilter).
+    const filter = visibleSavedFilter(user, board);
+    let sql = POST_SELECT + "JOIN bookmarks b ON b.post_id = p.id WHERE b.user_id = ?" + filter.sql;
+    const values = [user.id, user.id, ...filter.values];
     if (before) {
       sql += "AND (b.created_at < ? OR (b.created_at = ? AND p.id < ?)) ";
       values.push(before.seconds, before.seconds, before.id);
     }
-    sql += "ORDER BY b.created_at DESC, p.id DESC LIMIT 21";
+    sql += "ORDER BY b.created_at DESC, p.id DESC LIMIT " + (SAVED_PAGE_SIZE + 1);
     const result = await db.prepare(sql).bind(...values).all();
     const rows = result.results || [];
-    const hasMore = rows.length > 20;
-    const shown = rows.slice(0, 20);
+    const hasMore = rows.length > SAVED_PAGE_SIZE;
+    const shown = rows.slice(0, SAVED_PAGE_SIZE);
     let nextBefore = null;
     if (hasMore && shown.length) {
       const boundaryId = Number(shown[shown.length - 1].id);
@@ -115,7 +155,27 @@ async function handleBookmarkListRoute(request, env, url, path, method) {
       nextBefore,
     });
   }
+  if (path === "/api/me/bookmarks" && method === "DELETE") return removeSavedBoard(request, env, url);
+  if (path === "/api/me/bookmarks") throw new HttpError(405, "That method is not supported.");
   return null;
+}
+
+// DELETE /api/me/bookmarks?board=<slug> (wave 36): the member's OWN saved
+// rows in one board — only the ones the list shows, so hidden/banned/blocked
+// rows stay saved and come back when that state lifts. Same member gates as
+// the per-post toggle (session + Origin + CSRF, not banned, write limiter).
+async function removeSavedBoard(request, env, url) {
+  const session = await requireUser(request, env);
+  await assertNotBanned(env, session.user.id);
+  await rateLimit(request, env, "write", String(session.user.id));
+  const board = boardParam(url, true);
+  const filter = visibleSavedFilter(session.user, board);
+  const result = await env.FORUM_DB.prepare(
+    "DELETE FROM bookmarks WHERE user_id = ? AND post_id IN (" +
+      "SELECT b.post_id FROM bookmarks b JOIN posts p ON p.id = b.post_id WHERE b.user_id = ?" +
+      filter.sql + "LIMIT " + SAVED_BOARD_REMOVE_CAP + ")",
+  ).bind(session.user.id, session.user.id, ...filter.values).run();
+  return json({ ok: true, removed: Number(result.meta?.changes || 0) });
 }
 
 async function handleBookmarkToggleRoute(request, env, url, path, method) {
