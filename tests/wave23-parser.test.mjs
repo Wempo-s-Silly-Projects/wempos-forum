@@ -28,11 +28,11 @@ import {
   BODY_CAP, PATHOLOGICAL_UNITS, checkConservation, generateBody, inlineRunsOf, makeRng,
   pathologicalBody, spoilerSecrets,
 } from "./helpers/markdown-fuzz.mjs";
+import { GROWTH_FACTOR, LINEAR_GROWTH_CEILING, TIMING_TRIES, bestOf, growthRatio } from "./helpers/timing.mjs";
 
 const SEED = 23;
 const BODY_COUNT = 1500;
 const TIME_BUDGET_MS = 5;
-const TIMING_TRIES = 5;
 
 const doc = makeFakeDocument();
 const rng = makeRng(SEED);
@@ -67,21 +67,27 @@ test("maskSpoilers never shows a character the post page renders inside a spoile
   }
 });
 
-test("parse and mask stay under 5 ms on every capped body", () => {
-  const bestOf = (work) => {
-    let best = Infinity;
-    for (let i = 0; i < TIMING_TRIES; i += 1) {
-      const started = performance.now();
-      work();
-      best = Math.min(best, performance.now() - started);
+test("parse and mask grow linearly on every pathological unit", () => {
+  const parse = (body) => parseInline(doc, body);
+  for (const unit of PATHOLOGICAL_UNITS) {
+    const small = pathologicalBody(unit, Math.floor(BODY_CAP / GROWTH_FACTOR));
+    const large = pathologicalBody(unit);
+    for (const [name, fn] of [["parseInline", parse], ["maskSpoilers", maskSpoilers]]) {
+      const { ratio } = growthRatio(fn, small, large);
+      assert.ok(ratio < LINEAR_GROWTH_CEILING, `${name} on ${JSON.stringify(unit)}: 4x input cost ${ratio.toFixed(1)}x`);
     }
-    return best;
-  };
+  }
+});
+
+test("parse and mask stay under 5 ms on every capped body", () => {
+  // Best of N, stopping once a run is under budget: the budget still has to
+  // be met by a real run, but one preempted run can no longer fail the pin.
+  const best = (work) => bestOf(work, TIMING_TRIES, TIME_BUDGET_MS);
   const capped = bodies.filter((body) => body.length === BODY_CAP);
   for (const body of capped.slice(0, 50)) parseInline(doc, body); // warm the JIT
   let worst = 0;
   for (const body of capped) {
-    worst = Math.max(worst, bestOf(() => parseInline(doc, body)), bestOf(() => maskSpoilers(body)));
+    worst = Math.max(worst, best(() => parseInline(doc, body)), best(() => maskSpoilers(body)));
   }
-  assert.ok(worst < TIME_BUDGET_MS, `worst capped body took ${worst.toFixed(2)} ms`);
+  assert.ok(worst < TIME_BUDGET_MS, `worst capped body took ${worst.toFixed(2)} ms (best of ${TIMING_TRIES})`);
 });

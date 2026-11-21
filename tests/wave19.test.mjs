@@ -22,21 +22,28 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { maskSpoilers, maskedExcerpt } from "../public/js/markdown.js";
+import { GROWTH_FACTOR, LINEAR_GROWTH_CEILING, TIMING_TRIES, bestOf, growthRatio } from "./helpers/timing.mjs";
 
 const BODY_CAP = 4750; // MAX_COMPOSER_BODY_CHARS (api/posts-write.mjs)
 // Linear work on a capped body is well under a millisecond or two; the
 // quadratic scan this pins against took ~85 ms for these four bodies.
 const MASK_BUDGET_MS = 30;
+const UNITS = ["*", "`", "[", "*`[~", "[](", "~"];
 
-const fill = (unit) => ("||a|| " + unit.repeat(BODY_CAP)).slice(0, BODY_CAP);
+const fill = (unit, length = BODY_CAP) => ("||a|| " + unit.repeat(length)).slice(0, length);
 
 test("maskSpoilers stays linear on marker-heavy capped bodies", () => {
-  const bodies = ["*", "`", "[", "*`[~", "[](", "~"].map(fill);
-  maskSpoilers(bodies[0]); // warm the JIT
-  const started = performance.now();
-  for (const body of bodies) maskSpoilers(body);
-  const elapsed = performance.now() - started;
-  assert.ok(elapsed < MASK_BUDGET_MS, `masking took ${elapsed.toFixed(1)} ms`);
+  // Shape: a 4x longer body may cost ~4x, never ~16x (load-independent).
+  for (const unit of UNITS) {
+    const { ratio } = growthRatio(maskSpoilers, fill(unit, Math.floor(BODY_CAP / GROWTH_FACTOR)), fill(unit));
+    assert.ok(ratio < LINEAR_GROWTH_CEILING, `"${unit}" body: 4x input cost ${ratio.toFixed(1)}x`);
+  }
+  // Last guard: the fastest of N full passes still fits the original budget.
+  const bodies = UNITS.map((unit) => fill(unit));
+  const maskAll = () => { for (const body of bodies) maskSpoilers(body); };
+  maskAll(); // warm the JIT
+  const elapsed = bestOf(maskAll, TIMING_TRIES, MASK_BUDGET_MS);
+  assert.ok(elapsed < MASK_BUDGET_MS, `masking took ${elapsed.toFixed(1)} ms (best of ${TIMING_TRIES})`);
 });
 
 test("the memoized scan masks exactly what it did before", () => {

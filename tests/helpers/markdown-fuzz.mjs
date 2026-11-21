@@ -105,7 +105,7 @@ export const PATHOLOGICAL_UNITS = [
   "*", "**", "`", "[", "~", "~~", "|", "||", "@a ", "[](", "[a](", "*`[~", "**a", "||a", "![",
   "_", "@", " @", "a@", "]", ")", "(", "[a]", "\u{1F600}", "*a", "`a", "||\n", "- ||",
 ];
-export const pathologicalBody = (unit) => ("||s|| " + unit.repeat(BODY_CAP)).slice(0, BODY_CAP);
+export const pathologicalBody = (unit, length = BODY_CAP) => ("||s|| " + unit.repeat(length)).slice(0, length);
 
 const WRAP = { CODE: "`", STRONG: "**", DEL: "~~", EM: "*", SPAN: "||" };
 const SAFE_LINK = /^(https?:\/\/|\/(?!\/))/i;
