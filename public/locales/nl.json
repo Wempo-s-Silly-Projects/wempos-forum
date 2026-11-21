@@ -857,5 +857,10 @@
   "format.quote": "Citaat (aan het begin van de regel)",
   "format.heading": "Kop (aan het begin van de regel)",
   "format.codeBlock": "Codeblok (een regel ervoor en erna)",
-  "format.note": "HTML en afbeeldingen blijven platte tekst."
+  "format.note": "HTML en afbeeldingen blijven platte tekst.",
+  "dm.muteChat": "Chat dempen",
+  "dm.mutedLabel": "Gedempt",
+  "dm.muteFull": "Je kunt tot {count} chats dempen",
+  "dm.renameGroup": "Hernoemen",
+  "dm.groupNameLabel": "Groepsnaam"
 }

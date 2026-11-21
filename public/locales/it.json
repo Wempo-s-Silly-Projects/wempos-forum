@@ -857,5 +857,10 @@
   "format.quote": "Citazione (a inizio riga)",
   "format.heading": "Titolo (a inizio riga)",
   "format.codeBlock": "Blocco di codice (una riga prima e una dopo)",
-  "format.note": "HTML e immagini restano testo semplice."
+  "format.note": "HTML e immagini restano testo semplice.",
+  "dm.muteChat": "Silenzia chat",
+  "dm.mutedLabel": "Silenziata",
+  "dm.muteFull": "Puoi silenziare fino a {count} chat",
+  "dm.renameGroup": "Rinomina",
+  "dm.groupNameLabel": "Nome del gruppo"
 }

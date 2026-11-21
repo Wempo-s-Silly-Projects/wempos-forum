@@ -857,5 +857,10 @@
   "format.quote": "उद्धरण (पंक्ति की शुरुआत में)",
   "format.heading": "शीर्षक (पंक्ति की शुरुआत में)",
   "format.codeBlock": "कोड ब्लॉक (पहले और बाद में एक पंक्ति)",
-  "format.note": "HTML और चित्र सादे टेक्स्ट ही रहते हैं।"
+  "format.note": "HTML और चित्र सादे टेक्स्ट ही रहते हैं।",
+  "dm.muteChat": "चैट म्यूट करें",
+  "dm.mutedLabel": "म्यूट",
+  "dm.muteFull": "आप {count} चैट तक म्यूट कर सकते हैं",
+  "dm.renameGroup": "नाम बदलें",
+  "dm.groupNameLabel": "समूह का नाम"
 }

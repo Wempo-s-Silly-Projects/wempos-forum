@@ -857,5 +857,10 @@
   "format.quote": "Quote (at line start)",
   "format.heading": "Heading (at line start)",
   "format.codeBlock": "Code block (a line before and after)",
-  "format.note": "HTML and images stay as plain text."
+  "format.note": "HTML and images stay as plain text.",
+  "dm.muteChat": "Mute chat",
+  "dm.mutedLabel": "Muted",
+  "dm.muteFull": "You can mute up to {count} chats",
+  "dm.renameGroup": "Rename",
+  "dm.groupNameLabel": "Group name"
 }

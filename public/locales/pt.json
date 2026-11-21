@@ -857,5 +857,10 @@
   "format.quote": "Citação (no início da linha)",
   "format.heading": "Título (no início da linha)",
   "format.codeBlock": "Bloco de código (uma linha antes e outra depois)",
-  "format.note": "HTML e imagens continuam como texto simples."
+  "format.note": "HTML e imagens continuam como texto simples.",
+  "dm.muteChat": "Silenciar chat",
+  "dm.mutedLabel": "Silenciado",
+  "dm.muteFull": "Você pode silenciar até {count} chats",
+  "dm.renameGroup": "Renomear",
+  "dm.groupNameLabel": "Nome do grupo"
 }

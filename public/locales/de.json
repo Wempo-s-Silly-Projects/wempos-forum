@@ -857,5 +857,10 @@
   "format.quote": "Zitat (am Zeilenanfang)",
   "format.heading": "Überschrift (am Zeilenanfang)",
   "format.codeBlock": "Codeblock (je eine Zeile davor und danach)",
-  "format.note": "HTML und Bilder bleiben reiner Text."
+  "format.note": "HTML und Bilder bleiben reiner Text.",
+  "dm.muteChat": "Chat stummschalten",
+  "dm.mutedLabel": "Stumm",
+  "dm.muteFull": "Du kannst bis zu {count} Chats stummschalten",
+  "dm.renameGroup": "Umbenennen",
+  "dm.groupNameLabel": "Gruppenname"
 }

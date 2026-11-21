@@ -857,5 +857,10 @@
   "format.quote": "คำพูดอ้างอิง (ต้นบรรทัด)",
   "format.heading": "หัวเรื่อง (ต้นบรรทัด)",
   "format.codeBlock": "บล็อกโค้ด (หนึ่งบรรทัดก่อนและหลัง)",
-  "format.note": "HTML และรูปภาพจะแสดงเป็นข้อความธรรมดา"
+  "format.note": "HTML และรูปภาพจะแสดงเป็นข้อความธรรมดา",
+  "dm.muteChat": "ปิดเสียงแชท",
+  "dm.mutedLabel": "ปิดเสียงแล้ว",
+  "dm.muteFull": "คุณปิดเสียงแชทได้สูงสุด {count} รายการ",
+  "dm.renameGroup": "เปลี่ยนชื่อ",
+  "dm.groupNameLabel": "ชื่อกลุ่ม"
 }
