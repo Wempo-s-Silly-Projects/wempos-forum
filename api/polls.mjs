@@ -100,6 +100,16 @@ async function pollForWrite(request, env, path) {
   return { session, post, poll };
 }
 
+// Wave 5.16 S1: vote writes carry this guard (binds the poll id once) so the
+// open/closed check and the write are one statement, not a read-then-write.
+const POLL_OPEN_SQL = "EXISTS (SELECT 1 FROM polls WHERE id = ? AND closed_at IS NULL)";
+
+async function assertPollStillOpen(db, pollId) {
+  const open = await db.prepare("SELECT 1 AS open FROM polls WHERE id = ? AND closed_at IS NULL LIMIT 1")
+    .bind(Number(pollId)).first();
+  if (!open) throw new HttpError(409, "This poll is closed.");
+}
+
 const isStaffRole = (user) => user.role === "owner" || user.role === "admin";
 
 // F1: close or reopen voting — the thread root's author or staff (public role).
@@ -123,8 +133,12 @@ async function handlePollUnvoteRoute(request, env, url, path, method) {
   if (poll.closed_at !== null && poll.closed_at !== undefined) {
     throw new HttpError(409, "This poll is closed.");
   }
-  await env.FORUM_DB.prepare("DELETE FROM poll_votes WHERE poll_id = ? AND user_id = ?")
-    .bind(Number(poll.id), session.user.id).run();
+  // Wave 5.16 S1: the delete re-checks that voting is open, so a close that
+  // lands after the read above still wins; zero rows on a now-closed poll = 409.
+  const result = await env.FORUM_DB.prepare(
+    "DELETE FROM poll_votes WHERE poll_id = ? AND user_id = ? AND " + POLL_OPEN_SQL,
+  ).bind(Number(poll.id), session.user.id, Number(poll.id)).run();
+  if (!(Number(result.meta?.changes) > 0)) await assertPollStillOpen(env.FORUM_DB, poll.id);
   return json({ ok: true });
 }
 
@@ -219,10 +233,13 @@ async function handlePollVoteRoute(request, env, url, path, method) {
     ).bind(optionId, Number(poll.id)).first();
     if (!option) throw new HttpError(400, "Choose one of the poll options.");
     // CHANGEABLE vote: the upsert moves the member's vote until the poll closes.
-    await db.prepare(
-      "INSERT INTO poll_votes (poll_id, user_id, option_id, voted_at) VALUES (?, ?, ?, ?) " +
+    // Wave 5.16 S1: the write re-checks that voting is open (a close racing
+    // this request wins); no row written means the poll closed meanwhile.
+    const result = await db.prepare(
+      "INSERT INTO poll_votes (poll_id, user_id, option_id, voted_at) SELECT ?, ?, ?, ? WHERE " + POLL_OPEN_SQL + " " +
         "ON CONFLICT(poll_id, user_id) DO UPDATE SET option_id = excluded.option_id, voted_at = excluded.voted_at",
-    ).bind(Number(poll.id), session.user.id, optionId, nowSeconds()).run();
+    ).bind(Number(poll.id), session.user.id, optionId, nowSeconds(), Number(poll.id)).run();
+    if (!(Number(result.meta?.changes) > 0)) throw new HttpError(409, "This poll is closed.");
     return json({ ok: true });
   }
   return null;
