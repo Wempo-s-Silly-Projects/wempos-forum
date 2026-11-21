@@ -186,6 +186,24 @@ async function handleNotificationsRoute(request, env, url, path, method) {
     return json({ ok: true });
   }
 
+  // v4.21: a grouped thread row on the page marks every label-less reply
+  // notification for that thread read at once. Own rows only; labelled rows
+  // (mentions, appeal outcomes) are their own items and stay as they are. The
+  // inner LIMIT bounds the write (the per-member cap is 50 rows anyway).
+  const readThread = path.match(/^\/api\/me\/notifications\/read-thread\/([0-9]+)$/);
+  if (readThread) {
+    if (method !== "POST") throw new HttpError(405, "That method is not supported.");
+    const postId = Number(readThread[1]);
+    if (!Number.isSafeInteger(postId) || postId < 1) return null;
+    const user = await requireUser(request, env);
+    await db.prepare(
+      "UPDATE notifications SET read_at = ? WHERE id IN (" +
+        "SELECT id FROM notifications WHERE user_id = ? AND " +
+        "target_post_id = ? AND read_at IS NULL AND label IS NULL LIMIT " + NOTIFICATIONS_PER_USER + ")",
+    ).bind(nowSeconds(), user.user.id, postId).run();
+    return json({ ok: true });
+  }
+
   return null;
 }
 

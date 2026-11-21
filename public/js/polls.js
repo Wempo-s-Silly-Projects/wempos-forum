@@ -23,7 +23,7 @@
 // changeable). Widths are CSSOM width assignments (never inline style
 // attributes in markup — CSP-compatible), and every color reads the theme
 // tokens via classes, so the block renders correctly in light and dark.
-import { t } from "./i18n.js";
+import { t, tn } from "./i18n.js";
 import { createIcon } from "./icons.js";
 
 export function renderPollBlock(poll, document, currentUser = null) {
@@ -63,12 +63,30 @@ export function renderPollBlock(poll, document, currentUser = null) {
     const tally = document.createElement("span");
     tally.className = "poll-count";
     tally.textContent = String(count);
-    row.append(label, bar, tally);
+    // v4.21: the share beside the raw count, and a "Your vote" mark on the
+    // member's own option so a changed vote is obvious at a glance.
+    const share = document.createElement("span");
+    share.className = "poll-percent";
+    share.textContent = percent + "%";
+    row.append(label, bar, tally, share);
+    if (currentUser && poll.viewerOption === option.id) {
+      row.className = "poll-row poll-row-yours";
+      const yours = document.createElement("span");
+      yours.className = "poll-yours";
+      yours.textContent = t("polls.yourVote");
+      row.append(yours);
+    }
     block.append(row);
   }
   const totalRow = document.createElement("p");
   totalRow.className = "poll-total";
-  totalRow.textContent = total === 1 ? "1 vote" : total + " votes";
+  totalRow.textContent = tn("polls.total", total);
   block.append(totalRow);
+  if (currentUser && poll.viewerOption !== null && poll.viewerOption !== undefined) {
+    const hint = document.createElement("p");
+    hint.className = "poll-hint muted";
+    hint.textContent = t("polls.changeHint");
+    block.append(hint);
+  }
   return block;
 }

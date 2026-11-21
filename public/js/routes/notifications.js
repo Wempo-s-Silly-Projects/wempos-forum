@@ -56,6 +56,15 @@ async function openNotification(button) {
   }
 }
 
+// v4.21: a grouped thread row — mark that thread's reply notifications read
+// in one call (own rows only, server-side), then open the thread.
+async function openNotificationThread(button) {
+  const postId = Number(button.dataset.postId);
+  if (!Number.isSafeInteger(postId) || postId < 1) return;
+  await api("/api/me/notifications/read-thread/" + postId, { method: "POST" });
+  state.router.navigate("/posts/" + postId);
+}
+
 async function markAllNotificationsRead() {
   await api("/api/me/notifications/read-all", { method: "POST" });
   // The rerender refetches the list (and the session's unread count); the
@@ -67,6 +76,7 @@ async function markAllNotificationsRead() {
 
 export const ACTIONS = {
   "open-notification": (button) => openNotification(button),
+  "open-notification-thread": (button) => openNotificationThread(button),
   "mark-notifications-read": () => markAllNotificationsRead(),
 };
 

@@ -1752,6 +1752,41 @@ dialog h2 {
   border-color: var(--green);
   color: var(--green-dark);
 }
+/* v4.21 poll clarity: the share beside each count, the member's own option
+   marked, and a quiet "you can change it" hint. Theme tokens only. */
+.post-poll .poll-percent {
+  flex: 0 0 3.2em;
+  text-align: end;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.post-poll .poll-yours {
+  flex: 0 0 auto;
+  padding: 0 0.4rem;
+  border: 1px solid var(--green);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--soft-green);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.post-poll .poll-row-yours .poll-label {
+  font-weight: 700;
+}
+.post-poll .poll-hint {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+}
+
+/* v4.21 search highlighting: the searched words in results. */
+mark.search-hit {
+  padding: 0 0.1em;
+  border-radius: 0.2em;
+  color: var(--ink);
+  background: var(--soft-green);
+  box-shadow: inset 0 -2px 0 var(--green);
+  font-weight: 700;
+}
 
 /* Pinning (C5): the pinned chip sits in the card header, token-styled. */
 .post-pinned {
