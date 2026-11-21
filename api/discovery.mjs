@@ -45,8 +45,11 @@ const SITEMAP_URL_CAP = 50000;
 const MARKDOWN_FEED_LIMIT = 30;
 const MARKDOWN_REPLY_LIMIT = 500;
 const TITLE_MAX = 100;
-const DOC_CACHE = "public, max-age=300";
-const MCP_TOOL_NAMES = ["search_posts", "recent_posts", "list_board", "get_post"];
+// Edge-cacheable: DB-backed renderings (sitemap, markdown) briefly, the
+// static documents longer, so repeat hits are served without a D1 read.
+const FEED_CACHE = "public, max-age=60, s-maxage=300";
+const DOC_CACHE = "public, max-age=300, s-maxage=3600";
+const MCP_TOOL_NAMES = ["search_posts", "recent_posts", "list_board", "get_post", "lobby_read"];
 
 export const DISCOVERY_LINK_HEADER =
   '</.well-known/api-catalog>; rel="api-catalog", ' +
@@ -114,7 +117,7 @@ const MARKDOWN_TYPE = "text/markdown; charset=utf-8";
 function markdownReply(request, body, status = 200, path = "") {
   const extra = { Vary: "Accept" };
   if (path === "/") extra.Link = DISCOVERY_LINK_HEADER;
-  return respond(request, body, MARKDOWN_TYPE, { status, cache: "no-store", extra });
+  return respond(request, body, MARKDOWN_TYPE, { status, cache: status === 200 ? FEED_CACHE : "no-store", extra });
 }
 
 function noDatabase(request) {
@@ -167,6 +170,19 @@ export function withDiscoveryHeaders(response, path) {
 
 function mdInline(text) {
   return String(text).replace(/[\\`*_[\]<>|#]/g, "\\$&");
+}
+
+// A user body line that would open markdown structure at column 0 (heading,
+// blockquote, HTML block, code fence, thematic break / setext underline).
+const STRUCTURAL_LINE = /^ {0,3}(?:[#><]|```|~~~|[-*_=][-*_=\s]*$)/;
+
+// Escapes the leading marker of structural lines with a backslash, so a post
+// body can never forge a "## Replies" section, a separator, or an attribution
+// heading; ordinary prose, lists, links, and emphasis render unchanged.
+function safeBody(text) {
+  return String(text || "").split("\n")
+    .map((line) => (STRUCTURAL_LINE.test(line) ? line.replace(/^( {0,3})/, "$1\\") : line))
+    .join("\n");
 }
 
 function isoDate(seconds) {
@@ -222,7 +238,7 @@ async function boardMarkdown(env, board) {
 function replyBlock(reply, depth) {
   const heading = depth === 1 ? "### " : "#### ↳ ";
   return heading + mdInline(reply.author_username) + " · " + isoDate(reply.created_at) +
-    " · " + ORIGIN + "/posts/" + reply.id + "\n\n" + String(reply.body || "") + "\n";
+    " · " + ORIGIN + "/posts/" + reply.id + "\n\n" + safeBody(reply.body) + "\n";
 }
 
 function repliesSection(targetId, replies) {
@@ -252,7 +268,7 @@ async function postMarkdown(env, id) {
     ...(row.parent_id ? ["- In reply to: " + ORIGIN + "/posts/" + row.parent_id] : []),
   ];
   return "# " + mdInline(titleOf(row)) + "\n\n" + meta.join("\n") + "\n\n---\n\n" +
-    String(row.body || "") + "\n\n---\n\n" + repliesSection(id, result.results || []);
+    safeBody(row.body) + "\n\n---\n\n" + repliesSection(id, result.results || []);
 }
 
 const NOT_FOUND_MARKDOWN = "# Not found\n\nNo public page exists at this address.\n";
@@ -315,7 +331,8 @@ export function serverCard(env) {
     serverInfo: { name: "wempos-forum", version: typeof env.VERSION === "string" && env.VERSION ? env.VERSION : DEFAULT_VERSION },
     transport: { type: "streamable-http", endpoint: ORIGIN + "/mcp" },
     capabilities: { tools: {} },
-    description: "Read-only access to public Wempo's Forum posts",
+    description: "Public read tools for everyone; write tools only for the forum's own authorized bot " +
+      "via bearer token (no public registration)",
     tools: MCP_TOOL_NAMES.map((name) => ({ name })),
   };
 }
@@ -327,7 +344,8 @@ How authentication works on ${ORIGIN}, for people and for automated agents.
 ## Agents: no credentials needed for reading
 
 All public content can be read without signing in. There is no OAuth
-authorization server, no agent registration API, and no API keys are issued.
+authorization server, no agent registration API, and no API keys are issued
+to the public.
 Do not look for oauth-protected-resource or oauth-authorization-server
 documents — none are published, because none exist.
 
@@ -338,7 +356,7 @@ Public, unauthenticated read surfaces:
 - \`GET /api/posts/{id}/replies\` — paginated public replies
 - \`GET /api/search?q=...\` — search members and public posts
 - \`GET /api/version\` — deployed version
-- \`/mcp\` — read-only MCP endpoint (streamable HTTP; tools: ${MCP_TOOL_NAMES.join(", ")})
+- \`/mcp\` — MCP endpoint (streamable HTTP; public read tools: ${MCP_TOOL_NAMES.join(", ")})
 - \`Accept: text/markdown\` on \`/\`, \`/c/<board>\`, \`/posts/<id>\` — markdown renderings
 - \`GET /sitemap.xml\` — every public thread, board, and author page
 - \`GET /openapi.json\` — OpenAPI description of the read endpoints above
@@ -350,7 +368,14 @@ Hidden posts and content by banned members are never served on any of these.
 Humans sign in at Wempo Accounts (${ACCOUNTS_URL}). After sign-in, Accounts
 sends the browser back to the forum with a one-time code that the forum
 redeems for its own session cookie. Posting, reacting, and every other write
-needs that browser session; there is no token-based write access.
+needs that browser session.
+
+## The forum's own bot: bearer token
+
+The MCP endpoint's write tools (posting, replying, lobby chat, mentions) are
+available only to the forum's own authorized bot account, which presents a
+bearer token issued by the forum operator. There is no public registration
+and no way to request a token; every other client gets the public read tools.
 `;
 
 // ---- OpenAPI 3.1 (public, unauthenticated reads only) --------------------
@@ -588,7 +613,7 @@ const DOCUMENT_ROUTES = {
   "/auth.md": (request) => respond(request, AUTH_MARKDOWN, MARKDOWN_TYPE),
   "/.well-known/mcp/server-card.json": (request, env) => jsonDoc(request, serverCard(env), "application/json"),
   "/sitemap.xml": async (request, env) => env.FORUM_DB
-    ? respond(request, await buildSitemap(env), "application/xml; charset=utf-8")
+    ? respond(request, await buildSitemap(env), "application/xml; charset=utf-8", { cache: FEED_CACHE })
     : noDatabase(request),
 };
 

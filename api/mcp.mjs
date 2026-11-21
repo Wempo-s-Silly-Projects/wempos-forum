@@ -16,19 +16,21 @@
 // GNU Affero General Public License along with this program.  If not,
 // see <https://www.gnu.org/licenses/>.
 
-// Read-only MCP server (Model Context Protocol, Streamable HTTP transport,
+// MCP server (Model Context Protocol, Streamable HTTP transport,
 // stateless, JSON responses only — no SSE stream, no sessions). Hand-rolled
 // JSON-RPC 2.0: no SDK, no deps. Exposes PUBLIC forum content only — every
 // row passes the visibility law (public + author not actively banned + every
 // ancestor the same): lists are root posts filtered in SQL, get_post gates
 // the post and its ancestors through canViewPost (anonymous viewer), and its
 // replies are filtered in SQL on the reply AND its intermediate parent.
-// The worker routes ALL methods on /mcp here.
+// The worker routes ALL methods on /mcp here. The body is read with a
+// streaming byte cap, and every read-tool call (each batch item) charges one
+// "read" rate-limit token: per IP when anonymous, per user id for an agent.
 //
 // Agent writes: a request carrying a valid agent bearer token
 // (core/agent-auth.mjs) additionally sees and may call the write tools
 // (create_post, reply, create_suggestion, list_mentions), acting as that
-// forum user. Anonymous clients see only the four read tools, and a write
+// forum user. Anonymous clients see only the read tools, and a write
 // call without a valid token is refused with -32001 before any work. Every
 // write runs the human routes' gates: assertNotBanned, requiredText length
 // cap, the word filter, the staff-only updates board, the write/post-write
@@ -54,7 +56,7 @@ import { runFanOutChunks, subscriptionReplyFanOut } from "./subscriptions.mjs";
 import { agentFromRequest } from "./core/agent-auth.mjs";
 import { assertNotBanned } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { HttpError, rateLimit, requireMutationApplied, requiredText } from "./core/http.mjs";
+import { HttpError, rateLimit, readLimitedBody, requireMutationApplied, requiredText } from "./core/http.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 
@@ -245,9 +247,9 @@ export async function handleMcp(request, env) {
       headers: { Allow: "POST", "Content-Type": "application/json" },
     });
   }
-  const text = await request.text();
-  if (text.length > MAX_BODY_BYTES) {
-    return jsonResponse(rpcError(null, RPC_INVALID_REQUEST, "Request body too large."));
+  const text = await readCappedBody(request);
+  if (text === null) {
+    return jsonResponse(rpcError(null, RPC_INVALID_REQUEST, "Request body too large."), 413);
   }
   let message;
   try {
@@ -273,9 +275,23 @@ async function handleBatch(messages, env, ctx) {
   return replies.length === 0 ? new Response(null, { status: 202 }) : jsonResponse(replies);
 }
 
-function jsonResponse(payload) {
+// Streams the body with a running byte cap (Content-Length checked first,
+// reader cancelled past MAX_BODY_BYTES) so an oversized POST is refused
+// without buffering it. Returns the decoded text, or null when too large.
+async function readCappedBody(request) {
+  let bytes;
+  try {
+    bytes = await readLimitedBody(request, MAX_BODY_BYTES);
+  } catch (error) {
+    if (error instanceof HttpError && error.status === 413) return null;
+    throw error;
+  }
+  return new TextDecoder().decode(bytes);
+}
+
+function jsonResponse(payload, status = 200) {
   return new Response(JSON.stringify(payload), {
-    status: 200,
+    status,
     headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
 }
@@ -331,7 +347,8 @@ function initializeResult(params, env) {
     protocolVersion: SUPPORTED_PROTOCOL_VERSIONS.includes(requested) ? requested : DEFAULT_PROTOCOL_VERSION,
     capabilities: { tools: { listChanged: false } },
     serverInfo: { name: "wempos-forum", version: (env && env.VERSION) || "4.4.0" },
-    instructions: "Read-only access to public Wempo's Forum posts.",
+    instructions: "Public read tools for everyone. Write tools are only for the forum's own authorized bot, " +
+      "via bearer token; there is no public registration.",
   };
 }
 
@@ -353,17 +370,36 @@ const WRITE_TOOL_HANDLERS = Object.freeze({
   lobby_post: lobbyPost,
 });
 
+// Token-gated tools that only read (no write tier of their own).
+const AGENT_READ_TOOLS = new Set(["list_mentions"]);
+
 async function callTool(id, params, env, ctx) {
   const args = params.arguments && typeof params.arguments === "object" && !Array.isArray(params.arguments)
     ? params.arguments : {};
   if (Object.hasOwn(WRITE_TOOL_HANDLERS, params.name)) {
     if (!ctx.agent) return rpcError(id, RPC_UNAUTHORIZED, "Unauthorized");
+    const throttled = AGENT_READ_TOOLS.has(params.name) ? await chargeReadTier(env, ctx) : null;
+    if (throttled) return rpcResult(id, throttled);
     return rpcResult(id, await runWriteTool(WRITE_TOOL_HANDLERS[params.name], env, args, ctx));
   }
   const handler = Object.hasOwn(TOOL_HANDLERS, params.name) ? TOOL_HANDLERS[params.name] : null;
   if (!handler) return rpcError(id, RPC_INVALID_PARAMS, "Unknown tool: " + String(params.name));
+  const throttled = await chargeReadTier(env, ctx);
+  if (throttled) return rpcResult(id, throttled);
   const outcome = await handler(env, args);
   return rpcResult(id, outcome.error ? toolError(outcome.error) : toolText(outcome.data));
+}
+
+// One "read" tier token per read-tool call, so a 20-message batch costs 20.
+// Anonymous callers are keyed by IP (the tier default); an agent by its id.
+async function chargeReadTier(env, ctx) {
+  try {
+    await rateLimit(ctx.request, env, "read", ctx.agent ? "agent:" + ctx.agent.id : "");
+    return null;
+  } catch (error) {
+    if (error instanceof HttpError) return toolError(error.message);
+    throw error;
+  }
 }
 
 function toolText(data) {

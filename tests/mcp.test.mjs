@@ -18,8 +18,10 @@
 
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
-import { makeEnv } from "./helpers/d1.mjs";
-import { call, now, seedPost, seedUser, sha256 } from "./helpers/seed.mjs";
+import { makeEnv, makeLimiters } from "./helpers/d1.mjs";
+import { ORIGIN, call, now, seedPost, seedUser, sha256 } from "./helpers/seed.mjs";
+import worker from "../worker.mjs";
+import { agentFromRequest } from "../api/core/agent-auth.mjs";
 
 const TOKEN = "agent-token-for-tests-ABCDEFGHIJ0123456789";
 const READ_TOOLS = ["search_posts", "recent_posts", "list_board", "get_post", "lobby_read"];
@@ -180,4 +182,128 @@ test("read tools never surface hidden content", async () => {
   assert.ok(!recent.some((p) => p.id === hiddenRoot));
   const hidden = await tool(61, "get_post", { id: hiddenRoot }, null);
   assert.equal(hidden.json.result.isError, true);
+});
+
+// ---- security fixes: body cap, per-item read tier, token → user id ----
+
+const MCP_MAX_BODY = 65536;
+const CHUNK_BYTES = 16384;
+
+test("an oversized streamed body is refused with 413 / -32600 without reading it all", async () => {
+  const chunk = new Uint8Array(CHUNK_BYTES).fill(0x20);
+  const totalChunks = 64; // 1 MiB on offer
+  let pulled = 0;
+  const stream = new ReadableStream({
+    pull(controller) {
+      if (pulled >= totalChunks) return controller.close();
+      pulled++;
+      controller.enqueue(chunk);
+    },
+  });
+  const request = new Request(ORIGIN + "/mcp", { method: "POST", body: stream, duplex: "half" });
+  const response = await worker.fetch(request, env, { waitUntil() {} });
+  assert.equal(response.status, 413);
+  const json = await response.json();
+  assert.equal(json.error.code, -32600);
+  assert.ok(pulled * CHUNK_BYTES <= MCP_MAX_BODY + 2 * CHUNK_BYTES, "pulled " + pulled + " chunks");
+  assert.ok(pulled < totalChunks);
+});
+
+test("a declared Content-Length over the cap is refused with 413 before reading", async () => {
+  const response = await call(env, "/mcp", {
+    method: "POST",
+    body: " ".repeat(MCP_MAX_BODY + 1),
+    headers: { "Content-Type": "application/json", "Content-Length": String(MCP_MAX_BODY + 1) },
+  });
+  assert.equal(response.status, 413);
+  assert.equal((await response.json()).error.code, -32600);
+});
+
+function batchOf(count, name, args) {
+  return Array.from({ length: count }, (_, i) => ({ jsonrpc: "2.0", id: i, method: "tools/call", params: { name, arguments: args } }));
+}
+
+async function batchCall(targetEnv, messages, token = null) {
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers.Authorization = "Bearer " + token;
+  const response = await call(targetEnv, "/mcp", { method: "POST", body: JSON.stringify(messages), headers });
+  return response.json();
+}
+
+test("each read-tool call in a batch charges the read tier once (anonymous, per IP)", async () => {
+  const { limiter, bindings } = makeLimiters();
+  const counted = { ...env, ...bindings };
+  const replies = await batchCall(counted, batchOf(3, "search_posts", { query: "public" }));
+  assert.equal(replies.length, 3);
+  assert.ok(replies.every((r) => r.result.isError === false));
+  assert.equal(limiter.calls.length, 3);
+  assert.equal(new Set(limiter.calls).size, 1, "all keyed to the same anonymous IP identity");
+});
+
+test("agent read calls charge the read tier per item, keyed by the agent id", async () => {
+  const { limiter, bindings } = makeLimiters();
+  const counted = { ...env, ...bindings };
+  const replies = await batchCall(counted, [...batchOf(2, "recent_posts", {}), ...batchOf(1, "list_mentions", {})], TOKEN);
+  assert.equal(replies.length, 3);
+  assert.equal(limiter.calls.length, 3);
+  const { limiter: anonLimiter, bindings: anonBindings } = makeLimiters();
+  await batchCall({ ...env, ...anonBindings }, batchOf(1, "recent_posts", {}));
+  assert.notEqual(anonLimiter.calls[0], limiter.calls[0], "agent key differs from the anonymous key");
+});
+
+test("an exhausted read tier answers a tool error per item and runs no query", async () => {
+  const { bindings } = makeLimiters(false);
+  const throttled = { ...env, ...bindings };
+  const replies = await batchCall(throttled, batchOf(2, "get_post", { id: publicRoot }));
+  assert.equal(replies.length, 2);
+  for (const reply of replies) {
+    assert.equal(reply.result.isError, true);
+    assert.match(reply.result.content[0].text, /Too many requests/);
+  }
+});
+
+const AUTH_TOKEN = "agent-token-for-auth-tests-0123456789ABCDEF";
+const bearer = () => new Request(ORIGIN + "/mcp", { headers: { Authorization: "Bearer " + AUTH_TOKEN } });
+const envMapping = (value) => ({ ...env, AGENT_TOKENS: JSON.stringify({ [sha256(AUTH_TOKEN)]: value }) });
+
+test("AGENT_TOKENS resolves a numeric user id (number or digit string)", async () => {
+  const asNumber = await agentFromRequest(bearer(), envMapping(claudeId));
+  assert.equal(asNumber.id, claudeId);
+  assert.equal(asNumber.username, "WemposClaude");
+  const asString = await agentFromRequest(bearer(), envMapping(String(claudeId)));
+  assert.equal(asString.id, claudeId);
+});
+
+test("AGENT_TOKENS legacy username form still resolves", async () => {
+  const agent = await agentFromRequest(bearer(), envMapping("alice"));
+  assert.equal(agent.id, aliceId);
+});
+
+test("AGENT_TOKENS rejects malformed values and unknown ids", async () => {
+  assert.equal(await agentFromRequest(bearer(), envMapping(0)), null);
+  assert.equal(await agentFromRequest(bearer(), envMapping(-3)), null);
+  assert.equal(await agentFromRequest(bearer(), envMapping(1.5)), null);
+  assert.equal(await agentFromRequest(bearer(), envMapping("")), null);
+  assert.equal(await agentFromRequest(bearer(), envMapping(999999)), null);
+});
+
+test("an id-mapped token does NOT follow a freed and re-registered username", async () => {
+  const db = env.__sqlite;
+  const botId = await seedUser(db, { username: "RenameBot" });
+  const byId = envMapping(botId);
+  assert.equal((await agentFromRequest(bearer(), byId)).id, botId);
+  db.prepare("UPDATE users SET username = ?, username_key = ? WHERE id = ?").run("Renamed" + botId, "renamed" + botId, botId);
+  const strangerId = await seedUser(db, { username: "renamebot" });
+  const after = await agentFromRequest(bearer(), byId);
+  assert.equal(after.id, botId, "still the original account");
+  assert.notEqual(after.id, strangerId);
+  // The legacy username form is the one that would follow the name.
+  assert.equal((await agentFromRequest(bearer(), envMapping("RenameBot"))).id, strangerId);
+});
+
+test("initialize instructions describe public reads + bot-only bearer writes", async () => {
+  const { json } = await rpc({ jsonrpc: "2.0", id: 90, method: "initialize", params: {} });
+  assert.doesNotMatch(json.result.instructions, /read-only/i);
+  assert.match(json.result.instructions, /bearer token/);
+  assert.match(json.result.instructions, /no public registration/);
 });
