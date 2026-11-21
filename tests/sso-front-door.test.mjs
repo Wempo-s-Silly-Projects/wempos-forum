@@ -93,7 +93,7 @@ test("clearTicketParam leaves a ticket-free URL untouched (replaceState never ru
 });
 
 test("wempoAccountsSignInUrl carries the EXACT origin — never a query string or path", () => {
-  const origin = "https://wempos-forum.itswempo.workers.dev";
+  const origin = "https://wempos-forum.com";
   assert.equal(
     wempoAccountsSignInUrl(origin),
     WEMPO_ACCOUNTS_ORIGIN + "/?return=" + encodeURIComponent(origin),
