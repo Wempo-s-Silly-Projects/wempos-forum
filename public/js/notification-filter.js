@@ -21,6 +21,7 @@
 // v4.32 filter. Page-view only: nothing stored, nothing sent, and it resets on
 // the next render. createElement/textContent only.
 import { t } from "./i18n.js";
+import { syncDayHeadings } from "./notification-days.js";
 
 const ROW_SELECTOR = ".notification-item";
 const UNREAD_CLASS = "notification-unread";
@@ -32,6 +33,8 @@ const isUnreadRow = (row) => String(row.className ?? "").split(" ").includes(UNR
 export function applyUnreadOnly(section, status, on) {
   const rows = [...section.querySelectorAll(ROW_SELECTOR)];
   for (const row of rows) row.hidden = Boolean(on) && !isUnreadRow(row);
+  // v4.44: a day heading with nothing left showing under it hides too.
+  syncDayHeadings(section, (node) => rows.includes(node));
   const empty = Boolean(on) && !rows.some(isUnreadRow);
   status.textContent = empty ? t("bell.noUnread") : "";
   status.hidden = !empty;

@@ -40,23 +40,29 @@ export const SAVED_BOARD_REMOVE_CAP = 500;
 // A visible ancestor (wave 36): a saved reply shows only while its parent —
 // and, for a level-2 reply, the root — is public with an unbanned author.
 // Replies sit at most two levels deep, so two nested probes cover the chain.
-const visibleAncestorSql = (alias) =>
+// Wave 39: each ancestor's author also passes the viewer's block test (both
+// directions, staff bypass) — canViewPost refuses that chain, and the row's
+// parent.body would otherwise carry the block-paired member's text.
+const visibleAncestorSql = (alias, blockFor) =>
   "(" + alias + ".parent_id IS NULL OR EXISTS (SELECT 1 FROM posts pa WHERE pa.id = " + alias +
-  ".parent_id AND pa.visibility = 'public' AND " + banFilterSql("pa") + " AND " +
+  ".parent_id AND pa.visibility = 'public' AND " + banFilterSql("pa") + blockFor("pa.author_id") + " AND " +
   "(pa.parent_id IS NULL OR EXISTS (SELECT 1 FROM posts pg WHERE pg.id = pa.parent_id " +
-  "AND pg.visibility = 'public' AND " + banFilterSql("pg") + "))))";
+  "AND pg.visibility = 'public' AND " + banFilterSql("pg") + blockFor("pg.author_id") + "))))";
+
+// Block clauses for the post and its two ancestors: three per-column clauses,
+// two `user.id` binds each (all placeholders bind the same id, so their order
+// within the tail never matters).
+const ANCESTOR_BLOCK_CLAUSES = 3;
 
 // The saved rows a member may see, shared by the list and the board removal
 // so "remove all from this board" removes exactly what the list showed.
 // Returns the SQL tail (starts with " AND") and its bind values.
 function visibleSavedFilter(user, board) {
-  let sql = " AND p.visibility = 'public' AND " + banFilterSql("p") + " AND " + visibleAncestorSql("p");
-  const values = [];
-  const blockFilter = viewerBlockFilterSql(user, "p.author_id");
-  if (blockFilter) {
-    sql += blockFilter;
-    values.push(user.id, user.id);
-  }
+  const blockFor = (column) => viewerBlockFilterSql(user, column);
+  const blockFilter = blockFor("p.author_id");
+  let sql = " AND p.visibility = 'public' AND " + banFilterSql("p") + " AND " + visibleAncestorSql("p", blockFor);
+  const values = blockFilter ? Array(ANCESTOR_BLOCK_CLAUSES * 2).fill(user.id) : [];
+  sql += blockFilter;
   if (board) {
     sql += " AND p.board = ?";
     values.push(board);
