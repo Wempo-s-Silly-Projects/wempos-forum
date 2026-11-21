@@ -40,7 +40,7 @@ export function renderPollBlock(poll, document, currentUser = null) {
     const percent = total > 0 ? Math.round((count / total) * 100) : 0;
     const row = document.createElement("div");
     row.className = "poll-row";
-    if (currentUser) {
+    if (currentUser && !poll.closed) {
       const vote = document.createElement("button");
       vote.type = "button";
       vote.className = "button button-quiet poll-vote";
@@ -82,11 +82,36 @@ export function renderPollBlock(poll, document, currentUser = null) {
   totalRow.className = "poll-total";
   totalRow.textContent = tn("polls.total", total);
   block.append(totalRow);
-  if (currentUser && poll.viewerOption !== null && poll.viewerOption !== undefined) {
+  const hasVote = poll.viewerOption !== null && poll.viewerOption !== undefined;
+  if (poll.closed) {
+    // Wave 5.13 F1: results stay; voting (and taking a vote back) is over.
+    const closedNote = document.createElement("p");
+    closedNote.className = "poll-closed muted";
+    closedNote.textContent = t("polls.closed");
+    block.append(closedNote);
+  } else if (currentUser && hasVote) {
     const hint = document.createElement("p");
     hint.className = "poll-hint muted";
     hint.textContent = t("polls.changeHint");
     block.append(hint);
+    // Wave 5.13 F2: withdraw the vote entirely, not just move it.
+    block.append(pollButton(document, "poll-unvote", "button button-quiet poll-unvote", t("polls.unvote")));
+  }
+  if (currentUser && poll.canManage) {
+    // Wave 5.13 F1: the thread author (or staff) closes or reopens voting.
+    const manage = pollButton(document, "poll-close", "button button-secondary poll-manage",
+      poll.closed ? t("polls.reopen") : t("polls.close"));
+    manage.dataset.closed = String(!poll.closed);
+    block.append(manage);
   }
   return block;
+}
+
+function pollButton(document, action, className, label) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = className;
+  button.dataset.action = action;
+  button.textContent = label;
+  return button;
 }

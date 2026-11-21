@@ -59,7 +59,9 @@ export {
 // The payload shape (null when the thread has no poll): results are always
 // visible, guests included; viewerOption is null for guests and non-voters.
 // A REPLY never carries a poll — polls ride the root only.
-export async function pollPayload(db, postId, viewerId) {
+// Wave 5.13: `closed` rides for everyone; `canManage` (close/reopen voting)
+// is true only when the caller says the viewer is the root author or staff.
+export async function pollPayload(db, postId, viewerId, canManage = false) {
   const poll = await db.prepare(POLL_BY_POST_SQL).bind(postId).first();
   if (!poll) return null;
   const options = await db.prepare(POLL_OPTION_COUNTS_SQL).bind(postId).all();
@@ -78,7 +80,52 @@ export async function pollPayload(db, postId, viewerId) {
     options: rows,
     totalVotes: rows.reduce((sum, option) => sum + option.count, 0),
     viewerOption,
+    closed: poll.closed_at !== null && poll.closed_at !== undefined,
+    canManage: Boolean(canManage),
   };
+}
+
+// Wave 5.13: the shared gate for the poll writes below — signed-in, not
+// banned, rate-limited, thread viewable (404 otherwise) and carrying a poll.
+async function pollForWrite(request, env, path) {
+  const session = await requireUser(request, env);
+  await assertNotBanned(env, session.user.id);
+  await rateLimit(request, env, "write", String(session.user.id));
+  const postId = Number(path.match(/^\/api\/posts\/([0-9]+)\/poll$/)[1]);
+  if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
+  const post = await postById(env, postId, session.user.id);
+  if (!(await canViewPost(env, post, session.user))) throw new HttpError(404, "Post not found.");
+  const poll = await env.FORUM_DB.prepare(POLL_BY_POST_SQL).bind(postId).first();
+  if (!poll) throw new HttpError(404, "That thread has no poll.");
+  return { session, post, poll };
+}
+
+const isStaffRole = (user) => user.role === "owner" || user.role === "admin";
+
+// F1: close or reopen voting — the thread root's author or staff (public role).
+async function handlePollCloseRoute(request, env, url, path, method) {
+  if (method !== "PATCH" || !/^\/api\/posts\/[0-9]+\/poll$/.test(path)) return null;
+  const { session, post, poll } = await pollForWrite(request, env, path);
+  if (Number(post.author_id) !== session.user.id && !isStaffRole(session.user)) {
+    throw new HttpError(403, "Only the author can close this poll.");
+  }
+  const body = await readJson(request);
+  if (typeof body.closed !== "boolean") throw new HttpError(400, "Say whether voting is closed.");
+  await env.FORUM_DB.prepare("UPDATE polls SET closed_at = ? WHERE id = ?")
+    .bind(body.closed ? nowSeconds() : null, Number(poll.id)).run();
+  return json({ ok: true, closed: body.closed });
+}
+
+// F2: take back my vote — removes only the caller's own row, open polls only.
+async function handlePollUnvoteRoute(request, env, url, path, method) {
+  if (method !== "DELETE" || !/^\/api\/posts\/[0-9]+\/poll$/.test(path)) return null;
+  const { session, poll } = await pollForWrite(request, env, path);
+  if (poll.closed_at !== null && poll.closed_at !== undefined) {
+    throw new HttpError(409, "This poll is closed.");
+  }
+  await env.FORUM_DB.prepare("DELETE FROM poll_votes WHERE poll_id = ? AND user_id = ?")
+    .bind(Number(poll.id), session.user.id).run();
+  return json({ ok: true });
 }
 
 async function handlePollCreateRoute(request, env, url, path, method) {
@@ -186,5 +233,9 @@ export async function handlePollRoutes(request, env, url, path, method) {
   if (created) return created;
   const voted = await handlePollVoteRoute(request, env, url, path, method);
   if (voted) return voted;
+  const closed = await handlePollCloseRoute(request, env, url, path, method);
+  if (closed) return closed;
+  const unvoted = await handlePollUnvoteRoute(request, env, url, path, method);
+  if (unvoted) return unvoted;
   return null;
 }
