@@ -59,7 +59,9 @@ test("cards are numbered in page order, badge first in the author row", () => {
   assert.deepEqual(ranks(main), ["#1", "#2", "#3"]);
   const firstAuthor = main.querySelector("div.post-author");
   assert.equal(firstAuthor.children[0].className, "suggestion-rank");
-  assert.equal(firstAuthor.children[0].getAttribute("aria-label"), t("feed.suggestionRank", { rank: 1 }));
+  assert.equal(firstAuthor.children[0].getAttribute("aria-hidden"), "true");
+  assert.equal(firstAuthor.children[1].className, "visually-hidden");
+  assert.equal(firstAuthor.children[1].textContent, t("feed.suggestionRank", { rank: 1 }));
 });
 
 test("Load older continues the count and never re-numbers a card", () => {

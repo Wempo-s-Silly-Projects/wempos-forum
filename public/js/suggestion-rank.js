@@ -22,8 +22,9 @@ import { t } from "./i18n.js";
 // net votes, so each card shows its place in that order ("#1", "#2", ...).
 // Only the feed's own cards (direct children of a .post-list) are counted;
 // a card that already carries a rank keeps it, so Load older continues the
-// count. The badge leads the author row. The number is the order on this page view; it touches no storage
-// and makes no request.
+// count. The badge leads the author row; screen readers hear "Rank N by
+// votes" from a visually-hidden label instead of the bare "#N". The number
+// is the order on this page view; it touches no storage, makes no request.
 export function numberSuggestionCards(document, container) {
   const cards = [...container.querySelectorAll("div.post-list")]
     .flatMap((list) => [...list.children])
@@ -37,7 +38,10 @@ export function numberSuggestionCards(document, container) {
     const badge = document.createElement("span");
     badge.className = "suggestion-rank";
     badge.textContent = "#" + rank;
-    badge.setAttribute("aria-label", t("feed.suggestionRank", { rank }));
-    author.prepend(badge);
+    badge.setAttribute("aria-hidden", "true");
+    const label = document.createElement("span");
+    label.className = "visually-hidden";
+    label.textContent = t("feed.suggestionRank", { rank });
+    author.prepend(badge, label);
   });
 }
