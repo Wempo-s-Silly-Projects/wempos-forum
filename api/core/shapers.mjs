@@ -97,10 +97,6 @@ export async function userByUsernameKey(env, key) {
   return env.FORUM_DB.prepare(USER_ROW_SELECT + " WHERE username_key = ? LIMIT 1").bind(key).first();
 }
 
-// The Wempo Accounts SSO front door (api/accounts.mjs) redeems its code into
-// an id on the SHARED users table — the same row both apps write — so the
-// forum mints its session from the local row and never trusts the relay's
-// username/role echo.
 export async function userById(env, id) {
   return env.FORUM_DB.prepare(USER_ROW_SELECT + " WHERE id = ? LIMIT 1").bind(Number(id)).first();
 }
