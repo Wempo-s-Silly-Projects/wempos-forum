@@ -62,17 +62,17 @@ test("SITE_ORIGIN unset: every discovery document uses the request origin", asyn
   assert.deepEqual(openapi.servers, [{ url: SELF_HOST }]);
 
   const auth = await (await fetchAt(env, SELF_HOST + "/auth.md")).text();
-  assert.match(auth, /How authentication works on https:\/\/forum\.example\.org,/);
+  assert.ok(auth.includes("How authentication works on " + SELF_HOST + ", for people"), auth);
   assert.doesNotMatch(auth, /wempos-forum\.com/);
 
   const sitemap = await (await fetchAt(env, SELF_HOST + "/sitemap.xml")).text();
-  assert.match(sitemap, /<loc>https:\/\/forum\.example\.org\/<\/loc>/);
+  assert.ok(sitemap.includes("<loc>" + SELF_HOST + "/</loc>"), sitemap);
   assert.ok(sitemap.includes("<loc>" + SELF_HOST + "/posts/" + postId + "</loc>"));
   assert.doesNotMatch(sitemap, /wempos-forum\.com/);
 
   const markdown = await (await fetchAt(env, SELF_HOST + "/", { headers: { Accept: "text/markdown" } })).text();
   assert.ok(markdown.includes(SELF_HOST + "/posts/" + postId), markdown);
-  assert.doesNotMatch(markdown, /wempos-forum\.com/);
+  assert.doesNotMatch(markdown, /^.*wempos-forum\.com/m);
 
   const mcp = await fetchAt(env, SELF_HOST + "/mcp", {
     method: "POST",
@@ -187,7 +187,7 @@ test("unset Accounts origin / sitekey: no config metas in the shell", async () =
 test("config meta values are attribute-escaped", async () => {
   const env = makeEnv({ ACCOUNTS_ORIGIN: 'https://a.example"><script>', TURNSTILE_SITEKEY: "k<&>" });
   const html = await (await fetchAt(env, SELF_HOST + "/", { headers: { Accept: "text/html" } })).text();
-  assert.doesNotMatch(html, /<script>/);
+  assert.equal(html.toLowerCase().includes("<script>"), false, "the injected tag never reaches the page raw");
   assert.match(html, /content="k&lt;&amp;&gt;"/);
 });
 
