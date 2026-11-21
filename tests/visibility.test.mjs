@@ -99,16 +99,17 @@ test("/sitemap.xml lists only public roots by unbanned authors, and is well-form
   const xml = await response.text();
   assertWellFormedXml(xml);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-  const has = (id) => locs.includes("https://wempos-forum.com/posts/" + id);
+  const locSet = new Set(locs);
+  const has = (id) => locSet.has("https://wempos-forum.com/posts/" + id);
   assert.ok(has(ids.publicRoot));
   assert.ok(has(ids.expiredRoot));
   for (const key of ["hiddenRoot", "bannedRoot", "replyUnderHidden", "publicReply", "hiddenReply", "bannedReply"]) {
     assert.ok(!has(ids[key]), key + " must not be in the sitemap");
   }
-  assert.ok(locs.includes("https://wempos-forum.com/users/Alice"));
-  assert.ok(locs.includes("https://wempos-forum.com/users/Expired"));
-  assert.ok(!locs.includes("https://wempos-forum.com/users/Banned"));
-  assert.ok(locs.includes("https://wempos-forum.com/"));
+  assert.ok(locSet.has("https://wempos-forum.com/users/Alice"));
+  assert.ok(locSet.has("https://wempos-forum.com/users/Expired"));
+  assert.ok(!locSet.has("https://wempos-forum.com/users/Banned"));
+  assert.ok(locSet.has("https://wempos-forum.com/"));
 });
 
 const markdown = (path) => call(env, path, { headers: { Accept: "text/markdown" } });

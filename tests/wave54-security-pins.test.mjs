@@ -24,7 +24,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { extname, join } from "node:path";
 import { makeAssets, makeEnv } from "./helpers/d1.mjs";
 import { call } from "./helpers/seed.mjs";
@@ -41,8 +41,13 @@ const TYPES = { ".json": "application/json", ".js": "text/javascript", ".css": "
 const realisticAssets = () => makeAssets((request) => {
   const { pathname } = new URL(request.url);
   const file = join(PUBLIC_DIR, pathname);
-  if (pathname !== "/" && file.startsWith(PUBLIC_DIR) && existsSync(file) && statSync(file).isFile()) {
-    return new Response(readFileSync(file), { status: 200, headers: { "Content-Type": TYPES[extname(file)] || "application/octet-stream" } });
+  if (pathname !== "/" && file.startsWith(PUBLIC_DIR)) {
+    try {
+      const data = readFileSync(file);
+      return new Response(data, { status: 200, headers: { "Content-Type": TYPES[extname(file)] || "application/octet-stream" } });
+    } catch {
+      // Missing file or a directory (EISDIR): the SPA fallback below.
+    }
   }
   return new Response(request.method === "HEAD" ? null : SHELL, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } });
 });

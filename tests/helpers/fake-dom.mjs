@@ -63,13 +63,14 @@ const liveCollection = (read, kind) => {
 // Minimal selector support: "tag", ".class", "tag.class", "[attr]", "[attr=v]"
 // and comma lists — enough for the client modules, strict about the rest.
 const matchesSimple = (node, selector) => {
-  const match = /^([a-zA-Z][\w-]*)?((?:\.[\w-]+)*)((?:\[[\w-]+(?:="?[^\]"]*"?)?\])*)$/.exec(selector.trim());
+  const match = /^([a-zA-Z][\w-]*)?((?:\.[\w-]+)*)((?:\[[\w-]+(?:="[^\]"]*"|=[^\]"]*)?\])*)$/.exec(selector.trim());
   if (!match) throw new Error(`fake-dom: unsupported selector "${selector}"`);
   const [, tag, classes, attrs] = match;
   if (tag && node.tagName !== tag.toUpperCase()) return false;
   const own = String(node.className ?? "").split(/\s+/);
   for (const name of classes.split(".").filter(Boolean)) if (!own.includes(name)) return false;
-  for (const [, name, value] of attrs.matchAll(/\[([\w-]+)(?:="?([^\]"]*)"?)?\]/g)) {
+  for (const [, name, quoted, bare] of attrs.matchAll(/\[([\w-]+)(?:="([^\]"]*)"|=([^\]"]*))?\]/g)) {
+    const value = quoted ?? bare;
     if (!node.hasAttribute(name)) return false;
     if (value !== undefined && node.getAttribute(name) !== value) return false;
   }

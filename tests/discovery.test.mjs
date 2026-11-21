@@ -39,7 +39,7 @@ test("/.well-known/api-catalog is a linkset+json document with an anchor", async
   const body = await response.json();
   assert.ok(Array.isArray(body.linkset) && body.linkset.length > 0);
   assert.equal(typeof body.linkset[0].anchor, "string");
-  assert.ok(body.linkset[0].anchor.startsWith("https://wempos-forum.com"));
+  assert.equal(new URL(body.linkset[0].anchor).origin, "https://wempos-forum.com");
   assert.equal(env.ASSETS.requests.length, 0);
 });
 

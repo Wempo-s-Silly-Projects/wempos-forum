@@ -170,8 +170,12 @@ test("every literal t()/tn() key used in public/js exists in en.json", () => {
 
 test("index.html: every visible string and labelled attribute is keyed for translation", () => {
   const html = readFileSync(new URL("public/index.html", ROOT), "utf8");
-  const body = html.slice(html.indexOf("<body"), html.indexOf("</body>"))
-    .replace(/<!--[\s\S]*?-->/g, "")
+  let body = html.slice(html.indexOf("<body"), html.indexOf("</body>"));
+  for (let previous = ""; previous !== body;) {
+    previous = body;
+    body = body.replace(/<!--[\s\S]*?-->/g, "");
+  }
+  body = body
     .replace(/<noscript>[\s\S]*?<\/noscript>/g, "")
     .replace(/<svg[\s\S]*?<\/svg>/g, "");
   const problems = [];
