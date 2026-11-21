@@ -1,37 +1,60 @@
-# Forum release checklist
+# Release checklist
 
-This repository deploys a Cloudflare Worker backed by D1. Treat schema/data reconciliation, numbered migrations, and Worker deployment as separate release steps.
+The forum is one Cloudflare Worker backed by one D1 database. A release has two separate parts: **database migrations** and **the code deploy**. Deploying code never applies migrations, and migrating never deploys code.
 
-## Before a production release
+## Before you release
 
-1. Review the exact commit and confirm test, CodeQL/security, and Worker build checks pass.
-2. Confirm that a recoverable backup exists for the intended D1 database.
-3. Run the read-only `docs/sql/preflight-production-migration-history.sql` against the exact database ID from `wrangler.toml`. Record its output before running any migration file. If `has_0019_column = 1`, also run `docs/sql/preflight-css-submission-version.sql`; that conditional query must only run after the first preflight confirms the nullable column exists.
-4. Compare each schema-ready flag and media count with the expected state. Stop if any schema-ready flag is false, the conditional CSS query reports missing versions, or approved upload aliases lack bytes and another approved attachment source. GIF-backed aliases are intentionally by-reference and must not be materialized as uploads.
-5. Only after backup, preflight review, and explicit release approval, use `docs/sql/reconcile-production-migration-history.sql` to record schema effects that are already present. This is a manual recovery script, not a numbered migration; never put it in CI or `migrations/`. Verify its final ledger output contains 0019 through 0023 and investigate any missing marker. If the preflight does not match the currently documented divergence exactly, stop and reconcile the actual schema by hand instead.
-6. Once the ledger is verified through `0023_post_archive_deleted_by.sql`, run `npm run db:migrate:remote` to apply numbered migrations 0024 and 0025 in order. Verify the ledger and schema after each migration before proceeding. Do not run the ordinary migration command on a ledger that still ends at 0018: production already contains schema effects from 0021, 0022, and 0023, so replaying those files can fail on duplicate columns or tables.
-7. After migration checks pass, deploy the reviewed Worker commit using the normal release procedure. `npm run deploy` deploys code and is not a substitute for migrations.
-8. Wait until the new Worker is live and old Worker versions have drained, then run `docs/sql/backfill-late-attachment-aliases.sql` against the intended D1 database. Then run the read-only `docs/sql/audit-unbacked-approved-attachments.sql`; expect zero rows. If it returns rows, investigate and repair them individually before considering the release complete.
-9. Smoke-test setup status, session/authentication, feed reads, root/reply creation and exact retries with the same `Idempotency-Key`, changed-payload retries, post deletion/retry behavior, attachment upload/serving/moderation, GIF approval/reapproval, profile customization, and CSS moderation.
+1. Know exactly which commit you're shipping, and make sure `pnpm test` passes on it.
+2. Make sure there's a recoverable backup of the production database (`wempo-forum-data`). D1 Time Travel covers this, but check you can restore before you change anything.
+3. Look at what's new in `migrations/` since the last release. If there's nothing new, skip to the deploy.
 
-## Recorded production discrepancy (October 16, 2026)
+## Applying migrations
 
-The read-only Cloudflare audit found the production ledger ending at `0018_profile_reports.sql`, but its schema already has `users.pending_css_version`, `posts.idempotency_key` and its unique partial index, `revoked_attachment_hashes`, and the two `post_archive` deletion-attribution columns. Preview's ledger includes 0019, while Preview has not received 0020 onward. This is a ledger/schema divergence, not permission to assume each numbered migration ran normally.
+1. Check which migrations production has already recorded. Look for each new migration **by name** in the `d1_migrations` table; don't go by the row count alone.
+2. Apply the new ones:
 
-Production's `pending_css_version` column is nullable `TEXT`, and no pending CSS submission is missing a version token. The preflight and reconciliation script verify preconditions again. They are for a carefully reviewed maintenance window with a confirmed backup. No production migration, SQL write, or deployment was performed during this audit.
+   ```sh
+   pnpm run db:migrate:remote
+   ```
 
-The media audit found two approved attachment records without local approved chunks whose hashes match approved GIF-library rows. These remain by-reference GIF aliases; do not copy GIF bytes into them based solely on the lack of local chunks. The read-only audit for approved uploads lacking any known source returned no unsafe upload aliases. The 37 hidden legacy posts observed during audit were not modified or cleaned up because their intent cannot be safely inferred from visibility alone.
+3. Check by name again that every new migration is now recorded, and spot-check that the schema changes (new tables or columns) are really there.
 
-## Preview
+Migrations are numbered and run in order. Never edit a migration that has already shipped; add a new one instead.
 
-Preview uses its own database, `wempo-forum-preview`, and isolated rate-limit namespaces. Apply migrations independently with:
+## Deploying the code
 
 ```sh
-npm run db:migrate:preview
+pnpm run deploy
 ```
 
-Preview was at migration 0019 during the audit. Apply migrations 0020–0025 with the Preview-only command and confirm its ledger includes the full chain before testing the Preview Worker. Configure Preview-only `SETUP_SECRET` and `PASSWORD_PEPPER` as Cloudflare secrets, not plain `vars`; never reuse production values. Keep the Turnstile allowed-hostname list aligned with the exact Preview hostname.
+Always use this script, never a bare `wrangler deploy`. It stamps the build with the commit hash (`COMMIT_SHA`), which `/api/version` reports and which the browser uses to load fresh scripts. Without it, `/api/version` shows an empty commit and visitors can keep running stale code.
 
-## Why migration 0020 exists
+If a migration and a code change depend on each other, migrate first, then deploy.
 
-Earlier content-addressed upload handling could create approved duplicate attachment rows without owning their own bytes. Those rows depended on another approved attachment or marketplace GIF still existing. Migration 0020 copies approved chunks from other approved attachment rows into legacy upload duplicates. It does not copy GIF-library bytes because GIF selections are by-reference. After deployment, run the idempotent late-alias backfill once old Worker versions have drained.
+## After you deploy
+
+1. Open `https://wempos-forum.com/api/version` and confirm `commit` matches the commit you shipped.
+2. Smoke-test the basics: sign in through Wempo Accounts (<https://accounts.wempos-forum.com>), read the feed, post a thread and a reply, upload an image, react, open the chat panel, and load a profile.
+3. If you're staff, open the moderation desk and check the report and appeal queues load.
+
+## Preview environment
+
+There's a separate `preview` environment in `wrangler.toml` with its own database (`wempo-forum-preview`) and its own rate-limit namespaces, so it never touches production data.
+
+```sh
+pnpm exec wrangler d1 migrations apply wempo-forum-preview --env preview --remote
+pnpm run deploy -- --env preview
+```
+
+Preview needs its own `SETUP_SECRET`, `PASSWORD_PEPPER`, and `TURNSTILE_SECRET`, set as Cloudflare secrets for that environment. Never reuse the production values.
+
+## The scripts in `docs/sql/`
+
+These are one-off, hand-run SQL scripts from an October 2026 repair, when production's migration history had drifted from its real schema. They are **not** migrations: never put them in `migrations/` or run them from CI.
+
+- `preflight-production-migration-history.sql`, `preflight-css-submission-version.sql`: read-only checks of migration history and schema.
+- `reconcile-production-migration-history.sql`, `reconcile-0019-migration-history.sql`: record migrations whose schema changes were already present. Only run these after a backup, and only if a preflight shows exactly that drift.
+- `backfill-late-attachment-aliases.sql`: copies image bytes into duplicate attachment rows that were missing their own. Safe to re-run.
+- `audit-unbacked-approved-attachments.sql`: read-only. It should return zero rows.
+
+You shouldn't need any of them for a normal release.
