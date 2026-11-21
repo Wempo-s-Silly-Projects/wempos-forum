@@ -50,6 +50,7 @@ line marked `CHANGE ME`:
 | `SITE_ORIGIN` | Your forum's public address, e.g. `https://forum.example.org`. Leave it empty to use the `workers.dev` address. When set, the `workers.dev` address redirects there. |
 | `ACCOUNTS_ORIGIN` | Your Wempo Accounts address, e.g. `https://accounts.example.org`. Sign-in does not work until this is set. |
 | `TURNSTILE_SITEKEY`, `TURNSTILE_HOSTNAMES` | Optional, see step 6. |
+| `SOURCE_URL` | Where the footer's **Source code** link points. Leave it empty to link the upstream repository at the deployed commit. If you modify the forum, point this at YOUR source, e.g. `https://git.example.org/you/my-forum` (see below). Only `https://` addresses are used. |
 | `RELAY_WORKER_NAME` | The name your Wempo Accounts copy knows this forum by. Keep `wempos-forum` unless you changed it there. |
 | `[[services]] service` | Your Wempo Accounts worker's name (from step 8). |
 
@@ -147,6 +148,20 @@ Press **Save branding**, then reload the page. Leave a box empty to go back
 to the default (the name "Wempo's Forum" and its tagline and footer). The
 default tagline and footer are translated for each language; your own are
 shown exactly as you typed them. Admins can change these too.
+
+## Sharing your source code
+
+The forum is licensed under the GNU Affero General Public License, version 3
+or later. Section 13 of that license says that if you run a modified copy for
+other people over a network, you must offer those people the source code of
+the version you are running. The footer's **Source code** link does that.
+
+Out of the box it points at the upstream repository, at the exact commit
+`pnpm run deploy` stamped. That is only correct while you run the code
+unchanged. If you modify the forum, point this at YOUR source: publish your
+changed copy somewhere people can download it, then set `SOURCE_URL` in
+`wrangler.toml` to that address and deploy again. Anything that is not an
+`https://` address is ignored and the default link is used instead.
 
 ## Updating later
 

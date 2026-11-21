@@ -33,6 +33,12 @@ TURNSTILE_HOSTNAMES = ""
 # The slug this forum sends to Wempo Accounts when it redeems a sign-in ticket.
 # Must match the site name your Accounts copy expects for this forum.
 RELAY_WORKER_NAME = "wempos-forum"
+# Where the footer's "Source code" link points (AGPL-3.0 section 13: people
+# using your forum over the network must be offered its source). Leave it
+# empty to link the upstream repository at the deployed commit. If you modify
+# the forum, point this at YOUR source, e.g. "https://git.example.org/you/forum".
+# Only https:// addresses are used; anything else falls back to the default.
+SOURCE_URL = ""
 # AutoMod (optional, OFF by default). The /api/automod/* surface answers 404
 # unless this is exactly "true" AND the AUTOMOD_KEY secret is set — the key
 # alone never turns it on. Uncomment to opt in.
