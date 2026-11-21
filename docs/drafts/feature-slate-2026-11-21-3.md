@@ -19,11 +19,11 @@ messages to a stable snake_case code. worker.mjs's `/api/*` catch swaps the
 vendor `errorReply` for `codedErrorReply`, which adds `code` beside the
 unchanged `error` text (additive: existing clients and MCP keep working;
 payload replies such as the ban screen are passed through untouched; `/mcp`
-keeps English). The client `api()` wrapper paints `t("errors.<code>")` when
+keeps English). The client `api()` wrapper paints `t("errors.<camelCode>")` when
 the key exists and falls back to the server's English text otherwise.
 Ops-only messages (503 "not configured", relay) stay uncoded on purpose.
 Acceptance: every table message exists verbatim in `api/` source (drift
-guard), every code has an `errors.<code>` key, a real 404/401/429 response
+guard), every code has an `errors.<camelCode>` key (locale keys are camelCase), a real 404/401/429 response
 carries `{error, code}`, uncoded errors carry no `code`.
 
 **(b) Logical CSS properties.** The physical `left/right` rules in

@@ -22,7 +22,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { HttpError } from "../api/core/http.mjs";
 import { ERROR_CODES, codedErrorReply, errorCodeFor } from "../api/core/error-codes.mjs";
-import { errorMessageFor } from "../public/js/api.js";
+import { errorKeyFor, errorMessageFor } from "../public/js/api.js";
 import { formatDuration, formatRelative } from "../public/js/reltime.js";
 import { formatBanCountdown } from "../public/js/banned.js";
 import { makeEnv, makeLimiters } from "./helpers/d1.mjs";
@@ -49,9 +49,10 @@ test("error-code table: snake_case codes, unique messages, each message still th
   }
 });
 
-test("every error code has an errors.<code> key in en.json carrying the same English text", () => {
+test("every error code has its camelCase errors.* key in en.json carrying the same English text", () => {
+  assert.equal(errorKeyFor("post_not_found"), "errors.postNotFound");
   for (const [code, message] of Object.entries(ERROR_CODES)) {
-    assert.equal(en[`errors.${code}`], message, `errors.${code}`);
+    assert.equal(en[errorKeyFor(code)], message, errorKeyFor(code));
   }
 });
 
@@ -103,7 +104,7 @@ test("worker.mjs routes /api errors through codedErrorReply, /mcp keeps the vend
 });
 
 test("client: errorMessageFor prefers errors.<code>, falls back to the server text, then status", () => {
-  const table = { "errors.post_not_found": "Beitrag nicht gefunden.", "api.requestFailed": "failed {status}" };
+  const table = { "errors.postNotFound": "Beitrag nicht gefunden.", "api.requestFailed": "failed {status}" };
   const translate = (key, vars) => (key in table ? table[key].replace("{status}", vars?.status) : key);
   assert.equal(errorMessageFor({ error: "Post not found.", code: "post_not_found" }, 404, translate), "Beitrag nicht gefunden.");
   assert.equal(errorMessageFor({ error: "Unmapped.", code: "nope" }, 400, translate), "Unmapped.");

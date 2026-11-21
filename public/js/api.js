@@ -23,13 +23,17 @@ export const setCsrfToken = (token) => {
   csrfToken = typeof token === "string" ? token : "";
 };
 
-// Error copy (wave 2026-11-21-3): a stable `code` from the server paints the
-// member's own language via errors.<code>; unknown codes fall back to the
-// server's English text, and an empty body to the generic status line.
+// Error copy (wave 2026-11-21-3): a stable snake_case `code` from the server
+// paints the member's own language via errors.<camelCaseCode> (locale keys
+// are camelCase); unknown codes fall back to the server's English text, and
+// an empty body to the generic status line.
+export const errorKeyFor = (code) =>
+  `errors.${code.replace(/_([a-z0-9])/g, (whole, next) => next.toUpperCase())}`;
+
 export function errorMessageFor(result, status, translate = t) {
   const code = typeof result?.code === "string" ? result.code : "";
   if (/^[a-z][a-z0-9_]*$/.test(code)) {
-    const key = `errors.${code}`;
+    const key = errorKeyFor(code);
     const translated = translate(key);
     if (translated && translated !== key) return translated;
   }
