@@ -26,6 +26,7 @@ import { renderPollBlock } from "./polls.js";
 import { isBotUsername } from "./bots.js";
 import { t, tn, currentLocale } from "./i18n.js";
 import { createCopyLinkButton } from "./copy-link.js";
+import { createCopyCodeButton } from "./copy-code.js";
 import { createReadAloud } from "./read-aloud.js";
 
 const createElement = (document, tagName, className, text) => {
@@ -109,7 +110,7 @@ export const renderBodyBlocks = (post, document, article) => {
       const pre = createElement(document, "pre", "post-codeblock");
       const code = document.createElement("code");
       code.textContent = block.text.join("\n");
-      pre.append(code);
+      pre.append(createCopyCodeButton(document, () => code.textContent), code);
       article.append(pre);
       continue;
     }
