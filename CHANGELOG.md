@@ -13,6 +13,22 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.20.0] - 2026-11-21
+
+### Added
+- Two-factor sign-in can now use SHA-256 instead of SHA-1. It is opt-in: when
+  you set up two-factor, tick **Use SHA-256**, but only if your authenticator
+  app supports it (Aegis, 2FAS, 1Password and Bitwarden do; Google
+  Authenticator does not). Setup asks for a code from your app before it
+  turns on, so a wrong choice fails there, never at sign-in. Everyone already
+  using two-factor keeps SHA-1 and nothing changes for them. Your data export
+  now shows which algorithm you use (never the secret).
+
+### Changed
+- Database migration `0061_totp_algorithm.sql` adds one new table,
+  `totp_algorithms`; no existing table changes. Self-hosters: apply it before
+  deploying this version.
+
 ## [5.19.0] - 2026-11-21
 
 ### Added
