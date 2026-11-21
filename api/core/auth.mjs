@@ -14,7 +14,7 @@
 //
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
-// see <https://www.gnu.org/licenses/>
+// see <https://www.gnu.org/licenses/>.
 
 // v4.0 core leaf: session and identity machinery — cookie sessions (only
 // SHA-256 token hashes are stored), CSRF + same-origin enforcement, the

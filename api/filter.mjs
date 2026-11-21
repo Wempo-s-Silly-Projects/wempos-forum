@@ -14,7 +14,7 @@
 //
 // You should have received a copy of the
 // GNU Affero General Public License along with this program.  If not,
-// see <https://www.gnu.org/licenses/>
+// see <https://www.gnu.org/licenses/>.
 
 // Post/reply word filter. The word list is PRIVATE: it comes from the
 // FILTERED_WORDS secret (a comma-separated string; see
