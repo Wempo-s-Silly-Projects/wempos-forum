@@ -789,5 +789,12 @@
   "post.latestReply": "सबसे नए जवाब पर जाएँ",
   "post.foldReply": "समेटें",
   "post.foldReplyTitle": "इस जवाब को लेखक की पंक्ति तक समेटें — सिर्फ़ आपके लिए, जब तक आप पेज नहीं छोड़ते",
-  "post.firstPost": "पहली पोस्ट पर वापस जाएँ"
+  "post.firstPost": "पहली पोस्ट पर वापस जाएँ",
+  "traditions.qotdTitle": "आज का सवाल",
+  "traditions.qotdToday": "आज का प्रश्न",
+  "traditions.qotdAnswered": "आपने जवाब दिया",
+  "traditions.galleryTitle": "गैलरी",
+  "traditions.galleryEmpty": "अभी कोई तस्वीर नहीं — कोई ड्रॉइंग या बिल्ड साझा करें!",
+  "traditions.galleryLoadFailed": "गैलरी लोड नहीं हो सकी। थोड़ी देर में फिर कोशिश करें।",
+  "traditions.galleryAlt": "शोकेस तस्वीर: {title}"
 }

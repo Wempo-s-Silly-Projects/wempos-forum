@@ -789,5 +789,12 @@
   "post.latestReply": "최신 답글로 이동",
   "post.foldReply": "접기",
   "post.foldReplyTitle": "이 답글을 작성자 줄만 남기고 접습니다 — 나에게만, 페이지를 떠날 때까지",
-  "post.firstPost": "첫 게시물로 돌아가기"
+  "post.firstPost": "첫 게시물로 돌아가기",
+  "traditions.qotdTitle": "오늘의 질문",
+  "traditions.qotdToday": "오늘의 질문 보기",
+  "traditions.qotdAnswered": "답변함",
+  "traditions.galleryTitle": "갤러리",
+  "traditions.galleryEmpty": "아직 사진이 없어요 — 그림이나 작품을 공유해 보세요!",
+  "traditions.galleryLoadFailed": "갤러리를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
+  "traditions.galleryAlt": "쇼케이스 사진: {title}"
 }

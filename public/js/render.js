@@ -28,6 +28,7 @@ import { t, tn, currentLocale } from "./i18n.js";
 import { createCopyLinkButton } from "./copy-link.js";
 import { createCopyCodeButton } from "./copy-code.js";
 import { createReadAloud } from "./read-aloud.js";
+import { isQotdBody } from "./traditions.js";
 
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
@@ -277,6 +278,13 @@ export const createPostCard = (post, document, currentUser = null) => {
     header.append(createElement(document, "span",
       "suggestion-badge suggestion-badge-" + post.suggestionStatus,
       post.suggestionStatus === "resolved" ? t("render.resolved") : t("render.declined")));
+  }
+  // QOTD chip (wave 2026-11-21-14 F1): root threads that open with "QOTD"
+  // carry the community's Question of the Day tag. Client-only, from the body.
+  if (!post.parent && isQotdBody(post.body)) {
+    const qotdChip = createElement(document, "span", "role-badge qotd-chip", "QOTD"); // i18n-ignore
+    qotdChip.setAttribute("title", t("traditions.qotdTitle"));
+    header.append(qotdChip);
   }
   article.append(header);
 

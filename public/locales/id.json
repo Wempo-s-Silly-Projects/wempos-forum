@@ -789,5 +789,12 @@
   "post.latestReply": "Lompat ke balasan terbaru",
   "post.foldReply": "Lipat",
   "post.foldReplyTitle": "Lipat balasan ini hingga baris penulisnya — hanya untuk Anda, sampai Anda meninggalkan halaman",
-  "post.firstPost": "Kembali ke postingan pertama"
+  "post.firstPost": "Kembali ke postingan pertama",
+  "traditions.qotdTitle": "Pertanyaan Hari Ini",
+  "traditions.qotdToday": "Pertanyaan hari ini",
+  "traditions.qotdAnswered": "Kamu sudah menjawab",
+  "traditions.galleryTitle": "Galeri",
+  "traditions.galleryEmpty": "Belum ada gambar — bagikan gambar atau bangunanmu!",
+  "traditions.galleryLoadFailed": "Galeri tidak dapat dimuat. Coba lagi sebentar lagi.",
+  "traditions.galleryAlt": "Gambar pameran: {title}"
 }

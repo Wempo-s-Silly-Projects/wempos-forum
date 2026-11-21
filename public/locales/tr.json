@@ -789,5 +789,12 @@
   "post.latestReply": "En son yanıta git",
   "post.foldReply": "Daralt",
   "post.foldReplyTitle": "Bu yanıtı yazar satırına kadar daraltın — yalnızca sizin için, sayfadan ayrılana dek",
-  "post.firstPost": "İlk gönderiye dön"
+  "post.firstPost": "İlk gönderiye dön",
+  "traditions.qotdTitle": "Günün Sorusu",
+  "traditions.qotdToday": "Bugünün sorusu",
+  "traditions.qotdAnswered": "Yanıtladın",
+  "traditions.galleryTitle": "Galeri",
+  "traditions.galleryEmpty": "Henüz resim yok — bir çizim ya da yapı paylaş!",
+  "traditions.galleryLoadFailed": "Galeri yüklenemedi. Birazdan tekrar dene.",
+  "traditions.galleryAlt": "Vitrin görseli: {title}"
 }
