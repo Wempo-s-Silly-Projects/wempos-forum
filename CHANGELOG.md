@@ -15,6 +15,27 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.21.0] - 2026-11-21
+
+### Added
+- A **Source code** link in the footer of every page. It opens the forum's
+  source code at the exact version that is running, as the GNU AGPL
+  (section 13) asks. People who run their own copy and change it can point
+  the link at their own source with the new `SOURCE_URL` setting; see
+  "Sharing your source code" in
+  [Running your own Wempo's Forum](docs/self-hosting.md). Only `https://`
+  addresses are accepted.
+- A [versioning policy](CONTRIBUTING.md#versioning): what counts as the
+  public API, and what a MAJOR, MINOR or PATCH release means for it.
+
+### Changed
+- Every source file now also carries machine-readable SPDX license and
+  copyright lines, and the repository follows the
+  [REUSE](https://reuse.software/) specification: license texts live in
+  `LICENSES/`, `REUSE.toml` covers files that cannot hold a comment, and a
+  new CI check runs `reuse lint`. The license itself is unchanged
+  (AGPL-3.0-or-later). No database migration in this release.
+
 ## [5.20.0] - 2026-11-21
 
 ### Added
