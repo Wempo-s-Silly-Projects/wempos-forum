@@ -35,6 +35,11 @@
 import { api } from "./api.js";
 import { createIcon } from "./icons.js";
 import { currentLocale, i18nReady, t, tn } from "./i18n.js";
+import { isEmojiOnly } from "./dm-effects.js";
+import {
+  buildEffectsToggle, buildGroupManage, buildImageButton, buildNewGroupForm, conversationBase,
+  effectsEnabled, fillImageBody, groupTitle, imageIdOf, uploadDmImage,
+} from "./dm-extras.js";
 
 const PANEL_POLL_MS = 5_000;
 const UNREAD_POLL_MS = 30_000;
@@ -57,6 +62,9 @@ let threadListEl = null;
 let conversationEl = null;
 
 let threads = [];
+// v4.7 group DMs ride the same probe (GET /api/dm/threads → groups); a
+// conversation is { kind: "dm" | "group", id } and kind defaults to "dm".
+let groups = [];
 let activeThread = null;
 let conversation = null; // GET /api/dm/threads/:id result for activeThread
 let open = false;
@@ -90,6 +98,14 @@ let activeTab = "dms";
 // re-attached, not rebuilt).
 let gifLibrary = null;
 let dmGifPicker = null;
+// Message effects (opt-in): the switch's state, and the newest message id
+// painted per conversation so only fresh arrivals pop.
+let effectsOn = false;
+let lastPainted = { key: null, maxId: 0 };
+
+const kindOf = (conversation) => (conversation?.kind === "group" ? "group" : "dm");
+const conversationKey = (conversation) => `${kindOf(conversation)}:${conversation?.id ?? ""}`;
+const sameConversation = (a, b) => Boolean(a && b) && conversationKey(a) === conversationKey(b);
 
 const isStaff = () => Boolean(widgetUser && (widgetUser.role === "owner" || widgetUser.role === "admin"));
 
@@ -123,11 +139,14 @@ const gifToken = (gifId) => `[gif:${gifId}]`;
 // A message body node: a GIF token becomes a lazy <img> from the library's
 // serving route; anything else (and a token whose image 404s — unknown or
 // unapproved ids) stays plain text. createElement/textContent only.
-const messageBodyNode = (className, body) => {
+const messageBodyNode = (className, body, { dm = false, authorName = "" } = {}) => {
   const node = el("p", className);
+  const imageId = dm ? imageIdOf(body) : null;
+  if (imageId) return fillImageBody(node, imageId, authorName);
   const gifId = gifIdOf(body);
   if (!gifId) {
     if (body !== undefined) node.textContent = body;
+    if (dm && effectsOn && isEmojiOnly(body)) node.classList.add("chat-emoji-jumbo");
     return node;
   }
   node.classList.add("chat-gif-body");
@@ -219,7 +238,15 @@ const buildGifPicker = (onPick) => {
 
 const loadThreads = async () => {
   const data = await api("/api/dm/threads");
-  return Array.isArray(data?.threads) ? data.threads : [];
+  return {
+    threads: Array.isArray(data?.threads) ? data.threads : [],
+    groups: Array.isArray(data?.groups) ? data.groups.map((group) => ({ ...group, kind: "group" })) : [],
+  };
+};
+
+const applyConversations = (data) => {
+  threads = data.threads;
+  groups = data.groups;
 };
 
 // The one boot decision: a successful thread read mounts the widget; every
@@ -228,7 +255,7 @@ const loadThreads = async () => {
 const boot = async () => {
   if (document.querySelector(".chat-widget-launcher")) return;
   try {
-    threads = await loadThreads();
+    applyConversations(await loadThreads());
   } catch {
     return;
   }
@@ -269,14 +296,14 @@ const boot = async () => {
 };
 
 const refreshUnread = async () => {
-  threads = await loadThreads();
+  applyConversations(await loadThreads());
   paintBadge();
   if (open && !activeThread) paintThreadList();
 };
 
 const paintBadge = () => {
   if (!badge) return;
-  const total = threads.reduce((sum, thread) => sum + (thread.unread || 0), 0);
+  const total = [...threads, ...groups].reduce((sum, thread) => sum + (thread.unread || 0), 0);
   badge.textContent = String(total);
   badge.hidden = total === 0;
 };
@@ -328,7 +355,16 @@ const openPanel = async () => {
   // paintThreadList replaces (see buildNewChatForm).
   listSideEl = el("div", "chat-widget-list");
   newChatFormEl = buildNewChatForm();
-  listSideEl.append(newChatFormEl, threadListEl);
+  const newGroupEl = buildNewGroupForm(
+    (groupId) => openThread({ kind: "group", id: groupId }).then(() => refreshUnread()),
+    showNewChatError,
+  );
+  effectsOn = effectsEnabled();
+  const effectsEl = buildEffectsToggle((on) => {
+    effectsOn = on;
+    paintConversation();
+  });
+  listSideEl.append(newChatFormEl, newGroupEl, effectsEl, threadListEl);
   lobbyEl = buildLobby();
   panel.append(head, listSideEl, conversationEl, lobbyEl);
   document.body.append(panel);
@@ -352,9 +388,9 @@ const openPanel = async () => {
     }, LOBBY_POLL_MS);
   }
   showTab(lobbyAvailable ? "lobby" : "dms");
-  const data = await api("/api/dm/threads").catch(() => null);
+  const data = await loadThreads().catch(() => null);
   if (data) {
-    threads = Array.isArray(data.threads) ? data.threads : threads;
+    applyConversations(data);
     paintBadge();
     if (!activeThread) paintThreadList();
   }
@@ -382,6 +418,7 @@ const closePanel = () => {
   conversation = null;
   gifLibrary = null;
   dmGifPicker = null;
+  lastPainted = { key: null, maxId: 0 };
 };
 
 // The tab switcher: the Lobby stream and the DMs pair are mutually exclusive
@@ -419,19 +456,25 @@ const buildAvatar = (other) => {
 const paintThreadList = () => {
   if (!threadListEl) return;
   threadListEl.replaceChildren();
-  if (threads.length === 0) {
+  const rows = [...threads, ...groups].sort((a, b) =>
+    String(b.lastMessageAt || "").localeCompare(String(a.lastMessageAt || "")));
+  if (rows.length === 0) {
     threadListEl.append(el("p", "chat-widget-empty", t("chat.noChats")));
     return;
   }
-  for (const thread of threads) {
+  for (const thread of rows) {
     const row = el("button", "chat-widget-thread");
     row.type = "button";
-    const name = el("span", "chat-widget-thread-name", thread.other?.username || "unknown");
+    const label = kindOf(thread) === "group"
+      ? groupTitle(thread, widgetUser?.id)
+      : thread.other?.username || "unknown";
+    const name = el("span", "chat-widget-thread-name", label);
     if (thread.unread > 0) name.classList.add("has-unread");
     const preview = el("span", "chat-widget-thread-preview", previewOf(thread));
     const time = el("span", "chat-widget-thread-time", thread.lastMessageAt ? relativeTime(thread.lastMessageAt) : "");
     time.title = thread.lastMessageAt || "";
-    const avatar = buildAvatar(thread.other);
+    const avatar = buildAvatar(kindOf(thread) === "group" ? { username: label } : thread.other);
+    if (kindOf(thread) === "group") avatar.classList.add("is-group");
     row.append(avatar, name, preview, time);
     row.addEventListener("click", () => openThread(thread).catch(() => { /* the row stays clickable */ }));
     threadListEl.append(row);
@@ -440,7 +483,7 @@ const paintThreadList = () => {
 
 const previewOf = (thread) => {
   const raw = typeof thread.lastMessagePreview === "string" ? thread.lastMessagePreview : "";
-  const preview = gifIdOf(raw) ? GIF_PREVIEW_LABEL : raw;
+  const preview = gifIdOf(raw) ? GIF_PREVIEW_LABEL : imageIdOf(raw) ? t("dm.imagePreview") : raw;
   if (thread.unread > 0) return preview;
   const clipped = preview.length > MESSAGE_PREVIEW_MAX
     ? `${preview.slice(0, MESSAGE_PREVIEW_MAX - 1)}…` : preview;
@@ -452,20 +495,22 @@ const openThread = async (thread, { silent = false } = {}) => {
     activeThread = thread;
     conversation = null;
   }
-  if (!activeThread || activeThread.id !== thread.id) return;
-  const data = await api(`/api/dm/threads/${encodeURIComponent(thread.id)}`);
-  if (!open || activeThread?.id !== thread.id) return;
-  conversation = data;
+  if (!sameConversation(activeThread, thread)) return;
+  const data = await api(conversationBase(thread));
+  if (!open || !sameConversation(activeThread, thread)) return;
+  conversation = { ...data, kind: kindOf(thread) };
   if (data.unread > 0) {
-    api(`/api/dm/threads/${encodeURIComponent(thread.id)}/read`, { method: "POST" })
+    api(`${conversationBase(thread)}/read`, { method: "POST" })
       .then(() => {
-        threads = threads.map((row) => (row.id === thread.id ? { ...row, unread: 0 } : row));
+        const clear = (row) => (sameConversation(row, thread) ? { ...row, unread: 0 } : row);
+        threads = threads.map(clear);
+        groups = groups.map(clear);
         paintBadge();
       })
       .catch(() => { /* the next poll re-acks */ });
   }
   paintConversation();
-  const threadRow = threads.find((row) => row.id === thread.id);
+  const threadRow = [...threads, ...groups].find((row) => sameConversation(row, thread));
   if (threadRow && !silent) paintThreadList();
 };
 
@@ -488,6 +533,11 @@ const paintConversation = () => {
       focused: document.activeElement === composerEl,
       start: composerEl.selectionStart, end: composerEl.selectionEnd }
     : null;
+  // The group strip's open state and half-typed add-member name survive the
+  // repaint too — same conversation only.
+  const sameAsBefore = composerEl?.dataset.threadId === conversationKey(conversation);
+  const manageWasOpen = sameAsBefore && Boolean(conversationEl.querySelector(".chat-widget-group-manage")?.open);
+  const addDraft = sameAsBefore ? conversationEl.querySelector(".chat-widget-group-add-input")?.value || "" : "";
   conversationEl.replaceChildren();
   const back = el("button", "chat-widget-back");
   back.type = "button";
@@ -500,10 +550,33 @@ const paintConversation = () => {
     listSideEl.hidden = false;
     paintThreadList();
   });
-  const title = el("span", "chat-widget-peer", conversation.other?.username || "unknown");
+  const isGroup = kindOf(conversation) === "group";
+  const title = el("span", "chat-widget-peer", isGroup
+    ? groupTitle(conversation, widgetUser?.id) : conversation.other?.username || "unknown");
   conversationEl.append(back, title);
+  if (isGroup) {
+    const leaveToList = () => {
+      back.click();
+      return refreshUnread();
+    };
+    const manage = buildGroupManage(conversation, {
+      viewerId: widgetUser?.id,
+      onChange: () => openThread(activeThread, { silent: true }),
+      onLeft: leaveToList,
+      onError: showSendError,
+    });
+    manage.open = manageWasOpen;
+    const addInput = manage.querySelector(".chat-widget-group-add-input");
+    if (addInput) addInput.value = addDraft;
+    conversationEl.append(manage);
+  }
   const messages = [...(conversation.messages || [])].reverse();
   const scroll = el("div", "chat-widget-messages");
+  // Pop only messages newer than the last paint of THIS conversation.
+  const key = conversationKey(conversation);
+  const popAfter = lastPainted.key === key ? lastPainted.maxId : Infinity;
+  const maxId = messages.reduce((max, message) => Math.max(max, Number(message.id) || 0), 0);
+  lastPainted = { key, maxId: Math.max(maxId, lastPainted.key === key ? lastPainted.maxId : 0) };
   for (const message of messages) {
     const bubble = el("div", message.mine ? "chat-widget-message mine" : "chat-widget-message");
     if (!message.mine) {
@@ -512,7 +585,11 @@ const paintConversation = () => {
       who.append(buildAvatar(message), el("span", "chat-widget-message-who-name", message.authorUsername || ""));
       bubble.append(who);
     }
-    const body = messageBodyNode("chat-widget-message-body", message.body);
+    const body = messageBodyNode("chat-widget-message-body", message.body,
+      { dm: true, authorName: message.authorUsername });
+    if (body.classList.contains("chat-emoji-jumbo") && Number(message.id) > popAfter) {
+      body.classList.add("chat-emoji-pop");
+    }
     const time = el("span", "chat-widget-message-time", relativeTime(message.createdAt));
     time.title = message.createdAt || "";
     bubble.append(body, time);
@@ -526,7 +603,7 @@ const paintConversation = () => {
   older.addEventListener("click", async () => {
     if (!oldest) return;
     try {
-      const data = await api(`/api/dm/threads/${encodeURIComponent(activeThread.id)}?after=${encodeURIComponent(oldest.id)}`);
+      const data = await api(`${conversationBase(activeThread)}?after=${encodeURIComponent(oldest.id)}`);
       const more = Array.isArray(data?.messages) ? data.messages : [];
       conversation = { ...conversation, messages: [...more, ...(conversation.messages || [])] };
       paintConversation();
@@ -540,7 +617,7 @@ const paintConversation = () => {
   composerEl.rows = 1;
   composerEl.placeholder = t("chat.writeMessage");
   composerEl.setAttribute("aria-label", t("chat.messageUser", { name: title.textContent }));
-  composerEl.dataset.threadId = String(activeThread?.id ?? "");
+  composerEl.dataset.threadId = conversationKey(activeThread);
   if (draft && draft.threadId === composerEl.dataset.threadId) {
     composerEl.value = draft.value;
     if (draft.focused) {
@@ -562,7 +639,8 @@ const paintConversation = () => {
   sendButton.textContent = t("common.send");
   sendButton.addEventListener("click", sendMessage);
   if (!dmGifPicker) dmGifPicker = buildGifPicker((gifId) => sendDmBody(gifToken(gifId)));
-  composer.append(dmGifPicker.grid, composerEl, dmGifPicker.toggle, sendButton);
+  const imageButton = buildImageButton(sendDmImage);
+  composer.append(dmGifPicker.grid, composerEl, imageButton, dmGifPicker.toggle, sendButton);
   conversationEl.append(composer);
   conversationEl.hidden = false;
   if (listSideEl) listSideEl.hidden = true;
@@ -577,16 +655,37 @@ const sendDmBody = async (body, { clearComposer = false } = {}) => {
   sendInFlight = true;
   sendButton.disabled = true;
   try {
-    const data = await api(`/api/dm/threads/${encodeURIComponent(activeThread.id)}`, {
+    const data = await api(conversationBase(activeThread), {
       method: "POST",
       body: { body },
     });
     if (clearComposer && composerEl) composerEl.value = "";
-    if (data?.message?.id && !((conversation?.messages || []).some((row) => row.id === data.message.id))) {
-      conversation = { ...conversation, messages: [...(conversation.messages || []), data.message] };
-    }
-    paintConversation();
-    refreshUnread().catch(() => { /* badge catches up on its next tick */ });
+    landSentMessage(data);
+  } catch (error) {
+    showSendError(error?.message || t("chat.sendFailed"));
+  } finally {
+    sendInFlight = false;
+    if (sendButton) sendButton.disabled = false;
+  }
+};
+
+// The send's success arm, shared by text and image sends: add the stored
+// message once (newest-first array, so the poll's copy dedupes by id).
+const landSentMessage = (data) => {
+  if (data?.message?.id && !((conversation?.messages || []).some((row) => row.id === data.message.id))) {
+    conversation = { ...conversation, messages: [data.message, ...(conversation.messages || [])] };
+  }
+  paintConversation();
+  refreshUnread().catch(() => { /* badge catches up on its next tick */ });
+};
+
+// One image send (v4.7): multipart through the same single-flight gate.
+const sendDmImage = async (file) => {
+  if (sendInFlight || !activeThread || !file) return;
+  sendInFlight = true;
+  if (sendButton) sendButton.disabled = true;
+  try {
+    landSentMessage(await uploadDmImage(activeThread, file));
   } catch (error) {
     showSendError(error?.message || t("chat.sendFailed"));
   } finally {
@@ -845,11 +944,11 @@ export const openChatThread = async (threadId) => {
   // The profile door lands on the DMs tab (a conversation is a DM surface).
   showTab("dms");
   try {
-    threads = await loadThreads();
+    applyConversations(await loadThreads());
     paintBadge();
   } catch { /* openThread still reads the conversation itself */ }
   const known = threads.find((row) => row.id === threadId);
-  await openThread(known || { id: threadId });
+  await openThread(known || { id: threadId, kind: "dm" });
 };
 
 await boot();

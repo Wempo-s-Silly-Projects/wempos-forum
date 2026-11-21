@@ -2756,3 +2756,53 @@ dialog h2 {
   border-radius: var(--button-radius);
   cursor: pointer;
 }
+
+/* v4.7 DMs (wave 2026-11-21-2): group DMs, images in DMs, and the opt-in
+   Message effects. Theme tokens only. */
+.chat-dm-image-body { line-height: 0; }
+.chat-dm-image {
+  display: block;
+  max-width: 100%;
+  max-height: 240px;
+  height: auto;
+  border-radius: 6px;
+}
+.chat-dm-image-missing { line-height: 1.4; color: var(--muted); font-style: italic; font-size: 0.85rem; }
+.chat-widget-image-button {
+  flex-shrink: 0;
+  padding: 0 0.4rem;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.chat-widget-new-group,
+.chat-widget-effects { display: block; margin: 0.25rem 0.5rem; font-size: 0.85rem; }
+.chat-widget-new-group-summary { cursor: pointer; color: var(--muted); }
+.chat-widget-new-group-form { display: grid; gap: 0.3rem; margin-top: 0.3rem; }
+.chat-widget-effects { color: var(--muted); cursor: pointer; }
+.chat-widget-effects-box { margin-inline-end: 0.35rem; }
+.chat-widget-avatar.is-group { border-radius: 30%; }
+.chat-widget-group-manage { margin: 0.25rem 0; font-size: 0.85rem; }
+.chat-widget-group-count { cursor: pointer; color: var(--muted); }
+.chat-widget-group-members { list-style: none; margin: 0.3rem 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.chat-widget-group-member {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.chat-widget-group-remove { padding: 0 0.15rem; background: none; border: 0; color: var(--muted); cursor: pointer; }
+.chat-widget-group-add { display: flex; gap: 0.3rem; margin: 0.3rem 0; }
+.chat-widget-group-add-input { flex: 1; min-width: 0; }
+.chat-emoji-jumbo { font-size: 2.4rem; line-height: 1.15; }
+.chat-emoji-pop { animation: chat-emoji-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) 1; }
+@keyframes chat-emoji-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-emoji-pop { animation: none; }
+}
