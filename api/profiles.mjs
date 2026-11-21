@@ -28,6 +28,7 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson, readLimitedBody, requireMutationApplied } from "./core/http.mjs";
 import { hashPassword, isValidPassword, verifyPassword } from "./core/passwords.mjs";
 import { publicRole } from "./core/roles.mjs";
+import { publicChainSql } from "./core/visibility.mjs";
 import { normalizeBannerColor, normalizeProfileAccent, normalizeProfileColorInput, PROFILE_ACCENTS, PROFILE_BANNER_COLORS, SOCIAL_PLATFORMS, socialsFromRow, userByUsernameKey } from "./core/shapers.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
@@ -88,13 +89,14 @@ async function handleUserProfileRoute(request, env, url, path, method) {
     // and replies written (any post row with a parent). Wave 40: the author
     // and staff count every row (own-view semantics); everyone else counts
     // only public posts, so hidden or staged posts never show through a
-    // number.
+    // number. Wave 5.10: "public" is the whole chain (publicChainSql), so a
+    // public reply under a hidden or banned-author root is not counted either.
     const fullCount = viewerIsStaff || Boolean(viewer && viewer.id === Number(user.id));
-    const publicOnly = fullCount ? "" : " AND visibility = 'public'";
+    const publicOnly = fullCount ? "" : " AND " + publicChainSql("pp");
     const counts = await env.FORUM_DB.prepare(
       "SELECT " +
-      "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NULL" + publicOnly + ") AS posts_count, " +
-      "(SELECT COUNT(*) FROM posts WHERE author_id = ? AND parent_id IS NOT NULL" + publicOnly + ") AS replies_count, " +
+      "(SELECT COUNT(*) FROM posts pp WHERE pp.author_id = ? AND pp.parent_id IS NULL" + publicOnly + ") AS posts_count, " +
+      "(SELECT COUNT(*) FROM posts pp WHERE pp.author_id = ? AND pp.parent_id IS NOT NULL" + publicOnly + ") AS replies_count, " +
       // Member since (wave 2026-11-21-13 F1): the account's creation stamp
       // rides this same round trip — shapers' shared user select stays put.
       "(SELECT created_at FROM users WHERE id = ?) AS joined_at",
