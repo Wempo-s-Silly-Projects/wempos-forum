@@ -26,9 +26,20 @@ import { addSubmit, createPanel, element, main, setMessage } from "./dom.js";
 import { createTextarea } from "./forms.js";
 import { state } from "./state.js";
 import { currentLocale, t } from "./i18n.js";
-import { parseInline } from "./markdown.js";
+import { renderBodyBlocks } from "./render.js";
 
 const WALL_MAX_CHARS = 280;
+
+// Wave 2026-11-21-13 F3 / wave 24: wall posts read like posts — the post
+// page's own per-block renderer (paragraphs, quotes, lists, code fences, each
+// run parsed inline), so spoilers split the same way maskSpoilers splits
+// them. createElement/textContent only.
+export function renderWallBody(document, text) {
+  const body = document.createElement("div");
+  body.className = "wall-post-body";
+  renderBodyBlocks({ body: text }, document, body);
+  return body;
+}
 
 // Builds the wall panel and fills it from the API (the caller does not
 // await — the profile render never blocks on the wall fetch).
@@ -81,12 +92,7 @@ export async function renderProfileWall(profile) {
     when.textContent = new Date(post.createdAt).toLocaleString(currentLocale());
     header.append(when);
     row.append(header);
-    // Wave 2026-11-21-13 F3: wall posts read like posts — the same inline
-    // renderer (bold, italics, code, safe links, click-to-reveal spoilers),
-    // built with createElement/textContent only.
-    const body = element("p", "wall-post-body");
-    body.append(...parseInline(document, post.body));
-    row.append(body);
+    row.append(renderWallBody(document, post.body));
     // Pin control: the wall OWNER's single affordance. The dataset rides the
     // payload's pinnedAt, so a re-render refetch decides the state.
     if (isOwner) {

@@ -236,7 +236,8 @@ test("fold all after a manual unfold folds the rest instead of unfolding everyth
 
 test("fold all: wired on the thread page above the replies, nothing stored", () => {
   const post = read("public/js/routes/post.js");
-  assert.match(post, /createFoldAllToggle\(document, replyList, post\.replies\.length\)/);
+  // Wave 24: the gate counts an unloaded older page (knownReplyTotal).
+  assert.match(post, /createFoldAllToggle\(document, replyList, knownReplyTotal\(post\)\)/);
   const source = read("public/js/reply-fold.js");
   assert.doesNotMatch(source, /localStorage|api\(|fetch\(/);
 });

@@ -94,3 +94,15 @@ export function createFoldAllToggle(document, replyList, replyCount) {
   });
   return button;
 }
+
+// Wave 24: a thread whose first page was short gains the toggle once "Load
+// older replies" brings it past the threshold. Idempotent: an existing toggle
+// is returned as-is.
+export function ensureFoldAllToggle(document, replyList) {
+  if (!replyList?.parentNode) return null;
+  const existing = replyList.parentNode.querySelector?.(".fold-all-replies");
+  if (existing) return existing;
+  const toggle = createFoldAllToggle(document, replyList, topLevelCards(replyList).length);
+  if (toggle) replyList.parentNode.insertBefore(toggle, replyList);
+  return toggle;
+}

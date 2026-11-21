@@ -43,7 +43,7 @@ import { createThreadGlance, summarizeThread } from "../thread-glance.js";
 import { markThreadStarterReplies, threadStarterId } from "../thread-starter.js";
 import { bindPostKeys, createPostKeysHint } from "../post-keys.js";
 import { createFirstPostJump, createLatestReplyJump, createMyReplyJump } from "../latest-reply.js";
-import { addReplyFolds, createFoldAllToggle } from "../reply-fold.js";
+import { addReplyFolds, createFoldAllToggle, ensureFoldAllToggle } from "../reply-fold.js";
 import { openLightbox } from "../lightbox.js";
 
 async function renderPostRoute(route, context, version) {
@@ -71,7 +71,7 @@ async function renderPostRoute(route, context, version) {
     const myJump = createMyReplyJump(document, replyList, post.replies, context.session.user?.id);
     if (myJump) main.append(myJump);
     // Fold all replies (wave 2026-11-21-22 F2): long threads only.
-    const foldAll = createFoldAllToggle(document, replyList, post.replies.length);
+    const foldAll = createFoldAllToggle(document, replyList, knownReplyTotal(post));
     if (foldAll) main.append(foldAll);
     main.append(replyList);
     // Thread-author chip (wave 2026-11-21-7 F2): the starter's own replies.
@@ -227,6 +227,10 @@ function quoteIntoComposer(button) {
 function openAttachmentLightbox(button) {
   openLightbox(attachmentLightbox, button);
 }
+// Wave 24: the detail payload carries one page of replies; an unloaded older
+// page means at least one more, so long threads gate fold-all on that bound.
+const knownReplyTotal = (post) => post.replies.length + (post.repliesNextBefore ? 1 : 0);
+
 async function loadOlderReplies(button) {
   const postId = button.dataset.postId;
   const older = await api("/api/posts/" + postId + "/replies?before=" + button.dataset.before);
@@ -237,6 +241,7 @@ async function loadOlderReplies(button) {
   replyList.prepend(fragment);
   markThreadStarterReplies(document, replyList, older.replies, Number(replyList.dataset.starterId));
   addReplyFolds(document, replyList);
+  ensureFoldAllToggle(document, replyList);
   if (older.nextBefore) button.dataset.before = String(older.nextBefore);
   else button.remove();
 }
