@@ -252,6 +252,22 @@ const dmOtherHiddenSql = () =>
   "(" + activeBanSql("u.id") + " OR EXISTS (SELECT 1 FROM blocks bk WHERE " +
   "(bk.blocker_id = ? AND bk.blocked_id = u.id) OR (bk.blocked_id = ? AND bk.blocker_id = u.id)))";
 
+// The viewer's whole DM unread total (every 1:1 thread and every group, not
+// just the listed pages), under the visibility law: block pairs and actively
+// banned peers count zero. The lobby read and the thread list both carry it
+// as dmUnread, so the widget badge never depends on which pages are loaded.
+async function viewerDmUnread(db, viewerId) {
+  const dmRow = await db.prepare(
+    "SELECT COALESCE(SUM(CASE WHEN user_a = ? THEN unread_a ELSE unread_b END), 0) AS unread " +
+    "FROM dm_threads WHERE (user_a = ? OR user_b = ?) " +
+    "AND NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND " +
+    "bk.blocked_id IN (user_a, user_b)) OR (bk.blocked_id = ? AND " +
+    "bk.blocker_id IN (user_a, user_b))) " +
+    "AND NOT " + activeBanSql("(CASE WHEN user_a = ? THEN user_b ELSE user_a END)"),
+  ).bind(viewerId, viewerId, viewerId, viewerId, viewerId, viewerId).first();
+  return Number(dmRow?.unread || 0) + await viewerGroupUnread(db, viewerId);
+}
+
 // GET /api/dm/threads — the signed-in member's thread list, newest activity
 // first (a thread with no messages sorts last), capped at the newest
 // DM_THREAD_LIST_LIMIT. The preview reads the newest dm_messages row
@@ -284,6 +300,7 @@ async function handleThreadListRoute(request, env, url, path, method) {
   // the widget's one probe paints both kinds of conversation.
   const page = await listViewerGroups(env, viewerId);
   return json({
+    dmUnread: await viewerDmUnread(env.FORUM_DB, viewerId),
     groups: page.groups,
     groupsCursor: page.cursor,
     threads: rows.map((row) => {
@@ -486,16 +503,7 @@ async function handleLobbyChatReadRoute(request, env, url, path, method) {
   let dmUnread = 0;
   let bellUnread = 0;
   if (session && session.user) {
-    const dmRow = await db.prepare(
-      "SELECT COALESCE(SUM(CASE WHEN user_a = ? THEN unread_a ELSE unread_b END), 0) AS unread " +
-      "FROM dm_threads WHERE (user_a = ? OR user_b = ?) " +
-      "AND NOT EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND " +
-      "bk.blocked_id IN (user_a, user_b)) OR (bk.blocked_id = ? AND " +
-      "bk.blocker_id IN (user_a, user_b))) " +
-      "AND NOT " + activeBanSql("(CASE WHEN user_a = ? THEN user_b ELSE user_a END)"),
-    ).bind(session.user.id, session.user.id, session.user.id,
-      session.user.id, session.user.id, session.user.id).first();
-    dmUnread = Number(dmRow?.unread || 0) + await viewerGroupUnread(db, session.user.id);
+    dmUnread = await viewerDmUnread(db, session.user.id);
     const bellRow = await db.prepare(
       "SELECT COUNT(*) AS unread FROM notifications WHERE user_id = ? AND read_at IS NULL",
     ).bind(session.user.id).first();

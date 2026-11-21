@@ -22,12 +22,14 @@ import { api } from "./api.js";
 import { currentLocale, t, tn } from "./i18n.js";
 import { el, ui } from "./chat-widget-state.js";
 import { buildGifPicker, gifToken, messageBodyNode } from "./chat-widget-gifs.js";
+import { REPLY_BODY_MAX, withReplyMention } from "./lobby-reply.js";
 
-const LOBBY_MESSAGE_MAX = 500;
+const LOBBY_MESSAGE_MAX = REPLY_BODY_MAX;
 
 let lobbyOnline = 0;
 let lobbyVersion = 0;
 let lobbySendInFlight = false;
+let lobbyInputEl = null;
 
 const isStaff = () => Boolean(ui.widgetUser && (ui.widgetUser.role === "owner" || ui.widgetUser.role === "admin"));
 
@@ -62,6 +64,7 @@ export const buildLobby = () => {
   input.required = true;
   input.placeholder = t("chat.messageLobby");
   input.setAttribute("aria-label", t("chat.messageLobby"));
+  lobbyInputEl = input;
   const send = el("button", "button button-primary chat-widget-lobby-send-button", t("common.send"));
   send.type = "submit";
   const gifPicker = buildGifPicker((gifId) => sendLobbyBody(gifToken(gifId), null));
@@ -98,6 +101,7 @@ const lobbyMessageRow = (message) => {
   when.textContent = new Date(message.createdAt).toLocaleString(currentLocale());
   head.append(when);
   row.append(head, messageBodyNode("chat-message-body", message.body));
+  if (!row.classList.contains("chat-mine")) row.append(buildReplyButton(message));
   if (isStaff()) {
     const remove = el("button", "chat-message-delete", "×");
     remove.type = "button";
@@ -111,8 +115,32 @@ const lobbyMessageRow = (message) => {
   return row;
 };
 
-// Paint the whole stream (each panel open re-renders the carried log).
-const paintLobbyLog = () => {
+// The boot probe's seed (GET /api/chat at mount): the newest page, the cursor
+// past it, and the online count — painted by paintLobbyLog on each open.
+export const seedLobby = (data) => {
+  ui.lobbyLog = Array.isArray(data?.messages) ? data.messages : [];
+  ui.lobbyLastId = Number(data?.lastId || 0);
+  lobbyOnline = Number(data?.online || 0);
+};
+
+// Reply (v4.11): prefill "@name " into the send box, keep the typed draft,
+// and put the cursor at the end — the send's own @mention ping does the rest.
+const buildReplyButton = (message) => {
+  const reply = el("button", "chat-message-reply", t("chat.reply"));
+  reply.type = "button";
+  reply.setAttribute("aria-label", t("chat.replyTo", { name: message.author.username }));
+  reply.addEventListener("click", () => {
+    if (!lobbyInputEl) return;
+    lobbyInputEl.value = withReplyMention(lobbyInputEl.value, message.author.username);
+    lobbyInputEl.focus();
+    lobbyInputEl.setSelectionRange(lobbyInputEl.value.length, lobbyInputEl.value.length);
+  });
+  return reply;
+};
+
+// Paint the whole stream (each panel open re-renders the carried log; the
+// poll's after= cursor and id dedupe keep the next tick from repainting it).
+export const paintLobbyLog = () => {
   if (!ui.lobbyMessagesEl) return;
   ui.lobbyMessagesEl.replaceChildren();
   for (const message of ui.lobbyLog) {

@@ -1879,6 +1879,19 @@ dialog h2 {
   padding: 0;
 }
 .chat-message-delete:hover { color: #b3261e; }
+/* Lobby reply (v4.11): a quiet text button under another member's row. */
+.chat-message-reply {
+  align-self: flex-start;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0;
+}
+.chat-message-reply:hover,
+.chat-message-reply:focus-visible { color: var(--ink); text-decoration: underline; }
 .chat-page form { display: flex; gap: 0.4rem; }
 .chat-page form input[type="text"] { flex: 1; min-width: 0; }
 .chat-guest-note { color: var(--muted); margin: 0; }
@@ -2417,6 +2430,19 @@ dialog h2 {
   padding: 0.35rem 0.5rem;
 }
 .chat-widget-new-send { flex-shrink: 0; }
+/* Chat list quick filter (v4.11): one search box above the rows. */
+.chat-widget-filter {
+  display: block;
+  box-sizing: border-box;
+  width: calc(100% - 1.5rem);
+  margin: 0.4rem 0.75rem;
+  font: inherit;
+  color: var(--ink);
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  padding: 0.3rem 0.5rem;
+}
 .chat-widget-new-send:disabled { opacity: 0.6; cursor: default; }
 .chat-widget-new-error {
   margin: 0;

@@ -23,6 +23,7 @@ import { api } from "./api.js";
 import { createIcon } from "./icons.js";
 import { t } from "./i18n.js";
 import { readPins, sortPinnedFirst } from "./chat-pins.js";
+import { FILTER_QUERY_MAX, filterConversations } from "./chat-filter.js";
 import { groupTitle, imageIdOf } from "./dm-extras.js";
 import { buildAvatar, conversationKey, el, kindOf, ui } from "./chat-widget-state.js";
 import { GIF_PREVIEW_LABEL, gifIdOf } from "./chat-widget-gifs.js";
@@ -40,6 +41,9 @@ export const loadThreads = async () => {
     threads: Array.isArray(data?.threads) ? data.threads : [],
     groups: Array.isArray(data?.groups) ? data.groups.map((group) => ({ ...group, kind: "group" })) : [],
     groupsCursor: typeof data?.groupsCursor === "string" ? data.groupsCursor : null,
+    // v4.11: the server's whole unread total (every page); null on an older
+    // server, where the badge falls back to summing the loaded rows.
+    dmUnread: Number.isFinite(Number(data?.dmUnread)) && data?.dmUnread != null ? Number(data.dmUnread) : null,
   };
 };
 
@@ -53,6 +57,16 @@ export const applyConversations = (data) => {
   ui.threads = data.threads;
   ui.groups = mergeOlderGroups(data.groups);
   ui.groupsCursor = data.groupsCursor ?? null;
+  ui.dmUnread = data.dmUnread ?? null;
+};
+
+// A group the viewer can no longer read (removed, or the group is gone — the
+// server's one 404) drops out of BOTH cached pages, so a stale older-page row
+// never lingers after the 5s first-page refresh.
+export const dropGroup = (groupId) => {
+  const gone = (group) => Number(group.id) === Number(groupId);
+  ui.groups = ui.groups.filter((group) => !gone(group));
+  ui.olderGroups = ui.olderGroups.filter((group) => !gone(group));
 };
 
 // The next group page: after the last older page loaded, else after page one.
@@ -84,7 +98,7 @@ export const refreshUnread = async () => {
 
 export const paintBadge = () => {
   if (!ui.badge) return;
-  const total = [...ui.threads, ...ui.groups].reduce((sum, thread) => sum + (thread.unread || 0), 0);
+  const total = ui.dmUnread ?? [...ui.threads, ...ui.groups].reduce((sum, thread) => sum + (thread.unread || 0), 0);
   ui.badge.textContent = String(total);
   ui.badge.hidden = total === 0;
 };
@@ -94,18 +108,19 @@ export const paintThreadList = () => {
   ui.threadListEl.replaceChildren();
   // Pinned chats (v4.10, local-only) float above the activity order.
   const pins = readPins(undefined, ui.widgetUser?.id);
-  const rows = sortPinnedFirst([...ui.threads, ...ui.groups].sort((a, b) =>
-    String(b.lastMessageAt || "").localeCompare(String(a.lastMessageAt || ""))), pins, conversationKey);
-  if (rows.length === 0) {
+  const allRows = [...ui.threads, ...ui.groups];
+  if (allRows.length === 0) {
     ui.threadListEl.append(el("p", "chat-widget-empty", t("chat.noChats")));
     return;
   }
+  // The quick filter (v4.11) narrows the rows by name; local-only, no request.
+  const rows = sortPinnedFirst(filterConversations(allRows, ui.listFilter, rowLabel).sort((a, b) =>
+    String(b.lastMessageAt || "").localeCompare(String(a.lastMessageAt || ""))), pins, conversationKey);
+  if (rows.length === 0) ui.threadListEl.append(el("p", "chat-widget-empty", t("chat.noFilterMatch")));
   for (const thread of rows) {
     const row = el("button", "chat-widget-thread");
     row.type = "button";
-    const label = kindOf(thread) === "group"
-      ? groupTitle(thread, ui.widgetUser?.id)
-      : thread.other?.username || "unknown";
+    const label = rowLabel(thread);
     const name = el("span", "chat-widget-thread-name", label);
     if (thread.unread > 0) name.classList.add("has-unread");
     if (pins.includes(conversationKey(thread))) {
@@ -129,6 +144,28 @@ export const paintThreadList = () => {
     older.addEventListener("click", () => { loadOlderGroups(); });
     ui.threadListEl.append(older);
   }
+};
+
+// The name a list row shows (and the quick filter matches).
+const rowLabel = (thread) => (kindOf(thread) === "group"
+  ? groupTitle(thread, ui.widgetUser?.id)
+  : thread.other?.username || "unknown");
+
+// The quick filter box: mounted once per open OUTSIDE the rows container (the
+// 5s repaint would otherwise wipe what is typed); each keystroke repaints.
+export const buildListFilter = () => {
+  const input = el("input", "chat-widget-filter");
+  input.type = "search";
+  input.maxLength = FILTER_QUERY_MAX;
+  input.placeholder = t("chat.filterChats");
+  input.setAttribute("aria-label", t("chat.filterChats"));
+  input.setAttribute("autocomplete", "off");
+  input.value = ui.listFilter;
+  input.addEventListener("input", () => {
+    ui.listFilter = input.value;
+    paintThreadList();
+  });
+  return input;
 };
 
 const previewOf = (thread) => {

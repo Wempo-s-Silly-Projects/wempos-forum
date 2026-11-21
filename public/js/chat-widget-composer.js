@@ -27,7 +27,7 @@ import {
 } from "./dm-extras.js";
 import { buildAvatar, conversationKey, el, kindOf, sameConversation, ui } from "./chat-widget-state.js";
 import { buildGifPicker, gifToken, messageBodyNode } from "./chat-widget-gifs.js";
-import { paintBadge, paintThreadList, refreshUnread } from "./chat-widget-threads.js";
+import { dropGroup, paintBadge, paintThreadList, refreshUnread } from "./chat-widget-threads.js";
 import { relativeTime } from "./chat-widget.js";
 
 let sendInFlight = false;
@@ -38,12 +38,22 @@ export const openThread = async (thread, { silent = false } = {}) => {
     ui.conversation = null;
   }
   if (!sameConversation(ui.activeThread, thread)) return;
-  const data = await api(conversationBase(thread));
+  let data;
+  try {
+    data = await api(conversationBase(thread));
+  } catch (error) {
+    // v4.11: removed from a group (or it is gone) — the one 404 drops the
+    // group from both cached pages and lands the reader back on the list.
+    if (error?.status === 404 && kindOf(thread) === "group") leaveGoneGroup(thread);
+    throw error;
+  }
   if (!ui.open || !sameConversation(ui.activeThread, thread)) return;
   ui.conversation = { ...data, kind: kindOf(thread) };
   if (data.unread > 0) {
     api(`${conversationBase(thread)}/read`, { method: "POST" })
       .then(() => {
+        const listed = [...ui.threads, ...ui.groups].find((row) => sameConversation(row, thread));
+        if (ui.dmUnread !== null) ui.dmUnread = Math.max(0, ui.dmUnread - (listed?.unread || 0));
         const clear = (row) => (sameConversation(row, thread) ? { ...row, unread: 0 } : row);
         ui.threads = ui.threads.map(clear);
         ui.groups = ui.groups.map(clear);
@@ -54,6 +64,19 @@ export const openThread = async (thread, { silent = false } = {}) => {
   paintConversation();
   const threadRow = [...ui.threads, ...ui.groups].find((row) => sameConversation(row, thread));
   if (threadRow && !silent) paintThreadList();
+};
+
+const leaveGoneGroup = (thread) => {
+  dropGroup(thread.id);
+  if (sameConversation(ui.activeThread, thread)) {
+    ui.activeThread = null;
+    ui.conversation = null;
+    ui.dmGifPicker = null;
+    if (ui.conversationEl) ui.conversationEl.hidden = true;
+    if (ui.listSideEl) ui.listSideEl.hidden = false;
+  }
+  paintThreadList();
+  refreshUnread().catch(() => { /* the badge catches up on its next tick */ });
 };
 
 // The conversation paints oldest-first (the API returns newest-first, so the
