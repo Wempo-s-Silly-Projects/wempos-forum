@@ -65,7 +65,8 @@ export const routeForPath = (pathname, search = "") => {
   if (pathname === "/rules") return { name: "rules" };
   const category = pathname.match(/^\/c\/([a-z0-9-]+)$/);
   if (category) {
-    return BOARD_BY_SLUG[category[1]]
+    // Own keys only (v5.4): /c/constructor must not match Object.prototype.
+    return Object.hasOwn(BOARD_BY_SLUG, category[1])
       ? withFeedView({ name: "category", board: category[1] }, search)
       : { name: "not-found" };
   }
