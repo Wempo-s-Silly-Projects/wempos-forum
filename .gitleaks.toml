@@ -16,4 +16,7 @@ regexes = [
   '''^0123456789abcdef0123456789abcdef$''',
   # Placeholder password in tests/worker.test.mjs.
   '''^fixture-phrase-27$''',
+  # Placeholder pending TOTP secret in tests/wave524-security-pins.test.mjs
+  # (proves Download my data never exports it).
+  '''^PENDINGSECRETPENDINGSECRET234567$''',
 ]
