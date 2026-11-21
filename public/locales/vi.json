@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "Chưa có hình nào — hãy chia sẻ một bức vẽ hoặc công trình!",
   "traditions.galleryLoadFailed": "Không thể tải thư viện ảnh. Hãy thử lại sau giây lát.",
   "traditions.galleryAlt": "Hình trưng bày: {title}",
-  "render.revealSpoilers": "Hiện nội dung tiết lộ"
+  "render.revealSpoilers": "Hiện nội dung tiết lộ",
+  "settings.title": "Cài đặt tài khoản",
+  "settings.filterLabel": "Tìm một cài đặt",
+  "settings.filterEmpty": "Không có cài đặt nào khớp.",
+  "settings.jumpLabel": "Chuyển tới một mục",
+  "settings.dataTitle": "Dữ liệu của bạn",
+  "settings.dataNote": "Tải về bản sao những gì bạn đã viết và cài đặt ở đây (hồ sơ, bài viết, trả lời, bài đã lưu, chủ đề đang theo dõi, danh sách chặn, bài trên tường và tin nhắn riêng bạn đã gửi) dưới dạng tệp JSON. Tệp chỉ được tải khi bạn bấm nút và đi thẳng về thiết bị của bạn.",
+  "settings.dataDownload": "Tải dữ liệu của tôi",
+  "settings.dataPreparing": "Đang chuẩn bị tệp…",
+  "settings.dataReady": "Tệp dữ liệu của bạn đang được tải về."
 }

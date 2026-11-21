@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "ยังไม่มีรูปภาพ — แชร์ภาพวาดหรือผลงานของคุณสิ!",
   "traditions.galleryLoadFailed": "โหลดแกลเลอรีไม่ได้ ลองอีกครั้งในอีกสักครู่",
   "traditions.galleryAlt": "รูปภาพจากโชว์เคส: {title}",
-  "render.revealSpoilers": "แสดงสปอยเลอร์"
+  "render.revealSpoilers": "แสดงสปอยเลอร์",
+  "settings.title": "การตั้งค่าบัญชี",
+  "settings.filterLabel": "ค้นหาการตั้งค่า",
+  "settings.filterEmpty": "ไม่มีการตั้งค่าที่ตรงกัน",
+  "settings.jumpLabel": "ข้ามไปยังส่วน",
+  "settings.dataTitle": "ข้อมูลของคุณ",
+  "settings.dataNote": "ดาวน์โหลดสำเนาสิ่งที่คุณเขียนและตั้งค่าไว้ที่นี่ (โปรไฟล์ โพสต์ คำตอบ โพสต์ที่บันทึก กระทู้ที่ติดตาม การบล็อก โพสต์บนวอลล์ และข้อความส่วนตัวที่คุณส่ง) เป็นไฟล์ JSON ระบบจะดึงข้อมูลเมื่อคุณกดปุ่มเท่านั้น และส่งตรงไปยังอุปกรณ์ของคุณ",
+  "settings.dataDownload": "ดาวน์โหลดข้อมูลของฉัน",
+  "settings.dataPreparing": "กำลังเตรียมไฟล์…",
+  "settings.dataReady": "กำลังดาวน์โหลดไฟล์ข้อมูลของคุณ"
 }

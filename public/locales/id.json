@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "Belum ada gambar — bagikan gambar atau bangunanmu!",
   "traditions.galleryLoadFailed": "Galeri tidak dapat dimuat. Coba lagi sebentar lagi.",
   "traditions.galleryAlt": "Gambar pameran: {title}",
-  "render.revealSpoilers": "Tampilkan spoiler"
+  "render.revealSpoilers": "Tampilkan spoiler",
+  "settings.title": "Pengaturan akun",
+  "settings.filterLabel": "Cari pengaturan",
+  "settings.filterEmpty": "Tidak ada pengaturan yang cocok.",
+  "settings.jumpLabel": "Lompat ke bagian",
+  "settings.dataTitle": "Datamu",
+  "settings.dataNote": "Unduh salinan apa yang kamu tulis dan atur di sini (profil, postingan, balasan, postingan tersimpan, utas yang diikuti, blokir, postingan dinding, dan pesan langsung yang kamu kirim) sebagai file JSON. File hanya diambil saat kamu menekan tombol dan langsung masuk ke perangkatmu.",
+  "settings.dataDownload": "Unduh dataku",
+  "settings.dataPreparing": "Menyiapkan filemu…",
+  "settings.dataReady": "File datamu sedang diunduh."
 }

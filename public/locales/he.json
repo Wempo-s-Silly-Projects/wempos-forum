@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "עדיין אין תמונות — שתפו ציור או בנייה!",
   "traditions.galleryLoadFailed": "לא ניתן לטעון את הגלריה. נסו שוב בעוד רגע.",
   "traditions.galleryAlt": "תמונה מהתצוגה: {title}",
-  "render.revealSpoilers": "הצגת ספוילרים"
+  "render.revealSpoilers": "הצגת ספוילרים",
+  "settings.title": "הגדרות החשבון",
+  "settings.filterLabel": "חיפוש הגדרה",
+  "settings.filterEmpty": "אין הגדרה שתואמת.",
+  "settings.jumpLabel": "מעבר לקטע",
+  "settings.dataTitle": "הנתונים שלך",
+  "settings.dataNote": "הורדת עותק של מה שכתבת והגדרת כאן (פרופיל, פוסטים, תגובות, פוסטים שמורים, שרשורים במעקב, חסימות, פוסטים בקיר וההודעות הפרטיות ששלחת) כקובץ JSON. הוא נשלף רק כשלוחצים על הכפתור ומגיע ישר למכשיר שלך.",
+  "settings.dataDownload": "הורדת הנתונים שלי",
+  "settings.dataPreparing": "מכינים את הקובץ…",
+  "settings.dataReady": "קובץ הנתונים שלך יורד."
 }

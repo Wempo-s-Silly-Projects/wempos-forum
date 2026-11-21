@@ -46,6 +46,8 @@ import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
 import { createTextSizePicker } from "../text-size.js";
+import { createDataExportPanel, downloadMyData } from "../data-export.js";
+import { addSectionAnchors, createSettingsFilter } from "../settings-tools.js";
 import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
 
 // Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
@@ -101,6 +103,12 @@ function renderHomeContent(session, data, route) {
 function renderAccountSettings(session) {
   const account = document.createElement("details");
   account.className = "panel";
+  // v4.23: the area carries its own title (it used to render the browser's
+  // bare "Details" label).
+  const summary = document.createElement("summary");
+  summary.className = "settings-summary";
+  summary.textContent = t("settings.title");
+  account.append(summary);
   // Appearance: the square-corners pref (v2.5) - a checkbox in the account
   // settings panel; stored client-side like the theme choice.
   const corners = document.createElement("label");
@@ -156,12 +164,20 @@ function renderAccountSettings(session) {
   // guess; a failed read just leaves both buttons unmarked. No roster wiring
   // rides here: an invisible member drops off the list on its next refresh.
   renderInvisibleToggle(account);
+  // Download my data (v4.23): explicit button; nothing is fetched until the
+  // member presses it.
+  account.append(createDataExportPanel(document));
   const deletePanel = createPanel(t("feed.deleteAccountTitle"), t("feed.deleteAccountNote"));
   const deleteButton = element("button", "button button-danger", t("feed.deleteAccount"));
   deleteButton.type = "button";
   deleteButton.dataset.action = "delete-account";
   deletePanel.append(deleteButton);
   account.append(deletePanel);
+  // v4.23: every section is appended synchronously above, so the anchors,
+  // the jump list and the filter see the whole set right after the title.
+  const panels = Array.from(account.querySelectorAll(":scope > section.panel"));
+  const jumpNav = addSectionAnchors(document, panels);
+  summary.after(createSettingsFilter(document, panels, jumpNav), jumpNav);
   main.append(account);
 }
 
@@ -509,6 +525,16 @@ export const ACTIONS = {
     });
     presenceInvisibleMark(data.invisible ? 1 : 0,
       document.querySelectorAll(".presence-invisible-toggle"));
+  },
+  "download-my-data": async (button) => {
+    button.disabled = true;
+    setMessage(t("settings.dataPreparing"));
+    try {
+      await downloadMyData({ api });
+      setMessage(t("settings.dataReady"));
+    } finally {
+      button.disabled = false;
+    }
   },
   "load-more-bookmarks": async (button) => {
     const older = await api("/api/me/bookmarks?before=" + button.dataset.before);

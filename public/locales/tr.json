@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "Henüz resim yok — bir çizim ya da yapı paylaş!",
   "traditions.galleryLoadFailed": "Galeri yüklenemedi. Birazdan tekrar dene.",
   "traditions.galleryAlt": "Vitrin görseli: {title}",
-  "render.revealSpoilers": "Spoiler'ları göster"
+  "render.revealSpoilers": "Spoiler'ları göster",
+  "settings.title": "Hesap ayarları",
+  "settings.filterLabel": "Bir ayar bul",
+  "settings.filterEmpty": "Eşleşen ayar yok.",
+  "settings.jumpLabel": "Bir bölüme atla",
+  "settings.dataTitle": "Verilerin",
+  "settings.dataNote": "Burada yazdıklarının ve ayarladıklarının (profil, gönderiler, yanıtlar, kaydedilen gönderiler, takip edilen konular, engellemeler, duvar gönderileri ve gönderdiğin özel mesajlar) bir kopyasını JSON dosyası olarak indir. Yalnızca düğmeye bastığında alınır ve doğrudan cihazına gelir.",
+  "settings.dataDownload": "Verilerimi indir",
+  "settings.dataPreparing": "Dosyan hazırlanıyor…",
+  "settings.dataReady": "Veri dosyan indiriliyor."
 }

@@ -116,3 +116,16 @@ export const DM_GROUP_LIST_LIMIT = 50;
 // conversation's image from /api/dm/images/:id. Only the upload routes write
 // it; a typed text body of this shape is refused.
 export const DM_IMAGE_TOKEN_PATTERN = /^\[img:[0-9a-f-]{36}\]$/;
+
+// v4.23 Download my data (GET /api/me/export): the most rows each section of
+// the caller's own export carries, newest first. A section that hit its cap
+// is flagged in the export's `truncated` map so the file never silently
+// claims to be complete.
+export const EXPORT_SECTION_CAPS = Object.freeze({
+  posts: 2000,
+  bookmarks: 1000,
+  followedThreads: 1000,
+  blocks: 1000,
+  wallPosts: 1000,
+  directMessages: 2000,
+});

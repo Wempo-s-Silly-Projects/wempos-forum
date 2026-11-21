@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "還沒有圖片——分享一幅畫或一個作品吧！",
   "traditions.galleryLoadFailed": "畫廊載入失敗，請稍後再試。",
   "traditions.galleryAlt": "展示圖片：{title}",
-  "render.revealSpoilers": "顯示劇透"
+  "render.revealSpoilers": "顯示劇透",
+  "settings.title": "帳號設定",
+  "settings.filterLabel": "尋找設定",
+  "settings.filterEmpty": "沒有符合的設定。",
+  "settings.jumpLabel": "跳至某個區段",
+  "settings.dataTitle": "你的資料",
+  "settings.dataNote": "以 JSON 檔案下載你在這裡寫下和設定的內容副本（個人檔案、貼文、回覆、收藏的貼文、追蹤的討論串、封鎖名單、留言牆貼文以及你傳送的私訊）。只有在你按下按鈕時才會取得，並直接存到你的裝置。",
+  "settings.dataDownload": "下載我的資料",
+  "settings.dataPreparing": "正在準備檔案…",
+  "settings.dataReady": "你的資料檔案正在下載。"
 }

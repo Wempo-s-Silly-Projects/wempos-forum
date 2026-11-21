@@ -806,5 +806,14 @@
   "traditions.galleryEmpty": "まだ画像がありません — 絵や作品をシェアしよう！",
   "traditions.galleryLoadFailed": "ギャラリーを読み込めませんでした。少ししてからもう一度お試しください。",
   "traditions.galleryAlt": "ショーケースの画像: {title}",
-  "render.revealSpoilers": "ネタバレを表示"
+  "render.revealSpoilers": "ネタバレを表示",
+  "settings.title": "アカウント設定",
+  "settings.filterLabel": "設定を検索",
+  "settings.filterEmpty": "一致する設定はありません。",
+  "settings.jumpLabel": "セクションへ移動",
+  "settings.dataTitle": "あなたのデータ",
+  "settings.dataNote": "ここで書いたものと設定した内容（プロフィール、投稿、返信、保存した投稿、フォロー中のスレッド、ブロック、ウォール投稿、あなたが送ったダイレクトメッセージ）のコピーを JSON ファイルとしてダウンロードします。ボタンを押したときだけ取得され、そのままあなたの端末に保存されます。",
+  "settings.dataDownload": "データをダウンロード",
+  "settings.dataPreparing": "ファイルを準備しています…",
+  "settings.dataReady": "データファイルをダウンロードしています。"
 }
