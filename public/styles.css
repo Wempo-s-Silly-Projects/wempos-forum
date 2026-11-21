@@ -936,6 +936,15 @@ dialog h2 {
   white-space: nowrap;
 }
 
+/* v4.44: Today / Yesterday / Earlier dividers on the Notifications page. */
+.notification-day {
+  margin: 1rem 0 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: none;
+}
+
 .sub-replies {
   margin: 0.5rem 0 0.5rem 1.4rem;
   padding-inline-start: 0.6rem;

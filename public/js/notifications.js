@@ -24,6 +24,7 @@ import { addText } from "./forms.js";
 import { currentLocale, t, tn } from "./i18n.js";
 import { maskSpoilers } from "./markdown.js";
 import { createUnreadOnlyToggle } from "./notification-filter.js";
+import { createDayHeading, notificationDayKey } from "./notification-days.js";
 import { formatRelative } from "./reltime.js";
 
 const SPOILER_MARK = "||";
@@ -153,7 +154,16 @@ export function renderNotificationsPage(main, items) {
   }
   // v4.42: "Unread only" hides read rows in place (page-view only).
   section.append(createUnreadOnlyToggle(document, section));
+  // v4.44: Today / Yesterday / Earlier headings (notification-days.js); a
+  // group files under its newest reply, and an undated row opens none.
+  const now = Date.now();
+  let lastDay = null;
   for (const group of groups) {
+    const day = notificationDayKey(notificationItemView(group.first).createdAt, now);
+    if (day && day !== lastDay) {
+      section.append(createDayHeading(document, day));
+      lastDay = day;
+    }
     section.append(group.count > 1
       ? threadGroupRow(document, group)
       : notificationRow(document, notificationItemView(group.first)));
