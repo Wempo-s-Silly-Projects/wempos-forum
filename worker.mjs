@@ -54,6 +54,9 @@ import { handleTraditionRoutes } from "./api/traditions.mjs";
 import { handleExportRoutes } from "./api/export.mjs";
 import { handleDiscovery, withDiscoveryHeaders } from "./api/discovery.mjs";
 import { handleMcp } from "./api/mcp.mjs";
+// The client router is the single source of truth for page routes (v5.2): a
+// path it can't match answers the shell with an honest 404.
+import { routeForPath } from "./public/js/router.js";
 
 // The one canonical origin; workers.dev hosts redirect here.
 const CANONICAL_ORIGIN = "https://wempos-forum.com";
@@ -136,6 +139,30 @@ async function stampedAssetResponse(assetResponse, env) {
   });
 }
 
+// Honest 404s (v5.2, owner order "not found should say 404"): the assets
+// binding's single-page-application fallback answers index.html with 200 for
+// ANY path it has no file for. A miss under these prefixes is a missing
+// document or locale file, never a page — a plain text 404, briefly cached.
+const PLAIN_404_PREFIXES = ["/.well-known/", "/locales/"];
+const PLAIN_404_CACHE = "public, max-age=60";
+
+// Real files pass through untouched; only the SPA fallback (a 200 HTML answer
+// for a path with no file) is re-judged. A path routeForPath can't match keeps
+// the shell (so the client paints its 404 view) with status 404. Known routes
+// stay 200 even when the record is missing (/posts/<id> does no D1 lookup).
+function honestAssetResponse(assetResponse, url) {
+  const type = assetResponse.headers.get("Content-Type") || "";
+  if (assetResponse.status !== 200 || !type.includes("text/html")) return assetResponse;
+  if (PLAIN_404_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) {
+    return new Response("Not found.\n", {
+      status: 404,
+      headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": PLAIN_404_CACHE },
+    });
+  }
+  if (routeForPath(url.pathname, url.search).name !== "not-found") return assetResponse;
+  return new Response(assetResponse.body, { status: 404, statusText: "Not Found", headers: assetResponse.headers });
+}
+
 // ctx carries waitUntil (v3.1): background work rides it where a route needs
 // one; the response returns without waiting. Callers without a ctx (tests)
 // simply never schedule background checks.
@@ -190,7 +217,7 @@ export default {
       // Negotiable pages vary on Accept; the homepage also advertises the
       // discovery documents in its Link header.
       return withDiscoveryHeaders(
-        secureResponse(await stampedAssetResponse(await env.ASSETS.fetch(unconditional(request)), env)),
+        secureResponse(await stampedAssetResponse(honestAssetResponse(await env.ASSETS.fetch(unconditional(request)), url), env)),
         url.pathname,
       );
     } catch (error) {

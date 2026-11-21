@@ -77,6 +77,8 @@
   "app.errorHeading": "ஏதோ தவறு நடந்துவிட்டது :(",
   "app.notFoundBody": "அந்தப் பக்கம் கிடைக்கவில்லை.",
   "app.notFoundHeading": "பக்கம் கிடைக்கவில்லை",
+  "app.notFoundHome": "முகப்புக்குத் திரும்பு",
+  "app.notFoundSearch": "மன்றத்தில் “{query}” எனத் தேடு",
   "app.pageAdmin": "மதிப்பாய்வு",
   "app.pageAppeals": "மேல்முறையீடுகள்",
   "app.pageArchive": "காப்பகம்",

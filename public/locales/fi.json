@@ -77,6 +77,8 @@
   "app.errorHeading": "Jotain meni pieleen:(",
   "app.notFoundBody": "Tämä sivu ei ole saatavilla.",
   "app.notFoundHeading": "Sivua ei löytynyt",
+  "app.notFoundHome": "Takaisin etusivulle",
+  "app.notFoundSearch": "Hae foorumilta ”{query}”",
   "app.pageAdmin": "Moderointi",
   "app.pageAppeals": "Valitukset",
   "app.pageArchive": "Arkisto",

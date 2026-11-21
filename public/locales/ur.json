@@ -77,6 +77,8 @@
   "app.errorHeading": "کچھ گڑبڑ ہو گئی :(",
   "app.notFoundBody": "یہ صفحہ دستیاب نہیں ہے۔",
   "app.notFoundHeading": "صفحہ نہیں ملا",
+  "app.notFoundHome": "ہوم فیڈ پر واپس جائیں",
+  "app.notFoundSearch": "فورم میں “{query}” تلاش کریں",
   "app.pageAdmin": "نگرانی",
   "app.pageAppeals": "اپیلیں",
   "app.pageArchive": "آرکائیو",

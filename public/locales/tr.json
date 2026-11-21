@@ -77,6 +77,8 @@
   "app.errorHeading": "Bir şeyler ters gitti:(",
   "app.notFoundBody": "Bu sayfa mevcut değil.",
   "app.notFoundHeading": "Sayfa bulunamadı",
+  "app.notFoundHome": "Ana sayfaya dön",
+  "app.notFoundSearch": "Forumda “{query}” ara",
   "app.pageAdmin": "Moderasyon",
   "app.pageAppeals": "İtirazlar",
   "app.pageArchive": "Arşiv",

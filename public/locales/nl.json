@@ -77,6 +77,8 @@
   "app.errorHeading": "Er ging iets mis :(",
   "app.notFoundBody": "Die pagina is niet beschikbaar.",
   "app.notFoundHeading": "Pagina niet gevonden",
+  "app.notFoundHome": "Terug naar de startpagina",
+  "app.notFoundSearch": "Zoek op het forum naar ‘{query}’",
   "app.pageAdmin": "Moderatie",
   "app.pageAppeals": "Bezwaren",
   "app.pageArchive": "Archief",

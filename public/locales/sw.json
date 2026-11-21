@@ -77,6 +77,8 @@
   "app.errorHeading": "Kuna tatizo limetokea :(",
   "app.notFoundBody": "Ukurasa huo haupatikani.",
   "app.notFoundHeading": "Ukurasa haujapatikana",
+  "app.notFoundHome": "Rudi kwenye ukurasa wa mwanzo",
+  "app.notFoundSearch": "Tafuta “{query}” kwenye jukwaa",
   "app.pageAdmin": "Usimamizi",
   "app.pageAppeals": "Rufaa",
   "app.pageArchive": "Kumbukumbu",

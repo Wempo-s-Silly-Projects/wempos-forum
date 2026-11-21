@@ -77,6 +77,8 @@
   "app.errorHeading": "Щось пішло не так :(",
   "app.notFoundBody": "Ця сторінка недоступна.",
   "app.notFoundHeading": "Сторінку не знайдено",
+  "app.notFoundHome": "Повернутися на головну",
+  "app.notFoundSearch": "Шукати «{query}» на форумі",
   "app.pageAdmin": "Модерація",
   "app.pageAppeals": "Оскарження",
   "app.pageArchive": "Архів",

@@ -77,6 +77,8 @@
   "app.errorHeading": "Valami elromlott:(",
   "app.notFoundBody": "Ez az oldal nem érhető el.",
   "app.notFoundHeading": "Az oldal nem található",
+  "app.notFoundHome": "Vissza a kezdőlapra",
+  "app.notFoundSearch": "„{query}” keresése a fórumon",
   "app.pageAdmin": "Moderáció",
   "app.pageAppeals": "Fellebbezések",
   "app.pageArchive": "Archívum",

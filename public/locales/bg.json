@@ -77,6 +77,8 @@
   "app.errorHeading": "Нещо се обърка:(",
   "app.notFoundBody": "Тази страница не е достъпна.",
   "app.notFoundHeading": "Страницата не е намерена",
+  "app.notFoundHome": "Обратно към началната страница",
+  "app.notFoundSearch": "Търсене във форума за „{query}“",
   "app.pageAdmin": "Модерация",
   "app.pageAppeals": "Обжалвания",
   "app.pageArchive": "Архив",

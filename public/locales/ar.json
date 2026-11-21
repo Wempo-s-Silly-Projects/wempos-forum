@@ -77,6 +77,8 @@
   "app.errorHeading": "حدث خطأ ما :(",
   "app.notFoundBody": "هذه الصفحة غير متاحة.",
   "app.notFoundHeading": "الصفحة غير موجودة",
+  "app.notFoundHome": "العودة إلى الصفحة الرئيسية",
+  "app.notFoundSearch": "ابحث في المنتدى عن «{query}»",
   "app.pageAdmin": "الإشراف",
   "app.pageAppeals": "الطعون",
   "app.pageArchive": "الأرشيف",

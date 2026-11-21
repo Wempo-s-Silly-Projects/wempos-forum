@@ -77,6 +77,8 @@
   "app.errorHeading": "出错了 :(",
   "app.notFoundBody": "这个页面不存在。",
   "app.notFoundHeading": "找不到页面",
+  "app.notFoundHome": "返回首页",
+  "app.notFoundSearch": "在论坛中搜索“{query}”",
   "app.pageAdmin": "管理",
   "app.pageAppeals": "申诉",
   "app.pageArchive": "归档",

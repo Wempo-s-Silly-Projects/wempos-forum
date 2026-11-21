@@ -22,6 +22,7 @@ import { addText } from "./forms.js";
 import { renderBannedScreen } from "./banned.js";
 import { boardLabel } from "./boards.js";
 import { isPlainLeftClick, startRouter } from "./router.js";
+import { buildNotFoundLinks } from "./not-found.js";
 import { applyCornerPreference, initTheme } from "./theme.js";
 import {
   renderTurnstileSlots,
@@ -195,8 +196,17 @@ function setRouteTitle(route) {
 }
 
 function renderNotFoundRoute() {
+  // v5.2 (owner order "not found should say 404"): a large 404 above the
+  // heading. The numerals are universal, so no string key; aria-hidden keeps
+  // the h1 ("Page not found") as what assistive tech announces.
+  const code = document.createElement("p");
+  code.className = "not-found-code";
+  code.setAttribute("aria-hidden", "true");
+  code.textContent = "404";
+  main.append(code);
   addHeading(main, t("app.notFoundHeading"), 1);
   addText(document, main, "p", t("app.notFoundBody"), "muted");
+  main.append(buildNotFoundLinks(document, t, location.pathname));
 }
 
 async function renderRoute(route) {

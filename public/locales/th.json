@@ -77,6 +77,8 @@
   "app.errorHeading": "มีบางอย่างผิดพลาด :(",
   "app.notFoundBody": "ไม่มีหน้านี้",
   "app.notFoundHeading": "ไม่พบหน้า",
+  "app.notFoundHome": "กลับไปหน้าแรก",
+  "app.notFoundSearch": "ค้นหา “{query}” ในฟอรัม",
   "app.pageAdmin": "การดูแลฟอรัม",
   "app.pageAppeals": "อุทธรณ์",
   "app.pageArchive": "คลังเก่า",

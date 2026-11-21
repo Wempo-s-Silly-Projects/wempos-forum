@@ -77,6 +77,8 @@
   "app.errorHeading": "कुछ गड़बड़ हो गई :(",
   "app.notFoundBody": "यह पेज उपलब्ध नहीं है।",
   "app.notFoundHeading": "पेज नहीं मिला",
+  "app.notFoundHome": "होम फ़ीड पर वापस जाएँ",
+  "app.notFoundSearch": "फ़ोरम में “{query}” खोजें",
   "app.pageAdmin": "मॉडरेशन",
   "app.pageAppeals": "अपील",
   "app.pageArchive": "आर्काइव",
