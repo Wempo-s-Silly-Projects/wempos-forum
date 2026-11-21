@@ -24,43 +24,43 @@
     <script type="module" src="/js/webmcp.js"></script>
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Skip to content</a>
+    <a class="skip-link" href="#main-content" data-i18n="shell.skipToContent">Skip to content</a>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="/" data-app-link aria-label="Wempo's Forum home">
+        <a class="brand" href="/" data-app-link aria-label="Wempo's Forum home" data-i18n-aria-label="shell.brandHome">
           <span class="brand-mark" aria-hidden="true">W</span>
-          <span>Wempo's Forum</span>
+          <span data-i18n="shell.brand">Wempo's Forum</span>
         </a>
         <search class="header-search">
           <form id="site-search" data-form="site-search" action="/" method="get">
-            <label class="visually-hidden" for="search-query">Search posts and people</label>
-            <input id="search-query" type="search" name="q" maxlength="100" placeholder="Search posts or people">
-            <button class="button button-secondary icon-button" type="submit" aria-label="Search">
+            <label class="visually-hidden" for="search-query" data-i18n="shell.searchLabel">Search posts and people</label>
+            <input id="search-query" type="search" name="q" maxlength="100" placeholder="Search posts or people" data-i18n-placeholder="shell.searchPlaceholder">
+            <button class="button button-secondary icon-button" type="submit" aria-label="Search" data-i18n-aria-label="shell.search">
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/><path d="M21 21l-4.35-4.35"/>
               </svg>
             </button>
           </form>
         </search>
-        <button id="theme-toggle" class="button button-secondary icon-button" type="button" aria-label="Switch to dark theme"></button>
-        <nav class="account-nav" aria-label="Site and account navigation" id="account-actions"></nav>
+        <button id="theme-toggle" class="button button-secondary icon-button" type="button" aria-label="Switch to dark theme" data-i18n-aria-label="theme.switchToDark"></button>
+        <nav class="account-nav" aria-label="Site and account navigation" data-i18n-aria-label="shell.accountNav" id="account-actions"></nav>
       </div>
     </header>
-    <nav class="mobile-bar" aria-label="Mobile navigation">
-      <a class="mobile-bar-item" href="/" data-app-link aria-label="Home">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg><span>Home</span>
+    <nav class="mobile-bar" aria-label="Mobile navigation" data-i18n-aria-label="shell.mobileNav">
+      <a class="mobile-bar-item" href="/" data-app-link aria-label="Home" data-i18n-aria-label="shell.home">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg><span data-i18n="shell.home">Home</span>
       </a>
-      <a class="mobile-bar-item" href="/mine" data-app-link aria-label="My posts">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg><span>My posts</span>
+      <a class="mobile-bar-item" href="/mine" data-app-link aria-label="My posts" data-i18n-aria-label="shell.myPosts">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg><span data-i18n="shell.myPosts">My posts</span>
       </a>
-      <a class="mobile-bar-item" href="/suggestions" data-app-link aria-label="Suggestions">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg><span>Suggest</span>
+      <a class="mobile-bar-item" href="/suggestions" data-app-link aria-label="Suggestions" data-i18n-aria-label="shell.suggestions">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg><span data-i18n="shell.suggestShort">Suggest</span>
       </a>
-      <a class="mobile-bar-item" href="/notifications" data-app-link aria-label="Notifications">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span>Alerts</span>
+      <a class="mobile-bar-item" href="/notifications" data-app-link aria-label="Notifications" data-i18n-aria-label="shell.notifications">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span data-i18n="shell.alertsShort">Alerts</span>
       </a>
-      <a class="mobile-bar-item" href="/" data-app-link aria-label="Sign in" id="mobile-signin">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Sign in</span>
+      <a class="mobile-bar-item" href="/" data-app-link aria-label="Sign in" data-i18n-aria-label="shell.signIn" id="mobile-signin">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span data-i18n="shell.signIn">Sign in</span>
       </a>
     </nav>
     <div class="status-bar">
@@ -68,21 +68,21 @@
       <p id="error-message" role="alert"></p>
     </div>
     <main id="main-content" class="main-content" tabindex="-1">
-      <h1 class="visually-hidden">Wempo's Forum: Have fun and meet new people!</h1>
-      <p>Loading:3</p>
+      <h1 class="visually-hidden" data-i18n="shell.tagline">Wempo's Forum: Have fun and meet new people!</h1>
+      <p data-i18n="shell.loading">Loading:3</p>
     </main>
     <footer class="site-footer">
-      <p>Made by ItsWempo. Be chill, be kind, and have fun :3 <span id="version-tag"></span></p>
+      <p><span data-i18n="shell.footer">Made by ItsWempo. Be chill, be kind, and have fun :3</span> <span id="version-tag"></span></p>
     </footer>
     <dialog id="report-dialog" aria-labelledby="report-title">
       <form data-form="report">
-        <h2 id="report-title">Report this post</h2>
-        <p>Tell mods what needs their attention.</p>
-        <label for="report-reason">Reason</label>
+        <h2 id="report-title" data-i18n="shell.reportTitle">Report this post</h2>
+        <p data-i18n="shell.reportIntro">Tell mods what needs their attention.</p>
+        <label for="report-reason" data-i18n="shell.reportReason">Reason</label>
         <textarea id="report-reason" name="reason" rows="4" maxlength="500" required></textarea>
         <div class="form-actions">
-          <button class="button button-secondary" type="button" data-action="close-report">Cancel</button>
-          <button class="button button-danger" type="submit">Send report</button>
+          <button class="button button-secondary" type="button" data-action="close-report" data-i18n="common.cancel">Cancel</button>
+          <button class="button button-danger" type="submit" data-i18n="shell.reportSend">Send report</button>
         </div>
       </form>
     </dialog>
@@ -91,21 +91,21 @@
          click on the dialog or backdrop close it. -->
     <dialog id="gif-picker" aria-labelledby="gif-picker-title">
       <div class="gif-picker-head">
-        <h2 id="gif-picker-title">Gallery</h2>
-        <button class="button button-quiet" type="button" data-action="cancel-gif-picker">Close</button>
+        <h2 id="gif-picker-title" data-i18n="shell.galleryTitle">Gallery</h2>
+        <button class="button button-quiet" type="button" data-action="cancel-gif-picker" data-i18n="common.close">Close</button>
       </div>
-      <p class="gif-picker-note">Community uploads are moderated before they appear here. Select up to your spare image slots.</p>
+      <p class="gif-picker-note" data-i18n="shell.galleryNote">Community uploads are moderated before they appear here. Select up to your spare image slots.</p>
       <div class="gif-upload-row">
         <input id="gif-marketplace-file" type="file" accept="image/gif,image/jpeg,image/png,image/webp" hidden data-composer-input="gif-marketplace">
-        <button class="button button-secondary" type="button" data-action="choose-gif-upload">Upload an image for review</button>
-        <span class="form-note">GIF, JPEG, PNG, or WebP, up to 10 MiB.</span>
+        <button class="button button-secondary" type="button" data-action="choose-gif-upload" data-i18n="shell.galleryUpload">Upload an image for review</button>
+        <span class="form-note" data-i18n="shell.galleryFormats">GIF, JPEG, PNG, or WebP, up to 10 MiB.</span>
       </div>
-      <div id="gif-grid" class="gif-grid" role="listbox" aria-label="Gallery uploads"></div>
+      <div id="gif-grid" class="gif-grid" role="listbox" aria-label="Gallery uploads" data-i18n-aria-label="shell.galleryUploads"></div>
       <div class="gif-picker-foot">
-        <button class="button" type="button" data-action="confirm-gif-picker">Insert selected</button>
+        <button class="button" type="button" data-action="confirm-gif-picker" data-i18n="shell.galleryInsert">Insert selected</button>
       </div>
     </dialog>
-    <dialog id="attachment-lightbox" class="attachment-lightbox" aria-label="Full image view">
+    <dialog id="attachment-lightbox" class="attachment-lightbox" aria-label="Full image view" data-i18n-aria-label="shell.lightbox">
       <img id="attachment-lightbox-image" alt="">
     </dialog>
     <!-- Destructive-action confirmation (v2.4.1 feature): one shared dialog
@@ -116,37 +116,37 @@
       <h2 id="confirm-title"></h2>
       <p id="confirm-message"></p>
       <div class="form-actions">
-        <button class="button button-secondary" type="button" data-action="confirm-cancel">Cancel</button>
-        <button class="button button-danger" id="confirm-delete" type="button" data-action="confirm-delete">Delete</button>
-        <button class="button button-danger" id="confirm-block" type="button" data-action="confirm-block">Block</button>
+        <button class="button button-secondary" type="button" data-action="confirm-cancel" data-i18n="common.cancel">Cancel</button>
+        <button class="button button-danger" id="confirm-delete" type="button" data-action="confirm-delete" data-i18n="common.delete">Delete</button>
+        <button class="button button-danger" id="confirm-block" type="button" data-action="confirm-block" data-i18n="common.block">Block</button>
       </div>
     </dialog>
     <dialog id="poll-dialog" aria-labelledby="poll-dialog-title">
       <form data-form="poll-dialog">
-        <h2 id="poll-dialog-title">Add a poll</h2>
-        <p class="gif-picker-note">One poll per thread, posted together with your message. Members can change their vote.</p>
-        <label class="visually-hidden" for="poll-question">Poll question</label>
-        <input id="poll-question" type="text" maxlength="200" required placeholder="Ask the forum something">
+        <h2 id="poll-dialog-title" data-i18n="shell.pollTitle">Add a poll</h2>
+        <p class="gif-picker-note" data-i18n="shell.pollIntro">One poll per thread, posted together with your message. Members can change their vote.</p>
+        <label class="visually-hidden" for="poll-question" data-i18n="shell.pollQuestion">Poll question</label>
+        <input id="poll-question" type="text" maxlength="200" required placeholder="Ask the forum something" data-i18n-placeholder="shell.pollPlaceholder">
         <div class="form-field">
-          <label for="poll-option-1">Option 1</label>
+          <label for="poll-option-1" data-i18n="shell.pollOption1">Option 1</label>
           <input id="poll-option-1" type="text" maxlength="80" required aria-describedby="poll-options-note">
         </div>
         <div class="form-field">
-          <label for="poll-option-2">Option 2</label>
+          <label for="poll-option-2" data-i18n="shell.pollOption2">Option 2</label>
           <input id="poll-option-2" type="text" maxlength="80" required>
         </div>
         <div class="form-field">
-          <label for="poll-option-3">Option 3 (optional)</label>
+          <label for="poll-option-3" data-i18n="shell.pollOption3">Option 3 (optional)</label>
           <input id="poll-option-3" type="text" maxlength="80">
         </div>
         <div class="form-field">
-          <label for="poll-option-4">Option 4 (optional)</label>
+          <label for="poll-option-4" data-i18n="shell.pollOption4">Option 4 (optional)</label>
           <input id="poll-option-4" type="text" maxlength="80">
         </div>
-        <p id="poll-options-note" class="gif-picker-note">Two to four non-duplicate options.</p>
+        <p id="poll-options-note" class="gif-picker-note" data-i18n="shell.pollOptionsNote">Two to four non-duplicate options.</p>
         <div class="form-actions">
-          <button class="button button-secondary" type="button" data-action="cancel-poll-dialog">Cancel</button>
-          <button class="button button-primary" type="submit" data-action="confirm-poll-dialog">Add poll</button>
+          <button class="button button-secondary" type="button" data-action="cancel-poll-dialog" data-i18n="common.cancel">Cancel</button>
+          <button class="button button-primary" type="submit" data-action="confirm-poll-dialog" data-i18n="shell.pollAdd">Add poll</button>
         </div>
       </form>
     </dialog>
