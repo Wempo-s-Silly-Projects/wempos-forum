@@ -2647,3 +2647,29 @@ dialog h2 {
   border-radius: 4px;
 }
 .chat-widget-gif-note { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 0.8rem; }
+
+/* @mention autocomplete (wave 2026-11-21 F2): the composer's suggestion
+   listbox, painted under the textarea from theme tokens only. */
+.mention-picker {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 4px;
+  max-width: 320px;
+  background: var(--field);
+  border: 1px solid var(--field-line);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px var(--paper-shadow);
+}
+
+.mention-option {
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.mention-option[aria-selected="true"],
+.mention-option:hover {
+  background: var(--soft-green);
+  color: var(--green-ink);
+}

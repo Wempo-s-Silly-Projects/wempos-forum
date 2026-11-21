@@ -36,6 +36,7 @@ import { addGifsToComposer, removeGifFromComposer, renderGifThumbs, spareCompose
 import { addTurnstileSlot, refreshTurnstile, takeTurnstileToken } from "../turnstile.js";
 import { COMPOSER_MAX_CHARS } from "../composer-limits.js";
 import { attachDraftAutosave, clearFormDraft, draftKey } from "../drafts.js";
+import { attachMentionPicker } from "../mention-picker.js";
 
 let activeGifComposerForm = null;
 let activePollComposerForm = null;
@@ -73,6 +74,8 @@ function createComposer(name, label, buttonLabel, postID = null,
   // Draft autosave (wave 2026-11-21): per composer + thread, local-only.
   const bodyField = form.querySelector('textarea[name="body"]');
   attachDraftAutosave(form, bodyField, draftKey(name, postID, board));
+  // @mention autocomplete (wave 2026-11-21): suggestions from /api/search.
+  attachMentionPicker(bodyField, document);
   form.append(createComposerAttachmentRow(name === "post-create"));
   addTurnstileSlot(form, turnstileAction ?? (name === "post-create" ? "post" : "reply"));
   addSubmit(form, buttonLabel);
