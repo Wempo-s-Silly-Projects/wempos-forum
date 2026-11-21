@@ -66,9 +66,6 @@ export function clearTicketParam(win) {
   return true;
 }
 
-// A hung Accounts relay must never wedge the boot (the router mounts only
-// after the door settles), so the redeem rides an abort just like the
-// former in-page redemption did.
 export const SSO_REDEEM_TIMEOUT_MS = 15_000;
 
 // redeemReturnTicket(win, api, { onBanned }) -> true when the boot must STOP
@@ -121,7 +118,7 @@ export async function redeemReturnTicket(win, api, { onBanned, onRefused, setCsr
     return false;
   } catch (error) {
     // NO catch-all redirect (the audit's fix): a refusal here can be burned,
-    // timed out, a degraded relay, or a dead network — bouncing the open to
+    // timed out, or a dead network — bouncing the open to
     // Accounts on every one of those would loop members cross-origin until a
     // rate limiter parks them. Until the Accounts landing carries its own
     // auto-ticket gate, the refusal settles into a card rendered by the host
