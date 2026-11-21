@@ -507,6 +507,7 @@
   "feed.textSizeDefault": "Default",
   "feed.textSizeLarge": "Large",
   "feed.textSizeLarger": "Larger",
+  "feed.tabUnread": "Show the unread count in the browser tab",
   "feed.unsubscribed": "You unsubscribed from this thread.",
   "feed.updatePassword": "Update password",
   "gifs.removeImage": "Remove this image",

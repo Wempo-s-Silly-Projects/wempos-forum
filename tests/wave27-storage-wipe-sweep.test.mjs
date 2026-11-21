@@ -37,6 +37,7 @@ const ACCOUNT_SCOPE = /":u"/;
 const DEVICE_PREF_FILES = new Map([
   ["theme.js", "light/dark theme choice"],
   ["text-size.js", "reader text size"],
+  ["tab-unread.js", "unread count in the tab title on/off"],
   ["routes/feed.js", "square/round corners preference"],
   ["dm-effects.js", "DM effects on/off"],
   ["i18n.js", "interface language"],

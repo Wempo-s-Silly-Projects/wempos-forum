@@ -3217,6 +3217,7 @@ mark.search-hit {
 :root[data-text-size="large"] { font-size: 112.5%; }
 :root[data-text-size="larger"] { font-size: 125%; }
 .text-size-pref,
+.tab-unread-pref,
 .corner-pref {
   display: flex;
   align-items: center;

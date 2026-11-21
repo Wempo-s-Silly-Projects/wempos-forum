@@ -47,7 +47,7 @@ const ACCOUNT_KEYS = [
   "forum-gallery-recents:u7",
   "forum-newcomer-dismissed:u7",
 ];
-const DEVICE_KEYS = ["forum-theme", "forum-text-size", "wempo-locale", "wempo-dm-effects"];
+const DEVICE_KEYS = ["forum-theme", "forum-text-size", "wempo-locale", "wempo-dm-effects", "forum-tab-unread"];
 
 const assigned = [];
 globalThis.document = { ...makeFakeDocument(), querySelector: () => new FakeNode("div") };

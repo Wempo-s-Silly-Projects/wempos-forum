@@ -507,6 +507,7 @@
   "feed.textSizeDefault": "기본",
   "feed.textSizeLarge": "크게",
   "feed.textSizeLarger": "더 크게",
+  "feed.tabUnread": "브라우저 탭에 읽지 않은 개수 표시",
   "feed.unsubscribed": "이 스레드의 알림을 껐어요.",
   "feed.updatePassword": "비밀번호 업데이트",
   "gifs.removeImage": "이 이미지 제거",

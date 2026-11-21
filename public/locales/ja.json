@@ -507,6 +507,7 @@
   "feed.textSizeDefault": "標準",
   "feed.textSizeLarge": "大",
   "feed.textSizeLarger": "特大",
+  "feed.tabUnread": "未読の数をブラウザのタブに表示する",
   "feed.unsubscribed": "このスレッドの通知をオフにしました。",
   "feed.updatePassword": "パスワードを更新",
   "gifs.removeImage": "この画像を外す",

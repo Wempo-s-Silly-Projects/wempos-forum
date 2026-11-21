@@ -507,6 +507,7 @@
   "feed.textSizeDefault": "Oletus",
   "feed.textSizeLarge": "Suuri",
   "feed.textSizeLarger": "Suurempi",
+  "feed.tabUnread": "Näytä lukemattomien määrä selaimen välilehdessä",
   "feed.unsubscribed": "Lopetit tämän ketjun seuraamisen.",
   "feed.updatePassword": "Päivitä salasana",
   "gifs.removeImage": "Poista tämä kuva",

@@ -507,6 +507,7 @@
   "feed.textSizeDefault": "Standard",
   "feed.textSizeLarge": "Stor",
   "feed.textSizeLarger": "Større",
+  "feed.tabUnread": "Vis antallet af ulæste i browserfanen",
   "feed.unsubscribed": "Du har afmeldt dig denne tråd.",
   "feed.updatePassword": "Opdatér adgangskode",
   "gifs.removeImage": "Fjern dette billede",

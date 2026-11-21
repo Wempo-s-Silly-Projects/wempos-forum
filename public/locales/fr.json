@@ -507,6 +507,7 @@
   "feed.textSizeDefault": "Par défaut",
   "feed.textSizeLarge": "Grande",
   "feed.textSizeLarger": "Plus grande",
+  "feed.tabUnread": "Afficher le nombre de non-lus dans l'onglet du navigateur",
   "feed.unsubscribed": "Tu t’es désabonné de cette discussion.",
   "feed.updatePassword": "Mettre à jour le mot de passe",
   "gifs.removeImage": "Retirer cette image",
