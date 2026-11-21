@@ -1,4 +1,6 @@
-# Moderation guide
+# Moderation desk reference
+
+New to staff? Start with the [admin guide](admin-guide.md) for the overview.
 
 This is for forum staff (admins and the owner). Everything here happens on the
 moderation desk, reached from the header once you're signed in with a staff
@@ -57,9 +59,8 @@ page heading, so screen reader and keyboard users don't lose their place.
 - A member with an active ban has their threads left out of public lists
   until the ban ends or is lifted, without anyone editing those posts.
 - Hidden replies and replies by actively banned members don't count toward a
-  thread's reply count. A thread whose only replies are hidden shows up in the
-  feed's **Unanswered** view, and comes out of it again once a reply is
-  restored or the ban ends.
+  thread's reply count. The count goes back up once a reply is restored or
+  the ban ends.
 - Hidden suggestions drop out of the Suggestions board's vote order, so the
   rank numbers (#1, #2, ...) skip them.
 - A hidden post drops out of members' saved lists, and so does a saved reply
