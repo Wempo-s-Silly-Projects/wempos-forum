@@ -324,16 +324,38 @@ async function handleGroupReadMarkRoute(request, env, url, path, method) {
   return json({ ok: true });
 }
 
-// The creator gate for add/remove: a member who is not the creator gets 403.
-async function loadManagedGroup(request, env, groupId) {
+// The creator gate for add/remove/rename: a member who is not the creator
+// gets 403 (an outsider already got the one 404 from loadGroupForMember).
+async function loadManagedGroup(request, env, groupId, refusal = "Only the group's creator can change its members.") {
   const session = await requireUser(request, env);
   const group = await loadGroupForMember(env, groupId, session.user.id);
   if (Number(group.creator_id) !== Number(session.user.id)) {
-    throw new HttpError(403, "Only the group's creator can change its members.");
+    throw new HttpError(403, refusal);
   }
   await assertNotBanned(env, session.user.id);
   await rateLimit(request, env, "write");
   return { session, group };
+}
+
+// PATCH /api/dm/groups/:id {name} (v4.31) — the creator renames; the name
+// rides the create path's intake (word filter, cap) and "" clears it back to
+// the member-list title. The creator's membership rides the UPDATE's WHERE,
+// so a rename that loses the race to the creator's leave changes nothing.
+async function handleGroupRenameRoute(request, env, url, path, method) {
+  const match = path.match(GROUP_ROUTE);
+  if (!match || method !== "PATCH") return null;
+  const { session, group } = await loadManagedGroup(request, env, Number(match[1]),
+    "Only the group's creator can rename it.");
+  const raw = (await readJson(request)).name;
+  if (typeof raw !== "string") throw new HttpError(400, "Send a group name.");
+  const name = readGroupName(env, raw);
+  const groupId = Number(group.id);
+  const renamed = await env.FORUM_DB.prepare(
+    "UPDATE dm_groups SET name = ? WHERE id = ? AND creator_id = ? " +
+    "AND EXISTS (SELECT 1 FROM dm_group_members WHERE group_id = ? AND user_id = ?)",
+  ).bind(name, groupId, Number(session.user.id), groupId, Number(session.user.id)).run();
+  if (Number(renamed.meta?.changes) !== 1) throw new HttpError(404, NOT_AVAILABLE);
+  return json({ ok: true, name });
 }
 
 // POST /api/dm/groups/:id/members {username} — the cap AND the creator's
@@ -407,6 +429,7 @@ export async function handleDmGroupRoutes(request, env, url, path, method, ctx) 
     handleGroupReadRoute,
     handleGroupSendRoute,
     handleGroupReadMarkRoute,
+    handleGroupRenameRoute,
     handleGroupAddRoute,
     handleGroupRemoveRoute,
     handleGroupLeaveRoute,
