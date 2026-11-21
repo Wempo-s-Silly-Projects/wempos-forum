@@ -106,7 +106,8 @@ test("long-post.js is page-view only and builds with createElement", () => {
 test("new strings exist in en and are translated in all 20 locales", () => {
   const en = JSON.parse(read("public/locales/en.json"));
   for (const key of NEW_KEYS) assert.equal(typeof en[key], "string", key);
-  const locales = ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant"];
+  const locales = ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant",
+    "bg", "bn", "ca", "cs", "da", "el", "fa", "fi", "fil", "hr", "hu", "ms", "nb", "ro", "sk", "sr", "sv", "sw", "ta", "ur"];
   for (const locale of locales) {
     const bundle = JSON.parse(read("public/locales/" + locale + ".json"));
     for (const key of NEW_KEYS) {

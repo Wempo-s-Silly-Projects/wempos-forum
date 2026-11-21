@@ -35,17 +35,37 @@ export const LOCALES = Object.freeze([
   { code: "fr", name: "Français", dir: "ltr" },
   { code: "de", name: "Deutsch", dir: "ltr" },
   { code: "it", name: "Italiano", dir: "ltr" },
+  { code: "ca", name: "Català", dir: "ltr" },
+  { code: "ro", name: "Română", dir: "ltr" },
   { code: "nl", name: "Nederlands", dir: "ltr" },
+  { code: "da", name: "Dansk", dir: "ltr" },
+  { code: "nb", name: "Norsk bokmål", dir: "ltr" },
+  { code: "sv", name: "Svenska", dir: "ltr" },
+  { code: "fi", name: "Suomi", dir: "ltr" },
   { code: "pl", name: "Polski", dir: "ltr" },
+  { code: "cs", name: "Čeština", dir: "ltr" },
+  { code: "sk", name: "Slovenčina", dir: "ltr" },
+  { code: "hu", name: "Magyar", dir: "ltr" },
+  { code: "hr", name: "Hrvatski", dir: "ltr" },
+  { code: "sr", name: "Srpski (latinica)", dir: "ltr" },
+  { code: "bg", name: "Български", dir: "ltr" },
+  { code: "el", name: "Ελληνικά", dir: "ltr" },
   { code: "ru", name: "Русский", dir: "ltr" },
   { code: "uk", name: "Українська", dir: "ltr" },
   { code: "tr", name: "Türkçe", dir: "ltr" },
   { code: "ar", name: "العربية", dir: "rtl" },
   { code: "he", name: "עברית", dir: "rtl" },
+  { code: "fa", name: "فارسی", dir: "rtl" },
+  { code: "ur", name: "اردو", dir: "rtl" },
   { code: "hi", name: "हिन्दी", dir: "ltr" },
+  { code: "bn", name: "বাংলা", dir: "ltr" },
+  { code: "ta", name: "தமிழ்", dir: "ltr" },
   { code: "id", name: "Bahasa Indonesia", dir: "ltr" },
+  { code: "ms", name: "Bahasa Melayu", dir: "ltr" },
+  { code: "fil", name: "Filipino", dir: "ltr" },
   { code: "vi", name: "Tiếng Việt", dir: "ltr" },
   { code: "th", name: "ไทย", dir: "ltr" },
+  { code: "sw", name: "Kiswahili", dir: "ltr" },
   { code: "ja", name: "日本語", dir: "ltr" },
   { code: "ko", name: "한국어", dir: "ltr" },
   { code: "zh-Hans", name: "简体中文", dir: "ltr" },
@@ -54,7 +74,8 @@ export const LOCALES = Object.freeze([
 
 const BY_CODE = new Map(LOCALES.map((locale) => [locale.code.toLowerCase(), locale]));
 const TRADITIONAL_CHINESE = new Set(["zh-hant", "zh-tw", "zh-hk", "zh-mo"]);
-const LEGACY_CODES = new Map([["iw", "he"], ["in", "id"]]);
+// Browser tags that name a shipped language by another code (Norwegian, Tagalog).
+const LEGACY_CODES = new Map([["iw", "he"], ["in", "id"], ["no", "nb"], ["nn", "nb"], ["tl", "fil"]]);
 
 export function localeDir(code) {
   return BY_CODE.get(String(code).toLowerCase())?.dir ?? "ltr";

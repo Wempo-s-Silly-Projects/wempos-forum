@@ -71,7 +71,8 @@ test("someone else's post, a guest view, or a removed author carries no You chip
 
 test("the You chip strings exist in every locale", () => {
   for (const file of ["en", "ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt",
-    "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant"]) {
+    "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant",
+    "bg", "bn", "ca", "cs", "da", "el", "fa", "fi", "fil", "hr", "hu", "ms", "nb", "ro", "sk", "sr", "sv", "sw", "ta", "ur"]) {
     const bundle = JSON.parse(readFileSync(new URL(`../public/locales/${file}.json`, import.meta.url), "utf8"));
     assert.ok(bundle["render.you"] && bundle["render.youTitle"], file);
   }

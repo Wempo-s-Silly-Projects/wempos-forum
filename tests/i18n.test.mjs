@@ -32,12 +32,12 @@ import { findCopy } from "./helpers/string-literals.mjs";
 const ROOT = new URL("../", import.meta.url);
 const LOCALE_DIR = new URL("public/locales/", ROOT);
 const JS_DIR = new URL("public/js/", ROOT).pathname;
-const RTL_CODES = ["ar", "he"];
+const RTL_CODES = ["ar", "he", "fa", "ur"];
 // A translation may share a value with English (brand names, "GIF"), but a
 // locale where more than this share of values equals English is a copy.
 const MAX_ENGLISH_SHARE = 0.08;
 const PLACEHOLDER = /\{(\w+)\}/g;
-const MIN_LOCALES = 20;
+const MIN_LOCALES = 40;
 
 const readLocale = (code) => JSON.parse(readFileSync(new URL(`${code}.json`, LOCALE_DIR), "utf8"));
 const placeholders = (value) => [...value.matchAll(PLACEHOLDER)].map((match) => match[1]).sort();
@@ -53,8 +53,13 @@ test("detectLocale: stored choice, then browser list, regional and script fallba
   assert.equal(detectLocale(null, ["zh-CN"]), "zh-Hans");
   assert.equal(detectLocale(null, ["zh"]), "zh-Hans");
   assert.equal(detectLocale(null, ["iw"]), "he");
-  assert.equal(detectLocale(null, ["sw", "ko-KR"]), "ko");
-  assert.equal(detectLocale(null, ["sw"]), DEFAULT_LOCALE);
+  assert.equal(detectLocale(null, ["zu", "ko-KR"]), "ko");
+  assert.equal(detectLocale(null, ["zu"]), DEFAULT_LOCALE);
+  assert.equal(detectLocale(null, ["sw-KE"]), "sw");
+  assert.equal(detectLocale(null, ["no-NO"]), "nb");
+  assert.equal(detectLocale(null, ["nn"]), "nb");
+  assert.equal(detectLocale(null, ["tl"]), "fil");
+  assert.equal(detectLocale(null, ["fa-IR"]), "fa");
   assert.equal(detectLocale(undefined, undefined), DEFAULT_LOCALE);
 });
 
@@ -76,7 +81,28 @@ test("tn picks key.one / key.other through Intl.PluralRules and passes count", (
   assert.equal(createTranslator("ja", ja, en).tn("x.replies", 1), "返信1件");
 });
 
-test("RTL: ar and he switch the document to dir=rtl, every other locale stays ltr", () => {
+test("tn on the two-form tables: only PluralRules 'one' takes key.one, few/many/two fall to key.other", () => {
+  const table = { "x.n.one": "one {count}", "x.n.other": "other {count}" };
+  const pick = (code, n) => createTranslator(code, table, table).tn("x.n", n);
+  for (const code of ["cs", "sk", "hr", "sr"]) {
+    assert.equal(pick(code, 1), "one 1", code);
+    assert.equal(pick(code, 3), "other 3", code);
+    assert.equal(pick(code, 5), "other 5", code);
+  }
+  assert.equal(pick("hr", 21), "one 21");
+  assert.equal(pick("ro", 2), "other 2");
+  assert.equal(pick("fa", 0), "one 0");
+  assert.equal(pick("bn", 0), "one 0");
+  assert.equal(pick("fil", 2), "one 2");
+  assert.equal(pick("fil", 4), "other 4");
+  assert.equal(pick("ms", 1), "other 1");
+  for (const code of ["sv", "nb", "da", "fi", "hu", "bg", "el", "ca", "ur", "ta", "sw"]) {
+    assert.equal(pick(code, 1), "one 1", code);
+    assert.equal(pick(code, 7), "other 7", code);
+  }
+});
+
+test("RTL: ar, he, fa and ur switch the document to dir=rtl, every other locale stays ltr", () => {
   assert.deepEqual(LOCALES.filter((locale) => locale.dir === "rtl").map((locale) => locale.code), RTL_CODES);
   for (const { code } of LOCALES) {
     const doc = { documentElement: { lang: "", dir: "" } };
@@ -88,7 +114,7 @@ test("RTL: ar and he switch the document to dir=rtl, every other locale stays lt
 });
 
 test("every listed locale has a table on disk, and nothing unlisted ships", () => {
-  assert.ok(LOCALES.length - 1 >= MIN_LOCALES, "at least 20 translated languages");
+  assert.ok(LOCALES.length - 1 >= MIN_LOCALES, "at least 40 translated languages");
   const onDisk = readdirSync(LOCALE_DIR).filter((name) => name.endsWith(".json")).map((name) => name.slice(0, -5)).sort();
   assert.deepEqual(onDisk, LOCALES.map((locale) => locale.code).sort());
 });

@@ -181,7 +181,7 @@ test("new strings exist in en and are translated in all 20 locales", () => {
   const get = (bag, key) => bag[key];
   for (const key of NEW_KEYS) assert.equal(typeof get(en, key), "string", key);
   const others = LOCALES.map((locale) => locale.code).filter((code) => code !== "en");
-  assert.equal(others.length, 20);
+  assert.equal(others.length, 40);
   for (const locale of others) {
     const bag = JSON.parse(read(`public/locales/${locale}.json`));
     for (const key of NEW_KEYS) {

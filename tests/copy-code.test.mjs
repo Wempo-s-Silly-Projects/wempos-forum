@@ -88,7 +88,8 @@ test("renderBodyBlocks gives every fenced code block a copy button; the code tex
 test("copy-code strings ship in English and are translated in every locale", () => {
   const en = locale("en");
   for (const key of ["render.copyCode", "render.codeCopied", "render.copyCodeFailed"]) assert.ok(en[key]);
-  for (const code of ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant"]) {
+  for (const code of ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant",
+    "bg", "bn", "ca", "cs", "da", "el", "fa", "fi", "fil", "hr", "hu", "ms", "nb", "ro", "sk", "sr", "sv", "sw", "ta", "ur"]) {
     assert.notEqual(locale(code)["render.copyCode"], en["render.copyCode"], `${code} is translated`);
   }
 });

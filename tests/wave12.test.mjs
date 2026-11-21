@@ -196,7 +196,8 @@ test("first-post jump: long threads only, focuses the root card at click time", 
 test("i18n: wave-12 keys exist and are translated in every locale", () => {
   const keys = ["post.foldReply", "post.foldReplyTitle", "post.firstPost"];
   const en = JSON.parse(read("public/locales/en.json"));
-  const locales = ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant"];
+  const locales = ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant",
+    "bg", "bn", "ca", "cs", "da", "el", "fa", "fi", "fil", "hr", "hu", "ms", "nb", "ro", "sk", "sr", "sv", "sw", "ta", "ur"];
   for (const key of keys) assert.equal(typeof en[key], "string", key);
   for (const code of locales) {
     const bundle = JSON.parse(read(`public/locales/${code}.json`));

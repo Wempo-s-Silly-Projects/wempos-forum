@@ -96,7 +96,8 @@ test("my-reply jump is wired on the thread page and stays local", () => {
 test("i18n: wave-15 keys exist and are translated in every locale", () => {
   const keys = ["post.myReply"];
   const en = JSON.parse(read("public/locales/en.json"));
-  const locales = ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant"];
+  const locales = ["ar", "de", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant",
+    "bg", "bn", "ca", "cs", "da", "el", "fa", "fi", "fil", "hr", "hu", "ms", "nb", "ro", "sk", "sr", "sv", "sw", "ta", "ur"];
   for (const key of keys) assert.equal(typeof en[key], "string", key);
   for (const code of locales) {
     const bundle = JSON.parse(read(`public/locales/${code}.json`));

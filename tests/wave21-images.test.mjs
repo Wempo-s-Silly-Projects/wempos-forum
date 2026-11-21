@@ -248,6 +248,7 @@ const NEW_KEYS = [
 const LOCALES = [
   "en", "es", "pt", "fr", "de", "it", "nl", "pl", "ru", "uk", "tr", "ar", "he", "hi", "id", "vi", "th",
   "ja", "ko", "zh-Hans", "zh-Hant",
+  "bg", "bn", "ca", "cs", "da", "el", "fa", "fi", "fil", "hr", "hu", "ms", "nb", "ro", "sk", "sr", "sv", "sw", "ta", "ur",
 ];
 
 test("wave-21 strings exist in all 21 locales, translated, placeholders intact", () => {
