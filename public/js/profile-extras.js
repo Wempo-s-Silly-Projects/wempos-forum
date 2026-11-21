@@ -78,3 +78,14 @@ export function createRecentThreads(document, threads, locale = DEFAULT_LOCALE) 
   }
   return list;
 }
+
+// v5.23.0 F2: optional pronouns next to the profile name. textContent only
+// (the server already limits the characters); null when none are set, so the
+// header paints nothing for the default opt-out.
+export function createPronouns(document, pronouns) {
+  if (typeof pronouns !== "string" || pronouns === "") return null;
+  const span = document.createElement("span");
+  span.className = "profile-pronouns";
+  span.textContent = pronouns;
+  return span;
+}

@@ -59,6 +59,11 @@ export const SOCIAL_PATTERNS = {
   polytoria: /^[A-Za-z0-9_]{1,24}$/,
 };
 
+// Mirrors api/pronouns.mjs PRONOUNS_PATTERN (advisory; the server re-checks).
+// The pattern attribute anchors itself, and its v-flag mode wants / and -
+// escaped inside a class.
+export const PRONOUNS_PATTERN_SOURCE = "[A-Za-z][A-Za-z \\/\\-]{0,23}";
+
 // Linked platforms build their profile URL here; Discord and Polytoria stay
 // plain text. Every dynamic segment passes through encodeURIComponent, so
 // symbol-prefixed (or otherwise unusual) handles can never produce a broken or
@@ -199,6 +204,11 @@ export function renderProfileEditor(main, user) {
       id: "profile-flair", name: "flair", label: t("profileEditor.flair"),
       maxLength: 32, description: t("profileEditor.flairHelp"),
     }),
+    // Pronouns (v5.23.0 F2): optional, empty by default; the server re-checks.
+    createInput(document, {
+      id: "profile-pronouns", name: "pronouns", label: t("profileEditor.pronouns"),
+      maxLength: 24, description: t("profileEditor.pronounsHelp"),
+    }),
   ];
   const form = createForm(document, "profile-editor", fields, t("profileEditor.save"));
   form.querySelector("#profile-bio").value =
@@ -212,6 +222,10 @@ export function renderProfileEditor(main, user) {
   form.querySelector("#profile-banner-color").value = user?.bannerColor || "";
   form.querySelector("#profile-banner-text").value = user?.bannerText || "";
   form.querySelector("#profile-flair").value = user?.flair || "";
+  const pronounsInput = form.querySelector("#profile-pronouns");
+  pronounsInput.value = typeof user?.pronouns === "string" ? user.pronouns : "";
+  pronounsInput.pattern = PRONOUNS_PATTERN_SOURCE;
+  form.dataset.pronouns = pronounsInput.value;
   panel.append(form);
   if (user) {
     const cssPanel = renderProfileCssEditor(document, user);

@@ -89,6 +89,8 @@ export const ERROR_CODES = Object.freeze({
   gif_unavailable: "One of the selected GIFs is not available.",
   wall_unavailable: "That wall is not available.",
   wall_blocked: "Wall posts are unavailable between you two.",
+  pronouns_invalid: "Pronouns can use letters, spaces, / and - only, up to 24 characters.",
+  pronouns_not_allowed: "Those pronouns can't be used here.",
 });
 
 const CODE_BY_MESSAGE = new Map(Object.entries(ERROR_CODES).map(([code, message]) => [message, code]));

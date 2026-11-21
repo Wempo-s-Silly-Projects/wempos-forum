@@ -40,6 +40,7 @@ import { requireSignedInRead } from "./core/auth.mjs";
 import { json, rateLimit } from "./core/http.mjs";
 import { socialsFromRow, SOCIAL_PLATFORMS } from "./core/shapers.mjs";
 import { normalizeTotpAlgorithm } from "./core/totp.mjs";
+import { readPronouns } from "./pronouns.mjs";
 import { EXPORT_SECTION_CAPS } from "../constants.mjs";
 
 const EXPORT_FORMAT = "wempos-forum-export";
@@ -81,6 +82,8 @@ async function readProfile(db, userId) {
     polytoriaUsername: row.polytoria_username,
     avatarStatus: row.avatar_status,
     socials: socialsFromRow(row),
+    // v5.23.0: opt-in pronouns; null when the member never set any.
+    pronouns: (await readPronouns(db, userId)) || null,
     joinedAt: isoOrNull(row.created_at),
   };
   const settings = {

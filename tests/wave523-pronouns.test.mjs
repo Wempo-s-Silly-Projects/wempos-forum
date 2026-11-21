@@ -52,7 +52,8 @@ const pronounsRow = (env, userId) =>
 test("migration 0062 is CREATE-only and creates profile_pronouns", () => {
   const sql = read(MIGRATION).replace(/--.*$/gm, "");
   assert.match(sql, /CREATE TABLE IF NOT EXISTS profile_pronouns/);
-  assert.doesNotMatch(sql, /\b(DROP|ALTER|INSERT|UPDATE|DELETE|REPLACE)\b/i);
+  // The FK clause's own "ON DELETE CASCADE" is not a statement.
+  assert.doesNotMatch(sql.replace(/ON DELETE CASCADE/g, ""), /\b(DROP|ALTER|INSERT|UPDATE|DELETE|REPLACE)\b/i);
   assert.match(sql, /CHECK \(length\(pronouns\) BETWEEN 1 AND 24\)/);
 });
 
@@ -265,7 +266,8 @@ test("createPronouns paints a textContent span, and nothing when empty", () => {
 
 test("the pronouns surfaces never use innerHTML", () => {
   for (const path of ["public/js/profile-extras.js", "public/js/profile-editor.js", "public/js/routes/profile.js", "api/pronouns.mjs"]) {
-    assert.doesNotMatch(read(path), /innerHTML|outerHTML|insertAdjacentHTML/, path);
+    const code = read(path).replace(/^\s*\/\/.*$/gm, "");
+    assert.doesNotMatch(code, /innerHTML|outerHTML|insertAdjacentHTML/, path);
   }
 });
 
