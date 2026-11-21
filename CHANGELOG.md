@@ -13,6 +13,13 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.11.0] - 2026-11-21
+
+### Changed
+- Only the owner and admins can set "Today's question". A member's post that
+  starts with "QOTD" now stays an ordinary thread and no longer replaces the
+  question of the day on the home page.
+
 ## [5.10.0] - 2026-11-21
 
 ### Fixed
