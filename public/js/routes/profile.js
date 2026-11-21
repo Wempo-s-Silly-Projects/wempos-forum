@@ -352,7 +352,8 @@ function openDeletePostDialog(button) {
       await api("/api/posts/" + postId, { method: "DELETE" });
       confirmDialog.close();
       if (viewedThreadId === postId) {
-        state.router.navigate("/");
+        // Replace, not push (wave 5.6 F1): Back must not reopen the gone post.
+        state.router.navigate("/", { replace: true });
       } else {
         await state.renderRoute(state.activeRoute);
       }

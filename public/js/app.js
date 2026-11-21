@@ -258,7 +258,15 @@ async function renderRoute(route) {
     "not-found": () => renderNotFoundRoute(),
   };
   const renderPage = renderers[route.name] || renderNotFoundRoute;
-  await renderPage();
+  try {
+    await renderPage();
+  } catch (error) {
+    // A post that no longer exists (deleted, or a stale link/history entry)
+    // is a 404 page, not an error bar (wave 5.6 F1).
+    if (route.name !== "post" || error?.status !== 404 || version !== state.renderVersion) throw error;
+    main.replaceChildren();
+    renderNotFoundRoute();
+  }
   await renderTurnstileSlots(main);
 }
 
