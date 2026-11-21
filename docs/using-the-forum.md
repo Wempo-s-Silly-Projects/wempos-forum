@@ -198,6 +198,9 @@ text size and language stay.
   report.
 - If you're banned, you'll see an **Appeal this ban** button. An admin reviews
   every appeal.
+- **Never share your password or backup codes** with anyone — staff will
+  never ask for them. Only sign in at `accounts.wempos-forum.com` (on a
+  self-hosted copy, that forum's own Accounts address).
 - Found a security bug? Please report it privately — see
   [SECURITY.md](../SECURITY.md).
 
