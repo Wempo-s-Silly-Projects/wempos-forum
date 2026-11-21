@@ -34,11 +34,17 @@ import { readSession } from "./core/auth.mjs";
 import { viewerBlockFilterSql } from "./core/blocks.mjs";
 import { HttpError, json } from "./core/http.mjs";
 import { banFilterSql } from "./posts-feed.mjs";
+import { ROLE_ADMIN_DB, ROLE_OWNER_DB } from "./core/roles.mjs";
 
 export const QOTD_WINDOW_SECONDS = 24 * 60 * 60;
 export const SHOWCASE_GALLERY_LIMIT = 24;
 const SHOWCASE_BOARD = "showcase";
 const QOTD_PREFIX_SQL = "UPPER(SUBSTR(LTRIM(p.body, ' ' || char(9) || char(10) || char(13)), 1, 4)) = 'QOTD'";
+// QOTD is the owner's and admins' job (owner, Nov 21): only a root written by
+// the owner (stored ROLE_OWNER_DB) or a site admin (stored ROLE_ADMIN_DB)
+// becomes today's question. Built from constants only — no input reaches it.
+const QOTD_STAFF_AUTHOR_SQL =
+  "p.author_id IN (SELECT id FROM users WHERE role IN ('" + ROLE_OWNER_DB + "', '" + ROLE_ADMIN_DB + "'))";
 const ROUTES = new Set(["/api/traditions/qotd", "/api/traditions/showcase"]);
 
 const isoFromSeconds = (seconds) => new Date(Number(seconds) * 1000).toISOString();
@@ -71,7 +77,7 @@ async function todaysQotd(env, viewer) {
   const since = Math.floor(Date.now() / 1000) - QOTD_WINDOW_SECONDS;
   const row = await env.FORUM_DB.prepare(
     "SELECT p.id, p.body, p.board, p.created_at FROM posts p WHERE " + visible.sql +
-    "AND p.created_at >= ? AND " + QOTD_PREFIX_SQL + " ORDER BY p.created_at DESC, p.id DESC LIMIT 1",
+    "AND p.created_at >= ? AND " + QOTD_PREFIX_SQL + " AND " + QOTD_STAFF_AUTHOR_SQL + " ORDER BY p.created_at DESC, p.id DESC LIMIT 1",
   ).bind(...visible.values, since).first();
   if (!row) return null;
   return {
