@@ -34,8 +34,8 @@ it away again.
 ### Hide a spam run
 
 When one member has flooded the forum, use **Hide posts** on the report. Pick
-how many of their newest public posts to hide (1 to 50) and confirm. Their open
-reports are closed as handled in the same step. Nothing is deleted: every
+how many of their newest public posts to hide (1 to 50) and confirm. Open reports on
+those posts are closed as handled in the same step. Nothing is deleted: every
 hidden post can be restored.
 
 ## Restoring hidden posts
