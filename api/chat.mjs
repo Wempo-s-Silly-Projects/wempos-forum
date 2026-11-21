@@ -169,7 +169,12 @@ const PRESENCE_KEEP_SQL =
   "ON CONFLICT(user_id) DO UPDATE SET last_seen = excluded.last_seen";
 const PRESENCE_SELECT_SQL =
   "SELECT u.id, u.username, u.role FROM presence p JOIN users u ON u.id = p.user_id " +
-  "WHERE p.invisible = 0 AND p.last_seen >= ? ORDER BY u.id";
+  "WHERE p.invisible = 0 AND p.last_seen >= ? " +
+  // Wave 39: actively-banned members drop at read time, like the lobby count
+  // (expired/revoked bans don't count; an unban restores with no write).
+  "AND NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = p.user_id AND b.revoked_at IS NULL " +
+  "AND (b.expires_at IS NULL OR b.expires_at > CAST(strftime('%s','now') AS INTEGER))) " +
+  "ORDER BY u.id";
 
 function isoTime(seconds) {
   return new Date(Number(seconds) * 1000).toISOString();
