@@ -28,8 +28,6 @@ export default [
       'node_modules/**',
       '.wrangler/**',
       'docs/**',
-      // TODO(lint-lead): re-enable after wave-5-18 (worker.mjs:23 unused import rateLimit; owned by another lane)
-      'worker.mjs',
     ],
   },
   js.configs.recommended,
