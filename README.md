@@ -1,10 +1,6 @@
 # Wempo’s Forum
-![GitHub package.json version](https://img.shields.io/github/package-json/v/Wempo-s-Silly-Projects/wempos-forum?style=for-the-badge&link=wempos-forum.com)
-![Mozilla HTTP Observatory Grade](https://img.shields.io/mozilla-observatory/grade/wempos-forum.com?style=for-the-badge)
-[![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=Cloudflare&logoColor=white)](cloudflare.com)
-[![Node.js](https://img.shields.io/badge/Node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)](nodejs.org)
-[![pnpm](https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=fff)](pnpm.io)
-[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=000)](javascript.org)
+<picture><source media="(prefers-color-scheme: dark)" srcset="https://www.shieldcn.dev/github/ci/Wempo-s-Silly-Projects/wempos-forum.svg?variant=secondary&amp;size=sm&amp;mode=dark"><img alt="CI" src="https://www.shieldcn.dev/github/ci/Wempo-s-Silly-Projects/wempos-forum.svg?variant=secondary&amp;size=sm&amp;mode=light"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="https://www.shieldcn.dev/badge/Hosting-Cloudflare_Workers-F38020.svg?logo=cloudflare&amp;variant=branded&amp;size=sm&amp;mode=dark"><img alt="Hosting · Cloudflare Workers" src="https://www.shieldcn.dev/badge/Hosting-Cloudflare_Workers-F38020.svg?logo=cloudflare&amp;variant=branded&amp;size=sm&amp;mode=light"></picture>
 
 A small, friendly community forum. It's live at **<https://wempos-forum.com>**.
 
@@ -120,3 +116,7 @@ Modified versions that let users interact with them over a network must
 offer those users the corresponding source of the version they are serving
 (GNU Affero General Public License, section 13): a visible link to the
 source archive, or the repository above, satisfies this duty.
+## Contributors
+<a href="https://github.com/inttter/md-badges/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Wempo-s-Silly-Projects/wempos-forum" />
+</a>
