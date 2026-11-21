@@ -49,6 +49,7 @@ import { createTextSizePicker } from "../text-size.js";
 import { createDataExportPanel, downloadMyData } from "../data-export.js";
 import { addSectionAnchors, createSettingsFilter } from "../settings-tools.js";
 import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
+import { renderNewcomerCards } from "../newcomer.js";
 
 // Suggestions board (v2.4.1): the /suggestions route reuses the feed UI, so
 // its composer tags root posts with board=suggestions (form dataset flag read
@@ -71,6 +72,11 @@ function renderIntroduction() {
 
 function renderHomeContent(session, data, route) {
   if (session.user && route.name === "home") {
+    // Newcomer cards (wave 2026-11-21-20): welcome for new accounts, then the
+    // tips card; each dismissible, remembered in this browser only.
+    const newcomerSlot = element("div", "newcomer-slot");
+    main.append(newcomerSlot);
+    renderNewcomerCards(document, newcomerSlot, session.user);
     // My posts (v2.5): a tab pair right above the composer (owner spec — NOT
     // a top-bar item, and home only: the search route shares this builder but
     // gets no tabs, per the review). Real routes so tabs are anchors —
