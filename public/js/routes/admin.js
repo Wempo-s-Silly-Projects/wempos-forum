@@ -46,6 +46,7 @@ import {
 import { createReportQueue } from "../desk/reports.js";
 import { createMemberPeek } from "../desk/member-tools.js";
 import { createFilterEditor } from "../desk/filter.js";
+import { focusPageHeading } from "../focus-utils.js";
 
 // The desk (v4.2 redesign): /admin is a section-routed panel — a sidebar rail
 // of dedicated pages (each loading exactly one desk payload) plus a dashboard
@@ -395,6 +396,7 @@ async function submitHideRecent(form, text) {
     body: { count },
   });
   await state.renderRoute(state.activeRoute);
+  focusPageHeading(main);
   setMessage(tn("admin.msg.hidRecent", data.hidden));
 }
 
@@ -519,6 +521,7 @@ export const ACTIONS = {
     "post-restore": async (button) => {
       const data = await api("/api/admin/posts/unhide", { method: "POST", body: { ids: [Number(button.dataset.postId)] } });
       await state.renderRoute(state.activeRoute);
+      focusPageHeading(main);
       setMessage(tn("admin.msg.restored", data.restored));
     },
     // Pinned (C5): the mod desk's pin/unpin — POST to the admin route and

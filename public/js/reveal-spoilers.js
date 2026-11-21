@@ -33,10 +33,14 @@ export function createRevealSpoilersButton(document, article) {
   button.className = "button button-quiet reveal-spoilers";
   button.textContent = t("render.revealSpoilers");
   button.addEventListener("click", () => {
-    article.querySelectorAll(".spoiler").forEach((spoiler) => {
-      if (spoiler.closest("article") === article) revealSpoiler(spoiler);
-    });
+    const own = Array.from(article.querySelectorAll(".spoiler"))
+      .filter((spoiler) => spoiler.closest("article") === article);
+    own.forEach(revealSpoiler);
     button.hidden = true;
+    // Wave 22 a11y: the focused button just hid itself, so focus moves to the
+    // first revealed spoiler (revealSpoiler leaves it tabindex=-1) instead of
+    // falling to <body>.
+    own[0]?.focus?.({ preventScroll: true });
   });
   return button;
 }

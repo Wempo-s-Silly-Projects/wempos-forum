@@ -236,7 +236,7 @@ test("gallery wiring: sign-out wipes recents; picker paints recents + sort; conf
   assert.match(composer, /writeRecents\(undefined, rememberRecents\(readRecents\(undefined, accountId\), added\), accountId\)/);
   const html = read("public/index.html");
   assert.match(html, /id="gif-sort"/);
-  assert.match(html, /id="gif-recents"[^>]*role="listbox"[^>]*aria-labelledby="gif-recents-title"/);
+  assert.match(html, /id="gif-recents"[^>]*role="group"[^>]*aria-labelledby="gif-recents-title"/);
 });
 
 // --- strings -------------------------------------------------------------
