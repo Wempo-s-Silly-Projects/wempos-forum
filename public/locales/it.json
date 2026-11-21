@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "{count} post nascosti.",
   "admin.msg.restored.one": "{count} post ripristinato.",
   "admin.msg.restored.other": "{count} post ripristinati.",
+  "composer.sendShortcut": "Suggerimento: Ctrl+Invio (⌘+Invio su Mac) pubblica.",
   "post.latestReply": "Vai all'ultima risposta",
   "post.foldReply": "Comprimi",
   "post.foldReplyTitle": "Comprimi questa risposta fino alla riga dell’autore — solo per te, finché non lasci la pagina",

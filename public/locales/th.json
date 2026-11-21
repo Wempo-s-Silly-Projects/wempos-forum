@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "ซ่อนแล้ว {count} โพสต์",
   "admin.msg.restored.one": "กู้คืนแล้ว {count} โพสต์",
   "admin.msg.restored.other": "กู้คืนแล้ว {count} โพสต์",
+  "composer.sendShortcut": "เคล็ดลับ: กด Ctrl+Enter (⌘+Enter บน Mac) เพื่อโพสต์",
   "post.latestReply": "ไปที่คำตอบล่าสุด",
   "post.foldReply": "ย่อ",
   "post.foldReplyTitle": "ย่อคำตอบนี้ให้เหลือแค่บรรทัดผู้เขียน — เฉพาะคุณเท่านั้น จนกว่าคุณจะออกจากหน้านี้",

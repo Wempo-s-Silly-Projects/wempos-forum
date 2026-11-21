@@ -17,6 +17,7 @@
 // see <https://www.gnu.org/licenses/>.
 
 import { charsLeftLabel } from "./composer-limits.js";
+import { attachSubmitShortcut } from "./submit-shortcut.js";
 
 export function createForm(document, name, fields, submitLabel) {
   const form = document.createElement("form");
@@ -95,6 +96,7 @@ export const createSelect = (document, { id, name = id, label, options, required
 
 export function createTextarea(document, {
   id, name = id, label, rows = 3, maxLength, required = false, description, counter = false, value,
+  submitShortcut = false,
 }) {
   const wrapper = document.createElement("div");
   wrapper.className = "form-field";
@@ -126,6 +128,8 @@ export function createTextarea(document, {
     });
     wrapper.append(counterElement);
   }
+  // Ctrl/Cmd+Enter posts (wave 19): forum composers opt in.
+  if (submitShortcut) wrapper.append(attachSubmitShortcut(document, textarea));
   if (description) {
     const help = document.createElement("small");
     help.id = `${id}-description`;

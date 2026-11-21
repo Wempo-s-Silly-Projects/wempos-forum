@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "Hid {count} posts.",
   "admin.msg.restored.one": "Restored {count} post.",
   "admin.msg.restored.other": "Restored {count} posts.",
+  "composer.sendShortcut": "Tip: Ctrl+Enter (⌘+Enter on Mac) posts.",
   "post.latestReply": "Jump to latest reply",
   "post.foldReply": "Fold",
   "post.foldReplyTitle": "Fold this reply down to its author line — just for you, until you leave the page",

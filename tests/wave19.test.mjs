@@ -58,3 +58,82 @@ test("maskedExcerpt never cuts a surrogate pair in half", () => {
   assert.ok(out.isWellFormed());
   assert.equal(maskedExcerpt("\u{1F600}".repeat(50), 80), "\u{1F600}".repeat(40) + "…");
 });
+
+// F2: Ctrl+Enter / Cmd+Enter posts from the forum composers.
+import { readFileSync } from "node:fs";
+import { FakeNode, makeFakeDocument, findByClass } from "./helpers/fake-dom.mjs";
+import { attachSubmitShortcut, isSubmitShortcut, SUBMIT_SHORTCUT_KEYS } from "../public/js/submit-shortcut.js";
+import { createTextarea } from "../public/js/forms.js";
+import { t } from "../public/js/i18n.js";
+
+const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+const fakeDocument = makeFakeDocument();
+const keyEvent = (init) => {
+  const event = { key: "Enter", ctrlKey: false, metaKey: false, altKey: false, shiftKey: false, isComposing: false, ...init };
+  event.prevented = false;
+  event.preventDefault = () => { event.prevented = true; };
+  return event;
+};
+const composerForm = () => {
+  const form = new FakeNode("form");
+  form.dataset.form = "post-reply";
+  form.submits = 0;
+  form.requestSubmit = () => { form.submits += 1; };
+  const field = createTextarea(fakeDocument, {
+    id: "reply-1-body", name: "body", label: "Reply", maxLength: 10, counter: true, submitShortcut: true,
+  });
+  form.append(field);
+  return { form, textarea: field.querySelector("textarea") };
+};
+
+test("isSubmitShortcut accepts only Ctrl/Cmd+Enter outside IME composition", () => {
+  assert.equal(isSubmitShortcut(keyEvent({ ctrlKey: true })), true);
+  assert.equal(isSubmitShortcut(keyEvent({ metaKey: true })), true);
+  assert.equal(isSubmitShortcut(keyEvent({})), false, "plain Enter is a newline");
+  assert.equal(isSubmitShortcut(keyEvent({ shiftKey: true, ctrlKey: true })), false);
+  assert.equal(isSubmitShortcut(keyEvent({ altKey: true, metaKey: true })), false);
+  assert.equal(isSubmitShortcut(keyEvent({ ctrlKey: true, isComposing: true })), false, "IME candidate pick");
+  assert.equal(isSubmitShortcut(keyEvent({ ctrlKey: true, key: "a" })), false);
+  assert.equal(isSubmitShortcut(null), false);
+});
+
+test("the shortcut submits the composer's own form through requestSubmit", () => {
+  const { form, textarea } = composerForm();
+  assert.equal(textarea.getAttribute("aria-keyshortcuts"), SUBMIT_SHORTCUT_KEYS);
+  const send = keyEvent({ metaKey: true });
+  textarea.dispatch("keydown", send);
+  assert.equal(form.submits, 1);
+  assert.equal(send.prevented, true);
+  const newline = keyEvent({});
+  textarea.dispatch("keydown", newline);
+  assert.equal(form.submits, 1, "plain Enter never submits");
+  assert.equal(newline.prevented, false);
+});
+
+test("the shortcut does nothing while that form is already submitting", () => {
+  const { form, textarea } = composerForm();
+  form.dataset.submitting = "true";
+  textarea.dispatch("keydown", keyEvent({ ctrlKey: true }));
+  assert.equal(form.submits, 0);
+});
+
+test("the shortcut hint is a muted, translated line under the composer", () => {
+  const { form } = composerForm();
+  const hint = findByClass(form, "composer-shortcut");
+  assert.ok(hint);
+  assert.equal(hint.textContent, t("composer.sendShortcut"));
+  const plain = createTextarea(fakeDocument, { id: "x", label: "X", maxLength: 10, counter: true });
+  assert.equal(findByClass(plain, "composer-shortcut"), null, "opt-in only");
+  assert.equal(attachSubmitShortcut(fakeDocument, new FakeNode("textarea")).className.includes("composer-shortcut"), true);
+});
+
+test("post, reply, edit and wall composers opt in; locales carry the hint", () => {
+  for (const path of ["public/js/routes/composer.js", "public/js/render.js", "public/js/wall.js"]) {
+    assert.match(read(path), /submitShortcut: true/, path);
+  }
+  assert.match(read("public/styles.css"), /\.composer-shortcut/);
+  for (const locale of ["en", "de", "ja", "ar", "zh-Hans"]) {
+    const bundle = JSON.parse(read(`public/locales/${locale}.json`));
+    assert.equal(typeof bundle["composer.sendShortcut"], "string", locale);
+  }
+});

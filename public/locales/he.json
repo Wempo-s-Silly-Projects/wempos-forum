@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "{count} פוסטים הוסתרו.",
   "admin.msg.restored.one": "שוחזר {count} פוסט.",
   "admin.msg.restored.other": "{count} פוסטים שוחזרו.",
+  "composer.sendShortcut": "טיפ: Ctrl+Enter ‏(⌘+Enter ב־Mac) מפרסם.",
   "post.latestReply": "מעבר לתגובה האחרונה",
   "post.foldReply": "קיפול",
   "post.foldReplyTitle": "קפלו את התגובה הזו עד לשורת הכותב — רק בשבילכם, עד שתעזבו את הדף",

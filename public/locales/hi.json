@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "{count} पोस्ट छिपाई गईं।",
   "admin.msg.restored.one": "{count} पोस्ट वापस लाई गई।",
   "admin.msg.restored.other": "{count} पोस्ट वापस लाई गईं।",
+  "composer.sendShortcut": "सुझाव: Ctrl+Enter (Mac पर ⌘+Enter) दबाकर पोस्ट करें।",
   "post.latestReply": "सबसे नए जवाब पर जाएँ",
   "post.foldReply": "समेटें",
   "post.foldReplyTitle": "इस जवाब को लेखक की पंक्ति तक समेटें — सिर्फ़ आपके लिए, जब तक आप पेज नहीं छोड़ते",

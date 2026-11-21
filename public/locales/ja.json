@@ -794,6 +794,7 @@
   "admin.msg.hidRecent.other": "{count} 件の投稿を非表示にしました。",
   "admin.msg.restored.one": "{count} 件の投稿を元に戻しました。",
   "admin.msg.restored.other": "{count} 件の投稿を元に戻しました。",
+  "composer.sendShortcut": "ヒント: Ctrl+Enter（Mac では ⌘+Enter）で投稿できます。",
   "post.latestReply": "最新の返信へ移動",
   "post.foldReply": "折りたたむ",
   "post.foldReplyTitle": "この返信を投稿者の行だけに折りたたみます（自分の画面だけ、ページを離れるまで）",
