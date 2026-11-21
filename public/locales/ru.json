@@ -781,5 +781,8 @@
   "admin.msg.hidRecent.other": "Скрыто постов: {count}.",
   "admin.msg.restored.one": "Восстановлен {count} пост.",
   "admin.msg.restored.other": "Восстановлено постов: {count}.",
-  "post.latestReply": "К последнему ответу"
+  "post.latestReply": "К последнему ответу",
+  "post.foldReply": "Свернуть",
+  "post.foldReplyTitle": "Свернуть этот ответ до строки автора — только для вас, пока вы не покинете страницу",
+  "post.firstPost": "К первому сообщению"
 }

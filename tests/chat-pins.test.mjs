@@ -43,7 +43,7 @@ const throwing = {
 };
 
 test("pins are keyed per account and round-trip through storage", () => {
-  assert.equal(pinsKey(null), PINS_STORAGE_KEY);
+  assert.equal(pinsKey(null), null, "no account id, no key (wave 12)");
   assert.equal(pinsKey(4), PINS_STORAGE_KEY + ":u4");
   const storage = memoryStorage();
   writePins(storage, ["dm:1", "group:2"], 4);
@@ -75,21 +75,21 @@ test("sortPinnedFirst floats pinned rows and keeps the activity order otherwise"
 
 test("corrupt, oversized or blocked storage reads as no pins and never throws", () => {
   const storage = memoryStorage();
-  storage.setItem(PINS_STORAGE_KEY, "{nope");
-  assert.deepEqual(readPins(storage), []);
-  storage.setItem(PINS_STORAGE_KEY, JSON.stringify(["dm:1", 7, "evil<script>", "group:2"]));
-  assert.deepEqual(readPins(storage), ["dm:1", "group:2"]);
-  storage.setItem(PINS_STORAGE_KEY, JSON.stringify(Array.from({ length: 50 }, (_, index) => "dm:" + index)));
-  assert.equal(readPins(storage).length, MAX_PINNED_CHATS);
-  assert.deepEqual(readPins(throwing), []);
-  assert.doesNotThrow(() => writePins(throwing, ["dm:1"]));
+  storage.setItem(pinsKey(4), "{nope");
+  assert.deepEqual(readPins(storage, 4), []);
+  storage.setItem(pinsKey(4), JSON.stringify(["dm:1", 7, "evil<script>", "group:2"]));
+  assert.deepEqual(readPins(storage, 4), ["dm:1", "group:2"]);
+  storage.setItem(pinsKey(4), JSON.stringify(Array.from({ length: 50 }, (_, index) => "dm:" + index)));
+  assert.equal(readPins(storage, 4).length, MAX_PINNED_CHATS);
+  assert.deepEqual(readPins(throwing, 4), []);
+  assert.doesNotThrow(() => writePins(throwing, ["dm:1"], 4));
   assert.doesNotThrow(() => clearAllPins(throwing));
 });
 
 test("clearAllPins wipes every account's pins and leaves other keys", () => {
   const storage = memoryStorage();
   writePins(storage, ["dm:1"], 1);
-  writePins(storage, ["dm:2"]);
+  storage.setItem(PINS_STORAGE_KEY, JSON.stringify(["dm:2"])); // pre-wave-12 leftover
   storage.setItem("forum-draft:reply:1", "{}");
   clearAllPins(storage);
   assert.deepEqual([...storage.data.keys()], ["forum-draft:reply:1"]);

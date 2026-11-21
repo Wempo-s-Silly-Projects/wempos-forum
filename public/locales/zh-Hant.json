@@ -781,5 +781,8 @@
   "admin.msg.hidRecent.other": "已隱藏 {count} 篇貼文。",
   "admin.msg.restored.one": "已還原 {count} 篇貼文。",
   "admin.msg.restored.other": "已還原 {count} 篇貼文。",
-  "post.latestReply": "跳到最新回覆"
+  "post.latestReply": "跳到最新回覆",
+  "post.foldReply": "摺疊",
+  "post.foldReplyTitle": "將這則回覆摺疊到只剩作者一行——僅你可見，離開頁面後恢復",
+  "post.firstPost": "回到第一篇貼文"
 }

@@ -92,6 +92,8 @@ const PIN_NOTE_ID = "chat-widget-pin-note";
 const buildPinToggle = (current) => {
   const key = conversationKey(current);
   const accountId = ui.widgetUser?.id;
+  // No account id yet: no pin toggle (pins are per account, never unscoped).
+  if (!accountId) return [];
   const pins = readPins(undefined, accountId);
   const pinned = isPinned(pins, key);
   const toggle = el("button", "chat-widget-pin", t("dm.pinChat"));

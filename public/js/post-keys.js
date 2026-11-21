@@ -35,11 +35,14 @@ export function isTypingTarget(node) {
 }
 
 // The step for a keydown, or 0 when the event is not a bare J/K press.
+// Caps Lock sends "J"/"K" without Shift, so the letter is compared
+// case-insensitively; a held Shift (or any modifier) still blocks.
 export function postKeyStep(event) {
   if (!event || event.defaultPrevented || event.isComposing) return 0;
   if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return 0;
   if (isTypingTarget(event.target)) return 0;
-  return POST_KEY_STEPS[event.key] ?? 0;
+  const key = typeof event.key === "string" ? event.key.toLowerCase() : "";
+  return Object.hasOwn(POST_KEY_STEPS, key) ? POST_KEY_STEPS[key] : 0;
 }
 
 // Pure: the post `step` places away from `current` in `posts`, or null at

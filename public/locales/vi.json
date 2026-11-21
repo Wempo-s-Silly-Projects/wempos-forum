@@ -781,5 +781,8 @@
   "admin.msg.hidRecent.other": "Đã ẩn {count} bài viết.",
   "admin.msg.restored.one": "Đã khôi phục {count} bài viết.",
   "admin.msg.restored.other": "Đã khôi phục {count} bài viết.",
-  "post.latestReply": "Đến câu trả lời mới nhất"
+  "post.latestReply": "Đến câu trả lời mới nhất",
+  "post.foldReply": "Thu gọn",
+  "post.foldReplyTitle": "Thu gọn trả lời này chỉ còn dòng tác giả — chỉ với bạn, cho đến khi bạn rời trang",
+  "post.firstPost": "Về bài viết đầu tiên"
 }

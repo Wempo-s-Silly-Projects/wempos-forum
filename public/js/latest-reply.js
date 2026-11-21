@@ -38,3 +38,20 @@ export function createLatestReplyJump(document, replyList, replyCount) {
   });
   return button;
 }
+
+// Back to the first post (wave 2026-11-21-12 F3): the mirror of the jump
+// above, placed under a long thread's replies. It moves focus (and the view)
+// to the thread's opening post, so a reader at the bottom can re-read the
+// question without scrolling back up. No request, no storage.
+export function createFirstPostJump(document, rootCard, replyCount) {
+  if (!rootCard || replyCount < LATEST_JUMP_MIN_REPLIES) return null;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "button button-quiet first-post-jump";
+  button.textContent = t("post.firstPost");
+  button.addEventListener("click", (event) => {
+    event.preventDefault?.();
+    jumpToNode(rootCard, { block: "start" });
+  });
+  return button;
+}

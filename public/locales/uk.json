@@ -781,5 +781,8 @@
   "admin.msg.hidRecent.other": "Приховано дописів: {count}.",
   "admin.msg.restored.one": "Відновлено {count} допис.",
   "admin.msg.restored.other": "Відновлено дописів: {count}.",
-  "post.latestReply": "До останньої відповіді"
+  "post.latestReply": "До останньої відповіді",
+  "post.foldReply": "Згорнути",
+  "post.foldReplyTitle": "Згорнути цю відповідь до рядка автора — лише для вас, доки ви не покинете сторінку",
+  "post.firstPost": "До першого допису"
 }

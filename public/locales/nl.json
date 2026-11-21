@@ -781,5 +781,8 @@
   "admin.msg.hidRecent.other": "{count} berichten verborgen.",
   "admin.msg.restored.one": "{count} bericht hersteld.",
   "admin.msg.restored.other": "{count} berichten hersteld.",
-  "post.latestReply": "Naar de nieuwste reactie"
+  "post.latestReply": "Naar de nieuwste reactie",
+  "post.foldReply": "Inklappen",
+  "post.foldReplyTitle": "Klap deze reactie in tot de auteursregel — alleen voor jou, tot je de pagina verlaat",
+  "post.firstPost": "Terug naar het eerste bericht"
 }

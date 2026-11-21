@@ -781,5 +781,8 @@
   "admin.msg.hidRecent.other": "게시물 {count}개를 숨겼습니다.",
   "admin.msg.restored.one": "게시물 {count}개를 복원했습니다.",
   "admin.msg.restored.other": "게시물 {count}개를 복원했습니다.",
-  "post.latestReply": "최신 답글로 이동"
+  "post.latestReply": "최신 답글로 이동",
+  "post.foldReply": "접기",
+  "post.foldReplyTitle": "이 답글을 작성자 줄만 남기고 접습니다 — 나에게만, 페이지를 떠날 때까지",
+  "post.firstPost": "첫 게시물로 돌아가기"
 }
