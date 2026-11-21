@@ -20,9 +20,11 @@
 // read, the launcher badge and unread refresh, the list rows (1:1 and group),
 // and the New-chat strip above them.
 import { api } from "./api.js";
+import { createIcon } from "./icons.js";
 import { t } from "./i18n.js";
+import { readPins, sortPinnedFirst } from "./chat-pins.js";
 import { groupTitle, imageIdOf } from "./dm-extras.js";
-import { buildAvatar, el, kindOf, ui } from "./chat-widget-state.js";
+import { buildAvatar, conversationKey, el, kindOf, ui } from "./chat-widget-state.js";
 import { GIF_PREVIEW_LABEL, gifIdOf } from "./chat-widget-gifs.js";
 import { openThread } from "./chat-widget-composer.js";
 import { openChatThread, relativeTime } from "./chat-widget.js";
@@ -30,18 +32,48 @@ import { openChatThread, relativeTime } from "./chat-widget.js";
 const MESSAGE_PREVIEW_MAX = 60;
 
 let newChatInFlight = false;
+let olderGroupsInFlight = false;
 
 export const loadThreads = async () => {
   const data = await api("/api/dm/threads");
   return {
     threads: Array.isArray(data?.threads) ? data.threads : [],
     groups: Array.isArray(data?.groups) ? data.groups.map((group) => ({ ...group, kind: "group" })) : [],
+    groupsCursor: typeof data?.groupsCursor === "string" ? data.groupsCursor : null,
   };
 };
 
+// Fresh first-page rows win; older pages already loaded stay listed after them.
+const mergeOlderGroups = (firstPage) => [
+  ...firstPage,
+  ...ui.olderGroups.filter((older) => !firstPage.some((group) => group.id === older.id)),
+];
+
 export const applyConversations = (data) => {
   ui.threads = data.threads;
-  ui.groups = data.groups;
+  ui.groups = mergeOlderGroups(data.groups);
+  ui.groupsCursor = data.groupsCursor ?? null;
+};
+
+// The next group page: after the last older page loaded, else after page one.
+const nextGroupsCursor = () => (ui.olderGroups.length ? ui.olderGroupsCursor : ui.groupsCursor);
+
+const loadOlderGroups = async () => {
+  const cursor = nextGroupsCursor();
+  if (!cursor || olderGroupsInFlight) return;
+  olderGroupsInFlight = true;
+  try {
+    const data = await api("/api/dm/threads?before=" + encodeURIComponent(cursor));
+    const page = Array.isArray(data?.groups) ? data.groups.map((group) => ({ ...group, kind: "group" })) : [];
+    ui.olderGroups = [...ui.olderGroups, ...page.filter((group) => !ui.olderGroups.some((older) => older.id === group.id))];
+    ui.olderGroupsCursor = typeof data?.groupsCursor === "string" ? data.groupsCursor : null;
+    ui.groups = mergeOlderGroups(ui.groups.filter((group) => !ui.olderGroups.some((older) => older.id === group.id)));
+    paintThreadList();
+  } catch (error) {
+    showNewChatError(error?.message || t("chat.chatFailed"));
+  } finally {
+    olderGroupsInFlight = false;
+  }
 };
 
 export const refreshUnread = async () => {
@@ -60,8 +92,10 @@ export const paintBadge = () => {
 export const paintThreadList = () => {
   if (!ui.threadListEl) return;
   ui.threadListEl.replaceChildren();
-  const rows = [...ui.threads, ...ui.groups].sort((a, b) =>
-    String(b.lastMessageAt || "").localeCompare(String(a.lastMessageAt || "")));
+  // Pinned chats (v4.10, local-only) float above the activity order.
+  const pins = readPins(undefined, ui.widgetUser?.id);
+  const rows = sortPinnedFirst([...ui.threads, ...ui.groups].sort((a, b) =>
+    String(b.lastMessageAt || "").localeCompare(String(a.lastMessageAt || ""))), pins, conversationKey);
   if (rows.length === 0) {
     ui.threadListEl.append(el("p", "chat-widget-empty", t("chat.noChats")));
     return;
@@ -74,6 +108,12 @@ export const paintThreadList = () => {
       : thread.other?.username || "unknown";
     const name = el("span", "chat-widget-thread-name", label);
     if (thread.unread > 0) name.classList.add("has-unread");
+    if (pins.includes(conversationKey(thread))) {
+      row.classList.add("is-pinned");
+      const mark = el("span", "chat-widget-thread-pin");
+      mark.append(createIcon(document, "pin"), el("span", "visually-hidden", t("dm.pinnedLabel")));
+      name.append(mark);
+    }
     const preview = el("span", "chat-widget-thread-preview", previewOf(thread));
     const time = el("span", "chat-widget-thread-time", thread.lastMessageAt ? relativeTime(thread.lastMessageAt) : "");
     time.title = thread.lastMessageAt || "";
@@ -82,6 +122,12 @@ export const paintThreadList = () => {
     row.append(avatar, name, preview, time);
     row.addEventListener("click", () => openThread(thread).catch(() => { /* the row stays clickable */ }));
     ui.threadListEl.append(row);
+  }
+  if (nextGroupsCursor()) {
+    const older = el("button", "chat-widget-older chat-widget-older-groups", t("dm.olderGroups"));
+    older.type = "button";
+    older.addEventListener("click", () => { loadOlderGroups(); });
+    ui.threadListEl.append(older);
   }
 };
 

@@ -2518,6 +2518,24 @@ dialog h2 {
   font-size: 0.75rem;
   font-weight: 800;
 }
+/* v4.10 pinned chats + older groups. */
+.chat-widget-pin {
+  align-self: flex-end;
+  margin: 0.3rem 0.75rem 0;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+}
+.chat-widget-pin[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); }
+.chat-widget-pin:disabled { cursor: not-allowed; opacity: 0.6; }
+.chat-widget-thread-pin { display: inline-flex; margin-inline-start: 0.3rem; color: var(--muted); vertical-align: middle; }
+.chat-widget-thread-pin svg { width: 0.8rem; height: 0.8rem; fill: none; stroke: currentColor; stroke-width: 2; }
+.chat-widget-older-groups { display: block; margin: 0.5rem auto; }
 .chat-widget-avatar.role-badge-owner { background: #8d690f; }
 .chat-widget-avatar.role-badge-admin { background: var(--green-ink); }
 .chat-widget-thread {

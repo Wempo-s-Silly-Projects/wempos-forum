@@ -208,3 +208,10 @@ test("sign-out clears catch-up marks and the thread page passes the account id",
   const post = readFileSync(new URL("../public/js/routes/post.js", import.meta.url), "utf8");
   assert.match(post, /applyCatchUp\([^)]*accountId: state\.currentUser\?\.id/);
 });
+
+test("the widget pages older groups through the before cursor and keeps them across refreshes", () => {
+  const threadsModule = readFileSync(new URL("../public/js/chat-widget-threads.js", import.meta.url), "utf8");
+  assert.match(threadsModule, /\/api\/dm\/threads\?before=" \+ encodeURIComponent\(cursor\)/);
+  assert.match(threadsModule, /t\("dm\.olderGroups"\)/);
+  assert.match(threadsModule, /mergeOlderGroups\(data\.groups\)/);
+});

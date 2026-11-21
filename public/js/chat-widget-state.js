@@ -30,6 +30,11 @@ export const ui = {
   // v4.7 group DMs ride the same probe (GET /api/dm/threads → groups); a
   // conversation is { kind: "dm" | "group", id } and kind defaults to "dm".
   groups: [],
+  // v4.10: groups past the first page (GET /api/dm/threads?before=<cursor>),
+  // kept across the 5s list refresh, and the cursor for the next page.
+  groupsCursor: null,
+  olderGroups: [],
+  olderGroupsCursor: null,
   activeThread: null,
   conversation: null, // GET /api/dm/threads/:id result for activeThread
   open: false,

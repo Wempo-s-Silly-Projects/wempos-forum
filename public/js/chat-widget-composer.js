@@ -21,6 +21,7 @@
 // the 5s repaint), and the single-flight text, GIF and image sends.
 import { api } from "./api.js";
 import { t } from "./i18n.js";
+import { MAX_PINNED_CHATS, isPinned, readPins, togglePin, writePins } from "./chat-pins.js";
 import {
   buildGroupManage, buildImageButton, conversationBase, groupTitle, uploadDmImage,
 } from "./dm-extras.js";
@@ -59,6 +60,27 @@ export const openThread = async (thread, { silent = false } = {}) => {
 // display flips a copy — the source array is never mutated). New messages
 // from the 5s poll keep the scroll pinned to the bottom only when the reader
 // already sat there.
+// Pinned chats (v4.10): the header toggle. A full pin list disables an add
+// with a note instead of silently dropping an older pin.
+const buildPinToggle = (current) => {
+  const key = conversationKey(current);
+  const accountId = ui.widgetUser?.id;
+  const pins = readPins(undefined, accountId);
+  const pinned = isPinned(pins, key);
+  const toggle = el("button", "chat-widget-pin", pinned ? t("dm.unpinChat") : t("dm.pinChat"));
+  toggle.type = "button";
+  toggle.setAttribute("aria-pressed", String(pinned));
+  if (!pinned && pins.length >= MAX_PINNED_CHATS) {
+    toggle.disabled = true;
+    toggle.title = t("dm.pinFull", { count: MAX_PINNED_CHATS });
+  }
+  toggle.addEventListener("click", () => {
+    writePins(undefined, togglePin(readPins(undefined, accountId), key), accountId);
+    paintConversation();
+  });
+  return toggle;
+};
+
 export const paintConversation = () => {
   if (!ui.conversationEl || !ui.conversation) return;
   // The reader's scroll: a full re-render (the 5s poll replaces every node)
@@ -94,9 +116,11 @@ export const paintConversation = () => {
   const isGroup = kindOf(ui.conversation) === "group";
   const title = el("span", "chat-widget-peer", isGroup
     ? groupTitle(ui.conversation, ui.widgetUser?.id) : ui.conversation.other?.username || "unknown");
-  ui.conversationEl.append(back, title);
+  ui.conversationEl.append(back, title, buildPinToggle(ui.conversation));
   if (isGroup) {
     const leaveToList = () => {
+      const leftKey = conversationKey(ui.conversation);
+      ui.olderGroups = ui.olderGroups.filter((group) => conversationKey(group) !== leftKey);
       back.click();
       return refreshUnread();
     };
