@@ -11,25 +11,39 @@ A small, friendly community forum. It's live at **<https://wempos-forum.com>**.
 ## What's in it
 
 - **Boards, threads and replies**: start a thread on a board, reply, quote, and follow along.
-- **Writing tools**: your unsent post or reply is saved as a draft in your browser, so a refresh never loses it. Type `@` and a letter to pick a member to mention. A preview pane shows your post as it will look. Hide a punchline or plot twist with `||spoiler||` text, which stays covered until a reader taps it.
+- **Writing tools**:
+  - Your unsent post or reply is saved as a draft in your browser, so a refresh never loses it.
+  - Type `@` and a letter to pick a member to mention. A preview pane shows your post as it will look.
+  - Hide a punchline or plot twist with `||spoiler||` text, which stays covered until a reader taps it.
+  - Press Ctrl+Enter (Cmd+Enter on a Mac) to post from the box you're typing in.
+  - A "Formatting help" panel under the composer lists every bit of markup the forum understands.
+  - Select part of a reply before you press Quote, and only that part is quoted.
+  - Typing in Japanese, Chinese or Korean is safe: pressing Enter to confirm a word never sends a chat message or picks a mention by accident.
 - **Reading tools**:
   - When you come back to a thread, replies you haven't seen get a "New" mark, with a button to jump to where you left off. This is remembered in your browser only.
   - A strip above the replies shows how many people are talking, a rough read time, and a link to the most-liked reply.
-  - Long threads have a "Jump to latest reply" button.
-  - Replies from the person who started the thread carry an "Author" chip.
+  - Long threads have "Jump to latest reply" and "Back to the first post" buttons. If you've replied, "Jump to my reply" takes you to your newest reply. "Next reply from the author" steps through the replies of the person who started the thread.
+  - Replies from the person who started the thread carry an "Author" chip, and your own posts carry a "You" chip.
+  - Fold a reply to shrink it down to its author line, or use "Fold all replies" on a long thread. Folding only changes your view.
+  - "Show spoilers" uncovers every spoiler in a post at once. Spoilers stay covered in every preview: feed snippets, notifications, search results, profile excerpts and quotes.
+  - Click an image to open the viewer, then step through the post's other images with the arrow buttons or arrow keys.
   - "Listen" reads a post aloud, using only voices that run on your device.
   - On a thread page, press J and K to move between posts.
 - **Sharing**: copy a link to any post or reply in one click. Fenced code blocks also get a copy button.
 - **Your language, your size**: the forum is translated into 21 languages, with a language menu in the header. Arabic and Hebrew display right-to-left. You can also pick Default, Large or Larger text.
-- **Reactions and polls**: react to posts, or attach a poll to a thread.
-- **Images and GIFs**: attach up to three images to a post, or pick from the community GIF gallery.
-- **Profiles and walls**: avatars, bios, socials, custom profile styling, and a wall where other members can leave messages.
-- **Notifications**: mentions, replies, and wall posts land in your bell.
-- **Search and bookmarks**: find old threads and save the ones you want to come back to.
+- **Reactions and polls**: react to posts, or attach a poll to a thread. Poll results show each option's percentage, and the option you picked carries a "Your vote" chip. You can change your vote any time.
+- **Images and GIFs**: attach up to three images to a post, or pick from the community GIF gallery. The gallery picker keeps a "Recently used" row and can sort by newest or most used.
+- **Profiles and walls**: avatars, bios, socials, custom profile styling, a "Member since" date, a list of the member's recent threads, and a wall where other members can leave messages. Wall posts support the same formatting as forum posts.
+- **Community traditions**: Question of the Day threads (a thread that starts with "QOTD") get a chip, and the home feed shows a "Today's question" banner with a "You answered" chip once you've replied. The showcase board opens with an image gallery of its threads.
+- **Notifications**: mentions, replies, and wall posts land in your bell. Several replies on the same thread are grouped into one row.
+- **Search and bookmarks**: find old threads and save the ones you want to come back to. Your search words are highlighted in the results.
 - **Chat**: a floating chat button on every page, with a public Lobby, private direct messages, and group chats of up to 10 people. You can send images in DMs and pin up to 5 chats to the top. See [docs/chat-widget.md](docs/chat-widget.md).
 - **Who's Online**: a small roster of who's around right now. You can go invisible from your account page.
+- **New here**: new accounts get a welcome card with a few places to start, and everyone gets a "New tricks to try" card. Each one goes away for good when you dismiss it.
+- **Your settings, your data**: account settings have a "Find a setting" box and a "Jump to a section" list. "Download my data" saves a copy of what you wrote and set (profile, posts and replies, saved posts, followed threads, blocks, wall posts you wrote, and messages you sent). It never includes passwords, two-factor secrets, sign-in sessions, network addresses, image files, or anything other members wrote.
+- **Signing out cleans up**: signing out clears your drafts, read marks, pinned chats, gallery recents and dismissed cards from this browser, even if the sign-out request fails. Device settings like theme, text size and language stay.
 - **Safety tools**: block members you don't want to hear from, report posts, and turn on two-factor sign-in (authenticator app plus backup codes).
-- **Moderation desk**: staff work through reports, bans, ban appeals, auto-moderation, and the word filter in one place. From a report, a moderator can peek at the member's 10 newest posts. If it's a spam run, they can hide up to 50 of the member's latest posts at once, and restore any of them later from the Hidden posts desk.
+- **Moderation desk**: staff work through reports, bans, ban appeals, auto-moderation, and the word filter in one place. See [docs/moderation.md](docs/moderation.md).
 
 ## Signing in
 

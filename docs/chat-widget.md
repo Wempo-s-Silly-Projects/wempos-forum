@@ -67,6 +67,7 @@ Accepted formats are JPEG, PNG, WebP and GIF, at up to 10 MiB per image. Image m
 - You can turn invisible mode on or off from your account page.
 - **Pinned chats**: pin up to 5 conversations, one-to-one or group, to keep them at the top of the list. Pins are kept in your browser only and are cleared when you sign out.
 - **Filter chats**: the box above the list narrows it by name. It only filters what's already loaded and sends nothing.
+- **Typing in Japanese, Chinese or Korean**: pressing Enter to confirm a word while your keyboard is still composing it never sends the message, and never picks a name from the @mention list. The check is `isImeComposing` in `public/js/focus-utils.js`.
 - **Lobby reply**: the Reply button on someone's Lobby message puts `@name` in front of what you're typing, and the usual @mention ping does the rest.
 - **Message effects** (off by default): when you turn them on, a DM made of just 1 to 3 emoji shows extra large. The setting is kept in your browser only.
 - All requests go through the shared `api()` helper in `public/js/api.js`, which uses `fetch`.
