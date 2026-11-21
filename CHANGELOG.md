@@ -13,6 +13,22 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.18.0] - 2026-11-21
+
+### Added
+- AutoMod, an optional automatic moderator, server side. **It ships switched
+  off** and stays off until the owner turns it on. When on, a program the
+  owner runs can read new posts, replies, Lobby messages, wall posts and
+  profile edits, then hide a post, ban a member for at most 24 hours, or flag
+  something for staff. It never acts on staff, it can only read a DM
+  conversation after one of its members reports it, and every AutoMod ban can
+  be appealed like any other. See the AutoMod API section of the
+  [admin guide](docs/admin-guide.md).
+- **Report conversation** in 1:1 DMs. Reported conversations land on a new
+  **DM reports** page on the moderation desk.
+- A new **AutoMod** page on the moderation desk lists everything AutoMod did
+  and why. Staff undo its hides and bans with the usual Restore and Unban.
+
 ## [5.17.0] - 2026-11-21
 
 ### Added
