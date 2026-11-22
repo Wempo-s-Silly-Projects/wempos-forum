@@ -42,7 +42,6 @@ const links = (node, out = []) => {
 
 const NEW_KEYS = [
   "app.pageWeek", "week.title", "week.lede", "week.threadsTitle", "week.showcaseTitle", "week.threadsEmpty",
-  "week.showcaseEmpty", "week.homeLink", "week.loadFailed", "render.newMember", "render.newMemberTitle",
   "newestMembers.title", "staffPick.label", "staffPick.pick", "staffPick.unpick", "staffPick.picked",
   "staffPick.unpicked", "admin.section.staffPicks", "admin.lede.staffPicks", "admin.noStaffPicks",
   "admin.staffPickLogPick", "admin.staffPickLogUnpick",

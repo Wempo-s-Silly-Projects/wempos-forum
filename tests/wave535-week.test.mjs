@@ -105,8 +105,8 @@ test("New chip: an author younger than 7 days is new on feed, detail and replies
   const byId = new Map(feed.posts.map((post) => [post.id, post]));
   assert.equal(byId.get(young).author.isNew, true);
   assert.equal(byId.get(old).author.isNew, false);
-  assert.equal((await getJson(w.env, "/api/posts/" + young)).post.author.isNew, true);
-  assert.equal((await getJson(w.env, "/api/posts/" + old)).post.author.isNew, false);
+  assert.equal((await getJson(w.env, "/api/posts/" + young)).author.isNew, true);
+  assert.equal((await getJson(w.env, "/api/posts/" + old)).author.isNew, false);
   const replies = (await getJson(w.env, "/api/posts/" + old + "/replies")).replies;
   assert.deepEqual(replies.map((reply) => [reply.body, reply.author.isNew]), [["young reply", true]]);
   const underYoung = (await getJson(w.env, "/api/posts/" + young + "/replies")).replies;
@@ -253,8 +253,8 @@ test("staff pick shows on /week and atop the gallery; newest wins; unpick clears
   assert.deepEqual(Object.keys(week.staffPick).sort(), ["authorName", "createdAt", "excerpt", "id", "image"]);
   assert.ok(!JSON.stringify(week).includes("PICKSECRET"), "the pick preview is masked");
   assert.equal((await getJson(w.env, "/api/traditions/showcase")).staffPick.id, second);
-  assert.equal((await getJson(w.env, "/api/posts/" + second)).post.staffPick, true);
-  assert.equal((await getJson(w.env, "/api/posts/" + first)).post.staffPick, false);
+  assert.equal((await getJson(w.env, "/api/posts/" + second)).staffPick, true);
+  assert.equal((await getJson(w.env, "/api/posts/" + first)).staffPick, false);
   const off = await pick(w.env, second, boss, "DELETE");
   assert.equal(off.status, 200);
   assert.deepEqual(await off.json(), { ok: true, staffPick: false });
