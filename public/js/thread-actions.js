@@ -43,6 +43,8 @@ const STAFF_ACTIONS = Object.freeze(new Set([
   "thread-pin", "thread-unpin", "thread-lock", "thread-unlock", "staff-pick", "staff-unpick", "suggestion-status",
 ]));
 
+const LINK_BASE = "https://wempos-forum.invalid";
+
 const hasClass = (node, names) => String(node.className ?? "").split(/\s+/).some((name) => names.includes(name));
 
 // "chip" | "primary" | a MORE_GROUPS name | "staff"
@@ -112,17 +114,38 @@ export function placeInThreadHeader(card, node) {
   else card.append(node);
 }
 
-// organizeThreadActions(document, card, { postId, share, tagEditor, staffForms })
-// regroups the root card's action row in place. `share` (the Share wrapper or
-// null) joins the primary row; `tagEditor` (author/staff) sits collapsed under
-// This post; `staffForms` (staff only, e.g. slow mode) join the Staff menu.
+const linkPath = (node) => {
+  try {
+    return new URL(node.getAttribute?.("href") || node.href || "", LINK_BASE).pathname;
+  } catch {
+    return "";
+  }
+};
+
+// v5.58 (ia-map §5.1-5.2): two entries the thread page shows twice. The
+// card's Copy link goes when Share's own menu already offers one (the
+// capability stays, in Share); the Open post link goes when it points at the
+// page it sits on. Elsewhere (feed cards) both stay.
+function isDuplicateEntry(node, { share, shareHasCopyLink, currentPath }) {
+  if (hasClass(node, ["copy-link-wrap"])) return Boolean(share) && shareHasCopyLink === true;
+  return node.tagName === "A" && Boolean(currentPath) && linkPath(node) === currentPath;
+}
+
+// organizeThreadActions(document, card, { postId, share, tagEditor, staffForms,
+// currentPath, shareHasCopyLink }) regroups the root card's action row in
+// place. `share` (the Share wrapper or null) joins the primary row;
+// `tagEditor` (author/staff) sits collapsed under This post; `staffForms`
+// (staff only, e.g. slow mode) join the Staff menu; `currentPath` and
+// `shareHasCopyLink` drop the duplicate entries (isDuplicateEntry).
 export function organizeThreadActions(document, card, {
-  postId, share = null, tagEditor = null, staffForms = [],
+  postId, share = null, tagEditor = null, staffForms = [], currentPath = null, shareHasCopyLink = false,
 } = {}) {
   const row = actionRowOf(card);
   if (!row) return;
   const slots = { chip: [], primary: [], staff: [], reading: [], following: [], sharing: [], post: [] };
-  for (const node of Array.from(row.children)) slots[slotOf(node)].push(node);
+  for (const node of Array.from(row.children)) {
+    if (!isDuplicateEntry(node, { share, shareHasCopyLink, currentPath })) slots[slotOf(node)].push(node);
+  }
   if (tagEditor) {
     slots.post.push(createDisclosure(document, {
       kind: "tags", id: `thread-tags-${postId}`, label: t("threadActions.editTags"), content: [tagEditor],
@@ -145,3 +168,4 @@ export function organizeThreadActions(document, card, {
     : [];
   row.replaceChildren(...primary.slice(0, 2), ...slots.chip, ...primary.slice(2), ...more);
 }
+
