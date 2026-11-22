@@ -1254,5 +1254,8 @@
   "ux.lbRank": "순위",
   "ux.lbMember": "회원",
   "ux.lbThreads": "스레드",
-  "ux.lbScore": "점수"
+  "ux.lbScore": "점수",
+  "data.zipNote": "여기에서 작성하고 설정한 모든 것을 JSON 파일로, 업로드한 이미지와 함께 ZIP으로 내려받으세요. 버튼을 누를 때만 가져오며 기기로 바로 저장됩니다.",
+  "data.zipReady": "데이터 ZIP을 내려받는 중입니다.",
+  "data.imagesMissing": "데이터 ZIP을 내려받는 중입니다. 이미지 {count}개를 불러오지 못해 제외했습니다."
 }

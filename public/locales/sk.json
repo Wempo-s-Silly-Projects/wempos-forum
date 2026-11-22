@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Poradie",
   "ux.lbMember": "Člen",
   "ux.lbThreads": "Vlákna",
-  "ux.lbScore": "Skóre"
+  "ux.lbScore": "Skóre",
+  "data.zipNote": "Stiahni si ZIP so všetkým, čo si tu napísal a nastavil, ako súbory JSON a k tomu obrázky, ktoré si nahral. Načíta sa len po stlačení tlačidla a ide priamo do tvojho zariadenia.",
+  "data.zipReady": "ZIP s tvojimi dátami sa sťahuje.",
+  "data.imagesMissing": "ZIP s tvojimi dátami sa sťahuje. {count} tvojich obrázkov sa nepodarilo načítať, preto chýbajú."
 }

@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Ples",
   "ux.lbMember": "Memba",
   "ux.lbThreads": "Ol toktok",
-  "ux.lbScore": "Skoa"
+  "ux.lbScore": "Skoa",
+  "data.zipNote": "Daonlodem wan ZIP wetem evri samting we yu raetem mo setem long ples ia olsem ol JSON fael, wetem ol pikja we yu aplodem. Hem i kam nomo taem yu presem baten, mo i go stret long divaes blong yu.",
+  "data.zipReady": "ZIP blong data blong yu i daonlod.",
+  "data.imagesMissing": "ZIP blong data blong yu i daonlod. {count} pikja blong yu i no save lod, ale oli no stap."
 }

@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Rang",
   "ux.lbMember": "Član",
   "ux.lbThreads": "Teme",
-  "ux.lbScore": "Bodovi"
+  "ux.lbScore": "Bodovi",
+  "data.zipNote": "Preuzmi ZIP sa svime što si ovdje napisao i podesio kao JSON datoteke, plus slike koje si otpremio. Preuzima se samo kad pritisneš dugme i ide pravo na tvoj uređaj.",
+  "data.zipReady": "Tvoj ZIP s podacima se preuzima.",
+  "data.imagesMissing": "Tvoj ZIP s podacima se preuzima. {count} tvojih slika nije se moglo učitati pa su izostavljene."
 }

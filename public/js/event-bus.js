@@ -1,0 +1,39 @@
+// Copyright 2026 ItsWempo
+//
+// This file is part of Wempo's Forum.
+//
+// Wempo's Forum is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
+// Batch K: one in-page event bus (the vendored nanoevents). Publishers (the
+// bell, the chat widget, the theme toggle, sign-out) emit; subscribers (the
+// favicon badge, the cross-tab bridge in tab-sync.js) listen — neither side
+// imports the other. The remote* events are what tab-sync.js hears from
+// other tabs; they are never re-broadcast.
+import { createNanoEvents } from "./vendor/nanoevents.js";
+
+export const EVENTS = Object.freeze({
+  // (source: "notifications" | "dms", count: number)
+  unread: "unread",
+  remoteUnread: "remote-unread",
+  signout: "signout",
+  remoteSignout: "remote-signout",
+  // (theme: "light" | "dark")
+  theme: "theme",
+  remoteTheme: "remote-theme",
+});
+
+export const bus = createNanoEvents();

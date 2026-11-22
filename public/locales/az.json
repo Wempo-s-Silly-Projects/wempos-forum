@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Yer",
   "ux.lbMember": "Üzv",
   "ux.lbThreads": "Mövzular",
-  "ux.lbScore": "Xal"
+  "ux.lbScore": "Xal",
+  "data.zipNote": "Burada yazdığın və ayarladığın hər şeyi JSON faylları kimi, üstəlik yüklədiyin şəkillərlə birlikdə ZIP olaraq endir. Yalnız düyməni basanda gətirilir və birbaşa cihazına gedir.",
+  "data.zipReady": "Məlumat ZIP-in yüklənir.",
+  "data.imagesMissing": "Məlumat ZIP-in yüklənir. Şəkillərindən {count} yüklənmədi və çıxarıldı."
 }

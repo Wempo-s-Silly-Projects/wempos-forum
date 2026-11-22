@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Puesto",
   "ux.lbMember": "Miembro",
   "ux.lbThreads": "Hilos",
-  "ux.lbScore": "Puntuación"
+  "ux.lbScore": "Puntuación",
+  "data.zipNote": "Descarga un ZIP con todo lo que has escrito y configurado aquí en archivos JSON, más las imágenes que has subido. Solo se obtiene cuando pulsas el botón y va directo a tu dispositivo.",
+  "data.zipReady": "Tu ZIP de datos se está descargando.",
+  "data.imagesMissing": "Tu ZIP de datos se está descargando. {count} de tus imágenes no se pudieron cargar y se dejaron fuera."
 }

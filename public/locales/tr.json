@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Sıra",
   "ux.lbMember": "Üye",
   "ux.lbThreads": "Konular",
-  "ux.lbScore": "Puan"
+  "ux.lbScore": "Puan",
+  "data.zipNote": "Burada yazdığın ve ayarladığın her şeyi JSON dosyaları olarak, yüklediğin görsellerle birlikte bir ZIP halinde indir. Yalnızca düğmeye bastığında alınır ve doğrudan cihazına gider.",
+  "data.zipReady": "Veri ZIP'in indiriliyor.",
+  "data.imagesMissing": "Veri ZIP'in indiriliyor. Görsellerinden {count} tanesi yüklenemedi ve dışarıda bırakıldı."
 }

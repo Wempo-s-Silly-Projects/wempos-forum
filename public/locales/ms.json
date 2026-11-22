@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Kedudukan",
   "ux.lbMember": "Ahli",
   "ux.lbThreads": "Bebenang",
-  "ux.lbScore": "Markah"
+  "ux.lbScore": "Markah",
+  "data.zipNote": "Muat turun ZIP yang mengandungi semua yang anda tulis dan tetapkan di sini sebagai fail JSON, beserta imej yang anda muat naik. Ia hanya diambil apabila anda menekan butang dan terus ke peranti anda.",
+  "data.zipReady": "ZIP data anda sedang dimuat turun.",
+  "data.imagesMissing": "ZIP data anda sedang dimuat turun. {count} imej anda tidak dapat dimuatkan dan ditinggalkan."
 }

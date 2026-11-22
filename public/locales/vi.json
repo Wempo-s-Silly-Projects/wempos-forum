@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Hạng",
   "ux.lbMember": "Thành viên",
   "ux.lbThreads": "Chủ đề",
-  "ux.lbScore": "Điểm"
+  "ux.lbScore": "Điểm",
+  "data.zipNote": "Tải về một tệp ZIP chứa mọi thứ bạn đã viết và thiết lập ở đây dưới dạng tệp JSON, kèm theo ảnh bạn đã tải lên. Tệp chỉ được lấy khi bạn bấm nút và đi thẳng về thiết bị của bạn.",
+  "data.zipReady": "Tệp ZIP dữ liệu của bạn đang được tải về.",
+  "data.imagesMissing": "Tệp ZIP dữ liệu của bạn đang được tải về. Không tải được {count} ảnh của bạn nên chúng đã bị bỏ qua."
 }

@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Udindo",
   "ux.lbMember": "Membala",
   "ux.lbThreads": "Mitu",
-  "ux.lbScore": "Mapointi"
+  "ux.lbScore": "Mapointi",
+  "data.zipNote": "Tsitsani ZIP yokhala ndi zonse zomwe mudalemba ndi kukhazikitsa pano ngati mafayilo a JSON, pamodzi ndi zithunzi zomwe mudakweza. Imabweretsedwa pokhapokha mutadina batani ndipo imapita molunjika ku chipangizo chanu.",
+  "data.zipReady": "ZIP ya zambiri zanu ikutsitsidwa.",
+  "data.imagesMissing": "ZIP ya zambiri zanu ikutsitsidwa. Zithunzi zanu {count} sizinathe kutsegulidwa ndipo zasiyidwa."
 }

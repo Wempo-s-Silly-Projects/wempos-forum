@@ -1254,5 +1254,8 @@
   "ux.lbRank": "ደረጃ",
   "ux.lbMember": "አባል",
   "ux.lbThreads": "ርዕሶች",
-  "ux.lbScore": "ነጥብ"
+  "ux.lbScore": "ነጥብ",
+  "data.zipNote": "እዚህ የጻፉትንና ያዘጋጁትን ሁሉ በJSON ፋይሎች እንዲሁም የሰቀሉትን ምስሎች የያዘ ZIP ያውርዱ። ቁልፉን ሲጫኑ ብቻ ይመጣል፣ በቀጥታም ወደ መሣሪያዎ ይሄዳል።",
+  "data.zipReady": "የመረጃ ZIPዎ እየወረደ ነው።",
+  "data.imagesMissing": "የመረጃ ZIPዎ እየወረደ ነው። ከምስሎችዎ {count} ሊጫኑ ስላልቻሉ ቀርተዋል።"
 }

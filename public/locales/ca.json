@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Posició",
   "ux.lbMember": "Membre",
   "ux.lbThreads": "Fils",
-  "ux.lbScore": "Puntuació"
+  "ux.lbScore": "Puntuació",
+  "data.zipNote": "Baixa un ZIP amb tot el que has escrit i configurat aquí en fitxers JSON, més les imatges que has penjat. Només es demana quan prems el botó i va directament al teu dispositiu.",
+  "data.zipReady": "S'està baixant el ZIP amb les teves dades.",
+  "data.imagesMissing": "S'està baixant el ZIP amb les teves dades. No s'han pogut carregar {count} de les teves imatges i s'han deixat fora."
 }

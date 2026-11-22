@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Renditja",
   "ux.lbMember": "Anëtari",
   "ux.lbThreads": "Temat",
-  "ux.lbScore": "Pikët"
+  "ux.lbScore": "Pikët",
+  "data.zipNote": "Shkarko një ZIP me gjithçka që ke shkruar dhe vendosur këtu si skedarë JSON, si dhe imazhet që ke ngarkuar. Merret vetëm kur shtyp butonin dhe shkon drejt e në pajisjen tënde.",
+  "data.zipReady": "ZIP-i me të dhënat e tua po shkarkohet.",
+  "data.imagesMissing": "ZIP-i me të dhënat e tua po shkarkohet. {count} nga imazhet e tua nuk u ngarkuan dhe u lanë jashtë."
 }

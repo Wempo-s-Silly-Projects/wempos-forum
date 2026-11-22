@@ -1254,5 +1254,8 @@
   "ux.lbRank": "排名",
   "ux.lbMember": "成员",
   "ux.lbThreads": "主题",
-  "ux.lbScore": "积分"
+  "ux.lbScore": "积分",
+  "data.zipNote": "下载一个 ZIP，内含你在这里写下和设置的全部内容（JSON 文件）以及你上传的图片。只有按下按钮时才会获取，并直接保存到你的设备。",
+  "data.zipReady": "你的数据 ZIP 正在下载。",
+  "data.imagesMissing": "你的数据 ZIP 正在下载。有 {count} 张图片无法加载，已略过。"
 }

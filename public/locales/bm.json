@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Jɔyɔrɔ",
   "ux.lbMember": "Tɔndenw",
   "ux.lbThreads": "Kumasenw",
-  "ux.lbScore": "Jate"
+  "ux.lbScore": "Jate",
+  "data.zipNote": "I ye min sɛbɛn ani ka min labɛn yan, olu bɛɛ jigin ZIP kɔnɔ JSON fisiye ja la, ani i ye ja minnu bila. A bɛ ta ni i ye butɔn digi dɔrɔn, a bɛ taa i ka minɛn kan tilennen.",
+  "data.zipReady": "I ka kunnafoni ZIP bɛ ka jigin.",
+  "data.imagesMissing": "I ka kunnafoni ZIP bɛ ka jigin. I ka ja {count} ma se ka ta, olu bilala kɔ."
 }

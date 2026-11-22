@@ -166,11 +166,15 @@ import { createFolderActions } from "./bookmark-folders.js";
 import { stopReadAloud } from "./read-aloud.js";
 import { stopReadingProgress } from "./reading-progress.js";
 import { applyTabUnread, normaliseTabCount, pageStorage } from "./tab-unread.js";
-import { setTabBadgeCount } from "./tab-badge.js";
+import "./tab-badge.js"; // subscribes the favicon badge to the bus
 import { startVitals } from "./vitals.js";
+import { EVENTS, bus } from "./event-bus.js";
+import { createTabSync } from "./tab-sync.js";
+import { updateBell } from "./notifications.js";
 import { paintSourceLink } from "./source-link.js";
 import { attachRecentSearches } from "./recent-searches.js";
 import { wireSkipLink } from "./skip-link.js";
+import { registerServiceWorker } from "./sw-register.js";
 import { captureMoreFocus, restoreMoreFocus } from "./thread-actions.js";
 // Batch J: route progress bar, after-render polish, global shortcuts,
 // the hiding header on small screens and badge tooltips.
@@ -297,7 +301,7 @@ async function renderRoute(route) {
   if (!context) return;
   setRouteTitle(route);
   applyTabUnread(document, state.unreadNotifications, pageStorage());
-  setTabBadgeCount("notifications", state.unreadNotifications);
+  bus.emit(EVENTS.unread, "notifications", state.unreadNotifications);
 
   const renderers = {
     setup: () => renderSetupRoute(context),
@@ -540,6 +544,19 @@ function showBootSignInCard() {
 // Theme storage may be unavailable in private/restricted contexts. That should
 // never prevent the application state.router from running or leave the HTML shell
 // stuck at its initial placeholder.
+// Batch K: sign-out, theme and unread counts follow across this browser's
+// tabs. Another tab signing out reloads this one into the signed-out view;
+// another tab reading notifications repaints this tab's bell.
+function startTabSync() {
+  createTabSync({ bus });
+  bus.on(EVENTS.remoteSignout, () => window.location.reload());
+  bus.on(EVENTS.remoteUnread, (source, count) => {
+    if (source !== "notifications" || !state.currentUser) return;
+    state.unreadNotifications = count;
+    updateBell(count);
+  });
+}
+
 async function boot() {
   // AGPL-3.0 §13 footer link: synchronous, needs no translation or network.
   paintSourceLink(document);
@@ -551,6 +568,9 @@ async function boot() {
     initTheme(document, storage);
     applyCornerPreference(document, storage);
     fillVersionTag().catch(() => {});
+    // Batch K: static-asset cache + offline page, versioned by the build stamp.
+    registerServiceWorker().catch(() => {});
+    startTabSync();
     // The §4b door-swap: the forum has no
     // password sign-in UI anymore, so a signed-out open carrying
     // ?wt=<ticket> redeems the one-time ticket RIGHT HERE, before the

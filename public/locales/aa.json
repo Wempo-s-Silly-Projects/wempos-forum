@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Darajaa",
   "ux.lbMember": "Miembar",
   "ux.lbThreads": "Kitbatah caxxa",
-  "ux.lbScore": "Lakkoofa"
+  "ux.lbScore": "Lakkoofa",
+  "data.zipNote": "Kaa ixxiga kee taamitte haytem JSON faylah ZIP kak culsis, kee ku sawwir. Butten taamitta waqdi bahte, ku qaxuuk tan maaliinah gexa.",
+  "data.zipReady": "Ku datah ZIP culsimaah tan.",
+  "data.imagesMissing": "Ku datah ZIP culsimaah tan. Ku sawwirittek {count} culsimaane, kaxxa ma geytimin."
 }

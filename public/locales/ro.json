@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Loc",
   "ux.lbMember": "Membru",
   "ux.lbThreads": "Discuții",
-  "ux.lbScore": "Scor"
+  "ux.lbScore": "Scor",
+  "data.zipNote": "Descarcă un ZIP cu tot ce ai scris și setat aici, ca fișiere JSON, plus imaginile pe care le-ai încărcat. Este preluat doar când apeși butonul și ajunge direct pe dispozitivul tău.",
+  "data.zipReady": "ZIP-ul cu datele tale se descarcă.",
+  "data.imagesMissing": "ZIP-ul cu datele tale se descarcă. {count} dintre imaginile tale nu au putut fi încărcate și au fost omise."
 }

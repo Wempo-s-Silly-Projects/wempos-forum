@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Rank",
   "ux.lbMember": "Member",
   "ux.lbThreads": "Threads",
-  "ux.lbScore": "Score"
+  "ux.lbScore": "Score",
+  "data.zipNote": "Download a ZIP with everything you wrote and set here as JSON files, plus the images you uploaded. It is only fetched when you press the button and goes straight to your device.",
+  "data.zipReady": "Your data ZIP is downloading.",
+  "data.imagesMissing": "Your data ZIP is downloading. {count} of your images could not be loaded and were left out."
 }

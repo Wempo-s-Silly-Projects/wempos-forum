@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Helyezés",
   "ux.lbMember": "Tag",
   "ux.lbThreads": "Szálak",
-  "ux.lbScore": "Pontszám"
+  "ux.lbScore": "Pontszám",
+  "data.zipNote": "Tölts le egy ZIP-et mindazzal, amit itt írtál és beállítottál, JSON-fájlokként, valamint a feltöltött képeiddel. Csak akkor kérjük le, amikor megnyomod a gombot, és egyenesen az eszközödre kerül.",
+  "data.zipReady": "Az adataidat tartalmazó ZIP letöltődik.",
+  "data.imagesMissing": "Az adataidat tartalmazó ZIP letöltődik. {count} képedet nem sikerült betölteni, ezért kimaradtak."
 }

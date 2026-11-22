@@ -14,6 +14,7 @@ path = [
   "public/og-image.svg",
   "public/og-image.png",
   "public/index.html",
+  "public/offline.html",
   "public/.well-known/**",
   "package.json",
   "pnpm-lock.yaml",
@@ -168,4 +169,25 @@ SPDX-License-Identifier = "MIT"
 path = "public/js/vendor/headroom.js"
 precedence = "override"
 SPDX-FileCopyrightText = "2013 Nick Williams"
+
+# Batch K vendored libraries, byte-for-byte from their published package
+# tarballs with no added banner, sha256-pinned by tests/wavek-vendor.test.mjs.
+# These blocks come after the Prism wildcard above: REUSE uses the last
+# matching annotation. Both licenses are compatible with AGPL-3.0-or-later.
+[[annotations]]
+path = "public/js/vendor/idb-keyval.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2016 Jake Archibald"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "public/js/vendor/client-zip.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2020 David Junger"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/nanoevents.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2016 Andrey Sitnik"
 SPDX-License-Identifier = "MIT"

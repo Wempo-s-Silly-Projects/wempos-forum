@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Nafasi",
   "ux.lbMember": "Mwanachama",
   "ux.lbThreads": "Mada",
-  "ux.lbScore": "Alama"
+  "ux.lbScore": "Alama",
+  "data.zipNote": "Pakua ZIP yenye kila ulichoandika na kuweka hapa kama faili za JSON, pamoja na picha ulizopakia. Inaletwa tu unapobonyeza kitufe na inaenda moja kwa moja kwenye kifaa chako.",
+  "data.zipReady": "ZIP ya data yako inapakuliwa.",
+  "data.imagesMissing": "ZIP ya data yako inapakuliwa. Picha zako {count} hazikuweza kupakiwa na zimeachwa."
 }

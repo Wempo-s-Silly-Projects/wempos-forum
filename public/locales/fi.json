@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Sija",
   "ux.lbMember": "Jäsen",
   "ux.lbThreads": "Ketjut",
-  "ux.lbScore": "Pisteet"
+  "ux.lbScore": "Pisteet",
+  "data.zipNote": "Lataa ZIP, jossa on kaikki mitä olet täällä kirjoittanut ja asettanut JSON-tiedostoina, sekä lataamasi kuvat. Se haetaan vain, kun painat painiketta, ja se menee suoraan laitteellesi.",
+  "data.zipReady": "Tietojesi ZIP latautuu.",
+  "data.imagesMissing": "Tietojesi ZIP latautuu. {count} kuvaasi ei voitu ladata, joten ne jäivät pois."
 }

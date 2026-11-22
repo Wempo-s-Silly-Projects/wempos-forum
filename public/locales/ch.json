@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Lugåt",
   "ux.lbMember": "Membro",
   "ux.lbThreads": "Tema",
-  "ux.lbScore": "Puntos"
+  "ux.lbScore": "Puntos",
+  "data.zipNote": "Chule' un ZIP yan todu i tinige'-mu yan i finiksåm-mu guini kalang JSON na file, yan i litråtu siha ni un na'kahat. Ha'chule' ha' annai un yemmok i butón ya hånao direkto para i dispositivo-mu.",
+  "data.zipReady": "Ma'chule' i ZIP i dåtos-mu.",
+  "data.imagesMissing": "Ma'chule' i ZIP i dåtos-mu. {count} na litråtu-mu ti siña ma'chule', ya ti ma na'halom."
 }

@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Peringkat",
   "ux.lbMember": "Anggota",
   "ux.lbThreads": "Utas",
-  "ux.lbScore": "Skor"
+  "ux.lbScore": "Skor",
+  "data.zipNote": "Unduh ZIP berisi semua yang kamu tulis dan atur di sini sebagai file JSON, ditambah gambar yang kamu unggah. Hanya diambil saat kamu menekan tombol dan langsung masuk ke perangkatmu.",
+  "data.zipReady": "ZIP datamu sedang diunduh.",
+  "data.imagesMissing": "ZIP datamu sedang diunduh. {count} gambarmu tidak bisa dimuat sehingga tidak disertakan."
 }

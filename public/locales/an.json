@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Puesto",
   "ux.lbMember": "Miembro",
   "ux.lbThreads": "Filos",
-  "ux.lbScore": "Puntuación"
+  "ux.lbScore": "Puntuación",
+  "data.zipNote": "Descarga un ZIP con tot lo que has escrito y configurau aquí en fichers JSON, y as imachens que has puyau. Nomás se replega quan pretas o botón y va dreito t'o tuyo dispositivo.",
+  "data.zipReady": "O tuyo ZIP de datos se ye descargando.",
+  "data.imagesMissing": "O tuyo ZIP de datos se ye descargando. {count} d'as tuyas imachens no s'han puesto cargar y s'han deixau fuera."
 }

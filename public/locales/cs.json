@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Pořadí",
   "ux.lbMember": "Člen",
   "ux.lbThreads": "Vlákna",
-  "ux.lbScore": "Skóre"
+  "ux.lbScore": "Skóre",
+  "data.zipNote": "Stáhni si ZIP se vším, co jsi tu napsal a nastavil, jako soubory JSON a k tomu obrázky, které jsi nahrál. Načte se jen po stisknutí tlačítka a jde rovnou do tvého zařízení.",
+  "data.zipReady": "ZIP s tvými daty se stahuje.",
+  "data.imagesMissing": "ZIP s tvými daty se stahuje. {count} tvých obrázků se nepodařilo načíst, takže chybí."
 }

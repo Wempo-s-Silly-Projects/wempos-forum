@@ -1254,5 +1254,8 @@
   "ux.lbRank": "Miejsce",
   "ux.lbMember": "Członek",
   "ux.lbThreads": "Wątki",
-  "ux.lbScore": "Wynik"
+  "ux.lbScore": "Wynik",
+  "data.zipNote": "Pobierz ZIP ze wszystkim, co tu napisałeś i ustawiłeś, w plikach JSON, razem z obrazami, które przesłałeś. Jest pobierany tylko po naciśnięciu przycisku i trafia prosto na twoje urządzenie.",
+  "data.zipReady": "Twój ZIP z danymi jest pobierany.",
+  "data.imagesMissing": "Twój ZIP z danymi jest pobierany. Nie udało się wczytać {count} twoich obrazów, więc je pominięto."
 }

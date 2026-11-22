@@ -41,6 +41,11 @@ export default [
     languageOptions: { globals: { ...globals.browser } },
   },
   {
+    // Batch K: the service worker is a classic script in its own global scope.
+    files: ['public/sw.js'],
+    languageOptions: { sourceType: 'script', globals: { ...globals.serviceworker } },
+  },
+  {
     files: ['worker.mjs', 'constants.mjs', 'api/**/*.{js,mjs}'],
     languageOptions: { globals: { ...globals.serviceworker, ...globals.es2021 } },
   },
