@@ -15,6 +15,24 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.41.0] - 2026-11-22
+
+### Security
+- Security review of v5.37-v5.40 (pinned threads, custom status, poll
+  closing times, bookmark folders, following members and notification
+  types):
+  [docs/security-reviews/2026-11-22-v5.37-v5.40.md](docs/security-reviews/2026-11-22-v5.37-v5.40.md).
+  No high or medium findings; three low findings fixed; one new owner
+  decision on the data export and the two carried-over owner items remain
+  open.
+
+### Fixed
+- A custom status can no longer contain the invisible characters that flip
+  text direction, which could show a filtered word spelled backwards as the
+  real word. Hebrew, Arabic and other right-to-left statuses work as before.
+- The 200-member follow limit and the 20-folder bookmark limit now hold even
+  when several requests arrive at once.
+
 ## [5.40.0] - 2026-11-22
 
 ### Added
