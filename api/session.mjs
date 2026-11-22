@@ -29,7 +29,7 @@ import { equalConstantTime, nowSeconds, sha256Hex } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson, requireTurnstile, securityHeaders } from "./core/http.mjs";
 import { hashPassword, isValidPassword, isValidPasswordPepper, isValidSetupSecret, verifyPassword } from "./core/passwords.mjs";
 import { ROLE_ADMIN_DB, ROLE_OWNER_DB } from "./core/roles.mjs";
-import { isValidUsername, publicUser, userByUsernameKey } from "./core/shapers.mjs";
+import { isValidUsername, publicUser, SOCIAL_SELECT_COLUMNS, userByUsernameKey } from "./core/shapers.mjs";
 import { issueTotpChallenge } from "./twofa.mjs";
 import { invitedBy } from "./invites.mjs";
 
@@ -69,8 +69,7 @@ async function storeUser(env, credentials, role = "member") {
     }
     return await env.FORUM_DB.prepare(
       "SELECT id, username, username_key, password_salt, password_hash, role, bio, " +
-        "social_youtube, social_x, social_reddit, social_github, social_discord, " +
-        "social_gitlab, social_instagram, social_tiktok, social_twitch, polytoria_username, " +
+        SOCIAL_SELECT_COLUMNS +
         "avatar_status, avatar_mime, avatar_updated_at, avatar_version " +
         "FROM users WHERE id = ? LIMIT 1",
     ).bind(Number(result.meta.last_row_id)).first();
