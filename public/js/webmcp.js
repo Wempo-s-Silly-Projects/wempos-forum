@@ -27,6 +27,7 @@ import { api } from "./api.js";
 import { BOARDS } from "./boards.js";
 import { i18nReady } from "./i18n.js";
 import { maskedExcerpt } from "./markdown.js";
+import { safeInternalPath } from "./safe-path.js";
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 20;
@@ -59,7 +60,10 @@ const summarizePosts = (posts, limit) =>
   (Array.isArray(posts) ? posts : []).slice(0, clampLimit(limit)).map(summarizePost);
 
 const goTo = (path) => {
-  const url = new URL(path, location.origin).href;
+  // Agent-supplied ids feed these paths; only an internal path navigates.
+  const internal = safeInternalPath(path);
+  if (!internal) return textResult("Refused: not a forum path."); // i18n-ignore
+  const url = new URL(internal, location.origin).href;
   location.assign(url);
   return textResult(`Navigating to ${url}`); // i18n-ignore
 };

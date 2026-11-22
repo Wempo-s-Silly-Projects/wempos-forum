@@ -39,7 +39,8 @@ import { followerFanOutStatements } from "./follows.mjs";
 import { archivePostRowsStatement } from "./core/archive.mjs";
 import { assertNotBanned, readSession, requireUser } from "./core/auth.mjs";
 import { nowSeconds, sha256Hex } from "./core/crypto.mjs";
-import { HttpError, json, rateLimit, readJson, requireMutationApplied, requireTurnstile, requiredText } from "./core/http.mjs";
+import { HttpError, isMultipartRequest, json, rateLimit, readJson, requireMutationApplied, requireTurnstile, requiredText } from "./core/http.mjs";
+import { normalizeBodyText } from "./core/text.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 
@@ -272,13 +273,12 @@ export async function handlePostCreateRoute(request, env, url, path, method) {
     if (priorIdempotent?.archived) {
       throw new HttpError(410, "This creation request already completed, but that post has since been deleted.");
     }
-    const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
-      .startsWith("multipart/form-data");
+    const isMultipart = isMultipartRequest(request);
     const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env, { replayPostId: priorIdempotent ? Number(priorIdempotent.id) : null });
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
-    const message = applyWordFilter(requiredText(fields.body, "post", MAX_COMPOSER_BODY_CHARS), filterWords(env));
+    const message = applyWordFilter(requiredText(normalizeBodyText(fields.body), "post", MAX_COMPOSER_BODY_CHARS), filterWords(env));
     // The board rides the same fields object in both wire formats (JSON field
     // or multipart text part); absent/empty defaults to 'general', unknown
     // values 400 before any insert.
@@ -398,7 +398,7 @@ export async function handlePostEditRoute(request, env, url, path, method) {
     }
     const body = await readJson(request);
     const message = applyWordFilter(
-      requiredText(body.body, "post", MAX_COMPOSER_BODY_CHARS),
+      requiredText(normalizeBodyText(body.body), "post", MAX_COMPOSER_BODY_CHARS),
       filterWords(env),
     );
     const editedAt = nowSeconds();

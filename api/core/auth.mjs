@@ -240,7 +240,19 @@ export async function createSession(request, env, userId = null, oldTokenHash = 
   return { tokenHash, csrfToken, setCookie: setCookie(request, token) };
 }
 
+// Fetch Metadata: a browser that sends Sec-Fetch-Site says where the write
+// came from. The origin policy below is exact-origin (no sibling subdomain),
+// so only same-origin and a user-initiated "none" pass this gate; cross-site
+// and same-site are refused outright. An absent header (older browsers,
+// non-browser clients) falls through to the Origin check unchanged. Token
+// routes (the Accounts relay, MCP) never call this.
+const ALLOWED_FETCH_SITES = new Set(["same-origin", "none"]);
+
 export function assertSameOrigin(request) {
+  const fetchSite = request.headers.get("Sec-Fetch-Site");
+  if (fetchSite !== null && !ALLOWED_FETCH_SITES.has(fetchSite.trim().toLowerCase())) {
+    throw new HttpError(403, "This request was blocked because its origin could not be verified.");
+  }
   const origin = request.headers.get("Origin");
   const expected = new URL(request.url).origin;
   if (!origin || origin !== expected) {

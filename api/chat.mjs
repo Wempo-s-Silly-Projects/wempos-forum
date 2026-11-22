@@ -32,6 +32,7 @@ import { blockPairExists, viewerBlockFilterSql } from "./core/blocks.mjs";
 import { ACTIVE_BAN_SQL } from "./core/visibility.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
+import { normalizeBodyText } from "./core/text.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
@@ -114,7 +115,7 @@ async function lobbyOnlineCount(db) {
 // stored row, then best-effort @mention fan-out. Returns the stored row.
 async function insertLobbyMessage(env, user, rawBody) {
   const message = applyWordFilter(
-    String(rawBody ?? "").trim().slice(0, LOBBY_CHAT_MAX_CHARS),
+    String(normalizeBodyText(rawBody) ?? "").trim().slice(0, LOBBY_CHAT_MAX_CHARS),
     filterWords(env),
   );
   if (!message) throw new HttpError(400, "Write a message first.");

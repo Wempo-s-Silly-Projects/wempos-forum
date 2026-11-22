@@ -27,7 +27,8 @@ import { archivePostRowsStatement } from "./core/archive.mjs";
 import { blockPairExists } from "./core/blocks.mjs";
 import { assertNotBanned, readSession, requireStaff, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { HttpError, json, rateLimit, readJson, readLimitedBody, requireMutationApplied } from "./core/http.mjs";
+import { HttpError, json, parseJsonSafely, rateLimit, readJson, readLimitedBody, requestContentType, requireMutationApplied } from "./core/http.mjs";
+import { normalizeBodyText } from "./core/text.mjs";
 import { hashPassword, isValidPassword, verifyPassword } from "./core/passwords.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { publicChainSql } from "./core/visibility.mjs";
@@ -183,7 +184,7 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
       if (typeof body.bio !== "string") {
         throw new HttpError(400, "Your bio must be 10000 characters or fewer.");
       }
-      bio = body.bio.trim();
+      bio = normalizeBodyText(body.bio).trim();
       if (bio.length > BIO_MAX_LENGTH) {
         throw new HttpError(400, "Your bio must be 10000 characters or fewer.");
       }
@@ -335,11 +336,11 @@ async function handleCssSetRoute(request, env, url, path, method) {
   // shape) — a CSS sheet sent that way arrives double-encoded: a leading
   // quote swallows the whole sheet as one JSON string. Detect and decode.
   let cssText = decoded.trim();
-  const looksJson = (request.headers.get("Content-Type") || "").includes("application/json") ||
+  const looksJson = requestContentType(request)?.type === "application/json" ||
     (cssText.startsWith("\"") && cssText.endsWith("\"") && cssText.length > 1);
   if (looksJson) {
     try {
-      const parsed = JSON.parse(cssText);
+      const parsed = parseJsonSafely(cssText);
       cssText = typeof parsed === "string" ? parsed : JSON.stringify(parsed);
     } catch {
       /* keep the raw text — a CSS string that merely looks quoted stays */

@@ -27,7 +27,7 @@
 // split across rows. R2 is not enabled on this account.
 import { assertNotBanned, readSession, requireStaff } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { HttpError, json, readLimitedBody, readJson } from "./core/http.mjs";
+import { HttpError, isMultipartRequest, json, readLimitedBody, readJson } from "./core/http.mjs";
 import { blobToUint8Array, createAvatarVersion, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
 import { assembledGifBytes, GIF_FIELD } from "./gifs.mjs";
 
@@ -66,8 +66,7 @@ function assertAttachmentRoom(alreadyTaken) {
 }
 
 export async function readComposedBody(request, env, options = {}) {
-  const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
-  if (!contentType.startsWith("multipart/form-data")) {
+  if (!isMultipartRequest(request)) {
     // JSON bodies carry library-gif references as an array; the multipart
     // path carries repeatable gifIds text fields — both resolve the same.
     const parsed = await readJson(request);

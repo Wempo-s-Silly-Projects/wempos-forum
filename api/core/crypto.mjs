@@ -56,9 +56,30 @@ export async function sha256Hex(value) {
   return hex(new Uint8Array(await crypto.subtle.digest("SHA-256", encoder.encode(value))));
 }
 
-export function equalConstantTime(a, b) {
-  if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
+// Both inputs are UTF-8 encoded and zero-padded to one shared length, so the
+// comparison always walks the same number of bytes whether or not the
+// lengths match; the length difference is folded into the result instead of
+// returning early. Workers ship crypto.subtle.timingSafeEqual (equal-length
+// buffers only); node --test falls back to the pure-JS XOR loop.
+function padded(bytes, size) {
+  const result = new Uint8Array(size);
+  result.set(bytes);
+  return result;
+}
+
+function bytesEqual(left, right) {
+  const native = globalThis.crypto?.subtle?.timingSafeEqual;
+  if (typeof native === "function") return native.call(globalThis.crypto.subtle, left, right);
   let mismatch = 0;
-  for (let i = 0; i < a.length; i++) mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  for (let i = 0; i < left.length; i++) mismatch |= left[i] ^ right[i];
   return mismatch === 0;
+}
+
+export function equalConstantTime(a, b) {
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  const left = encoder.encode(a);
+  const right = encoder.encode(b);
+  const size = Math.max(left.length, right.length, 1);
+  const same = bytesEqual(padded(left, size), padded(right, size));
+  return same && left.length === right.length;
 }

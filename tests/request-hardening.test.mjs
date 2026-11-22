@@ -24,6 +24,7 @@
 import { test, before } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import worker from "../worker.mjs";
 import { makeEnv, TEST_RELAY_TOKEN } from "./helpers/d1.mjs";
 import { ORIGIN, call, forgeSession, seedUser } from "./helpers/seed.mjs";
 import { equalConstantTime } from "../api/core/crypto.mjs";
@@ -102,8 +103,8 @@ test("equalConstantTime keeps its answers", () => {
   assert.equal(equalConstantTime("abc", "abcd"), false);
   assert.equal(equalConstantTime("abcd", "abc"), false);
   assert.equal(equalConstantTime("a\u0000", "a"), false, "zero padding must not collide");
-  assert.equal(equalConstantTime("é", "é"), false);
-  assert.equal(equalConstantTime("ü", "ü"), true);
+  assert.equal(equalConstantTime("\u00e9", "e\u0301"), false);
+  assert.equal(equalConstantTime("\u00fc", "\u00fc"), true);
   assert.equal(equalConstantTime(null, "x"), false);
   assert.equal(equalConstantTime("x", undefined), false);
 });
@@ -150,16 +151,17 @@ test("same-origin, none and an absent Sec-Fetch-Site still pass on to the Origin
   for (const value of ["same-origin", "none", null]) {
     const headers = value === null ? {} : { "Sec-Fetch-Site": value };
     const response = await call(env, "/api/auth/logout", { method: "POST", session: freshSession(), headers });
-    assert.equal(response.status, 200, String(value));
+    assert.equal(response.status, 204, String(value));
   }
 });
 
 test("Sec-Fetch-Site none does not bypass the Origin check", async () => {
-  const response = await call(env, "/api/auth/logout", {
+  const s = freshSession();
+  const request = new Request(ORIGIN + "/api/auth/logout", {
     method: "POST",
-    session: freshSession(),
-    headers: { "Sec-Fetch-Site": "none", Origin: "https://evil.example" },
+    headers: { Cookie: s.cookie, "X-CSRF-Token": s.csrf, "Sec-Fetch-Site": "none", Origin: "https://evil.example" },
   });
+  const response = await worker.fetch(request, env, { waitUntil() {} });
   assert.equal(response.status, 403);
 });
 
@@ -203,7 +205,7 @@ test("safeInternalPath refuses off-site and scheme targets", () => {
   for (const bad of [
     "//evil.com", "/\\evil.com", "\\\\evil.com", "javascript:alert(1)", "https://evil.com",
     "evil.com", "posts/1", "", " /posts", "/posts\n/x", "/\tevil", "/\u0000x", "/\u007fx", null, undefined, 42,
-    "JAVASCRIPT:alert(1)", "///evil.com", "/ x",
+    "JAVASCRIPT:alert(1)", "///evil.com", "/\u2028x",
   ]) {
     assert.equal(safeInternalPath(bad), null, JSON.stringify(bad));
   }
@@ -242,21 +244,21 @@ test("JSON routes accept application/json with any case and a utf-8 charset", as
 // ---- 6. BOM / CRLF normalisation ------------------------------------------
 
 test("normalizeBodyText strips one leading BOM and folds CRLF/CR to LF", () => {
-  assert.equal(normalizeBodyText("﻿a\r\nb\rc\nd"), "a\nb\nc\nd");
-  assert.equal(normalizeBodyText("a﻿b"), "a﻿b");
+  assert.equal(normalizeBodyText("\uFEFFa\r\nb\rc\nd"), "a\nb\nc\nd");
+  assert.equal(normalizeBodyText("a\uFEFFb"), "a\uFEFFb");
   assert.equal(normalizeBodyText(5), 5);
   assert.equal(normalizeBodyText(undefined), undefined);
 });
 
 test("a CRLF post body is stored as LF and counted after normalisation", async () => {
   const lines = Math.floor(MAX_COMPOSER_BODY_CHARS / 2);
-  const crlf = "﻿" + "x\r\n".repeat(lines - 1) + "x";
+  const crlf = "\uFEFF" + "x\r\n".repeat(lines - 1) + "x";
   assert.ok(crlf.length > MAX_COMPOSER_BODY_CHARS);
   const response = await call(env, "/api/posts", { method: "POST", session: freshSession(), body: { body: crlf, board: "general" } });
   assert.equal(response.status, 201, await response.clone().text());
-  const { post } = await response.json();
-  const stored = env.__sqlite.prepare("SELECT body FROM posts WHERE id = ?").get(post.id).body;
-  assert.ok(!stored.includes("\r") && !stored.startsWith("﻿"));
+  const { id } = await response.json();
+  const stored = env.__sqlite.prepare("SELECT body FROM posts WHERE id = ?").get(id).body;
+  assert.ok(!stored.includes("\r") && !stored.startsWith("\uFEFF"));
   assert.ok(stored.length <= MAX_COMPOSER_BODY_CHARS);
 });
 
@@ -267,11 +269,11 @@ test("the cap still applies after normalisation", async () => {
 });
 
 test("chat and bio bodies are normalised before storage", async () => {
-  const chat = await call(env, "/api/chat", { method: "POST", session: freshSession(), body: { body: "﻿one\r\ntwo" } });
+  const chat = await call(env, "/api/chat", { method: "POST", session: freshSession(), body: { body: "\uFEFFone\r\ntwo" } });
   assert.equal(chat.status, 201);
   const row = env.__sqlite.prepare("SELECT body FROM chat_messages ORDER BY id DESC LIMIT 1").get();
   assert.equal(row.body, "one\ntwo");
-  const bio = await call(env, "/api/me", { method: "PATCH", session: freshSession(), body: { bio: "﻿hi\r\nthere" } });
+  const bio = await call(env, "/api/me", { method: "PATCH", session: freshSession(), body: { bio: "\uFEFFhi\r\nthere" } });
   assert.equal(bio.status, 200, await bio.clone().text());
   assert.equal(env.__sqlite.prepare("SELECT bio FROM users WHERE id = ?").get(userId).bio, "hi\nthere");
 });

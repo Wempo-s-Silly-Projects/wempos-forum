@@ -27,7 +27,7 @@
 // gifs by reference — no byte copies; use_count tracks popularity.
 import { assertNotBanned, readSession, requireStaff, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { HttpError, json, rateLimit, readLimitedBody } from "./core/http.mjs";
+import { HttpError, isMultipartRequest, json, rateLimit, readLimitedBody } from "./core/http.mjs";
 import { blobToUint8Array, createAvatarVersion, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
 
 export const GIF_FIELD = "gifIds";
@@ -99,10 +99,10 @@ export async function handleGifUploadRoute(request, env, path, method) {
   await assertNotBanned(env, session.user.id);
   await rateLimit(request, env, "write");
   await rateLimit(request, env, "image-upload", String(session.user.id));
-  const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
+  const multipart = isMultipartRequest(request);
   const raw = await readLimitedBody(request, MAX_GIF_BYTES + 512 * 1024);
   let bytes;
-  if (contentType.startsWith("multipart/form-data")) {
+  if (multipart) {
     let form;
     try {
       const headers = new Headers(request.headers);

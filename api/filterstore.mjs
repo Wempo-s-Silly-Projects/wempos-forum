@@ -32,7 +32,7 @@
 // database, pre-migration) silently keeps the secret as the source.
 import { requireStaff } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { HttpError, json, rateLimit, readLimitedBody } from "./core/http.mjs";
+import { HttpError, json, parseJsonSafely, rateLimit, readLimitedBody } from "./core/http.mjs";
 import { splitFilterEntries } from "./filter.mjs";
 
 const FILTER_KEY = "filtered_words";
@@ -176,7 +176,7 @@ export async function handleFilterAdminRoutes(request, env, url, path, method) {
 async function readJsonBody(request, maximum) {
   const raw = new TextDecoder().decode(await readLimitedBody(request, maximum));
   try {
-    const parsed = JSON.parse(raw);
+    const parsed = parseJsonSafely(raw);
     return parsed && typeof parsed === "object" ? parsed : { words: raw, entries: raw };
   } catch {
     return { words: raw, entries: raw };

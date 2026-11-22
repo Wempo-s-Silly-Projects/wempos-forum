@@ -25,7 +25,7 @@
 // bodies moved verbatim; sources re-import through this module.
 import { assertNotBanned, readSession, requireStaff, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { HttpError, json, rateLimit, readJson, readLimitedBody, requireMutationApplied } from "./core/http.mjs";
+import { HttpError, isMultipartRequest, json, rateLimit, readJson, readLimitedBody, requireMutationApplied } from "./core/http.mjs";
 import { blobToUint8Array, createAvatarVersion, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
 
 export const MAX_AVATAR_BYTES = 1024 * 1024;
@@ -77,8 +77,7 @@ async function handleAvatarUploadRoute(request, env, url, path, method) {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
     await rateLimit(request, env, "avatar-upload", String(session.user.id));
-    const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
-    if (!contentType.startsWith("multipart/form-data;")) {
+    if (!isMultipartRequest(request)) {
       throw new HttpError(415, "Upload a JPEG, PNG, or WebP image.");
     }
     const bufferedBody = await readLimitedBody(request, MAX_AVATAR_REQUEST_BYTES);

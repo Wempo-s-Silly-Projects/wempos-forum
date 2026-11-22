@@ -24,7 +24,7 @@
 // literal and images/embeds never render (the markdown renderer's rules).
 import { requireStaff } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { HttpError, json, rateLimit, readLimitedBody } from "./core/http.mjs";
+import { HttpError, json, parseJsonSafely, rateLimit, readLimitedBody, requestContentType } from "./core/http.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 
@@ -50,11 +50,11 @@ export async function handleRulesRoutes(request, env, url, path, method) {
     // api() JSON-encodes the body (the CSS route's same convention): decode
     // the string payload.
     let rulesText = text.trim();
-    const looksJson = (request.headers.get("Content-Type") || "").includes("application/json") ||
+    const looksJson = requestContentType(request)?.type === "application/json" ||
       (rulesText.startsWith("\"") && rulesText.endsWith("\"") && rulesText.length > 1);
     if (looksJson) {
       try {
-        const parsed = JSON.parse(rulesText);
+        const parsed = parseJsonSafely(rulesText);
         rulesText = typeof parsed === "string" ? parsed : String(parsed?.rules ?? rulesText);
       } catch {
         /* a merely-quoted css-like value stays */
