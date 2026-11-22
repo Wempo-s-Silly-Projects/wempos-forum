@@ -145,6 +145,15 @@ const CLIENT_PATHS = {
     const panel = renderEditHistoryPanel(makeFakeDocument(), [{ editedAt: new Date().toISOString(), body: SPLIT_BODY }]);
     return findByClass(panel, "edit-history-body").textContent;
   },
+  // Wave 5.50: the word diff — the current version and every past one — runs
+  // on the masked text, so neither side of a diff can surface a spoiler.
+  "edit history word diff": () => {
+    const panel = renderEditHistoryPanel(makeFakeDocument(), [
+      { editedAt: new Date().toISOString(), body: SPLIT_BODY + " newer" },
+      { editedAt: new Date().toISOString(), body: "older " + SPLIT_BODY },
+    ], "current " + SPLIT_BODY);
+    return panel.textContent;
+  },
 };
 
 for (const [name, read] of Object.entries(CLIENT_PATHS)) {

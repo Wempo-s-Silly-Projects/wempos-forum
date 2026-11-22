@@ -149,6 +149,7 @@ async function seedWorld() {
   seedFoldersFollows(w, at);
   seedPrivateExtras(w, at);
   seedTags(w, at);
+  seedSummaries(w, at);
   await seedArchive(w);
   return w;
 }
@@ -223,6 +224,18 @@ function seedPrivateExtras(w, at) {
 // hidden root. The tag listing, the thread's chips and the tag page head
 // must re-check visibility for every viewer. A 1:1 DM reaction by each pair
 // side rides the pair thread (counts only, never text).
+// Wave 5.50 (migration 0074): a TL;DR on every fixture root — public, hidden,
+// banned author, both block sides. The summary read must follow the thread's
+// own visibility for every viewer; each body carries its root's needle.
+function seedSummaries(w, at) {
+  const { db, id } = w;
+  for (const [post, writer, body] of [[w.publicRoot, id.alice, "VISIBLESUMTXT"], [w.hiddenRoot, id.alice, "HIDDENROOTTXT tldr"],
+    [w.bannedRoot, id.zzbanned, "BANNEDTXT tldr"], [w.blockerRoot, id.zzblocker, "BLOCKERTXT tldr"],
+    [w.blockedRoot, id.zzblocked, "BLOCKEDTXT tldr"]]) {
+    db.prepare("INSERT INTO thread_summaries (post_id, body, updated_by, updated_at) VALUES (?, ?, ?, ?)").run(post, body, writer, at);
+  }
+}
+
 function seedTags(w, at) {
   const { db, id } = w;
   const tag = Number(db.prepare("INSERT INTO forum_tags (slug, label, created_by, created_at) VALUES ('sweep', 'Sweep', ?, ?)")
@@ -344,6 +357,8 @@ function routes(w, member) {
     ["/api/search?q=PRIVNOTETXT"],
     // Wave 5.48: a search for the saved-search text.
     ["/api/search?q=SAVEDSEARCHTXT"],
+    // Wave 5.50: the visible thread's TL;DR.
+    ["/api/posts/" + w.publicRoot + "/summary"],
   ];
   if (member) {
     list.push(["/api/me/notifications"], ["/api/me/bookmarks"], ["/api/session"], ["/api/posts?mine=1"],
@@ -458,6 +473,35 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
   // Wave 5.48: + a saved-search-text search and an MCP one for each of the
   // 4 viewers, + the own saved-search list for each of the 3 members.
   assert.ok(swept >= 318, "swept " + swept);
+  // Wave 5.50: + the visible thread's TL;DR for each of the 4 viewers.
+  assert.ok(swept >= 322, "swept " + swept);
+});
+
+test("wave 5.50 sweep: the TL;DR is never served for a hidden, banned-author or block-paired thread; positive controls", async () => {
+  const w = await seedWorld();
+  const always = [w.hiddenRoot, w.underHidden, w.bannedRoot, w.bannedReply];
+  const side = { zzblocker: [w.blockedRoot, w.blockedReply], zzblocked: [w.blockerRoot, w.blockerReply] };
+  let refused = 0;
+  for (const member of [null, "viewer", "zzblocker", "zzblocked", "outsider"]) {
+    const session = member ? forgeSession(w.db, w.id[member]) : undefined;
+    const forbidden = [...ALWAYS_FORBIDDEN, ...(SIDE_FORBIDDEN[member] || [])];
+    for (const postId of [...always, ...(side[member] || [])]) {
+      const res = await call(w.env, "/api/posts/" + postId + "/summary", { session });
+      assert.equal(res.status, 404, (member || "guest") + " summary " + postId);
+      assertClean(await res.text(), forbidden, (member || "guest") + " summary " + postId);
+      refused++;
+    }
+  }
+  assert.equal(refused, 5 * 4 + 2 * 2);
+  // Positive controls: the public thread for everyone; the unrelated member
+  // sees both pair sides; staff read the hidden and banned-author ones.
+  assert.ok((await fetchText(w.env, "/api/posts/" + w.publicRoot + "/summary")).includes("VISIBLESUMTXT"));
+  const viewer = forgeSession(w.db, w.id.viewer);
+  assert.ok((await fetchText(w.env, "/api/posts/" + w.blockerRoot + "/summary", { session: viewer })).includes("BLOCKERTXT tldr"));
+  assert.ok((await fetchText(w.env, "/api/posts/" + w.blockedRoot + "/summary", { session: viewer })).includes("BLOCKEDTXT tldr"));
+  const boss = forgeSession(w.db, w.id.boss);
+  assert.ok((await fetchText(w.env, "/api/posts/" + w.hiddenRoot + "/summary", { session: boss })).includes("HIDDENROOTTXT tldr"));
+  assert.ok((await fetchText(w.env, "/api/posts/" + w.bannedRoot + "/summary", { session: boss })).includes("BANNEDTXT tldr"));
 });
 
 test("wave 5.44 sweep: tags and DM reactions on hidden, banned and block-paired content", async () => {
