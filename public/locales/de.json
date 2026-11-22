@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Zeichenfläche",
   "fun.sketchClear": "Leeren",
   "fun.sketchAttach": "Skizze anhängen",
-  "fun.toyTitle": "Schwerkraft-Spielzeug"
+  "fun.toyTitle": "Schwerkraft-Spielzeug",
+  "render.diagram": "Diagramm",
+  "render.diagramSource": "Diagrammquelltext",
+  "render.zoomIn": "Vergrößern",
+  "render.zoomOut": "Verkleinern",
+  "render.zoomReset": "Zoom zurücksetzen",
+  "render.jsonTree": "Baumansicht"
 }

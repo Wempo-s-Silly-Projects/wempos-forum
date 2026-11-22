@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "พื้นที่วาดภาพ",
   "fun.sketchClear": "ล้าง",
   "fun.sketchAttach": "แนบภาพสเก็ตช์",
-  "fun.toyTitle": "ของเล่นแรงโน้มถ่วง"
+  "fun.toyTitle": "ของเล่นแรงโน้มถ่วง",
+  "render.diagram": "แผนภาพ",
+  "render.diagramSource": "ซอร์สของแผนภาพ",
+  "render.zoomIn": "ซูมเข้า",
+  "render.zoomOut": "ซูมออก",
+  "render.zoomReset": "รีเซ็ตการซูม",
+  "render.jsonTree": "มุมมองแบบต้นไม้"
 }

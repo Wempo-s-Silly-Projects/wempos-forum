@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Mfoni ase bea",
   "fun.sketchClear": "Popa",
   "fun.sketchAttach": "Fa mfoni no ka ho",
-  "fun.toyTitle": "Asase twe agodie"
+  "fun.toyTitle": "Asase twe agodie",
+  "render.diagram": "Mfoniniyɛ",
+  "render.diagramSource": "Mfoniniyɛ fibea",
+  "render.zoomIn": "Ma ɛnyɛ kɛse",
+  "render.zoomOut": "Ma ɛnyɛ ketewa",
+  "render.zoomReset": "San kɔ kɛse a edi kan",
+  "render.jsonTree": "Dua nhwɛe"
 }

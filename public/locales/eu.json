@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Marrazteko eremua",
   "fun.sketchClear": "Garbitu",
   "fun.sketchAttach": "Erantsi zirriborroa",
-  "fun.toyTitle": "Grabitate-jostailua"
+  "fun.toyTitle": "Grabitate-jostailua",
+  "render.diagram": "Diagrama",
+  "render.diagramSource": "Diagramaren iturburua",
+  "render.zoomIn": "Handiagotu",
+  "render.zoomOut": "Txikiagotu",
+  "render.zoomReset": "Berrezarri zooma",
+  "render.jsonTree": "Zuhaitz ikuspegia"
 }

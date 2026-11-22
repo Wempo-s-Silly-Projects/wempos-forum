@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Περιοχή σχεδίασης",
   "fun.sketchClear": "Καθαρισμός",
   "fun.sketchAttach": "Επισύναψη σκίτσου",
-  "fun.toyTitle": "Παιχνίδι βαρύτητας"
+  "fun.toyTitle": "Παιχνίδι βαρύτητας",
+  "render.diagram": "Διάγραμμα",
+  "render.diagramSource": "Πηγή διαγράμματος",
+  "render.zoomIn": "Μεγέθυνση",
+  "render.zoomOut": "Σμίκρυνση",
+  "render.zoomReset": "Επαναφορά μεγέθυνσης",
+  "render.jsonTree": "Προβολή δέντρου"
 }

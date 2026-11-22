@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Takad tresañ",
   "fun.sketchClear": "Skarzhañ",
   "fun.sketchAttach": "Stagañ ar brastres",
-  "fun.toyTitle": "C’hoariell pouezerezh"
+  "fun.toyTitle": "C’hoariell pouezerezh",
+  "render.diagram": "Tresadenn",
+  "render.diagramSource": "Mammenn an dresadenn",
+  "render.zoomIn": "Brasaat",
+  "render.zoomOut": "Bihanaat",
+  "render.zoomReset": "Adderaouekaat ar skeul",
+  "render.jsonTree": "Gwel gwezennek"
 }

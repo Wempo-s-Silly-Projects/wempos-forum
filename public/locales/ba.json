@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Һүрәт төшөрөү урыны",
   "fun.sketchClear": "Таҙартырға",
   "fun.sketchAttach": "Һүрәтте беркетергә",
-  "fun.toyTitle": "Гравитация уйынсығы"
+  "fun.toyTitle": "Гравитация уйынсығы",
+  "render.diagram": "Диаграмма",
+  "render.diagramSource": "Диаграмма сығанағы",
+  "render.zoomIn": "Ҙурайтыу",
+  "render.zoomOut": "Бәләкәйләтеү",
+  "render.zoomReset": "Масштабты ташлау",
+  "render.jsonTree": "Ағас күренеше"
 }

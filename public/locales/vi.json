@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Vùng vẽ",
   "fun.sketchClear": "Xóa",
   "fun.sketchAttach": "Đính kèm bản vẽ",
-  "fun.toyTitle": "Đồ chơi trọng lực"
+  "fun.toyTitle": "Đồ chơi trọng lực",
+  "render.diagram": "Sơ đồ",
+  "render.diagramSource": "Mã nguồn sơ đồ",
+  "render.zoomIn": "Phóng to",
+  "render.zoomOut": "Thu nhỏ",
+  "render.zoomReset": "Đặt lại thu phóng",
+  "render.jsonTree": "Dạng cây"
 }

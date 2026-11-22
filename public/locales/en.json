@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Sketch drawing area",
   "fun.sketchClear": "Clear",
   "fun.sketchAttach": "Attach sketch",
-  "fun.toyTitle": "Gravity toy"
+  "fun.toyTitle": "Gravity toy",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Diagram source",
+  "render.zoomIn": "Zoom in",
+  "render.zoomOut": "Zoom out",
+  "render.zoomReset": "Reset zoom",
+  "render.jsonTree": "Tree view"
 }

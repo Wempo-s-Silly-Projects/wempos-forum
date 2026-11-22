@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Malo ojambulira",
   "fun.sketchClear": "Chotsani",
   "fun.sketchAttach": "Lumikizani chojambula",
-  "fun.toyTitle": "Chidole cha mphamvu yokoka"
+  "fun.toyTitle": "Chidole cha mphamvu yokoka",
+  "render.diagram": "Chithunzi",
+  "render.diagramSource": "Gwero la chithunzi",
+  "render.zoomIn": "Kulitsa",
+  "render.zoomOut": "Chepetsa",
+  "render.zoomReset": "Bwezeretsa kukula",
+  "render.jsonTree": "Mawonekedwe a mtengo"
 }

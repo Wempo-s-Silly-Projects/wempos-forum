@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "绘图区域",
   "fun.sketchClear": "清除",
   "fun.sketchAttach": "附加草图",
-  "fun.toyTitle": "重力玩具"
+  "fun.toyTitle": "重力玩具",
+  "render.diagram": "图表",
+  "render.diagramSource": "图表源码",
+  "render.zoomIn": "放大",
+  "render.zoomOut": "缩小",
+  "render.zoomReset": "重置缩放",
+  "render.jsonTree": "树状视图"
 }

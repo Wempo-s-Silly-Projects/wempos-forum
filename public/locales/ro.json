@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Zonă de desen",
   "fun.sketchClear": "Șterge",
   "fun.sketchAttach": "Atașează schița",
-  "fun.toyTitle": "Jucărie cu gravitație"
+  "fun.toyTitle": "Jucărie cu gravitație",
+  "render.diagram": "Diagramă",
+  "render.diagramSource": "Sursa diagramei",
+  "render.zoomIn": "Mărește",
+  "render.zoomOut": "Micșorează",
+  "render.zoomReset": "Resetează zoomul",
+  "render.jsonTree": "Vizualizare arbore"
 }

@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Tegneområde",
   "fun.sketchClear": "Tøm",
   "fun.sketchAttach": "Legg ved skisse",
-  "fun.toyTitle": "Tyngdekraftsleke"
+  "fun.toyTitle": "Tyngdekraftsleke",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Diagramkilde",
+  "render.zoomIn": "Zoom inn",
+  "render.zoomOut": "Zoom ut",
+  "render.zoomReset": "Tilbakestill zoom",
+  "render.jsonTree": "Trevisning"
 }

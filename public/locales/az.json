@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Rəsm sahəsi",
   "fun.sketchClear": "Təmizlə",
   "fun.sketchAttach": "Eskizi əlavə et",
-  "fun.toyTitle": "Cazibə oyuncağı"
+  "fun.toyTitle": "Cazibə oyuncağı",
+  "render.diagram": "Diaqram",
+  "render.diagramSource": "Diaqramın mənbəyi",
+  "render.zoomIn": "Yaxınlaşdır",
+  "render.zoomOut": "Uzaqlaşdır",
+  "render.zoomReset": "Miqyası sıfırla",
+  "render.jsonTree": "Ağac görünüşü"
 }

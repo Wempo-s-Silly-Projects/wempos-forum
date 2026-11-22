@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Область для рисования",
   "fun.sketchClear": "Очистить",
   "fun.sketchAttach": "Прикрепить рисунок",
-  "fun.toyTitle": "Игрушка с гравитацией"
+  "fun.toyTitle": "Игрушка с гравитацией",
+  "render.diagram": "Диаграмма",
+  "render.diagramSource": "Исходный код диаграммы",
+  "render.zoomIn": "Увеличить",
+  "render.zoomOut": "Уменьшить",
+  "render.zoomReset": "Сбросить масштаб",
+  "render.jsonTree": "Вид дерева"
 }

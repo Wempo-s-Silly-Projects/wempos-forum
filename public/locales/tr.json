@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Çizim alanı",
   "fun.sketchClear": "Temizle",
   "fun.sketchAttach": "Çizimi ekle",
-  "fun.toyTitle": "Yerçekimi oyuncağı"
+  "fun.toyTitle": "Yerçekimi oyuncağı",
+  "render.diagram": "Diyagram",
+  "render.diagramSource": "Diyagram kaynağı",
+  "render.zoomIn": "Yakınlaştır",
+  "render.zoomOut": "Uzaklaştır",
+  "render.zoomReset": "Yakınlaştırmayı sıfırla",
+  "render.jsonTree": "Ağaç görünümü"
 }

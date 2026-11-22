@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Àrea de dibuix",
   "fun.sketchClear": "Esborra",
   "fun.sketchAttach": "Adjunta el dibuix",
-  "fun.toyTitle": "Joguina de gravetat"
+  "fun.toyTitle": "Joguina de gravetat",
+  "render.diagram": "Diagrama",
+  "render.diagramSource": "Font del diagrama",
+  "render.zoomIn": "Amplia",
+  "render.zoomOut": "Redueix",
+  "render.zoomReset": "Restableix el zoom",
+  "render.jsonTree": "Vista d'arbre"
 }

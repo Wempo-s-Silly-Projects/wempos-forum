@@ -280,3 +280,15 @@ export const FUN_CONFETTI_PARTICLES = 120;
 export const FUN_GRAVITY_BODIES_MAX = 24;
 export const FUN_SKETCH_SIZE_PX = 480;
 export const FUN_SOUND_MIN_GAP_MS = 4000;
+
+// Batch C (post content rendering). public/js/math.js and rich-blocks.js
+// mirror these (the client cannot import this file;
+// tests/batch-c-rendering.test.mjs pins them equal).
+// One $…$ / $$…$$ run longer than this many characters stays literal text.
+export const MATH_MAX_CHARS = 2000;
+// A ```mermaid source longer than this is never handed to Mermaid.
+export const MERMAID_MAX_CHARS = 20000;
+// A diagram whose viewBox is at least this wide gets pan and zoom controls.
+export const MERMAID_PAN_MIN_WIDTH = 800;
+// A valid ```json block of at least this many lines gets a tree toggle.
+export const JSON_TREE_MIN_LINES = 20;

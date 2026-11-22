@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Поле за рисуване",
   "fun.sketchClear": "Изчисти",
   "fun.sketchAttach": "Прикачи скицата",
-  "fun.toyTitle": "Гравитационна играчка"
+  "fun.toyTitle": "Гравитационна играчка",
+  "render.diagram": "Диаграма",
+  "render.diagramSource": "Изходен код на диаграмата",
+  "render.zoomIn": "Увеличаване",
+  "render.zoomOut": "Намаляване",
+  "render.zoomReset": "Нулиране на мащаба",
+  "render.jsonTree": "Дървовиден изглед"
 }

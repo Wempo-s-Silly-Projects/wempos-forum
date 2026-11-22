@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "অঁকাৰ ঠাই",
   "fun.sketchClear": "মচক",
   "fun.sketchAttach": "স্কেচ সংলগ্ন কৰক",
-  "fun.toyTitle": "মাধ্যাকৰ্ষণ খেলনা"
+  "fun.toyTitle": "মাধ্যাকৰ্ষণ খেলনা",
+  "render.diagram": "চিত্ৰ",
+  "render.diagramSource": "চিত্ৰৰ উৎস",
+  "render.zoomIn": "জুম ইন",
+  "render.zoomOut": "জুম আউট",
+  "render.zoomReset": "জুম পুনৰ ছেট কৰক",
+  "render.jsonTree": "গছ দৃশ্য"
 }

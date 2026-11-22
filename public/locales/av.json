@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Сурат бахъулеб бакӀ",
   "fun.sketchClear": "Бацӏцӏад гьабе",
   "fun.sketchAttach": "Сурат жубай",
-  "fun.toyTitle": "Гравитациялъул гьой-гьойдохъан"
+  "fun.toyTitle": "Гравитациялъул гьой-гьойдохъан",
+  "render.diagram": "Диаграмма",
+  "render.diagramSource": "Диаграммаялъул хъвай",
+  "render.zoomIn": "Кӏудияб гьабизе",
+  "render.zoomOut": "Гьитӏинаб гьабизе",
+  "render.zoomReset": "Масштаб тӏадбуссинабизе",
+  "render.jsonTree": "Гъветӏалъул сурат"
 }

@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "வரையும் இடம்",
   "fun.sketchClear": "அழி",
   "fun.sketchAttach": "வரைபடத்தை இணை",
-  "fun.toyTitle": "ஈர்ப்பு விளையாட்டுப் பொருள்"
+  "fun.toyTitle": "ஈர்ப்பு விளையாட்டுப் பொருள்",
+  "render.diagram": "வரைபடம்",
+  "render.diagramSource": "வரைபடத்தின் மூலம்",
+  "render.zoomIn": "பெரிதாக்கு",
+  "render.zoomOut": "சிறிதாக்கு",
+  "render.zoomReset": "பெரிதாக்கலை மீட்டமை",
+  "render.jsonTree": "மரக் காட்சி"
 }

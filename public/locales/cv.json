@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Ӳкермелли вырӑн",
   "fun.sketchClear": "Тасат",
   "fun.sketchAttach": "Ӳкерчӗке хушас",
-  "fun.toyTitle": "Гравитаци теттти"
+  "fun.toyTitle": "Гравитаци теттти",
+  "render.diagram": "Диаграмма",
+  "render.diagramSource": "Диаграмма кодӗ",
+  "render.zoomIn": "Пысӑклат",
+  "render.zoomOut": "Пӗчӗклет",
+  "render.zoomReset": "Масштаба тавӑр",
+  "render.jsonTree": "Йывӑҫ евӗр курӑну"
 }

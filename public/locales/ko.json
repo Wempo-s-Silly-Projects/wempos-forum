@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "그림 그리는 영역",
   "fun.sketchClear": "지우기",
   "fun.sketchAttach": "스케치 첨부",
-  "fun.toyTitle": "중력 장난감"
+  "fun.toyTitle": "중력 장난감",
+  "render.diagram": "다이어그램",
+  "render.diagramSource": "다이어그램 소스",
+  "render.zoomIn": "확대",
+  "render.zoomOut": "축소",
+  "render.zoomReset": "확대/축소 초기화",
+  "render.jsonTree": "트리 보기"
 }

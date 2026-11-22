@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "चित्र बनाने की जगह",
   "fun.sketchClear": "मिटाएँ",
   "fun.sketchAttach": "स्केच जोड़ें",
-  "fun.toyTitle": "गुरुत्वाकर्षण खिलौना"
+  "fun.toyTitle": "गुरुत्वाकर्षण खिलौना",
+  "render.diagram": "आरेख",
+  "render.diagramSource": "आरेख का स्रोत",
+  "render.zoomIn": "ज़ूम इन",
+  "render.zoomOut": "ज़ूम आउट",
+  "render.zoomReset": "ज़ूम रीसेट करें",
+  "render.jsonTree": "ट्री व्यू"
 }

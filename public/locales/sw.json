@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Eneo la kuchora",
   "fun.sketchClear": "Futa",
   "fun.sketchAttach": "Ambatisha mchoro",
-  "fun.toyTitle": "Kichezeo cha mvuto"
+  "fun.toyTitle": "Kichezeo cha mvuto",
+  "render.diagram": "Mchoro",
+  "render.diagramSource": "Chanzo cha mchoro",
+  "render.zoomIn": "Kuza",
+  "render.zoomOut": "Punguza",
+  "render.zoomReset": "Weka upya ukuzaji",
+  "render.jsonTree": "Mwonekano wa mti"
 }

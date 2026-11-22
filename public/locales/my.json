@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "ပုံဆွဲရန်နေရာ",
   "fun.sketchClear": "ရှင်းလင်းရန်",
   "fun.sketchAttach": "ပုံကြမ်း ပူးတွဲရန်",
-  "fun.toyTitle": "ဆွဲငင်အား ကစားစရာ"
+  "fun.toyTitle": "ဆွဲငင်အား ကစားစရာ",
+  "render.diagram": "ပုံကြမ်း",
+  "render.diagramSource": "ပုံကြမ်း၏ ရင်းမြစ်",
+  "render.zoomIn": "ချဲ့ရန်",
+  "render.zoomOut": "ချုံ့ရန်",
+  "render.zoomReset": "ချဲ့ချုံ့မှုကို ပြန်သတ်မှတ်ရန်",
+  "render.jsonTree": "သစ်ပင်ပုံစံ ကြည့်ရန်"
 }

@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Ja tali yɔrɔ",
   "fun.sketchClear": "A jɔsi",
   "fun.sketchAttach": "Ja fara a kan",
-  "fun.toyTitle": "Sama tulonkɛfɛn"
+  "fun.toyTitle": "Sama tulonkɛfɛn",
+  "render.diagram": "Jaa",
+  "render.diagramSource": "Jaa sɛbɛn",
+  "render.zoomIn": "A bonya",
+  "render.zoomOut": "A dɔgɔya",
+  "render.zoomReset": "A bonya segin a cogo kɔrɔ la",
+  "render.jsonTree": "Jiri cogo"
 }

@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "የመሳያ ቦታ",
   "fun.sketchClear": "አጽዳ",
   "fun.sketchAttach": "ንድፉን አያይዝ",
-  "fun.toyTitle": "የስበት መጫወቻ"
+  "fun.toyTitle": "የስበት መጫወቻ",
+  "render.diagram": "ሥዕላዊ መግለጫ",
+  "render.diagramSource": "የሥዕላዊ መግለጫ ምንጭ",
+  "render.zoomIn": "አጉላ",
+  "render.zoomOut": "አሳንስ",
+  "render.zoomReset": "ማጉላትን ዳግም አስጀምር",
+  "render.jsonTree": "የዛፍ እይታ"
 }

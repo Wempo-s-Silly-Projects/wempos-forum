@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Piirtoalue",
   "fun.sketchClear": "Tyhjennä",
   "fun.sketchAttach": "Liitä luonnos",
-  "fun.toyTitle": "Painovoimalelu"
+  "fun.toyTitle": "Painovoimalelu",
+  "render.diagram": "Kaavio",
+  "render.diagramSource": "Kaavion lähdekoodi",
+  "render.zoomIn": "Lähennä",
+  "render.zoomOut": "Loitonna",
+  "render.zoomReset": "Palauta zoomaus",
+  "render.jsonTree": "Puunäkymä"
 }

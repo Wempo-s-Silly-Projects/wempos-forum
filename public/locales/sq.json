@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Zona e vizatimit",
   "fun.sketchClear": "Pastro",
   "fun.sketchAttach": "Bashkëngjit skicën",
-  "fun.toyTitle": "Lodër me gravitet"
+  "fun.toyTitle": "Lodër me gravitet",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Burimi i diagramit",
+  "render.zoomIn": "Zmadho",
+  "render.zoomOut": "Zvogëlo",
+  "render.zoomReset": "Rivendos zmadhimin",
+  "render.jsonTree": "Pamje peme"
 }

@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Lugat pumentura",
   "fun.sketchClear": "Na’gasgas",
   "fun.sketchAttach": "Achetton i pentura",
-  "fun.toyTitle": "Gugugat gravedåt"
+  "fun.toyTitle": "Gugugat gravedåt",
+  "render.diagram": "Diagrama",
+  "render.diagramSource": "Fuetten i diagrama",
+  "render.zoomIn": "Na'dangkulo",
+  "render.zoomOut": "Na'dikike'",
+  "render.zoomReset": "Na'fañila' i zoom",
+  "render.jsonTree": "Atan trongkon hayu"
 }

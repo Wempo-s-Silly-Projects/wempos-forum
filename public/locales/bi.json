@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Ples blong drowem pikja",
   "fun.sketchClear": "Klinim",
   "fun.sketchAttach": "Joenem pikja",
-  "fun.toyTitle": "Toe blong graviti"
+  "fun.toyTitle": "Toe blong graviti",
+  "render.diagram": "Daeagram",
+  "render.diagramSource": "Sos blong daeagram",
+  "render.zoomIn": "Mekem i bigwan",
+  "render.zoomOut": "Mekem i smol",
+  "render.zoomReset": "Putum saes bakegen",
+  "render.jsonTree": "Lukluk olsem tri"
 }

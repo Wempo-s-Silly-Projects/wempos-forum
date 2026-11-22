@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Tegneområde",
   "fun.sketchClear": "Ryd",
   "fun.sketchAttach": "Vedhæft skitse",
-  "fun.toyTitle": "Tyngdekraftslegetøj"
+  "fun.toyTitle": "Tyngdekraftslegetøj",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Diagramkilde",
+  "render.zoomIn": "Zoom ind",
+  "render.zoomOut": "Zoom ud",
+  "render.zoomReset": "Nulstil zoom",
+  "render.jsonTree": "Trævisning"
 }

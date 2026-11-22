@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Tekenarea",
   "fun.sketchClear": "Vee uit",
   "fun.sketchAttach": "Heg skets aan",
-  "fun.toyTitle": "Swaartekragspeelding"
+  "fun.toyTitle": "Swaartekragspeelding",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Diagrambron",
+  "render.zoomIn": "Zoem in",
+  "render.zoomOut": "Zoem uit",
+  "render.zoomReset": "Herstel zoem",
+  "render.jsonTree": "Boomaansig"
 }

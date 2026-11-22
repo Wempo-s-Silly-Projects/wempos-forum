@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Асахьаҭыхра аҭыԥ",
   "fun.sketchClear": "Ацқьара",
   "fun.sketchAttach": "Асахьа ацҵара",
-  "fun.toyTitle": "Агравитациа ахәмарга"
+  "fun.toyTitle": "Агравитациа ахәмарга",
+  "render.diagram": "Адиаграмма",
+  "render.diagramSource": "Адиаграмма ахыҵхырҭа",
+  "render.zoomIn": "Ирдуны",
+  "render.zoomOut": "Ирхәычны",
+  "render.zoomReset": "Амасштаб ахынҳәра",
+  "render.jsonTree": "Аҵла ахаҿы"
 }

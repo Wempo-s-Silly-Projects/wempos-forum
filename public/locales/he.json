@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "אזור ציור",
   "fun.sketchClear": "ניקוי",
   "fun.sketchAttach": "צירוף השרבוט",
-  "fun.toyTitle": "צעצוע כבידה"
+  "fun.toyTitle": "צעצוע כבידה",
+  "render.diagram": "תרשים",
+  "render.diagramSource": "קוד המקור של התרשים",
+  "render.zoomIn": "הגדלה",
+  "render.zoomOut": "הקטנה",
+  "render.zoomReset": "איפוס תצוגה",
+  "render.jsonTree": "תצוגת עץ"
 }

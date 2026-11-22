@@ -253,4 +253,51 @@ SPDX-License-Identifier = "MIT"
 path = "public/js/vendor/signature_pad.umd.min.js"
 precedence = "override"
 SPDX-FileCopyrightText = "2018 Szymon Nowak"
+
+# Batch C (post content rendering): more browser libraries vendored
+# byte-for-byte under public/js/vendor/, each pinned by sha256 in
+# tests/batch-c-rendering.test.mjs. These later, narrower annotations take
+# precedence over the Prism block above for their own paths (REUSE: the last
+# matching annotation wins). All licences are AGPL-3.0-or-later compatible.
+# DOMPurify 3.5.0 (dual-licensed; Apache-2.0 and MPL-2.0 are both
+# GPLv3-compatible).
+[[annotations]]
+path = "public/js/vendor/purify.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "Cure53 and other contributors"
+SPDX-License-Identifier = "MPL-2.0 OR Apache-2.0"
+
+# KaTeX 0.19.1: script, stylesheet and the woff2 fonts only.
+[[annotations]]
+path = "public/js/vendor/katex/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2013-2020 Khan Academy and other contributors"
+SPDX-License-Identifier = "MIT"
+
+# Mermaid 12.3.0 (dist/mermaid.min.js).
+[[annotations]]
+path = "public/js/vendor/mermaid.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2014-2022 Knut Sveidqvist"
+SPDX-License-Identifier = "MIT"
+
+# svg-pan-zoom 3.6.2 (dist/svg-pan-zoom.min.js).
+[[annotations]]
+path = "public/js/vendor/svg-pan-zoom.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2009-2010 Andrea Leofreddi <a.leofreddi@vleo.net>"
+SPDX-License-Identifier = "BSD-2-Clause"
+
+# ansi_up 6.0.6 (ansi_up.js, an ES module with no imports).
+[[annotations]]
+path = "public/js/vendor/ansi_up.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2011 github.com/drudru"
+SPDX-License-Identifier = "MIT"
+
+# json-formatter-js 2.5.23 (dist/json-formatter.umd.js).
+[[annotations]]
+path = "public/js/vendor/json-formatter.umd.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2015 Mohsen Azimi"
 SPDX-License-Identifier = "MIT"

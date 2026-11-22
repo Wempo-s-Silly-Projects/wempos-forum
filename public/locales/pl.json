@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Obszar rysowania",
   "fun.sketchClear": "Wyczyść",
   "fun.sketchAttach": "Dołącz szkic",
-  "fun.toyTitle": "Zabawka grawitacyjna"
+  "fun.toyTitle": "Zabawka grawitacyjna",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Źródło diagramu",
+  "render.zoomIn": "Powiększ",
+  "render.zoomOut": "Pomniejsz",
+  "render.zoomReset": "Resetuj powiększenie",
+  "render.jsonTree": "Widok drzewa"
 }

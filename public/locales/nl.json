@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Tekenvlak",
   "fun.sketchClear": "Wissen",
   "fun.sketchAttach": "Schets bijvoegen",
-  "fun.toyTitle": "Zwaartekrachtspeeltje"
+  "fun.toyTitle": "Zwaartekrachtspeeltje",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Diagrambron",
+  "render.zoomIn": "Inzoomen",
+  "render.zoomOut": "Uitzoomen",
+  "render.zoomReset": "Zoom herstellen",
+  "render.jsonTree": "Boomweergave"
 }

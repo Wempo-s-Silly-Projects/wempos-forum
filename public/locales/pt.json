@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Área de desenho",
   "fun.sketchClear": "Limpar",
   "fun.sketchAttach": "Anexar desenho",
-  "fun.toyTitle": "Brinquedo de gravidade"
+  "fun.toyTitle": "Brinquedo de gravidade",
+  "render.diagram": "Diagrama",
+  "render.diagramSource": "Código do diagrama",
+  "render.zoomIn": "Ampliar",
+  "render.zoomOut": "Reduzir",
+  "render.zoomReset": "Repor o zoom",
+  "render.jsonTree": "Vista em árvore"
 }

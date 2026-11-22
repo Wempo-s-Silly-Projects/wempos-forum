@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Dibujañ chiqa",
   "fun.sketchClear": "Pichaña",
   "fun.sketchAttach": "Dibujo chikt’aña",
-  "fun.toyTitle": "Gravedad anatañ yänaka"
+  "fun.toyTitle": "Gravedad anatañ yänaka",
+  "render.diagram": "Diagrama",
+  "render.diagramSource": "Diagrama qalltawi",
+  "render.zoomIn": "Jach'aptayaña",
+  "render.zoomOut": "Jisk'aptayaña",
+  "render.zoomReset": "Zoom wasitata uñstayaña",
+  "render.jsonTree": "Quqa uñnaqa"
 }

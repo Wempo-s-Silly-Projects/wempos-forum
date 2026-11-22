@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "ڈرائنگ کی جگہ",
   "fun.sketchClear": "صاف کریں",
   "fun.sketchAttach": "خاکہ منسلک کریں",
-  "fun.toyTitle": "کششِ ثقل کا کھلونا"
+  "fun.toyTitle": "کششِ ثقل کا کھلونا",
+  "render.diagram": "خاکہ",
+  "render.diagramSource": "خاکے کا ماخذ",
+  "render.zoomIn": "بڑا کریں",
+  "render.zoomOut": "چھوٹا کریں",
+  "render.zoomReset": "زوم دوبارہ ترتیب دیں",
+  "render.jsonTree": "درخت کا منظر"
 }

@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Area di disegno",
   "fun.sketchClear": "Cancella",
   "fun.sketchAttach": "Allega schizzo",
-  "fun.toyTitle": "Giocattolo a gravità"
+  "fun.toyTitle": "Giocattolo a gravità",
+  "render.diagram": "Diagramma",
+  "render.diagramSource": "Sorgente del diagramma",
+  "render.zoomIn": "Ingrandisci",
+  "render.zoomOut": "Riduci",
+  "render.zoomReset": "Reimposta lo zoom",
+  "render.jsonTree": "Vista ad albero"
 }

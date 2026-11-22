@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Plocha pro kreslení",
   "fun.sketchClear": "Vymazat",
   "fun.sketchAttach": "Připojit náčrt",
-  "fun.toyTitle": "Gravitační hračka"
+  "fun.toyTitle": "Gravitační hračka",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Zdroj diagramu",
+  "render.zoomIn": "Přiblížit",
+  "render.zoomOut": "Oddálit",
+  "render.zoomReset": "Obnovit přiblížení",
+  "render.jsonTree": "Stromové zobrazení"
 }

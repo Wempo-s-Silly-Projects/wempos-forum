@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Rajzterület",
   "fun.sketchClear": "Törlés",
   "fun.sketchAttach": "Vázlat csatolása",
-  "fun.toyTitle": "Gravitációs játék"
+  "fun.toyTitle": "Gravitációs játék",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "A diagram forrása",
+  "render.zoomIn": "Nagyítás",
+  "render.zoomOut": "Kicsinyítés",
+  "render.zoomReset": "Nagyítás visszaállítása",
+  "render.jsonTree": "Fanézet"
 }

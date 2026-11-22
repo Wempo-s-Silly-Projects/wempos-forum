@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Aria de dibuixo",
   "fun.sketchClear": "Borrar",
   "fun.sketchAttach": "Adchuntar dibuixo",
-  "fun.toyTitle": "Chuguet de gravedat"
+  "fun.toyTitle": "Chuguet de gravedat",
+  "render.diagram": "Diagrama",
+  "render.diagramSource": "Fuent d'o diagrama",
+  "render.zoomIn": "Ampliar",
+  "render.zoomOut": "Reducir",
+  "render.zoomReset": "Restablir o zoom",
+  "render.jsonTree": "Vista d'arbol"
 }

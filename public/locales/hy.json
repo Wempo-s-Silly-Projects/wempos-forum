@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Նկարելու տարածք",
   "fun.sketchClear": "Մաքրել",
   "fun.sketchAttach": "Կցել էսքիզը",
-  "fun.toyTitle": "Ձգողականության խաղալիք"
+  "fun.toyTitle": "Ձգողականության խաղալիք",
+  "render.diagram": "Դիագրամ",
+  "render.diagramSource": "Դիագրամի աղբյուր",
+  "render.zoomIn": "Մեծացնել",
+  "render.zoomOut": "Փոքրացնել",
+  "render.zoomReset": "Վերակայել մասշտաբը",
+  "render.jsonTree": "Ծառի տեսք"
 }

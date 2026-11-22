@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Поле для малювання",
   "fun.sketchClear": "Очистити",
   "fun.sketchAttach": "Прикріпити малюнок",
-  "fun.toyTitle": "Іграшка з гравітацією"
+  "fun.toyTitle": "Іграшка з гравітацією",
+  "render.diagram": "Діаграма",
+  "render.diagramSource": "Вихідний код діаграми",
+  "render.zoomIn": "Збільшити",
+  "render.zoomOut": "Зменшити",
+  "render.zoomReset": "Скинути масштаб",
+  "render.jsonTree": "Вигляд дерева"
 }

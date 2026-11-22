@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Сурт дилла меттиг",
   "fun.sketchClear": "ЦӀанде",
   "fun.sketchAttach": "Сурт тӀетоха",
-  "fun.toyTitle": "Гравитацин ловзанг"
+  "fun.toyTitle": "Гравитацин ловзанг",
+  "render.diagram": "Диаграмма",
+  "render.diagramSource": "Диаграммин йоза",
+  "render.zoomIn": "Доккха йан",
+  "render.zoomOut": "Жима йан",
+  "render.zoomReset": "Масштаб юхаметтаэцар",
+  "render.jsonTree": "Дитт санна хьажар"
 }

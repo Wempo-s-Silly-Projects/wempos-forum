@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Područje za crtanje",
   "fun.sketchClear": "Očisti",
   "fun.sketchAttach": "Priloži skicu",
-  "fun.toyTitle": "Igračka s gravitacijom"
+  "fun.toyTitle": "Igračka s gravitacijom",
+  "render.diagram": "Dijagram",
+  "render.diagramSource": "Izvor dijagrama",
+  "render.zoomIn": "Uvećaj",
+  "render.zoomOut": "Umanji",
+  "render.zoomReset": "Poništi zumiranje",
+  "render.jsonTree": "Prikaz stabla"
 }

@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Masawwar uktubeh bagul",
   "fun.sketchClear": "Saffis",
   "fun.sketchAttach": "Masawwar uytubu",
-  "fun.toyTitle": "Culaanu ciyaarit"
+  "fun.toyTitle": "Culaanu ciyaarit",
+  "render.diagram": "Diyaagraam",
+  "render.diagramSource": "Diyaagraam xiinissa",
+  "render.zoomIn": "Gibbis",
+  "render.zoomOut": "Qunxis",
+  "render.zoomReset": "Gibbisa gacis",
+  "render.jsonTree": "Caxa uuba"
 }

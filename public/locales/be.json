@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Поле для малявання",
   "fun.sketchClear": "Ачысціць",
   "fun.sketchAttach": "Далучыць малюнак",
-  "fun.toyTitle": "Цацка з гравітацыяй"
+  "fun.toyTitle": "Цацка з гравітацыяй",
+  "render.diagram": "Дыяграма",
+  "render.diagramSource": "Зыходны код дыяграмы",
+  "render.zoomIn": "Павялічыць",
+  "render.zoomOut": "Паменшыць",
+  "render.zoomReset": "Скінуць маштаб",
+  "render.jsonTree": "Выгляд дрэвам"
 }

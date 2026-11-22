@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Lugar ng pagguhit",
   "fun.sketchClear": "Burahin",
   "fun.sketchAttach": "Ilakip ang guhit",
-  "fun.toyTitle": "Laruang gravity"
+  "fun.toyTitle": "Laruang gravity",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Pinagmulan ng diagram",
+  "render.zoomIn": "Palakihin",
+  "render.zoomOut": "Paliitin",
+  "render.zoomReset": "I-reset ang zoom",
+  "render.jsonTree": "Tree view"
 }

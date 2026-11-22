@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Area menggambar",
   "fun.sketchClear": "Hapus",
   "fun.sketchAttach": "Lampirkan sketsa",
-  "fun.toyTitle": "Mainan gravitasi"
+  "fun.toyTitle": "Mainan gravitasi",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Sumber diagram",
+  "render.zoomIn": "Perbesar",
+  "render.zoomOut": "Perkecil",
+  "render.zoomReset": "Atur ulang zoom",
+  "render.jsonTree": "Tampilan pohon"
 }

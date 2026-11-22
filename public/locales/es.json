@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Zona de dibujo",
   "fun.sketchClear": "Borrar",
   "fun.sketchAttach": "Adjuntar dibujo",
-  "fun.toyTitle": "Juguete de gravedad"
+  "fun.toyTitle": "Juguete de gravedad",
+  "render.diagram": "Diagrama",
+  "render.diagramSource": "Código del diagrama",
+  "render.zoomIn": "Acercar",
+  "render.zoomOut": "Alejar",
+  "render.zoomReset": "Restablecer zoom",
+  "render.jsonTree": "Vista de árbol"
 }

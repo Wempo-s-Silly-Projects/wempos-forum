@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "مساحة الرسم",
   "fun.sketchClear": "مسح",
   "fun.sketchAttach": "إرفاق الرسم",
-  "fun.toyTitle": "لعبة الجاذبية"
+  "fun.toyTitle": "لعبة الجاذبية",
+  "render.diagram": "مخطط",
+  "render.diagramSource": "مصدر المخطط",
+  "render.zoomIn": "تكبير",
+  "render.zoomOut": "تصغير",
+  "render.zoomReset": "إعادة ضبط التكبير",
+  "render.jsonTree": "عرض شجري"
 }

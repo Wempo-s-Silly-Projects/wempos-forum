@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "ناحیهٔ طراحی",
   "fun.sketchClear": "پاک کردن",
   "fun.sketchAttach": "پیوست طرح",
-  "fun.toyTitle": "اسباب‌بازی گرانش"
+  "fun.toyTitle": "اسباب‌بازی گرانش",
+  "render.diagram": "نمودار",
+  "render.diagramSource": "منبع نمودار",
+  "render.zoomIn": "بزرگ‌نمایی",
+  "render.zoomOut": "کوچک‌نمایی",
+  "render.zoomReset": "بازنشانی بزرگ‌نمایی",
+  "render.jsonTree": "نمای درختی"
 }

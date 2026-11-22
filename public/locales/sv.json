@@ -1271,5 +1271,11 @@
   "fun.sketchCanvas": "Ritområde",
   "fun.sketchClear": "Rensa",
   "fun.sketchAttach": "Bifoga skiss",
-  "fun.toyTitle": "Gravitationsleksak"
+  "fun.toyTitle": "Gravitationsleksak",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Diagramkälla",
+  "render.zoomIn": "Zooma in",
+  "render.zoomOut": "Zooma ut",
+  "render.zoomReset": "Återställ zoom",
+  "render.jsonTree": "Trädvy"
 }
