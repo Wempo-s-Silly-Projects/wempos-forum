@@ -52,7 +52,8 @@ const DOC_CACHE = "public, max-age=300, s-maxage=3600";
 const DESCRIPTION_MAX = 300;
 const ETAG_HEX_LENGTH = 32;
 // Characters XML 1.0 forbids outright (C0 controls but tab/LF/CR, U+FFFE/F).
-const XML_FORBIDDEN = /[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g;
+// eslint-disable-next-line no-control-regex -- matching control characters is the point
+const XML_FORBIDDEN = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g;
 const BOARD_FEED = /^\/c\/([a-z0-9-]+)\/feed\.xml$/;
 
 const xmlText = (value) => xmlEscape(String(value ?? "").replace(XML_FORBIDDEN, ""));
