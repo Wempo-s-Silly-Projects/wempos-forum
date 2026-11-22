@@ -124,7 +124,7 @@ for (const path of ["/locales/unknown.json", "/locales/xx.json", "/locales/"]) {
 
 test("every real locale file stays 200 application/json", async () => {
   const files = readdirSync(join(PUBLIC_DIR, "locales")).filter((name) => name.endsWith(".json"));
-  assert.equal(files.length, 45);
+  assert.equal(files.length, 49);
   for (const name of files) {
     const response = await get(`/locales/${name}`);
     assert.equal(response.status, 200, name);

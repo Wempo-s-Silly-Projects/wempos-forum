@@ -44,8 +44,8 @@ const placeholders = (value) => [...value.matchAll(PLACEHOLDER)].map((match) => 
 const en = readLocale(DEFAULT_LOCALE);
 const enKeys = Object.keys(en);
 
-test("the picker lists 45 languages, each new one by its endonym, left to right", () => {
-  assert.equal(LOCALES.length, 45);
+test("the picker lists 49 languages, each new one by its endonym, left to right", () => {
+  assert.equal(LOCALES.length, 49);
   for (const { code, name } of NEW_LOCALES) {
     const entry = LOCALES.find((locale) => locale.code === code);
     assert.ok(entry, `${code} missing from LOCALES`);

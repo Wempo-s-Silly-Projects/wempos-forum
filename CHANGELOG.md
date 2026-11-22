@@ -15,6 +15,21 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.69.0] - 2026-11-22
+
+### Added
+- Four more interface languages: Abkhaz (Аҧсуа, Cyrillic script), Afar
+  (Qafar af), Amharic (አማርኛ, Ethiopic script) and Akan. Each is listed by
+  its own name in the language picker, reads left to right, and is picked
+  up automatically when the browser asks for it. The interface now comes
+  in 49 languages. All four translations await review by native
+  speakers.
+
+### Fixed
+- Plural forms no longer borrow the browser's own language rules for a
+  language the browser has no plural data for (Abkhaz and Afar); those
+  use the one/other split from CLDR instead.
+
 ## [5.68.0] - 2026-11-22
 
 ### Added

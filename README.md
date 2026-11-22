@@ -46,7 +46,7 @@ sign in there and you land back on the forum already signed in.
 - **Community traditions.** Question of the Day threads from the owner, a
   This week page, a staff pick in the Showcase, an all-time leaderboard, and
   invite links for friends.
-- **Your language.** The whole interface comes in 45 languages, including
+- **Your language.** The whole interface comes in 49 languages, including
   four right-to-left ones (Arabic, Hebrew, Persian and Urdu).
 - **Your data, your call.** Two-factor sign-in, blocking, reporting, a
   settings page that keeps everything in one place, and a "Download my

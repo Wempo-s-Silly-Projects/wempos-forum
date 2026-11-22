@@ -239,7 +239,7 @@ const NEW_KEYS = [
 test("wave-16 strings exist, non-empty, in every locale", () => {
   const dir = new URL("../public/locales/", import.meta.url);
   const files = readdirSync(dir).filter((name) => name.endsWith(".json"));
-  assert.equal(files.length, 45);
+  assert.equal(files.length, 49);
   for (const file of files) {
     const table = JSON.parse(readFileSync(new URL(file, dir), "utf8"));
     for (const key of NEW_KEYS) {

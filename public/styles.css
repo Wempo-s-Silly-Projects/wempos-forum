@@ -25,7 +25,7 @@
   /* Corner style (v2.5): round by default; [data-corners="square"] flips it. */
   --button-radius: 0.45rem 0.65rem 0.4rem 0.55rem;
   accent-color: var(--green);
-  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  font-family: "Trebuchet MS", "Segoe UI", "Noto Sans Ethiopic", "Kefa", "Nyala", "Ebrima", sans-serif;
   color: var(--ink);
   background: var(--desk);
   font-synthesis: none;
