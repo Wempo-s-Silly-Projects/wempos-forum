@@ -121,7 +121,7 @@ test("malformed messages are dropped", () => {
 });
 
 test("no BroadcastChannel (old browser) means no sync and no crash; close() detaches", () => {
-  assert.equal(createTabSync({ bus: createNanoEvents(), Channel: undefined }), null);
+  assert.equal(createTabSync({ bus: createNanoEvents(), Channel: null }), null);
   assert.equal(createTabSync({ bus: createNanoEvents(), Channel: class { constructor() { throw new Error("blocked"); } } }), null);
   const { busA, syncA, posted, open } = twoTabs();
   syncA.close();

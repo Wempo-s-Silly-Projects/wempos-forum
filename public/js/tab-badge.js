@@ -27,6 +27,7 @@
 // default) and held back during quiet hours.
 import { notificationAlertsAllowed } from "./quiet-hours.js";
 import { pageStorage, readTabUnread } from "./tab-unread.js";
+import { EVENTS, bus } from "./event-bus.js";
 
 const BADGE_CAP = 9;
 const ICON_SIZE = 32;
@@ -108,3 +109,8 @@ export function setTabBadgeCount(source, count) {
   });
   pageBadge.setCount(source, count);
 }
+
+// Batch K: the bell and the chat widget publish their counts on the bus
+// (and other tabs' counts arrive as remoteUnread); the badge just listens.
+bus.on(EVENTS.unread, setTabBadgeCount);
+bus.on(EVENTS.remoteUnread, setTabBadgeCount);

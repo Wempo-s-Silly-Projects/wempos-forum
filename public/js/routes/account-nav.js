@@ -31,6 +31,7 @@ import { accountActions } from "../dom.js";
 import { createIcon, iconButton } from "../icons.js";
 import { createLanguagePicker, t } from "../i18n.js";
 import { clearAllDrafts } from "../drafts.js";
+import { EVENTS, bus } from "../event-bus.js";
 import { clearAllCatchUp } from "../catch-up.js";
 import { clearAllNewcomer } from "../newcomer.js";
 import { clearAllPins } from "../chat-pins.js";
@@ -344,6 +345,8 @@ export const ACTIONS = {
       wipeAccountLocalData();
     }
     await lastDraftWipe;
+    // Batch K: other open tabs hear the sign-out (tab-sync.js) and reload.
+    bus.emit(EVENTS.signout);
 
     setCsrfToken("");
     window.location.assign(wempoAccountsSignOutUrl());

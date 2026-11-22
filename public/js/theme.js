@@ -50,6 +50,7 @@ function readOsPreference(doc) {
 import { t } from "./i18n.js";
 import { createIcon } from "./icons.js";
 import { rethemeTurnstile } from "./turnstile.js";
+import { EVENTS, bus } from "./event-bus.js";
 
 // Corners (v2.5): "round" is the default; the account-settings checkbox
 // flips the appearance pref. Same client-side persistence as the theme.
@@ -100,11 +101,19 @@ export function initTheme(doc, storage) {
   announceNextMode(theme);
   applyBrowserChromeColor(theme);
 
-  doc.querySelector("#theme-toggle")?.addEventListener("click", () => {
-    const next = root.dataset.theme === "dark" ? "light" : "dark";
+  const show = (next) => {
     root.dataset.theme = next;
     announceNextMode(next);
     applyBrowserChromeColor(next);
+  };
+  // Batch K: a choice made in another tab (already stored there) applies
+  // here too; tab-sync.js only delivers "light" or "dark".
+  bus.on(EVENTS.remoteTheme, show);
+
+  doc.querySelector("#theme-toggle")?.addEventListener("click", () => {
+    const next = root.dataset.theme === "dark" ? "light" : "dark";
+    show(next);
+    bus.emit(EVENTS.theme, next);
     // Two-state (v5.71.1): clicking back to the OS look stops storing a
     // manual choice, so the forum follows the OS again. The key is
     // overwritten, never removed (wave 5.6: device prefs are never removed);
