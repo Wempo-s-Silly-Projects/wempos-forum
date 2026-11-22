@@ -416,7 +416,9 @@ function scanBlocks(body) {
     if (fenceMark) {
       flushList(blocks, () => list);
       list = null;
-      fence = { kind: "code", text: [], at: [] };
+      // info: the raw text after the opening ``` (v5.74); render.js
+      // sanitises it into a language class.
+      fence = { kind: "code", text: [], at: [], info: trimmed.slice(3).trim() };
       continue;
     }
     const heading = /^#{1,6} /.exec(trimmed);

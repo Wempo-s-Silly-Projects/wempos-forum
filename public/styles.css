@@ -71,6 +71,21 @@
   /* Quiet-button hover: same mustard tint as light; in dark it must stay a
      warm dark tone because quiet's text is light sage there. */
   --quiet-hover: #e9d9a7;
+  /* Code highlighting tokens (v5.74, Prism): each at least 4.5:1 on --field
+     (the code block background), pinned by tests/wave574-prism.test.mjs. */
+  --code-comment: #5c6670;
+  --code-punctuation: #4a5560;
+  --code-keyword: #86378b;
+  --code-string: #2c6a2c;
+  --code-number: #985000;
+  --code-function: #1d5d9b;
+  --code-class-name: #7a5200;
+  --code-operator: #7a4a2a;
+  --code-regex: #a8321f;
+  --code-deleted: #a3282b;
+  --code-inserted: #22672e;
+  --code-deleted-bg: #fbe3e1;
+  --code-inserted-bg: #e3f2e3;
 }
 
 /* Dark re-weighting of the same tokens: manual choice via [data-theme], or
@@ -111,6 +126,19 @@
   --error-chip-ink: #f4b0a4;
   --on-yellow: #33240d;
   --quiet-hover: #31404f;
+  --code-comment: #a4aeba;
+  --code-punctuation: #c8ccd4;
+  --code-keyword: #e3a6f0;
+  --code-string: #a8dc8f;
+  --code-number: #f5b77a;
+  --code-function: #8cc4ff;
+  --code-class-name: #f0d080;
+  --code-operator: #e0c0a0;
+  --code-regex: #ff9e8a;
+  --code-deleted: #ff9a9a;
+  --code-inserted: #9fe0a8;
+  --code-deleted-bg: #4a2a30;
+  --code-inserted-bg: #24432e;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -146,6 +174,19 @@
     --error-chip-ink: #f4b0a4;
     --on-yellow: #33240d;
     --quiet-hover: #31404f;
+    --code-comment: #a4aeba;
+    --code-punctuation: #c8ccd4;
+    --code-keyword: #e3a6f0;
+    --code-string: #a8dc8f;
+    --code-number: #f5b77a;
+    --code-function: #8cc4ff;
+    --code-class-name: #f0d080;
+    --code-operator: #e0c0a0;
+    --code-regex: #ff9e8a;
+    --code-deleted: #ff9a9a;
+    --code-inserted: #9fe0a8;
+    --code-deleted-bg: #4a2a30;
+    --code-inserted-bg: #24432e;
   }
 }
 
@@ -1822,6 +1863,245 @@ dialog h2 {
 .post-heading {
   color: var(--ink);
   margin: 0.7rem 0 0.25rem;
+}
+
+/* Code highlighting (v5.74, slate 2026-11-22-d): our own scoped theme for the
+   vendored Prism build (its stock prism.css fails 4.5:1, has no dark theme,
+   and the treeview font is a data: URL the CSP blocks). Token colours come
+   from the --code-* custom properties. Prism's toolbar wraps the <pre> in
+   div.code-toolbar; its language label shows on hover or keyboard focus. */
+.post-codeblock .token.comment,
+.post-codeblock .token.prolog,
+.post-codeblock .token.doctype,
+.post-codeblock .token.cdata { color: var(--code-comment); font-style: italic; }
+.post-codeblock .token.punctuation { color: var(--code-punctuation); }
+.post-codeblock .token.keyword,
+.post-codeblock .token.atrule,
+.post-codeblock .token.attr-name,
+.post-codeblock .token.selector,
+.post-codeblock .token.tag { color: var(--code-keyword); }
+.post-codeblock .token.string,
+.post-codeblock .token.char,
+.post-codeblock .token.attr-value,
+.post-codeblock .token.template-string,
+.post-codeblock .token.url { color: var(--code-string); }
+.post-codeblock .token.number,
+.post-codeblock .token.boolean,
+.post-codeblock .token.constant,
+.post-codeblock .token.symbol,
+.post-codeblock .token.property { color: var(--code-number); }
+.post-codeblock .token.function { color: var(--code-function); }
+.post-codeblock .token.class-name,
+.post-codeblock .token.builtin { color: var(--code-class-name); }
+.post-codeblock .token.operator,
+.post-codeblock .token.entity,
+.post-codeblock .token.variable { color: var(--code-operator); }
+.post-codeblock .token.regex,
+.post-codeblock .token.important { color: var(--code-regex); }
+.post-codeblock .token.deleted { color: var(--code-deleted); }
+.post-codeblock .token.inserted { color: var(--code-inserted); }
+.post-codeblock .token.important,
+.post-codeblock .token.bold { font-weight: bold; }
+.post-codeblock .token.italic { font-style: italic; }
+/* Diff Highlight: whole changed lines get a tinted background. */
+.post-codeblock .token.deleted-sign .line,
+.post-codeblock .token.deleted:not(.prefix) { background: var(--code-deleted-bg); }
+.post-codeblock .token.inserted-sign .line,
+.post-codeblock .token.inserted:not(.prefix) { background: var(--code-inserted-bg); }
+/* Match Braces: the hovered or clicked pair is outlined. */
+.post-codeblock .brace-hover,
+.post-codeblock .brace-selected {
+  outline: 1.5px solid currentColor;
+  outline-offset: 1px;
+}
+/* Inline Color: its swatch is an inline style the CSP blocks; Previewers
+   shows the colour on hover instead. */
+.post-codeblock .inline-color-wrapper { display: none; }
+
+/* Line numbers (blocks of CODE_LINE_NUMBERS_MIN_LINES+ lines): logical
+   properties, so the gutter follows the writing direction. */
+.post-codeblock.line-numbers {
+  padding-inline-start: 3.6em;
+  counter-reset: linenumber;
+}
+.post-codeblock.line-numbers > code {
+  position: relative;
+  display: block;
+}
+.post-codeblock .line-numbers-rows {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: -3em;
+  inline-size: 2.4em;
+  border-inline-end: 1px solid var(--line);
+  pointer-events: none;
+  user-select: none;
+  font-size: 100%;
+}
+.post-codeblock .line-numbers-rows > span {
+  display: block;
+  counter-increment: linenumber;
+}
+.post-codeblock .line-numbers-rows > span::before {
+  content: counter(linenumber);
+  display: block;
+  padding-inline-end: 0.5em;
+  text-align: end;
+  color: var(--muted);
+}
+
+/* Toolbar (Show Language): the label sits at the start of the copy row. */
+.code-toolbar {
+  position: relative;
+}
+.code-toolbar > .toolbar {
+  position: absolute;
+  inset-block-start: 0.65rem;
+  inset-inline-start: 0.85rem;
+  display: flex;
+  gap: 0.35rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.code-toolbar:hover > .toolbar,
+.code-toolbar:focus-within > .toolbar {
+  opacity: 1;
+}
+.code-toolbar > .toolbar .toolbar-item > span {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Treeview: lines drawn with box-drawing glyphs instead of the data: font.
+   The original characters stay in the DOM, so copying is unchanged. */
+.post-codeblock .token.treeview-part .entry-line {
+  font-size: 0;
+}
+.post-codeblock .token.treeview-part .entry-line::before {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.post-codeblock .token.treeview-part .line-h::before { content: "├── "; }
+.post-codeblock .token.treeview-part .line-v::before { content: "│   "; }
+.post-codeblock .token.treeview-part .line-v-last::before { content: "└── "; }
+.post-codeblock .token.treeview-part .line-v-gap::before { content: "    "; }
+.post-codeblock .token.treeview-part .entry-name.dir { font-weight: bold; }
+.post-codeblock .token.treeview-part .entry-name.dir::after { content: "/"; }
+
+/* Previewers: a small hover card that Prism positions with top/left. */
+.prism-previewer {
+  position: absolute;
+  z-index: 10;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  margin-block-start: -3.25rem;
+  transform: translateX(-50%);
+  padding: 0.25rem;
+  border: 1.5px solid var(--line);
+  border-radius: 0.4rem;
+  background: var(--paper);
+  color: var(--ink);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.prism-previewer.active { opacity: 1; }
+.prism-previewer.flipped { margin-block-start: 0.5rem; }
+.prism-previewer > div,
+.prism-previewer svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  border-radius: 0.2rem;
+}
+.prism-previewer-easing path { fill: none; stroke: currentColor; stroke-width: 4; }
+.prism-previewer-easing line { stroke: var(--muted); stroke-width: 1; }
+.prism-previewer-easing circle { fill: currentColor; }
+.prism-previewer-time circle,
+.prism-previewer-angle circle {
+  fill: none;
+  stroke: var(--link);
+  stroke-width: 32;
+  stroke-dasharray: 0 101;
+}
+.prism-previewer-time circle {
+  animation: prism-previewer-time linear infinite 3s;
+}
+@keyframes prism-previewer-time {
+  from { stroke-dasharray: 0 101; }
+  to { stroke-dasharray: 101 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prism-previewer,
+  .code-toolbar > .toolbar {
+    transition: none;
+  }
+  .prism-previewer-time circle {
+    animation: none;
+    stroke-dasharray: 50 51;
+  }
+}
+
+/* More contrast asked for: every code token at least 7:1 on --field. Light
+   first; dark repeats the theme logic's two routes. */
+@media (prefers-contrast: more) {
+  :root {
+    --code-comment: #3a434b;
+    --code-punctuation: #2b333b;
+    --code-keyword: #64196a;
+    --code-string: #1a4a1a;
+    --code-number: #663000;
+    --code-function: #0d4475;
+    --code-class-name: #553800;
+    --code-operator: #4d2e18;
+    --code-regex: #7a1c0f;
+    --code-deleted: #7a1a1d;
+    --code-inserted: #134619;
+  }
+  :root[data-theme="dark"] {
+    --code-comment: #d0d6dd;
+    --code-punctuation: #e6e8ec;
+    --code-keyword: #f2cff8;
+    --code-string: #c9f0b5;
+    --code-number: #ffd3a8;
+    --code-function: #bfdfff;
+    --code-class-name: #fbe7b0;
+    --code-operator: #f0dcc6;
+    --code-regex: #ffc5b8;
+    --code-deleted: #ffc4c4;
+    --code-inserted: #c6f2cc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]):not([data-theme="dark"]) {
+      --code-comment: #d0d6dd;
+      --code-punctuation: #e6e8ec;
+      --code-keyword: #f2cff8;
+      --code-string: #c9f0b5;
+      --code-number: #ffd3a8;
+      --code-function: #bfdfff;
+      --code-class-name: #fbe7b0;
+      --code-operator: #f0dcc6;
+      --code-regex: #ffc5b8;
+      --code-deleted: #ffc4c4;
+      --code-inserted: #c6f2cc;
+    }
+  }
+}
+
+/* Forced colours: tokens go plain so the system palette rules. */
+@media (forced-colors: active) {
+  .post-codeblock .token,
+  .post-codeblock .token.deleted-sign .line,
+  .post-codeblock .token.inserted-sign .line {
+    color: CanvasText;
+    background: Canvas;
+    font-style: normal;
+  }
+  .post-codeblock .line-numbers-rows {
+    border-inline-end-color: CanvasText;
+  }
 }
 
 /* Square corners (v2.5, appearance pref): a data-corners="square" flip on

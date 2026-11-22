@@ -232,7 +232,7 @@ test("copy-code still yields the plain source after real Prism highlighting (vm)
   vm.runInContext(read("public/js/vendor/prism.js"), context);
   const source = "const a = 1; // <b>&amp;\nfunction f(x) {\n  return `${x}`;\n}";
   const html = context.Prism.highlight(source, context.Prism.languages.javascript, "javascript");
-  assert.match(html, /class="token keyword"/, "real tokens were produced");
+  assert.match(html, /class="token keyword[ "]/, "real tokens were produced");
   const decode = (text) => text.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'").replace(/&amp;/g, "&");
   const textContent = decode(html.replace(/<[^>]+>/g, ""));

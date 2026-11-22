@@ -185,3 +185,11 @@ export const EXPORT_SECTION_CAPS = Object.freeze({
   // v5.50: TL;DR summaries the caller WROTE (post id, body, time).
   threadSummaries: 2000,
 });
+
+// v5.74 (slate 2026-11-22-d): vendored Prism highlighting of fenced code.
+// A highlighted block gets a line-number gutter only from this many lines;
+// a block longer than this many characters is never handed to Prism (stays
+// plain). public/js/code-highlight.js mirrors both (the client cannot import
+// this file; tests/wave574-prism.test.mjs pins them equal).
+export const CODE_LINE_NUMBERS_MIN_LINES = 5;
+export const CODE_HIGHLIGHT_MAX_CHARS = 20000;
