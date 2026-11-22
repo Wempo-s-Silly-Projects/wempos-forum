@@ -59,6 +59,7 @@ import { createEasyReadingToggle, createLineSpacingPicker, createLinkUnderlineTo
 import { createContrastPicker } from "../high-contrast.js";
 import { applyTabUnread, createTabUnreadToggle } from "../tab-unread.js";
 import { createQuietHoursControls } from "../quiet-hours.js";
+import { createFunExtrasPanel } from "../fun/settings.js";
 import { createAppearanceReset } from "../appearance-reset.js";
 import { createBoardRegulars } from "../board-regulars.js";
 import { createDataExportPanel, downloadMyData } from "../data-export.js";
@@ -200,6 +201,8 @@ function renderAccountSettings(session) {
   readingComfort.append(createContrastPicker(document, storage, window));
   addText(document, readingComfort, "p", t("readingComfort.contrastHelp"), "muted reading-comfort-help");
   account.append(readingComfort);
+  // Fun extras (Batch M): opt-in effects, all off by default, this device only.
+  account.append(createFunExtrasPanel(document, storage, { win: window }));
   // Quiet hours (wave 5.25 F2): opt-in, this device only; a change re-checks
   // the tab title at once.
   const quietHours = createPanel(t("quietHours.title"), t("quietHours.help"));

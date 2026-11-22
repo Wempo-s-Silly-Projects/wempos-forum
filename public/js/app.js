@@ -171,6 +171,8 @@ import { paintSourceLink } from "./source-link.js";
 import { attachRecentSearches } from "./recent-searches.js";
 import { wireSkipLink } from "./skip-link.js";
 import { captureMoreFocus, restoreMoreFocus } from "./thread-actions.js";
+// Batch M: opt-in fun extras (all off by default; public/js/fun/).
+import { enhanceFunView, noteUnreadCount, startFunExtras } from "./fun/index.js";
 
 async function prepareRouteContext(version) {
   const [sessionReply, setup] = await Promise.all([
@@ -192,6 +194,7 @@ async function prepareRouteContext(version) {
   }
   state.currentUser = session.user;
   state.unreadNotifications = session.user ? normaliseTabCount(session.unreadNotifications) : 0;
+  noteUnreadCount(state.unreadNotifications);
   renderAccountNavigation(session.user, session.unreadNotifications ?? 0);
   return {
     session,
@@ -321,6 +324,7 @@ async function renderRoute(route) {
     renderNotFoundRoute();
   }
   await renderTurnstileSlots(main);
+  if (version === state.renderVersion) enhanceFunView(main);
 }
 
 function readForm(form) {
@@ -581,6 +585,7 @@ async function boot() {
 }
 
 boot();
+startFunExtras();
 
 // The version tag + stale-build banner ride their own async task so a slow
 // /api/version never delays the router mount.
