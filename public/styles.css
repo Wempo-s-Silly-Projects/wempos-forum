@@ -863,6 +863,19 @@ dialog h2 {
   color: var(--error-ink);
 }
 
+/* No-module notice (v5.73, B3): shown only by the nomodule
+   /js/legacy-notice.js, i.e. in browsers that cannot run the forum. */
+.legacy-notice {
+  width: min(100% - 2rem, 780px);
+  margin: 1rem auto;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--error-ink);
+  border-radius: var(--button-radius);
+  background: var(--paper);
+  color: var(--ink);
+}
+.legacy-notice[hidden] { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -177,8 +177,12 @@ test("index.html: every visible string and labelled attribute is keyed for trans
     previous = body;
     body = body.replace(/<!--[\s\S]*?-->/g, "");
   }
+  // v5.73 (B3): #legacy-notice is, like <noscript>, shown only where the
+  // i18n module can never run (nomodule browsers), so it stays English by
+  // slate design. Exactly that one block is exempt, nothing else.
   body = body
     .replace(/<noscript>[\s\S]*?<\/noscript>/g, "")
+    .replace(/<div id="legacy-notice" class="legacy-notice" hidden>[\s\S]*?<\/div>/, "")
     .replace(/<svg[\s\S]*?<\/svg>/g, "");
   const problems = [];
   for (const match of body.matchAll(/<([a-z][\w-]*)([^>]*)>([^<]*)/g)) {
