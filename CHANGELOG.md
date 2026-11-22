@@ -15,6 +15,20 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.70.1] - 2026-11-22
+
+### Security
+- Security review of v5.67 to v5.70
+  (`docs/security-review-v5.67-v5.70.md`): no vulnerabilities found and
+  no code changed. Checked the eight new language files (no markup,
+  hidden or direction-changing characters; placeholders match English),
+  how the interface loads and shows them, the profile-update write limit
+  and the sign-up account read.
+
+### Tests
+- New regression pins for those checks
+  (`tests/wave5701-security-review.test.mjs`).
+
 ## [5.70.0] - 2026-11-22
 
 ### Fixed
