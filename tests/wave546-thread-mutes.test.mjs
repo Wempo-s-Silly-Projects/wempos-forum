@@ -239,7 +239,8 @@ test("post-create paths: mention and follow_thread fan-outs skip a member who mu
   const root = seedPost(w.db, { authorId: w.id.alice, body: "hi @carol" });
   w.db.prepare("INSERT INTO thread_mutes (user_id, post_id, created_at) VALUES (?, ?, ?)").run(w.id.carol, root, now());
   w.db.prepare("INSERT INTO thread_mutes (user_id, post_id, created_at) VALUES (?, ?, ?)").run(w.id.bob, root, now());
-  for (const name of ["bob", "dave"]) {
+  // bot follows but was not mentioned (a mention row would dedupe its follow row).
+  for (const name of ["bob", "bot"]) {
     w.db.prepare("INSERT INTO user_follows (follower_id, followee_id, created_at) VALUES (?, ?, ?)").run(w.id[name], w.id.alice, now());
   }
   const db = w.env.FORUM_DB;
@@ -248,7 +249,7 @@ test("post-create paths: mention and follow_thread fan-outs skip a member who mu
   assert.equal(rowsFor(w, w.id.dave), 1);
   await db.batch(followerFanOutStatements(db, { authorId: w.id.alice, postId: root, username: "alice", now: now() }));
   assert.equal(count(w.db, "notifications WHERE label = ? AND user_id = ?", followThreadLabel("alice"), w.id.bob), 0);
-  assert.equal(count(w.db, "notifications WHERE label = ? AND user_id = ?", followThreadLabel("alice"), w.id.dave), 1);
+  assert.equal(count(w.db, "notifications WHERE label = ? AND user_id = ?", followThreadLabel("alice"), w.id.bot), 1);
 });
 
 test("not thread-scoped: a lobby @mention still reaches a member who muted threads", async () => {

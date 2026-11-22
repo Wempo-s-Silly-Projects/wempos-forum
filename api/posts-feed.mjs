@@ -33,6 +33,7 @@
 import { attachmentRowsForView } from "./attachments.mjs";
 import { bookmarkFlagForViewer, withBookmarkFlags } from "./bookmarks.mjs";
 import { subscriberFlagForViewer, withSubscriptionFlags } from "./subscriptions.mjs";
+import { threadMuteFlagForViewer } from "./thread-mutes.mjs";
 import { pollPayload } from "./polls.mjs";
 import {
   SUGGESTION_SCORE_SQL,
@@ -560,6 +561,11 @@ export async function handlePostDetailRoute(request, env, url, path, method) {
     // read no such query — the field is simply absent for them).
     if (viewerId !== null) {
       post.viewerBookmarked = await bookmarkFlagForViewer(env.FORUM_DB, viewerId, postId);
+    }
+    // Thread mutes (v5.46.0): a member's own mute state on a ROOT, one PK
+    // probe (guests and reply details carry no field).
+    if (viewerId !== null && !row.parent_id) {
+      post.viewerMuted = await threadMuteFlagForViewer(env.FORUM_DB, viewerId, postId);
     }
     // Polls (C3): the poll rides the ROOT's detail read (replies carry none).
     // Results are always visible; the viewer's own option rides for members.

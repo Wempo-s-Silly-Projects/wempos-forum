@@ -54,6 +54,20 @@ export function mutedKindSql(recipientExpr, kind) {
     " AND instr(',' || np.muted || ',', '," + kind + ",') > 0)";
 }
 
+// v5.46.0: "the recipient muted the thread this post belongs to" (migration
+// 0071), for an INSERT…SELECT's WHERE. `postExpr` is the notification's
+// reply_id — the post the row points at — and the thread root resolves from
+// it in SQL: the post itself (a root), its parent (a level-1 reply), or its
+// grandparent (a level-2 reply; replies go two levels deep at most). Both
+// arguments are columns or a "?" the caller binds itself, each used ONCE, so
+// the predicate adds no binds of its own. Label-only rows (reply_id NULL:
+// chat mentions, invite joins, appeals) match no post and never mute.
+export function mutedThreadSql(recipientExpr, postExpr) {
+  return "EXISTS (SELECT 1 FROM posts mt_p LEFT JOIN posts mt_parent ON mt_parent.id = mt_p.parent_id " +
+    "JOIN thread_mutes tm ON tm.user_id = " + recipientExpr +
+    " AND tm.post_id = COALESCE(mt_parent.parent_id, mt_parent.id, mt_p.id) WHERE mt_p.id = " + postExpr + ")";
+}
+
 // Statements ready to spread into the reply-insert D1 batch. Empty when there
 // is no recipient (no author row to notify) or the reply author would be
 // notified about their own reply.
@@ -65,11 +79,13 @@ export function mutedKindSql(recipientExpr, kind) {
 // the duplicate notification row (batch retries / accidental double fans).
 // The dedupe also keeps unreadCount from double counting one reply.
 // v5.40.0: plus the recipient's mute for the path's kind, bound once more at
-// the end (7 binds unlabelled, 8 labelled — fixed per statement).
+// the end. v5.46.0: plus the recipient's thread mute (recipient, reply id),
+// bound after it — 9 binds unlabelled, 10 labelled, fixed per statement.
 const insertNotificationSql = (kind, withLabel) =>
   "INSERT INTO notifications (user_id, target_post_id, reply_id, created_at" + (withLabel ? ", label" : "") + ") " +
     "SELECT ?, ?, ?, ?" + (withLabel ? ", ?" : "") + " WHERE NOT EXISTS (" +
-    "SELECT 1 FROM notifications WHERE user_id = ? AND reply_id = ? LIMIT 1) AND NOT " + mutedKindSql("?", kind);
+    "SELECT 1 FROM notifications WHERE user_id = ? AND reply_id = ? LIMIT 1) AND NOT " + mutedKindSql("?", kind) +
+    " AND NOT " + mutedThreadSql("?", "?");
 
 // The labelled variant (fix round C): the only fan-out source that
 // self-describes is the mention scan — "You were mentioned by <username>".
@@ -156,7 +172,7 @@ function notificationBatchStatements(db, recipientId, replyAuthorId, targetPostI
   if (recipientId === null || Number(recipientId) === Number(replyAuthorId)) return [];
   return [
     db.prepare(insertSqlFor("reply").plain)
-      .bind(recipientId, targetPostId, replyId, now, recipientId, replyId, recipientId),
+      .bind(recipientId, targetPostId, replyId, now, recipientId, replyId, recipientId, recipientId, replyId),
     db.prepare(PRUNE_NOTIFICATIONS_SQL).bind(recipientId, recipientId),
   ];
 }
@@ -187,9 +203,9 @@ export function fanOutStatements(db, recipientIds, { targetPostId, replyId, now,
     statements.push(
       hasLabel
         ? db.prepare(insertSql)
-          .bind(recipientId, targetPostId, replyId, now, label, recipientId, replyId, recipientId)
+          .bind(recipientId, targetPostId, replyId, now, label, recipientId, replyId, recipientId, recipientId, replyId)
         : db.prepare(insertSql)
-          .bind(recipientId, targetPostId, replyId, now, recipientId, replyId, recipientId),
+          .bind(recipientId, targetPostId, replyId, now, recipientId, replyId, recipientId, recipientId, replyId),
       db.prepare(PRUNE_NOTIFICATIONS_SQL).bind(recipientId, recipientId),
     );
   }

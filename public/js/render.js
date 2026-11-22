@@ -465,6 +465,20 @@ export const createPostCard = (post, document, currentUser = null) => {
     subscribeButton.append(createIcon(document, post.subscribed ? "bell-check" : "bell"));
     actions.append(subscribeButton);
   }
+  // Mute a thread (v5.46.0): only the thread detail payload carries
+  // viewerMuted (members, roots), so feed cards, replies and guests never
+  // show it. A worded toggle — muting is a quieter, rarer act than subscribing.
+  if (currentUser && post.viewerMuted !== undefined && !post.parent) {
+    const muted = Boolean(post.viewerMuted);
+    const muteButton = createElement(document, "button", "button button-quiet thread-mute-toggle",
+      muted ? t("render.unmuteThread") : t("render.muteThread"));
+    muteButton.type = "button";
+    muteButton.dataset.action = "toggle-thread-mute";
+    muteButton.dataset.postId = String(post.id);
+    muteButton.dataset.muted = muted ? "1" : "0";
+    muteButton.setAttribute("aria-pressed", String(muted));
+    actions.append(muteButton);
+  }
   // Reply affordance: same strict rule as replyAffordances — signed-in users
   // on explicitly level-1 rows only (publicLevel 2 and undefined publicLevel
   // never show it; replying to level-2 targets is server-forbidden).
