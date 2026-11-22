@@ -102,11 +102,11 @@ test("display only: no network, no storage, no innerHTML", () => {
   assert.doesNotMatch(read("public/js/badge-progress.js"), /\bapi\(|fetch\(|localStorage|sessionStorage|innerHTML/);
 });
 
-test("wave 5.7 F1: both keys are in en.json and translated in all 56 other locales", () => {
+test("wave 5.7 F1: both keys are in en.json and translated in all 64 other locales", () => {
   const dir = new URL("../public/locales/", import.meta.url);
   const en = JSON.parse(readFileSync(new URL("en.json", dir), "utf8"));
   const others = readdirSync(dir).filter((name) => name.endsWith(".json") && name !== "en.json");
-  assert.equal(others.length, 56);
+  assert.equal(others.length, 64);
   for (const key of ["profile.nextBadge", "profile.topBadge"]) {
     assert.equal(typeof en[key], "string", key);
     for (const name of others) {
