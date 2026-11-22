@@ -57,7 +57,10 @@ const ALWAYS_FORBIDDEN = ["HIDDENROOTTXT", "UNDERHIDDENTXT", "BANNEDTXT", "DOOME
 const SIDE_FORBIDDEN = { zzblocker: ["BLOCKEDTXT", "zzblocked"], zzblocked: ["BLOCKERTXT", "zzblocker"] };
 // Wave 5.42: private data with one owner — forbidden to every other viewer
 // (guest, members, both pair sides, staff) on every route.
-const OWNER_ONLY = { PRIVATEFOLDERTXT: "viewer" };
+// Wave 5.47: the viewer's private notes about members (migration 0072) —
+// about alice, the zzblocker pair side and the banned member — reach no one
+// but the viewer: not the subject, not staff, not guests.
+const OWNER_ONLY = { PRIVATEFOLDERTXT: "viewer", PRIVNOTETXT: "viewer" };
 const ownerOnlyNeedles = (member) => Object.entries(OWNER_ONLY).filter(([, owner]) => owner !== member).map(([needle]) => needle);
 
 async function seedWorld() {
@@ -202,6 +205,12 @@ function seedPrivateExtras(w, at) {
   const { db, id } = w;
   db.prepare("INSERT INTO bookmark_folders (user_id, name, created_at) VALUES (?, 'PRIVATEFOLDERTXT', ?)").run(id.viewer, at);
   db.prepare("INSERT INTO notification_prefs (user_id, muted, updated_at) VALUES (?, 'mention', ?)").run(id.viewer, at);
+  // Wave 5.47: private notes. Bodies carry no username, so the owner's own
+  // reads stay clean of the always-forbidden names.
+  for (const [subject, tag] of [["alice", "one"], ["zzblocker", "two"], ["zzbanned", "three"]]) {
+    db.prepare("INSERT INTO private_notes (owner_id, subject_id, body, updated_at) VALUES (?, ?, ?, ?)")
+      .run(id.viewer, id[subject], "PRIVNOTETXT " + tag, at);
+  }
 }
 
 // Wave 5.44 (migration 0070): one tag on every fixture root — public,
@@ -326,6 +335,8 @@ function routes(w, member) {
     // Wave 5.44: the tag listing (JSON + page head) and a visible thread's
     // tag chips — hidden, banned-author and block-paired roots never listed.
     ["/api/tags/sweep/posts"], ["/tag/sweep"], ["/api/posts/" + w.publicRoot + "/tags"],
+    // Wave 5.47: a search for the private-note text.
+    ["/api/search?q=PRIVNOTETXT"],
   ];
   if (member) {
     list.push(["/api/me/notifications"], ["/api/me/bookmarks"], ["/api/session"], ["/api/posts?mine=1"],
@@ -345,6 +356,11 @@ function routes(w, member) {
       ["/api/me/following"]);
     // Wave 5.42: the member's own notification preferences and follow state.
     list.push(["/api/me/notification-prefs"], ["/api/users/alice/follow"]);
+    // Wave 5.47: each member's own note reads on the noted subjects (the
+    // banned one included); the others also ask for "their" note about the
+    // viewer, and zzblocker is itself a noted subject.
+    list.push(["/api/users/alice/note"], ["/api/users/zzbanned/note"]);
+    if (member !== "viewer") list.push(["/api/users/viewer/note"]);
   }
   return list;
 }
@@ -352,7 +368,9 @@ function routes(w, member) {
 const MCP_CALLS = (w) => [["recent_posts", {}], ["search_posts", { query: "zzsweep" }], ["list_board", { board: "general" }],
   ["list_board", { board: "suggestions" }], ["get_post", { id: w.publicRoot }], ["lobby_read", {}],
   // Wave 5.43: an MCP search for the staff-note text.
-  ["search_posts", { query: "STAFFNOTETXT" }]];
+  ["search_posts", { query: "STAFFNOTETXT" }],
+  // Wave 5.47: an MCP search for the private-note text.
+  ["search_posts", { query: "PRIVNOTETXT" }]];
 
 async function fetchText(env, path, { session, markdown, refusable } = {}) {
   const res = await call(env, path, { session, headers: markdown ? { Accept: "text/markdown" } : {} });
@@ -422,6 +440,10 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
   // Wave 5.44: + the tag listing, its page head and a thread's chips for
   // each of the 4 viewers.
   assert.ok(swept >= 291, "swept " + swept);
+  // Wave 5.47: + a note-text search and an MCP note-text search for each of
+  // the 4 viewers, + 2 note reads for each of the 3 members, + the read on
+  // the viewer for the 2 other members.
+  assert.ok(swept >= 307, "swept " + swept);
 });
 
 test("wave 5.44 sweep: tags and DM reactions on hidden, banned and block-paired content", async () => {
@@ -793,7 +815,9 @@ test("wave 5.42: staff and owner viewers — public faces stay public, private d
     assert.equal(alice.pinnedThread, null, label + ": a pin on a hidden root stays off the public face");
     assert.ok(!Object.keys(alice).some((key) => /follow/i.test(key)), label + ": no follower list or count on a profile");
     // Private stores: own rows only, and another member's folder is a 404.
-    for (const path of ["/api/me/bookmark-folders", "/api/me/following", "/api/me/notification-prefs"]) {
+    for (const path of ["/api/me/bookmark-folders", "/api/me/following", "/api/me/notification-prefs",
+      // Wave 5.47: staff have no bypass — a note read is the caller's own row.
+      "/api/users/alice/note", "/api/users/zzblocker/note"]) {
       const text = await fetchText(w.env, path, { session });
       assertClean(text, [...Object.keys(OWNER_ONLY), "sweep folder", "alice", "zzblock"], label + " " + path);
       swept++;
@@ -807,12 +831,20 @@ test("wave 5.42: staff and owner viewers — public faces stay public, private d
     assert.deepEqual(JSON.parse(await fetchText(w.env, "/api/users/alice/follow", { session })), { following: false },
       label + ": follow state is the caller's own, never the member's followers");
   }
-  assert.equal(swept, 2 * (11 + 3));
+  assert.equal(swept, 2 * (11 + 3 + 2));
   // The data owner reads every private row back (positive control).
   const viewer = forgeSession(w.db, w.id.viewer);
   assert.ok((await fetchText(w.env, "/api/me/bookmark-folders", { session: viewer })).includes("PRIVATEFOLDERTXT"));
   assert.deepEqual(JSON.parse(await fetchText(w.env, "/api/me/notification-prefs", { session: viewer })).muted, ["mention"]);
   assert.deepEqual(JSON.parse(await fetchText(w.env, "/api/users/alice/follow", { session: viewer })), { following: true });
+  // Wave 5.47: the note owner reads every note back, banned and block-paired
+  // subjects included, and the export carries them.
+  for (const [subject, tag] of [["alice", "one"], ["zzblocker", "two"], ["zzbanned", "three"]]) {
+    assert.equal(JSON.parse(await fetchText(w.env, "/api/users/" + subject + "/note", { session: viewer })).note.body,
+      "PRIVNOTETXT " + tag);
+  }
+  const exported = JSON.parse(await fetchText(w.env, "/api/me/export", { session: viewer }));
+  assert.deepEqual(exported.privateNotes.map((n) => n.body).sort(), ["PRIVNOTETXT one", "PRIVNOTETXT three", "PRIVNOTETXT two"]);
 });
 
 // /api/members/newest (v5.35): the ban drops a member, the block pair hides
