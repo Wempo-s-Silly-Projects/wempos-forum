@@ -15,6 +15,32 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.58.0] - 2026-11-22
+
+### Changed
+- The header is tidier. Suggestions, Archive, Leaderboard, Rules and This
+  week now sit in one Browse menu. Your profile, the moderation desk (staff),
+  the keyboard shortcuts list and Sign out sit in one Account menu. Saved
+  posts, My posts, Settings and notifications stay as their own buttons, so
+  members see seven header items instead of eleven.
+- The phone bar is built from the same list as the header, so the two always
+  match. It shows Home, My posts, Alerts, your profile (or Sign in) and a
+  More button. More holds the same Browse menu and, for members, Saved
+  posts, Settings, the moderation desk (staff), the keyboard shortcuts list
+  and Sign out, which phones could not reach from the bar before.
+- On a thread page, Copy link appears once. When Share opens its own menu,
+  Copy link is in that menu. When your device opens its share sheet instead,
+  or there is no Share button, Copy link stays in More. The Open post link is
+  hidden on the post it links to.
+
+### Fixed
+- Using a control inside a thread's More menu (for example Save post or Pin)
+  no longer closes the menu and loses keyboard focus. More opens again and
+  focus goes back to that control, or to the More button if the control is
+  gone.
+- On the settings page, screen readers now hear each panel's heading one
+  level below its group's heading.
+
 ## [5.57.0] - 2026-11-22
 
 ### Security
