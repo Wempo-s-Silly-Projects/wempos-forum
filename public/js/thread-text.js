@@ -39,7 +39,8 @@ const REVOKE_DELAY_MS = 1000;
 const TEXT_NODE = 3;
 const ELEMENT_NODE = 1;
 const THREAD_ID_PATTERN = /^[0-9]{1,15}$/;
-const BODY_CLASSES = new Set(["post-body", "post-quote", "post-codeblock", "post-heading", "md-list"]);
+// "code-toolbar": Prism's wrapper around a highlighted code block (v5.74).
+const BODY_CLASSES = new Set(["post-body", "post-quote", "post-codeblock", "code-toolbar", "post-heading", "md-list"]);
 
 const classTokens = (node) => String(node?.className ?? "").split(/\s+/);
 const HIDDEN_ATTRIBUTES = ["hidden", "data-filtered-out"];
@@ -59,6 +60,8 @@ function visibleText(node) {
   if (node.nodeType !== ELEMENT_NODE || isHiddenNode(node)) return "";
   const tokens = classTokens(node);
   if (tokens.includes("spoiler") && !tokens.includes("spoiler-revealed")) return SPOILER_MASK;
+  // Prism's language label row is chrome, not body text (v5.74).
+  if (tokens.includes("toolbar")) return "";
   if (node.tagName === "BR") return "\n";
   if (!node.childNodes.length) return node.textContent ?? "";
   return Array.from(node.childNodes, visibleText).join("");

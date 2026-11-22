@@ -45,7 +45,9 @@ const readLocale = (code) => JSON.parse(readFileSync(new URL(`${code}.json`, LOC
 const placeholders = (value) => [...value.matchAll(PLACEHOLDER)].map((match) => match[1]).sort();
 const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
   entry.isDirectory() ? walk(join(dir, entry.name)) : entry.name.endsWith(".js") ? [join(dir, entry.name)] : []);
-const clientFiles = () => walk(JS_DIR).filter((file) => !file.endsWith("/i18n.js"));
+// public/js/vendor/** is vendored verbatim (Prism, v5.74) and never edited,
+// so its upstream literals are not ours to translate.
+const clientFiles = () => walk(JS_DIR).filter((file) => !file.endsWith("/i18n.js") && !file.includes("/vendor/"));
 
 test("detectLocale: stored choice, then browser list, regional and script fallbacks, then English", () => {
   assert.equal(detectLocale("fr", ["de-DE"]), "fr");

@@ -29,6 +29,7 @@ import { isBotUsername } from "./bots.js";
 import { t, tn, currentLocale } from "./i18n.js";
 import { createCopyLinkButton } from "./copy-link.js";
 import { createCopyCodeButton } from "./copy-code.js";
+import { codeBlockPlan, highlightCodeBlocks } from "./code-highlight.js";
 import { createReadAloud } from "./read-aloud.js";
 import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";
 import { isQotdBody } from "./traditions.js";
@@ -110,13 +111,28 @@ const renderAttachments = (post, document, article) => {
 // safe links) inside every kind except code fences (raw). HTML is never
 // interpreted: all text lands through textContent, so "<b>" and "<script>"
 // stay literal. Images never render (the raw "![…](…)" stays text).
+// Fenced code (v5.74): the fence info becomes a sanitised language class;
+// blocks that name a language (and fit the size cap) are queued for the lazy
+// Prism highlighter. "no-whitespace-normalization" keeps Prism from
+// re-indenting, so copy-code still copies exactly what was written.
+function createCodeBlock(document, block) {
+  const text = block.text.join("\n");
+  const plan = codeBlockPlan(block.info, text);
+  const pre = createElement(document, "pre", plan.lineNumbers ? "post-codeblock line-numbers" : "post-codeblock");
+  const code = document.createElement("code");
+  code.className = plan.languageClass + " no-whitespace-normalization";
+  if (plan.highlight) code.className += " match-braces";
+  code.textContent = text;
+  pre.append(createCopyCodeButton(document, () => code.textContent), code);
+  return { pre, code: plan.highlight ? code : null };
+}
+
 export const renderBodyBlocks = (post, document, article) => {
+  const highlightable = [];
   for (const block of parseBlocks(post.body)) {
     if (block.kind === "code") {
-      const pre = createElement(document, "pre", "post-codeblock");
-      const code = document.createElement("code");
-      code.textContent = block.text.join("\n");
-      pre.append(createCopyCodeButton(document, () => code.textContent), code);
+      const { pre, code } = createCodeBlock(document, block);
+      if (code) highlightable.push(code);
       article.append(pre);
       continue;
     }
@@ -151,6 +167,7 @@ export const renderBodyBlocks = (post, document, article) => {
     renderInline(document, paragraph, block.text.join("\n"));
     article.append(paragraph);
   }
+  highlightCodeBlocks(document, highlightable);
 };
 
 // Markdown-inline runs appended INTO an existing element (link hrefs are
@@ -639,10 +656,14 @@ export const createEditComposer = (post, document) => {
 // The card blocks an open edit form replaces: the rendered body paragraphs and
 // quote blockquotes. Attachments, previews, and the action row stay visible —
 // edits are text-only, so everything else is untouched.
-const isEditBodyBlock = (node) =>
-  node.className === "post-body" || node.className === "post-quote" ||
-  node.className === "post-codeblock" || node.className === "post-heading" ||
-  node.className === "md-list" || node.className === "post-body-fold";
+// Code blocks match by class token: Prism adds language/line-number classes
+// to the <pre> and wraps it in div.code-toolbar (v5.74).
+const EDIT_BODY_CLASSES = new Set(["post-body", "post-quote", "post-heading", "md-list", "post-body-fold"]);
+const CODE_BLOCK_CLASSES = new Set(["post-codeblock", "code-toolbar"]);
+const isEditBodyBlock = (node) => {
+  if (EDIT_BODY_CLASSES.has(node.className)) return true;
+  return String(node.className ?? "").split(/\s+/).some((name) => CODE_BLOCK_CLASSES.has(name));
+};
 
 // Swap (openEditForm) / restore (closeEditForm) are pure DOM-in/DOM-out so the
 // mock-element render suite can pin the whole cycle. The card's raw body must

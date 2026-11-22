@@ -57,3 +57,14 @@ path = "api/vendor/**"
 precedence = "override"
 SPDX-FileCopyrightText = "2026 ItsWempo"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+# Prism 1.30.0 (https://prismjs.com/), downloaded build with every language
+# and 16 plugins, kept byte-for-byte as public/js/vendor/prism.js with no
+# added banner (slate 2026-11-22-d). Prism is MIT-licensed, which is
+# compatible with AGPL-3.0-or-later; the sha256 is pinned by
+# tests/wave574-prism.test.mjs.
+[[annotations]]
+path = "public/js/vendor/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Lea Verou and PrismJS contributors"
+SPDX-License-Identifier = "MIT"
