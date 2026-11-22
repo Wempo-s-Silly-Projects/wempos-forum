@@ -15,6 +15,13 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.70.0] - 2026-11-22
+
+### Fixed
+- Muted text on hidden-post cards now meets WCAG AA contrast. The light
+  theme's muted colour is a touch darker (4.53:1 on hidden-post cards,
+  6.19:1 on ordinary cards); dark and high-contrast themes are unchanged.
+
 ## [5.69.0] - 2026-11-22
 
 ### Added
