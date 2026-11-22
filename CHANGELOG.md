@@ -15,6 +15,26 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.38.0] - 2026-11-22
+
+### Added
+- Pin one of your threads to the top of your profile. Use "Pin to profile"
+  next to a thread in your Recent threads; pinning another replaces it, and
+  "Unpin" removes it. Only your own public threads can be pinned, and a pin
+  stops showing if the thread is hidden or deleted or you are banned.
+- Custom status: up to 60 characters and one emoji, shown under your name on
+  your profile. Choose when it clears (never, 1 hour, 4 hours, today or
+  1 week). Statuses pass the same word filter as posts. They never show for
+  banned members or across a block.
+- Polls can close on their own: pick a closing time from 1 hour to 30 days
+  when adding the poll, or later while it is open. The thread author and staff
+  can change or clear it. The poll shows "Closes in …", and once the time
+  passes, voting is closed the same way as closing it by hand.
+
+### Changed
+- Database migration `0066_profile_extras.sql` adds the `profile_pins`,
+  `user_status` and `poll_deadlines` tables. It is CREATE-only.
+
 ## [5.37.0] - 2026-11-22
 
 ### Security
