@@ -106,6 +106,9 @@ async function seedWorld() {
       if (actor === member) continue;
       run("INSERT INTO notifications (user_id, target_post_id, reply_id, created_at, label) VALUES (?, NULL, NULL, ?, ?)",
         id[member], at, "You were mentioned by " + actor + " in chat");
+      // Wave 5.34: invite-join bell rows name the new member the same way.
+      run("INSERT INTO notifications (user_id, target_post_id, reply_id, created_at, label) VALUES (?, NULL, NULL, ?, ?)",
+        id[member], at, "Your friend " + actor + " joined using your invite link");
     }
   }
   // DMs: the pair's thread; each member with the banned one; a group with a
@@ -191,6 +194,11 @@ function routes(w, member) {
     ["/api/users/" + w.id.zzblocker + "/threads", { pairRefuses: true }],
     ["/api/users/" + w.id.zzblocked + "/threads", { pairRefuses: true }],
     ["/api/search?q=STAFFONLYTXT"],
+    // Wave 5.34: the RSS feeds (anonymous visibility, cacheable, so guest
+    // only) and the static llms.txt summary.
+    ["/feed.xml", { guestOnly: true }], ["/c/general/feed.xml", { guestOnly: true }],
+    ["/c/suggestions/feed.xml", { guestOnly: true }], ["/c/showcase/feed.xml", { guestOnly: true }],
+    ["/llms.txt", { guestOnly: true }],
   ];
   if (member) {
     list.push(["/api/me/notifications"], ["/api/me/bookmarks"], ["/api/session"], ["/api/posts?mine=1"],
@@ -258,6 +266,8 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
   // Wave 5.32: + 17 page-head and public reads for each of the 4 viewers,
   // + export and security for each of the 3 members.
   assert.ok(swept >= 216, "swept " + swept);
+  // Wave 5.34: + 4 feeds and llms.txt for the guest.
+  assert.ok(swept >= 221, "swept " + swept);
 });
 
 test("wave 5.10 sweep: hidden-root reads are 404 and the DM non-member is refused", async () => {
@@ -287,10 +297,13 @@ test("wave 5.10 sweep: positive controls — expired bans, unrelated members, ow
   assert.ok((await fetchText(w.env, "/api/posts/" + w.publicRoot)).includes("EXPIREDOKTXT reply"));
   assert.ok((await fetchText(w.env, "/api/posts/" + w.publicRoot + "/edits")).includes("VISIBLEEDITTXT"));
   assert.ok((await fetchText(w.env, "/api/archive")).includes("ARCHIVEOKTXT"), "a plain deletion stays archived");
+  const rss = await fetchText(w.env, "/feed.xml");
+  for (const needle of ["VISIBLEOKTXT", "EXPIREDOKTXT", "BLOCKERTXT"]) assert.ok(rss.includes(needle), "feed " + needle);
   const presence = await fetchText(w.env, "/api/presence", { session: viewer });
   assert.ok(presence.includes("zzblocker") && presence.includes("zzblocked"), "unrelated members see both sides online");
   const bell = await fetchText(w.env, "/api/me/notifications", { session: viewer });
   assert.ok(bell.includes("mentioned by zzblocked in chat") && bell.includes("mentioned by alice in chat"));
+  assert.ok(bell.includes("Your friend zzblocked joined") && bell.includes("Your friend alice joined"));
   assert.ok((await fetchText(w.env, "/api/dm/groups/" + w.group, { session: viewer })).includes("GROUPOKTXT"));
   const blocker = forgeSession(w.db, w.id.zzblocker);
   assert.ok((await fetchText(w.env, "/api/dm/threads/" + w.pairThread, { session: blocker })).includes("BLOCKERTXT dm"));
