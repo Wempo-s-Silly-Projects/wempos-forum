@@ -15,6 +15,35 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.31.0] - 2026-11-21
+
+### Added
+- Real page titles and descriptions for search engines and link previews.
+  Every page now names itself: the home page, each board, each thread (its
+  first line as the title and the start of the post as the description) and
+  each member's profile, plus a canonical link.
+- Link previews. Shared links show a card with the forum's name, the page's
+  title and description, and a new share image (`/og-image.png`, made from
+  `public/og-image.svg`) through Open Graph and Twitter card tags.
+- Structured data for search engines: the site and its organization on
+  every page, and each thread as a forum posting with its author, date and
+  reply count.
+
+### Changed
+- Pages that don't exist, and threads or profiles that can't be shown, ask
+  search engines not to index them.
+
+### Security
+- Previews follow the same visibility rules as the forum: a hidden thread, a
+  banned member's post, a reply under a hidden thread, a deleted thread and a
+  member across a block all get the plain site title and description, never
+  the post's words. Spoilers are masked before the excerpt is cut, and every
+  value is escaped so post text can never add markup to the page.
+
+### For self-hosters
+- `OG_IMAGE_URL` (optional, in `wrangler.example.toml`) points link previews
+  at your own image; leave it empty to use the forum's `/og-image.png`.
+
 ## [5.30.1] - 2026-11-21
 
 ### Changed
