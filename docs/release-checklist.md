@@ -31,6 +31,28 @@ Always use this script, never a bare `wrangler deploy`. It stamps the build with
 
 If a migration and a code change depend on each other, migrate first, then deploy.
 
+### Reproducing the build
+
+The only built file is the worker bundle. Wrangler makes it from the source
+with esbuild, and the browser files in `public/` ship exactly as written.
+The tool versions are pinned in `pnpm-lock.yaml`, so anyone can rebuild a
+release and compare the result:
+
+```sh
+git checkout v5.30.0
+pnpm install --frozen-lockfile
+pnpm exec wrangler deploy --dry-run --outdir build-a
+pnpm exec wrangler deploy --dry-run --outdir build-b
+shasum -a 256 build-a/worker.js build-b/worker.js   # the two hashes match
+```
+
+Building from the same commit and lockfile gives a byte-identical
+`worker.js`. Two things differ between builds, and neither is part of the
+deployed code: the `sourceRoot` in `worker.js.map` (it records the output
+folder) and the timestamp in the generated `README.md`. The build doesn't
+stamp the commit hash into the bundle. `pnpm run deploy` passes it as the
+`COMMIT_SHA` variable at deploy time instead.
+
 ## After you deploy
 
 1. Open `https://wempos-forum.com/api/version` and confirm `commit` matches the commit you shipped.

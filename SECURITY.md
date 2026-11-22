@@ -30,6 +30,50 @@ will let you know when a fix is released. This is a small hobby project, so
 there's no bug bounty, but the help is truly appreciated, and we're happy to
 credit you in the advisory if you'd like.
 
+## How we respond to a report
+
+The maintainer (see [GOVERNANCE.md](GOVERNANCE.md)) handles every report
+like this:
+
+1. **Acknowledge.** We confirm we got your report, normally within 14 days,
+   usually much sooner.
+2. **Triage.** We reproduce the problem and rate how severe it is (critical,
+   high, medium, low) from its real impact on members' accounts and data. If
+   it isn't a vulnerability, we explain why.
+3. **Fix privately.** We prepare the fix in a private GitHub security
+   advisory or a private branch, with a test that fails without the fix. All
+   the normal checks still run.
+4. **Release.** We ship the fix as a new signed release and deploy it to
+   <https://wempos-forum.com>. Critical problems are fixed as fast as we can
+   (usually within days). Any problem of medium severity or worse is fixed
+   within 60 days.
+5. **Disclose and credit.** We publish a GitHub security advisory (asking
+   for a CVE when it's warranted) and describe the fix in
+   [CHANGELOG.md](CHANGELOG.md). We credit the reporter by name or handle
+   unless they ask to stay anonymous.
+6. **Learn.** We look for the same mistake elsewhere in the code, and update
+   the [assurance case](docs/assurance-case.md) if the design has to change.
+
+Self-hosters get fixes by updating to the latest release (see
+[Updating later](docs/self-hosting.md#updating-later)).
+
+## Verifying a release
+
+Every release since v4.5.0 is a GPG-signed Git tag `vX.Y.Z`, with a matching
+[GitHub Release](https://github.com/Wempo-s-Silly-Projects/wempos-forum/releases).
+The signing key is the maintainer's Ed25519 key, with fingerprint
+`1A72 F3E3 5BD7 E5D0 14B7  B855 5A74 55E7 1384 675E`. The public key is
+published by GitHub at <https://github.com/ItsWempo.gpg>. To check a release:
+
+```sh
+curl -s https://github.com/ItsWempo.gpg | gpg --import
+git fetch --tags
+git tag -v v5.30.0   # look for "Good signature" and the fingerprint above
+```
+
+Tags are signed on the maintainer's own machine. GitHub and the hosting
+platform hold only the public key.
+
 ## Supported Versions
 
 Only the **latest deployed release** is supported. The forum runs as a single
