@@ -603,6 +603,8 @@
   "polls.close": "Luk afstemningen",
   "polls.reopen": "Genåbn afstemningen",
   "post.conversationTitle": "Samtale",
+  "post.saveAsText": "Gem som tekst",
+  "post.saveAsTextLabel": "Gem indlæggene, der vises på denne side, som en tekstfil",
   "post.editSaved": "Din redigering er gemt.",
   "post.hideReplies.one": "Skjul {count} svar",
   "post.hideReplies.other": "Skjul {count} svar",

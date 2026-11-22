@@ -603,6 +603,8 @@
   "polls.close": "ভোট দেওয়া বন্ধ করুন",
   "polls.reopen": "আবার ভোট চালু করুন",
   "post.conversationTitle": "আলোচনা",
+  "post.saveAsText": "টেক্সট হিসেবে সংরক্ষণ",
+  "post.saveAsTextLabel": "এই পৃষ্ঠায় দেখানো পোস্টগুলো একটি টেক্সট ফাইল হিসেবে সংরক্ষণ করুন",
   "post.editSaved": "আপনার সম্পাদনা সংরক্ষিত হয়েছে।",
   "post.hideReplies.one": "{count}টি উত্তর লুকান",
   "post.hideReplies.other": "{count}টি উত্তর লুকান",

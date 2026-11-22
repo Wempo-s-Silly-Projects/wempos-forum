@@ -603,6 +603,8 @@
   "polls.close": "Stäng omröstningen",
   "polls.reopen": "Öppna omröstningen igen",
   "post.conversationTitle": "Samtal",
+  "post.saveAsText": "Spara som text",
+  "post.saveAsTextLabel": "Spara inläggen som visas på den här sidan som en textfil",
   "post.editSaved": "Din ändring sparades.",
   "post.hideReplies.one": "Dölj {count} svar",
   "post.hideReplies.other": "Dölj {count} svar",

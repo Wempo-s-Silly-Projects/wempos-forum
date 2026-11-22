@@ -603,6 +603,8 @@
   "polls.close": "Isara ang botohan",
   "polls.reopen": "Buksan muli ang botohan",
   "post.conversationTitle": "Usapan",
+  "post.saveAsText": "I-save bilang text",
+  "post.saveAsTextLabel": "I-save bilang text file ang mga post na ipinapakita sa pahinang ito",
   "post.editSaved": "Na-save ang pag-edit mo.",
   "post.hideReplies.one": "Itago ang {count} sagot",
   "post.hideReplies.other": "Itago ang {count} sagot",

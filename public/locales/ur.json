@@ -603,6 +603,8 @@
   "polls.close": "ووٹنگ بند کریں",
   "polls.reopen": "ووٹنگ دوبارہ کھولیں",
   "post.conversationTitle": "گفتگو",
+  "post.saveAsText": "متن کے طور پر محفوظ کریں",
+  "post.saveAsTextLabel": "اس صفحے پر دکھائی گئی پوسٹس کو متنی فائل کے طور پر محفوظ کریں",
   "post.editSaved": "آپ کی ترمیم محفوظ ہو گئی۔",
   "post.hideReplies.one": "{count} جواب چھپائیں",
   "post.hideReplies.other": "{count} جوابات چھپائیں",

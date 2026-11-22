@@ -603,6 +603,8 @@
   "polls.close": "סגירת ההצבעה",
   "polls.reopen": "פתיחת ההצבעה מחדש",
   "post.conversationTitle": "שיחה",
+  "post.saveAsText": "שמירה כטקסט",
+  "post.saveAsTextLabel": "שמירת הפוסטים המוצגים בדף זה כקובץ טקסט",
   "post.editSaved": "העריכה שלך נשמרה.",
   "post.hideReplies.one": "הסתרת {count} תגובה",
   "post.hideReplies.other": "הסתרת תגובות ({count})",

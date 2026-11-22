@@ -603,6 +603,8 @@
   "polls.close": "Închide votul",
   "polls.reopen": "Redeschide votul",
   "post.conversationTitle": "Conversație",
+  "post.saveAsText": "Salvează ca text",
+  "post.saveAsTextLabel": "Salvează postările afișate pe această pagină ca fișier text",
   "post.editSaved": "Modificarea ta a fost salvată.",
   "post.hideReplies.one": "Ascunde {count} răspuns",
   "post.hideReplies.other": "Ascunde răspunsurile ({count})",

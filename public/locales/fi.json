@@ -603,6 +603,8 @@
   "polls.close": "Sulje äänestys",
   "polls.reopen": "Avaa äänestys uudelleen",
   "post.conversationTitle": "Keskustelu",
+  "post.saveAsText": "Tallenna tekstinä",
+  "post.saveAsTextLabel": "Tallenna tällä sivulla näkyvät viestit tekstitiedostona",
   "post.editSaved": "Muokkauksesi tallennettiin.",
   "post.hideReplies.one": "Piilota {count} vastaus",
   "post.hideReplies.other": "Piilota {count} vastausta",

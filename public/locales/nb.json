@@ -603,6 +603,8 @@
   "polls.close": "Steng avstemningen",
   "polls.reopen": "Åpne avstemningen igjen",
   "post.conversationTitle": "Samtale",
+  "post.saveAsText": "Lagre som tekst",
+  "post.saveAsTextLabel": "Lagre innleggene som vises på denne siden, som en tekstfil",
   "post.editSaved": "Endringen din ble lagret.",
   "post.hideReplies.one": "Skjul {count} svar",
   "post.hideReplies.other": "Skjul {count} svar",

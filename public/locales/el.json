@@ -603,6 +603,8 @@
   "polls.close": "Κλείσιμο ψηφοφορίας",
   "polls.reopen": "Επαναφορά ψηφοφορίας",
   "post.conversationTitle": "Συζήτηση",
+  "post.saveAsText": "Αποθήκευση ως κείμενο",
+  "post.saveAsTextLabel": "Αποθήκευση των αναρτήσεων που εμφανίζονται σε αυτή τη σελίδα ως αρχείο κειμένου",
   "post.editSaved": "Η επεξεργασία σου αποθηκεύτηκε.",
   "post.hideReplies.one": "Απόκρυψη {count} απάντησης",
   "post.hideReplies.other": "Απόκρυψη {count} απαντήσεων",

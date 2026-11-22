@@ -603,6 +603,8 @@
   "polls.close": "Close voting",
   "polls.reopen": "Reopen voting",
   "post.conversationTitle": "Conversation",
+  "post.saveAsText": "Save as text",
+  "post.saveAsTextLabel": "Save the posts shown on this page as a text file",
   "post.editSaved": "Your edit was saved.",
   "post.hideReplies.one": "Hide {count} reply",
   "post.hideReplies.other": "Hide {count} replies",

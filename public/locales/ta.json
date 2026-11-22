@@ -603,6 +603,8 @@
   "polls.close": "வாக்களிப்பை மூடு",
   "polls.reopen": "வாக்களிப்பை மீண்டும் திற",
   "post.conversationTitle": "உரையாடல்",
+  "post.saveAsText": "உரையாகச் சேமி",
+  "post.saveAsTextLabel": "இந்தப் பக்கத்தில் காட்டப்படும் இடுகைகளை உரைக் கோப்பாகச் சேமி",
   "post.editSaved": "உங்கள் திருத்தம் சேமிக்கப்பட்டது.",
   "post.hideReplies.one": "{count} பதிலை மறை",
   "post.hideReplies.other": "{count} பதில்களை மறை",

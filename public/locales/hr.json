@@ -603,6 +603,8 @@
   "polls.close": "Zatvori glasanje",
   "polls.reopen": "Ponovno otvori glasanje",
   "post.conversationTitle": "Razgovor",
+  "post.saveAsText": "Spremi kao tekst",
+  "post.saveAsTextLabel": "Spremi objave prikazane na ovoj stranici kao tekstnu datoteku",
   "post.editSaved": "Tvoja izmjena je spremljena.",
   "post.hideReplies.one": "Sakrij {count} odgovor",
   "post.hideReplies.other": "Sakrij odgovore: {count}",

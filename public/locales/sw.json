@@ -603,6 +603,8 @@
   "polls.close": "Funga upigaji kura",
   "polls.reopen": "Fungua tena upigaji kura",
   "post.conversationTitle": "Mazungumzo",
+  "post.saveAsText": "Hifadhi kama maandishi",
+  "post.saveAsTextLabel": "Hifadhi machapisho yanayoonyeshwa kwenye ukurasa huu kama faili ya maandishi",
   "post.editSaved": "Mabadiliko yako yamehifadhiwa.",
   "post.hideReplies.one": "Ficha jibu {count}",
   "post.hideReplies.other": "Ficha majibu {count}",

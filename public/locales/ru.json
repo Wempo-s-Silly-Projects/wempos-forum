@@ -603,6 +603,8 @@
   "polls.close": "Закрыть голосование",
   "polls.reopen": "Снова открыть голосование",
   "post.conversationTitle": "Разговор",
+  "post.saveAsText": "Сохранить как текст",
+  "post.saveAsTextLabel": "Сохранить сообщения, показанные на этой странице, в текстовый файл",
   "post.editSaved": "Изменения сохранены.",
   "post.hideReplies.one": "Скрыть {count} ответ",
   "post.hideReplies.other": "Скрыть ответы ({count})",

@@ -3133,6 +3133,28 @@ mark.search-hit {
   from { background-color: var(--yellow); }
 }
 
+/* Reading progress (wave 5.26 F2): a thin decorative bar at the top of
+   thread pages; its width is set from scroll position by reading-progress.js. */
+.reading-progress {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 41;
+  width: 0;
+  height: 3px;
+  background: var(--green);
+  pointer-events: none;
+  transition: width 0.1s linear;
+}
+
+.reading-progress[hidden] { display: none; }
+
+.reading-progress-still { transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reading-progress { transition: none; }
+}
+
 .new-chip {
   margin-inline-start: 8px;
   padding: 1px 8px;
@@ -3525,7 +3547,7 @@ mark.search-hit {
   *, *::before, *::after { background: transparent !important; color: #000 !important; box-shadow: none !important; text-shadow: none !important; }
   body { color: #000 !important; background: #fff !important; }
   .site-header, .mobile-bar, .status-bar, .skip-link, nav, form, button, dialog,
-  .chat-widget-launcher, .chat-widget-panel, .who-online, .post-actions, #version-tag { display: none !important; }
+  .chat-widget-launcher, .chat-widget-panel, .who-online, .post-actions, .reading-progress, #version-tag { display: none !important; }
   .site-footer p { visibility: hidden; }
   .site-footer [data-source-link] { visibility: visible; }
   .post-card { break-inside: avoid; border: 1px solid #000; }

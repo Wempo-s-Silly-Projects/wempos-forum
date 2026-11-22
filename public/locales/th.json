@@ -603,6 +603,8 @@
   "polls.close": "ปิดการโหวต",
   "polls.reopen": "เปิดการโหวตอีกครั้ง",
   "post.conversationTitle": "บทสนทนา",
+  "post.saveAsText": "บันทึกเป็นข้อความ",
+  "post.saveAsTextLabel": "บันทึกโพสต์ที่แสดงในหน้านี้เป็นไฟล์ข้อความ",
   "post.editSaved": "บันทึกการแก้ไขแล้ว",
   "post.hideReplies.one": "ซ่อนการตอบกลับ {count} รายการ",
   "post.hideReplies.other": "ซ่อนการตอบกลับ {count} รายการ",

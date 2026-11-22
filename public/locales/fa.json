@@ -603,6 +603,8 @@
   "polls.close": "بستن رأی‌گیری",
   "polls.reopen": "بازگشایی رأی‌گیری",
   "post.conversationTitle": "گفتگو",
+  "post.saveAsText": "ذخیره به‌صورت متن",
+  "post.saveAsTextLabel": "ذخیرهٔ پست‌های نمایش‌داده‌شده در این صفحه به‌صورت فایل متنی",
   "post.editSaved": "ویرایش شما ذخیره شد.",
   "post.hideReplies.one": "پنهان کردن {count} پاسخ",
   "post.hideReplies.other": "پنهان کردن {count} پاسخ",

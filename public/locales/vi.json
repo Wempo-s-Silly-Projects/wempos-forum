@@ -603,6 +603,8 @@
   "polls.close": "Đóng bình chọn",
   "polls.reopen": "Mở lại bình chọn",
   "post.conversationTitle": "Cuộc trò chuyện",
+  "post.saveAsText": "Lưu dưới dạng văn bản",
+  "post.saveAsTextLabel": "Lưu các bài đăng hiển thị trên trang này thành tệp văn bản",
   "post.editSaved": "Đã lưu chỉnh sửa của bạn.",
   "post.hideReplies.one": "Ẩn {count} phản hồi",
   "post.hideReplies.other": "Ẩn {count} phản hồi",

@@ -603,6 +603,8 @@
   "polls.close": "Закрити голосування",
   "polls.reopen": "Знову відкрити голосування",
   "post.conversationTitle": "Розмова",
+  "post.saveAsText": "Зберегти як текст",
+  "post.saveAsTextLabel": "Зберегти дописи, показані на цій сторінці, як текстовий файл",
   "post.editSaved": "Твою правку збережено.",
   "post.hideReplies.one": "Приховати {count} відповідь",
   "post.hideReplies.other": "Приховати відповіді ({count})",

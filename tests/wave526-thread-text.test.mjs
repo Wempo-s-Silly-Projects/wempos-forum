@@ -52,7 +52,9 @@ function fakeDoc() {
     }
     return node;
   };
-  return { doc, anchors };
+  // Post cards build their own <a> links; only download links count here.
+  return { doc, anchors: { get length() { return downloads().length; }, at: (i) => downloads()[i] } };
+  function downloads() { return anchors.filter((node) => node.download); }
 }
 
 const post = (id, username, body, extra = {}) => ({
@@ -173,7 +175,7 @@ test("saveThreadAsText: text/plain Blob, <a download> clicked, removed, object U
   assert.equal(created[0].type, THREAD_TEXT_TYPE);
   assert.match(await created[0].text(), /Reply body/);
   assert.equal(anchors.length, 1);
-  const [link] = anchors;
+  const link = anchors.at(0);
   assert.equal(link.download, "my-first-thread-title-7.txt");
   assert.equal(link.href, "blob:fake-1");
   assert.equal(link.clicks, 1);
@@ -209,7 +211,7 @@ test("createSaveThreadButton: translated label + aria-label, click saves", () =>
   assert.match(button.className, /save-thread-text/);
   button.dispatch("click");
   assert.equal(anchors.length, 1);
-  assert.equal(anchors[0].clicks, 1);
+  assert.equal(anchors.at(0).clicks, 1);
 });
 
 test("formatLocalDate: absolute local YYYY-MM-DD HH:MM; bad input gives an empty string", () => {

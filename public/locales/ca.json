@@ -603,6 +603,8 @@
   "polls.close": "Tanca la votació",
   "polls.reopen": "Torna a obrir la votació",
   "post.conversationTitle": "Conversa",
+  "post.saveAsText": "Desa com a text",
+  "post.saveAsTextLabel": "Desa les publicacions que es mostren en aquesta pàgina com a fitxer de text",
   "post.editSaved": "S'ha desat la teva edició.",
   "post.hideReplies.one": "Amaga {count} resposta",
   "post.hideReplies.other": "Amaga {count} respostes",

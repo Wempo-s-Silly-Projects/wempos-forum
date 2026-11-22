@@ -603,6 +603,8 @@
   "polls.close": "Stemming sluiten",
   "polls.reopen": "Stemming heropenen",
   "post.conversationTitle": "Gesprek",
+  "post.saveAsText": "Opslaan als tekst",
+  "post.saveAsTextLabel": "De berichten op deze pagina opslaan als tekstbestand",
   "post.editSaved": "Je wijziging is opgeslagen.",
   "post.hideReplies.one": "{count} reactie verbergen",
   "post.hideReplies.other": "{count} reacties verbergen",
