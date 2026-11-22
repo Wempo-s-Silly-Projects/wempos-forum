@@ -1149,5 +1149,20 @@
   "slowMode.save": "Увімкнути повільний режим",
   "slowMode.set": "Повільний режим оновлено.",
   "slowMode.cleared": "Повільний режим вимкнено.",
-  "errors.slowMode": "У цій темі увімкнено повільний режим. Зачекайте трохи, перш ніж відповісти знову."
+  "errors.slowMode": "У цій темі увімкнено повільний режим. Зачекайте трохи, перш ніж відповісти знову.",
+  "app.pageTag": "Тег",
+  "admin.section.tags": "Теги",
+  "admin.lede.tags": "Створіть теги, які учасники зможуть додавати до своїх тем.",
+  "dm.reactionsLabel": "Реакції",
+  "tags.chipsLabel": "Теги",
+  "tags.pageTitle": "Теми з тегом {label}",
+  "tags.empty": "Поки немає тем із цим тегом.",
+  "tags.editLabel": "Теги (не більше {count})",
+  "tags.saved": "Теги збережено.",
+  "tags.slugLabel": "Коротке ім'я (a–z, 0–9, -)",
+  "tags.labelField": "Назва",
+  "tags.create": "Створити тег",
+  "tags.none": "Тегів поки немає.",
+  "tags.created": "Тег створено.",
+  "tags.deleted": "Тег видалено."
 }

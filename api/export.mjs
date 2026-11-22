@@ -110,6 +110,11 @@ const SECTION_READERS = {
     "SELECT w.id, w.body, w.created_at, u.username AS wall_owner FROM wall_posts w " +
     "LEFT JOIN users u ON u.id = w.owner_id WHERE w.author_id = ? ORDER BY w.id DESC", [id], cap),
   directMessages: readAuthoredMessages,
+  // v5.44: the caller's OWN reactions on 1:1 DM messages — message ids and
+  // values only, never the other participant's text.
+  dmReactions: (db, id, cap) => rowsCapped(db,
+    "SELECT message_id, emoji, created_at FROM dm_message_reactions WHERE user_id = ? " +
+    "ORDER BY created_at DESC, message_id DESC", [id], cap),
 };
 
 // Both DM stores, caller-authored rows only, merged newest first under one cap.
@@ -156,6 +161,7 @@ const SECTION_SHAPERS = {
     body: row.body,
     sentAt: isoOrNull(row.created_at),
   }),
+  dmReactions: (row) => ({ messageId: Number(row.message_id), value: row.emoji, reactedAt: isoOrNull(row.created_at) }),
 };
 
 export async function buildExport(env, userId) {

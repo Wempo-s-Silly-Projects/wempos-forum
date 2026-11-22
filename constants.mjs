@@ -96,6 +96,11 @@ export const RATE_LIMIT_BINDINGS = Object.freeze({
   reaction: "REACTION_RATE_LIMITER",
 });
 
+// The reaction allowlist (posts since v2.0; 1:1 DM messages since v5.44):
+// the one value set both routes check, matching the reactions table's and
+// dm_message_reactions' CHECK (value IN ('like', 'dislike')).
+export const REACTION_VALUES = Object.freeze(["like", "dislike"]);
+
 export const SEARCH_USERS_SQL =
   "SELECT id, username, role, bio, avatar_mime, avatar_updated_at, avatar_version FROM users " +
   // The WHERE group is parenthesized so appended rows (the blocks clause,
@@ -146,4 +151,6 @@ export const EXPORT_SECTION_CAPS = Object.freeze({
   blocks: 1000,
   wallPosts: 1000,
   directMessages: 2000,
+  // v5.44: the caller's own reactions on 1:1 DM messages (ids + value only).
+  dmReactions: 2000,
 });

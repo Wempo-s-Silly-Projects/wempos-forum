@@ -1149,5 +1149,20 @@
   "slowMode.save": "Включить медленный режим",
   "slowMode.set": "Медленный режим обновлён.",
   "slowMode.cleared": "Медленный режим выключен.",
-  "errors.slowMode": "В этой теме включён медленный режим. Подождите немного, прежде чем ответить снова."
+  "errors.slowMode": "В этой теме включён медленный режим. Подождите немного, прежде чем ответить снова.",
+  "app.pageTag": "Тег",
+  "admin.section.tags": "Теги",
+  "admin.lede.tags": "Создайте теги, которые участники смогут добавлять к своим темам.",
+  "dm.reactionsLabel": "Реакции",
+  "tags.chipsLabel": "Теги",
+  "tags.pageTitle": "Темы с тегом {label}",
+  "tags.empty": "Пока нет тем с этим тегом.",
+  "tags.editLabel": "Теги (не больше {count})",
+  "tags.saved": "Теги сохранены.",
+  "tags.slugLabel": "Короткое имя (a–z, 0–9, -)",
+  "tags.labelField": "Название",
+  "tags.create": "Создать тег",
+  "tags.none": "Тегов пока нет.",
+  "tags.created": "Тег создан.",
+  "tags.deleted": "Тег удалён."
 }

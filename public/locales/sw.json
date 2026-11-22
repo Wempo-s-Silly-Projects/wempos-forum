@@ -1149,5 +1149,20 @@
   "slowMode.save": "Weka hali ya polepole",
   "slowMode.set": "Hali ya polepole imesasishwa.",
   "slowMode.cleared": "Hali ya polepole imezimwa.",
-  "errors.slowMode": "Hali ya polepole imewashwa kwenye mjadala huu. Subiri kidogo kabla ya kujibu tena."
+  "errors.slowMode": "Hali ya polepole imewashwa kwenye mjadala huu. Subiri kidogo kabla ya kujibu tena.",
+  "app.pageTag": "Lebo",
+  "admin.section.tags": "Lebo",
+  "admin.lede.tags": "Unda lebo ambazo wanachama wanaweza kuongeza kwenye mada zao.",
+  "dm.reactionsLabel": "Maoni ya haraka",
+  "tags.chipsLabel": "Orodha ya lebo",
+  "tags.pageTitle": "Mada zenye lebo {label}",
+  "tags.empty": "Bado hakuna mada yenye lebo hii.",
+  "tags.editLabel": "Lebo (hadi {count})",
+  "tags.saved": "Lebo zimehifadhiwa.",
+  "tags.slugLabel": "Kitambulisho (a–z, 0–9, -)",
+  "tags.labelField": "Jina",
+  "tags.create": "Unda lebo",
+  "tags.none": "Bado hakuna lebo.",
+  "tags.created": "Lebo imeundwa.",
+  "tags.deleted": "Lebo imefutwa."
 }

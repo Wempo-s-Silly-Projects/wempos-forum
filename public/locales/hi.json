@@ -1149,5 +1149,20 @@
   "slowMode.save": "धीमा मोड सेट करें",
   "slowMode.set": "धीमा मोड अपडेट हुआ।",
   "slowMode.cleared": "धीमा मोड बंद किया गया।",
-  "errors.slowMode": "इस थ्रेड में धीमा मोड चालू है। दोबारा जवाब देने से पहले थोड़ा रुकें।"
+  "errors.slowMode": "इस थ्रेड में धीमा मोड चालू है। दोबारा जवाब देने से पहले थोड़ा रुकें।",
+  "app.pageTag": "टैग",
+  "admin.section.tags": "टैग्स",
+  "admin.lede.tags": "वे टैग बनाएँ जिन्हें सदस्य अपने थ्रेड में जोड़ सकें।",
+  "dm.reactionsLabel": "प्रतिक्रियाएँ",
+  "tags.chipsLabel": "टैग्स",
+  "tags.pageTitle": "{label} टैग वाले थ्रेड",
+  "tags.empty": "इस टैग वाला अभी कोई थ्रेड नहीं है।",
+  "tags.editLabel": "टैग ({count} तक)",
+  "tags.saved": "टैग सहेजे गए।",
+  "tags.slugLabel": "स्लग (a–z, 0–9, -)",
+  "tags.labelField": "लेबल",
+  "tags.create": "टैग बनाएँ",
+  "tags.none": "अभी कोई टैग नहीं है।",
+  "tags.created": "टैग बनाया गया।",
+  "tags.deleted": "टैग हटाया गया।"
 }

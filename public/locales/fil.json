@@ -1149,5 +1149,20 @@
   "slowMode.save": "Itakda ang mabagal na mode",
   "slowMode.set": "Na-update ang mabagal na mode.",
   "slowMode.cleared": "Pinatay ang mabagal na mode.",
-  "errors.slowMode": "Naka-on ang mabagal na mode sa thread na ito. Maghintay nang kaunti bago sumagot ulit."
+  "errors.slowMode": "Naka-on ang mabagal na mode sa thread na ito. Maghintay nang kaunti bago sumagot ulit.",
+  "app.pageTag": "Tag",
+  "admin.section.tags": "Mga tag",
+  "admin.lede.tags": "Gumawa ng mga tag na maidaragdag ng mga miyembro sa kanilang mga thread.",
+  "dm.reactionsLabel": "Mga reaksyon",
+  "tags.chipsLabel": "Mga tag",
+  "tags.pageTitle": "Mga thread na may tag na {label}",
+  "tags.empty": "Wala pang thread na may ganitong tag.",
+  "tags.editLabel": "Mga tag (hanggang {count})",
+  "tags.saved": "Na-save ang mga tag.",
+  "tags.slugLabel": "Slug (a–z, 0–9, -)",
+  "tags.labelField": "Pangalan",
+  "tags.create": "Gumawa ng tag",
+  "tags.none": "Wala pang mga tag.",
+  "tags.created": "Nagawa ang tag.",
+  "tags.deleted": "Nabura ang tag."
 }

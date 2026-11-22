@@ -143,6 +143,7 @@ async function seedWorld() {
   seedProfileExtras(w, at);
   seedFoldersFollows(w, at);
   seedPrivateExtras(w, at);
+  seedTags(w, at);
   await seedArchive(w);
   return w;
 }
@@ -201,6 +202,24 @@ function seedPrivateExtras(w, at) {
   const { db, id } = w;
   db.prepare("INSERT INTO bookmark_folders (user_id, name, created_at) VALUES (?, 'PRIVATEFOLDERTXT', ?)").run(id.viewer, at);
   db.prepare("INSERT INTO notification_prefs (user_id, muted, updated_at) VALUES (?, 'mention', ?)").run(id.viewer, at);
+}
+
+// Wave 5.44 (migration 0070): one tag on every fixture root — public,
+// hidden, banned author, both block sides — and on the reply under the
+// hidden root. The tag listing, the thread's chips and the tag page head
+// must re-check visibility for every viewer. A 1:1 DM reaction by each pair
+// side rides the pair thread (counts only, never text).
+function seedTags(w, at) {
+  const { db, id } = w;
+  const tag = Number(db.prepare("INSERT INTO forum_tags (slug, label, created_by, created_at) VALUES ('sweep', 'Sweep', ?, ?)")
+    .run(id.boss, at).lastInsertRowid);
+  for (const post of [w.publicRoot, w.hiddenRoot, w.underHidden, w.bannedRoot, w.blockerRoot, w.blockedRoot]) {
+    db.prepare("INSERT INTO thread_tags (post_id, tag_id) VALUES (?, ?)").run(post, tag);
+  }
+  for (const row of db.prepare("SELECT id, user_id FROM dm_messages WHERE thread_id = ?").all(w.pairThread)) {
+    const other = Number(row.user_id) === id.zzblocker ? id.zzblocked : id.zzblocker;
+    db.prepare("INSERT INTO dm_message_reactions (message_id, user_id, emoji, created_at) VALUES (?, ?, 'like', ?)").run(row.id, other, at);
+  }
 }
 
 // Wave 5.32: one row in every staff-only store, each carrying STAFFONLYTXT.
@@ -304,6 +323,9 @@ function routes(w, member) {
     // Wave 5.43: the noted member's public face (JSON + page head) and a
     // search for the note text.
     ["/api/users/viewer"], ["/users/viewer"], ["/api/search?q=STAFFNOTETXT"],
+    // Wave 5.44: the tag listing (JSON + page head) and a visible thread's
+    // tag chips — hidden, banned-author and block-paired roots never listed.
+    ["/api/tags/sweep/posts"], ["/tag/sweep"], ["/api/posts/" + w.publicRoot + "/tags"],
   ];
   if (member) {
     list.push(["/api/me/notifications"], ["/api/me/bookmarks"], ["/api/session"], ["/api/posts?mine=1"],
@@ -397,6 +419,35 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
   // Wave 5.43: + the noted member's profile JSON + head and a note-text
   // search for each of the 4 viewers, + one MCP note-text search each.
   assert.ok(swept >= 279, "swept " + swept);
+  // Wave 5.44: + the tag listing, its page head and a thread's chips for
+  // each of the 4 viewers.
+  assert.ok(swept >= 291, "swept " + swept);
+});
+
+test("wave 5.44 sweep: tags and DM reactions on hidden, banned and block-paired content", async () => {
+  const w = await seedWorld();
+  const outsider = forgeSession(w.db, w.id.outsider);
+  for (const post of [w.hiddenRoot, w.bannedRoot]) {
+    assert.equal((await call(w.env, "/api/posts/" + post + "/tags")).status, 404, "guest chips " + post);
+    assert.equal((await call(w.env, "/api/posts/" + post + "/tags", { session: outsider })).status, 404, "member chips " + post);
+  }
+  const blocker = forgeSession(w.db, w.id.zzblocker);
+  assert.equal((await call(w.env, "/api/posts/" + w.blockedRoot + "/tags", { session: blocker })).status, 404, "pair chips");
+  const listed = (await (await call(w.env, "/api/tags/sweep/posts", { session: outsider })).json()).threads.map((row) => row.id);
+  assert.ok(listed.includes(w.publicRoot));
+  for (const post of [w.hiddenRoot, w.underHidden, w.bannedRoot]) assert.ok(!listed.includes(post), "listed " + post);
+  const pairListed = (await (await call(w.env, "/api/tags/sweep/posts", { session: blocker })).json()).threads.map((row) => row.id);
+  assert.ok(!pairListed.includes(w.blockedRoot), "pair listed");
+  // The pair thread's messages and reactions are refused to an outsider (404).
+  const pairMessage = Number(w.db.prepare("SELECT id FROM dm_messages WHERE thread_id = ? LIMIT 1").get(w.pairThread).id);
+  const reacted = await call(w.env, "/api/dm/messages/" + pairMessage + "/reaction", { method: "PUT", body: { value: "like" }, session: outsider });
+  assert.equal(reacted.status, 404);
+  assertClean(await reacted.text(), ["BLOCKERTXT", "BLOCKEDTXT", "zzblock"], "outsider reaction");
+  // Either pair side is refused (the block pair) — 403, no write.
+  const before = Number(w.db.prepare("SELECT COUNT(*) AS n FROM dm_message_reactions").get().n);
+  const pairSide = await call(w.env, "/api/dm/messages/" + pairMessage + "/reaction", { method: "PUT", body: { value: "dislike" }, session: blocker });
+  assert.equal(pairSide.status, 403);
+  assert.equal(Number(w.db.prepare("SELECT COUNT(*) AS n FROM dm_message_reactions").get().n), before);
 });
 
 test("wave 5.10 sweep: hidden-root reads are 404 and the DM non-member is refused", async () => {

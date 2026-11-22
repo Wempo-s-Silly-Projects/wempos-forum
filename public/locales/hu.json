@@ -1149,5 +1149,20 @@
   "slowMode.save": "Lassú mód beállítása",
   "slowMode.set": "A lassú mód frissítve.",
   "slowMode.cleared": "A lassú mód kikapcsolva.",
-  "errors.slowMode": "Ebben a szálban lassú mód van érvényben. Várj egy kicsit, mielőtt újra válaszolsz."
+  "errors.slowMode": "Ebben a szálban lassú mód van érvényben. Várj egy kicsit, mielőtt újra válaszolsz.",
+  "app.pageTag": "Címke",
+  "admin.section.tags": "Címkék",
+  "admin.lede.tags": "Hozd létre a címkéket, amelyeket a tagok a témáikhoz adhatnak.",
+  "dm.reactionsLabel": "Reakciók",
+  "tags.chipsLabel": "Címkék",
+  "tags.pageTitle": "{label} címkéjű témák",
+  "tags.empty": "Ezzel a címkével még nincs téma.",
+  "tags.editLabel": "Címkék (legfeljebb {count})",
+  "tags.saved": "Címkék mentve.",
+  "tags.slugLabel": "Rövid név (a–z, 0–9, -)",
+  "tags.labelField": "Felirat",
+  "tags.create": "Címke létrehozása",
+  "tags.none": "Még nincsenek címkék.",
+  "tags.created": "Címke létrehozva.",
+  "tags.deleted": "Címke törölve."
 }

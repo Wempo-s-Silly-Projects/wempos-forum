@@ -30,6 +30,7 @@ import { state } from "../state.js";
 import { renderBodyBlocks } from "../render.js";
 import { t, tn, currentLocale } from "../i18n.js";
 import { createWeekPage } from "../week.js";
+import { createLoadMoreTag, createTagPage, createTagThreadRows, tagListingPath } from "../tags.js";
 import { rememberSearch } from "../recent-searches.js";
 import { searchPagePath } from "../search-filters.js";
 
@@ -80,6 +81,24 @@ async function renderWeekRoute(context, version) {
   addHeading(main, t("week.title"), 2);
   addText(document, main, "p", t("week.lede"), "muted");
   main.append(createWeekPage(document, data));
+}
+
+// Thread tags (v5.44): /tag/<slug> — the tagged threads, newest first, for
+// guests too. An unknown tag is the server's 404, painted as the 404 page by
+// app.js.
+async function renderTagRoute(route, context, version) {
+  const data = await api(tagListingPath(route.slug));
+  if (version !== state.renderVersion) return;
+  addHeading(main, t("tags.pageTitle", { label: String(data.tag?.label ?? "") }), 2);
+  main.append(createTagPage(document, data));
+}
+
+async function loadMoreTag(button) {
+  const older = await api(tagListingPath(button.dataset.slug, button.dataset.before));
+  const threads = Array.isArray(older.threads) ? older.threads : [];
+  if (threads.length) button.before(createTagThreadRows(document, threads));
+  if (older.nextBefore) button.replaceWith(createLoadMoreTag(document, button.dataset.slug, older.nextBefore));
+  else button.remove();
 }
 
 async function renderArchiveRoute(context, version) {
@@ -155,6 +174,7 @@ export const ACTIONS = {
       setMessage(t("pages.rulesSaved"));
     },
     "load-more-archive": (button) => loadMoreArchive(button),
+    "load-more-tag": (button) => loadMoreTag(button),
 };
 
-export { renderRulesRoute, renderLeaderboardRoute, renderArchiveRoute, renderWeekRoute };
+export { renderRulesRoute, renderLeaderboardRoute, renderArchiveRoute, renderWeekRoute, renderTagRoute };

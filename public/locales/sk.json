@@ -1149,5 +1149,20 @@
   "slowMode.save": "Nastaviť pomalý režim",
   "slowMode.set": "Pomalý režim aktualizovaný.",
   "slowMode.cleared": "Pomalý režim vypnutý.",
-  "errors.slowMode": "V tomto vlákne je zapnutý pomalý režim. Pred ďalšou odpoveďou chvíľu počkajte."
+  "errors.slowMode": "V tomto vlákne je zapnutý pomalý režim. Pred ďalšou odpoveďou chvíľu počkajte.",
+  "app.pageTag": "Štítok",
+  "admin.section.tags": "Štítky",
+  "admin.lede.tags": "Vytvorte štítky, ktoré môžu členovia pridávať k svojim vláknam.",
+  "dm.reactionsLabel": "Reakcie",
+  "tags.chipsLabel": "Štítky",
+  "tags.pageTitle": "Vlákna so štítkom {label}",
+  "tags.empty": "S týmto štítkom zatiaľ nie sú žiadne vlákna.",
+  "tags.editLabel": "Štítky (najviac {count})",
+  "tags.saved": "Štítky uložené.",
+  "tags.slugLabel": "Identifikátor (a–z, 0–9, -)",
+  "tags.labelField": "Názov",
+  "tags.create": "Vytvoriť štítok",
+  "tags.none": "Zatiaľ žiadne štítky.",
+  "tags.created": "Štítok vytvorený.",
+  "tags.deleted": "Štítok odstránený."
 }

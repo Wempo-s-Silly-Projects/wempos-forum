@@ -3871,3 +3871,27 @@ mark.search-hit {
 .member-note-form { display: grid; gap: 0.35rem; }
 .slow-mode-note { margin: 0.5rem 0; color: var(--muted); font-size: 0.9rem; }
 .slow-mode-form { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
+
+/* Thread tags (v5.44): chips on the thread page, the author/staff picker,
+   the /tag/<slug> list and the desk manager. */
+.tag-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0; padding: 0; list-style: none; }
+.tag-chip { display: inline-block; padding: 0.15rem 0.6rem; border: 1px solid var(--line); border-radius: 999px; background: var(--soft-green); color: var(--green-ink); font-size: 0.85rem; overflow-wrap: anywhere; }
+.tag-editor { display: flex; flex-wrap: wrap; align-items: end; gap: 0.5rem; margin: 0.5rem 0; }
+.tag-editor-fields { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; margin: 0; padding: 0.4rem 0.6rem; border: 1px solid var(--line); border-radius: 6px; }
+.tag-editor-legend { font-size: 0.9rem; color: var(--muted); }
+.tag-editor-option { display: inline-flex; align-items: center; gap: 0.3rem; }
+.tag-threads { display: grid; gap: 0.5rem; margin: 0 0 0.75rem; padding-inline-start: 1.4rem; }
+.tag-thread { min-width: 0; }
+.tag-thread-link { display: block; overflow-wrap: anywhere; }
+.tag-thread-meta { font-size: 0.85rem; }
+.tag-manager-form { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0 0 0.75rem; }
+.tag-manager-list { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+.tag-manager-item { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.tag-manager-label { overflow-wrap: anywhere; }
+
+/* DM message reactions (v5.44): the like/dislike pair under a 1:1 bubble. */
+.dm-reactions { display: flex; gap: 0.25rem; margin-top: 0.2rem; }
+.dm-reaction { display: inline-flex; align-items: center; gap: 0.2rem; min-height: 1.75rem; padding: 0.1rem 0.4rem; border: 1px solid transparent; border-radius: 999px; background: transparent; color: inherit; font-size: 0.8rem; cursor: pointer; }
+.dm-reaction svg { width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 2; }
+.dm-reaction:hover { border-color: var(--line); }
+.dm-reaction-active { border-color: currentColor; }

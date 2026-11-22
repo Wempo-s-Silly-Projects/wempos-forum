@@ -1149,5 +1149,20 @@
   "slowMode.save": "تنظیم حالت آهسته",
   "slowMode.set": "حالت آهسته به‌روز شد.",
   "slowMode.cleared": "حالت آهسته خاموش شد.",
-  "errors.slowMode": "حالت آهسته در این رشته روشن است. پیش از پاسخ دوباره کمی صبر کنید."
+  "errors.slowMode": "حالت آهسته در این رشته روشن است. پیش از پاسخ دوباره کمی صبر کنید.",
+  "app.pageTag": "برچسب",
+  "admin.section.tags": "برچسب‌ها",
+  "admin.lede.tags": "برچسب‌هایی بسازید که اعضا بتوانند به رشته‌های خود اضافه کنند.",
+  "dm.reactionsLabel": "واکنش‌ها",
+  "tags.chipsLabel": "برچسب‌ها",
+  "tags.pageTitle": "رشته‌های دارای برچسب {label}",
+  "tags.empty": "هنوز هیچ رشته‌ای این برچسب را ندارد.",
+  "tags.editLabel": "برچسب‌ها (حداکثر {count})",
+  "tags.saved": "برچسب‌ها ذخیره شد.",
+  "tags.slugLabel": "شناسه (a–z، 0–9، -)",
+  "tags.labelField": "عنوان",
+  "tags.create": "ساخت برچسب",
+  "tags.none": "هنوز برچسبی وجود ندارد.",
+  "tags.created": "برچسب ساخته شد.",
+  "tags.deleted": "برچسب حذف شد."
 }

@@ -1149,5 +1149,20 @@
   "slowMode.save": "Set slow mode",
   "slowMode.set": "Slow mode updated.",
   "slowMode.cleared": "Slow mode turned off.",
-  "errors.slowMode": "Slow mode is on in this thread. Wait a little before replying again."
+  "errors.slowMode": "Slow mode is on in this thread. Wait a little before replying again.",
+  "app.pageTag": "Tag",
+  "admin.section.tags": "Tags",
+  "admin.lede.tags": "Create the tags members can add to their threads.",
+  "dm.reactionsLabel": "Reactions",
+  "tags.chipsLabel": "Tags",
+  "tags.pageTitle": "Threads tagged {label}",
+  "tags.empty": "No threads have this tag yet.",
+  "tags.editLabel": "Tags (up to {count})",
+  "tags.saved": "Tags saved.",
+  "tags.slugLabel": "Slug (a–z, 0–9, -)",
+  "tags.labelField": "Label",
+  "tags.create": "Create tag",
+  "tags.none": "No tags yet.",
+  "tags.created": "Tag created.",
+  "tags.deleted": "Tag deleted."
 }

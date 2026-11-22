@@ -1149,5 +1149,20 @@
   "slowMode.save": "Angiv langsom tilstand",
   "slowMode.set": "Langsom tilstand opdateret.",
   "slowMode.cleared": "Langsom tilstand slået fra.",
-  "errors.slowMode": "Langsom tilstand er slået til i denne tråd. Vent lidt, før du svarer igen."
+  "errors.slowMode": "Langsom tilstand er slået til i denne tråd. Vent lidt, før du svarer igen.",
+  "app.pageTag": "Tag",
+  "admin.section.tags": "Tags",
+  "admin.lede.tags": "Opret de tags, som medlemmer kan føje til deres tråde.",
+  "dm.reactionsLabel": "Reaktioner",
+  "tags.chipsLabel": "Tags",
+  "tags.pageTitle": "Tråde med tagget {label}",
+  "tags.empty": "Ingen tråde har dette tag endnu.",
+  "tags.editLabel": "Tags (op til {count})",
+  "tags.saved": "Tags gemt.",
+  "tags.slugLabel": "Kortnavn (a–z, 0–9, -)",
+  "tags.labelField": "Etiket",
+  "tags.create": "Opret tag",
+  "tags.none": "Ingen tags endnu.",
+  "tags.created": "Tag oprettet.",
+  "tags.deleted": "Tag slettet."
 }

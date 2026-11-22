@@ -39,6 +39,7 @@ import { mentionFanOutStatements } from "./mentions.mjs";
 import { chatMentionLabel, unreadCount } from "./notifications.mjs";
 import { activeBanSql, listViewerGroups, parseGroupCursor, readDmMessageBody, viewerGroupUnread } from "./dm-groups.mjs";
 import { DM_THREAD_LIST_LIMIT } from "../constants.mjs";
+import { dmReactionsForPage } from "./dm-reactions.mjs";
 
 // Lobby stream (old-ui-return lane): the retired public "Let's chat" surface
 // that rode migration 0032's chat_messages table comes back with the old UI —
@@ -382,11 +383,16 @@ async function handleThreadReadRoute(request, env, url, path, method) {
     "SELECT 1 AS hidden WHERE " + ACTIVE_BAN_SQL("?") + " OR EXISTS (SELECT 1 FROM blocks bk WHERE " +
     "(bk.blocker_id = ? AND bk.blocked_id = ?) OR (bk.blocked_id = ? AND bk.blocker_id = ?))",
   ).bind(otherId, viewerId, otherId, viewerId, otherId).first();
+  // v5.44: the page's reactions in one grouped query (participants only —
+  // the participant gate above already refused everyone else).
+  const reactions = await dmReactionsForPage(env.FORUM_DB, {
+    threadId, viewerId, messageIds: rows.map((message) => Number(message.id)), otherHidden: Boolean(otherHidden),
+  });
   return json({
     id: Number(row.id),
     other: otherMember(row, viewerId),
     unread: otherHidden ? 0 : viewerUnread(row, viewerId),
-    messages: rows.map((message) => dmMessageShape(message, viewerId)),
+    messages: rows.map((message) => ({ ...dmMessageShape(message, viewerId), reactions: reactions.get(Number(message.id)) })),
   });
 }
 

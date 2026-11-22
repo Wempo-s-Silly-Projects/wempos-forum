@@ -1149,5 +1149,20 @@
   "slowMode.save": "Ställ in långsamt läge",
   "slowMode.set": "Långsamt läge uppdaterat.",
   "slowMode.cleared": "Långsamt läge avstängt.",
-  "errors.slowMode": "Långsamt läge är på i den här tråden. Vänta en stund innan du svarar igen."
+  "errors.slowMode": "Långsamt läge är på i den här tråden. Vänta en stund innan du svarar igen.",
+  "app.pageTag": "Tagg",
+  "admin.section.tags": "Taggar",
+  "admin.lede.tags": "Skapa taggarna som medlemmar kan lägga till i sina trådar.",
+  "dm.reactionsLabel": "Reaktioner",
+  "tags.chipsLabel": "Taggar",
+  "tags.pageTitle": "Trådar taggade {label}",
+  "tags.empty": "Inga trådar har den här taggen än.",
+  "tags.editLabel": "Taggar (upp till {count})",
+  "tags.saved": "Taggarna har sparats.",
+  "tags.slugLabel": "Kortnamn (a–z, 0–9, -)",
+  "tags.labelField": "Namn",
+  "tags.create": "Skapa tagg",
+  "tags.none": "Inga taggar än.",
+  "tags.created": "Taggen har skapats.",
+  "tags.deleted": "Taggen har tagits bort."
 }

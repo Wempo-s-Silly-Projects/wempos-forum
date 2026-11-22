@@ -1149,5 +1149,20 @@
   "slowMode.save": "Definir modo lento",
   "slowMode.set": "Modo lento atualizado.",
   "slowMode.cleared": "Modo lento desligado.",
-  "errors.slowMode": "O modo lento está ativo neste tópico. Espere um pouco antes de responder de novo."
+  "errors.slowMode": "O modo lento está ativo neste tópico. Espere um pouco antes de responder de novo.",
+  "app.pageTag": "Tag",
+  "admin.section.tags": "Tags",
+  "admin.lede.tags": "Crie as tags que os membros podem adicionar aos tópicos deles.",
+  "dm.reactionsLabel": "Reações",
+  "tags.chipsLabel": "Lista de tags",
+  "tags.pageTitle": "Tópicos com a tag {label}",
+  "tags.empty": "Ainda não há tópicos com esta tag.",
+  "tags.editLabel": "Tags (até {count})",
+  "tags.saved": "Tags salvas.",
+  "tags.slugLabel": "Identificador (a–z, 0–9, -)",
+  "tags.labelField": "Nome",
+  "tags.create": "Criar tag",
+  "tags.none": "Ainda não há tags.",
+  "tags.created": "Tag criada.",
+  "tags.deleted": "Tag excluída."
 }

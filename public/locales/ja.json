@@ -1149,5 +1149,20 @@
   "slowMode.save": "低速モードを設定",
   "slowMode.set": "低速モードを更新しました。",
   "slowMode.cleared": "低速モードをオフにしました。",
-  "errors.slowMode": "このスレッドは低速モードです。少し待ってから再度返信してください。"
+  "errors.slowMode": "このスレッドは低速モードです。少し待ってから再度返信してください。",
+  "app.pageTag": "タグ",
+  "admin.section.tags": "タグ一覧",
+  "admin.lede.tags": "メンバーがスレッドに付けられるタグを作成します。",
+  "dm.reactionsLabel": "リアクション",
+  "tags.chipsLabel": "タグ一覧",
+  "tags.pageTitle": "「{label}」タグのスレッド",
+  "tags.empty": "このタグのスレッドはまだありません。",
+  "tags.editLabel": "タグ（最大{count}個）",
+  "tags.saved": "タグを保存しました。",
+  "tags.slugLabel": "スラッグ（a–z、0–9、-）",
+  "tags.labelField": "表示名",
+  "tags.create": "タグを作成",
+  "tags.none": "タグはまだありません。",
+  "tags.created": "タグを作成しました。",
+  "tags.deleted": "タグを削除しました。"
 }

@@ -25,7 +25,7 @@
 // the plan's "resolve at implementation" ruling places it here because both
 // create routes (post + reply) consume it. Vision scheduling went away with
 // the auto-mod removal (v4.2); the staged-attachment plumbing stayed.
-import { STAGED_REPLY_BUMP_SQL } from "../constants.mjs";
+import { REACTION_VALUES, STAGED_REPLY_BUMP_SQL } from "../constants.mjs";
 import {
   insertAttachments,
   MAX_ATTACHMENT_FILES,
@@ -554,7 +554,7 @@ export async function handleReactionRoute(request, env, url, path, method) {
     const post = await postById(env, postId, session.user.id);
     if (!(await canViewPost(env, post, session.user))) throw new HttpError(404, "Post not found.");
     const body = await readJson(request);
-    if (body.value !== "like" && body.value !== "dislike") {
+    if (!REACTION_VALUES.includes(body.value)) {
       throw new HttpError(400, "Choose like or dislike.");
     }
     const result = await db.prepare(

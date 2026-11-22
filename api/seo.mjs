@@ -44,6 +44,7 @@ import { ACTIVE_BAN_SQL, canViewPost } from "./core/visibility.mjs";
 import { BRANDING_DEFAULTS } from "./branding.mjs";
 import { POST_ROW_SQL, publicReplyCountSql, titleOf } from "./discovery.mjs";
 import { feedPath } from "./feeds.mjs";
+import { findTagBySlug } from "./tags.mjs";
 import { routeForPath } from "../public/js/router.js";
 
 const DESCRIPTION_MAX = 150;
@@ -200,6 +201,18 @@ async function pageHead(request, env, url, site, origin) {
       title: `This week on ${site.name}`,
       description: `The busiest threads, newest Showcase builds and the staff pick of the last 7 days on ${site.name}.`,
       canonical: origin + "/week",
+    };
+  }
+  // Thread tags (v5.44): a known tag's label (staff-written, word-filtered,
+  // public) names the page; an unknown slug gets the generic noindexed head.
+  if (route.name === "tag") {
+    const tag = await findTagBySlug(env.FORUM_DB, route.slug).catch(() => null);
+    if (!tag) return { ...generic, canonical: "", noindex: true };
+    return {
+      ...generic,
+      title: `${tag.label} — ${site.name}`,
+      description: `Threads tagged ${tag.label} on ${site.name}.`,
+      canonical: origin + "/tag/" + tag.slug,
     };
   }
   const record = await recordHead(request, env, route, origin, site);

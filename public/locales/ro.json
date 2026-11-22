@@ -1149,5 +1149,20 @@
   "slowMode.save": "Setează modul lent",
   "slowMode.set": "Modul lent a fost actualizat.",
   "slowMode.cleared": "Modul lent a fost oprit.",
-  "errors.slowMode": "Modul lent este activ în această discuție. Așteaptă puțin înainte să răspunzi din nou."
+  "errors.slowMode": "Modul lent este activ în această discuție. Așteaptă puțin înainte să răspunzi din nou.",
+  "app.pageTag": "Etichetă",
+  "admin.section.tags": "Etichete",
+  "admin.lede.tags": "Creează etichetele pe care membrii le pot adăuga la discuțiile lor.",
+  "dm.reactionsLabel": "Reacții",
+  "tags.chipsLabel": "Etichete",
+  "tags.pageTitle": "Discuții cu eticheta {label}",
+  "tags.empty": "Încă nu există discuții cu această etichetă.",
+  "tags.editLabel": "Etichete (cel mult {count})",
+  "tags.saved": "Etichetele au fost salvate.",
+  "tags.slugLabel": "Identificator (a–z, 0–9, -)",
+  "tags.labelField": "Nume",
+  "tags.create": "Creează eticheta",
+  "tags.none": "Încă nu există etichete.",
+  "tags.created": "Eticheta a fost creată.",
+  "tags.deleted": "Eticheta a fost ștearsă."
 }

@@ -15,6 +15,25 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.44.0] - 2026-11-22
+
+### Added
+- Reactions on direct messages: in a one-to-one conversation, either person
+  can like or dislike a message (one reaction each, and pressing it again
+  takes it back). Only the two people in the conversation can react or see
+  the reactions; reactions are not possible while either one blocks the
+  other. Group conversations do not have reactions yet. Your own reactions
+  are included in "Download my data".
+- Thread tags: staff can create up to 50 tags on the moderation desk. A
+  thread's author (or staff) can add up to 3 tags to a thread, shown as
+  chips under the first post. Each chip opens the tag's page, `/tag/<name>`,
+  which lists the tagged threads newest first. Hidden threads, threads by
+  banned members and threads across a block never appear there.
+
+### Changed
+- Database migration 0070 adds three new tables (DM message reactions, tags
+  and thread tags). It must be applied before this version is deployed.
+
 ## [5.43.0] - 2026-11-22
 
 ### Added

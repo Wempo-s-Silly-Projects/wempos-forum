@@ -1149,5 +1149,20 @@
   "slowMode.save": "Langsamen Modus festlegen",
   "slowMode.set": "Langsamer Modus aktualisiert.",
   "slowMode.cleared": "Langsamer Modus ausgeschaltet.",
-  "errors.slowMode": "In diesem Thema ist der langsame Modus aktiv. Warte kurz, bevor du erneut antwortest."
+  "errors.slowMode": "In diesem Thema ist der langsame Modus aktiv. Warte kurz, bevor du erneut antwortest.",
+  "app.pageTag": "Schlagwort",
+  "admin.section.tags": "Schlagwörter",
+  "admin.lede.tags": "Lege die Schlagwörter an, die Mitglieder ihren Themen hinzufügen können.",
+  "dm.reactionsLabel": "Reaktionen",
+  "tags.chipsLabel": "Schlagwörter",
+  "tags.pageTitle": "Themen mit dem Schlagwort {label}",
+  "tags.empty": "Noch keine Themen mit diesem Schlagwort.",
+  "tags.editLabel": "Schlagwörter (bis zu {count})",
+  "tags.saved": "Schlagwörter gespeichert.",
+  "tags.slugLabel": "Kürzel (a–z, 0–9, -)",
+  "tags.labelField": "Bezeichnung",
+  "tags.create": "Schlagwort anlegen",
+  "tags.none": "Noch keine Schlagwörter.",
+  "tags.created": "Schlagwort angelegt.",
+  "tags.deleted": "Schlagwort gelöscht."
 }

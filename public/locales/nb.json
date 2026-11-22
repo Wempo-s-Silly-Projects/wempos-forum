@@ -1149,5 +1149,20 @@
   "slowMode.save": "Angi saktemodus",
   "slowMode.set": "Saktemodus oppdatert.",
   "slowMode.cleared": "Saktemodus slått av.",
-  "errors.slowMode": "Saktemodus er på i denne tråden. Vent litt før du svarer igjen."
+  "errors.slowMode": "Saktemodus er på i denne tråden. Vent litt før du svarer igjen.",
+  "app.pageTag": "Emneknagg",
+  "admin.section.tags": "Emneknagger",
+  "admin.lede.tags": "Opprett emneknaggene medlemmer kan legge til i trådene sine.",
+  "dm.reactionsLabel": "Reaksjoner",
+  "tags.chipsLabel": "Emneknagger",
+  "tags.pageTitle": "Tråder merket {label}",
+  "tags.empty": "Ingen tråder har denne emneknaggen ennå.",
+  "tags.editLabel": "Emneknagger (opptil {count})",
+  "tags.saved": "Emneknagger lagret.",
+  "tags.slugLabel": "Kortnavn (a–z, 0–9, -)",
+  "tags.labelField": "Navn",
+  "tags.create": "Opprett emneknagg",
+  "tags.none": "Ingen emneknagger ennå.",
+  "tags.created": "Emneknagg opprettet.",
+  "tags.deleted": "Emneknagg slettet."
 }

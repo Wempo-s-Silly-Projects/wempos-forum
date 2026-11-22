@@ -1149,5 +1149,20 @@
   "slowMode.save": "Ustaw tryb powolny",
   "slowMode.set": "Zaktualizowano tryb powolny.",
   "slowMode.cleared": "Wyłączono tryb powolny.",
-  "errors.slowMode": "W tym wątku włączony jest tryb powolny. Odczekaj chwilę przed kolejną odpowiedzią."
+  "errors.slowMode": "W tym wątku włączony jest tryb powolny. Odczekaj chwilę przed kolejną odpowiedzią.",
+  "app.pageTag": "Tag",
+  "admin.section.tags": "Tagi",
+  "admin.lede.tags": "Utwórz tagi, które członkowie mogą dodawać do swoich wątków.",
+  "dm.reactionsLabel": "Reakcje",
+  "tags.chipsLabel": "Tagi",
+  "tags.pageTitle": "Wątki z tagiem {label}",
+  "tags.empty": "Nie ma jeszcze wątków z tym tagiem.",
+  "tags.editLabel": "Tagi (maksymalnie {count})",
+  "tags.saved": "Zapisano tagi.",
+  "tags.slugLabel": "Identyfikator (a–z, 0–9, -)",
+  "tags.labelField": "Nazwa",
+  "tags.create": "Utwórz tag",
+  "tags.none": "Nie ma jeszcze tagów.",
+  "tags.created": "Utworzono tag.",
+  "tags.deleted": "Usunięto tag."
 }

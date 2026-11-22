@@ -1149,5 +1149,20 @@
   "slowMode.save": "ধীর মোড সেট করুন",
   "slowMode.set": "ধীর মোড হালনাগাদ হয়েছে।",
   "slowMode.cleared": "ধীর মোড বন্ধ করা হয়েছে।",
-  "errors.slowMode": "এই থ্রেডে ধীর মোড চালু আছে। আবার উত্তর দেওয়ার আগে একটু অপেক্ষা করুন।"
+  "errors.slowMode": "এই থ্রেডে ধীর মোড চালু আছে। আবার উত্তর দেওয়ার আগে একটু অপেক্ষা করুন।",
+  "app.pageTag": "ট্যাগ",
+  "admin.section.tags": "ট্যাগসমূহ",
+  "admin.lede.tags": "সদস্যরা তাদের থ্রেডে যোগ করতে পারবে এমন ট্যাগ তৈরি করুন।",
+  "dm.reactionsLabel": "প্রতিক্রিয়া",
+  "tags.chipsLabel": "ট্যাগসমূহ",
+  "tags.pageTitle": "{label} ট্যাগ করা থ্রেড",
+  "tags.empty": "এই ট্যাগে এখনও কোনো থ্রেড নেই।",
+  "tags.editLabel": "ট্যাগ ({count}টি পর্যন্ত)",
+  "tags.saved": "ট্যাগ সংরক্ষিত হয়েছে।",
+  "tags.slugLabel": "স্লাগ (a–z, 0–9, -)",
+  "tags.labelField": "লেবেল",
+  "tags.create": "ট্যাগ তৈরি করুন",
+  "tags.none": "এখনও কোনো ট্যাগ নেই।",
+  "tags.created": "ট্যাগ তৈরি হয়েছে।",
+  "tags.deleted": "ট্যাগ মুছে ফেলা হয়েছে।"
 }
