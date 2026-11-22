@@ -149,6 +149,26 @@ to the default (the name "Wempo's Forum" and its tagline and footer). The
 default tagline and footer are translated for each language; your own are
 shown exactly as you typed them. Admins can change these too.
 
+## 11. Visit counts (optional)
+
+The forum can count visits privately. When `ANALYTICS_ENABLED` is exactly
+`"true"` in `wrangler.toml`, each page view adds one to a total for that day
+and that kind of page (home, a thread, a profile, a board...), and, when the
+visitor came from another site, one to a total for that site's name. That is
+all it keeps. It stores no IP address, no member, no browser details, no
+cookie, no page address and no record of single visits. Browsers that send
+Do Not Track (`DNT: 1`) or Global Privacy Control (`Sec-GPC: 1`) are never
+counted, and neither are bots or `HEAD` requests. Totals older than 90 days
+are deleted.
+
+Staff see the totals under **Admin**, then **Visits**
+(`https://<your forum>/admin/visits`).
+
+The example `wrangler.toml` ships with `ANALYTICS_ENABLED = "false"`, so a
+new copy counts nothing. To turn counting on, set it to `"true"` and deploy.
+To turn it off again, set it back to `"false"` (or delete the line) and
+deploy; the totals already counted expire on their own after 90 days.
+
 ## Sharing your source code
 
 The forum is licensed under the GNU Affero General Public License, version 3

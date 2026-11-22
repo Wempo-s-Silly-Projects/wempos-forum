@@ -50,6 +50,7 @@ import { createAutoModLog, createDmReportQueue } from "../desk/automod.js";
 import { createMemberPeek } from "../desk/member-tools.js";
 import { createFilterEditor } from "../desk/filter.js";
 import { createBrandingEditor, submitBrandingSave } from "../desk/branding.js";
+import { createVisitsPanel } from "../desk/visits.js";
 import { focusPageHeading } from "../focus-utils.js";
 
 // The desk (v4.2 redesign): /admin is a section-routed panel — a sidebar rail
@@ -75,6 +76,7 @@ const DESK_SECTIONS = [
   { slug: "rules", labelKey: "admin.section.rules" },
   { slug: "filter", labelKey: "admin.section.filter" },
   { slug: "branding", labelKey: "admin.section.branding" },
+  { slug: "visits", labelKey: "admin.section.visits" },
 ];
 
 // slug → { lede, load(), build() }. Every build() appends the section's body
@@ -162,6 +164,12 @@ const DESK_BUILDERS = {
     ledeKey: "admin.lede.branding",
     load: () => api("/api/branding"),
     build: (data) => createBrandingEditor(data, document),
+  },
+  // v5.30.0: aggregate-only visit counts (staff-only on the server too).
+  "visits": {
+    ledeKey: "admin.lede.visits",
+    load: () => api("/api/admin/analytics?days=7"),
+    build: (data) => createVisitsPanel(data, document),
   },
 };
 

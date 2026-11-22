@@ -43,7 +43,14 @@ SOURCE_URL = ""
 # unless this is exactly "true" AND the AUTOMOD_KEY secret is set — the key
 # alone never turns it on. Uncomment to opt in.
 # AUTOMOD_ENABLED = "true"
-VERSION = "5.29.0"
+# Private analytics. When exactly "true", the forum counts page views as
+# AGGREGATE totals only: page type + UTC day + referring site host. It stores
+# no IP address, no member id, no user agent, no cookie and no per-visit row;
+# requests with DNT: 1 or Sec-GPC: 1, bots and HEAD requests are never
+# counted; totals older than 90 days are deleted. Staff see them on the
+# desk's Visits page. Any other value (or leaving it out) turns counting off.
+ANALYTICS_ENABLED = "false"
+VERSION = "5.30.0"
 
 [assets]
 directory = "./public"
