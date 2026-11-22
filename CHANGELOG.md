@@ -15,6 +15,23 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.32.0] - 2026-11-21
+
+### Security
+- A whole-forum privacy check of every page, feed, search, notification,
+  chat and DM view, page preview, sitemap and agent tool against the
+  visibility rules: hidden posts, banned members, blocks in either
+  direction, deleted posts and staff-only records.
+- Fixed: a thread's search-engine data counted replies from a member you
+  blocked (or who blocked you), and replies under theirs, in its reply
+  total. It now matches the count you see in the thread list.
+
+### Changed
+- The cross-route privacy test now checks one shared set of hidden, banned,
+  blocked, deleted and staff-only content against every surface, including
+  page previews, the sitemap and every staff-only desk; the full list lives
+  in `docs/visibility-inventory.md`.
+
 ## [5.31.0] - 2026-11-21
 
 ### Added
