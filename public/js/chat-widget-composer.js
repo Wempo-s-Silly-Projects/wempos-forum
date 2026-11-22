@@ -34,6 +34,7 @@ import { buildGifPicker, gifToken, messageBodyNode } from "./chat-widget-gifs.js
 import { dropGroup, paintBadge, paintThreadList, refreshUnread } from "./chat-widget-threads.js";
 import { relativeTime } from "./chat-widget.js";
 import { buildNewDivider, newMarkerFor } from "./chat-new-divider.js";
+import { buildChatSearch, jumpToMessage } from "./chat-search.js";
 
 let sendInFlight = false;
 
@@ -53,7 +54,11 @@ export const openThread = async (thread, { silent = false } = {}) => {
     throw error;
   }
   if (!ui.open || !sameConversation(ui.activeThread, thread)) return;
-  ui.conversation = { ...data, kind: kindOf(thread) };
+  // Wave 5.36: the 5s silent refresh keeps older pages the reader already
+  // loaded (scrollback, or a search jump) below the fresh newest page.
+  const kept = silent && sameConversation(ui.conversation, thread)
+    ? olderThan(ui.conversation.messages, data.messages) : [];
+  ui.conversation = { ...data, messages: [...(data.messages || []), ...kept], kind: kindOf(thread) };
   // Wave 5.9 F1: a fresh open remembers where the unread run starts; the 5s
   // silent repaint never moves the line.
   if (!silent) ui.newSince = newMarkerFor(conversationKey(thread), data);
@@ -72,6 +77,46 @@ export const openThread = async (thread, { silent = false } = {}) => {
   paintConversation();
   const threadRow = [...ui.threads, ...ui.groups].find((row) => sameConversation(row, thread));
   if (threadRow && !silent) paintThreadList();
+};
+
+const olderThan = (previous, fresh) => {
+  const freshIds = (Array.isArray(fresh) ? fresh : []).map((message) => Number(message.id));
+  if (!freshIds.length || !Array.isArray(previous)) return [];
+  const oldestFresh = Math.min(...freshIds);
+  return previous.filter((message) => Number(message.id) < oldestFresh);
+};
+
+// Older page for the open conversation (the ?after= scrollback); resolves
+// true when it added messages. Shared by "Load older" and search jumps.
+const loadOlderMessages = async () => {
+  const loaded = ui.conversation?.messages || [];
+  if (!loaded.length) return false;
+  const oldestId = Math.min(...loaded.map((message) => Number(message.id)));
+  const data = await api(`${conversationBase(ui.activeThread)}?after=${encodeURIComponent(oldestId)}`);
+  const more = Array.isArray(data?.messages) ? data.messages : [];
+  if (!more.length) return false;
+  ui.conversation = { ...ui.conversation, messages: [...(ui.conversation.messages || []), ...more] };
+  paintConversation();
+  return true;
+};
+
+const jumpToSearchHit = (id) => {
+  ui.searchHit = { key: conversationKey(ui.conversation), id };
+  return jumpToMessage(id, {
+    getScroll: () => ui.conversationEl?.querySelector(".chat-widget-messages") ?? null,
+    loadOlder: () => loadOlderMessages().catch(() => false),
+  });
+};
+
+const searchBoxFor = (conversation) => {
+  const key = conversationKey(conversation);
+  if (ui.chatSearch?.key !== key) {
+    ui.searchHit = null;
+    ui.chatSearch = { key, node: buildChatSearch(document, {
+      conversation, apiFn: api, onJump: jumpToSearchHit, formatTime: relativeTime,
+    }) };
+  }
+  return ui.chatSearch.node;
 };
 
 const leaveGoneGroup = (thread) => {
@@ -185,7 +230,8 @@ export const paintConversation = () => {
   const isGroup = kindOf(ui.conversation) === "group";
   const title = el("span", "chat-widget-peer", isGroup
     ? groupTitle(ui.conversation, ui.widgetUser?.id) : ui.conversation.other?.username || "unknown");
-  ui.conversationEl.append(back, title, ...buildPinToggle(ui.conversation), ...buildMuteToggle(ui.conversation));
+  ui.conversationEl.append(back, title, ...buildPinToggle(ui.conversation), ...buildMuteToggle(ui.conversation),
+    searchBoxFor(ui.conversation));
   if (isGroup) {
     const leaveToList = () => {
       const leftKey = conversationKey(ui.conversation);
@@ -220,6 +266,10 @@ export const paintConversation = () => {
       scroll.append(buildNewDivider(document, ui.newSince.count));
     }
     const bubble = el("div", message.mine ? "chat-widget-message mine" : "chat-widget-message");
+    bubble.setAttribute("data-message-id", String(message.id));
+    if (ui.searchHit?.key === key && Number(ui.searchHit.id) === Number(message.id)) {
+      bubble.classList.add("chat-widget-message-hit");
+    }
     if (!message.mine) {
       // The whose-row: the leading initial-circle avatar before the name.
       const who = el("span", "chat-widget-message-who");
@@ -240,19 +290,17 @@ export const paintConversation = () => {
   older.type = "button";
   older.textContent = t("chat.loadOlder");
   older.hidden = messages.length === 0;
-  const oldest = messages[0];
   older.addEventListener("click", async () => {
-    if (!oldest) return;
     try {
-      const data = await api(`${conversationBase(ui.activeThread)}?after=${encodeURIComponent(oldest.id)}`);
-      const more = Array.isArray(data?.messages) ? data.messages : [];
-      ui.conversation = { ...ui.conversation, messages: [...more, ...(ui.conversation.messages || [])] };
-      paintConversation();
+      await loadOlderMessages();
     } catch { /* the button stays for the next try */ }
   });
   scroll.prepend(older);
   ui.conversationEl.append(scroll);
   if (pinned) scroll.scrollTop = scroll.scrollHeight;
+  // Wave 5.36: a reader scrolled up (reading back, or at a search hit) keeps
+  // their place across the repaint instead of jumping to the top.
+  else if (sameAsBefore && previousScroll) scroll.scrollTop = previousScroll.scrollTop;
   const composer = el("div", "chat-widget-composer");
   ui.composerEl = el("textarea", "chat-widget-input");
   ui.composerEl.rows = 1;

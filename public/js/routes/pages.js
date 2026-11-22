@@ -30,6 +30,8 @@ import { state } from "../state.js";
 import { renderBodyBlocks } from "../render.js";
 import { t, tn, currentLocale } from "../i18n.js";
 import { createWeekPage } from "../week.js";
+import { rememberSearch } from "../recent-searches.js";
+import { searchPagePath } from "../search-filters.js";
 
 async function renderRulesRoute(context, version) {
   const data = await api("/api/rules");
@@ -135,7 +137,10 @@ async function loadMoreArchive(button) {
 }
 
 async function submitSiteSearch(text) {
-  state.router.navigate("/?q=" + encodeURIComponent(text("q").trim()));
+  const query = text("q").trim();
+  // Wave 5.36: remembered in this browser only (account-scoped, never sent).
+  rememberSearch(undefined, state.currentUser?.id ?? null, query);
+  state.router.navigate(searchPagePath(query));
 }
 export const FORM_HANDLERS = {
   "site-search": (form, text) => submitSiteSearch(text),

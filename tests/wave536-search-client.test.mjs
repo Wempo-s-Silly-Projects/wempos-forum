@@ -99,14 +99,11 @@ test("the filter chips are app-link anchors keeping the query and the other filt
   for (const chip of [...since, ...sort]) assert.ok(chip.hasAttribute("data-app-link"));
   assert.deepEqual(since.map((chip) => chip.getAttribute("aria-current")), [null, "page", null, null]);
   assert.deepEqual(sort.map((chip) => chip.getAttribute("aria-current")), ["page", null]);
+  // Labels go through t() (no table loaded under node: t answers the key).
   assert.deepEqual(since.map((chip) => chip.textContent),
-    ["search.sinceAny", "search.sinceWeek", "search.sinceMonth", "search.sinceYear"].map((key) => chip(key)));
+    ["search.sinceAny", "search.sinceWeek", "search.sinceMonth", "search.sinceYear"]);
+  assert.deepEqual(sort.map((chip) => chip.textContent), ["search.sortRelevant", "search.sortNew"]);
 });
-
-function chip(key) {
-  const en = JSON.parse(read("public/locales/en.json"));
-  return en[key] ?? key;
-}
 
 test("the search route fetches with the filters and paints the chips", () => {
   const feed = read("public/js/routes/feed.js");

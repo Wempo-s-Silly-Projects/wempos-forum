@@ -35,6 +35,21 @@ const withFeedView = (route, search) => {
   return FEED_VIEWS.includes(view) && route.board !== "suggestions" ? { ...route, view } : route;
 };
 
+// Search filters (wave 5.36): `?since=` and `?sort=` on a search. Only a
+// known non-default value rides the route, so a plain `/?q=` route stays
+// exactly { name, query } and an unknown value just opens the default.
+export const SEARCH_SINCE = Object.freeze(["any", "week", "month", "year"]);
+export const SEARCH_SORTS = Object.freeze(["relevant", "new"]);
+
+export const searchFilters = (params) => {
+  const since = params.get("since");
+  const sort = params.get("sort");
+  return {
+    ...(SEARCH_SINCE.includes(since) && since !== SEARCH_SINCE[0] ? { since } : {}),
+    ...(SEARCH_SORTS.includes(sort) && sort !== SEARCH_SORTS[0] ? { sort } : {}),
+  };
+};
+
 export const routeForPath = (pathname, search = "") => {
   if (pathname === "/setup") return { name: "setup" };
   // The §4b door-swap: the password login/register pages are gone — any stale
@@ -93,8 +108,9 @@ export const routeForPath = (pathname, search = "") => {
     }
   }
   if (pathname === "/") {
-    const query = new URLSearchParams(search).get("q")?.trim() ?? "";
-    return query ? { name: "search", query } : withFeedView({ name: "home" }, search);
+    const params = new URLSearchParams(search);
+    const query = params.get("q")?.trim() ?? "";
+    return query ? { name: "search", query, ...searchFilters(params) } : withFeedView({ name: "home" }, search);
   }
   return { name: "not-found" };
 }

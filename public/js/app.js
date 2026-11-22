@@ -162,6 +162,7 @@ import { stopReadAloud } from "./read-aloud.js";
 import { stopReadingProgress } from "./reading-progress.js";
 import { applyTabUnread, normaliseTabCount, pageStorage } from "./tab-unread.js";
 import { paintSourceLink } from "./source-link.js";
+import { attachRecentSearches } from "./recent-searches.js";
 
 async function prepareRouteContext(version) {
   const [sessionReply, setup] = await Promise.all([
@@ -534,6 +535,14 @@ async function boot() {
         addText(document, main, "p", error.message, "error-copy");
       });
     });
+    // Wave 5.36: recent-search chips under the header search box (local only).
+    const searchInput = document.querySelector("#search-query");
+    if (searchInput) {
+      attachRecentSearches(document, searchInput, {
+        getAccountId: () => state.currentUser?.id ?? null,
+        navigate: (path) => state.router.navigate(path),
+      });
+    }
   } catch (error) {
     console.error("Forum startup failed:", error);
     main.replaceChildren();

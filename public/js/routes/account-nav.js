@@ -35,6 +35,7 @@ import { clearAllNewcomer } from "../newcomer.js";
 import { clearAllPins } from "../chat-pins.js";
 import { clearAllMutes } from "../chat-mutes.js";
 import { clearAllRecents } from "../gallery-picks.js";
+import { clearAllRecentSearches } from "../recent-searches.js";
 import { clearAllQuietHours } from "../quiet-hours.js";
 import { createNotificationBell } from "../notifications.js";
 // The §4b door-swap: every auth link (header Sign in, mobile guest rung)
@@ -265,8 +266,8 @@ function markMobileBarItem(user) {
 }
 
 // Shared-browser privacy: unsent drafts, read marks, chat pins, gallery
-// recents, newcomer-card dismissals and quiet hours (wave 5.25) leave with
-// the member. Device preferences (theme, text size, locale, DM effects) stay.
+// recents, newcomer-card dismissals, quiet hours (wave 5.25) and recent
+// searches (wave 5.36) leave with the member. Device preferences (theme, text size, locale, DM effects) stay.
 function wipeAccountLocalData() {
   clearAllShare();
   clearAllInvite();
@@ -277,6 +278,7 @@ function wipeAccountLocalData() {
   clearAllMutes();
   clearAllRecents();
   clearAllQuietHours();
+  clearAllRecentSearches();
 }
 
 export const ACTIONS = {
