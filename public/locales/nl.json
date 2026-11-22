@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Staat na de naam bovenaan de startpagina.",
   "desk.branding.footerLabel": "Voettekst",
   "desk.branding.saveButton": "Huisstijl opslaan",
-  "admin.msg.brandingSaved": "Huisstijl opgeslagen. Herlaad de pagina om hem overal te zien."
+  "admin.msg.brandingSaved": "Huisstijl opgeslagen. Herlaad de pagina om hem overal te zien.",
+  "readingComfort.title": "Leescomfort",
+  "readingComfort.help": "Alleen in deze browser opgeslagen. Weergave herstellen verandert deze niet.",
+  "readingComfort.lineSpacing": "Regelafstand",
+  "readingComfort.lineSpacingDefault": "Normaal",
+  "readingComfort.lineSpacingRelaxed": "Ruim",
+  "readingComfort.lineSpacingSpacious": "Extra ruim",
+  "readingComfort.lineSpacingHelp": "Meer ruimte tussen de regels in berichten, chatberichten en de vakken waarin je typt.",
+  "readingComfort.underlineLinks": "Links altijd onderstrepen",
+  "readingComfort.underlineLinksHelp": "Onderstreept elke link, ook namen en menulinks die normaal zonder streep worden getoond.",
+  "readingComfort.contrast": "Hoog contrast",
+  "readingComfort.contrastAuto": "Automatisch (volg dit apparaat)",
+  "readingComfort.contrastOn": "Aan",
+  "readingComfort.contrastOff": "Uit",
+  "readingComfort.contrastHelp": "Zwarte tekst op wit (wit op zwart in het donkere thema), duidelijke randen om vakken en knoppen en dikkere focusranden. Automatisch zet het aan als de instellingen van je apparaat om meer contrast vragen."
 }

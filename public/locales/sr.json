@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Prikazuje se posle naziva na vrhu početne stranice.",
   "desk.branding.footerLabel": "Podnožje",
   "desk.branding.saveButton": "Sačuvaj brend",
-  "admin.msg.brandingSaved": "Brend je sačuvan. Ponovo učitajte stranicu da biste ga videli svuda."
+  "admin.msg.brandingSaved": "Brend je sačuvan. Ponovo učitajte stranicu da biste ga videli svuda.",
+  "readingComfort.title": "Удобност читања",
+  "readingComfort.help": "Чува се само у овом прегледачу. „Врати изглед” их не мења.",
+  "readingComfort.lineSpacing": "Проред",
+  "readingComfort.lineSpacingDefault": "Нормалан",
+  "readingComfort.lineSpacingRelaxed": "Опуштен",
+  "readingComfort.lineSpacingSpacious": "Простран",
+  "readingComfort.lineSpacingHelp": "Додаје више простора између редова у објавама, порукама у ћаскању и пољима у која пишете.",
+  "readingComfort.underlineLinks": "Увек подвуци везе",
+  "readingComfort.underlineLinksHelp": "Подвлачи сваку везу, укључујући имена и везе у менијима које се иначе приказују без линије.",
+  "readingComfort.contrast": "Висок контраст",
+  "readingComfort.contrastAuto": "Аутоматски (према овом уређају)",
+  "readingComfort.contrastOn": "Укључено",
+  "readingComfort.contrastOff": "Искључено",
+  "readingComfort.contrastHelp": "Црни текст на белом (бели на црном у тамној теми), пуни обриси око поља и дугмади и дебљи оквири фокуса. Аутоматски га укључује када подешавања вашег уређаја траже већи контраст."
 }

@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Es mostra després del nom a la part superior de la pàgina d’inici.",
   "desk.branding.footerLabel": "Peu de pàgina",
   "desk.branding.saveButton": "Desa la identitat",
-  "admin.msg.brandingSaved": "Identitat desada. Torna a carregar la pàgina per veure-la arreu."
+  "admin.msg.brandingSaved": "Identitat desada. Torna a carregar la pàgina per veure-la arreu.",
+  "readingComfort.title": "Comoditat de lectura",
+  "readingComfort.help": "Es desa només en aquest navegador. «Restableix l'aparença» no els canvia.",
+  "readingComfort.lineSpacing": "Interlineat",
+  "readingComfort.lineSpacingDefault": "Normal",
+  "readingComfort.lineSpacingRelaxed": "Relaxat",
+  "readingComfort.lineSpacingSpacious": "Ampli",
+  "readingComfort.lineSpacingHelp": "Afegeix més espai entre línies a les publicacions, als missatges del xat i a les caselles on escrius.",
+  "readingComfort.underlineLinks": "Subratlla sempre els enllaços",
+  "readingComfort.underlineLinksHelp": "Subratlla tots els enllaços, inclosos els noms i els enllaços dels menús que normalment es mostren sense línia.",
+  "readingComfort.contrast": "Contrast alt",
+  "readingComfort.contrastAuto": "Automàtic (segueix aquest dispositiu)",
+  "readingComfort.contrastOn": "Activat",
+  "readingComfort.contrastOff": "Desactivat",
+  "readingComfort.contrastHelp": "Text negre sobre blanc (blanc sobre negre al tema fosc), contorns sòlids al voltant de caselles i botons, i contorns de focus més gruixuts. Automàtic l'activa quan la configuració del dispositiu demana més contrast."
 }

@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Ipinapakita pagkatapos ng pangalan sa itaas ng home page.",
   "desk.branding.footerLabel": "Footer ng site",
   "desk.branding.saveButton": "I-save ang pagkakakilanlan",
-  "admin.msg.brandingSaved": "Na-save ang pagkakakilanlan. I-reload ang page para makita ito saanman."
+  "admin.msg.brandingSaved": "Na-save ang pagkakakilanlan. I-reload ang page para makita ito saanman.",
+  "readingComfort.title": "Ginhawa sa pagbasa",
+  "readingComfort.help": "Naka-save lang sa browser na ito. Hindi ito binabago ng I-reset ang itsura.",
+  "readingComfort.lineSpacing": "Pagitan ng linya",
+  "readingComfort.lineSpacingDefault": "Karaniwan",
+  "readingComfort.lineSpacingRelaxed": "Maluwag",
+  "readingComfort.lineSpacingSpacious": "Napakaluwag",
+  "readingComfort.lineSpacingHelp": "Nagdadagdag ng espasyo sa pagitan ng mga linya sa mga post, mensahe sa chat at mga kahong sinusulatan mo.",
+  "readingComfort.underlineLinks": "Laging salungguhitan ang mga link",
+  "readingComfort.underlineLinksHelp": "Sinasalungguhitan ang bawat link, pati mga pangalan at link sa menu na karaniwang walang guhit.",
+  "readingComfort.contrast": "Mataas na contrast",
+  "readingComfort.contrastAuto": "Awtomatiko (sundin ang device na ito)",
+  "readingComfort.contrastOn": "Naka-on",
+  "readingComfort.contrastOff": "Naka-off",
+  "readingComfort.contrastHelp": "Itim na teksto sa puti (puti sa itim sa madilim na tema), malinaw na balangkas sa mga kahon at button, at mas makapal na focus outline. Binubuksan ito ng Awtomatiko kapag humihingi ng mas mataas na contrast ang settings ng device mo."
 }

@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Mostrato dopo il nome in cima alla pagina iniziale.",
   "desk.branding.footerLabel": "Piè di pagina",
   "desk.branding.saveButton": "Salva identità",
-  "admin.msg.brandingSaved": "Identità salvata. Ricarica la pagina per vederla ovunque."
+  "admin.msg.brandingSaved": "Identità salvata. Ricarica la pagina per vederla ovunque.",
+  "readingComfort.title": "Comfort di lettura",
+  "readingComfort.help": "Salvato solo in questo browser. «Ripristina aspetto» non li cambia.",
+  "readingComfort.lineSpacing": "Interlinea",
+  "readingComfort.lineSpacingDefault": "Normale",
+  "readingComfort.lineSpacingRelaxed": "Ariosa",
+  "readingComfort.lineSpacingSpacious": "Ampia",
+  "readingComfort.lineSpacingHelp": "Aggiunge spazio tra le righe nei post, nei messaggi della chat e nelle caselle in cui scrivi.",
+  "readingComfort.underlineLinks": "Sottolinea sempre i link",
+  "readingComfort.underlineLinksHelp": "Sottolinea ogni link, compresi nomi e link dei menu che di solito appaiono senza linea.",
+  "readingComfort.contrast": "Contrasto elevato",
+  "readingComfort.contrastAuto": "Automatico (segue questo dispositivo)",
+  "readingComfort.contrastOn": "Attivo",
+  "readingComfort.contrastOff": "Disattivo",
+  "readingComfort.contrastHelp": "Testo nero su bianco (bianco su nero nel tema scuro), contorni netti attorno a caselle e pulsanti e contorni di focus più spessi. Automatico lo attiva quando le impostazioni del dispositivo chiedono più contrasto."
 }

@@ -50,6 +50,8 @@ import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
 import { createTextSizePicker } from "../text-size.js";
+import { createLineSpacingPicker, createLinkUnderlineToggle } from "../reading-comfort.js";
+import { createContrastPicker } from "../high-contrast.js";
 import { applyTabUnread, createTabUnreadToggle } from "../tab-unread.js";
 import { createQuietHoursControls } from "../quiet-hours.js";
 import { createAppearanceReset } from "../appearance-reset.js";
@@ -162,6 +164,17 @@ function renderAccountSettings(session) {
     createTabUnreadToggle(document, storage, () => state.unreadNotifications));
   appearance.append(createAppearanceReset(document, storage, appearance));
   account.append(appearance);
+  // Reading comfort (wave 5.27): line spacing, always-underline links and
+  // high contrast, this browser only. Its own panel so Reset appearance
+  // (which pins exactly corners, text size and the tab count) leaves it be.
+  const readingComfort = createPanel(t("readingComfort.title"), t("readingComfort.help"));
+  readingComfort.append(createLineSpacingPicker(document, storage));
+  addText(document, readingComfort, "p", t("readingComfort.lineSpacingHelp"), "muted reading-comfort-help");
+  readingComfort.append(createLinkUnderlineToggle(document, storage));
+  addText(document, readingComfort, "p", t("readingComfort.underlineLinksHelp"), "muted reading-comfort-help");
+  readingComfort.append(createContrastPicker(document, storage, window));
+  addText(document, readingComfort, "p", t("readingComfort.contrastHelp"), "muted reading-comfort-help");
+  account.append(readingComfort);
   // Quiet hours (wave 5.25 F2): opt-in, this device only; a change re-checks
   // the tab title at once.
   const quietHours = createPanel(t("quietHours.title"), t("quietHours.help"));

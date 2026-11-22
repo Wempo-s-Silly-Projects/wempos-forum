@@ -39,3 +39,37 @@ try {
 if (storedTextSize === "large" || storedTextSize === "larger") {
   document.documentElement.dataset.textSize = storedTextSize;
 }
+// Reading comfort + high contrast (wave 5.27): painted here, before first
+// paint, like the text size. Normal spacing and links-as-styled need no
+// attribute; data-contrast always records the mode (default Auto).
+{
+  const readPref = (key) => {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null; // Blocked storage: the default.
+    }
+  };
+  const storedLineSpacing = readPref("forum-line-spacing");
+  if (storedLineSpacing === "relaxed" || storedLineSpacing === "spacious") {
+    document.documentElement.dataset.lineSpacing = storedLineSpacing;
+  }
+  if (readPref("forum-link-underline") === "on") {
+    document.documentElement.dataset.linkUnderline = "on";
+  }
+  let moreContrastQuery = null;
+  try {
+    moreContrastQuery = typeof matchMedia === "function" ? matchMedia("(prefers-contrast: more)") : null; // i18n-ignore
+  } catch {
+    // No media queries: Auto means off.
+  }
+  const paintContrast = (deviceWantsMore) => {
+    const stored = readPref("forum-contrast");
+    const mode = stored === "on" || stored === "off" ? stored : "auto";
+    document.documentElement.dataset.contrast = mode;
+    const on = mode === "on" || (mode === "auto" && deviceWantsMore);
+    document.documentElement.classList.toggle("high-contrast", on);
+  };
+  paintContrast(Boolean(moreContrastQuery?.matches));
+  moreContrastQuery?.addEventListener?.("change", (event) => paintContrast(Boolean(event.matches)));
+}

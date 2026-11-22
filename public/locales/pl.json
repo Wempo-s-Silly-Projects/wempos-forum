@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Wyświetlane po nazwie u góry strony głównej.",
   "desk.branding.footerLabel": "Stopka",
   "desk.branding.saveButton": "Zapisz markę",
-  "admin.msg.brandingSaved": "Marka zapisana. Odśwież stronę, aby zobaczyć ją wszędzie."
+  "admin.msg.brandingSaved": "Marka zapisana. Odśwież stronę, aby zobaczyć ją wszędzie.",
+  "readingComfort.title": "Wygoda czytania",
+  "readingComfort.help": "Zapisywane tylko w tej przeglądarce. „Przywróć wygląd” ich nie zmienia.",
+  "readingComfort.lineSpacing": "Interlinia",
+  "readingComfort.lineSpacingDefault": "Normalna",
+  "readingComfort.lineSpacingRelaxed": "Luźna",
+  "readingComfort.lineSpacingSpacious": "Przestronna",
+  "readingComfort.lineSpacingHelp": "Dodaje więcej miejsca między wierszami w postach, wiadomościach czatu i polach, w których piszesz.",
+  "readingComfort.underlineLinks": "Zawsze podkreślaj linki",
+  "readingComfort.underlineLinksHelp": "Podkreśla każdy link, także nazwy i linki w menu, które zwykle są bez kreski.",
+  "readingComfort.contrast": "Wysoki kontrast",
+  "readingComfort.contrastAuto": "Automatycznie (jak to urządzenie)",
+  "readingComfort.contrastOn": "Wł.",
+  "readingComfort.contrastOff": "Wył.",
+  "readingComfort.contrastHelp": "Czarny tekst na białym (biały na czarnym w ciemnym motywie), wyraźne obramowania pól i przycisków oraz grubsze obramowanie fokusu. Tryb automatyczny włącza go, gdy ustawienia urządzenia proszą o większy kontrast."
 }

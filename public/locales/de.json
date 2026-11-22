@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Wird oben auf der Startseite nach dem Namen angezeigt.",
   "desk.branding.footerLabel": "Fußzeile",
   "desk.branding.saveButton": "Branding speichern",
-  "admin.msg.brandingSaved": "Branding gespeichert. Lade die Seite neu, um es überall zu sehen."
+  "admin.msg.brandingSaved": "Branding gespeichert. Lade die Seite neu, um es überall zu sehen.",
+  "readingComfort.title": "Lesekomfort",
+  "readingComfort.help": "Nur in diesem Browser gespeichert. „Darstellung zurücksetzen“ ändert sie nicht.",
+  "readingComfort.lineSpacing": "Zeilenabstand",
+  "readingComfort.lineSpacingDefault": "Normal",
+  "readingComfort.lineSpacingRelaxed": "Locker",
+  "readingComfort.lineSpacingSpacious": "Weit",
+  "readingComfort.lineSpacingHelp": "Mehr Abstand zwischen den Zeilen in Beiträgen, Chatnachrichten und den Feldern, in die du schreibst.",
+  "readingComfort.underlineLinks": "Links immer unterstreichen",
+  "readingComfort.underlineLinksHelp": "Unterstreicht jeden Link, auch Namen und Menülinks, die sonst ohne Linie angezeigt werden.",
+  "readingComfort.contrast": "Hoher Kontrast",
+  "readingComfort.contrastAuto": "Automatisch (wie dieses Gerät)",
+  "readingComfort.contrastOn": "An",
+  "readingComfort.contrastOff": "Aus",
+  "readingComfort.contrastHelp": "Schwarzer Text auf Weiß (Weiß auf Schwarz im dunklen Design), durchgehende Umrisse um Felder und Schaltflächen und dickere Fokusrahmen. Automatisch schaltet ihn ein, wenn die Einstellungen deines Geräts mehr Kontrast verlangen."
 }

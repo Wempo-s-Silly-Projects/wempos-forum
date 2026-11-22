@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Показывается после названия вверху главной страницы.",
   "desk.branding.footerLabel": "Подвал",
   "desk.branding.saveButton": "Сохранить оформление",
-  "admin.msg.brandingSaved": "Оформление сохранено. Перезагрузите страницу, чтобы увидеть его везде."
+  "admin.msg.brandingSaved": "Оформление сохранено. Перезагрузите страницу, чтобы увидеть его везде.",
+  "readingComfort.title": "Удобство чтения",
+  "readingComfort.help": "Сохраняется только в этом браузере. «Сбросить оформление» их не меняет.",
+  "readingComfort.lineSpacing": "Межстрочный интервал",
+  "readingComfort.lineSpacingDefault": "Обычный",
+  "readingComfort.lineSpacingRelaxed": "Свободный",
+  "readingComfort.lineSpacingSpacious": "Просторный",
+  "readingComfort.lineSpacingHelp": "Добавляет больше места между строками в постах, сообщениях чата и полях, где вы пишете.",
+  "readingComfort.underlineLinks": "Всегда подчёркивать ссылки",
+  "readingComfort.underlineLinksHelp": "Подчёркивает каждую ссылку, включая имена и ссылки меню, которые обычно показаны без линии.",
+  "readingComfort.contrast": "Высокая контрастность",
+  "readingComfort.contrastAuto": "Авто (как на этом устройстве)",
+  "readingComfort.contrastOn": "Вкл.",
+  "readingComfort.contrastOff": "Выкл.",
+  "readingComfort.contrastHelp": "Чёрный текст на белом (белый на чёрном в тёмной теме), чёткие контуры вокруг полей и кнопок и более толстая рамка фокуса. Режим «Авто» включает её, когда настройки устройства просят больше контраста."
 }

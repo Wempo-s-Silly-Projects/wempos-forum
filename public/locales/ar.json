@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "يظهر بعد الاسم أعلى الصفحة الرئيسية.",
   "desk.branding.footerLabel": "التذييل",
   "desk.branding.saveButton": "حفظ الهوية",
-  "admin.msg.brandingSaved": "تم حفظ الهوية. أعد تحميل الصفحة لتراها في كل مكان."
+  "admin.msg.brandingSaved": "تم حفظ الهوية. أعد تحميل الصفحة لتراها في كل مكان.",
+  "readingComfort.title": "راحة القراءة",
+  "readingComfort.help": "تُحفظ في هذا المتصفح فقط. لا تغيّرها إعادة تعيين المظهر.",
+  "readingComfort.lineSpacing": "تباعد الأسطر",
+  "readingComfort.lineSpacingDefault": "عادي",
+  "readingComfort.lineSpacingRelaxed": "مريح",
+  "readingComfort.lineSpacingSpacious": "واسع",
+  "readingComfort.lineSpacingHelp": "يزيد المسافة بين الأسطر في المنشورات ورسائل الدردشة والمربعات التي تكتب فيها.",
+  "readingComfort.underlineLinks": "تسطير الروابط دائمًا",
+  "readingComfort.underlineLinksHelp": "يضع خطًا تحت كل رابط، بما في ذلك الأسماء وروابط القوائم التي تظهر عادةً بلا خط.",
+  "readingComfort.contrast": "تباين عالٍ",
+  "readingComfort.contrastAuto": "تلقائي (يتبع هذا الجهاز)",
+  "readingComfort.contrastOn": "تشغيل",
+  "readingComfort.contrastOff": "إيقاف",
+  "readingComfort.contrastHelp": "نص أسود على أبيض (أبيض على أسود في السمة الداكنة)، وحدود واضحة حول المربعات والأزرار، وإطارات تركيز أسمك. يفعّله الوضع التلقائي عندما تطلب إعدادات جهازك تباينًا أكثر."
 }

@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Zobrazí se za názvem v horní části domovské stránky.",
   "desk.branding.footerLabel": "Zápatí",
   "desk.branding.saveButton": "Uložit značku",
-  "admin.msg.brandingSaved": "Značka uložena. Obnovte stránku, abyste ji viděli všude."
+  "admin.msg.brandingSaved": "Značka uložena. Obnovte stránku, abyste ji viděli všude.",
+  "readingComfort.title": "Pohodlí při čtení",
+  "readingComfort.help": "Ukládá se jen v tomto prohlížeči. „Obnovit vzhled“ je nemění.",
+  "readingComfort.lineSpacing": "Řádkování",
+  "readingComfort.lineSpacingDefault": "Normální",
+  "readingComfort.lineSpacingRelaxed": "Volnější",
+  "readingComfort.lineSpacingSpacious": "Prostorné",
+  "readingComfort.lineSpacingHelp": "Přidá víc místa mezi řádky v příspěvcích, zprávách chatu a polích, do kterých píšete.",
+  "readingComfort.underlineLinks": "Vždy podtrhávat odkazy",
+  "readingComfort.underlineLinksHelp": "Podtrhne každý odkaz, včetně jmen a odkazů v nabídkách, které se běžně zobrazují bez čáry.",
+  "readingComfort.contrast": "Vysoký kontrast",
+  "readingComfort.contrastAuto": "Automaticky (podle tohoto zařízení)",
+  "readingComfort.contrastOn": "Zapnuto",
+  "readingComfort.contrastOff": "Vypnuto",
+  "readingComfort.contrastHelp": "Černý text na bílé (bílý na černé v tmavém motivu), plné obrysy kolem polí a tlačítek a silnější obrysy fokusu. Automaticky se zapne, když nastavení zařízení žádá vyšší kontrast."
 }

@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Ana sayfanın üstünde addan sonra gösterilir.",
   "desk.branding.footerLabel": "Alt bilgi",
   "desk.branding.saveButton": "Markayı kaydet",
-  "admin.msg.brandingSaved": "Marka kaydedildi. Her yerde görmek için sayfayı yenile."
+  "admin.msg.brandingSaved": "Marka kaydedildi. Her yerde görmek için sayfayı yenile.",
+  "readingComfort.title": "Okuma rahatlığı",
+  "readingComfort.help": "Yalnızca bu tarayıcıda kaydedilir. Görünümü sıfırla bunları değiştirmez.",
+  "readingComfort.lineSpacing": "Satır aralığı",
+  "readingComfort.lineSpacingDefault": "Normal",
+  "readingComfort.lineSpacingRelaxed": "Rahat",
+  "readingComfort.lineSpacingSpacious": "Geniş",
+  "readingComfort.lineSpacingHelp": "Gönderilerde, sohbet mesajlarında ve yazdığınız kutularda satırlar arasına daha fazla boşluk ekler.",
+  "readingComfort.underlineLinks": "Bağlantıların altını her zaman çiz",
+  "readingComfort.underlineLinksHelp": "Normalde çizgisiz gösterilen adlar ve menü bağlantıları dahil her bağlantının altını çizer.",
+  "readingComfort.contrast": "Yüksek kontrast",
+  "readingComfort.contrastAuto": "Otomatik (bu cihazı izle)",
+  "readingComfort.contrastOn": "Açık",
+  "readingComfort.contrastOff": "Kapalı",
+  "readingComfort.contrastHelp": "Beyaz üzerine siyah metin (koyu temada siyah üzerine beyaz), kutu ve düğmelerin çevresinde belirgin çizgiler ve daha kalın odak çerçeveleri. Otomatik, cihaz ayarlarınız daha fazla kontrast istediğinde bunu açar."
 }

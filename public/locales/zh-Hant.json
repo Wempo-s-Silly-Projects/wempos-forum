@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "顯示在首頁頂端的名稱之後。",
   "desk.branding.footerLabel": "頁尾",
   "desk.branding.saveButton": "儲存品牌",
-  "admin.msg.brandingSaved": "品牌已儲存。重新載入頁面即可在各處看到。"
+  "admin.msg.brandingSaved": "品牌已儲存。重新載入頁面即可在各處看到。",
+  "readingComfort.title": "閱讀舒適度",
+  "readingComfort.help": "只儲存在這個瀏覽器中。「重設外觀」不會變更這些設定。",
+  "readingComfort.lineSpacing": "行距",
+  "readingComfort.lineSpacingDefault": "正常",
+  "readingComfort.lineSpacingRelaxed": "寬鬆",
+  "readingComfort.lineSpacingSpacious": "很寬鬆",
+  "readingComfort.lineSpacingHelp": "加大貼文、聊天訊息和輸入框中的行距。",
+  "readingComfort.underlineLinks": "一律為連結加底線",
+  "readingComfort.underlineLinksHelp": "為所有連結加上底線，包括平常不顯示底線的使用者名稱和選單連結。",
+  "readingComfort.contrast": "高對比",
+  "readingComfort.contrastAuto": "自動（依照這部裝置）",
+  "readingComfort.contrastOn": "開",
+  "readingComfort.contrastOff": "關",
+  "readingComfort.contrastHelp": "白底黑字（深色主題為黑底白字），輸入框和按鈕有清楚的外框，焦點框更粗。設為自動時，若裝置設定要求更高對比就會開啟。"
 }

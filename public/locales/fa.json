@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "پس از نام در بالای صفحهٔ اصلی نمایش داده می‌شود.",
   "desk.branding.footerLabel": "پانویس",
   "desk.branding.saveButton": "ذخیرهٔ هویت",
-  "admin.msg.brandingSaved": "هویت ذخیره شد. صفحه را دوباره بارگذاری کنید تا همه‌جا آن را ببینید."
+  "admin.msg.brandingSaved": "هویت ذخیره شد. صفحه را دوباره بارگذاری کنید تا همه‌جا آن را ببینید.",
+  "readingComfort.title": "راحتی خواندن",
+  "readingComfort.help": "فقط در همین مرورگر ذخیره می‌شود. «بازنشانی ظاهر» این‌ها را تغییر نمی‌دهد.",
+  "readingComfort.lineSpacing": "فاصلهٔ خطوط",
+  "readingComfort.lineSpacingDefault": "عادی",
+  "readingComfort.lineSpacingRelaxed": "راحت",
+  "readingComfort.lineSpacingSpacious": "باز",
+  "readingComfort.lineSpacingHelp": "فاصلهٔ بیشتری بین خطوط در پست‌ها، پیام‌های گفتگو و کادرهایی که در آن‌ها می‌نویسید می‌گذارد.",
+  "readingComfort.underlineLinks": "همیشه زیر پیوندها خط بکش",
+  "readingComfort.underlineLinksHelp": "زیر همهٔ پیوندها خط می‌کشد، از جمله نام‌ها و پیوندهای منو که معمولاً بدون خط نمایش داده می‌شوند.",
+  "readingComfort.contrast": "کنتراست بالا",
+  "readingComfort.contrastAuto": "خودکار (مطابق این دستگاه)",
+  "readingComfort.contrastOn": "روشن",
+  "readingComfort.contrastOff": "خاموش",
+  "readingComfort.contrastHelp": "متن سیاه روی سفید (سفید روی سیاه در پوستهٔ تیره)، دورخط‌های پررنگ دور کادرها و دکمه‌ها و دورخط تمرکز ضخیم‌تر. حالت خودکار وقتی تنظیمات دستگاه شما کنتراست بیشتری بخواهد آن را روشن می‌کند."
 }

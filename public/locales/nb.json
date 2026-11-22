@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Vises etter navnet øverst på forsiden.",
   "desk.branding.footerLabel": "Bunntekst",
   "desk.branding.saveButton": "Lagre profil",
-  "admin.msg.brandingSaved": "Profilen er lagret. Last inn siden på nytt for å se den overalt."
+  "admin.msg.brandingSaved": "Profilen er lagret. Last inn siden på nytt for å se den overalt.",
+  "readingComfort.title": "Lesekomfort",
+  "readingComfort.help": "Lagres bare i denne nettleseren. Tilbakestill utseende endrer dem ikke.",
+  "readingComfort.lineSpacing": "Linjeavstand",
+  "readingComfort.lineSpacingDefault": "Normal",
+  "readingComfort.lineSpacingRelaxed": "Luftig",
+  "readingComfort.lineSpacingSpacious": "Romslig",
+  "readingComfort.lineSpacingHelp": "Gir mer plass mellom linjene i innlegg, chatmeldinger og feltene du skriver i.",
+  "readingComfort.underlineLinks": "Understrek alltid lenker",
+  "readingComfort.underlineLinksHelp": "Understreker alle lenker, også navn og menylenker som vanligvis vises uten strek.",
+  "readingComfort.contrast": "Høy kontrast",
+  "readingComfort.contrastAuto": "Automatisk (følg denne enheten)",
+  "readingComfort.contrastOn": "På",
+  "readingComfort.contrastOff": "Av",
+  "readingComfort.contrastHelp": "Svart tekst på hvitt (hvitt på svart i mørkt tema), tydelige omriss rundt felt og knapper, og tykkere fokusrammer. Automatisk slår det på når innstillingene på enheten din ber om mer kontrast."
 }

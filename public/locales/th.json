@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "แสดงต่อจากชื่อที่ด้านบนของหน้าแรก",
   "desk.branding.footerLabel": "ส่วนท้าย",
   "desk.branding.saveButton": "บันทึกแบรนด์",
-  "admin.msg.brandingSaved": "บันทึกแบรนด์แล้ว โหลดหน้าใหม่เพื่อดูทุกที่"
+  "admin.msg.brandingSaved": "บันทึกแบรนด์แล้ว โหลดหน้าใหม่เพื่อดูทุกที่",
+  "readingComfort.title": "ความสบายในการอ่าน",
+  "readingComfort.help": "บันทึกไว้ในเบราว์เซอร์นี้เท่านั้น การรีเซ็ตรูปลักษณ์จะไม่เปลี่ยนค่าเหล่านี้",
+  "readingComfort.lineSpacing": "ระยะห่างบรรทัด",
+  "readingComfort.lineSpacingDefault": "ปกติ",
+  "readingComfort.lineSpacingRelaxed": "ห่างขึ้น",
+  "readingComfort.lineSpacingSpacious": "ห่างมาก",
+  "readingComfort.lineSpacingHelp": "เพิ่มระยะห่างระหว่างบรรทัดในโพสต์ ข้อความแชต และช่องที่คุณพิมพ์",
+  "readingComfort.underlineLinks": "ขีดเส้นใต้ลิงก์เสมอ",
+  "readingComfort.underlineLinksHelp": "ขีดเส้นใต้ทุกลิงก์ รวมถึงชื่อและลิงก์ในเมนูที่ปกติแสดงโดยไม่มีเส้น",
+  "readingComfort.contrast": "คอนทราสต์สูง",
+  "readingComfort.contrastAuto": "อัตโนมัติ (ตามอุปกรณ์นี้)",
+  "readingComfort.contrastOn": "เปิด",
+  "readingComfort.contrastOff": "ปิด",
+  "readingComfort.contrastHelp": "ตัวอักษรสีดำบนพื้นขาว (สีขาวบนพื้นดำในธีมมืด) เส้นขอบชัดเจนรอบช่องและปุ่ม และกรอบโฟกัสที่หนาขึ้น โหมดอัตโนมัติจะเปิดเมื่อการตั้งค่าอุปกรณ์ของคุณขอคอนทราสต์มากขึ้น"
 }

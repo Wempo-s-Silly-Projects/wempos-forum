@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Näytetään nimen jälkeen etusivun yläosassa.",
   "desk.branding.footerLabel": "Alatunniste",
   "desk.branding.saveButton": "Tallenna brändi",
-  "admin.msg.brandingSaved": "Brändi tallennettu. Lataa sivu uudelleen nähdäksesi sen kaikkialla."
+  "admin.msg.brandingSaved": "Brändi tallennettu. Lataa sivu uudelleen nähdäksesi sen kaikkialla.",
+  "readingComfort.title": "Lukumukavuus",
+  "readingComfort.help": "Tallennetaan vain tähän selaimeen. Palauta ulkoasu ei muuta näitä.",
+  "readingComfort.lineSpacing": "Riviväli",
+  "readingComfort.lineSpacingDefault": "Normaali",
+  "readingComfort.lineSpacingRelaxed": "Väljä",
+  "readingComfort.lineSpacingSpacious": "Tilava",
+  "readingComfort.lineSpacingHelp": "Lisää tilaa rivien väliin viesteissä, chat-viesteissä ja kentissä, joihin kirjoitat.",
+  "readingComfort.underlineLinks": "Alleviivaa linkit aina",
+  "readingComfort.underlineLinksHelp": "Alleviivaa jokaisen linkin, myös nimet ja valikkolinkit, jotka yleensä näkyvät ilman viivaa.",
+  "readingComfort.contrast": "Suuri kontrasti",
+  "readingComfort.contrastAuto": "Automaattinen (tämän laitteen mukaan)",
+  "readingComfort.contrastOn": "Päällä",
+  "readingComfort.contrastOff": "Pois",
+  "readingComfort.contrastHelp": "Mustaa tekstiä valkoisella (valkoista mustalla tummassa teemassa), selkeät ääriviivat kenttien ja painikkeiden ympärillä ja paksummat kohdistuskehykset. Automaattinen ottaa sen käyttöön, kun laitteesi asetukset pyytävät enemmän kontrastia."
 }

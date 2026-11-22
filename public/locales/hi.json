@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "होम पेज के ऊपर नाम के बाद दिखाई देती है।",
   "desk.branding.footerLabel": "फ़ुटर",
   "desk.branding.saveButton": "ब्रांडिंग सहेजें",
-  "admin.msg.brandingSaved": "ब्रांडिंग सहेजी गई। हर जगह देखने के लिए पेज फिर से लोड करें।"
+  "admin.msg.brandingSaved": "ब्रांडिंग सहेजी गई। हर जगह देखने के लिए पेज फिर से लोड करें।",
+  "readingComfort.title": "पढ़ने में आराम",
+  "readingComfort.help": "सिर्फ़ इसी ब्राउज़र में सहेजा जाता है। दिखावट रीसेट करने से ये नहीं बदलते।",
+  "readingComfort.lineSpacing": "पंक्तियों के बीच की दूरी",
+  "readingComfort.lineSpacingDefault": "सामान्य",
+  "readingComfort.lineSpacingRelaxed": "खुली",
+  "readingComfort.lineSpacingSpacious": "बहुत खुली",
+  "readingComfort.lineSpacingHelp": "पोस्ट, चैट संदेशों और जिन बक्सों में आप लिखते हैं, उनमें पंक्तियों के बीच ज़्यादा जगह देता है।",
+  "readingComfort.underlineLinks": "लिंक के नीचे हमेशा रेखा",
+  "readingComfort.underlineLinksHelp": "हर लिंक के नीचे रेखा लगाता है, उन नामों और मेन्यू लिंक समेत जो आमतौर पर बिना रेखा के दिखते हैं।",
+  "readingComfort.contrast": "उच्च कंट्रास्ट",
+  "readingComfort.contrastAuto": "अपने-आप (इस डिवाइस के अनुसार)",
+  "readingComfort.contrastOn": "चालू",
+  "readingComfort.contrastOff": "बंद",
+  "readingComfort.contrastHelp": "सफ़ेद पर काला टेक्स्ट (डार्क थीम में काले पर सफ़ेद), बक्सों और बटनों के चारों ओर साफ़ रेखाएँ, और मोटी फ़ोकस रेखाएँ। आपके डिवाइस की सेटिंग ज़्यादा कंट्रास्ट माँगे तो अपने-आप वाला विकल्प इसे चालू कर देता है।"
 }

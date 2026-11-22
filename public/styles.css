@@ -3314,6 +3314,148 @@ mark.search-hit {
   margin-block: 0.5rem;
 }
 
+/* Reading comfort (wave 5.27 F1): line spacing on post bodies, chat
+   messages and the text boxes you write in; image/GIF/jumbo-emoji chat
+   bodies keep their tight line boxes. Plus always-underlined links (button-
+   styled links stay buttons). Both set by reading-comfort.js and preloaded by
+   theme-preload.js. */
+:root[data-line-spacing="relaxed"] :is(.post-body, .chat-message-body:not(.chat-gif-body, .chat-dm-image-body, .chat-emoji-jumbo), textarea) {
+  line-height: 2;
+}
+:root[data-line-spacing="spacious"] :is(.post-body, .chat-message-body:not(.chat-gif-body, .chat-dm-image-body, .chat-emoji-jumbo), textarea) {
+  line-height: 2.4;
+}
+:root[data-link-underline="on"] a:not(.button) {
+  text-decoration: underline;
+}
+.line-spacing-pref,
+.link-underline-pref,
+.contrast-pref {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 0.5rem 0;
+}
+.reading-comfort-help {
+  margin-block: 0 0.75rem;
+  font-size: 0.9rem;
+}
+
+/* High contrast (wave 5.27 F2): the "high-contrast" root class (Auto follows
+   prefers-contrast: more; On forces it; Off never) re-weights the colour
+   tokens only, so layout never moves. Body text is 21:1, muted text and
+   links at least 8.9:1 (WCAG AAA is 7:1); borders that already exist go to
+   full ink, and focus rings get thicker. Light first; dark repeats the
+   theme logic's two routes (manual choice, then the OS preference). */
+:root.high-contrast {
+  --paper: #ffffff;
+  --paper-shadow: #000000;
+  --desk: #ffffff;
+  --desk-dot: #ffffff;
+  --ink: #000000;
+  --muted: #333333;
+  --line: #000000;
+  --green: #1f4d36;
+  --green-dark: #0c2618;
+  --coral: #8f2416;
+  --coral-dark: #6b1a12;
+  --blue: #e2efd0;
+  --focus: #0040b0;
+  --link: #00502f;
+  --link-hover: #6b1a10;
+  --field: #ffffff;
+  --field-line: #000000;
+  --green-title: #0c2618;
+  --green-ink: #0c2618;
+  --soft-green: #e2efd0;
+  --yellow-hover: #f3cf67;
+  --error-ink: #6b1a12;
+  --error-soft: #ffffff;
+  --success-ink: #0d3d24;
+  --error-chip-bg: #ffffff;
+  --error-chip-border: #6b1a12;
+  --error-chip-ink: #6b1a12;
+  --on-yellow: #000000;
+  --quiet-hover: #f3cf67;
+}
+:root.high-contrast[data-theme="dark"] {
+  --paper: #000000;
+  --paper-shadow: #ffffff;
+  --desk: #000000;
+  --desk-dot: #000000;
+  --ink: #ffffff;
+  --muted: #d6d6d6;
+  --line: #ffffff;
+  --green: #1f4d36;
+  --green-dark: #0c2618;
+  --coral: #8f2416;
+  --coral-dark: #8f2416;
+  --blue: #0a1a2a;
+  --focus: #ffd84d;
+  --link: #8ff0b8;
+  --link-hover: #ffc2b3;
+  --field: #000000;
+  --field-line: #ffffff;
+  --green-title: #ffffff;
+  --green-ink: #ffffff;
+  --soft-green: #0c2618;
+  --yellow-hover: #f3cf67;
+  --error-ink: #ffc9c0;
+  --error-soft: #000000;
+  --success-ink: #b4f5cf;
+  --error-chip-bg: #000000;
+  --error-chip-border: #ffc9c0;
+  --error-chip-ink: #ffc9c0;
+  --on-yellow: #000000;
+  --quiet-hover: #0a1a2a;
+}
+@media (prefers-color-scheme: dark) {
+  :root.high-contrast:not([data-theme="light"]):not([data-theme="dark"]) {
+    --paper: #000000;
+    --paper-shadow: #ffffff;
+    --desk: #000000;
+    --desk-dot: #000000;
+    --ink: #ffffff;
+    --muted: #d6d6d6;
+    --line: #ffffff;
+    --green: #1f4d36;
+    --green-dark: #0c2618;
+    --coral: #8f2416;
+    --coral-dark: #8f2416;
+    --blue: #0a1a2a;
+    --focus: #ffd84d;
+    --link: #8ff0b8;
+    --link-hover: #ffc2b3;
+    --field: #000000;
+    --field-line: #ffffff;
+    --green-title: #ffffff;
+    --green-ink: #ffffff;
+    --soft-green: #0c2618;
+    --yellow-hover: #f3cf67;
+    --error-ink: #ffc9c0;
+    --error-soft: #000000;
+    --success-ink: #b4f5cf;
+    --error-chip-bg: #000000;
+    --error-chip-border: #ffc9c0;
+    --error-chip-ink: #ffc9c0;
+    --on-yellow: #000000;
+    --quiet-hover: #0a1a2a;
+  }
+}
+/* Outlines draw outside the box, so they add no layout; the focus ring
+   comes last so it beats the thin outline on the same element. */
+:root.high-contrast :where(.panel, .post-card, .button, input, textarea, select) {
+  outline: 1px solid var(--ink);
+}
+:root.high-contrast .post-card {
+  border-inline-start-color: var(--ink);
+}
+:root.high-contrast :where(a, button, input, textarea, select, summary):focus-visible {
+  outline: 4px solid var(--focus);
+  outline-offset: 2px;
+}
+
 /* Copy link (wave 2026-11-21-4): the brief "Link copied" status rides
    beside the icon button (wave 7: moved out so it is announced). */
 .copy-link-wrap {

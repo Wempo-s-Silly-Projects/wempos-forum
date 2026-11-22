@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Hiển thị sau tên ở đầu trang chủ.",
   "desk.branding.footerLabel": "Chân trang",
   "desk.branding.saveButton": "Lưu nhận diện",
-  "admin.msg.brandingSaved": "Đã lưu nhận diện. Tải lại trang để thấy ở mọi nơi."
+  "admin.msg.brandingSaved": "Đã lưu nhận diện. Tải lại trang để thấy ở mọi nơi.",
+  "readingComfort.title": "Thoải mái khi đọc",
+  "readingComfort.help": "Chỉ lưu trong trình duyệt này. Đặt lại giao diện không thay đổi các mục này.",
+  "readingComfort.lineSpacing": "Giãn dòng",
+  "readingComfort.lineSpacingDefault": "Bình thường",
+  "readingComfort.lineSpacingRelaxed": "Thoáng",
+  "readingComfort.lineSpacingSpacious": "Rộng",
+  "readingComfort.lineSpacingHelp": "Thêm khoảng cách giữa các dòng trong bài viết, tin nhắn trò chuyện và các ô bạn nhập chữ.",
+  "readingComfort.underlineLinks": "Luôn gạch chân liên kết",
+  "readingComfort.underlineLinksHelp": "Gạch chân mọi liên kết, kể cả tên và liên kết trong menu vốn thường hiển thị không có gạch.",
+  "readingComfort.contrast": "Độ tương phản cao",
+  "readingComfort.contrastAuto": "Tự động (theo thiết bị này)",
+  "readingComfort.contrastOn": "Bật",
+  "readingComfort.contrastOff": "Tắt",
+  "readingComfort.contrastHelp": "Chữ đen trên nền trắng (chữ trắng trên nền đen ở giao diện tối), viền rõ quanh các ô và nút, và khung tiêu điểm dày hơn. Tự động sẽ bật khi cài đặt thiết bị của bạn yêu cầu tương phản cao hơn."
 }

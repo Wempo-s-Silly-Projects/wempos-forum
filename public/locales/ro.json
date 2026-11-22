@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Apare după nume în partea de sus a paginii principale.",
   "desk.branding.footerLabel": "Subsol",
   "desk.branding.saveButton": "Salvează identitatea",
-  "admin.msg.brandingSaved": "Identitate salvată. Reîncarcă pagina ca să o vezi peste tot."
+  "admin.msg.brandingSaved": "Identitate salvată. Reîncarcă pagina ca să o vezi peste tot.",
+  "readingComfort.title": "Confort la citire",
+  "readingComfort.help": "Se salvează doar în acest browser. „Resetează aspectul” nu le schimbă.",
+  "readingComfort.lineSpacing": "Spațiere între rânduri",
+  "readingComfort.lineSpacingDefault": "Normală",
+  "readingComfort.lineSpacingRelaxed": "Lejeră",
+  "readingComfort.lineSpacingSpacious": "Largă",
+  "readingComfort.lineSpacingHelp": "Adaugă mai mult spațiu între rânduri în postări, mesajele din chat și casetele în care scrii.",
+  "readingComfort.underlineLinks": "Subliniază mereu linkurile",
+  "readingComfort.underlineLinksHelp": "Subliniază fiecare link, inclusiv numele și linkurile din meniuri care de obicei apar fără linie.",
+  "readingComfort.contrast": "Contrast ridicat",
+  "readingComfort.contrastAuto": "Automat (după acest dispozitiv)",
+  "readingComfort.contrastOn": "Pornit",
+  "readingComfort.contrastOff": "Oprit",
+  "readingComfort.contrastHelp": "Text negru pe alb (alb pe negru în tema întunecată), contururi clare în jurul casetelor și butoanelor și contururi de focalizare mai groase. Automat îl pornește când setările dispozitivului cer mai mult contrast."
 }

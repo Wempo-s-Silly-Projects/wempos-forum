@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "A név után jelenik meg a kezdőlap tetején.",
   "desk.branding.footerLabel": "Lábléc",
   "desk.branding.saveButton": "Arculat mentése",
-  "admin.msg.brandingSaved": "Arculat mentve. Töltsd újra az oldalt, hogy mindenhol lásd."
+  "admin.msg.brandingSaved": "Arculat mentve. Töltsd újra az oldalt, hogy mindenhol lásd.",
+  "readingComfort.title": "Olvasási kényelem",
+  "readingComfort.help": "Csak ebben a böngészőben mentődik. A Megjelenés visszaállítása nem változtat rajtuk.",
+  "readingComfort.lineSpacing": "Sortávolság",
+  "readingComfort.lineSpacingDefault": "Normál",
+  "readingComfort.lineSpacingRelaxed": "Laza",
+  "readingComfort.lineSpacingSpacious": "Tágas",
+  "readingComfort.lineSpacingHelp": "Több helyet hagy a sorok között a bejegyzésekben, a csevegőüzenetekben és a mezőkben, ahová írsz.",
+  "readingComfort.underlineLinks": "Linkek mindig aláhúzva",
+  "readingComfort.underlineLinksHelp": "Minden linket aláhúz, a neveket és menülinkeket is, amelyek alapból vonal nélkül jelennek meg.",
+  "readingComfort.contrast": "Magas kontraszt",
+  "readingComfort.contrastAuto": "Automatikus (az eszköz szerint)",
+  "readingComfort.contrastOn": "Be",
+  "readingComfort.contrastOff": "Ki",
+  "readingComfort.contrastHelp": "Fekete szöveg fehéren (sötét témában fehér feketén), határozott körvonalak a mezők és gombok körül, és vastagabb fókuszkeret. Az Automatikus akkor kapcsolja be, ha az eszköz beállításai nagyobb kontrasztot kérnek."
 }
