@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Maior",
   "feed.tabUnread": "Mostrar o número de não lidas na aba do navegador",
   "quietHours.title": "Horas de silêncio",
-  "quietHours.help": "Pausa os pop-ups e os sons das notificações durante estas horas neste dispositivo.",
+  "quietHours.help": "Oculta o número de não lidas no separador do navegador durante estas horas neste dispositivo.",
   "quietHours.enable": "Ativar as horas de silêncio",
   "quietHours.start": "De",
   "quietHours.end": "Até",

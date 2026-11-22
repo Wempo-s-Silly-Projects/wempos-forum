@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Larger",
   "feed.tabUnread": "Show the unread count in the browser tab",
   "quietHours.title": "Quiet hours",
-  "quietHours.help": "Pause notification pop-ups and sounds during these hours on this device.",
+  "quietHours.help": "Hide the unread count in the browser tab during these hours on this device.",
   "quietHours.enable": "Turn on quiet hours",
   "quietHours.start": "From",
   "quietHours.end": "Until",

@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Groter",
   "feed.tabUnread": "Aantal ongelezen tonen in het browsertabblad",
   "quietHours.title": "Stille uren",
-  "quietHours.help": "Pauzeert pop-ups en geluiden van meldingen tijdens deze uren op dit apparaat.",
+  "quietHours.help": "Verbergt het aantal ongelezen in het browsertabblad tijdens deze uren op dit apparaat.",
   "quietHours.enable": "Stille uren inschakelen",
   "quietHours.start": "Van",
   "quietHours.end": "Tot",

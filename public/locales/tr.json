@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Daha büyük",
   "feed.tabUnread": "Okunmamış sayısını tarayıcı sekmesinde göster",
   "quietHours.title": "Sessiz saatler",
-  "quietHours.help": "Bu cihazda bu saatlerde bildirim açılır pencerelerini ve seslerini duraklatır.",
+  "quietHours.help": "Bu cihazda bu saatlerde tarayıcı sekmesindeki okunmamış sayısını gizler.",
   "quietHours.enable": "Sessiz saatleri aç",
   "quietHours.start": "Başlangıç",
   "quietHours.end": "Bitiş",

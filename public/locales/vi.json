@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Lớn hơn",
   "feed.tabUnread": "Hiển thị số mục chưa đọc trên thẻ trình duyệt",
   "quietHours.title": "Giờ yên lặng",
-  "quietHours.help": "Tạm dừng cửa sổ bật lên và âm thanh thông báo trong những giờ này trên thiết bị này.",
+  "quietHours.help": "Ẩn số chưa đọc trên thẻ trình duyệt trong những giờ này trên thiết bị này.",
   "quietHours.enable": "Bật giờ yên lặng",
   "quietHours.start": "Từ",
   "quietHours.end": "Đến",

@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Większy",
   "feed.tabUnread": "Pokazuj liczbę nieprzeczytanych na karcie przeglądarki",
   "quietHours.title": "Godziny ciszy",
-  "quietHours.help": "Wstrzymuje wyskakujące okienka i dźwięki powiadomień w tych godzinach na tym urządzeniu.",
+  "quietHours.help": "Ukrywa liczbę nieprzeczytanych na karcie przeglądarki w tych godzinach na tym urządzeniu.",
   "quietHours.enable": "Włącz godziny ciszy",
   "quietHours.start": "Od",
   "quietHours.end": "Do",

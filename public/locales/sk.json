@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Väčšia",
   "feed.tabUnread": "Zobraziť počet neprečítaných na karte prehliadača",
   "quietHours.title": "Tiché hodiny",
-  "quietHours.help": "Pozastaví vyskakovacie okná a zvuky upozornení v týchto hodinách na tomto zariadení.",
+  "quietHours.help": "Skryje počet neprečítaných na karte prehliadača v týchto hodinách na tomto zariadení.",
   "quietHours.enable": "Zapnúť tiché hodiny",
   "quietHours.start": "Od",
   "quietHours.end": "Do",

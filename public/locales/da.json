@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Større",
   "feed.tabUnread": "Vis antallet af ulæste i browserfanen",
   "quietHours.title": "Stille timer",
-  "quietHours.help": "Sæt pop op-vinduer og lyde for notifikationer på pause i disse timer på denne enhed.",
+  "quietHours.help": "Skjul antallet af ulæste i browserfanen i disse timer på denne enhed.",
   "quietHours.enable": "Slå stille timer til",
   "quietHours.start": "Fra",
   "quietHours.end": "Til",

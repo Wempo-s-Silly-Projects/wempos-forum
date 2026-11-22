@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Mas malaki",
   "feed.tabUnread": "Ipakita ang bilang ng hindi pa nababasa sa tab ng browser",
   "quietHours.title": "Tahimik na oras",
-  "quietHours.help": "I-pause ang mga pop-up at tunog ng notification sa mga oras na ito sa device na ito.",
+  "quietHours.help": "Itago ang bilang ng hindi pa nababasa sa tab ng browser sa mga oras na ito sa device na ito.",
   "quietHours.enable": "I-on ang tahimik na oras",
   "quietHours.start": "Mula",
   "quietHours.end": "Hanggang",

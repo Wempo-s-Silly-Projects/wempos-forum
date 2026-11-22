@@ -19,8 +19,9 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Quiet hours (wave 5.25 F2, opt-in, default off): between two hours of the
-// device's local time, notification alerts — the unread count in the tab
-// title, and any notification pop-up or sound — are held back. The bell's
+// device's local time, notification alerts — today only the unread count in
+// the tab title; a future pop-up or sound must ask notificationAlertsAllowed()
+// first — are held back. The bell's
 // in-page badge keeps updating. The choice lives only in this browser and
 // leaves with the member on sign-out (clearAllQuietHours rides
 // wipeAccountLocalData). No network call; every storage touch is try/catch,

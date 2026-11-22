@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Större",
   "feed.tabUnread": "Visa antalet olästa i webbläsarfliken",
   "quietHours.title": "Tysta timmar",
-  "quietHours.help": "Pausar popup-fönster och ljud för aviseringar under de här timmarna på den här enheten.",
+  "quietHours.help": "Döljer antalet olästa i webbläsarfliken under de här timmarna på den här enheten.",
   "quietHours.enable": "Slå på tysta timmar",
   "quietHours.start": "Från",
   "quietHours.end": "Till",

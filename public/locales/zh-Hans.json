@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "更大",
   "feed.tabUnread": "在浏览器标签页中显示未读数",
   "quietHours.title": "免打扰时段",
-  "quietHours.help": "在此设备上，这些时段内暂停通知弹窗和提示音。",
+  "quietHours.help": "在此设备上，这些时段内不在浏览器标签页显示未读数。",
   "quietHours.enable": "开启免打扰时段",
   "quietHours.start": "从",
   "quietHours.end": "到",

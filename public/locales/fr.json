@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Plus grande",
   "feed.tabUnread": "Afficher le nombre de non-lus dans l'onglet du navigateur",
   "quietHours.title": "Heures calmes",
-  "quietHours.help": "Suspend les fenêtres et les sons de notification pendant ces heures sur cet appareil.",
+  "quietHours.help": "Masque le nombre de non-lus dans l'onglet du navigateur pendant ces heures sur cet appareil.",
   "quietHours.enable": "Activer les heures calmes",
   "quietHours.start": "De",
   "quietHours.end": "À",

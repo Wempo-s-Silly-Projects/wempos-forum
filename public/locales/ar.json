@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "أكبر",
   "feed.tabUnread": "إظهار عدد غير المقروء في علامة تبويب المتصفح",
   "quietHours.title": "ساعات الهدوء",
-  "quietHours.help": "أوقف النوافذ المنبثقة وأصوات الإشعارات خلال هذه الساعات على هذا الجهاز.",
+  "quietHours.help": "إخفاء عدد غير المقروء في علامة تبويب المتصفح خلال هذه الساعات على هذا الجهاز.",
   "quietHours.enable": "تفعيل ساعات الهدوء",
   "quietHours.start": "من",
   "quietHours.end": "حتى",

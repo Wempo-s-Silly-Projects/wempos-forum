@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Lebih besar",
   "feed.tabUnread": "Tunjukkan bilangan belum dibaca dalam tab pelayar",
   "quietHours.title": "Waktu senyap",
-  "quietHours.help": "Jeda tetingkap timbul dan bunyi pemberitahuan pada waktu ini di peranti ini.",
+  "quietHours.help": "Sembunyikan kiraan belum dibaca dalam tab pelayar pada waktu ini di peranti ini.",
   "quietHours.enable": "Hidupkan waktu senyap",
   "quietHours.start": "Dari",
   "quietHours.end": "Hingga",

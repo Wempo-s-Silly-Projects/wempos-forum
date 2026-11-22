@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Veća",
   "feed.tabUnread": "Prikaži broj nepročitanih na kartici preglednika",
   "quietHours.title": "Tihi sati",
-  "quietHours.help": "Pauzira skočne prozore i zvukove obavijesti u tim satima na ovom uređaju.",
+  "quietHours.help": "Skriva broj nepročitanih na kartici preglednika u tim satima na ovom uređaju.",
   "quietHours.enable": "Uključi tihe sate",
   "quietHours.start": "Od",
   "quietHours.end": "Do",

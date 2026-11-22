@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "더 크게",
   "feed.tabUnread": "브라우저 탭에 읽지 않은 개수 표시",
   "quietHours.title": "방해 금지 시간",
-  "quietHours.help": "이 기기에서 이 시간 동안 알림 팝업과 소리를 멈춥니다.",
+  "quietHours.help": "이 기기에서 이 시간 동안 브라우저 탭의 읽지 않은 개수를 숨깁니다.",
   "quietHours.enable": "방해 금지 시간 켜기",
   "quietHours.start": "시작",
   "quietHours.end": "종료",

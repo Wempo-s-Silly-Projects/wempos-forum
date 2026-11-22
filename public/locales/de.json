@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Größer",
   "feed.tabUnread": "Anzahl ungelesener Benachrichtigungen im Browser-Tab anzeigen",
   "quietHours.title": "Ruhezeiten",
-  "quietHours.help": "Pausiert Benachrichtigungs-Pop-ups und -Töne in diesen Stunden auf diesem Gerät.",
+  "quietHours.help": "Blendet die Zahl der ungelesenen Benachrichtigungen im Browser-Tab in diesen Stunden auf diesem Gerät aus.",
   "quietHours.enable": "Ruhezeiten einschalten",
   "quietHours.start": "Von",
   "quietHours.end": "Bis",

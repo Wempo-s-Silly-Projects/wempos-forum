@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Suurempi",
   "feed.tabUnread": "Näytä lukemattomien määrä selaimen välilehdessä",
   "quietHours.title": "Hiljaiset tunnit",
-  "quietHours.help": "Keskeyttää ilmoitusten ponnahdusikkunat ja äänet näinä tunteina tällä laitteella.",
+  "quietHours.help": "Piilottaa lukemattomien määrän selaimen välilehdeltä näinä tunteina tällä laitteella.",
   "quietHours.enable": "Ota hiljaiset tunnit käyttöön",
   "quietHours.start": "Alkaen",
   "quietHours.end": "Asti",

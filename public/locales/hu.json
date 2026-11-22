@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Nagyobb",
   "feed.tabUnread": "Olvasatlanok számának megjelenítése a böngészőlapon",
   "quietHours.title": "Csendes órák",
-  "quietHours.help": "Szünetelteti az értesítések felugró ablakait és hangjait ezekben az órákban ezen az eszközön.",
+  "quietHours.help": "Elrejti az olvasatlanok számát a böngészőlapon ezekben az órákban ezen az eszközön.",
   "quietHours.enable": "Csendes órák bekapcsolása",
   "quietHours.start": "Ettől",
   "quietHours.end": "Eddig",

@@ -19,8 +19,8 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Wave 5.25 F2: quiet hours (opt-in, device-local, default off). Inside the
-// chosen local-time window, notification alerts (the unread count in the tab
-// title, and any pop-up or sound) are held back; the in-page bell keeps
+// chosen local-time window, notification alerts (today: the unread count in
+// the tab title) are held back; the in-page bell keeps
 // updating. The setting is wiped on sign-out.
 import { test } from "node:test";
 import assert from "node:assert/strict";

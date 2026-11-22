@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Lebih besar",
   "feed.tabUnread": "Tampilkan jumlah yang belum dibaca di tab peramban",
   "quietHours.title": "Jam tenang",
-  "quietHours.help": "Jeda pop-up dan suara notifikasi selama jam-jam ini di perangkat ini.",
+  "quietHours.help": "Sembunyikan jumlah belum dibaca di tab browser selama jam-jam ini di perangkat ini.",
   "quietHours.enable": "Aktifkan jam tenang",
   "quietHours.start": "Dari",
   "quietHours.end": "Sampai",

@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Més gran",
   "feed.tabUnread": "Mostra el nombre de no llegits a la pestanya del navegador",
   "quietHours.title": "Hores de silenci",
-  "quietHours.help": "Atura les finestres emergents i els sons de les notificacions durant aquestes hores en aquest dispositiu.",
+  "quietHours.help": "Amaga el recompte de no llegits a la pestanya del navegador durant aquestes hores en aquest dispositiu.",
   "quietHours.enable": "Activa les hores de silenci",
   "quietHours.start": "Des de",
   "quietHours.end": "Fins a",

@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "আরও বড়",
   "feed.tabUnread": "ব্রাউজার ট্যাবে অপঠিতের সংখ্যা দেখান",
   "quietHours.title": "নীরব সময়",
-  "quietHours.help": "এই ডিভাইসে এই সময়গুলোতে নোটিফিকেশনের পপ-আপ ও শব্দ বন্ধ রাখুন।",
+  "quietHours.help": "এই ডিভাইসে এই সময়গুলোতে ব্রাউজার ট্যাবে না-পড়া সংখ্যা লুকিয়ে রাখুন।",
   "quietHours.enable": "নীরব সময় চালু করুন",
   "quietHours.start": "শুরু",
   "quietHours.end": "শেষ",

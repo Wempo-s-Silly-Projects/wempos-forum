@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "Større",
   "feed.tabUnread": "Vis antall uleste i nettleserfanen",
   "quietHours.title": "Stilletimer",
-  "quietHours.help": "Setter popup-vinduer og lyder for varsler på pause i disse timene på denne enheten.",
+  "quietHours.help": "Skjuler antall uleste i nettleserfanen i disse timene på denne enheten.",
   "quietHours.enable": "Slå på stilletimer",
   "quietHours.start": "Fra",
   "quietHours.end": "Til",

@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "特大",
   "feed.tabUnread": "未読の数をブラウザのタブに表示する",
   "quietHours.title": "おやすみ時間",
-  "quietHours.help": "この端末で、この時間帯は通知のポップアップと音を止めます。",
+  "quietHours.help": "この端末で、この時間帯はブラウザーのタブに未読数を表示しません。",
   "quietHours.enable": "おやすみ時間をオンにする",
   "quietHours.start": "開始",
   "quietHours.end": "終了",

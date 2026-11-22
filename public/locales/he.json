@@ -514,7 +514,7 @@
   "feed.textSizeLarger": "גדול יותר",
   "feed.tabUnread": "הצגת מספר הלא נקראים בכרטיסיית הדפדפן",
   "quietHours.title": "שעות שקטות",
-  "quietHours.help": "השהיית חלונות קופצים וצלילים של התראות בשעות האלה במכשיר הזה.",
+  "quietHours.help": "הסתרת מספר הלא-נקראים בלשונית הדפדפן בשעות האלה במכשיר הזה.",
   "quietHours.enable": "הפעלת שעות שקטות",
   "quietHours.start": "מ-",
   "quietHours.end": "עד",
