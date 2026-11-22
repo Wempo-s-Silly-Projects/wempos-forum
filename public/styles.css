@@ -1120,7 +1120,7 @@ dialog h2 {
 
 .attachment-lightbox {
   width: fit-content;
-  max-width: calc(100vw - 2rem);
+  max-width: calc(100% - 2rem);
   max-height: calc(100dvh - 2rem);
   padding: 0;
   border: none;
@@ -2573,7 +2573,7 @@ mark.search-hit {
   inset-inline-end: 16px;
   bottom: 80px;
   z-index: 40;
-  width: min(360px, calc(100vw - 16px));
+  width: min(360px, calc(100% - 16px));
   height: min(560px, calc(100vh - 96px));
   display: flex;
   flex-direction: column;
@@ -2952,7 +2952,7 @@ mark.search-hit {
   bottom: 16px;
   z-index: 40;
   width: 220px;
-  max-width: calc(100vw - 16px);
+  max-width: calc(100% - 16px);
   border: 1px solid var(--line);
   border-radius: var(--button-radius);
   background: var(--paper);

@@ -25,6 +25,8 @@
 // index.html loads theme-preload.js before styles.css; the same-origin script complies with CSP.
 
 export const THEME_STORAGE_KEY = "forum-theme";
+// Stored when the chosen look matches the OS: not dark/light, so the OS decides.
+export const THEME_FOLLOW_OS = "system";
 
 export function resolveTheme(preference, prefersDark) {
   if (preference === "dark" || preference === "light") return preference;
@@ -103,8 +105,13 @@ export function initTheme(doc, storage) {
     root.dataset.theme = next;
     announceNextMode(next);
     applyBrowserChromeColor(next);
+    // Two-state (v5.71.1): clicking back to the OS look stops storing a
+    // manual choice, so the forum follows the OS again. The key is
+    // overwritten, never removed (wave 5.6: device prefs are never removed);
+    // resolveTheme and theme-preload.js ignore anything but dark/light.
+    const osTheme = readOsPreference(doc) ? "dark" : "light";
     try {
-      storage.setItem(THEME_STORAGE_KEY, next);
+      storage.setItem(THEME_STORAGE_KEY, next === osTheme ? THEME_FOLLOW_OS : next);
     } catch {
       // Persistence is best-effort; the choice still applies to this page.
     }
