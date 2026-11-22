@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "မျှဝေမှု",
   "threadActions.thisPost": "ဤပို့စ်",
   "threadActions.staff": "ဝန်ထမ်း",
-  "threadActions.editTags": "တဂ်များ ပြင်ရန်"
+  "threadActions.editTags": "တဂ်များ ပြင်ရန်",
+  "quotecard.action": "ကိုးကားကတ်",
+  "quotecard.actionLabel": "{name} ထံမှ ကိုးကားကတ် ပြုလုပ်ရန်",
+  "quotecard.title": "ကိုးကားကတ်",
+  "quotecard.preparing": "ကတ်ကို ရေးဆွဲနေသည်…",
+  "quotecard.download": "PNG ဒေါင်းလုဒ်လုပ်ရန်",
+  "quotecard.copy": "ပုံကူးရန်",
+  "quotecard.copied": "ပုံကို ကူးပြီးပါပြီ။",
+  "quotecard.copyFailed": "ပုံကို မကူးနိုင်ပါ။",
+  "quotecard.failed": "ပုံကို မပြုလုပ်နိုင်ပါ။",
+  "quotecard.lightTheme": "အလင်းကတ်"
 }

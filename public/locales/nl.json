@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Delen",
   "threadActions.thisPost": "Dit bericht",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Tags bewerken"
+  "threadActions.editTags": "Tags bewerken",
+  "quotecard.action": "Citaatkaart",
+  "quotecard.actionLabel": "Maak een citaatkaart van {name}",
+  "quotecard.title": "Citaatkaart",
+  "quotecard.preparing": "Kaart wordt getekend…",
+  "quotecard.download": "PNG downloaden",
+  "quotecard.copy": "Afbeelding kopiëren",
+  "quotecard.copied": "Afbeelding gekopieerd.",
+  "quotecard.copyFailed": "Kon de afbeelding niet kopiëren.",
+  "quotecard.failed": "Kon de afbeelding niet maken.",
+  "quotecard.lightTheme": "Lichte kaart"
 }

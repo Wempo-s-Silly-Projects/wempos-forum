@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Tilali",
   "threadActions.thisPost": "Nin sɛbɛn",
   "threadActions.staff": "Baarakɛlaw",
-  "threadActions.editTags": "Taamasiyɛnninw yɛlɛma"
+  "threadActions.editTags": "Taamasiyɛnninw yɛlɛma",
+  "quotecard.action": "Kokura karti",
+  "quotecard.actionLabel": "Kokura karti dilan {name} ka kuma la",
+  "quotecard.title": "Kokura karti",
+  "quotecard.preparing": "Karti bɛ ka ja…",
+  "quotecard.download": "PNG jigin",
+  "quotecard.copy": "Ja kopi",
+  "quotecard.copied": "Ja kopira.",
+  "quotecard.copyFailed": "Ja ma se ka kopi.",
+  "quotecard.failed": "Ja ma se ka dilan.",
+  "quotecard.lightTheme": "Karti jɛman"
 }

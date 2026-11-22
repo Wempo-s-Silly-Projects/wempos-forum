@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Paylaşma",
   "threadActions.thisPost": "Bu yazı",
   "threadActions.staff": "Heyət",
-  "threadActions.editTags": "Teqləri redaktə et"
+  "threadActions.editTags": "Teqləri redaktə et",
+  "quotecard.action": "Sitat kartı",
+  "quotecard.actionLabel": "{name} üçün sitat kartı yarat",
+  "quotecard.title": "Sitat kartı",
+  "quotecard.preparing": "Kart çəkilir…",
+  "quotecard.download": "PNG yüklə",
+  "quotecard.copy": "Şəkli kopyala",
+  "quotecard.copied": "Şəkil kopyalandı.",
+  "quotecard.copyFailed": "Şəkli kopyalamaq mümkün olmadı.",
+  "quotecard.failed": "Şəkli yaratmaq mümkün olmadı.",
+  "quotecard.lightTheme": "Açıq kart"
 }

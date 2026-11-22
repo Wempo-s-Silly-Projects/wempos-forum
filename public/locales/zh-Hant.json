@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "這篇貼文",
   "threadActions.staff": "管理團隊",
-  "threadActions.editTags": "編輯標籤"
+  "threadActions.editTags": "編輯標籤",
+  "quotecard.action": "引用卡片",
+  "quotecard.actionLabel": "為 {name} 製作引用卡片",
+  "quotecard.title": "引用卡片",
+  "quotecard.preparing": "正在繪製卡片…",
+  "quotecard.download": "下載 PNG",
+  "quotecard.copy": "複製圖片",
+  "quotecard.copied": "圖片已複製。",
+  "quotecard.copyFailed": "無法複製圖片。",
+  "quotecard.failed": "無法產生圖片。",
+  "quotecard.lightTheme": "淺色卡片"
 }

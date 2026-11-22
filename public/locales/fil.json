@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Pagbabahagi",
   "threadActions.thisPost": "Ang post na ito",
   "threadActions.staff": "Kawani",
-  "threadActions.editTags": "I-edit ang mga tag"
+  "threadActions.editTags": "I-edit ang mga tag",
+  "quotecard.action": "Kard ng sipi",
+  "quotecard.actionLabel": "Gumawa ng kard ng sipi mula kay {name}",
+  "quotecard.title": "Kard ng sipi",
+  "quotecard.preparing": "Iginuguhit ang kard…",
+  "quotecard.download": "I-download ang PNG",
+  "quotecard.copy": "Kopyahin ang larawan",
+  "quotecard.copied": "Nakopya ang larawan.",
+  "quotecard.copyFailed": "Hindi makopya ang larawan.",
+  "quotecard.failed": "Hindi magawa ang larawan.",
+  "quotecard.lightTheme": "Maliwanag na kard"
 }

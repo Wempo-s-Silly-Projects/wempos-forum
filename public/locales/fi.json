@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Jakaminen",
   "threadActions.thisPost": "Tämä viesti",
   "threadActions.staff": "Ylläpito",
-  "threadActions.editTags": "Muokkaa tunnisteita"
+  "threadActions.editTags": "Muokkaa tunnisteita",
+  "quotecard.action": "Lainauskortti",
+  "quotecard.actionLabel": "Tee lainauskortti käyttäjältä {name}",
+  "quotecard.title": "Lainauskortti",
+  "quotecard.preparing": "Piirretään korttia…",
+  "quotecard.download": "Lataa PNG",
+  "quotecard.copy": "Kopioi kuva",
+  "quotecard.copied": "Kuva kopioitu.",
+  "quotecard.copyFailed": "Kuvaa ei voitu kopioida.",
+  "quotecard.failed": "Kuvaa ei voitu tehdä.",
+  "quotecard.lightTheme": "Vaalea kortti"
 }

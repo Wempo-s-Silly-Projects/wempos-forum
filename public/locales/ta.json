@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "பகிர்தல்",
   "threadActions.thisPost": "இந்த இடுகை",
   "threadActions.staff": "பணியாளர்கள்",
-  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து"
+  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து",
+  "quotecard.action": "மேற்கோள் அட்டை",
+  "quotecard.actionLabel": "{name} இடமிருந்து மேற்கோள் அட்டை உருவாக்கு",
+  "quotecard.title": "மேற்கோள் அட்டை",
+  "quotecard.preparing": "அட்டை வரையப்படுகிறது…",
+  "quotecard.download": "PNG பதிவிறக்கு",
+  "quotecard.copy": "படத்தை நகலெடு",
+  "quotecard.copied": "படம் நகலெடுக்கப்பட்டது.",
+  "quotecard.copyFailed": "படத்தை நகலெடுக்க முடியவில்லை.",
+  "quotecard.failed": "படத்தை உருவாக்க முடியவில்லை.",
+  "quotecard.lightTheme": "வெளிர் அட்டை"
 }

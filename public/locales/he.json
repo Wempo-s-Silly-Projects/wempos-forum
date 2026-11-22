@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "שיתוף",
   "threadActions.thisPost": "הפוסט הזה",
   "threadActions.staff": "צוות",
-  "threadActions.editTags": "עריכת תגיות"
+  "threadActions.editTags": "עריכת תגיות",
+  "quotecard.action": "כרטיס ציטוט",
+  "quotecard.actionLabel": "יצירת כרטיס ציטוט מ־{name}",
+  "quotecard.title": "כרטיס ציטוט",
+  "quotecard.preparing": "מצייר את הכרטיס…",
+  "quotecard.download": "הורדת PNG",
+  "quotecard.copy": "העתקת התמונה",
+  "quotecard.copied": "התמונה הועתקה.",
+  "quotecard.copyFailed": "לא ניתן היה להעתיק את התמונה.",
+  "quotecard.failed": "לא ניתן היה ליצור את התמונה.",
+  "quotecard.lightTheme": "כרטיס בהיר"
 }

@@ -31,6 +31,7 @@ import { createCopyLinkButton } from "./copy-link.js";
 import { createCopyCodeButton } from "./copy-code.js";
 import { codeBlockPlan, highlightCodeBlocks } from "./code-highlight.js";
 import { createReadAloud } from "./read-aloud.js";
+import { createQuoteCardButton } from "./quote-card-action.js";
 import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";
 import { isQotdBody } from "./traditions.js";
 import { createFoldedBody, isLongPost } from "./long-post.js";
@@ -416,6 +417,9 @@ export const createPostCard = (post, document, currentUser = null) => {
   // Read aloud (wave 2026-11-21-7 F3): on-device voices only, per click.
   const readAloud = createReadAloud(document, () => article.postBody);
   if (readAloud) actions.append(readAloud);
+  // Quote card (Batch O): a shareable image of visible content, drawn client-side.
+  const quoteCard = createQuoteCardButton(document, post, currentUser);
+  if (quoteCard) actions.append(quoteCard);
   if (currentUser && post.visibility !== "hidden") {
     const report = createElement(document, "button", "button button-quiet icon-button");
     report.type = "button";

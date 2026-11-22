@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "การแชร์",
   "threadActions.thisPost": "โพสต์นี้",
   "threadActions.staff": "ทีมงาน",
-  "threadActions.editTags": "แก้ไขแท็ก"
+  "threadActions.editTags": "แก้ไขแท็ก",
+  "quotecard.action": "การ์ดคำคม",
+  "quotecard.actionLabel": "สร้างการ์ดคำคมจาก {name}",
+  "quotecard.title": "การ์ดคำคม",
+  "quotecard.preparing": "กำลังวาดการ์ด…",
+  "quotecard.download": "ดาวน์โหลด PNG",
+  "quotecard.copy": "คัดลอกรูปภาพ",
+  "quotecard.copied": "คัดลอกรูปภาพแล้ว",
+  "quotecard.copyFailed": "คัดลอกรูปภาพไม่ได้",
+  "quotecard.failed": "สร้างรูปภาพไม่ได้",
+  "quotecard.lightTheme": "การ์ดสีอ่อน"
 }

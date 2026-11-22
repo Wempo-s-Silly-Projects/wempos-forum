@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Ашара",
   "threadActions.thisPost": "Ари аҭыжьымҭа",
   "threadActions.staff": "Аперсонал",
-  "threadActions.editTags": "Атегқәа рыриашара"
+  "threadActions.editTags": "Атегқәа рыриашара",
+  "quotecard.action": "Ацитата акарточка",
+  "quotecard.actionLabel": "{name} ицитата акарточка аҟаҵара",
+  "quotecard.title": "Ацитата акарточка",
+  "quotecard.preparing": "Акарточка аҭыхуп…",
+  "quotecard.download": "PNG аҭагалара",
+  "quotecard.copy": "Асахьа ахкьыԥхьра",
+  "quotecard.copied": "Асахьа ахкьыԥхьуп.",
+  "quotecard.copyFailed": "Асахьа ахкьыԥхьра ауамызт.",
+  "quotecard.failed": "Асахьа аҟаҵара ауамызт.",
+  "quotecard.lightTheme": "Ашкәакәа карточка"
 }

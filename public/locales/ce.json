@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Дийцар",
   "threadActions.thisPost": "Хӏара пост",
   "threadActions.staff": "Белхалой",
-  "threadActions.editTags": "Тегаш нисде"
+  "threadActions.editTags": "Тегаш нисде",
+  "quotecard.action": "Цитатин карточка",
+  "quotecard.actionLabel": "{name} цитатах карточка йе",
+  "quotecard.title": "Цитатин карточка",
+  "quotecard.preparing": "Карточка кечъеш ю…",
+  "quotecard.download": "PNG чуяккха",
+  "quotecard.copy": "Сурт копи йе",
+  "quotecard.copied": "Сурт копи йина.",
+  "quotecard.copyFailed": "Сурт копи йан ца кхийтира.",
+  "quotecard.failed": "Сурт кхолла ца кхийтира.",
+  "quotecard.lightTheme": "Сирла карточка"
 }

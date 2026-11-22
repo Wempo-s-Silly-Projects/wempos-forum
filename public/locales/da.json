@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette indlæg",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tags"
+  "threadActions.editTags": "Rediger tags",
+  "quotecard.action": "Citatkort",
+  "quotecard.actionLabel": "Lav et citatkort fra {name}",
+  "quotecard.title": "Citatkort",
+  "quotecard.preparing": "Tegner kortet…",
+  "quotecard.download": "Hent PNG",
+  "quotecard.copy": "Kopiér billede",
+  "quotecard.copied": "Billede kopieret.",
+  "quotecard.copyFailed": "Billedet kunne ikke kopieres.",
+  "quotecard.failed": "Billedet kunne ikke laves.",
+  "quotecard.lightTheme": "Lyst kort"
 }

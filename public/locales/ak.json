@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Kyɛ",
   "threadActions.thisPost": "Nkyerɛwee yi",
   "threadActions.staff": "Adwumayɛfo",
-  "threadActions.editTags": "Sesa agyiraehyɛde"
+  "threadActions.editTags": "Sesa agyiraehyɛde",
+  "quotecard.action": "Kasa krataa",
+  "quotecard.actionLabel": "Yɛ {name} kasa krataa",
+  "quotecard.title": "Kasa krataa",
+  "quotecard.preparing": "Ɛreyɛ krataa no…",
+  "quotecard.download": "Twe PNG",
+  "quotecard.copy": "Kɔ mfonini no fa",
+  "quotecard.copied": "Wɔakɔ mfonini no afa.",
+  "quotecard.copyFailed": "Yɛantumi ankɔ mfonini no fa.",
+  "quotecard.failed": "Yɛantumi anyɛ mfonini no.",
+  "quotecard.lightTheme": "Krataa a ɛyɛ hann"
 }

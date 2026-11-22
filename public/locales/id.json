@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Berbagi",
   "threadActions.thisPost": "Postingan ini",
   "threadActions.staff": "Staf",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "quotecard.action": "Kartu kutipan",
+  "quotecard.actionLabel": "Buat kartu kutipan dari {name}",
+  "quotecard.title": "Kartu kutipan",
+  "quotecard.preparing": "Menggambar kartu…",
+  "quotecard.download": "Unduh PNG",
+  "quotecard.copy": "Salin gambar",
+  "quotecard.copied": "Gambar disalin.",
+  "quotecard.copyFailed": "Tidak dapat menyalin gambar.",
+  "quotecard.failed": "Tidak dapat membuat gambar.",
+  "quotecard.lightTheme": "Kartu terang"
 }

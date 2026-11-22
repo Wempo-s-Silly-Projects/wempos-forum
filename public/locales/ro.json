@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Distribuire",
   "threadActions.thisPost": "Această postare",
   "threadActions.staff": "Echipă",
-  "threadActions.editTags": "Editează etichetele"
+  "threadActions.editTags": "Editează etichetele",
+  "quotecard.action": "Card cu citat",
+  "quotecard.actionLabel": "Creează un card cu citat de la {name}",
+  "quotecard.title": "Card cu citat",
+  "quotecard.preparing": "Se desenează cardul…",
+  "quotecard.download": "Descarcă PNG",
+  "quotecard.copy": "Copiază imaginea",
+  "quotecard.copied": "Imagine copiată.",
+  "quotecard.copyFailed": "Imaginea nu a putut fi copiată.",
+  "quotecard.failed": "Imaginea nu a putut fi creată.",
+  "quotecard.lightTheme": "Card deschis"
 }

@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette innlegget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tagger"
+  "threadActions.editTags": "Rediger tagger",
+  "quotecard.action": "Sitatkort",
+  "quotecard.actionLabel": "Lag et sitatkort fra {name}",
+  "quotecard.title": "Sitatkort",
+  "quotecard.preparing": "Tegner kortet…",
+  "quotecard.download": "Last ned PNG",
+  "quotecard.copy": "Kopier bilde",
+  "quotecard.copied": "Bildet er kopiert.",
+  "quotecard.copyFailed": "Kunne ikke kopiere bildet.",
+  "quotecard.failed": "Kunne ikke lage bildet.",
+  "quotecard.lightTheme": "Lyst kort"
 }

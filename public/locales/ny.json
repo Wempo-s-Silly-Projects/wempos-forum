@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Kugawana",
   "threadActions.thisPost": "Positi iyi",
   "threadActions.staff": "Oyang'anira",
-  "threadActions.editTags": "Sinthani matagi"
+  "threadActions.editTags": "Sinthani matagi",
+  "quotecard.action": "Khadi la mawu",
+  "quotecard.actionLabel": "Pangani khadi la mawu a {name}",
+  "quotecard.title": "Khadi la mawu",
+  "quotecard.preparing": "Ikujambula khadi…",
+  "quotecard.download": "Tsitsani PNG",
+  "quotecard.copy": "Koperani chithunzi",
+  "quotecard.copied": "Chithunzi chakopedwa.",
+  "quotecard.copyFailed": "Chithunzi sichinakopedwe.",
+  "quotecard.failed": "Chithunzi sichinapangidwe.",
+  "quotecard.lightTheme": "Khadi lowala"
 }

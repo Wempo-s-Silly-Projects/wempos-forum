@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Zdieľanie",
   "threadActions.thisPost": "Tento príspevok",
   "threadActions.staff": "Tím",
-  "threadActions.editTags": "Upraviť štítky"
+  "threadActions.editTags": "Upraviť štítky",
+  "quotecard.action": "Kartička s citátom",
+  "quotecard.actionLabel": "Vytvoriť kartičku s citátom od {name}",
+  "quotecard.title": "Kartička s citátom",
+  "quotecard.preparing": "Kreslím kartičku…",
+  "quotecard.download": "Stiahnuť PNG",
+  "quotecard.copy": "Kopírovať obrázok",
+  "quotecard.copied": "Obrázok skopírovaný.",
+  "quotecard.copyFailed": "Obrázok sa nepodarilo skopírovať.",
+  "quotecard.failed": "Obrázok sa nepodarilo vytvoriť.",
+  "quotecard.lightTheme": "Svetlá kartička"
 }

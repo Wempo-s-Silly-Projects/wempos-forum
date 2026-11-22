@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Sharing",
   "threadActions.thisPost": "This post",
   "threadActions.staff": "Staff",
-  "threadActions.editTags": "Edit tags"
+  "threadActions.editTags": "Edit tags",
+  "quotecard.action": "Quote card",
+  "quotecard.actionLabel": "Make a quote card from {name}",
+  "quotecard.title": "Quote card",
+  "quotecard.preparing": "Drawing the card…",
+  "quotecard.download": "Download PNG",
+  "quotecard.copy": "Copy image",
+  "quotecard.copied": "Image copied.",
+  "quotecard.copyFailed": "Couldn't copy the image.",
+  "quotecard.failed": "Couldn't make the image.",
+  "quotecard.lightTheme": "Light card"
 }

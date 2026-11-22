@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Uñt'ayaña",
   "threadActions.thisPost": "Aka qillqata",
   "threadActions.staff": "Irnaqirinaka",
-  "threadActions.editTags": "Chimpunak askichaña"
+  "threadActions.editTags": "Chimpunak askichaña",
+  "quotecard.action": "Arsut tarjeta",
+  "quotecard.actionLabel": "{name} ukan arsupat tarjeta luraña",
+  "quotecard.title": "Arsut tarjeta",
+  "quotecard.preparing": "Tarjeta dibujaski…",
+  "quotecard.download": "PNG apsuña",
+  "quotecard.copy": "Jamuqa qillqantaña",
+  "quotecard.copied": "Jamuqax qillqantatawa.",
+  "quotecard.copyFailed": "Jamuqax janiw qillqantañjamäkänti.",
+  "quotecard.failed": "Jamuqax janiw lurañjamäkänti.",
+  "quotecard.lightTheme": "Qhana tarjeta"
 }

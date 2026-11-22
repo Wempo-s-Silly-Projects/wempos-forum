@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Sasem",
   "threadActions.thisPost": "Pos ia",
   "threadActions.staff": "Stafe",
-  "threadActions.editTags": "Janjem tag"
+  "threadActions.editTags": "Janjem tag",
+  "quotecard.action": "Kad blong kotem",
+  "quotecard.actionLabel": "Mekem wan kad blong kotem {name}",
+  "quotecard.title": "Kad blong kotem",
+  "quotecard.preparing": "I stap droem kad…",
+  "quotecard.download": "Daonlodem PNG",
+  "quotecard.copy": "Kopi pija",
+  "quotecard.copied": "Pija i kopi finis.",
+  "quotecard.copyFailed": "I no save kopi pija.",
+  "quotecard.failed": "I no save mekem pija.",
+  "quotecard.lightTheme": "Kad we i laet"
 }

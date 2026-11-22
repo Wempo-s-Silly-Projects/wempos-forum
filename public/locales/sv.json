@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Dela",
   "threadActions.thisPost": "Det här inlägget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Redigera taggar"
+  "threadActions.editTags": "Redigera taggar",
+  "quotecard.action": "Citatkort",
+  "quotecard.actionLabel": "Skapa ett citatkort från {name}",
+  "quotecard.title": "Citatkort",
+  "quotecard.preparing": "Ritar kortet…",
+  "quotecard.download": "Ladda ner PNG",
+  "quotecard.copy": "Kopiera bild",
+  "quotecard.copied": "Bilden kopierades.",
+  "quotecard.copyFailed": "Det gick inte att kopiera bilden.",
+  "quotecard.failed": "Det gick inte att skapa bilden.",
+  "quotecard.lightTheme": "Ljust kort"
 }

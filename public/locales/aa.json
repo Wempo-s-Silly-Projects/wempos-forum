@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Farakkiyya",
   "threadActions.thisPost": "Ah kitbat",
   "threadActions.staff": "Taamitte",
-  "threadActions.editTags": "Astooti massos"
+  "threadActions.editTags": "Astooti massos",
+  "quotecard.action": "Xagis kaarti",
+  "quotecard.actionLabel": "{name} xagisak kaarti ab",
+  "quotecard.title": "Xagis kaarti",
+  "quotecard.preparing": "Kaarti culsimaah tan…",
+  "quotecard.download": "PNG oobis",
+  "quotecard.copy": "Suurat xagis",
+  "quotecard.copied": "Suurat xagisimeh.",
+  "quotecard.copyFailed": "Suurat xagisimuh maduddumne.",
+  "quotecard.failed": "Suurat abimuh maduddumne.",
+  "quotecard.lightTheme": "Ifo kaarti"
 }

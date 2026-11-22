@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Teilen",
   "threadActions.thisPost": "Dieser Beitrag",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Tags bearbeiten"
+  "threadActions.editTags": "Tags bearbeiten",
+  "quotecard.action": "Zitatkarte",
+  "quotecard.actionLabel": "Zitatkarte von {name} erstellen",
+  "quotecard.title": "Zitatkarte",
+  "quotecard.preparing": "Karte wird gezeichnet…",
+  "quotecard.download": "PNG herunterladen",
+  "quotecard.copy": "Bild kopieren",
+  "quotecard.copied": "Bild kopiert.",
+  "quotecard.copyFailed": "Das Bild konnte nicht kopiert werden.",
+  "quotecard.failed": "Das Bild konnte nicht erstellt werden.",
+  "quotecard.lightTheme": "Helle Karte"
 }

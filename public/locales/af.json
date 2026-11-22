@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Deel",
   "threadActions.thisPost": "Hierdie plasing",
   "threadActions.staff": "Personeel",
-  "threadActions.editTags": "Wysig etikette"
+  "threadActions.editTags": "Wysig etikette",
+  "quotecard.action": "Aanhalingskaart",
+  "quotecard.actionLabel": "Maak 'n aanhalingskaart van {name}",
+  "quotecard.title": "Aanhalingskaart",
+  "quotecard.preparing": "Teken die kaart…",
+  "quotecard.download": "Laai PNG af",
+  "quotecard.copy": "Kopieer prent",
+  "quotecard.copied": "Prent gekopieer.",
+  "quotecard.copyFailed": "Kon nie die prent kopieer nie.",
+  "quotecard.failed": "Kon nie die prent maak nie.",
+  "quotecard.lightTheme": "Ligte kaart"
 }

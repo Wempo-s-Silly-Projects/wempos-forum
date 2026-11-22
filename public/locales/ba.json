@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Уртаҡлашыу",
   "threadActions.thisPost": "Был яҙма",
   "threadActions.staff": "Хеҙмәткәрҙәр",
-  "threadActions.editTags": "Тегтарҙы мөхәррирләргә"
+  "threadActions.editTags": "Тегтарҙы мөхәррирләргә",
+  "quotecard.action": "Өҙөмтә карточкаһы",
+  "quotecard.actionLabel": "{name} өҙөмтәһе менән карточка яһарға",
+  "quotecard.title": "Өҙөмтә карточкаһы",
+  "quotecard.preparing": "Карточка һүрәтләнә…",
+  "quotecard.download": "PNG йөкләргә",
+  "quotecard.copy": "Һүрәтте күсерергә",
+  "quotecard.copied": "Һүрәт күсерелде.",
+  "quotecard.copyFailed": "Һүрәтте күсереп булманы.",
+  "quotecard.failed": "Һүрәтте яһап булманы.",
+  "quotecard.lightTheme": "Яҡты карточка"
 }

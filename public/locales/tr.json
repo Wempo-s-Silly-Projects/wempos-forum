@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Paylaşım",
   "threadActions.thisPost": "Bu gönderi",
   "threadActions.staff": "Ekip",
-  "threadActions.editTags": "Etiketleri düzenle"
+  "threadActions.editTags": "Etiketleri düzenle",
+  "quotecard.action": "Alıntı kartı",
+  "quotecard.actionLabel": "{name} için alıntı kartı oluştur",
+  "quotecard.title": "Alıntı kartı",
+  "quotecard.preparing": "Kart çiziliyor…",
+  "quotecard.download": "PNG indir",
+  "quotecard.copy": "Görseli kopyala",
+  "quotecard.copied": "Görsel kopyalandı.",
+  "quotecard.copyFailed": "Görsel kopyalanamadı.",
+  "quotecard.failed": "Görsel oluşturulamadı.",
+  "quotecard.lightTheme": "Açık kart"
 }

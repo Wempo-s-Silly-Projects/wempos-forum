@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Поделиться",
   "threadActions.thisPost": "Этот пост",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Изменить теги"
+  "threadActions.editTags": "Изменить теги",
+  "quotecard.action": "Карточка с цитатой",
+  "quotecard.actionLabel": "Сделать карточку с цитатой {name}",
+  "quotecard.title": "Карточка с цитатой",
+  "quotecard.preparing": "Рисуем карточку…",
+  "quotecard.download": "Скачать PNG",
+  "quotecard.copy": "Копировать изображение",
+  "quotecard.copied": "Изображение скопировано.",
+  "quotecard.copyFailed": "Не удалось скопировать изображение.",
+  "quotecard.failed": "Не удалось создать изображение.",
+  "quotecard.lightTheme": "Светлая карточка"
 }

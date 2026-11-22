@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Rannañ",
   "threadActions.thisPost": "Ar gemennadenn-mañ",
   "threadActions.staff": "Kefridi",
-  "threadActions.editTags": "Kemmañ ar skritelloù"
+  "threadActions.editTags": "Kemmañ ar skritelloù",
+  "quotecard.action": "Kartenn venegiñ",
+  "quotecard.actionLabel": "Ober ur gartenn venegiñ eus {name}",
+  "quotecard.title": "Kartenn venegiñ",
+  "quotecard.preparing": "O tresañ ar gartenn…",
+  "quotecard.download": "Pellgargañ PNG",
+  "quotecard.copy": "Eilañ ar skeudenn",
+  "quotecard.copied": "Skeudenn eilet.",
+  "quotecard.copyFailed": "N'eus ket bet gallet eilañ ar skeudenn.",
+  "quotecard.failed": "N'eus ket bet gallet ober ar skeudenn.",
+  "quotecard.lightTheme": "Kartenn sklaer"
 }

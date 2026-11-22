@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Ndarja",
   "threadActions.thisPost": "Ky postim",
   "threadActions.staff": "Stafi",
-  "threadActions.editTags": "Ndrysho etiketat"
+  "threadActions.editTags": "Ndrysho etiketat",
+  "quotecard.action": "Kartë citimi",
+  "quotecard.actionLabel": "Krijo një kartë citimi nga {name}",
+  "quotecard.title": "Kartë citimi",
+  "quotecard.preparing": "Po vizatohet karta…",
+  "quotecard.download": "Shkarko PNG",
+  "quotecard.copy": "Kopjo imazhin",
+  "quotecard.copied": "Imazhi u kopjua.",
+  "quotecard.copyFailed": "Imazhi nuk u kopjua dot.",
+  "quotecard.failed": "Imazhi nuk u krijua dot.",
+  "quotecard.lightTheme": "Kartë e çelët"
 }

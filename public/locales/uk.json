@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Поширення",
   "threadActions.thisPost": "Цей допис",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Змінити теги"
+  "threadActions.editTags": "Змінити теги",
+  "quotecard.action": "Картка з цитатою",
+  "quotecard.actionLabel": "Створити картку з цитатою {name}",
+  "quotecard.title": "Картка з цитатою",
+  "quotecard.preparing": "Малюємо картку…",
+  "quotecard.download": "Завантажити PNG",
+  "quotecard.copy": "Копіювати зображення",
+  "quotecard.copied": "Зображення скопійовано.",
+  "quotecard.copyFailed": "Не вдалося скопіювати зображення.",
+  "quotecard.failed": "Не вдалося створити зображення.",
+  "quotecard.lightTheme": "Світла картка"
 }

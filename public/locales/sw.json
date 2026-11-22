@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Kushiriki",
   "threadActions.thisPost": "Chapisho hili",
   "threadActions.staff": "Wafanyakazi",
-  "threadActions.editTags": "Hariri lebo"
+  "threadActions.editTags": "Hariri lebo",
+  "quotecard.action": "Kadi ya nukuu",
+  "quotecard.actionLabel": "Tengeneza kadi ya nukuu kutoka kwa {name}",
+  "quotecard.title": "Kadi ya nukuu",
+  "quotecard.preparing": "Inachora kadi…",
+  "quotecard.download": "Pakua PNG",
+  "quotecard.copy": "Nakili picha",
+  "quotecard.copied": "Picha imenakiliwa.",
+  "quotecard.copyFailed": "Imeshindwa kunakili picha.",
+  "quotecard.failed": "Imeshindwa kutengeneza picha.",
+  "quotecard.lightTheme": "Kadi angavu"
 }

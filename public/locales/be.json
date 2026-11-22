@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Падзяліцца",
   "threadActions.thisPost": "Гэты допіс",
   "threadActions.staff": "Каманда",
-  "threadActions.editTags": "Рэдагаваць тэгі"
+  "threadActions.editTags": "Рэдагаваць тэгі",
+  "quotecard.action": "Картка з цытатай",
+  "quotecard.actionLabel": "Зрабіць картку з цытатай {name}",
+  "quotecard.title": "Картка з цытатай",
+  "quotecard.preparing": "Малюем картку…",
+  "quotecard.download": "Спампаваць PNG",
+  "quotecard.copy": "Скапіраваць выяву",
+  "quotecard.copied": "Выява скапіравана.",
+  "quotecard.copyFailed": "Не ўдалося скапіраваць выяву.",
+  "quotecard.failed": "Не ўдалося стварыць выяву.",
+  "quotecard.lightTheme": "Светлая картка"
 }

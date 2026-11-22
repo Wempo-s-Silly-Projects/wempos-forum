@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Дељење",
   "threadActions.thisPost": "Ова објава",
   "threadActions.staff": "Особље",
-  "threadActions.editTags": "Уреди ознаке"
+  "threadActions.editTags": "Уреди ознаке",
+  "quotecard.action": "Kartica sa citatom",
+  "quotecard.actionLabel": "Napravi karticu sa citatom od {name}",
+  "quotecard.title": "Kartica sa citatom",
+  "quotecard.preparing": "Crtanje kartice…",
+  "quotecard.download": "Preuzmi PNG",
+  "quotecard.copy": "Kopiraj sliku",
+  "quotecard.copied": "Slika je kopirana.",
+  "quotecard.copyFailed": "Slika nije mogla da se kopira.",
+  "quotecard.failed": "Slika nije mogla da se napravi.",
+  "quotecard.lightTheme": "Svetla kartica"
 }

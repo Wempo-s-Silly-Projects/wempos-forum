@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Berkongsi",
   "threadActions.thisPost": "Siaran ini",
   "threadActions.staff": "Kakitangan",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "quotecard.action": "Kad petikan",
+  "quotecard.actionLabel": "Buat kad petikan daripada {name}",
+  "quotecard.title": "Kad petikan",
+  "quotecard.preparing": "Melukis kad…",
+  "quotecard.download": "Muat turun PNG",
+  "quotecard.copy": "Salin imej",
+  "quotecard.copied": "Imej disalin.",
+  "quotecard.copyFailed": "Tidak dapat menyalin imej.",
+  "quotecard.failed": "Tidak dapat membuat imej.",
+  "quotecard.lightTheme": "Kad cerah"
 }

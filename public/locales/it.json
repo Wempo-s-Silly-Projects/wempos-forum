@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Condivisione",
   "threadActions.thisPost": "Questo post",
   "threadActions.staff": "Staff",
-  "threadActions.editTags": "Modifica tag"
+  "threadActions.editTags": "Modifica tag",
+  "quotecard.action": "Scheda citazione",
+  "quotecard.actionLabel": "Crea una scheda citazione di {name}",
+  "quotecard.title": "Scheda citazione",
+  "quotecard.preparing": "Disegno della scheda…",
+  "quotecard.download": "Scarica PNG",
+  "quotecard.copy": "Copia immagine",
+  "quotecard.copied": "Immagine copiata.",
+  "quotecard.copyFailed": "Impossibile copiare l’immagine.",
+  "quotecard.failed": "Impossibile creare l’immagine.",
+  "quotecard.lightTheme": "Scheda chiara"
 }

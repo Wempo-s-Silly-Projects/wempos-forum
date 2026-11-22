@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Ista publicación",
   "threadActions.staff": "Equipo",
-  "threadActions.editTags": "Editar etiquetas"
+  "threadActions.editTags": "Editar etiquetas",
+  "quotecard.action": "Tarcheta de cita",
+  "quotecard.actionLabel": "Fer una tarcheta de cita de {name}",
+  "quotecard.title": "Tarcheta de cita",
+  "quotecard.preparing": "Dibuixando a tarcheta…",
+  "quotecard.download": "Descargar PNG",
+  "quotecard.copy": "Copiar imachen",
+  "quotecard.copied": "Imachen copiada.",
+  "quotecard.copyFailed": "No s'ha puesto copiar a imachen.",
+  "quotecard.failed": "No s'ha puesto fer a imachen.",
+  "quotecard.lightTheme": "Tarcheta clara"
 }

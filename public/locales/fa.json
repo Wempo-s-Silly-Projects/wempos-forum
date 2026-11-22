@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "اشتراک‌گذاری",
   "threadActions.thisPost": "این پست",
   "threadActions.staff": "کادر",
-  "threadActions.editTags": "ویرایش برچسب‌ها"
+  "threadActions.editTags": "ویرایش برچسب‌ها",
+  "quotecard.action": "کارت نقل‌قول",
+  "quotecard.actionLabel": "ساخت کارت نقل‌قول از {name}",
+  "quotecard.title": "کارت نقل‌قول",
+  "quotecard.preparing": "در حال کشیدن کارت…",
+  "quotecard.download": "بارگیری PNG",
+  "quotecard.copy": "رونوشت تصویر",
+  "quotecard.copied": "تصویر رونوشت شد.",
+  "quotecard.copyFailed": "رونوشت تصویر ممکن نشد.",
+  "quotecard.failed": "ساخت تصویر ممکن نشد.",
+  "quotecard.lightTheme": "کارت روشن"
 }

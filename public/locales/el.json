@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Κοινοποίηση",
   "threadActions.thisPost": "Αυτή η ανάρτηση",
   "threadActions.staff": "Ομάδα",
-  "threadActions.editTags": "Επεξεργασία ετικετών"
+  "threadActions.editTags": "Επεξεργασία ετικετών",
+  "quotecard.action": "Κάρτα παράθεσης",
+  "quotecard.actionLabel": "Δημιουργία κάρτας παράθεσης από {name}",
+  "quotecard.title": "Κάρτα παράθεσης",
+  "quotecard.preparing": "Σχεδίαση της κάρτας…",
+  "quotecard.download": "Λήψη PNG",
+  "quotecard.copy": "Αντιγραφή εικόνας",
+  "quotecard.copied": "Η εικόνα αντιγράφηκε.",
+  "quotecard.copyFailed": "Δεν ήταν δυνατή η αντιγραφή της εικόνας.",
+  "quotecard.failed": "Δεν ήταν δυνατή η δημιουργία της εικόνας.",
+  "quotecard.lightTheme": "Φωτεινή κάρτα"
 }

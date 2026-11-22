@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Partekatzea",
   "threadActions.thisPost": "Bidalketa hau",
   "threadActions.staff": "Taldea",
-  "threadActions.editTags": "Editatu etiketak"
+  "threadActions.editTags": "Editatu etiketak",
+  "quotecard.action": "Aipu-txartela",
+  "quotecard.actionLabel": "Sortu {name}(r)en aipu-txartela",
+  "quotecard.title": "Aipu-txartela",
+  "quotecard.preparing": "Txartela marrazten…",
+  "quotecard.download": "Deskargatu PNG",
+  "quotecard.copy": "Kopiatu irudia",
+  "quotecard.copied": "Irudia kopiatu da.",
+  "quotecard.copyFailed": "Ezin izan da irudia kopiatu.",
+  "quotecard.failed": "Ezin izan da irudia sortu.",
+  "quotecard.lightTheme": "Txartel argia"
 }

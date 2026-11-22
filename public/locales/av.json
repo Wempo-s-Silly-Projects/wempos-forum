@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Бикьи",
   "threadActions.thisPost": "Гьаб пост",
   "threadActions.staff": "Персонал",
-  "threadActions.editTags": "Тегал хисизе"
+  "threadActions.editTags": "Тегал хисизе",
+  "quotecard.action": "Цитатаялъул карточка",
+  "quotecard.actionLabel": "{name}сул цитатаялъул карточка гьабизе",
+  "quotecard.title": "Цитатаялъул карточка",
+  "quotecard.preparing": "Карточка бахъулеб буго…",
+  "quotecard.download": "PNG рачӏинабизе",
+  "quotecard.copy": "Сурат копия гьабизе",
+  "quotecard.copied": "Сурат копия гьабуна.",
+  "quotecard.copyFailed": "Сурат копия гьабизе кӏвечӏо.",
+  "quotecard.failed": "Сурат гьабизе кӏвечӏо.",
+  "quotecard.lightTheme": "Чӏахӏияб карточка"
 }

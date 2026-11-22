@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Sdílení",
   "threadActions.thisPost": "Tento příspěvek",
   "threadActions.staff": "Tým",
-  "threadActions.editTags": "Upravit štítky"
+  "threadActions.editTags": "Upravit štítky",
+  "quotecard.action": "Kartička s citátem",
+  "quotecard.actionLabel": "Vytvořit kartičku s citátem od {name}",
+  "quotecard.title": "Kartička s citátem",
+  "quotecard.preparing": "Kreslím kartičku…",
+  "quotecard.download": "Stáhnout PNG",
+  "quotecard.copy": "Kopírovat obrázek",
+  "quotecard.copied": "Obrázek zkopírován.",
+  "quotecard.copyFailed": "Obrázek se nepodařilo zkopírovat.",
+  "quotecard.failed": "Obrázek se nepodařilo vytvořit.",
+  "quotecard.lightTheme": "Světlá kartička"
 }

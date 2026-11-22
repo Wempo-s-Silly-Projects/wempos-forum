@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Пайлашу",
   "threadActions.thisPost": "Ку пост",
   "threadActions.staff": "Ӗҫченсем",
-  "threadActions.editTags": "Тегсене улӑштар"
+  "threadActions.editTags": "Тегсене улӑштар",
+  "quotecard.action": "Цитата карточки",
+  "quotecard.actionLabel": "{name} цитатипе карточка ту",
+  "quotecard.title": "Цитата карточки",
+  "quotecard.preparing": "Карточкӑна ӳкеретпӗр…",
+  "quotecard.download": "PNG тие",
+  "quotecard.copy": "Ӳкерчӗке копила",
+  "quotecard.copied": "Ӳкерчӗк копиленӗ.",
+  "quotecard.copyFailed": "Ӳкерчӗке копилеме май килмерӗ.",
+  "quotecard.failed": "Ӳкерчӗк тума май килмерӗ.",
+  "quotecard.lightTheme": "Ҫутӑ карточка"
 }

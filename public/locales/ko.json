@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "공유",
   "threadActions.thisPost": "이 게시물",
   "threadActions.staff": "운영진",
-  "threadActions.editTags": "태그 편집"
+  "threadActions.editTags": "태그 편집",
+  "quotecard.action": "인용 카드",
+  "quotecard.actionLabel": "{name}님의 인용 카드 만들기",
+  "quotecard.title": "인용 카드",
+  "quotecard.preparing": "카드를 그리는 중…",
+  "quotecard.download": "PNG 다운로드",
+  "quotecard.copy": "이미지 복사",
+  "quotecard.copied": "이미지를 복사했습니다.",
+  "quotecard.copyFailed": "이미지를 복사할 수 없습니다.",
+  "quotecard.failed": "이미지를 만들 수 없습니다.",
+  "quotecard.lightTheme": "밝은 카드"
 }

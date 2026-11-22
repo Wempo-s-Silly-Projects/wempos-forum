@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "المشاركة",
   "threadActions.thisPost": "هذا المنشور",
   "threadActions.staff": "الطاقم",
-  "threadActions.editTags": "تعديل الوسوم"
+  "threadActions.editTags": "تعديل الوسوم",
+  "quotecard.action": "بطاقة اقتباس",
+  "quotecard.actionLabel": "إنشاء بطاقة اقتباس من {name}",
+  "quotecard.title": "بطاقة اقتباس",
+  "quotecard.preparing": "جارٍ رسم البطاقة…",
+  "quotecard.download": "تنزيل PNG",
+  "quotecard.copy": "نسخ الصورة",
+  "quotecard.copied": "تم نسخ الصورة.",
+  "quotecard.copyFailed": "تعذّر نسخ الصورة.",
+  "quotecard.failed": "تعذّر إنشاء الصورة.",
+  "quotecard.lightTheme": "بطاقة فاتحة"
 }

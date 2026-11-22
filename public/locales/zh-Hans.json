@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "这篇帖子",
   "threadActions.staff": "管理团队",
-  "threadActions.editTags": "编辑标签"
+  "threadActions.editTags": "编辑标签",
+  "quotecard.action": "引用卡片",
+  "quotecard.actionLabel": "为 {name} 制作引用卡片",
+  "quotecard.title": "引用卡片",
+  "quotecard.preparing": "正在绘制卡片…",
+  "quotecard.download": "下载 PNG",
+  "quotecard.copy": "复制图片",
+  "quotecard.copied": "图片已复制。",
+  "quotecard.copyFailed": "无法复制图片。",
+  "quotecard.failed": "无法生成图片。",
+  "quotecard.lightTheme": "浅色卡片"
 }

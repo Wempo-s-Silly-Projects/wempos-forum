@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Udostępnianie",
   "threadActions.thisPost": "Ten post",
   "threadActions.staff": "Zespół",
-  "threadActions.editTags": "Edytuj tagi"
+  "threadActions.editTags": "Edytuj tagi",
+  "quotecard.action": "Karta z cytatem",
+  "quotecard.actionLabel": "Utwórz kartę z cytatem od {name}",
+  "quotecard.title": "Karta z cytatem",
+  "quotecard.preparing": "Rysowanie karty…",
+  "quotecard.download": "Pobierz PNG",
+  "quotecard.copy": "Kopiuj obraz",
+  "quotecard.copied": "Obraz skopiowany.",
+  "quotecard.copyFailed": "Nie udało się skopiować obrazu.",
+  "quotecard.failed": "Nie udało się utworzyć obrazu.",
+  "quotecard.lightTheme": "Jasna karta"
 }

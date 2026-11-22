@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Esta publicación",
   "threadActions.staff": "Equipo",
-  "threadActions.editTags": "Editar etiquetas"
+  "threadActions.editTags": "Editar etiquetas",
+  "quotecard.action": "Tarjeta de cita",
+  "quotecard.actionLabel": "Crear una tarjeta de cita de {name}",
+  "quotecard.title": "Tarjeta de cita",
+  "quotecard.preparing": "Dibujando la tarjeta…",
+  "quotecard.download": "Descargar PNG",
+  "quotecard.copy": "Copiar imagen",
+  "quotecard.copied": "Imagen copiada.",
+  "quotecard.copyFailed": "No se pudo copiar la imagen.",
+  "quotecard.failed": "No se pudo crear la imagen.",
+  "quotecard.lightTheme": "Tarjeta clara"
 }

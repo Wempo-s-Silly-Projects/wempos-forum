@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Chia sẻ",
   "threadActions.thisPost": "Bài viết này",
   "threadActions.staff": "Ban quản trị",
-  "threadActions.editTags": "Sửa thẻ"
+  "threadActions.editTags": "Sửa thẻ",
+  "quotecard.action": "Thẻ trích dẫn",
+  "quotecard.actionLabel": "Tạo thẻ trích dẫn từ {name}",
+  "quotecard.title": "Thẻ trích dẫn",
+  "quotecard.preparing": "Đang vẽ thẻ…",
+  "quotecard.download": "Tải xuống PNG",
+  "quotecard.copy": "Sao chép ảnh",
+  "quotecard.copied": "Đã sao chép ảnh.",
+  "quotecard.copyFailed": "Không thể sao chép ảnh.",
+  "quotecard.failed": "Không thể tạo ảnh.",
+  "quotecard.lightTheme": "Thẻ sáng"
 }

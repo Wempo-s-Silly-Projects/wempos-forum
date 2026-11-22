@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "শ্বেয়াৰ",
   "threadActions.thisPost": "এই পোষ্ট",
   "threadActions.staff": "কৰ্মী",
-  "threadActions.editTags": "টেগ সম্পাদনা কৰক"
+  "threadActions.editTags": "টেগ সম্পাদনা কৰক",
+  "quotecard.action": "উদ্ধৃতি কাৰ্ড",
+  "quotecard.actionLabel": "{name}ৰ পৰা উদ্ধৃতি কাৰ্ড বনাওক",
+  "quotecard.title": "উদ্ধৃতি কাৰ্ড",
+  "quotecard.preparing": "কাৰ্ডখন আঁকি আছে…",
+  "quotecard.download": "PNG ডাউনলোড কৰক",
+  "quotecard.copy": "ছবি কপি কৰক",
+  "quotecard.copied": "ছবি কপি কৰা হ'ল।",
+  "quotecard.copyFailed": "ছবি কপি কৰিব পৰা নগ'ল।",
+  "quotecard.failed": "ছবি বনাব পৰা নগ'ল।",
+  "quotecard.lightTheme": "পাতল কাৰ্ড"
 }

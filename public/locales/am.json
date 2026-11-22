@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "ማጋራት",
   "threadActions.thisPost": "ይህ ልጥፍ",
   "threadActions.staff": "ሠራተኞች",
-  "threadActions.editTags": "መለያዎችን አርትዕ"
+  "threadActions.editTags": "መለያዎችን አርትዕ",
+  "quotecard.action": "የጥቅስ ካርድ",
+  "quotecard.actionLabel": "ከ{name} የጥቅስ ካርድ ፍጠር",
+  "quotecard.title": "የጥቅስ ካርድ",
+  "quotecard.preparing": "ካርዱን በመሳል ላይ…",
+  "quotecard.download": "PNG አውርድ",
+  "quotecard.copy": "ምስል ቅዳ",
+  "quotecard.copied": "ምስሉ ተቀድቷል።",
+  "quotecard.copyFailed": "ምስሉን መቅዳት አልተቻለም።",
+  "quotecard.failed": "ምስሉን መፍጠር አልተቻለም።",
+  "quotecard.lightTheme": "ቀላል ካርድ"
 }

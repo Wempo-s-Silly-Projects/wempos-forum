@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Megosztás",
   "threadActions.thisPost": "Ez a bejegyzés",
   "threadActions.staff": "Csapat",
-  "threadActions.editTags": "Címkék szerkesztése"
+  "threadActions.editTags": "Címkék szerkesztése",
+  "quotecard.action": "Idézetkártya",
+  "quotecard.actionLabel": "Idézetkártya készítése {name} szavaiból",
+  "quotecard.title": "Idézetkártya",
+  "quotecard.preparing": "A kártya rajzolása…",
+  "quotecard.download": "PNG letöltése",
+  "quotecard.copy": "Kép másolása",
+  "quotecard.copied": "Kép másolva.",
+  "quotecard.copyFailed": "Nem sikerült másolni a képet.",
+  "quotecard.failed": "Nem sikerült elkészíteni a képet.",
+  "quotecard.lightTheme": "Világos kártya"
 }

@@ -68,3 +68,21 @@ path = "public/js/vendor/**"
 precedence = "override"
 SPDX-FileCopyrightText = "Lea Verou and PrismJS contributors"
 SPDX-License-Identifier = "MIT"
+
+# Batch O quote card: canvas-txt 5.0.2 (dist/index.js) and bidi-js 1.1.0
+# (dist/bidi.mjs), kept byte-for-byte as public/js/vendor/canvas-txt.js and
+# public/js/vendor/bidi.js with no added banner. Both are MIT-licensed, which
+# is compatible with AGPL-3.0-or-later. These blocks come after the Prism
+# catch-all above, so they win for their own paths (REUSE: last match). The
+# sha256 of each is pinned by tests/quote-card.test.mjs.
+[[annotations]]
+path = "public/js/vendor/canvas-txt.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2022 Geon George"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/bidi.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2021 Jason Johnston"
+SPDX-License-Identifier = "MIT"

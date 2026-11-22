@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "साझा करना",
   "threadActions.thisPost": "यह पोस्ट",
   "threadActions.staff": "स्टाफ़",
-  "threadActions.editTags": "टैग संपादित करें"
+  "threadActions.editTags": "टैग संपादित करें",
+  "quotecard.action": "उद्धरण कार्ड",
+  "quotecard.actionLabel": "{name} से उद्धरण कार्ड बनाएँ",
+  "quotecard.title": "उद्धरण कार्ड",
+  "quotecard.preparing": "कार्ड बनाया जा रहा है…",
+  "quotecard.download": "PNG डाउनलोड करें",
+  "quotecard.copy": "छवि कॉपी करें",
+  "quotecard.copied": "छवि कॉपी हो गई।",
+  "quotecard.copyFailed": "छवि कॉपी नहीं हो सकी।",
+  "quotecard.failed": "छवि नहीं बन सकी।",
+  "quotecard.lightTheme": "हल्का कार्ड"
 }
