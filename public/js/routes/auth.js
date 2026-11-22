@@ -33,6 +33,9 @@ import { createPanel, element, main, setMessage } from "../dom.js";
 import { state } from "../state.js";
 import { t } from "../i18n.js";
 import { wempoAccountsSignInUrl } from "../sso.js";
+import { passkeySignInButton } from "../passkeys.js";
+import { attachPassphraseButton } from "../passphrase.js";
+import { attachStrengthMeter } from "../password-strength.js";
 
 // The home route's guest rung (§4b): the door panel — no local forms, just
 // the Accounts handoff. Cross-origin jump: the SPA's internal navigation only
@@ -42,6 +45,9 @@ function doorPanel() {
   const button = element("a", "button button-primary sso-entry-button", t("auth.doorButton"));
   button.href = wempoAccountsSignInUrl(location.origin);
   panel.append(button);
+  // Batch F: a registered passkey signs in right here, no password.
+  const passkey = passkeySignInButton();
+  if (passkey) panel.append(passkey);
   main.append(panel);
 }
 
@@ -62,6 +68,13 @@ function setupForm() {
       description: t("auth.setupSecretHelp"),
     }),
   ], t("auth.createOwner")));
+  // Batch F: client-only strength meter + passphrase suggester on the new
+  // password; neither sends the password anywhere, no new rule beyond 12.
+  const passwordInput = panel.querySelector("#setup-password");
+  if (passwordInput) {
+    attachStrengthMeter(document, passwordInput);
+    attachPassphraseButton(document, passwordInput);
+  }
   return panel;
 }
 
