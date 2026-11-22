@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Shown after the name at the top of the home page.",
   "desk.branding.footerLabel": "Footer",
   "desk.branding.saveButton": "Save branding",
-  "admin.msg.brandingSaved": "Branding saved. Reload the page to see it everywhere."
+  "admin.msg.brandingSaved": "Branding saved. Reload the page to see it everywhere.",
+  "readingComfort.title": "Reading comfort",
+  "readingComfort.help": "Saved in this browser only. Reset appearance doesn't change these.",
+  "readingComfort.lineSpacing": "Line spacing",
+  "readingComfort.lineSpacingDefault": "Normal",
+  "readingComfort.lineSpacingRelaxed": "Relaxed",
+  "readingComfort.lineSpacingSpacious": "Spacious",
+  "readingComfort.lineSpacingHelp": "Adds more space between lines in posts, chat messages and the boxes you type in.",
+  "readingComfort.underlineLinks": "Always underline links",
+  "readingComfort.underlineLinksHelp": "Underlines every link, including names and menu links that are normally shown without a line.",
+  "readingComfort.contrast": "High contrast",
+  "readingComfort.contrastAuto": "Auto (follow this device)",
+  "readingComfort.contrastOn": "On",
+  "readingComfort.contrastOff": "Off",
+  "readingComfort.contrastHelp": "Black text on white (white on black in the dark theme), solid outlines around boxes and buttons, and thicker focus outlines. Auto turns it on when your device's settings ask for more contrast."
 }

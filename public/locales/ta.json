@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "முகப்புப் பக்கத்தின் மேலே பெயருக்குப் பின் காட்டப்படும்.",
   "desk.branding.footerLabel": "அடிக்குறிப்பு",
   "desk.branding.saveButton": "அடையாளத்தைச் சேமி",
-  "admin.msg.brandingSaved": "அடையாளம் சேமிக்கப்பட்டது. எல்லா இடத்திலும் பார்க்கப் பக்கத்தை மீண்டும் ஏற்றுங்கள்."
+  "admin.msg.brandingSaved": "அடையாளம் சேமிக்கப்பட்டது. எல்லா இடத்திலும் பார்க்கப் பக்கத்தை மீண்டும் ஏற்றுங்கள்.",
+  "readingComfort.title": "வாசிப்பு வசதி",
+  "readingComfort.help": "இந்த உலாவியில் மட்டும் சேமிக்கப்படும். தோற்றத்தை மீட்டமைத்தால் இவை மாறாது.",
+  "readingComfort.lineSpacing": "வரி இடைவெளி",
+  "readingComfort.lineSpacingDefault": "இயல்பு",
+  "readingComfort.lineSpacingRelaxed": "தளர்வு",
+  "readingComfort.lineSpacingSpacious": "விசாலம்",
+  "readingComfort.lineSpacingHelp": "இடுகைகள், அரட்டைச் செய்திகள், நீங்கள் எழுதும் பெட்டிகளில் வரிகளுக்கு இடையே அதிக இடம் தரும்.",
+  "readingComfort.underlineLinks": "இணைப்புகளுக்கு எப்போதும் அடிக்கோடு",
+  "readingComfort.underlineLinksHelp": "வழக்கமாக கோடு இல்லாமல் காட்டப்படும் பெயர்கள், பட்டி இணைப்புகள் உட்பட ஒவ்வொரு இணைப்புக்கும் அடிக்கோடு இடும்.",
+  "readingComfort.contrast": "உயர் மாறுபாடு",
+  "readingComfort.contrastAuto": "தானியங்கு (இந்தச் சாதனத்தைப் பின்பற்று)",
+  "readingComfort.contrastOn": "இயக்கு",
+  "readingComfort.contrastOff": "நிறுத்து",
+  "readingComfort.contrastHelp": "வெள்ளையில் கருப்பு எழுத்து (இருண்ட தீமில் கருப்பில் வெள்ளை), பெட்டிகள், பொத்தான்களைச் சுற்றி தெளிவான கோடுகள், தடிமனான கவனக் கோடுகள். உங்கள் சாதன அமைப்புகள் அதிக மாறுபாடு கேட்கும்போது தானியங்கு இதை இயக்கும்."
 }

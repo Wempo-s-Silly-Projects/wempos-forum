@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "ホームページ上部で名前の後に表示されます。",
   "desk.branding.footerLabel": "フッター",
   "desk.branding.saveButton": "ブランディングを保存",
-  "admin.msg.brandingSaved": "ブランディングを保存しました。ページを再読み込みすると全体に反映されます。"
+  "admin.msg.brandingSaved": "ブランディングを保存しました。ページを再読み込みすると全体に反映されます。",
+  "readingComfort.title": "読みやすさ",
+  "readingComfort.help": "このブラウザにのみ保存されます。「外観をリセット」では変わりません。",
+  "readingComfort.lineSpacing": "行間",
+  "readingComfort.lineSpacingDefault": "標準",
+  "readingComfort.lineSpacingRelaxed": "ゆったり",
+  "readingComfort.lineSpacingSpacious": "広め",
+  "readingComfort.lineSpacingHelp": "投稿、チャットのメッセージ、入力欄の行と行の間を広げます。",
+  "readingComfort.underlineLinks": "リンクに常に下線を引く",
+  "readingComfort.underlineLinksHelp": "普段は下線なしで表示される名前やメニューのリンクも含め、すべてのリンクに下線を引きます。",
+  "readingComfort.contrast": "ハイコントラスト",
+  "readingComfort.contrastAuto": "自動（この端末の設定に従う）",
+  "readingComfort.contrastOn": "オン",
+  "readingComfort.contrastOff": "オフ",
+  "readingComfort.contrastHelp": "白地に黒の文字（ダークテーマでは黒地に白）、入力欄やボタンのはっきりした枠線、太いフォーカス枠になります。自動では、端末の設定がより高いコントラストを求めているときにオンになります。"
 }

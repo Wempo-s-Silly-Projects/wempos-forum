@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Zobrazí sa za názvom v hornej časti domovskej stránky.",
   "desk.branding.footerLabel": "Päta",
   "desk.branding.saveButton": "Uložiť značku",
-  "admin.msg.brandingSaved": "Značka uložená. Obnovte stránku, aby ste ju videli všade."
+  "admin.msg.brandingSaved": "Značka uložená. Obnovte stránku, aby ste ju videli všade.",
+  "readingComfort.title": "Pohodlie pri čítaní",
+  "readingComfort.help": "Ukladá sa len v tomto prehliadači. „Obnoviť vzhľad“ ich nemení.",
+  "readingComfort.lineSpacing": "Riadkovanie",
+  "readingComfort.lineSpacingDefault": "Normálne",
+  "readingComfort.lineSpacingRelaxed": "Voľnejšie",
+  "readingComfort.lineSpacingSpacious": "Priestranné",
+  "readingComfort.lineSpacingHelp": "Pridá viac miesta medzi riadky v príspevkoch, správach chatu a poliach, do ktorých píšete.",
+  "readingComfort.underlineLinks": "Vždy podčiarkovať odkazy",
+  "readingComfort.underlineLinksHelp": "Podčiarkne každý odkaz vrátane mien a odkazov v ponukách, ktoré sa bežne zobrazujú bez čiary.",
+  "readingComfort.contrast": "Vysoký kontrast",
+  "readingComfort.contrastAuto": "Automaticky (podľa tohto zariadenia)",
+  "readingComfort.contrastOn": "Zapnuté",
+  "readingComfort.contrastOff": "Vypnuté",
+  "readingComfort.contrastHelp": "Čierny text na bielom (biely na čiernom v tmavom motíve), plné obrysy okolo polí a tlačidiel a hrubšie obrysy fokusu. Automaticky sa zapne, keď nastavenia zariadenia žiadajú vyšší kontrast."
 }

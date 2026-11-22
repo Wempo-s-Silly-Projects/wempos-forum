@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "显示在首页顶部的名称之后。",
   "desk.branding.footerLabel": "页脚",
   "desk.branding.saveButton": "保存品牌",
-  "admin.msg.brandingSaved": "品牌已保存。重新加载页面即可在各处看到。"
+  "admin.msg.brandingSaved": "品牌已保存。重新加载页面即可在各处看到。",
+  "readingComfort.title": "阅读舒适度",
+  "readingComfort.help": "仅保存在此浏览器中。“重置外观”不会更改这些设置。",
+  "readingComfort.lineSpacing": "行距",
+  "readingComfort.lineSpacingDefault": "正常",
+  "readingComfort.lineSpacingRelaxed": "宽松",
+  "readingComfort.lineSpacingSpacious": "很宽松",
+  "readingComfort.lineSpacingHelp": "加大帖子、聊天消息和输入框中的行间距。",
+  "readingComfort.underlineLinks": "始终给链接加下划线",
+  "readingComfort.underlineLinksHelp": "给所有链接加下划线，包括平时不显示下划线的用户名和菜单链接。",
+  "readingComfort.contrast": "高对比度",
+  "readingComfort.contrastAuto": "自动（跟随此设备）",
+  "readingComfort.contrastOn": "开",
+  "readingComfort.contrastOff": "关",
+  "readingComfort.contrastHelp": "白底黑字（深色主题下为黑底白字），输入框和按钮带清晰的边框，焦点框更粗。设为自动时，若设备设置要求更高对比度就会开启。"
 }

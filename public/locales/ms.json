@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Dipaparkan selepas nama di bahagian atas halaman utama.",
   "desk.branding.footerLabel": "Pengaki",
   "desk.branding.saveButton": "Simpan identiti",
-  "admin.msg.brandingSaved": "Identiti disimpan. Muat semula halaman untuk melihatnya di mana-mana."
+  "admin.msg.brandingSaved": "Identiti disimpan. Muat semula halaman untuk melihatnya di mana-mana.",
+  "readingComfort.title": "Keselesaan membaca",
+  "readingComfort.help": "Disimpan dalam pelayar ini sahaja. Tetapkan semula paparan tidak mengubahnya.",
+  "readingComfort.lineSpacing": "Jarak baris",
+  "readingComfort.lineSpacingDefault": "Biasa",
+  "readingComfort.lineSpacingRelaxed": "Lapang",
+  "readingComfort.lineSpacingSpacious": "Sangat lapang",
+  "readingComfort.lineSpacingHelp": "Menambah ruang antara baris dalam hantaran, mesej sembang dan kotak tempat anda menaip.",
+  "readingComfort.underlineLinks": "Sentiasa gariskan pautan",
+  "readingComfort.underlineLinksHelp": "Menggariskan setiap pautan, termasuk nama dan pautan menu yang biasanya dipaparkan tanpa garis.",
+  "readingComfort.contrast": "Kontras tinggi",
+  "readingComfort.contrastAuto": "Auto (ikut peranti ini)",
+  "readingComfort.contrastOn": "Hidup",
+  "readingComfort.contrastOff": "Mati",
+  "readingComfort.contrastHelp": "Teks hitam atas putih (putih atas hitam dalam tema gelap), garis luar yang jelas di sekeliling kotak dan butang, dan garis fokus yang lebih tebal. Auto menghidupkannya apabila tetapan peranti anda meminta kontras lebih tinggi."
 }

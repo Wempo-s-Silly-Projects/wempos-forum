@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "מוצג אחרי השם בראש דף הבית.",
   "desk.branding.footerLabel": "כותרת תחתונה",
   "desk.branding.saveButton": "שמירת מיתוג",
-  "admin.msg.brandingSaved": "המיתוג נשמר. טענו מחדש את הדף כדי לראות אותו בכל מקום."
+  "admin.msg.brandingSaved": "המיתוג נשמר. טענו מחדש את הדף כדי לראות אותו בכל מקום.",
+  "readingComfort.title": "נוחות קריאה",
+  "readingComfort.help": "נשמר רק בדפדפן הזה. „איפוס המראה” לא משנה אותם.",
+  "readingComfort.lineSpacing": "ריווח שורות",
+  "readingComfort.lineSpacingDefault": "רגיל",
+  "readingComfort.lineSpacingRelaxed": "מרווח",
+  "readingComfort.lineSpacingSpacious": "מרווח מאוד",
+  "readingComfort.lineSpacingHelp": "מוסיף רווח בין השורות בפוסטים, בהודעות צ׳אט ובתיבות שבהן כותבים.",
+  "readingComfort.underlineLinks": "תמיד להדגיש קישורים בקו תחתון",
+  "readingComfort.underlineLinksHelp": "מוסיף קו תחתון לכל קישור, כולל שמות וקישורי תפריט שבדרך כלל מוצגים בלי קו.",
+  "readingComfort.contrast": "ניגודיות גבוהה",
+  "readingComfort.contrastAuto": "אוטומטי (לפי המכשיר הזה)",
+  "readingComfort.contrastOn": "פועל",
+  "readingComfort.contrastOff": "כבוי",
+  "readingComfort.contrastHelp": "טקסט שחור על לבן (לבן על שחור בערכת הנושא הכהה), קווי מתאר מלאים סביב תיבות וכפתורים, ומסגרות מיקוד עבות יותר. אוטומטי מפעיל אותה כשהגדרות המכשיר מבקשות יותר ניגודיות."
 }

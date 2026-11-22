@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Показва се след името в горната част на началната страница.",
   "desk.branding.footerLabel": "Долен колонтитул",
   "desk.branding.saveButton": "Запази облика",
-  "admin.msg.brandingSaved": "Обликът е запазен. Презаредете страницата, за да го видите навсякъде."
+  "admin.msg.brandingSaved": "Обликът е запазен. Презаредете страницата, за да го видите навсякъде.",
+  "readingComfort.title": "Удобство при четене",
+  "readingComfort.help": "Запазва се само в този браузър. „Нулиране на външния вид“ не ги променя.",
+  "readingComfort.lineSpacing": "Междуредие",
+  "readingComfort.lineSpacingDefault": "Нормално",
+  "readingComfort.lineSpacingRelaxed": "Свободно",
+  "readingComfort.lineSpacingSpacious": "Просторно",
+  "readingComfort.lineSpacingHelp": "Добавя повече място между редовете в публикациите, съобщенията в чата и полетата, в които пишете.",
+  "readingComfort.underlineLinks": "Винаги подчертавай връзките",
+  "readingComfort.underlineLinksHelp": "Подчертава всяка връзка, включително имената и връзките в менютата, които обикновено са без линия.",
+  "readingComfort.contrast": "Висок контраст",
+  "readingComfort.contrastAuto": "Автоматично (според това устройство)",
+  "readingComfort.contrastOn": "Вкл.",
+  "readingComfort.contrastOff": "Изкл.",
+  "readingComfort.contrastHelp": "Черен текст на бял фон (бял на черен в тъмната тема), плътни контури около полетата и бутоните и по-дебели рамки на фокуса. „Автоматично“ го включва, когато настройките на устройството ви искат повече контраст."
 }

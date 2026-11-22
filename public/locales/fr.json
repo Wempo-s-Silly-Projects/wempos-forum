@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Affiché après le nom en haut de la page d’accueil.",
   "desk.branding.footerLabel": "Pied de page",
   "desk.branding.saveButton": "Enregistrer l’identité",
-  "admin.msg.brandingSaved": "Identité enregistrée. Rechargez la page pour la voir partout."
+  "admin.msg.brandingSaved": "Identité enregistrée. Rechargez la page pour la voir partout.",
+  "readingComfort.title": "Confort de lecture",
+  "readingComfort.help": "Enregistré dans ce navigateur uniquement. « Réinitialiser l'apparence » ne les modifie pas.",
+  "readingComfort.lineSpacing": "Interligne",
+  "readingComfort.lineSpacingDefault": "Normal",
+  "readingComfort.lineSpacingRelaxed": "Aéré",
+  "readingComfort.lineSpacingSpacious": "Spacieux",
+  "readingComfort.lineSpacingHelp": "Ajoute de l'espace entre les lignes dans les messages, le chat et les champs où vous écrivez.",
+  "readingComfort.underlineLinks": "Toujours souligner les liens",
+  "readingComfort.underlineLinksHelp": "Souligne chaque lien, y compris les noms et les liens de menu affichés normalement sans trait.",
+  "readingComfort.contrast": "Contraste élevé",
+  "readingComfort.contrastAuto": "Automatique (selon cet appareil)",
+  "readingComfort.contrastOn": "Activé",
+  "readingComfort.contrastOff": "Désactivé",
+  "readingComfort.contrastHelp": "Texte noir sur blanc (blanc sur noir avec le thème sombre), contours pleins autour des champs et des boutons, et contours de focus plus épais. Automatique l'active quand les réglages de votre appareil demandent plus de contraste."
 }

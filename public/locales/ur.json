@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "ہوم پیج کے اوپر نام کے بعد دکھایا جاتا ہے۔",
   "desk.branding.footerLabel": "فوٹر",
   "desk.branding.saveButton": "شناخت محفوظ کریں",
-  "admin.msg.brandingSaved": "شناخت محفوظ ہو گئی۔ ہر جگہ دیکھنے کے لیے صفحہ دوبارہ لوڈ کریں۔"
+  "admin.msg.brandingSaved": "شناخت محفوظ ہو گئی۔ ہر جگہ دیکھنے کے لیے صفحہ دوبارہ لوڈ کریں۔",
+  "readingComfort.title": "پڑھنے میں آسانی",
+  "readingComfort.help": "صرف اسی براؤزر میں محفوظ ہوتا ہے۔ ظاہری شکل ری سیٹ کرنے سے یہ نہیں بدلتے۔",
+  "readingComfort.lineSpacing": "سطروں کا فاصلہ",
+  "readingComfort.lineSpacingDefault": "عام",
+  "readingComfort.lineSpacingRelaxed": "کھلا",
+  "readingComfort.lineSpacingSpacious": "بہت کھلا",
+  "readingComfort.lineSpacingHelp": "پوسٹس، چیٹ پیغامات اور جن خانوں میں آپ لکھتے ہیں، ان میں سطروں کے درمیان زیادہ جگہ دیتا ہے۔",
+  "readingComfort.underlineLinks": "لنکس کے نیچے ہمیشہ لکیر",
+  "readingComfort.underlineLinksHelp": "ہر لنک کے نیچے لکیر لگاتا ہے، ان ناموں اور مینو لنکس سمیت جو عام طور پر بغیر لکیر کے دکھتے ہیں۔",
+  "readingComfort.contrast": "زیادہ کنٹراسٹ",
+  "readingComfort.contrastAuto": "خودکار (اس ڈیوائس کے مطابق)",
+  "readingComfort.contrastOn": "آن",
+  "readingComfort.contrastOff": "آف",
+  "readingComfort.contrastHelp": "سفید پر سیاہ متن (ڈارک تھیم میں سیاہ پر سفید)، خانوں اور بٹنوں کے گرد واضح لکیریں، اور موٹی فوکس لکیریں۔ جب آپ کی ڈیوائس کی ترتیبات زیادہ کنٹراسٹ مانگیں تو خودکار اسے آن کر دیتا ہے۔"
 }

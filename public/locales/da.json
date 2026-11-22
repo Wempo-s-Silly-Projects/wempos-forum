@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Vises efter navnet øverst på forsiden.",
   "desk.branding.footerLabel": "Sidefod",
   "desk.branding.saveButton": "Gem branding",
-  "admin.msg.brandingSaved": "Branding gemt. Genindlæs siden for at se det overalt."
+  "admin.msg.brandingSaved": "Branding gemt. Genindlæs siden for at se det overalt.",
+  "readingComfort.title": "Læsekomfort",
+  "readingComfort.help": "Gemmes kun i denne browser. Nulstil udseende ændrer dem ikke.",
+  "readingComfort.lineSpacing": "Linjeafstand",
+  "readingComfort.lineSpacingDefault": "Normal",
+  "readingComfort.lineSpacingRelaxed": "Luftig",
+  "readingComfort.lineSpacingSpacious": "Rummelig",
+  "readingComfort.lineSpacingHelp": "Giver mere plads mellem linjerne i indlæg, chatbeskeder og de felter, du skriver i.",
+  "readingComfort.underlineLinks": "Understreg altid links",
+  "readingComfort.underlineLinksHelp": "Understreger alle links, også navne og menulinks, der normalt vises uden streg.",
+  "readingComfort.contrast": "Høj kontrast",
+  "readingComfort.contrastAuto": "Automatisk (følg denne enhed)",
+  "readingComfort.contrastOn": "Til",
+  "readingComfort.contrastOff": "Fra",
+  "readingComfort.contrastHelp": "Sort tekst på hvid (hvid på sort i det mørke tema), tydelige omrids om felter og knapper og tykkere fokusrammer. Automatisk slår det til, når din enheds indstillinger beder om mere kontrast."
 }

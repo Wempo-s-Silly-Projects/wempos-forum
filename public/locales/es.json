@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Se muestra tras el nombre en la parte superior de la página de inicio.",
   "desk.branding.footerLabel": "Pie de página",
   "desk.branding.saveButton": "Guardar marca",
-  "admin.msg.brandingSaved": "Marca guardada. Recarga la página para verla en todas partes."
+  "admin.msg.brandingSaved": "Marca guardada. Recarga la página para verla en todas partes.",
+  "readingComfort.title": "Comodidad de lectura",
+  "readingComfort.help": "Se guarda solo en este navegador. «Restablecer apariencia» no los cambia.",
+  "readingComfort.lineSpacing": "Interlineado",
+  "readingComfort.lineSpacingDefault": "Normal",
+  "readingComfort.lineSpacingRelaxed": "Holgado",
+  "readingComfort.lineSpacingSpacious": "Amplio",
+  "readingComfort.lineSpacingHelp": "Añade más espacio entre líneas en las publicaciones, los mensajes del chat y los cuadros donde escribes.",
+  "readingComfort.underlineLinks": "Subrayar siempre los enlaces",
+  "readingComfort.underlineLinksHelp": "Subraya todos los enlaces, incluidos los nombres y los enlaces de menú que normalmente se muestran sin línea.",
+  "readingComfort.contrast": "Alto contraste",
+  "readingComfort.contrastAuto": "Automático (según este dispositivo)",
+  "readingComfort.contrastOn": "Activado",
+  "readingComfort.contrastOff": "Desactivado",
+  "readingComfort.contrastHelp": "Texto negro sobre blanco (blanco sobre negro en el tema oscuro), contornos sólidos alrededor de cuadros y botones, y contornos de foco más gruesos. Automático lo activa cuando la configuración de tu dispositivo pide más contraste."
 }

@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Aparece depois do nome no topo da página inicial.",
   "desk.branding.footerLabel": "Rodapé",
   "desk.branding.saveButton": "Salvar identidade",
-  "admin.msg.brandingSaved": "Identidade salva. Recarregue a página para vê-la em todo lugar."
+  "admin.msg.brandingSaved": "Identidade salva. Recarregue a página para vê-la em todo lugar.",
+  "readingComfort.title": "Conforto de leitura",
+  "readingComfort.help": "Guardado apenas neste navegador. «Redefinir aparência» não os altera.",
+  "readingComfort.lineSpacing": "Espaçamento entre linhas",
+  "readingComfort.lineSpacingDefault": "Normal",
+  "readingComfort.lineSpacingRelaxed": "Folgado",
+  "readingComfort.lineSpacingSpacious": "Amplo",
+  "readingComfort.lineSpacingHelp": "Adiciona mais espaço entre as linhas nas publicações, nas mensagens do chat e nas caixas onde escreve.",
+  "readingComfort.underlineLinks": "Sublinhar sempre os links",
+  "readingComfort.underlineLinksHelp": "Sublinha todos os links, incluindo nomes e links de menu que normalmente aparecem sem linha.",
+  "readingComfort.contrast": "Alto contraste",
+  "readingComfort.contrastAuto": "Automático (segue este dispositivo)",
+  "readingComfort.contrastOn": "Ativado",
+  "readingComfort.contrastOff": "Desativado",
+  "readingComfort.contrastHelp": "Texto preto sobre branco (branco sobre preto no tema escuro), contornos sólidos à volta de caixas e botões e contornos de foco mais grossos. O automático ativa-o quando as definições do dispositivo pedem mais contraste."
 }

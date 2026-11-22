@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Huonyeshwa baada ya jina juu ya ukurasa wa mwanzo.",
   "desk.branding.footerLabel": "Sehemu ya chini",
   "desk.branding.saveButton": "Hifadhi utambulisho",
-  "admin.msg.brandingSaved": "Utambulisho umehifadhiwa. Pakia ukurasa upya ili kuuona kila mahali."
+  "admin.msg.brandingSaved": "Utambulisho umehifadhiwa. Pakia ukurasa upya ili kuuona kila mahali.",
+  "readingComfort.title": "Starehe ya kusoma",
+  "readingComfort.help": "Huhifadhiwa kwenye kivinjari hiki pekee. Rejesha mwonekano haibadilishi haya.",
+  "readingComfort.lineSpacing": "Nafasi kati ya mistari",
+  "readingComfort.lineSpacingDefault": "Kawaida",
+  "readingComfort.lineSpacingRelaxed": "Pana kiasi",
+  "readingComfort.lineSpacingSpacious": "Pana sana",
+  "readingComfort.lineSpacingHelp": "Huongeza nafasi kati ya mistari kwenye machapisho, jumbe za gumzo na visanduku unavyoandikia.",
+  "readingComfort.underlineLinks": "Pigia viungo mstari kila wakati",
+  "readingComfort.underlineLinksHelp": "Hupigia mstari kila kiungo, pamoja na majina na viungo vya menyu ambavyo kwa kawaida huonekana bila mstari.",
+  "readingComfort.contrast": "Utofautishaji wa juu",
+  "readingComfort.contrastAuto": "Otomatiki (fuata kifaa hiki)",
+  "readingComfort.contrastOn": "Imewashwa",
+  "readingComfort.contrastOff": "Imezimwa",
+  "readingComfort.contrastHelp": "Maandishi meusi juu ya weupe (meupe juu ya weusi kwenye mandhari meusi), mipaka imara kuzunguka visanduku na vitufe, na mistari minene ya kulenga. Otomatiki huiwasha mipangilio ya kifaa chako inapoomba utofautishaji zaidi."
 }

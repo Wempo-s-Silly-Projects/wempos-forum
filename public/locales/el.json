@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Εμφανίζεται μετά το όνομα στην κορυφή της αρχικής σελίδας.",
   "desk.branding.footerLabel": "Υποσέλιδο",
   "desk.branding.saveButton": "Αποθήκευση ταυτότητας",
-  "admin.msg.brandingSaved": "Η ταυτότητα αποθηκεύτηκε. Ανανεώστε τη σελίδα για να τη δείτε παντού."
+  "admin.msg.brandingSaved": "Η ταυτότητα αποθηκεύτηκε. Ανανεώστε τη σελίδα για να τη δείτε παντού.",
+  "readingComfort.title": "Άνεση ανάγνωσης",
+  "readingComfort.help": "Αποθηκεύεται μόνο σε αυτό το πρόγραμμα περιήγησης. Η «Επαναφορά εμφάνισης» δεν τα αλλάζει.",
+  "readingComfort.lineSpacing": "Διάστιχο",
+  "readingComfort.lineSpacingDefault": "Κανονικό",
+  "readingComfort.lineSpacingRelaxed": "Χαλαρό",
+  "readingComfort.lineSpacingSpacious": "Ευρύχωρο",
+  "readingComfort.lineSpacingHelp": "Προσθέτει περισσότερο χώρο ανάμεσα στις γραμμές σε αναρτήσεις, μηνύματα συνομιλίας και στα πλαίσια όπου γράφετε.",
+  "readingComfort.underlineLinks": "Πάντα υπογράμμιση συνδέσμων",
+  "readingComfort.underlineLinksHelp": "Υπογραμμίζει κάθε σύνδεσμο, μαζί με ονόματα και συνδέσμους μενού που συνήθως εμφανίζονται χωρίς γραμμή.",
+  "readingComfort.contrast": "Υψηλή αντίθεση",
+  "readingComfort.contrastAuto": "Αυτόματα (όπως αυτή η συσκευή)",
+  "readingComfort.contrastOn": "Ενεργή",
+  "readingComfort.contrastOff": "Ανενεργή",
+  "readingComfort.contrastHelp": "Μαύρο κείμενο σε λευκό (λευκό σε μαύρο στο σκούρο θέμα), συμπαγή περιγράμματα γύρω από πλαίσια και κουμπιά και παχύτερα περιγράμματα εστίασης. Η αυτόματη επιλογή την ενεργοποιεί όταν οι ρυθμίσεις της συσκευής σας ζητούν περισσότερη αντίθεση."
 }

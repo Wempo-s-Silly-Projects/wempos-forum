@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "হোম পেজের উপরে নামের পরে দেখানো হয়।",
   "desk.branding.footerLabel": "ফুটার",
   "desk.branding.saveButton": "ব্র্যান্ডিং সংরক্ষণ করুন",
-  "admin.msg.brandingSaved": "ব্র্যান্ডিং সংরক্ষিত হয়েছে। সব জায়গায় দেখতে পেজটি আবার লোড করুন।"
+  "admin.msg.brandingSaved": "ব্র্যান্ডিং সংরক্ষিত হয়েছে। সব জায়গায় দেখতে পেজটি আবার লোড করুন।",
+  "readingComfort.title": "পড়ার আরাম",
+  "readingComfort.help": "শুধু এই ব্রাউজারে সংরক্ষিত। চেহারা রিসেট করলে এগুলো বদলায় না।",
+  "readingComfort.lineSpacing": "লাইনের ব্যবধান",
+  "readingComfort.lineSpacingDefault": "স্বাভাবিক",
+  "readingComfort.lineSpacingRelaxed": "আরামদায়ক",
+  "readingComfort.lineSpacingSpacious": "প্রশস্ত",
+  "readingComfort.lineSpacingHelp": "পোস্ট, চ্যাট বার্তা আর আপনি যে বাক্সে লেখেন সেখানে লাইনের মাঝে আরও জায়গা দেয়।",
+  "readingComfort.underlineLinks": "সব সময় লিংকের নিচে দাগ দিন",
+  "readingComfort.underlineLinksHelp": "প্রতিটি লিংকের নিচে দাগ দেয়, নাম আর মেনুর লিংকসহ যেগুলো সাধারণত দাগ ছাড়া দেখায়।",
+  "readingComfort.contrast": "উচ্চ কনট্রাস্ট",
+  "readingComfort.contrastAuto": "স্বয়ংক্রিয় (এই ডিভাইস অনুযায়ী)",
+  "readingComfort.contrastOn": "চালু",
+  "readingComfort.contrastOff": "বন্ধ",
+  "readingComfort.contrastHelp": "সাদার ওপর কালো লেখা (ডার্ক থিমে কালোর ওপর সাদা), বাক্স আর বোতামের চারপাশে স্পষ্ট রেখা, আর মোটা ফোকাস রেখা। আপনার ডিভাইসের সেটিংস বেশি কনট্রাস্ট চাইলে স্বয়ংক্রিয় মোড এটি চালু করে।"
 }

@@ -989,5 +989,19 @@
   "desk.branding.taglineHelp": "Visas efter namnet högst upp på startsidan.",
   "desk.branding.footerLabel": "Sidfot",
   "desk.branding.saveButton": "Spara varumärke",
-  "admin.msg.brandingSaved": "Varumärket sparat. Ladda om sidan för att se det överallt."
+  "admin.msg.brandingSaved": "Varumärket sparat. Ladda om sidan för att se det överallt.",
+  "readingComfort.title": "Läskomfort",
+  "readingComfort.help": "Sparas bara i den här webbläsaren. Återställ utseende ändrar dem inte.",
+  "readingComfort.lineSpacing": "Radavstånd",
+  "readingComfort.lineSpacingDefault": "Normalt",
+  "readingComfort.lineSpacingRelaxed": "Luftigt",
+  "readingComfort.lineSpacingSpacious": "Rymligt",
+  "readingComfort.lineSpacingHelp": "Ger mer utrymme mellan raderna i inlägg, chattmeddelanden och rutorna du skriver i.",
+  "readingComfort.underlineLinks": "Stryk alltid under länkar",
+  "readingComfort.underlineLinksHelp": "Stryker under varje länk, även namn och menylänkar som annars visas utan streck.",
+  "readingComfort.contrast": "Hög kontrast",
+  "readingComfort.contrastAuto": "Automatiskt (följ den här enheten)",
+  "readingComfort.contrastOn": "På",
+  "readingComfort.contrastOff": "Av",
+  "readingComfort.contrastHelp": "Svart text på vitt (vitt på svart i det mörka temat), tydliga konturer runt rutor och knappar och tjockare fokusramar. Automatiskt slår på det när enhetens inställningar ber om mer kontrast."
 }
