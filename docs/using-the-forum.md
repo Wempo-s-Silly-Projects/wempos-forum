@@ -309,7 +309,7 @@ section** list, and four groups:
   account.
 
 **Language** lives in the header (on phones, at the end of **More**). The
-forum is translated into 41 languages, each listed by its own name. Arabic,
+forum is translated into 45 languages, each listed by its own name. Arabic,
 Hebrew, Persian and Urdu read right to left. If your browser is already set to
 one of them, the forum picks it up on its own. (Posts themselves aren't
 translated, so write in whatever language you like.)
