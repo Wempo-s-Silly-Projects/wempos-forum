@@ -68,6 +68,10 @@ export const routeForPath = (pathname, search = "") => {
   // Saved posts by board (wave 36): /bookmarks?board=<slug>; an unknown
   // slug degrades to the whole list rather than a 404.
   if (pathname === "/bookmarks") {
+    // v5.39.0: /bookmarks?folder=<id> opens one bookmark folder; a malformed
+    // id degrades to the whole list.
+    const folder = new URLSearchParams(search).get("folder");
+    if (folder && /^[1-9][0-9]{0,14}$/.test(folder)) return { name: "bookmarks", folder: Number(folder) };
     const board = new URLSearchParams(search).get("board");
     return board && Object.hasOwn(BOARD_BY_SLUG, board) ? { name: "bookmarks", board } : { name: "bookmarks" };
   }

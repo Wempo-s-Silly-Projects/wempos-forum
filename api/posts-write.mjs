@@ -35,6 +35,7 @@ import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 import { boardField, isStaffOnlyBoard } from "./boards.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
+import { followerFanOutStatements } from "./follows.mjs";
 import { archivePostRowsStatement } from "./core/archive.mjs";
 import { assertNotBanned, readSession, requireUser } from "./core/auth.mjs";
 import { nowSeconds, sha256Hex } from "./core/crypto.mjs";
@@ -337,6 +338,17 @@ export async function handlePostCreateRoute(request, env, url, path, method) {
       if (mentionStatements.length > 0) await db.batch(mentionStatements);
     } catch {
       // Ignore: mentions are a convenience, not a post precondition.
+    }
+    try {
+      // Follows (v5.39.0): followers of the author get one bell row for this
+      // new public root, after the mentions so a mentioned follower keeps
+      // the single mention row. One bounded statement pair (capped fan-out,
+      // fixed binds); best-effort like the mentions.
+      await db.batch(followerFanOutStatements(db, {
+        authorId: session.user.id, postId, username: session.user.username, now,
+      }));
+    } catch {
+      // Ignore: a follow ping is a convenience, not a post precondition.
     }
     return json({ id: postId }, 201);
   }

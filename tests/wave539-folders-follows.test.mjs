@@ -435,6 +435,10 @@ test("F2 fan-out: a hidden (staged) root notifies nobody", async () => {
 
 test("cascades: deleting a post, a folder or an account removes its 0067 rows", async () => {
   const w = await world();
+  // The fleet tables 0043 references are absent from the forum schema (the
+  // pre-existing gc_messages BUG pinned in wave520/wave523); stub them like
+  // the wave538 cascade test so a users DELETE can run here.
+  w.db.exec("CREATE TABLE IF NOT EXISTS gc_messages (id INTEGER PRIMARY KEY); CREATE TABLE IF NOT EXISTS gc_channels (id INTEGER PRIMARY KEY)");
   const s = w.session("alice");
   const p1 = seedPost(w.db, { authorId: w.id.bob, body: "one" });
   const p2 = seedPost(w.db, { authorId: w.id.bob, body: "two" });

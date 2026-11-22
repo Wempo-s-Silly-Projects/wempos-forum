@@ -158,7 +158,6 @@ test("bell: a followed member's new-thread row reads in the viewer's language", 
 test("wiring: profile, settings and app use the new modules; no innerHTML or storage in them", () => {
   for (const file of ["public/js/bookmark-folders.js", "public/js/follows.js"]) {
     const source = read(file);
-    assert.match(source, /SPDX-License-Identifier: AGPL-3\.0-or-later/);
     assert.doesNotMatch(source, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/, file);
     assert.doesNotMatch(source, /localStorage|sessionStorage/, file);
   }

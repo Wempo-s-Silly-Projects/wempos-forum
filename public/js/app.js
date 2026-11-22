@@ -158,6 +158,9 @@ import {
 // routes/blocks.js (rendered into the account area by routes/feed.js, like
 // the two-factor section); its Unblock action merges here.
 import { ACTIONS as blockActions } from "./routes/blocks.js";
+// v5.39.0: member follows and bookmark folders.
+import { createFollowActions } from "./follows.js";
+import { createFolderActions } from "./bookmark-folders.js";
 import { stopReadAloud } from "./read-aloud.js";
 import { stopReadingProgress } from "./reading-progress.js";
 import { applyTabUnread, normaliseTabCount, pageStorage } from "./tab-unread.js";
@@ -383,6 +386,9 @@ async function handleButtonAction(button) {
     ...accountNavActions,
     // The blocked-members unblock action lives in routes/blocks.js.
     ...blockActions,
+    // Follows and bookmark folders (v5.39.0).
+    ...createFollowActions({ setMessage }),
+    ...createFolderActions({ setMessage, prompt: (text, value) => window.prompt(text, value), confirm: (text) => window.confirm(text) }),
     // Two-factor setup lives in routes/twofa.js.
     ...twofaActions,
     // Signed-in devices (wave 5.14) live in account-security.js.

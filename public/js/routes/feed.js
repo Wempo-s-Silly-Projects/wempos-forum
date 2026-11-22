@@ -38,6 +38,8 @@ import { renderHomeAccess } from "./auth.js";
 import { renderTotpSettings } from "./twofa.js";
 import { renderAccountSecurity } from "../account-security.js";
 import { renderBlockedSettings } from "./blocks.js";
+import { renderFollowingSettings } from "../follows.js";
+import { createFolderFilter, createFolderManage, decorateSavedCards, folderAdder, folderItemsPath, FOLDERS_PATH } from "../bookmark-folders.js";
 import { createComposer } from "./composer.js";
 // The §4b door-swap: the guests' sign-in prompts (mine/bookmarks gates) are
 // the Accounts handoff — the join panel they used to point at is gone.
@@ -219,6 +221,8 @@ function renderAccountSettings(session) {
   // Blocks (v4.4): the blocked-members list + Unblock controls ride the
   // account settings area right after the two-factor section.
   renderBlockedSettings(account, session);
+  // Follows (v5.39.0): the member's own Following list with Unfollow.
+  renderFollowingSettings(account, session);
   // Invisible-mode toggle (day-2 misc): the roster honors presence.invisible
   // server-side; this is the member-facing seat. The read arm is the FLAG-LESS
   // heartbeat POST /api/presence (who-online.js already sends it) — its
@@ -508,13 +512,37 @@ async function renderShowcaseGallery() {
 // Bookmarks (C4): the private "Saved" page — the member's own saved list.
 // Guests get a sign-in prompt (the API 401s the private list regardless).
 // Wave 36: board chips + "Remove all saved from <board>" (saved-boards.js).
-function appendOlderSaved(board, nextBefore) {
+function appendOlderSaved(board, nextBefore, folder) {
   const older = element("button", "button button-secondary", t("feed.loadOlderSaved"));
   older.type = "button";
   older.dataset.action = "load-more-bookmarks";
   older.dataset.before = String(nextBefore);
   if (board) older.dataset.board = board;
+  if (folder) older.dataset.folder = String(folder);
   main.append(older);
+}
+// v5.39.0 bookmark folders: the member's folders ride every /bookmarks render
+// (a failed read just shows no folder controls); the page keeps them for the
+// per-card controls on load-more pages.
+let savedFolders = [];
+const loadSavedFolders = () => api(FOLDERS_PATH).then((data) => (Array.isArray(data?.folders) ? data.folders : []), () => []);
+function decorateSaved(folderId) {
+  decorateSavedCards(main, document, {
+    folders: savedFolders, activeFolderId: folderId || null,
+    onAdd: folderAdder({ folders: savedFolders, setMessage }),
+  });
+}
+async function renderFolderRoute(route, version) {
+  const [data, folders] = await Promise.all([api(folderItemsPath(route.folder)), loadSavedFolders()]);
+  if (version !== state.renderVersion) return;
+  savedFolders = folders;
+  addHeading(main, data.folder.name, 2);
+  addText(document, main, "p", t("feed.savedPrivate"), "muted");
+  main.append(createFolderFilter(document, folders, route.folder));
+  main.append(createFolderManage(document, data.folder));
+  appendPostList(main, data.posts, document, state.currentUser, t("folders.empty"));
+  decorateSaved(route.folder);
+  if (data.nextBefore) appendOlderSaved(null, data.nextBefore, route.folder);
 }
 async function renderBookmarksRoute(route, context, version) {
   if (!context.session.user) {
@@ -525,16 +553,23 @@ async function renderBookmarksRoute(route, context, version) {
     main.append(signIn);
     return;
   }
+  if (route?.folder) {
+    await renderFolderRoute(route, version);
+    return;
+  }
   const board = route?.board;
-  const data = await api(savedListPath(board));
+  const [data, folders] = await Promise.all([api(savedListPath(board)), loadSavedFolders()]);
   if (version !== state.renderVersion) return;
+  savedFolders = folders;
   addHeading(main, t("feed.savedTitle"), 2);
   // Privacy note: this list belongs to the signed-in account.
   addText(document, main, "p", t("feed.savedPrivate"), "muted");
+  main.append(createFolderFilter(document, folders, null));
   main.append(createSavedBoardFilter(document, board));
   if (board && data.bookmarks.length) main.append(createRemoveSavedBoard(document, board));
   appendPostList(main, data.bookmarks, document, context.session.user,
     savedEmptyText(board));
+  decorateSaved(null);
   // Pagination (fix round 1): the composite (bookmarked_at, id) cursor.
   if (!data.nextBefore || data.bookmarks.length !== 20) return;
   appendOlderSaved(board, data.nextBefore);
@@ -648,10 +683,20 @@ export const ACTIONS = {
     }
   },
   "load-more-bookmarks": async (button) => {
+    const folder = Number(button.dataset.folder) || null;
+    if (folder) {
+      const page = await api(folderItemsPath(folder, button.dataset.before));
+      appendPostList(main, page.posts, document, state.currentUser, t("folders.empty"));
+      decorateSaved(folder);
+      button.remove();
+      if (page.nextBefore) appendOlderSaved(null, page.nextBefore, folder);
+      return;
+    }
     const board = button.dataset.board;
     const older = await api(savedListPath(board, button.dataset.before));
     appendPostList(main, older.bookmarks, document, state.currentUser,
       savedEmptyText(board));
+    decorateSaved(null);
     button.remove();
     if (!older.nextBefore || older.bookmarks.length !== 20) return;
     appendOlderSaved(board, older.nextBefore);
