@@ -171,6 +171,10 @@ async function prepareRouteContext(version) {
   ]);
   if (version !== state.renderVersion) return null;
   let session = sessionReply;
+  // The invite claim below is a mutating POST, so the session's CSRF token
+  // is stored first (v5.37 L1: set after it, the first load back from
+  // sign-up sent no X-CSRF-Token and the claim was refused).
+  setCsrfToken(session.csrfToken);
   // Invite links (v5.34): a ref this tab kept from /join is claimed once,
   // right after sign-in; the welcome card then names the inviter.
   if (session.user) {
@@ -180,7 +184,6 @@ async function prepareRouteContext(version) {
   }
   state.currentUser = session.user;
   state.unreadNotifications = session.user ? normaliseTabCount(session.unreadNotifications) : 0;
-  setCsrfToken(session.csrfToken);
   renderAccountNavigation(session.user, session.unreadNotifications ?? 0);
   return {
     session,
