@@ -35,6 +35,7 @@ import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";
 import { isQotdBody } from "./traditions.js";
 import { createFoldedBody, isLongPost } from "./long-post.js";
 import { DIFF_PANEL_CELL_BUDGET, appendWordDiff, diffWordsWithin } from "./word-diff.js";
+import { applyReaderSafety } from "./reader-safety.js";
 
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
@@ -168,6 +169,7 @@ export const renderBodyBlocks = (post, document, article) => {
     article.append(paragraph);
   }
   highlightCodeBlocks(document, highlightable);
+  applyReaderSafety(document, article, post.body);
 };
 
 // Markdown-inline runs appended INTO an existing element (link hrefs are
