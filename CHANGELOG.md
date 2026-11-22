@@ -15,6 +15,15 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.68.0] - 2026-11-22
+
+### Added
+- Four more interface languages: Afrikaans, Albanian (Shqip),
+  Azerbaijani (Azərbaycanca, Latin script) and Basque (Euskara). Each is
+  listed by its own name in the language picker, reads left to right, and
+  is picked up automatically when the browser asks for it. The interface
+  now comes in 45 languages.
+
 ## [5.67.0] - 2026-11-22
 
 ### Security
