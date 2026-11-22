@@ -24,7 +24,7 @@ Legend:
 | Theme toggle | `index.html:103` | G M | 0 | |
 | Browse menu (v5.58): Suggestions, Archive, Leaderboard, Rules, This week | `routes/account-nav.js` from `nav-items.js` | G M | 1 | v5.58: the four section links folded into one menu; This week added (was ORPHAN-ish) |
 | Sign in | `account-nav.js` | G | 0 | v5.58: header and phone bar drawn from the same list (`nav-items.js`) |
-| Language picker | `account-nav.js:162,248` | G M | 0 | |
+| Language picker | `account-nav.js:162,248` | G M | 0 (header) / 1 (phone More) | v5.60: the same picker also sits last in the phone bar's More menu (phones had none) |
 | Account menu (v5.58): Profile, Moderation desk (S), Keyboard shortcuts, Sign out | `account-nav.js` | M | 1 | v5.58: Profile, desk and Sign out moved in; the shortcuts sheet gained an entry here |
 | Saved posts link | `account-nav.js:178` | M | 0 | |
 | My posts link | `account-nav.js` (v5.56) | M | 0 | v5.56: the desktop entry |

@@ -3998,7 +3998,9 @@ mark.search-hit {
   min-width: 14rem;
   max-width: min(22rem, calc(100vw - 2rem));
   padding: 0.5rem;
-  border: 2px solid var(--line);
+  /* v5.60: the panel overlays the page, so its edge must read (>= 3:1);
+     --line was 1.8:1 on --paper. */
+  border: 2px solid var(--muted);
   border-radius: 0.5rem;
   background: var(--paper);
   box-shadow: 3px 4px 0 var(--paper-shadow);
@@ -4024,6 +4026,12 @@ mark.search-hit {
   stroke-linejoin: round;
 }
 .nav-menu-panel .shortcut-sheet { margin: 0.25rem 0.5rem; }
+/* v5.60 a11y pass: the sheet's summary was a ~19px target (WCAG 2.5.8 asks
+   24px); the page you are on is marked in the menu by weight + underline,
+   not colour alone; the phone More's language picker fills its row. */
+.nav-menu-panel .shortcut-sheet > summary { display: flex; align-items: center; min-height: 1.5rem; }
+.nav-menu-item[aria-current="page"] { font-weight: 700; text-decoration: underline; }
+.nav-menu-panel .language-picker select { width: 100%; max-width: none; }
 .nav-group { display: grid; gap: 0.2rem; }
 .nav-group + .nav-group { margin-top: 0.35rem; padding-top: 0.45rem; border-top: 1px solid var(--line); }
 .nav-group-label { padding-inline: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); }

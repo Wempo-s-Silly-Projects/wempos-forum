@@ -148,7 +148,8 @@ test("guest: the settings view is a sign-in prompt with no groups and no panels"
   const prompt = createSettingsSignIn(doc, "https://accounts.example/sign-in");
   assert.equal(prompt.querySelector("section.settings-group"), null);
   assert.equal(prompt.querySelector("section.panel"), null);
-  assert.equal(prompt.querySelector("h2").textContent, "settings.title");
+  // v5.60: the prompt's title is the page h1 (was h2; heading-order fix).
+  assert.equal(prompt.querySelector("h1").textContent, "settings.title");
   assert.equal(prompt.querySelector("p").textContent, "settings.signIn");
   const link = prompt.querySelector("a");
   assert.equal(link.textContent, "common.signIn");

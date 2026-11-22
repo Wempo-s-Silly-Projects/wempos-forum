@@ -51,7 +51,9 @@ import {
   wempoAccountsSignOutUrl,
 } from "../sso.js";
 
-const MENU_GROUP_LABEL_KEYS = Object.freeze({ browse: "nav.browse", account: "nav.account" });
+const MENU_GROUP_LABEL_KEYS = Object.freeze({
+  browse: "nav.browse", account: "nav.account", language: "language.label",
+});
 
 function isValidUser(user) {
   return Boolean(
@@ -102,6 +104,8 @@ function createMenuEntry(entry, user) {
   } else {
     node.href = hrefOf(entry, user);
     if (isAppLink(entry)) node.setAttribute("data-app-link", "");
+    // v5.60: the entry for the page you are on says so, like the bar slots.
+    if (isCurrentPage(entry, user)) node.setAttribute("aria-current", "page");
   }
   const text = document.createElement("span");
   text.textContent = labelOf(entry, user);
@@ -123,10 +127,21 @@ function createNavMenu({ kind, label, toggleClass, content, toggleContent = null
     toggle.setAttribute("aria-label", ariaLabel);
     toggle.title = ariaLabel;
   }
+  // v5.60 (WCAG 2.4.11): the panel overlays the page, so when keyboard focus
+  // moves to something outside the menu it closes instead of covering it. A
+  // focusout with no new target (a click on nothing focusable) is left to
+  // the outside-click handler below.
+  menu.addEventListener("focusout", (event) => {
+    const next = event.relatedTarget;
+    if (!next || menu.contains(next) || toggle.getAttribute("aria-expanded") !== "true") return;
+    toggle.setAttribute("aria-expanded", "false");
+    panel.hidden = true;
+  });
   return menu;
 }
 
-function createMenuGroup(name, scope, entries, user) {
+// `nodes` are ready-built (the language picker); entries are drawn here.
+function createMenuGroup(name, scope, entries, user, nodes = []) {
   const group = document.createElement("div");
   group.className = `nav-group nav-group-${name}`;
   group.setAttribute("role", "group");
@@ -135,7 +150,7 @@ function createMenuGroup(name, scope, entries, user) {
   heading.id = `nav-${scope}-group-${name}`;
   heading.textContent = t(MENU_GROUP_LABEL_KEYS[name]);
   group.setAttribute("aria-labelledby", heading.id);
-  group.append(heading, ...entries.map((entry) => createMenuEntry(entry, user)));
+  group.append(heading, ...entries.map((entry) => createMenuEntry(entry, user)), ...nodes);
   return group;
 }
 
@@ -208,7 +223,8 @@ function createBarItem(entry, user) {
   return link;
 }
 
-// Phone bar: its slots, then More (the Browse group, then the Account group).
+// Phone bar: its slots, then More (the Browse group, then the Account group,
+// then — v5.60 parity — the header's own language picker, reused as is).
 function renderMobileBar(role, user) {
   const bar = document.querySelector(".mobile-bar");
   if (!bar) return;
@@ -220,6 +236,7 @@ function renderMobileBar(role, user) {
     ["account", inMore.filter((entry) => entry.header !== "browse")],
   ].filter(([, entries]) => entries.length)
     .map(([name, entries]) => createMenuGroup(name, "mobile", entries, user));
+  groups.push(createMenuGroup("language", "mobile", [], user, [createLanguagePicker(document)]));
   const label = document.createElement("span");
   label.textContent = t("nav.more");
   const more = createNavMenu({
@@ -248,12 +265,38 @@ function closeMenusOnOutsideClick() {
   });
 }
 
+// v5.60 perf: every route render (each action on a thread re-renders the
+// route) used to rebuild the header and the phone bar from scratch (member:
+// ~230 nodes + 7 listeners). When nothing the nav shows has changed — same
+// member, unread count and page — and both are still the nodes built last
+// time with every menu closed, the render reuses them. Any difference, or an
+// open menu (which a rebuild closes, as before), rebuilds.
+let lastBuild = null;
+
+const navKeyOf = (role, user, unread) =>
+  JSON.stringify([role, user?.username ?? "", user?.role ?? "", unread, location.pathname, location.search]);
+
+const firstChildOf = (node) => node?.children?.[0] ?? null;
+
+function canReuseNav(key, bar) {
+  if (!lastBuild || lastBuild.key !== key) return false;
+  if (firstChildOf(accountActions) !== lastBuild.header || firstChildOf(bar) !== lastBuild.bar) return false;
+  return !lastBuild.toggles.some((toggle) => toggle.getAttribute("aria-expanded") === "true");
+}
+
 function renderAccountNavigation(user, unreadNotifications = 0) {
   const currentUser = isValidUser(user) ? user : null;
   const role = navRoleOf(currentUser);
+  const unread = normaliseUnreadCount(unreadNotifications);
+  const key = navKeyOf(role, currentUser, unread);
+  const bar = document.querySelector(".mobile-bar");
 
-  renderHeader(role, currentUser, normaliseUnreadCount(unreadNotifications));
-  renderMobileBar(role, currentUser);
+  if (!canReuseNav(key, bar)) {
+    renderHeader(role, currentUser, unread);
+    renderMobileBar(role, currentUser);
+    const toggles = [accountActions, bar].flatMap((root) => Array.from(root?.querySelectorAll?.(".nav-menu-toggle") ?? []));
+    lastBuild = { key, header: firstChildOf(accountActions), bar: firstChildOf(bar), toggles };
+  }
   closeMenusOnOutsideClick();
 }
 

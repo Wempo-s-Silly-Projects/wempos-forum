@@ -15,6 +15,31 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.60.0] - 2026-11-22
+
+### Changed
+- Phones can now change the language: the phone bar's More menu ends with
+  the same language picker the desktop header has.
+- The header and the phone bar are no longer rebuilt on every page update
+  when nothing they show has changed (same member, unread count and page).
+  Each action on a thread re-renders the page; the navigation used to cost
+  a signed-in member about 230 new elements and 7 listeners each time, and
+  now costs none.
+
+### Fixed
+- Accessibility pass over the reorganized thread page, settings, header
+  menus and phone bar:
+  - An open Browse, Account or More menu closes when keyboard focus moves
+    out of it, so it no longer covers the control that has focus.
+  - The menu entry for the page you are on is marked as the current page,
+    for screen readers and visually (bold and underlined).
+  - Menu panels have an edge that stands out from the page in every theme
+    (it was too faint in the light theme).
+  - The keyboard shortcuts entry in the menus is a larger target, full
+    size on phones.
+  - The settings page shown to signed-out visitors starts with a main
+    heading.
+
 ## [5.59.0] - 2026-11-22
 
 ### Fixed
