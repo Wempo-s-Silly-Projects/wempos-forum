@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Zamknúť toto vlákno? Pridajte voliteľný dôvod, ktorý uvidí len tím, alebo nechajte prázdne.",
   "threadLock.locked": "Vlákno zamknuté.",
   "threadLock.unlocked": "Vlákno odomknuté.",
-  "errors.threadLocked": "Toto vlákno je zamknuté. Odpovedať môže len tím."
+  "errors.threadLocked": "Toto vlákno je zamknuté. Odpovedať môže len tím.",
+  "threadActions.more": "Viac",
+  "threadActions.reading": "Čítanie",
+  "threadActions.following": "Sledovanie",
+  "threadActions.sharing": "Zdieľanie",
+  "threadActions.thisPost": "Tento príspevok",
+  "threadActions.staff": "Tím",
+  "threadActions.editTags": "Upraviť štítky"
 }

@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Deze draad vergrendelen? Voeg optioneel een reden toe die alleen het team ziet, of laat het leeg.",
   "threadLock.locked": "Draad vergrendeld.",
   "threadLock.unlocked": "Draad ontgrendeld.",
-  "errors.threadLocked": "Deze draad is vergrendeld. Alleen het team kan reageren."
+  "errors.threadLocked": "Deze draad is vergrendeld. Alleen het team kan reageren.",
+  "threadActions.more": "Meer",
+  "threadActions.reading": "Lezen",
+  "threadActions.following": "Volgen",
+  "threadActions.sharing": "Delen",
+  "threadActions.thisPost": "Dit bericht",
+  "threadActions.staff": "Team",
+  "threadActions.editTags": "Tags bewerken"
 }

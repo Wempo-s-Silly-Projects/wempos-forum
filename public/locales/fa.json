@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "این رشته قفل شود؟ دلیلی اختیاری بنویسید که فقط کارکنان می‌بینند، یا خالی بگذارید.",
   "threadLock.locked": "رشته قفل شد.",
   "threadLock.unlocked": "قفل رشته باز شد.",
-  "errors.threadLocked": "این رشته قفل است. فقط کارکنان می‌توانند پاسخ دهند."
+  "errors.threadLocked": "این رشته قفل است. فقط کارکنان می‌توانند پاسخ دهند.",
+  "threadActions.more": "بیشتر",
+  "threadActions.reading": "خواندن",
+  "threadActions.following": "دنبال کردن",
+  "threadActions.sharing": "اشتراک‌گذاری",
+  "threadActions.thisPost": "این پست",
+  "threadActions.staff": "کادر",
+  "threadActions.editTags": "ویرایش برچسب‌ها"
 }

@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Verrouiller ce fil ? Ajoutez un motif facultatif visible uniquement par l'équipe, ou laissez vide.",
   "threadLock.locked": "Fil verrouillé.",
   "threadLock.unlocked": "Fil déverrouillé.",
-  "errors.threadLocked": "Ce fil est verrouillé. Seule l'équipe peut répondre."
+  "errors.threadLocked": "Ce fil est verrouillé. Seule l'équipe peut répondre.",
+  "threadActions.more": "Plus",
+  "threadActions.reading": "Lecture",
+  "threadActions.following": "Suivi",
+  "threadActions.sharing": "Partage",
+  "threadActions.thisPost": "Ce message",
+  "threadActions.staff": "Équipe",
+  "threadActions.editTags": "Modifier les étiquettes"
 }

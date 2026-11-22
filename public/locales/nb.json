@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Vil du låse denne tråden? Legg til en valgfri årsak som bare de ansatte ser, eller la feltet stå tomt.",
   "threadLock.locked": "Tråden er låst.",
   "threadLock.unlocked": "Tråden er låst opp.",
-  "errors.threadLocked": "Denne tråden er låst. Bare de ansatte kan svare."
+  "errors.threadLocked": "Denne tråden er låst. Bare de ansatte kan svare.",
+  "threadActions.more": "Mer",
+  "threadActions.reading": "Lesing",
+  "threadActions.following": "Følger",
+  "threadActions.sharing": "Deling",
+  "threadActions.thisPost": "Dette innlegget",
+  "threadActions.staff": "Team",
+  "threadActions.editTags": "Rediger tagger"
 }

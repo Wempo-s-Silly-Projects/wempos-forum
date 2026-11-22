@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Bu konu kilitlensin mi? Yalnızca ekibin göreceği isteğe bağlı bir neden ekleyin ya da boş bırakın.",
   "threadLock.locked": "Konu kilitlendi.",
   "threadLock.unlocked": "Konunun kilidi açıldı.",
-  "errors.threadLocked": "Bu konu kilitli. Yalnızca ekip yanıt verebilir."
+  "errors.threadLocked": "Bu konu kilitli. Yalnızca ekip yanıt verebilir.",
+  "threadActions.more": "Daha fazla",
+  "threadActions.reading": "Okuma",
+  "threadActions.following": "Takip",
+  "threadActions.sharing": "Paylaşım",
+  "threadActions.thisPost": "Bu gönderi",
+  "threadActions.staff": "Ekip",
+  "threadActions.editTags": "Etiketleri düzenle"
 }

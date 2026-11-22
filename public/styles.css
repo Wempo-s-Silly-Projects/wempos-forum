@@ -3953,3 +3953,28 @@ mark.search-hit {
    color alone, so they read in every theme and without color vision. */
 .edit-diff-ins { text-decoration: underline; text-decoration-thickness: 2px; color: var(--success-ink); background: none; }
 .edit-diff-del { text-decoration: line-through; color: var(--muted); background: none; }
+
+/* Thread page declutter (v5.55, docs/ia-map.md): the root card's row keeps
+   Like, Dislike, Share and More; open panels drop below the row at full width
+   (order: 1), so the buttons never jump. Icon-only controls inside More show
+   their accessible name as text (attr() follows a toggled label live). */
+.post-actions > .thread-more,
+.post-actions > .share-wrap { display: contents; }
+.post-actions .share-menu,
+.thread-more-panel { order: 1; flex-basis: 100%; }
+.post-actions .share-menu { margin-top: 0; }
+.thread-more-panel { display: grid; gap: 0.85rem; padding: 0.75rem; border: 1px solid var(--line); border-radius: 0.5rem; max-width: 36rem; }
+.thread-more-panel[hidden],
+.thread-staff-panel[hidden],
+.thread-tags-panel[hidden] { display: none; }
+.thread-more-group { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.55rem; }
+.thread-more-group-label { flex-basis: 100%; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+.thread-more-panel .icon-button { width: auto; padding: 0 0.75rem; gap: 0.4rem; }
+.thread-more-panel .icon-button::after { content: attr(aria-label); }
+.thread-more-toggle[aria-expanded="true"],
+.thread-staff-toggle[aria-expanded="true"],
+.thread-tags-toggle[aria-expanded="true"] { font-weight: 600; }
+.thread-staff-panel,
+.thread-tags-panel { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.55rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--line); }
+.thread-staff-panel .slow-mode-form,
+.thread-tags-panel .tag-editor { flex-basis: 100%; margin: 0; }

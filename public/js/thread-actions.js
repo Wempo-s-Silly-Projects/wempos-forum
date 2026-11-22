@@ -1,0 +1,147 @@
+// Copyright 2026 ItsWempo
+//
+// This file is part of Wempo's Forum.
+//
+// Wempo's Forum is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
+// Thread page declutter (v5.55, ORGANIZE #1; map in docs/ia-map.md): the root
+// card keeps Like, Dislike, Share and one "More" button; every other control
+// moves, unchanged, into More's groups (Reading, Following, Sharing, This
+// post) and a nested Staff menu. Controls keep their data-action, so the
+// page's one click handler still reaches them. Page view only: nothing is
+// stored or fetched here. Menus are disclosure buttons (aria-expanded +
+// aria-controls); Escape closes the innermost open one and returns focus.
+import { t } from "./i18n.js";
+
+export const PRIMARY_ACTION_LIMIT = 4;
+export const MORE_GROUPS = Object.freeze(["reading", "following", "sharing", "post"]);
+
+const GROUP_LABEL_KEYS = Object.freeze({
+  reading: "threadActions.reading",
+  following: "threadActions.following",
+  sharing: "threadActions.sharing",
+  post: "threadActions.thisPost",
+});
+const CHIP_CLASSES = Object.freeze(["view-count", "reply-count"]);
+const READING_CLASSES = Object.freeze(["read-aloud", "reveal-spoilers", "save-thread-text"]);
+const FOLLOWING_CLASSES = Object.freeze(["subscribe-toggle", "thread-mute-toggle", "bookmark-toggle"]);
+const STAFF_ACTIONS = Object.freeze(new Set([
+  "thread-pin", "thread-unpin", "thread-lock", "thread-unlock", "staff-pick", "staff-unpick", "suggestion-status",
+]));
+
+const hasClass = (node, names) => String(node.className ?? "").split(/\s+/).some((name) => names.includes(name));
+
+// "chip" | "primary" | a MORE_GROUPS name | "staff"
+function slotOf(node) {
+  if (hasClass(node, CHIP_CLASSES)) return "chip";
+  const action = node.dataset?.action;
+  if (action === "reaction") return "primary";
+  if (STAFF_ACTIONS.has(action)) return "staff";
+  if (hasClass(node, READING_CLASSES)) return "reading";
+  if (hasClass(node, FOLLOWING_CLASSES)) return "following";
+  if (hasClass(node, ["copy-link-wrap"]) || node.tagName === "A") return "sharing";
+  return "post";
+}
+
+const actionRowOf = (card) => Array.from(card?.children ?? []).find((node) => hasClass(node, ["post-actions"])) ?? null;
+
+function setOpen(toggle, panel, open) {
+  toggle.setAttribute("aria-expanded", String(open));
+  panel.hidden = !open;
+}
+
+// A disclosure: a real button that shows/hides the panel it controls.
+export function createDisclosure(document, { kind, id, label, content = [] }) {
+  const wrap = document.createElement("div");
+  wrap.className = `thread-${kind}`;
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = `button button-quiet thread-${kind}-toggle`;
+  toggle.textContent = label;
+  toggle.setAttribute("aria-controls", id);
+  const panel = document.createElement("div");
+  panel.className = `thread-${kind}-panel`;
+  panel.id = id;
+  panel.append(...content);
+  setOpen(toggle, panel, false);
+  toggle.addEventListener("click", () => setOpen(toggle, panel, toggle.getAttribute("aria-expanded") !== "true"));
+  wrap.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || toggle.getAttribute("aria-expanded") !== "true") return;
+    event.preventDefault();
+    event.stopPropagation();
+    setOpen(toggle, panel, false);
+    toggle.focus();
+  });
+  wrap.append(toggle, panel);
+  return wrap;
+}
+
+function createGroup(document, postId, name, items) {
+  const group = document.createElement("div");
+  group.className = "thread-more-group";
+  group.dataset.group = name;
+  group.setAttribute("role", "group");
+  const heading = document.createElement("span");
+  heading.className = "thread-more-group-label";
+  heading.id = `thread-more-${postId}-${name}`;
+  heading.textContent = t(GROUP_LABEL_KEYS[name]);
+  group.setAttribute("aria-labelledby", heading.id);
+  group.append(heading, ...items);
+  return group;
+}
+
+// Tags and the TL;DR join the card's header area, just above the action row.
+export function placeInThreadHeader(card, node) {
+  if (!node) return;
+  const row = actionRowOf(card);
+  if (row) card.insertBefore(node, row);
+  else card.append(node);
+}
+
+// organizeThreadActions(document, card, { postId, share, tagEditor, staffForms })
+// regroups the root card's action row in place. `share` (the Share wrapper or
+// null) joins the primary row; `tagEditor` (author/staff) sits collapsed under
+// This post; `staffForms` (staff only, e.g. slow mode) join the Staff menu.
+export function organizeThreadActions(document, card, {
+  postId, share = null, tagEditor = null, staffForms = [],
+} = {}) {
+  const row = actionRowOf(card);
+  if (!row) return;
+  const slots = { chip: [], primary: [], staff: [], reading: [], following: [], sharing: [], post: [] };
+  for (const node of Array.from(row.children)) slots[slotOf(node)].push(node);
+  if (tagEditor) {
+    slots.post.push(createDisclosure(document, {
+      kind: "tags", id: `thread-tags-${postId}`, label: t("threadActions.editTags"), content: [tagEditor],
+    }));
+  }
+  const staffItems = [...slots.staff, ...staffForms.filter(Boolean)];
+  const groups = MORE_GROUPS
+    .filter((name) => slots[name].length)
+    .map((name) => createGroup(document, postId, name, slots[name]));
+  if (staffItems.length) {
+    groups.push(createDisclosure(document, {
+      kind: "staff", id: `thread-staff-${postId}`, label: t("threadActions.staff"), content: staffItems,
+    }));
+  }
+  const primary = [...slots.primary, ...(share ? [share] : [])];
+  const more = groups.length
+    ? [createDisclosure(document, {
+      kind: "more", id: `thread-more-${postId}`, label: t("threadActions.more"), content: groups,
+    })]
+    : [];
+  row.replaceChildren(...primary.slice(0, 2), ...slots.chip, ...primary.slice(2), ...more);
+}

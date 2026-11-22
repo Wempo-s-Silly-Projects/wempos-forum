@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "ล็อกกระทู้นี้ไหม เพิ่มเหตุผลที่เฉพาะทีมงานเห็นได้ หรือเว้นว่างไว้",
   "threadLock.locked": "ล็อกกระทู้แล้ว",
   "threadLock.unlocked": "ปลดล็อกกระทู้แล้ว",
-  "errors.threadLocked": "กระทู้นี้ถูกล็อกแล้ว เฉพาะทีมงานเท่านั้นที่ตอบกลับได้"
+  "errors.threadLocked": "กระทู้นี้ถูกล็อกแล้ว เฉพาะทีมงานเท่านั้นที่ตอบกลับได้",
+  "threadActions.more": "เพิ่มเติม",
+  "threadActions.reading": "การอ่าน",
+  "threadActions.following": "การติดตาม",
+  "threadActions.sharing": "การแชร์",
+  "threadActions.thisPost": "โพสต์นี้",
+  "threadActions.staff": "ทีมงาน",
+  "threadActions.editTags": "แก้ไขแท็ก"
 }

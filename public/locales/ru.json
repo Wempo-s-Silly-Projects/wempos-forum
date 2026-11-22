@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Закрыть эту тему? Укажите необязательную причину, видимую только команде, или оставьте поле пустым.",
   "threadLock.locked": "Тема закрыта.",
   "threadLock.unlocked": "Тема открыта.",
-  "errors.threadLocked": "Эта тема закрыта. Отвечать может только команда."
+  "errors.threadLocked": "Эта тема закрыта. Отвечать может только команда.",
+  "threadActions.more": "Ещё",
+  "threadActions.reading": "Чтение",
+  "threadActions.following": "Подписки",
+  "threadActions.sharing": "Поделиться",
+  "threadActions.thisPost": "Этот пост",
+  "threadActions.staff": "Команда",
+  "threadActions.editTags": "Изменить теги"
 }

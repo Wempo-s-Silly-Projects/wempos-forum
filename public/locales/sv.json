@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Låsa den här tråden? Lägg till en valfri anledning som bara personalen ser, eller lämna tomt.",
   "threadLock.locked": "Tråden har låsts.",
   "threadLock.unlocked": "Tråden har låsts upp.",
-  "errors.threadLocked": "Den här tråden är låst. Endast personalen kan svara."
+  "errors.threadLocked": "Den här tråden är låst. Endast personalen kan svara.",
+  "threadActions.more": "Mer",
+  "threadActions.reading": "Läsning",
+  "threadActions.following": "Följer",
+  "threadActions.sharing": "Dela",
+  "threadActions.thisPost": "Det här inlägget",
+  "threadActions.staff": "Team",
+  "threadActions.editTags": "Redigera taggar"
 }

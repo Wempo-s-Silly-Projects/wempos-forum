@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Zablokować ten wątek? Dodaj opcjonalny powód widoczny tylko dla zespołu albo zostaw puste.",
   "threadLock.locked": "Wątek zablokowany.",
   "threadLock.unlocked": "Wątek odblokowany.",
-  "errors.threadLocked": "Ten wątek jest zablokowany. Odpowiadać może tylko zespół."
+  "errors.threadLocked": "Ten wątek jest zablokowany. Odpowiadać może tylko zespół.",
+  "threadActions.more": "Więcej",
+  "threadActions.reading": "Czytanie",
+  "threadActions.following": "Obserwowanie",
+  "threadActions.sharing": "Udostępnianie",
+  "threadActions.thisPost": "Ten post",
+  "threadActions.staff": "Zespół",
+  "threadActions.editTags": "Edytuj tagi"
 }

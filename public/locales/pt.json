@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Trancar este tópico? Adicione um motivo opcional que só a equipe verá, ou deixe em branco.",
   "threadLock.locked": "Tópico trancado.",
   "threadLock.unlocked": "Tópico destrancado.",
-  "errors.threadLocked": "Este tópico está trancado. Só a equipe pode responder."
+  "errors.threadLocked": "Este tópico está trancado. Só a equipe pode responder.",
+  "threadActions.more": "Mais",
+  "threadActions.reading": "Leitura",
+  "threadActions.following": "Seguir",
+  "threadActions.sharing": "Partilhar",
+  "threadActions.thisPost": "Esta publicação",
+  "threadActions.staff": "Equipa",
+  "threadActions.editTags": "Editar etiquetas"
 }

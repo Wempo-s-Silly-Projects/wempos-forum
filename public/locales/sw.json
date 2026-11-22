@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Ufunge uzi huu? Ongeza sababu ya hiari ambayo wafanyakazi tu wataiona, au acha wazi.",
   "threadLock.locked": "Uzi umefungwa.",
   "threadLock.unlocked": "Uzi umefunguliwa.",
-  "errors.threadLocked": "Uzi huu umefungwa. Wafanyakazi tu ndio wanaoweza kujibu."
+  "errors.threadLocked": "Uzi huu umefungwa. Wafanyakazi tu ndio wanaoweza kujibu.",
+  "threadActions.more": "Zaidi",
+  "threadActions.reading": "Kusoma",
+  "threadActions.following": "Kufuatilia",
+  "threadActions.sharing": "Kushiriki",
+  "threadActions.thisPost": "Chapisho hili",
+  "threadActions.staff": "Wafanyakazi",
+  "threadActions.editTags": "Hariri lebo"
 }

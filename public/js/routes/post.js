@@ -62,6 +62,7 @@ import { canReplyToThread, createThreadLockNote, createThreadLockReason, stripRe
 import { createTagChips, createTagEditor, postTagsPath } from "../tags.js";
 import { createThreadOutline } from "../thread-outline.js";
 import { createThreadSummary, loadThreadSummary } from "../thread-summary.js";
+import { organizeThreadActions, placeInThreadHeader } from "../thread-actions.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -76,8 +77,10 @@ async function renderPostRoute(route, context, version) {
   const slowNote = createSlowModeNote(document, post.slowModeSeconds);
   if (slowNote) main.append(slowNote);
   const viewer = context.session.user;
+  // v5.55: the slow-mode setter rides the root card's Staff menu (below).
+  const staffForms = [];
   if (!post.parent && (viewer?.role === "owner" || viewer?.role === "admin")) {
-    main.append(createSlowModeForm(document, post.id, post.slowModeSeconds));
+    staffForms.push(createSlowModeForm(document, post.id, post.slowModeSeconds));
   }
   // Thread lock (v5.51): the note for everyone; staff also read the reason
   // from the desk route (a failed read just leaves it out).
@@ -94,7 +97,7 @@ async function renderPostRoute(route, context, version) {
   const lockedForViewer = post.locked === true && !(viewer?.role === "owner" || viewer?.role === "admin");
   // Thread tags (v5.44): chips for everyone on a root; the picker for the
   // author and staff. A failed tag read leaves the page without chips.
-  if (!post.parent) await appendThreadTags(post, viewer, version);
+  const tagEditor = post.parent ? null : await appendThreadTags(rootCard, post, viewer, version);
   if (version !== state.renderVersion) return;
   // TL;DR (v5.50): roots only, above the replies; the editor for the author
   // and staff (the server gates it again). It fills in without blocking.
@@ -102,12 +105,15 @@ async function renderPostRoute(route, context, version) {
     const isStaffViewer = viewer?.role === "owner" || viewer?.role === "admin";
     const canEdit = Boolean(viewer) && (isStaffViewer || Number(post.author?.id) === Number(viewer.id));
     const tldr = createThreadSummary(document, { postId: post.id, canEdit });
-    main.append(tldr);
+    placeInThreadHeader(rootCard, tldr);
     loadThreadSummary(tldr);
   }
   // Share (v5.34): public root threads only, never for staff viewers.
   const share = createShareButton(document, post, context.session.user);
-  if (share) main.append(share);
+  // Declutter (v5.55, docs/ia-map.md): root threads keep Like, Dislike, Share
+  // and More; the rest of the row moves into More's groups and Staff menu.
+  // (canShare already refuses replies, so a reply page never has a Share.)
+  if (!post.parent) organizeThreadActions(document, rootCard, { postId: post.id, share, tagEditor, staffForms });
   // Thread at a glance (wave 2026-11-21): from the posts already loaded.
   if (post.replies.length) {
     main.append(createThreadGlance(document, summarizeThread(post, post.replies), main));
@@ -336,19 +342,19 @@ async function loadOlderReplies(button) {
   else button.remove();
 }
 
-async function appendThreadTags(post, viewer, version) {
+// Tag chips join the root card's header area; the picker (author and staff)
+// is returned for the card's More menu. Null = no picker.
+async function appendThreadTags(rootCard, post, viewer, version) {
   const isStaffViewer = viewer?.role === "owner" || viewer?.role === "admin";
   const canEdit = Boolean(viewer) && (isStaffViewer || Number(post.author?.id) === Number(viewer.id));
   const [own, all] = await Promise.all([
     api(postTagsPath(post.id)).catch(() => ({ tags: [] })),
     canEdit ? api("/api/tags").catch(() => ({ tags: [] })) : Promise.resolve({ tags: [] }),
   ]);
-  if (version !== state.renderVersion) return;
-  const chips = createTagChips(document, own.tags);
-  if (chips) main.append(chips);
-  if (!canEdit) return;
-  const editor = createTagEditor(document, post.id, all.tags, (own.tags || []).map((tag) => tag.id));
-  if (editor) main.append(editor);
+  if (version !== state.renderVersion) return null;
+  placeInThreadHeader(rootCard, createTagChips(document, own.tags));
+  if (!canEdit) return null;
+  return createTagEditor(document, post.id, all.tags, (own.tags || []).map((tag) => tag.id));
 }
 
 // The registration seam: post-edit submits through FORM_HANDLERS; the detail

@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Dieses Thema sperren? Gib optional einen Grund an, den nur das Team sieht, oder lass das Feld leer.",
   "threadLock.locked": "Thema gesperrt.",
   "threadLock.unlocked": "Thema entsperrt.",
-  "errors.threadLocked": "Dieses Thema ist gesperrt. Nur das Team kann antworten."
+  "errors.threadLocked": "Dieses Thema ist gesperrt. Nur das Team kann antworten.",
+  "threadActions.more": "Mehr",
+  "threadActions.reading": "Lesen",
+  "threadActions.following": "Folgen",
+  "threadActions.sharing": "Teilen",
+  "threadActions.thisPost": "Dieser Beitrag",
+  "threadActions.staff": "Team",
+  "threadActions.editTags": "Tags bearbeiten"
 }

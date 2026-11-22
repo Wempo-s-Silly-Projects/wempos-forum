@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Lukitaanko tämä ketju? Lisää halutessasi syy, jonka vain ylläpito näkee, tai jätä tyhjäksi.",
   "threadLock.locked": "Ketju lukittu.",
   "threadLock.unlocked": "Ketjun lukitus avattu.",
-  "errors.threadLocked": "Tämä ketju on lukittu. Vain ylläpito voi vastata."
+  "errors.threadLocked": "Tämä ketju on lukittu. Vain ylläpito voi vastata.",
+  "threadActions.more": "Lisää",
+  "threadActions.reading": "Lukeminen",
+  "threadActions.following": "Seuraaminen",
+  "threadActions.sharing": "Jakaminen",
+  "threadActions.thisPost": "Tämä viesti",
+  "threadActions.staff": "Ylläpito",
+  "threadActions.editTags": "Muokkaa tunnisteita"
 }

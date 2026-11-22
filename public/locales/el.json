@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Κλείδωμα αυτού του νήματος; Προσθέστε προαιρετικά έναν λόγο που βλέπει μόνο το προσωπικό ή αφήστε το κενό.",
   "threadLock.locked": "Το νήμα κλειδώθηκε.",
   "threadLock.unlocked": "Το νήμα ξεκλειδώθηκε.",
-  "errors.threadLocked": "Αυτό το νήμα είναι κλειδωμένο. Μόνο το προσωπικό μπορεί να απαντήσει."
+  "errors.threadLocked": "Αυτό το νήμα είναι κλειδωμένο. Μόνο το προσωπικό μπορεί να απαντήσει.",
+  "threadActions.more": "Περισσότερα",
+  "threadActions.reading": "Ανάγνωση",
+  "threadActions.following": "Παρακολούθηση",
+  "threadActions.sharing": "Κοινοποίηση",
+  "threadActions.thisPost": "Αυτή η ανάρτηση",
+  "threadActions.staff": "Ομάδα",
+  "threadActions.editTags": "Επεξεργασία ετικετών"
 }

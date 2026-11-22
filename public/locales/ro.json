@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Blochezi această discuție? Adaugă opțional un motiv pe care îl vede doar echipa sau lasă gol.",
   "threadLock.locked": "Discuția a fost blocată.",
   "threadLock.unlocked": "Discuția a fost deblocată.",
-  "errors.threadLocked": "Această discuție este blocată. Doar echipa poate răspunde."
+  "errors.threadLocked": "Această discuție este blocată. Doar echipa poate răspunde.",
+  "threadActions.more": "Mai mult",
+  "threadActions.reading": "Citire",
+  "threadActions.following": "Urmărire",
+  "threadActions.sharing": "Distribuire",
+  "threadActions.thisPost": "Această postare",
+  "threadActions.staff": "Echipă",
+  "threadActions.editTags": "Editează etichetele"
 }

@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "I-lock ang thread na ito? Magdagdag ng opsyonal na dahilan na staff lang ang makakakita, o iwanang blangko.",
   "threadLock.locked": "Na-lock ang thread.",
   "threadLock.unlocked": "Na-unlock ang thread.",
-  "errors.threadLocked": "Naka-lock ang thread na ito. Staff lang ang puwedeng sumagot."
+  "errors.threadLocked": "Naka-lock ang thread na ito. Staff lang ang puwedeng sumagot.",
+  "threadActions.more": "Iba pa",
+  "threadActions.reading": "Pagbasa",
+  "threadActions.following": "Pagsubaybay",
+  "threadActions.sharing": "Pagbabahagi",
+  "threadActions.thisPost": "Ang post na ito",
+  "threadActions.staff": "Kawani",
+  "threadActions.editTags": "I-edit ang mga tag"
 }
