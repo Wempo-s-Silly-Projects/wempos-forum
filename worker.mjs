@@ -161,7 +161,7 @@ async function stampedAssetResponse(assetResponse, env, request, url) {
   // describes these bytes — a retained Last-Modified would advertise a lie.
   headers.delete("Last-Modified");
   headers.set("Cache-Control", "no-store");
-  return new Response(html.includes("</head>") ? html.replace("</head>", stamp + "</head>") : html, {
+  return new Response(html.includes("</head>") ? html.replace("</head>", () => stamp + "</head>") : html, {
     status: assetResponse.status,
     statusText: assetResponse.statusText,
     headers,
