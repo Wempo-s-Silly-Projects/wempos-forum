@@ -25,6 +25,8 @@
   },
   "dependencies": {
     "content-type": "latest",
+    "file-type": "latest",
+    "image-dimensions": "latest",
     "ipaddr.js": "latest",
     "secure-json-parse": "latest"
   }

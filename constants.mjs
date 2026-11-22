@@ -193,3 +193,15 @@ export const EXPORT_SECTION_CAPS = Object.freeze({
 // this file; tests/wave574-prism.test.mjs pins them equal).
 export const CODE_LINE_NUMBERS_MIN_LINES = 5;
 export const CODE_HIGHLIGHT_MAX_CHARS = 20000;
+
+// Upload pipeline: before a photo (JPEG/PNG/WebP, never a GIF or an animated
+// image) is uploaded, the browser re-encodes it through a canvas, which drops
+// EXIF/GPS metadata, shrinking its longest side to at most
+// UPLOAD_MAX_LONG_SIDE pixels (never upscaling) and aiming for at most
+// UPLOAD_TARGET_MAX_MB megabytes (UPLOAD_AVATAR_TARGET_MAX_MB for profile
+// pictures, whose Worker cap is 1 MiB). public/js/upload-prep.js mirrors all
+// three (the client cannot import this file; tests/upload-safety.test.mjs
+// pins them).
+export const UPLOAD_MAX_LONG_SIDE = 2560;
+export const UPLOAD_TARGET_MAX_MB = 2;
+export const UPLOAD_AVATAR_TARGET_MAX_MB = 1;

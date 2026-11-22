@@ -38,6 +38,7 @@ import {
 } from "../dom.js";
 import { addText, createInput } from "../forms.js";
 import { state } from "../state.js";
+import { UPLOAD_AVATAR_TARGET_MAX_MB, prepareImageUpload } from "../upload-prep.js";
 import { formatBanCountdown } from "../banned.js";
 import {
   SOCIAL_LABELS,
@@ -360,9 +361,17 @@ async function submitProfileEditorForm(form, text) {
   setMessage(t("profile.updated"));
 }
 
+const AVATAR_IMAGE_TYPES = Object.freeze(["image/jpeg", "image/png", "image/webp"]);
+
 async function submitAvatarForm(values) {
   const upload = new FormData();
-  upload.append("avatar", values.get("avatar"));
+  // Upload safety pipeline: byte-check, strip metadata, shrink toward the
+  // 1 MiB profile-picture cap. GIFs are not profile pictures.
+  upload.append("avatar", await prepareImageUpload(values.get("avatar"), {
+    accept: AVATAR_IMAGE_TYPES,
+    maxSizeMB: UPLOAD_AVATAR_TARGET_MAX_MB,
+    wrongType: () => t("errors.imageTypeUpload"),
+  }));
   await api("/api/me/avatar", { method: "POST", body: upload });
   await state.renderRoute({ name: "profile", username: state.currentUser.username });
   setMessage(t("profile.pictureUpdated"));

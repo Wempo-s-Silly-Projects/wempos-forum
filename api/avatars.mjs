@@ -26,7 +26,7 @@
 import { assertNotBanned, readSession, requireStaff, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, isMultipartRequest, json, rateLimit, readJson, readLimitedBody, requireMutationApplied } from "./core/http.mjs";
-import { blobToUint8Array, createAvatarVersion, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
+import { blobToUint8Array, createAvatarVersion, imageResponse, inspectImageUpload, sniffImageMime } from "./core/images.mjs";
 
 export const MAX_AVATAR_BYTES = 1024 * 1024;
 export const MAX_AVATAR_REQUEST_BYTES = MAX_AVATAR_BYTES + 64 * 1024;
@@ -99,11 +99,11 @@ async function handleAvatarUploadRoute(request, env, url, path, method) {
     if (!mime) throw new HttpError(415, "Only JPEG, PNG, and WebP images are supported.");
     // Polyglot/metadata defense (mirrors attachment + gallery intake): strip
     // text-carrying segments and appended payloads before anything is stored.
-    const sanitized = sanitizeImage(bytes);
-    if (!sanitized) {
+    const inspected = await inspectImageUpload(bytes);
+    if (!inspected) {
       throw new HttpError(400, "That image could not be read. Try re-saving it and uploading again.");
     }
-    const clean = sanitized.bytes;
+    const clean = inspected.bytes;
     const updatedAt = nowSeconds();
     const avatarVersion = createAvatarVersion();
     // Uploads always land in the pending mirror set: any previously approved

@@ -28,7 +28,9 @@
 import { assertNotBanned, readSession, requireStaff, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, isMultipartRequest, json, rateLimit, readLimitedBody } from "./core/http.mjs";
-import { blobToUint8Array, createAvatarVersion, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
+import {
+  blobToUint8Array, createAvatarVersion, imageDimensionsStatement, imageResponse, inspectImageUpload, sniffImageMime,
+} from "./core/images.mjs";
 
 export const GIF_FIELD = "gifIds";
 
@@ -129,11 +131,11 @@ export async function handleGifUploadRoute(request, env, path, method) {
   // Polyglot/metadata defense (mirrors attachment intake): strip text-carrying
   // segments and appended payloads, require valid structure, and hash the
   // clean bytes so dedup matches the canonical form of the same image.
-  const sanitized = sanitizeImage(bytes);
-  if (!sanitized) {
+  const inspected = await inspectImageUpload(bytes);
+  if (!inspected) {
     throw new HttpError(400, "That image could not be read. Try re-saving it and uploading again.");
   }
-  bytes = sanitized.bytes;
+  bytes = inspected.bytes;
   const hash = bytesToHex(await crypto.subtle.digest("SHA-256", bytes));
   const existing = await db.prepare(
     "SELECT id, (SELECT COUNT(*) FROM gif_chunks c WHERE c.gif_id = gifs.id) AS chunk_count " +
@@ -166,6 +168,8 @@ export async function handleGifUploadRoute(request, env, path, method) {
     ).bind(id, hash, session.user.id, mime, createAvatarVersion(), now),
     ...gifChunkInsertStatements(db, id, bytes),
   ];
+  const dimensions = imageDimensionsStatement(db, hash, inspected);
+  if (dimensions) statements.push(dimensions);
   await db.batch(statements);
   // Close the race where an approved twin appears between the first lookup
   // and the pending insert. Approval itself also handles the remaining race.

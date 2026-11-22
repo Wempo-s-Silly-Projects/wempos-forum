@@ -33,7 +33,9 @@ import { assertNotBanned, requireSignedInRead, requireUser } from "./core/auth.m
 import { blockPairExists } from "./core/blocks.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readLimitedBody } from "./core/http.mjs";
-import { blobToUint8Array, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
+import {
+  blobToUint8Array, imageDimensionsStatement, imageResponse, inspectImageUpload, sniffImageMime,
+} from "./core/images.mjs";
 import { MAX_ATTACHMENT_BYTES, MAX_ATTACHMENT_CHUNK_BYTES, sha256Hex } from "./attachments.mjs";
 import { activeBanSql, groupMessageStatements, loadGroupForMember } from "./dm-groups.mjs";
 import { isoTime } from "./chat.mjs";
@@ -71,14 +73,14 @@ async function readDmImage(request, env) {
   const raw = new Uint8Array(await file.arrayBuffer());
   const mime = sniffImageMime(raw);
   if (!mime) throw new HttpError(400, "Only JPEG, PNG, WebP, and GIF images can be sent.");
-  const sanitized = sanitizeImage(raw);
-  if (!sanitized) throw new HttpError(400, "That image could not be read. Try re-saving it and sending again.");
-  const hash = await sha256Hex(sanitized.bytes);
+  const inspected = await inspectImageUpload(raw);
+  if (!inspected) throw new HttpError(400, "That image could not be read. Try re-saving it and sending again.");
+  const hash = await sha256Hex(inspected.bytes);
   const revoked = await env.FORUM_DB.prepare(
     "SELECT 1 FROM revoked_attachment_hashes WHERE hash = ? LIMIT 1",
   ).bind(hash).first();
   if (revoked) throw new HttpError(400, "That image cannot be sent.");
-  return { mime, bytes: sanitized.bytes, hash };
+  return { mime, bytes: inspected.bytes, hash, width: inspected.width, height: inspected.height };
 }
 
 // The image row + its chunk rows, bound to exactly one conversation.
@@ -86,6 +88,8 @@ function imageStatements(db, imageId, uploaderId, conversation, image, now) {
   const statements = [db.prepare(
     "INSERT INTO dm_images (id, uploader_id, thread_id, group_id, mime, hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
   ).bind(imageId, uploaderId, conversation.threadId ?? null, conversation.groupId ?? null, image.mime, image.hash, now)];
+  const dimensions = imageDimensionsStatement(db, image.hash, image);
+  if (dimensions) statements.push(dimensions);
   for (let seq = 0, offset = 0; offset < image.bytes.length; seq += 1, offset += MAX_ATTACHMENT_CHUNK_BYTES) {
     statements.push(db.prepare("INSERT INTO dm_image_chunks (image_id, seq, data) VALUES (?, ?, ?)")
       .bind(imageId, seq, image.bytes.subarray(offset, offset + MAX_ATTACHMENT_CHUNK_BYTES)));

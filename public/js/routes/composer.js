@@ -34,6 +34,7 @@ import {
   addComposerFiles,
   buildComposerBody,
 } from "../attachments.js";
+import { prepareImageUpload, prepareImageUploads } from "../upload-prep.js";
 import { addGifsToComposer, removeGifFromComposer, renderGifThumbs, spareComposerSlots } from "../gifs.js";
 import { arrangeGallery, readRecents, rememberRecents, writeRecents } from "../gallery-picks.js";
 import { prefersReducedMotion } from "../focus-utils.js";
@@ -232,10 +233,13 @@ async function submitNewPost(form, text) {
   // The Suggestions composer's form dataset carries board=suggestions, riding
   // the body in whichever format wins; the home composer has no dataset flag,
   // keeping its payload exactly as before.
+  // Upload safety pipeline: byte-check, strip metadata and shrink photos
+  // AFTER the idempotency signature, which is keyed to the files as chosen.
+  const preparedFiles = await prepareImageUploads(files);
   const submission = buildComposerBody({
     body,
     turnstileToken: takeTurnstileToken(form),
-    files,
+    files: preparedFiles,
     gifs,
     board,
   });
@@ -276,10 +280,11 @@ async function submitReplyForm(form, text) {
   const idempotencyKey = composerIdempotencyKey(form, signature);
   // Same dual wire format as posts; replies are Turnstile-gated server-side
   // with action "reply".
+  const preparedFiles = await prepareImageUploads(files);
   const submission = buildComposerBody({
     body,
     turnstileToken: takeTurnstileToken(form),
-    files,
+    files: preparedFiles,
     gifs,
   });
   refreshTurnstile(form);
@@ -385,8 +390,9 @@ async function uploadCommunityGif(input) {
   const file = input.files?.[0];
   if (!file) return;
   try {
+    const prepared = await prepareImageUpload(file);
     const upload = new FormData();
-    upload.append("gif", file, file.name);
+    upload.append("gif", prepared, prepared.name);
     const result = await api("/api/gifs", { method: "POST", body: upload });
     const form = connectedComposer(activeGifComposerForm);
     if (result.reuse && form) {
