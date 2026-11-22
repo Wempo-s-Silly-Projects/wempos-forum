@@ -23,6 +23,7 @@
 import { createForm, createInput, addText } from "../forms.js";
 import { createBanForm } from "./bans.js";
 import { createHideRecentForm, createMemberPeekToggle } from "./member-tools.js";
+import { createClaimControl } from "./staff-tools.js";
 import { t } from "../i18n.js";
 
 const createReportQueue = (reports, document, currentUser = null) => {
@@ -43,6 +44,8 @@ const createReportQueue = (reports, document, currentUser = null) => {
     card.dataset.reportId = String(report.id);
     addText(document, card, "h2", t("desk.reports.title", { id: report.id }));
     addText(document, card, "p", t("desk.reports.reportedBy", { username: report.reporter.username, reason: report.reason }));
+    // v5.43: who is handling it (Claim / Release).
+    card.append(createClaimControl(document, report));
     const openCount = openPerPost.get(report.post.id);
     if (openCount > 1) {
       const repeat = addText(document, card, "p", t("desk.reports.repeat", { count: openCount }), "report-repeat");

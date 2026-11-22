@@ -50,6 +50,9 @@ export const POST_SELECT =
   // and the staff menu's Pick/Unpick label only; showing the pick on /week and
   // the gallery re-checks visibility in api/staff-picks.mjs. Bind-free.
   "(p.id = (SELECT f.post_id FROM featured_posts f ORDER BY f.picked_at DESC, f.id DESC LIMIT 1)) AS staff_pick, " +
+  // Slow mode (v5.43, migration 0069): the thread's cooldown in seconds, NULL
+  // when off. A primary-key read, bind-free; who set it never leaves the desk.
+  "(SELECT s.seconds FROM thread_slowmode s WHERE s.post_id = p.id) AS slow_mode_seconds, " +
   "(SELECT parent.body FROM posts parent WHERE parent.id = p.parent_id) AS parent_body, " +
   // Wave 40: a reaction by an actively-banned member never counts (read
   // time; an unban restores it) — the same tally SUGGESTION_SCORE_SQL sums.
@@ -253,6 +256,8 @@ export function publicPost(row, publicLevel) {
     viewerReaction: row.viewer_reaction || null,
     // Staff pick (v5.35): the current pick of the week; false elsewhere.
     staffPick: Number(row.staff_pick) === 1,
+    // Slow mode (v5.43): seconds between a member's replies, null when off.
+    slowModeSeconds: Number(row.slow_mode_seconds) > 0 ? Number(row.slow_mode_seconds) : null,
     // Pinning (C5): the stamp (epoch seconds) as ISO, null never-pinned. Rows
     // from pre-migration projections normalize to null like editedAt.
     pinnedAt: row.pinned_at === null || row.pinned_at === undefined || Number(row.pinned_at) === 0

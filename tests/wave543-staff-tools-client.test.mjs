@@ -36,7 +36,7 @@ import {
   slowModePath,
 } from "../public/js/slow-mode.js";
 import { SLOW_MODE_CHOICES as SERVER_CHOICES } from "../api/staff-tools.mjs";
-import { t } from "../public/js/i18n.js";
+import { currentLocale, t } from "../public/js/i18n.js";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const doc = makeFakeDocument();
@@ -109,8 +109,8 @@ test("member notes: newest first as served, bodies as text, delete per note, add
   assert.equal(bodies[0].childElementCount, 0);
   assert.equal(bodies[1].textContent, "older note");
   const meta = findByClass(section, "member-note-meta");
-  assert.ok(meta.textContent.includes("boss"));
-  const deletes = section.querySelectorAll("button[data-action=member-note-delete]");
+  assert.equal(meta.textContent, t("desk.notes.by", { username: "boss", date: new Date(NOTES[0].createdAt).toLocaleString(currentLocale()) }));
+  const deletes = [...section.querySelectorAll("button")].filter((button) => button.dataset.action === "member-note-delete");
   assert.equal(deletes.length, 2);
   assert.equal(deletes[0].dataset.noteId, "9");
   assert.equal(deletes[0].dataset.memberId, "7");

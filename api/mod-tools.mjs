@@ -117,6 +117,10 @@ export async function hidePostsBatch(db, ids, authorId, resolverId) {
     db.prepare(
       `UPDATE reports SET status = 'actioned', resolved_at = ?, resolved_by = ? WHERE post_id IN (${inList}) AND status = 'open'`,
     ).bind(nowSeconds(), resolverId, ...ids),
+    // v5.43: the closed reports keep no claim.
+    db.prepare(
+      `DELETE FROM report_claims WHERE report_id IN (SELECT id FROM reports WHERE post_id IN (${inList}) AND status <> 'open')`,
+    ).bind(...ids),
   ]);
   return Number(results[0]?.meta?.changes) || 0;
 }

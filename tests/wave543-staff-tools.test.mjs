@@ -134,7 +134,9 @@ test("staff writes demand same-origin + X-CSRF-Token; every write is rate limite
   for (const [method, path, body] of writes) {
     const badToken = await call(w.env, path, { method, body, session: { cookie: boss.cookie, csrf: "wrong-token" } });
     assert.equal(badToken.status, 403, "bad csrf " + path);
-    const crossSite = await call(w.env, path, { method, body, session: boss, headers: { Origin: "https://evil.example" } });
+    // Hand-built (makeRequest stamps the real Origin whenever a session rides).
+    const crossSite = await call(w.env, path, { method, body,
+      headers: { Cookie: boss.cookie, "X-CSRF-Token": boss.csrf, Origin: "https://evil.example" } });
     assert.equal(crossSite.status, 403, "cross-site origin " + path);
   }
   assert.equal(count(w.db, "member_notes"), 0);
@@ -420,7 +422,7 @@ test("cascades: the member's own account wipe takes notes about them and by them
 test("migration 0069 is CREATE-only and every reference cascades", () => {
   const sql = readFileSync(new URL("../migrations/0069_staff_tools.sql", import.meta.url), "utf8");
   const code = sql.split("\n").filter((line) => !line.trim().startsWith("--")).join("\n");
-  assert.doesNotMatch(code, /\b(ALTER|DROP|DELETE|UPDATE|INSERT)\b/i);
+  assert.doesNotMatch(code.replace(/ON DELETE CASCADE/g, ""), /\b(ALTER|DROP|DELETE|UPDATE|INSERT)\b/i);
   const references = code.match(/REFERENCES\s+\w+\(\w+\)[^,\n]*/g) || [];
   assert.equal(references.length, 6);
   for (const ref of references) assert.match(ref, /ON DELETE CASCADE/, ref);
