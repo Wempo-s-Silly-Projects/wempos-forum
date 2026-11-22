@@ -18,15 +18,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// Wave 5.73.0 (slate 2026-11-22-b): B1 shrink-wrapped DM bubbles, B2 in-house
-// code highlighting through the CSS Custom Highlight API (no DOM mutation),
-// B3 the no-module notice for browsers that cannot run ES modules.
+// Wave 5.73.0 (slate 2026-11-22-b): B1 shrink-wrapped DM bubbles and B3 the
+// no-module notice for browsers that cannot run ES modules. (B2, code
+// highlighting, moved to a vendored Prism build by owner decision.)
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import vm from "node:vm";
-import { FakeNode, FakeText } from "./helpers/fake-dom.mjs";
-import * as serverConstants from "../constants.mjs";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const CSS = read("public/styles.css");
@@ -80,185 +78,6 @@ test("B1: lobby, easy-reading and line-spacing rules still exclude media bodies"
   assert.match(CSS, /\.chat-widget-lobby \.chat-message\.chat-mine \.chat-message-body\s*\{\s*color:\s*var\(--muted\);\s*\}/);
   assert.match(CSS, /:root\.easy-reading :where\([^)]*\.chat-message-body\):not\(\.chat-gif-body, \.chat-dm-image-body, \.chat-emoji-jumbo\)/);
   assert.match(CSS, /:root\[data-line-spacing="relaxed"\] :is\(\.post-body, \.chat-message-body:not\(\.chat-gif-body, \.chat-dm-image-body, \.chat-emoji-jumbo\), textarea\)/);
-});
-
-// ---- B2: in-house code highlighting ----
-
-const highlighter = await import("../public/js/code-highlight.js").catch((error) => ({ loadError: error }));
-const hl = () => {
-  assert.ok(!highlighter.loadError, `public/js/code-highlight.js failed to load: ${highlighter.loadError}`);
-  return highlighter;
-};
-const tokens = (text, lang) => hl().tokenize(text, lang).map(({ type, start, end }) => [type, text.slice(start, end)]);
-
-test("B2 tokenizer: keywords and numbers, identifiers left alone", () => {
-  assert.deepEqual(tokens("const x = 1; return x1;", "js"), [
-    ["keyword", "const"], ["number", "1"], ["keyword", "return"],
-  ]);
-});
-
-test("B2 tokenizer: strings with escapes, keywords inside strings stay strings", () => {
-  assert.deepEqual(tokens(String.raw`"a\"if" + 'c\\' + ` + "`t`", "js"), [
-    ["string", String.raw`"a\"if"`], ["string", String.raw`'c\\'`], ["string", "`t`"],
-  ]);
-});
-
-test("B2 tokenizer: an unterminated string stops at the end of its line", () => {
-  assert.deepEqual(tokens('"abc\nlet y', "js"), [["string", '"abc'], ["keyword", "let"]]);
-});
-
-test("B2 tokenizer: line and block comments per language", () => {
-  assert.deepEqual(tokens("// hi\nx /* if */ # z", "js"), [["comment", "// hi"], ["comment", "/* if */"]]);
-  assert.deepEqual(tokens("x = 1 # if\ndef f(): pass", "py"), [
-    ["number", "1"], ["comment", "# if"], ["keyword", "def"], ["keyword", "pass"],
-  ]);
-  assert.deepEqual(tokens("echo $1 # done", "sh"), [["keyword", "echo"], ["comment", "# done"]]);
-  assert.deepEqual(tokens("a { color: red } /* x */", "css"), [["comment", "/* x */"]]);
-  assert.deepEqual(tokens("/* unclosed\nif", "js"), [["comment", "/* unclosed\nif"]]);
-});
-
-test("B2 tokenizer: numbers (hex, decimal, exponent), not inside identifiers", () => {
-  assert.deepEqual(tokens("0x1F 3.14 1e9 a1 _2", "generic"), [
-    ["number", "0x1F"], ["number", "3.14"], ["number", "1e9"],
-  ]);
-});
-
-test("B2 tokenizer: JSON knows true/false/null and double-quoted strings", () => {
-  assert.deepEqual(tokens('{"a": true, "b": null, "c": -2}', "json"), [
-    ["string", '"a"'], ["keyword", "true"], ["string", '"b"'], ["keyword", "null"], ["string", '"c"'], ["number", "2"],
-  ]);
-});
-
-test("B2: the fence info string picks the keyword set", () => {
-  const { languageOf } = hl();
-  assert.equal(languageOf("js"), "js");
-  assert.equal(languageOf("TypeScript"), "js");
-  assert.equal(languageOf("python"), "py");
-  assert.equal(languageOf("bash"), "sh");
-  assert.equal(languageOf("json"), "json");
-  assert.equal(languageOf("css"), "css");
-  assert.equal(languageOf("html"), "html");
-  assert.equal(languageOf("rust"), "generic");
-  assert.equal(languageOf(""), "generic");
-  assert.equal(languageOf(undefined), "generic");
-  assert.deepEqual(tokens("def function", "py"), [["keyword", "def"]]);
-  assert.deepEqual(tokens("def function", "js"), [["keyword", "function"]]);
-});
-
-test("B2: tokenizing a block at the cap stays fast", () => {
-  const cap = hl().CODE_HIGHLIGHT_MAX_CHARS;
-  const line = "let s = \"x\"; // c\n";
-  const big = line.repeat(Math.floor(cap / line.length));
-  const started = performance.now();
-  hl().tokenize(big, "js");
-  assert.ok(performance.now() - started < 200);
-});
-
-// A fake Highlight registry + Range recorder (the fake DOM has neither).
-function fakeEnv() {
-  const highlights = new Map();
-  const ranges = [];
-  class Highlight { constructor(...items) { this.items = items; } }
-  const createRange = () => {
-    const range = {
-      setStart(node, offset) { this.node = node; this.start = offset; },
-      setEnd(node, offset) { this.endNode = node; this.end = offset; },
-    };
-    ranges.push(range);
-    return range;
-  };
-  return { highlights, Highlight, createRange, ranges };
-}
-function codeBlock(text, lang) {
-  const pre = new FakeNode("pre");
-  pre.className = "post-codeblock";
-  const code = new FakeNode("code");
-  if (lang) code.dataset.lang = lang;
-  code.append(new FakeText(text));
-  pre.append(code);
-  return { pre, code };
-}
-
-test("B2: highlighting registers ranges and never mutates the DOM", () => {
-  const root = new FakeNode("div");
-  const { pre, code } = codeBlock('let a = "s"; // c', "js");
-  root.append(pre);
-  const env = fakeEnv();
-  hl().highlightCodeBlocks(root, env);
-  assert.equal(code.childNodes.length, 1, "no spans inserted");
-  assert.equal(code.textContent, 'let a = "s"; // c');
-  assert.equal(pre.childNodes.length, 1);
-  const spans = (name) => env.highlights.get(name).items.map((r) => code.firstChild.textContent.slice(r.start, r.end));
-  assert.deepEqual(spans("code-keyword"), ["let"]);
-  assert.deepEqual(spans("code-string"), ['"s"']);
-  assert.deepEqual(spans("code-comment"), ["// c"]);
-  for (const range of env.ranges) assert.equal(range.node, code.firstChild);
-});
-
-test("B2: a no-op when CSS.highlights is missing", () => {
-  const root = new FakeNode("div");
-  root.append(codeBlock("let a", "js").pre);
-  let created = 0;
-  const count = hl().highlightCodeBlocks(root, { highlights: undefined, Highlight: undefined, createRange: () => { created += 1; } });
-  assert.equal(count, 0);
-  assert.equal(created, 0);
-  assert.doesNotThrow(() => hl().scheduleCodeHighlight());
-});
-
-test("B2: blocks over CODE_HIGHLIGHT_MAX_CHARS are skipped", () => {
-  const { CODE_HIGHLIGHT_MAX_CHARS } = hl();
-  assert.equal(CODE_HIGHLIGHT_MAX_CHARS, serverConstants.CODE_HIGHLIGHT_MAX_CHARS, "client mirror equals constants.mjs");
-  const root = new FakeNode("div");
-  root.append(codeBlock("let ".repeat(Math.ceil(CODE_HIGHLIGHT_MAX_CHARS / 4) + 1), "js").pre);
-  const env = fakeEnv();
-  hl().highlightCodeBlocks(root, env);
-  assert.equal(env.ranges.length, 0);
-});
-
-test("B2: each pass rebuilds the sets from the blocks still on the page", () => {
-  const root = new FakeNode("div");
-  const first = codeBlock("let a", "js");
-  const second = codeBlock("const b", "js");
-  root.append(first.pre, second.pre);
-  const env = fakeEnv();
-  hl().highlightCodeBlocks(root, env);
-  assert.equal(env.highlights.get("code-keyword").items.length, 2);
-  first.pre.remove();
-  hl().highlightCodeBlocks(root, env);
-  assert.equal(env.highlights.get("code-keyword").items.length, 1);
-  second.pre.remove();
-  hl().highlightCodeBlocks(root, env);
-  assert.equal(env.highlights.has("code-keyword"), false, "an empty set is removed");
-});
-
-test("B2: code-highlight.js is DOM-read-only, feature-detected, no third-party code", () => {
-  const source = read("public/js/code-highlight.js");
-  assert.match(source, /globalThis\.CSS\?\.highlights/);
-  assert.doesNotMatch(source, /innerHTML|outerHTML|insertAdjacentHTML|createElement|\.append\(|textContent\s*=|eval\(|new Function/);
-  assert.doesNotMatch(source, /^\s*import\b/m, "no imports: no third-party code");
-  assert.doesNotMatch(source, /localStorage|sessionStorage|api\(/);
-});
-
-test("B2: fences keep a safe info string and render.js wires the highlighter", async () => {
-  const { parseBlocks } = await import("../public/js/markdown.js");
-  assert.equal(parseBlocks("```js\nlet a\n```")[0].lang, "js");
-  assert.equal(parseBlocks("```\nlet a\n```")[0].lang, "");
-  assert.equal(parseBlocks("```<b onload=x>\nlet a\n```")[0].lang, "");
-  assert.deepEqual(parseBlocks("```py\nx\ny\n```")[0].text, ["x", "y"]);
-  const render = read("public/js/render.js");
-  assert.match(render, /import \{ scheduleCodeHighlight \} from "\.\/code-highlight\.js";/);
-  assert.match(render, /if \(block\.lang\) code\.dataset\.lang = block\.lang;/);
-  assert.match(render, /scheduleCodeHighlight\(\);/);
-  assert.match(render, /createCopyCodeButton\(document, \(\) => code\.textContent\)/, "copy stays plain text");
-  assert.match(HTML, /<link rel="modulepreload" href="\/js\/code-highlight\.js">/);
-});
-
-test("B2: ::highlight rules use theme tokens; forced colors stay plain", () => {
-  for (const name of ["keyword", "string", "comment", "number"]) {
-    assert.match(CSS, new RegExp(`::highlight\\(code-${name}\\)\\s*\\{\\s*color:\\s*var\\(--code-${name}\\);\\s*\\}`));
-  }
-  assert.match(CSS, /@media \(forced-colors: active\)\s*\{\s*::highlight\(code-keyword\),\s*::highlight\(code-string\),\s*::highlight\(code-comment\),\s*::highlight\(code-number\)\s*\{\s*color:\s*CanvasText;/);
-  assert.match(CSS, /@media \(prefers-contrast: more\)\s*\{/);
 });
 
 // ---- B3: the no-module notice ----
