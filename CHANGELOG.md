@@ -15,6 +15,29 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.35.0] - 2026-11-22
+
+### Added
+- A "This week" page at `/week`: the staff pick of the week on top, the most
+  replied public threads created or active in the last 7 days, and the newest
+  Showcase builds of the week. It shows only what the public feed shows
+  (hidden posts, banned members and anyone you blocked or who blocked you
+  never appear), previews mask spoilers, and it has its own page title for
+  search and share previews. The home page links to it, and it is in the
+  sitemap.
+- A "New 👋" chip next to the name on posts and replies by accounts younger
+  than 7 days. Only the yes/no flag is sent; join dates stay private.
+- "Newest members" on the home page: the five newest members, each linking to
+  their profile. Banned members are left out, and so is anyone on either side
+  of a block with you. No notifications or emails.
+- Staff pick of the week: staff (owner and admins) can make one public
+  Showcase thread the staff pick from the thread's staff controls. It is
+  pinned with a "Staff pick ⭐" label at the top of the Showcase gallery and
+  on `/week`; the newest pick wins, and a pick that is later hidden or whose
+  author is banned simply stops showing. Every pick and unpick is recorded in
+  a new Staff picks log on the moderation desk. Needs migration
+  `0065_featured_posts.sql`.
+
 ## [5.34.0] - 2026-11-21
 
 ### Added

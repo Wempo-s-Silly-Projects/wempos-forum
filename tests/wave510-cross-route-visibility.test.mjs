@@ -129,6 +129,7 @@ async function seedWorld() {
   run("INSERT INTO dm_group_messages (group_id, user_id, body, created_at) VALUES (?, ?, 'BANNEDTXT group', ?)", w.group, id.zzbanned, at);
   run("INSERT INTO dm_group_messages (group_id, user_id, body, created_at) VALUES (?, ?, 'GROUPOKTXT', ?)", w.group, id.alice, at);
   seedStaffOnly(w, at);
+  seedStaffPicks(w, at);
   await seedArchive(w);
   return w;
 }
@@ -144,6 +145,17 @@ function seedStaffOnly(w, at) {
   run("INSERT INTO automod_actions (action, target_type, target_id, target_user_id, reason, created_at) " +
     "VALUES ('report', 'post', ?, ?, 'STAFFONLYTXT automod', ?)", w.publicRoot, id.alice, at);
   run("INSERT INTO referrer_counts (day, referrer_host, views) VALUES (date('now'), 'staffonly-referrer.example', 7)");
+}
+
+// Wave 5.35: staff picks (migration 0065). An older pick on a block-paired
+// member's build, then the newest pick on a hidden showcase root — /week and
+// the gallery re-check visibility, so neither may surface for anyone.
+function seedStaffPicks(w, at) {
+  const { db, id } = w;
+  const blockedBuild = seedPost(db, { authorId: id.zzblocked, body: "zzsweep BLOCKEDTXT build", board: "showcase" });
+  const hiddenBuild = seedPost(db, { authorId: id.alice, body: "zzsweep HIDDENROOTTXT build", board: "showcase", visibility: "hidden" });
+  db.prepare("INSERT INTO featured_posts (post_id, picked_by, picked_at) VALUES (?, ?, ?)").run(blockedBuild, id.boss, at - 60);
+  db.prepare("INSERT INTO featured_posts (post_id, picked_by, picked_at) VALUES (?, ?, ?)").run(hiddenBuild, id.boss, at);
 }
 
 // F1, driven through the real write routes: alice deletes a thread whose
@@ -199,6 +211,8 @@ function routes(w, member) {
     ["/feed.xml", { guestOnly: true }], ["/c/general/feed.xml", { guestOnly: true }],
     ["/c/suggestions/feed.xml", { guestOnly: true }], ["/c/showcase/feed.xml", { guestOnly: true }],
     ["/llms.txt", { guestOnly: true }],
+    // Wave 5.35: the This-week page (JSON for every viewer, the page head too).
+    ["/api/week"], ["/week"],
   ];
   if (member) {
     list.push(["/api/me/notifications"], ["/api/me/bookmarks"], ["/api/session"], ["/api/posts?mine=1"],

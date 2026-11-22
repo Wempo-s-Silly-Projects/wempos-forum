@@ -24,7 +24,9 @@
 //                       Day tradition)? Mirrors the server's prefix test.
 //   createQotdBanner  — the home feed's "Today's question" link, with a
 //                       "You answered" chip when the viewer already replied.
-//   createShowcaseGallery — the showcase board's image-first grid of tiles.
+//   createShowcaseGallery — the showcase board's image-first grid of tiles,
+//                       with the staff pick (v5.35) pinned on top.
+//   createStaffPickTile — the "Staff pick ⭐" tile (gallery and /week).
 // Excerpts reuse threadExcerpt, which masks spoilers before cutting.
 import { attachmentUrl } from "./attachments.js";
 import { t } from "./i18n.js";
@@ -67,12 +69,34 @@ function createGalleryTile(document, item) {
   return tile;
 }
 
-export function createShowcaseGallery(document, items) {
+// Staff pick (v5.35): the server already re-checked visibility and masked the
+// excerpt; a pick without an approved image is a text-only tile.
+export function createStaffPickTile(document, pick) {
+  const tile = make(document, "a", "gallery-tile staff-pick-tile");
+  tile.href = "/posts/" + Number(pick.id);
+  tile.setAttribute("data-app-link", "");
+  tile.append(make(document, "span", "role-badge staff-pick-label", t("staffPick.label")));
+  const title = threadExcerpt(String(pick.excerpt ?? ""));
+  if (pick.image) {
+    const image = make(document, "img", "gallery-image");
+    image.src = attachmentUrl(pick.image);
+    image.alt = t("traditions.galleryAlt", { title });
+    image.loading = "lazy";
+    tile.append(image);
+  }
+  tile.append(make(document, "span", "gallery-caption", title));
+  if (pick.authorName) tile.append(make(document, "span", "gallery-author muted", pick.authorName));
+  return tile;
+}
+
+export function createShowcaseGallery(document, items, staffPick = null) {
   const grid = make(document, "div", "showcase-gallery");
-  if (!items.length) {
+  if (staffPick) grid.append(createStaffPickTile(document, staffPick));
+  const rest = staffPick ? items.filter((item) => Number(item.id) !== Number(staffPick.id)) : items;
+  if (!rest.length && !staffPick) {
     grid.append(make(document, "p", "empty-state", t("traditions.galleryEmpty")));
     return grid;
   }
-  for (const item of items) grid.append(createGalleryTile(document, item));
+  for (const item of rest) grid.append(createGalleryTile(document, item));
   return grid;
 }

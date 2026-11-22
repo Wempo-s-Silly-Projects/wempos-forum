@@ -318,7 +318,7 @@ function urlEntry(loc, lastmod) {
 }
 
 export async function buildSitemap(env, origin) {
-  const fixed = [origin + "/", ...BOARD_VALUES.map((slug) => origin + "/c/" + slug)];
+  const fixed = [origin + "/", origin + "/week", ...BOARD_VALUES.map((slug) => origin + "/c/" + slug)];
   const postBudget = SITEMAP_URL_CAP - fixed.length;
   const posts = (await env.FORUM_DB.prepare(SITEMAP_POSTS_SQL).bind(postBudget).all()).results || [];
   const userBudget = postBudget - posts.length;

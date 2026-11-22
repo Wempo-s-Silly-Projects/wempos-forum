@@ -59,7 +59,7 @@ const KNOWN_ROUTES = [
   "/", "/?q=cats", "/?view=new", "/setup", "/login", "/register",
   "/admin", "/admin/reports", "/admin/users", "/notifications",
   "/bookmarks", "/bookmarks?board=help", "/suggestions", "/archive", "/mine",
-  "/leaderboard", "/rules", "/join", "/join?ref=alice", "/posts/1", "/posts/999999", "/users/wempo",
+  "/leaderboard", "/rules", "/week", "/join", "/join?ref=alice", "/posts/1", "/posts/999999", "/users/wempo",
   "/users/some%20name", ...BOARDS.map((board) => `/c/${board.slug}`),
   ...BOARDS.map((board) => `/c/${board.slug}?view=new`),
 ];

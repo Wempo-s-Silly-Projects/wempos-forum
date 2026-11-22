@@ -65,6 +65,9 @@ export const routeForPath = (pathname, search = "") => {
   if (pathname === "/mine") return { name: "mine" };
   if (pathname === "/leaderboard") return { name: "leaderboard" };
   if (pathname === "/rules") return { name: "rules" };
+  // This week (v5.35): the busiest threads, newest Showcase builds and the
+  // staff pick of the last 7 days.
+  if (pathname === "/week") return { name: "week" };
   // Invite links (v5.34): /join?ref=<username>; a malformed ref is "" (the
   // page still shows, it just credits no one). Same shape as invite.js.
   if (pathname === "/join") {
