@@ -15,6 +15,19 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.29.0] - 2026-11-21
+
+### Fixed
+- In high contrast, a spoiler you have revealed is readable again (dark
+  text on light grey, or light text on dark grey, at least 7.6:1). Spoilers
+  you have not revealed stay fully blacked out.
+- Save as text now leaves out the replies the reply filter is hiding, so
+  the file matches what is on screen.
+- A link to a reply (`#reply-123`) no longer jumps to a reply the reply
+  filter is hiding.
+- An automated check on the page's script tags now also catches upper-case
+  tags.
+
 ## [5.28.0] - 2026-11-21
 
 ### Security
