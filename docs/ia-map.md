@@ -30,6 +30,8 @@ Legend:
 | Language picker | `account-nav.js:162,248` | G M | 0 | |
 | Profile link | `account-nav.js:171` | M | 0 | |
 | Saved posts link | `account-nav.js:178` | M | 0 | |
+| My posts link | `account-nav.js` (v5.56) | M | 0 | v5.56: the desktop entry |
+| Settings link | `account-nav.js` (v5.56) | M | 0 | v5.56: opens the settings hub `/?settings` |
 | Notifications bell | `notifications.js:115` | M | 0 | OVERLAP with mobile bar item |
 | Moderation desk link | `account-nav.js:195` | S | 0 | |
 | Sign out | `account-nav.js:204` | M | 0 | |
@@ -54,7 +56,7 @@ Legend:
 | Search filters + saved searches + recent searches | `feed.js:130-134` | G M | 0 (search only) | |
 | Post cards (see §4 card actions) | `render.js:198` | G M | 0 | Every card carries the full action row |
 | Load older posts | `feed.js:144` | G M | 0 | |
-| **Account settings** (one `<details>` at the bottom of home) | `feed.js:151-263` | M | 1 + scroll | ORPHAN: no "Settings" link in the nav; it lives under the feed |
+| **Account settings** (one `<details>` at the bottom of home) | `feed.js:151-263` | M | 1 + scroll | v5.56: moved to the hub `/?settings` (header Settings link); home keeps one link here. The panels below sit in four groups: Appearance & reading, Notifications, People & privacy, Account & data |
 | ↳ Settings filter + section jump links | `feed.js:262` | M | 1 | |
 | ↳ Appearance: corners, text size, tab unread, reset | `feed.js:176-183` | M | 1 | |
 | ↳ Reading comfort: line spacing, underline links, easy reading, contrast | `feed.js:188-196` | M | 1 | |
@@ -162,13 +164,14 @@ form and the tag editor as separate blocks.
 5. Glance read time vs the reading progress bar (`post.js:113,182`).
 6. Mobile bar duplicates header links (Suggestions, Notifications, Sign in).
 7. My posts: feed tab and mobile bar only; not in the desktop header.
+   (v5.56: now also a header link.)
 8. Follow (profile), Subscribe (thread) and Saved boards are three "keep up
    with" models with three different entry points.
 
 ## 6. Orphans found
 
 1. Account settings: no nav entry; a collapsed `<details>` under the home feed
-   (`feed.js:151`).
+   (`feed.js:151`). (v5.56: fixed by the header Settings link and the hub.)
 2. `/week`: only the home highlights link (`week.js:82`).
 3. Keyboard shortcuts sheet: only on threads that have replies (`post.js:121`).
 4. Tag pages: only reachable from tag chips (no tag index for members).
