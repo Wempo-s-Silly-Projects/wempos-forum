@@ -56,7 +56,7 @@ const realisticAssets = () => makeAssets((request) => {
 const get = (path) => call(makeEnv({ ASSETS: realisticAssets() }), path);
 
 const KNOWN_ROUTES = [
-  "/", "/?q=cats", "/?view=new", "/setup", "/login", "/register",
+  "/", "/?q=cats", "/?view=new", "/?settings", "/setup", "/login", "/register",
   "/admin", "/admin/reports", "/admin/users", "/notifications",
   "/bookmarks", "/bookmarks?board=help", "/suggestions", "/archive", "/mine",
   "/leaderboard", "/rules", "/week", "/tag/news", "/join", "/join?ref=alice", "/posts/1", "/posts/999999", "/users/wempo",

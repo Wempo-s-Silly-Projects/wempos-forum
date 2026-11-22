@@ -39,6 +39,7 @@ import { clearAllRecentSearches } from "../recent-searches.js";
 import { clearAllQuietHours } from "../quiet-hours.js";
 import { clearAllThreadOutline } from "../thread-outline.js";
 import { createNotificationBell } from "../notifications.js";
+import { SETTINGS_PATH } from "../settings-groups.js";
 // The §4b door-swap: every auth link (header Sign in, mobile guest rung)
 // targets Wempo Accounts with an origin-only return; logout hands the browser
 // to the Accounts sign-out land so the Accounts session clears too.
@@ -178,6 +179,16 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
     createSectionLink("bookmarks", "/bookmarks", t("nav.savedPosts")),
   );
 
+  // v5.56: My posts gets a desktop entry (it was a feed tab and a mobile-bar
+  // item only), and Settings its first real one (the hub at /?settings).
+  accountActions.append(
+    createSectionLink("list", "/mine", t("feed.myPosts")),
+  );
+
+  accountActions.append(
+    createSectionLink("sliders", SETTINGS_PATH, t("settings.title")),
+  );
+
   accountActions.append(
     createNotificationBell(
       normaliseUnreadCount(unreadNotifications),
@@ -228,7 +239,7 @@ function markMobileBarItem(user) {
     path === "/users/" + encodeURIComponent(user.username);
 
   const matches = [
-    ["/", path === "/"],
+    ["/", path === "/" && !new URLSearchParams(location.search).has("settings")],
     ["/mine", path === "/mine"],
     [
       "/suggestions",

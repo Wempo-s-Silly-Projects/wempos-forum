@@ -15,6 +15,20 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.56.0] - 2026-11-22
+
+### Changed
+- Settings have a home of their own. A Settings link in the header opens
+  them at `/?settings`; they used to be a collapsed box under the home feed.
+  The 14 panels are grouped under four headings: Appearance & reading
+  (appearance, reading comfort), Notifications (quiet hours, notification
+  types), People & privacy (blocked members, following, who can see me
+  online) and Account & data (password, two-factor sign-in, backup codes,
+  signed-in devices, download my data, invite a friend, delete account).
+  The settings search and the jump list still work, and the home page keeps
+  a link where the box used to be. No setting was removed or changed.
+- My posts now has a link in the header next to Saved posts.
+
 ## [5.55.0] - 2026-11-22
 
 ### Changed

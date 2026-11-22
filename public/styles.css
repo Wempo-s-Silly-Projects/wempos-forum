@@ -3612,14 +3612,19 @@ mark.search-hit {
 }
 .gallery-author { font-size: 0.8rem; }
 
-/* v4.23 account settings: a real title on the disclosure, the settings
-   filter, and the jump list of section buttons. */
-.settings-summary {
-  cursor: pointer;
+/* v4.23 account settings: the settings filter and the jump list of section
+   buttons. v5.56: the hub (/?settings) groups the panels under four
+   headings; the home page keeps one link where the disclosure used to be. */
+.settings-group { margin-block: 1.5rem 0.5rem; }
+.settings-group[hidden] { display: none; }
+.settings-group-title {
   font-family: "Comic Sans MS", "Chalkboard SE", "Trebuchet MS", cursive;
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  margin-block: 0 0.5rem;
+  padding-block-end: 0.25rem;
+  border-block-end: 2px solid currentColor;
 }
+.settings-home-link { margin-block: 1rem; }
 .settings-filter {
   display: grid;
   gap: 0.35rem;

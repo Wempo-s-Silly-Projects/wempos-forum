@@ -118,7 +118,10 @@ export const routeForPath = (pathname, search = "") => {
   if (pathname === "/") {
     const params = new URLSearchParams(search);
     const query = params.get("q")?.trim() ?? "";
-    return query ? { name: "search", query, ...searchFilters(params) } : withFeedView({ name: "home" }, search);
+    if (query) return { name: "search", query, ...searchFilters(params) };
+    // Account settings hub (v5.56): /?settings is the home page's settings
+    // view (the page that always hosted them), so no new top-level path.
+    return params.has("settings") ? { name: "settings" } : withFeedView({ name: "home" }, search);
   }
   return { name: "not-found" };
 }
