@@ -15,6 +15,20 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.49.0] - 2026-11-22
+
+### Security
+- Security review of v5.45-v5.48 (muting a thread, private notes about
+  members and saved searches):
+  [docs/security-reviews/2026-11-22-v5.45-v5.48.md](docs/security-reviews/2026-11-22-v5.45-v5.48.md).
+  No critical or high findings, so nothing in the forum's behaviour changes
+  in this release. One low finding (a note or saved-search name that starts
+  with an invisible null character gets a server error instead of a clear
+  "not allowed" message) and one low question for the owner (whether the
+  data export should list the threads you muted) are recorded, along with
+  the owner items carried over from earlier reviews. New tests lock in the
+  behaviour the review checked.
+
 ## [5.48.0] - 2026-11-22
 
 ### Added
