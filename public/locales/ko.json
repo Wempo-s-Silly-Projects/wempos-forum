@@ -1277,5 +1277,21 @@
   "render.zoomIn": "확대",
   "render.zoomOut": "축소",
   "render.zoomReset": "확대/축소 초기화",
-  "render.jsonTree": "트리 보기"
+  "render.jsonTree": "트리 보기",
+  "embed.youtubeTitle": "YouTube 동영상",
+  "embed.youtubePlay": "{title} 재생",
+  "embed.youtubeNotice": "재생을 누를 때만 youtube-nocookie.com에서 불러옵니다.",
+  "embed.youtubeOpen": "YouTube에서 열기",
+  "embed.modelLoad": "3D 모델 불러오기",
+  "embed.modelAlt": "3D 모델: {name}",
+  "embed.loadFailed": "이 미디어를 재생할 수 없습니다.",
+  "embed.player.play": "재생",
+  "embed.player.pause": "일시정지",
+  "embed.player.mute": "음소거",
+  "embed.player.unmute": "음소거 해제",
+  "embed.player.seek": "탐색",
+  "embed.player.volume": "볼륨",
+  "embed.player.currentTime": "현재 시간",
+  "embed.player.enterFullscreen": "전체 화면",
+  "embed.player.exitFullscreen": "전체 화면 종료"
 }

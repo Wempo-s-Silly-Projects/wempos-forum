@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Palakihin",
   "render.zoomOut": "Paliitin",
   "render.zoomReset": "I-reset ang zoom",
-  "render.jsonTree": "Tree view"
+  "render.jsonTree": "Tree view",
+  "embed.youtubeTitle": "Video sa YouTube",
+  "embed.youtubePlay": "I-play ang {title}",
+  "embed.youtubeNotice": "Naglo-load mula sa youtube-nocookie.com kapag pinindot mo lang ang play.",
+  "embed.youtubeOpen": "Buksan sa YouTube",
+  "embed.modelLoad": "I-load ang 3D na modelo",
+  "embed.modelAlt": "3D na modelo: {name}",
+  "embed.loadFailed": "Hindi ma-play ang media na ito.",
+  "embed.player.play": "I-play",
+  "embed.player.pause": "I-pause",
+  "embed.player.mute": "I-mute",
+  "embed.player.unmute": "I-unmute",
+  "embed.player.seek": "Lumaktaw",
+  "embed.player.volume": "Lakas ng tunog",
+  "embed.player.currentTime": "Kasalukuyang oras",
+  "embed.player.enterFullscreen": "Buong screen",
+  "embed.player.exitFullscreen": "Lumabas sa buong screen"
 }

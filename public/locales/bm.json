@@ -1277,5 +1277,21 @@
   "render.zoomIn": "A bonya",
   "render.zoomOut": "A dɔgɔya",
   "render.zoomReset": "A bonya segin a cogo kɔrɔ la",
-  "render.jsonTree": "Jiri cogo"
+  "render.jsonTree": "Jiri cogo",
+  "embed.youtubeTitle": "YouTube widewo",
+  "embed.youtubePlay": "{title} fɔ",
+  "embed.youtubeNotice": "A bɛ bɔ youtube-nocookie.com la ni i ye fɔli digi dɔrɔn.",
+  "embed.youtubeOpen": "A da wuli YouTube kan",
+  "embed.modelLoad": "3D misali lajigin",
+  "embed.modelAlt": "3D misali: {name}",
+  "embed.loadFailed": "Nin mediya ma se ka fɔ.",
+  "embed.player.play": "Fɔ",
+  "embed.player.pause": "Jɔ dɔɔnin",
+  "embed.player.mute": "Kumakan bɔ",
+  "embed.player.unmute": "Kumakan segin",
+  "embed.player.seek": "Yɔrɔ ɲini",
+  "embed.player.volume": "Kumakan bonya",
+  "embed.player.currentTime": "Sisan waati",
+  "embed.player.enterFullscreen": "Ɛkiran bɛɛ",
+  "embed.player.exitFullscreen": "Bɔ ɛkiran bɛɛ la"
 }

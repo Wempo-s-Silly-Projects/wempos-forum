@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Zmadho",
   "render.zoomOut": "Zvogëlo",
   "render.zoomReset": "Rivendos zmadhimin",
-  "render.jsonTree": "Pamje peme"
+  "render.jsonTree": "Pamje peme",
+  "embed.youtubeTitle": "Video në YouTube",
+  "embed.youtubePlay": "Luaj {title}",
+  "embed.youtubeNotice": "Ngarkohet nga youtube-nocookie.com vetëm kur shtyp luaj.",
+  "embed.youtubeOpen": "Hape në YouTube",
+  "embed.modelLoad": "Ngarko modelin 3D",
+  "embed.modelAlt": "Model 3D: {name}",
+  "embed.loadFailed": "Ky media nuk mund të luhej.",
+  "embed.player.play": "Luaj",
+  "embed.player.pause": "Pauzë",
+  "embed.player.mute": "Hiq zërin",
+  "embed.player.unmute": "Vendos zërin",
+  "embed.player.seek": "Kërko",
+  "embed.player.volume": "Volumi",
+  "embed.player.currentTime": "Koha aktuale",
+  "embed.player.enterFullscreen": "Ekran i plotë",
+  "embed.player.exitFullscreen": "Dil nga ekrani i plotë"
 }

@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Yakınlaştır",
   "render.zoomOut": "Uzaklaştır",
   "render.zoomReset": "Yakınlaştırmayı sıfırla",
-  "render.jsonTree": "Ağaç görünümü"
+  "render.jsonTree": "Ağaç görünümü",
+  "embed.youtubeTitle": "YouTube videosu",
+  "embed.youtubePlay": "{title} oynat",
+  "embed.youtubeNotice": "Yalnızca oynata bastığınızda youtube-nocookie.com üzerinden yüklenir.",
+  "embed.youtubeOpen": "YouTube'da aç",
+  "embed.modelLoad": "3B modeli yükle",
+  "embed.modelAlt": "3B model: {name}",
+  "embed.loadFailed": "Bu medya oynatılamadı.",
+  "embed.player.play": "Oynat",
+  "embed.player.pause": "Duraklat",
+  "embed.player.mute": "Sesi kapat",
+  "embed.player.unmute": "Sesi aç",
+  "embed.player.seek": "Sar",
+  "embed.player.volume": "Ses düzeyi",
+  "embed.player.currentTime": "Geçerli süre",
+  "embed.player.enterFullscreen": "Tam ekran",
+  "embed.player.exitFullscreen": "Tam ekrandan çık"
 }

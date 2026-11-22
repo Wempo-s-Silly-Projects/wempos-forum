@@ -353,7 +353,8 @@ test("CSP is unchanged: same script origins, style-src 'self', nothing inline", 
   const scriptSrc = (csp.match(/script-src ([^;]+);/) ?? [])[1].split(/\s+/);
   // v5.73.1 scoped cdnjs to the polyfill path; Prism must not widen it again.
   assert.deepEqual(scriptSrc, ["'self'", "https://challenges.cloudflare.com", "https://cdnjs.cloudflare.com/polyfill/"]);
-  assert.match(csp, /style-src 'self';/);
+  // v5.76 (Batch D) deliberately adds one hash: WaveSurfer's static shadow style.
+  assert.match(csp, /style-src 'self' 'sha256-[A-Za-z0-9+/]+=*';/);
   assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval|font-src/);
 });
 

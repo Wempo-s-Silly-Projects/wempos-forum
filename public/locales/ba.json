@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Ҙурайтыу",
   "render.zoomOut": "Бәләкәйләтеү",
   "render.zoomReset": "Масштабты ташлау",
-  "render.jsonTree": "Ағас күренеше"
+  "render.jsonTree": "Ағас күренеше",
+  "embed.youtubeTitle": "YouTube видеоһы",
+  "embed.youtubePlay": "{title} уйнатырға",
+  "embed.youtubeNotice": "Уйнатыу төймәһенә баҫҡанда ғына youtube-nocookie.com сайтынан йөкләнә.",
+  "embed.youtubeOpen": "YouTube-та асырға",
+  "embed.modelLoad": "3D моделде йөкләргә",
+  "embed.modelAlt": "3D модель: {name}",
+  "embed.loadFailed": "Был медианы уйнатып булманы.",
+  "embed.player.play": "Уйнатырға",
+  "embed.player.pause": "Туҡтатып торорға",
+  "embed.player.mute": "Тауышты һүндерергә",
+  "embed.player.unmute": "Тауышты ҡабыҙырға",
+  "embed.player.seek": "Күсергә",
+  "embed.player.volume": "Тауыш",
+  "embed.player.currentTime": "Хәҙерге ваҡыт",
+  "embed.player.enterFullscreen": "Тулы экран",
+  "embed.player.exitFullscreen": "Тулы экрандан сығырға"
 }

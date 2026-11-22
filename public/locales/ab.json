@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Ирдуны",
   "render.zoomOut": "Ирхәычны",
   "render.zoomReset": "Амасштаб ахынҳәра",
-  "render.jsonTree": "Аҵла ахаҿы"
+  "render.jsonTree": "Аҵла ахаҿы",
+  "embed.youtubeTitle": "YouTube авидео",
+  "embed.youtubePlay": "{title} аҳәара",
+  "embed.youtubeNotice": "Аҳәара ақәыӷәӷәараан мацара youtube-nocookie.com аҟынтә иаауеит.",
+  "embed.youtubeOpen": "YouTube аҟны аартра",
+  "embed.modelLoad": "3D-амодель аҭагалара",
+  "embed.modelAlt": "3D-амодель: {name}",
+  "embed.loadFailed": "Ари амедиа аҳәара ауам.",
+  "embed.player.play": "Аҳәара",
+  "embed.player.pause": "Аанкылара",
+  "embed.player.mute": "Абжьы аҿыхра",
+  "embed.player.unmute": "Абжьы аҿакра",
+  "embed.player.seek": "Аиасра",
+  "embed.player.volume": "Абжьы",
+  "embed.player.currentTime": "Уажәтәи аамҭа",
+  "embed.player.enterFullscreen": "Аекран зегь",
+  "embed.player.exitFullscreen": "Аекран зегь аҟынтә ацәыҭра"
 }

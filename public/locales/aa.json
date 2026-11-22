@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Gibbis",
   "render.zoomOut": "Qunxis",
   "render.zoomReset": "Gibbisa gacis",
-  "render.jsonTree": "Caxa uuba"
+  "render.jsonTree": "Caxa uuba",
+  "embed.youtubeTitle": "YouTube viidiyo",
+  "embed.youtubePlay": "{title} gabbat",
+  "embed.youtubeNotice": "Gabbat taamitte waqdi youtube-nocookie.com-kak gufta.",
+  "embed.youtubeOpen": "YouTube-l fak",
+  "embed.modelLoad": "3D modeel gufis",
+  "embed.modelAlt": "3D modeel: {name}",
+  "embed.loadFailed": "Ta miidiya gabbatak madudda.",
+  "embed.player.play": "Gabbat",
+  "embed.player.pause": "Soolis",
+  "embed.player.mute": "Sinnis",
+  "embed.player.unmute": "Yab baxis",
+  "embed.player.seek": "Ixxic",
+  "embed.player.volume": "Yangayyi",
+  "embed.player.currentTime": "Away saaku",
+  "embed.player.enterFullscreen": "Inkih yable kal",
+  "embed.player.exitFullscreen": "Inkih yable kaq"
 }

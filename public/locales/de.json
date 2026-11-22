@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Vergrößern",
   "render.zoomOut": "Verkleinern",
   "render.zoomReset": "Zoom zurücksetzen",
-  "render.jsonTree": "Baumansicht"
+  "render.jsonTree": "Baumansicht",
+  "embed.youtubeTitle": "YouTube-Video",
+  "embed.youtubePlay": "{title} abspielen",
+  "embed.youtubeNotice": "Lädt erst dann von youtube-nocookie.com, wenn du auf Abspielen drückst.",
+  "embed.youtubeOpen": "Auf YouTube öffnen",
+  "embed.modelLoad": "3D-Modell laden",
+  "embed.modelAlt": "3D-Modell: {name}",
+  "embed.loadFailed": "Dieses Medium konnte nicht abgespielt werden.",
+  "embed.player.play": "Abspielen",
+  "embed.player.pause": "Pause",
+  "embed.player.mute": "Stumm",
+  "embed.player.unmute": "Ton an",
+  "embed.player.seek": "Springen",
+  "embed.player.volume": "Lautstärke",
+  "embed.player.currentTime": "Aktuelle Zeit",
+  "embed.player.enterFullscreen": "Vollbild",
+  "embed.player.exitFullscreen": "Vollbild beenden"
 }

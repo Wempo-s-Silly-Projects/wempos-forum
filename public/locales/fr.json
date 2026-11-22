@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Zoom avant",
   "render.zoomOut": "Zoom arrière",
   "render.zoomReset": "Réinitialiser le zoom",
-  "render.jsonTree": "Vue en arbre"
+  "render.jsonTree": "Vue en arbre",
+  "embed.youtubeTitle": "Vidéo YouTube",
+  "embed.youtubePlay": "Lire {title}",
+  "embed.youtubeNotice": "Se charge depuis youtube-nocookie.com uniquement quand vous appuyez sur lecture.",
+  "embed.youtubeOpen": "Ouvrir sur YouTube",
+  "embed.modelLoad": "Charger le modèle 3D",
+  "embed.modelAlt": "Modèle 3D : {name}",
+  "embed.loadFailed": "Ce média n'a pas pu être lu.",
+  "embed.player.play": "Lecture",
+  "embed.player.pause": "Pause",
+  "embed.player.mute": "Couper le son",
+  "embed.player.unmute": "Rétablir le son",
+  "embed.player.seek": "Rechercher",
+  "embed.player.volume": "Volume",
+  "embed.player.currentTime": "Temps actuel",
+  "embed.player.enterFullscreen": "Plein écran",
+  "embed.player.exitFullscreen": "Quitter le plein écran"
 }

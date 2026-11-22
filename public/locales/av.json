@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Кӏудияб гьабизе",
   "render.zoomOut": "Гьитӏинаб гьабизе",
   "render.zoomReset": "Масштаб тӏадбуссинабизе",
-  "render.jsonTree": "Гъветӏалъул сурат"
+  "render.jsonTree": "Гъветӏалъул сурат",
+  "embed.youtubeTitle": "YouTube видео",
+  "embed.youtubePlay": "{title} бихьизабизе",
+  "embed.youtubeNotice": "Бихьизабизе тӀамураб мехалъ гьеб youtube-nocookie.com-ялдасан рачӀуна.",
+  "embed.youtubeOpen": "YouTube-алда рагьизе",
+  "embed.modelLoad": "3D модель рачӀизабизе",
+  "embed.modelAlt": "3D модель: {name}",
+  "embed.loadFailed": "Гьаб медиа бихьизабизе кӀвечӀо.",
+  "embed.player.play": "Бихьизабизе",
+  "embed.player.pause": "Чӏезабизе",
+  "embed.player.mute": "Гьаракь къазе",
+  "embed.player.unmute": "Гьаракь рагьизе",
+  "embed.player.seek": "ТӀалаб",
+  "embed.player.volume": "Гьаракь",
+  "embed.player.currentTime": "Гьанжесеб заман",
+  "embed.player.enterFullscreen": "Цо экран",
+  "embed.player.exitFullscreen": "Цо экраналдасан къватӀибе"
 }

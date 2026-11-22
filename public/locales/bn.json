@@ -1277,5 +1277,21 @@
   "render.zoomIn": "জুম ইন",
   "render.zoomOut": "জুম আউট",
   "render.zoomReset": "জুম রিসেট করুন",
-  "render.jsonTree": "গাছ ভিউ"
+  "render.jsonTree": "গাছ ভিউ",
+  "embed.youtubeTitle": "YouTube ভিডিও",
+  "embed.youtubePlay": "{title} চালান",
+  "embed.youtubeNotice": "চালান চাপলে তবেই youtube-nocookie.com থেকে লোড হয়।",
+  "embed.youtubeOpen": "YouTube-এ খুলুন",
+  "embed.modelLoad": "3D মডেল লোড করুন",
+  "embed.modelAlt": "3D মডেল: {name}",
+  "embed.loadFailed": "এই মিডিয়া চালানো যায়নি।",
+  "embed.player.play": "চালান",
+  "embed.player.pause": "বিরতি",
+  "embed.player.mute": "নিঃশব্দ",
+  "embed.player.unmute": "শব্দ চালু",
+  "embed.player.seek": "খুঁজুন",
+  "embed.player.volume": "ভলিউম",
+  "embed.player.currentTime": "বর্তমান সময়",
+  "embed.player.enterFullscreen": "পূর্ণ স্ক্রিন",
+  "embed.player.exitFullscreen": "পূর্ণ স্ক্রিন থেকে বেরোন"
 }

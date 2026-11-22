@@ -1277,5 +1277,21 @@
   "render.zoomIn": "አጉላ",
   "render.zoomOut": "አሳንስ",
   "render.zoomReset": "ማጉላትን ዳግም አስጀምር",
-  "render.jsonTree": "የዛፍ እይታ"
+  "render.jsonTree": "የዛፍ እይታ",
+  "embed.youtubeTitle": "የYouTube ቪዲዮ",
+  "embed.youtubePlay": "{title} አጫውት",
+  "embed.youtubeNotice": "አጫውትን ሲጫኑ ብቻ ከyoutube-nocookie.com ይጫናል።",
+  "embed.youtubeOpen": "በYouTube ክፈት",
+  "embed.modelLoad": "3D ሞዴል ጫን",
+  "embed.modelAlt": "3D ሞዴል፦ {name}",
+  "embed.loadFailed": "ይህ ሚዲያ ሊጫወት አልቻለም።",
+  "embed.player.play": "አጫውት",
+  "embed.player.pause": "ለአፍታ አቁም",
+  "embed.player.mute": "ድምጸ-ከል",
+  "embed.player.unmute": "ድምጽ መልስ",
+  "embed.player.seek": "ፈልግ",
+  "embed.player.volume": "የድምጽ መጠን",
+  "embed.player.currentTime": "የአሁኑ ሰዓት",
+  "embed.player.enterFullscreen": "ሙሉ ማያ ገጽ",
+  "embed.player.exitFullscreen": "ከሙሉ ማያ ገጽ ውጣ"
 }

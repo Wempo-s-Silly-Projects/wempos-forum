@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Acercar",
   "render.zoomOut": "Alejar",
   "render.zoomReset": "Restablecer zoom",
-  "render.jsonTree": "Vista de árbol"
+  "render.jsonTree": "Vista de árbol",
+  "embed.youtubeTitle": "Vídeo de YouTube",
+  "embed.youtubePlay": "Reproducir {title}",
+  "embed.youtubeNotice": "Se carga desde youtube-nocookie.com solo cuando pulsas reproducir.",
+  "embed.youtubeOpen": "Abrir en YouTube",
+  "embed.modelLoad": "Cargar modelo 3D",
+  "embed.modelAlt": "Modelo 3D: {name}",
+  "embed.loadFailed": "No se pudo reproducir este contenido.",
+  "embed.player.play": "Reproducir",
+  "embed.player.pause": "Pausa",
+  "embed.player.mute": "Silenciar",
+  "embed.player.unmute": "Activar sonido",
+  "embed.player.seek": "Buscar",
+  "embed.player.volume": "Volumen",
+  "embed.player.currentTime": "Tiempo actual",
+  "embed.player.enterFullscreen": "Pantalla completa",
+  "embed.player.exitFullscreen": "Salir de pantalla completa"
 }

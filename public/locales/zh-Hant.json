@@ -1277,5 +1277,21 @@
   "render.zoomIn": "放大",
   "render.zoomOut": "縮小",
   "render.zoomReset": "重設縮放",
-  "render.jsonTree": "樹狀檢視"
+  "render.jsonTree": "樹狀檢視",
+  "embed.youtubeTitle": "YouTube 影片",
+  "embed.youtubePlay": "播放 {title}",
+  "embed.youtubeNotice": "僅在你按下播放時才從 youtube-nocookie.com 載入。",
+  "embed.youtubeOpen": "在 YouTube 上開啟",
+  "embed.modelLoad": "載入 3D 模型",
+  "embed.modelAlt": "3D 模型：{name}",
+  "embed.loadFailed": "無法播放此媒體。",
+  "embed.player.play": "播放",
+  "embed.player.pause": "暫停",
+  "embed.player.mute": "靜音",
+  "embed.player.unmute": "取消靜音",
+  "embed.player.seek": "跳轉",
+  "embed.player.volume": "音量",
+  "embed.player.currentTime": "目前時間",
+  "embed.player.enterFullscreen": "全螢幕",
+  "embed.player.exitFullscreen": "結束全螢幕"
 }

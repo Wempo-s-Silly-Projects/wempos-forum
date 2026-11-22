@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Увећај",
   "render.zoomOut": "Умањи",
   "render.zoomReset": "Поништи зумирање",
-  "render.jsonTree": "Приказ стабла"
+  "render.jsonTree": "Приказ стабла",
+  "embed.youtubeTitle": "YouTube видео",
+  "embed.youtubePlay": "Пусти {title}",
+  "embed.youtubeNotice": "Учитава се са youtube-nocookie.com тек када притиснете пусти.",
+  "embed.youtubeOpen": "Отвори на YouTube-у",
+  "embed.modelLoad": "Учитај 3D модел",
+  "embed.modelAlt": "3D модел: {name}",
+  "embed.loadFailed": "Овај медиј није могуће репродуковати.",
+  "embed.player.play": "Пусти",
+  "embed.player.pause": "Пауза",
+  "embed.player.mute": "Искључи звук",
+  "embed.player.unmute": "Укључи звук",
+  "embed.player.seek": "Премотај",
+  "embed.player.volume": "Јачина звука",
+  "embed.player.currentTime": "Тренутно време",
+  "embed.player.enterFullscreen": "Цео екран",
+  "embed.player.exitFullscreen": "Изађи из целог екрана"
 }

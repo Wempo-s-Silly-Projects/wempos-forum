@@ -1277,5 +1277,21 @@
   "render.zoomIn": "بزرگ‌نمایی",
   "render.zoomOut": "کوچک‌نمایی",
   "render.zoomReset": "بازنشانی بزرگ‌نمایی",
-  "render.jsonTree": "نمای درختی"
+  "render.jsonTree": "نمای درختی",
+  "embed.youtubeTitle": "ویدیوی YouTube",
+  "embed.youtubePlay": "پخش {title}",
+  "embed.youtubeNotice": "فقط وقتی پخش را بزنید از youtube-nocookie.com بارگیری می‌شود.",
+  "embed.youtubeOpen": "باز کردن در YouTube",
+  "embed.modelLoad": "بارگیری مدل سه‌بعدی",
+  "embed.modelAlt": "مدل سه‌بعدی: {name}",
+  "embed.loadFailed": "این رسانه پخش نشد.",
+  "embed.player.play": "پخش",
+  "embed.player.pause": "توقف",
+  "embed.player.mute": "بی‌صدا",
+  "embed.player.unmute": "باصدا",
+  "embed.player.seek": "جابه‌جایی",
+  "embed.player.volume": "صدا",
+  "embed.player.currentTime": "زمان کنونی",
+  "embed.player.enterFullscreen": "تمام‌صفحه",
+  "embed.player.exitFullscreen": "خروج از تمام‌صفحه"
 }

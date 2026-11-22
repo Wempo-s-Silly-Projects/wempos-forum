@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Ma ɛnyɛ kɛse",
   "render.zoomOut": "Ma ɛnyɛ ketewa",
   "render.zoomReset": "San kɔ kɛse a edi kan",
-  "render.jsonTree": "Dua nhwɛe"
+  "render.jsonTree": "Dua nhwɛe",
+  "embed.youtubeTitle": "YouTube video",
+  "embed.youtubePlay": "Bɔ {title}",
+  "embed.youtubeNotice": "Ɛfiri youtube-nocookie.com ba bere a wobɛmia bɔ no nko ara.",
+  "embed.youtubeOpen": "Bue wɔ YouTube so",
+  "embed.modelLoad": "Fa 3D nhwɛsoɔ bra",
+  "embed.modelAlt": "3D nhwɛsoɔ: {name}",
+  "embed.loadFailed": "Wɔantumi ammɔ saa media yi.",
+  "embed.player.play": "Bɔ",
+  "embed.player.pause": "Gyina",
+  "embed.player.mute": "Dum nne",
+  "embed.player.unmute": "Sane nne",
+  "embed.player.seek": "Hwehwɛ",
+  "embed.player.volume": "Nne kɛseɛ",
+  "embed.player.currentTime": "Seesei berɛ",
+  "embed.player.enterFullscreen": "Kɔ screen mũ so",
+  "embed.player.exitFullscreen": "Fi screen mũ so"
 }

@@ -34,6 +34,7 @@ import { createCopyCodeButton } from "./copy-code.js";
 import { codeBlockPlan, highlightCodeBlocks } from "./code-highlight.js";
 import { createMathNode, splitMath } from "./math.js";
 import { createJsonTreeToggle, enhanceRenderedBody, isAnsiFence, isMermaidFence, jsonTreePlan } from "./rich-blocks.js";
+import { embedParagraph } from "./embeds/embeds.js";
 import { createReadAloud } from "./read-aloud.js";
 import { createQuoteCardButton } from "./quote-card-action.js";
 import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";
@@ -196,6 +197,13 @@ export const renderBodyBlocks = (post, document, article) => {
       article.append(quote);
       continue;
     }
+    // v5.76: a run that is one embeddable link becomes an embed.
+    const embedded = embedParagraph(document, block.text.join("\n"), (text) => {
+      const run = createElement(document, "p", "post-body");
+      renderInline(document, run, text);
+      return run;
+    });
+    if (embedded) { article.append(...embedded); continue; }
     const paragraph = createElement(document, "p", "post-body");
     renderInline(document, paragraph, block.text.join("\n"), work.math);
     article.append(paragraph);

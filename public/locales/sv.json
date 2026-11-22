@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Zooma in",
   "render.zoomOut": "Zooma ut",
   "render.zoomReset": "Återställ zoom",
-  "render.jsonTree": "Trädvy"
+  "render.jsonTree": "Trädvy",
+  "embed.youtubeTitle": "YouTube-video",
+  "embed.youtubePlay": "Spela {title}",
+  "embed.youtubeNotice": "Laddas från youtube-nocookie.com först när du trycker på spela.",
+  "embed.youtubeOpen": "Öppna på YouTube",
+  "embed.modelLoad": "Läs in 3D-modell",
+  "embed.modelAlt": "3D-modell: {name}",
+  "embed.loadFailed": "Det gick inte att spela upp det här mediet.",
+  "embed.player.play": "Spela",
+  "embed.player.pause": "Pausa",
+  "embed.player.mute": "Stäng av ljud",
+  "embed.player.unmute": "Slå på ljud",
+  "embed.player.seek": "Sök",
+  "embed.player.volume": "Volym",
+  "embed.player.currentTime": "Aktuell tid",
+  "embed.player.enterFullscreen": "Helskärm",
+  "embed.player.exitFullscreen": "Avsluta helskärm"
 }

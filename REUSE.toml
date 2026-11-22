@@ -301,3 +301,36 @@ path = "public/js/vendor/json-formatter.umd.js"
 precedence = "override"
 SPDX-FileCopyrightText = "2015 Mohsen Azimi"
 SPDX-License-Identifier = "MIT"
+
+# Embeds and media players (wave 5.76, Batch D): upstream builds kept byte for
+# byte under public/js/vendor/ (sha256 pinned by tests/wave576-embeds.test.mjs).
+# Each later annotation overrides the folder-wide Prism one above for its own
+# file. All four licences are compatible with AGPL-3.0-or-later.
+# hls.js 1.7.4 (light ESM build), Apache-2.0.
+[[annotations]]
+path = "public/js/vendor/hls.light.min.mjs"
+precedence = "override"
+SPDX-FileCopyrightText = "2017 Dailymotion and hls.js contributors"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Plyr 3.8.5 (ESM build, its stylesheet and icon sprite), MIT.
+[[annotations]]
+path = ["public/js/vendor/plyr.min.mjs", "public/js/vendor/plyr.css", "public/js/vendor/plyr.svg"]
+precedence = "override"
+SPDX-FileCopyrightText = "2017 Sam Potts"
+SPDX-License-Identifier = "MIT"
+
+# WaveSurfer.js 8.1.0 (ESM build), BSD-3-Clause.
+[[annotations]]
+path = "public/js/vendor/wavesurfer.esm.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2012-2023 katspaugh and contributors"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+# <model-viewer> 4.4.0 (minified bundle): Apache-2.0, bundling Lit
+# (BSD-3-Clause), three.js and fflate (MIT).
+[[annotations]]
+path = "public/js/vendor/model-viewer.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = ["2017-2026 Google LLC", "2010-2026 Three.js Authors", "2020 Arjun Barrett (fflate)"]
+SPDX-License-Identifier = "Apache-2.0 AND BSD-3-Clause AND MIT"

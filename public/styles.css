@@ -4531,3 +4531,76 @@ th[aria-sort="descending"]::after { content: " \2193"; }
 .json-tree .json-formatter-boolean,
 .json-tree .json-formatter-null { color: var(--code-number); }
 .json-tree .json-formatter-bracket { color: var(--code-punctuation); }
+/* Embeds (v5.76, Batch D): a paragraph that is one embeddable link. The host
+   keeps the .post-body class (edit swap) but not its pre-wrap. Nothing here
+   paints a remote image: the YouTube facade is local colour and the link's
+   own title text until the reader presses play. */
+.post-body[data-embed] { white-space: normal; }
+.embed { margin: 0; display: grid; gap: 0.4rem; max-width: 42rem; }
+.embed-caption { font-size: 0.85rem; color: var(--muted); overflow-wrap: anywhere; }
+.embed-error { margin: 0; color: var(--error-ink); font-size: 0.9rem; }
+.embed-youtube-stage,
+.embed-model-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  overflow: hidden;
+  background: var(--field);
+}
+.embed-youtube-play,
+.embed-model-load {
+  inline-size: 100%;
+  block-size: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 0;
+  background: linear-gradient(135deg, var(--soft-green), var(--field));
+  color: var(--ink);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+.embed-youtube-play:hover,
+.embed-model-load:hover:not(:disabled) { background: var(--soft-green); }
+.embed-youtube-play:focus-visible,
+.embed-model-load:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+.embed-youtube-icon {
+  inline-size: 3.5rem;
+  block-size: 2.5rem;
+  border-radius: 0.6rem;
+  background: var(--coral-dark);
+  display: grid;
+  place-items: center;
+}
+.embed-youtube-icon::after {
+  content: "";
+  inline-size: 1rem;
+  block-size: 1.1rem;
+  background: #fff;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.embed-youtube-title,
+.embed-model-name { font-weight: 700; overflow-wrap: anywhere; }
+.embed-youtube-notice,
+.embed-model-action { font-size: 0.85rem; color: var(--muted); }
+.embed-model-action { font-weight: 600; color: var(--green-ink); }
+.embed-model-load:disabled { cursor: progress; opacity: 0.7; }
+.embed-youtube-frame,
+.embed-model-viewer { display: block; inline-size: 100%; block-size: 100%; border: 0; }
+.embed-media-element { inline-size: 100%; max-block-size: 70vh; border-radius: var(--button-radius); }
+.embed-audio .embed-media-element { max-block-size: none; }
+.embed-waveform {
+  --embed-wave: var(--muted);
+  --embed-wave-progress: var(--green);
+  min-block-size: 56px;
+  cursor: pointer;
+}
+.embed-media .plyr {
+  --plyr-color-main: var(--green);
+  border-radius: var(--button-radius);
+}
+.embed-audio .plyr { --plyr-audio-controls-background: var(--field); --plyr-audio-control-color: var(--ink); }

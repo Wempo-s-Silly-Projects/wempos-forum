@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Пысӑклат",
   "render.zoomOut": "Пӗчӗклет",
   "render.zoomReset": "Масштаба тавӑр",
-  "render.jsonTree": "Йывӑҫ евӗр курӑну"
+  "render.jsonTree": "Йывӑҫ евӗр курӑну",
+  "embed.youtubeTitle": "YouTube видео",
+  "embed.youtubePlay": "{title} вылятар",
+  "embed.youtubeNotice": "Вылятма пуснӑ чухне ҫеҫ youtube-nocookie.com ҫинчен тиенет.",
+  "embed.youtubeOpen": "YouTube ҫинче уҫ",
+  "embed.modelLoad": "3D модельне тие",
+  "embed.modelAlt": "3D модель: {name}",
+  "embed.loadFailed": "Ку медиана вылятма май килмерӗ.",
+  "embed.player.play": "Вылятар",
+  "embed.player.pause": "Чарса тӑр",
+  "embed.player.mute": "Сасса сӳнтер",
+  "embed.player.unmute": "Сасса ҫут",
+  "embed.player.seek": "Куҫ",
+  "embed.player.volume": "Сасӑ",
+  "embed.player.currentTime": "Хальхи вӑхӑт",
+  "embed.player.enterFullscreen": "Тулли экран",
+  "embed.player.exitFullscreen": "Тулли экрантан тух"
 }

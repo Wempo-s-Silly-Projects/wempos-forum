@@ -1277,5 +1277,21 @@
   "render.zoomIn": "ज़ूम इन",
   "render.zoomOut": "ज़ूम आउट",
   "render.zoomReset": "ज़ूम रीसेट करें",
-  "render.jsonTree": "ट्री व्यू"
+  "render.jsonTree": "ट्री व्यू",
+  "embed.youtubeTitle": "YouTube वीडियो",
+  "embed.youtubePlay": "{title} चलाएँ",
+  "embed.youtubeNotice": "चलाएँ दबाने पर ही youtube-nocookie.com से लोड होता है।",
+  "embed.youtubeOpen": "YouTube पर खोलें",
+  "embed.modelLoad": "3D मॉडल लोड करें",
+  "embed.modelAlt": "3D मॉडल: {name}",
+  "embed.loadFailed": "यह मीडिया चलाया नहीं जा सका।",
+  "embed.player.play": "चलाएँ",
+  "embed.player.pause": "रोकें",
+  "embed.player.mute": "म्यूट करें",
+  "embed.player.unmute": "अनम्यूट करें",
+  "embed.player.seek": "आगे-पीछे करें",
+  "embed.player.volume": "वॉल्यूम",
+  "embed.player.currentTime": "वर्तमान समय",
+  "embed.player.enterFullscreen": "पूर्ण स्क्रीन",
+  "embed.player.exitFullscreen": "पूर्ण स्क्रीन से बाहर निकलें"
 }

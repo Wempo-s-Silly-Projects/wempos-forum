@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Збільшити",
   "render.zoomOut": "Зменшити",
   "render.zoomReset": "Скинути масштаб",
-  "render.jsonTree": "Вигляд дерева"
+  "render.jsonTree": "Вигляд дерева",
+  "embed.youtubeTitle": "Відео YouTube",
+  "embed.youtubePlay": "Відтворити {title}",
+  "embed.youtubeNotice": "Завантажується з youtube-nocookie.com, лише коли ви натиснете «Відтворити».",
+  "embed.youtubeOpen": "Відкрити на YouTube",
+  "embed.modelLoad": "Завантажити 3D-модель",
+  "embed.modelAlt": "3D-модель: {name}",
+  "embed.loadFailed": "Не вдалося відтворити це медіа.",
+  "embed.player.play": "Відтворити",
+  "embed.player.pause": "Пауза",
+  "embed.player.mute": "Вимкнути звук",
+  "embed.player.unmute": "Увімкнути звук",
+  "embed.player.seek": "Перемотування",
+  "embed.player.volume": "Гучність",
+  "embed.player.currentTime": "Поточний час",
+  "embed.player.enterFullscreen": "Повноекранний режим",
+  "embed.player.exitFullscreen": "Вийти з повноекранного режиму"
 }

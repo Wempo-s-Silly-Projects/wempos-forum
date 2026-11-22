@@ -292,3 +292,15 @@ export const MERMAID_MAX_CHARS = 20000;
 export const MERMAID_PAN_MIN_WIDTH = 800;
 // A valid ```json block of at least this many lines gets a tree toggle.
 export const JSON_TREE_MIN_LINES = 20;
+
+// Embeds (v5.76, Batch D). A standalone link longer than this is never
+// embedded (it stays an ordinary link). The only third-party frame origin a
+// post may load, and only after the reader presses play. public/js/embeds/
+// classify.js mirrors both (pinned equal by tests/wave576-embeds.test.mjs).
+export const EMBED_URL_MAX_CHARS = 2048;
+export const YOUTUBE_EMBED_ORIGIN = "https://www.youtube-nocookie.com";
+// CSP hash of the one static <style> the vendored WaveSurfer renderer writes
+// into its shadow root (no nonce on static pages). Recomputed from
+// public/js/vendor/wavesurfer.esm.js by the test, so a library swap that
+// changes the style fails loudly instead of silently unstyling the waveform.
+export const WAVESURFER_STYLE_HASH = "sha256-/wNXXQM7c2ofBcjrAABoSS5Ibbo1K6dLnomtT2ZNGIA=";

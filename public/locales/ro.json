@@ -1277,5 +1277,21 @@
   "render.zoomIn": "Mărește",
   "render.zoomOut": "Micșorează",
   "render.zoomReset": "Resetează zoomul",
-  "render.jsonTree": "Vizualizare arbore"
+  "render.jsonTree": "Vizualizare arbore",
+  "embed.youtubeTitle": "Videoclip YouTube",
+  "embed.youtubePlay": "Redă {title}",
+  "embed.youtubeNotice": "Se încarcă de pe youtube-nocookie.com doar când apeși redare.",
+  "embed.youtubeOpen": "Deschide pe YouTube",
+  "embed.modelLoad": "Încarcă modelul 3D",
+  "embed.modelAlt": "Model 3D: {name}",
+  "embed.loadFailed": "Acest conținut media nu a putut fi redat.",
+  "embed.player.play": "Redă",
+  "embed.player.pause": "Pauză",
+  "embed.player.mute": "Dezactivează sunetul",
+  "embed.player.unmute": "Activează sunetul",
+  "embed.player.seek": "Derulează",
+  "embed.player.volume": "Volum",
+  "embed.player.currentTime": "Timpul curent",
+  "embed.player.enterFullscreen": "Ecran complet",
+  "embed.player.exitFullscreen": "Ieși din ecranul complet"
 }

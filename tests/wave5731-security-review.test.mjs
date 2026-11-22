@@ -74,11 +74,17 @@ test("M1: the HTML leg allows only the cdnjs polyfill path, not the whole CDN", 
 test("the HTML leg differs from the vendor CSP in script-src only, and loosens nothing else", () => {
   const html = directives(secureResponse(new Response("x")).headers.get("Content-Security-Policy"));
   const vendor = directives(securityHeaders(new Headers()).get("Content-Security-Policy"));
-  assert.deepEqual([...html.keys()], [...vendor.keys()]);
-  for (const [name, sources] of vendor) if (name !== "script-src") assert.deepEqual(html.get(name), sources, name);
-  assert.deepEqual(html.get("script-src").slice(0, 2), vendor.get("script-src"));
+  // v5.76 (Batch D, embeds) deliberately adds media-src and appends to
+  // exactly these directives; tests/wave576-embeds.test.mjs pins the values.
+  const widened = new Set(["script-src", "style-src", "img-src", "connect-src", "frame-src", "media-src"]);
+  assert.deepEqual([...html.keys()].filter((name) => name !== "media-src"), [...vendor.keys()]);
+  for (const [name, sources] of vendor) if (!widened.has(name)) assert.deepEqual(html.get(name), sources, name);
+  for (const [name, sources] of vendor) {
+    if (widened.has(name)) assert.deepEqual(html.get(name).slice(0, sources.length), sources, name + " only appends");
+  }
   assert.equal(html.get("script-src").length, 3);
-  assert.deepEqual(html.get("style-src"), ["'self'"]);
+  assert.equal(html.get("style-src").length, 2);
+  assert.match(html.get("style-src")[1], /^'sha256-[A-Za-z0-9+/]+=*'$/);
   for (const name of ["default-src", "script-src", "style-src"]) {
     for (const source of html.get(name)) assert.doesNotMatch(source, /unsafe-|^\*$|^https?:$|^https?:\/\/\*|^data:$|^blob:$/, `${name} ${source}`);
   }
