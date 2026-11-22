@@ -49,6 +49,7 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, requireTurnstile, requiredText } from "./core/http.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
+import { assertSlowModeAllows } from "./staff-tools.mjs";
 
 export async function handleRepliesReadRoute(request, env, url, path, method) {
   const repliesReadMatch = path.match(/^\/api\/posts\/([0-9]+)\/replies$/);
@@ -154,6 +155,9 @@ export async function handleReplyCreateRoute(request, env, url, path, method) {
     if (!(await canViewPost(env, target, session.user))) {
       throw new HttpError(400, "Replies are closed while this conversation's author is banned.");
     }
+    // Slow mode (v5.43): one indexed lookup on the conversation root; staff
+    // are exempt. Refuses with 429 before anything is written.
+    await assertSlowModeAllows(db, session.user, bumpTargetId);
     await requireTurnstile(request, env, fields, "reply");
     const now = nowSeconds();
     const recipientId = target.author_id === null || target.author_id === undefined

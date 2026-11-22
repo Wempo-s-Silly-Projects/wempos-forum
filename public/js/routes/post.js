@@ -57,6 +57,7 @@ import { anchorReplyCard, bindReplyHashChange, highlightReplyFromHash } from "..
 import { createSaveThreadButton } from "../thread-text.js";
 import { startReadingProgress } from "../reading-progress.js";
 import { createShareButton } from "../share.js";
+import { createSlowModeForm, createSlowModeNote, slowModePath } from "../slow-mode.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -67,6 +68,13 @@ async function renderPostRoute(route, context, version) {
   rootCard.querySelector(".post-actions")
     ?.append(createSaveThreadButton(document, { getRoot: () => main, threadId: post.id }));
   main.append(rootCard);
+  // Slow mode (v5.43): the note for everyone, the setter for staff (roots only).
+  const slowNote = createSlowModeNote(document, post.slowModeSeconds);
+  if (slowNote) main.append(slowNote);
+  const viewer = context.session.user;
+  if (!post.parent && (viewer?.role === "owner" || viewer?.role === "admin")) {
+    main.append(createSlowModeForm(document, post.id, post.slowModeSeconds));
+  }
   // Share (v5.34): public root threads only, never for staff viewers.
   const share = createShareButton(document, post, context.session.user);
   if (share) main.append(share);
@@ -295,6 +303,15 @@ async function loadOlderReplies(button) {
 // route's own actions merge into handleButtonAction's dispatch map.
 export const FORM_HANDLERS = {
   "post-edit": (form, text) => submitPostEditForm(form, text),
+  // Slow mode (v5.43): "Off" turns it off, any choice sets it; re-render so
+  // the note follows.
+  "thread-slowmode": async (form, text) => {
+    const seconds = Number(text("seconds"));
+    const path = slowModePath(form.dataset.postId);
+    await api(path, seconds > 0 ? { method: "PUT", body: { seconds } } : { method: "DELETE" });
+    await state.renderRoute(state.activeRoute);
+    setMessage(t(seconds > 0 ? "slowMode.set" : "slowMode.cleared"));
+  },
 };
 
 export const ACTIONS = {

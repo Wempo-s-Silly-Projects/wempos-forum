@@ -72,9 +72,12 @@ async function handleReportQueueRoute(request, env, url, path, method) {
     await requireStaff(request, env, false);
     const result = await db.prepare(
       "SELECT r.id, r.reason, r.created_at, reporter.username AS reporter_username, " +
-        "p.id AS post_id, p.body AS post_body, p.visibility AS post_visibility, author.id AS author_id, author.username AS author_username " +
+        "p.id AS post_id, p.body AS post_body, p.visibility AS post_visibility, author.id AS author_id, author.username AS author_username, " +
+        // Report claiming (v5.43, migration 0069): who holds the report, if anyone.
+        "c.staff_id AS claim_staff_id, c.claimed_at AS claim_claimed_at, claimer.username AS claim_username " +
         "FROM reports r JOIN users reporter ON reporter.id = r.reporter_id " +
         "JOIN posts p ON p.id = r.post_id JOIN users author ON author.id = p.author_id " +
+        "LEFT JOIN report_claims c ON c.report_id = r.id LEFT JOIN users claimer ON claimer.id = c.staff_id " +
         "WHERE r.status = 'open' ORDER BY r.created_at ASC LIMIT 100",
     ).all();
     return json({
@@ -92,6 +95,13 @@ async function handleReportQueueRoute(request, env, url, path, method) {
           hidden: row.post_visibility !== "public",
           author: { id: Number(row.author_id), username: row.author_username },
         },
+        claim: row.claim_staff_id === null || row.claim_staff_id === undefined
+          ? null
+          : {
+            staffId: Number(row.claim_staff_id),
+            username: row.claim_username ?? null,
+            claimedAt: new Date(Number(row.claim_claimed_at) * 1000).toISOString(),
+          },
       })),
     });
   }
@@ -108,6 +118,8 @@ async function hidePostForOpenReport(db, reportId, modId, now) {
       "UPDATE reports SET status = 'actioned', resolved_at = ?, resolved_by = ? " +
         "WHERE id = ? AND status = 'open'",
     ).bind(now, modId, reportId),
+    // v5.43: a resolved report keeps no claim.
+    db.prepare("DELETE FROM report_claims WHERE report_id = ?").bind(reportId),
   ]);
   if (Number(results[1]?.meta?.changes) !== 1) {
     throw new HttpError(409, "This report was already resolved by another mod.");
@@ -115,11 +127,15 @@ async function hidePostForOpenReport(db, reportId, modId, now) {
 }
 
 async function dismissOpenReport(db, reportId, modId, now) {
-  const result = await db.prepare(
-    "UPDATE reports SET status = 'dismissed', resolved_at = ?, resolved_by = ? " +
-      "WHERE id = ? AND status = 'open'",
-  ).bind(now, modId, reportId).run();
-  if (Number(result.meta?.changes) !== 1) {
+  const [result] = await db.batch([
+    db.prepare(
+      "UPDATE reports SET status = 'dismissed', resolved_at = ?, resolved_by = ? " +
+        "WHERE id = ? AND status = 'open'",
+    ).bind(now, modId, reportId),
+    // v5.43: a dismissed report keeps no claim.
+    db.prepare("DELETE FROM report_claims WHERE report_id = ?").bind(reportId),
+  ]);
+  if (Number(result?.meta?.changes) !== 1) {
     throw new HttpError(409, "This report was already resolved by another mod.");
   }
 }

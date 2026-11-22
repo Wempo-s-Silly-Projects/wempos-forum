@@ -70,6 +70,8 @@ export const ERROR_CODES = Object.freeze({
   write_message: "Write a message first.",
   replies_one_level: "Replies only go one level deep.",
   replies_closed_banned: "Replies are closed while this conversation's author is banned.",
+  // v5.43: a non-staff reply inside a thread's slow-mode cooldown (429).
+  slow_mode: "Slow mode is on in this thread. Wait a little before replying again.",
   poll_closed: "This poll is closed.",
   poll_choose_option: "Choose one of the poll options.",
   report_duplicate: "You already have an open report for this post.",

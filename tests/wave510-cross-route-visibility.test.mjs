@@ -49,7 +49,11 @@ const ALWAYS_FORBIDDEN = ["HIDDENROOTTXT", "UNDERHIDDENTXT", "BANNEDTXT", "DOOME
   // referrers) never reach a non-staff route.
   "STAFFONLYTXT", "staffonly-referrer",
   // Wave 5.38: an expired custom status never reaches any route.
-  "STALESTATUSTXT"];
+  "STALESTATUSTXT",
+  // Wave 5.43: staff notes on members (migration 0069) never reach any
+  // member-facing payload, export, feed, search, MCP read or page head —
+  // not even the noted member's own.
+  "STAFFNOTETXT"];
 const SIDE_FORBIDDEN = { zzblocker: ["BLOCKEDTXT", "zzblocked"], zzblocked: ["BLOCKERTXT", "zzblocker"] };
 // Wave 5.42: private data with one owner — forbidden to every other viewer
 // (guest, members, both pair sides, staff) on every route.
@@ -210,6 +214,16 @@ function seedStaffOnly(w, at) {
   run("INSERT INTO automod_actions (action, target_type, target_id, target_user_id, reason, created_at) " +
     "VALUES ('report', 'post', ?, ?, 'STAFFONLYTXT automod', ?)", w.publicRoot, id.alice, at);
   run("INSERT INTO referrer_counts (day, referrer_host, views) VALUES (date('now'), 'staffonly-referrer.example', 7)");
+  // Wave 5.43: staff notes about the viewer, both pair sides and alice, a
+  // claim on the open report (the claimer's name is desk-only) and slow mode
+  // on the public root (public by design: the thread page shows it).
+  for (const member of ["viewer", "zzblocker", "zzblocked", "alice"]) {
+    run("INSERT INTO member_notes (member_id, author_id, body, created_at) VALUES (?, ?, ?, ?)",
+      id[member], id.boss, "STAFFNOTETXT about " + member, at);
+  }
+  const reportId = db.prepare("SELECT id FROM reports WHERE reason = 'STAFFONLYTXT report'").get().id;
+  run("INSERT INTO report_claims (report_id, staff_id, claimed_at) VALUES (?, ?, ?)", reportId, id.boss, at);
+  run("INSERT INTO thread_slowmode (post_id, seconds, set_by, set_at) VALUES (?, 60, ?, ?)", w.publicRoot, id.boss, at);
 }
 
 // Wave 5.35: staff picks (migration 0065). An older pick on a block-paired
@@ -287,6 +301,9 @@ function routes(w, member) {
     // the user row the real account wipe deletes) may be listed; the ban and
     // the block pair may not.
     ["/api/members/newest", { allowNames: ["zzghost", "zzwiped"] }],
+    // Wave 5.43: the noted member's public face (JSON + page head) and a
+    // search for the note text.
+    ["/api/users/viewer"], ["/users/viewer"], ["/api/search?q=STAFFNOTETXT"],
   ];
   if (member) {
     list.push(["/api/me/notifications"], ["/api/me/bookmarks"], ["/api/session"], ["/api/posts?mine=1"],
@@ -311,7 +328,9 @@ function routes(w, member) {
 }
 
 const MCP_CALLS = (w) => [["recent_posts", {}], ["search_posts", { query: "zzsweep" }], ["list_board", { board: "general" }],
-  ["list_board", { board: "suggestions" }], ["get_post", { id: w.publicRoot }], ["lobby_read", {}]];
+  ["list_board", { board: "suggestions" }], ["get_post", { id: w.publicRoot }], ["lobby_read", {}],
+  // Wave 5.43: an MCP search for the staff-note text.
+  ["search_posts", { query: "STAFFNOTETXT" }]];
 
 async function fetchText(env, path, { session, markdown, refusable } = {}) {
   const res = await call(env, path, { session, headers: markdown ? { Accept: "text/markdown" } : {} });
@@ -375,6 +394,9 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
   // Wave 5.42: + newest members for each of the 4 viewers, + prefs and the
   // follow state for each of the 3 members.
   assert.ok(swept >= 263, "swept " + swept);
+  // Wave 5.43: + the noted member's profile JSON + head and a note-text
+  // search for each of the 4 viewers, + one MCP note-text search each.
+  assert.ok(swept >= 279, "swept " + swept);
 });
 
 test("wave 5.10 sweep: hidden-root reads are 404 and the DM non-member is refused", async () => {
@@ -496,7 +518,9 @@ const STAFF_ONLY_GETS = (w) => ["/api/admin/reports", "/api/admin/profile-report
   "/api/admin/gifs", "/api/admin/css", "/api/admin/filter", "/api/admin/users/search?q=zz",
   "/api/admin/users/" + w.id.zzbanned + "/recent-posts",
   // Wave 5.42: the staff-pick mod log (v5.35).
-  "/api/admin/staff-picks"];
+  "/api/admin/staff-picks",
+  // Wave 5.43: staff notes on the viewer (migration 0069).
+  "/api/admin/members/" + w.id.viewer + "/notes"];
 
 test("wave 5.32 sweep: every staff-only read refuses guests and members and leaks nothing", async () => {
   const w = await seedWorld();
@@ -518,6 +542,8 @@ test("wave 5.32 sweep: every staff-only read refuses guests and members and leak
     assert.ok((await fetchText(w.env, path, { session: boss })).includes("STAFFONLYTXT"), "staff read " + path);
   }
   assert.ok((await fetchText(w.env, "/api/admin/analytics", { session: boss })).includes("staffonly-referrer"));
+  // Wave 5.43: staff read the notes back (positive control for the needle).
+  assert.ok((await fetchText(w.env, "/api/admin/members/" + w.id.viewer + "/notes", { session: boss })).includes("STAFFNOTETXT about viewer"));
 });
 
 test("wave 5.32 sweep: page heads show the thread to who may see it and the generic head otherwise", async () => {
@@ -703,7 +729,7 @@ test("wave 5.42: staff and owner viewers — public faces stay public, private d
   const faces = ["/feed.xml", "/c/showcase/feed.xml", "/c/general/feed.xml", "/llms.txt", "/sitemap.xml",
     "/api/week", "/week", "/api/traditions/showcase", "/api/traditions/qotd", "/api/users/alice", "/users/alice"];
   const faceNeedles = ["HIDDENROOTTXT", "UNDERHIDDENTXT", "BANNEDTXT", "WIPEDTXT", "DOOMEDREPLYTXT", "HIDDENEDITTXT",
-    "STALESTATUSTXT", "STAFFONLYTXT", ...Object.keys(OWNER_ONLY)];
+    "STALESTATUSTXT", "STAFFONLYTXT", "STAFFNOTETXT", ...Object.keys(OWNER_ONLY)];
   let swept = 0;
   for (const [label, session] of [["owner boss", forgeSession(w.db, w.id.boss)], ["admin deputy", forgeSession(w.db, deputy)]]) {
     for (const path of faces) {

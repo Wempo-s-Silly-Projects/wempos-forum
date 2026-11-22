@@ -48,6 +48,7 @@ import {
 import { createReportQueue } from "../desk/reports.js";
 import { createAutoModLog, createDmReportQueue } from "../desk/automod.js";
 import { createMemberPeek } from "../desk/member-tools.js";
+import { createMemberNotes, memberNotesPath } from "../desk/staff-tools.js";
 import { createFilterEditor } from "../desk/filter.js";
 import { createBrandingEditor, submitBrandingSave } from "../desk/branding.js";
 import { createVisitsPanel } from "../desk/visits.js";
@@ -517,6 +518,7 @@ export const FORM_HANDLERS = {
   "admin-attachment-reject": (form) => submitAttachmentModeration(form, "reject"),
   "admin-member-search": (form, text) => submitMemberSearch(form, text),
   "admin-hide-recent": (form, text) => submitHideRecent(form, text),
+  "member-note-add": (form, text) => submitMemberNote(form, text),
   "filter-save": async (form, text) => submitFilterSave(form, text),
   "filter-bulk-add": async (form, text) => submitFilterBulkAdd(form, text),
   "branding-save": async (form, text) => {
@@ -553,16 +555,48 @@ async function toggleMemberPeek(button) {
   if (!region) return;
   const opening = button.getAttribute("aria-expanded") !== "true";
   if (opening && !region.childElementCount) {
-    const data = await api("/api/admin/users/" + encodeURIComponent(button.dataset.userId) + "/recent-posts");
-    region.replaceChildren(createMemberPeek(document, data));
+    const [data, notes] = await Promise.all([
+      api("/api/admin/users/" + encodeURIComponent(button.dataset.userId) + "/recent-posts"),
+      api(memberNotesPath(button.dataset.userId)),
+    ]);
+    region.replaceChildren(createMemberPeek(document, data),
+      createMemberNotes(document, notes.member.id, notes.member.username, notes.notes));
   }
   region.hidden = !opening;
   button.setAttribute("aria-expanded", String(opening));
   button.textContent = t(opening ? "desk.peek.hide" : "desk.peek.show");
 }
 
+// Staff notes (v5.43): re-read the member's notes into the same section.
+async function refreshMemberNotes(node) {
+  const section = node.closest(".member-notes");
+  if (!section) return;
+  const data = await api(memberNotesPath(section.dataset.memberId));
+  section.replaceWith(createMemberNotes(document, data.member.id, data.member.username, data.notes));
+}
+
+async function submitMemberNote(form, text) {
+  await api(memberNotesPath(form.dataset.memberId), { method: "POST", body: { body: text("body") } });
+  await refreshMemberNotes(form);
+  setMessage(t("desk.notes.added"));
+}
+
+// Report claiming (v5.43): claim or release, then re-render the queue.
+async function changeReportClaim(button, method) {
+  await api("/api/admin/reports/" + encodeURIComponent(button.dataset.reportId) + "/claim", { method });
+  await state.renderRoute(state.activeRoute);
+  setMessage(t(method === "POST" ? "desk.claim.claimed" : "desk.claim.released"));
+}
+
 export const ACTIONS = {
     "member-peek": (button) => toggleMemberPeek(button),
+    "report-claim": (button) => changeReportClaim(button, "POST"),
+    "report-release": (button) => changeReportClaim(button, "DELETE"),
+    "member-note-delete": async (button) => {
+      await api(memberNotesPath(button.dataset.memberId, button.dataset.noteId), { method: "DELETE" });
+      await refreshMemberNotes(button);
+      setMessage(t("desk.notes.deleted"));
+    },
     "post-restore": async (button) => {
       const data = await api("/api/admin/posts/unhide", { method: "POST", body: { ids: [Number(button.dataset.postId)] } });
       await state.renderRoute(state.activeRoute);
