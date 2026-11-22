@@ -26,6 +26,8 @@
 // the first post; the scoring follows franc's published method (the
 // most-used script picks the candidate set, then the 300 most frequent
 // padded trigrams are ranked against each language profile).
+import { maskSpoilers } from "./markdown.js";
+
 export const LANG_DETECT_MIN_CHARS = 40;
 
 const SAMPLE_MAX_CHARS = 2048;
@@ -110,7 +112,7 @@ function distance(trigrams, ranks) {
 // Pure: the BCP 47 tag for `body`, or null when it is too short, mostly
 // code, or no language matches.
 export function detectLanguageFrom(body, { data, expressions }) {
-  const text = proseOf(body).slice(0, SAMPLE_MAX_CHARS);
+  const text = proseOf(maskSpoilers(body)).slice(0, SAMPLE_MAX_CHARS);
   if (letterCount(text) < LANG_DETECT_MIN_CHARS) return UNDETERMINED;
   const script = topScript(text, expressions);
   if (!script) return UNDETERMINED;

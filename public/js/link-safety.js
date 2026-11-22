@@ -31,17 +31,17 @@ import { toUnicode } from "./vendor/punycode/punycode.es6.js";
 const TLDTS_SRC = "./vendor/tldts/index.esm.min.js";
 
 const SCRIPTS = Object.freeze([
-  "Latin", "Cyrillic", "Greek", "Armenian", "Georgian", "Hebrew", "Arabic", "Thai", "Lao", "Khmer",
-  "Devanagari", "Bengali", "Tamil", "Telugu", "Gujarati", "Gurmukhi", "Kannada", "Malayalam", "Sinhala",
-  "Ethiopic", "Cherokee", "Han", "Hiragana", "Katakana", "Hangul", "Bopomofo", "Tibetan", "Myanmar",
-].map((name) => [name, new RegExp(`\\p{Script=${name}}`, "u")]));
+  "Latin", "Cyrillic", "Greek", "Armenian", "Georgian", "Hebrew", "Arabic", "Thai", "Lao", "Khmer", // i18n-ignore
+  "Devanagari", "Bengali", "Tamil", "Telugu", "Gujarati", "Gurmukhi", "Kannada", "Malayalam", "Sinhala", // i18n-ignore
+  "Ethiopic", "Cherokee", "Han", "Hiragana", "Katakana", "Hangul", "Bopomofo", "Tibetan", "Myanmar", // i18n-ignore
+].map((name) => [name, new RegExp(`\\p{Script=${name}}`, "u")])); // i18n-ignore
 
 // Script sets that legitimately share one label (CJK writing systems, with
 // or without Latin); anything else mixing two scripts is suspicious.
 const ALLOWED_MIXES = Object.freeze([
-  ["Latin", "Han", "Hiragana", "Katakana"],
-  ["Latin", "Han", "Hangul"],
-  ["Latin", "Han", "Bopomofo"],
+  ["Latin", "Han", "Hiragana", "Katakana"], // i18n-ignore
+  ["Latin", "Han", "Hangul"], // i18n-ignore
+  ["Latin", "Han", "Bopomofo"], // i18n-ignore
 ].map((set) => new Set(set)));
 
 // Cyrillic and Greek letters that render like Latin ones: a label made only
@@ -56,7 +56,7 @@ const LETTER = /\p{L}/u;
 
 function scriptOf(character) {
   for (const [name, pattern] of SCRIPTS) if (pattern.test(character)) return name;
-  return LETTER.test(character) ? "Other" : null;
+  return LETTER.test(character) ? "Other" : null; // i18n-ignore
 }
 
 function labelVerdict(label) {
@@ -66,10 +66,10 @@ function labelVerdict(label) {
   if (scripts.size > 1 && !ALLOWED_MIXES.some((allowed) => [...scripts].every((name) => allowed.has(name)))) {
     return "mixed-script";
   }
-  if ((scripts.has("Cyrillic") || scripts.has("Greek")) && letters.every((character) => LATIN_LOOKALIKES.has(character))) {
+  if ((scripts.has("Cyrillic") || scripts.has("Greek")) && letters.every((character) => LATIN_LOOKALIKES.has(character))) { // i18n-ignore
     return "whole-script-lookalike";
   }
-  if (scripts.has("Latin") && letters.some((character) => LATIN_IMPOSTORS.has(character))) return "latin-lookalike";
+  if (scripts.has("Latin") && letters.some((character) => LATIN_IMPOSTORS.has(character))) return "latin-lookalike"; // i18n-ignore
   return null;
 }
 

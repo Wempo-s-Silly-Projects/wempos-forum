@@ -1224,12 +1224,12 @@
   "threadActions.editTags": "Тегсене улӑштар",
   "safety.hideStrongLanguage": "Хытӑ сӑмахсене пытар (пусиччен тӗтреллӗ)",
   "safety.hiddenWord": "Пытарнӑ сӑмах — кӑтартма пусӑр",
-  "safety.linkWarningTitle": "Ку каçӑ курӑннӑ вырӑна илсе каймасан та пултарать",
-  "safety.linkWarningBody": "Адресра пӗр евӗрлӗ саспаллисем хутӑшнӑ, çавӑнпа вӑл урӑх сайт евӗр пулма пултарать. Чӑн адрес:",
+  "safety.linkWarningTitle": "Ку каҫӑ курӑннӑ вырӑна илсе каймасан та пултарать",
+  "safety.linkWarningBody": "Адресра пӗр евӗрлӗ саспаллисем хутӑшнӑ, ҫавӑнпа вӑл урӑх сайт евӗр пулма пултарать. Чӑн адрес:",
   "safety.linkWarningDomain": "Регистрациленӗ домен: {domain}",
   "safety.linkWarningBack": "Каялла",
-  "safety.linkWarningContinue": "Çапах та малалла",
-  "safety.previewShow": "Каçӑ малтанхи курӑнӑвне кӑтарт",
-  "safety.previewUnavailable": "Ку каçӑн малтанхи курӑнӑвӗ çук.",
-  "safety.previewLabel": "Каçӑ малтанхи курӑнӑвӗ"
+  "safety.linkWarningContinue": "Ҫапах та малалла",
+  "safety.previewShow": "Каҫӑ малтанхи курӑнӑвне кӑтарт",
+  "safety.previewUnavailable": "Ку каҫӑн малтанхи курӑнӑвӗ ҫук.",
+  "safety.previewLabel": "Каҫӑ малтанхи курӑнӑвӗ"
 }
