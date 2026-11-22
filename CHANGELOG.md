@@ -10,6 +10,14 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.76.0] - 2026-11-22
+
+### Added
+- Animated GIFs in post attachments and the GIF gallery/picker now show a still first frame when the reader's device asks for reduced motion, with a play/pause "GIF" button on post attachments (same behaviour chat already had). The lightbox keeps the original image.
+
+### Changed
+- Chat and posts now share one still-frame implementation (`still-gif.js`). Only same-origin images are drawn, so a canvas is never tainted; anything else stays a plain image.
+
 ## [5.75.0] - 2026-11-22
 
 ### Added
