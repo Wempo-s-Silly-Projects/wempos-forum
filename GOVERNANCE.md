@@ -32,8 +32,8 @@ always be reopened with new information.
 ## AI-assisted development
 
 Much of the code, tests and documentation is written with AI coding agents
-(Claude Code), working under the maintainer's direction. Those commits carry a
-`Co-Authored-By: Claude Code` trailer. Automated review bots (for example
+(Claude Code), working under the maintainer's direction; many past commits
+carry a `Co-Authored-By: Claude Code` trailer. Automated review bots (for example
 CodeRabbit, Sourcery, Aikido and Codacy) comment on changes too.
 
 None of these are project members. They don't make decisions, and they don't
