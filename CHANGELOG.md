@@ -15,6 +15,24 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.50.0] - 2026-11-22
+
+### Added
+- TL;DR for threads: the person who started a thread (or an admin or the
+  owner) can add a short summary, up to 280 characters, shown in a "TL;DR"
+  box above the replies. Anyone who can see the thread can read it; a hidden
+  thread, a thread by a banned member, or a thread across a block shows no
+  summary. The text goes through the word filter like other public text, and
+  invisible direction-changing or control characters are refused. Saving an
+  empty box removes the summary. Your data export lists the summaries you
+  wrote. Needs database migration 0074.
+- Edit history now shows what changed: each version marks the words that
+  were added (underlined) and removed (struck through) compared with the
+  version before it, and a "Current version" row shows the latest edit.
+  Spoilers stay hidden on both sides. Very long posts fall back to showing
+  the full text. This happens in your browser only; how edits are stored is
+  unchanged.
+
 ## [5.49.0] - 2026-11-22
 
 ### Security
