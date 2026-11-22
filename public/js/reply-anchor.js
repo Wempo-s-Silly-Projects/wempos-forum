@@ -21,8 +21,8 @@
 // Link to a specific reply (wave 5.25 F1, client-only). Each top-level reply
 // on the thread page carries id="reply-<id>", and its copy-link button copies
 // /posts/<thread>#reply-<id>. When the page's hash names a reply that is
-// already rendered (and not hidden), it is scrolled into view and briefly
-// highlighted; anything else is a no-op. Nothing is fetched or stored, so no
+// already rendered (and not hidden or filtered out), it is scrolled into
+// view and briefly highlighted; anything else is a no-op. Nothing is fetched or stored, so no
 // reply the page did not already show can be revealed. The hash is checked
 // against REPLY_HASH_PATTERN and never handed to a selector.
 import { createCopyLinkButton, postPermalink } from "./copy-link.js";
@@ -76,7 +76,9 @@ export function anchorReplyCard(document, card, threadId, options = {}) {
   }
 }
 
-const isShown = (card) => !card.closest("[hidden]");
+// Hidden by a collapsed group ([hidden]) or by the reply filter
+// ([data-filtered-out]) on the card or any ancestor.
+const isShown = (card) => !card.closest("[hidden],[data-filtered-out]");
 
 // Scrolls to and highlights the reply the hash names, when it is on the page.
 // Returns the card, or null when nothing matched (a no-op).

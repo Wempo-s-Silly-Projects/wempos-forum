@@ -3279,7 +3279,7 @@ mark.search-hit {
 }
 .spoiler:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 .spoiler-revealed {
-  background: var(--paper-shadow);
+  background: var(--spoiler-revealed-bg, var(--paper-shadow));
   color: inherit;
   cursor: auto;
   user-select: text;
@@ -3346,7 +3346,9 @@ mark.search-hit {
    prefers-contrast: more; On forces it; Off never) re-weights the colour
    tokens only, so layout never moves. Body text is 21:1, muted text and
    links at least 8.9:1 (WCAG AAA is 7:1); borders that already exist go to
-   full ink, and focus rings get thicker. Light first; dark repeats the
+   full ink, and focus rings get thicker. --paper-shadow is ink here, so a
+   revealed spoiler takes --spoiler-revealed-bg instead (v5.29: at least
+   7.6:1 for ink, muted and link text); unrevealed spoilers stay ink on ink. Light first; dark repeats the
    theme logic's two routes (manual choice, then the OS preference). */
 :root.high-contrast {
   --paper: #ffffff;
@@ -3378,6 +3380,7 @@ mark.search-hit {
   --error-chip-ink: #6b1a12;
   --on-yellow: #000000;
   --quiet-hover: #f3cf67;
+  --spoiler-revealed-bg: #e6e6e6;
 }
 :root.high-contrast[data-theme="dark"] {
   --paper: #000000;
@@ -3409,6 +3412,7 @@ mark.search-hit {
   --error-chip-ink: #ffc9c0;
   --on-yellow: #000000;
   --quiet-hover: #0a1a2a;
+  --spoiler-revealed-bg: #333333;
 }
 @media (prefers-color-scheme: dark) {
   :root.high-contrast:not([data-theme="light"]):not([data-theme="dark"]) {
@@ -3441,6 +3445,7 @@ mark.search-hit {
     --error-chip-ink: #ffc9c0;
     --on-yellow: #000000;
     --quiet-hover: #0a1a2a;
+    --spoiler-revealed-bg: #333333;
   }
 }
 /* Outlines draw outside the box, so they add no layout; the focus ring
