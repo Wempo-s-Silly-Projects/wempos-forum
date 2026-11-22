@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Закључати ову тему? Додајте необавезан разлог који види само особље или оставите празно.",
   "threadLock.locked": "Тема је закључана.",
   "threadLock.unlocked": "Тема је откључана.",
-  "errors.threadLocked": "Ова тема је закључана. Одговарати може само особље."
+  "errors.threadLocked": "Ова тема је закључана. Одговарати може само особље.",
+  "threadActions.more": "Још",
+  "threadActions.reading": "Читање",
+  "threadActions.following": "Праћење",
+  "threadActions.sharing": "Дељење",
+  "threadActions.thisPost": "Ова објава",
+  "threadActions.staff": "Особље",
+  "threadActions.editTags": "Уреди ознаке"
 }

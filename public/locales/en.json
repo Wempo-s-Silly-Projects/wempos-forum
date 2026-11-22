@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Lock this thread? Add an optional reason only staff can see, or leave it blank.",
   "threadLock.locked": "Thread locked.",
   "threadLock.unlocked": "Thread unlocked.",
-  "errors.threadLocked": "This thread is locked. Only staff can reply."
+  "errors.threadLocked": "This thread is locked. Only staff can reply.",
+  "threadActions.more": "More",
+  "threadActions.reading": "Reading",
+  "threadActions.following": "Following",
+  "threadActions.sharing": "Sharing",
+  "threadActions.thisPost": "This post",
+  "threadActions.staff": "Staff",
+  "threadActions.editTags": "Edit tags"
 }

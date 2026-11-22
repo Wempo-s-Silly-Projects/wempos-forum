@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "このスレッドをロックしますか?スタッフだけが見られる理由を任意で入力するか、空欄のままにしてください。",
   "threadLock.locked": "スレッドをロックしました。",
   "threadLock.unlocked": "スレッドのロックを解除しました。",
-  "errors.threadLocked": "このスレッドはロックされています。返信できるのはスタッフのみです。"
+  "errors.threadLocked": "このスレッドはロックされています。返信できるのはスタッフのみです。",
+  "threadActions.more": "その他",
+  "threadActions.reading": "読む",
+  "threadActions.following": "フォロー",
+  "threadActions.sharing": "共有",
+  "threadActions.thisPost": "この投稿",
+  "threadActions.staff": "スタッフ",
+  "threadActions.editTags": "タグを編集"
 }

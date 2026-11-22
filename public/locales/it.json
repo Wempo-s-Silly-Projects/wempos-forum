@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Bloccare questa discussione? Aggiungi un motivo facoltativo visibile solo allo staff, oppure lascia vuoto.",
   "threadLock.locked": "Discussione bloccata.",
   "threadLock.unlocked": "Discussione sbloccata.",
-  "errors.threadLocked": "Questa discussione è bloccata. Solo lo staff può rispondere."
+  "errors.threadLocked": "Questa discussione è bloccata. Solo lo staff può rispondere.",
+  "threadActions.more": "Altro",
+  "threadActions.reading": "Lettura",
+  "threadActions.following": "Seguiti",
+  "threadActions.sharing": "Condivisione",
+  "threadActions.thisPost": "Questo post",
+  "threadActions.staff": "Staff",
+  "threadActions.editTags": "Modifica tag"
 }

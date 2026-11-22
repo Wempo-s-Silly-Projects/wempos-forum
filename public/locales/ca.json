@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Vols bloquejar aquest fil? Afegeix un motiu opcional que només veurà l'equip, o deixa-ho en blanc.",
   "threadLock.locked": "S'ha bloquejat el fil.",
   "threadLock.unlocked": "S'ha desbloquejat el fil.",
-  "errors.threadLocked": "Aquest fil està bloquejat. Només l'equip hi pot respondre."
+  "errors.threadLocked": "Aquest fil està bloquejat. Només l'equip hi pot respondre.",
+  "threadActions.more": "Més",
+  "threadActions.reading": "Lectura",
+  "threadActions.following": "Seguiment",
+  "threadActions.sharing": "Compartir",
+  "threadActions.thisPost": "Aquesta publicació",
+  "threadActions.staff": "Equip",
+  "threadActions.editTags": "Edita les etiquetes"
 }

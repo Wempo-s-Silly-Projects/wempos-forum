@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "यह थ्रेड लॉक करें? चाहें तो ऐसा कारण जोड़ें जिसे केवल स्टाफ़ देख सके, या खाली छोड़ दें।",
   "threadLock.locked": "थ्रेड लॉक हो गया।",
   "threadLock.unlocked": "थ्रेड अनलॉक हो गया।",
-  "errors.threadLocked": "यह थ्रेड लॉक है। केवल स्टाफ़ जवाब दे सकता है।"
+  "errors.threadLocked": "यह थ्रेड लॉक है। केवल स्टाफ़ जवाब दे सकता है।",
+  "threadActions.more": "और",
+  "threadActions.reading": "पढ़ना",
+  "threadActions.following": "फ़ॉलो करना",
+  "threadActions.sharing": "साझा करना",
+  "threadActions.thisPost": "यह पोस्ट",
+  "threadActions.staff": "स्टाफ़",
+  "threadActions.editTags": "टैग संपादित करें"
 }

@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Zamknout toto vlákno? Přidejte volitelný důvod, který uvidí jen tým, nebo nechte prázdné.",
   "threadLock.locked": "Vlákno zamčeno.",
   "threadLock.unlocked": "Vlákno odemčeno.",
-  "errors.threadLocked": "Toto vlákno je zamčené. Odpovídat může jen tým."
+  "errors.threadLocked": "Toto vlákno je zamčené. Odpovídat může jen tým.",
+  "threadActions.more": "Více",
+  "threadActions.reading": "Čtení",
+  "threadActions.following": "Sledování",
+  "threadActions.sharing": "Sdílení",
+  "threadActions.thisPost": "Tento příspěvek",
+  "threadActions.staff": "Tým",
+  "threadActions.editTags": "Upravit štítky"
 }

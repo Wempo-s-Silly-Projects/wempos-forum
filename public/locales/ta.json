@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "இந்தத் திரியைப் பூட்டவா? பணியாளர்கள் மட்டும் பார்க்கும் விருப்பக் காரணத்தைச் சேர்க்கவும், அல்லது காலியாக விடவும்.",
   "threadLock.locked": "திரி பூட்டப்பட்டது.",
   "threadLock.unlocked": "திரியின் பூட்டு நீக்கப்பட்டது.",
-  "errors.threadLocked": "இந்தத் திரி பூட்டப்பட்டுள்ளது. பணியாளர்கள் மட்டுமே பதிலளிக்க முடியும்."
+  "errors.threadLocked": "இந்தத் திரி பூட்டப்பட்டுள்ளது. பணியாளர்கள் மட்டுமே பதிலளிக்க முடியும்.",
+  "threadActions.more": "மேலும்",
+  "threadActions.reading": "வாசிப்பு",
+  "threadActions.following": "பின்தொடர்தல்",
+  "threadActions.sharing": "பகிர்தல்",
+  "threadActions.thisPost": "இந்த இடுகை",
+  "threadActions.staff": "பணியாளர்கள்",
+  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து"
 }

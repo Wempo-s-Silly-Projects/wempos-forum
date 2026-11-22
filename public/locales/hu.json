@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Lezárod ezt a témát? Megadhatsz egy okot, amelyet csak a stáb lát, vagy hagyd üresen.",
   "threadLock.locked": "A téma lezárva.",
   "threadLock.unlocked": "A téma feloldva.",
-  "errors.threadLocked": "Ez a téma le van zárva. Csak a stáb válaszolhat."
+  "errors.threadLocked": "Ez a téma le van zárva. Csak a stáb válaszolhat.",
+  "threadActions.more": "Továbbiak",
+  "threadActions.reading": "Olvasás",
+  "threadActions.following": "Követés",
+  "threadActions.sharing": "Megosztás",
+  "threadActions.thisPost": "Ez a bejegyzés",
+  "threadActions.staff": "Csapat",
+  "threadActions.editTags": "Címkék szerkesztése"
 }

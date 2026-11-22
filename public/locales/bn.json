@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "এই থ্রেডটি লক করবেন? চাইলে একটি কারণ লিখুন যা শুধু স্টাফরা দেখবেন, অথবা ফাঁকা রাখুন।",
   "threadLock.locked": "থ্রেড লক করা হয়েছে।",
   "threadLock.unlocked": "থ্রেড আনলক করা হয়েছে।",
-  "errors.threadLocked": "এই থ্রেডটি লক করা। শুধু স্টাফরা উত্তর দিতে পারেন।"
+  "errors.threadLocked": "এই থ্রেডটি লক করা। শুধু স্টাফরা উত্তর দিতে পারেন।",
+  "threadActions.more": "আরও",
+  "threadActions.reading": "পড়া",
+  "threadActions.following": "অনুসরণ",
+  "threadActions.sharing": "শেয়ার করা",
+  "threadActions.thisPost": "এই পোস্ট",
+  "threadActions.staff": "কর্মী দল",
+  "threadActions.editTags": "ট্যাগ সম্পাদনা"
 }

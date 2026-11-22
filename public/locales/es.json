@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "¿Bloquear este hilo? Añade un motivo opcional que solo verá el equipo, o déjalo en blanco.",
   "threadLock.locked": "Hilo bloqueado.",
   "threadLock.unlocked": "Hilo desbloqueado.",
-  "errors.threadLocked": "Este hilo está bloqueado. Solo el equipo puede responder."
+  "errors.threadLocked": "Este hilo está bloqueado. Solo el equipo puede responder.",
+  "threadActions.more": "Más",
+  "threadActions.reading": "Lectura",
+  "threadActions.following": "Seguimiento",
+  "threadActions.sharing": "Compartir",
+  "threadActions.thisPost": "Esta publicación",
+  "threadActions.staff": "Equipo",
+  "threadActions.editTags": "Editar etiquetas"
 }

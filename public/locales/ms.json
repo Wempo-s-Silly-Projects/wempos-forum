@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Kunci bebenang ini? Tambah sebab pilihan yang hanya staf boleh lihat, atau biarkan kosong.",
   "threadLock.locked": "Bebenang dikunci.",
   "threadLock.unlocked": "Kunci bebenang dibuka.",
-  "errors.threadLocked": "Bebenang ini dikunci. Hanya staf boleh membalas."
+  "errors.threadLocked": "Bebenang ini dikunci. Hanya staf boleh membalas.",
+  "threadActions.more": "Lagi",
+  "threadActions.reading": "Membaca",
+  "threadActions.following": "Mengikuti",
+  "threadActions.sharing": "Berkongsi",
+  "threadActions.thisPost": "Siaran ini",
+  "threadActions.staff": "Kakitangan",
+  "threadActions.editTags": "Edit tag"
 }

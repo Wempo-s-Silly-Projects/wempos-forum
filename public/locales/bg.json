@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Да се заключи ли темата? Добавете причина по желание, видима само за екипа, или оставете празно.",
   "threadLock.locked": "Темата е заключена.",
   "threadLock.unlocked": "Темата е отключена.",
-  "errors.threadLocked": "Тази тема е заключена. Само екипът може да отговаря."
+  "errors.threadLocked": "Тази тема е заключена. Само екипът може да отговаря.",
+  "threadActions.more": "Още",
+  "threadActions.reading": "Четене",
+  "threadActions.following": "Следване",
+  "threadActions.sharing": "Споделяне",
+  "threadActions.thisPost": "Тази публикация",
+  "threadActions.staff": "Екип",
+  "threadActions.editTags": "Редактиране на етикетите"
 }

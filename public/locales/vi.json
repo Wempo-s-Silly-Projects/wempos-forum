@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Khóa chủ đề này? Thêm lý do tùy chọn mà chỉ đội ngũ xem được, hoặc để trống.",
   "threadLock.locked": "Đã khóa chủ đề.",
   "threadLock.unlocked": "Đã mở khóa chủ đề.",
-  "errors.threadLocked": "Chủ đề này đã bị khóa. Chỉ đội ngũ mới có thể trả lời."
+  "errors.threadLocked": "Chủ đề này đã bị khóa. Chỉ đội ngũ mới có thể trả lời.",
+  "threadActions.more": "Thêm",
+  "threadActions.reading": "Đọc",
+  "threadActions.following": "Theo dõi",
+  "threadActions.sharing": "Chia sẻ",
+  "threadActions.thisPost": "Bài viết này",
+  "threadActions.staff": "Ban quản trị",
+  "threadActions.editTags": "Sửa thẻ"
 }

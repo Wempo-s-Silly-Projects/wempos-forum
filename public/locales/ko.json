@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "이 스레드를 잠글까요? 스태프만 볼 수 있는 사유를 선택적으로 입력하거나 비워 두세요.",
   "threadLock.locked": "스레드를 잠갔습니다.",
   "threadLock.unlocked": "스레드 잠금을 해제했습니다.",
-  "errors.threadLocked": "이 스레드는 잠겨 있습니다. 스태프만 답글을 달 수 있습니다."
+  "errors.threadLocked": "이 스레드는 잠겨 있습니다. 스태프만 답글을 달 수 있습니다.",
+  "threadActions.more": "더 보기",
+  "threadActions.reading": "읽기",
+  "threadActions.following": "팔로우",
+  "threadActions.sharing": "공유",
+  "threadActions.thisPost": "이 게시물",
+  "threadActions.staff": "운영진",
+  "threadActions.editTags": "태그 편집"
 }

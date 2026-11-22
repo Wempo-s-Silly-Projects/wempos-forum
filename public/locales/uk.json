@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Закрити цю тему? Додайте необов'язкову причину, яку бачитиме лише команда, або залиште поле порожнім.",
   "threadLock.locked": "Тему закрито.",
   "threadLock.unlocked": "Тему відкрито.",
-  "errors.threadLocked": "Цю тему закрито. Відповідати може лише команда."
+  "errors.threadLocked": "Цю тему закрито. Відповідати може лише команда.",
+  "threadActions.more": "Більше",
+  "threadActions.reading": "Читання",
+  "threadActions.following": "Стеження",
+  "threadActions.sharing": "Поширення",
+  "threadActions.thisPost": "Цей допис",
+  "threadActions.staff": "Команда",
+  "threadActions.editTags": "Змінити теги"
 }

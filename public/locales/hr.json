@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Zaključati ovu temu? Dodajte neobavezan razlog koji vidi samo osoblje ili ostavite prazno.",
   "threadLock.locked": "Tema je zaključana.",
   "threadLock.unlocked": "Tema je otključana.",
-  "errors.threadLocked": "Ova je tema zaključana. Odgovarati može samo osoblje."
+  "errors.threadLocked": "Ova je tema zaključana. Odgovarati može samo osoblje.",
+  "threadActions.more": "Više",
+  "threadActions.reading": "Čitanje",
+  "threadActions.following": "Praćenje",
+  "threadActions.sharing": "Dijeljenje",
+  "threadActions.thisPost": "Ova objava",
+  "threadActions.staff": "Osoblje",
+  "threadActions.editTags": "Uredi oznake"
 }

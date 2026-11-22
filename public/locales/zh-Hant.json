@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "要鎖定此主題嗎？可填寫僅管理團隊可見的原因，也可以留空。",
   "threadLock.locked": "主題已鎖定。",
   "threadLock.unlocked": "主題已解鎖。",
-  "errors.threadLocked": "此主題已鎖定，只有管理團隊可以回覆。"
+  "errors.threadLocked": "此主題已鎖定，只有管理團隊可以回覆。",
+  "threadActions.more": "更多",
+  "threadActions.reading": "閱讀",
+  "threadActions.following": "追蹤",
+  "threadActions.sharing": "分享",
+  "threadActions.thisPost": "這篇貼文",
+  "threadActions.staff": "管理團隊",
+  "threadActions.editTags": "編輯標籤"
 }

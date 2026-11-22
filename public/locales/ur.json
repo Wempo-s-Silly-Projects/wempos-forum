@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "یہ تھریڈ مقفل کریں؟ اختیاری وجہ لکھیں جو صرف عملہ دیکھے گا، یا خالی چھوڑ دیں۔",
   "threadLock.locked": "تھریڈ مقفل ہو گیا۔",
   "threadLock.unlocked": "تھریڈ کھول دیا گیا۔",
-  "errors.threadLocked": "یہ تھریڈ مقفل ہے۔ صرف عملہ جواب دے سکتا ہے۔"
+  "errors.threadLocked": "یہ تھریڈ مقفل ہے۔ صرف عملہ جواب دے سکتا ہے۔",
+  "threadActions.more": "مزید",
+  "threadActions.reading": "پڑھنا",
+  "threadActions.following": "فالو کرنا",
+  "threadActions.sharing": "شیئر کرنا",
+  "threadActions.thisPost": "یہ پوسٹ",
+  "threadActions.staff": "عملہ",
+  "threadActions.editTags": "ٹیگز میں ترمیم کریں"
 }

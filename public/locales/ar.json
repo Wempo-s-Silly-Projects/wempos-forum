@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "هل تريد قفل هذا الموضوع؟ أضف سببًا اختياريًا لا يراه إلا الطاقم، أو اتركه فارغًا.",
   "threadLock.locked": "تم قفل الموضوع.",
   "threadLock.unlocked": "تم فتح قفل الموضوع.",
-  "errors.threadLocked": "هذا الموضوع مقفل. لا يمكن الرد إلا للطاقم."
+  "errors.threadLocked": "هذا الموضوع مقفل. لا يمكن الرد إلا للطاقم.",
+  "threadActions.more": "المزيد",
+  "threadActions.reading": "القراءة",
+  "threadActions.following": "المتابعة",
+  "threadActions.sharing": "المشاركة",
+  "threadActions.thisPost": "هذا المنشور",
+  "threadActions.staff": "الطاقم",
+  "threadActions.editTags": "تعديل الوسوم"
 }

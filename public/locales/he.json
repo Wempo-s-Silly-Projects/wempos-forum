@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "לנעול את השרשור? אפשר להוסיף סיבה שרק הצוות יראה, או להשאיר ריק.",
   "threadLock.locked": "השרשור ננעל.",
   "threadLock.unlocked": "נעילת השרשור בוטלה.",
-  "errors.threadLocked": "השרשור הזה נעול. רק הצוות יכול להגיב."
+  "errors.threadLocked": "השרשור הזה נעול. רק הצוות יכול להגיב.",
+  "threadActions.more": "עוד",
+  "threadActions.reading": "קריאה",
+  "threadActions.following": "מעקב",
+  "threadActions.sharing": "שיתוף",
+  "threadActions.thisPost": "הפוסט הזה",
+  "threadActions.staff": "צוות",
+  "threadActions.editTags": "עריכת תגיות"
 }

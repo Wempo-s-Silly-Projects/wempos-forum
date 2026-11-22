@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "要锁定此主题吗？可填写仅管理团队可见的原因，也可以留空。",
   "threadLock.locked": "主题已锁定。",
   "threadLock.unlocked": "主题已解锁。",
-  "errors.threadLocked": "此主题已锁定，只有管理团队可以回复。"
+  "errors.threadLocked": "此主题已锁定，只有管理团队可以回复。",
+  "threadActions.more": "更多",
+  "threadActions.reading": "阅读",
+  "threadActions.following": "关注",
+  "threadActions.sharing": "分享",
+  "threadActions.thisPost": "这篇帖子",
+  "threadActions.staff": "管理团队",
+  "threadActions.editTags": "编辑标签"
 }

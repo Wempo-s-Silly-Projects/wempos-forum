@@ -1205,5 +1205,12 @@
   "threadLock.reasonPrompt": "Vil du låse denne tråd? Tilføj en valgfri årsag, som kun personalet kan se, eller lad feltet stå tomt.",
   "threadLock.locked": "Tråden er låst.",
   "threadLock.unlocked": "Tråden er låst op.",
-  "errors.threadLocked": "Denne tråd er låst. Kun personalet kan svare."
+  "errors.threadLocked": "Denne tråd er låst. Kun personalet kan svare.",
+  "threadActions.more": "Mere",
+  "threadActions.reading": "Læsning",
+  "threadActions.following": "Følger",
+  "threadActions.sharing": "Deling",
+  "threadActions.thisPost": "Dette indlæg",
+  "threadActions.staff": "Team",
+  "threadActions.editTags": "Rediger tags"
 }
