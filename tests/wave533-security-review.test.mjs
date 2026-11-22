@@ -17,6 +17,7 @@
 // see <https://www.gnu.org/licenses/>.
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
+
 // Wave 5.33 — security review of v5.27.0..v5.31.0
 // (docs/security-reviews/2026-11-21-v5.28-v5.31.md). RED-first fixes:
 //   M1: String.prototype.replace with a STRING replacement expands $' $` $& $$
