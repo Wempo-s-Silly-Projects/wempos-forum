@@ -15,6 +15,21 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.65.0] - 2026-11-22
+
+### Added
+- 17 more profile social links (owner exception to the feature freeze):
+  Facebook, Tumblr, Substack, SoundCloud, Spotify (artist id), Linktree,
+  Beacons, Cameo, Shopify, Kickstarter, Indiegogo, and the payment-link
+  group Patreon, Ko-fi, Buy Me a Coffee, PayPal, Cash App and Venmo.
+  Members enter a handle only; the forum builds each link from a fixed
+  template, so a typed web address is never stored or shown. Payment links
+  only open the service; the forum never handles payments (a translated
+  note says so in the editor). Same visibility, export and account-deletion
+  behaviour as the existing social links. Migration
+  `0077_social_links_more.sql` adds one column per network.
+- Social links on profiles now carry `rel="me nofollow noopener ugc"`.
+
 ## [5.64.0] - 2026-11-22
 
 ### Changed
