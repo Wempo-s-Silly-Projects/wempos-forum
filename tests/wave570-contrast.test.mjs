@@ -34,7 +34,7 @@ const TEXT_TOKENS = ["--muted", "--ink", "--link", "--error-ink"];
 const BACKGROUND_TOKENS = ["--paper", "--paper-shadow"];
 
 function themeBlock(selector) {
-  const escaped = selector.replace(/[[\]"().:]/g, "\\$&");
+  const escaped = selector.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
   const match = CSS.match(new RegExp(`^${escaped}\\s*\\{([^}]*)\\}`, "m"));
   assert.ok(match, `theme block ${selector} not found in styles.css`);
   const tokens = {};
