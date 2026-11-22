@@ -2305,45 +2305,40 @@ mark.search-hit {
   align-items: center;
 }
 
-.leaderboard-list {
-  list-style: none;
+/* Leaderboard (Batch J): a sortable table; the score keeps its pill. */
+.leaderboard-table {
+  width: 100%;
   margin: 0.6rem 0;
-  padding: 0;
-  display: grid;
-  gap: 0.4rem;
-}
-.leaderboard-row {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
+  border-collapse: separate;
+  border-spacing: 0;
   border: 2px solid var(--line);
   border-radius: var(--button-radius);
   background: var(--paper);
   box-shadow: 3px 4px 0 var(--paper-shadow);
-  padding: 0.55rem 0.9rem;
 }
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 0.5rem 0.7rem;
+  text-align: end;
+  border-bottom: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+.leaderboard-table th:nth-child(2),
+.leaderboard-table td:nth-child(2) { text-align: start; overflow-wrap: anywhere; }
+.leaderboard-table tbody tr:last-child td { border-bottom: 0; }
 .leaderboard-rank {
   font-weight: 800;
-  min-width: 2.2rem;
   color: var(--muted);
 }
+.leaderboard-count { color: var(--muted); }
 .leaderboard-name {
   color: var(--link);
   font-weight: 700;
   text-decoration: none;
 }
-.leaderboard-stats {
-  color: var(--muted);
-  font-size: 0.85rem;
-  flex: 1;
-  text-align: end;
-}
 .leaderboard-score {
   font-weight: 800;
   color: var(--green-ink);
-  background: var(--soft-green);
-  border-radius: 999px;
-  padding: 0.1rem 0.6rem;
 }
 
 /* Role badges (v3.1): staff chips next to names on post cards and in the
@@ -3542,6 +3537,12 @@ mark.search-hit {
   text-decoration: underline;
 }
 
+/* Batch J: the reply being read right now (IntersectionObserver). */
+.thread-outline-entry-active {
+  background: var(--soft-green);
+  box-shadow: inset 3px 0 0 var(--green);
+}
+
 .thread-outline-time {
   color: var(--muted);
 }
@@ -4350,3 +4351,56 @@ mark.search-hit {
 .nav-group { display: grid; gap: 0.2rem; }
 .nav-group + .nav-group { margin-top: 0.35rem; padding-top: 0.45rem; border-top: 1px solid var(--line); }
 .nav-group-label { padding-inline: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+
+/* ---------------------------------------------------------------- Batch J */
+
+/* Sortable headers (tablesort): a pointer, a focus ring and an arrow on the
+   sorted column; aria-sort carries the order for assistive tech. */
+.leaderboard-table th[role="columnheader"],
+.visits-table th[role="columnheader"] { cursor: pointer; user-select: none; }
+.leaderboard-table th[role="columnheader"]:focus-visible,
+.visits-table th[role="columnheader"]:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+th[aria-sort="ascending"]::after { content: " \2191"; }
+th[aria-sort="descending"]::after { content: " \2193"; }
+
+/* Route progress bar (NProgress): decorative, above everything. Under
+   reduced motion route-progress.js turns its easing and trickle off. */
+#nprogress { pointer-events: none; }
+#nprogress .bar {
+  position: fixed;
+  z-index: 2000;
+  top: 0;
+  inset-inline: 0;
+  height: 3px;
+  background: var(--green);
+}
+#nprogress .peg {
+  position: absolute;
+  inset-inline-end: 0;
+  width: 100px;
+  height: 100%;
+  box-shadow: 0 0 8px var(--green), 0 0 4px var(--green);
+  opacity: 1;
+  transform: rotate(3deg) translate(0, -4px);
+}
+
+/* Badge tooltips (Floating UI places them; strategy fixed). */
+/* Floating UI writes the left/top coordinates inline. */
+.forum-tooltip {
+  position: fixed;
+  z-index: 1500;
+  max-width: min(18rem, calc(100vw - 16px));
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.35rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.82rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.role-badge[data-tooltip]:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* "?" shortcut list: a native <dialog>. */
+.shortcut-help { max-width: min(34rem, calc(100vw - 2rem)); border: 2px solid var(--line); border-radius: var(--button-radius); background: var(--paper); color: var(--ink); }
+.shortcut-help-list { padding-inline-start: 1.1rem; display: grid; gap: 0.35rem; }
+.shortcut-help-switch { display: flex; align-items: center; gap: 0.4rem; margin: 0.8rem 0; }

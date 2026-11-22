@@ -68,3 +68,62 @@ path = "public/js/vendor/**"
 precedence = "override"
 SPDX-FileCopyrightText = "Lea Verou and PrismJS contributors"
 SPDX-License-Identifier = "MIT"
+
+# Batch J (navigation, keyboard and reading polish): browser libraries
+# vendored byte-for-byte from their published package tarballs, each
+# MIT-licensed (compatible with AGPL-3.0-or-later). These later blocks
+# override the Prism block above for their own files; the sha256 of each is
+# pinned by tests/wave-batch-j-nav.test.mjs.
+[[annotations]]
+path = "public/js/vendor/tinykeys.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2020 Jamie Kyle"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/nprogress.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2013-2014 Rico Sta. Cruz"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/floating-ui.core.umd.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2021-present Floating UI contributors"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/floating-ui.dom.umd.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2021-present Floating UI contributors"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/auto-animate.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2022 FormKit Inc."
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/tablesort.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "Tristen Brown"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/tablesort.number.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "Tristen Brown"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/countUp.js"
+precedence = "override"
+SPDX-FileCopyrightText = "Jamie Perkins"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/headroom.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2013 Nick Williams"
+SPDX-License-Identifier = "MIT"

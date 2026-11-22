@@ -433,10 +433,13 @@ test("styles: progress bar, tooltip and headroom rules exist and respect reduced
   assert.match(css, /#nprogress \.bar/);
   assert.match(css, /\.forum-tooltip/);
   assert.match(css, /\.thread-outline-entry-active/);
-  assert.match(css, /\.headroom--unpinned/);
-  const reduced = css.split("@media (prefers-reduced-motion: reduce)").slice(1).join("");
-  assert.match(reduced, /#nprogress/);
-  assert.match(reduced, /\.headroom/);
+  // styles.css adds no motion since v5.55 (wave560 pin): the only Batch J
+  // transition is the header slide, kept in responsive.css with its guards.
+  const responsive = read("public/responsive.css");
+  assert.match(responsive, /\.site-header\.headroom--unpinned/);
+  assert.match(responsive, /\.site-header\.headroom-still \{ transition: none; \}/);
+  const reduced = responsive.split("@media (prefers-reduced-motion: reduce)").slice(1).join("");
+  assert.match(reduced, /\.headroom \{ transition: none; \}/);
 });
 
 // ---------------------------------------------------------------- strings
