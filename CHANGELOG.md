@@ -10,6 +10,18 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.77.0] - 2026-11-22
+
+### Added
+- Oversized photos are shrunk in the browser before upload (longest side 2560 px, ~2 MB target; avatars ~1 MB) with the vendored browser-image-compression; GIFs and animated PNG/WebP are sent untouched.
+- Uploaded images now carry their width and height, so threads no longer jump while images load (new `image_dimensions` table, migration 0080).
+
+### Security
+- Every image intake route (post attachments, GIF gallery, avatars, DM images) checks the file's real bytes with file-type before accepting it; the browser does a quick matching check first. SVG stays refused everywhere.
+
+### Dependencies
+- Worker: `file-type`, `image-dimensions` (MIT). Browser: `browser-image-compression` 2.0.2 (MIT, vendored).
+
 ## [5.76.1] - 2026-11-22
 
 ### Security
