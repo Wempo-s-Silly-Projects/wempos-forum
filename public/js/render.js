@@ -35,6 +35,7 @@ import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";
 import { isQotdBody } from "./traditions.js";
 import { createFoldedBody, isLongPost } from "./long-post.js";
 import { DIFF_PANEL_CELL_BUDGET, appendWordDiff, diffWordsWithin } from "./word-diff.js";
+import { avatarSource } from "./profile-identity.js";
 
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
@@ -232,12 +233,11 @@ export const createPostCard = (post, document, currentUser = null) => {
     if (post.author.profileAccent) {
       article.style.setProperty("--profile-accent", post.author.profileAccent);
     }
-    if (post.author.avatarUrl) {
-      const avatar = createElement(document, "img", "avatar");
-      avatar.src = post.author.avatarUrl;
-      avatar.alt = t("render.avatarOf", { name: post.author.username });
-      author.append(avatar);
-    }
+    // Batch I: no uploaded avatar paints the author's identicon instead.
+    const avatar = createElement(document, "img", "avatar");
+    avatar.src = avatarSource(post.author.avatarUrl, post.author.username);
+    avatar.alt = t("render.avatarOf", { name: post.author.username });
+    author.append(avatar);
     const profileLink = createElement(document, "a", "author-name", post.author.username);
     profileLink.href = `/users/${encodeURIComponent(post.author.username)}`;
     author.append(profileLink);
