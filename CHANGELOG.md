@@ -15,6 +15,20 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.47.0] - 2026-11-22
+
+### Added
+- Private notes about members: signed-in members get a "Your private note"
+  box on other members' profiles. A note holds up to 280 characters, one per
+  member, and only you can ever see it: not the member it is about, not
+  other members, not admins or the owner, and it appears in no feed, search,
+  agent tool or page preview. You can still read and delete a note about a
+  member you blocked or who is banned. Your notes are in your data export;
+  notes others keep about you are not. Deleting either account removes the
+  note. New routes `GET`, `PUT` and `DELETE /api/users/:username/note`
+  (an empty note is refused; use `DELETE`). Needs migration
+  `0072_private_notes.sql`.
+
 ## [5.46.0] - 2026-11-22
 
 ### Added
