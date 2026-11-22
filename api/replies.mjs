@@ -173,11 +173,9 @@ export async function handleReplyCreateRoute(request, env, url, path, method) {
       ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, targetId, session.user.id, now, idempotencyKey, session.user.id, idempotencyKey]
       : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, idempotencyFingerprint, null, targetId, session.user.id, now, idempotencyKey, session.user.id, idempotencyKey];
     const [insertSql, insertValues] = withSlowModeGuard(baseSql, baseValues, session.user, bumpTargetId, now);
-    const insertStatements = [db.prepare(insertSql).bind(...insertValues)];
-    if (!hasAttachments) insertStatements.push(db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId));
     let results;
     try {
-      results = await db.batch(insertStatements);
+      results = await db.batch([db.prepare(insertSql).bind(...insertValues)]);
     } catch (error) {
       await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
       const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
@@ -195,6 +193,10 @@ export async function handleReplyCreateRoute(request, env, url, path, method) {
       throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
     }
     const replyId = Number(results[0].meta.last_row_id);
+    // L3 (v5.59): the bump runs only once the INSERT has landed, bound to the
+    // new reply row, so a refused reply never moves the thread. Staged
+    // (attachment) replies bump when they publish instead.
+    if (!hasAttachments) await db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId, replyId).run();
     // Attachment-bearing replies stay hidden until the entire attachment batch
     // succeeds. The row id is always the new reply, not its bump target.
     if (hasAttachments) {

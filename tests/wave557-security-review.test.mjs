@@ -23,8 +23,8 @@
 // to a guest, member or author (admin and owner both get it); the thread page
 // builds the slow-mode form and the tag editor only for the roles that had
 // them; no client module touched in the range has an HTML sink; a raced
-// slow-mode refusal over MCP carries the slow-mode text. One `todo` (L3): a
-// raced, refused reply still bumps the thread.
+// slow-mode refusal over MCP carries the slow-mode text. L3 (fixed in v5.59):
+// a raced, refused reply no longer bumps the thread.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -32,6 +32,7 @@ import { makeEnv } from "./helpers/d1.mjs";
 import { call, forgeSession, now, seedPost, seedUser, sha256 } from "./helpers/seed.mjs";
 import { makeFakeDocument } from "./helpers/fake-dom.mjs";
 import { SLOW_MODE_CHECK_SQL, SLOW_MODE_REFUSAL } from "../api/staff-tools.mjs";
+import { D1_MAX_BOUND_PARAMS, REPLY_BUMP_SQL } from "../constants.mjs";
 
 // Read aloud only renders where a speech engine exists.
 globalThis.speechSynthesis ??= { speak() {}, cancel() {}, getVoices: () => [] };
@@ -171,9 +172,7 @@ test("M1 follow-up: a raced MCP reply is refused with the slow-mode text, not th
   assert.ok(JSON.stringify(raced.content).includes(SLOW_MODE_REFUSAL), JSON.stringify(raced.content));
 });
 
-test("L3: a raced reply refused by the slow-mode guard does not bump the thread", {
-  todo: "BUG (L3): REPLY_BUMP_SQL runs in the same batch as the guarded reply INSERT and is not conditioned on it, so a refused reply still moves the thread up the feed",
-}, async () => {
+test("L3: a raced reply refused by the slow-mode guard does not bump the thread", async () => {
   const w = await world();
   const bob = forgeSession(w.db, w.id.bob);
   assert.equal((await webReply(w.env, w.root, "web first", bob)).status, 201);
@@ -182,4 +181,73 @@ test("L3: a raced reply refused by the slow-mode guard does not bump the thread"
   assert.equal(lastActivity(w), OLD_ACTIVITY, "web path");
   assert.equal((await mcpReply(staleOnce(w.env), w.root, "mcp raced")).isError, true);
   assert.equal(lastActivity(w), OLD_ACTIVITY, "MCP path");
+});
+
+// Records every statement the reply paths bind (sql + bind count).
+function bindSpy(env) {
+  const real = env.FORUM_DB;
+  const seen = [];
+  return {
+    seen,
+    env: {
+      ...env,
+      FORUM_DB: {
+        prepare(sql) {
+          const statement = real.prepare(sql);
+          const bind = statement.bind.bind(statement);
+          statement.bind = (...values) => {
+            seen.push({ sql, binds: values.length });
+            return bind(...values);
+          };
+          return statement;
+        },
+        batch: (statements) => real.batch(statements),
+        exec: (sql) => real.exec(sql),
+      },
+    },
+  };
+}
+
+test("L3: a landed reply still bumps the thread on both paths, with the bump bound to the new reply row (3 binds)", async () => {
+  assert.equal((REPLY_BUMP_SQL.match(/\?/g) || []).length, 3, "was 2 before v5.59: now, root id; now also the reply id");
+  assert.match(REPLY_BUMP_SQL, /WHERE reply\.id = \?/);
+  const w = await world();
+  const bob = forgeSession(w.db, w.id.bob);
+  const web = bindSpy(w.env);
+  assert.equal((await webReply(web.env, w.root, "web lands", bob)).status, 201);
+  assert.ok(lastActivity(w) > OLD_ACTIVITY, "web path bumps");
+  const webBump = web.seen.filter((s) => s.sql === REPLY_BUMP_SQL);
+  assert.equal(webBump.length, 1);
+  assert.equal(webBump[0].binds, 3);
+  // Clear the cooldown so the MCP reply lands too.
+  w.db.prepare("DELETE FROM thread_slowmode WHERE post_id = ?").run(w.root);
+  w.db.prepare("UPDATE posts SET last_activity_at = ? WHERE id = ?").run(OLD_ACTIVITY, w.root);
+  const mcp = bindSpy(w.env);
+  assert.equal((await mcpReply(mcp.env, w.root, "mcp lands")).isError, false);
+  assert.ok(lastActivity(w) > OLD_ACTIVITY, "MCP path bumps");
+  const mcpBump = mcp.seen.filter((s) => s.sql === REPLY_BUMP_SQL);
+  assert.equal(mcpBump.length, 1);
+  assert.equal(mcpBump[0].binds, 3);
+  for (const s of [...web.seen, ...mcp.seen]) assert.ok(s.binds < D1_MAX_BOUND_PARAMS, s.binds + " binds");
+});
+
+test("L3: a level-2 reply bumps its conversation root, not the reply it answers", async () => {
+  const w = await world();
+  w.db.prepare("DELETE FROM thread_slowmode WHERE post_id = ?").run(w.root);
+  const bob = forgeSession(w.db, w.id.bob);
+  const first = await webReply(w.env, w.root, "level one", bob);
+  assert.equal(first.status, 201);
+  const levelOne = Number((await first.json()).id);
+  w.db.prepare("UPDATE posts SET last_activity_at = ? WHERE id = ?").run(OLD_ACTIVITY, w.root);
+  assert.equal((await webReply(w.env, levelOne, "level two web", bob)).status, 201);
+  assert.ok(lastActivity(w) > OLD_ACTIVITY, "web level-2 bumps the root");
+  w.db.prepare("UPDATE posts SET last_activity_at = ? WHERE id = ?").run(OLD_ACTIVITY, w.root);
+  assert.equal((await mcpReply(w.env, levelOne, "level two mcp")).isError, false);
+  assert.ok(lastActivity(w) > OLD_ACTIVITY, "MCP level-2 bumps the root");
+});
+
+test("L3: the row-bound bump is served by primary keys (no table scan)", async () => {
+  const w = await world();
+  const plan = w.db.prepare("EXPLAIN QUERY PLAN " + REPLY_BUMP_SQL).all(1, 1, 1).map((row) => row.detail).join(" | ");
+  assert.doesNotMatch(plan, /\bSCAN (posts|reply|target)\b(?! USING)/, plan);
 });
