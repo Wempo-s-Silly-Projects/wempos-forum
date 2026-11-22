@@ -45,9 +45,13 @@ export const STATUS_EXPIRIES = new Set(["never", "1h", "4h", "today", "week"]);
 const EMOJI_PARTS = /^(?:\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}]|[\u{1F3FB}-\u{1F3FF}]|‍|️)+$/u;
 const EMOJI_CORE = /\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}]{2}/u;
 // C0/C1 controls and line/paragraph separators: a status is one plain line.
+// Wave 5.41 L1: also the bidi embedding/override (U+202A-202E) and isolate
+// (U+2066-2069) controls, which can render the line reversed — text the word
+// filter never saw in that order. The plain marks (U+200E/200F) stay allowed.
 const isControlChar = (ch) => {
   const code = ch.codePointAt(0);
-  return code < 0x20 || (code >= 0x7f && code <= 0x9f) || code === 0x2028 || code === 0x2029;
+  return code < 0x20 || (code >= 0x7f && code <= 0x9f) || code === 0x2028 || code === 0x2029 ||
+    (code >= 0x202a && code <= 0x202e) || (code >= 0x2066 && code <= 0x2069);
 };
 const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
 
