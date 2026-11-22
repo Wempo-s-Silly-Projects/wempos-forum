@@ -29,6 +29,7 @@
 import { assertNotBanned, requireSignedInRead, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
+import { normalizeBodyText } from "./core/text.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
@@ -207,7 +208,7 @@ function readGroupName(env, raw) {
 // The shared text-body intake for DM sends: 1000-char cap, word filter, and
 // the image-token refusal (only the upload routes may write that shape).
 export function readDmMessageBody(env, raw) {
-  const message = applyWordFilter(String(raw ?? "").trim().slice(0, DM_MAX_BODY_CHARS), filterWords(env));
+  const message = applyWordFilter(String(normalizeBodyText(raw) ?? "").trim().slice(0, DM_MAX_BODY_CHARS), filterWords(env));
   if (!message) throw new HttpError(400, "Write something first.");
   if (DM_IMAGE_TOKEN_PATTERN.test(message)) throw new HttpError(400, "That message is not valid.");
   return message;

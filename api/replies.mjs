@@ -47,7 +47,8 @@ import {
 } from "./posts-write.mjs";
 import { assertNotBanned, readSession, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { HttpError, json, rateLimit, requireTurnstile, requiredText } from "./core/http.mjs";
+import { HttpError, isMultipartRequest, json, rateLimit, requireTurnstile, requiredText } from "./core/http.mjs";
+import { normalizeBodyText } from "./core/text.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 import { assertSlowModeAllows, withSlowModeGuard } from "./staff-tools.mjs";
@@ -105,13 +106,12 @@ export async function handleReplyCreateRoute(request, env, url, path, method) {
     }
     const targetId = Number(replyMatch[1]);
     if (!Number.isSafeInteger(targetId) || targetId < 1) throw new HttpError(404, "Post not found.");
-    const isMultipart = (request.headers.get("Content-Type") || "").toLowerCase()
-      .startsWith("multipart/form-data");
+    const isMultipart = isMultipartRequest(request);
     const { fields, files, gifIds, gifEntries } = await readComposedBody(request, env, { replayPostId: priorIdempotent ? Number(priorIdempotent.id) : null });
     if (files.length + gifIds.length > MAX_ATTACHMENT_FILES) {
       throw new HttpError(400, "Attach up to " + MAX_ATTACHMENT_FILES + " images and GIFs.");
     }
-    const message = applyWordFilter(requiredText(fields.body, "reply", MAX_COMPOSER_BODY_CHARS), filterWords(env));
+    const message = applyWordFilter(requiredText(normalizeBodyText(fields.body), "reply", MAX_COMPOSER_BODY_CHARS), filterWords(env));
     const idempotencyFingerprint = idempotencyKey
       ? await postCreationFingerprint({ kind: "reply", targetId, message, files, gifEntries })
       : null;

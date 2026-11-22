@@ -29,6 +29,8 @@
 // unchanged so every api module imports exactly the way it did — public
 // signatures and messages never moved — and keeps the app-side pieces: the
 // Turnstile wall (app secret/hostnames) and the forum's limiter binding map.
+import { parse as parseMediaType } from "content-type";
+import secureJson from "secure-json-parse";
 import { RATE_LIMIT_BINDINGS, TURNSTILE_SITEVERIFY_URL } from "../../constants.mjs";
 import {
   HttpError,
@@ -82,7 +84,71 @@ const app = makeHttp({
 export const rateLimit = app.rateLimit;
 export const requireMutationApplied = app.requireMutationApplied;
 export const readLimitedBody = app.readLimitedBody;
-export const readJson = app.readJson;
+
+// ---- Content-Type (RFC 9110 media type) ----------------------------------
+
+const MEDIA_TYPE_PATTERN = /^[!#$%&'*+.^_`|~0-9a-z-]+\/[!#$%&'*+.^_`|~0-9a-z-]+$/;
+const JSON_MEDIA_TYPE = "application/json";
+const UTF8_CHARSETS = new Set(["", "utf-8", "utf8"]);
+
+// parseContentType(header) -> { type, charset } (both lowercase; charset ""
+// when absent), or null for a missing or malformed header. One parser for
+// every route that branches on the body's media type.
+export function parseContentType(header) {
+  if (typeof header !== "string" || !header.trim()) return null;
+  let parsed;
+  try {
+    parsed = parseMediaType(header);
+  } catch {
+    return null;
+  }
+  const type = String(parsed.type || "").toLowerCase();
+  if (!MEDIA_TYPE_PATTERN.test(type)) return null;
+  const charset = typeof parsed.parameters?.charset === "string" ? parsed.parameters.charset.toLowerCase() : "";
+  return { type, charset };
+}
+
+export function requestContentType(request) {
+  return parseContentType(request.headers.get("Content-Type"));
+}
+
+export function isMultipartRequest(request) {
+  return requestContentType(request)?.type === "multipart/form-data";
+}
+
+// ---- JSON bodies ----------------------------------------------------------
+
+const SAFE_JSON_OPTIONS = Object.freeze({ protoAction: "error", constructorAction: "error" });
+
+// parseJsonSafely(text) -> the parsed value; throws SyntaxError on invalid
+// JSON or on a "__proto__" key / "constructor.prototype" pair at any depth
+// (secure-json-parse semantics), so request data can never reach an object
+// prototype however a route later copies it.
+export function parseJsonSafely(text) {
+  return secureJson.parse(text, null, SAFE_JSON_OPTIONS);
+}
+
+// readJson(request) -> the JSON object body. Same contract and copy as the
+// vendor helper it replaces, plus: the media type must be exactly
+// application/json with a UTF-8 (or absent) charset — look-alikes such as
+// application/jsonp answer 415 — and the parse refuses prototype keys.
+export async function readJson(request, bytesOverride = MAX_JSON_BYTES) {
+  const contentType = requestContentType(request);
+  if (!contentType || contentType.type !== JSON_MEDIA_TYPE || !UTF8_CHARSETS.has(contentType.charset)) {
+    throw new HttpError(415, "Send this form as JSON.");
+  }
+  const bytes = await readLimitedBody(request, bytesOverride);
+  let value;
+  try {
+    value = parseJsonSafely(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+  } catch {
+    throw new HttpError(400, "The request body is not valid JSON.");
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new HttpError(400, "The request body must be a JSON object.");
+  }
+  return value;
+}
 export const requiredText = app.requiredText;
 export const secureResponse = app.secureResponse;
 

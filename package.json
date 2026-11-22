@@ -24,6 +24,8 @@
     "wrangler": "latest"
   },
   "dependencies": {
-    "ipaddr.js": "latest"
+    "content-type": "latest",
+    "ipaddr.js": "latest",
+    "secure-json-parse": "latest"
   }
 }

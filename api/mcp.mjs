@@ -58,7 +58,8 @@ import { runFanOutChunks, subscriptionReplyFanOut } from "./subscriptions.mjs";
 import { agentFromRequest } from "./core/agent-auth.mjs";
 import { assertNotBanned } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { HttpError, rateLimit, readLimitedBody, requireMutationApplied, requiredText } from "./core/http.mjs";
+import { HttpError, parseJsonSafely, rateLimit, readLimitedBody, requireMutationApplied, requiredText } from "./core/http.mjs";
+import { normalizeBodyText } from "./core/text.mjs";
 import { postById } from "./core/shapers.mjs";
 import { VIEWABLE_POST_BINDS, canViewPost, viewablePostSql } from "./core/visibility.mjs";
 import { viewerBlockFilterSql } from "./core/blocks.mjs";
@@ -272,7 +273,7 @@ export async function handleMcp(request, env) {
   }
   let message;
   try {
-    message = JSON.parse(text);
+    message = parseJsonSafely(text);
   } catch {
     return jsonResponse(rpcError(null, RPC_PARSE_ERROR, "Parse error: body is not valid JSON."));
   }
@@ -552,7 +553,7 @@ async function runWriteTool(handler, env, args, ctx) {
 async function filteredBody(env, agent, raw, field) {
   await assertNotBanned(env, agent.id);
   await ensureFilterWords(env);
-  return applyWordFilter(requiredText(raw, field, MAX_COMPOSER_BODY_CHARS), filterWords(env));
+  return applyWordFilter(requiredText(normalizeBodyText(raw), field, MAX_COMPOSER_BODY_CHARS), filterWords(env));
 }
 
 async function writeRateLimits(env, ctx) {
