@@ -1170,5 +1170,13 @@
   "tags.create": "Skapa tagg",
   "tags.none": "Inga taggar än.",
   "tags.created": "Taggen har skapats.",
-  "tags.deleted": "Taggen har tagits bort."
+  "tags.deleted": "Taggen har tagits bort.",
+  "privateNote.title": "Din privata anteckning",
+  "privateNote.hint": "Bara du kan se den här anteckningen.",
+  "privateNote.label": "Privat anteckning om den här medlemmen",
+  "privateNote.save": "Spara anteckning",
+  "privateNote.delete": "Radera anteckning",
+  "privateNote.saved": "Anteckningen sparades.",
+  "privateNote.deleted": "Anteckningen raderades.",
+  "privateNote.saveError": "Det gick inte att spara anteckningen. Försök igen."
 }

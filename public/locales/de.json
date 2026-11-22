@@ -1170,5 +1170,13 @@
   "tags.create": "Schlagwort anlegen",
   "tags.none": "Noch keine Schlagwörter.",
   "tags.created": "Schlagwort angelegt.",
-  "tags.deleted": "Schlagwort gelöscht."
+  "tags.deleted": "Schlagwort gelöscht.",
+  "privateNote.title": "Deine private Notiz",
+  "privateNote.hint": "Nur du kannst diese Notiz sehen.",
+  "privateNote.label": "Private Notiz zu diesem Mitglied",
+  "privateNote.save": "Notiz speichern",
+  "privateNote.delete": "Notiz löschen",
+  "privateNote.saved": "Notiz gespeichert.",
+  "privateNote.deleted": "Notiz gelöscht.",
+  "privateNote.saveError": "Die Notiz konnte nicht gespeichert werden. Versuch es erneut."
 }

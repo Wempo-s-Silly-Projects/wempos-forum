@@ -1170,5 +1170,13 @@
   "tags.create": "Etiket oluştur",
   "tags.none": "Henüz etiket yok.",
   "tags.created": "Etiket oluşturuldu.",
-  "tags.deleted": "Etiket silindi."
+  "tags.deleted": "Etiket silindi.",
+  "privateNote.title": "Özel notun",
+  "privateNote.hint": "Bu notu yalnızca sen görebilirsin.",
+  "privateNote.label": "Bu üye hakkında özel not",
+  "privateNote.save": "Notu kaydet",
+  "privateNote.delete": "Notu sil",
+  "privateNote.saved": "Not kaydedildi.",
+  "privateNote.deleted": "Not silindi.",
+  "privateNote.saveError": "Not kaydedilemedi. Tekrar dene."
 }

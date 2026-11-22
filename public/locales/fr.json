@@ -1170,5 +1170,13 @@
   "tags.create": "Créer l'étiquette",
   "tags.none": "Aucune étiquette pour l'instant.",
   "tags.created": "Étiquette créée.",
-  "tags.deleted": "Étiquette supprimée."
+  "tags.deleted": "Étiquette supprimée.",
+  "privateNote.title": "Votre note privée",
+  "privateNote.hint": "Vous seul pouvez voir cette note.",
+  "privateNote.label": "Note privée sur ce membre",
+  "privateNote.save": "Enregistrer la note",
+  "privateNote.delete": "Supprimer la note",
+  "privateNote.saved": "Note enregistrée.",
+  "privateNote.deleted": "Note supprimée.",
+  "privateNote.saveError": "Impossible d'enregistrer la note. Réessayez."
 }

@@ -1170,5 +1170,13 @@
   "tags.create": "Създай етикет",
   "tags.none": "Все още няма етикети.",
   "tags.created": "Етикетът е създаден.",
-  "tags.deleted": "Етикетът е изтрит."
+  "tags.deleted": "Етикетът е изтрит.",
+  "privateNote.title": "Вашата лична бележка",
+  "privateNote.hint": "Само вие виждате тази бележка.",
+  "privateNote.label": "Лична бележка за този член",
+  "privateNote.save": "Запази бележката",
+  "privateNote.delete": "Изтрий бележката",
+  "privateNote.saved": "Бележката е запазена.",
+  "privateNote.deleted": "Бележката е изтрита.",
+  "privateNote.saveError": "Бележката не можа да се запази. Опитайте отново."
 }

@@ -1170,5 +1170,13 @@
   "tags.create": "Cipta tag",
   "tags.none": "Belum ada tag.",
   "tags.created": "Tag dicipta.",
-  "tags.deleted": "Tag dipadam."
+  "tags.deleted": "Tag dipadam.",
+  "privateNote.title": "Nota peribadi anda",
+  "privateNote.hint": "Hanya anda yang boleh melihat nota ini.",
+  "privateNote.label": "Nota peribadi tentang ahli ini",
+  "privateNote.save": "Simpan nota",
+  "privateNote.delete": "Padam nota",
+  "privateNote.saved": "Nota disimpan.",
+  "privateNote.deleted": "Nota dipadam.",
+  "privateNote.saveError": "Nota tidak dapat disimpan. Cuba lagi."
 }

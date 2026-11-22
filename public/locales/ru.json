@@ -1170,5 +1170,13 @@
   "tags.create": "Создать тег",
   "tags.none": "Тегов пока нет.",
   "tags.created": "Тег создан.",
-  "tags.deleted": "Тег удалён."
+  "tags.deleted": "Тег удалён.",
+  "privateNote.title": "Ваша личная заметка",
+  "privateNote.hint": "Эту заметку видите только вы.",
+  "privateNote.label": "Личная заметка об этом участнике",
+  "privateNote.save": "Сохранить заметку",
+  "privateNote.delete": "Удалить заметку",
+  "privateNote.saved": "Заметка сохранена.",
+  "privateNote.deleted": "Заметка удалена.",
+  "privateNote.saveError": "Не удалось сохранить заметку. Попробуйте ещё раз."
 }

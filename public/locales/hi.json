@@ -1170,5 +1170,13 @@
   "tags.create": "टैग बनाएँ",
   "tags.none": "अभी कोई टैग नहीं है।",
   "tags.created": "टैग बनाया गया।",
-  "tags.deleted": "टैग हटाया गया।"
+  "tags.deleted": "टैग हटाया गया।",
+  "privateNote.title": "आपका निजी नोट",
+  "privateNote.hint": "यह नोट सिर्फ़ आप देख सकते हैं।",
+  "privateNote.label": "इस सदस्य के बारे में निजी नोट",
+  "privateNote.save": "नोट सहेजें",
+  "privateNote.delete": "नोट हटाएँ",
+  "privateNote.saved": "नोट सहेजा गया।",
+  "privateNote.deleted": "नोट हटा दिया गया।",
+  "privateNote.saveError": "नोट सहेजा नहीं जा सका। फिर से कोशिश करें।"
 }

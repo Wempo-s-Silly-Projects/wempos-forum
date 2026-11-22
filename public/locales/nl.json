@@ -1170,5 +1170,13 @@
   "tags.create": "Label aanmaken",
   "tags.none": "Nog geen labels.",
   "tags.created": "Label aangemaakt.",
-  "tags.deleted": "Label verwijderd."
+  "tags.deleted": "Label verwijderd.",
+  "privateNote.title": "Je privénotitie",
+  "privateNote.hint": "Alleen jij kunt deze notitie zien.",
+  "privateNote.label": "Privénotitie over dit lid",
+  "privateNote.save": "Notitie opslaan",
+  "privateNote.delete": "Notitie verwijderen",
+  "privateNote.saved": "Notitie opgeslagen.",
+  "privateNote.deleted": "Notitie verwijderd.",
+  "privateNote.saveError": "De notitie kon niet worden opgeslagen. Probeer het opnieuw."
 }

@@ -1170,5 +1170,13 @@
   "tags.create": "สร้างแท็ก",
   "tags.none": "ยังไม่มีแท็ก",
   "tags.created": "สร้างแท็กแล้ว",
-  "tags.deleted": "ลบแท็กแล้ว"
+  "tags.deleted": "ลบแท็กแล้ว",
+  "privateNote.title": "บันทึกส่วนตัวของคุณ",
+  "privateNote.hint": "มีเพียงคุณเท่านั้นที่เห็นบันทึกนี้",
+  "privateNote.label": "บันทึกส่วนตัวเกี่ยวกับสมาชิกคนนี้",
+  "privateNote.save": "บันทึกโน้ต",
+  "privateNote.delete": "ลบโน้ต",
+  "privateNote.saved": "บันทึกโน้ตแล้ว",
+  "privateNote.deleted": "ลบโน้ตแล้ว",
+  "privateNote.saveError": "บันทึกโน้ตไม่สำเร็จ โปรดลองอีกครั้ง"
 }

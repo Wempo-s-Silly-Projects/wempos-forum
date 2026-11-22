@@ -1170,5 +1170,13 @@
   "tags.create": "Criar tag",
   "tags.none": "Ainda não há tags.",
   "tags.created": "Tag criada.",
-  "tags.deleted": "Tag excluída."
+  "tags.deleted": "Tag excluída.",
+  "privateNote.title": "Sua nota privada",
+  "privateNote.hint": "Só você pode ver esta nota.",
+  "privateNote.label": "Nota privada sobre este membro",
+  "privateNote.save": "Salvar nota",
+  "privateNote.delete": "Excluir nota",
+  "privateNote.saved": "Nota salva.",
+  "privateNote.deleted": "Nota excluída.",
+  "privateNote.saveError": "Não foi possível salvar a nota. Tente novamente."
 }

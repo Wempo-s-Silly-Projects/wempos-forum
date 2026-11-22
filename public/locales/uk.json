@@ -1170,5 +1170,13 @@
   "tags.create": "Створити тег",
   "tags.none": "Тегів поки немає.",
   "tags.created": "Тег створено.",
-  "tags.deleted": "Тег видалено."
+  "tags.deleted": "Тег видалено.",
+  "privateNote.title": "Ваша приватна нотатка",
+  "privateNote.hint": "Цю нотатку бачите лише ви.",
+  "privateNote.label": "Приватна нотатка про цього учасника",
+  "privateNote.save": "Зберегти нотатку",
+  "privateNote.delete": "Видалити нотатку",
+  "privateNote.saved": "Нотатку збережено.",
+  "privateNote.deleted": "Нотатку видалено.",
+  "privateNote.saveError": "Не вдалося зберегти нотатку. Спробуйте ще раз."
 }

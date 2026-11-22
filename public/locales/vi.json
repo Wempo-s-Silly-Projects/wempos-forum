@@ -1170,5 +1170,13 @@
   "tags.create": "Tạo thẻ",
   "tags.none": "Chưa có thẻ nào.",
   "tags.created": "Đã tạo thẻ.",
-  "tags.deleted": "Đã xóa thẻ."
+  "tags.deleted": "Đã xóa thẻ.",
+  "privateNote.title": "Ghi chú riêng của bạn",
+  "privateNote.hint": "Chỉ bạn mới thấy được ghi chú này.",
+  "privateNote.label": "Ghi chú riêng về thành viên này",
+  "privateNote.save": "Lưu ghi chú",
+  "privateNote.delete": "Xóa ghi chú",
+  "privateNote.saved": "Đã lưu ghi chú.",
+  "privateNote.deleted": "Đã xóa ghi chú.",
+  "privateNote.saveError": "Không lưu được ghi chú. Hãy thử lại."
 }

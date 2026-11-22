@@ -1170,5 +1170,13 @@
   "tags.create": "Unda lebo",
   "tags.none": "Bado hakuna lebo.",
   "tags.created": "Lebo imeundwa.",
-  "tags.deleted": "Lebo imefutwa."
+  "tags.deleted": "Lebo imefutwa.",
+  "privateNote.title": "Dokezo lako la faragha",
+  "privateNote.hint": "Ni wewe tu unayeweza kuona dokezo hili.",
+  "privateNote.label": "Dokezo la faragha kuhusu mwanachama huyu",
+  "privateNote.save": "Hifadhi dokezo",
+  "privateNote.delete": "Futa dokezo",
+  "privateNote.saved": "Dokezo limehifadhiwa.",
+  "privateNote.deleted": "Dokezo limefutwa.",
+  "privateNote.saveError": "Imeshindikana kuhifadhi dokezo. Jaribu tena."
 }

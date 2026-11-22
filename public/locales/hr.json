@@ -1170,5 +1170,13 @@
   "tags.create": "Izradi oznaku",
   "tags.none": "Još nema oznaka.",
   "tags.created": "Oznaka je izrađena.",
-  "tags.deleted": "Oznaka je izbrisana."
+  "tags.deleted": "Oznaka je izbrisana.",
+  "privateNote.title": "Vaša privatna bilješka",
+  "privateNote.hint": "Samo vi vidite ovu bilješku.",
+  "privateNote.label": "Privatna bilješka o ovom članu",
+  "privateNote.save": "Spremi bilješku",
+  "privateNote.delete": "Izbriši bilješku",
+  "privateNote.saved": "Bilješka spremljena.",
+  "privateNote.deleted": "Bilješka izbrisana.",
+  "privateNote.saveError": "Bilješku nije moguće spremiti. Pokušajte ponovno."
 }

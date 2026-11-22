@@ -3924,3 +3924,8 @@ mark.search-hit {
 .dm-reaction svg { width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 2; }
 .dm-reaction:hover { border-color: var(--line); }
 .dm-reaction-active { border-color: currentColor; }
+
+/* v5.47.0: the private note box on profiles. */
+.private-note-input { display: block; width: 100%; box-sizing: border-box; resize: vertical; font: inherit; }
+.private-note-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.private-note-status:empty { display: none; }

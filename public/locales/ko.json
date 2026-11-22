@@ -1170,5 +1170,13 @@
   "tags.create": "태그 만들기",
   "tags.none": "아직 태그가 없습니다.",
   "tags.created": "태그를 만들었습니다.",
-  "tags.deleted": "태그를 삭제했습니다."
+  "tags.deleted": "태그를 삭제했습니다.",
+  "privateNote.title": "나만의 비공개 메모",
+  "privateNote.hint": "이 메모는 나만 볼 수 있습니다.",
+  "privateNote.label": "이 회원에 대한 비공개 메모",
+  "privateNote.save": "메모 저장",
+  "privateNote.delete": "메모 삭제",
+  "privateNote.saved": "메모를 저장했습니다.",
+  "privateNote.deleted": "메모를 삭제했습니다.",
+  "privateNote.saveError": "메모를 저장하지 못했습니다. 다시 시도하세요."
 }

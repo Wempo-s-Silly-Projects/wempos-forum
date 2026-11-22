@@ -1170,5 +1170,13 @@
   "tags.create": "ساخت برچسب",
   "tags.none": "هنوز برچسبی وجود ندارد.",
   "tags.created": "برچسب ساخته شد.",
-  "tags.deleted": "برچسب حذف شد."
+  "tags.deleted": "برچسب حذف شد.",
+  "privateNote.title": "یادداشت خصوصی شما",
+  "privateNote.hint": "فقط شما این یادداشت را می‌بینید.",
+  "privateNote.label": "یادداشت خصوصی درباره این عضو",
+  "privateNote.save": "ذخیره یادداشت",
+  "privateNote.delete": "حذف یادداشت",
+  "privateNote.saved": "یادداشت ذخیره شد.",
+  "privateNote.deleted": "یادداشت حذف شد.",
+  "privateNote.saveError": "ذخیره یادداشت ممکن نشد. دوباره تلاش کنید."
 }
