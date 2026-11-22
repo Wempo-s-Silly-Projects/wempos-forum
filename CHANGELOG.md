@@ -15,6 +15,15 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.30.1] - 2026-11-21
+
+### Changed
+- AutoMod is switched on for wempos-forum.com: the automatic-moderator API
+  (added in 5.18.0) now answers the owner's AutoMod runner. Everything it does
+  shows on the desk's AutoMod page with its reason; hides can be restored and
+  AutoMod bans (24 hours at most) can be lifted or appealed like any other.
+  Self-hosted copies stay off unless they set AUTOMOD_ENABLED themselves.
+
 ## [5.30.0] - 2026-11-21
 
 ### Added
