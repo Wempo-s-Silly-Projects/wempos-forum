@@ -43,6 +43,7 @@ import { attachMentionPicker } from "../mention-picker.js";
 import { t, tn } from "../i18n.js";
 import { createComposePreview } from "../compose-preview.js";
 import { attachPasteAndDrop, confirmPendingFiles, dismissPendingFiles } from "../composer-paste.js";
+import { createSketchButton } from "../fun/sketch.js";
 import { createDraftNotice } from "../draft-notice.js";
 import { attachPollHelpers, duplicatePollSlots, refreshPollHelpers } from "../poll-preview.js";
 import { createCapsGuard } from "../caps-guard.js";
@@ -144,7 +145,9 @@ function createComposerAttachmentRow(withPollButton = false) {
   strip.dataset.composerStrip = "images";
   strip.hidden = true;
   const row = element("div", "composer-attach-row");
-  row.append(attach, gifButton, ...pollBits, description, strip, gifStrip, input);
+  // Batch M: "Attach a sketch" only when its opt-in switch is on (null otherwise).
+  const sketchButton = createSketchButton(document);
+  row.append(attach, gifButton, ...pollBits, ...(sketchButton ? [sketchButton] : []), description, strip, gifStrip, input);
   return row;
 }
 
