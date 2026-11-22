@@ -44,8 +44,12 @@ export const THREAD_LOCK_REFUSAL = "This thread is locked. Only staff can reply.
 export const THREAD_LOCK_CHECK_SQL = "SELECT 1 AS locked FROM thread_locks WHERE post_id = ? LIMIT 1";
 
 const LOCK_ROUTE = /^\/api\/admin\/threads\/([0-9]{1,15})\/lock$/;
+// v5.54 (L2): the EXISTS re-checks the root at write time (like the TL;DR
+// upsert): a thread deleted between the read and the write changes nothing
+// (0 rows, 404) instead of failing the FK.
 const LOCK_UPSERT_SQL =
-  "INSERT INTO thread_locks (post_id, locked_by, reason, locked_at) VALUES (?, ?, ?, ?) " +
+  "INSERT INTO thread_locks (post_id, locked_by, reason, locked_at) SELECT ?, ?, ?, ? " +
+  "WHERE EXISTS (SELECT 1 FROM posts WHERE id = ? AND parent_id IS NULL LIMIT 1) " +
   "ON CONFLICT(post_id) DO UPDATE SET locked_by = excluded.locked_by, reason = excluded.reason, locked_at = excluded.locked_at";
 const LOCK_READ_SQL =
   "SELECT l.reason, l.locked_at, l.locked_by, u.username FROM thread_locks l " +
@@ -92,7 +96,8 @@ async function lockThread(request, env, postId, session) {
   const reason = lockReason(body.reason);
   const db = env.FORUM_DB;
   await rootThread(db, postId);
-  await db.prepare(LOCK_UPSERT_SQL).bind(postId, Number(session.user.id), reason, nowSeconds()).run();
+  const result = await db.prepare(LOCK_UPSERT_SQL).bind(postId, Number(session.user.id), reason, nowSeconds(), postId).run();
+  if (Number(result.meta?.changes) !== 1) throw new HttpError(404, "Thread not found.");
   return json({ ok: true, locked: true });
 }
 
