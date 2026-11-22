@@ -33,6 +33,7 @@ import { createReadAloud } from "./read-aloud.js";
 import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";
 import { isQotdBody } from "./traditions.js";
 import { createFoldedBody, isLongPost } from "./long-post.js";
+import { DIFF_PANEL_CELL_BUDGET, appendWordDiff, diffWordsWithin } from "./word-diff.js";
 
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
@@ -233,6 +234,13 @@ export const createPostCard = (post, document, currentUser = null) => {
     // Bot badge: trusted agent accounts (bots.js) are chipped "Bot".
     if (isBotUsername(post.author.username)) {
       author.append(createElement(document, "span", "role-badge role-badge-bot", t("render.roleBot")));
+    }
+    // New-member chip (v5.35): the server's boolean (account younger than 7
+    // days) — the join time itself never reaches the client.
+    if (post.author.isNew === true) {
+      const newChip = createElement(document, "span", "role-badge role-badge-new", t("render.newMember"));
+      newChip.setAttribute("title", t("render.newMemberTitle"));
+      author.append(newChip);
     }
     // Flair on cards (v3.0.1): the profile flair chip shown next to the name.
     if (post.author.flair) author.append(createElement(document, "span", "post-flair", post.author.flair));
@@ -458,6 +466,20 @@ export const createPostCard = (post, document, currentUser = null) => {
     subscribeButton.append(createIcon(document, post.subscribed ? "bell-check" : "bell"));
     actions.append(subscribeButton);
   }
+  // Mute a thread (v5.46.0): only the thread detail payload carries
+  // viewerMuted (members, roots), so feed cards, replies and guests never
+  // show it. A worded toggle — muting is a quieter, rarer act than subscribing.
+  if (currentUser && post.viewerMuted !== undefined && !post.parent) {
+    const muted = Boolean(post.viewerMuted);
+    const muteButton = createElement(document, "button", "button button-quiet thread-mute-toggle",
+      muted ? t("render.unmuteThread") : t("render.muteThread"));
+    muteButton.type = "button";
+    muteButton.dataset.action = "toggle-thread-mute";
+    muteButton.dataset.postId = String(post.id);
+    muteButton.dataset.muted = muted ? "1" : "0";
+    muteButton.setAttribute("aria-pressed", String(muted));
+    actions.append(muteButton);
+  }
   // Reply affordance: same strict rule as replyAffordances — signed-in users
   // on explicitly level-1 rows only (publicLevel 2 and undefined publicLevel
   // never show it; replying to level-2 targets is server-forbidden).
@@ -513,6 +535,26 @@ export const createPostCard = (post, document, currentUser = null) => {
     pinButton.dataset.action = isPinned ? "thread-unpin" : "thread-pin";
     pinButton.dataset.postId = String(post.id);
     actions.append(pinButton);
+    // Thread lock (v5.51): the payload's `locked` picks Lock or Unlock; the
+    // server gates the same roles and roots only.
+    const isLocked = post.locked === true;
+    const lockButton = createElement(document, "button", "button button-quiet",
+      isLocked ? t("threadLock.unlock") : t("threadLock.lock"));
+    lockButton.type = "button";
+    lockButton.dataset.action = isLocked ? "thread-unlock" : "thread-lock";
+    lockButton.dataset.postId = String(post.id);
+    actions.append(lockButton);
+    // Staff pick of the week (v5.35): public Showcase roots only (the server
+    // refuses anything else); the payload's staffPick picks the label.
+    if (post.board === "showcase" && post.visibility === "public") {
+      const picked = post.staffPick === true;
+      const pickButton = createElement(document, "button", "button button-quiet",
+        picked ? t("staffPick.unpick") : t("staffPick.pick"));
+      pickButton.type = "button";
+      pickButton.dataset.action = picked ? "staff-unpick" : "staff-pick";
+      pickButton.dataset.postId = String(post.id);
+      actions.append(pickButton);
+    }
     // Suggestion status controls (v3.1): staff resolve/decline/reopen
     // suggestion roots in place; the server gates the same roles and
     // suggestions-board roots only. A decided suggestion offers Reopen; an
@@ -654,7 +696,22 @@ export const closeEditForm = (article) => {
 // GET /api/posts/:id/edits, newest first, as plain text rows. Bodies are user
 // content — textContent only, never markup. An empty lineage still renders a
 // muted placeholder so the toggle never feels broken.
-export function renderEditHistoryPanel(document, edits) {
+// Word diff (v5.50.0): with the card's current body, a "Current version" row
+// leads; every row then marks its words inserted/deleted against the version
+// before it (the oldest stays plain). Both sides are masked BEFORE the diff,
+// so a spoiler never surfaces on either side; past the diff's word bound the
+// row falls back to the plain full version.
+// Diff budget (v5.54): the whole panel spends at most DIFF_PANEL_CELL_BUDGET
+// LCS cells; a version whose diff would overrun what is left shows plain, so
+// a post with many large edits never freezes the tab.
+function editDiffBody(document, older, newer, budget) {
+  const within = diffWordsWithin(maskSpoilers(older), maskSpoilers(newer), budget);
+  if (!within) return null;
+  const node = appendWordDiff(document, createElement(document, "p", "edit-history-body"), within.runs);
+  return { node, cells: within.cells };
+}
+
+export function renderEditHistoryPanel(document, edits, currentBody) {
   const panel = createElement(document, "div", "edit-history-panel");
   const title = createElement(document, "p", "edit-history-title", t("render.earlierVersions"));
   panel.append(title);
@@ -662,15 +719,27 @@ export function renderEditHistoryPanel(document, edits) {
     panel.append(createElement(document, "p", "edit-history-empty", t("render.noEarlierVersions")));
     return panel;
   }
-  for (const edit of edits) {
+  const versions = typeof currentBody === "string" ? [{ current: true, body: currentBody }, ...edits] : edits;
+  let budget = DIFF_PANEL_CELL_BUDGET;
+  versions.forEach((edit, index) => {
     const entry = createElement(document, "div", "edit-history-entry");
-    const time = createElement(document, "time", "edit-history-time");
-    time.dateTime = edit.editedAt;
-    time.textContent = new Date(edit.editedAt).toLocaleString(currentLocale());
+    let time;
+    if (edit.current) {
+      time = createElement(document, "p", "edit-history-time", t("render.currentVersion"));
+    } else {
+      time = createElement(document, "time", "edit-history-time");
+      time.dateTime = edit.editedAt;
+      time.textContent = new Date(edit.editedAt).toLocaleString(currentLocale());
+    }
+    const older = versions[index + 1];
+    const diffed = older && budget > 0
+      ? editDiffBody(document, String(older.body ?? ""), String(edit.body ?? ""), budget)
+      : null;
+    if (diffed) budget -= diffed.cells;
     // Earlier versions show as plain text, so their spoilers stay masked.
-    const body = createElement(document, "p", "edit-history-body", maskSpoilers(edit.body));
+    const body = diffed?.node ?? createElement(document, "p", "edit-history-body", maskSpoilers(edit.body));
     entry.append(time, body);
     panel.append(entry);
-  }
+  });
   return panel;
 }

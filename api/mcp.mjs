@@ -44,7 +44,7 @@
 // lobbyOnlineCount, read-time ban filter included); lobby_post (token-gated)
 // runs POST /api/chat's gates — assertNotBanned, the "write" rate tier, then
 // chat.mjs insertLobbyMessage (500-char cap, word filter, insert, @mentions).
-import { REPLY_BUMP_SQL, THREAD_REPLY_INSERT_SQL } from "../constants.mjs";
+import { THREAD_REPLY_INSERT_SQL } from "../constants.mjs";
 import { LOBBY_CHAT_MAX_CHARS, insertLobbyMessage, lobbyMessageRows, lobbyOnlineCount } from "./chat.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { BOARD_VALUES, GENERAL_BOARD_DEFAULT, SUGGESTIONS_BOARD, boardField, isStaffOnlyBoard } from "./boards.mjs";
@@ -53,7 +53,7 @@ import { ensureFilterWords, filterWords } from "./filterstore.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
 import { notificationBatchStatements } from "./notifications.mjs";
 import { banFilterSql } from "./posts-feed.mjs";
-import { MAX_COMPOSER_BODY_CHARS, deleteAuthoredPost, rootPostInsertSql } from "./posts-write.mjs";
+import { MAX_COMPOSER_BODY_CHARS, bumpThreadForReply, deleteAuthoredPost, rootPostInsertSql } from "./posts-write.mjs";
 import { runFanOutChunks, subscriptionReplyFanOut } from "./subscriptions.mjs";
 import { agentFromRequest } from "./core/agent-auth.mjs";
 import { assertNotBanned } from "./core/auth.mjs";
@@ -64,6 +64,8 @@ import { VIEWABLE_POST_BINDS, canViewPost, viewablePostSql } from "./core/visibi
 import { viewerBlockFilterSql } from "./core/blocks.mjs";
 import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
 import { siteOrigin } from "./core/site.mjs";
+import { assertSlowModeAllows, withSlowModeGuard } from "./staff-tools.mjs";
+import { assertThreadUnlocked } from "./thread-locks.mjs";
 
 const SUPPORTED_PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 const DEFAULT_PROTOCOL_VERSION = "2025-06-18";
@@ -629,17 +631,24 @@ async function createReply(env, args, ctx) {
   const message = await filteredBody(env, agent, args.body, "reply");
   await writeRateLimits(env, ctx);
   const { target, bumpTargetId, threadBoard } = await resolveReplyTarget(env, agent, targetId);
+  // Thread lock (v5.51): the web reply route's check, same root, same exemption.
+  await assertThreadUnlocked(db, agent, bumpTargetId);
+  // Slow mode (v5.43): the web reply route's check, same root, same exemption.
+  await assertSlowModeAllows(db, agent, bumpTargetId);
   const now = nowSeconds();
-  const results = await db.batch([
-    db.prepare(THREAD_REPLY_INSERT_SQL).bind(
-      agent.id, targetId, message, now, now, threadBoard, null, null, null,
-      targetId, agent.id, now, null, agent.id, null),
-    db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId),
-  ]);
+  const [insertSql, insertValues] = withSlowModeGuard(THREAD_REPLY_INSERT_SQL, [
+    agent.id, targetId, message, now, now, threadBoard, null, null, null,
+    targetId, agent.id, now, null, agent.id, null], agent, bumpTargetId, now);
+  const results = await db.batch([db.prepare(insertSql).bind(...insertValues)]);
   if (Number(results[0]?.meta?.changes) !== 1) {
+    // A parallel reply landed inside the cooldown: the same slow_mode refusal.
+    await assertSlowModeAllows(db, agent, bumpTargetId);
     throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
   }
   const replyId = Number(results[0].meta.last_row_id);
+  // L3 (v5.59): bump only after the INSERT landed, bound to the new reply row.
+  // Best-effort (L8): a failed bump is logged, never a tool error.
+  await bumpThreadForReply(db, now, bumpTargetId, replyId);
   const recipientId = target.author_id === null || target.author_id === undefined ? null : Number(target.author_id);
   await replyFanOut(db, { agent, message, targetId, replyId, recipientId, bumpTargetId, now });
   return { id: replyId, url: ctx.origin + "/posts/" + replyId, parent_id: targetId };

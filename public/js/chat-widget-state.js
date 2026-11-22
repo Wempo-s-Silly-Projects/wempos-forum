@@ -73,6 +73,11 @@ export const ui = {
   lastPainted: { key: null, maxId: 0 },
   // Wave 5.9 F1: where the "New messages" line goes ({ key, id, count }).
   newSince: NO_NEW_MARKER,
+  // Wave 5.36: the open conversation's search box ({ key, node }, re-attached
+  // across the 5s repaint like the GIF picker) and the jumped-to hit
+  // ({ key, id }), re-highlighted on every repaint.
+  chatSearch: null,
+  searchHit: null,
 };
 
 export const kindOf = (conversation) => (conversation?.kind === "group" ? "group" : "dm");

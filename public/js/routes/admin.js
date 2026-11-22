@@ -48,9 +48,13 @@ import {
 import { createReportQueue } from "../desk/reports.js";
 import { createAutoModLog, createDmReportQueue } from "../desk/automod.js";
 import { createMemberPeek } from "../desk/member-tools.js";
+import { createMemberNotes, memberNotesPath } from "../desk/staff-tools.js";
+import { adminTagPath, createTagManager } from "../tags.js";
 import { createFilterEditor } from "../desk/filter.js";
 import { createBrandingEditor, submitBrandingSave } from "../desk/branding.js";
 import { createVisitsPanel } from "../desk/visits.js";
+import { createStaffPickLog } from "../desk/staff-picks.js";
+import { threadLockPath } from "../thread-lock.js";
 import { focusPageHeading } from "../focus-utils.js";
 
 // The desk (v4.2 redesign): /admin is a section-routed panel — a sidebar rail
@@ -73,6 +77,8 @@ const DESK_SECTIONS = [
   { slug: "dm-log", labelKey: "admin.section.dmLog" },
   { slug: "dm-reports", labelKey: "admin.section.dmReports" },
   { slug: "automod", labelKey: "admin.section.automod" },
+  { slug: "staff-picks", labelKey: "admin.section.staffPicks" },
+  { slug: "tags", labelKey: "admin.section.tags" },
   { slug: "rules", labelKey: "admin.section.rules" },
   { slug: "filter", labelKey: "admin.section.filter" },
   { slug: "branding", labelKey: "admin.section.branding" },
@@ -149,6 +155,18 @@ const DESK_BUILDERS = {
     ledeKey: "admin.lede.automod",
     load: () => api("/api/admin/automod"),
     build: (data) => createAutoModLog(data.actions, document),
+  },
+  // v5.35: the staff-pick mod log (every pick and unpick).
+  "staff-picks": {
+    ledeKey: "admin.lede.staffPicks",
+    load: () => api("/api/admin/staff-picks"),
+    build: (data) => createStaffPickLog(data.log, document),
+  },
+  // v5.44: thread tags — create and delete (the thread page applies them).
+  "tags": {
+    ledeKey: "admin.lede.tags",
+    load: () => api("/api/tags"),
+    build: (data) => createTagManager(document, data.tags),
   },
   "rules": {
     ledeKey: "admin.lede.rules",
@@ -509,6 +527,12 @@ export const FORM_HANDLERS = {
   "admin-attachment-reject": (form) => submitAttachmentModeration(form, "reject"),
   "admin-member-search": (form, text) => submitMemberSearch(form, text),
   "admin-hide-recent": (form, text) => submitHideRecent(form, text),
+  "member-note-add": (form, text) => submitMemberNote(form, text),
+  "tag-create": async (form, text) => {
+    await api(adminTagPath(), { method: "POST", body: { slug: text("slug").trim(), label: text("label") } });
+    await state.renderRoute(state.activeRoute);
+    setMessage(t("tags.created"));
+  },
   "filter-save": async (form, text) => submitFilterSave(form, text),
   "filter-bulk-add": async (form, text) => submitFilterBulkAdd(form, text),
   "branding-save": async (form, text) => {
@@ -545,16 +569,53 @@ async function toggleMemberPeek(button) {
   if (!region) return;
   const opening = button.getAttribute("aria-expanded") !== "true";
   if (opening && !region.childElementCount) {
-    const data = await api("/api/admin/users/" + encodeURIComponent(button.dataset.userId) + "/recent-posts");
-    region.replaceChildren(createMemberPeek(document, data));
+    const [data, notes] = await Promise.all([
+      api("/api/admin/users/" + encodeURIComponent(button.dataset.userId) + "/recent-posts"),
+      api(memberNotesPath(button.dataset.userId)),
+    ]);
+    region.replaceChildren(createMemberPeek(document, data),
+      createMemberNotes(document, notes.member.id, notes.member.username, notes.notes));
   }
   region.hidden = !opening;
   button.setAttribute("aria-expanded", String(opening));
   button.textContent = t(opening ? "desk.peek.hide" : "desk.peek.show");
 }
 
+// Staff notes (v5.43): re-read the member's notes into the same section.
+async function refreshMemberNotes(node) {
+  const section = node.closest(".member-notes");
+  if (!section) return;
+  const data = await api(memberNotesPath(section.dataset.memberId));
+  section.replaceWith(createMemberNotes(document, data.member.id, data.member.username, data.notes));
+}
+
+async function submitMemberNote(form, text) {
+  await api(memberNotesPath(form.dataset.memberId), { method: "POST", body: { body: text("body") } });
+  await refreshMemberNotes(form);
+  setMessage(t("desk.notes.added"));
+}
+
+// Report claiming (v5.43): claim or release, then re-render the queue.
+async function changeReportClaim(button, method) {
+  await api("/api/admin/reports/" + encodeURIComponent(button.dataset.reportId) + "/claim", { method });
+  await state.renderRoute(state.activeRoute);
+  setMessage(t(method === "POST" ? "desk.claim.claimed" : "desk.claim.released"));
+}
+
 export const ACTIONS = {
     "member-peek": (button) => toggleMemberPeek(button),
+    "report-claim": (button) => changeReportClaim(button, "POST"),
+    "report-release": (button) => changeReportClaim(button, "DELETE"),
+    "tag-delete": async (button) => {
+      await api(adminTagPath(button.dataset.tagId), { method: "DELETE" });
+      await state.renderRoute(state.activeRoute);
+      setMessage(t("tags.deleted"));
+    },
+    "member-note-delete": async (button) => {
+      await api(memberNotesPath(button.dataset.memberId, button.dataset.noteId), { method: "DELETE" });
+      await refreshMemberNotes(button);
+      setMessage(t("desk.notes.deleted"));
+    },
     "post-restore": async (button) => {
       const data = await api("/api/admin/posts/unhide", { method: "POST", body: { ids: [Number(button.dataset.postId)] } });
       await state.renderRoute(state.activeRoute);
@@ -572,6 +633,33 @@ export const ACTIONS = {
       await api("/api/admin/threads/" + button.dataset.postId + "/unpin", { method: "POST" });
       await state.renderRoute(state.activeRoute);
       setMessage(t("admin.msg.threadUnpinned"));
+    },
+    // Thread lock (v5.51): the staff menu's Lock asks for an optional,
+    // staff-only reason (Cancel aborts); Unlock removes the lock. Re-render so
+    // the note, the composer and the label follow.
+    "thread-lock": async (button) => {
+      const reason = window.prompt(t("threadLock.reasonPrompt"), "");
+      if (reason === null) return;
+      await api(threadLockPath(button.dataset.postId), { method: "PUT", body: { reason } });
+      await state.renderRoute(state.activeRoute);
+      setMessage(t("threadLock.locked"));
+    },
+    "thread-unlock": async (button) => {
+      await api(threadLockPath(button.dataset.postId), { method: "DELETE" });
+      await state.renderRoute(state.activeRoute);
+      setMessage(t("threadLock.unlocked"));
+    },
+    // Staff pick of the week (v5.35): the thread's staff menu — POST makes it
+    // the pick, DELETE removes it; re-render so the label and /week follow.
+    "staff-pick": async (button) => {
+      await api("/api/admin/threads/" + button.dataset.postId + "/staff-pick", { method: "POST" });
+      await state.renderRoute(state.activeRoute);
+      setMessage(t("staffPick.picked"));
+    },
+    "staff-unpick": async (button) => {
+      await api("/api/admin/threads/" + button.dataset.postId + "/staff-pick", { method: "DELETE" });
+      await state.renderRoute(state.activeRoute);
+      setMessage(t("staffPick.unpicked"));
     },
     "gif-approve": async (button) => {
       await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/approve", { method: "POST" });

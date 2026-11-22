@@ -65,7 +65,7 @@ export function scanMentions(body) {
 // EITHER direction never receives one).
 export async function mentionFanOutStatements(db, body, {
   actorId, targetPostId = null, replyId = null, now, excludeIds = [], actorUsername,
-  label,
+  label, kind = "mention",
 }) {
   const names = scanMentions(body);
   if (names.length === 0) return [];
@@ -100,6 +100,9 @@ export async function mentionFanOutStatements(db, body, {
   // self-labelled so a mention never renders as a plain "New reply" row.
   return fanOutStatements(db, [...recipients], {
     targetPostId, replyId, now,
+    // v5.40.0: the mute kind — "mention" for posts/replies, "chat_mention"
+    // from the lobby (chat.mjs passes it).
+    kind,
     // Post/reply mentions keep their label; other surfaces (the chat, v4.2)
     // pass their own so the bell says where the ping came from.
     label: label || ("You were mentioned by " + String(actorUsername ?? "a member")),

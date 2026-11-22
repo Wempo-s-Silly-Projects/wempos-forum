@@ -15,6 +15,683 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.68.0] - 2026-11-22
+
+### Added
+- Four more interface languages: Afrikaans, Albanian (Shqip),
+  Azerbaijani (Azərbaycanca, Latin script) and Basque (Euskara). Each is
+  listed by its own name in the language picker, reads left to right, and
+  is picked up automatically when the browser asks for it. The interface
+  now comes in 45 languages.
+
+## [5.67.0] - 2026-11-22
+
+### Security
+- Profile updates (`PATCH /api/me`) are now rate-limited with the shared
+  write limit, per member, like other profile writes. A signed-in member
+  could previously send profile edits without limit, each one queueing an
+  AutoMod review row.
+
+### Fixed
+- The account returned right after sign-up now reads all 27 social link
+  fields from the one shared list, so the column lists can no longer drift
+  apart. A brand-new account has no social links, so nothing visible
+  changes.
+
+### Tests
+- New pins: profile updates answer 429 and write nothing once the write
+  limit is spent, and use the write limiter keyed by member; the sign-up
+  read selects exactly the shared social columns and nothing else.
+
+## [5.66.0] - 2026-11-22
+
+### Security
+- Security review of v5.62.0 through v5.65.0: no critical, high or medium
+  findings. Visibility, input validation, link building, SQL binds, error
+  text and the v5.63.1 test fixes all checked.
+
+### Fixed
+- The profile editor's format hint for 14 social link fields (YouTube,
+  Reddit, GitHub, Discord, Tumblr, Indiegogo, Shopify, Substack,
+  Kickstarter, Cameo, SoundCloud, Patreon, Cash App, Venmo) works again.
+  Browsers had been ignoring those patterns as invalid. The server checks
+  were always in force.
+
+### Tests
+- New regression pins for all 27 social fields: every one refuses
+  `javascript:` links, full web addresses, whitespace, a trailing newline
+  and look-alike Unicode letters; error messages never echo the input; the
+  profile update keeps its same-origin and CSRF checks and stays under the
+  database's bound-parameter limit; every column keeps its 120-character
+  cap; the best-effort thread bump never wraps the reply insert.
+
+## [5.65.0] - 2026-11-22
+
+### Added
+- 17 more profile social links (owner exception to the feature freeze):
+  Facebook, Tumblr, Substack, SoundCloud, Spotify (artist id), Linktree,
+  Beacons, Cameo, Shopify, Kickstarter, Indiegogo, and the payment-link
+  group Patreon, Ko-fi, Buy Me a Coffee, PayPal, Cash App and Venmo.
+  Members enter a handle only; the forum builds each link from a fixed
+  template, so a typed web address is never stored or shown. Payment links
+  only open the service; the forum never handles payments (a translated
+  note says so in the editor). Same visibility, export and account-deletion
+  behaviour as the existing social links. Migration
+  `0077_social_links_more.sql` adds one column per network.
+- Social links on profiles now carry `rel="me nofollow noopener ugc"`.
+
+## [5.64.0] - 2026-11-22
+
+### Changed
+- Docs brought up to date with v5.63.1 (no code or behaviour changes; the
+  owner's feature freeze holds):
+  - [docs/using-the-forum.md](docs/using-the-forum.md) explains the header,
+    Browse and Account menus and the phone bar, the settings page and its
+    four groups, the thread page's More menu, sharing and RSS feeds, invite
+    links, This week, searching (filters, recent and saved searches), tags,
+    TL;DRs, locked threads and slow mode, muting threads, following members,
+    bookmark folders, custom status, private notes, poll closing times,
+    notification types and DM reactions and search. The list of what
+    "Download my data" includes is corrected.
+  - [docs/admin-guide.md](docs/admin-guide.md) matches the desk's sections
+    (Staff picks, Tags, Branding and Visits added; report claims and staff
+    notes explained), says where the desk entry now lives, and gains a
+    "Staff tools on a thread" section (pin, lock, staff pick, suggestion
+    status, slow mode).
+  - [docs/architecture.md](docs/architecture.md) lists the modules added
+    since v5.30, the RSS/llms.txt, page-head and visit-count steps, and
+    migrations 0060 to 0076.
+  - [docs/self-hosting.md](docs/self-hosting.md) documents `OG_IMAGE_URL`
+    and the optional AutoMod switch, and points at the desk by its real
+    name; `wrangler.example.toml` comments refreshed and its `VERSION`
+    brought up to this release.
+  - [ROADMAP.md](ROADMAP.md) records what shipped since it was written and
+    that the [trim list](docs/trim-list.md) awaits the owner's decision.
+  - The README's feature tour matches the current forum.
+
+## [5.63.1] - 2026-11-22
+
+### Fixed
+- Two test files stripped HTML comments in a single pass, which code scanning
+  (CodeQL) flagged as incomplete sanitization. They now repeat until no comment
+  is left. Test-only change; nothing members see is different.
+
+## [5.63.0] - 2026-11-22
+
+### Fixed
+- Deleting your account no longer fails on a database built only from this
+  repo's migrations (local, test or self-hosted). An old table still
+  pointed at two chat tables that only the retired GooberCord app ever
+  created, so the delete was refused and rolled back. New migration
+  `0076_gc_fk_targets.sql` adds empty stand-ins for those two tables. It
+  changes nothing where the real tables still exist. A new test deletes an
+  account that has a row in every table linked to members and checks that
+  nothing is left behind.
+- A reply is no longer reported as failed when only the thread re-ordering
+  step after it fails. The reply was already saved. The site now logs that
+  step's failure, still sends notifications and answers normally, so an
+  agent retrying through the MCP tool no longer posts the reply twice.
+  Replies with images now publish first and re-order the thread after.
+- On phones the bottom bar shows Home and Sign in straight away instead of
+  staying empty until your session loads; the full bar replaces them.
+
+## [5.62.0] - 2026-11-22
+
+### Security
+- Whole-repo visibility audit (the every-10th-release check), covering
+  everything shipped or moved since v5.52:
+  [docs/visibility-inventory.md](docs/visibility-inventory.md) now has 125
+  rows (was 113). No leaks found. The reorganized thread page, settings
+  hub, header menus and phone bar show staff tools and the moderation desk
+  entry to staff only, the settings hub holds only your own panels, and
+  the navigation reuse never keeps a staff entry, profile link or bell
+  after a sign-out or role change. The data export, checked again as one
+  surface, still carries only your own rows. Nothing on the server changes
+  in this release.
+- The cross-route visibility sweep now also renders the moved client
+  surfaces from the same test data for a guest, a member, both sides of a
+  block, an admin and the owner, and checks the settings, desk and My posts
+  page shells for every viewer. Its swept-count floor rises from 326 to 338.
+
+## [5.61.0] - 2026-11-22
+
+### Security
+- Security review of v5.57-v5.60 (the new navigation, the Browse and
+  Account menus, the phone bar, the fix for replies that moved a thread
+  after slow mode refused them, and the v5.60 polish):
+  [docs/security-reviews/2026-11-22-v5.57-v5.60.md](docs/security-reviews/2026-11-22-v5.57-v5.60.md).
+  No critical, high or medium findings, and nothing on the server changes
+  in this release. The three fixes from v5.58 and v5.59 are confirmed. The
+  menus and the phone bar show staff entries only to staff, and the
+  navigation reuse added in v5.60 never keeps the wrong member, role or
+  staff entry. Three low findings are recorded; one is fixed here (below).
+  The other two: if moving a thread up the feed fails right after a reply
+  is saved, the reply is posted but the poster sees an error and no one is
+  notified; and on phones the bottom bar stays empty until the forum has
+  loaded your session. The owner items from earlier reviews are unchanged.
+
+### Fixed
+- After "Mark all read", the notification bell could stay without its dot
+  when a new notification arrived at that moment, until you opened another
+  page. The header now redraws whenever the bell no longer matches your
+  unread count.
+
+## [5.60.0] - 2026-11-22
+
+### Changed
+- Phones can now change the language: the phone bar's More menu ends with
+  the same language picker the desktop header has.
+- The header and the phone bar are no longer rebuilt on every page update
+  when nothing they show has changed (same member, unread count and page).
+  Each action on a thread re-renders the page; the navigation used to cost
+  a signed-in member about 230 new elements and 7 listeners each time, and
+  now costs none.
+
+### Fixed
+- Accessibility pass over the reorganized thread page, settings, header
+  menus and phone bar:
+  - An open Browse, Account or More menu closes when keyboard focus moves
+    out of it, so it no longer covers the control that has focus.
+  - The menu entry for the page you are on is marked as the current page,
+    for screen readers and visually (bold and underlined).
+  - Menu panels have an edge that stands out from the page in every theme
+    (it was too faint in the light theme).
+  - The keyboard shortcuts entry in the menus is a larger target, full
+    size on phones.
+  - The settings page shown to signed-out visitors starts with a main
+    heading.
+
+## [5.59.0] - 2026-11-22
+
+### Fixed
+- A reply turned away by a thread's slow mode no longer moves the thread to
+  the top of the "active" feed. The thread now moves up only when a reply is
+  actually posted, on the website and through the agent (MCP) reply tool
+  alike (security review finding L3).
+
+### Docs
+- Added `docs/trim-list.md`: a proposal for the owner listing 22 features
+  that overlap, duplicate each other or are hard to find, with options and
+  their cost. Nothing is decided and nothing was removed. It also lists two
+  gaps from v5.58: there is no tag index page, and phones have no language
+  picker.
+
+## [5.58.0] - 2026-11-22
+
+### Changed
+- The header is tidier. Suggestions, Archive, Leaderboard, Rules and This
+  week now sit in one Browse menu. Your profile, the moderation desk (staff),
+  the keyboard shortcuts list and Sign out sit in one Account menu. Saved
+  posts, My posts, Settings and notifications stay as their own buttons, so
+  members see seven header items instead of eleven.
+- The phone bar is built from the same list as the header, so the two always
+  match. It shows Home, My posts, Alerts, your profile (or Sign in) and a
+  More button. More holds the same Browse menu and, for members, Saved
+  posts, Settings, the moderation desk (staff), the keyboard shortcuts list
+  and Sign out, which phones could not reach from the bar before.
+- On a thread page, Copy link appears once. When Share opens its own menu,
+  Copy link is in that menu. When your device opens its share sheet instead,
+  or there is no Share button, Copy link stays in More. The Open post link is
+  hidden on the post it links to.
+
+### Fixed
+- Using a control inside a thread's More menu (for example Save post or Pin)
+  no longer closes the menu and loses keyboard focus. More opens again and
+  focus goes back to that control, or to the More button if the control is
+  gone.
+- On the settings page, screen readers now hear each panel's heading one
+  level below its group's heading.
+
+## [5.57.0] - 2026-11-22
+
+### Security
+- Security review of v5.53-v5.56 (the slow-mode, diff, control-character
+  and lock fixes, the tidier thread page and the settings hub):
+  [docs/security-reviews/2026-11-22-v5.53-v5.56.md](docs/security-reviews/2026-11-22-v5.53-v5.56.md).
+  No critical, high or medium findings, so nothing in the forum's behaviour
+  changes in this release. The four fixes from v5.54 are confirmed. The
+  thread page's new menus show staff tools only to staff and lose no
+  control, and the settings page shows only your own settings. Four low
+  findings are recorded: a reply refused by slow mode in a race can still
+  move its thread up the feed; the settings page's headings are all at one
+  level for screen readers; using a control inside More closes the menu and
+  moves keyboard focus away; and one of the v5.55 tests could not fail
+  (fixed in this release, tests only). The owner items from earlier
+  reviews are unchanged.
+
+## [5.56.0] - 2026-11-22
+
+### Changed
+- Settings have a home of their own. A Settings link in the header opens
+  them at `/?settings`; they used to be a collapsed box under the home feed.
+  The 14 panels are grouped under four headings: Appearance & reading
+  (appearance, reading comfort), Notifications (quiet hours, notification
+  types), People & privacy (blocked members, following, who can see me
+  online) and Account & data (password, two-factor sign-in, backup codes,
+  signed-in devices, download my data, invite a friend, delete account).
+  The settings search and the jump list still work, and the home page keeps
+  a link where the box used to be. No setting was removed or changed.
+- My posts now has a link in the header next to Saved posts.
+
+## [5.55.0] - 2026-11-22
+
+### Changed
+- The thread page is tidier. The first post keeps four buttons (Like,
+  Dislike, Share and More). Everything else is still there, grouped under
+  More: Reading (read aloud, show spoilers, save as text), Following
+  (subscribe, mute, save post), Sharing (copy link, post link) and This post
+  (edit, delete, report, edit tags). Staff tools (pin, lock, staff pick,
+  suggestion status, slow mode) sit in one Staff menu inside More. Tags and
+  the TL;DR now sit with the post, above its buttons. The menus open with a
+  button and close with Escape, which returns focus to that button. No
+  feature was removed.
+- Added `docs/ia-map.md`, a map of every page's controls: where each one
+  lives, who sees it, how many clicks deep it is, and which ones overlap or
+  are hard to find.
+
+## [5.54.0] - 2026-11-22
+
+### Fixed
+- Slow mode now holds under a burst of replies sent at once: the cooldown
+  check runs inside the same database write as the reply, on the website
+  and on the agent reply tool, so exactly one reply lands per cooldown.
+  Staff stay exempt (M1 in
+  [docs/security-reviews/2026-11-22-v5.41-v5.44.md](docs/security-reviews/2026-11-22-v5.41-v5.44.md)).
+- A post edited many times no longer freezes the tab when its edit history
+  opens: the word-by-word comparison has a total budget per panel, and
+  versions past it show as plain text (M2 in
+  [docs/security-reviews/2026-11-22-v5.49-v5.52.md](docs/security-reviews/2026-11-22-v5.49-v5.52.md)).
+- A private note, saved-search name or saved search that contains a control
+  character (such as U+0000) is now refused with a clear error instead of a
+  server error. Notes keep line breaks and tabs (L1 in
+  [docs/security-reviews/2026-11-22-v5.45-v5.48.md](docs/security-reviews/2026-11-22-v5.45-v5.48.md)).
+- Locking a thread at the moment its author deletes it now answers "Thread
+  not found." instead of a server error (L2 in
+  [docs/security-reviews/2026-11-22-v5.49-v5.52.md](docs/security-reviews/2026-11-22-v5.49-v5.52.md)).
+
+## [5.53.0] - 2026-11-22
+
+### Security
+- Security review of v5.49-v5.52 (the thread TL;DR, the word diff in edit
+  history and thread locks):
+  [docs/security-reviews/2026-11-22-v5.49-v5.52.md](docs/security-reviews/2026-11-22-v5.49-v5.52.md).
+  No critical or high findings, so nothing in the forum's behaviour changes
+  in this release. One medium finding (a post edited many times can make
+  its edit history slow to open, because every version is now compared
+  word by word) and one low finding (locking a thread at the moment its
+  author deletes it gives staff a server error) are recorded, with two low
+  questions for the owner: whether a lock should also stop edits and TL;DR
+  changes, and whether locks should leave a lasting record. The owner items
+  from earlier reviews are carried over. New tests lock in the behaviour
+  the review checked.
+
+## [5.52.0] - 2026-11-22
+
+### Security
+- Whole-forum privacy re-audit (done every tenth version): every page, list
+  and action added since v5.42 (staff notes, report claiming, slow mode, DM
+  message reactions, thread tags, thread mutes, private notes, saved
+  searches, the TL;DR, the edit-history word diff and thread locks) is now
+  listed in [docs/visibility-inventory.md](docs/visibility-inventory.md)
+  with the filters it applies and the test that checks it, and the data
+  export was re-checked as a whole. No leaks were found.
+
+### Fixed
+- The automated privacy checks now also cover the tag list, who can see a
+  thread mute, that a locked thread you cannot see never says it is locked
+  (site and agent reply tool), DM reaction counts between members who
+  blocked each other, every section of the data export, the staff-only
+  actions added since v5.42, and the tag listing as staff see it.
+
+## [5.51.0] - 2026-11-22
+
+### Added
+- Thread lock: admins and the owner can lock a thread from its staff menu
+  (Lock / Unlock). A locked thread shows "This thread is locked" and no
+  reply box; members can no longer reply to it on the site or through the
+  agent (MCP) reply tool, and get a clear "This thread is locked" message
+  (HTTP 423, error code `thread_locked`). Staff can still reply. Editing
+  existing replies, reactions and reading are unchanged, and unlocking
+  restores replies. Staff may add an optional reason (up to 200 characters,
+  one line of plain text); the reason and who locked the thread are shown
+  only to staff, never to members. Deleting the thread or the staff account
+  removes the lock. Needs database migration 0075.
+
+## [5.50.0] - 2026-11-22
+
+### Added
+- TL;DR for threads: the person who started a thread (or an admin or the
+  owner) can add a short summary, up to 280 characters, shown in a "TL;DR"
+  box above the replies. Anyone who can see the thread can read it; a hidden
+  thread, a thread by a banned member, or a thread across a block shows no
+  summary. The text goes through the word filter like other public text, and
+  invisible direction-changing or control characters are refused. Saving an
+  empty box removes the summary. Your data export lists the summaries you
+  wrote. Needs database migration 0074.
+- Edit history now shows what changed: each version marks the words that
+  were added (underlined) and removed (struck through) compared with the
+  version before it, and a "Current version" row shows the latest edit.
+  Spoilers stay hidden on both sides. Very long posts fall back to showing
+  the full text. This happens in your browser only; how edits are stored is
+  unchanged.
+
+## [5.49.0] - 2026-11-22
+
+### Security
+- Security review of v5.45-v5.48 (muting a thread, private notes about
+  members and saved searches):
+  [docs/security-reviews/2026-11-22-v5.45-v5.48.md](docs/security-reviews/2026-11-22-v5.45-v5.48.md).
+  No critical or high findings, so nothing in the forum's behaviour changes
+  in this release. One low finding (a note or saved-search name that starts
+  with an invisible null character gets a server error instead of a clear
+  "not allowed" message) and one low question for the owner (whether the
+  data export should list the threads you muted) are recorded, along with
+  the owner items carried over from earlier reviews. New tests lock in the
+  behaviour the review checked.
+
+## [5.48.0] - 2026-11-22
+
+### Added
+- Saved searches: signed-in members get a "Saved searches" panel on the
+  search results page. "Save this search" opens a small inline form to name
+  the search (up to 40 characters); each saved search is a link that runs it
+  again on the normal search page, with a Delete button beside it. You can
+  keep up to 20, names are unique per member (ignoring case), and only you
+  can ever see them: not other members, not admins or the owner, and they
+  appear in no feed, search, agent tool or page preview. Your saved searches
+  are in your data export, and deleting your account removes them. New
+  routes `GET` and `POST /api/me/saved-searches` and
+  `DELETE /api/me/saved-searches/:id` (another member's id answers 404).
+  The query, `by` and `in` values are checked with the search route's own
+  rules; search itself is unchanged. Needs migration
+  `0073_saved_searches.sql`.
+
+## [5.47.0] - 2026-11-22
+
+### Added
+- Private notes about members: signed-in members get a "Your private note"
+  box on other members' profiles. A note holds up to 280 characters, one per
+  member, and only you can ever see it: not the member it is about, not
+  other members, not admins or the owner, and it appears in no feed, search,
+  agent tool or page preview. You can still read and delete a note about a
+  member you blocked or who is banned. Your notes are in your data export;
+  notes others keep about you are not. Deleting either account removes the
+  note. New routes `GET`, `PUT` and `DELETE /api/users/:username/note`
+  (an empty note is refused; use `DELETE`). Needs migration
+  `0072_private_notes.sql`.
+
+## [5.46.0] - 2026-11-22
+
+### Added
+- Mute a thread: a Mute thread / Unmute thread button on a thread's first
+  post. While a thread is muted you get no notifications that come from it:
+  replies to you, replies in a thread you subscribed to, @mentions inside it,
+  and new-thread alerts from members you follow. Other members are not
+  affected, and chat mentions and invite notices still arrive. Deleting the
+  thread or your account removes the mute. New routes
+  `PUT /api/posts/:id/mute` and `DELETE /api/posts/:id/mute` (thread first
+  posts only), and the thread payload gains `viewerMuted` for signed-in
+  members. Needs migration `0071_thread_mutes.sql`.
+- Thread outline: threads with 8 or more replies get a collapsible "Jump to"
+  list showing each reply's author and how long ago it was posted. Picking
+  an entry scrolls to that reply and moves focus to it. The list is built in
+  the browser from the replies already on the page. Whether it is open or
+  closed is remembered in this browser for your account and cleared when you
+  sign out.
+
+## [5.45.0] - 2026-11-22
+
+### Security
+- Security review of v5.41-v5.44 (staff notes, report claiming, thread slow
+  mode, reactions on direct messages and thread tags):
+  [docs/security-reviews/2026-11-22-v5.41-v5.44.md](docs/security-reviews/2026-11-22-v5.41-v5.44.md).
+  No critical or high findings, so nothing in the forum's behaviour changes
+  in this release. One medium finding (several replies sent at the same
+  moment can all get past a thread's slow mode) and three low findings are
+  left for the owner to decide, along with the three owner items carried
+  over from earlier reviews. New tests lock in the behaviour the review
+  checked.
+
+## [5.44.0] - 2026-11-22
+
+### Added
+- Reactions on direct messages: in a one-to-one conversation, either person
+  can like or dislike a message (one reaction each, and pressing it again
+  takes it back). Only the two people in the conversation can react or see
+  the reactions; reactions are not possible while either one blocks the
+  other. Group conversations do not have reactions yet. Your own reactions
+  are included in "Download my data".
+- Thread tags: staff can create up to 50 tags on the moderation desk. A
+  thread's author (or staff) can add up to 3 tags to a thread, shown as
+  chips under the first post. Each chip opens the tag's page, `/tag/<name>`,
+  which lists the tagged threads newest first. Hidden threads, threads by
+  banned members and threads across a block never appear there.
+
+### Changed
+- Database migration 0070 adds three new tables (DM message reactions, tags
+  and thread tags). It must be applied before this version is deployed.
+
+## [5.43.0] - 2026-11-22
+
+### Added
+- Staff notes on members: staff can add and delete short notes (up to 500
+  characters) about a member from the member peek on the moderation desk.
+  Notes are visible to staff only: they never appear on profiles, in feeds,
+  search, exports, the agent (MCP) tools or page previews, not even to the
+  member they are about.
+- Report claiming: staff can claim a post report so others know it is being
+  handled ("Claimed by @name"), and any staff member can release it. Only one
+  person can hold a claim; resolving or dismissing the report clears it.
+  Profile and DM reports are separate queues and are not claimable yet.
+- Thread slow mode: staff can limit a thread to one reply every 30 seconds,
+  1 minute, 5 minutes or 15 minutes. The thread shows a "Slow mode" note, and
+  a member who replies again too soon (on the website or through the agent
+  tools) is asked to wait. Staff are not limited.
+
+### Changed
+- Database migration 0069 adds three new tables (member notes, report
+  claims, thread slow mode). It must be applied before this version is
+  deployed.
+
+## [5.42.0] - 2026-11-22
+
+### Security
+- Whole-forum privacy re-audit (done every tenth version): every page, feed
+  and list added since v5.32 (RSS feeds, llms.txt, This week, newest
+  members, staff picks, invites, search filters, conversation search,
+  pinned threads, custom status, poll closing times, bookmark folders,
+  following members and notification types) is now listed in
+  [docs/visibility-inventory.md](docs/visibility-inventory.md) with the
+  filters it applies and the test that checks it. No leaks were found.
+
+### Fixed
+- The automated privacy checks now also cover the newest-members list, the
+  follow button's state, notification settings, the staff-pick log, and
+  what staff and the site owner see on public pages and in other members'
+  private folders, follows and settings.
+
+## [5.41.0] - 2026-11-22
+
+### Security
+- Security review of v5.37-v5.40 (pinned threads, custom status, poll
+  closing times, bookmark folders, following members and notification
+  types):
+  [docs/security-reviews/2026-11-22-v5.37-v5.40.md](docs/security-reviews/2026-11-22-v5.37-v5.40.md).
+  No high or medium findings; three low findings fixed; one new owner
+  decision on the data export and the two carried-over owner items remain
+  open.
+
+### Fixed
+- A custom status can no longer contain the invisible characters that flip
+  text direction, which could show a filtered word spelled backwards as the
+  real word. Hebrew, Arabic and other right-to-left statuses work as before.
+- The 200-member follow limit and the 20-folder bookmark limit now hold even
+  when several requests arrive at once.
+
+## [5.40.0] - 2026-11-22
+
+### Added
+- Notification types: a new settings panel with one checkbox per kind of
+  notification: replies to your posts, new replies in threads you subscribed
+  to, mentions in posts and replies, mentions in chat, new threads from
+  members you follow, and friends who join with your invite link. Untick a
+  kind and the forum stops creating those notifications for you; tick it
+  again and new ones arrive as before. Everything starts ticked. Decisions
+  about your account, like appeal results, always reach you and can't be
+  turned off.
+- Easy-reading spacing: a new option under Reading comfort that adds more
+  space between letters, words, lines and paragraphs (the WCAG 1.4.12 text
+  spacing levels). It is saved in this browser only, like the other Reading
+  comfort options, and doesn't change the font.
+
+### Fixed
+- "Skip to content" (the first thing the Tab key reaches on every page) now
+  moves keyboard focus straight to the main content. Before, it changed the
+  page address, which made the forum redraw the page and lose your place.
+
+### Changed
+- Database migration `0068_notification_prefs.sql` adds the
+  `notification_prefs` table. It is CREATE-only.
+
+## [5.39.0] - 2026-11-22
+
+### Added
+- Bookmark folders: sort your saved posts into up to 20 private folders
+  (names of 1 to 40 characters). The Saved page shows a row of folder chips;
+  use "Add to folder" on a saved post, or open a folder to rename it, delete
+  it or remove posts from it. One post can be in several folders, deleting a
+  folder keeps its posts saved, and nobody else can see your folders. A post
+  that is hidden, deleted, by a banned member or across a block never shows
+  in a folder, the same as in the saved list.
+- Follow a member: a Follow button on member profiles (for signed-in
+  members). When someone you follow starts a new public thread, you get one
+  notification. Your Following list is in your settings, with Unfollow, and
+  nobody else can see who you follow or who follows you. You can't follow
+  yourself, a banned member or anyone you have a block with, and blocking
+  someone removes any follow between you in both directions. You can follow
+  up to 200 members.
+
+### Changed
+- Database migration `0067_folders_follows.sql` adds the `bookmark_folders`,
+  `bookmark_folder_items` and `user_follows` tables. It is CREATE-only.
+
+## [5.38.0] - 2026-11-22
+
+### Added
+- Pin one of your threads to the top of your profile. Use "Pin to profile"
+  next to a thread in your Recent threads; pinning another replaces it, and
+  "Unpin" removes it. Only your own public threads can be pinned, and a pin
+  stops showing if the thread is hidden or deleted or you are banned.
+- Custom status: up to 60 characters and one emoji, shown under your name on
+  your profile. Choose when it clears (never, 1 hour, 4 hours, today or
+  1 week). Statuses pass the same word filter as posts. They never show for
+  banned members or across a block.
+- Polls can close on their own: pick a closing time from 1 hour to 30 days
+  when adding the poll, or later while it is open. The thread author and staff
+  can change or clear it. The poll shows "Closes in …", and once the time
+  passes, voting is closed the same way as closing it by hand.
+
+### Changed
+- Database migration `0066_profile_extras.sql` adds the `profile_pins`,
+  `user_status` and `poll_deadlines` tables. It is CREATE-only.
+
+## [5.37.0] - 2026-11-22
+
+### Security
+- Security review of v5.33-v5.36 (RSS feeds, invite links, staff picks, the
+  This week page, newest members, search filters and in-conversation search):
+  [docs/security-reviews/2026-11-22-v5.33-v5.36.md](docs/security-reviews/2026-11-22-v5.33-v5.36.md).
+  No high or medium findings; one owner decision on the data export and the
+  carried-over analytics item remain open.
+
+### Fixed
+- Invite links now credit the inviter on the first page load after signing
+  up: the claim was sent before the session's CSRF token was set, so the
+  server refused it.
+
+## [5.36.0] - 2026-11-22
+
+### Added
+- Search date range and sort: chips on the search page narrow results to the
+  past week, month or year and sort by most relevant or newest. The choice
+  rides the URL (`?since=` and `?sort=`) so a filtered search can be shared;
+  `/?q=` alone works as before. Every visibility rule still applies.
+- Search inside a DM or group conversation from a box in the chat header.
+  Only the conversation's own members can search it, messages hidden in the
+  chat view stay hidden, and excerpts mask spoilers. Clicking a result jumps
+  to that message, loading older messages if needed. Queries are not logged
+  or stored.
+- Recent searches: your last 8 forum searches appear as chips when the search
+  box is focused and empty. They stay in this browser only, can be cleared
+  with "Clear recent searches", and are wiped when you sign out.
+
+### Fixed
+- In a conversation, "Load older" pages now keep their order and survive the
+  5-second refresh, and a reader scrolled up keeps their place.
+
+## [5.35.1] - 2026-11-22
+
+### Security
+- Share menu links are built with the URL parser; odd Mastodon hosts are refused.
+
+## [5.35.0] - 2026-11-22
+
+### Added
+- A "This week" page at `/week`: the staff pick of the week on top, the most
+  replied public threads created or active in the last 7 days, and the newest
+  Showcase builds of the week. It shows only what the public feed shows
+  (hidden posts, banned members and anyone you blocked or who blocked you
+  never appear), previews mask spoilers, and it has its own page title for
+  search and share previews. The home page links to it, and it is in the
+  sitemap.
+- A "New 👋" chip next to the name on posts and replies by accounts younger
+  than 7 days. Only the yes/no flag is sent; join dates stay private.
+- "Newest members" on the home page: the five newest members, each linking to
+  their profile. Banned members are left out, and so is anyone on either side
+  of a block with you. No notifications or emails.
+- Staff pick of the week: staff (owner and admins) can make one public
+  Showcase thread the staff pick from the thread's staff controls. It is
+  pinned with a "Staff pick ⭐" label at the top of the Showcase gallery and
+  on `/week`; the newest pick wins, and a pick that is later hidden or whose
+  author is banned simply stops showing. Every pick and unpick is recorded in
+  a new Staff picks log on the moderation desk. Needs migration
+  `0065_featured_posts.sql`.
+
+## [5.34.0] - 2026-11-21
+
+### Added
+- A Share button on threads (Showcase posts included). It opens your device's
+  share sheet when there is one, otherwise a small menu: copy the link, or
+  share to X, Bluesky, Reddit or your own Mastodon server. The links carry
+  only the thread's address and title; nothing is loaded from those sites.
+  The Mastodon server you type is remembered in your browser and forgotten
+  when you sign out. Hidden threads, replies and staff views get no button.
+- RSS feeds: `/feed.xml` for the latest public topics and `/c/<board>/feed.xml`
+  for each board, with the same visibility as the public feed (spoilers
+  masked). Pages link to them so feed readers find them automatically.
+- Invite a friend: settings show your own `/join?ref=<you>` link. When a new
+  member signs up through it, their welcome card says who invited them and
+  you get a notification. Only that one link between the two accounts is
+  stored, nothing is shown publicly, and nothing happens across a block or
+  for a banned member. Needs migration `0064_invites.sql`.
+- `/llms.txt`: a short plain-text guide to the forum for AI assistants, built
+  from the forum's own name and tagline, with links to the API description,
+  MCP endpoint, sitemap and feed. It contains no posts and no member data.
+  The API catalog and `robots.txt` point to it.
+
+## [5.33.0] - 2026-11-21
+
+### Security
+- A security review of 5.28 to 5.31 (private visit counts, AutoMod being
+  switched on, and the per-page titles, share previews and search-engine
+  data), written up in `docs/security-reviews/2026-11-21-v5.28-v5.31.md`.
+- Fixed: a thread whose first line held a `$'` or similar `$` sequence could
+  break its page title and share preview, copying part of the page into
+  them. The text now always shows exactly as written. The same fix covers
+  the forum name and tagline set on the desk.
+- The admin guide now explains how to switch off or replace a leaked
+  AutoMod key, and how to undo what it did.
+
 ## [5.32.0] - 2026-11-21
 
 ### Security

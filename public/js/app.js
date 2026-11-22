@@ -59,6 +59,8 @@ state.renderRoute = renderRoute;
 // The §4b door-swap: the boot-level ?wt redemption (before the router
 // mounts) and every Accounts URL ride the pure sso.js helpers.
 import { redeemReturnTicket, wempoAccountsSignInUrl } from "./sso.js";
+// Invite links (v5.34): the /join landing and the one-time claim.
+import { claimPendingInvite, createJoinPage, rememberInviteRef } from "./invite.js";
 // v4.0 plan 4 Task 3: the feed concern (home/search/mine/category/bookmarks
 // routes, feed tabs, feed pagination + card actions) lives in routes/feed.js;
 // the composer family (builder, submits, gif/poll dialogs) lives in
@@ -69,6 +71,7 @@ import {
   renderBookmarksRoute,
   renderCategoryRoute,
   renderHomeRoute,
+  renderSettingsRoute,
   renderMineRoute,
 } from "./routes/feed.js";
 import {
@@ -118,6 +121,8 @@ import {
   renderArchiveRoute,
   renderLeaderboardRoute,
   renderRulesRoute,
+  renderWeekRoute,
+  renderTagRoute,
 } from "./routes/pages.js";
 
 // v4.0 plan 4 Task 7: the appeals concern (the /appeals route and its
@@ -155,20 +160,37 @@ import {
 // routes/blocks.js (rendered into the account area by routes/feed.js, like
 // the two-factor section); its Unblock action merges here.
 import { ACTIONS as blockActions } from "./routes/blocks.js";
+// v5.39.0: member follows and bookmark folders.
+import { createFollowActions } from "./follows.js";
+import { createFolderActions } from "./bookmark-folders.js";
 import { stopReadAloud } from "./read-aloud.js";
 import { stopReadingProgress } from "./reading-progress.js";
 import { applyTabUnread, normaliseTabCount, pageStorage } from "./tab-unread.js";
 import { paintSourceLink } from "./source-link.js";
+import { attachRecentSearches } from "./recent-searches.js";
+import { wireSkipLink } from "./skip-link.js";
+import { captureMoreFocus, restoreMoreFocus } from "./thread-actions.js";
 
 async function prepareRouteContext(version) {
-  const [session, setup] = await Promise.all([
+  const [sessionReply, setup] = await Promise.all([
     api("/api/session"),
     api("/api/setup/status"),
   ]);
   if (version !== state.renderVersion) return null;
+  let session = sessionReply;
+  // The invite claim below is a mutating POST, so the session's CSRF token
+  // is stored first (v5.37 L1: set after it, the first load back from
+  // sign-up sent no X-CSRF-Token and the claim was refused).
+  setCsrfToken(session.csrfToken);
+  // Invite links (v5.34): a ref this tab kept from /join is claimed once,
+  // right after sign-in; the welcome card then names the inviter.
+  if (session.user) {
+    const inviter = await claimPendingInvite(api);
+    if (inviter) session = { ...session, user: { ...session.user, invitedBy: inviter } };
+    if (version !== state.renderVersion) return null;
+  }
   state.currentUser = session.user;
   state.unreadNotifications = session.user ? normaliseTabCount(session.unreadNotifications) : 0;
-  setCsrfToken(session.csrfToken);
   renderAccountNavigation(session.user, session.unreadNotifications ?? 0);
   return {
     session,
@@ -181,11 +203,14 @@ function setRouteTitle(route) {
   const pageNames = {
     home: t("app.siteName"),
     search: t("app.pageSearch"),
+    settings: t("settings.title"),
     suggestions: t("app.pageSuggestions"),
     archive: t("app.pageArchive"),
     mine: t("app.pageMine"),
     leaderboard: t("app.pageLeaderboard"),
     rules: t("app.pageRules"),
+    week: t("app.pageWeek"),
+    tag: t("app.pageTag"),
     post: t("app.pagePost"),
     profile: t("app.pageProfile"),
     admin: t("app.pageAdmin"),
@@ -194,6 +219,7 @@ function setRouteTitle(route) {
     bookmarks: t("app.pageBookmarks"),
     setup: t("app.pageSetup"),
     "not-found": t("app.pageNotFound"),
+    join: t("join.title"),
   };
   document.title = route.name === "home"
     ? t("app.siteName")
@@ -201,6 +227,18 @@ function setRouteTitle(route) {
       // Categories (v3.1): the title carries the category's display name.
       ? t("app.titleWithPage", { page: route.board ? boardLabel(route.board) : t("app.pageCategory") })
       : t("app.titleWithPage", { page: pageNames[route.name] || pageNames.home });
+}
+
+// Invite landing (v5.34): keep the ref for this tab, then either show the
+// sign-up door (signed out) or claim it now and go home (signed in).
+async function renderJoinRoute(route, context) {
+  rememberInviteRef(undefined, route.ref);
+  if (context.session.user) {
+    await claimPendingInvite(api);
+    state.router.navigate("/", { replace: true });
+    return;
+  }
+  main.append(createJoinPage(document, wempoAccountsSignInUrl(window.location.origin)));
 }
 
 function renderNotFoundRoute() {
@@ -253,9 +291,12 @@ async function renderRoute(route) {
     setup: () => renderSetupRoute(context),
     home: () => renderHomeRoute(route, context, version),
     search: () => renderHomeRoute(route, context, version),
+    settings: () => renderSettingsRoute(context, version),
     mine: () => renderMineRoute(context, version),
     leaderboard: () => renderLeaderboardRoute(context, version),
     rules: () => renderRulesRoute(context, version),
+    week: () => renderWeekRoute(context, version),
+    tag: () => renderTagRoute(route, context, version),
     category: () => renderCategoryRoute(route, context, version),
     archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),
@@ -264,6 +305,7 @@ async function renderRoute(route) {
     notifications: () => renderNotificationsRoute(context, version),
     bookmarks: () => renderBookmarksRoute(route, context, version),
     "not-found": () => renderNotFoundRoute(),
+    join: () => renderJoinRoute(route, context),
   };
   const renderPage = renderers[route.name] || renderNotFoundRoute;
   try {
@@ -271,7 +313,8 @@ async function renderRoute(route) {
   } catch (error) {
     // A post that no longer exists (deleted, or a stale link/history entry)
     // is a 404 page, not an error bar (wave 5.6 F1).
-    if (route.name !== "post" || error?.status !== 404 || version !== state.renderVersion) throw error;
+    // An unknown tag (v5.44) is the same 404 page.
+    if ((route.name !== "post" && route.name !== "tag") || error?.status !== 404 || version !== state.renderVersion) throw error;
     main.replaceChildren();
     renderNotFoundRoute();
   }
@@ -352,6 +395,9 @@ async function handleButtonAction(button) {
     ...accountNavActions,
     // The blocked-members unblock action lives in routes/blocks.js.
     ...blockActions,
+    // Follows and bookmark folders (v5.39.0).
+    ...createFollowActions({ setMessage }),
+    ...createFolderActions({ setMessage, prompt: (text, value) => window.prompt(text, value), confirm: (text) => window.confirm(text) }),
     // Two-factor setup lives in routes/twofa.js.
     ...twofaActions,
     // Signed-in devices (wave 5.14) live in account-security.js.
@@ -404,13 +450,20 @@ async function handleClick(event) {
   if (handleInternalNavigation(event)) return;
   const button = event.target.closest("button[data-action]");
   if (!button) return;
+  // L5 (v5.57 review): an action inside the thread's More menu re-renders the
+  // page; More reopens and focus returns to the control afterwards.
+  const moreFocus = captureMoreFocus(button);
   try {
     await handleButtonAction(button);
   } catch (error) {
     setMessage(error.message, true);
+  } finally {
+    restoreMoreFocus(document, moreFocus);
   }
 }
 document.addEventListener("click", handleClick);
+// v5.40.0: "Skip to content" moves focus to <main> without a URL change.
+wireSkipLink(document);
 // The attachment lightbox wires its own close/step listeners on first open
 // (lightbox.js, wave 21); Escape is native to <dialog>.
 // Composer file inputs: folder/picker selections are folded into the form's
@@ -507,6 +560,14 @@ async function boot() {
         addText(document, main, "p", error.message, "error-copy");
       });
     });
+    // Wave 5.36: recent-search chips under the header search box (local only).
+    const searchInput = document.querySelector("#search-query");
+    if (searchInput) {
+      attachRecentSearches(document, searchInput, {
+        getAccountId: () => state.currentUser?.id ?? null,
+        navigate: (path) => state.router.navigate(path),
+      });
+    }
   } catch (error) {
     console.error("Forum startup failed:", error);
     main.replaceChildren();

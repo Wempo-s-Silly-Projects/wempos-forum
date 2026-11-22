@@ -56,6 +56,13 @@ import { openLightbox } from "../lightbox.js";
 import { anchorReplyCard, bindReplyHashChange, highlightReplyFromHash } from "../reply-anchor.js";
 import { createSaveThreadButton } from "../thread-text.js";
 import { startReadingProgress } from "../reading-progress.js";
+import { createShareButton, shareMenuOffersCopyLink } from "../share.js";
+import { createSlowModeForm, createSlowModeNote, slowModePath } from "../slow-mode.js";
+import { canReplyToThread, createThreadLockNote, createThreadLockReason, stripReplyControls, threadLockPath } from "../thread-lock.js";
+import { createTagChips, createTagEditor, postTagsPath } from "../tags.js";
+import { createThreadOutline } from "../thread-outline.js";
+import { createThreadSummary, loadThreadSummary } from "../thread-summary.js";
+import { organizeThreadActions, placeInThreadHeader } from "../thread-actions.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -66,6 +73,54 @@ async function renderPostRoute(route, context, version) {
   rootCard.querySelector(".post-actions")
     ?.append(createSaveThreadButton(document, { getRoot: () => main, threadId: post.id }));
   main.append(rootCard);
+  // Slow mode (v5.43): the note for everyone, the setter for staff (roots only).
+  const slowNote = createSlowModeNote(document, post.slowModeSeconds);
+  if (slowNote) main.append(slowNote);
+  const viewer = context.session.user;
+  // v5.55: the slow-mode setter rides the root card's Staff menu (below).
+  const staffForms = [];
+  if (!post.parent && (viewer?.role === "owner" || viewer?.role === "admin")) {
+    staffForms.push(createSlowModeForm(document, post.id, post.slowModeSeconds));
+  }
+  // Thread lock (v5.51): the note for everyone; staff also read the reason
+  // from the desk route (a failed read just leaves it out).
+  const lockNote = createThreadLockNote(document, post.locked);
+  if (lockNote) {
+    main.append(lockNote);
+    if (viewer?.role === "owner" || viewer?.role === "admin") {
+      const lock = await api(threadLockPath(post.id)).catch(() => null);
+      if (version !== state.renderVersion) return;
+      const reasonLine = createThreadLockReason(document, lock?.reason);
+      if (reasonLine) main.append(reasonLine);
+    }
+  }
+  const lockedForViewer = post.locked === true && !(viewer?.role === "owner" || viewer?.role === "admin");
+  // Thread tags (v5.44): chips for everyone on a root; the picker for the
+  // author and staff. A failed tag read leaves the page without chips.
+  const tagEditor = post.parent ? null : await appendThreadTags(rootCard, post, viewer, version);
+  if (version !== state.renderVersion) return;
+  // TL;DR (v5.50): roots only, above the replies; the editor for the author
+  // and staff (the server gates it again). It fills in without blocking.
+  if (!post.parent) {
+    const isStaffViewer = viewer?.role === "owner" || viewer?.role === "admin";
+    const canEdit = Boolean(viewer) && (isStaffViewer || Number(post.author?.id) === Number(viewer.id));
+    const tldr = createThreadSummary(document, { postId: post.id, canEdit });
+    placeInThreadHeader(rootCard, tldr);
+    loadThreadSummary(tldr);
+  }
+  // Share (v5.34): public root threads only, never for staff viewers.
+  const share = createShareButton(document, post, context.session.user);
+  // Declutter (v5.55, docs/ia-map.md): root threads keep Like, Dislike, Share
+  // and More; the rest of the row moves into More's groups and Staff menu.
+  // (canShare already refuses replies, so a reply page never has a Share.)
+  // v5.58: one visible Copy link (Share's, when its menu has one) and no
+  // Open post link pointing at this very page.
+  if (!post.parent) {
+    organizeThreadActions(document, rootCard, {
+      postId: post.id, share, tagEditor, staffForms,
+      currentPath: location.pathname, shareHasCopyLink: Boolean(share) && shareMenuOffersCopyLink(),
+    });
+  }
   // Thread at a glance (wave 2026-11-21): from the posts already loaded.
   if (post.replies.length) {
     main.append(createThreadGlance(document, summarizeThread(post, post.replies), main));
@@ -79,12 +134,15 @@ async function renderPostRoute(route, context, version) {
     main.append(createShortcutSheet(document));
     replyList = element("div", "post-list replies-list");
     replyList.dataset.repliesFor = String(post.id);
+    if (lockedForViewer) replyList.dataset.locked = "true";
     // Link to a reply (wave 5.25 F1): id="reply-<id>" + its own copy link.
     for (const reply of post.replies) {
       const card = createPostCard(reply, document, context.session.user);
       anchorReplyCard(document, card, post.id);
       replyList.append(card);
     }
+    // Thread lock (v5.51): members get no per-card Reply/Quote controls.
+    if (lockedForViewer) stripReplyControls(replyList);
     // Jump to the latest reply (wave 2026-11-21-9 F3): long threads only.
     const latestJump = createLatestReplyJump(document, replyList, post.replies.length);
     if (latestJump) main.append(latestJump);
@@ -101,6 +159,9 @@ async function renderPostRoute(route, context, version) {
     // Filter replies (wave 5.5 F2): page view only, nothing stored or sent.
     const replyFilter = createReplyFilter(document, replyList, knownReplyTotal(post));
     if (replyFilter) main.append(replyFilter);
+    // Thread outline (v5.46.0): long threads only, from the cards just built.
+    const outline = createThreadOutline(document, post.replies, replyList, { accountId: state.currentUser?.id });
+    if (outline) main.append(outline);
     main.append(replyList);
     // Thread-author chip (wave 2026-11-21-7 F2): the starter's own replies.
     if (starterId) replyList.dataset.starterId = String(starterId);
@@ -124,7 +185,7 @@ async function renderPostRoute(route, context, version) {
   // Back to the first post (wave 2026-11-21-12 F3): long threads only.
   const firstJump = createFirstPostJump(document, rootCard, post.replies.length);
   if (firstJump) main.append(firstJump);
-  if (context.session.user && post.visibility !== "hidden" && !post.parent) {
+  if (canReplyToThread(post, context.session.user)) {
     main.append(createComposer("reply", t("post.replyPlaceholder"), t("common.reply"), post.id));
   }
   // A #reply-<id> hash lands on that reply when it is on this page; else no-op.
@@ -279,6 +340,7 @@ async function loadOlderReplies(button) {
     fragment.append(card);
   }
   replyList.prepend(fragment);
+  if (replyList.dataset.locked === "true") stripReplyControls(replyList);
   markThreadStarterReplies(document, replyList, older.replies, Number(replyList.dataset.starterId));
   addReplyFolds(document, replyList);
   ensureFoldAllToggle(document, replyList);
@@ -287,10 +349,41 @@ async function loadOlderReplies(button) {
   else button.remove();
 }
 
+// Tag chips join the root card's header area; the picker (author and staff)
+// is returned for the card's More menu. Null = no picker.
+async function appendThreadTags(rootCard, post, viewer, version) {
+  const isStaffViewer = viewer?.role === "owner" || viewer?.role === "admin";
+  const canEdit = Boolean(viewer) && (isStaffViewer || Number(post.author?.id) === Number(viewer.id));
+  const [own, all] = await Promise.all([
+    api(postTagsPath(post.id)).catch(() => ({ tags: [] })),
+    canEdit ? api("/api/tags").catch(() => ({ tags: [] })) : Promise.resolve({ tags: [] }),
+  ]);
+  if (version !== state.renderVersion) return null;
+  placeInThreadHeader(rootCard, createTagChips(document, own.tags));
+  if (!canEdit) return null;
+  return createTagEditor(document, post.id, all.tags, (own.tags || []).map((tag) => tag.id));
+}
+
 // The registration seam: post-edit submits through FORM_HANDLERS; the detail
 // route's own actions merge into handleButtonAction's dispatch map.
 export const FORM_HANDLERS = {
   "post-edit": (form, text) => submitPostEditForm(form, text),
+  // Slow mode (v5.43): "Off" turns it off, any choice sets it; re-render so
+  // the note follows.
+  "thread-slowmode": async (form, text) => {
+    const seconds = Number(text("seconds"));
+    const path = slowModePath(form.dataset.postId);
+    await api(path, seconds > 0 ? { method: "PUT", body: { seconds } } : { method: "DELETE" });
+    await state.renderRoute(state.activeRoute);
+    setMessage(t(seconds > 0 ? "slowMode.set" : "slowMode.cleared"));
+  },
+  // Thread tags (v5.44): the checked boxes are the whole new set.
+  "thread-tags": async (form, text, values) => {
+    const tagIds = values.getAll("tagId").map(Number);
+    await api(postTagsPath(form.dataset.postId), { method: "PUT", body: { tagIds } });
+    await state.renderRoute(state.activeRoute);
+    setMessage(t("tags.saved"));
+  },
 };
 
 export const ACTIONS = {
@@ -324,6 +417,17 @@ export const ACTIONS = {
     });
     await state.renderRoute(state.activeRoute);
   },
+  // v5.38.0 F3: set ("" clears) the poll's closing time — seconds from now.
+  "poll-deadline": async (button) => {
+    if (state.activeRoute.name !== "post") return;
+    const select = button.closest(".poll-deadline")?.querySelector(".poll-deadline-select");
+    if (!select) return;
+    await api("/api/posts/" + state.activeRoute.id + "/poll", {
+      method: "PATCH",
+      body: { closesIn: select.value === "" ? null : Number(select.value) },
+    });
+    await state.renderRoute(state.activeRoute);
+  },
   "edit-post": (button) => {
     const article = editTargetArticle(button);
     if (article) openEditForm(article, document);
@@ -346,7 +450,7 @@ export const ACTIONS = {
       return;
     }
     const data = await api(`/api/posts/${encodeURIComponent(button.dataset.postId)}/edits`);
-    article.append(renderEditHistoryPanel(document, data.edits));
+    article.append(renderEditHistoryPanel(document, data.edits, article.postBody));
   },
 };
 

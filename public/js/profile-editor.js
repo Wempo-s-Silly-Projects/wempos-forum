@@ -18,7 +18,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// Profile editor (bio up to 10,000 characters + the ten social inputs) and the
+// Profile editor (bio up to 10,000 characters + the social inputs) and the
 // pure social-link map shared by the profile page renderer in app.js. The
 // client-side patterns below are pinned copies of api/shared.mjs
 // SOCIAL_PLATFORMS — the server re-validates everything; these only steer the
@@ -36,13 +36,39 @@ export const SOCIAL_LABELS = {
   instagram: "Instagram", // i18n-ignore
   tiktok: "TikTok",
   twitch: "Twitch", // i18n-ignore
+  // v5.65.0: brand names stay untranslated.
+  facebook: "Facebook", // i18n-ignore
+  tumblr: "Tumblr", // i18n-ignore
+  substack: "Substack", // i18n-ignore
+  soundcloud: "SoundCloud", // i18n-ignore
+  spotify: "Spotify", // i18n-ignore
+  linktree: "Linktree", // i18n-ignore
+  beacons: "Beacons", // i18n-ignore
+  cameo: "Cameo", // i18n-ignore
+  shopify: "Shopify", // i18n-ignore
+  kickstarter: "Kickstarter", // i18n-ignore
+  indiegogo: "Indiegogo", // i18n-ignore
+  patreon: "Patreon", // i18n-ignore
+  kofi: "Ko-fi", // i18n-ignore
+  buymeacoffee: "Buy Me a Coffee", // i18n-ignore
+  paypal: "PayPal", // i18n-ignore
+  cashapp: "Cash App", // i18n-ignore
+  venmo: "Venmo", // i18n-ignore
   polytoria: "Polytoria", // i18n-ignore
 };
+
+// Payment-link networks (v5.65.0): links only — the forum never processes or
+// relays payments. They sit together in the editor; the note follows them.
+export const PAYMENT_SOCIAL_KEYS = ["patreon", "kofi", "buymeacoffee", "paypal", "cashapp", "venmo"];
 
 // Field order for the editor; spec §10 (Polytoria last).
 export const SOCIAL_PLATFORM_ORDER = [
   "youtube", "x", "reddit", "github", "discord", "gitlab",
-  "instagram", "tiktok", "twitch", "polytoria",
+  "instagram", "tiktok", "twitch",
+  "facebook", "tumblr", "substack", "soundcloud", "spotify", "linktree",
+  "beacons", "cameo", "shopify", "kickstarter", "indiegogo",
+  ...PAYMENT_SOCIAL_KEYS,
+  "polytoria",
 ];
 
 // Mirrors api/shared.mjs SOCIAL_PLATFORMS.regex exactly.
@@ -56,6 +82,23 @@ export const SOCIAL_PATTERNS = {
   instagram: /^[A-Za-z0-9_.]{1,30}$/,
   tiktok: /^[A-Za-z0-9_.]{1,24}$/,
   twitch: /^[A-Za-z0-9_]{1,25}$/,
+  facebook: /^[A-Za-z0-9.]{5,50}$/,
+  tumblr: /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,30}[A-Za-z0-9])?$/,
+  indiegogo: /^[a-z0-9-]{1,80}$/,
+  shopify: /^[a-z0-9][a-z0-9-]{1,58}[a-z0-9]$/,
+  substack: /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/,
+  kickstarter: /^[A-Za-z0-9_-]{1,40}$/,
+  cameo: /^(?!\.{1,2}$)[A-Za-z0-9_.-]{1,40}$/,
+  linktree: /^(?!\.{1,2}$)[A-Za-z0-9_.]{1,30}$/,
+  beacons: /^(?!\.{1,2}$)[A-Za-z0-9_.]{1,30}$/,
+  soundcloud: /^[a-z0-9_-]{3,25}$/,
+  spotify: /^[A-Za-z0-9]{22}$/,
+  patreon: /^[A-Za-z0-9_-]{1,64}$/,
+  kofi: /^[A-Za-z0-9_]{1,40}$/,
+  buymeacoffee: /^[A-Za-z0-9_]{1,50}$/,
+  paypal: /^[A-Za-z0-9]{1,20}$/,
+  cashapp: /^[A-Za-z][A-Za-z0-9_-]{0,19}$/,
+  venmo: /^[A-Za-z0-9_-]{5,30}$/,
   polytoria: /^[A-Za-z0-9_]{1,24}$/,
 };
 
@@ -78,6 +121,49 @@ const SOCIAL_LINK_BASES = {
   tiktok: (handle) => `https://www.tiktok.com/@${encodeURIComponent(handle)}`,
   twitch: (handle) => `https://www.twitch.tv/${encodeURIComponent(handle)}`,
   polytoria: (handle) => `https://polytoria.com/u/${encodeURIComponent(handle)}`,
+  // v5.65.0. Subdomain templates (tumblr, shopify, substack) only ever see a
+  // handle the DNS-label regex passed; encodeURIComponent still turns any
+  // "/", "?", "#" or "@" into %XX, so the host cannot be steered.
+  facebook: (handle) => `https://www.facebook.com/${encodeURIComponent(handle)}`,
+  tumblr: (handle) => `https://${encodeURIComponent(handle)}.tumblr.com`,
+  indiegogo: (handle) => `https://www.indiegogo.com/projects/${encodeURIComponent(handle)}`,
+  shopify: (handle) => `https://${encodeURIComponent(handle)}.myshopify.com`,
+  buymeacoffee: (handle) => `https://buymeacoffee.com/${encodeURIComponent(handle)}`,
+  substack: (handle) => `https://${encodeURIComponent(handle)}.substack.com`,
+  kickstarter: (handle) => `https://www.kickstarter.com/profile/${encodeURIComponent(handle)}`,
+  cameo: (handle) => `https://www.cameo.com/${encodeURIComponent(handle)}`,
+  paypal: (handle) => `https://www.paypal.me/${encodeURIComponent(handle)}`,
+  kofi: (handle) => `https://ko-fi.com/${encodeURIComponent(handle)}`,
+  patreon: (handle) => `https://www.patreon.com/${encodeURIComponent(handle)}`,
+  cashapp: (handle) => `https://cash.app/$${encodeURIComponent(handle)}`,
+  venmo: (handle) => `https://venmo.com/u/${encodeURIComponent(handle)}`,
+  linktree: (handle) => `https://linktr.ee/${encodeURIComponent(handle)}`,
+  beacons: (handle) => `https://beacons.ai/${encodeURIComponent(handle)}`,
+  soundcloud: (handle) => `https://soundcloud.com/${encodeURIComponent(handle)}`,
+  spotify: (handle) => `https://open.spotify.com/artist/${encodeURIComponent(handle)}`,
+};
+
+// Mirrors api/core/shapers.mjs normalizeSocialHandle: a pasted cashtag drops
+// exactly one leading "$" before validation.
+export const normalizeSocialHandle = (key, value) =>
+  key === "cashapp" && typeof value === "string" && value.startsWith("$") ? value.slice(1) : value;
+
+// The editor's `pattern` attribute for a platform (v5.66.0). Browsers compile
+// it with the `v` flag, where a literal "-" inside a class must be escaped —
+// unescaped, the whole pattern is invalid and silently ignored (14 platforms
+// lost the hint). Every literal dash in these classes sits right before "]".
+// Cash App also accepts a pasted "$" (stripped before the save).
+export const socialInputPattern = (key) => {
+  const source = SOCIAL_PATTERNS[key].source.replace(/-\]/g, "\\-]");
+  return key === "cashapp" ? "\\$?" + source.slice(1, -1) : source;
+};
+
+// The muted note under the payment-link group (v5.65.0).
+export const createPaymentNote = (document) => {
+  const note = document.createElement("p");
+  note.className = "muted form-note social-payment-note";
+  note.textContent = t("profileEditor.paymentNote");
+  return note;
 };
 
 // Pure, DOM-free. Returns [{ key, label, text, url? }] for every platform with
@@ -98,7 +184,9 @@ export const buildSocialLinks = (socials = {}, polytoriaUsername = null) => {
       key,
       label: SOCIAL_LABELS[key],
       text: handle,
-      url: base ? base(handle) : undefined,
+      // v5.65.0: a handle that fails its pattern never becomes an href
+      // (plain text instead) — the server already refuses such writes.
+      url: base && (!SOCIAL_PATTERNS[key] || SOCIAL_PATTERNS[key].test(handle)) ? base(handle) : undefined,
     });
   }
   return links;
@@ -153,6 +241,7 @@ export function renderProfileSocials(document, profile, isOwnProfile = false) {
       anchor.className = "social-handle";
       anchor.textContent = link.text;
       anchor.href = link.url;
+      anchor.rel = "me nofollow noopener ugc"; // i18n-ignore
       item.append(anchor);
     } else {
       const handle = document.createElement("span");
@@ -167,7 +256,7 @@ export function renderProfileSocials(document, profile, isOwnProfile = false) {
 }
 
 // Owner profile editor: bio textarea (10,000-char limit, spec §11) plus the
-// ten social inputs prefilled from the profile payload. Submission is handled
+// social inputs prefilled from the profile payload. Submission is handled
 // by app.js's data-form="profile-editor" handler, which re-fetches the profile
 // after PATCH /api/me (the PATCH response echo is asymmetric).
 export function renderProfileEditor(main, user) {
@@ -185,13 +274,16 @@ export function renderProfileEditor(main, user) {
       id: "profile-bio", name: "bio", label: t("profileEditor.bio"), rows: 4, maxLength: 10000,
       description: t("profileEditor.bioHelp"),
     }),
-    ...SOCIAL_PLATFORM_ORDER.map((key) => createInput(document, {
-      id: `profile-social-${key}`, name: key, label: SOCIAL_LABELS[key],
-      maxLength: 120,
-      description: key === "polytoria"
-        ? t("profileEditor.polytoriaHelp")
-        : SOCIAL_PATTERNS[key] ? t("profileEditor.handleHelp", { platform: SOCIAL_LABELS[key] }) : "",
-    })),
+    ...SOCIAL_PLATFORM_ORDER.flatMap((key) => {
+      const input = createInput(document, {
+        id: `profile-social-${key}`, name: key, label: SOCIAL_LABELS[key],
+        maxLength: 120,
+        description: key === "polytoria"
+          ? t("profileEditor.polytoriaHelp")
+          : SOCIAL_PATTERNS[key] ? t("profileEditor.handleHelp", { platform: SOCIAL_LABELS[key] }) : "",
+      });
+      return key === PAYMENT_SOCIAL_KEYS.at(-1) ? [input, createPaymentNote(document)] : [input];
+    }),
     createInput(document, {
       id: "profile-banner-color", name: "bannerColor", label: t("profileEditor.bannerColor"),
       maxLength: 7, description: t("profileEditor.bannerColorHelp"),
@@ -217,7 +309,7 @@ export function renderProfileEditor(main, user) {
     const input = form.querySelector(`#profile-social-${key}`);
     const value = socials[key];
     input.value = typeof value === "string" ? value : "";
-    input.pattern = SOCIAL_PATTERNS[key].source;
+    input.pattern = socialInputPattern(key);
   }
   form.querySelector("#profile-banner-color").value = user?.bannerColor || "";
   form.querySelector("#profile-banner-text").value = user?.bannerText || "";

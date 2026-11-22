@@ -67,6 +67,19 @@ const ICON_PATHS = {
 
   // Copy code (wave 2026-11-21-10): two stacked sheets.
   copy: ["M9 9h11v11H9z", "M5 15H4V4h11v1"],
+
+  // Account settings hub (v5.56): three sliders on their tracks.
+  sliders: ["M4 21v-7", "M4 10V3", "M12 21v-9", "M12 8V3", "M20 21v-5", "M20 12V3",
+    "M1 14h6", "M9 8h6", "M17 16h6"],
+
+  // My posts (v5.56): a bulleted list.
+  list: ["M8 6h13", "M8 12h13", "M8 18h13", "M3 6h.01", "M3 12h.01", "M3 18h.01"],
+
+  // Navigation (v5.58): the phone bar's Home (the shape it always had), the
+  // Browse menu's This week, and the bar's More.
+  home: ["M3 10.5L12 3l9 7.5", "M5 9.5V21h14V9.5"],
+  calendar: ["M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z", "M16 2v4", "M8 2v4", "M3 10h18"],
+  dots: ["M5 12h.01", "M12 12h.01", "M19 12h.01"],
 };
 
 const iconAria = (name) => ({

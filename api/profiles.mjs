@@ -31,7 +31,7 @@ import { HttpError, json, rateLimit, readJson, readLimitedBody, requireMutationA
 import { hashPassword, isValidPassword, verifyPassword } from "./core/passwords.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { publicChainSql } from "./core/visibility.mjs";
-import { normalizeBannerColor, normalizeProfileAccent, normalizeProfileColorInput, PROFILE_ACCENTS, PROFILE_BANNER_COLORS, SOCIAL_PLATFORMS, socialsFromRow, userByUsernameKey } from "./core/shapers.mjs";
+import { normalizeBannerColor, normalizeProfileAccent, normalizeProfileColorInput, PROFILE_ACCENTS, PROFILE_BANNER_COLORS, normalizeSocialHandle, SOCIAL_PLATFORMS, socialsFromRow, userByUsernameKey } from "./core/shapers.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 // v4.0 plan 3, Task 2: the avatar lifecycle (upload, serve, moderation queue)
@@ -47,6 +47,9 @@ import { handleProfileThreadsRoute } from "./profile-threads.mjs";
 import { recordProfileEdit } from "./automod.mjs";
 // v5.23.0 F2: optional pronouns (own table, own write route).
 import { handlePronounsRoutes, readPronouns } from "./pronouns.mjs";
+// v5.38.0 F1/F2: pinned thread and custom status (migration 0066).
+import { handleProfilePinRoutes, readPinnedThread } from "./profile-pin.mjs";
+import { handleStatusRoutes, readStatus } from "./user-status.mjs";
 
 // PATCH /api/me carries up to a 10,000-character bio, so this route lifts the
 // 16 KB global JSON cap to 64 KB (Task 2 pre-approved per-route interface).
@@ -139,6 +142,11 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       // v5.24.0 S1: masked at read like flair, so a word added to the filter
       // after the save stops showing.
       pronouns: applyWordFilter(await readPronouns(env.FORUM_DB, user.id), filterWords(env)) || "",
+      // v5.38.0: the pinned thread and the custom status ride only this
+      // visible-profile branch (never the block-pair refusal above); both
+      // re-check visibility, ban and expiry on every read.
+      pinnedThread: await readPinnedThread(env, user.id),
+      status: await readStatus(env, user.id),
       socials: socialsFromRow(user),
       polytoriaUsername: user.polytoria_username || null,
       avatarUrl: user.avatar_mime ? "/api/avatars/" + user.id + "?v=" + user.avatar_version : null,
@@ -157,6 +165,7 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
   if (path === "/api/me" && method === "PATCH") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
+    await rateLimit(request, env, "write", String(session.user.id));
     const body = await readJson(request, ME_JSON_BYTES);
     // Absent keys never touch their columns; both present together write in
     // one ban-gated UPDATE.
@@ -190,7 +199,8 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
         throw new HttpError(400, "The socials value must be an object.");
       }
       socials = {};
-      for (const [key, value] of Object.entries(body.socials)) {
+      for (const [key, rawValue] of Object.entries(body.socials)) {
+        const value = normalizeSocialHandle(key, rawValue);
         const platform = SOCIAL_PLATFORMS.find((candidate) => candidate.key === key);
         if (!platform) throw new HttpError(400, "That social platform is not supported.");
         if (value === null || value === "") {
@@ -611,6 +621,8 @@ async function handleProfileRoutes(request, env, url, path, method, ctx) {
     handleProfileThreadsRoute,
     handleProfileUpdateRoute,
     handlePronounsRoutes,
+    handleProfilePinRoutes,
+    handleStatusRoutes,
     handleCssSetRoute,
     handleCssClearRoute,
     handleProfileReportRoute,

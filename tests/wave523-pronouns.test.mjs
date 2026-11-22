@@ -66,10 +66,7 @@ test("profile_pronouns rows are wiped with the account: users FK with ON DELETE 
   assert.equal(fks[0].on_delete, "CASCADE");
 });
 
-test("account deletion through /api/me/delete takes the pronouns row with it", {
-  todo: "BUG (pre-existing, not 5.23): migrations/0043_fleet_boosts.sql:21 REFERENCES gc_messages, " +
-    "a table the forum schema lacks, so every users DELETE fails with 'no such table: main.gc_messages'",
-}, async () => {
+test("account deletion through /api/me/delete takes the pronouns row with it", async () => {
   const env = makeEnv();
   const alice = await member(env);
   await putPronouns(env, alice.session, "she/her");
@@ -286,7 +283,7 @@ test("the new strings exist in en and every locale", async () => {
   const keys = ["profileEditor.pronouns", "profileEditor.pronounsHelp", "errors.pronounsInvalid", "errors.pronounsNotAllowed"];
   const english = JSON.parse(read("public/locales/en.json"));
   assert.equal(english["profileEditor.pronounsHelp"], "Optional. Letters, spaces, / and - only, up to 24 characters.");
-  assert.equal(LOCALES.length, 41);
+  assert.equal(LOCALES.length, 45);
   for (const locale of LOCALES) {
     const code = typeof locale === "string" ? locale : locale.code;
     const table = JSON.parse(read(`public/locales/${code}.json`));

@@ -99,11 +99,11 @@ test("page view only: no network, no storage, no innerHTML", () => {
   assert.doesNotMatch(read("public/js/board-regulars.js"), /\bapi\(|fetch\(|localStorage|sessionStorage|innerHTML/);
 });
 
-test("wave 5.7 F2: the key is in en.json and translated in all 40 other locales", () => {
+test("wave 5.7 F2: the key is in en.json and translated in all 44 other locales", () => {
   const dir = new URL("../public/locales/", import.meta.url);
   const en = JSON.parse(readFileSync(new URL("en.json", dir), "utf8"));
   const others = readdirSync(dir).filter((name) => name.endsWith(".json") && name !== "en.json");
-  assert.equal(others.length, 40);
+  assert.equal(others.length, 44);
   assert.equal(typeof en["feed.regularsHere"], "string");
   for (const name of others) {
     const messages = JSON.parse(readFileSync(new URL(name, dir), "utf8"));

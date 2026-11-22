@@ -98,10 +98,12 @@ test("appearance reset writes only the three device-pref keys and survives block
   assert.equal(doc.documentElement.dataset.corners, "round");
 });
 
-test("renderRoute turns only a post-route 404 into not-found; every other error still surfaces", () => {
+// v5.44: an unknown tag (/tag/<slug>, the server's 404) joins the post route
+// — still exactly two route names, still only status 404.
+test("renderRoute turns only a post- or tag-route 404 into not-found; every other error still surfaces", () => {
   const source = read("public/js/app.js");
-  const guard = 'if (route.name !== "post" || error?.status !== 404 || version !== state.renderVersion) throw error;';
-  assert.ok(source.includes(guard), "401/403/500 and non-post routes rethrow to the error bar");
+  const guard = 'if ((route.name !== "post" && route.name !== "tag") || error?.status !== 404 || version !== state.renderVersion) throw error;';
+  assert.ok(source.includes(guard), "401/403/500 and every other route rethrow to the error bar");
   const body = source.match(/async function renderRoute\(route\) \{([\s\S]*?)\n\}/)[1];
   assert.equal((body.match(/catch \(error\)/g) || []).length, 1, "a single, narrow catch");
 });

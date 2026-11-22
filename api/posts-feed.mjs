@@ -33,6 +33,7 @@
 import { attachmentRowsForView } from "./attachments.mjs";
 import { bookmarkFlagForViewer, withBookmarkFlags } from "./bookmarks.mjs";
 import { subscriberFlagForViewer, withSubscriptionFlags } from "./subscriptions.mjs";
+import { threadMuteFlagForViewer } from "./thread-mutes.mjs";
 import { pollPayload } from "./polls.mjs";
 import {
   SUGGESTION_SCORE_SQL,
@@ -343,7 +344,13 @@ export async function listRootPosts(env, viewer, options = {}) {
     sql += "AND instr(lower(p.body), ?) > 0 ";
     values.push(options.searchTerm);
   }
-  sql += "ORDER BY p.id DESC LIMIT " + (FEED_PAGE_SIZE + 1);
+  // Search filters (wave 5.36): a bound created_at cutoff, and the Newest
+  // sort (created_at, id as the tiebreak). Both absent = the classic order.
+  if (options.sinceSeconds !== null && options.sinceSeconds !== undefined) {
+    sql += "AND p.created_at >= ? ";
+    values.push(options.sinceSeconds);
+  }
+  sql += "ORDER BY " + (options.sortNew ? "p.created_at DESC, " : "") + "p.id DESC LIMIT " + (FEED_PAGE_SIZE + 1);
   const result = await env.FORUM_DB.prepare(sql).bind(...values).all();
   const rows = result.results || [];
   const hasMore = rows.length > FEED_PAGE_SIZE;
@@ -554,6 +561,11 @@ export async function handlePostDetailRoute(request, env, url, path, method) {
     // read no such query — the field is simply absent for them).
     if (viewerId !== null) {
       post.viewerBookmarked = await bookmarkFlagForViewer(env.FORUM_DB, viewerId, postId);
+    }
+    // Thread mutes (v5.46.0): a member's own mute state on a ROOT, one PK
+    // probe (guests and reply details carry no field).
+    if (viewerId !== null && !row.parent_id) {
+      post.viewerMuted = await threadMuteFlagForViewer(env.FORUM_DB, viewerId, postId);
     }
     // Polls (C3): the poll rides the ROOT's detail read (replies carry none).
     // Results are always visible; the viewer's own option rides for members.

@@ -46,7 +46,8 @@ OG_IMAGE_URL = ""
 SOURCE_URL = ""
 # AutoMod (optional, OFF by default). The /api/automod/* surface answers 404
 # unless this is exactly "true" AND the AUTOMOD_KEY secret is set — the key
-# alone never turns it on. Uncomment to opt in.
+# alone never turns it on. Uncomment to opt in; docs/admin-guide.md ("AutoMod
+# API") covers what it can do and how to revoke a leaked key.
 # AUTOMOD_ENABLED = "true"
 # Private analytics. When exactly "true", the forum counts page views as
 # AGGREGATE totals only: page type + UTC day + referring site host. It stores
@@ -55,7 +56,9 @@ SOURCE_URL = ""
 # counted; totals older than 90 days are deleted. Staff see them on the
 # desk's Visits page. Any other value (or leaving it out) turns counting off.
 ANALYTICS_ENABLED = "false"
-VERSION = "5.30.0"
+# The release this example matches, reported by /api/version. Set it to the
+# version you deploy (package.json "version").
+VERSION = "5.64.0"
 
 [assets]
 directory = "./public"

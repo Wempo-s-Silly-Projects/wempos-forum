@@ -24,6 +24,7 @@
 // and publicPost call the accent normalizers, so the colors live here rather
 // than in the profiles topic; core never imports a topic module). Imports only
 // the roles leaf.
+import { NEW_MEMBER_WINDOW_SECONDS } from "../../constants.mjs";
 import { publicRole } from "./roles.mjs";
 import { ACTIVE_BAN_SQL } from "./visibility.mjs";
 
@@ -40,6 +41,21 @@ export const POST_SELECT =
   // Role badges (v3.1): the author's mapped role rides every post so cards
   // can chip owners/admins next to the name.
   "u.role AS author_role, " +
+  // New-member chip (v5.35): a boolean computed in SQL from the author's join
+  // time ("now" is SQL-computed, bind-free) — users.created_at itself never
+  // leaves the server. Strictly younger than the window: exactly 7 days is not
+  // new.
+  "(u.created_at > CAST(strftime('%s','now') AS INTEGER) - " + NEW_MEMBER_WINDOW_SECONDS + ") AS author_is_new, " +
+  // Staff pick (v5.35): is this post the newest featured_posts row? Display
+  // and the staff menu's Pick/Unpick label only; showing the pick on /week and
+  // the gallery re-checks visibility in api/staff-picks.mjs. Bind-free.
+  "(p.id = (SELECT f.post_id FROM featured_posts f ORDER BY f.picked_at DESC, f.id DESC LIMIT 1)) AS staff_pick, " +
+  // Slow mode (v5.43, migration 0069): the thread's cooldown in seconds, NULL
+  // when off. A primary-key read, bind-free; who set it never leaves the desk.
+  "(SELECT s.seconds FROM thread_slowmode s WHERE s.post_id = p.id) AS slow_mode_seconds, " +
+  // Thread lock (v5.51, migration 0075): a primary-key EXISTS, bind-free. The
+  // reason and the locker never join here (desk-only GET).
+  "EXISTS (SELECT 1 FROM thread_locks l WHERE l.post_id = p.id) AS locked, " +
   "(SELECT parent.body FROM posts parent WHERE parent.id = p.parent_id) AS parent_body, " +
   // Wave 40: a reaction by an actively-banned member never counts (read
   // time; an unban restores it) — the same tally SUGGESTION_SCORE_SQL sums.
@@ -74,10 +90,39 @@ export const SOCIAL_PLATFORMS = [
   { key: "instagram", column: "social_instagram", regex: /^[A-Za-z0-9_.]{1,30}$/ },
   { key: "tiktok", column: "social_tiktok", regex: /^[A-Za-z0-9_.]{1,24}$/ },
   { key: "twitch", column: "social_twitch", regex: /^[A-Za-z0-9_]{1,25}$/ },
+  // v5.65.0 (migration 0077). Subdomain networks (tumblr, shopify, substack)
+  // follow DNS-label rules (no edge hyphen, no dots); dot-permitting path
+  // networks refuse a bare "." or ".." so a handle can never be a dot segment.
+  { key: "facebook", column: "social_facebook", regex: /^[A-Za-z0-9.]{5,50}$/ },
+  { key: "tumblr", column: "social_tumblr", regex: /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,30}[A-Za-z0-9])?$/ },
+  { key: "indiegogo", column: "social_indiegogo", regex: /^[a-z0-9-]{1,80}$/ },
+  { key: "shopify", column: "social_shopify", regex: /^[a-z0-9][a-z0-9-]{1,58}[a-z0-9]$/ },
+  { key: "substack", column: "social_substack", regex: /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/ },
+  { key: "kickstarter", column: "social_kickstarter", regex: /^[A-Za-z0-9_-]{1,40}$/ },
+  { key: "cameo", column: "social_cameo", regex: /^(?!\.{1,2}$)[A-Za-z0-9_.-]{1,40}$/ },
+  { key: "linktree", column: "social_linktree", regex: /^(?!\.{1,2}$)[A-Za-z0-9_.]{1,30}$/ },
+  { key: "beacons", column: "social_beacons", regex: /^(?!\.{1,2}$)[A-Za-z0-9_.]{1,30}$/ },
+  { key: "soundcloud", column: "social_soundcloud", regex: /^[a-z0-9_-]{3,25}$/ },
+  { key: "spotify", column: "social_spotify", regex: /^[A-Za-z0-9]{22}$/ },
+  // Payment-link networks: links only, the forum never handles payments.
+  { key: "patreon", column: "social_patreon", regex: /^[A-Za-z0-9_-]{1,64}$/ },
+  { key: "kofi", column: "social_kofi", regex: /^[A-Za-z0-9_]{1,40}$/ },
+  { key: "buymeacoffee", column: "social_buymeacoffee", regex: /^[A-Za-z0-9_]{1,50}$/ },
+  { key: "paypal", column: "social_paypal", regex: /^[A-Za-z0-9]{1,20}$/ },
+  // Cash App: the cashtag WITHOUT its "$" (normalizeSocialHandle strips one).
+  { key: "cashapp", column: "social_cashapp", regex: /^[A-Za-z][A-Za-z0-9_-]{0,19}$/ },
+  { key: "venmo", column: "social_venmo", regex: /^[A-Za-z0-9_-]{5,30}$/ },
   { key: "polytoria", column: "polytoria_username", regex: /^[A-Za-z0-9_]{1,24}$/ },
 ];
 
-const SOCIAL_SELECT_COLUMNS =
+// One input normalization before validation: a pasted cashtag keeps its
+// leading "$"; exactly one is dropped (the stored value is the bare tag).
+export function normalizeSocialHandle(key, value) {
+  if (key === "cashapp" && typeof value === "string" && value.startsWith("$")) return value.slice(1);
+  return value;
+}
+
+export const SOCIAL_SELECT_COLUMNS =
   SOCIAL_PLATFORMS.map((platform) => platform.column).join(", ") + ", ";
 
 // Sparse socials map for read responses: only platforms holding a non-empty
@@ -230,6 +275,9 @@ export function publicPost(row, publicLevel) {
       // Role badges (v3.1): the mapped public role ('owner'/'admin'), null
       // for members so the badge only appears for staff.
       role: row.author_role ? publicRole(row.author_role) : null,
+      // New-member chip (v5.35): true for an account younger than 7 days;
+      // projections without the column read false.
+      isNew: Number(row.author_is_new) === 1,
       avatarUrl: row.author_avatar_mime
         ? "/api/avatars/" + row.author_id + "?v=" + row.author_avatar_version
         : null,
@@ -238,6 +286,13 @@ export function publicPost(row, publicLevel) {
     likeCount: Number(row.like_count || 0),
     dislikeCount: Number(row.dislike_count || 0),
     viewerReaction: row.viewer_reaction || null,
+    // Staff pick (v5.35): the current pick of the week; false elsewhere.
+    staffPick: Number(row.staff_pick) === 1,
+    // Slow mode (v5.43): seconds between a member's replies, null when off.
+    slowModeSeconds: Number(row.slow_mode_seconds) > 0 ? Number(row.slow_mode_seconds) : null,
+    // Thread lock (v5.51): true while staff hold the thread closed; false on
+    // every reply row and on projections without the column.
+    locked: Number(row.locked) === 1,
     // Pinning (C5): the stamp (epoch seconds) as ISO, null never-pinned. Rows
     // from pre-migration projections normalize to null like editedAt.
     pinnedAt: row.pinned_at === null || row.pinned_at === undefined || Number(row.pinned_at) === 0

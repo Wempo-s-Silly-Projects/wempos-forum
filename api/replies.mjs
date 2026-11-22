@@ -26,7 +26,7 @@
 // the read module); shared creation plumbing comes from posts-write.mjs
 // (idempotency family, staged persistence, attachment staging —
 // the Task-5 ruling places it there since both create routes consume it).
-import { REPLY_BUMP_SQL, THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL } from "../constants.mjs";
+import { THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL } from "../constants.mjs";
 import { insertAttachments, MAX_ATTACHMENT_FILES, readComposedBody } from "./attachments.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
@@ -37,6 +37,7 @@ import { runFanOutChunks, subscriptionReplyFanOut } from "./subscriptions.mjs";
 import { attachSubReplyCounts, listReplies } from "./posts-feed.mjs";
 import {
   MAX_COMPOSER_BODY_CHARS,
+  bumpThreadForReply,
   existingIdempotentPost,
   getPostIdempotencyKey,
   persistStagedPostAttachments,
@@ -49,6 +50,8 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, requireTurnstile, requiredText } from "./core/http.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
+import { assertSlowModeAllows, withSlowModeGuard } from "./staff-tools.mjs";
+import { assertThreadUnlocked } from "./thread-locks.mjs";
 
 export async function handleRepliesReadRoute(request, env, url, path, method) {
   const repliesReadMatch = path.match(/^\/api\/posts\/([0-9]+)\/replies$/);
@@ -154,21 +157,26 @@ export async function handleReplyCreateRoute(request, env, url, path, method) {
     if (!(await canViewPost(env, target, session.user))) {
       throw new HttpError(400, "Replies are closed while this conversation's author is banned.");
     }
+    // Thread lock (v5.51): one primary-key lookup on the conversation root;
+    // staff are exempt. Refuses with 423 before anything is written.
+    await assertThreadUnlocked(db, session.user, bumpTargetId);
+    // Slow mode (v5.43): one indexed lookup on the conversation root; staff
+    // are exempt. Refuses with 429 before anything is written.
+    await assertSlowModeAllows(db, session.user, bumpTargetId);
     await requireTurnstile(request, env, fields, "reply");
     const now = nowSeconds();
     const recipientId = target.author_id === null || target.author_id === undefined
       ? null
       : Number(target.author_id);
     const hasAttachments = files.length > 0 || gifEntries.length > 0;
-    const insertSql = hasAttachments ? THREAD_REPLY_INSERT_STAGED_SQL : THREAD_REPLY_INSERT_SQL;
-    const insertValues = hasAttachments
+    const baseSql = hasAttachments ? THREAD_REPLY_INSERT_STAGED_SQL : THREAD_REPLY_INSERT_SQL;
+    const baseValues = hasAttachments
       ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, targetId, session.user.id, now, idempotencyKey, session.user.id, idempotencyKey]
       : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, idempotencyFingerprint, null, targetId, session.user.id, now, idempotencyKey, session.user.id, idempotencyKey];
-    const insertStatements = [db.prepare(insertSql).bind(...insertValues)];
-    if (!hasAttachments) insertStatements.push(db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId));
+    const [insertSql, insertValues] = withSlowModeGuard(baseSql, baseValues, session.user, bumpTargetId, now);
     let results;
     try {
-      results = await db.batch(insertStatements);
+      results = await db.batch([db.prepare(insertSql).bind(...insertValues)]);
     } catch (error) {
       await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
       const replay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
@@ -181,9 +189,15 @@ export async function handleReplyCreateRoute(request, env, url, path, method) {
       await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
       const archivedReplay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
       if (archivedReplay) return archivedReplay;
+      // A parallel reply landed inside the cooldown: the same 429 slow_mode.
+      await assertSlowModeAllows(db, session.user, bumpTargetId);
       throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
     }
     const replyId = Number(results[0].meta.last_row_id);
+    // L3 (v5.59): the bump runs only once the INSERT has landed, bound to the
+    // new reply row, so a refused reply never moves the thread. Staged
+    // (attachment) replies bump when they publish instead. Best-effort (L8).
+    if (!hasAttachments) await bumpThreadForReply(db, now, bumpTargetId, replyId);
     // Attachment-bearing replies stay hidden until the entire attachment batch
     // succeeds. The row id is always the new reply, not its bump target.
     if (hasAttachments) {

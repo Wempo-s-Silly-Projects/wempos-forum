@@ -62,19 +62,23 @@ export const THREAD_REPLY_INSERT_STAGED_SQL = THREAD_REPLY_INSERT_SQL.replace(
   "SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ? WHERE EXISTS (",
 );
 
-// Reply replies bump their conversation root: last_activity_at = now on the
-// root row (id resolved in JS as the target root or the target's parent).
+// Replies bump their conversation root: last_activity_at = now on the root
+// row (id resolved in JS as the target root or the target's parent). Binds
+// (now, root id, reply id). The bump is tied to the new reply row itself
+// (v5.59, L3): callers send it only after the guarded INSERT reported one
+// changed row, and the EXISTS re-checks that this reply is public and sits
+// under this root, so a refused reply (slow mode, ban, archived key) never
+// moves the thread.
 export const REPLY_BUMP_SQL =
-  "UPDATE posts SET last_activity_at = MAX(COALESCE(last_activity_at, 0), ?) " +
-  "WHERE id = ? AND visibility = 'public' AND EXISTS (" +
-  "SELECT 1 FROM posts reply WHERE reply.parent_id = posts.id AND reply.visibility = 'public')";
-
-export const STAGED_REPLY_BUMP_SQL =
   "UPDATE posts SET last_activity_at = MAX(COALESCE(last_activity_at, 0), ?) " +
   "WHERE id = ? AND visibility = 'public' AND EXISTS (" +
   "SELECT 1 FROM posts reply LEFT JOIN posts target ON target.id = reply.parent_id " +
   "WHERE reply.id = ? AND reply.visibility = 'public' " +
   "AND (reply.parent_id = posts.id OR target.parent_id = posts.id))";
+
+// Attachment-bearing replies publish and bump together after their staged
+// batch commits; the same row-bound bump.
+export const STAGED_REPLY_BUMP_SQL = REPLY_BUMP_SQL;
 
 export const RATE_LIMIT_BINDINGS = Object.freeze({
   read: "READ_RATE_LIMITER",
@@ -96,6 +100,11 @@ export const RATE_LIMIT_BINDINGS = Object.freeze({
   reaction: "REACTION_RATE_LIMITER",
 });
 
+// The reaction allowlist (posts since v2.0; 1:1 DM messages since v5.44):
+// the one value set both routes check, matching the reactions table's and
+// dm_message_reactions' CHECK (value IN ('like', 'dislike')).
+export const REACTION_VALUES = Object.freeze(["like", "dislike"]);
+
 export const SEARCH_USERS_SQL =
   "SELECT id, username, role, bio, avatar_mime, avatar_updated_at, avatar_version FROM users " +
   // The WHERE group is parenthesized so appended rows (the blocks clause,
@@ -113,6 +122,13 @@ export const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turns
 export const FEED_PAGE_SIZE = 20;
 export const D1_MAX_BOUND_PARAMS = 100;
 
+// v5.35 engagement: the This-week window (/week threads and showcase builds),
+// the new-member window (the "New 👋" chip: an account younger than this),
+// and how many members the home "Newest members" list names.
+export const WEEK_WINDOW_SECONDS = 7 * 24 * 60 * 60;
+export const NEW_MEMBER_WINDOW_SECONDS = 7 * 24 * 60 * 60;
+export const NEWEST_MEMBERS_LIMIT = 5;
+
 // v4.7 group DMs: members per group INCLUDING the creator, and the optional
 // group name's length (the dm_groups.name CHECK in migration 0044 matches).
 export const DM_GROUP_MAX_MEMBERS = 10;
@@ -128,6 +144,27 @@ export const DM_GROUP_LIST_LIMIT = 50;
 // it; a typed text body of this shape is refused.
 export const DM_IMAGE_TOKEN_PATTERN = /^\[img:[0-9a-f-]{36}\]$/;
 
+// v5.47 private notes about members (migration 0072): one note per
+// (owner, subject), at most PRIVATE_NOTE_MAX_CHARS characters (the table's
+// CHECK matches), at most PRIVATE_NOTES_MAX subjects per owner.
+export const PRIVATE_NOTE_MAX_CHARS = 280;
+export const PRIVATE_NOTES_MAX = 1000;
+
+// v5.48 saved searches (migration 0073): a name of at most
+// SAVED_SEARCH_NAME_MAX_CHARS characters (the table's CHECK matches), at most
+// SAVED_SEARCHES_MAX per member (enforced inside the INSERT; also the list's
+// LIMIT, far below D1_MAX_BOUND_PARAMS).
+export const SAVED_SEARCH_NAME_MAX_CHARS = 40;
+export const SAVED_SEARCHES_MAX = 20;
+
+// v5.50 thread TL;DR (migration 0074): one summary per root, at most
+// THREAD_SUMMARY_MAX_CHARS characters (the table's CHECK matches).
+export const THREAD_SUMMARY_MAX_CHARS = 280;
+
+// v5.51 staff thread lock (migration 0075): the optional staff-only reason is
+// at most THREAD_LOCK_REASON_MAX_CHARS characters (the table's CHECK matches).
+export const THREAD_LOCK_REASON_MAX_CHARS = 200;
+
 // v4.23 Download my data (GET /api/me/export): the most rows each section of
 // the caller's own export carries, newest first. A section that hit its cap
 // is flagged in the export's `truncated` map so the file never silently
@@ -139,4 +176,12 @@ export const EXPORT_SECTION_CAPS = Object.freeze({
   blocks: 1000,
   wallPosts: 1000,
   directMessages: 2000,
+  // v5.44: the caller's own reactions on 1:1 DM messages (ids + value only).
+  dmReactions: 2000,
+  // v5.47: the caller's OWN private notes (subject username, body, time).
+  privateNotes: PRIVATE_NOTES_MAX,
+  // v5.48: the caller's OWN saved searches (name, q, by, in, time).
+  savedSearches: SAVED_SEARCHES_MAX,
+  // v5.50: TL;DR summaries the caller WROTE (post id, body, time).
+  threadSummaries: 2000,
 });

@@ -43,13 +43,23 @@ import {
   SOCIAL_LABELS,
   SOCIAL_PLATFORM_ORDER,
   invalidSocialKeys,
+  normalizeSocialHandle,
   renderProfileEditor,
   renderProfileSocials,
 } from "../profile-editor.js";
 import { renderProfileWall } from "../wall.js";
+import { createFollowButton, loadFollowState } from "../follows.js";
+import { createPrivateNoteBox, loadPrivateNote } from "../private-note.js";
 import { openChatThread } from "../chat-widget.js";
 import { currentLocale, t, tn } from "../i18n.js";
-import { createPronouns, createRecentThreads, formatJoinedDate } from "../profile-extras.js";
+import {
+  createPinnedThread,
+  createPronouns,
+  createRecentThreads,
+  createStatusForm,
+  createStatusLine,
+  formatJoinedDate,
+} from "../profile-extras.js";
 import { badgeKeyFor, createNextBadge } from "../badge-progress.js";
 
 async function renderProfileRoute(route, context, version) {
@@ -149,6 +159,10 @@ function renderProfile(profile, session) {
   const badgeText = profileBadgeFor(totalContributions);
   if (badgeText) flairRow.append(element("span", "profile-badge", badgeText));
   if (flairRow.children.length) heading.append(flairRow);
+  // Custom status (v5.38.0 F2): the server already dropped expired, banned
+  // and block-paired statuses; nothing paints when the payload has none.
+  const statusLine = createStatusLine(document, profile.status);
+  if (statusLine) heading.append(statusLine);
   // Next badge (wave 5.7 F1): the member's own profile only.
   if (session.user?.id === profile.id) heading.append(createNextBadge(document, totalContributions));
   // Per-user post counter (v2.5): threads started + replies written, in the
@@ -197,6 +211,11 @@ function renderProfile(profile, session) {
     blockButton.dataset.profileId = String(profile.id);
     blockButton.dataset.username = profile.username;
     heading.append(blockButton);
+    // Follow (v5.39.0): signed-in members only, never your own profile; the
+    // caller's own state loads from the server before the button enables.
+    const followButton = createFollowButton(document, { username: profile.username, following: false });
+    heading.append(followButton);
+    loadFollowState(followButton);
     // Report-a-profile (v2.5): the bio/flair/banner/css surface is
     // reportable like post content — same desk, same resolve flow.
     const reportProfile = element("button", "button button-quiet", t("profile.reportProfile"));
@@ -207,6 +226,10 @@ function renderProfile(profile, session) {
   }
   appendProfileRoleControls(profile, session, heading);
   main.append(heading);
+  // Pinned thread (v5.38.0 F1) on top, right under the heading.
+  const pinned = createPinnedThread(document, profile.pinnedThread, currentLocale(),
+    { own: session.user?.id === profile.id });
+  if (pinned) main.append(pinned);
   // Banned-profile banner (v3.1): the server flags actively banned members
   // on the public payload (expiry included; the reason rides only for staff,
   // like member search). Everyone sees the banner — banning already hides the
@@ -221,10 +244,21 @@ function renderProfile(profile, session) {
   }
   addText(document, main, "p", profile.bio || t("profile.noBio"), "profile-bio");
   appendProfileSocials(profile, session.user?.id === profile.id);
+  if (session.user && session.user.id !== profile.id) {
+    // Private note (v5.47.0): the viewer's own note about this member —
+    // only the viewer ever reads it; it loads before the editor enables.
+    const noteBox = createPrivateNoteBox(document, { username: profile.username });
+    main.append(noteBox);
+    loadPrivateNote(noteBox);
+  }
   if (session.user?.id === profile.id) {
     // Bio (10,000 chars) plus the ten social fields; submission re-fetches the
     // profile instead of trusting the asymmetric PATCH echo.
     renderProfileEditor(main, profile);
+    // Custom status (v5.38.0 F2): its own panel and its own route.
+    const statusPanel = createPanel(t("status.label"));
+    statusPanel.append(createStatusForm(document, profile.status));
+    main.append(statusPanel);
     // Any-hex profile color (v3.0.2): the picker's native color input PATCHes
     // on change (profile-editor.js stays DOM-pure; the glue lives here).
     const accentColorInput = main.querySelector(".accent-color-input");
@@ -268,7 +302,8 @@ async function renderRecentThreads(profile) {
     return;
   }
   if (version !== state.renderVersion) return;
-  panel.append(createRecentThreads(document, Array.isArray(data?.threads) ? data.threads : [], currentLocale()));
+  panel.append(createRecentThreads(document, Array.isArray(data?.threads) ? data.threads : [], currentLocale(),
+    { own: state.currentUser?.id === profile.id, pinnedId: profile.pinnedThread?.id ?? null }));
 }
 
 // Spec §8: promote/demote is owner-only (v3.1 rename: mod → admin, admin →
@@ -295,7 +330,7 @@ function appendProfileRoleControls(profile, session, container) {
 async function submitProfileEditorForm(form, text) {
   const socials = {};
   for (const key of SOCIAL_PLATFORM_ORDER) {
-    const value = text(key).trim();
+    const value = normalizeSocialHandle(key, text(key).trim());
     socials[key] = value === "" ? null : value;
   }
   const invalid = invalidSocialKeys(socials);
@@ -443,6 +478,19 @@ export const FORM_HANDLERS = {
   "profile-editor": (form, text) => submitProfileEditorForm(form, text),
   avatar: (form, text, values) => submitAvatarForm(values),
   password: (form, text) => submitPasswordForm(text),
+  // v5.38.0 F2: the custom status; "today" ends at the browser's midnight.
+  "profile-status": async (form, text) => {
+    await api("/api/me/status", {
+      method: "PUT",
+      body: {
+        text: text("statusText").trim(),
+        emoji: text("statusEmoji").trim(),
+        expiry: text("statusExpiry"),
+        tzOffset: new Date().getTimezoneOffset(),
+      },
+    });
+    await state.renderRoute(state.activeRoute);
+  },
 };
 
 export const ACTIONS = {
@@ -450,6 +498,19 @@ export const ACTIONS = {
   "delete-account": () => openDeleteAccountDialog(),
   "block-user": (button) => openBlockDialog(button),
   "chat-user": (button) => openProfileChat(button),
+  // v5.38.0 F1/F2: pin/unpin a thread on your profile; clear your status.
+  "profile-pin": async (button) => {
+    await api("/api/me/profile-pin", { method: "PUT", body: { postId: Number(button.dataset.postId) } });
+    await state.renderRoute(state.activeRoute);
+  },
+  "profile-unpin": async () => {
+    await api("/api/me/profile-pin", { method: "DELETE" });
+    await state.renderRoute(state.activeRoute);
+  },
+  "profile-status-clear": async () => {
+    await api("/api/me/status", { method: "DELETE" });
+    await state.renderRoute(state.activeRoute);
+  },
     "save-profile-css": async (button) => {
       // Custom CSS (v2.5): POST the textarea's raw css to /api/me/css; it
       // lands pending for a mod. The note is review-first wording.

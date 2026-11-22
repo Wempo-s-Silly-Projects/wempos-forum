@@ -25,7 +25,7 @@
 // the plan's "resolve at implementation" ruling places it here because both
 // create routes (post + reply) consume it. Vision scheduling went away with
 // the auto-mod removal (v4.2); the staged-attachment plumbing stayed.
-import { STAGED_REPLY_BUMP_SQL } from "../constants.mjs";
+import { REACTION_VALUES, REPLY_BUMP_SQL } from "../constants.mjs";
 import {
   insertAttachments,
   MAX_ATTACHMENT_FILES,
@@ -35,6 +35,7 @@ import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 import { boardField, isStaffOnlyBoard } from "./boards.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
+import { followerFanOutStatements } from "./follows.mjs";
 import { archivePostRowsStatement } from "./core/archive.mjs";
 import { assertNotBanned, readSession, requireUser } from "./core/auth.mjs";
 import { nowSeconds, sha256Hex } from "./core/crypto.mjs";
@@ -175,6 +176,20 @@ export async function postCreationFingerprint({
   }));
 }
 
+// L8 (v5.63): the thread bump after a landed reply is best-effort. It only
+// orders the "active" feed and the reply row is already committed, so a
+// failed bump is logged server-side and the caller carries on to its
+// notifications and response (a thrown bump made the web route answer 500 and
+// an MCP retry post a duplicate). The SQL stays row-bound (L3): it moves the
+// root only when this reply is public and sits under it.
+export async function bumpThreadForReply(db, now, bumpTargetId, replyId) {
+  try {
+    await db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId, replyId).run();
+  } catch (error) {
+    console.error("Reply thread bump failed; the reply stands:", { replyId, bumpTargetId, error });
+  }
+}
+
 // Attachment rows reference a post id, so they are written after the post INSERT.
 // Keep attachment-bearing posts hidden during that interval. If storage fails,
 // the D1 attachment batch is atomic and deleting the hidden post removes any
@@ -197,15 +212,15 @@ export async function persistStagedPostAttachments(db, postId, authorId, files, 
       "AND EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = a.hash))",
     ).bind(postId, authorId);
     if (bumpTargetId !== null) {
-      // Publish and bump together so the root activity clock does not advance
-      // for a reply whose attachments failed to commit.
-      const results = await db.batch([
-        publish,
-        db.prepare(STAGED_REPLY_BUMP_SQL).bind(nowSeconds(), bumpTargetId, postId),
-      ]);
-      if (Number(results[0]?.meta?.changes) !== 1) {
+      // Publish first, then bump: the row-bound bump moves the root only once
+      // this reply is public, so a reply whose attachments failed to commit
+      // never advances the activity clock, and a failed bump (L8) no longer
+      // rolls back a publish that already succeeded.
+      const result = await publish.run();
+      if (Number(result?.meta?.changes) !== 1) {
         throw new HttpError(409, "The conversation changed while your reply was being published. Please try again.");
       }
+      await bumpThreadForReply(db, nowSeconds(), bumpTargetId, postId);
     } else {
       const result = await publish.run();
       if (Number(result?.meta?.changes) !== 1) {
@@ -337,6 +352,17 @@ export async function handlePostCreateRoute(request, env, url, path, method) {
       if (mentionStatements.length > 0) await db.batch(mentionStatements);
     } catch {
       // Ignore: mentions are a convenience, not a post precondition.
+    }
+    try {
+      // Follows (v5.39.0): followers of the author get one bell row for this
+      // new public root, after the mentions so a mentioned follower keeps
+      // the single mention row. One bounded statement pair (capped fan-out,
+      // fixed binds); best-effort like the mentions.
+      await db.batch(followerFanOutStatements(db, {
+        authorId: session.user.id, postId, username: session.user.username, now,
+      }));
+    } catch {
+      // Ignore: a follow ping is a convenience, not a post precondition.
     }
     return json({ id: postId }, 201);
   }
@@ -542,7 +568,7 @@ export async function handleReactionRoute(request, env, url, path, method) {
     const post = await postById(env, postId, session.user.id);
     if (!(await canViewPost(env, post, session.user))) throw new HttpError(404, "Post not found.");
     const body = await readJson(request);
-    if (body.value !== "like" && body.value !== "dislike") {
+    if (!REACTION_VALUES.includes(body.value)) {
       throw new HttpError(400, "Choose like or dislike.");
     }
     const result = await db.prepare(

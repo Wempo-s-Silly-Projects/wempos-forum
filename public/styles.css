@@ -3202,6 +3202,35 @@ mark.search-hit {
   }
 }
 
+/* Thread outline (v5.46.0): the collapsible "Jump to" list on long threads. */
+.thread-outline {
+  margin: 8px 0;
+}
+
+.thread-outline-list {
+  max-height: 18rem;
+  margin: 6px 0 0;
+  padding-inline-start: 1.6rem;
+  overflow-y: auto;
+}
+
+.thread-outline-entry {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  min-height: 32px;
+  text-align: start;
+}
+
+.thread-outline-entry[aria-current="true"] {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.thread-outline-time {
+  color: var(--muted);
+}
+
 /* Wave i18n (v4.6.0): the header language menu. Native select, sized to sit
    in the account nav at icon-button height; works the same in rtl. */
 .language-picker select {
@@ -3314,6 +3343,27 @@ mark.search-hit {
   margin-block: 0.5rem;
 }
 
+/* Easy-reading spacing (v5.40.0 F3): WCAG 1.4.12 text spacing, set by
+   reading-comfort.js and preloaded by theme-preload.js. Form controls don't
+   inherit letter/word spacing, so they are named. Line height 1.8 is above
+   every base body-text value; the Relaxed/Spacious line spacing below still
+   wins (higher specificity). Image, GIF and jumbo-emoji chat bodies keep
+   their own line boxes. No font change. */
+:root.easy-reading body,
+:root.easy-reading :where(input, textarea, select, button) {
+  letter-spacing: 0.12em;
+  word-spacing: 0.16em;
+}
+:root.easy-reading body {
+  line-height: 1.8;
+}
+:root.easy-reading :where(p, li, dd, blockquote, h1, h2, h3, h4, h5, h6, label, summary, td, th, textarea, .post-body, .chat-message-body):not(.chat-gif-body, .chat-dm-image-body, .chat-emoji-jumbo) {
+  line-height: 1.8;
+}
+:root.easy-reading :where(p, li, blockquote) {
+  margin-block-end: 2em;
+}
+
 /* Reading comfort (wave 5.27 F1): line spacing on post bodies, chat
    messages and the text boxes you write in; image/GIF/jumbo-emoji chat
    bodies keep their tight line boxes. Plus always-underlined links (button-
@@ -3330,6 +3380,8 @@ mark.search-hit {
 }
 .line-spacing-pref,
 .link-underline-pref,
+.easy-reading-pref,
+.notification-pref,
 .contrast-pref {
   display: flex;
   align-items: center;
@@ -3560,14 +3612,19 @@ mark.search-hit {
 }
 .gallery-author { font-size: 0.8rem; }
 
-/* v4.23 account settings: a real title on the disclosure, the settings
-   filter, and the jump list of section buttons. */
-.settings-summary {
-  cursor: pointer;
+/* v4.23 account settings: the settings filter and the jump list of section
+   buttons. v5.56: the hub (/?settings) groups the panels under four
+   headings; the home page keeps one link where the disclosure used to be. */
+.settings-group { margin-block: 1.5rem 0.5rem; }
+.settings-group[hidden] { display: none; }
+.settings-group-title {
   font-family: "Comic Sans MS", "Chalkboard SE", "Trebuchet MS", cursive;
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  margin-block: 0 0.5rem;
+  padding-block-end: 0.25rem;
+  border-block-end: 2px solid currentColor;
 }
+.settings-home-link { margin-block: 1rem; }
 .settings-filter {
   display: grid;
   gap: 0.35rem;
@@ -3687,6 +3744,32 @@ mark.search-hit {
 /* Wave 5.23 F2: optional pronouns, shown next to the name in the profile header. */
 .profile-pronouns { margin-inline-start: 0.5rem; color: var(--muted); font-size: 0.6em; font-weight: 400; }
 
+/* v5.38.0: custom status under the profile name, the pinned thread on top of
+   the profile, and the poll's closing time. Theme tokens only. */
+.profile-status { margin: 0.25rem 0 0; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: baseline; overflow-wrap: anywhere; }
+.profile-status-emoji { font-size: 1.1em; }
+.pinned-thread {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.8rem;
+  margin: 0.75rem 0;
+  padding: 0.6rem 0.8rem;
+  border-inline-start: 3px solid var(--profile-accent, currentColor);
+}
+.pinned-thread-label { margin: 0; flex-basis: 100%; color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+.pinned-thread-link { overflow-wrap: anywhere; min-width: 0; }
+.poll-closes { margin: 0.25rem 0 0; }
+.poll-deadline { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.4rem; }
+
+/* v5.39.0: bookmark folder chips and per-card folder controls; the private
+   Following list in settings. Theme tokens only. */
+.saved-folders .folder-create { margin-inline-start: auto; }
+.folder-manage { margin: 0.4rem 0 0.8rem; }
+.folder-add, .folder-remove { margin-top: 0.5rem; max-width: 100%; }
+.following-row { display: flex; flex-wrap: wrap; gap: 0.4rem 0.8rem; align-items: center; justify-content: space-between; padding: 0.35rem 0; }
+.following-name { overflow-wrap: anywhere; min-width: 0; }
+
 /* Wave 5.23 F1: print-friendly threads. CSS only: the chrome goes, the thread
    title and every post (author + date) stay, black on white, a post keeps to
    one page where it can, and external links spell out where they go. */
@@ -3714,3 +3797,241 @@ mark.search-hit {
 .visits-count { position: relative; width: 45%; }
 .visits-bar { position: absolute; inset-block: 0.25rem; inset-inline-start: 0; background: var(--soft-green); border-radius: 0.2rem; z-index: 0; }
 .visits-count span:last-child { position: relative; z-index: 1; padding-inline-start: 0.3rem; }
+
+/* Share + invite links (v5.34). */
+.share-wrap { margin: 0.5rem 0 1rem; }
+.share-menu { display: grid; gap: 0.5rem; margin-top: 0.5rem; padding: 0.75rem; border: 1px solid var(--line); border-radius: 0.5rem; max-width: 32rem; }
+.share-menu[hidden] { display: none; }
+.share-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
+.share-mastodon { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.share-mastodon-input { flex: 1 1 12rem; min-width: 0; }
+.share-mastodon-error:empty, .share-status:empty, .invite-status:empty { display: none; }
+.invite-link { width: 100%; max-width: 32rem; margin: 0.3rem 0; }
+.newcomer-invited { font-weight: 600; }
+
+/* v5.35 engagement: the "New 👋" chip, the staff pick tile (gallery + /week),
+   the This-week page lists, and the home highlights (This-week link + Newest
+   members). Tokens only, so every theme follows. */
+.role-badge-new { color: var(--green-dark); border-color: var(--green); text-transform: none; }
+.staff-pick-label { justify-self: start; color: var(--ink); border-color: var(--yellow); text-transform: none; }
+.staff-pick-tile {
+  padding: 0.4rem;
+  border: 1px solid var(--line);
+  border-inline-start: 4px solid var(--yellow);
+  border-radius: var(--button-radius);
+  background: var(--paper);
+}
+.week-staff-pick { max-width: 22rem; margin: 0 0 1rem; }
+.week-section-title { margin: 1.2rem 0 0.5rem; }
+.week-threads { display: grid; gap: 0.5rem; margin: 0; padding-inline-start: 1.4rem; }
+.week-thread { min-width: 0; }
+.week-thread-link { display: block; overflow-wrap: anywhere; }
+.week-thread-meta { font-size: 0.85rem; }
+.home-highlights { margin: 0 0 0.8rem; }
+.week-home-link { margin: 0 0 0.5rem; }
+.newest-members-title { margin: 0 0 0.4rem; font-size: 1rem; }
+.newest-members-list { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; margin: 0; padding: 0; list-style: none; }
+.newest-member-link { display: inline-flex; align-items: center; gap: 0.35rem; min-width: 0; overflow-wrap: anywhere; }
+.newest-member-avatar { width: 1.5rem; height: 1.5rem; }
+
+/* Wave 5.36: search filter chips (two .feed-views groups), the recent-search
+   panel under the header search box, and search inside a conversation. */
+.search-filters { display: flex; flex-wrap: wrap; gap: 0 1rem; }
+.header-search { position: relative; }
+.recent-searches {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  border: 2px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--paper);
+  color: var(--ink);
+}
+.recent-searches[hidden] { display: none; }
+.recent-searches-title { width: 100%; color: var(--muted); font-size: 0.85rem; font-weight: 700; }
+.recent-searches-list { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.recent-search-chip {
+  max-width: 100%;
+  padding: 0.2rem 0.7rem;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.recent-searches-clear { margin-inline-start: auto; font-size: 0.85rem; }
+.chat-widget-search { flex: 1 1 100%; margin: 0.25rem 0; }
+.chat-widget-search-input { width: 100%; }
+.chat-widget-search-results { display: flex; flex-direction: column; gap: 0.2rem; max-height: 12rem; overflow-y: auto; }
+.chat-widget-search-hit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: start;
+  cursor: pointer;
+}
+.chat-widget-search-who { font-weight: 700; }
+.chat-widget-search-time { color: var(--muted); }
+.chat-widget-search-excerpt { flex: 1 1 100%; overflow-wrap: anywhere; }
+.chat-widget-search-empty { margin: 0.2rem 0; color: var(--muted); font-size: 0.85rem; }
+.chat-widget-message-hit { outline: 3px solid var(--yellow); outline-offset: 2px; }
+
+/* v5.43 staff tools: report claim, staff notes in the member peek, thread slow mode. */
+.report-claim { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.25rem 0; }
+.report-claimed-by { margin: 0; font-weight: 700; }
+.member-notes { display: grid; gap: 0.35rem; margin-top: 0.5rem; border: 1px solid var(--line); border-radius: var(--button-radius); padding: 0.6rem 0.8rem; }
+.member-notes-title { margin: 0; font-size: 0.95rem; }
+.member-notes-hint { margin: 0; font-size: 0.85rem; }
+.member-notes-list { display: grid; gap: 0.5rem; margin: 0; padding-inline-start: 1.2rem; }
+.member-note-body { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.member-note-meta { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.member-note-form { display: grid; gap: 0.35rem; }
+.slow-mode-note { margin: 0.5rem 0; color: var(--muted); font-size: 0.9rem; }
+.slow-mode-form { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
+/* Thread lock (v5.51): the locked note for everyone, the reason for staff. */
+.thread-lock-note { margin: 0.5rem 0; font-weight: 600; }
+.thread-lock-reason { margin: 0.25rem 0 0.5rem; color: var(--muted); font-size: 0.9rem; }
+
+/* Thread tags (v5.44): chips on the thread page, the author/staff picker,
+   the /tag/<slug> list and the desk manager. */
+.tag-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0; padding: 0; list-style: none; }
+.tag-chip { display: inline-block; padding: 0.15rem 0.6rem; border: 1px solid var(--line); border-radius: 999px; background: var(--soft-green); color: var(--green-ink); font-size: 0.85rem; overflow-wrap: anywhere; }
+.tag-editor { display: flex; flex-wrap: wrap; align-items: end; gap: 0.5rem; margin: 0.5rem 0; }
+.tag-editor-fields { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; margin: 0; padding: 0.4rem 0.6rem; border: 1px solid var(--line); border-radius: 6px; }
+.tag-editor-legend { font-size: 0.9rem; color: var(--muted); }
+.tag-editor-option { display: inline-flex; align-items: center; gap: 0.3rem; }
+.tag-threads { display: grid; gap: 0.5rem; margin: 0 0 0.75rem; padding-inline-start: 1.4rem; }
+.tag-thread { min-width: 0; }
+.tag-thread-link { display: block; overflow-wrap: anywhere; }
+.tag-thread-meta { font-size: 0.85rem; }
+.tag-manager-form { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0 0 0.75rem; }
+.tag-manager-list { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+.tag-manager-item { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.tag-manager-label { overflow-wrap: anywhere; }
+
+/* DM message reactions (v5.44): the like/dislike pair under a 1:1 bubble. */
+.dm-reactions { display: flex; gap: 0.25rem; margin-top: 0.2rem; }
+.dm-reaction { display: inline-flex; align-items: center; gap: 0.2rem; min-height: 1.75rem; padding: 0.1rem 0.4rem; border: 1px solid transparent; border-radius: 999px; background: transparent; color: inherit; font-size: 0.8rem; cursor: pointer; }
+.dm-reaction svg { width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 2; }
+.dm-reaction:hover { border-color: var(--line); }
+.dm-reaction-active { border-color: currentColor; }
+
+/* v5.47.0: the private note box on profiles. */
+.private-note-input { display: block; width: 100%; box-sizing: border-box; resize: vertical; font: inherit; }
+.private-note-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.private-note-status:empty { display: none; }
+/* v5.48 saved searches panel on the search results page. */
+.saved-search-form { margin-top: 8px; }
+.saved-search-label { display: block; margin-bottom: 4px; }
+.saved-search-name { display: block; width: 100%; max-width: 24rem; box-sizing: border-box; font: inherit; }
+.saved-search-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.saved-search-status:empty { display: none; }
+.saved-search-list { list-style: none; margin: 8px 0 0; padding: 0; }
+.saved-search-item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 4px 0; }
+.saved-search-query { overflow-wrap: anywhere; }
+
+/* Thread TL;DR (v5.50.0): the author's summary above the replies. */
+.thread-tldr-title { margin: 0 0 4px; font-size: 1rem; }
+.thread-tldr-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.thread-tldr-input { display: block; width: 100%; box-sizing: border-box; resize: vertical; font: inherit; margin-top: 8px; }
+.thread-tldr-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.thread-tldr-status:empty { display: none; }
+
+/* Edit history word diff (v5.50.0): marks carry an underline/strike, not
+   color alone, so they read in every theme and without color vision. */
+.edit-diff-ins { text-decoration: underline; text-decoration-thickness: 2px; color: var(--success-ink); background: none; }
+.edit-diff-del { text-decoration: line-through; color: var(--muted); background: none; }
+
+/* Thread page declutter (v5.55, docs/ia-map.md): the root card's row keeps
+   Like, Dislike, Share and More; open panels drop below the row at full width
+   (order: 1), so the buttons never jump. Icon-only controls inside More show
+   their accessible name as text (attr() follows a toggled label live). */
+.post-actions > .thread-more,
+.post-actions > .share-wrap { display: contents; }
+.post-actions .share-menu,
+.thread-more-panel { order: 1; flex-basis: 100%; }
+.post-actions .share-menu { margin-top: 0; }
+.thread-more-panel { display: grid; gap: 0.85rem; padding: 0.75rem; border: 1px solid var(--line); border-radius: 0.5rem; max-width: 36rem; }
+.thread-more-panel[hidden],
+.thread-staff-panel[hidden],
+.thread-tags-panel[hidden] { display: none; }
+.thread-more-group { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.55rem; }
+.thread-more-group-label { flex-basis: 100%; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+.thread-more-panel .icon-button { width: auto; padding: 0 0.75rem; gap: 0.4rem; }
+.thread-more-panel .icon-button::after { content: attr(aria-label); }
+.thread-more-toggle[aria-expanded="true"],
+.thread-staff-toggle[aria-expanded="true"],
+.thread-tags-toggle[aria-expanded="true"] { font-weight: 600; }
+.thread-staff-panel,
+.thread-tags-panel { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.55rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--line); }
+.thread-staff-panel .slow-mode-form,
+.thread-tags-panel .tag-editor { flex-basis: 100%; margin: 0; }
+
+/* Navigation menus (v5.58, ORGANIZE #3): the header's Browse and Account
+   menus and the phone bar's More are disclosure buttons whose panel drops
+   over the page; entries are full-width rows with an icon and their name. */
+.nav-menu { position: relative; }
+.nav-menu-panel {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  inset-inline-end: 0;
+  z-index: 20;
+  display: grid;
+  gap: 0.2rem;
+  min-width: 14rem;
+  max-width: min(22rem, calc(100vw - 2rem));
+  padding: 0.5rem;
+  /* v5.60: the panel overlays the page, so its edge must read (>= 3:1);
+     --line was 1.8:1 on --paper. */
+  border: 2px solid var(--muted);
+  border-radius: 0.5rem;
+  background: var(--paper);
+  box-shadow: 3px 4px 0 var(--paper-shadow);
+}
+.nav-menu-panel[hidden] { display: none; }
+.nav-menu-toggle[aria-expanded="true"] { font-weight: 600; }
+.nav-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  width: 100%;
+  text-align: start;
+  white-space: nowrap;
+}
+.nav-menu-item svg { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+.nav-menu-item svg path,
+.mobile-bar .nav-menu-toggle svg path {
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nav-menu-panel .shortcut-sheet { margin: 0.25rem 0.5rem; }
+/* v5.60 a11y pass: the sheet's summary was a ~19px target (WCAG 2.5.8 asks
+   24px); the page you are on is marked in the menu by weight + underline,
+   not colour alone; the phone More's language picker fills its row. */
+.nav-menu-panel .shortcut-sheet > summary { display: flex; align-items: center; min-height: 1.5rem; }
+.nav-menu-item[aria-current="page"] { font-weight: 700; text-decoration: underline; }
+.nav-menu-panel .language-picker select { width: 100%; max-width: none; }
+.nav-group { display: grid; gap: 0.2rem; }
+.nav-group + .nav-group { margin-top: 0.35rem; padding-top: 0.45rem; border-top: 1px solid var(--line); }
+.nav-group-label { padding-inline: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); }

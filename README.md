@@ -24,26 +24,35 @@ sign in there and you land back on the forum already signed in.
 
 - **Boards and threads.** General, Game development, Showcase,
   Bugs & Troubleshooting & Help, Suggestions, and Updates (news from the
-  admins). Start a thread, reply, quote, react, attach a poll, and follow
-  threads you care about.
+  admins). Start a thread, reply, quote, react, attach a poll (with an
+  optional closing time), add tags and a short TL;DR, and share a thread or
+  follow it by RSS.
 - **Friendly writing tools.** Drafts save themselves, a live preview shows your
   post before it goes out, `@` suggests members to mention, `||spoilers||` stay
   covered until tapped, and you can paste or drop images (up to three per
-  post) or pick from the community GIF gallery.
+  post) or pick from the community GIF gallery. Edit history shows what
+  changed, word by word.
 - **Easy reading.** "New" marks on replies you haven't seen, a thread
-  at-a-glance strip, folding, a reply filter, Read aloud (on-device voices
-  only), and J/K keyboard navigation.
-- **Chat.** A chat button on every page with a public Lobby, direct messages,
-  and group chats of up to 10 people.
-- **Profiles.** Avatars, bios, custom profile styling, milestone badges, recent
-  threads, and a wall where friends can leave messages.
-- **Community traditions.** Question of the Day threads from the owner,
-  an all-time leaderboard, and a Showcase gallery.
-- **Your language.** The whole interface comes in 41 languages, including
+  at-a-glance strip, a "Jump to" outline on long threads, folding, a reply
+  filter, Read aloud (on-device voices only), and J/K keyboard navigation.
+- **Keeping up.** Subscribe to or mute a thread, follow members, sort saved
+  posts into folders, save searches, and choose which kinds of notification
+  reach you.
+- **Chat.** A chat button on every page with a public Lobby, direct messages
+  (with reactions and search), and group chats of up to 10 people.
+- **Profiles.** Avatars, bios, pronouns, a custom status, a pinned thread,
+  custom profile styling, milestone badges, recent threads, a wall where
+  friends can leave messages, and private notes only you can see.
+- **Community traditions.** Question of the Day threads from the owner, a
+  This week page, a staff pick in the Showcase, an all-time leaderboard, and
+  invite links for friends.
+- **Your language.** The whole interface comes in 45 languages, including
   four right-to-left ones (Arabic, Hebrew, Persian and Urdu).
-- **Your data, your call.** Two-factor sign-in, blocking, reporting, and a
-  "Download my data" button. See [Using the forum](docs/using-the-forum.md)
-  for the full list.
+- **Your data, your call.** Two-factor sign-in, blocking, reporting, a
+  settings page that keeps everything in one place, and a "Download my
+  data" button. Visits are counted as private daily totals only, and Do Not
+  Track and Global Privacy Control are respected. See
+  [Using the forum](docs/using-the-forum.md) for the full list.
 
 ## Running it locally
 

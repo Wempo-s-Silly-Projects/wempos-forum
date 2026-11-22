@@ -446,7 +446,11 @@ function confirmPollDialog() {
     setMessage(t("composer.pollDuplicate"), true);
     return;
   }
-  form.composerPoll = { question, options };
+  // v5.38.0 F3: an optional closing time (seconds from now; "" = none).
+  const closesValue = dialog.querySelector("#poll-closes")?.value ?? "";
+  form.composerPoll = closesValue === ""
+    ? { question, options }
+    : { question, options, closesIn: Number(closesValue) };
   activePollComposerForm = null;
   dialog.querySelector("form").reset();
   refreshPollHelpers(dialog, document);

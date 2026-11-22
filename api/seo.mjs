@@ -43,6 +43,8 @@ import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
 import { ACTIVE_BAN_SQL, canViewPost } from "./core/visibility.mjs";
 import { BRANDING_DEFAULTS } from "./branding.mjs";
 import { POST_ROW_SQL, publicReplyCountSql, titleOf } from "./discovery.mjs";
+import { feedPath } from "./feeds.mjs";
+import { findTagBySlug } from "./tags.mjs";
 import { routeForPath } from "../public/js/router.js";
 
 const DESCRIPTION_MAX = 150;
@@ -188,6 +190,29 @@ async function pageHead(request, env, url, site, origin) {
       title: `${route.board} — ${site.name}`,
       description: `Recent topics in the ${route.board} board on ${site.name}.`,
       canonical: origin + "/c/" + route.board,
+      board: route.board,
+    };
+  }
+  // This week (v5.35): its own title and description; the page lists only
+  // what the anonymous feed already shows, so nothing record-backed rides it.
+  if (route.name === "week") {
+    return {
+      ...generic,
+      title: `This week on ${site.name}`,
+      description: `The busiest threads, newest Showcase builds and the staff pick of the last 7 days on ${site.name}.`,
+      canonical: origin + "/week",
+    };
+  }
+  // Thread tags (v5.44): a known tag's label (staff-written, word-filtered,
+  // public) names the page; an unknown slug gets the generic noindexed head.
+  if (route.name === "tag") {
+    const tag = await findTagBySlug(env.FORUM_DB, route.slug).catch(() => null);
+    if (!tag) return { ...generic, canonical: "", noindex: true };
+    return {
+      ...generic,
+      title: `${tag.label} — ${site.name}`,
+      description: `Threads tagged ${tag.label} on ${site.name}.`,
+      canonical: origin + "/tag/" + tag.slug,
     };
   }
   const record = await recordHead(request, env, route, origin, site);
@@ -212,6 +237,9 @@ function renderHead(head, site, image) {
     meta("name", "twitter:title", head.title),
     meta("name", "twitter:description", head.description),
     meta("name", "twitter:image", image),
+    // RSS (v5.34): the site feed everywhere, plus the board's own on /c/<board>.
+    ...head.feeds.map((feed) =>
+      `<link rel="alternate" type="application/rss+xml" title="${attributeEscape(feed.title)}" href="${attributeEscape(feed.href)}">`),
     ...head.ld.map(jsonLdBlock),
   ].join("");
 }
@@ -234,6 +262,10 @@ export async function withPageHead(html, request, env, url, storedBranding) {
   const origin = siteOrigin(env, request);
   const image = ogImageUrl(env, origin);
   const head = await pageHead(request, env, url, site, origin);
-  const tags = renderHead({ ...head, ld: [...siteBlocks(site, origin, image), ...head.ld] }, site, image);
-  return html.replace(SHELL_TITLE, "").replace(SHELL_DESCRIPTION, "").replace("</head>", tags + "</head>");
+  const feeds = [{ title: name, href: origin + feedPath(null) },
+    ...(head.board ? [{ title: `${name} — ${head.board}`, href: origin + feedPath(head.board) }] : [])];
+  const tags = renderHead({ ...head, feeds, ld: [...siteBlocks(site, origin, image), ...head.ld] }, site, image);
+  // Function replacement: a string one would expand $' $` $& $$ in member
+  // text and splice the rest of the shell into an attribute (v5.33 M1).
+  return html.replace(SHELL_TITLE, "").replace(SHELL_DESCRIPTION, "").replace("</head>", () => tags + "</head>");
 }

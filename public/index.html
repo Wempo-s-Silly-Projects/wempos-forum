@@ -33,6 +33,8 @@
     <link rel="modulepreload" href="/js/render.js">
     <link rel="modulepreload" href="/js/long-post.js">
     <link rel="modulepreload" href="/js/feed-views.js">
+    <link rel="modulepreload" href="/js/search-filters.js">
+    <link rel="modulepreload" href="/js/recent-searches.js">
     <link rel="modulepreload" href="/js/suggestion-rank.js">
     <link rel="modulepreload" href="/js/feed-end.js">
     <link rel="modulepreload" href="/js/markdown.js">
@@ -57,6 +59,7 @@
     <link rel="modulepreload" href="/js/latest-reply.js">
     <link rel="modulepreload" href="/js/reply-fold.js">
     <link rel="modulepreload" href="/js/reply-filter.js">
+    <link rel="modulepreload" href="/js/thread-outline.js">
     <link rel="modulepreload" href="/js/reply-anchor.js">
     <link rel="modulepreload" href="/js/thread-text.js">
     <link rel="modulepreload" href="/js/reading-progress.js">
@@ -68,6 +71,17 @@
     <link rel="modulepreload" href="/js/badge-progress.js">
     <link rel="modulepreload" href="/js/board-regulars.js">
     <link rel="modulepreload" href="/js/appearance-reset.js">
+    <link rel="modulepreload" href="/js/share.js">
+    <link rel="modulepreload" href="/js/slow-mode.js">
+    <link rel="modulepreload" href="/js/thread-lock.js">
+    <link rel="modulepreload" href="/js/tags.js">
+    <link rel="modulepreload" href="/js/invite.js">
+    <link rel="modulepreload" href="/js/skip-link.js">
+    <link rel="modulepreload" href="/js/notification-prefs.js">
+    <link rel="modulepreload" href="/js/word-diff.js">
+    <link rel="modulepreload" href="/js/thread-summary.js">
+    <link rel="modulepreload" href="/js/thread-actions.js">
+    <link rel="modulepreload" href="/js/nav-items.js">
   </head>
   <body>
     <a class="skip-link" href="#main-content" data-i18n="shell.skipToContent">Skip to content</a>
@@ -92,22 +106,12 @@
         <nav class="account-nav" aria-label="Site and account navigation" data-i18n-aria-label="shell.accountNav" id="account-actions"></nav>
       </div>
     </header>
+    <!-- v5.58: drawn by routes/account-nav.js from the one list in js/nav-items.js.
+         v5.63 (L9): until the session read answers, a static guest-safe fallback
+         (Home + Sign in only) keeps the bar usable; the renderer replaces it. -->
     <nav class="mobile-bar" aria-label="Mobile navigation" data-i18n-aria-label="shell.mobileNav">
-      <a class="mobile-bar-item" href="/" data-app-link aria-label="Home" data-i18n-aria-label="shell.home">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg><span data-i18n="shell.home">Home</span>
-      </a>
-      <a class="mobile-bar-item" href="/mine" data-app-link aria-label="My posts" data-i18n-aria-label="shell.myPosts">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg><span data-i18n="shell.myPosts">My posts</span>
-      </a>
-      <a class="mobile-bar-item" href="/suggestions" data-app-link aria-label="Suggestions" data-i18n-aria-label="shell.suggestions">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg><span data-i18n="shell.suggestShort">Suggest</span>
-      </a>
-      <a class="mobile-bar-item" href="/notifications" data-app-link aria-label="Notifications" data-i18n-aria-label="shell.notifications">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span data-i18n="shell.alertsShort">Alerts</span>
-      </a>
-      <a class="mobile-bar-item" href="/" data-app-link aria-label="Sign in" data-i18n-aria-label="shell.signIn" id="mobile-signin">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span data-i18n="shell.signIn">Sign in</span>
-      </a>
+      <a class="mobile-bar-item" href="/" data-nav-fallback="home" aria-label="Home" data-i18n-aria-label="shell.home"><span data-i18n="shell.home">Home</span></a>
+      <a class="mobile-bar-item" href="/login" data-nav-fallback="signin" aria-label="Sign in" data-i18n-aria-label="shell.signIn"><span data-i18n="shell.signIn">Sign in</span></a>
     </nav>
     <div class="status-bar">
       <p id="status-message" role="status"></p>
@@ -199,6 +203,16 @@
           <input id="poll-option-4" type="text" maxlength="80">
         </div>
         <p id="poll-options-note" class="gif-picker-note" data-i18n="shell.pollOptionsNote">Two to four non-duplicate options.</p>
+        <div class="form-field">
+          <label for="poll-closes" data-i18n="polls.deadlineLabel">Closing time</label>
+          <select id="poll-closes">
+            <option value="" data-i18n="polls.deadlineNone">No closing time</option>
+            <option value="3600" data-i18n="polls.deadlineHour">In 1 hour</option>
+            <option value="86400" data-i18n="polls.deadlineDay">In 1 day</option>
+            <option value="604800" data-i18n="polls.deadlineWeek">In 1 week</option>
+            <option value="2592000" data-i18n="polls.deadlineMonth">In 30 days</option>
+          </select>
+        </div>
         <div class="form-actions">
           <button class="button button-secondary" type="button" data-action="cancel-poll-dialog" data-i18n="common.cancel">Cancel</button>
           <button class="button button-primary" type="submit" data-action="confirm-poll-dialog" data-i18n="shell.pollAdd">Add poll</button>

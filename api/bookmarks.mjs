@@ -58,8 +58,9 @@ const ANCESTOR_BLOCK_CLAUSES = 3;
 
 // The saved rows a member may see, shared by the list and the board removal
 // so "remove all from this board" removes exactly what the list showed.
+// v5.39: bookmark folders (api/bookmark-folders.mjs) reuse it unchanged.
 // Returns the SQL tail (starts with " AND") and its bind values.
-function visibleSavedFilter(user, board) {
+export function visibleSavedFilter(user, board) {
   const blockFor = (column) => viewerBlockFilterSql(user, column);
   const blockFilter = blockFor("p.author_id");
   let sql = " AND p.visibility = 'public' AND " + banFilterSql("p") + " AND " + visibleAncestorSql("p", blockFor);

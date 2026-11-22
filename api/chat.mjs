@@ -39,6 +39,7 @@ import { mentionFanOutStatements } from "./mentions.mjs";
 import { chatMentionLabel, unreadCount } from "./notifications.mjs";
 import { activeBanSql, listViewerGroups, parseGroupCursor, readDmMessageBody, viewerGroupUnread } from "./dm-groups.mjs";
 import { DM_THREAD_LIST_LIMIT } from "../constants.mjs";
+import { dmReactionsForPage } from "./dm-reactions.mjs";
 
 // Lobby stream (old-ui-return lane): the retired public "Let's chat" surface
 // that rode migration 0032's chat_messages table comes back with the old UI —
@@ -128,6 +129,7 @@ async function insertLobbyMessage(env, user, rawBody) {
       actorId: user.id, now: nowSeconds(),
       actorUsername: user.username,
       label: chatMentionLabel(user.username),
+      kind: "chat_mention",
     });
     if (mentionStatements.length > 0) await env.FORUM_DB.batch(mentionStatements);
   } catch {
@@ -381,11 +383,16 @@ async function handleThreadReadRoute(request, env, url, path, method) {
     "SELECT 1 AS hidden WHERE " + ACTIVE_BAN_SQL("?") + " OR EXISTS (SELECT 1 FROM blocks bk WHERE " +
     "(bk.blocker_id = ? AND bk.blocked_id = ?) OR (bk.blocked_id = ? AND bk.blocker_id = ?))",
   ).bind(otherId, viewerId, otherId, viewerId, otherId).first();
+  // v5.44: the page's reactions in one grouped query (participants only —
+  // the participant gate above already refused everyone else).
+  const reactions = await dmReactionsForPage(env.FORUM_DB, {
+    threadId, viewerId, messageIds: rows.map((message) => Number(message.id)), otherHidden: Boolean(otherHidden),
+  });
   return json({
     id: Number(row.id),
     other: otherMember(row, viewerId),
     unread: otherHidden ? 0 : viewerUnread(row, viewerId),
-    messages: rows.map((message) => dmMessageShape(message, viewerId)),
+    messages: rows.map((message) => ({ ...dmMessageShape(message, viewerId), reactions: reactions.get(Number(message.id)) })),
   });
 }
 
@@ -616,5 +623,5 @@ export async function handleChatRoutes(request, env, url, path, method, ctx) {
 }
 
 export { LOBBY_CHAT_MAX_CHARS, insertLobbyMessage, lobbyMessageRows, lobbyOnlineCount };
-export { dmMessageShape, isoTime };
+export { dmMessageShape, isoTime, DM_VISIBLE_MESSAGE_SQL };
 export { DM_MAX_BODY_CHARS, PRESENCE_WINDOW, PRESENCE_UPSERT_SQL, PRESENCE_KEEP_SQL, DM_THREAD_OPEN_SQL, DM_THREAD_FIND_SQL };

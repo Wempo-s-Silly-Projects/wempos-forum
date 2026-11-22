@@ -34,6 +34,11 @@ import { handleProfileRoutes } from "./api/profiles.mjs";
 import { handleModerationRoutes } from "./api/moderation.mjs";
 import { handleNotificationsRoutes } from "./api/notifications.mjs";
 import { handleSubscriptionsRoutes } from "./api/subscriptions.mjs";
+import { handleThreadMuteRoutes } from "./api/thread-mutes.mjs";
+import { handlePrivateNoteRoutes } from "./api/private-notes.mjs";
+import { handleSavedSearchRoutes } from "./api/saved-searches.mjs";
+import { handleThreadSummaryRoutes } from "./api/thread-summaries.mjs";
+import { handleThreadLockRoutes } from "./api/thread-locks.mjs";
 import { handlePollRoutes } from "./api/polls.mjs";
 import { handleBookmarkRoutes } from "./api/bookmarks.mjs";
 import { handleArchiveRoutes } from "./api/archive.mjs";
@@ -51,6 +56,7 @@ import { handleAccountsRoutes } from "./api/accounts.mjs";
 import { ensureFilterWords, handleFilterAdminRoutes } from "./api/filterstore.mjs";
 import { handleChatRoutes } from "./api/chat.mjs";
 import { handleDmGroupRoutes } from "./api/dm-groups.mjs";
+import { handleConversationSearchRoutes } from "./api/conversation-search.mjs";
 import { handleDmImageRoutes } from "./api/dm-images.mjs";
 import { handleRelayRoutes } from "./api/relay.mjs";
 import { handleTraditionRoutes } from "./api/traditions.mjs";
@@ -60,6 +66,16 @@ import { handleDmReportRoutes } from "./api/dm-reports.mjs";
 import { handleBrandingRoutes, readStoredBranding } from "./api/branding.mjs";
 import { handleAnalyticsRoutes, scheduleCount } from "./api/analytics.mjs";
 import { handleDiscovery, withDiscoveryHeaders } from "./api/discovery.mjs";
+import { handleFeeds } from "./api/feeds.mjs";
+import { handleInviteRoutes } from "./api/invites.mjs";
+import { handleWeekRoutes } from "./api/week.mjs";
+import { handleNewcomerRoutes } from "./api/newcomers.mjs";
+import { handleStaffPickRoutes } from "./api/staff-picks.mjs";
+import { handleStaffToolRoutes } from "./api/staff-tools.mjs";
+import { handleBookmarkFolderRoutes } from "./api/bookmark-folders.mjs";
+import { handleFollowRoutes } from "./api/follows.mjs";
+import { handleDmReactionRoutes } from "./api/dm-reactions.mjs";
+import { handleTagRoutes } from "./api/tags.mjs";
 import { handleMcp } from "./api/mcp.mjs";
 import { attributeEscape, withPageHead } from "./api/seo.mjs";
 import { accountsOrigin, configuredOrigin } from "./api/core/site.mjs";
@@ -111,7 +127,7 @@ function notFound(request, env, url, path) {
 // dispatch context and answers only the paths it owns; `undefined` falls
 // through to the next handler or the notFound tail — the vendor's dispatch()
 // replaces the inlined handlers-for-loop, built once from the vendor import.
-const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleAnalyticsRoutes];
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleAnalyticsRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
@@ -161,7 +177,7 @@ async function stampedAssetResponse(assetResponse, env, request, url) {
   // describes these bytes — a retained Last-Modified would advertise a lie.
   headers.delete("Last-Modified");
   headers.set("Cache-Control", "no-store");
-  return new Response(html.includes("</head>") ? html.replace("</head>", stamp + "</head>") : html, {
+  return new Response(html.includes("</head>") ? html.replace("</head>", () => stamp + "</head>") : html, {
     status: assetResponse.status,
     statusText: assetResponse.statusText,
     headers,
@@ -239,6 +255,9 @@ export default {
       }
     }
     try {
+      // RSS feeds + llms.txt (v5.34) answer before the discovery documents.
+      const feed = await handleFeeds(request, env, url.pathname);
+      if (feed) return feed;
       const discovery = await handleDiscovery(request, env, url.pathname);
       if (discovery) return discovery;
     } catch (error) {

@@ -38,6 +38,9 @@ import { renderHomeAccess } from "./auth.js";
 import { renderTotpSettings } from "./twofa.js";
 import { renderAccountSecurity } from "../account-security.js";
 import { renderBlockedSettings } from "./blocks.js";
+import { renderFollowingSettings } from "../follows.js";
+import { renderNotificationPrefs } from "../notification-prefs.js";
+import { createFolderFilter, createFolderManage, decorateSavedCards, folderAdder, folderItemsPath, FOLDERS_PATH } from "../bookmark-folders.js";
 import { createComposer } from "./composer.js";
 // The §4b door-swap: the guests' sign-in prompts (mine/bookmarks gates) are
 // the Accounts handoff — the join panel they used to point at is gone.
@@ -46,11 +49,13 @@ import { appendPostList } from "../render.js";
 import { maskSpoilers } from "../markdown.js";
 import { appendHighlighted } from "../search-highlight.js";
 import { SEARCH_SECTION_IDS, createSearchSummary } from "../search-summary.js";
+import { createSearchFilters, searchApiPath } from "../search-filters.js";
+import { createSavedSearches, loadSavedSearches } from "../saved-searches.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
 import { createTextSizePicker } from "../text-size.js";
-import { createLineSpacingPicker, createLinkUnderlineToggle } from "../reading-comfort.js";
+import { createEasyReadingToggle, createLineSpacingPicker, createLinkUnderlineToggle } from "../reading-comfort.js";
 import { createContrastPicker } from "../high-contrast.js";
 import { applyTabUnread, createTabUnreadToggle } from "../tab-unread.js";
 import { createQuietHoursControls } from "../quiet-hours.js";
@@ -58,8 +63,17 @@ import { createAppearanceReset } from "../appearance-reset.js";
 import { createBoardRegulars } from "../board-regulars.js";
 import { createDataExportPanel, downloadMyData } from "../data-export.js";
 import { addSectionAnchors, createSettingsFilter } from "../settings-tools.js";
+import {
+  buildSettingsHub,
+  createSettingsLinkPanel,
+  createSettingsSignIn,
+  groupedSettingsPanels,
+  syncSettingsGroups,
+} from "../settings-groups.js";
 import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
+import { createNewestMembers, createWeekLink } from "../week.js";
 import { renderNewcomerCards } from "../newcomer.js";
+import { createInvitePanel } from "../invite.js";
 import { createFeedViews, feedViewEmptyText, feedViewQuery } from "../feed-views.js";
 import { numberSuggestionCards } from "../suggestion-rank.js";
 import { createFeedEnd, reachedFeedEnd } from "../feed-end.js";
@@ -112,10 +126,21 @@ function renderHomeContent(session, data, route) {
   }
   // Recent activity (v3.1): the homepage mixes every category, 10 posts at a
   // time (the server's no-board feed page size).
-  if (route.name === "home") renderTodaysQotd();
+  if (route.name === "home") {
+    renderTodaysQotd();
+    renderHomeHighlights();
+  }
   addHeading(main, route.name === "search" ? t("feed.searchResults") : t("feed.recentActivity"), 2);
   if (route.name === "search") {
     addText(document, main, "p", t("feed.searchResultsFor", { query: route.query }), "muted");
+    // Wave 5.36: date-range and sort chips (shareable via ?since=&sort=).
+    main.append(createSearchFilters(document, route));
+    // v5.48: saved searches — signed-in members only, owner-only list.
+    if (session.user) {
+      const savedPanel = createSavedSearches(document, { query: route.query });
+      main.append(savedPanel);
+      loadSavedSearches(savedPanel);
+    }
     renderSearchResults(main, data.search, route.query);
     return;
   }
@@ -131,14 +156,12 @@ function renderHomeContent(session, data, route) {
   main.append(older);
 }
 function renderAccountSettings(session) {
-  const account = document.createElement("details");
-  account.className = "panel";
-  // v4.23: the area carries its own title (it used to render the browser's
-  // bare "Details" label).
-  const summary = document.createElement("summary");
-  summary.className = "settings-summary";
-  summary.textContent = t("settings.title");
-  account.append(summary);
+  // v5.56 hub: the settings are their own view (/?settings), no longer a
+  // collapsed <details> under the home feed; the panels below are built
+  // exactly as before, then moved into four groups (settings-groups.js).
+  const account = document.createElement("div");
+  account.className = "settings-hub";
+  const title = addHeading(account, t("settings.title"), 1);
   // Appearance: the square-corners pref (v2.5) - a checkbox in the account
   // settings panel; stored client-side like the theme choice.
   const corners = document.createElement("label");
@@ -172,6 +195,8 @@ function renderAccountSettings(session) {
   addText(document, readingComfort, "p", t("readingComfort.lineSpacingHelp"), "muted reading-comfort-help");
   readingComfort.append(createLinkUnderlineToggle(document, storage));
   addText(document, readingComfort, "p", t("readingComfort.underlineLinksHelp"), "muted reading-comfort-help");
+  readingComfort.append(createEasyReadingToggle(document, storage));
+  addText(document, readingComfort, "p", t("readingComfort.easyReadingHelp"), "muted reading-comfort-help");
   readingComfort.append(createContrastPicker(document, storage, window));
   addText(document, readingComfort, "p", t("readingComfort.contrastHelp"), "muted reading-comfort-help");
   account.append(readingComfort);
@@ -182,6 +207,9 @@ function renderAccountSettings(session) {
     onChange: () => applyTabUnread(document, state.unreadNotifications, storage),
   }));
   account.append(quietHours);
+  // Notification preferences (v5.40.0): one checkbox per kind, saved on the
+  // server (it skips muted kinds when notifications are created).
+  renderNotificationPrefs(account);
 
   const passwordPanel = createPanel(t("feed.changePasswordTitle"), t("feed.changePasswordNote"));
   passwordPanel.append(createForm(document, "password", [
@@ -211,6 +239,8 @@ function renderAccountSettings(session) {
   // Blocks (v4.4): the blocked-members list + Unblock controls ride the
   // account settings area right after the two-factor section.
   renderBlockedSettings(account, session);
+  // Follows (v5.39.0): the member's own Following list with Unfollow.
+  renderFollowingSettings(account, session);
   // Invisible-mode toggle (day-2 misc): the roster honors presence.invisible
   // server-side; this is the member-facing seat. The read arm is the FLAG-LESS
   // heartbeat POST /api/presence (who-online.js already sends it) — its
@@ -222,6 +252,8 @@ function renderAccountSettings(session) {
   // Download my data (v4.23): explicit button; nothing is fetched until the
   // member presses it.
   account.append(createDataExportPanel(document));
+  // Invite a friend (v5.34): the member's own /join?ref= link + Copy.
+  account.append(createInvitePanel(document, window.location.origin, session.user.username));
   const deletePanel = createPanel(t("feed.deleteAccountTitle"), t("feed.deleteAccountNote"));
   const deleteButton = element("button", "button button-danger", t("feed.deleteAccount"));
   deleteButton.type = "button";
@@ -230,17 +262,36 @@ function renderAccountSettings(session) {
   account.append(deletePanel);
   // v4.23: every section is appended synchronously above, so the anchors,
   // the jump list and the filter see the whole set right after the title.
-  const panels = Array.from(account.querySelectorAll(":scope > section.panel"));
-  const jumpNav = addSectionAnchors(document, panels);
-  summary.after(createSettingsFilter(document, panels, jumpNav), jumpNav);
+  // v5.56: the four groups replace the flat stack first, so the jump list
+  // follows the order on screen; a group the filter empties hides with its
+  // panels.
+  const panels = Array.from(account.children).filter((node) => node.matches("section.panel"));
+  const groups = buildSettingsHub(document, account, panels);
+  const grouped = groupedSettingsPanels(groups);
+  const jumpNav = addSectionAnchors(document, grouped);
+  const filter = createSettingsFilter(document, grouped, jumpNav);
+  title.after(filter, jumpNav);
+  filter.querySelector("input").addEventListener("input", () => syncSettingsGroups(groups));
   main.append(account);
+}
+
+// Account settings hub (v5.56): /?settings. Guests get a sign-in prompt,
+// like /mine and /bookmarks.
+async function renderSettingsRoute(context, version) {
+  if (version !== state.renderVersion) return;
+  if (!context.session.user) {
+    main.append(createSettingsSignIn(document, wempoAccountsSignInUrl(location.origin)));
+    return;
+  }
+  renderAccountSettings(context.session);
 }
 
 function renderHome(session, setupRequired, setupConfigured, data, route) {
   renderIntroduction();
   renderHomeAccess(session, setupRequired, setupConfigured);
   renderHomeContent(session, data, route);
-  if (session.user) renderAccountSettings(session);
+  // v5.56: where the collapsed settings used to sit, one link into the hub.
+  if (session.user) main.append(createSettingsLinkPanel(document));
 }
 
 // The invisible toggle's two buttons (visible / invisible), each carrying its
@@ -327,7 +378,7 @@ function renderSearchResults(container, results, query = "") {
 }
 async function renderHomeRoute(route, context, version) {
   const data = route.name === "search"
-    ? { search: await api(`/api/search?q=${encodeURIComponent(route.query)}&in=replies`) }
+    ? { search: await api(searchApiPath(route)) }
     : { feed: await api("/api/posts" + (feedViewQuery(route.view) ? "?" + feedViewQuery(route.view) : "")) };
   if (version !== state.renderVersion) return;
   renderHome(context.session, context.setupRequired, context.setupConfigured, data, route);
@@ -460,6 +511,25 @@ async function renderTodaysQotd() {
   slot.append(createQotdBanner(document, data.qotd));
 }
 
+// v5.35: the link to /week and the "Newest members" list, home only. The
+// slot keeps its place above the list; a failed or empty member read just
+// leaves the link.
+async function renderHomeHighlights() {
+  const slot = element("div", "home-highlights");
+  slot.append(createWeekLink(document));
+  main.append(slot);
+  const version = state.renderVersion;
+  let data;
+  try {
+    data = await api("/api/members/newest");
+  } catch {
+    return;
+  }
+  if (version !== state.renderVersion) return;
+  const members = createNewestMembers(document, data?.members);
+  if (members) slot.append(members);
+}
+
 async function renderShowcaseGallery() {
   const panel = createPanel(t("traditions.galleryTitle"));
   panel.classList.add("showcase-gallery-panel");
@@ -473,19 +543,43 @@ async function renderShowcaseGallery() {
     return;
   }
   if (version !== state.renderVersion) return;
-  panel.append(createShowcaseGallery(document, Array.isArray(data?.items) ? data.items : []));
+  panel.append(createShowcaseGallery(document, Array.isArray(data?.items) ? data.items : [], data?.staffPick || null));
 }
 
 // Bookmarks (C4): the private "Saved" page — the member's own saved list.
 // Guests get a sign-in prompt (the API 401s the private list regardless).
 // Wave 36: board chips + "Remove all saved from <board>" (saved-boards.js).
-function appendOlderSaved(board, nextBefore) {
+function appendOlderSaved(board, nextBefore, folder) {
   const older = element("button", "button button-secondary", t("feed.loadOlderSaved"));
   older.type = "button";
   older.dataset.action = "load-more-bookmarks";
   older.dataset.before = String(nextBefore);
   if (board) older.dataset.board = board;
+  if (folder) older.dataset.folder = String(folder);
   main.append(older);
+}
+// v5.39.0 bookmark folders: the member's folders ride every /bookmarks render
+// (a failed read just shows no folder controls); the page keeps them for the
+// per-card controls on load-more pages.
+let savedFolders = [];
+const loadSavedFolders = () => api(FOLDERS_PATH).then((data) => (Array.isArray(data?.folders) ? data.folders : []), () => []);
+function decorateSaved(folderId) {
+  decorateSavedCards(main, document, {
+    folders: savedFolders, activeFolderId: folderId || null,
+    onAdd: folderAdder({ folders: savedFolders, setMessage }),
+  });
+}
+async function renderFolderRoute(route, version) {
+  const [data, folders] = await Promise.all([api(folderItemsPath(route.folder)), loadSavedFolders()]);
+  if (version !== state.renderVersion) return;
+  savedFolders = folders;
+  addHeading(main, data.folder.name, 2);
+  addText(document, main, "p", t("feed.savedPrivate"), "muted");
+  main.append(createFolderFilter(document, folders, route.folder));
+  main.append(createFolderManage(document, data.folder));
+  appendPostList(main, data.posts, document, state.currentUser, t("folders.empty"));
+  decorateSaved(route.folder);
+  if (data.nextBefore) appendOlderSaved(null, data.nextBefore, route.folder);
 }
 async function renderBookmarksRoute(route, context, version) {
   if (!context.session.user) {
@@ -496,16 +590,23 @@ async function renderBookmarksRoute(route, context, version) {
     main.append(signIn);
     return;
   }
+  if (route?.folder) {
+    await renderFolderRoute(route, version);
+    return;
+  }
   const board = route?.board;
-  const data = await api(savedListPath(board));
+  const [data, folders] = await Promise.all([api(savedListPath(board)), loadSavedFolders()]);
   if (version !== state.renderVersion) return;
+  savedFolders = folders;
   addHeading(main, t("feed.savedTitle"), 2);
   // Privacy note: this list belongs to the signed-in account.
   addText(document, main, "p", t("feed.savedPrivate"), "muted");
+  main.append(createFolderFilter(document, folders, null));
   main.append(createSavedBoardFilter(document, board));
   if (board && data.bookmarks.length) main.append(createRemoveSavedBoard(document, board));
   appendPostList(main, data.bookmarks, document, context.session.user,
     savedEmptyText(board));
+  decorateSaved(null);
   // Pagination (fix round 1): the composite (bookmarked_at, id) cursor.
   if (!data.nextBefore || data.bookmarks.length !== 20) return;
   appendOlderSaved(board, data.nextBefore);
@@ -582,6 +683,16 @@ export const ACTIONS = {
     await state.renderRoute(state.activeRoute);
     setMessage(subscribed ? t("feed.unsubscribed") : t("feed.subscribed"));
   },
+  // Mute a thread (v5.46.0): idempotent both ways server-side; the re-render
+  // refetches viewerMuted rather than trusting the click.
+  "toggle-thread-mute": async (button) => {
+    const muted = button.dataset.muted === "1";
+    await api("/api/posts/" + button.dataset.postId + "/mute", {
+      method: muted ? "DELETE" : "PUT",
+    });
+    await state.renderRoute(state.activeRoute);
+    setMessage(muted ? t("feed.threadUnmuted") : t("feed.threadMuted"));
+  },
   // Suggestion status (v3.1): staff flip resolved/declined/open; the
   // route re-render refetches the payload so the chip and buttons come
   // back from the server, never from the echo.
@@ -619,10 +730,20 @@ export const ACTIONS = {
     }
   },
   "load-more-bookmarks": async (button) => {
+    const folder = Number(button.dataset.folder) || null;
+    if (folder) {
+      const page = await api(folderItemsPath(folder, button.dataset.before));
+      appendPostList(main, page.posts, document, state.currentUser, t("folders.empty"));
+      decorateSaved(folder);
+      button.remove();
+      if (page.nextBefore) appendOlderSaved(null, page.nextBefore, folder);
+      return;
+    }
     const board = button.dataset.board;
     const older = await api(savedListPath(board, button.dataset.before));
     appendPostList(main, older.bookmarks, document, state.currentUser,
       savedEmptyText(board));
+    decorateSaved(null);
     button.remove();
     if (!older.nextBefore || older.bookmarks.length !== 20) return;
     appendOlderSaved(board, older.nextBefore);
@@ -648,6 +769,7 @@ export const ACTIONS = {
 
 export {
   renderHomeRoute,
+  renderSettingsRoute,
   renderMineRoute,
   renderCategoryRoute,
   renderBookmarksRoute,

@@ -169,3 +169,67 @@ test("posts-feed.mjs has no options.limit and no bare page-size literals", () =>
   assert.doesNotMatch(source, /LIMIT 21|slice\(0, 20\)|> 20;/);
   assert.match(source, /FEED_PAGE_SIZE/);
 });
+
+// Wave 5.35: the This-week page's thread list is a new feed-shaped query —
+// a full FEED_PAGE_SIZE page for a blocking member (every block slot armed in
+// the root filter and the reply tally) stays far under the bind ceiling.
+test("/api/week binds < 100 params at a full page for a blocking member", async () => {
+  const { env, viewer } = await seedWorstCase();
+  const session = forgeSession(env.__sqlite, viewer);
+  const spied = spyBinds(env);
+  const res = await call(spied.env, "/api/week", { session });
+  assert.equal(res.status, 200);
+  const body = await res.json();
+  assert.equal(body.threads.length, FEED_PAGE_SIZE);
+  const worst = Math.max(...spied.counts);
+  assert.ok(worst < D1_MAX_BOUND_PARAMS, "worst-case bind count " + worst);
+});
+
+// Wave 5.36: search's date-range + sort filters (and a by-author filter, and
+// the deep reply search) ride the same pin — a blocking member's full search
+// page keeps every statement under the bind ceiling, rollup still widest.
+test("filtered search (since, sort, by, in=replies) binds < 100 params at a full page", async () => {
+  const { env, viewer } = await seedWorstCase();
+  const session = forgeSession(env.__sqlite, viewer);
+  for (const query of ["q=root&since=week&sort=new&in=replies", "q=root&since=year&sort=relevant",
+    "q=root&by=author&since=month&sort=new&in=replies"]) {
+    const spied = spyBinds(env);
+    const res = await call(spied.env, "/api/search?" + query, { session });
+    assert.equal(res.status, 200, query);
+    const body = await res.json();
+    assert.equal(body.posts.length, FEED_PAGE_SIZE, query);
+    const worst = Math.max(...spied.counts);
+    assert.ok(worst < D1_MAX_BOUND_PARAMS, query + " worst-case bind count " + worst);
+    assert.equal(worst, 2 * FEED_PAGE_SIZE + 11, query + ": the rollup stays the widest statement");
+  }
+});
+
+// Wave 5.44: the tag listing (GET /api/tags/:slug/posts) is a feed variant —
+// a full FEED_PAGE_SIZE page for a blocking member (viewablePostSql's six
+// viewer binds, the root block filter and the reply tally's block filters
+// all armed) keeps every statement under the bind ceiling, page 2 too.
+test("/api/tags/:slug/posts binds < 100 params at a full page for a blocking member (both pages)", async () => {
+  const { env, viewer } = await seedWorstCase();
+  const db = env.__sqlite;
+  const tagId = Number(db.prepare("INSERT INTO forum_tags (slug, label, created_by, created_at) VALUES ('pin', 'Pin', ?, ?)")
+    .run(viewer, now()).lastInsertRowid);
+  for (const row of db.prepare("SELECT id FROM posts WHERE parent_id IS NULL").all()) {
+    db.prepare("INSERT INTO thread_tags (post_id, tag_id) VALUES (?, ?)").run(row.id, tagId);
+  }
+  const session = forgeSession(db, viewer);
+  const first = await call(env, "/api/tags/pin/posts", { session });
+  const cursor = (await first.json()).nextBefore;
+  assert.ok(Number.isInteger(cursor), "the extra roots page on");
+  for (const path of ["/api/tags/pin/posts", "/api/tags/pin/posts?before=" + cursor]) {
+    const spied = spyBinds(env);
+    const res = await call(spied.env, path, { session });
+    assert.equal(res.status, 200, path);
+    const body = await res.json();
+    assert.equal(body.threads.length, path.includes("before") ? EXTRA_ROOTS : FEED_PAGE_SIZE, path);
+    const worst = Math.max(...spied.counts);
+    assert.ok(worst < D1_MAX_BOUND_PARAMS, path + " worst-case bind count " + worst);
+  }
+  const source = readFileSync(new URL("../api/tags.mjs", import.meta.url), "utf8");
+  assert.match(source, /FEED_PAGE_SIZE \+ 1/);
+  assert.doesNotMatch(source, /searchParams\.get\("limit"\)/);
+});

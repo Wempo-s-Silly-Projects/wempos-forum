@@ -56,10 +56,10 @@ const realisticAssets = () => makeAssets((request) => {
 const get = (path) => call(makeEnv({ ASSETS: realisticAssets() }), path);
 
 const KNOWN_ROUTES = [
-  "/", "/?q=cats", "/?view=new", "/setup", "/login", "/register",
+  "/", "/?q=cats", "/?view=new", "/?settings", "/setup", "/login", "/register",
   "/admin", "/admin/reports", "/admin/users", "/notifications",
   "/bookmarks", "/bookmarks?board=help", "/suggestions", "/archive", "/mine",
-  "/leaderboard", "/rules", "/posts/1", "/posts/999999", "/users/wempo",
+  "/leaderboard", "/rules", "/week", "/tag/news", "/join", "/join?ref=alice", "/posts/1", "/posts/999999", "/users/wempo",
   "/users/some%20name", ...BOARDS.map((board) => `/c/${board.slug}`),
   ...BOARDS.map((board) => `/c/${board.slug}?view=new`),
 ];
@@ -124,7 +124,7 @@ for (const path of ["/locales/unknown.json", "/locales/xx.json", "/locales/"]) {
 
 test("every real locale file stays 200 application/json", async () => {
   const files = readdirSync(join(PUBLIC_DIR, "locales")).filter((name) => name.endsWith(".json"));
-  assert.equal(files.length, 41);
+  assert.equal(files.length, 45);
   for (const name of files) {
     const response = await get(`/locales/${name}`);
     assert.equal(response.status, 200, name);

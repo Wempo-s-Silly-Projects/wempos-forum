@@ -57,6 +57,10 @@ if (storedTextSize === "large" || storedTextSize === "larger") {
   if (readPref("forum-link-underline") === "on") {
     document.documentElement.dataset.linkUnderline = "on";
   }
+  // Easy-reading spacing (v5.40.0): a class, only for an exact "on".
+  if (readPref("forum-easy-reading") === "on") {
+    document.documentElement.classList.add("easy-reading");
+  }
   let moreContrastQuery = null;
   try {
     moreContrastQuery = typeof matchMedia === "function" ? matchMedia("(prefers-contrast: more)") : null; // i18n-ignore
