@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Поделиться",
   "threadActions.thisPost": "Этот пост",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Изменить теги"
+  "threadActions.editTags": "Изменить теги",
+  "render.diagram": "Диаграмма",
+  "render.diagramSource": "Исходный код диаграммы",
+  "render.zoomIn": "Увеличить",
+  "render.zoomOut": "Уменьшить",
+  "render.zoomReset": "Сбросить масштаб",
+  "render.jsonTree": "Вид дерева"
 }

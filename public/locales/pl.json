@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Udostępnianie",
   "threadActions.thisPost": "Ten post",
   "threadActions.staff": "Zespół",
-  "threadActions.editTags": "Edytuj tagi"
+  "threadActions.editTags": "Edytuj tagi",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Źródło diagramu",
+  "render.zoomIn": "Powiększ",
+  "render.zoomOut": "Pomniejsz",
+  "render.zoomReset": "Resetuj powiększenie",
+  "render.jsonTree": "Widok drzewa"
 }

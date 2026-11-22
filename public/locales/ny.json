@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Kugawana",
   "threadActions.thisPost": "Positi iyi",
   "threadActions.staff": "Oyang'anira",
-  "threadActions.editTags": "Sinthani matagi"
+  "threadActions.editTags": "Sinthani matagi",
+  "render.diagram": "Chithunzi",
+  "render.diagramSource": "Gwero la chithunzi",
+  "render.zoomIn": "Kulitsa",
+  "render.zoomOut": "Chepetsa",
+  "render.zoomReset": "Bwezeretsa kukula",
+  "render.jsonTree": "Mawonekedwe a mtengo"
 }

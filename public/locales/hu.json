@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Megosztás",
   "threadActions.thisPost": "Ez a bejegyzés",
   "threadActions.staff": "Csapat",
-  "threadActions.editTags": "Címkék szerkesztése"
+  "threadActions.editTags": "Címkék szerkesztése",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "A diagram forrása",
+  "render.zoomIn": "Nagyítás",
+  "render.zoomOut": "Kicsinyítés",
+  "render.zoomReset": "Nagyítás visszaállítása",
+  "render.jsonTree": "Fanézet"
 }

@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "المشاركة",
   "threadActions.thisPost": "هذا المنشور",
   "threadActions.staff": "الطاقم",
-  "threadActions.editTags": "تعديل الوسوم"
+  "threadActions.editTags": "تعديل الوسوم",
+  "render.diagram": "مخطط",
+  "render.diagramSource": "مصدر المخطط",
+  "render.zoomIn": "تكبير",
+  "render.zoomOut": "تصغير",
+  "render.zoomReset": "إعادة ضبط التكبير",
+  "render.jsonTree": "عرض شجري"
 }

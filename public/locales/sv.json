@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Dela",
   "threadActions.thisPost": "Det här inlägget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Redigera taggar"
+  "threadActions.editTags": "Redigera taggar",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Diagramkälla",
+  "render.zoomIn": "Zooma in",
+  "render.zoomOut": "Zooma ut",
+  "render.zoomReset": "Återställ zoom",
+  "render.jsonTree": "Trädvy"
 }

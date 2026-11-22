@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Zdieľanie",
   "threadActions.thisPost": "Tento príspevok",
   "threadActions.staff": "Tím",
-  "threadActions.editTags": "Upraviť štítky"
+  "threadActions.editTags": "Upraviť štítky",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Zdroj diagramu",
+  "render.zoomIn": "Priblížiť",
+  "render.zoomOut": "Oddialiť",
+  "render.zoomReset": "Obnoviť priblíženie",
+  "render.jsonTree": "Stromové zobrazenie"
 }

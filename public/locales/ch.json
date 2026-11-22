@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Na'sågue",
   "threadActions.thisPost": "Este na mensåhi",
   "threadActions.staff": "Atministradot",
-  "threadActions.editTags": "Edita i etiketa"
+  "threadActions.editTags": "Edita i etiketa",
+  "render.diagram": "Diagrama",
+  "render.diagramSource": "Fuetten i diagrama",
+  "render.zoomIn": "Na'dangkulo",
+  "render.zoomOut": "Na'dikike'",
+  "render.zoomReset": "Na'fañila' i zoom",
+  "render.jsonTree": "Atan trongkon hayu"
 }

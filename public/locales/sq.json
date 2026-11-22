@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Ndarja",
   "threadActions.thisPost": "Ky postim",
   "threadActions.staff": "Stafi",
-  "threadActions.editTags": "Ndrysho etiketat"
+  "threadActions.editTags": "Ndrysho etiketat",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Burimi i diagramit",
+  "render.zoomIn": "Zmadho",
+  "render.zoomOut": "Zvogëlo",
+  "render.zoomReset": "Rivendos zmadhimin",
+  "render.jsonTree": "Pamje peme"
 }

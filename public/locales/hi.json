@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "साझा करना",
   "threadActions.thisPost": "यह पोस्ट",
   "threadActions.staff": "स्टाफ़",
-  "threadActions.editTags": "टैग संपादित करें"
+  "threadActions.editTags": "टैग संपादित करें",
+  "render.diagram": "आरेख",
+  "render.diagramSource": "आरेख का स्रोत",
+  "render.zoomIn": "ज़ूम इन",
+  "render.zoomOut": "ज़ूम आउट",
+  "render.zoomReset": "ज़ूम रीसेट करें",
+  "render.jsonTree": "ट्री व्यू"
 }

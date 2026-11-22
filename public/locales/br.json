@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Rannañ",
   "threadActions.thisPost": "Ar gemennadenn-mañ",
   "threadActions.staff": "Kefridi",
-  "threadActions.editTags": "Kemmañ ar skritelloù"
+  "threadActions.editTags": "Kemmañ ar skritelloù",
+  "render.diagram": "Tresadenn",
+  "render.diagramSource": "Mammenn an dresadenn",
+  "render.zoomIn": "Brasaat",
+  "render.zoomOut": "Bihanaat",
+  "render.zoomReset": "Adderaouekaat ar skeul",
+  "render.jsonTree": "Gwel gwezennek"
 }

@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Пайлашу",
   "threadActions.thisPost": "Ку пост",
   "threadActions.staff": "Ӗҫченсем",
-  "threadActions.editTags": "Тегсене улӑштар"
+  "threadActions.editTags": "Тегсене улӑштар",
+  "render.diagram": "Диаграмма",
+  "render.diagramSource": "Диаграмма кодӗ",
+  "render.zoomIn": "Пысӑклат",
+  "render.zoomOut": "Пӗчӗклет",
+  "render.zoomReset": "Масштаба тавӑр",
+  "render.jsonTree": "Йывӑҫ евӗр курӑну"
 }

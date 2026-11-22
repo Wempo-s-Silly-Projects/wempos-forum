@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "اشتراک‌گذاری",
   "threadActions.thisPost": "این پست",
   "threadActions.staff": "کادر",
-  "threadActions.editTags": "ویرایش برچسب‌ها"
+  "threadActions.editTags": "ویرایش برچسب‌ها",
+  "render.diagram": "نمودار",
+  "render.diagramSource": "منبع نمودار",
+  "render.zoomIn": "بزرگ‌نمایی",
+  "render.zoomOut": "کوچک‌نمایی",
+  "render.zoomReset": "بازنشانی بزرگ‌نمایی",
+  "render.jsonTree": "نمای درختی"
 }

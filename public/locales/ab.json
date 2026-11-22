@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Ашара",
   "threadActions.thisPost": "Ари аҭыжьымҭа",
   "threadActions.staff": "Аперсонал",
-  "threadActions.editTags": "Атегқәа рыриашара"
+  "threadActions.editTags": "Атегқәа рыриашара",
+  "render.diagram": "Адиаграмма",
+  "render.diagramSource": "Адиаграмма ахыҵхырҭа",
+  "render.zoomIn": "Ирдуны",
+  "render.zoomOut": "Ирхәычны",
+  "render.zoomReset": "Амасштаб ахынҳәра",
+  "render.jsonTree": "Аҵла ахаҿы"
 }

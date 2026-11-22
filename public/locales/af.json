@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Deel",
   "threadActions.thisPost": "Hierdie plasing",
   "threadActions.staff": "Personeel",
-  "threadActions.editTags": "Wysig etikette"
+  "threadActions.editTags": "Wysig etikette",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Diagrambron",
+  "render.zoomIn": "Zoem in",
+  "render.zoomOut": "Zoem uit",
+  "render.zoomReset": "Herstel zoem",
+  "render.jsonTree": "Boomaansig"
 }

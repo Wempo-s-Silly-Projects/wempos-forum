@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "共有",
   "threadActions.thisPost": "この投稿",
   "threadActions.staff": "スタッフ",
-  "threadActions.editTags": "タグを編集"
+  "threadActions.editTags": "タグを編集",
+  "render.diagram": "図",
+  "render.diagramSource": "図のソース",
+  "render.zoomIn": "拡大",
+  "render.zoomOut": "縮小",
+  "render.zoomReset": "拡大率をリセット",
+  "render.jsonTree": "ツリー表示"
 }

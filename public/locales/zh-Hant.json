@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "這篇貼文",
   "threadActions.staff": "管理團隊",
-  "threadActions.editTags": "編輯標籤"
+  "threadActions.editTags": "編輯標籤",
+  "render.diagram": "圖表",
+  "render.diagramSource": "圖表原始碼",
+  "render.zoomIn": "放大",
+  "render.zoomOut": "縮小",
+  "render.zoomReset": "重設縮放",
+  "render.jsonTree": "樹狀檢視"
 }

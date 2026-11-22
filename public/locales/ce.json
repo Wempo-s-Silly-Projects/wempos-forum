@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Дийцар",
   "threadActions.thisPost": "Хӏара пост",
   "threadActions.staff": "Белхалой",
-  "threadActions.editTags": "Тегаш нисде"
+  "threadActions.editTags": "Тегаш нисде",
+  "render.diagram": "Диаграмма",
+  "render.diagramSource": "Диаграммин йоза",
+  "render.zoomIn": "Доккха йан",
+  "render.zoomOut": "Жима йан",
+  "render.zoomReset": "Масштаб юхаметтаэцар",
+  "render.jsonTree": "Дитт санна хьажар"
 }

@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Tilali",
   "threadActions.thisPost": "Nin sɛbɛn",
   "threadActions.staff": "Baarakɛlaw",
-  "threadActions.editTags": "Taamasiyɛnninw yɛlɛma"
+  "threadActions.editTags": "Taamasiyɛnninw yɛlɛma",
+  "render.diagram": "Jaa",
+  "render.diagramSource": "Jaa sɛbɛn",
+  "render.zoomIn": "A bonya",
+  "render.zoomOut": "A dɔgɔya",
+  "render.zoomReset": "A bonya segin a cogo kɔrɔ la",
+  "render.jsonTree": "Jiri cogo"
 }

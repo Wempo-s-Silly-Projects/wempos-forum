@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Kyɛ",
   "threadActions.thisPost": "Nkyerɛwee yi",
   "threadActions.staff": "Adwumayɛfo",
-  "threadActions.editTags": "Sesa agyiraehyɛde"
+  "threadActions.editTags": "Sesa agyiraehyɛde",
+  "render.diagram": "Mfoniniyɛ",
+  "render.diagramSource": "Mfoniniyɛ fibea",
+  "render.zoomIn": "Ma ɛnyɛ kɛse",
+  "render.zoomOut": "Ma ɛnyɛ ketewa",
+  "render.zoomReset": "San kɔ kɛse a edi kan",
+  "render.jsonTree": "Dua nhwɛe"
 }

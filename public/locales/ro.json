@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Distribuire",
   "threadActions.thisPost": "Această postare",
   "threadActions.staff": "Echipă",
-  "threadActions.editTags": "Editează etichetele"
+  "threadActions.editTags": "Editează etichetele",
+  "render.diagram": "Diagramă",
+  "render.diagramSource": "Sursa diagramei",
+  "render.zoomIn": "Mărește",
+  "render.zoomOut": "Micșorează",
+  "render.zoomReset": "Resetează zoomul",
+  "render.jsonTree": "Vizualizare arbore"
 }

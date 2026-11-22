@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Jakaminen",
   "threadActions.thisPost": "Tämä viesti",
   "threadActions.staff": "Ylläpito",
-  "threadActions.editTags": "Muokkaa tunnisteita"
+  "threadActions.editTags": "Muokkaa tunnisteita",
+  "render.diagram": "Kaavio",
+  "render.diagramSource": "Kaavion lähdekoodi",
+  "render.zoomIn": "Lähennä",
+  "render.zoomOut": "Loitonna",
+  "render.zoomReset": "Palauta zoomaus",
+  "render.jsonTree": "Puunäkymä"
 }

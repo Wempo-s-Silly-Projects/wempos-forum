@@ -4350,3 +4350,91 @@ mark.search-hit {
 .nav-group { display: grid; gap: 0.2rem; }
 .nav-group + .nav-group { margin-top: 0.35rem; padding-top: 0.45rem; border-top: 1px solid var(--line); }
 .nav-group-label { padding-inline: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+
+/* Batch C: rich post content. Math placeholders show their raw source until
+   the vendored KaTeX (its own stylesheet, loaded lazily) replaces them;
+   display math scrolls sideways instead of overflowing the card. */
+.math-display {
+  display: block;
+  margin: 0.5rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: center;
+}
+
+/* Mermaid diagrams: the SVG lives in a shadow root (Mermaid's styles never
+   reach the page); the source block stays behind a toggle. */
+.post-mermaid {
+  margin: 0.5rem 0;
+  padding: 0.6rem 0.75rem;
+  border: 1.5px solid var(--line);
+  background: var(--field);
+  border-radius: 0.4rem;
+  display: grid;
+  gap: 0.4rem;
+  justify-items: start;
+}
+.post-mermaid-canvas {
+  inline-size: 100%;
+  overflow: hidden;
+}
+.post-mermaid-zoom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+/* ANSI-coloured console output, mapped onto the code theme's tokens so both
+   themes keep their contrast. */
+.post-codeblock .ansi-black-fg,
+.post-codeblock .ansi-bright-black-fg { color: var(--code-comment); }
+.post-codeblock .ansi-red-fg,
+.post-codeblock .ansi-bright-red-fg { color: var(--code-number); }
+.post-codeblock .ansi-green-fg,
+.post-codeblock .ansi-bright-green-fg { color: var(--code-string); }
+.post-codeblock .ansi-yellow-fg,
+.post-codeblock .ansi-bright-yellow-fg { color: var(--code-class-name); }
+.post-codeblock .ansi-blue-fg,
+.post-codeblock .ansi-bright-blue-fg,
+.post-codeblock .ansi-cyan-fg,
+.post-codeblock .ansi-bright-cyan-fg { color: var(--code-function); }
+.post-codeblock .ansi-magenta-fg,
+.post-codeblock .ansi-bright-magenta-fg { color: var(--code-keyword); }
+.post-codeblock .ansi-white-fg,
+.post-codeblock .ansi-bright-white-fg { color: var(--ink); }
+.post-codeblock .ansi-rendered [class*="-bg"] {
+  background: color-mix(in srgb, currentColor 18%, transparent);
+}
+
+/* JSON tree (json-formatter-js): our own styles (its injected <style> is
+   refused by the CSP). The raw text stays in the block, hidden while the
+   tree shows. */
+.json-tree {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.9rem;
+  white-space: normal;
+  color: var(--ink);
+}
+.json-tree .json-formatter-children .json-formatter-row {
+  margin-inline-start: 1rem;
+}
+.json-tree .json-formatter-toggler-link {
+  color: inherit;
+  cursor: pointer;
+}
+.json-tree .json-formatter-toggler::after {
+  content: "\25B6";
+  display: inline-block;
+  margin-inline-end: 0.3rem;
+  font-size: 0.7em;
+}
+.json-tree .json-formatter-open > .json-formatter-toggler-link .json-formatter-toggler::after {
+  transform: rotate(90deg);
+}
+.json-tree .json-formatter-key { color: var(--code-keyword); }
+.json-tree .json-formatter-string,
+.json-tree .json-formatter-url { color: var(--code-string); }
+.json-tree .json-formatter-number,
+.json-tree .json-formatter-boolean,
+.json-tree .json-formatter-null { color: var(--code-number); }
+.json-tree .json-formatter-bracket { color: var(--code-punctuation); }

@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Dijeljenje",
   "threadActions.thisPost": "Ova objava",
   "threadActions.staff": "Osoblje",
-  "threadActions.editTags": "Uredi oznake"
+  "threadActions.editTags": "Uredi oznake",
+  "render.diagram": "Dijagram",
+  "render.diagramSource": "Izvor dijagrama",
+  "render.zoomIn": "Uvećaj",
+  "render.zoomOut": "Umanji",
+  "render.zoomReset": "Poništi zumiranje",
+  "render.jsonTree": "Prikaz stabla"
 }

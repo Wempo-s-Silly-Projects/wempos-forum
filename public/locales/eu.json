@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Partekatzea",
   "threadActions.thisPost": "Bidalketa hau",
   "threadActions.staff": "Taldea",
-  "threadActions.editTags": "Editatu etiketak"
+  "threadActions.editTags": "Editatu etiketak",
+  "render.diagram": "Diagrama",
+  "render.diagramSource": "Diagramaren iturburua",
+  "render.zoomIn": "Handiagotu",
+  "render.zoomOut": "Txikiagotu",
+  "render.zoomReset": "Berrezarri zooma",
+  "render.jsonTree": "Zuhaitz ikuspegia"
 }

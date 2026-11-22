@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Бикьи",
   "threadActions.thisPost": "Гьаб пост",
   "threadActions.staff": "Персонал",
-  "threadActions.editTags": "Тегал хисизе"
+  "threadActions.editTags": "Тегал хисизе",
+  "render.diagram": "Диаграмма",
+  "render.diagramSource": "Диаграммаялъул хъвай",
+  "render.zoomIn": "Кӏудияб гьабизе",
+  "render.zoomOut": "Гьитӏинаб гьабизе",
+  "render.zoomReset": "Масштаб тӏадбуссинабизе",
+  "render.jsonTree": "Гъветӏалъул сурат"
 }

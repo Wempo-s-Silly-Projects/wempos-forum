@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette innlegget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tagger"
+  "threadActions.editTags": "Rediger tagger",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Diagramkilde",
+  "render.zoomIn": "Zoom inn",
+  "render.zoomOut": "Zoom ut",
+  "render.zoomReset": "Tilbakestill zoom",
+  "render.jsonTree": "Trevisning"
 }

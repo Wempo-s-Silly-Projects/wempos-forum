@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "การแชร์",
   "threadActions.thisPost": "โพสต์นี้",
   "threadActions.staff": "ทีมงาน",
-  "threadActions.editTags": "แก้ไขแท็ก"
+  "threadActions.editTags": "แก้ไขแท็ก",
+  "render.diagram": "แผนภาพ",
+  "render.diagramSource": "ซอร์สของแผนภาพ",
+  "render.zoomIn": "ซูมเข้า",
+  "render.zoomOut": "ซูมออก",
+  "render.zoomReset": "รีเซ็ตการซูม",
+  "render.jsonTree": "มุมมองแบบต้นไม้"
 }

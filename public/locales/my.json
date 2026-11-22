@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "မျှဝေမှု",
   "threadActions.thisPost": "ဤပို့စ်",
   "threadActions.staff": "ဝန်ထမ်း",
-  "threadActions.editTags": "တဂ်များ ပြင်ရန်"
+  "threadActions.editTags": "တဂ်များ ပြင်ရန်",
+  "render.diagram": "ပုံကြမ်း",
+  "render.diagramSource": "ပုံကြမ်း၏ ရင်းမြစ်",
+  "render.zoomIn": "ချဲ့ရန်",
+  "render.zoomOut": "ချုံ့ရန်",
+  "render.zoomReset": "ချဲ့ချုံ့မှုကို ပြန်သတ်မှတ်ရန်",
+  "render.jsonTree": "သစ်ပင်ပုံစံ ကြည့်ရန်"
 }

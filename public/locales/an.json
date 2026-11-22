@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Ista publicación",
   "threadActions.staff": "Equipo",
-  "threadActions.editTags": "Editar etiquetas"
+  "threadActions.editTags": "Editar etiquetas",
+  "render.diagram": "Diagrama",
+  "render.diagramSource": "Fuent d'o diagrama",
+  "render.zoomIn": "Ampliar",
+  "render.zoomOut": "Reducir",
+  "render.zoomReset": "Restablir o zoom",
+  "render.jsonTree": "Vista d'arbol"
 }

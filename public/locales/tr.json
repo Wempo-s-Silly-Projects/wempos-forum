@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Paylaşım",
   "threadActions.thisPost": "Bu gönderi",
   "threadActions.staff": "Ekip",
-  "threadActions.editTags": "Etiketleri düzenle"
+  "threadActions.editTags": "Etiketleri düzenle",
+  "render.diagram": "Diyagram",
+  "render.diagramSource": "Diyagram kaynağı",
+  "render.zoomIn": "Yakınlaştır",
+  "render.zoomOut": "Uzaklaştır",
+  "render.zoomReset": "Yakınlaştırmayı sıfırla",
+  "render.jsonTree": "Ağaç görünümü"
 }

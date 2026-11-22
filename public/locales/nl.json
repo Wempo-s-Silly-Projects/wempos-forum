@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Delen",
   "threadActions.thisPost": "Dit bericht",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Tags bewerken"
+  "threadActions.editTags": "Tags bewerken",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Diagrambron",
+  "render.zoomIn": "Inzoomen",
+  "render.zoomOut": "Uitzoomen",
+  "render.zoomReset": "Zoom herstellen",
+  "render.jsonTree": "Boomweergave"
 }

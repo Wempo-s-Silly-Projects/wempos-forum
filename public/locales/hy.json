@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Կիսվել",
   "threadActions.thisPost": "Այս գրառումը",
   "threadActions.staff": "Անձնակազմ",
-  "threadActions.editTags": "Խմբագրել պիտակները"
+  "threadActions.editTags": "Խմբագրել պիտակները",
+  "render.diagram": "Դիագրամ",
+  "render.diagramSource": "Դիագրամի աղբյուր",
+  "render.zoomIn": "Մեծացնել",
+  "render.zoomOut": "Փոքրացնել",
+  "render.zoomReset": "Վերակայել մասշտաբը",
+  "render.jsonTree": "Ծառի տեսք"
 }

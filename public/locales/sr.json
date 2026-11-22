@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Дељење",
   "threadActions.thisPost": "Ова објава",
   "threadActions.staff": "Особље",
-  "threadActions.editTags": "Уреди ознаке"
+  "threadActions.editTags": "Уреди ознаке",
+  "render.diagram": "Дијаграм",
+  "render.diagramSource": "Извор дијаграма",
+  "render.zoomIn": "Увећај",
+  "render.zoomOut": "Умањи",
+  "render.zoomReset": "Поништи зумирање",
+  "render.jsonTree": "Приказ стабла"
 }

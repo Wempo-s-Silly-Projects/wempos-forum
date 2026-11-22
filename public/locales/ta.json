@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "பகிர்தல்",
   "threadActions.thisPost": "இந்த இடுகை",
   "threadActions.staff": "பணியாளர்கள்",
-  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து"
+  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து",
+  "render.diagram": "வரைபடம்",
+  "render.diagramSource": "வரைபடத்தின் மூலம்",
+  "render.zoomIn": "பெரிதாக்கு",
+  "render.zoomOut": "சிறிதாக்கு",
+  "render.zoomReset": "பெரிதாக்கலை மீட்டமை",
+  "render.jsonTree": "மரக் காட்சி"
 }

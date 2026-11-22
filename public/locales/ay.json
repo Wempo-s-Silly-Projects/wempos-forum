@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Uñt'ayaña",
   "threadActions.thisPost": "Aka qillqata",
   "threadActions.staff": "Irnaqirinaka",
-  "threadActions.editTags": "Chimpunak askichaña"
+  "threadActions.editTags": "Chimpunak askichaña",
+  "render.diagram": "Diagrama",
+  "render.diagramSource": "Diagrama qalltawi",
+  "render.zoomIn": "Jach'aptayaña",
+  "render.zoomOut": "Jisk'aptayaña",
+  "render.zoomReset": "Zoom wasitata uñstayaña",
+  "render.jsonTree": "Quqa uñnaqa"
 }

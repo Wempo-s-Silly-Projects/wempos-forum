@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette indlæg",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tags"
+  "threadActions.editTags": "Rediger tags",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Diagramkilde",
+  "render.zoomIn": "Zoom ind",
+  "render.zoomOut": "Zoom ud",
+  "render.zoomReset": "Nulstil zoom",
+  "render.jsonTree": "Trævisning"
 }

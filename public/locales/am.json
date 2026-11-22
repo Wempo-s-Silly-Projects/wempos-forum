@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "ማጋራት",
   "threadActions.thisPost": "ይህ ልጥፍ",
   "threadActions.staff": "ሠራተኞች",
-  "threadActions.editTags": "መለያዎችን አርትዕ"
+  "threadActions.editTags": "መለያዎችን አርትዕ",
+  "render.diagram": "ሥዕላዊ መግለጫ",
+  "render.diagramSource": "የሥዕላዊ መግለጫ ምንጭ",
+  "render.zoomIn": "አጉላ",
+  "render.zoomOut": "አሳንስ",
+  "render.zoomReset": "ማጉላትን ዳግም አስጀምር",
+  "render.jsonTree": "የዛፍ እይታ"
 }

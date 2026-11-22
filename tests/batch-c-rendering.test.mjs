@@ -197,7 +197,7 @@ test("real KaTeX with our options refuses javascript: links, HTML and attribute 
   for (const tex of ["\\href{javascript:alert(1)}{x}", "\\url{javascript:alert(1)}", "\\htmlId{x}{y}",
     "\\htmlData{onclick=alert(1)}{y}", "\\includegraphics{https://evil.example/x.png}"]) {
     const html = render(tex);
-    assert.doesNotMatch(html, /href=|onclick=|<img|data-onclick/i, tex);
+    assert.doesNotMatch(html, /\son\w+=|\shref=|<img|<a\s|data-onclick/i, tex);
   }
   const escaped = render("\\text{<script>alert(1)</script>}");
   assert.doesNotMatch(escaped, /<script/);
@@ -526,4 +526,23 @@ test("every new render.* string exists in en.json and every other locale", () =>
     const table = JSON.parse(readFileSync(new URL(file, dir), "utf8"));
     for (const key of keys) assert.equal(typeof table[key], "string", `${file}: ${key}`);
   }
+});
+
+test("edit then cancel hides the diagram with the body and never reveals its hidden source", async () => {
+  const { openEditForm, closeEditForm } = await import("../public/js/render.js");
+  const document = makeFakeDocument();
+  const article = document.createElement("article");
+  article.postBody = "x";
+  article.dataset.postId = "1";
+  const figure = document.createElement("figure");
+  figure.className = "post-mermaid";
+  const pre = document.createElement("pre");
+  pre.className = "post-codeblock";
+  pre.hidden = true;
+  article.append(figure, pre);
+  assert.equal(openEditForm(article, document), true);
+  assert.equal(figure.hidden, true);
+  closeEditForm(article);
+  assert.equal(figure.hidden, false);
+  assert.equal(pre.hidden, true, "the source stays behind its toggle");
 });

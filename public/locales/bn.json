@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "শেয়ার করা",
   "threadActions.thisPost": "এই পোস্ট",
   "threadActions.staff": "কর্মী দল",
-  "threadActions.editTags": "ট্যাগ সম্পাদনা"
+  "threadActions.editTags": "ট্যাগ সম্পাদনা",
+  "render.diagram": "চিত্র",
+  "render.diagramSource": "চিত্রের উৎস",
+  "render.zoomIn": "জুম ইন",
+  "render.zoomOut": "জুম আউট",
+  "render.zoomReset": "জুম রিসেট করুন",
+  "render.jsonTree": "গাছ ভিউ"
 }

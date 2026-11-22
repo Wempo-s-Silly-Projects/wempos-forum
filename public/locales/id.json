@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Berbagi",
   "threadActions.thisPost": "Postingan ini",
   "threadActions.staff": "Staf",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Sumber diagram",
+  "render.zoomIn": "Perbesar",
+  "render.zoomOut": "Perkecil",
+  "render.zoomReset": "Atur ulang zoom",
+  "render.jsonTree": "Tampilan pohon"
 }

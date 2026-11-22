@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Chia sẻ",
   "threadActions.thisPost": "Bài viết này",
   "threadActions.staff": "Ban quản trị",
-  "threadActions.editTags": "Sửa thẻ"
+  "threadActions.editTags": "Sửa thẻ",
+  "render.diagram": "Sơ đồ",
+  "render.diagramSource": "Mã nguồn sơ đồ",
+  "render.zoomIn": "Phóng to",
+  "render.zoomOut": "Thu nhỏ",
+  "render.zoomReset": "Đặt lại thu phóng",
+  "render.jsonTree": "Dạng cây"
 }

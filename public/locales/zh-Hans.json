@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "这篇帖子",
   "threadActions.staff": "管理团队",
-  "threadActions.editTags": "编辑标签"
+  "threadActions.editTags": "编辑标签",
+  "render.diagram": "图表",
+  "render.diagramSource": "图表源码",
+  "render.zoomIn": "放大",
+  "render.zoomOut": "缩小",
+  "render.zoomReset": "重置缩放",
+  "render.jsonTree": "树状视图"
 }

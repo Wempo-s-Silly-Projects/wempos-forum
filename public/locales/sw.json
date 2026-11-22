@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Kushiriki",
   "threadActions.thisPost": "Chapisho hili",
   "threadActions.staff": "Wafanyakazi",
-  "threadActions.editTags": "Hariri lebo"
+  "threadActions.editTags": "Hariri lebo",
+  "render.diagram": "Mchoro",
+  "render.diagramSource": "Chanzo cha mchoro",
+  "render.zoomIn": "Kuza",
+  "render.zoomOut": "Punguza",
+  "render.zoomReset": "Weka upya ukuzaji",
+  "render.jsonTree": "Mwonekano wa mti"
 }

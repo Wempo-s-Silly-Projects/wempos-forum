@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Paylaşma",
   "threadActions.thisPost": "Bu yazı",
   "threadActions.staff": "Heyət",
-  "threadActions.editTags": "Teqləri redaktə et"
+  "threadActions.editTags": "Teqləri redaktə et",
+  "render.diagram": "Diaqram",
+  "render.diagramSource": "Diaqramın mənbəyi",
+  "render.zoomIn": "Yaxınlaşdır",
+  "render.zoomOut": "Uzaqlaşdır",
+  "render.zoomReset": "Miqyası sıfırla",
+  "render.jsonTree": "Ağac görünüşü"
 }

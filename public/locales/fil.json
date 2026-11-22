@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Pagbabahagi",
   "threadActions.thisPost": "Ang post na ito",
   "threadActions.staff": "Kawani",
-  "threadActions.editTags": "I-edit ang mga tag"
+  "threadActions.editTags": "I-edit ang mga tag",
+  "render.diagram": "Diagram",
+  "render.diagramSource": "Pinagmulan ng diagram",
+  "render.zoomIn": "Palakihin",
+  "render.zoomOut": "Paliitin",
+  "render.zoomReset": "I-reset ang zoom",
+  "render.jsonTree": "Tree view"
 }

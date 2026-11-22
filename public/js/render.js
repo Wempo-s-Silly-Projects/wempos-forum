@@ -30,6 +30,8 @@ import { t, tn, currentLocale } from "./i18n.js";
 import { createCopyLinkButton } from "./copy-link.js";
 import { createCopyCodeButton } from "./copy-code.js";
 import { codeBlockPlan, highlightCodeBlocks } from "./code-highlight.js";
+import { createMathNode, splitMath } from "./math.js";
+import { createJsonTreeToggle, enhanceRenderedBody, isAnsiFence, isMermaidFence, jsonTreePlan } from "./rich-blocks.js";
 import { createReadAloud } from "./read-aloud.js";
 import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";
 import { isQotdBody } from "./traditions.js";
@@ -115,23 +117,36 @@ const renderAttachments = (post, document, article) => {
 // blocks that name a language (and fit the size cap) are queued for the lazy
 // Prism highlighter. "no-whitespace-normalization" keeps Prism from
 // re-indenting, so copy-code still copies exactly what was written.
-function createCodeBlock(document, block) {
+// Batch C: ```mermaid blocks queue for a lazy diagram (the source block is
+// the fallback), ```ansi / ```console blocks with real escape codes queue for
+// ansi_up instead of Prism, and long valid ```json blocks get a tree toggle
+// in the tool row (rich-blocks.js).
+const PLAIN_PLAN = Object.freeze({ languageClass: "language-none", highlight: false, lineNumbers: false });
+
+function createCodeBlock(document, block, work) {
   const text = block.text.join("\n");
-  const plan = codeBlockPlan(block.info, text);
+  const ansi = isAnsiFence(block.info, text);
+  const plan = ansi ? PLAIN_PLAN : codeBlockPlan(block.info, text);
   const pre = createElement(document, "pre", plan.lineNumbers ? "post-codeblock line-numbers" : "post-codeblock");
   const code = document.createElement("code");
   code.className = plan.languageClass + " no-whitespace-normalization";
   if (plan.highlight) code.className += " match-braces";
   code.textContent = text;
-  pre.append(createCopyCodeButton(document, () => code.textContent), code);
+  const tools = createCopyCodeButton(document, () => code.textContent);
+  const tree = jsonTreePlan(block.info, text);
+  if (tree) tools.append(createJsonTreeToggle(document, pre, code, tree.value));
+  pre.append(tools, code);
+  if (isMermaidFence(block.info)) work.mermaid.push({ pre, source: text });
+  if (ansi) work.ansi.push({ code, source: text });
   return { pre, code: plan.highlight ? code : null };
 }
 
 export const renderBodyBlocks = (post, document, article) => {
   const highlightable = [];
+  const work = { math: [], mermaid: [], ansi: [] };
   for (const block of parseBlocks(post.body)) {
     if (block.kind === "code") {
-      const { pre, code } = createCodeBlock(document, block);
+      const { pre, code } = createCodeBlock(document, block, work);
       if (code) highlightable.push(code);
       article.append(pre);
       continue;
@@ -139,7 +154,7 @@ export const renderBodyBlocks = (post, document, article) => {
     if (block.kind === "heading") {
       const tag = block.level === 1 ? "h3" : block.level === 2 ? "h4" : "h5";
       const heading = createElement(document, tag, "post-heading");
-      renderInline(document, heading, block.text.join("\n"));
+      renderInline(document, heading, block.text.join("\n"), work.math);
       article.append(heading);
       continue;
     }
@@ -147,7 +162,7 @@ export const renderBodyBlocks = (post, document, article) => {
       const list = createElement(document, "ul", "md-list");
       for (const item of block.text) {
         const entry = createElement(document, "li", "md-list-item");
-        renderInline(document, entry, item);
+        renderInline(document, entry, item, work.math);
         list.append(entry);
       }
       article.append(list);
@@ -157,25 +172,37 @@ export const renderBodyBlocks = (post, document, article) => {
       const quote = createElement(document, "blockquote", "post-quote");
       for (const line of block.text) {
         const quoteLine = createElement(document, "p", "quote-line");
-        renderInline(document, quoteLine, line);
+        renderInline(document, quoteLine, line, work.math);
         quote.append(quoteLine);
       }
       article.append(quote);
       continue;
     }
     const paragraph = createElement(document, "p", "post-body");
-    renderInline(document, paragraph, block.text.join("\n"));
+    renderInline(document, paragraph, block.text.join("\n"), work.math);
     article.append(paragraph);
   }
   highlightCodeBlocks(document, highlightable);
+  enhanceRenderedBody(document, work);
 };
 
 // Markdown-inline runs appended INTO an existing element (link hrefs are
 // scheme-checked by isSafeLinkUrl in markdown.js; anything unsafe renders
-// as literal text via textContent — no exception escapes here).
-function renderInline(document, target, text) {
+// as literal text via textContent — no exception escapes here). Batch C:
+// $…$ / $$…$$ runs become math placeholders (raw text until KaTeX loads),
+// queued on `math`; the text between them parses exactly as before.
+function renderInline(document, target, text, math = null) {
   try {
-    for (const node of parseInline(document, text)) target.append(node);
+    const segments = math ? splitMath(text) : [{ kind: "text", value: String(text ?? "") }];
+    for (const segment of segments) {
+      if (segment.kind === "math") {
+        const node = createMathNode(document, segment);
+        math.push({ node, tex: segment.tex, display: segment.display });
+        target.append(node);
+        continue;
+      }
+      for (const node of parseInline(document, segment.value)) target.append(node);
+    }
   } catch {
     target.textContent = String(text ?? "");
   }
@@ -658,7 +685,8 @@ export const createEditComposer = (post, document) => {
 // edits are text-only, so everything else is untouched.
 // Code blocks match by class token: Prism adds language/line-number classes
 // to the <pre> and wraps it in div.code-toolbar (v5.74).
-const EDIT_BODY_CLASSES = new Set(["post-body", "post-quote", "post-heading", "md-list", "post-body-fold"]);
+// Batch C: a rendered Mermaid figure is body content too.
+const EDIT_BODY_CLASSES = new Set(["post-body", "post-quote", "post-heading", "md-list", "post-body-fold", "post-mermaid"]);
 const CODE_BLOCK_CLASSES = new Set(["post-codeblock", "code-toolbar"]);
 const isEditBodyBlock = (node) => {
   if (EDIT_BODY_CLASSES.has(node.className)) return true;
@@ -680,9 +708,10 @@ export const openEditForm = (article, document) => {
     document,
   );
   // The hidden blocks ride the form as a plain property so cancel can restore
-  // the exact original nodes.
-  form.editHiddenBlocks = blocks;
-  for (const block of blocks) block.hidden = true;
+  // the exact original nodes. Blocks already hidden (a diagram's source block,
+  // Batch C) are left alone so cancel does not reveal them.
+  form.editHiddenBlocks = blocks.filter((block) => !block.hidden);
+  for (const block of form.editHiddenBlocks) block.hidden = true;
   article.insertBefore(form, blocks[0] ?? null);
   return true;
 };

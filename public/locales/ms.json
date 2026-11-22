@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Berkongsi",
   "threadActions.thisPost": "Siaran ini",
   "threadActions.staff": "Kakitangan",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "render.diagram": "Rajah",
+  "render.diagramSource": "Sumber rajah",
+  "render.zoomIn": "Zum masuk",
+  "render.zoomOut": "Zum keluar",
+  "render.zoomReset": "Tetapkan semula zum",
+  "render.jsonTree": "Paparan pokok"
 }

@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Sasem",
   "threadActions.thisPost": "Pos ia",
   "threadActions.staff": "Stafe",
-  "threadActions.editTags": "Janjem tag"
+  "threadActions.editTags": "Janjem tag",
+  "render.diagram": "Daeagram",
+  "render.diagramSource": "Sos blong daeagram",
+  "render.zoomIn": "Mekem i bigwan",
+  "render.zoomOut": "Mekem i smol",
+  "render.zoomReset": "Putum saes bakegen",
+  "render.jsonTree": "Lukluk olsem tri"
 }

@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Поширення",
   "threadActions.thisPost": "Цей допис",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Змінити теги"
+  "threadActions.editTags": "Змінити теги",
+  "render.diagram": "Діаграма",
+  "render.diagramSource": "Вихідний код діаграми",
+  "render.zoomIn": "Збільшити",
+  "render.zoomOut": "Зменшити",
+  "render.zoomReset": "Скинути масштаб",
+  "render.jsonTree": "Вигляд дерева"
 }

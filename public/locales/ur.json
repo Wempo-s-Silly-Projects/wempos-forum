@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "شیئر کرنا",
   "threadActions.thisPost": "یہ پوسٹ",
   "threadActions.staff": "عملہ",
-  "threadActions.editTags": "ٹیگز میں ترمیم کریں"
+  "threadActions.editTags": "ٹیگز میں ترمیم کریں",
+  "render.diagram": "خاکہ",
+  "render.diagramSource": "خاکے کا ماخذ",
+  "render.zoomIn": "بڑا کریں",
+  "render.zoomOut": "چھوٹا کریں",
+  "render.zoomReset": "زوم دوبارہ ترتیب دیں",
+  "render.jsonTree": "درخت کا منظر"
 }

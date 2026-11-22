@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Падзяліцца",
   "threadActions.thisPost": "Гэты допіс",
   "threadActions.staff": "Каманда",
-  "threadActions.editTags": "Рэдагаваць тэгі"
+  "threadActions.editTags": "Рэдагаваць тэгі",
+  "render.diagram": "Дыяграма",
+  "render.diagramSource": "Зыходны код дыяграмы",
+  "render.zoomIn": "Павялічыць",
+  "render.zoomOut": "Паменшыць",
+  "render.zoomReset": "Скінуць маштаб",
+  "render.jsonTree": "Выгляд дрэвам"
 }

@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Farakkiyya",
   "threadActions.thisPost": "Ah kitbat",
   "threadActions.staff": "Taamitte",
-  "threadActions.editTags": "Astooti massos"
+  "threadActions.editTags": "Astooti massos",
+  "render.diagram": "Diyaagraam",
+  "render.diagramSource": "Diyaagraam xiinissa",
+  "render.zoomIn": "Gibbis",
+  "render.zoomOut": "Qunxis",
+  "render.zoomReset": "Gibbisa gacis",
+  "render.jsonTree": "Caxa uuba"
 }

@@ -1221,5 +1221,11 @@
   "threadActions.sharing": "Уртаҡлашыу",
   "threadActions.thisPost": "Был яҙма",
   "threadActions.staff": "Хеҙмәткәрҙәр",
-  "threadActions.editTags": "Тегтарҙы мөхәррирләргә"
+  "threadActions.editTags": "Тегтарҙы мөхәррирләргә",
+  "render.diagram": "Диаграмма",
+  "render.diagramSource": "Диаграмма сығанағы",
+  "render.zoomIn": "Ҙурайтыу",
+  "render.zoomOut": "Бәләкәйләтеү",
+  "render.zoomReset": "Масштабты ташлау",
+  "render.jsonTree": "Ағас күренеше"
 }
