@@ -216,7 +216,8 @@ test("both renderers draw from the one list in nav-items.js", () => {
   // v5.63 (L9): the only hand-written bar markup is the guest-safe Home + Sign in
   // fallback (pinned in wave563-mobile-bar-fallback); every other item is drawn
   // from the list.
-  const bar = html.match(/<nav class="mobile-bar"[^>]*>([\s\S]*?)<\/nav>/)[1].replace(/<!--[\s\S]*?-->/g, "");
+  let bar = html.match(/<nav class="mobile-bar"[^>]*>([\s\S]*?)<\/nav>/)[1];
+  for (let prev; prev !== bar;) { prev = bar; bar = bar.replace(/<!--[\s\S]*?-->/g, ""); }
   assert.deepEqual([...bar.matchAll(/data-nav-fallback="([^"]+)"/g)].map((m) => m[1]), ["home", "signin"],
     "the bar is drawn from the list, not hand-written, apart from the guest fallback");
   assert.equal((bar.match(/<a\b/g) || []).length, 2);

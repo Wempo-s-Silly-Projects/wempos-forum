@@ -31,7 +31,10 @@ import { NAV_ITEMS } from "../public/js/nav-items.js";
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const html = read("public/index.html");
 const barMatch = html.match(/<nav class="mobile-bar"[^>]*>([\s\S]*?)<\/nav>/);
-const barInner = barMatch ? barMatch[1].replace(/<!--[\s\S]*?-->/g, "") : "";
+// Strip HTML comments until none are left: one pass could leave a re-formed "<!--" behind
+// (CodeQL js/incomplete-multi-character-sanitization).
+const stripComments = (text) => { let out = text; let prev; do { prev = out; out = out.replace(/<!--[\s\S]*?-->/g, ""); } while (out !== prev); return out; };
+const barInner = barMatch ? stripComments(barMatch[1]) : "";
 const anchors = [...barInner.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map((m) => ({ attrs: m[1], inner: m[2] }));
 const attr = (attrs, name) => (attrs.match(new RegExp(`\\s${name}="([^"]*)"`)) || [])[1];
 

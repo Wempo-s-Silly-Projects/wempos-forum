@@ -15,6 +15,13 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.63.1] - 2026-11-22
+
+### Fixed
+- Two test files stripped HTML comments in a single pass, which code scanning
+  (CodeQL) flagged as incomplete sanitization. They now repeat until no comment
+  is left. Test-only change; nothing members see is different.
+
 ## [5.63.0] - 2026-11-22
 
 ### Fixed
