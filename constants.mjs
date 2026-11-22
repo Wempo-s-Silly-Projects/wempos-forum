@@ -193,3 +193,11 @@ export const EXPORT_SECTION_CAPS = Object.freeze({
 // this file; tests/wave574-prism.test.mjs pins them equal).
 export const CODE_LINE_NUMBERS_MIN_LINES = 5;
 export const CODE_HIGHLIGHT_MAX_CHARS = 20000;
+
+// Batch H (composer input): an HTML clipboard flavour longer than this many
+// characters is pasted as plain text instead of converted to Markdown, and the
+// JS autogrow fallback (only where CSS field-sizing is unsupported) stops
+// growing a textarea at this height. public/js/rich-paste.js and
+// public/js/autogrow.js mirror these (tests/batch-h-composer-input.test.mjs).
+export const RICH_PASTE_MAX_HTML_CHARS = 200000;
+export const COMPOSER_AUTOGROW_MAX_PX = 480;
