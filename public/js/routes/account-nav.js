@@ -278,9 +278,16 @@ const navKeyOf = (role, user, unread) =>
 
 const firstChildOf = (node) => node?.children?.[0] ?? null;
 
+// v5.61 (L7): "Mark all read" edits the built bell in place (updateBell), so
+// the unread count in the key can stop describing it; the reuse also needs
+// the bell to still read what it was built to read.
+const bellOf = () => Array.from(accountActions?.children ?? []).find((node) => node.id === "notification-bell") ?? null;
+const bellLabelOf = (bell) => bell?.getAttribute("aria-label") ?? null;
+
 function canReuseNav(key, bar) {
   if (!lastBuild || lastBuild.key !== key) return false;
   if (firstChildOf(accountActions) !== lastBuild.header || firstChildOf(bar) !== lastBuild.bar) return false;
+  if (bellLabelOf(lastBuild.bell) !== lastBuild.bellLabel) return false;
   return !lastBuild.toggles.some((toggle) => toggle.getAttribute("aria-expanded") === "true");
 }
 
@@ -295,7 +302,8 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
     renderHeader(role, currentUser, unread);
     renderMobileBar(role, currentUser);
     const toggles = [accountActions, bar].flatMap((root) => Array.from(root?.querySelectorAll?.(".nav-menu-toggle") ?? []));
-    lastBuild = { key, header: firstChildOf(accountActions), bar: firstChildOf(bar), toggles };
+    const bell = bellOf();
+    lastBuild = { key, header: firstChildOf(accountActions), bar: firstChildOf(bar), toggles, bell, bellLabel: bellLabelOf(bell) };
   }
   closeMenusOnOutsideClick();
 }
