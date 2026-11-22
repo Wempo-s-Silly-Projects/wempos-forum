@@ -38,7 +38,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { accountDeletionStatements } from "../api/profiles.mjs";
+import { readFileSync } from "node:fs";
 import { makeEnv } from "./helpers/d1.mjs";
+import { FakeNode, makeFakeDocument } from "./helpers/fake-dom.mjs";
 import { call, forgeSession, now, seedBan, seedPost, seedUser, sha256 } from "./helpers/seed.mjs";
 
 const TOKENS = { viewer: "w510-viewer-token-0123456789abcdefghijkl", zzblocker: "w510-blocker-token-0123456789abcdefghijk",
@@ -367,6 +369,10 @@ function routes(w, member) {
     ["/api/posts/" + w.publicRoot + "/summary"],
     // Wave 5.52: the public tag list (staff-written labels only).
     ["/api/tags"],
+    // Wave 5.62: the page shells of the reorganized client surfaces — the
+    // settings hub (v5.56), the desk the staff-only nav entry opens (v5.58)
+    // and My posts (a phone-bar slot for guests too).
+    ["/?settings"], ["/admin"], ["/mine"],
   ];
   if (member) {
     list.push(["/api/me/notifications"], ["/api/me/bookmarks"], ["/api/session"], ["/api/posts?mine=1"],
@@ -485,6 +491,8 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
   assert.ok(swept >= 322, "swept " + swept);
   // Wave 5.52: + the tag list for each of the 4 viewers.
   assert.ok(swept >= 326, "swept " + swept);
+  // Wave 5.62: + the settings hub, desk and My posts shells for each of the 4 viewers.
+  assert.ok(swept >= 338, "swept " + swept);
 });
 
 test("wave 5.50 sweep: the TL;DR is never served for a hidden, banned-author or block-paired thread; positive controls", async () => {
@@ -1173,4 +1181,117 @@ test("wave 5.52: the tag listing is a public face for staff — hidden and banne
     assert.ok(ids.includes(w.blockerRoot) && ids.includes(w.blockedRoot), label + ": staff skip only the block filter");
     assertClean(await fetchText(w.env, "/tag/sweep", { session }), ["HIDDENROOTTXT", "BANNEDTXT", "STAFFONLYTXT"], label + " head");
   }
+});
+
+// Wave 5.62: the moved client surfaces (v5.55 thread More/Staff menus, v5.56
+// settings hub, v5.58 header Browse/Account menus + phone bar, v5.60 nav
+// reuse cache) rendered from the fixture's own server payloads for every
+// viewer kind. Staff items (the Staff menu and its tools, the desk entry)
+// reach staff alone, no fixture needle reaches the rendered card, and the nav
+// cache never carries a staff entry, a profile link or the bell across a
+// sign-out or role change. Controls are found by iterating nodes: the fake
+// DOM's [data-action=...] selector does not see dataset writes.
+const navAccount = new FakeNode("nav");
+const navBar = new FakeNode("nav");
+const navBase = makeFakeDocument();
+globalThis.speechSynthesis ??= { speak() {}, cancel() {}, getVoices: () => [] };
+globalThis.SpeechSynthesisUtterance ??= function Utterance() {};
+globalThis.document ??= {
+  ...navBase,
+  title: "Wempo's Forum",
+  querySelector: (selector) => {
+    if (selector === "#account-actions") return navAccount;
+    if (selector === ".mobile-bar") return navBar;
+    return new FakeNode("div");
+  },
+  querySelectorAll: () => [],
+};
+globalThis.location ??= { origin: "https://wempos-forum.com", pathname: "/", search: "" };
+globalThis.window ??= { location: globalThis.location };
+const { createPostCard } = await import("../public/js/render.js");
+const { organizeThreadActions } = await import("../public/js/thread-actions.js");
+const { navItemsFor, navRoleOf } = await import("../public/js/nav-items.js");
+const { renderAccountNavigation } = await import("../public/js/routes/account-nav.js");
+const { SETTINGS_GROUPS, createSettingsSignIn } = await import("../public/js/settings-groups.js");
+
+const CLIENT_STAFF_ACTIONS = Object.freeze([
+  "thread-pin", "thread-unpin", "thread-lock", "thread-unlock", "staff-pick", "staff-unpick", "suggestion-status",
+]);
+const clientStaffNodes = (root) =>
+  Array.from(root.querySelectorAll("button")).filter((node) => CLIENT_STAFF_ACTIONS.includes(node.dataset?.action));
+const navHrefs = () => [navAccount, navBar].flatMap((root) =>
+  Array.from(root.querySelectorAll("a")).map((node) => node.getAttribute?.("href") ?? node.href));
+const navActions = () => [navAccount, navBar].flatMap((root) =>
+  Array.from(root.querySelectorAll("button")).map((node) => node.dataset?.action).filter(Boolean));
+const nodeText = (node) => (node.childNodes ? Array.from(node.childNodes).map(nodeText).join(" ") : String(node.textContent ?? ""));
+
+test("wave 5.62 sweep: thread menus, header + phone bar and the settings hub give staff items to staff only", async () => {
+  const w = await seedWorld();
+  const deputy = await seedUser(w.db, { username: "deputy", role: "moderator" });
+  const viewers = [["guest", null, false], ["viewer", w.id.viewer, false], ["zzblocker", w.id.zzblocker, false],
+    ["zzblocked", w.id.zzblocked, false], ["admin deputy", deputy, true], ["owner boss", w.id.boss, true]];
+  // A public Suggestions root too, so staff also get the status controls.
+  const suggestion = seedPost(w.db, { authorId: w.id.alice, body: "zzsweep VISIBLEOKTXT suggestion", board: "suggestions" });
+  const roots = [w.publicRoot, suggestion];
+  let swept = 0;
+  for (const [label, userId, isStaff] of viewers) {
+    const session = userId ? forgeSession(w.db, userId) : undefined;
+    const sessionUser = JSON.parse(await fetchText(w.env, "/api/session", { session })).user;
+    assert.equal(Boolean(sessionUser), Boolean(userId), label + " session");
+    const member = SIDE_FORBIDDEN[label] ? label : (label === "viewer" ? "viewer" : null);
+    const forbidden = [...ALWAYS_FORBIDDEN, ...(SIDE_FORBIDDEN[label] || []), ...ownerOnlyNeedles(member), "STAFFONLYTXT lock reason"];
+    for (const rootId of roots) {
+      const post = JSON.parse(await fetchText(w.env, "/api/posts/" + rootId, { session }));
+      const doc = makeFakeDocument();
+      const card = createPostCard(post, doc, sessionUser);
+      organizeThreadActions(doc, card, { postId: post.id });
+      const staffMenu = card.querySelector(".thread-staff");
+      if (isStaff) {
+        assert.ok(staffMenu, label + " " + rootId + ": the Staff menu");
+        assert.ok(clientStaffNodes(staffMenu).length >= 2, label + " " + rootId + ": pin + lock inside Staff");
+      } else {
+        assert.equal(staffMenu, null, label + " " + rootId + ": no Staff menu");
+        assert.equal(clientStaffNodes(card).length, 0, label + " " + rootId + ": no staff tool anywhere on the card");
+      }
+      assertClean(nodeText(card), forbidden, label + " card " + rootId);
+      swept++;
+    }
+    // Header and phone bar from the one list: the desk is staff-only on both.
+    const role = navRoleOf(sessionUser);
+    for (const surface of ["header", "mobile"]) {
+      const ids = navItemsFor(role, surface).map((entry) => entry.id);
+      assert.equal(ids.includes("desk"), isStaff, label + " " + surface + " desk entry");
+      if (!sessionUser) assert.ok(!ids.includes("profile") && !ids.includes("logout"), label + " " + surface + " guest");
+      swept++;
+    }
+    // The real renderer, reusing its cache between viewers in sweep order:
+    // each switch (guest -> member -> pair sides -> admin -> owner) is a
+    // sign-in, sign-out or role change the cache must not survive.
+    renderAccountNavigation(sessionUser, 0);
+    renderAccountNavigation(sessionUser, 0);
+    assert.equal(navHrefs().includes("/admin"), isStaff, label + " rendered desk link");
+    const profileLinks = navHrefs().filter((href) => String(href).startsWith("/users/"));
+    assert.deepEqual(profileLinks.map(String).filter((href) => href !== "/users/" + encodeURIComponent(sessionUser?.username ?? "")), [],
+      label + ": only the viewer's own profile link");
+    assert.equal(navActions().includes("logout"), Boolean(sessionUser), label + " sign-out control");
+    swept++;
+  }
+  // Back to a guest and to a member after the owner: nothing staff survives.
+  renderAccountNavigation(null, 0);
+  assert.ok(!navHrefs().includes("/admin") && !navActions().includes("logout"), "owner -> guest");
+  renderAccountNavigation(JSON.parse(await fetchText(w.env, "/api/session", { session: forgeSession(w.db, w.id.viewer) })).user, 0);
+  assert.ok(!navHrefs().includes("/admin"), "guest -> member");
+  // Settings hub: the guest view is a sign-in prompt with no panel; the
+  // member hub's groups hold the viewer's own panels only (no desk, staff
+  // or other-member panel), and the hub renderer has no role branch.
+  const prompt = createSettingsSignIn(makeFakeDocument(), "https://accounts.example/");
+  assert.equal(prompt.querySelector("section"), null, "guest settings: no panel");
+  const panelKeys = SETTINGS_GROUPS.flatMap((group) => group.panelTitleKeys);
+  assert.ok(!panelKeys.some((key) => /admin|staff|desk|moderat/i.test(key)), "hub groups: no staff panel");
+  const feedSource = readFileSync(new URL("../public/js/routes/feed.js", import.meta.url), "utf8");
+  const hub = feedSource.slice(feedSource.indexOf("function renderAccountSettings"),
+    feedSource.indexOf("async function renderSettingsRoute"));
+  assert.ok(hub.length > 1000, "hub renderer found");
+  assert.doesNotMatch(hub, /\/api\/admin|role ===|isStaff/, "hub renderer: no staff branch or desk read");
+  assert.equal(swept, 6 * (roots.length + 2 + 1));
 });

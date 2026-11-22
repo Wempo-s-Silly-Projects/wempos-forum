@@ -1,4 +1,4 @@
-# Visibility inventory (v5.52)
+# Visibility inventory (v5.62)
 
 Every server path that returns or renders post text, member names or
 member-derived data, with the visibility-law filters it applies and the test
@@ -35,6 +35,14 @@ list, a mute pass (owner-only flag, visibility-gated writes, fan-out), a lock
 oracle pass (web + MCP), the DM reaction counts across the pair, a row-by-row
 export check for six member kinds, a staff-write refusal pass and a staff pass
 over the tag listing. Swept-count floor: 326 (was 322 after v5.50).
+Since v5.62 the sweep also fetches the page shells of the reorganized client
+surfaces (`/?settings`, `/admin`, `/mine`) for every viewer, and a client pass
+renders the thread card (More menu + Staff menu, on a General and a
+Suggestions root), the header + phone bar and the settings hub from the
+fixture's own `/api/session` and `/api/posts/:id` payloads for a guest, a
+member, both pair sides, an admin and the owner, walking the nav reuse cache
+through every sign-in, sign-out and role change. Swept-count floor: 338
+(was 326).
 `tests/wave40-cross-route-visibility.test.mjs` and
 `tests/wave40-visibility-routes.test.mjs` are the older sweeps, kept as-is.
 
@@ -139,6 +147,23 @@ over the tag listing. Swept-count floor: 326 (was 322 after v5.50).
 | Lock reply refusal (web + MCP `reply`) | api/replies.mjs:161, api/mcp.mjs:635 (api/thread-locks.mjs:57) | runs AFTER the H B K target check: a locked thread the member cannot see answers like any unseen thread, never 423; refusal copy carries no reason; staff exempt | wave 5.52 lock-oracle pass (hidden, banned, pair; web + MCP; visible 423 control) |
 | Lock writes `PUT/DELETE /api/admin/threads/:id/lock` | api/thread-locks.mjs:118 | S | wave 5.52 staff-write pass; wave551-thread-lock |
 
+## Added since v5.52 (v5.53 – v5.61)
+
+| Surface | Handler | Filters | Pinned by |
+|---|---|---|---|
+| Slow-mode guard inside the reply INSERT (web + MCP `reply`, v5.54 M1) | api/replies.mjs:175, api/mcp.mjs:639 (api/staff-tools.mjs:88) | runs AFTER the H B K target check (api/replies.mjs:164, api/mcp.mjs:637), so an unseen thread never answers 429; a raced 0-row INSERT re-asks the same cooldown (:192, :645) on a thread the caller already passed; staff skip (no extra binds) | wave554 M1 (web burst, MCP, binds, no-scan); wave557 MCP raced text |
+| Row-bound reply bump `REPLY_BUMP_SQL` (v5.59 L3) | constants.mjs:72, api/replies.mjs:199, api/mcp.mjs:650 | bumps only after the INSERT landed, bound to the new reply row (public, under this root); a refused or hidden reply never moves the thread, so feed order is no oracle | wave557 L3 (refused, landed, level-2, no-scan) |
+| Refused control characters (v5.54 L1) | api/private-notes.mjs:78, api/saved-searches.mjs:73 | O unchanged; 400 on the caller's own write before any row is touched | wave554 L1; sweep (`PRIVNOTETXT`, `SAVEDSEARCHTXT` owner-only) |
+| Lock upsert root re-check (v5.54 L2) | api/thread-locks.mjs:50, :100 | S; a deleted thread = 404 (0 rows), never a 500 | wave554 L2; wave 5.52 staff-write pass |
+| Edit-history diff budget (v5.54 M2) | public/js/word-diff.js:108 | renders only what `/api/posts/:id/edits` returned (H B K via `canViewPost`); no fetch | wave554 M2; sweep (edits route) |
+| Thread page More menu (v5.55) | public/js/thread-actions.js:146 | regroups the root card's own row in place; page view only (no fetch, no storage); every moved control keeps the gate it was built under | sweep (v5.62 client pass); wave555; wave557 |
+| Thread Staff menu and its tools (v5.55) | public/js/render.js:529 (tools built for owner/admin only), public/js/thread-actions.js:42 (slot) | S (client): the Staff menu exists only when a staff tool was built; the server gates every staff write again | sweep (v5.62 client pass, 6 viewers × 2 roots; mutation-checked); wave557 |
+| Slow-mode setter and lock reason on the thread page | public/js/routes/post.js:83, :91 | S (client) + S on the desk read `/api/admin/threads/:id/lock`; members see the public lock/slow-mode note only | sweep (`STAFFONLYTXT lock reason` forbidden on every route and the rendered card); wave557 |
+| Settings hub `/?settings` (v5.56) | public/js/routes/feed.js:280 (renderer :158), public/js/settings-groups.js:33, guest prompt :116 | O: the viewer's own panels only, no role branch and no desk read; each panel's data read is an existing own-row route; guests get a sign-in prompt with no panel | sweep (shell for 4 viewers; v5.62 client pass: guest prompt, group keys, renderer pin) |
+| Header Browse/Account menus + phone bar (v5.58) | public/js/nav-items.js:70 (desk `audience: "staff"`), :85 (`shownTo`), public/js/routes/account-nav.js:294 | S for the desk entry on both surfaces; the profile link is the viewer's own; guests get no bell, profile or sign-out | sweep (v5.62 client pass, mutation-checked); wave558 |
+| Nav reuse cache (v5.60) + bell rebuild (v5.61 L7) | public/js/routes/account-nav.js:276, :287 | key = role, username, stored role, unread, path: any sign-in, sign-out or role change rebuilds; the bell's built label is re-checked | sweep (v5.62 client pass walks every viewer switch; dropping role/user from the key turns it red); wave561 |
+| Page shells `/?settings`, `/admin`, `/mine` | worker.mjs:161 (`stampedAssetResponse`) | static shell, no record; the desk's data stays behind the S routes below | sweep (4 viewers each, new v5.62) |
+
 ## Discovery, page heads and MCP
 
 | Surface | Handler | Filters | Pinned by |
@@ -179,6 +204,33 @@ staff-only sweep, which also checks staff do read the store.
 | Staff notes `/api/admin/members/:id/notes` (v5.43) | api/staff-tools.mjs:158 |
 | Report claims in the post-report queue (v5.43) | api/reports.mjs:77 |
 | Thread-lock desk read `/api/admin/threads/:id/lock` (v5.51; the reason lives here only) | api/thread-locks.mjs:105 |
+
+## Findings (v5.62)
+
+- **Leaks: none.** The v5.53–v5.61 server changes (slow-mode guard inside
+  the reply INSERT, row-bound bump, refused control characters, lock upsert
+  re-check) all run after the existing visibility checks or behind
+  `requireStaff`/owner keys; none adds a read. The reorganized client
+  surfaces only move controls that were already built under a role gate:
+  staff tools (render.js:529), the slow-mode setter and the lock-reason read
+  (post.js:83, :91) and the desk entry (nav-items.js:70) reach owner/admin
+  only, the settings hub holds only the viewer's own panels, and the nav
+  reuse cache keys on role and username, so no staff entry, profile link or
+  bell survives a sign-out or role change.
+- **Data export re-checked as one surface:** api/export.mjs is unchanged
+  since v5.52; the 5.52 row-by-row pin (six member kinds × every section)
+  still passes.
+- **Rows whose filter differs from the shared helpers:** none new. The
+  client gates are role checks on the session payload (`navRoleOf`,
+  `currentUser.role`), not filters; the server enforces every staff route
+  again. The v5.52 justifications stand.
+- **Unpinned rows (now pinned):** the moved client surfaces had unit pins
+  (wave555/557/558/561) but no pass over the one sweep fixture. The v5.62
+  client pass renders them from the fixture's real payloads for six viewer
+  kinds; mutation checks (desk audience widened to members, the render.js
+  staff gate dropped, role and user dropped from the nav cache key) each
+  turn it red.
+- **Open owner items (referenced, not fixed):** O1–O9.
 
 ## Findings (v5.52)
 
