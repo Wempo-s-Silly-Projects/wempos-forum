@@ -37,12 +37,12 @@
 // JSON.stringify and then <, > and & escaped as \u003c, \u003e, \u0026, so a
 // post containing "</script>" cannot close the block.
 import { readSession } from "./core/auth.mjs";
-import { blockPairExists } from "./core/blocks.mjs";
+import { blockPairExists, viewerBlockFilterSql } from "./core/blocks.mjs";
 import { siteOrigin } from "./core/site.mjs";
 import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
 import { ACTIVE_BAN_SQL, canViewPost } from "./core/visibility.mjs";
 import { BRANDING_DEFAULTS } from "./branding.mjs";
-import { POST_ROW_SQL, PUBLIC_REPLY_COUNT_SQL, titleOf } from "./discovery.mjs";
+import { POST_ROW_SQL, publicReplyCountSql, titleOf } from "./discovery.mjs";
 import { routeForPath } from "../public/js/router.js";
 
 const DESCRIPTION_MAX = 150;
@@ -52,7 +52,15 @@ const SCHEMA_CONTEXT = "https://schema.org";
 const PROFILE_SQL =
   "SELECT u.id, u.username FROM users u WHERE u.username_key = ? AND NOT " + ACTIVE_BAN_SQL("u.id") + " LIMIT 1";
 
-const REPLY_COUNT_SQL = "SELECT " + PUBLIC_REPLY_COUNT_SQL + " AS reply_count FROM posts p WHERE p.id = ? LIMIT 1";
+// The JSON-LD reply count says what the viewer's feed says (v5.32 L1): for a
+// signed-in viewer, replies by a block-paired author — and sub-replies under
+// a block-paired parent — drop out (2 binds per filter, before the id).
+function replyCountStatement(db, viewer, id) {
+  const blocks = viewerBlockFilterSql(viewer, "rc.author_id") + viewerBlockFilterSql(viewer, "rl.author_id");
+  const binds = blocks ? [viewer.id, viewer.id, viewer.id, viewer.id] : [];
+  return db.prepare("SELECT " + publicReplyCountSql(blocks) + " AS reply_count FROM posts p WHERE p.id = ? LIMIT 1")
+    .bind(...binds, id);
+}
 
 export function attributeEscape(value) {
   return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -102,7 +110,7 @@ async function threadHead(env, viewer, id, origin, site) {
   if (!Number.isSafeInteger(id) || id < 1) return null;
   const row = await env.FORUM_DB.prepare(POST_ROW_SQL).bind(id).first();
   if (!row || !(await canViewPost(env, row, viewer))) return null;
-  const counted = await env.FORUM_DB.prepare(REPLY_COUNT_SQL).bind(id).first();
+  const counted = await replyCountStatement(env.FORUM_DB, viewer, id).first();
   const url = origin + "/posts/" + row.id;
   const headline = titleOf(row);
   const description = flatExcerpt(row.body);
