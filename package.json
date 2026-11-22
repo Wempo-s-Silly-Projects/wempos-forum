@@ -24,6 +24,7 @@
     "wrangler": "latest"
   },
   "dependencies": {
+    "css-tree": "latest",
     "ipaddr.js": "latest"
   }
 }
