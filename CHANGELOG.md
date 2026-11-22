@@ -15,6 +15,17 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.72.0] - 2026-11-22
+
+### Added
+- Eight more interface languages: Bislama (Bislama), Bosnian (Bosanski),
+  Breton (Brezhoneg), Burmese (မြန်မာ, Myanmar script), Chamorro (Finu'
+  Chamoru), Chechen (Нохчийн мотт), Chichewa (Chichewa) and Chuvash
+  (Чӑвашла). Each is listed by its own name in the language picker, reads
+  left to right, and is picked up automatically when the browser asks for
+  it. The interface now comes in 65 languages. All eight translations await
+  review by native speakers.
+
 ## [5.71.1] - 2026-11-22
 
 ### Fixed
