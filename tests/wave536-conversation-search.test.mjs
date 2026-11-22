@@ -146,7 +146,11 @@ test("banned and block-paired authors are excluded both ways, like the chat view
   assert.deepEqual(await authors("/api/dm/groups/" + w.group, "bob"), ["bob", "cat"], "bob: only the ban applies");
   w.db.prepare("INSERT INTO blocks (blocker_id, blocked_id, created_at) VALUES (?, ?, ?)").run(w.id.ann, w.id.bob, w.at);
   assert.deepEqual(await authors("/api/dm/threads/" + w.thread, "ann"), []);
-  assert.deepEqual(await authors("/api/dm/threads/" + w.thread, "bob"), []);
+  // The chat view hides only the PAIRED member's lines: bob still finds his own.
+  assert.deepEqual(await authors("/api/dm/threads/" + w.thread, "bob"), ["bob"]);
+  w.dm(w.thread, w.id.ann, "zzhit dm ann");
+  assert.deepEqual(await authors("/api/dm/threads/" + w.thread, "bob"), ["bob"], "ann's line is hidden from bob");
+  assert.deepEqual(await authors("/api/dm/threads/" + w.thread, "ann"), ["ann"], "bob's line is hidden from ann");
   // Read-time only: an unban restores with no write.
   w.db.prepare("DELETE FROM bans WHERE user_id = ?").run(w.id.dan);
   assert.deepEqual(await authors("/api/dm/groups/" + w.group, "bob"), ["bob", "cat", "dan"]);

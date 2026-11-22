@@ -29,10 +29,35 @@ import { publicPost, publicUser, userByUsernameKey } from "./core/shapers.mjs";
 import { viewerBlockFilterSql } from "./core/blocks.mjs";
 import { ACTIVE_BAN_SQL, canViewPost } from "./core/visibility.mjs";
 
+// Wave 5.36: the date-range windows (seconds) and the two sort orders.
+// "any" and "relevant" are the defaults (the classic answer, unchanged).
+const DAY_SECONDS = 86400;
+const SEARCH_SINCE_WINDOWS = Object.freeze({
+  any: null, week: 7 * DAY_SECONDS, month: 30 * DAY_SECONDS, year: 365 * DAY_SECONDS,
+});
+const SEARCH_SORTS = Object.freeze(["relevant", "new"]);
+
+// Reads ?since= and ?sort=: absent means the default; any present value
+// outside the known set is a 400. Returns { sinceSeconds, sortNew } where
+// sinceSeconds is the bound created_at cutoff (null = no window).
+export function readSearchFilters(params, nowSeconds = Math.floor(Date.now() / 1000)) {
+  const since = params.get("since");
+  const sort = params.get("sort");
+  if (since !== null && !Object.hasOwn(SEARCH_SINCE_WINDOWS, since)) {
+    throw new HttpError(400, "The since param must be any, week, month or year.");
+  }
+  if (sort !== null && !SEARCH_SORTS.includes(sort)) {
+    throw new HttpError(400, "The sort param must be relevant or new.");
+  }
+  const window = since === null ? null : SEARCH_SINCE_WINDOWS[since];
+  return { sinceSeconds: window === null ? null : nowSeconds - window, sortNew: sort === "new" };
+}
+
 export async function handleSearchRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/search" && method === "GET") {
     const query = (url.searchParams.get("q") || "").trim().toLowerCase();
+    const filters = readSearchFilters(url.searchParams);
     if (!query || query.length > 100) {
       if (!query) return json({ users: [], posts: [] });
       throw new HttpError(400, "Search must be 1–100 characters long.");
@@ -63,14 +88,16 @@ export async function handleSearchRoute(request, env, url, path, method) {
       : SEARCH_USERS_SQL;
     const users = await db.prepare(usersSql)
       .bind(...(userBlockFilter ? [query, query, viewer.id, viewer.id] : [query, query])).all();
-    const posts = await listRootPosts(env, viewer,
-      authorId !== null ? { searchTerm: query, authorId } : { searchTerm: query });
+    const posts = await listRootPosts(env, viewer, {
+      searchTerm: query, ...(authorId !== null ? { authorId } : {}),
+      sinceSeconds: filters.sinceSeconds, sortNew: filters.sortNew,
+    });
     const payload = {
       users: (users.results || []).map(publicUser),
       posts: posts.posts,
     };
     if (inRaw === "replies") {
-      payload.replies = await searchReplies(env, viewer, query, authorId);
+      payload.replies = await searchReplies(env, viewer, query, authorId, filters);
     }
     return json(payload);
   }
@@ -81,7 +108,8 @@ export async function handleSearchRoute(request, env, url, path, method) {
 // canViewPost in JS after the fetch (one gate per candidate — ≤21 small
 // queries — reusing the EXACT hide/ban/ancestor semantics every other read
 // uses; nothing can leak through search's chain checks).
-export async function searchReplies(env, viewer, query, authorId) {
+export async function searchReplies(env, viewer, query, authorId, filters = {}) {
+  const sinceSeconds = filters.sinceSeconds ?? null;
   const viewerId = viewer ? viewer.id : null;
   const sql =
     "SELECT r.id, r.author_id, r.parent_id, r.body, r.visibility, r.created_at, r.board, r.view_count, r.pinned_at, r.edited_at, " +
@@ -97,12 +125,14 @@ export async function searchReplies(env, viewer, query, authorId) {
     "FROM posts r JOIN users u ON u.id = r.author_id " +
     "WHERE r.parent_id IS NOT NULL AND instr(lower(r.body), ?) > 0 " +
     (authorId !== null ? "AND r.author_id = ? " : "") +
+    (sinceSeconds !== null ? "AND r.created_at >= ? " : "") +
     "AND ((r.visibility = 'public' AND " + banFilterSql("r") + ") OR r.author_id = ?) " +
-    "ORDER BY r.id DESC LIMIT 21";
+    "ORDER BY " + (filters.sortNew ? "r.created_at DESC, " : "") + "r.id DESC LIMIT 21";
   const values = [];
   values.push(viewerId || -1); // viewer_reaction's subselect first
   values.push(query);
   if (authorId !== null) values.push(authorId);
+  if (sinceSeconds !== null) values.push(sinceSeconds);
   // Nuke rule: the bypass never matches (public + unbanned only).
   values.push(-1);
   const result = await env.FORUM_DB.prepare(sql).bind(...values).all();

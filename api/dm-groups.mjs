@@ -64,7 +64,7 @@ const blockPairSql = (column) =>
   "EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = ? AND bk.blocked_id = " + column +
   ") OR (bk.blocked_id = ? AND bk.blocker_id = " + column + "))";
 
-const VISIBLE_GROUP_MESSAGE_SQL = "NOT " + activeBanSql("m.user_id") + " AND NOT " + blockPairSql("m.user_id");
+export const VISIBLE_GROUP_MESSAGE_SQL = "NOT " + activeBanSql("m.user_id") + " AND NOT " + blockPairSql("m.user_id");
 
 const MEMBER_ROWS_SQL =
   "SELECT gm.group_id, u.id, u.username, u.role FROM dm_group_members gm " +
