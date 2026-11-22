@@ -235,5 +235,7 @@ export async function withPageHead(html, request, env, url, storedBranding) {
   const image = ogImageUrl(env, origin);
   const head = await pageHead(request, env, url, site, origin);
   const tags = renderHead({ ...head, ld: [...siteBlocks(site, origin, image), ...head.ld] }, site, image);
-  return html.replace(SHELL_TITLE, "").replace(SHELL_DESCRIPTION, "").replace("</head>", tags + "</head>");
+  // Function replacement: a string one would expand $' $` $& $$ in member
+  // text and splice the rest of the shell into an attribute (v5.33 M1).
+  return html.replace(SHELL_TITLE, "").replace(SHELL_DESCRIPTION, "").replace("</head>", () => tags + "</head>");
 }

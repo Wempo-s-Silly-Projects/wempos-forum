@@ -89,6 +89,16 @@ Every action shows on the desk's **AutoMod** page with its reason, and its
 bans read "AutoMod: …". Staff undo anything with the normal Restore and
 Unban.
 
+If the key ever leaks, anyone holding it can hide posts and hand out 24-hour
+bans to members (never staff) at about 45 actions a minute. Revoke it at
+once: `wrangler secret delete AUTOMOD_KEY` switches the API off within
+seconds (every `/api/automod/*` path answers 404 again), or
+`wrangler secret put AUTOMOD_KEY` with a fresh random value rotates it so
+the old key gets 401 (then give your runner the new one). Setting
+`AUTOMOD_ENABLED` to anything but `"true"` and redeploying also switches it
+off. Then check the desk's **AutoMod** page and use Restore and Unban on
+anything the leaked key did.
+
 ## What a hide or ban does
 
 Hiding is the forum's main tool, and it's always reversible:
