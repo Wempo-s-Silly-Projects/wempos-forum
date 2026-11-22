@@ -98,6 +98,9 @@ export const RATE_LIMIT_BINDINGS = Object.freeze({
   "avatar-upload": "AVATAR_UPLOAD_RATE_LIMITER",
   "image-upload": "IMAGE_UPLOAD_RATE_LIMITER",
   reaction: "REACTION_RATE_LIMITER",
+  // The anonymous web-vitals beacon rides the read binding under its own
+  // scope (its own per-caller bucket), so beacons never eat into writes.
+  vitals: "READ_RATE_LIMITER",
 });
 
 // The reaction allowlist (posts since v2.0; 1:1 DM messages since v5.44):
@@ -205,3 +208,38 @@ export const CODE_HIGHLIGHT_MAX_CHARS = 20000;
 export const UPLOAD_MAX_LONG_SIDE = 2560;
 export const UPLOAD_TARGET_MAX_MB = 2;
 export const UPLOAD_AVATAR_TARGET_MAX_MB = 1;
+
+// Anonymous Core Web Vitals (api/vitals.mjs, migrations/0079). Only DAILY
+// HISTOGRAMS are stored: per (UTC day, route NAME, metric) a sample count and
+// VITALS_BUCKET_COUNT fixed buckets (b0..b20). A value lands in the first
+// bucket whose upper edge it does not exceed; the last bucket is overflow.
+// Every band threshold is an edge, so a p75 read off the buckets bands
+// exactly. public/js/vitals.js mirrors VITALS_METRICS (pinned equal by
+// tests/wave576-web-vitals.test.mjs).
+export const VITALS_METRICS = Object.freeze(["LCP", "INP", "CLS", "FCP", "TTFB"]);
+// Google's published good / poor thresholds (web.dev/articles/vitals,
+// web.dev/articles/fcp, web.dev/articles/ttfb; checked 2026-11-22).
+export const VITALS_THRESHOLDS = Object.freeze({
+  LCP: Object.freeze([2500, 4000]),
+  INP: Object.freeze([200, 500]),
+  CLS: Object.freeze([0.1, 0.25]),
+  FCP: Object.freeze([1800, 3000]),
+  TTFB: Object.freeze([800, 1800]),
+});
+// Per-metric upper caps: a larger value is rejected, not clamped.
+export const VITALS_METRIC_MAX = Object.freeze({ LCP: 60000, INP: 60000, CLS: 50, FCP: 60000, TTFB: 60000 });
+const VITALS_MS_EDGES = Object.freeze([
+  100, 200, 300, 400, 500, 600, 800, 1000, 1200, 1500,
+  1800, 2000, 2500, 3000, 3500, 4000, 5000, 6000, 8000, 10000,
+]);
+const VITALS_CLS_EDGES = Object.freeze([
+  0.01, 0.02, 0.03, 0.05, 0.075, 0.1, 0.125, 0.15, 0.2, 0.25,
+  0.3, 0.35, 0.4, 0.5, 0.6, 0.75, 1, 1.5, 2, 3,
+]);
+export const VITALS_BUCKET_COUNT = VITALS_MS_EDGES.length + 1;
+export const vitalsBucketEdges = (metric) => (metric === "CLS" ? VITALS_CLS_EDGES : VITALS_MS_EDGES);
+export const VITALS_MAX_BODY_BYTES = 512;
+export const VITALS_RETENTION_DAYS = 90;
+// One bounded prune per beacon / read keeps every DELETE small.
+export const VITALS_RETENTION_DELETE_LIMIT = 100;
+export const VITALS_WINDOWS = Object.freeze({ week: 7, month: 28 });

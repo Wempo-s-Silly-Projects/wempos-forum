@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Zdieľanie",
   "threadActions.thisPost": "Tento príspevok",
   "threadActions.staff": "Tím",
-  "threadActions.editTags": "Upraviť štítky"
+  "threadActions.editTags": "Upraviť štítky",
+  "admin.section.siteHealth": "Stav webu",
+  "admin.lede.siteHealth": "Ako rýchlo stránky na návštevníkov pôsobia, merané anonymne v ich prehliadačoch.",
+  "desk.health.privacyNote": "Uchovávajú sa iba denné súčty: typ stránky, meranie a jeho hodnota. Žiadny účet, adresa ani údaje o prehliadači. Do Not Track a Global Privacy Control meranie vypínajú a súčty staršie ako {days} dní mažeme.",
+  "desk.health.pageColumn": "Typ stránky",
+  "desk.health.metricColumn": "Meranie",
+  "desk.health.weekColumn": "75. percentil, 7 dní",
+  "desk.health.monthColumn": "75. percentil, 28 dní",
+  "desk.health.samples": "vzorky: {count}",
+  "desk.health.good": "Dobré",
+  "desk.health.needsWork": "Treba zlepšiť",
+  "desk.health.poor": "Slabé",
+  "desk.health.noData": "Žiadne údaje",
+  "desk.health.empty": "Zatiaľ žiadne merania.",
+  "settings.vitalsNote": "Aby bolo vidieť, aký rýchly je web, tvoj prehliadač môže odosielať anonymné merania rýchlosti: typ stránky (nikdy jej adresu) a niekoľko časov. Nič ťa neidentifikuje a uchovávajú sa iba denné súčty, 90 dní. Do Not Track alebo Global Privacy Control to vypína."
 }

@@ -80,3 +80,16 @@ path = "public/js/vendor/browser-image-compression.mjs"
 precedence = "override"
 SPDX-FileCopyrightText = "2019 Donald Chan"
 SPDX-License-Identifier = "MIT"
+
+# web-vitals 6.2.3 (https://github.com/GoogleChrome/web-vitals): the
+# published dist/web-vitals.iife.js from the registry tarball (sha512
+# integrity checked against the registry), kept byte-for-byte as
+# public/js/vendor/web-vitals.iife.js with no added banner. Apache-2.0 is
+# compatible with AGPL-3.0-or-later. This block comes after the vendor glob so
+# it wins for this one file (REUSE: the last matching annotation applies);
+# the sha256 is pinned by tests/wave576-web-vitals.test.mjs.
+[[annotations]]
+path = "public/js/vendor/web-vitals.iife.js"
+precedence = "override"
+SPDX-FileCopyrightText = "Google LLC"
+SPDX-License-Identifier = "Apache-2.0"

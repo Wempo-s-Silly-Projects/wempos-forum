@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "공유",
   "threadActions.thisPost": "이 게시물",
   "threadActions.staff": "운영진",
-  "threadActions.editTags": "태그 편집"
+  "threadActions.editTags": "태그 편집",
+  "admin.section.siteHealth": "사이트 상태",
+  "admin.lede.siteHealth": "방문자에게 페이지가 얼마나 빠르게 느껴지는지, 브라우저에서 익명으로 측정한 결과입니다.",
+  "desk.health.privacyNote": "일별 합계만 보관합니다: 페이지 유형, 측정 항목과 그 값. 계정, 주소, 브라우저 정보는 포함하지 않습니다. Do Not Track과 Global Privacy Control을 켜면 측정이 꺼지며, {days}일이 지난 합계는 삭제됩니다.",
+  "desk.health.pageColumn": "페이지 유형",
+  "desk.health.metricColumn": "측정 항목",
+  "desk.health.weekColumn": "75번째 백분위수, 7일",
+  "desk.health.monthColumn": "75번째 백분위수, 28일",
+  "desk.health.samples": "샘플: {count}",
+  "desk.health.good": "좋음",
+  "desk.health.needsWork": "개선 필요",
+  "desk.health.poor": "나쁨",
+  "desk.health.noData": "데이터 없음",
+  "desk.health.empty": "아직 측정값이 없습니다.",
+  "settings.vitalsNote": "사이트 속도를 확인하기 위해 브라우저가 익명 속도 측정값을 보낼 수 있습니다: 페이지 유형(주소는 절대 보내지 않음)과 몇 가지 소요 시간입니다. 사용자를 식별하는 정보는 없으며, 일별 합계만 90일 동안 보관합니다. Do Not Track 또는 Global Privacy Control을 켜면 전송되지 않습니다."
 }

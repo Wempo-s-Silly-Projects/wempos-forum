@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Deel",
   "threadActions.thisPost": "Hierdie plasing",
   "threadActions.staff": "Personeel",
-  "threadActions.editTags": "Wysig etikette"
+  "threadActions.editTags": "Wysig etikette",
+  "admin.section.siteHealth": "Werfgesondheid",
+  "admin.lede.siteHealth": "Hoe vinnig bladsye vir besoekers voel, anoniem in hul blaaiers gemeet.",
+  "desk.health.privacyNote": "Net daaglikse totale word gehou: die soort bladsy, die meting en die waarde daarvan. Geen rekening-, adres- of blaaierbesonderhede nie. Do Not Track en Global Privacy Control skakel dit af, en totale ouer as {days} dae word uitgevee.",
+  "desk.health.pageColumn": "Soort bladsy",
+  "desk.health.metricColumn": "Meting",
+  "desk.health.weekColumn": "75ste persentiel, 7 dae",
+  "desk.health.monthColumn": "75ste persentiel, 28 dae",
+  "desk.health.samples": "steekproewe: {count}",
+  "desk.health.good": "Goed",
+  "desk.health.needsWork": "Moet verbeter",
+  "desk.health.poor": "Swak",
+  "desk.health.noData": "Geen data nie",
+  "desk.health.empty": "Nog geen metings nie.",
+  "settings.vitalsNote": "Om te sien hoe vinnig die werf is, kan jou blaaier anonieme spoedmetings stuur: die soort bladsy (nooit die adres nie) en 'n paar tye. Niks identifiseer jou nie, en net daaglikse totale word gehou, vir 90 dae. Do Not Track of Global Privacy Control skakel dit af."
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Споделяне",
   "threadActions.thisPost": "Тази публикация",
   "threadActions.staff": "Екип",
-  "threadActions.editTags": "Редактиране на етикетите"
+  "threadActions.editTags": "Редактиране на етикетите",
+  "admin.section.siteHealth": "Състояние на сайта",
+  "admin.lede.siteHealth": "Колко бързо се усещат страниците от посетителите, измерено анонимно в браузърите им.",
+  "desk.health.privacyNote": "Пазят се само дневни сборове: видът страница, измерването и стойността му. Без профил, адрес или данни за браузъра. Do Not Track и Global Privacy Control го изключват, а сборовете, по-стари от {days} дни, се изтриват.",
+  "desk.health.pageColumn": "Вид страница",
+  "desk.health.metricColumn": "Измерване",
+  "desk.health.weekColumn": "75-и персентил, 7 дни",
+  "desk.health.monthColumn": "75-и персентил, 28 дни",
+  "desk.health.samples": "проби: {count}",
+  "desk.health.good": "Добро",
+  "desk.health.needsWork": "Нуждае се от подобрение",
+  "desk.health.poor": "Слабо",
+  "desk.health.noData": "Няма данни",
+  "desk.health.empty": "Все още няма измервания.",
+  "settings.vitalsNote": "За да се вижда колко бърз е сайтът, браузърът ти може да изпраща анонимни измервания на скоростта: вида страница (никога адреса ѝ) и няколко времена. Нищо не те идентифицира и се пазят само дневни сборове, за 90 дни. Do Not Track или Global Privacy Control изключва това."
 }

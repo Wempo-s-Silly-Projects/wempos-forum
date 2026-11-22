@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Aquesta publicació",
   "threadActions.staff": "Equip",
-  "threadActions.editTags": "Edita les etiquetes"
+  "threadActions.editTags": "Edita les etiquetes",
+  "admin.section.siteHealth": "Salut del lloc",
+  "admin.lede.siteHealth": "Com de ràpides semblen les pàgines als visitants, mesurat de manera anònima als seus navegadors.",
+  "desk.health.privacyNote": "Només es guarden totals diaris: el tipus de pàgina, la mesura i el seu valor. Cap dada de compte, adreça ni navegador. Do Not Track i Global Privacy Control ho desactiven, i els totals de més de {days} dies s'esborren.",
+  "desk.health.pageColumn": "Tipus de pàgina",
+  "desk.health.metricColumn": "Mesura",
+  "desk.health.weekColumn": "Percentil 75, 7 dies",
+  "desk.health.monthColumn": "Percentil 75, 28 dies",
+  "desk.health.samples": "mostres: {count}",
+  "desk.health.good": "Bo",
+  "desk.health.needsWork": "Cal millorar",
+  "desk.health.poor": "Deficient",
+  "desk.health.noData": "Sense dades",
+  "desk.health.empty": "Encara no hi ha mesures.",
+  "settings.vitalsNote": "Per saber com de ràpid va el lloc, el teu navegador pot enviar mesures de velocitat anònimes: el tipus de pàgina (mai la seva adreça) i alguns temps. Res no t'identifica, i només es guarden totals diaris, durant 90 dies. Do Not Track o Global Privacy Control ho desactiven."
 }

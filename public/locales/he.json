@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "שיתוף",
   "threadActions.thisPost": "הפוסט הזה",
   "threadActions.staff": "צוות",
-  "threadActions.editTags": "עריכת תגיות"
+  "threadActions.editTags": "עריכת תגיות",
+  "admin.section.siteHealth": "בריאות האתר",
+  "admin.lede.siteHealth": "כמה מהר הדפים מרגישים למבקרים, נמדד באופן אנונימי בדפדפנים שלהם.",
+  "desk.health.privacyNote": "נשמרים רק סיכומים יומיים: סוג הדף, המדידה וערכה. ללא חשבון, כתובת או פרטי דפדפן. Do Not Track ו-Global Privacy Control מכבים זאת, וסיכומים ישנים מ-{days} ימים נמחקים.",
+  "desk.health.pageColumn": "סוג דף",
+  "desk.health.metricColumn": "מדידה",
+  "desk.health.weekColumn": "אחוזון 75, 7 ימים",
+  "desk.health.monthColumn": "אחוזון 75, 28 ימים",
+  "desk.health.samples": "דגימות: {count}",
+  "desk.health.good": "טוב",
+  "desk.health.needsWork": "דורש שיפור",
+  "desk.health.poor": "גרוע",
+  "desk.health.noData": "אין נתונים",
+  "desk.health.empty": "אין מדידות עדיין.",
+  "settings.vitalsNote": "כדי לראות כמה מהיר האתר, הדפדפן שלך עשוי לשלוח מדידות מהירות אנונימיות: סוג הדף (לעולם לא הכתובת שלו) וכמה זמנים. שום דבר לא מזהה אותך, ונשמרים רק סיכומים יומיים, למשך 90 יום. Do Not Track או Global Privacy Control מכבים זאת."
 }

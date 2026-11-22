@@ -359,6 +359,13 @@ If your browser sends **Do Not Track** or **Global Privacy Control**, you
 are not counted at all. Bots aren't counted either. Totals are deleted after
 90 days. Only staff can see them.
 
+To see how fast the site feels, your browser may also send anonymous speed
+measurements (Core Web Vitals) once per page load, after the page is idle:
+the kind of page (never its address) and a few timings. They go only to the
+forum itself, never to anyone else, and are kept only as daily totals per
+kind of page for 90 days, with no IP address, account, cookie or browser
+details. **Do Not Track** or **Global Privacy Control** turns this off too.
+
 ## Need help?
 
 Post in **Bugs & Troubleshooting & Help**, or drop an idea in **Suggestions**.

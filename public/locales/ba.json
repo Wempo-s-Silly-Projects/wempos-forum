@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Уртаҡлашыу",
   "threadActions.thisPost": "Был яҙма",
   "threadActions.staff": "Хеҙмәткәрҙәр",
-  "threadActions.editTags": "Тегтарҙы мөхәррирләргә"
+  "threadActions.editTags": "Тегтарҙы мөхәррирләргә",
+  "admin.section.siteHealth": "Сайттың торошо",
+  "admin.lede.siteHealth": "Биттәрҙең килеүселәр өсөн ни тиклем тиҙ асылыуы, уларҙың браузерҙарында исемһеҙ үлсәнә.",
+  "desk.health.privacyNote": "Көнлөк дөйөм һандар ғына һаҡлана: бит төрө, үлсәү һәм уның ҡиммәте. Иҫәп яҙмаһы, адрес йәки браузер мәғлүмәттәре юҡ. Do Not Track һәм Global Privacy Control быны һүндерә, {days} көндән иҫкерәк һандар юйыла.",
+  "desk.health.pageColumn": "Бит төрө",
+  "desk.health.metricColumn": "Үлсәү",
+  "desk.health.weekColumn": "75-се процентиль, 7 көн",
+  "desk.health.monthColumn": "75-се процентиль, 28 көн",
+  "desk.health.samples": "өлгөләр: {count}",
+  "desk.health.good": "Яҡшы",
+  "desk.health.needsWork": "Яҡшыртыу кәрәк",
+  "desk.health.poor": "Насар",
+  "desk.health.noData": "Мәғлүмәт юҡ",
+  "desk.health.empty": "Әлегә үлсәүҙәр юҡ.",
+  "settings.vitalsNote": "Сайттың ни тиклем тиҙ булыуын күреү өсөн, браузерығыҙ исемһеҙ тиҙлек үлсәүҙәрен ебәрә ала: бит төрөн (уның адресын бер ҡасан да түгел) һәм бер нисә ваҡыт күрһәткесен. Һеҙҙе бер нәмә лә танытмай, көнлөк дөйөм һандар ғына 90 көн һаҡлана. Do Not Track йәки Global Privacy Control быны һүндерә."
 }

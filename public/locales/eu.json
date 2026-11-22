@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Partekatzea",
   "threadActions.thisPost": "Bidalketa hau",
   "threadActions.staff": "Taldea",
-  "threadActions.editTags": "Editatu etiketak"
+  "threadActions.editTags": "Editatu etiketak",
+  "admin.section.siteHealth": "Gunearen osasuna",
+  "admin.lede.siteHealth": "Orriak zein azkar sentitzen diren bisitarientzat, haien nabigatzaileetan modu anonimoan neurtuta.",
+  "desk.health.privacyNote": "Eguneko guztizkoak bakarrik gordetzen dira: orri mota, neurketa eta haren balioa. Ez kontu, ez helbide, ez nabigatzailearen xehetasunik. Do Not Track eta Global Privacy Control aukerek desaktibatzen dute, eta {days} egun baino zaharragoak diren guztizkoak ezabatu egiten dira.",
+  "desk.health.pageColumn": "Orri mota",
+  "desk.health.metricColumn": "Neurketa",
+  "desk.health.weekColumn": "75. pertzentila, 7 egun",
+  "desk.health.monthColumn": "75. pertzentila, 28 egun",
+  "desk.health.samples": "laginak: {count}",
+  "desk.health.good": "Ona",
+  "desk.health.needsWork": "Hobetu behar da",
+  "desk.health.poor": "Txarra",
+  "desk.health.noData": "Daturik ez",
+  "desk.health.empty": "Oraindik ez dago neurketarik.",
+  "settings.vitalsNote": "Gunea zein azkarra den jakiteko, zure nabigatzaileak abiadura-neurketa anonimoak bidal ditzake: orri mota (inoiz ez haren helbidea) eta denbora batzuk. Ezerk ez zaitu identifikatzen, eta eguneko guztizkoak bakarrik gordetzen dira, 90 egunez. Do Not Track edo Global Privacy Control aukerak hau desaktibatzen du."
 }

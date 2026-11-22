@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Chia sẻ",
   "threadActions.thisPost": "Bài viết này",
   "threadActions.staff": "Ban quản trị",
-  "threadActions.editTags": "Sửa thẻ"
+  "threadActions.editTags": "Sửa thẻ",
+  "admin.section.siteHealth": "Tình trạng trang",
+  "admin.lede.siteHealth": "Mức độ nhanh của các trang đối với khách truy cập, được đo ẩn danh trong trình duyệt của họ.",
+  "desk.health.privacyNote": "Chỉ lưu tổng số theo ngày: loại trang, phép đo và giá trị của nó. Không có tài khoản, địa chỉ hay thông tin trình duyệt. Do Not Track và Global Privacy Control sẽ tắt tính năng này, và các tổng số cũ hơn {days} ngày sẽ bị xóa.",
+  "desk.health.pageColumn": "Loại trang",
+  "desk.health.metricColumn": "Phép đo",
+  "desk.health.weekColumn": "Phân vị thứ 75, 7 ngày",
+  "desk.health.monthColumn": "Phân vị thứ 75, 28 ngày",
+  "desk.health.samples": "mẫu: {count}",
+  "desk.health.good": "Tốt",
+  "desk.health.needsWork": "Cần cải thiện",
+  "desk.health.poor": "Kém",
+  "desk.health.noData": "Không có dữ liệu",
+  "desk.health.empty": "Chưa có phép đo nào.",
+  "settings.vitalsNote": "Để biết trang chạy nhanh đến đâu, trình duyệt của bạn có thể gửi các số đo tốc độ ẩn danh: loại trang (không bao giờ gửi địa chỉ) và một vài mốc thời gian. Không có gì nhận dạng bạn, và chỉ tổng số theo ngày được lưu, trong 90 ngày. Do Not Track hoặc Global Privacy Control sẽ tắt tính năng này."
 }

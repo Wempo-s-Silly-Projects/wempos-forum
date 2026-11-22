@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Jakaminen",
   "threadActions.thisPost": "Tämä viesti",
   "threadActions.staff": "Ylläpito",
-  "threadActions.editTags": "Muokkaa tunnisteita"
+  "threadActions.editTags": "Muokkaa tunnisteita",
+  "admin.section.siteHealth": "Sivuston kunto",
+  "admin.lede.siteHealth": "Kuinka nopeilta sivut tuntuvat kävijöille, mitattuna nimettömästi heidän selaimissaan.",
+  "desk.health.privacyNote": "Vain päivittäiset summat tallennetaan: sivun tyyppi, mittaus ja sen arvo. Ei tili-, osoite- tai selaintietoja. Do Not Track ja Global Privacy Control kytkevät sen pois, ja yli {days} päivää vanhat summat poistetaan.",
+  "desk.health.pageColumn": "Sivun tyyppi",
+  "desk.health.metricColumn": "Mittaus",
+  "desk.health.weekColumn": "75. persentiili, 7 päivää",
+  "desk.health.monthColumn": "75. persentiili, 28 päivää",
+  "desk.health.samples": "näytteitä: {count}",
+  "desk.health.good": "Hyvä",
+  "desk.health.needsWork": "Kaipaa parannusta",
+  "desk.health.poor": "Heikko",
+  "desk.health.noData": "Ei tietoja",
+  "desk.health.empty": "Ei vielä mittauksia.",
+  "settings.vitalsNote": "Jotta nähdään, kuinka nopea sivusto on, selaimesi voi lähettää nimettömiä nopeusmittauksia: sivun tyypin (ei koskaan sen osoitetta) ja muutamia aikoja. Mikään ei tunnista sinua, ja vain päivittäiset summat tallennetaan 90 päivän ajan. Do Not Track tai Global Privacy Control kytkee tämän pois."
 }

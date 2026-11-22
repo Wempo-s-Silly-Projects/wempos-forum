@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Delen",
   "threadActions.thisPost": "Dit bericht",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Tags bewerken"
+  "threadActions.editTags": "Tags bewerken",
+  "admin.section.siteHealth": "Sitegezondheid",
+  "admin.lede.siteHealth": "Hoe snel pagina's aanvoelen voor bezoekers, anoniem gemeten in hun browser.",
+  "desk.health.privacyNote": "Alleen dagtotalen worden bewaard: het paginatype, de meting en de waarde ervan. Geen account-, adres- of browsergegevens. Do Not Track en Global Privacy Control zetten het uit, en totalen ouder dan {days} dagen worden verwijderd.",
+  "desk.health.pageColumn": "Paginatype",
+  "desk.health.metricColumn": "Meting",
+  "desk.health.weekColumn": "75e percentiel, 7 dagen",
+  "desk.health.monthColumn": "75e percentiel, 28 dagen",
+  "desk.health.samples": "metingen: {count}",
+  "desk.health.good": "Goed",
+  "desk.health.needsWork": "Kan beter",
+  "desk.health.poor": "Slecht",
+  "desk.health.noData": "Geen gegevens",
+  "desk.health.empty": "Nog geen metingen.",
+  "settings.vitalsNote": "Om te zien hoe snel de site is, kan je browser anonieme snelheidsmetingen versturen: het type pagina (nooit het adres) en een paar tijden. Niets identificeert jou, en alleen dagtotalen worden bewaard, 90 dagen lang. Do Not Track of Global Privacy Control zet dit uit."
 }

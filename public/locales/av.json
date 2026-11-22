@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Бикьи",
   "threadActions.thisPost": "Гьаб пост",
   "threadActions.staff": "Персонал",
-  "threadActions.editTags": "Тегал хисизе"
+  "threadActions.editTags": "Тегал хисизе",
+  "admin.section.siteHealth": "Сайталъул хӏал",
+  "admin.lede.siteHealth": "Гьумерал вачӏиназе щаллъун рагьулеб, жидерго браузеразда цӏар кколареб куцалда борцараб.",
+  "desk.health.privacyNote": "Цӏунула къоялъул жамгӏи гурони: гьумералъул тайп, борцен ва гьелъул къимат. Аккаунт, адрес яги браузералъул баянал гьечӏо. Do Not Track ва Global Privacy Control бугони, гьеб къан букӏуна, {days} къоялдаса херал жамгӏи тӏагӏинарула.",
+  "desk.health.pageColumn": "Гьумералъул тайп",
+  "desk.health.metricColumn": "Борцен",
+  "desk.health.weekColumn": "75-абилеб процентиль, 7 къо",
+  "desk.health.monthColumn": "75-абилеб процентиль, 28 къо",
+  "desk.health.samples": "мисалал: {count}",
+  "desk.health.good": "Лъикӏ",
+  "desk.health.needsWork": "Лъикӏлъизабизе ккола",
+  "desk.health.poor": "Квеш",
+  "desk.health.noData": "Баянал гьечӏо",
+  "desk.health.empty": "Жеги борцеял гьечӏо.",
+  "settings.vitalsNote": "Сайт щаллъун бугебали бихьизе, дур браузералъ цӏар кколареб хехлъиялъул борцеял ритӏизе бегьула: гьумералъул тайп (гьелъул адрес абадаго гуро) ва цо-цо заманалъул борцеял. Мун щив кколевали лъазабулеб щибниги гьечӏо, цӏунула къоялъул жамгӏи гурони, 90 къоялъ. Do Not Track яги Global Privacy Control бугони, гьеб къан букӏуна."
 }

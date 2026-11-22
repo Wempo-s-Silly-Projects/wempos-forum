@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Paylaşım",
   "threadActions.thisPost": "Bu gönderi",
   "threadActions.staff": "Ekip",
-  "threadActions.editTags": "Etiketleri düzenle"
+  "threadActions.editTags": "Etiketleri düzenle",
+  "admin.section.siteHealth": "Site sağlığı",
+  "admin.lede.siteHealth": "Sayfaların ziyaretçilere ne kadar hızlı geldiği, tarayıcılarında anonim olarak ölçülür.",
+  "desk.health.privacyNote": "Yalnızca günlük toplamlar saklanır: sayfa türü, ölçüm ve değeri. Hesap, adres veya tarayıcı bilgisi tutulmaz. Do Not Track ve Global Privacy Control bunu kapatır; {days} günden eski toplamlar silinir.",
+  "desk.health.pageColumn": "Sayfa türü",
+  "desk.health.metricColumn": "Ölçüm",
+  "desk.health.weekColumn": "75. yüzdelik, 7 gün",
+  "desk.health.monthColumn": "75. yüzdelik, 28 gün",
+  "desk.health.samples": "örnek: {count}",
+  "desk.health.good": "İyi",
+  "desk.health.needsWork": "İyileştirilmeli",
+  "desk.health.poor": "Kötü",
+  "desk.health.noData": "Veri yok",
+  "desk.health.empty": "Henüz ölçüm yok.",
+  "settings.vitalsNote": "Sitenin ne kadar hızlı olduğunu görmek için tarayıcınız anonim hız ölçümleri gönderebilir: sayfanın türü (asla adresi değil) ve birkaç süre. Hiçbir şey sizi tanımlamaz ve yalnızca günlük toplamlar 90 gün saklanır. Do Not Track veya Global Privacy Control bunu kapatır."
 }

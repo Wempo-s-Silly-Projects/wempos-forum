@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Teilen",
   "threadActions.thisPost": "Dieser Beitrag",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Tags bearbeiten"
+  "threadActions.editTags": "Tags bearbeiten",
+  "admin.section.siteHealth": "Website-Zustand",
+  "admin.lede.siteHealth": "Wie schnell sich Seiten für Besucher anfühlen, anonym in ihren Browsern gemessen.",
+  "desk.health.privacyNote": "Gespeichert werden nur Tagessummen: Seitentyp, Messgröße und ihr Wert. Keine Konto-, Adress- oder Browserdaten. Do Not Track und Global Privacy Control schalten es ab, und Summen, die älter als {days} Tage sind, werden gelöscht.",
+  "desk.health.pageColumn": "Seitentyp",
+  "desk.health.metricColumn": "Messgröße",
+  "desk.health.weekColumn": "75. Perzentil, 7 Tage",
+  "desk.health.monthColumn": "75. Perzentil, 28 Tage",
+  "desk.health.samples": "Stichproben: {count}",
+  "desk.health.good": "Gut",
+  "desk.health.needsWork": "Verbesserungswürdig",
+  "desk.health.poor": "Schlecht",
+  "desk.health.noData": "Keine Daten",
+  "desk.health.empty": "Noch keine Messungen.",
+  "settings.vitalsNote": "Damit sichtbar wird, wie schnell die Website ist, kann dein Browser anonyme Geschwindigkeitsmessungen senden: den Seitentyp (nie die Adresse) und einige Zeitwerte. Nichts davon identifiziert dich, und gespeichert werden nur Tagessummen, 90 Tage lang. Do Not Track oder Global Privacy Control schaltet das ab."
 }

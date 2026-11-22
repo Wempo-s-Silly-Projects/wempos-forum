@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "การแชร์",
   "threadActions.thisPost": "โพสต์นี้",
   "threadActions.staff": "ทีมงาน",
-  "threadActions.editTags": "แก้ไขแท็ก"
+  "threadActions.editTags": "แก้ไขแท็ก",
+  "admin.section.siteHealth": "สุขภาพเว็บไซต์",
+  "admin.lede.siteHealth": "หน้าเว็บเร็วแค่ไหนสำหรับผู้เยี่ยมชม วัดแบบไม่ระบุตัวตนในเบราว์เซอร์ของพวกเขา",
+  "desk.health.privacyNote": "เก็บเฉพาะยอดรวมรายวันเท่านั้น: ประเภทหน้า การวัด และค่าของการวัด ไม่มีบัญชี ที่อยู่ หรือรายละเอียดเบราว์เซอร์ Do Not Track และ Global Privacy Control จะปิดการทำงานนี้ และยอดรวมที่เก่ากว่า {days} วันจะถูกลบ",
+  "desk.health.pageColumn": "ประเภทหน้า",
+  "desk.health.metricColumn": "การวัด",
+  "desk.health.weekColumn": "เปอร์เซ็นไทล์ที่ 75, 7 วัน",
+  "desk.health.monthColumn": "เปอร์เซ็นไทล์ที่ 75, 28 วัน",
+  "desk.health.samples": "ตัวอย่าง: {count}",
+  "desk.health.good": "ดี",
+  "desk.health.needsWork": "ควรปรับปรุง",
+  "desk.health.poor": "แย่",
+  "desk.health.noData": "ไม่มีข้อมูล",
+  "desk.health.empty": "ยังไม่มีการวัด",
+  "settings.vitalsNote": "เพื่อดูว่าเว็บไซต์เร็วแค่ไหน เบราว์เซอร์ของคุณอาจส่งค่าวัดความเร็วแบบไม่ระบุตัวตน: ประเภทของหน้า (ไม่ส่งที่อยู่ของหน้าเลย) และค่าเวลาไม่กี่ค่า ไม่มีสิ่งใดระบุตัวคุณได้ และเก็บเฉพาะยอดรวมรายวันไว้ 90 วัน Do Not Track หรือ Global Privacy Control จะปิดการทำงานนี้"
 }

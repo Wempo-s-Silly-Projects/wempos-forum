@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Kushiriki",
   "threadActions.thisPost": "Chapisho hili",
   "threadActions.staff": "Wafanyakazi",
-  "threadActions.editTags": "Hariri lebo"
+  "threadActions.editTags": "Hariri lebo",
+  "admin.section.siteHealth": "Afya ya tovuti",
+  "admin.lede.siteHealth": "Jinsi kurasa zinavyofunguka haraka kwa wageni, zikipimwa bila kumtambulisha mtu katika vivinjari vyao.",
+  "desk.health.privacyNote": "Jumla za kila siku pekee ndizo huhifadhiwa: aina ya ukurasa, kipimo na thamani yake. Hakuna akaunti, anwani wala maelezo ya kivinjari. Do Not Track na Global Privacy Control huzima hili, na jumla za zamani zaidi ya siku {days} hufutwa.",
+  "desk.health.pageColumn": "Aina ya ukurasa",
+  "desk.health.metricColumn": "Kipimo",
+  "desk.health.weekColumn": "Pasentaili ya 75, siku 7",
+  "desk.health.monthColumn": "Pasentaili ya 75, siku 28",
+  "desk.health.samples": "sampuli: {count}",
+  "desk.health.good": "Nzuri",
+  "desk.health.needsWork": "Inahitaji kuboreshwa",
+  "desk.health.poor": "Duni",
+  "desk.health.noData": "Hakuna data",
+  "desk.health.empty": "Bado hakuna vipimo.",
+  "settings.vitalsNote": "Ili kuona jinsi tovuti ilivyo haraka, kivinjari chako kinaweza kutuma vipimo vya kasi bila kukutambulisha: aina ya ukurasa (kamwe si anwani yake) na vipimo vichache vya muda. Hakuna kinachokutambulisha, na jumla za kila siku pekee huhifadhiwa, kwa siku 90. Do Not Track au Global Privacy Control huzima hili."
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Condivisione",
   "threadActions.thisPost": "Questo post",
   "threadActions.staff": "Staff",
-  "threadActions.editTags": "Modifica tag"
+  "threadActions.editTags": "Modifica tag",
+  "admin.section.siteHealth": "Salute del sito",
+  "admin.lede.siteHealth": "Quanto sembrano veloci le pagine ai visitatori, misurato in forma anonima nei loro browser.",
+  "desk.health.privacyNote": "Si conservano solo totali giornalieri: il tipo di pagina, la misurazione e il suo valore. Nessun dato su account, indirizzo o browser. Do Not Track e Global Privacy Control la disattivano, e i totali più vecchi di {days} giorni vengono eliminati.",
+  "desk.health.pageColumn": "Tipo di pagina",
+  "desk.health.metricColumn": "Misurazione",
+  "desk.health.weekColumn": "75° percentile, 7 giorni",
+  "desk.health.monthColumn": "75° percentile, 28 giorni",
+  "desk.health.samples": "campioni: {count}",
+  "desk.health.good": "Buono",
+  "desk.health.needsWork": "Da migliorare",
+  "desk.health.poor": "Scarso",
+  "desk.health.noData": "Nessun dato",
+  "desk.health.empty": "Ancora nessuna misurazione.",
+  "settings.vitalsNote": "Per capire quanto è veloce il sito, il tuo browser può inviare misurazioni di velocità anonime: il tipo di pagina (mai il suo indirizzo) e alcuni tempi. Niente ti identifica, e si conservano solo totali giornalieri, per 90 giorni. Do Not Track o Global Privacy Control la disattivano."
 }

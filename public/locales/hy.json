@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Կիսվել",
   "threadActions.thisPost": "Այս գրառումը",
   "threadActions.staff": "Անձնակազմ",
-  "threadActions.editTags": "Խմբագրել պիտակները"
+  "threadActions.editTags": "Խմբագրել պիտակները",
+  "admin.section.siteHealth": "Կայքի առողջություն",
+  "admin.lede.siteHealth": "Որքան արագ են էջերը բացվում այցելուների համար՝ չափված անանուն կերպով նրանց դիտարկիչներում։",
+  "desk.health.privacyNote": "Պահվում են միայն օրական ընդհանուր թվերը՝ էջի տեսակը, չափումը և դրա արժեքը։ Ոչ հաշիվ, ոչ հասցե, ոչ դիտարկիչի տվյալներ։ Do Not Track-ը և Global Privacy Control-ն անջատում են այն, իսկ {days} օրից հին թվերը ջնջվում են։",
+  "desk.health.pageColumn": "Էջի տեսակ",
+  "desk.health.metricColumn": "Չափում",
+  "desk.health.weekColumn": "75-րդ պերցենտիլ, 7 օր",
+  "desk.health.monthColumn": "75-րդ պերցենտիլ, 28 օր",
+  "desk.health.samples": "նմուշներ՝ {count}",
+  "desk.health.good": "Լավ",
+  "desk.health.needsWork": "Պետք է բարելավել",
+  "desk.health.poor": "Վատ",
+  "desk.health.noData": "Տվյալներ չկան",
+  "desk.health.empty": "Չափումներ դեռ չկան։",
+  "settings.vitalsNote": "Կայքի արագությունը տեսնելու համար ձեր դիտարկիչը կարող է ուղարկել անանուն արագության չափումներ՝ էջի տեսակը (երբեք դրա հասցեն) և մի քանի ժամանակային ցուցանիշ։ Ոչինչ ձեզ չի նույնականացնում, և պահվում են միայն օրական ընդհանուր թվերը՝ 90 օր։ Do Not Track-ը կամ Global Privacy Control-ն անջատում է սա։"
 }

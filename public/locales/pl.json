@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Udostępnianie",
   "threadActions.thisPost": "Ten post",
   "threadActions.staff": "Zespół",
-  "threadActions.editTags": "Edytuj tagi"
+  "threadActions.editTags": "Edytuj tagi",
+  "admin.section.siteHealth": "Kondycja witryny",
+  "admin.lede.siteHealth": "Jak szybko strony działają dla odwiedzających, mierzone anonimowo w ich przeglądarkach.",
+  "desk.health.privacyNote": "Przechowujemy tylko dzienne sumy: typ strony, pomiar i jego wartość. Bez konta, adresu ani danych przeglądarki. Do Not Track i Global Privacy Control wyłączają pomiary, a sumy starsze niż {days} dni usuwamy.",
+  "desk.health.pageColumn": "Typ strony",
+  "desk.health.metricColumn": "Pomiar",
+  "desk.health.weekColumn": "75. percentyl, 7 dni",
+  "desk.health.monthColumn": "75. percentyl, 28 dni",
+  "desk.health.samples": "próbki: {count}",
+  "desk.health.good": "Dobrze",
+  "desk.health.needsWork": "Wymaga poprawy",
+  "desk.health.poor": "Słabo",
+  "desk.health.noData": "Brak danych",
+  "desk.health.empty": "Brak pomiarów.",
+  "settings.vitalsNote": "Aby sprawdzić, jak szybka jest witryna, Twoja przeglądarka może wysyłać anonimowe pomiary szybkości: typ strony (nigdy jej adres) i kilka czasów. Nic Cię nie identyfikuje, a przechowujemy tylko dzienne sumy, przez 90 dni. Do Not Track lub Global Privacy Control to wyłącza."
 }

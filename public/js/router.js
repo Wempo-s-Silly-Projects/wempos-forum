@@ -50,6 +50,14 @@ export const searchFilters = (params) => {
   };
 };
 
+// Every route NAME routeForPath can return (tests pin the coverage). The
+// anonymous web-vitals beacon (public/js/vitals.js, api/vitals.mjs) uses this
+// as its allow-list: a page TYPE, never a path, id or slug.
+export const ROUTE_NAMES = Object.freeze([
+  "setup", "home", "admin", "notifications", "bookmarks", "category", "archive", "mine", "leaderboard",
+  "rules", "week", "join", "tag", "post", "profile", "search", "settings", "not-found",
+]);
+
 export const routeForPath = (pathname, search = "") => {
   if (pathname === "/setup") return { name: "setup" };
   // The §4b door-swap: the password login/register pages are gone — any stale

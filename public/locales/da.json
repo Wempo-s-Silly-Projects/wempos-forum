@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette indlæg",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tags"
+  "threadActions.editTags": "Rediger tags",
+  "admin.section.siteHealth": "Webstedets sundhed",
+  "admin.lede.siteHealth": "Hvor hurtige siderne føles for besøgende, målt anonymt i deres browsere.",
+  "desk.health.privacyNote": "Kun daglige totaler gemmes: sidetypen, målingen og dens værdi. Ingen konto-, adresse- eller browseroplysninger. Do Not Track og Global Privacy Control slår det fra, og totaler ældre end {days} dage slettes.",
+  "desk.health.pageColumn": "Sidetype",
+  "desk.health.metricColumn": "Måling",
+  "desk.health.weekColumn": "75. percentil, 7 dage",
+  "desk.health.monthColumn": "75. percentil, 28 dage",
+  "desk.health.samples": "målinger: {count}",
+  "desk.health.good": "God",
+  "desk.health.needsWork": "Kan forbedres",
+  "desk.health.poor": "Dårlig",
+  "desk.health.noData": "Ingen data",
+  "desk.health.empty": "Ingen målinger endnu.",
+  "settings.vitalsNote": "For at se hvor hurtigt webstedet er, kan din browser sende anonyme hastighedsmålinger: sidetypen (aldrig dens adresse) og nogle få tider. Intet identificerer dig, og kun daglige totaler gemmes, i 90 dage. Do Not Track eller Global Privacy Control slår det fra."
 }

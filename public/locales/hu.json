@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Megosztás",
   "threadActions.thisPost": "Ez a bejegyzés",
   "threadActions.staff": "Csapat",
-  "threadActions.editTags": "Címkék szerkesztése"
+  "threadActions.editTags": "Címkék szerkesztése",
+  "admin.section.siteHealth": "Az oldal állapota",
+  "admin.lede.siteHealth": "Milyen gyorsnak érzik a látogatók az oldalakat, névtelenül mérve a böngészőjükben.",
+  "desk.health.privacyNote": "Csak napi összesítéseket tárolunk: az oldal típusát, a mérést és annak értékét. Fiók, cím vagy böngészőadat nélkül. A Do Not Track és a Global Privacy Control kikapcsolja, a {days} napnál régebbi összesítéseket pedig töröljük.",
+  "desk.health.pageColumn": "Oldaltípus",
+  "desk.health.metricColumn": "Mérés",
+  "desk.health.weekColumn": "75. percentilis, 7 nap",
+  "desk.health.monthColumn": "75. percentilis, 28 nap",
+  "desk.health.samples": "minták: {count}",
+  "desk.health.good": "Jó",
+  "desk.health.needsWork": "Javítandó",
+  "desk.health.poor": "Gyenge",
+  "desk.health.noData": "Nincs adat",
+  "desk.health.empty": "Még nincsenek mérések.",
+  "settings.vitalsNote": "Hogy látható legyen, milyen gyors az oldal, a böngésződ névtelen sebességméréseket küldhet: az oldal típusát (soha nem a címét) és néhány időadatot. Semmi sem azonosít téged, és csak napi összesítéseket tárolunk, 90 napig. A Do Not Track vagy a Global Privacy Control ezt kikapcsolja."
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "பகிர்தல்",
   "threadActions.thisPost": "இந்த இடுகை",
   "threadActions.staff": "பணியாளர்கள்",
-  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து"
+  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து",
+  "admin.section.siteHealth": "தள ஆரோக்கியம்",
+  "admin.lede.siteHealth": "பார்வையாளர்களுக்குப் பக்கங்கள் எவ்வளவு வேகமாக உணரப்படுகின்றன, அவர்களின் உலாவிகளில் அநாமதேயமாக அளவிடப்பட்டது.",
+  "desk.health.privacyNote": "தினசரி மொத்தங்கள் மட்டுமே வைக்கப்படும்: பக்க வகை, அளவீடு மற்றும் அதன் மதிப்பு. கணக்கு, முகவரி அல்லது உலாவி விவரங்கள் இல்லை. Do Not Track மற்றும் Global Privacy Control இதை அணைக்கின்றன, {days} நாட்களுக்கு மேல் பழைய மொத்தங்கள் நீக்கப்படும்.",
+  "desk.health.pageColumn": "பக்க வகை",
+  "desk.health.metricColumn": "அளவீடு",
+  "desk.health.weekColumn": "75வது சதமானம், 7 நாட்கள்",
+  "desk.health.monthColumn": "75வது சதமானம், 28 நாட்கள்",
+  "desk.health.samples": "மாதிரிகள்: {count}",
+  "desk.health.good": "நன்று",
+  "desk.health.needsWork": "மேம்பாடு தேவை",
+  "desk.health.poor": "மோசம்",
+  "desk.health.noData": "தரவு இல்லை",
+  "desk.health.empty": "இன்னும் அளவீடுகள் இல்லை.",
+  "settings.vitalsNote": "தளம் எவ்வளவு வேகமானது என்பதை அறிய, உங்கள் உலாவி அநாமதேய வேக அளவீடுகளை அனுப்பலாம்: பக்கத்தின் வகை (அதன் முகவரி ஒருபோதும் இல்லை) மற்றும் சில நேர அளவுகள். எதுவும் உங்களை அடையாளம் காட்டாது, தினசரி மொத்தங்கள் மட்டுமே 90 நாட்களுக்கு வைக்கப்படும். Do Not Track அல்லது Global Privacy Control இதை அணைக்கும்."
 }

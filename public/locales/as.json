@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "শ্বেয়াৰ",
   "threadActions.thisPost": "এই পোষ্ট",
   "threadActions.staff": "কৰ্মী",
-  "threadActions.editTags": "টেগ সম্পাদনা কৰক"
+  "threadActions.editTags": "টেগ সম্পাদনা কৰক",
+  "admin.section.siteHealth": "চাইটৰ স্বাস্থ্য",
+  "admin.lede.siteHealth": "দৰ্শকসকলৰ বাবে পৃষ্ঠাবোৰ কিমান দ্ৰুত অনুভৱ হয়, তেওঁলোকৰ ব্ৰাউজাৰত বেনামীকৈ জোখা।",
+  "desk.health.privacyNote": "কেৱল দৈনিক মুঠ সংখ্যা ৰখা হয়: পৃষ্ঠাৰ প্ৰকাৰ, জোখ আৰু তাৰ মান। কোনো একাউণ্ট, ঠিকনা বা ব্ৰাউজাৰৰ বিৱৰণ নাই। Do Not Track আৰু Global Privacy Control-এ ইয়াক বন্ধ কৰে, আৰু {days} দিনতকৈ পুৰণি মুঠ সংখ্যা মচি পেলোৱা হয়।",
+  "desk.health.pageColumn": "পৃষ্ঠাৰ প্ৰকাৰ",
+  "desk.health.metricColumn": "জোখ",
+  "desk.health.weekColumn": "৭৫তম পাৰ্চেণ্টাইল, ৭ দিন",
+  "desk.health.monthColumn": "৭৫তম পাৰ্চেণ্টাইল, ২৮ দিন",
+  "desk.health.samples": "নমুনা: {count}",
+  "desk.health.good": "ভাল",
+  "desk.health.needsWork": "উন্নতিৰ প্ৰয়োজন",
+  "desk.health.poor": "বেয়া",
+  "desk.health.noData": "কোনো তথ্য নাই",
+  "desk.health.empty": "এতিয়াও কোনো জোখ নাই।",
+  "settings.vitalsNote": "চাইটটো কিমান দ্ৰুত চাবলৈ আপোনাৰ ব্ৰাউজাৰে বেনামী গতিৰ জোখ পঠিয়াব পাৰে: পৃষ্ঠাৰ প্ৰকাৰ (কেতিয়াও ইয়াৰ ঠিকনা নহয়) আৰু কেইটামান সময়ৰ হিচাপ। একোৱেই আপোনাক চিনাক্ত নকৰে, আৰু কেৱল দৈনিক মুঠ সংখ্যা ৯০ দিনলৈ ৰখা হয়। Do Not Track বা Global Privacy Control-এ ইয়াক বন্ধ কৰে।"
 }

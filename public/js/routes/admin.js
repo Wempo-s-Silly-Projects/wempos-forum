@@ -53,6 +53,7 @@ import { adminTagPath, createTagManager } from "../tags.js";
 import { createFilterEditor } from "../desk/filter.js";
 import { createBrandingEditor, submitBrandingSave } from "../desk/branding.js";
 import { createVisitsPanel } from "../desk/visits.js";
+import { createSiteHealthPanel } from "../desk/site-health.js";
 import { createStaffPickLog } from "../desk/staff-picks.js";
 import { threadLockPath } from "../thread-lock.js";
 import { focusPageHeading } from "../focus-utils.js";
@@ -83,6 +84,7 @@ const DESK_SECTIONS = [
   { slug: "filter", labelKey: "admin.section.filter" },
   { slug: "branding", labelKey: "admin.section.branding" },
   { slug: "visits", labelKey: "admin.section.visits" },
+  { slug: "site-health", labelKey: "admin.section.siteHealth" },
 ];
 
 // slug → { lede, load(), build() }. Every build() appends the section's body
@@ -188,6 +190,12 @@ const DESK_BUILDERS = {
     ledeKey: "admin.lede.visits",
     load: () => api("/api/admin/analytics?days=7"),
     build: (data) => createVisitsPanel(data, document),
+  },
+  // Anonymous Core Web Vitals: p75 per page type (staff-only on the server too).
+  "site-health": {
+    ledeKey: "admin.lede.siteHealth",
+    load: () => api("/api/admin/site-health"),
+    build: (data) => createSiteHealthPanel(data, document),
   },
 };
 

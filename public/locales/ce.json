@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Дийцар",
   "threadActions.thisPost": "Хӏара пост",
   "threadActions.staff": "Белхалой",
-  "threadActions.editTags": "Тегаш нисде"
+  "threadActions.editTags": "Тегаш нисде",
+  "admin.section.siteHealth": "Сайтан могашалла",
+  "admin.lede.siteHealth": "Хьошашна агӏонаш мел сиха йоьллу, церан браузерехь цӏе ца йоккхуш барам бина.",
+  "desk.health.privacyNote": "Дийнахь бен барамаш ӏалашбо: агӏон тайпа, барам а, цуьнан маьӏна а. Аккаунт, адрес я браузеран хаамаш бац. Do Not Track а Global Privacy Control а иза дӏайойу, {days} дийнал къаьстина барамаш дӏаяккхало.",
+  "desk.health.pageColumn": "Агӏон тайпа",
+  "desk.health.metricColumn": "Барам",
+  "desk.health.weekColumn": "75-гӏа процентиль, 7 де",
+  "desk.health.monthColumn": "75-гӏа процентиль, 28 де",
+  "desk.health.samples": "барамаш: {count}",
+  "desk.health.good": "Дика",
+  "desk.health.needsWork": "Тойан деза",
+  "desk.health.poor": "Вон",
+  "desk.health.noData": "Хаамаш бац",
+  "desk.health.empty": "Барамаш хӏинцале бац.",
+  "settings.vitalsNote": "Сайт мел сиха болх беш ду хаа, хьан браузеро цӏе ца йоккхуш сихаллин барамаш бахьийта мега: агӏон тайпа (цуьнан адрес цкъа а ца) а, цхьайолу хенан барамаш а. Цхьана а хӏумано хьо ца къастийна, дийнахь бен барамаш 90 дийнахь ӏалашбо. Do Not Track я Global Privacy Control иза дӏайойу."
 }

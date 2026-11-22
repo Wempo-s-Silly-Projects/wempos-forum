@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Поделиться",
   "threadActions.thisPost": "Этот пост",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Изменить теги"
+  "threadActions.editTags": "Изменить теги",
+  "admin.section.siteHealth": "Состояние сайта",
+  "admin.lede.siteHealth": "Насколько быстрыми страницы кажутся посетителям — по анонимным замерам в их браузерах.",
+  "desk.health.privacyNote": "Хранятся только суточные итоги: тип страницы, показатель и его значение. Без учётных записей, адресов и данных браузера. Do Not Track и Global Privacy Control отключают сбор, а итоги старше {days} дней удаляются.",
+  "desk.health.pageColumn": "Тип страницы",
+  "desk.health.metricColumn": "Показатель",
+  "desk.health.weekColumn": "75-й процентиль, 7 дней",
+  "desk.health.monthColumn": "75-й процентиль, 28 дней",
+  "desk.health.samples": "выборка: {count}",
+  "desk.health.good": "Хорошо",
+  "desk.health.needsWork": "Требует улучшения",
+  "desk.health.poor": "Плохо",
+  "desk.health.noData": "Нет данных",
+  "desk.health.empty": "Замеров пока нет.",
+  "settings.vitalsNote": "Чтобы видеть, насколько быстр сайт, твой браузер может отправлять анонимные замеры скорости: тип страницы (никогда не её адрес) и несколько временных показателей. Ничто тебя не идентифицирует, и хранятся только суточные итоги — 90 дней. Do Not Track или Global Privacy Control отключает это."
 }

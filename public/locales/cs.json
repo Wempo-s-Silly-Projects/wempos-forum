@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Sdílení",
   "threadActions.thisPost": "Tento příspěvek",
   "threadActions.staff": "Tým",
-  "threadActions.editTags": "Upravit štítky"
+  "threadActions.editTags": "Upravit štítky",
+  "admin.section.siteHealth": "Stav webu",
+  "admin.lede.siteHealth": "Jak rychle stránky na návštěvníky působí, měřeno anonymně v jejich prohlížečích.",
+  "desk.health.privacyNote": "Ukládají se jen denní součty: typ stránky, měření a jeho hodnota. Žádný účet, adresa ani údaje o prohlížeči. Do Not Track a Global Privacy Control měření vypínají a součty starší než {days} dní mažeme.",
+  "desk.health.pageColumn": "Typ stránky",
+  "desk.health.metricColumn": "Měření",
+  "desk.health.weekColumn": "75. percentil, 7 dní",
+  "desk.health.monthColumn": "75. percentil, 28 dní",
+  "desk.health.samples": "vzorky: {count}",
+  "desk.health.good": "Dobré",
+  "desk.health.needsWork": "Potřebuje zlepšit",
+  "desk.health.poor": "Špatné",
+  "desk.health.noData": "Žádná data",
+  "desk.health.empty": "Zatím žádná měření.",
+  "settings.vitalsNote": "Aby bylo vidět, jak rychlý web je, může tvůj prohlížeč odesílat anonymní měření rychlosti: typ stránky (nikdy její adresu) a několik časů. Nic tě neidentifikuje a ukládají se jen denní součty, po dobu 90 dní. Do Not Track nebo Global Privacy Control to vypíná."
 }

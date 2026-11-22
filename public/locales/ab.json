@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Ашара",
   "threadActions.thisPost": "Ари аҭыжьымҭа",
   "threadActions.staff": "Аперсонал",
-  "threadActions.editTags": "Атегқәа рыриашара"
+  "threadActions.editTags": "Атегқәа рыриашара",
+  "admin.section.siteHealth": "Асаит аҭагылазаашьа",
+  "admin.lede.siteHealth": "Адаҟьақәа шаҟа ирласны иаартуа аҭааҩцәа рзы — рбраузерқәа рҿы ахьӡ ада иашьоуп.",
+  "desk.health.privacyNote": "Амшқәа рзы азеиԥш хыԥхьаӡарақәа мацара еиқәырхахоит: адаҟьа ахкы, ашьара, насгьы аихшьала. Аккаунт, аадрес, ма абраузер иазку адырқәа ыҟаӡам. Do Not Track-и Global Privacy Control-и иарцәоит, {days} мш инареиҳау ахыԥхьаӡарақәа ианыхуп.",
+  "desk.health.pageColumn": "Адаҟьа ахкы",
+  "desk.health.metricColumn": "Ашьара",
+  "desk.health.weekColumn": "75-тәи апроцентиль, 7 мш",
+  "desk.health.monthColumn": "75-тәи апроцентиль, 28 мш",
+  "desk.health.samples": "аҿырԥштәқәа: {count}",
+  "desk.health.good": "Ибзиоуп",
+  "desk.health.needsWork": "Аиӷьтәра аҭахуп",
+  "desk.health.poor": "Ицәгьоуп",
+  "desk.health.noData": "Адырқәа ыҟаӡам",
+  "desk.health.empty": "Ашьарақәа макьана ыҟаӡам.",
+  "settings.vitalsNote": "Асаит шаҟа ирласу аилкааразы, убраузер ахьӡ ада арласра ашьарақәа аанашьҭыр алшоит: адаҟьа ахкы (аадрес ахаангьы акәӡам) насгьы аамҭа ашьарақәа маҷк. Уара удырго акгьы ыҟаӡам, амшқәа рзы азеиԥш хыԥхьаӡарақәа мацара 90 мш еиқәырхахоит. Do Not Track ма Global Privacy Control ари арцәоит."
 }

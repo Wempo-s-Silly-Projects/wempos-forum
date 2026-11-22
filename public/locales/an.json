@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Ista publicación",
   "threadActions.staff": "Equipo",
-  "threadActions.editTags": "Editar etiquetas"
+  "threadActions.editTags": "Editar etiquetas",
+  "admin.section.siteHealth": "Salut d'o puesto",
+  "admin.lede.siteHealth": "Cuán rapidas se sienten as pachinas pa os visitants, mesurau de traza anonima en os suyos navegadors.",
+  "desk.health.privacyNote": "Nomás se guardan totals diarios: o tipo de pachina, a mesura y a suya valor. Garra dato de cuenta, adreza u navegador. Do Not Track y Global Privacy Control lo desactivan, y os totals de más de {days} días se borran.",
+  "desk.health.pageColumn": "Tipo de pachina",
+  "desk.health.metricColumn": "Mesura",
+  "desk.health.weekColumn": "Percentil 75, 7 días",
+  "desk.health.monthColumn": "Percentil 75, 28 días",
+  "desk.health.samples": "mostras: {count}",
+  "desk.health.good": "Bueno",
+  "desk.health.needsWork": "Cal amillorar",
+  "desk.health.poor": "Deficient",
+  "desk.health.noData": "Sin datos",
+  "desk.health.empty": "Encara no i hai mesuras.",
+  "settings.vitalsNote": "Pa saber cuán rapido va o puesto, o tuyo navegador puede ninviar mesuras de velocidat anonimas: o tipo de pachina (nunca a suya adreza) y bels tiempos. Cosa no te identifica, y nomás se guardan totals diarios, mientres 90 días. Do Not Track u Global Privacy Control lo desactivan."
 }

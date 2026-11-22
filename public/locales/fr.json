@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Partage",
   "threadActions.thisPost": "Ce message",
   "threadActions.staff": "Équipe",
-  "threadActions.editTags": "Modifier les étiquettes"
+  "threadActions.editTags": "Modifier les étiquettes",
+  "admin.section.siteHealth": "Santé du site",
+  "admin.lede.siteHealth": "La rapidité ressentie des pages pour les visiteurs, mesurée anonymement dans leur navigateur.",
+  "desk.health.privacyNote": "Seuls des totaux quotidiens sont conservés : le type de page, la mesure et sa valeur. Aucun compte, aucune adresse, aucun détail du navigateur. Do Not Track et Global Privacy Control désactivent la mesure, et les totaux de plus de {days} jours sont supprimés.",
+  "desk.health.pageColumn": "Type de page",
+  "desk.health.metricColumn": "Mesure",
+  "desk.health.weekColumn": "75e centile, 7 jours",
+  "desk.health.monthColumn": "75e centile, 28 jours",
+  "desk.health.samples": "échantillons : {count}",
+  "desk.health.good": "Bon",
+  "desk.health.needsWork": "À améliorer",
+  "desk.health.poor": "Mauvais",
+  "desk.health.noData": "Aucune donnée",
+  "desk.health.empty": "Aucune mesure pour l'instant.",
+  "settings.vitalsNote": "Pour savoir à quelle vitesse le site répond, ton navigateur peut envoyer des mesures de vitesse anonymes : le type de page (jamais son adresse) et quelques durées. Rien ne t'identifie, et seuls des totaux quotidiens sont conservés, pendant 90 jours. Do Not Track ou Global Privacy Control désactive cette mesure."
 }
