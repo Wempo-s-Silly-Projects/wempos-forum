@@ -1178,5 +1178,16 @@
   "privateNote.delete": "குறிப்பை நீக்கு",
   "privateNote.saved": "குறிப்பு சேமிக்கப்பட்டது.",
   "privateNote.deleted": "குறிப்பு நீக்கப்பட்டது.",
-  "privateNote.saveError": "குறிப்பைச் சேமிக்க முடியவில்லை. மீண்டும் முயலவும்."
+  "privateNote.saveError": "குறிப்பைச் சேமிக்க முடியவில்லை. மீண்டும் முயலவும்.",
+  "savedSearch.title": "சேமித்த தேடல்கள்",
+  "savedSearch.open": "இந்தத் தேடலைச் சேமி",
+  "savedSearch.nameLabel": "இந்தத் தேடலுக்குப் பெயரிடுங்கள்",
+  "savedSearch.saved": "தேடல் சேமிக்கப்பட்டது.",
+  "savedSearch.deleted": "சேமித்த தேடல் நீக்கப்பட்டது.",
+  "savedSearch.duplicate": "இந்தப் பெயரில் ஏற்கெனவே ஒரு சேமித்த தேடல் உள்ளது.",
+  "savedSearch.cap": "அதிகபட்சம் {max} தேடல்களைச் சேமிக்கலாம்.",
+  "savedSearch.error": "தேடலைச் சேமிக்க முடியவில்லை. மீண்டும் முயலவும்.",
+  "savedSearch.deleteError": "சேமித்த தேடலை நீக்க முடியவில்லை. மீண்டும் முயலவும்.",
+  "savedSearch.empty": "இன்னும் சேமித்த தேடல்கள் இல்லை.",
+  "savedSearch.deleteLabel": "சேமித்த தேடல் {name}-ஐ நீக்கு"
 }

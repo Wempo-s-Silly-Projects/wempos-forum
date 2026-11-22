@@ -60,7 +60,9 @@ const SIDE_FORBIDDEN = { zzblocker: ["BLOCKEDTXT", "zzblocked"], zzblocked: ["BL
 // Wave 5.47: the viewer's private notes about members (migration 0072) —
 // about alice, the zzblocker pair side and the banned member — reach no one
 // but the viewer: not the subject, not staff, not guests.
-const OWNER_ONLY = { PRIVATEFOLDERTXT: "viewer", PRIVNOTETXT: "viewer" };
+// Wave 5.48: the viewer's saved searches (migration 0073) — name and query
+// — reach no one but the viewer: not other members, not staff, not guests.
+const OWNER_ONLY = { PRIVATEFOLDERTXT: "viewer", PRIVNOTETXT: "viewer", SAVEDSEARCHTXT: "viewer" };
 const ownerOnlyNeedles = (member) => Object.entries(OWNER_ONLY).filter(([, owner]) => owner !== member).map(([needle]) => needle);
 
 async function seedWorld() {
@@ -211,6 +213,9 @@ function seedPrivateExtras(w, at) {
     db.prepare("INSERT INTO private_notes (owner_id, subject_id, body, updated_at) VALUES (?, ?, ?, ?)")
       .run(id.viewer, id[subject], "PRIVNOTETXT " + tag, at);
   }
+  // Wave 5.48: one saved search; the needle rides both the name and the query.
+  w.savedSearch = Number(db.prepare("INSERT INTO saved_searches (owner_id, name, q, created_at) VALUES (?, ?, ?, ?)")
+    .run(id.viewer, "SAVEDSEARCHTXT name", "SAVEDSEARCHTXT query", at).lastInsertRowid);
 }
 
 // Wave 5.44 (migration 0070): one tag on every fixture root — public,
@@ -337,6 +342,8 @@ function routes(w, member) {
     ["/api/tags/sweep/posts"], ["/tag/sweep"], ["/api/posts/" + w.publicRoot + "/tags"],
     // Wave 5.47: a search for the private-note text.
     ["/api/search?q=PRIVNOTETXT"],
+    // Wave 5.48: a search for the saved-search text.
+    ["/api/search?q=SAVEDSEARCHTXT"],
   ];
   if (member) {
     list.push(["/api/me/notifications"], ["/api/me/bookmarks"], ["/api/session"], ["/api/posts?mine=1"],
@@ -361,6 +368,8 @@ function routes(w, member) {
     // viewer, and zzblocker is itself a noted subject.
     list.push(["/api/users/alice/note"], ["/api/users/zzbanned/note"]);
     if (member !== "viewer") list.push(["/api/users/viewer/note"]);
+    // Wave 5.48: each member's own saved-search list.
+    list.push(["/api/me/saved-searches"]);
   }
   return list;
 }
@@ -370,7 +379,9 @@ const MCP_CALLS = (w) => [["recent_posts", {}], ["search_posts", { query: "zzswe
   // Wave 5.43: an MCP search for the staff-note text.
   ["search_posts", { query: "STAFFNOTETXT" }],
   // Wave 5.47: an MCP search for the private-note text.
-  ["search_posts", { query: "PRIVNOTETXT" }]];
+  ["search_posts", { query: "PRIVNOTETXT" }],
+  // Wave 5.48: an MCP search for the saved-search text.
+  ["search_posts", { query: "SAVEDSEARCHTXT" }]];
 
 async function fetchText(env, path, { session, markdown, refusable } = {}) {
   const res = await call(env, path, { session, headers: markdown ? { Accept: "text/markdown" } : {} });
@@ -444,6 +455,9 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
   // the 4 viewers, + 2 note reads for each of the 3 members, + the read on
   // the viewer for the 2 other members.
   assert.ok(swept >= 307, "swept " + swept);
+  // Wave 5.48: + a saved-search-text search and an MCP one for each of the
+  // 4 viewers, + the own saved-search list for each of the 3 members.
+  assert.ok(swept >= 318, "swept " + swept);
 });
 
 test("wave 5.44 sweep: tags and DM reactions on hidden, banned and block-paired content", async () => {
@@ -817,7 +831,9 @@ test("wave 5.42: staff and owner viewers — public faces stay public, private d
     // Private stores: own rows only, and another member's folder is a 404.
     for (const path of ["/api/me/bookmark-folders", "/api/me/following", "/api/me/notification-prefs",
       // Wave 5.47: staff have no bypass — a note read is the caller's own row.
-      "/api/users/alice/note", "/api/users/zzblocker/note"]) {
+      "/api/users/alice/note", "/api/users/zzblocker/note",
+      // Wave 5.48: staff have no bypass — the list is the caller's own rows.
+      "/api/me/saved-searches"]) {
       const text = await fetchText(w.env, path, { session });
       assertClean(text, [...Object.keys(OWNER_ONLY), "sweep folder", "alice", "zzblock"], label + " " + path);
       swept++;
@@ -830,8 +846,13 @@ test("wave 5.42: staff and owner viewers — public faces stay public, private d
     }
     assert.deepEqual(JSON.parse(await fetchText(w.env, "/api/users/alice/follow", { session })), { following: false },
       label + ": follow state is the caller's own, never the member's followers");
+    // Wave 5.48: staff deleting the viewer's saved search is a 404, row kept.
+    const del = await call(w.env, "/api/me/saved-searches/" + w.savedSearch, { method: "DELETE", session });
+    assert.equal(del.status, 404, label + " deletes the viewer's saved search");
+    assertClean(await del.text(), Object.keys(OWNER_ONLY), label + " saved-search delete");
   }
-  assert.equal(swept, 2 * (11 + 3 + 2));
+  assert.equal(swept, 2 * (11 + 3 + 2 + 1));
+  assert.equal(w.db.prepare("SELECT COUNT(*) AS n FROM saved_searches WHERE id = ?").get(w.savedSearch).n, 1);
   // The data owner reads every private row back (positive control).
   const viewer = forgeSession(w.db, w.id.viewer);
   assert.ok((await fetchText(w.env, "/api/me/bookmark-folders", { session: viewer })).includes("PRIVATEFOLDERTXT"));
@@ -845,6 +866,10 @@ test("wave 5.42: staff and owner viewers — public faces stay public, private d
   }
   const exported = JSON.parse(await fetchText(w.env, "/api/me/export", { session: viewer }));
   assert.deepEqual(exported.privateNotes.map((n) => n.body).sort(), ["PRIVNOTETXT one", "PRIVNOTETXT three", "PRIVNOTETXT two"]);
+  // Wave 5.48: the owner lists the saved search back and the export carries it.
+  const saved = JSON.parse(await fetchText(w.env, "/api/me/saved-searches", { session: viewer })).savedSearches;
+  assert.deepEqual(saved.map((s) => [s.name, s.q]), [["SAVEDSEARCHTXT name", "SAVEDSEARCHTXT query"]]);
+  assert.deepEqual(exported.savedSearches.map((s) => s.name), ["SAVEDSEARCHTXT name"]);
 });
 
 // /api/members/newest (v5.35): the ban drops a member, the block pair hides

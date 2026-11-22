@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Odstrániť poznámku",
   "privateNote.saved": "Poznámka uložená.",
   "privateNote.deleted": "Poznámka odstránená.",
-  "privateNote.saveError": "Poznámku sa nepodarilo uložiť. Skúste to znova."
+  "privateNote.saveError": "Poznámku sa nepodarilo uložiť. Skúste to znova.",
+  "savedSearch.title": "Uložené vyhľadávania",
+  "savedSearch.open": "Uložiť toto vyhľadávanie",
+  "savedSearch.nameLabel": "Pomenujte toto vyhľadávanie",
+  "savedSearch.saved": "Vyhľadávanie uložené.",
+  "savedSearch.deleted": "Uložené vyhľadávanie bolo odstránené.",
+  "savedSearch.duplicate": "Uložené vyhľadávanie s týmto názvom už máte.",
+  "savedSearch.cap": "Môžete mať najviac {max} uložených vyhľadávaní.",
+  "savedSearch.error": "Vyhľadávanie sa nepodarilo uložiť. Skúste to znova.",
+  "savedSearch.deleteError": "Uložené vyhľadávanie sa nepodarilo odstrániť. Skúste to znova.",
+  "savedSearch.empty": "Zatiaľ žiadne uložené vyhľadávania.",
+  "savedSearch.deleteLabel": "Odstrániť uložené vyhľadávanie {name}"
 }

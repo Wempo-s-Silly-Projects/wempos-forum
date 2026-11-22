@@ -1178,5 +1178,16 @@
   "privateNote.delete": "ลบโน้ต",
   "privateNote.saved": "บันทึกโน้ตแล้ว",
   "privateNote.deleted": "ลบโน้ตแล้ว",
-  "privateNote.saveError": "บันทึกโน้ตไม่สำเร็จ โปรดลองอีกครั้ง"
+  "privateNote.saveError": "บันทึกโน้ตไม่สำเร็จ โปรดลองอีกครั้ง",
+  "savedSearch.title": "การค้นหาที่บันทึกไว้",
+  "savedSearch.open": "บันทึกการค้นหานี้",
+  "savedSearch.nameLabel": "ตั้งชื่อการค้นหานี้",
+  "savedSearch.saved": "บันทึกการค้นหาแล้ว",
+  "savedSearch.deleted": "ลบการค้นหาที่บันทึกไว้แล้ว",
+  "savedSearch.duplicate": "คุณมีการค้นหาที่บันทึกไว้ในชื่อนี้อยู่แล้ว",
+  "savedSearch.cap": "คุณบันทึกการค้นหาได้สูงสุด {max} รายการ",
+  "savedSearch.error": "บันทึกการค้นหาไม่สำเร็จ โปรดลองอีกครั้ง",
+  "savedSearch.deleteError": "ลบการค้นหาที่บันทึกไว้ไม่สำเร็จ โปรดลองอีกครั้ง",
+  "savedSearch.empty": "ยังไม่มีการค้นหาที่บันทึกไว้",
+  "savedSearch.deleteLabel": "ลบการค้นหาที่บันทึกไว้ {name}"
 }

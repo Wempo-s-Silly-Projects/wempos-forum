@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Delete note",
   "privateNote.saved": "Note saved.",
   "privateNote.deleted": "Note deleted.",
-  "privateNote.saveError": "Could not save the note. Try again."
+  "privateNote.saveError": "Could not save the note. Try again.",
+  "savedSearch.title": "Saved searches",
+  "savedSearch.open": "Save this search",
+  "savedSearch.nameLabel": "Name this search",
+  "savedSearch.saved": "Search saved.",
+  "savedSearch.deleted": "Saved search deleted.",
+  "savedSearch.duplicate": "You already have a saved search with that name.",
+  "savedSearch.cap": "You can keep up to {max} saved searches.",
+  "savedSearch.error": "Could not save the search. Try again.",
+  "savedSearch.deleteError": "Could not delete the saved search. Try again.",
+  "savedSearch.empty": "No saved searches yet.",
+  "savedSearch.deleteLabel": "Delete saved search {name}"
 }

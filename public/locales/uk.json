@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Видалити нотатку",
   "privateNote.saved": "Нотатку збережено.",
   "privateNote.deleted": "Нотатку видалено.",
-  "privateNote.saveError": "Не вдалося зберегти нотатку. Спробуйте ще раз."
+  "privateNote.saveError": "Не вдалося зберегти нотатку. Спробуйте ще раз.",
+  "savedSearch.title": "Збережені пошуки",
+  "savedSearch.open": "Зберегти цей пошук",
+  "savedSearch.nameLabel": "Назвіть цей пошук",
+  "savedSearch.saved": "Пошук збережено.",
+  "savedSearch.deleted": "Збережений пошук видалено.",
+  "savedSearch.duplicate": "У вас уже є збережений пошук із такою назвою.",
+  "savedSearch.cap": "Можна зберігати не більше {max} пошуків.",
+  "savedSearch.error": "Не вдалося зберегти пошук. Спробуйте ще раз.",
+  "savedSearch.deleteError": "Не вдалося видалити збережений пошук. Спробуйте ще раз.",
+  "savedSearch.empty": "Збережених пошуків поки немає.",
+  "savedSearch.deleteLabel": "Видалити збережений пошук {name}"
 }

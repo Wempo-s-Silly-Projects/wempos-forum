@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Slett notat",
   "privateNote.saved": "Notatet er lagret.",
   "privateNote.deleted": "Notatet er slettet.",
-  "privateNote.saveError": "Kunne ikke lagre notatet. Prøv igjen."
+  "privateNote.saveError": "Kunne ikke lagre notatet. Prøv igjen.",
+  "savedSearch.title": "Lagrede søk",
+  "savedSearch.open": "Lagre dette søket",
+  "savedSearch.nameLabel": "Gi søket et navn",
+  "savedSearch.saved": "Søket er lagret.",
+  "savedSearch.deleted": "Det lagrede søket er slettet.",
+  "savedSearch.duplicate": "Du har allerede et lagret søk med det navnet.",
+  "savedSearch.cap": "Du kan ha opptil {max} lagrede søk.",
+  "savedSearch.error": "Kunne ikke lagre søket. Prøv igjen.",
+  "savedSearch.deleteError": "Kunne ikke slette det lagrede søket. Prøv igjen.",
+  "savedSearch.empty": "Ingen lagrede søk ennå.",
+  "savedSearch.deleteLabel": "Slett lagret søk {name}"
 }

@@ -1178,5 +1178,16 @@
   "privateNote.delete": "नोट हटाएँ",
   "privateNote.saved": "नोट सहेजा गया।",
   "privateNote.deleted": "नोट हटा दिया गया।",
-  "privateNote.saveError": "नोट सहेजा नहीं जा सका। फिर से कोशिश करें।"
+  "privateNote.saveError": "नोट सहेजा नहीं जा सका। फिर से कोशिश करें।",
+  "savedSearch.title": "सहेजी गई खोजें",
+  "savedSearch.open": "यह खोज सहेजें",
+  "savedSearch.nameLabel": "इस खोज को नाम दें",
+  "savedSearch.saved": "खोज सहेजी गई।",
+  "savedSearch.deleted": "सहेजी गई खोज हटा दी गई।",
+  "savedSearch.duplicate": "इस नाम की एक सहेजी गई खोज आपके पास पहले से है।",
+  "savedSearch.cap": "आप अधिकतम {max} खोजें सहेज सकते हैं।",
+  "savedSearch.error": "खोज सहेजी नहीं जा सकी। फिर से कोशिश करें।",
+  "savedSearch.deleteError": "सहेजी गई खोज हटाई नहीं जा सकी। फिर से कोशिश करें।",
+  "savedSearch.empty": "अभी तक कोई सहेजी गई खोज नहीं है।",
+  "savedSearch.deleteLabel": "सहेजी गई खोज {name} हटाएँ"
 }

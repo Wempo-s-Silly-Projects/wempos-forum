@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Обриши белешку",
   "privateNote.saved": "Белешка је сачувана.",
   "privateNote.deleted": "Белешка је обрисана.",
-  "privateNote.saveError": "Белешка није могла да се сачува. Покушајте поново."
+  "privateNote.saveError": "Белешка није могла да се сачува. Покушајте поново.",
+  "savedSearch.title": "Сачуване претраге",
+  "savedSearch.open": "Сачувај ову претрагу",
+  "savedSearch.nameLabel": "Именујте ову претрагу",
+  "savedSearch.saved": "Претрага је сачувана.",
+  "savedSearch.deleted": "Сачувана претрага је обрисана.",
+  "savedSearch.duplicate": "Већ имате сачувану претрагу са тим именом.",
+  "savedSearch.cap": "Можете чувати највише {max} сачуваних претрага.",
+  "savedSearch.error": "Претрага није могла да се сачува. Покушајте поново.",
+  "savedSearch.deleteError": "Сачувана претрага није могла да се обрише. Покушајте поново.",
+  "savedSearch.empty": "Још нема сачуваних претрага.",
+  "savedSearch.deleteLabel": "Обриши сачувану претрагу {name}"
 }

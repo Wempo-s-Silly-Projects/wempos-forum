@@ -1178,5 +1178,16 @@
   "privateNote.delete": "নোট মুছুন",
   "privateNote.saved": "নোট সংরক্ষিত হয়েছে।",
   "privateNote.deleted": "নোট মুছে ফেলা হয়েছে।",
-  "privateNote.saveError": "নোট সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।"
+  "privateNote.saveError": "নোট সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+  "savedSearch.title": "সংরক্ষিত অনুসন্ধান",
+  "savedSearch.open": "এই অনুসন্ধান সংরক্ষণ করুন",
+  "savedSearch.nameLabel": "এই অনুসন্ধানের একটি নাম দিন",
+  "savedSearch.saved": "অনুসন্ধান সংরক্ষিত হয়েছে।",
+  "savedSearch.deleted": "সংরক্ষিত অনুসন্ধান মুছে ফেলা হয়েছে।",
+  "savedSearch.duplicate": "এই নামে আপনার ইতিমধ্যে একটি সংরক্ষিত অনুসন্ধান আছে।",
+  "savedSearch.cap": "আপনি সর্বোচ্চ {max}টি অনুসন্ধান সংরক্ষণ করতে পারেন।",
+  "savedSearch.error": "অনুসন্ধান সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+  "savedSearch.deleteError": "সংরক্ষিত অনুসন্ধান মোছা যায়নি। আবার চেষ্টা করুন।",
+  "savedSearch.empty": "এখনও কোনো সংরক্ষিত অনুসন্ধান নেই।",
+  "savedSearch.deleteLabel": "সংরক্ষিত অনুসন্ধান {name} মুছুন"
 }

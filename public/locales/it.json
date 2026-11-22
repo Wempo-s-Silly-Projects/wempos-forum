@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Elimina nota",
   "privateNote.saved": "Nota salvata.",
   "privateNote.deleted": "Nota eliminata.",
-  "privateNote.saveError": "Impossibile salvare la nota. Riprova."
+  "privateNote.saveError": "Impossibile salvare la nota. Riprova.",
+  "savedSearch.title": "Ricerche salvate",
+  "savedSearch.open": "Salva questa ricerca",
+  "savedSearch.nameLabel": "Dai un nome a questa ricerca",
+  "savedSearch.saved": "Ricerca salvata.",
+  "savedSearch.deleted": "Ricerca salvata eliminata.",
+  "savedSearch.duplicate": "Hai già una ricerca salvata con questo nome.",
+  "savedSearch.cap": "Puoi tenere fino a {max} ricerche salvate.",
+  "savedSearch.error": "Impossibile salvare la ricerca. Riprova.",
+  "savedSearch.deleteError": "Impossibile eliminare la ricerca salvata. Riprova.",
+  "savedSearch.empty": "Ancora nessuna ricerca salvata.",
+  "savedSearch.deleteLabel": "Elimina la ricerca salvata {name}"
 }

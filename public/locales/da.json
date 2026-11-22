@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Slet note",
   "privateNote.saved": "Note gemt.",
   "privateNote.deleted": "Note slettet.",
-  "privateNote.saveError": "Noten kunne ikke gemmes. Prøv igen."
+  "privateNote.saveError": "Noten kunne ikke gemmes. Prøv igen.",
+  "savedSearch.title": "Gemte søgninger",
+  "savedSearch.open": "Gem denne søgning",
+  "savedSearch.nameLabel": "Giv søgningen et navn",
+  "savedSearch.saved": "Søgningen er gemt.",
+  "savedSearch.deleted": "Den gemte søgning er slettet.",
+  "savedSearch.duplicate": "Du har allerede en gemt søgning med det navn.",
+  "savedSearch.cap": "Du kan have op til {max} gemte søgninger.",
+  "savedSearch.error": "Søgningen kunne ikke gemmes. Prøv igen.",
+  "savedSearch.deleteError": "Den gemte søgning kunne ikke slettes. Prøv igen.",
+  "savedSearch.empty": "Ingen gemte søgninger endnu.",
+  "savedSearch.deleteLabel": "Slet gemt søgning {name}"
 }

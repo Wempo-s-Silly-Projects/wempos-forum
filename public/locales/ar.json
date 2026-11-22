@@ -1178,5 +1178,16 @@
   "privateNote.delete": "حذف الملاحظة",
   "privateNote.saved": "تم حفظ الملاحظة.",
   "privateNote.deleted": "تم حذف الملاحظة.",
-  "privateNote.saveError": "تعذّر حفظ الملاحظة. حاول مرة أخرى."
+  "privateNote.saveError": "تعذّر حفظ الملاحظة. حاول مرة أخرى.",
+  "savedSearch.title": "عمليات البحث المحفوظة",
+  "savedSearch.open": "احفظ هذا البحث",
+  "savedSearch.nameLabel": "سمِّ هذا البحث",
+  "savedSearch.saved": "تم حفظ البحث.",
+  "savedSearch.deleted": "تم حذف البحث المحفوظ.",
+  "savedSearch.duplicate": "لديك بالفعل بحث محفوظ بهذا الاسم.",
+  "savedSearch.cap": "يمكنك الاحتفاظ بما يصل إلى {max} من عمليات البحث المحفوظة.",
+  "savedSearch.error": "تعذّر حفظ البحث. حاول مرة أخرى.",
+  "savedSearch.deleteError": "تعذّر حذف البحث المحفوظ. حاول مرة أخرى.",
+  "savedSearch.empty": "لا توجد عمليات بحث محفوظة بعد.",
+  "savedSearch.deleteLabel": "احذف البحث المحفوظ {name}"
 }

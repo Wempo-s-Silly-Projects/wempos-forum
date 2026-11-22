@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Poista muistiinpano",
   "privateNote.saved": "Muistiinpano tallennettu.",
   "privateNote.deleted": "Muistiinpano poistettu.",
-  "privateNote.saveError": "Muistiinpanoa ei voitu tallentaa. Yritä uudelleen."
+  "privateNote.saveError": "Muistiinpanoa ei voitu tallentaa. Yritä uudelleen.",
+  "savedSearch.title": "Tallennetut haut",
+  "savedSearch.open": "Tallenna tämä haku",
+  "savedSearch.nameLabel": "Nimeä tämä haku",
+  "savedSearch.saved": "Haku tallennettu.",
+  "savedSearch.deleted": "Tallennettu haku poistettu.",
+  "savedSearch.duplicate": "Sinulla on jo tämänniminen tallennettu haku.",
+  "savedSearch.cap": "Voit pitää enintään {max} tallennettua hakua.",
+  "savedSearch.error": "Hakua ei voitu tallentaa. Yritä uudelleen.",
+  "savedSearch.deleteError": "Tallennettua hakua ei voitu poistaa. Yritä uudelleen.",
+  "savedSearch.empty": "Ei vielä tallennettuja hakuja.",
+  "savedSearch.deleteLabel": "Poista tallennettu haku {name}"
 }

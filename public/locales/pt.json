@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Excluir nota",
   "privateNote.saved": "Nota salva.",
   "privateNote.deleted": "Nota excluída.",
-  "privateNote.saveError": "Não foi possível salvar a nota. Tente novamente."
+  "privateNote.saveError": "Não foi possível salvar a nota. Tente novamente.",
+  "savedSearch.title": "Pesquisas guardadas",
+  "savedSearch.open": "Guardar esta pesquisa",
+  "savedSearch.nameLabel": "Dê um nome a esta pesquisa",
+  "savedSearch.saved": "Pesquisa guardada.",
+  "savedSearch.deleted": "Pesquisa guardada eliminada.",
+  "savedSearch.duplicate": "Já tem uma pesquisa guardada com esse nome.",
+  "savedSearch.cap": "Pode guardar até {max} pesquisas.",
+  "savedSearch.error": "Não foi possível guardar a pesquisa. Tente novamente.",
+  "savedSearch.deleteError": "Não foi possível eliminar a pesquisa guardada. Tente novamente.",
+  "savedSearch.empty": "Ainda não há pesquisas guardadas.",
+  "savedSearch.deleteLabel": "Eliminar a pesquisa guardada {name}"
 }

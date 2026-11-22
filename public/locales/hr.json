@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Izbriši bilješku",
   "privateNote.saved": "Bilješka spremljena.",
   "privateNote.deleted": "Bilješka izbrisana.",
-  "privateNote.saveError": "Bilješku nije moguće spremiti. Pokušajte ponovno."
+  "privateNote.saveError": "Bilješku nije moguće spremiti. Pokušajte ponovno.",
+  "savedSearch.title": "Spremljena pretraživanja",
+  "savedSearch.open": "Spremi ovo pretraživanje",
+  "savedSearch.nameLabel": "Imenujte ovo pretraživanje",
+  "savedSearch.saved": "Pretraživanje je spremljeno.",
+  "savedSearch.deleted": "Spremljeno pretraživanje je izbrisano.",
+  "savedSearch.duplicate": "Već imate spremljeno pretraživanje s tim imenom.",
+  "savedSearch.cap": "Možete čuvati do {max} spremljenih pretraživanja.",
+  "savedSearch.error": "Pretraživanje nije moguće spremiti. Pokušajte ponovno.",
+  "savedSearch.deleteError": "Spremljeno pretraživanje nije moguće izbrisati. Pokušajte ponovno.",
+  "savedSearch.empty": "Još nema spremljenih pretraživanja.",
+  "savedSearch.deleteLabel": "Izbriši spremljeno pretraživanje {name}"
 }

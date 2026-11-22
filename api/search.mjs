@@ -36,6 +36,10 @@ const SEARCH_SINCE_WINDOWS = Object.freeze({
   any: null, week: 7 * DAY_SECONDS, month: 30 * DAY_SECONDS, year: 365 * DAY_SECONDS,
 });
 const SEARCH_SORTS = Object.freeze(["relevant", "new"]);
+// v5.48: the q length cap and the `in` scopes, exported so saved searches
+// (api/saved-searches.mjs) validate with the very same rules.
+export const SEARCH_QUERY_MAX_CHARS = 100;
+export const SEARCH_IN_SCOPES = Object.freeze(["replies"]);
 
 // Reads ?since= and ?sort=: absent means the default; any present value
 // outside the known set is a 400. Returns { sinceSeconds, sortNew } where
@@ -58,7 +62,7 @@ export async function handleSearchRoute(request, env, url, path, method) {
   if (path === "/api/search" && method === "GET") {
     const query = (url.searchParams.get("q") || "").trim().toLowerCase();
     const filters = readSearchFilters(url.searchParams);
-    if (!query || query.length > 100) {
+    if (!query || query.length > SEARCH_QUERY_MAX_CHARS) {
       if (!query) return json({ users: [], posts: [] });
       throw new HttpError(400, "Search must be 1–100 characters long.");
     }
@@ -67,7 +71,7 @@ export async function handleSearchRoute(request, env, url, path, method) {
     // stays byte-identical when both are absent.
     const byRaw = url.searchParams.get("by");
     const inRaw = (url.searchParams.get("in") || "").trim().toLowerCase();
-    if (inRaw && inRaw !== "replies") {
+    if (inRaw && !SEARCH_IN_SCOPES.includes(inRaw)) {
       throw new HttpError(400, "The in param must be 'replies'.");
     }
     const session = await readSession(request, env);

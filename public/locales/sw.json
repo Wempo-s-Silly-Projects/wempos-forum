@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Futa dokezo",
   "privateNote.saved": "Dokezo limehifadhiwa.",
   "privateNote.deleted": "Dokezo limefutwa.",
-  "privateNote.saveError": "Imeshindikana kuhifadhi dokezo. Jaribu tena."
+  "privateNote.saveError": "Imeshindikana kuhifadhi dokezo. Jaribu tena.",
+  "savedSearch.title": "Utafutaji uliohifadhiwa",
+  "savedSearch.open": "Hifadhi utafutaji huu",
+  "savedSearch.nameLabel": "Ipe jina utafutaji huu",
+  "savedSearch.saved": "Utafutaji umehifadhiwa.",
+  "savedSearch.deleted": "Utafutaji uliohifadhiwa umefutwa.",
+  "savedSearch.duplicate": "Tayari una utafutaji uliohifadhiwa wenye jina hilo.",
+  "savedSearch.cap": "Unaweza kuhifadhi hadi utafutaji {max}.",
+  "savedSearch.error": "Imeshindikana kuhifadhi utafutaji. Jaribu tena.",
+  "savedSearch.deleteError": "Imeshindikana kufuta utafutaji uliohifadhiwa. Jaribu tena.",
+  "savedSearch.empty": "Bado hakuna utafutaji uliohifadhiwa.",
+  "savedSearch.deleteLabel": "Futa utafutaji uliohifadhiwa {name}"
 }

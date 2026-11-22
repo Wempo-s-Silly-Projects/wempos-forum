@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Изтрий бележката",
   "privateNote.saved": "Бележката е запазена.",
   "privateNote.deleted": "Бележката е изтрита.",
-  "privateNote.saveError": "Бележката не можа да се запази. Опитайте отново."
+  "privateNote.saveError": "Бележката не можа да се запази. Опитайте отново.",
+  "savedSearch.title": "Запазени търсения",
+  "savedSearch.open": "Запази това търсене",
+  "savedSearch.nameLabel": "Дайте име на търсенето",
+  "savedSearch.saved": "Търсенето е запазено.",
+  "savedSearch.deleted": "Запазеното търсене е изтрито.",
+  "savedSearch.duplicate": "Вече имате запазено търсене с това име.",
+  "savedSearch.cap": "Можете да пазите до {max} запазени търсения.",
+  "savedSearch.error": "Търсенето не можа да се запази. Опитайте отново.",
+  "savedSearch.deleteError": "Запазеното търсене не можа да се изтрие. Опитайте отново.",
+  "savedSearch.empty": "Все още няма запазени търсения.",
+  "savedSearch.deleteLabel": "Изтрий запазеното търсене {name}"
 }

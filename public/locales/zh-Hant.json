@@ -1178,5 +1178,16 @@
   "privateNote.delete": "刪除備註",
   "privateNote.saved": "備註已儲存。",
   "privateNote.deleted": "備註已刪除。",
-  "privateNote.saveError": "無法儲存備註，請再試一次。"
+  "privateNote.saveError": "無法儲存備註，請再試一次。",
+  "savedSearch.title": "已儲存的搜尋",
+  "savedSearch.open": "儲存此搜尋",
+  "savedSearch.nameLabel": "為此搜尋命名",
+  "savedSearch.saved": "搜尋已儲存。",
+  "savedSearch.deleted": "已刪除儲存的搜尋。",
+  "savedSearch.duplicate": "你已有同名的儲存搜尋。",
+  "savedSearch.cap": "最多可儲存 {max} 個搜尋。",
+  "savedSearch.error": "無法儲存搜尋，請再試一次。",
+  "savedSearch.deleteError": "無法刪除儲存的搜尋，請再試一次。",
+  "savedSearch.empty": "還沒有儲存的搜尋。",
+  "savedSearch.deleteLabel": "刪除儲存的搜尋 {name}"
 }

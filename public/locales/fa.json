@@ -1178,5 +1178,16 @@
   "privateNote.delete": "حذف یادداشت",
   "privateNote.saved": "یادداشت ذخیره شد.",
   "privateNote.deleted": "یادداشت حذف شد.",
-  "privateNote.saveError": "ذخیره یادداشت ممکن نشد. دوباره تلاش کنید."
+  "privateNote.saveError": "ذخیره یادداشت ممکن نشد. دوباره تلاش کنید.",
+  "savedSearch.title": "جست‌وجوهای ذخیره‌شده",
+  "savedSearch.open": "ذخیرهٔ این جست‌وجو",
+  "savedSearch.nameLabel": "برای این جست‌وجو نام بگذارید",
+  "savedSearch.saved": "جست‌وجو ذخیره شد.",
+  "savedSearch.deleted": "جست‌وجوی ذخیره‌شده حذف شد.",
+  "savedSearch.duplicate": "از قبل یک جست‌وجوی ذخیره‌شده با این نام دارید.",
+  "savedSearch.cap": "می‌توانید حداکثر {max} جست‌وجوی ذخیره‌شده داشته باشید.",
+  "savedSearch.error": "ذخیرهٔ جست‌وجو ممکن نشد. دوباره تلاش کنید.",
+  "savedSearch.deleteError": "حذف جست‌وجوی ذخیره‌شده ممکن نشد. دوباره تلاش کنید.",
+  "savedSearch.empty": "هنوز جست‌وجوی ذخیره‌شده‌ای ندارید.",
+  "savedSearch.deleteLabel": "حذف جست‌وجوی ذخیره‌شدهٔ {name}"
 }
