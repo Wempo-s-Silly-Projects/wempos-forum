@@ -15,6 +15,17 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.71.0] - 2026-11-22
+
+### Added
+- Eight more interface languages: Aragonese (Aragonés), Armenian
+  (Հայերեն, Armenian script), Assamese (অসমীয়া), Avar (Авар мацӏ),
+  Aymara (Aymar aru), Bambara (Bamanankan), Bashkir (Башҡорт теле) and
+  Belarusian (Беларуская). Each is listed by its own name in the language
+  picker, reads left to right, and is picked up automatically when the
+  browser asks for it. The interface now comes in 57 languages. All eight
+  translations await review by native speakers.
+
 ## [5.70.1] - 2026-11-22
 
 ### Security
