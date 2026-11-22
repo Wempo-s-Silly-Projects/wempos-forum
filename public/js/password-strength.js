@@ -33,6 +33,7 @@ export const ZXCVBN_SCRIPTS = Object.freeze([
 ]);
 
 const TYPING_PAUSE_MS = 200;
+const VERDICT_KEYS = ["security.strength0", "security.strength1", "security.strength2", "security.strength3", "security.strength4"];
 const factories = new WeakMap();
 let loading = null;
 
@@ -102,7 +103,7 @@ export function attachStrengthMeter(document, input) {
         const score = scorePassword(await loadZxcvbn(document), password);
         if (input.value !== password) return;
         meter.value = score;
-        verdict.textContent = t("security.strength" + score);
+        verdict.textContent = t(VERDICT_KEYS[score]);
       } catch {
         verdict.textContent = "";
       }

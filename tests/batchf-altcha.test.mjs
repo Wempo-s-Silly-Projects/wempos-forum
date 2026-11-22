@@ -185,7 +185,7 @@ test("the client solver is the vendored altcha-lib v1, byte for byte, with no ad
     const bytes = readFileSync(new URL(path, ROOT));
     assert.equal(createHash("sha256").update(bytes).digest("hex"), BATCHF_VENDOR_PINS[path], path);
   }
-  assert.match(read("public/js/human-check.js"), /from "\.\/vendor\/altcha-lib\/v1\/index\.js"/);
+  assert.match(read("public/js/human-check.js"), /import\("\.\/vendor\/altcha-lib\/v1\/index\.js"\)/);
   const reuse = read("REUSE.toml");
   assert.match(reuse, /public\/js\/vendor\/altcha-lib\/\*\*/);
 });

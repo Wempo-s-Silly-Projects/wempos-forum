@@ -27,11 +27,13 @@ import { createPanel, element, setMessage } from "./dom.js";
 import { createForm, createInput } from "./forms.js";
 import { state } from "./state.js";
 import { t } from "./i18n.js";
-import {
-  browserSupportsWebAuthn,
-  startAuthentication,
-  startRegistration,
-} from "./vendor/simplewebauthn-browser/index.js";
+
+// The vendored library loads only when a ceremony starts (not at boot).
+const loadWebAuthn = () => import("./vendor/simplewebauthn-browser/index.js");
+
+function browserSupportsWebAuthn() {
+  return typeof globalThis.PublicKeyCredential === "function";
+}
 
 function formatDate(seconds) {
   return new Date(seconds * 1000).toLocaleDateString();
@@ -95,6 +97,7 @@ async function submitPasskeyAdd(form, text) {
     method: "POST",
     body: { currentPassword: text("currentPassword") },
   });
+  const { startRegistration } = await loadWebAuthn();
   const response = await startRegistration({ optionsJSON: options });
   await api("/api/me/passkeys", { method: "POST", body: { response, name: text("name") } });
   form.reset();
@@ -118,6 +121,7 @@ async function signInWithPasskey(button) {
   button.disabled = true;
   try {
     const options = await api("/api/auth/passkey/options", { method: "POST", body: {} });
+    const { startAuthentication } = await loadWebAuthn();
     const response = await startAuthentication({ optionsJSON: options });
     const result = await api("/api/auth/passkey", { method: "POST", body: { response } });
     if (typeof result.csrfToken === "string") setCsrfToken(result.csrfToken);

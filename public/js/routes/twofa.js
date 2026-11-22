@@ -32,7 +32,6 @@ import { createPanel, element, setMessage } from "../dom.js";
 import { createCheckbox, createForm, createInput, addText } from "../forms.js";
 import { state } from "../state.js";
 import { t } from "../i18n.js";
-import { otpauthQrSvg } from "../totp-qr.js";
 
 // The account settings section. Appended by renderAccountSettings into the
 // settings `details` panel; the panel body swaps between the off and on
@@ -166,6 +165,8 @@ async function openSetupStep(panel, result) {
   const note = element("p", "form-note");
   note.textContent = t("twofa.setupNote");
   panel.append(note);
+  // Loaded on demand: the QR encoder is only needed at enrolment.
+  const { otpauthQrSvg } = await import("../totp-qr.js");
   panel.append(otpauthQrSvg(document, result.otpauth));
   const secretLabel = element("label", "form-label");
   secretLabel.append(document.createTextNode(t("twofa.secret")));

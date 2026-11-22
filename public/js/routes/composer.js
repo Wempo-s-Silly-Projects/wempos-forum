@@ -57,7 +57,7 @@ let activePollComposerForm = null;
 // body uses. boardChoices (categories v3.1): the home composer renders a
 // category <select> instead — submitNewPost reads its value the same way.
 function createComposer(name, label, buttonLabel, postID = null,
-  humanCheckKind = null, board = null, boardChoices = null) {
+  _humanCheckKind, board = null, boardChoices = null) {
   const panel = createPanel(board === "suggestions"
     ? t("composer.shareSuggestion")
     : name === "post-create" ? t("composer.startConversation") : t("common.reply"));

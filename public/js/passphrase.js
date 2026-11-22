@@ -23,6 +23,7 @@
 // crypto.getRandomValues and rejection sampling so every word is equally
 // likely. Nothing is sent anywhere; the field shows the words so the member
 // can write them down or save them in a password manager.
+import { api } from "./api.js";
 import { t } from "./i18n.js";
 
 export const PASSPHRASE_WORDS = 6;
@@ -41,8 +42,10 @@ export function pickPassphrase(words, count, getRandomValues) {
 
 let wordlist = null;
 function loadWordlist() {
-  wordlist ??= import("./vendor/eff-wordlist/wordlist.json", { with: { type: "json" } })
-    .then((module) => module.default);
+  // A same-origin static asset through the one api() wrapper; it carries no
+  // member data (the passphrase is picked locally afterwards).
+  wordlist ??= api("/js/vendor/eff-wordlist/wordlist.json");
+  wordlist.catch(() => { wordlist = null; });
   return wordlist;
 }
 

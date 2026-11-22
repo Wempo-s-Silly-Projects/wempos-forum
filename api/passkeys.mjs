@@ -58,6 +58,14 @@ function base64urlToBytes(value) {
   return Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
 }
 
+function decodeUserHandle(handle) {
+  try {
+    return new TextDecoder().decode(base64urlToBytes(handle));
+  } catch {
+    return "";
+  }
+}
+
 function bytesToBase64url(bytes) {
   let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
@@ -158,7 +166,8 @@ async function registrationVerify(request, env, url) {
   const body = await readJson(request);
   const response = readCeremonyResponse(body);
   if (!response) throw new HttpError(400, EXPIRED_REGISTRATION);
-  const name = (typeof body.name === "string" ? body.name.trim() : "").slice(0, PASSKEY_NAME_MAX_LENGTH) || "Passkey";
+  const requestedName = typeof body.name === "string" ? body.name.trim() : "";
+  const name = requestedName.substring(0, PASSKEY_NAME_MAX_LENGTH) || "Passkey";
   const challenge = signedChallenge(response);
   if (!(await claimChallenge(db, challenge, "register", session.tokenHash, session.user.id))) {
     throw new HttpError(400, EXPIRED_REGISTRATION);
@@ -221,9 +230,7 @@ async function signInVerify(request, env, url) {
   // A discoverable passkey names its account; it must be the row's owner.
   const handle = response.response.userHandle;
   if (typeof handle === "string" && handle) {
-    let named = "";
-    try { named = new TextDecoder().decode(base64urlToBytes(handle)); } catch { named = ""; }
-    if (named !== String(userId)) throw new HttpError(401, UNRECOGNISED);
+    if (decodeUserHandle(handle) !== String(userId)) throw new HttpError(401, UNRECOGNISED);
   }
   await rateLimit(request, env, "login", "user:" + userId);
   const { rpID, origin } = relyingParty(url);

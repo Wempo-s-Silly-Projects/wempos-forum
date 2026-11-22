@@ -30,7 +30,9 @@
 // only when the instance has a key; without it nothing is fetched or sent.
 import { api } from "./api.js";
 import { t } from "./i18n.js";
-import { solveChallenge } from "./vendor/altcha-lib/v1/index.js";
+
+// The vendored solver loads on first use, only on instances with a check.
+const loadSolver = () => import("./vendor/altcha-lib/v1/index.js");
 
 const slots = new Map();
 
@@ -41,6 +43,7 @@ export function humanCheckEnabled() {
 
 // The base64 JSON payload the worker's verifySolution expects.
 export async function solveHumanChallenge(challenge) {
+  const { solveChallenge } = await loadSolver();
   const solution = await solveChallenge(challenge.challenge, challenge.salt, challenge.algorithm, challenge.maxnumber).promise;
   if (!solution) throw new Error(t("security.humanCheckFailed"));
   return btoa(JSON.stringify({

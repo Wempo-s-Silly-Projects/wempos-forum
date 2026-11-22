@@ -253,7 +253,7 @@ test("removing a passkey: own only", async () => {
 
 test("client: vendored @simplewebauthn/browser drives the ceremonies; sign-in button is offered", () => {
   const client = read("public/js/passkeys.js");
-  assert.match(client, /from "\.\/vendor\/simplewebauthn-browser\/index\.js"/);
+  assert.match(client, /import\("\.\/vendor\/simplewebauthn-browser\/index\.js"\)/, "loaded lazily, on first ceremony");
   assert.match(client, /startRegistration\(/);
   assert.match(client, /startAuthentication\(/);
   assert.match(read("public/js/routes/feed.js"), /renderPasskeySettings\(/);
