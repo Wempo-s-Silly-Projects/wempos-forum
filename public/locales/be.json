@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Выява скапіравана.",
   "quotecard.copyFailed": "Не ўдалося скапіраваць выяву.",
   "quotecard.failed": "Не ўдалося стварыць выяву.",
-  "quotecard.lightTheme": "Светлая картка"
+  "quotecard.lightTheme": "Светлая картка",
+  "ux.keysHome": "G, потым H: перайсці на галоўную старонку",
+  "ux.keysChat": "G, потым C: адкрыць або закрыць чат",
+  "ux.keysSearch": "/: перайсці да поля пошуку",
+  "ux.keysHelp": "?: паказаць гэты спіс спалучэнняў",
+  "ux.keysToggle": "Выкарыстоўваць спалучэнні з адной клавішы (G H, G C, / і ?)",
+  "ux.lbRank": "Месца",
+  "ux.lbMember": "Удзельнік",
+  "ux.lbThreads": "Тэмы",
+  "ux.lbScore": "Балы"
 }

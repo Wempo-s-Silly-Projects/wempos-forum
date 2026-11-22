@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Obrázok skopírovaný.",
   "quotecard.copyFailed": "Obrázok sa nepodarilo skopírovať.",
   "quotecard.failed": "Obrázok sa nepodarilo vytvoriť.",
-  "quotecard.lightTheme": "Svetlá kartička"
+  "quotecard.lightTheme": "Svetlá kartička",
+  "ux.keysHome": "G a potom H: prejsť na úvodnú stránku",
+  "ux.keysChat": "G a potom C: otvoriť alebo zavrieť chat",
+  "ux.keysSearch": "/: skočiť do vyhľadávacieho poľa",
+  "ux.keysHelp": "?: zobraziť tento zoznam skratiek",
+  "ux.keysToggle": "Používať jednoklávesové skratky (G H, G C, / a ?)",
+  "ux.lbRank": "Poradie",
+  "ux.lbMember": "Člen",
+  "ux.lbThreads": "Vlákna",
+  "ux.lbScore": "Skóre"
 }

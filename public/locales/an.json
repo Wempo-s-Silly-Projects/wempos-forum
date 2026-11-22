@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Imachen copiada.",
   "quotecard.copyFailed": "No s'ha puesto copiar a imachen.",
   "quotecard.failed": "No s'ha puesto fer a imachen.",
-  "quotecard.lightTheme": "Tarcheta clara"
+  "quotecard.lightTheme": "Tarcheta clara",
+  "ux.keysHome": "G y dimpués H: ir ta la pachina d'inicio",
+  "ux.keysChat": "G y dimpués C: ubrir u zarrar lo chat",
+  "ux.keysSearch": "/: blincar ta la caixa de busqueda",
+  "ux.keysHelp": "?: amostrar ista lista d'alcorces",
+  "ux.keysToggle": "Fer servir los alcorces d'una sola tecla (G H, G C, / y ?)",
+  "ux.lbRank": "Puesto",
+  "ux.lbMember": "Miembro",
+  "ux.lbThreads": "Filos",
+  "ux.lbScore": "Puntuación"
 }

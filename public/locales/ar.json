@@ -1245,5 +1245,14 @@
   "quotecard.copied": "تم نسخ الصورة.",
   "quotecard.copyFailed": "تعذّر نسخ الصورة.",
   "quotecard.failed": "تعذّر إنشاء الصورة.",
-  "quotecard.lightTheme": "بطاقة فاتحة"
+  "quotecard.lightTheme": "بطاقة فاتحة",
+  "ux.keysHome": "G ثم H: الانتقال إلى الصفحة الرئيسية",
+  "ux.keysChat": "G ثم C: فتح الدردشة أو إغلاقها",
+  "ux.keysSearch": "/: الانتقال إلى مربع البحث",
+  "ux.keysHelp": "?: عرض قائمة الاختصارات هذه",
+  "ux.keysToggle": "استخدام اختصارات المفتاح الواحد (G H وG C و/ و?)",
+  "ux.lbRank": "الترتيب",
+  "ux.lbMember": "العضو",
+  "ux.lbThreads": "المواضيع",
+  "ux.lbScore": "النقاط"
 }

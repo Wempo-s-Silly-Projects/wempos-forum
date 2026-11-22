@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Prent gekopieer.",
   "quotecard.copyFailed": "Kon nie die prent kopieer nie.",
   "quotecard.failed": "Kon nie die prent maak nie.",
-  "quotecard.lightTheme": "Ligte kaart"
+  "quotecard.lightTheme": "Ligte kaart",
+  "ux.keysHome": "G dan H: gaan na die tuisblad",
+  "ux.keysChat": "G dan C: maak die klets oop of toe",
+  "ux.keysSearch": "/: spring na die soekkassie",
+  "ux.keysHelp": "?: wys hierdie lys kortpaaie",
+  "ux.keysToggle": "Gebruik die enkelsleutel-kortpaaie (G H, G C, / en ?)",
+  "ux.lbRank": "Rang",
+  "ux.lbMember": "Lid",
+  "ux.lbThreads": "Drade",
+  "ux.lbScore": "Telling"
 }

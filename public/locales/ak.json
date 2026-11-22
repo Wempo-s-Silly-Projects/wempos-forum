@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Wɔakɔ mfonini no afa.",
   "quotecard.copyFailed": "Yɛantumi ankɔ mfonini no fa.",
   "quotecard.failed": "Yɛantumi anyɛ mfonini no.",
-  "quotecard.lightTheme": "Krataa a ɛyɛ hann"
+  "quotecard.lightTheme": "Krataa a ɛyɛ hann",
+  "ux.keysHome": "G na H: kɔ fie krataafa so",
+  "ux.keysChat": "G na C: bue anaa to nkɔmmɔ no mu",
+  "ux.keysSearch": "/: huri kɔ hwehwɛ adaka no so",
+  "ux.keysHelp": "?: kyerɛ akwan tiawa yi nyinaa",
+  "ux.keysToggle": "Fa keyboard akwan tiawa a ɛyɛ safoa baako (G H, G C, / ne ?)",
+  "ux.lbRank": "Gyinabea",
+  "ux.lbMember": "Ɔmufo",
+  "ux.lbThreads": "Nsɛmfua",
+  "ux.lbScore": "Akontaa"
 }

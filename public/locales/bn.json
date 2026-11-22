@@ -1245,5 +1245,14 @@
   "quotecard.copied": "ছবি কপি হয়েছে।",
   "quotecard.copyFailed": "ছবি কপি করা যায়নি।",
   "quotecard.failed": "ছবি তৈরি করা যায়নি।",
-  "quotecard.lightTheme": "হালকা কার্ড"
+  "quotecard.lightTheme": "হালকা কার্ড",
+  "ux.keysHome": "G তারপর H: হোম পেজে যান",
+  "ux.keysChat": "G তারপর C: চ্যাট খুলুন বা বন্ধ করুন",
+  "ux.keysSearch": "/: সার্চ বক্সে যান",
+  "ux.keysHelp": "?: শর্টকাটের এই তালিকা দেখান",
+  "ux.keysToggle": "এক-কী শর্টকাট ব্যবহার করুন (G H, G C, / এবং ?)",
+  "ux.lbRank": "র‍্যাংক",
+  "ux.lbMember": "সদস্য",
+  "ux.lbThreads": "থ্রেড",
+  "ux.lbScore": "স্কোর"
 }

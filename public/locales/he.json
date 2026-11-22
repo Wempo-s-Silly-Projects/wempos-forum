@@ -1245,5 +1245,14 @@
   "quotecard.copied": "התמונה הועתקה.",
   "quotecard.copyFailed": "לא ניתן היה להעתיק את התמונה.",
   "quotecard.failed": "לא ניתן היה ליצור את התמונה.",
-  "quotecard.lightTheme": "כרטיס בהיר"
+  "quotecard.lightTheme": "כרטיס בהיר",
+  "ux.keysHome": "G ואז H: מעבר לדף הבית",
+  "ux.keysChat": "G ואז C: פתיחה או סגירה של הצ'אט",
+  "ux.keysSearch": "/: קפיצה לתיבת החיפוש",
+  "ux.keysHelp": "?: הצגת רשימת הקיצורים הזו",
+  "ux.keysToggle": "שימוש בקיצורים של מקש אחד (G H,‏ G C,‏ / ו־?)",
+  "ux.lbRank": "דירוג",
+  "ux.lbMember": "חבר/ה",
+  "ux.lbThreads": "שרשורים",
+  "ux.lbScore": "ניקוד"
 }

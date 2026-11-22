@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Imagine copiată.",
   "quotecard.copyFailed": "Imaginea nu a putut fi copiată.",
   "quotecard.failed": "Imaginea nu a putut fi creată.",
-  "quotecard.lightTheme": "Card deschis"
+  "quotecard.lightTheme": "Card deschis",
+  "ux.keysHome": "G apoi H: mergi la pagina principală",
+  "ux.keysChat": "G apoi C: deschide sau închide chatul",
+  "ux.keysSearch": "/: sari la caseta de căutare",
+  "ux.keysHelp": "?: arată această listă de comenzi rapide",
+  "ux.keysToggle": "Folosește comenzile rapide cu o singură tastă (G H, G C, / și ?)",
+  "ux.lbRank": "Loc",
+  "ux.lbMember": "Membru",
+  "ux.lbThreads": "Discuții",
+  "ux.lbScore": "Scor"
 }

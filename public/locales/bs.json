@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Slika je kopirana.",
   "quotecard.copyFailed": "Slika se nije mogla kopirati.",
   "quotecard.failed": "Slika se nije mogla napraviti.",
-  "quotecard.lightTheme": "Svijetla kartica"
+  "quotecard.lightTheme": "Svijetla kartica",
+  "ux.keysHome": "G pa H: idi na početnu stranicu",
+  "ux.keysChat": "G pa C: otvori ili zatvori chat",
+  "ux.keysSearch": "/: skoči na polje za pretragu",
+  "ux.keysHelp": "?: prikaži ovu listu prečica",
+  "ux.keysToggle": "Koristi prečice s jednom tipkom (G H, G C, / i ?)",
+  "ux.lbRank": "Rang",
+  "ux.lbMember": "Član",
+  "ux.lbThreads": "Teme",
+  "ux.lbScore": "Bodovi"
 }

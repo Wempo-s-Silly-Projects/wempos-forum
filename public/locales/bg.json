@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Изображението е копирано.",
   "quotecard.copyFailed": "Изображението не можа да се копира.",
   "quotecard.failed": "Изображението не можа да се създаде.",
-  "quotecard.lightTheme": "Светла карта"
+  "quotecard.lightTheme": "Светла карта",
+  "ux.keysHome": "G, после H: към началната страница",
+  "ux.keysChat": "G, после C: отваряне или затваряне на чата",
+  "ux.keysSearch": "/: към полето за търсене",
+  "ux.keysHelp": "?: показване на този списък с комбинации",
+  "ux.keysToggle": "Използвай клавишни комбинации с един клавиш (G H, G C, / и ?)",
+  "ux.lbRank": "Място",
+  "ux.lbMember": "Член",
+  "ux.lbThreads": "Теми",
+  "ux.lbScore": "Точки"
 }

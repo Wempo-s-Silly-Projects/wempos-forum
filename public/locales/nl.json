@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Afbeelding gekopieerd.",
   "quotecard.copyFailed": "Kon de afbeelding niet kopiëren.",
   "quotecard.failed": "Kon de afbeelding niet maken.",
-  "quotecard.lightTheme": "Lichte kaart"
+  "quotecard.lightTheme": "Lichte kaart",
+  "ux.keysHome": "G en dan H: naar de startpagina",
+  "ux.keysChat": "G en dan C: de chat openen of sluiten",
+  "ux.keysSearch": "/: naar het zoekvak springen",
+  "ux.keysHelp": "?: deze lijst met sneltoetsen tonen",
+  "ux.keysToggle": "Sneltoetsen met één toets gebruiken (G H, G C, / en ?)",
+  "ux.lbRank": "Plaats",
+  "ux.lbMember": "Lid",
+  "ux.lbThreads": "Topics",
+  "ux.lbScore": "Score"
 }

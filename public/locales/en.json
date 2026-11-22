@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Image copied.",
   "quotecard.copyFailed": "Couldn't copy the image.",
   "quotecard.failed": "Couldn't make the image.",
-  "quotecard.lightTheme": "Light card"
+  "quotecard.lightTheme": "Light card",
+  "ux.keysHome": "G then H: go to the home page",
+  "ux.keysChat": "G then C: open or close the chat",
+  "ux.keysSearch": "/: jump to the search box",
+  "ux.keysHelp": "?: show this list of shortcuts",
+  "ux.keysToggle": "Use the single-key shortcuts (G H, G C, / and ?)",
+  "ux.lbRank": "Rank",
+  "ux.lbMember": "Member",
+  "ux.lbThreads": "Threads",
+  "ux.lbScore": "Score"
 }

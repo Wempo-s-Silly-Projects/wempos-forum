@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Պատկերը պատճենվեց։",
   "quotecard.copyFailed": "Չհաջողվեց պատճենել պատկերը։",
   "quotecard.failed": "Չհաջողվեց ստեղծել պատկերը։",
-  "quotecard.lightTheme": "Բաց քարտ"
+  "quotecard.lightTheme": "Բաց քարտ",
+  "ux.keysHome": "G, ապա H՝ անցնել գլխավոր էջ",
+  "ux.keysChat": "G, ապա C՝ բացել կամ փակել զրուցարանը",
+  "ux.keysSearch": "/՝ անցնել որոնման դաշտ",
+  "ux.keysHelp": "?՝ ցույց տալ դյուրանցումների այս ցանկը",
+  "ux.keysToggle": "Օգտագործել մեկ ստեղնով դյուրանցումները (G H, G C, / և ?)",
+  "ux.lbRank": "Տեղ",
+  "ux.lbMember": "Անդամ",
+  "ux.lbThreads": "Թեմաներ",
+  "ux.lbScore": "Միավորներ"
 }

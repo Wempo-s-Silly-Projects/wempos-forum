@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Şəkil kopyalandı.",
   "quotecard.copyFailed": "Şəkli kopyalamaq mümkün olmadı.",
   "quotecard.failed": "Şəkli yaratmaq mümkün olmadı.",
-  "quotecard.lightTheme": "Açıq kart"
+  "quotecard.lightTheme": "Açıq kart",
+  "ux.keysHome": "G, sonra H: ana səhifəyə keç",
+  "ux.keysChat": "G, sonra C: söhbəti aç və ya bağla",
+  "ux.keysSearch": "/: axtarış qutusuna keç",
+  "ux.keysHelp": "?: bu qısayollar siyahısını göstər",
+  "ux.keysToggle": "Tək düyməli qısayollardan istifadə et (G H, G C, / və ?)",
+  "ux.lbRank": "Yer",
+  "ux.lbMember": "Üzv",
+  "ux.lbThreads": "Mövzular",
+  "ux.lbScore": "Xal"
 }

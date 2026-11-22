@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Сурт копи йина.",
   "quotecard.copyFailed": "Сурт копи йан ца кхийтира.",
   "quotecard.failed": "Сурт кхолла ца кхийтира.",
-  "quotecard.lightTheme": "Сирла карточка"
+  "quotecard.lightTheme": "Сирла карточка",
+  "ux.keysHome": "G, тӏаккха H: коьрта агӀоне гӀо",
+  "ux.keysChat": "G, тӏаккха C: чат схьаелла я дӀакъовла",
+  "ux.keysSearch": "/: лахаран метте гӀо",
+  "ux.keysHelp": "?: кехатийн и могӀам гайта",
+  "ux.keysToggle": "Цхьа клавишан кехаташ лело (G H, G C, / а ?)",
+  "ux.lbRank": "Меттиг",
+  "ux.lbMember": "Декъашхо",
+  "ux.lbThreads": "Темаш",
+  "ux.lbScore": "Баллаш"
 }

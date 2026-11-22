@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Obraz skopiowany.",
   "quotecard.copyFailed": "Nie udało się skopiować obrazu.",
   "quotecard.failed": "Nie udało się utworzyć obrazu.",
-  "quotecard.lightTheme": "Jasna karta"
+  "quotecard.lightTheme": "Jasna karta",
+  "ux.keysHome": "G, potem H: przejdź do strony głównej",
+  "ux.keysChat": "G, potem C: otwórz lub zamknij czat",
+  "ux.keysSearch": "/: przejdź do pola wyszukiwania",
+  "ux.keysHelp": "?: pokaż tę listę skrótów",
+  "ux.keysToggle": "Używaj skrótów jednoklawiszowych (G H, G C, / i ?)",
+  "ux.lbRank": "Miejsce",
+  "ux.lbMember": "Członek",
+  "ux.lbThreads": "Wątki",
+  "ux.lbScore": "Wynik"
 }

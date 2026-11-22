@@ -1245,5 +1245,14 @@
   "quotecard.copied": "画像をコピーしました。",
   "quotecard.copyFailed": "画像をコピーできませんでした。",
   "quotecard.failed": "画像を作成できませんでした。",
-  "quotecard.lightTheme": "ライトカード"
+  "quotecard.lightTheme": "ライトカード",
+  "ux.keysHome": "G の次に H：ホームページへ移動",
+  "ux.keysChat": "G の次に C：チャットを開く／閉じる",
+  "ux.keysSearch": "/：検索ボックスへ移動",
+  "ux.keysHelp": "?：このショートカット一覧を表示",
+  "ux.keysToggle": "1 キーのショートカットを使う（G H、G C、/、?）",
+  "ux.lbRank": "順位",
+  "ux.lbMember": "メンバー",
+  "ux.lbThreads": "スレッド",
+  "ux.lbScore": "スコア"
 }

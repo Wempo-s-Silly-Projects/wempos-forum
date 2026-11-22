@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Bildet er kopiert.",
   "quotecard.copyFailed": "Kunne ikke kopiere bildet.",
   "quotecard.failed": "Kunne ikke lage bildet.",
-  "quotecard.lightTheme": "Lyst kort"
+  "quotecard.lightTheme": "Lyst kort",
+  "ux.keysHome": "G og så H: gå til forsiden",
+  "ux.keysChat": "G og så C: åpne eller lukk chatten",
+  "ux.keysSearch": "/: hopp til søkefeltet",
+  "ux.keysHelp": "?: vis denne listen over snarveier",
+  "ux.keysToggle": "Bruk snarveier med én tast (G H, G C, / og ?)",
+  "ux.lbRank": "Plass",
+  "ux.lbMember": "Medlem",
+  "ux.lbThreads": "Tråder",
+  "ux.lbScore": "Poeng"
 }

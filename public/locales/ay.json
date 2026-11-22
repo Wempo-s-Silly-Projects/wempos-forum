@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Jamuqax qillqantatawa.",
   "quotecard.copyFailed": "Jamuqax janiw qillqantañjamäkänti.",
   "quotecard.failed": "Jamuqax janiw lurañjamäkänti.",
-  "quotecard.lightTheme": "Qhana tarjeta"
+  "quotecard.lightTheme": "Qhana tarjeta",
+  "ux.keysHome": "G ukat H: qalltañ laphiru sarañataki",
+  "ux.keysChat": "G ukat C: aruskipäw jist'araña jan ukax jist'antaña",
+  "ux.keysSearch": "/: thaqañ cajaru jaltaña",
+  "ux.keysHelp": "?: aka jank'a thakinak uñacht'ayaña",
+  "ux.keysToggle": "Mä teclampi jank'a thakinak apnaqaña (G H, G C, / ukat ?)",
+  "ux.lbRank": "Thakhi",
+  "ux.lbMember": "Chikancht'iri",
+  "ux.lbThreads": "Yatiyawinaka",
+  "ux.lbScore": "Puntonaka"
 }

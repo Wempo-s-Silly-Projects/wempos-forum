@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Imatge copiada.",
   "quotecard.copyFailed": "No s'ha pogut copiar la imatge.",
   "quotecard.failed": "No s'ha pogut crear la imatge.",
-  "quotecard.lightTheme": "Targeta clara"
+  "quotecard.lightTheme": "Targeta clara",
+  "ux.keysHome": "G i després H: ves a la pàgina d'inici",
+  "ux.keysChat": "G i després C: obre o tanca el xat",
+  "ux.keysSearch": "/: salta al quadre de cerca",
+  "ux.keysHelp": "?: mostra aquesta llista de dreceres",
+  "ux.keysToggle": "Fes servir les dreceres d'una sola tecla (G H, G C, / i ?)",
+  "ux.lbRank": "Posició",
+  "ux.lbMember": "Membre",
+  "ux.lbThreads": "Fils",
+  "ux.lbScore": "Puntuació"
 }

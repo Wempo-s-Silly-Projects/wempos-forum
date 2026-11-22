@@ -1245,5 +1245,14 @@
   "quotecard.copied": "ပုံကို ကူးပြီးပါပြီ။",
   "quotecard.copyFailed": "ပုံကို မကူးနိုင်ပါ။",
   "quotecard.failed": "ပုံကို မပြုလုပ်နိုင်ပါ။",
-  "quotecard.lightTheme": "အလင်းကတ်"
+  "quotecard.lightTheme": "အလင်းကတ်",
+  "ux.keysHome": "G ပြီးနောက် H: ပင်မစာမျက်နှာသို့ သွားရန်",
+  "ux.keysChat": "G ပြီးနောက် C: ချက်ကို ဖွင့်ရန် သို့မဟုတ် ပိတ်ရန်",
+  "ux.keysSearch": "/: ရှာဖွေရေးအကွက်သို့ သွားရန်",
+  "ux.keysHelp": "?: ဤဖြတ်လမ်းစာရင်းကို ပြရန်",
+  "ux.keysToggle": "ကီးတစ်ချက်တည်း ဖြတ်လမ်းများကို သုံးရန် (G H, G C, / နှင့် ?)",
+  "ux.lbRank": "အဆင့်",
+  "ux.lbMember": "အဖွဲ့ဝင်",
+  "ux.lbThreads": "ခေါင်းစဉ်များ",
+  "ux.lbScore": "ရမှတ်"
 }

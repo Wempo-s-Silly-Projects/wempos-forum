@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Изображение скопировано.",
   "quotecard.copyFailed": "Не удалось скопировать изображение.",
   "quotecard.failed": "Не удалось создать изображение.",
-  "quotecard.lightTheme": "Светлая карточка"
+  "quotecard.lightTheme": "Светлая карточка",
+  "ux.keysHome": "G, затем H: перейти на главную",
+  "ux.keysChat": "G, затем C: открыть или закрыть чат",
+  "ux.keysSearch": "/: перейти к полю поиска",
+  "ux.keysHelp": "?: показать этот список сочетаний",
+  "ux.keysToggle": "Использовать сочетания из одной клавиши (G H, G C, / и ?)",
+  "ux.lbRank": "Место",
+  "ux.lbMember": "Участник",
+  "ux.lbThreads": "Темы",
+  "ux.lbScore": "Очки"
 }

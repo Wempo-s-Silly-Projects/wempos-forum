@@ -1245,5 +1245,14 @@
   "quotecard.copied": "تصویر رونوشت شد.",
   "quotecard.copyFailed": "رونوشت تصویر ممکن نشد.",
   "quotecard.failed": "ساخت تصویر ممکن نشد.",
-  "quotecard.lightTheme": "کارت روشن"
+  "quotecard.lightTheme": "کارت روشن",
+  "ux.keysHome": "G سپس H: رفتن به صفحهٔ اصلی",
+  "ux.keysChat": "G سپس C: باز یا بسته کردن گفت‌وگو",
+  "ux.keysSearch": "/: پرش به کادر جست‌وجو",
+  "ux.keysHelp": "?: نمایش این فهرست میان‌برها",
+  "ux.keysToggle": "استفاده از میان‌برهای تک‌کلیدی (G H، G C، / و ?)",
+  "ux.lbRank": "رتبه",
+  "ux.lbMember": "عضو",
+  "ux.lbThreads": "رشته‌ها",
+  "ux.lbScore": "امتیاز"
 }

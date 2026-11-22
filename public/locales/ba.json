@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Һүрәт күсерелде.",
   "quotecard.copyFailed": "Һүрәтте күсереп булманы.",
   "quotecard.failed": "Һүрәтте яһап булманы.",
-  "quotecard.lightTheme": "Яҡты карточка"
+  "quotecard.lightTheme": "Яҡты карточка",
+  "ux.keysHome": "G, һуңынан H: баш биткә күсеү",
+  "ux.keysChat": "G, һуңынан C: чатты асыу йәки ябыу",
+  "ux.keysSearch": "/: эҙләү юлына күсеү",
+  "ux.keysHelp": "?: ҡыҫҡа юлдар исемлеген күрһәтеү",
+  "ux.keysToggle": "Бер төймәле ҡыҫҡа юлдарҙы ҡулланыу (G H, G C, / һәм ?)",
+  "ux.lbRank": "Урын",
+  "ux.lbMember": "Ағза",
+  "ux.lbThreads": "Темалар",
+  "ux.lbScore": "Балл"
 }

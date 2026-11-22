@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Ma'kopia i litråtu.",
   "quotecard.copyFailed": "Ti siña ma'kopia i litråtu.",
   "quotecard.failed": "Ti siña ma'fa'tinas i litråtu.",
-  "quotecard.lightTheme": "Kåtta ni' manana"
+  "quotecard.lightTheme": "Kåtta ni' manana",
+  "ux.keysHome": "G ayu H: hånao para i fétsan påhina",
+  "ux.keysChat": "G ayu C: baba pat serra i chat",
+  "ux.keysSearch": "/: godde para i kahan buskåyon",
+  "ux.keysHelp": "?: na'annok este na lista",
+  "ux.keysToggle": "Usa i atåhu ni un tekla ha' (G H, G C, / yan ?)",
+  "ux.lbRank": "Lugåt",
+  "ux.lbMember": "Membro",
+  "ux.lbThreads": "Tema",
+  "ux.lbScore": "Puntos"
 }

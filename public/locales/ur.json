@@ -1245,5 +1245,14 @@
   "quotecard.copied": "تصویر کاپی ہو گئی۔",
   "quotecard.copyFailed": "تصویر کاپی نہیں ہو سکی۔",
   "quotecard.failed": "تصویر نہیں بن سکی۔",
-  "quotecard.lightTheme": "ہلکا کارڈ"
+  "quotecard.lightTheme": "ہلکا کارڈ",
+  "ux.keysHome": "G پھر H: ہوم پیج پر جائیں",
+  "ux.keysChat": "G پھر C: چیٹ کھولیں یا بند کریں",
+  "ux.keysSearch": "/: تلاش کے خانے پر جائیں",
+  "ux.keysHelp": "?: شارٹ کٹس کی یہ فہرست دکھائیں",
+  "ux.keysToggle": "ایک کلید والے شارٹ کٹس استعمال کریں (G H، G C، / اور ?)",
+  "ux.lbRank": "درجہ",
+  "ux.lbMember": "رکن",
+  "ux.lbThreads": "تھریڈز",
+  "ux.lbScore": "اسکور"
 }

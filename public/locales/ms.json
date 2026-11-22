@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Imej disalin.",
   "quotecard.copyFailed": "Tidak dapat menyalin imej.",
   "quotecard.failed": "Tidak dapat membuat imej.",
-  "quotecard.lightTheme": "Kad cerah"
+  "quotecard.lightTheme": "Kad cerah",
+  "ux.keysHome": "G kemudian H: pergi ke halaman utama",
+  "ux.keysChat": "G kemudian C: buka atau tutup sembang",
+  "ux.keysSearch": "/: lompat ke kotak carian",
+  "ux.keysHelp": "?: tunjukkan senarai pintasan ini",
+  "ux.keysToggle": "Gunakan pintasan satu kekunci (G H, G C, / dan ?)",
+  "ux.lbRank": "Kedudukan",
+  "ux.lbMember": "Ahli",
+  "ux.lbThreads": "Bebenang",
+  "ux.lbScore": "Markah"
 }

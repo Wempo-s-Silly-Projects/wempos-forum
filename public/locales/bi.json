@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Pija i kopi finis.",
   "quotecard.copyFailed": "I no save kopi pija.",
   "quotecard.failed": "I no save mekem pija.",
-  "quotecard.lightTheme": "Kad we i laet"
+  "quotecard.lightTheme": "Kad we i laet",
+  "ux.keysHome": "G mo H: go long fes pej",
+  "ux.keysChat": "G mo C: openem o sutum jat",
+  "ux.keysSearch": "/: jamp i go long bokis blong lukaot",
+  "ux.keysHelp": "?: soem lis ia blong ol sotkat",
+  "ux.keysToggle": "Yusum ol sotkat blong wan ki nomo (G H, G C, / mo ?)",
+  "ux.lbRank": "Ples",
+  "ux.lbMember": "Memba",
+  "ux.lbThreads": "Ol toktok",
+  "ux.lbScore": "Skoa"
 }

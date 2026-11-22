@@ -172,6 +172,15 @@ import { paintSourceLink } from "./source-link.js";
 import { attachRecentSearches } from "./recent-searches.js";
 import { wireSkipLink } from "./skip-link.js";
 import { captureMoreFocus, restoreMoreFocus } from "./thread-actions.js";
+// Batch J: route progress bar, after-render polish, global shortcuts,
+// the hiding header on small screens and badge tooltips.
+import { createRouteProgress } from "./route-progress.js";
+import { enhanceRoute } from "./route-enhance.js";
+import { initGlobalKeys } from "./global-keys.js";
+import { initHeaderHeadroom } from "./header-headroom.js";
+import { initTooltips } from "./tooltips.js";
+
+const routeProgress = createRouteProgress();
 
 async function prepareRouteContext(version) {
   const [sessionReply, setup] = await Promise.all([
@@ -322,6 +331,7 @@ async function renderRoute(route) {
     renderNotFoundRoute();
   }
   await renderTurnstileSlots(main);
+  if (version === state.renderVersion) enhanceRoute(main);
 }
 
 function readForm(form) {
@@ -556,7 +566,10 @@ async function boot() {
       setCsrfToken,
     })) return;
     state.router = startRouter((route) => {
-      renderRoute(route).catch((error) => {
+      // Batch J: the progress bar runs for the whole route (fetch + paint);
+      // a newer route's start simply carries the same bar on.
+      routeProgress.start();
+      renderRoute(route).finally(() => routeProgress.done()).catch((error) => {
         setMessage(error.message, true);
         main.replaceChildren();
         addHeading(main, t("app.errorHeading"), 1);
@@ -574,6 +587,9 @@ async function boot() {
         navigate: (path) => state.router.navigate(path),
       });
     }
+    initGlobalKeys(document, { navigate: (path) => state.router.navigate(path) });
+    initHeaderHeadroom(document);
+    initTooltips(document);
   } catch (error) {
     console.error("Forum startup failed:", error);
     main.replaceChildren();

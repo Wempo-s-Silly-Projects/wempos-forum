@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Chithunzi chakopedwa.",
   "quotecard.copyFailed": "Chithunzi sichinakopedwe.",
   "quotecard.failed": "Chithunzi sichinapangidwe.",
-  "quotecard.lightTheme": "Khadi lowala"
+  "quotecard.lightTheme": "Khadi lowala",
+  "ux.keysHome": "G kenako H: pitani ku tsamba loyamba",
+  "ux.keysChat": "G kenako C: tsegulani kapena tsekani macheza",
+  "ux.keysSearch": "/: dumphirani ku bokosi losakira",
+  "ux.keysHelp": "?: onetsani mndandandawu wa njira zachidule",
+  "ux.keysToggle": "Gwiritsani ntchito njira zachidule za kiyi imodzi (G H, G C, / ndi ?)",
+  "ux.lbRank": "Udindo",
+  "ux.lbMember": "Membala",
+  "ux.lbThreads": "Mitu",
+  "ux.lbScore": "Mapointi"
 }

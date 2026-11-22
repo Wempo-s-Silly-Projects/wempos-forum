@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Skeudenn eilet.",
   "quotecard.copyFailed": "N'eus ket bet gallet eilañ ar skeudenn.",
   "quotecard.failed": "N'eus ket bet gallet ober ar skeudenn.",
-  "quotecard.lightTheme": "Kartenn sklaer"
+  "quotecard.lightTheme": "Kartenn sklaer",
+  "ux.keysHome": "G ha goude H: mont d'ar bajenn degemer",
+  "ux.keysChat": "G ha goude C: digeriñ pe serriñ ar flap",
+  "ux.keysSearch": "/: lammat d'ar voestad klask",
+  "ux.keysHelp": "?: diskouez ar roll berradennoù-mañ",
+  "ux.keysToggle": "Implijout ar berradennoù gant un douchenn (G H, G C, / ha ?)",
+  "ux.lbRank": "Renk",
+  "ux.lbMember": "Ezel",
+  "ux.lbThreads": "Neudennoù",
+  "ux.lbScore": "Skor"
 }

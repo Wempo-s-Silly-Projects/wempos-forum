@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Görsel kopyalandı.",
   "quotecard.copyFailed": "Görsel kopyalanamadı.",
   "quotecard.failed": "Görsel oluşturulamadı.",
-  "quotecard.lightTheme": "Açık kart"
+  "quotecard.lightTheme": "Açık kart",
+  "ux.keysHome": "G sonra H: ana sayfaya git",
+  "ux.keysChat": "G sonra C: sohbeti aç veya kapat",
+  "ux.keysSearch": "/: arama kutusuna atla",
+  "ux.keysHelp": "?: bu kısayol listesini göster",
+  "ux.keysToggle": "Tek tuşlu kısayolları kullan (G H, G C, / ve ?)",
+  "ux.lbRank": "Sıra",
+  "ux.lbMember": "Üye",
+  "ux.lbThreads": "Konular",
+  "ux.lbScore": "Puan"
 }

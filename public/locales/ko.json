@@ -1245,5 +1245,14 @@
   "quotecard.copied": "이미지를 복사했습니다.",
   "quotecard.copyFailed": "이미지를 복사할 수 없습니다.",
   "quotecard.failed": "이미지를 만들 수 없습니다.",
-  "quotecard.lightTheme": "밝은 카드"
+  "quotecard.lightTheme": "밝은 카드",
+  "ux.keysHome": "G 다음 H: 홈 페이지로 이동",
+  "ux.keysChat": "G 다음 C: 채팅 열기 또는 닫기",
+  "ux.keysSearch": "/: 검색창으로 이동",
+  "ux.keysHelp": "?: 이 단축키 목록 보기",
+  "ux.keysToggle": "단일 키 단축키 사용 (G H, G C, / 및 ?)",
+  "ux.lbRank": "순위",
+  "ux.lbMember": "회원",
+  "ux.lbThreads": "스레드",
+  "ux.lbScore": "점수"
 }

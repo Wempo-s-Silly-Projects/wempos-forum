@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Picha imenakiliwa.",
   "quotecard.copyFailed": "Imeshindwa kunakili picha.",
   "quotecard.failed": "Imeshindwa kutengeneza picha.",
-  "quotecard.lightTheme": "Kadi angavu"
+  "quotecard.lightTheme": "Kadi angavu",
+  "ux.keysHome": "G kisha H: nenda kwenye ukurasa wa mwanzo",
+  "ux.keysChat": "G kisha C: fungua au funga gumzo",
+  "ux.keysSearch": "/: ruka hadi kisanduku cha kutafuta",
+  "ux.keysHelp": "?: onyesha orodha hii ya njia za mkato",
+  "ux.keysToggle": "Tumia njia za mkato za kitufe kimoja (G H, G C, / na ?)",
+  "ux.lbRank": "Nafasi",
+  "ux.lbMember": "Mwanachama",
+  "ux.lbThreads": "Mada",
+  "ux.lbScore": "Alama"
 }

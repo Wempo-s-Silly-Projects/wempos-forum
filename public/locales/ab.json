@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Асахьа ахкьыԥхьуп.",
   "quotecard.copyFailed": "Асахьа ахкьыԥхьра ауамызт.",
   "quotecard.failed": "Асахьа аҟаҵара ауамызт.",
-  "quotecard.lightTheme": "Ашкәакәа карточка"
+  "quotecard.lightTheme": "Ашкәакәа карточка",
+  "ux.keysHome": "G, нас H: ахада адаҟьахь",
+  "ux.keysChat": "G, нас C: ачат аартра ма аркра",
+  "ux.keysSearch": "/: аԥшаара аҭыԥахь аиасра",
+  "ux.keysHelp": "?: ашәҭқәа рсиа аарԥшра",
+  "ux.keysToggle": "Ақәыӷәӷәара закә ашәҭқәа рхархәара (G H, G C, / и ?)",
+  "ux.lbRank": "Аҩаӡара",
+  "ux.lbMember": "Алахәыла",
+  "ux.lbThreads": "Атемақәа",
+  "ux.lbScore": "Абаллқәа"
 }

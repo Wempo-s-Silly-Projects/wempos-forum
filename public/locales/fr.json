@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Image copiée.",
   "quotecard.copyFailed": "Impossible de copier l’image.",
   "quotecard.failed": "Impossible de créer l’image.",
-  "quotecard.lightTheme": "Carte claire"
+  "quotecard.lightTheme": "Carte claire",
+  "ux.keysHome": "G puis H : aller à la page d'accueil",
+  "ux.keysChat": "G puis C : ouvrir ou fermer le chat",
+  "ux.keysSearch": "/ : aller au champ de recherche",
+  "ux.keysHelp": "? : afficher cette liste de raccourcis",
+  "ux.keysToggle": "Utiliser les raccourcis à une touche (G H, G C, / et ?)",
+  "ux.lbRank": "Rang",
+  "ux.lbMember": "Membre",
+  "ux.lbThreads": "Fils",
+  "ux.lbScore": "Score"
 }

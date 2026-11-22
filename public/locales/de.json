@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Bild kopiert.",
   "quotecard.copyFailed": "Das Bild konnte nicht kopiert werden.",
   "quotecard.failed": "Das Bild konnte nicht erstellt werden.",
-  "quotecard.lightTheme": "Helle Karte"
+  "quotecard.lightTheme": "Helle Karte",
+  "ux.keysHome": "G, dann H: zur Startseite",
+  "ux.keysChat": "G, dann C: Chat öffnen oder schließen",
+  "ux.keysSearch": "/: zum Suchfeld springen",
+  "ux.keysHelp": "?: diese Liste der Tastenkürzel zeigen",
+  "ux.keysToggle": "Einzeltasten-Kürzel verwenden (G H, G C, / und ?)",
+  "ux.lbRank": "Rang",
+  "ux.lbMember": "Mitglied",
+  "ux.lbThreads": "Themen",
+  "ux.lbScore": "Punkte"
 }

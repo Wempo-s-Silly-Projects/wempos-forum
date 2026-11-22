@@ -1245,5 +1245,14 @@
   "quotecard.copied": "படம் நகலெடுக்கப்பட்டது.",
   "quotecard.copyFailed": "படத்தை நகலெடுக்க முடியவில்லை.",
   "quotecard.failed": "படத்தை உருவாக்க முடியவில்லை.",
-  "quotecard.lightTheme": "வெளிர் அட்டை"
+  "quotecard.lightTheme": "வெளிர் அட்டை",
+  "ux.keysHome": "G பிறகு H: முகப்புப் பக்கத்துக்குச் செல்",
+  "ux.keysChat": "G பிறகு C: அரட்டையைத் திற அல்லது மூடு",
+  "ux.keysSearch": "/: தேடல் பெட்டிக்குத் தாவு",
+  "ux.keysHelp": "?: இந்தக் குறுக்குவழிப் பட்டியலைக் காட்டு",
+  "ux.keysToggle": "ஒற்றை விசைக் குறுக்குவழிகளைப் பயன்படுத்து (G H, G C, / மற்றும் ?)",
+  "ux.lbRank": "தரவரிசை",
+  "ux.lbMember": "உறுப்பினர்",
+  "ux.lbThreads": "இழைகள்",
+  "ux.lbScore": "மதிப்பெண்"
 }

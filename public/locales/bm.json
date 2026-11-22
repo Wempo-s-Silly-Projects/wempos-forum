@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Ja kopira.",
   "quotecard.copyFailed": "Ja ma se ka kopi.",
   "quotecard.failed": "Ja ma se ka dilan.",
-  "quotecard.lightTheme": "Karti jɛman"
+  "quotecard.lightTheme": "Karti jɛman",
+  "ux.keysHome": "G o kɔ H: taa daminɛ ɲɛ kan",
+  "ux.keysChat": "G o kɔ C: baro da yɛlɛ walima a datugu",
+  "ux.keysSearch": "/: ɲinini kɛsu sɔrɔ",
+  "ux.keysHelp": "?: digilan surunw ninnu jira",
+  "ux.keysToggle": "Digilan kelen surunw baara (G H, G C, / ani ?)",
+  "ux.lbRank": "Jɔyɔrɔ",
+  "ux.lbMember": "Tɔndenw",
+  "ux.lbThreads": "Kumasenw",
+  "ux.lbScore": "Jate"
 }

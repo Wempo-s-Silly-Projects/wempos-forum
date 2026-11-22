@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Irudia kopiatu da.",
   "quotecard.copyFailed": "Ezin izan da irudia kopiatu.",
   "quotecard.failed": "Ezin izan da irudia sortu.",
-  "quotecard.lightTheme": "Txartel argia"
+  "quotecard.lightTheme": "Txartel argia",
+  "ux.keysHome": "G eta gero H: joan hasierako orrira",
+  "ux.keysChat": "G eta gero C: ireki edo itxi txata",
+  "ux.keysSearch": "/: jauzi bilaketa-koadrora",
+  "ux.keysHelp": "?: erakutsi laster-teklen zerrenda hau",
+  "ux.keysToggle": "Erabili tekla bakarreko lasterbideak (G H, G C, / eta ?)",
+  "ux.lbRank": "Postua",
+  "ux.lbMember": "Kidea",
+  "ux.lbThreads": "Hariak",
+  "ux.lbScore": "Puntuazioa"
 }

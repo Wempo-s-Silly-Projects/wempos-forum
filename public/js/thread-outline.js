@@ -121,10 +121,45 @@ function setOpen(toggle, list, open) {
   else list.setAttribute("hidden", "");
 }
 
+// Active entry (Batch J): the first reply, in page order, that is on screen.
+export function pickActiveReply(orderedIds, visibleIds) {
+  return orderedIds.find((id) => visibleIds.has(id)) ?? null;
+}
+
+const ACTIVE_CLASS = "thread-outline-entry-active";
+
+// Highlights the outline entry of the reply being read, through
+// IntersectionObserver (no scroll listener). The observer lets go once the
+// outline has left the page (the next route rendered).
+function watchActiveReply(nav, replyList, entries, buttons, Observer) {
+  if (typeof Observer !== "function") return;
+  const order = entries.map((entry) => entry.id);
+  const visible = new Set();
+  const observer = new Observer((changes) => {
+    if (nav.isConnected === false) {
+      observer.disconnect();
+      return;
+    }
+    for (const change of changes) {
+      const id = Number(change.target.getAttribute("data-post-id"));
+      if (change.isIntersecting) visible.add(id);
+      else visible.delete(id);
+    }
+    const active = pickActiveReply(order, visible);
+    for (const button of buttons) {
+      button.classList.toggle(ACTIVE_CLASS, Number(button.dataset.replyId) === active);
+    }
+  });
+  for (const id of order) {
+    const card = replyList?.querySelector?.('[data-post-id="' + id + '"]');
+    if (card) observer.observe(card);
+  }
+}
+
 // The outline, or null below the threshold. The target card is looked up at
 // click time, so a card removed from the page later is a quiet no-op.
 export function createThreadOutline(document, replies, replyList, {
-  accountId = null, storage = browserStorage(), now = Date.now(),
+  accountId = null, storage = browserStorage(), now = Date.now(), Observer = globalThis.IntersectionObserver,
 } = {}) {
   const entries = outlineEntries(replies, replyList);
   if (entries.length < OUTLINE_MIN_REPLIES) return null;
@@ -161,5 +196,6 @@ export function createThreadOutline(document, replies, replyList, {
     writeOutlineOpen(storage, accountId, open);
   });
   nav.append(toggle, list);
+  watchActiveReply(nav, replyList, entries, buttons, Observer);
   return nav;
 }

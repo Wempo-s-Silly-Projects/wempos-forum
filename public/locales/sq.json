@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Imazhi u kopjua.",
   "quotecard.copyFailed": "Imazhi nuk u kopjua dot.",
   "quotecard.failed": "Imazhi nuk u krijua dot.",
-  "quotecard.lightTheme": "Kartë e çelët"
+  "quotecard.lightTheme": "Kartë e çelët",
+  "ux.keysHome": "G pastaj H: shko te faqja kryesore",
+  "ux.keysChat": "G pastaj C: hap ose mbyll bisedën",
+  "ux.keysSearch": "/: kalo te kutia e kërkimit",
+  "ux.keysHelp": "?: shfaq këtë listë shkurtoresh",
+  "ux.keysToggle": "Përdor shkurtoret me një tast (G H, G C, / dhe ?)",
+  "ux.lbRank": "Renditja",
+  "ux.lbMember": "Anëtari",
+  "ux.lbThreads": "Temat",
+  "ux.lbScore": "Pikët"
 }

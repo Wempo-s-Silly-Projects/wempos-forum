@@ -46,6 +46,7 @@ const DEVICE_PREF_FILES = new Map([
   ["dm-effects.js", "DM effects on/off"],
   ["i18n.js", "interface language"],
   ["appearance-reset.js", "corners, text size and tab-title count back to defaults (wave 5.7)"],
+  ["global-keys.js", "single-key shortcuts on/off (Batch J)"],
 ]);
 
 const walk = (dir) => readdirSync(dir).flatMap((name) => {

@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Сурат копия гьабуна.",
   "quotecard.copyFailed": "Сурат копия гьабизе кӏвечӏо.",
   "quotecard.failed": "Сурат гьабизе кӏвечӏо.",
-  "quotecard.lightTheme": "Чӏахӏияб карточка"
+  "quotecard.lightTheme": "Чӏахӏияб карточка",
+  "ux.keysHome": "G, хадуб H: тӏоцебесеб гьумералде ине",
+  "ux.keysChat": "G, хадуб C: чат рагьизе яги къазе",
+  "ux.keysSearch": "/: балагьиялъул къватӏалде ине",
+  "ux.keysHelp": "?: бигьаял нухазул сияхӏ бихьизабизе",
+  "ux.keysToggle": "Цо клавишалъул бигьаял нухал хӏалтӏизаризе (G H, G C, / ва ?)",
+  "ux.lbRank": "Даража",
+  "ux.lbMember": "Гъоркьчӏей",
+  "ux.lbThreads": "Темаби",
+  "ux.lbScore": "Баллал"
 }

@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Nakopya ang larawan.",
   "quotecard.copyFailed": "Hindi makopya ang larawan.",
   "quotecard.failed": "Hindi magawa ang larawan.",
-  "quotecard.lightTheme": "Maliwanag na kard"
+  "quotecard.lightTheme": "Maliwanag na kard",
+  "ux.keysHome": "G tapos H: pumunta sa home page",
+  "ux.keysChat": "G tapos C: buksan o isara ang chat",
+  "ux.keysSearch": "/: lumipat sa search box",
+  "ux.keysHelp": "?: ipakita ang listahang ito ng mga shortcut",
+  "ux.keysToggle": "Gamitin ang mga shortcut na iisang key (G H, G C, / at ?)",
+  "ux.lbRank": "Ranggo",
+  "ux.lbMember": "Miyembro",
+  "ux.lbThreads": "Mga thread",
+  "ux.lbScore": "Puntos"
 }

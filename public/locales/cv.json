@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Ӳкерчӗк копиленӗ.",
   "quotecard.copyFailed": "Ӳкерчӗке копилеме май килмерӗ.",
   "quotecard.failed": "Ӳкерчӗк тума май килмерӗ.",
-  "quotecard.lightTheme": "Ҫутӑ карточка"
+  "quotecard.lightTheme": "Ҫутӑ карточка",
+  "ux.keysHome": "G, унтан H: тӗп страницӑна куҫ",
+  "ux.keysChat": "G, унтан C: чата уҫ е хуп",
+  "ux.keysSearch": "/: шырав йӗркине куҫ",
+  "ux.keysHelp": "?: ҫак ҫӑмӑллатӑвсен списокне кӑтарт",
+  "ux.keysToggle": "Пӗр клавишлӑ ҫӑмӑллатӑвсемпе усӑ кур (G H, G C, / тата ?)",
+  "ux.lbRank": "Вырӑн",
+  "ux.lbMember": "Хутшӑнакан",
+  "ux.lbThreads": "Темӑсем",
+  "ux.lbScore": "Балсем"
 }

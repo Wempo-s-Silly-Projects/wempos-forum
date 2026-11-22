@@ -1245,5 +1245,14 @@
   "quotecard.copied": "图片已复制。",
   "quotecard.copyFailed": "无法复制图片。",
   "quotecard.failed": "无法生成图片。",
-  "quotecard.lightTheme": "浅色卡片"
+  "quotecard.lightTheme": "浅色卡片",
+  "ux.keysHome": "先按 G 再按 H：前往首页",
+  "ux.keysChat": "先按 G 再按 C：打开或关闭聊天",
+  "ux.keysSearch": "/：跳到搜索框",
+  "ux.keysHelp": "?：显示这份快捷键列表",
+  "ux.keysToggle": "使用单键快捷键（G H、G C、/ 和 ?）",
+  "ux.lbRank": "排名",
+  "ux.lbMember": "成员",
+  "ux.lbThreads": "主题",
+  "ux.lbScore": "积分"
 }

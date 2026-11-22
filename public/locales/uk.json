@@ -1245,5 +1245,14 @@
   "quotecard.copied": "Зображення скопійовано.",
   "quotecard.copyFailed": "Не вдалося скопіювати зображення.",
   "quotecard.failed": "Не вдалося створити зображення.",
-  "quotecard.lightTheme": "Світла картка"
+  "quotecard.lightTheme": "Світла картка",
+  "ux.keysHome": "G, потім H: перейти на головну",
+  "ux.keysChat": "G, потім C: відкрити або закрити чат",
+  "ux.keysSearch": "/: перейти до поля пошуку",
+  "ux.keysHelp": "?: показати цей список комбінацій",
+  "ux.keysToggle": "Використовувати комбінації з однієї клавіші (G H, G C, / і ?)",
+  "ux.lbRank": "Місце",
+  "ux.lbMember": "Учасник",
+  "ux.lbThreads": "Теми",
+  "ux.lbScore": "Бали"
 }

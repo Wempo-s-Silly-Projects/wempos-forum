@@ -28,8 +28,9 @@ import { addHeading, element, main, setMessage } from "../dom.js";
 import { addText } from "../forms.js";
 import { state } from "../state.js";
 import { renderBodyBlocks } from "../render.js";
-import { t, tn, currentLocale } from "../i18n.js";
+import { t, currentLocale } from "../i18n.js";
 import { createWeekPage } from "../week.js";
+import { createLeaderboardTable } from "../leaderboard-table.js";
 import { createLoadMoreTag, createTagPage, createTagThreadRows, tagListingPath } from "../tags.js";
 import { rememberSearch } from "../recent-searches.js";
 import { searchPagePath } from "../search-filters.js";
@@ -57,20 +58,8 @@ async function renderLeaderboardRoute(context, version) {
     addText(document, main, "p", t("pages.leaderboardEmpty"), "empty-state");
     return;
   }
-  const list = element("ol", "leaderboard-list");
-  for (const [index, entry] of rows.entries()) {
-    const row = element("li", "leaderboard-row");
-    row.append(element("span", "leaderboard-rank", "#" + (index + 1)));
-    const link = element("a", "leaderboard-name", entry.username);
-    link.href = "/users/" + encodeURIComponent(entry.username);
-    link.setAttribute("data-app-link", "");
-    row.append(link, element("span", "leaderboard-stats",
-      [tn("counts.threads", entry.threads), tn("counts.replies", entry.replies), tn("counts.reactionsReceived", entry.reactionsReceived)]
-        .join(t("counts.separator"))));
-    row.append(element("span", "leaderboard-score", String(entry.score)));
-    list.append(row);
-  }
-  main.append(list);
+  // Batch J: a sortable table (sortable-tables.js) with counting scores.
+  main.append(createLeaderboardTable(document, rows));
 }
 
 // This week (v5.35): the staff pick, the most replied threads and the newest
