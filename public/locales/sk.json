@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Automaticky (podľa tohto zariadenia)",
   "readingComfort.contrastOn": "Zapnuté",
   "readingComfort.contrastOff": "Vypnuté",
-  "readingComfort.contrastHelp": "Čierny text na bielom (biely na čiernom v tmavom motíve), plné obrysy okolo polí a tlačidiel a hrubšie obrysy fokusu. Automaticky sa zapne, keď nastavenia zariadenia žiadajú vyšší kontrast."
+  "readingComfort.contrastHelp": "Čierny text na bielom (biely na čiernom v tmavom motíve), plné obrysy okolo polí a tlačidiel a hrubšie obrysy fokusu. Automaticky sa zapne, keď nastavenia zariadenia žiadajú vyšší kontrast.",
+  "share.button": "Zdieľať",
+  "share.menuLabel": "Zdieľať toto vlákno",
+  "share.on": "Zdieľať na {service}",
+  "share.mastodonInstance": "Tvoj server Mastodon",
+  "share.mastodonSave": "Uložiť",
+  "share.mastodonInvalid": "Zadaj názov servera, napríklad mastodon.social.",
+  "invite.title": "Pozvi priateľa",
+  "invite.body": "Zdieľaj svoj osobný odkaz. Keď sa cez neho priateľ zaregistruje, dostaneš upozornenie.",
+  "invite.linkLabel": "Tvoj pozývací odkaz",
+  "invite.copy": "Kopírovať pozývací odkaz",
+  "invite.invitedBy": "Pozval(a) ťa @{name}",
+  "join.title": "Si pozvaný!",
+  "join.body": "Pozval ťa člen tohto fóra. Vytvor si účet a zapoj sa do diskusie.",
+  "join.signUp": "Zaregistrovať sa"
 }

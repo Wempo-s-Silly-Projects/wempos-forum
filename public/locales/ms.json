@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Auto (ikut peranti ini)",
   "readingComfort.contrastOn": "Hidup",
   "readingComfort.contrastOff": "Mati",
-  "readingComfort.contrastHelp": "Teks hitam atas putih (putih atas hitam dalam tema gelap), garis luar yang jelas di sekeliling kotak dan butang, dan garis fokus yang lebih tebal. Auto menghidupkannya apabila tetapan peranti anda meminta kontras lebih tinggi."
+  "readingComfort.contrastHelp": "Teks hitam atas putih (putih atas hitam dalam tema gelap), garis luar yang jelas di sekeliling kotak dan butang, dan garis fokus yang lebih tebal. Auto menghidupkannya apabila tetapan peranti anda meminta kontras lebih tinggi.",
+  "share.button": "Kongsi",
+  "share.menuLabel": "Kongsi bebenang ini",
+  "share.on": "Kongsi di {service}",
+  "share.mastodonInstance": "Pelayan Mastodon anda",
+  "share.mastodonSave": "Simpan",
+  "share.mastodonInvalid": "Masukkan nama pelayan seperti mastodon.social.",
+  "invite.title": "Jemput rakan",
+  "invite.body": "Kongsi pautan peribadi anda. Apabila rakan mendaftar menggunakannya, anda akan menerima pemberitahuan.",
+  "invite.linkLabel": "Pautan jemputan anda",
+  "invite.copy": "Salin pautan jemputan",
+  "invite.invitedBy": "Dijemput oleh @{name}",
+  "join.title": "Anda dijemput!",
+  "join.body": "Seorang ahli forum ini telah menjemput anda. Cipta akaun untuk menyertai perbualan.",
+  "join.signUp": "Daftar"
 }

@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Awtomatiko (sundin ang device na ito)",
   "readingComfort.contrastOn": "Naka-on",
   "readingComfort.contrastOff": "Naka-off",
-  "readingComfort.contrastHelp": "Itim na teksto sa puti (puti sa itim sa madilim na tema), malinaw na balangkas sa mga kahon at button, at mas makapal na focus outline. Binubuksan ito ng Awtomatiko kapag humihingi ng mas mataas na contrast ang settings ng device mo."
+  "readingComfort.contrastHelp": "Itim na teksto sa puti (puti sa itim sa madilim na tema), malinaw na balangkas sa mga kahon at button, at mas makapal na focus outline. Binubuksan ito ng Awtomatiko kapag humihingi ng mas mataas na contrast ang settings ng device mo.",
+  "share.button": "Ibahagi",
+  "share.menuLabel": "Ibahagi ang thread na ito",
+  "share.on": "Ibahagi sa {service}",
+  "share.mastodonInstance": "Ang iyong Mastodon server",
+  "share.mastodonSave": "I-save",
+  "share.mastodonInvalid": "Maglagay ng pangalan ng server tulad ng mastodon.social.",
+  "invite.title": "Mag-imbita ng kaibigan",
+  "invite.body": "Ibahagi ang iyong personal na link. Kapag nag-sign up ang kaibigan gamit ito, makakatanggap ka ng abiso.",
+  "invite.linkLabel": "Ang iyong invite link",
+  "invite.copy": "Kopyahin ang invite link",
+  "invite.invitedBy": "Inimbitahan ni @{name}",
+  "join.title": "Inimbitahan ka!",
+  "join.body": "Inimbitahan ka ng isang miyembro ng forum na ito. Gumawa ng account para makisali sa usapan.",
+  "join.signUp": "Mag-sign up"
 }

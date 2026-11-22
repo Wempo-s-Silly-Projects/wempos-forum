@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Automatski (prema ovom uređaju)",
   "readingComfort.contrastOn": "Uključeno",
   "readingComfort.contrastOff": "Isključeno",
-  "readingComfort.contrastHelp": "Crni tekst na bijelom (bijeli na crnom u tamnoj temi), pune obrube oko polja i gumba te deblji okviri fokusa. Automatski ga uključuje kad postavke vašeg uređaja traže veći kontrast."
+  "readingComfort.contrastHelp": "Crni tekst na bijelom (bijeli na crnom u tamnoj temi), pune obrube oko polja i gumba te deblji okviri fokusa. Automatski ga uključuje kad postavke vašeg uređaja traže veći kontrast.",
+  "share.button": "Podijeli",
+  "share.menuLabel": "Podijeli ovu temu",
+  "share.on": "Podijeli na {service}",
+  "share.mastodonInstance": "Tvoj Mastodon poslužitelj",
+  "share.mastodonSave": "Spremi",
+  "share.mastodonInvalid": "Upiši naziv poslužitelja, npr. mastodon.social.",
+  "invite.title": "Pozovi prijatelja",
+  "invite.body": "Podijeli svoju osobnu poveznicu. Kad se prijatelj registrira preko nje, dobit ćeš obavijest.",
+  "invite.linkLabel": "Tvoja poveznica za poziv",
+  "invite.copy": "Kopiraj poveznicu za poziv",
+  "invite.invitedBy": "Pozvao te @{name}",
+  "join.title": "Pozvan si!",
+  "join.body": "Član ovog foruma te pozvao. Napravi račun i pridruži se razgovoru.",
+  "join.signUp": "Registriraj se"
 }

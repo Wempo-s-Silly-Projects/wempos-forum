@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "自動（依照這部裝置）",
   "readingComfort.contrastOn": "開",
   "readingComfort.contrastOff": "關",
-  "readingComfort.contrastHelp": "白底黑字（深色主題為黑底白字），輸入框和按鈕有清楚的外框，焦點框更粗。設為自動時，若裝置設定要求更高對比就會開啟。"
+  "readingComfort.contrastHelp": "白底黑字（深色主題為黑底白字），輸入框和按鈕有清楚的外框，焦點框更粗。設為自動時，若裝置設定要求更高對比就會開啟。",
+  "share.button": "分享",
+  "share.menuLabel": "分享此討論串",
+  "share.on": "分享到 {service}",
+  "share.mastodonInstance": "你的 Mastodon 伺服器",
+  "share.mastodonSave": "儲存",
+  "share.mastodonInvalid": "請輸入伺服器名稱，例如 mastodon.social。",
+  "invite.title": "邀請朋友",
+  "invite.body": "分享你的專屬連結。朋友透過它註冊後，你會收到通知。",
+  "invite.linkLabel": "你的邀請連結",
+  "invite.copy": "複製邀請連結",
+  "invite.invitedBy": "由 @{name} 邀請",
+  "join.title": "你收到了邀請！",
+  "join.body": "本論壇的一位成員邀請了你。建立帳號，加入討論吧。",
+  "join.signUp": "註冊"
 }

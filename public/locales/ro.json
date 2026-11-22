@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Automat (după acest dispozitiv)",
   "readingComfort.contrastOn": "Pornit",
   "readingComfort.contrastOff": "Oprit",
-  "readingComfort.contrastHelp": "Text negru pe alb (alb pe negru în tema întunecată), contururi clare în jurul casetelor și butoanelor și contururi de focalizare mai groase. Automat îl pornește când setările dispozitivului cer mai mult contrast."
+  "readingComfort.contrastHelp": "Text negru pe alb (alb pe negru în tema întunecată), contururi clare în jurul casetelor și butoanelor și contururi de focalizare mai groase. Automat îl pornește când setările dispozitivului cer mai mult contrast.",
+  "share.button": "Distribuie",
+  "share.menuLabel": "Distribuie acest fir",
+  "share.on": "Distribuie pe {service}",
+  "share.mastodonInstance": "Serverul tău Mastodon",
+  "share.mastodonSave": "Salvează",
+  "share.mastodonInvalid": "Introdu numele unui server, de exemplu mastodon.social.",
+  "invite.title": "Invită un prieten",
+  "invite.body": "Distribuie linkul tău personal. Când un prieten se înscrie prin el, vei primi o notificare.",
+  "invite.linkLabel": "Linkul tău de invitație",
+  "invite.copy": "Copiază linkul de invitație",
+  "invite.invitedBy": "Invitat de @{name}",
+  "join.title": "Ești invitat!",
+  "join.body": "Un membru al acestui forum te-a invitat. Creează un cont ca să te alături conversației.",
+  "join.signUp": "Înscrie-te"
 }

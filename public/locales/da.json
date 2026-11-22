@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Automatisk (følg denne enhed)",
   "readingComfort.contrastOn": "Til",
   "readingComfort.contrastOff": "Fra",
-  "readingComfort.contrastHelp": "Sort tekst på hvid (hvid på sort i det mørke tema), tydelige omrids om felter og knapper og tykkere fokusrammer. Automatisk slår det til, når din enheds indstillinger beder om mere kontrast."
+  "readingComfort.contrastHelp": "Sort tekst på hvid (hvid på sort i det mørke tema), tydelige omrids om felter og knapper og tykkere fokusrammer. Automatisk slår det til, når din enheds indstillinger beder om mere kontrast.",
+  "share.button": "Del",
+  "share.menuLabel": "Del denne tråd",
+  "share.on": "Del på {service}",
+  "share.mastodonInstance": "Din Mastodon-server",
+  "share.mastodonSave": "Gem",
+  "share.mastodonInvalid": "Skriv et servernavn som mastodon.social.",
+  "invite.title": "Inviter en ven",
+  "invite.body": "Del dit personlige link. Når en ven tilmelder sig med det, får du en notifikation.",
+  "invite.linkLabel": "Dit invitationslink",
+  "invite.copy": "Kopiér invitationslink",
+  "invite.invitedBy": "Inviteret af @{name}",
+  "join.title": "Du er inviteret!",
+  "join.body": "Et medlem af dette forum har inviteret dig. Opret en konto for at deltage i samtalen.",
+  "join.signUp": "Tilmeld dig"
 }

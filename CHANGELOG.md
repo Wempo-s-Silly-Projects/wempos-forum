@@ -15,6 +15,28 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.34.0] - 2026-11-21
+
+### Added
+- A Share button on threads (Showcase posts included). It opens your device's
+  share sheet when there is one, otherwise a small menu: copy the link, or
+  share to X, Bluesky, Reddit or your own Mastodon server. The links carry
+  only the thread's address and title; nothing is loaded from those sites.
+  The Mastodon server you type is remembered in your browser and forgotten
+  when you sign out. Hidden threads, replies and staff views get no button.
+- RSS feeds: `/feed.xml` for the latest public topics and `/c/<board>/feed.xml`
+  for each board, with the same visibility as the public feed (spoilers
+  masked). Pages link to them so feed readers find them automatically.
+- Invite a friend: settings show your own `/join?ref=<you>` link. When a new
+  member signs up through it, their welcome card says who invited them and
+  you get a notification. Only that one link between the two accounts is
+  stored, nothing is shown publicly, and nothing happens across a block or
+  for a banned member. Needs migration `0064_invites.sql`.
+- `/llms.txt`: a short plain-text guide to the forum for AI assistants, built
+  from the forum's own name and tagline, with links to the API description,
+  MCP endpoint, sitemap and feed. It contains no posts and no member data.
+  The API catalog and `robots.txt` point to it.
+
 ## [5.33.0] - 2026-11-21
 
 ### Security

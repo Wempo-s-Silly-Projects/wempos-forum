@@ -59,6 +59,8 @@ state.renderRoute = renderRoute;
 // The §4b door-swap: the boot-level ?wt redemption (before the router
 // mounts) and every Accounts URL ride the pure sso.js helpers.
 import { redeemReturnTicket, wempoAccountsSignInUrl } from "./sso.js";
+// Invite links (v5.34): the /join landing and the one-time claim.
+import { claimPendingInvite, createJoinPage, rememberInviteRef } from "./invite.js";
 // v4.0 plan 4 Task 3: the feed concern (home/search/mine/category/bookmarks
 // routes, feed tabs, feed pagination + card actions) lives in routes/feed.js;
 // the composer family (builder, submits, gif/poll dialogs) lives in
@@ -161,11 +163,19 @@ import { applyTabUnread, normaliseTabCount, pageStorage } from "./tab-unread.js"
 import { paintSourceLink } from "./source-link.js";
 
 async function prepareRouteContext(version) {
-  const [session, setup] = await Promise.all([
+  const [sessionReply, setup] = await Promise.all([
     api("/api/session"),
     api("/api/setup/status"),
   ]);
   if (version !== state.renderVersion) return null;
+  let session = sessionReply;
+  // Invite links (v5.34): a ref this tab kept from /join is claimed once,
+  // right after sign-in; the welcome card then names the inviter.
+  if (session.user) {
+    const inviter = await claimPendingInvite(api);
+    if (inviter) session = { ...session, user: { ...session.user, invitedBy: inviter } };
+    if (version !== state.renderVersion) return null;
+  }
   state.currentUser = session.user;
   state.unreadNotifications = session.user ? normaliseTabCount(session.unreadNotifications) : 0;
   setCsrfToken(session.csrfToken);
@@ -194,6 +204,7 @@ function setRouteTitle(route) {
     bookmarks: t("app.pageBookmarks"),
     setup: t("app.pageSetup"),
     "not-found": t("app.pageNotFound"),
+    join: t("join.title"),
   };
   document.title = route.name === "home"
     ? t("app.siteName")
@@ -201,6 +212,18 @@ function setRouteTitle(route) {
       // Categories (v3.1): the title carries the category's display name.
       ? t("app.titleWithPage", { page: route.board ? boardLabel(route.board) : t("app.pageCategory") })
       : t("app.titleWithPage", { page: pageNames[route.name] || pageNames.home });
+}
+
+// Invite landing (v5.34): keep the ref for this tab, then either show the
+// sign-up door (signed out) or claim it now and go home (signed in).
+async function renderJoinRoute(route, context) {
+  rememberInviteRef(undefined, route.ref);
+  if (context.session.user) {
+    await claimPendingInvite(api);
+    state.router.navigate("/", { replace: true });
+    return;
+  }
+  main.append(createJoinPage(document, wempoAccountsSignInUrl(window.location.origin)));
 }
 
 function renderNotFoundRoute() {
@@ -264,6 +287,7 @@ async function renderRoute(route) {
     notifications: () => renderNotificationsRoute(context, version),
     bookmarks: () => renderBookmarksRoute(route, context, version),
     "not-found": () => renderNotFoundRoute(),
+    join: () => renderJoinRoute(route, context),
   };
   const renderPage = renderers[route.name] || renderNotFoundRoute;
   try {

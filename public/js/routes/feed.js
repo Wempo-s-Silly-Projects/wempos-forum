@@ -60,6 +60,7 @@ import { createDataExportPanel, downloadMyData } from "../data-export.js";
 import { addSectionAnchors, createSettingsFilter } from "../settings-tools.js";
 import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
 import { renderNewcomerCards } from "../newcomer.js";
+import { createInvitePanel } from "../invite.js";
 import { createFeedViews, feedViewEmptyText, feedViewQuery } from "../feed-views.js";
 import { numberSuggestionCards } from "../suggestion-rank.js";
 import { createFeedEnd, reachedFeedEnd } from "../feed-end.js";
@@ -222,6 +223,8 @@ function renderAccountSettings(session) {
   // Download my data (v4.23): explicit button; nothing is fetched until the
   // member presses it.
   account.append(createDataExportPanel(document));
+  // Invite a friend (v5.34): the member's own /join?ref= link + Copy.
+  account.append(createInvitePanel(document, window.location.origin, session.user.username));
   const deletePanel = createPanel(t("feed.deleteAccountTitle"), t("feed.deleteAccountNote"));
   const deleteButton = element("button", "button button-danger", t("feed.deleteAccount"));
   deleteButton.type = "button";

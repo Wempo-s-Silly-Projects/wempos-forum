@@ -60,6 +60,8 @@ import { handleDmReportRoutes } from "./api/dm-reports.mjs";
 import { handleBrandingRoutes, readStoredBranding } from "./api/branding.mjs";
 import { handleAnalyticsRoutes, scheduleCount } from "./api/analytics.mjs";
 import { handleDiscovery, withDiscoveryHeaders } from "./api/discovery.mjs";
+import { handleFeeds } from "./api/feeds.mjs";
+import { handleInviteRoutes } from "./api/invites.mjs";
 import { handleMcp } from "./api/mcp.mjs";
 import { attributeEscape, withPageHead } from "./api/seo.mjs";
 import { accountsOrigin, configuredOrigin } from "./api/core/site.mjs";
@@ -111,7 +113,7 @@ function notFound(request, env, url, path) {
 // dispatch context and answers only the paths it owns; `undefined` falls
 // through to the next handler or the notFound tail — the vendor's dispatch()
 // replaces the inlined handlers-for-loop, built once from the vendor import.
-const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleAnalyticsRoutes];
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleAnalyticsRoutes, handleInviteRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
@@ -239,6 +241,9 @@ export default {
       }
     }
     try {
+      // RSS feeds + llms.txt (v5.34) answer before the discovery documents.
+      const feed = await handleFeeds(request, env, url.pathname);
+      if (feed) return feed;
       const discovery = await handleDiscovery(request, env, url.pathname);
       if (discovery) return discovery;
     } catch (error) {

@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Otomatik (bu cihazı izle)",
   "readingComfort.contrastOn": "Açık",
   "readingComfort.contrastOff": "Kapalı",
-  "readingComfort.contrastHelp": "Beyaz üzerine siyah metin (koyu temada siyah üzerine beyaz), kutu ve düğmelerin çevresinde belirgin çizgiler ve daha kalın odak çerçeveleri. Otomatik, cihaz ayarlarınız daha fazla kontrast istediğinde bunu açar."
+  "readingComfort.contrastHelp": "Beyaz üzerine siyah metin (koyu temada siyah üzerine beyaz), kutu ve düğmelerin çevresinde belirgin çizgiler ve daha kalın odak çerçeveleri. Otomatik, cihaz ayarlarınız daha fazla kontrast istediğinde bunu açar.",
+  "share.button": "Paylaş",
+  "share.menuLabel": "Bu konuyu paylaş",
+  "share.on": "{service} üzerinde paylaş",
+  "share.mastodonInstance": "Mastodon sunucun",
+  "share.mastodonSave": "Kaydet",
+  "share.mastodonInvalid": "mastodon.social gibi bir sunucu adı gir.",
+  "invite.title": "Bir arkadaşını davet et",
+  "invite.body": "Kişisel bağlantını paylaş. Bir arkadaşın bu bağlantıyla kaydolduğunda bildirim alırsın.",
+  "invite.linkLabel": "Davet bağlantın",
+  "invite.copy": "Davet bağlantısını kopyala",
+  "invite.invitedBy": "@{name} tarafından davet edildi",
+  "join.title": "Davet edildin!",
+  "join.body": "Bu forumun bir üyesi seni davet etti. Sohbete katılmak için bir hesap oluştur.",
+  "join.signUp": "Kaydol"
 }

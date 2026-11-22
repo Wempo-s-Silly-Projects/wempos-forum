@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Auto (follow this device)",
   "readingComfort.contrastOn": "On",
   "readingComfort.contrastOff": "Off",
-  "readingComfort.contrastHelp": "Black text on white (white on black in the dark theme), solid outlines around boxes and buttons, and thicker focus outlines. Auto turns it on when your device's settings ask for more contrast."
+  "readingComfort.contrastHelp": "Black text on white (white on black in the dark theme), solid outlines around boxes and buttons, and thicker focus outlines. Auto turns it on when your device's settings ask for more contrast.",
+  "share.button": "Share",
+  "share.menuLabel": "Share this thread",
+  "share.on": "Share on {service}",
+  "share.mastodonInstance": "Your Mastodon server",
+  "share.mastodonSave": "Save",
+  "share.mastodonInvalid": "Enter a server name like mastodon.social.",
+  "invite.title": "Invite a friend",
+  "invite.body": "Share your personal link. When a friend signs up with it, you'll get a notification.",
+  "invite.linkLabel": "Your invite link",
+  "invite.copy": "Copy invite link",
+  "invite.invitedBy": "Invited by @{name}",
+  "join.title": "You're invited!",
+  "join.body": "A member of this forum invited you. Create an account to join the conversation.",
+  "join.signUp": "Sign up"
 }

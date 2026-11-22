@@ -79,14 +79,23 @@ const NOTIFICATION_SELECT =
 const CHAT_MENTION_PREFIX = "You were mentioned by ";
 const CHAT_MENTION_SUFFIX = " in chat";
 export const chatMentionLabel = (username) => CHAT_MENTION_PREFIX + username + CHAT_MENTION_SUFFIX;
-const CHAT_MENTION_ACTOR_HIDDEN_SQL =
-  "(n.label LIKE '" + CHAT_MENTION_PREFIX + "%" + CHAT_MENTION_SUFFIX + "' AND EXISTS (SELECT 1 FROM users au " +
-  "WHERE au.username_key = lower(substr(n.label, " + (CHAT_MENTION_PREFIX.length + 1) + ", length(n.label) - " +
-  (CHAT_MENTION_PREFIX.length + CHAT_MENTION_SUFFIX.length) + ")) AND (" + ACTIVE_BAN_SQL("au.id") +
+// Wave 5.34: the invite-join row ("Your friend X joined using your invite
+// link") names the new member the same way and drops under the same rule.
+const INVITE_JOIN_PREFIX = "Your friend ";
+const INVITE_JOIN_SUFFIX = " joined using your invite link";
+export const inviteJoinLabel = (username) => INVITE_JOIN_PREFIX + username + INVITE_JOIN_SUFFIX;
+// A label-only row that names its actor between `prefix` and `suffix` hides
+// while that actor is actively banned or block-paired with the recipient.
+const labelActorHiddenSql = (prefix, suffix) =>
+  "(n.label LIKE '" + prefix + "%" + suffix + "' AND EXISTS (SELECT 1 FROM users au " +
+  "WHERE au.username_key = lower(substr(n.label, " + (prefix.length + 1) + ", length(n.label) - " +
+  (prefix.length + suffix.length) + ")) AND (" + ACTIVE_BAN_SQL("au.id") +
   " OR EXISTS (SELECT 1 FROM blocks bk WHERE (bk.blocker_id = n.user_id AND bk.blocked_id = au.id) " +
   "OR (bk.blocked_id = n.user_id AND bk.blocker_id = au.id)))))";
+const CHAT_MENTION_ACTOR_HIDDEN_SQL = labelActorHiddenSql(CHAT_MENTION_PREFIX, CHAT_MENTION_SUFFIX);
+const INVITE_JOIN_ACTOR_HIDDEN_SQL = labelActorHiddenSql(INVITE_JOIN_PREFIX, INVITE_JOIN_SUFFIX);
 const MEMBER_ROW_FILTER =
-  "((n.reply_id IS NULL AND NOT " + CHAT_MENTION_ACTOR_HIDDEN_SQL + ") OR " + viewablePostSql("n.reply_id") + ")";
+  "((n.reply_id IS NULL AND NOT " + CHAT_MENTION_ACTOR_HIDDEN_SQL + " AND NOT " + INVITE_JOIN_ACTOR_HIDDEN_SQL + ") OR " + viewablePostSql("n.reply_id") + ")";
 const NOTIFICATION_SELECT_FILTERED =
   "SELECT n.id, n.target_post_id, n.reply_id, n.created_at, n.read_at, n.label, " +
     "(SELECT body FROM posts WHERE id = n.reply_id) AS reply_body " +

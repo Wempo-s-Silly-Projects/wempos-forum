@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "自動（この端末の設定に従う）",
   "readingComfort.contrastOn": "オン",
   "readingComfort.contrastOff": "オフ",
-  "readingComfort.contrastHelp": "白地に黒の文字（ダークテーマでは黒地に白）、入力欄やボタンのはっきりした枠線、太いフォーカス枠になります。自動では、端末の設定がより高いコントラストを求めているときにオンになります。"
+  "readingComfort.contrastHelp": "白地に黒の文字（ダークテーマでは黒地に白）、入力欄やボタンのはっきりした枠線、太いフォーカス枠になります。自動では、端末の設定がより高いコントラストを求めているときにオンになります。",
+  "share.button": "共有",
+  "share.menuLabel": "このスレッドを共有",
+  "share.on": "{service}で共有",
+  "share.mastodonInstance": "あなたのMastodonサーバー",
+  "share.mastodonSave": "保存",
+  "share.mastodonInvalid": "mastodon.social のようなサーバー名を入力してください。",
+  "invite.title": "友だちを招待",
+  "invite.body": "あなた専用のリンクを共有しましょう。友だちがこのリンクから登録すると通知が届きます。",
+  "invite.linkLabel": "あなたの招待リンク",
+  "invite.copy": "招待リンクをコピー",
+  "invite.invitedBy": "@{name} さんからの招待",
+  "join.title": "招待されました！",
+  "join.body": "このフォーラムのメンバーがあなたを招待しました。アカウントを作成して会話に参加しましょう。",
+  "join.signUp": "登録する"
 }

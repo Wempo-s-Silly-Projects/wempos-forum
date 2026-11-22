@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Tự động (theo thiết bị này)",
   "readingComfort.contrastOn": "Bật",
   "readingComfort.contrastOff": "Tắt",
-  "readingComfort.contrastHelp": "Chữ đen trên nền trắng (chữ trắng trên nền đen ở giao diện tối), viền rõ quanh các ô và nút, và khung tiêu điểm dày hơn. Tự động sẽ bật khi cài đặt thiết bị của bạn yêu cầu tương phản cao hơn."
+  "readingComfort.contrastHelp": "Chữ đen trên nền trắng (chữ trắng trên nền đen ở giao diện tối), viền rõ quanh các ô và nút, và khung tiêu điểm dày hơn. Tự động sẽ bật khi cài đặt thiết bị của bạn yêu cầu tương phản cao hơn.",
+  "share.button": "Chia sẻ",
+  "share.menuLabel": "Chia sẻ chủ đề này",
+  "share.on": "Chia sẻ lên {service}",
+  "share.mastodonInstance": "Máy chủ Mastodon của bạn",
+  "share.mastodonSave": "Lưu",
+  "share.mastodonInvalid": "Nhập tên máy chủ, ví dụ mastodon.social.",
+  "invite.title": "Mời bạn bè",
+  "invite.body": "Chia sẻ liên kết riêng của bạn. Khi bạn bè đăng ký qua liên kết đó, bạn sẽ nhận được thông báo.",
+  "invite.linkLabel": "Liên kết mời của bạn",
+  "invite.copy": "Sao chép liên kết mời",
+  "invite.invitedBy": "Được mời bởi @{name}",
+  "join.title": "Bạn được mời!",
+  "join.body": "Một thành viên của diễn đàn này đã mời bạn. Hãy tạo tài khoản để tham gia trò chuyện.",
+  "join.signUp": "Đăng ký"
 }

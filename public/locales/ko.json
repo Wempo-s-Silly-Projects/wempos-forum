@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "자동(이 기기 설정 따르기)",
   "readingComfort.contrastOn": "켜기",
   "readingComfort.contrastOff": "끄기",
-  "readingComfort.contrastHelp": "흰 바탕에 검은 글자(어두운 테마에서는 검은 바탕에 흰 글자), 입력란과 버튼의 뚜렷한 테두리, 더 두꺼운 포커스 테두리를 씁니다. 자동은 기기 설정이 더 높은 대비를 요청할 때 켜집니다."
+  "readingComfort.contrastHelp": "흰 바탕에 검은 글자(어두운 테마에서는 검은 바탕에 흰 글자), 입력란과 버튼의 뚜렷한 테두리, 더 두꺼운 포커스 테두리를 씁니다. 자동은 기기 설정이 더 높은 대비를 요청할 때 켜집니다.",
+  "share.button": "공유",
+  "share.menuLabel": "이 스레드 공유",
+  "share.on": "{service}에 공유",
+  "share.mastodonInstance": "내 Mastodon 서버",
+  "share.mastodonSave": "저장",
+  "share.mastodonInvalid": "mastodon.social 같은 서버 이름을 입력하세요.",
+  "invite.title": "친구 초대",
+  "invite.body": "나만의 링크를 공유하세요. 친구가 이 링크로 가입하면 알림을 받습니다.",
+  "invite.linkLabel": "내 초대 링크",
+  "invite.copy": "초대 링크 복사",
+  "invite.invitedBy": "@{name}님의 초대",
+  "join.title": "초대받으셨어요!",
+  "join.body": "이 포럼의 회원이 당신을 초대했습니다. 계정을 만들고 대화에 참여하세요.",
+  "join.signUp": "가입하기"
 }

@@ -65,6 +65,12 @@ export const routeForPath = (pathname, search = "") => {
   if (pathname === "/mine") return { name: "mine" };
   if (pathname === "/leaderboard") return { name: "leaderboard" };
   if (pathname === "/rules") return { name: "rules" };
+  // Invite links (v5.34): /join?ref=<username>; a malformed ref is "" (the
+  // page still shows, it just credits no one). Same shape as invite.js.
+  if (pathname === "/join") {
+    const ref = new URLSearchParams(search).get("ref") ?? "";
+    return { name: "join", ref: /^[A-Za-z0-9_]{3,24}$/.test(ref) ? ref : "" };
+  }
   const category = pathname.match(/^\/c\/([a-z0-9-]+)$/);
   if (category) {
     // Own keys only (v5.4): /c/constructor must not match Object.prototype.

@@ -23,6 +23,8 @@
 // bar identity, the site-section icon links, chat toggle, profile/saved/
 // bell/shield, sign-in toggle) plus the logout action its quiet
 // button dispatches. Bodies moved verbatim out of app.js.
+import { clearAllShare } from "../share.js";
+import { clearAllInvite } from "../invite.js";
 import { api, setCsrfToken } from "../api.js";
 import { accountActions, element } from "../dom.js";
 import { iconButton } from "../icons.js";
@@ -266,6 +268,8 @@ function markMobileBarItem(user) {
 // recents, newcomer-card dismissals and quiet hours (wave 5.25) leave with
 // the member. Device preferences (theme, text size, locale, DM effects) stay.
 function wipeAccountLocalData() {
+  clearAllShare();
+  clearAllInvite();
   clearAllDrafts();
   clearAllCatchUp();
   clearAllNewcomer();

@@ -56,6 +56,7 @@ import { openLightbox } from "../lightbox.js";
 import { anchorReplyCard, bindReplyHashChange, highlightReplyFromHash } from "../reply-anchor.js";
 import { createSaveThreadButton } from "../thread-text.js";
 import { startReadingProgress } from "../reading-progress.js";
+import { createShareButton } from "../share.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -66,6 +67,9 @@ async function renderPostRoute(route, context, version) {
   rootCard.querySelector(".post-actions")
     ?.append(createSaveThreadButton(document, { getRoot: () => main, threadId: post.id }));
   main.append(rootCard);
+  // Share (v5.34): public root threads only, never for staff viewers.
+  const share = createShareButton(document, post, context.session.user);
+  if (share) main.append(share);
   // Thread at a glance (wave 2026-11-21): from the posts already loaded.
   if (post.replies.length) {
     main.append(createThreadGlance(document, summarizeThread(post, post.replies), main));

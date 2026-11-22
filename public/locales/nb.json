@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Automatisk (følg denne enheten)",
   "readingComfort.contrastOn": "På",
   "readingComfort.contrastOff": "Av",
-  "readingComfort.contrastHelp": "Svart tekst på hvitt (hvitt på svart i mørkt tema), tydelige omriss rundt felt og knapper, og tykkere fokusrammer. Automatisk slår det på når innstillingene på enheten din ber om mer kontrast."
+  "readingComfort.contrastHelp": "Svart tekst på hvitt (hvitt på svart i mørkt tema), tydelige omriss rundt felt og knapper, og tykkere fokusrammer. Automatisk slår det på når innstillingene på enheten din ber om mer kontrast.",
+  "share.button": "Del",
+  "share.menuLabel": "Del denne tråden",
+  "share.on": "Del på {service}",
+  "share.mastodonInstance": "Mastodon-serveren din",
+  "share.mastodonSave": "Lagre",
+  "share.mastodonInvalid": "Skriv inn et servernavn som mastodon.social.",
+  "invite.title": "Inviter en venn",
+  "invite.body": "Del den personlige lenken din. Når en venn registrerer seg med den, får du et varsel.",
+  "invite.linkLabel": "Invitasjonslenken din",
+  "invite.copy": "Kopier invitasjonslenke",
+  "invite.invitedBy": "Invitert av @{name}",
+  "join.title": "Du er invitert!",
+  "join.body": "Et medlem av dette forumet har invitert deg. Opprett en konto for å bli med i samtalen.",
+  "join.signUp": "Registrer deg"
 }
