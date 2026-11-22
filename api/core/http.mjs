@@ -29,7 +29,9 @@
 // unchanged so every api module imports exactly the way it did — public
 // signatures and messages never moved — and keeps the app-side pieces: the
 // Turnstile wall (app secret/hostnames) and the forum's limiter binding map.
-import { RATE_LIMIT_BINDINGS, TURNSTILE_SITEVERIFY_URL } from "../../constants.mjs";
+import {
+  RATE_LIMIT_BINDINGS, TURNSTILE_SITEVERIFY_URL, WAVESURFER_STYLE_HASH, YOUTUBE_EMBED_ORIGIN,
+} from "../../constants.mjs";
 import {
   HttpError,
   MAX_JSON_BYTES,
@@ -58,16 +60,29 @@ export const json = vendorJson;
 // CDN — cdnjs also hosts libraries that are known CSP-bypass gadgets.
 const POLYFILL_ORIGIN = "https://cdnjs.cloudflare.com/polyfill/";
 const VENDOR_SCRIPT_SRC = "script-src 'self' https://challenges.cloudflare.com;";
+// v5.76 (Batch D, embeds): each splice names the exact vendor directive it
+// widens. frame-src gains youtube-nocookie only (the iframe exists only after
+// the reader presses play); img-src gains no thumbnail host. blob: covers
+// media hls.js feeds through MediaSource and textures <model-viewer> decodes
+// from a same-origin .glb; the style hash admits exactly WaveSurfer's static
+// shadow <style>.
+const DOCUMENT_CSP_SPLICES = [
+  [VENDOR_SCRIPT_SRC, "script-src 'self' https://challenges.cloudflare.com " + POLYFILL_ORIGIN + ";"],
+  ["style-src 'self';", "style-src 'self' '" + WAVESURFER_STYLE_HASH + "';"],
+  ["img-src 'self' data:;", "img-src 'self' data: blob:; media-src 'self' blob:;"],
+  ["connect-src 'self' https://challenges.cloudflare.com;", "connect-src 'self' https://challenges.cloudflare.com blob:;"],
+  ["frame-src https://challenges.cloudflare.com;", "frame-src https://challenges.cloudflare.com " + YOUTUBE_EMBED_ORIGIN + ";"],
+];
 
 export function forumDocumentSecurityHeaders(headers = new Headers()) {
   const result = vendorSecurityHeaders(headers);
   const csp = result.get("Content-Security-Policy") ?? "";
   // Fail closed: if the vendor policy ever changes shape, keep it as-is
   // rather than splicing an origin into an unknown directive.
-  if (!csp.includes(VENDOR_SCRIPT_SRC)) return result;
+  if (!DOCUMENT_CSP_SPLICES.every(([from]) => csp.includes(from))) return result;
   result.set(
     "Content-Security-Policy",
-    csp.replace(VENDOR_SCRIPT_SRC, "script-src 'self' https://challenges.cloudflare.com " + POLYFILL_ORIGIN + ";"),
+    DOCUMENT_CSP_SPLICES.reduce((policy, [from, to]) => policy.replace(from, to), csp),
   );
   return result;
 }
