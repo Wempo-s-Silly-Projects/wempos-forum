@@ -15,6 +15,24 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.62.0] - 2026-11-22
+
+### Security
+- Whole-repo visibility audit (the every-10th-release check), covering
+  everything shipped or moved since v5.52:
+  [docs/visibility-inventory.md](docs/visibility-inventory.md) now has 125
+  rows (was 113). No leaks found. The reorganized thread page, settings
+  hub, header menus and phone bar show staff tools and the moderation desk
+  entry to staff only, the settings hub holds only your own panels, and
+  the navigation reuse never keeps a staff entry, profile link or bell
+  after a sign-out or role change. The data export, checked again as one
+  surface, still carries only your own rows. Nothing on the server changes
+  in this release.
+- The cross-route visibility sweep now also renders the moved client
+  surfaces from the same test data for a guest, a member, both sides of a
+  block, an admin and the owner, and checks the settings, desk and My posts
+  page shells for every viewer. Its swept-count floor rises from 326 to 338.
+
 ## [5.61.0] - 2026-11-22
 
 ### Security
