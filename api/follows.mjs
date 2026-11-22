@@ -129,9 +129,15 @@ async function follow(env, userId, target) {
   if (Number(total?.n || 0) >= FOLLOWING_MAX) {
     throw new HttpError(400, "You can follow up to " + FOLLOWING_MAX + " members.");
   }
-  await env.FORUM_DB.prepare(
-    "INSERT INTO user_follows (follower_id, followee_id, created_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING",
-  ).bind(userId, targetId, nowSeconds()).run();
+  // Wave 5.41 L2: the cap rides the INSERT too, so a request that raced past
+  // the read above cannot store a follow beyond FOLLOWING_MAX.
+  const inserted = await env.FORUM_DB.prepare(
+    "INSERT INTO user_follows (follower_id, followee_id, created_at) SELECT ?, ?, ? " +
+    "WHERE (SELECT COUNT(*) FROM user_follows WHERE follower_id = ?) < " + FOLLOWING_MAX + " ON CONFLICT DO NOTHING",
+  ).bind(userId, targetId, nowSeconds(), userId).run();
+  if (Number(inserted.meta?.changes) !== 1 && !(await followState(env, userId, targetId))) {
+    throw new HttpError(400, "You can follow up to " + FOLLOWING_MAX + " members.");
+  }
   return json({ following: true });
 }
 
