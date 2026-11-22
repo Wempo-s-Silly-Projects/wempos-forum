@@ -20,7 +20,8 @@
 
 // Save thread as text (wave 5.26 F1, client-only). The file is built only
 // from the post cards the thread page already shows: anything inside
-// [hidden] (filtered replies) is skipped, a folded reply keeps only its
+// [hidden] (collapsed groups) or [data-filtered-out] (replies the reply
+// filter hides) is skipped, a folded reply keeps only its
 // header line, and an unrevealed spoiler stays as the spoiler mask. Nothing
 // is fetched or stored; the text is handed to the browser as a Blob download
 // and the object URL is revoked afterwards.
@@ -41,7 +42,9 @@ const THREAD_ID_PATTERN = /^[0-9]{1,15}$/;
 const BODY_CLASSES = new Set(["post-body", "post-quote", "post-codeblock", "post-heading", "md-list"]);
 
 const classTokens = (node) => String(node?.className ?? "").split(/\s+/);
-const isHiddenNode = (node) => node?.hidden === true || Boolean(node?.hasAttribute?.("hidden"));
+const HIDDEN_ATTRIBUTES = ["hidden", "data-filtered-out"];
+const isHiddenNode = (node) => node?.hidden === true
+  || HIDDEN_ATTRIBUTES.some((name) => Boolean(node?.hasAttribute?.(name)));
 
 function isShown(node) {
   for (let cur = node; cur && cur.nodeType === ELEMENT_NODE; cur = cur.parentNode) {
