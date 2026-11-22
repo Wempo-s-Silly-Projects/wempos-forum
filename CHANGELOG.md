@@ -15,6 +15,22 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.53.0] - 2026-11-22
+
+### Security
+- Security review of v5.49-v5.52 (the thread TL;DR, the word diff in edit
+  history and thread locks):
+  [docs/security-reviews/2026-11-22-v5.49-v5.52.md](docs/security-reviews/2026-11-22-v5.49-v5.52.md).
+  No critical or high findings, so nothing in the forum's behaviour changes
+  in this release. One medium finding (a post edited many times can make
+  its edit history slow to open, because every version is now compared
+  word by word) and one low finding (locking a thread at the moment its
+  author deletes it gives staff a server error) are recorded, with two low
+  questions for the owner: whether a lock should also stop edits and TL;DR
+  changes, and whether locks should leave a lasting record. The owner items
+  from earlier reviews are carried over. New tests lock in the behaviour
+  the review checked.
+
 ## [5.52.0] - 2026-11-22
 
 ### Security
