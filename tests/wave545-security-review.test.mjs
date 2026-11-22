@@ -20,8 +20,8 @@
 
 // Wave 5.45 security review of v5.41-v5.44 (docs/security-reviews/
 // 2026-11-22-v5.41-v5.44.md). No CRITICAL or HIGH finding: these pins lock
-// behaviour the review verified by hand, plus one `todo` that records the
-// MEDIUM slow-mode check-then-insert gap (M1) without fixing it.
+// behaviour the review verified by hand, plus the MEDIUM slow-mode
+// check-then-insert gap (M1), recorded as a `todo` and fixed in v5.54.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
@@ -152,13 +152,19 @@ test("DM reactions: a non-participant's 404 is byte-identical to a missing messa
 // inserts. The harness serialises requests, so the race is modelled the way
 // wave 5.41 modelled the cap races: the check reads stale (no hit) while an
 // earlier reply already sits inside the cooldown.
+// v5.54: only the FIRST check read is stale (the early fast-path read raced);
+// a later read sees the committed reply, as it would in production.
 function staleSlowModeCheck(env) {
   const real = env.FORUM_DB;
+  let stale = true;
   return {
     ...env,
     FORUM_DB: {
       prepare(sql) {
-        if (sql === SLOW_MODE_CHECK_SQL) return { bind: () => ({ first: async () => null }) };
+        if (sql === SLOW_MODE_CHECK_SQL && stale) {
+          stale = false;
+          return { bind: () => ({ first: async () => null }) };
+        }
         return real.prepare(sql);
       },
       batch: (statements) => real.batch(statements),
@@ -167,14 +173,15 @@ function staleSlowModeCheck(env) {
   };
 }
 
-test("slow mode: a reply whose cooldown check read stale is still refused", {
-  todo: "M1 (MEDIUM, owner decision): the slow-mode check runs before the INSERT, so parallel replies can all pass it (api/staff-tools.mjs:76-80, api/replies.mjs:160)",
-}, async () => {
+// M1 fixed in v5.54: the cooldown rides inside the reply INSERT itself.
+test("slow mode: a reply whose cooldown check read stale is still refused", async () => {
   const w = await world();
   w.db.prepare("INSERT INTO thread_slowmode (post_id, seconds, set_by, set_at) VALUES (?, 900, ?, ?)").run(w.root, w.id.boss, now());
   const bob = w.session("bob");
   const send = (env, i) => call(env, "/api/posts/" + w.root + "/replies", { method: "POST", body: { body: "burst " + i }, session: bob });
   assert.equal((await send(w.env, 0)).status, 201);
-  await send(staleSlowModeCheck(w.env), 1);
+  const raced = await send(staleSlowModeCheck(w.env), 1);
   assert.equal(count(w.db, "posts WHERE body LIKE 'burst %'"), 1);
+  assert.equal(raced.status, 429);
+  assert.equal((await raced.json()).code, "slow_mode");
 });
