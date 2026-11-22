@@ -52,9 +52,11 @@ export const json = vendorJson;
 // visitors on browsers that can't or won't update. The vendored framework
 // file stays untouched; the static leg binds this app-owned header set via
 // makeHttp's securityHeaders hook (the framework's own extension point for a
-// divergent app). Only HTML responses (the static leg) carry it; JSON,
+// divergent app). Only static-leg (ASSETS) responses carry it; JSON,
 // feeds, images and discovery keep the vendor set.
-const POLYFILL_ORIGIN = "https://cdnjs.cloudflare.com";
+// v5.73.1 (security review M1): scoped to the polyfill path, not the whole
+// CDN — cdnjs also hosts libraries that are known CSP-bypass gadgets.
+const POLYFILL_ORIGIN = "https://cdnjs.cloudflare.com/polyfill/";
 const VENDOR_SCRIPT_SRC = "script-src 'self' https://challenges.cloudflare.com;";
 
 export function forumDocumentSecurityHeaders(headers = new Headers()) {

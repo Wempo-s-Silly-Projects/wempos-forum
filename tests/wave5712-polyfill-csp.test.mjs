@@ -36,7 +36,8 @@ const scriptSrc = (csp) => (csp.match(/script-src ([^;]+);/) ?? [])[1] ?? "";
 test("the HTML leg's CSP allows the cdnjs polyfill origin and still forbids inline and eval", () => {
   const csp = secureResponse(new Response("x")).headers.get("Content-Security-Policy");
   const sources = scriptSrc(csp).split(/\s+/);
-  assert.deepEqual(sources, ["'self'", "https://challenges.cloudflare.com", POLYFILL_ORIGIN]);
+  // v5.73.1 (security review M1): the polyfill path only, never the whole CDN.
+  assert.deepEqual(sources, ["'self'", "https://challenges.cloudflare.com", POLYFILL_ORIGIN + "/polyfill/"]);
   assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval|https:\/\/\*|\s\*[\s;]/);
   assert.match(csp, /object-src 'none'/);
 });

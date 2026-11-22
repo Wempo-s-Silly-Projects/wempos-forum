@@ -50,7 +50,7 @@ const braces = (text) => [...text].filter((char) => char === "{" || char === "}"
 // all left to right; the 16 bundles carry no ZWJ/ZWNJ either.
 const UNSAFE_MARKUP = /[<>]|&#?\w+;|javascript:|data:|vbscript:/i;
 // eslint-disable-next-line no-control-regex -- matching control characters is the point
-const UNSAFE_CHARS = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F­؜​-‏‪-‮⁠-⁩﻿]/;
+const UNSAFE_CHARS = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F\u00AD\u061C\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF]/;
 
 const directives = (csp) => new Map(csp.split(";").map((part) => part.trim()).filter(Boolean)
   .map((part) => {
@@ -180,7 +180,7 @@ test("locale detection only ever yields a shipped code", () => {
     assert.equal(detectLocale(null, [`${code}-XX`]), code);
   }
   const shipped = new Set(LOCALES.map((locale) => locale.code));
-  for (const hostile of ["../en", "hy/../../x", "br.json", "my%2F..", "cv?x=1", "<bs>", "be‮", ""]) {
+  for (const hostile of ["../en", "hy/../../x", "br.json", "my%2F..", "cv?x=1", "<bs>", "be\u202E", ""]) {
     assert.ok(shipped.has(detectLocale(hostile)), hostile);
     assert.ok(shipped.has(detectLocale(null, [hostile])), hostile);
   }
