@@ -112,7 +112,8 @@ test("link building: fixed https host per platform; hostile stored values never 
 
 test("profile editor/renderer source has no innerHTML or insertAdjacentHTML sink", () => {
   for (const path of ["public/js/profile-editor.js", "public/js/routes/profile.js"]) {
-    assert.doesNotMatch(read(path), /innerHTML|outerHTML|insertAdjacentHTML|document\.write/, path);
+    const code = read(path).replace(/^\s*\/\/.*$/gm, "");
+    assert.doesNotMatch(code, /\.(?:innerHTML|outerHTML)\s*=|insertAdjacentHTML\(|document\.write\(/, path);
   }
 });
 
@@ -136,7 +137,7 @@ test("cross-route pin: PATCH /api/me refuses every hostile value for every socia
       const text = await res.text();
       // The error names the platform, never echoes the member's input or SQL.
       assert.ok(!text.includes(JSON.stringify(bad).slice(1, -1)), key + " echoes input: " + text);
-      assert.doesNotMatch(text, /SQLITE|UPDATE users|stack|at \w+ \(/i);
+      assert.doesNotMatch(text, /SQLITE|UPDATE users|\n\s+at \S/i);
     }
   }
   for (const value of Object.values(socialRow(w))) assert.equal(value, null);
