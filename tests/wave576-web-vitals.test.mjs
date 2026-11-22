@@ -205,7 +205,11 @@ test("migration 0079 is CREATE-only and has no identifying column", () => {
   const columns = env.__sqlite.prepare("PRAGMA table_info(web_vitals_daily)").all().map((c) => c.name);
   const expected = ["day", "route", "metric", "count", ...Array.from({ length: constants.VITALS_BUCKET_COUNT }, (_, i) => "b" + i)];
   assert.deepEqual(columns.sort(), expected.sort());
-  for (const name of columns) assert.doesNotMatch(name, /ip|user|agent|cookie|session|email|url|path|query|time|id$/i, name);
+  for (const name of columns) {
+    // No identifying word anywhere in a column name, and no "...id" column.
+    assert.doesNotMatch(name, /(?:ip|user|agent|cookie|session|email|url|path|query|time)/i, name);
+    assert.ok(!name.toLowerCase().endsWith("id"), name);
+  }
 });
 
 // ---------------------------------------------------------------- the beacon route
