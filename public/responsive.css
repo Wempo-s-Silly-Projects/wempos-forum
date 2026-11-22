@@ -256,6 +256,8 @@ table,
     max-height: 70vh;
     overflow-y: auto;
   }
+  /* v5.60: the sheet's summary is a full phone target like the rows. */
+  .mobile-bar .nav-menu-panel .shortcut-sheet > summary { min-height: 2.75rem; }
 
   /* Keyboard up: the bar yields. A text field is the only way to type
      (search, chat, composer, reports), so :has() on focus is exact. */

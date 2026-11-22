@@ -111,10 +111,12 @@ export function syncSettingsGroups(groups) {
 }
 
 // A guest who opens /?settings: a sign-in prompt, like /mine and /bookmarks.
+// v5.60: its title is the page's h1 (the route clears the shell's h1, and a
+// signed-in member's hub opens at h1 too), so the outline does not start at h2.
 export function createSettingsSignIn(doc, signInHref) {
   const wrapper = doc.createElement("div");
   wrapper.className = "settings-sign-in";
-  const heading = doc.createElement("h2");
+  const heading = doc.createElement("h1");
   heading.textContent = t("settings.title");
   const note = doc.createElement("p");
   note.className = "muted";
