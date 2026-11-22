@@ -64,6 +64,53 @@ rejection.
 - Database changes go in a **new** numbered file in `migrations/`. Never edit
   a migration that has already been released.
 
+### Coding standards
+
+The style guide for JavaScript is ESLint's **recommended** rule set
+(`@eslint/js` `configs.recommended`), configured in
+[`eslint.config.js`](eslint.config.js) with ECMAScript 2023 modules and the
+right globals for each runtime (browser, Workers, Node for tests). On top of
+that:
+
+- the project rules above (no framework or bundler, `textContent` only, the
+  shared visibility helpers, the `api()` wrapper);
+- every JavaScript file runs in strict mode, because it's an ES module;
+- shell scripts must pass [ShellCheck](https://www.shellcheck.net/);
+- every `.js`, `.mjs` and `.css` file starts with the license header (see
+  below).
+
+These are enforced automatically. `pnpm lint` (ESLint), ShellCheck,
+`reuse lint` and the license-header test (part of `pnpm test`) all run in
+CI on every push and pull request. A failing check turns the change red, and
+red changes don't get merged or deployed. The vendored
+files and `docs/` are excluded from ESLint (see the `ignores` list). Any
+other exception must be a rare, inline `eslint-disable` comment that says
+why.
+
+### Code review
+
+Every change gets reviewed before it's released. The reviewer checks that:
+
+1. it does one thing, matches the description, and doesn't touch unrelated
+   files;
+2. tests come with it (bug fixes need a test that fails without the fix),
+   and `pnpm test` and `pnpm lint` pass in CI;
+3. it keeps the security rules: writes go through `requireUser`, reads that
+   show content go through the visibility helpers, SQL uses bound
+   parameters, user text goes through `textContent`, and no secrets are
+   committed;
+4. any new input is checked against an allow-list (type, length, format);
+5. CodeQL, Semgrep, Gitleaks and the dependency audit report no new
+   findings;
+6. docs, translations and CHANGELOG.md are updated when behavior changes.
+
+A change is accepted when all six points hold and CI is green.
+
+The project has one maintainer (see [GOVERNANCE.md](GOVERNANCE.md)), so
+today the maintainer reviews contributors' pull requests and checks their
+own and AI-assisted changes against this same list, with help from
+automated review bots. There isn't a second human reviewer yet.
+
 ## License headers
 
 Wempo's Forum is licensed under the GNU AGPL, version 3 or later. By
