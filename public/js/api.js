@@ -88,7 +88,7 @@ async function fetchWithRetry(path, options) {
       throw error;
     }
     if (response.status >= 500 && index < attempts) {
-      throw Object.assign(new Error("retryable server error"), { retryable: true });
+      throw Object.assign(new Error(String(response.status)), { retryable: true });
     }
     return response;
   }, {

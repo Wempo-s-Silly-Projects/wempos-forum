@@ -66,7 +66,7 @@ export function clearAllDrafts(storage = browserStorage()) {
   return Promise.resolve();
 }
 
-const IS_DRAFT_STORE = Symbol("draft store");
+const IS_DRAFT_STORE = Symbol();
 
 function removeDraftKeys(storage) {
   try {
