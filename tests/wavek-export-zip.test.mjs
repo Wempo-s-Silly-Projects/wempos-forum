@@ -192,7 +192,7 @@ test("downloadMyData saves a ZIP holding the JSON and the member's own images, s
 });
 
 test("the ZIP is built on the vendored client-zip and the feed action reports missing images", () => {
-  assert.match(read("public/js/data-export.js"), /from "\.\/vendor\/client-zip\.js"/);
+  assert.match(read("public/js/data-export.js"), /import\("\.\/vendor\/client-zip\.js"\)/);
   const feed = read("public/js/routes/feed.js");
   assert.match(feed, /data\.imagesMissing/);
 });

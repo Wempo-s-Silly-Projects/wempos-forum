@@ -28,8 +28,8 @@
 // messages, profile) and the member's OWN uploaded images — the paths are
 // built only from the export's own uploads list and the member's own avatar,
 // fetched through a limiter; an image that no longer loads is left out.
+// client-zip loads lazily, only when the member asks for the download.
 import { t } from "./i18n.js";
-import { downloadZip } from "./vendor/client-zip.js";
 import { API_BATCH_CONCURRENCY, createLimit } from "./request-retry.js";
 
 export const EXPORT_PATH = "/api/me/export";
@@ -113,11 +113,12 @@ export async function downloadMyData({
   doc = document,
   urls = URL,
   schedule = (fn) => setTimeout(fn, REVOKE_DELAY_MS),
-  zip = downloadZip,
+  zip,
 }) {
+  const makeZip = zip ?? (await import("./vendor/client-zip.js")).downloadZip;
   const data = await api(EXPORT_PATH);
   const images = await fetchImages(api, exportImagePlan(data));
-  const blob = await zip([...exportJsonFiles(data), ...images.files]).blob();
+  const blob = await makeZip([...exportJsonFiles(data), ...images.files]).blob();
   const href = urls.createObjectURL(blob);
   const link = doc.createElement("a");
   link.href = href;
