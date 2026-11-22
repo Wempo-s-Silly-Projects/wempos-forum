@@ -43,6 +43,12 @@ const STAFF_ACTIONS = Object.freeze(new Set([
   "thread-pin", "thread-unpin", "thread-lock", "thread-unlock", "staff-pick", "staff-unpick", "suggestion-status",
 ]));
 
+// Paired toggles: after Pin the same slot reads Unpin (L5 focus follows it).
+const PAIRED_ACTIONS = Object.freeze({
+  "thread-pin": "thread-unpin", "thread-unpin": "thread-pin",
+  "thread-lock": "thread-unlock", "thread-unlock": "thread-lock",
+  "staff-pick": "staff-unpick", "staff-unpick": "staff-pick",
+});
 const LINK_BASE = "https://wempos-forum.invalid";
 
 const hasClass = (node, names) => String(node.className ?? "").split(/\s+/).some((name) => names.includes(name));
@@ -169,3 +175,52 @@ export function organizeThreadActions(document, card, {
   row.replaceChildren(...primary.slice(0, 2), ...slots.chip, ...primary.slice(2), ...more);
 }
 
+// L5 (v5.57 review): an action inside More re-renders the whole route, which
+// rebuilds the card with More closed and drops focus. The page's click
+// handler takes a snapshot before the action and restores after it: More
+// (and Staff, if the control sat there) reopens and focus returns to the
+// same control, its paired toggle (Pin -> Unpin), or else the More button.
+// A control outside More, or an action that did not re-render (a dialog
+// opened), is left alone. Page view only: nothing stored or fetched.
+export function captureMoreFocus(control) {
+  const panel = control?.closest?.(".thread-more-panel");
+  if (!panel?.id) return null;
+  return {
+    panel,
+    moreId: panel.id,
+    staffId: control.closest(".thread-staff-panel")?.id ?? null,
+    action: control.dataset?.action ?? null,
+    postId: control.dataset?.postId ?? null,
+    status: control.dataset?.status ?? null,
+  };
+}
+
+const toggleFor = (panel) => Array.from(panel.parentNode?.children ?? [])
+  .find((node) => node.tagName === "BUTTON" && node.getAttribute("aria-controls") === panel.id) ?? null;
+
+function reopen(panel) {
+  const toggle = toggleFor(panel);
+  if (toggle) setOpen(toggle, panel, true);
+  return toggle;
+}
+
+function findControl(panel, snapshot) {
+  const buttons = Array.from(panel.querySelectorAll("button"))
+    .filter((node) => (node.dataset?.postId ?? null) === snapshot.postId);
+  const same = (action) => buttons.find((node) => node.dataset?.action === action
+    && (node.dataset?.status ?? null) === snapshot.status);
+  return (snapshot.action && same(snapshot.action)) || (PAIRED_ACTIONS[snapshot.action] && same(PAIRED_ACTIONS[snapshot.action])) || null;
+}
+
+export function restoreMoreFocus(doc, snapshot) {
+  if (!snapshot) return;
+  const panel = doc?.getElementById?.(snapshot.moreId);
+  // Same panel: the page did not re-render, so focus never left.
+  if (!panel || panel === snapshot.panel) return;
+  const moreToggle = reopen(panel);
+  if (snapshot.staffId) {
+    const staff = Array.from(panel.querySelectorAll("div")).find((node) => node.id === snapshot.staffId);
+    if (staff) reopen(staff);
+  }
+  (findControl(panel, snapshot) ?? moreToggle)?.focus?.();
+}
