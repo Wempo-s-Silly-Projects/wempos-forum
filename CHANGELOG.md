@@ -15,6 +15,11 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.35.1] - 2026-11-22
+
+### Security
+- Share menu links are built with the URL parser; odd Mastodon hosts are refused.
+
 ## [5.35.0] - 2026-11-22
 
 ### Added

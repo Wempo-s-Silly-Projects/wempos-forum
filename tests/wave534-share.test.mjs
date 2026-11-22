@@ -215,3 +215,77 @@ test("wiring pins: sign-out wipe, thread page mount, settings panel, welcome lin
   const html = read("public/index.html");
   assert.doesNotMatch(html, /<script[^>]+src="https?:/);
 });
+
+// v5.35.1 — CodeQL #22 (js/xss-through-dom): the Mastodon host a member types
+// must never reach an href unless the URL parser agrees it is that exact host
+// on https. Intent links are built with the URL API, not string concatenation.
+const SHARE_TEXT = "text=A+title+https%3A%2F%2Fwempos-forum.com%2Fposts%2F42";
+const BAD_MASTODON_HOSTS = [
+  "javascript:alert(1)", "JaVaScRiPt:alert(1)//x.com", "data:text/html,<script>alert(1)</script>",
+  "data:text/html;base64,PHNjcmlwdD4=", "evil.com@x", "evil.com@x.org", "x/../y", "x.org/../y.org",
+  'host"onmouseover', 'host.com"onmouseover="alert(1)', "host.com\"><img src=x>", "mastodon .social",
+  " mastodon.social x", "mastodon.social\tx", "mastodon.social\nx", "mаstodon.social",
+  "xn--mstodon-3ve.social​", "mastodon.sociаl", "аррle.com", "ｍ.com",
+  "x".repeat(254) + ".com", ("a".repeat(63) + ".").repeat(4) + "com", "example.org:99999",
+  "example.org:65536", "example.org:08443", "example.org:0", "\\\\evil.com", "//evil.com",
+];
+
+test("v5.35.1: no Mastodon link for script, data, credential, path, quote, space, homoglyph, long or bad-port hosts", () => {
+  for (const bad of BAD_MASTODON_HOSTS) {
+    const services = shareTargets(URL_OF, "A title", bad).map((target) => target.service);
+    assert.deepEqual(services, ["X", "Bluesky", "Reddit"], JSON.stringify(bad));
+  }
+});
+
+test("v5.35.1: a stored bad host renders no Mastodon link in the menu", async () => {
+  for (const bad of BAD_MASTODON_HOSTS) {
+    const document = makeFakeDocument();
+    const wrap = createShareButton(document, { id: 42, body: "A title", visibility: "public", parent: null }, null, {
+      origin: ORIGIN, navigator: {}, storage: memoryStorage({ [MASTODON_STORAGE_KEY]: bad }),
+    });
+    const links = allLinks(findByClass(wrap, "share-menu"));
+    assert.equal(links.length, 3, JSON.stringify(bad));
+    for (const link of links) assert.doesNotMatch(link.getAttribute("href"), /\/share\?/, JSON.stringify(bad));
+  }
+});
+
+test("v5.35.1: valid Mastodon hosts (with or without a port) give the exact https share URL", async () => {
+  const expected = {
+    "mastodon.social": "https://mastodon.social/share?" + SHARE_TEXT,
+    "example.org:8443": "https://example.org:8443/share?" + SHARE_TEXT,
+    "  https://Fosstodon.org/ ": "https://fosstodon.org/share?" + SHARE_TEXT,
+  };
+  for (const [host, href] of Object.entries(expected)) {
+    assert.equal(shareTargets(URL_OF, "A title", host).at(-1).href, href, host);
+    const document = makeFakeDocument();
+    const wrap = createShareButton(document, { id: 42, body: "A title", visibility: "public", parent: null }, null, {
+      origin: ORIGIN, navigator: {}, storage: memoryStorage({ [MASTODON_STORAGE_KEY]: host }),
+    });
+    const links = allLinks(findByClass(wrap, "share-menu"));
+    assert.equal(links.length, 4, host);
+    assert.equal(links.at(-1).getAttribute("href"), href, host);
+  }
+});
+
+test("v5.35.1: X, Bluesky and Reddit hrefs always start with their fixed https origins", () => {
+  const prefixes = ["https://x.com/intent/tweet?", "https://bsky.app/intent/compose?", "https://www.reddit.com/submit?"];
+  for (const title of ["A title", "", `javascript:alert(1) "><script>`, "аррle"]) {
+    for (const host of ["", "mastodon.social", "javascript:alert(1)"]) {
+      const targets = shareTargets(URL_OF, title, host);
+      prefixes.forEach((prefix, index) => assert.ok(targets[index].href.startsWith(prefix), targets[index].href));
+    }
+  }
+  assert.equal(shareTargets(URL_OF, "A title", "").map((target) => target.href).join(" "),
+    "https://x.com/intent/tweet?text=A+title&url=https%3A%2F%2Fwempos-forum.com%2Fposts%2F42 " +
+    "https://bsky.app/intent/compose?" + SHARE_TEXT + " " +
+    "https://www.reddit.com/submit?url=https%3A%2F%2Fwempos-forum.com%2Fposts%2F42&title=A+title");
+});
+
+test("v5.35.1 source pin: intent hrefs come from the URL API, never raw strings into setAttribute(\"href\")", () => {
+  const share = read("public/js/share.js");
+  assert.match(share, /new URL\("https:\/\/" \+ host \+ "\/share"\)/);
+  assert.match(share, /searchParams\.set\(/);
+  assert.match(share, /\.protocol !== "https:"/);
+  assert.doesNotMatch(share, /setAttribute\("href", target\.href\)/);
+  assert.doesNotMatch(share, /new URLSearchParams\(params\)\.toString\(\)/);
+});

@@ -65,19 +65,42 @@ export function shareTitle(body) {
   return maskedExcerpt(line, TITLE_MAX);
 }
 
-// shareTargets(url, title, mastodonHost) -> [{ service, href }]. Values ride
-// URLSearchParams, so every byte of the title and URL is percent-encoded.
+// withParams(base, params) -> base.href with each value set through
+// URL.searchParams, so every byte of the title and URL is percent-encoded.
+const withParams = (base, params) => {
+  const u = new URL(base.href);
+  for (const [key, value] of Object.entries(params)) u.searchParams.set(key, value);
+  return u.href;
+};
+
+// mastodonShareUrl(raw) -> a URL for https://<host>/share, or null. The host
+// must first pass normalizeMastodonHost, then the URL parser must agree it is
+// that exact host on https: anything it rewrote (a port out of range or with
+// a leading zero, an IDN or escape) is refused, never "fixed"; port 0 too.
+function mastodonShareUrl(raw) {
+  const host = normalizeMastodonHost(raw);
+  if (!host) return null;
+  let u;
+  try {
+    u = new URL("https://" + host + "/share");
+  } catch {
+    return null;
+  }
+  if (u.protocol !== "https:" || u.host !== host || u.pathname !== "/share" || u.port === "0") return null;
+  return u;
+}
+
+// shareTargets(url, title, mastodonHost) -> [{ service, href }].
 export function shareTargets(url, title, mastodonHost) {
   const text = title ? title + " " + url : url;
-  const make = (base, params) => base + "?" + new URLSearchParams(params).toString();
   const targets = [
-    { service: "X", href: make("https://x.com/intent/tweet", { text: title, url }) },
-    { service: "Bluesky", href: make("https://bsky.app/intent/compose", { text }) }, // i18n-ignore: brand name
-    { service: "Reddit", href: make("https://www.reddit.com/submit", { url, title }) }, // i18n-ignore: brand name
+    { service: "X", href: withParams(new URL("https://x.com/intent/tweet"), { text: title, url }) },
+    { service: "Bluesky", href: withParams(new URL("https://bsky.app/intent/compose"), { text }) }, // i18n-ignore: brand name
+    { service: "Reddit", href: withParams(new URL("https://www.reddit.com/submit"), { url, title }) }, // i18n-ignore: brand name
   ];
-  const host = normalizeMastodonHost(mastodonHost);
-  const mastodon = { service: "Mastodon", href: make("https://" + host + "/share", { text }) }; // i18n-ignore: brand name
-  return host ? [...targets, mastodon] : targets;
+  const mastodon = mastodonShareUrl(mastodonHost);
+  if (!mastodon) return targets;
+  return [...targets, { service: "Mastodon", href: withParams(mastodon, { text }) }]; // i18n-ignore: brand name
 }
 
 // canShare(post, viewer) -> true only for a public root thread and a
@@ -112,9 +135,19 @@ const node = (document, tag, className, text) => {
   return element;
 };
 
+// intentLink(document, target) -> an <a>, or null when the href does not
+// parse as https. The href written is the parser's own serialization.
 function intentLink(document, target) {
+  let u;
+  try {
+    u = new URL(target.href);
+  } catch {
+    return null;
+  }
+  if (u.protocol !== "https:") return null;
   const link = node(document, "a", "share-link", t("share.on", { service: target.service }));
-  link.setAttribute("href", target.href);
+  link.href = u.href;
+  link.setAttribute("href", u.href); // same value; keeps the attribute explicit for non-reflecting DOMs
   link.setAttribute("target", "_blank");
   link.setAttribute("rel", "noopener noreferrer"); // i18n-ignore: link relation tokens
   return link;
@@ -160,7 +193,7 @@ function mastodonForm(document, storage, onSaved) {
   form.append(label, input, save, error);
   form.addEventListener("submit", (event) => {
     event?.preventDefault?.();
-    const host = normalizeMastodonHost(input.value);
+    const host = mastodonShareUrl(input.value) ? normalizeMastodonHost(input.value) : "";
     if (!host) {
       error.textContent = t("share.mastodonInvalid");
       return;
@@ -179,7 +212,8 @@ function mastodonForm(document, storage, onSaved) {
 
 function fillMenu(document, menu, url, title, host, deps) {
   const links = node(document, "div", "share-links");
-  for (const target of shareTargets(url, title, host)) links.append(intentLink(document, target));
+  const items = shareTargets(url, title, host).map((target) => intentLink(document, target)).filter(Boolean);
+  links.append(...items);
   const form = mastodonForm(document, deps.storage, (saved) => fillMenu(document, menu, url, title, saved, deps));
   menu.replaceChildren(...copyItem(document, url, deps.clipboard, deps.schedule), links, form);
 }
