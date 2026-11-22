@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Uñt'ayaña",
   "threadActions.thisPost": "Aka qillqata",
   "threadActions.staff": "Irnaqirinaka",
-  "threadActions.editTags": "Chimpunak askichaña"
+  "threadActions.editTags": "Chimpunak askichaña",
+  "admin.section.siteHealth": "Sitio k'umara kankaña",
+  "admin.lede.siteHealth": "Kunjam jank'akiw laphinakax visitanakatak uñstixa, browser-nakapan jan khitis uñt'ayasa tupuyata.",
+  "desk.health.privacyNote": "Sapa uru taqpach jakhünakakiw imasi: laphi kasta, tupuyawi ukat chanipa. Janiw cuenta, dirección ni browser yatiyawinakas utjkiti. Do Not Track ukat Global Privacy Control ukanakax ukx sayt'ayi, {days} uru sipan nayra jakhünakax chhaqtayatawa.",
+  "desk.health.pageColumn": "Laphi kasta",
+  "desk.health.metricColumn": "Tupuyawi",
+  "desk.health.weekColumn": "75 percentil, 7 uru",
+  "desk.health.monthColumn": "75 percentil, 28 uru",
+  "desk.health.samples": "uñacht'awinaka: {count}",
+  "desk.health.good": "Wali",
+  "desk.health.needsWork": "Askichañaw munasi",
+  "desk.health.poor": "Jan wali",
+  "desk.health.noData": "Janiw yatiyawix utjkiti",
+  "desk.health.empty": "Janïr kuna tupuyawis utjkiti.",
+  "settings.vitalsNote": "Sitiox kunjam jank'akis uñjañataki, browser-amax jan khitis uñt'ayir jank'a tupuyawinak apayaspa: laphi kasta (janipuniw direcciónapa) ukat mä qawqha pacha tupunaka. Janiw kunas jumar uñt'aykiti, sapa uru taqpach jakhünakakiw 90 urunak imasi. Do Not Track jan ukax Global Privacy Control ukax ukx sayt'ayi."
 }

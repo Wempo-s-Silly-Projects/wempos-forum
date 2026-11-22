@@ -4112,6 +4112,14 @@ mark.search-hit {
 .visits-count { position: relative; width: 45%; }
 .visits-bar { position: absolute; inset-block: 0.25rem; inset-inline-start: 0; background: var(--soft-green); border-radius: 0.2rem; z-index: 0; }
 .visits-count span:last-child { position: relative; z-index: 1; padding-inline-start: 0.3rem; }
+/* The desk's Site health section (anonymous Core Web Vitals). The band is
+   always written out, so colour is never the only signal. */
+.health-table { max-width: 52rem; }
+.health-cell span { display: inline-block; margin-inline-end: 0.4rem; }
+.health-value { font-variant-numeric: tabular-nums; }
+.health-band { font-weight: 600; }
+.health-good .health-band { color: var(--success-ink); }
+.health-poor .health-band { color: var(--error-ink); }
 
 /* Share + invite links (v5.34). */
 .share-wrap { margin: 0.5rem 0 1rem; }

@@ -44,7 +44,11 @@ export function createDataExportPanel(doc) {
   button.className = "button button-secondary";
   button.dataset.action = "download-my-data";
   button.textContent = t("settings.dataDownload");
-  panel.append(heading, note, button);
+  // What the anonymous speed measurements collect (public/js/vitals.js).
+  const vitals = doc.createElement("p");
+  vitals.className = "muted";
+  vitals.textContent = t("settings.vitalsNote");
+  panel.append(heading, note, button, vitals);
   return panel;
 }
 

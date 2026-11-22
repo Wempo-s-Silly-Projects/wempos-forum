@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Kugawana",
   "threadActions.thisPost": "Positi iyi",
   "threadActions.staff": "Oyang'anira",
-  "threadActions.editTags": "Sinthani matagi"
+  "threadActions.editTags": "Sinthani matagi",
+  "admin.section.siteHealth": "Thanzi la webusaiti",
+  "admin.lede.siteHealth": "Momwe masamba amatsegukira mwachangu kwa alendo, kuyezedwa mosadziwika m'masakatuli awo.",
+  "desk.health.privacyNote": "Ziŵerengero za tsiku lililonse zokha ndi zomwe zimasungidwa: mtundu wa tsamba, muyeso ndi mtengo wake. Palibe akaunti, adiresi kapena zambiri za msakatuli. Do Not Track ndi Global Privacy Control zimazimitsa izi, ndipo ziŵerengero zakale kuposa masiku {days} zimafufutidwa.",
+  "desk.health.pageColumn": "Mtundu wa tsamba",
+  "desk.health.metricColumn": "Muyeso",
+  "desk.health.weekColumn": "Pesentaelo ya 75, masiku 7",
+  "desk.health.monthColumn": "Pesentaelo ya 75, masiku 28",
+  "desk.health.samples": "zitsanzo: {count}",
+  "desk.health.good": "Zabwino",
+  "desk.health.needsWork": "Zikufunika kukonzedwa",
+  "desk.health.poor": "Zoipa",
+  "desk.health.noData": "Palibe deta",
+  "desk.health.empty": "Palibe miyeso pakadali pano.",
+  "settings.vitalsNote": "Kuti tidziwe momwe webusaiti ikuyendera mwachangu, msakatuli wanu ukhoza kutumiza miyeso ya liŵiro mosadziwika: mtundu wa tsamba (osati adiresi yake) ndi nthawi zochepa. Palibe chomwe chimakuzindikiritsani, ndipo ziŵerengero za tsiku lililonse zokha zimasungidwa, kwa masiku 90. Do Not Track kapena Global Privacy Control zimazimitsa izi."
 }

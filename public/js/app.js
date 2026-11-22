@@ -167,6 +167,7 @@ import { stopReadAloud } from "./read-aloud.js";
 import { stopReadingProgress } from "./reading-progress.js";
 import { applyTabUnread, normaliseTabCount, pageStorage } from "./tab-unread.js";
 import { setTabBadgeCount } from "./tab-badge.js";
+import { startVitals } from "./vitals.js";
 import { paintSourceLink } from "./source-link.js";
 import { attachRecentSearches } from "./recent-searches.js";
 import { wireSkipLink } from "./skip-link.js";
@@ -562,6 +563,9 @@ async function boot() {
         addText(document, main, "p", error.message, "error-copy");
       });
     });
+    // Anonymous Core Web Vitals for the desk's Site health page: skipped
+    // under GPC / DNT, loaded only once the page is idle (public/js/vitals.js).
+    startVitals();
     // Wave 5.36: recent-search chips under the header search box (local only).
     const searchInput = document.querySelector("#search-query");
     if (searchInput) {

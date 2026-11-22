@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Pagbabahagi",
   "threadActions.thisPost": "Ang post na ito",
   "threadActions.staff": "Kawani",
-  "threadActions.editTags": "I-edit ang mga tag"
+  "threadActions.editTags": "I-edit ang mga tag",
+  "admin.section.siteHealth": "Kalusugan ng site",
+  "admin.lede.siteHealth": "Gaano kabilis nararamdaman ng mga bisita ang mga pahina, sinusukat nang hindi nagpapakilala sa kanilang browser.",
+  "desk.health.privacyNote": "Mga pang-araw-araw na kabuuan lang ang itinatago: ang uri ng pahina, ang sukat at ang halaga nito. Walang account, address o detalye ng browser. Pinapatay ito ng Do Not Track at Global Privacy Control, at binubura ang mga kabuuang mas luma sa {days} araw.",
+  "desk.health.pageColumn": "Uri ng pahina",
+  "desk.health.metricColumn": "Sukat",
+  "desk.health.weekColumn": "Ika-75 percentile, 7 araw",
+  "desk.health.monthColumn": "Ika-75 percentile, 28 araw",
+  "desk.health.samples": "mga sample: {count}",
+  "desk.health.good": "Mabuti",
+  "desk.health.needsWork": "Kailangang pagbutihin",
+  "desk.health.poor": "Mahina",
+  "desk.health.noData": "Walang data",
+  "desk.health.empty": "Wala pang mga sukat.",
+  "settings.vitalsNote": "Para makita kung gaano kabilis ang site, maaaring magpadala ang iyong browser ng mga sukat ng bilis nang hindi nagpapakilala: ang uri ng pahina (hindi kailanman ang address nito) at ilang tiyempo. Walang anumang tumutukoy sa iyo, at mga pang-araw-araw na kabuuan lang ang itinatago, sa loob ng 90 araw. Pinapatay ito ng Do Not Track o Global Privacy Control."
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "這篇貼文",
   "threadActions.staff": "管理團隊",
-  "threadActions.editTags": "編輯標籤"
+  "threadActions.editTags": "編輯標籤",
+  "admin.section.siteHealth": "網站健康狀態",
+  "admin.lede.siteHealth": "頁面在訪客看來有多快，於其瀏覽器中匿名測量。",
+  "desk.health.privacyNote": "僅保存每日彙總：頁面類型、測量項目及其數值。不含帳號、地址或瀏覽器資訊。啟用 Do Not Track（請勿追蹤）或 Global Privacy Control（全球隱私控制）即可關閉此功能，超過 {days} 天的彙總會被刪除。",
+  "desk.health.pageColumn": "頁面類型",
+  "desk.health.metricColumn": "測量項目",
+  "desk.health.weekColumn": "第 75 百分位數，7 天",
+  "desk.health.monthColumn": "第 75 百分位數，28 天",
+  "desk.health.samples": "樣本：{count}",
+  "desk.health.good": "良好",
+  "desk.health.needsWork": "需要改進",
+  "desk.health.poor": "較差",
+  "desk.health.noData": "無資料",
+  "desk.health.empty": "尚無測量資料。",
+  "settings.vitalsNote": "為了解網站速度，你的瀏覽器可能會傳送匿名的速度測量：頁面類型（絕不包含其網址）和幾項耗時。這些資料無法識別你的身分，且僅保留每日彙總，保存 90 天。啟用 Do Not Track 或 Global Privacy Control 即可關閉此功能。"
 }

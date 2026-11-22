@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "শেয়ার করা",
   "threadActions.thisPost": "এই পোস্ট",
   "threadActions.staff": "কর্মী দল",
-  "threadActions.editTags": "ট্যাগ সম্পাদনা"
+  "threadActions.editTags": "ট্যাগ সম্পাদনা",
+  "admin.section.siteHealth": "সাইটের স্বাস্থ্য",
+  "admin.lede.siteHealth": "দর্শকদের কাছে পাতাগুলো কত দ্রুত লাগে, তাদের ব্রাউজারে বেনামে মাপা।",
+  "desk.health.privacyNote": "শুধু দৈনিক মোট রাখা হয়: পাতার ধরন, পরিমাপ ও তার মান। কোনো অ্যাকাউন্ট, ঠিকানা বা ব্রাউজারের বিবরণ নেই। Do Not Track ও Global Privacy Control এটি বন্ধ করে, এবং {days} দিনের পুরোনো মোট মুছে ফেলা হয়।",
+  "desk.health.pageColumn": "পাতার ধরন",
+  "desk.health.metricColumn": "পরিমাপ",
+  "desk.health.weekColumn": "৭৫তম পার্সেন্টাইল, ৭ দিন",
+  "desk.health.monthColumn": "৭৫তম পার্সেন্টাইল, ২৮ দিন",
+  "desk.health.samples": "নমুনা: {count}",
+  "desk.health.good": "ভালো",
+  "desk.health.needsWork": "উন্নতি দরকার",
+  "desk.health.poor": "খারাপ",
+  "desk.health.noData": "কোনো ডেটা নেই",
+  "desk.health.empty": "এখনো কোনো পরিমাপ নেই।",
+  "settings.vitalsNote": "সাইট কত দ্রুত তা দেখতে আপনার ব্রাউজার বেনামে গতির পরিমাপ পাঠাতে পারে: পাতার ধরন (কখনো তার ঠিকানা নয়) ও কয়েকটি সময়ের হিসাব। কিছুই আপনাকে শনাক্ত করে না, এবং শুধু দৈনিক মোট ৯০ দিন রাখা হয়। Do Not Track বা Global Privacy Control এটি বন্ধ করে।"
 }

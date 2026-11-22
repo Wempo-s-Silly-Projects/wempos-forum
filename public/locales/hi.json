@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "साझा करना",
   "threadActions.thisPost": "यह पोस्ट",
   "threadActions.staff": "स्टाफ़",
-  "threadActions.editTags": "टैग संपादित करें"
+  "threadActions.editTags": "टैग संपादित करें",
+  "admin.section.siteHealth": "साइट की सेहत",
+  "admin.lede.siteHealth": "आगंतुकों को पेज कितने तेज़ लगते हैं, उनके ब्राउज़र में गुमनाम रूप से मापा गया।",
+  "desk.health.privacyNote": "केवल दैनिक योग रखे जाते हैं: पेज का प्रकार, माप और उसका मान। कोई खाता, पता या ब्राउज़र विवरण नहीं। Do Not Track और Global Privacy Control इसे बंद कर देते हैं, और {days} दिन से पुराने योग हटा दिए जाते हैं।",
+  "desk.health.pageColumn": "पेज का प्रकार",
+  "desk.health.metricColumn": "माप",
+  "desk.health.weekColumn": "75वाँ पर्सेंटाइल, 7 दिन",
+  "desk.health.monthColumn": "75वाँ पर्सेंटाइल, 28 दिन",
+  "desk.health.samples": "नमूने: {count}",
+  "desk.health.good": "अच्छा",
+  "desk.health.needsWork": "सुधार की ज़रूरत",
+  "desk.health.poor": "खराब",
+  "desk.health.noData": "कोई डेटा नहीं",
+  "desk.health.empty": "अभी कोई माप नहीं।",
+  "settings.vitalsNote": "साइट कितनी तेज़ है यह देखने के लिए आपका ब्राउज़र गुमनाम गति माप भेज सकता है: पेज का प्रकार (कभी उसका पता नहीं) और कुछ समय-माप। कुछ भी आपकी पहचान नहीं करता, और केवल दैनिक योग 90 दिनों तक रखे जाते हैं। Do Not Track या Global Privacy Control इसे बंद कर देता है।"
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "မျှဝေမှု",
   "threadActions.thisPost": "ဤပို့စ်",
   "threadActions.staff": "ဝန်ထမ်း",
-  "threadActions.editTags": "တဂ်များ ပြင်ရန်"
+  "threadActions.editTags": "တဂ်များ ပြင်ရန်",
+  "admin.section.siteHealth": "ဆိုက်ကျန်းမာရေး",
+  "admin.lede.siteHealth": "ဧည့်သည်များအတွက် စာမျက်နှာများ မည်မျှမြန်သည်ကို ၎င်းတို့၏ ဘရောက်ဇာများတွင် အမည်မဖော်ဘဲ တိုင်းတာထားသည်။",
+  "desk.health.privacyNote": "နေ့စဉ်စုစုပေါင်းများကိုသာ သိမ်းထားသည်- စာမျက်နှာအမျိုးအစား၊ တိုင်းတာမှုနှင့် ၎င်း၏တန်ဖိုး။ အကောင့်၊ လိပ်စာ သို့မဟုတ် ဘရောက်ဇာအသေးစိတ် မပါဝင်ပါ။ Do Not Track နှင့် Global Privacy Control က ၎င်းကို ပိတ်ပေးပြီး {days} ရက်ထက် ဟောင်းသော စုစုပေါင်းများကို ဖျက်ပစ်သည်။",
+  "desk.health.pageColumn": "စာမျက်နှာအမျိုးအစား",
+  "desk.health.metricColumn": "တိုင်းတာမှု",
+  "desk.health.weekColumn": "၇၅ ပါဆင်တိုင်း၊ ၇ ရက်",
+  "desk.health.monthColumn": "၇၅ ပါဆင်တိုင်း၊ ၂၈ ရက်",
+  "desk.health.samples": "နမူနာ- {count}",
+  "desk.health.good": "ကောင်း",
+  "desk.health.needsWork": "တိုးတက်ရန် လိုအပ်",
+  "desk.health.poor": "ညံ့",
+  "desk.health.noData": "ဒေတာမရှိပါ",
+  "desk.health.empty": "တိုင်းတာမှု မရှိသေးပါ။",
+  "settings.vitalsNote": "ဆိုက်မည်မျှမြန်သည်ကို သိရန် သင့်ဘရောက်ဇာသည် အမည်မဖော်သော အမြန်နှုန်းတိုင်းတာချက်များ ပို့နိုင်သည်- စာမျက်နှာအမျိုးအစား (၎င်း၏လိပ်စာကို ဘယ်တော့မှ မပို့ပါ) နှင့် အချိန်တိုင်းတာချက် အနည်းငယ်။ သင့်ကို ဖော်ထုတ်နိုင်သည့်အရာ မရှိပါ၊ နေ့စဉ်စုစုပေါင်းများကိုသာ ၉၀ ရက်ကြာ သိမ်းထားသည်။ Do Not Track သို့မဟုတ် Global Privacy Control က ၎င်းကို ပိတ်ပေးသည်။"
 }

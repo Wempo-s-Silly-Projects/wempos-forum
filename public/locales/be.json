@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Падзяліцца",
   "threadActions.thisPost": "Гэты допіс",
   "threadActions.staff": "Каманда",
-  "threadActions.editTags": "Рэдагаваць тэгі"
+  "threadActions.editTags": "Рэдагаваць тэгі",
+  "admin.section.siteHealth": "Стан сайта",
+  "admin.lede.siteHealth": "Наколькі хуткімі старонкі здаюцца наведвальнікам — паводле ананімных вымярэнняў у іх браўзерах.",
+  "desk.health.privacyNote": "Захоўваюцца толькі сутачныя вынікі: тып старонкі, паказчык і яго значэнне. Без уліковых запісаў, адрасоў і звестак пра браўзер. Do Not Track і Global Privacy Control адключаюць збор, а вынікі, старэйшыя за {days} дзён, выдаляюцца.",
+  "desk.health.pageColumn": "Тып старонкі",
+  "desk.health.metricColumn": "Паказчык",
+  "desk.health.weekColumn": "75-ы працэнтыль, 7 дзён",
+  "desk.health.monthColumn": "75-ы працэнтыль, 28 дзён",
+  "desk.health.samples": "выбарка: {count}",
+  "desk.health.good": "Добра",
+  "desk.health.needsWork": "Патрабуе паляпшэння",
+  "desk.health.poor": "Дрэнна",
+  "desk.health.noData": "Няма даных",
+  "desk.health.empty": "Вымярэнняў пакуль няма.",
+  "settings.vitalsNote": "Каб бачыць, наколькі хуткі сайт, Ваш браўзер можа адпраўляць ананімныя вымярэнні хуткасці: тып старонкі (ніколі не яе адрас) і некалькі часавых паказчыкаў. Нішто Вас не ідэнтыфікуе, а захоўваюцца толькі сутачныя вынікі, 90 дзён. Do Not Track або Global Privacy Control адключае гэта."
 }

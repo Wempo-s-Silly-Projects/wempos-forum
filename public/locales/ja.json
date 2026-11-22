@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "共有",
   "threadActions.thisPost": "この投稿",
   "threadActions.staff": "スタッフ",
-  "threadActions.editTags": "タグを編集"
+  "threadActions.editTags": "タグを編集",
+  "admin.section.siteHealth": "サイトの健全性",
+  "admin.lede.siteHealth": "訪問者にとってページがどれだけ速く感じられるかを、ブラウザ内で匿名で計測したものです。",
+  "desk.health.privacyNote": "保存するのは日ごとの合計だけです：ページの種類、計測項目、その値。アカウント、アドレス、ブラウザの詳細は含みません。Do Not Track と Global Privacy Control で計測は止まり、{days} 日より古い合計は削除されます。",
+  "desk.health.pageColumn": "ページの種類",
+  "desk.health.metricColumn": "計測項目",
+  "desk.health.weekColumn": "75 パーセンタイル（7 日間）",
+  "desk.health.monthColumn": "75 パーセンタイル（28 日間）",
+  "desk.health.samples": "サンプル数：{count}",
+  "desk.health.good": "良好",
+  "desk.health.needsWork": "改善が必要",
+  "desk.health.poor": "不良",
+  "desk.health.noData": "データなし",
+  "desk.health.empty": "まだ計測データがありません。",
+  "settings.vitalsNote": "サイトの速さを把握するため、ブラウザから匿名の速度計測が送信されることがあります：ページの種類（アドレスは決して送信しません）といくつかの所要時間です。あなたを特定する情報はなく、保存するのは日ごとの合計だけで、期間は 90 日です。Do Not Track または Global Privacy Control を有効にすると送信されません。"
 }

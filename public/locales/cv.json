@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Пайлашу",
   "threadActions.thisPost": "Ку пост",
   "threadActions.staff": "Ӗҫченсем",
-  "threadActions.editTags": "Тегсене улӑштар"
+  "threadActions.editTags": "Тегсене улӑштар",
+  "admin.section.siteHealth": "Сайт сывлӑхӗ",
+  "admin.lede.siteHealth": "Килекенсемшӗн страницӑсем мӗн тери хӑвӑрт ӗҫлени, вӗсен браузерӗнче ятсӑр виҫнӗ.",
+  "desk.health.privacyNote": "Кунсерен пӗтӗмӗшле шутсем ҫеҫ упранаҫҫӗ: страница тӗсӗ, виҫев тата унӑн пӗлтерӗшӗ. Аккаунт, адрес е браузер ҫинчен нимӗн те ҫук. Do Not Track тата Global Privacy Control ӑна сӳнтереҫҫӗ, {days} кунран авалхи шутсене кӑларса пӑрахаҫҫӗ.",
+  "desk.health.pageColumn": "Страница тӗсӗ",
+  "desk.health.metricColumn": "Виҫев",
+  "desk.health.weekColumn": "75-мӗш процентиль, 7 кун",
+  "desk.health.monthColumn": "75-мӗш процентиль, 28 кун",
+  "desk.health.samples": "виҫевсем: {count}",
+  "desk.health.good": "Аван",
+  "desk.health.needsWork": "Лайӑхлатмалла",
+  "desk.health.poor": "Япӑх",
+  "desk.health.noData": "Даннӑйсем ҫук",
+  "desk.health.empty": "Виҫевсем халлӗхе ҫук.",
+  "settings.vitalsNote": "Сайт мӗн тери хӑвӑрт ӗҫленине пӗлме сирӗн браузер ятсӑр хӑвӑртлӑх виҫевӗсене яма пултарать: страница тӗсне (адресне нихҫан та мар) тата темиҫе вӑхӑт виҫине. Сире нимӗн те палӑртмасть, кунсерен пӗтӗмӗшле шутсем ҫеҫ 90 кун упранаҫҫӗ. Do Not Track е Global Privacy Control ҫакна сӳнтерет."
 }

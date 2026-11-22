@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Sharing",
   "threadActions.thisPost": "This post",
   "threadActions.staff": "Staff",
-  "threadActions.editTags": "Edit tags"
+  "threadActions.editTags": "Edit tags",
+  "admin.section.siteHealth": "Site health",
+  "admin.lede.siteHealth": "How fast pages feel for visitors, measured anonymously in their browsers.",
+  "desk.health.privacyNote": "Only daily totals are kept: the page type, the measurement and its value. No account, address or browser details. Do Not Track and Global Privacy Control turn it off, and totals older than {days} days are deleted.",
+  "desk.health.pageColumn": "Page type",
+  "desk.health.metricColumn": "Measurement",
+  "desk.health.weekColumn": "75th percentile, 7 days",
+  "desk.health.monthColumn": "75th percentile, 28 days",
+  "desk.health.samples": "samples: {count}",
+  "desk.health.good": "Good",
+  "desk.health.needsWork": "Needs improvement",
+  "desk.health.poor": "Poor",
+  "desk.health.noData": "No data",
+  "desk.health.empty": "No measurements yet.",
+  "settings.vitalsNote": "To see how fast the site is, your browser may send anonymous speed measurements: the type of page (never its address) and a few timings. Nothing identifies you, and only daily totals are kept, for 90 days. Do Not Track or Global Privacy Control turns this off."
 }

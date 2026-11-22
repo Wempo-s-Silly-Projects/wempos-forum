@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Rannañ",
   "threadActions.thisPost": "Ar gemennadenn-mañ",
   "threadActions.staff": "Kefridi",
-  "threadActions.editTags": "Kemmañ ar skritelloù"
+  "threadActions.editTags": "Kemmañ ar skritelloù",
+  "admin.section.siteHealth": "Yec'hed al lec'hienn",
+  "admin.lede.siteHealth": "Pegen buan e seblant ar pajennoù d'ar weladennerien, muzuliet en dizanv en o merdeerioù.",
+  "desk.health.privacyNote": "Ar sammoù pemdeziek hepken a vez miret: seurt ar bajenn, ar muzuliadur hag e dalvoud. Kont ebet, chomlec'h ebet, munud ebet diwar-benn ar merdeer. Do Not Track ha Global Privacy Control a lazh anezhañ, hag ar sammoù koshoc'h eget {days} deiz a vez dilamet.",
+  "desk.health.pageColumn": "Seurt pajenn",
+  "desk.health.metricColumn": "Muzuliadur",
+  "desk.health.weekColumn": "75vet kantranner, 7 deiz",
+  "desk.health.monthColumn": "75vet kantranner, 28 deiz",
+  "desk.health.samples": "skouerioù: {count}",
+  "desk.health.good": "Mat",
+  "desk.health.needsWork": "Da wellaat",
+  "desk.health.poor": "Fall",
+  "desk.health.noData": "Roadenn ebet",
+  "desk.health.empty": "Muzuliadur ebet c'hoazh.",
+  "settings.vitalsNote": "Evit gouzout pegen buan eo al lec'hienn, da verdeer a c'hall kas muzuliadurioù tizh dizanv: seurt ar bajenn (biken he chomlec'h) hag un nebeud amzerioù. Netra n'az anavez, hag ar sammoù pemdeziek hepken a vez miret, e-pad 90 deiz. Do Not Track pe Global Privacy Control a lazh an dra-se."
 }

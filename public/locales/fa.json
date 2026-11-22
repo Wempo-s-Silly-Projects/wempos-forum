@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "اشتراک‌گذاری",
   "threadActions.thisPost": "این پست",
   "threadActions.staff": "کادر",
-  "threadActions.editTags": "ویرایش برچسب‌ها"
+  "threadActions.editTags": "ویرایش برچسب‌ها",
+  "admin.section.siteHealth": "سلامت سایت",
+  "admin.lede.siteHealth": "سرعت صفحه‌ها از نگاه بازدیدکنندگان، که به‌صورت ناشناس در مرورگرشان اندازه‌گیری می‌شود.",
+  "desk.health.privacyNote": "فقط جمع‌های روزانه نگه داشته می‌شود: نوع صفحه، اندازه‌گیری و مقدار آن. بدون حساب، نشانی یا جزئیات مرورگر. Do Not Track و Global Privacy Control آن را خاموش می‌کنند و جمع‌های قدیمی‌تر از {days} روز حذف می‌شوند.",
+  "desk.health.pageColumn": "نوع صفحه",
+  "desk.health.metricColumn": "اندازه‌گیری",
+  "desk.health.weekColumn": "صدک ۷۵، ۷ روز",
+  "desk.health.monthColumn": "صدک ۷۵، ۲۸ روز",
+  "desk.health.samples": "نمونه‌ها: {count}",
+  "desk.health.good": "خوب",
+  "desk.health.needsWork": "نیاز به بهبود",
+  "desk.health.poor": "ضعیف",
+  "desk.health.noData": "داده‌ای نیست",
+  "desk.health.empty": "هنوز اندازه‌گیری‌ای نیست.",
+  "settings.vitalsNote": "برای دیدن سرعت سایت، مرورگر شما ممکن است اندازه‌گیری‌های ناشناس سرعت را بفرستد: نوع صفحه (هرگز نشانی آن) و چند زمان‌سنجی. هیچ چیز شما را شناسایی نمی‌کند و فقط جمع‌های روزانه، به مدت ۹۰ روز، نگه داشته می‌شود. Do Not Track یا Global Privacy Control این را خاموش می‌کند."
 }

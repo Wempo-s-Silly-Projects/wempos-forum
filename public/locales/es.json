@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Esta publicación",
   "threadActions.staff": "Equipo",
-  "threadActions.editTags": "Editar etiquetas"
+  "threadActions.editTags": "Editar etiquetas",
+  "admin.section.siteHealth": "Salud del sitio",
+  "admin.lede.siteHealth": "Lo rápido que se sienten las páginas para los visitantes, medido de forma anónima en sus navegadores.",
+  "desk.health.privacyNote": "Solo se guardan totales diarios: el tipo de página, la medición y su valor. Ningún dato de cuenta, dirección ni navegador. Do Not Track y Global Privacy Control lo desactivan, y los totales con más de {days} días se eliminan.",
+  "desk.health.pageColumn": "Tipo de página",
+  "desk.health.metricColumn": "Medición",
+  "desk.health.weekColumn": "Percentil 75, 7 días",
+  "desk.health.monthColumn": "Percentil 75, 28 días",
+  "desk.health.samples": "muestras: {count}",
+  "desk.health.good": "Bueno",
+  "desk.health.needsWork": "Necesita mejorar",
+  "desk.health.poor": "Deficiente",
+  "desk.health.noData": "Sin datos",
+  "desk.health.empty": "Aún no hay mediciones.",
+  "settings.vitalsNote": "Para saber lo rápido que va el sitio, tu navegador puede enviar mediciones de velocidad anónimas: el tipo de página (nunca su dirección) y algunos tiempos. Nada te identifica y solo se guardan totales diarios, durante 90 días. Do Not Track o Global Privacy Control lo desactivan."
 }

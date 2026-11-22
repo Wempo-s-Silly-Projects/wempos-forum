@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "这篇帖子",
   "threadActions.staff": "管理团队",
-  "threadActions.editTags": "编辑标签"
+  "threadActions.editTags": "编辑标签",
+  "admin.section.siteHealth": "站点健康",
+  "admin.lede.siteHealth": "页面在访客看来有多快，在其浏览器中匿名测量。",
+  "desk.health.privacyNote": "仅保存每日汇总：页面类型、测量项及其数值。不含账户、地址或浏览器信息。启用 Do Not Track（请勿追踪）或 Global Privacy Control（全球隐私控制）即可关闭此功能，超过 {days} 天的汇总会被删除。",
+  "desk.health.pageColumn": "页面类型",
+  "desk.health.metricColumn": "测量项",
+  "desk.health.weekColumn": "第 75 百分位，7 天",
+  "desk.health.monthColumn": "第 75 百分位，28 天",
+  "desk.health.samples": "样本：{count}",
+  "desk.health.good": "良好",
+  "desk.health.needsWork": "需要改进",
+  "desk.health.poor": "较差",
+  "desk.health.noData": "无数据",
+  "desk.health.empty": "暂无测量数据。",
+  "settings.vitalsNote": "为了解网站速度，你的浏览器可能会发送匿名的速度测量：页面类型（绝不包括其地址）和几项耗时。这些数据无法识别你的身份，且仅保留每日汇总，保存 90 天。启用 Do Not Track 或 Global Privacy Control 即可关闭此功能。"
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Sasem",
   "threadActions.thisPost": "Pos ia",
   "threadActions.staff": "Stafe",
-  "threadActions.editTags": "Janjem tag"
+  "threadActions.editTags": "Janjem tag",
+  "admin.section.siteHealth": "Helt blong saet",
+  "admin.lede.siteHealth": "Hamas spid pej i gat long ol man we oli visitim, oli mesarem long browser blong olgeta be i no soem hu i hu.",
+  "desk.health.privacyNote": "Namba blong wanwan dei nomo i stap: kaen blong pej, mesa mo namba blong hem. I no gat akaon, adres o ol samting blong browser. Do Not Track mo Global Privacy Control i stopem samting ia, mo oli rabisim namba we i olfala moa long {days} dei.",
+  "desk.health.pageColumn": "Kaen blong pej",
+  "desk.health.metricColumn": "Mesa",
+  "desk.health.weekColumn": "75th pesentael, 7 dei",
+  "desk.health.monthColumn": "75th pesentael, 28 dei",
+  "desk.health.samples": "sampol: {count}",
+  "desk.health.good": "Gud",
+  "desk.health.needsWork": "I nidim blong kam moa gud",
+  "desk.health.poor": "I no gud",
+  "desk.health.noData": "I no gat infomesen",
+  "desk.health.empty": "I no gat mesa yet.",
+  "settings.vitalsNote": "Blong luk hamas spid saet i gat, browser blong yu i save sanem ol mesa blong spid we i no soem hu yu: kaen blong pej (i neva adres blong hem) mo smol taem nomo. I no gat samting we i soem hu yu, mo namba blong wanwan dei nomo i stap, blong 90 dei. Do Not Track o Global Privacy Control i stopem samting ia."
 }

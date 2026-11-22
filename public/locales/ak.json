@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Kyɛ",
   "threadActions.thisPost": "Nkyerɛwee yi",
   "threadActions.staff": "Adwumayɛfo",
-  "threadActions.editTags": "Sesa agyiraehyɛde"
+  "threadActions.editTags": "Sesa agyiraehyɛde",
+  "admin.section.siteHealth": "Wɛbsaet no apɔwmuden",
+  "admin.lede.siteHealth": "Sɛnea krataafa yɛ ntɛm ma nsrahwɛfo, a wɔsusuw wɔ wɔn browser mu a wɔnkyerɛ obiara.",
+  "desk.health.privacyNote": "Dodow nyinaa a ɛfa da biara ho nkutoo na wɔkora: krataafa su, nsusuwii no ne ne bo. Akawnt, address anaa browser ho nsɛm biara nni mu. Do Not Track ne Global Privacy Control dum no, na wɔpepa dodow a atwam nna {days}.",
+  "desk.health.pageColumn": "Krataafa su",
+  "desk.health.metricColumn": "Nsusuwii",
+  "desk.health.weekColumn": "Percentile a ɛto so 75, nna 7",
+  "desk.health.monthColumn": "Percentile a ɛto so 75, nna 28",
+  "desk.health.samples": "nhwɛsode: {count}",
+  "desk.health.good": "Eye",
+  "desk.health.needsWork": "Ehia nkɔanim",
+  "desk.health.poor": "Ɛnye",
+  "desk.health.noData": "Data biara nni hɔ",
+  "desk.health.empty": "Nsusuwii biara nni hɔ da.",
+  "settings.vitalsNote": "Sɛ wobɛhu sɛnea wɛbsaet no yɛ ntɛm a, wo browser betumi de ntɛmyɛ nsusuwii a ɛnkyerɛ wo amena: krataafa su (ɛnyɛ ne address da) ne bere nsusuwii kakra. Biribiara nkyerɛ wo, na dodow a ɛfa da biara ho nkutoo na wɔkora, nna 90. Do Not Track anaa Global Privacy Control dum eyi."
 }

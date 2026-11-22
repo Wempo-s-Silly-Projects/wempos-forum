@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Dijeljenje",
   "threadActions.thisPost": "Ova objava",
   "threadActions.staff": "Osoblje",
-  "threadActions.editTags": "Uredi oznake"
+  "threadActions.editTags": "Uredi oznake",
+  "admin.section.siteHealth": "Stanje stranice",
+  "admin.lede.siteHealth": "Koliko se brzo stranice čine posjetiteljima, mjereno anonimno u njihovim preglednicima.",
+  "desk.health.privacyNote": "Čuvaju se samo dnevni zbrojevi: vrsta stranice, mjerenje i njegova vrijednost. Bez računa, adrese ili podataka o pregledniku. Do Not Track i Global Privacy Control to isključuju, a zbrojeve starije od {days} dana brišemo.",
+  "desk.health.pageColumn": "Vrsta stranice",
+  "desk.health.metricColumn": "Mjerenje",
+  "desk.health.weekColumn": "75. percentil, 7 dana",
+  "desk.health.monthColumn": "75. percentil, 28 dana",
+  "desk.health.samples": "uzorci: {count}",
+  "desk.health.good": "Dobro",
+  "desk.health.needsWork": "Treba poboljšati",
+  "desk.health.poor": "Loše",
+  "desk.health.noData": "Nema podataka",
+  "desk.health.empty": "Još nema mjerenja.",
+  "settings.vitalsNote": "Kako bi se vidjelo koliko je stranica brza, tvoj preglednik može slati anonimna mjerenja brzine: vrstu stranice (nikad njezinu adresu) i nekoliko vremena. Ništa te ne identificira, a čuvaju se samo dnevni zbrojevi, 90 dana. Do Not Track ili Global Privacy Control to isključuje."
 }

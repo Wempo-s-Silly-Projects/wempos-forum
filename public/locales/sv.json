@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Dela",
   "threadActions.thisPost": "Det här inlägget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Redigera taggar"
+  "threadActions.editTags": "Redigera taggar",
+  "admin.section.siteHealth": "Webbplatsens hälsa",
+  "admin.lede.siteHealth": "Hur snabba sidorna känns för besökare, mätt anonymt i deras webbläsare.",
+  "desk.health.privacyNote": "Bara dagliga summor sparas: sidtypen, mätningen och dess värde. Inga konto-, adress- eller webbläsaruppgifter. Do Not Track och Global Privacy Control stänger av det, och summor äldre än {days} dagar raderas.",
+  "desk.health.pageColumn": "Sidtyp",
+  "desk.health.metricColumn": "Mätning",
+  "desk.health.weekColumn": "75:e percentilen, 7 dagar",
+  "desk.health.monthColumn": "75:e percentilen, 28 dagar",
+  "desk.health.samples": "mätpunkter: {count}",
+  "desk.health.good": "Bra",
+  "desk.health.needsWork": "Behöver förbättras",
+  "desk.health.poor": "Dålig",
+  "desk.health.noData": "Inga data",
+  "desk.health.empty": "Inga mätningar än.",
+  "settings.vitalsNote": "För att se hur snabb webbplatsen är kan din webbläsare skicka anonyma hastighetsmätningar: sidtypen (aldrig dess adress) och några tider. Inget identifierar dig, och bara dagliga summor sparas, i 90 dagar. Do Not Track eller Global Privacy Control stänger av detta."
 }

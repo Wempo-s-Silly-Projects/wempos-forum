@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Berbagi",
   "threadActions.thisPost": "Postingan ini",
   "threadActions.staff": "Staf",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "admin.section.siteHealth": "Kesehatan situs",
+  "admin.lede.siteHealth": "Seberapa cepat halaman terasa bagi pengunjung, diukur secara anonim di peramban mereka.",
+  "desk.health.privacyNote": "Hanya total harian yang disimpan: jenis halaman, pengukuran, dan nilainya. Tanpa akun, alamat, atau detail peramban. Do Not Track dan Global Privacy Control mematikannya, dan total yang lebih lama dari {days} hari dihapus.",
+  "desk.health.pageColumn": "Jenis halaman",
+  "desk.health.metricColumn": "Pengukuran",
+  "desk.health.weekColumn": "Persentil ke-75, 7 hari",
+  "desk.health.monthColumn": "Persentil ke-75, 28 hari",
+  "desk.health.samples": "sampel: {count}",
+  "desk.health.good": "Baik",
+  "desk.health.needsWork": "Perlu perbaikan",
+  "desk.health.poor": "Buruk",
+  "desk.health.noData": "Tidak ada data",
+  "desk.health.empty": "Belum ada pengukuran.",
+  "settings.vitalsNote": "Untuk melihat seberapa cepat situs ini, peramban Anda dapat mengirim pengukuran kecepatan anonim: jenis halaman (tidak pernah alamatnya) dan beberapa catatan waktu. Tidak ada yang mengidentifikasi Anda, dan hanya total harian yang disimpan, selama 90 hari. Do Not Track atau Global Privacy Control mematikan ini."
 }

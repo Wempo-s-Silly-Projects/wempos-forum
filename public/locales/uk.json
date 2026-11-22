@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Поширення",
   "threadActions.thisPost": "Цей допис",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Змінити теги"
+  "threadActions.editTags": "Змінити теги",
+  "admin.section.siteHealth": "Стан сайту",
+  "admin.lede.siteHealth": "Наскільки швидкими сторінки здаються відвідувачам — за анонімними вимірюваннями в їхніх браузерах.",
+  "desk.health.privacyNote": "Зберігаються лише добові підсумки: тип сторінки, показник і його значення. Без облікових записів, адрес і даних браузера. Do Not Track і Global Privacy Control вимикають збір, а підсумки, старші за {days} днів, видаляються.",
+  "desk.health.pageColumn": "Тип сторінки",
+  "desk.health.metricColumn": "Показник",
+  "desk.health.weekColumn": "75-й процентиль, 7 днів",
+  "desk.health.monthColumn": "75-й процентиль, 28 днів",
+  "desk.health.samples": "вибірка: {count}",
+  "desk.health.good": "Добре",
+  "desk.health.needsWork": "Потребує покращення",
+  "desk.health.poor": "Погано",
+  "desk.health.noData": "Немає даних",
+  "desk.health.empty": "Вимірювань поки немає.",
+  "settings.vitalsNote": "Щоб бачити, наскільки швидкий сайт, твій браузер може надсилати анонімні вимірювання швидкості: тип сторінки (ніколи її адресу) і кілька часових показників. Ніщо тебе не ідентифікує, а зберігаються лише добові підсумки, 90 днів. Do Not Track або Global Privacy Control це вимикає."
 }

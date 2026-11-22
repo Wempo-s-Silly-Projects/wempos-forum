@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Ndarja",
   "threadActions.thisPost": "Ky postim",
   "threadActions.staff": "Stafi",
-  "threadActions.editTags": "Ndrysho etiketat"
+  "threadActions.editTags": "Ndrysho etiketat",
+  "admin.section.siteHealth": "Shëndeti i faqes",
+  "admin.lede.siteHealth": "Sa shpejt duken faqet për vizitorët, të matura në mënyrë anonime në shfletuesit e tyre.",
+  "desk.health.privacyNote": "Ruhen vetëm totalet ditore: lloji i faqes, matja dhe vlera e saj. Asnjë llogari, adresë apo të dhëna shfletuesi. Do Not Track dhe Global Privacy Control e çaktivizojnë, dhe totalet më të vjetra se {days} ditë fshihen.",
+  "desk.health.pageColumn": "Lloji i faqes",
+  "desk.health.metricColumn": "Matja",
+  "desk.health.weekColumn": "Përqindëshi i 75-të, 7 ditë",
+  "desk.health.monthColumn": "Përqindëshi i 75-të, 28 ditë",
+  "desk.health.samples": "mostra: {count}",
+  "desk.health.good": "Mirë",
+  "desk.health.needsWork": "Ka nevojë për përmirësim",
+  "desk.health.poor": "Dobët",
+  "desk.health.noData": "Nuk ka të dhëna",
+  "desk.health.empty": "Ende nuk ka matje.",
+  "settings.vitalsNote": "Për të parë sa i shpejtë është sajti, shfletuesi yt mund të dërgojë matje anonime të shpejtësisë: llojin e faqes (kurrë adresën e saj) dhe disa kohë. Asgjë nuk të identifikon dhe ruhen vetëm totalet ditore, për 90 ditë. Do Not Track ose Global Privacy Control e çaktivizon këtë."
 }

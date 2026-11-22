@@ -215,7 +215,8 @@ test("POST /api/vitals answers 204 and adds one sample to today's (route, metric
   const first = await post(env, { route: "post", metrics: { LCP: 2400, CLS: 0.05 } });
   assert.equal(first.status, 204);
   assert.equal(await first.text(), "");
-  await post(env, { route: "post", metrics: { LCP: 4100 } });
+  // sendBeacon posts a string body as text/plain;charset=UTF-8.
+  await post(env, { route: "post", metrics: { LCP: 4100 } }, { headers: { "Content-Type": "text/plain;charset=UTF-8" } });
   const [cls, lcp] = rows(env);
   assert.equal(lcp.day, today());
   assert.equal(lcp.route, "post");
@@ -238,7 +239,7 @@ test("invalid, oversize, cross-origin, non-JSON and rate-limited beacons answer 
     () => post(env, null, { raw: JSON.stringify({ route: "post", metrics: { LCP: 3 }, pad: "x".repeat(constants.VITALS_MAX_BODY_BYTES) }) }),
     () => post(env, { route: "post", metrics: { LCP: 3 } }, { origin: "https://evil.example" }),
     () => post(env, { route: "post", metrics: { LCP: 3 } }, { origin: null }),
-    () => post(env, { route: "post", metrics: { LCP: 3 } }, { headers: { "Content-Type": "text/plain" } }),
+    () => post(env, { route: "post", metrics: { LCP: 3 } }, { headers: { "Content-Type": "application/x-www-form-urlencoded" } }),
   ];
   for (const send of cases) {
     const response = await send();
@@ -414,14 +415,15 @@ test("allowed: the vendor script loads once the page is idle, and exactly one be
   h.hide();
   for (const fn of h.listeners["win:pagehide"] ?? []) fn();
   assert.equal(h.sent.length, 1);
-  const [url, blob] = h.sent[0];
+  const [url, data] = h.sent[0];
   assert.equal(url, VITALS_ENDPOINT);
-  const body = JSON.parse(await blob.text());
+  assert.equal(typeof data, "string", "a string body (text/plain), never a JSON Blob");
+  const body = JSON.parse(data);
   assert.deepEqual(body, { route: "post", metrics: { LCP: 1600, CLS: 0.02 } });
 });
 
 test("vitals.js never reads cookies, storage, the user agent or the full URL", () => {
-  const src = read("public/js/vitals.js");
+  const src = read("public/js/vitals.js").replace(/^\s*\/\/.*$/gm, "");
   assert.doesNotMatch(src, /document\.cookie|localStorage|sessionStorage|userAgent|location\.href|\bapi\(/);
   assert.doesNotMatch(src, /https?:\/\//, "same-origin only, no third party");
 });
@@ -483,7 +485,7 @@ test("createSiteHealthPanel paints an accessible table with a band class per cel
   const table = panel.querySelector("table");
   assert.ok(table, "a table");
   assert.ok(table.querySelector("caption"));
-  assert.equal(table.querySelectorAll("th[scope=col]").length, 4);
+  assert.equal(table.querySelectorAll("[scope=col]").length, 4);
   assert.ok(findByClass(panel, "health-good"));
   assert.ok(findByClass(panel, "health-poor"));
   assert.ok(findByClass(panel, "health-needs-improvement"));

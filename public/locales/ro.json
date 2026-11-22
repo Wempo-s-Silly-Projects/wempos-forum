@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Distribuire",
   "threadActions.thisPost": "Această postare",
   "threadActions.staff": "Echipă",
-  "threadActions.editTags": "Editează etichetele"
+  "threadActions.editTags": "Editează etichetele",
+  "admin.section.siteHealth": "Sănătatea site-ului",
+  "admin.lede.siteHealth": "Cât de rapide par paginile pentru vizitatori, măsurat anonim în browserele lor.",
+  "desk.health.privacyNote": "Se păstrează doar totaluri zilnice: tipul paginii, măsurătoarea și valoarea ei. Fără date de cont, adresă sau browser. Do Not Track și Global Privacy Control o dezactivează, iar totalurile mai vechi de {days} zile sunt șterse.",
+  "desk.health.pageColumn": "Tipul paginii",
+  "desk.health.metricColumn": "Măsurătoare",
+  "desk.health.weekColumn": "Percentila 75, 7 zile",
+  "desk.health.monthColumn": "Percentila 75, 28 de zile",
+  "desk.health.samples": "eșantioane: {count}",
+  "desk.health.good": "Bun",
+  "desk.health.needsWork": "Necesită îmbunătățiri",
+  "desk.health.poor": "Slab",
+  "desk.health.noData": "Fără date",
+  "desk.health.empty": "Încă nu există măsurători.",
+  "settings.vitalsNote": "Ca să se vadă cât de rapid este site-ul, browserul tău poate trimite măsurători anonime de viteză: tipul paginii (niciodată adresa ei) și câțiva timpi. Nimic nu te identifică și se păstrează doar totaluri zilnice, timp de 90 de zile. Do Not Track sau Global Privacy Control dezactivează acest lucru."
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Berkongsi",
   "threadActions.thisPost": "Siaran ini",
   "threadActions.staff": "Kakitangan",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "admin.section.siteHealth": "Kesihatan laman",
+  "admin.lede.siteHealth": "Sepantas mana halaman dirasai oleh pelawat, diukur secara tanpa nama dalam pelayar mereka.",
+  "desk.health.privacyNote": "Hanya jumlah harian disimpan: jenis halaman, ukuran dan nilainya. Tiada akaun, alamat atau butiran pelayar. Do Not Track dan Global Privacy Control mematikannya, dan jumlah yang lebih lama daripada {days} hari dipadam.",
+  "desk.health.pageColumn": "Jenis halaman",
+  "desk.health.metricColumn": "Ukuran",
+  "desk.health.weekColumn": "Persentil ke-75, 7 hari",
+  "desk.health.monthColumn": "Persentil ke-75, 28 hari",
+  "desk.health.samples": "sampel: {count}",
+  "desk.health.good": "Baik",
+  "desk.health.needsWork": "Perlu penambahbaikan",
+  "desk.health.poor": "Lemah",
+  "desk.health.noData": "Tiada data",
+  "desk.health.empty": "Belum ada ukuran.",
+  "settings.vitalsNote": "Untuk melihat sepantas mana laman ini, pelayar anda mungkin menghantar ukuran kelajuan tanpa nama: jenis halaman (tidak sekali-kali alamatnya) dan beberapa catatan masa. Tiada apa-apa yang mengenal pasti anda, dan hanya jumlah harian disimpan, selama 90 hari. Do Not Track atau Global Privacy Control mematikan ini."
 }

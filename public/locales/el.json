@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Κοινοποίηση",
   "threadActions.thisPost": "Αυτή η ανάρτηση",
   "threadActions.staff": "Ομάδα",
-  "threadActions.editTags": "Επεξεργασία ετικετών"
+  "threadActions.editTags": "Επεξεργασία ετικετών",
+  "admin.section.siteHealth": "Υγεία ιστότοπου",
+  "admin.lede.siteHealth": "Πόσο γρήγορες φαίνονται οι σελίδες στους επισκέπτες, μετρημένο ανώνυμα στα προγράμματα περιήγησής τους.",
+  "desk.health.privacyNote": "Κρατάμε μόνο ημερήσια σύνολα: τον τύπο σελίδας, τη μέτρηση και την τιμή της. Κανένας λογαριασμός, διεύθυνση ή στοιχεία προγράμματος περιήγησης. Τα Do Not Track και Global Privacy Control την απενεργοποιούν, και τα σύνολα παλαιότερα από {days} ημέρες διαγράφονται.",
+  "desk.health.pageColumn": "Τύπος σελίδας",
+  "desk.health.metricColumn": "Μέτρηση",
+  "desk.health.weekColumn": "75ο εκατοστημόριο, 7 ημέρες",
+  "desk.health.monthColumn": "75ο εκατοστημόριο, 28 ημέρες",
+  "desk.health.samples": "δείγματα: {count}",
+  "desk.health.good": "Καλό",
+  "desk.health.needsWork": "Θέλει βελτίωση",
+  "desk.health.poor": "Κακό",
+  "desk.health.noData": "Χωρίς δεδομένα",
+  "desk.health.empty": "Δεν υπάρχουν ακόμη μετρήσεις.",
+  "settings.vitalsNote": "Για να φαίνεται πόσο γρήγορος είναι ο ιστότοπος, το πρόγραμμα περιήγησής σου μπορεί να στέλνει ανώνυμες μετρήσεις ταχύτητας: τον τύπο της σελίδας (ποτέ τη διεύθυνσή της) και μερικούς χρόνους. Τίποτα δεν σε ταυτοποιεί, και κρατάμε μόνο ημερήσια σύνολα, για 90 ημέρες. Το Do Not Track ή το Global Privacy Control το απενεργοποιεί."
 }

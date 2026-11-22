@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "ማጋራት",
   "threadActions.thisPost": "ይህ ልጥፍ",
   "threadActions.staff": "ሠራተኞች",
-  "threadActions.editTags": "መለያዎችን አርትዕ"
+  "threadActions.editTags": "መለያዎችን አርትዕ",
+  "admin.section.siteHealth": "የጣቢያ ጤና",
+  "admin.lede.siteHealth": "ገጾች ለጎብኚዎች ምን ያህል ፈጣን እንደሆኑ፣ በአሳሾቻቸው ውስጥ ማንነትን ሳይገልጹ የተለካ።",
+  "desk.health.privacyNote": "የሚቀመጡት ዕለታዊ ድምሮች ብቻ ናቸው፦ የገጹ ዓይነት፣ መለኪያው እና እሴቱ። መለያ፣ አድራሻ ወይም የአሳሽ ዝርዝሮች የሉም። Do Not Track እና Global Privacy Control ይህን ያጠፉታል፣ ከ{days} ቀናት በላይ የቆዩ ድምሮችም ይሰረዛሉ።",
+  "desk.health.pageColumn": "የገጽ ዓይነት",
+  "desk.health.metricColumn": "መለኪያ",
+  "desk.health.weekColumn": "75ኛ ፐርሰንታይል፣ 7 ቀናት",
+  "desk.health.monthColumn": "75ኛ ፐርሰንታይል፣ 28 ቀናት",
+  "desk.health.samples": "ናሙናዎች፦ {count}",
+  "desk.health.good": "ጥሩ",
+  "desk.health.needsWork": "መሻሻል ያስፈልገዋል",
+  "desk.health.poor": "ደካማ",
+  "desk.health.noData": "ምንም ውሂብ የለም",
+  "desk.health.empty": "እስካሁን ምንም መለኪያ የለም።",
+  "settings.vitalsNote": "ጣቢያው ምን ያህል ፈጣን እንደሆነ ለማየት፣ አሳሽዎ ማንነትን የማይገልጹ የፍጥነት መለኪያዎችን ሊልክ ይችላል፦ የገጹን ዓይነት (አድራሻውን በፍጹም አይደለም) እና ጥቂት የጊዜ መለኪያዎች። እርስዎን የሚለይ ምንም ነገር የለም፣ ዕለታዊ ድምሮች ብቻ ለ90 ቀናት ይቀመጣሉ። Do Not Track ወይም Global Privacy Control ይህን ያጠፋል።"
 }

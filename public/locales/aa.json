@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Farakkiyya",
   "threadActions.thisPost": "Ah kitbat",
   "threadActions.staff": "Taamitte",
-  "threadActions.editTags": "Astooti massos"
+  "threadActions.editTags": "Astooti massos",
+  "admin.section.siteHealth": "Site saaxagalo",
+  "admin.lede.siteHealth": "Safhat wagittah ellem siskitta, ken browseril migaq mayyixxiseenih ixxisimte.",
+  "desk.health.privacyNote": "Ayroh inkih ixxima yekke dacrisimta: safhah qaynat, ixxisiyya kee tet qimmo. Akaawuntu, adreesa hinnay browserih caagid mali. Do Not Track kee Global Privacy Control tah dummaanam, kee {days} ayrok duma tan ixxima bayisimta.",
+  "desk.health.pageColumn": "Safhah qaynat",
+  "desk.health.metricColumn": "Ixxisiyya",
+  "desk.health.weekColumn": "75 persentaylu, 7 ayro",
+  "desk.health.monthColumn": "75 persentaylu, 28 ayro",
+  "desk.health.samples": "ceelallo: {count}",
+  "desk.health.good": "Meqe",
+  "desk.health.needsWork": "Tamaggaddu faxximta",
+  "desk.health.poor": "Uma",
+  "desk.health.noData": "Xagar mali",
+  "desk.health.empty": "Away ixxisiyya mali.",
+  "settings.vitalsNote": "Site ellem siskitam ablottoh, ku browser migaq mayyixxiseenih siskit ixxisiyya rubtam duudah: safhah qaynat (tet adreesa sinni mayi) kee daqiiqa ixxisiyya. Kok ixxisiisa caagid mali, kee ayroh inkih ixxima yekke 90 ayroh dacrisimta. Do Not Track hinnay Global Privacy Control tah dummaanam."
 }

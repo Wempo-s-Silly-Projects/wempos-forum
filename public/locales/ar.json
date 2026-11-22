@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "المشاركة",
   "threadActions.thisPost": "هذا المنشور",
   "threadActions.staff": "الطاقم",
-  "threadActions.editTags": "تعديل الوسوم"
+  "threadActions.editTags": "تعديل الوسوم",
+  "admin.section.siteHealth": "صحة الموقع",
+  "admin.lede.siteHealth": "مدى سرعة الصفحات كما يشعر بها الزوار، مقيسةً بشكل مجهول الهوية في متصفحاتهم.",
+  "desk.health.privacyNote": "لا يُحفظ سوى المجاميع اليومية: نوع الصفحة والقياس وقيمته. لا حساب ولا عنوان ولا تفاصيل متصفح. يُعطّله Do Not Track و Global Privacy Control، وتُحذف المجاميع الأقدم من {days} يومًا.",
+  "desk.health.pageColumn": "نوع الصفحة",
+  "desk.health.metricColumn": "القياس",
+  "desk.health.weekColumn": "المئين 75، 7 أيام",
+  "desk.health.monthColumn": "المئين 75، 28 يومًا",
+  "desk.health.samples": "العيّنات: {count}",
+  "desk.health.good": "جيد",
+  "desk.health.needsWork": "يحتاج إلى تحسين",
+  "desk.health.poor": "ضعيف",
+  "desk.health.noData": "لا توجد بيانات",
+  "desk.health.empty": "لا توجد قياسات بعد.",
+  "settings.vitalsNote": "لمعرفة سرعة الموقع، قد يرسل متصفحك قياسات سرعة مجهولة الهوية: نوع الصفحة (وليس عنوانها أبدًا) وبعض التوقيتات. لا شيء يحدد هويتك، ولا يُحفظ سوى المجاميع اليومية لمدة 90 يومًا. يُعطّل Do Not Track أو Global Privacy Control ذلك."
 }
