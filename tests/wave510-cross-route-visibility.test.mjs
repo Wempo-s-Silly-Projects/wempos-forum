@@ -51,6 +51,10 @@ const ALWAYS_FORBIDDEN = ["HIDDENROOTTXT", "UNDERHIDDENTXT", "BANNEDTXT", "DOOME
   // Wave 5.38: an expired custom status never reaches any route.
   "STALESTATUSTXT"];
 const SIDE_FORBIDDEN = { zzblocker: ["BLOCKEDTXT", "zzblocked"], zzblocked: ["BLOCKERTXT", "zzblocker"] };
+// Wave 5.42: private data with one owner — forbidden to every other viewer
+// (guest, members, both pair sides, staff) on every route.
+const OWNER_ONLY = { PRIVATEFOLDERTXT: "viewer" };
+const ownerOnlyNeedles = (member) => Object.entries(OWNER_ONLY).filter(([, owner]) => owner !== member).map(([needle]) => needle);
 
 async function seedWorld() {
   const env = makeEnv({ AGENT_TOKENS: JSON.stringify(Object.fromEntries(
@@ -134,6 +138,7 @@ async function seedWorld() {
   seedStaffPicks(w, at);
   seedProfileExtras(w, at);
   seedFoldersFollows(w, at);
+  seedPrivateExtras(w, at);
   await seedArchive(w);
   return w;
 }
@@ -184,6 +189,14 @@ function seedFoldersFollows(w, at) {
         id[member], Number(post), Number(post), at, "New thread from " + author);
     }
   }
+}
+
+// Wave 5.42: the viewer's private extras — a named folder (PRIVATEFOLDERTXT)
+// and a muted notification kind. Only the viewer may ever read either.
+function seedPrivateExtras(w, at) {
+  const { db, id } = w;
+  db.prepare("INSERT INTO bookmark_folders (user_id, name, created_at) VALUES (?, 'PRIVATEFOLDERTXT', ?)").run(id.viewer, at);
+  db.prepare("INSERT INTO notification_prefs (user_id, muted, updated_at) VALUES (?, 'mention', ?)").run(id.viewer, at);
 }
 
 // Wave 5.32: one row in every staff-only store, each carrying STAFFONLYTXT.
@@ -269,6 +282,11 @@ function routes(w, member) {
     // still applies under every combination).
     ["/api/search?q=zzsweep&in=replies&since=year&sort=new"], ["/api/search?q=zzsweep&since=week&sort=relevant"],
     ["/api/search?q=zzsweep&by=zzbanned&in=replies&since=month&sort=new"],
+    // Wave 5.42: the newest-members list (v5.35). zzghost (invisible is a
+    // presence setting, not a hidden account) and zzwiped (the fixture keeps
+    // the user row the real account wipe deletes) may be listed; the ban and
+    // the block pair may not.
+    ["/api/members/newest", { allowNames: ["zzghost", "zzwiped"] }],
   ];
   if (member) {
     list.push(["/api/me/notifications"], ["/api/me/bookmarks"], ["/api/session"], ["/api/posts?mine=1"],
@@ -286,6 +304,8 @@ function routes(w, member) {
     // the private Following list.
     list.push(["/api/me/bookmark-folders"], ["/api/me/bookmark-folders/" + w.folder[member] + "/items"],
       ["/api/me/following"]);
+    // Wave 5.42: the member's own notification preferences and follow state.
+    list.push(["/api/me/notification-prefs"], ["/api/users/alice/follow"]);
   }
   return list;
 }
@@ -320,14 +340,15 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
   let swept = 0;
   for (const [label, member] of viewers) {
     const session = member ? forgeSession(w.db, w.id[member]) : undefined;
-    const forbidden = [...ALWAYS_FORBIDDEN, ...(SIDE_FORBIDDEN[member] || [])];
+    const forbidden = [...ALWAYS_FORBIDDEN, ...(SIDE_FORBIDDEN[member] || []), ...ownerOnlyNeedles(member)];
     for (const [path, options = {}] of routes(w, member)) {
       if (options.guestOnly && member) continue;
       // A per-member page refuses the block pair with 403 (wave-40 law); the
       // refusal body is swept too.
       const refusable = Boolean(options.pairRefuses && SIDE_FORBIDDEN[member]);
       const text = await fetchText(w.env, path, { session, markdown: options.markdown, refusable });
-      const needles = options.keepParticipantNames ? forbidden.filter((n) => !/^zz(block|banned)/.test(n)) : forbidden;
+      const kept = options.keepParticipantNames ? forbidden.filter((n) => !/^zz(block|banned)/.test(n)) : forbidden;
+      const needles = options.allowNames ? kept.filter((n) => !options.allowNames.includes(n)) : kept;
       assertClean(text, needles, label + " " + path);
       swept++;
     }
@@ -351,6 +372,9 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
   assert.ok(swept >= 236, "swept " + swept);
   // Wave 5.39: + folders, folder contents and Following for each of the 3 members.
   assert.ok(swept >= 245, "swept " + swept);
+  // Wave 5.42: + newest members for each of the 4 viewers, + prefs and the
+  // follow state for each of the 3 members.
+  assert.ok(swept >= 263, "swept " + swept);
 });
 
 test("wave 5.10 sweep: hidden-root reads are 404 and the DM non-member is refused", async () => {
@@ -470,7 +494,9 @@ const STAFF_ONLY_GETS = (w) => ["/api/admin/reports", "/api/admin/profile-report
   "/api/admin/appeals", "/api/admin/automod", "/api/automod/queue", "/api/admin/analytics", "/api/admin/hidden",
   "/api/admin/bans", "/api/admin/chat", "/api/admin/dms", "/api/admin/avatars", "/api/admin/attachments",
   "/api/admin/gifs", "/api/admin/css", "/api/admin/filter", "/api/admin/users/search?q=zz",
-  "/api/admin/users/" + w.id.zzbanned + "/recent-posts"];
+  "/api/admin/users/" + w.id.zzbanned + "/recent-posts",
+  // Wave 5.42: the staff-pick mod log (v5.35).
+  "/api/admin/staff-picks"];
 
 test("wave 5.32 sweep: every staff-only read refuses guests and members and leaks nothing", async () => {
   const w = await seedWorld();
@@ -661,4 +687,98 @@ test("wave 5.40: a follow_thread mute composes with the ban and block exclusions
     assert.deepEqual(JSON.parse(body).muted, [], name + " never sees the viewer's mutes");
     for (const forbidden of [...ALWAYS_FORBIDDEN, "viewer"]) assert.ok(!body.includes(forbidden), name + ": " + forbidden);
   }
+});
+
+// ---- wave 5.42: the every-tenth-wave re-audit (docs/visibility-inventory.md) ----
+
+// Staff (admin) and the site owner bypass hidden/ban/block on member reads,
+// but the PUBLIC FACES (RSS, llms.txt, /week, the gallery and its staff pick,
+// the sitemap, a profile's pin and status) never show hidden, banned or
+// expired items to them either, and nobody's private data (folders, follows,
+// notification preferences) ever reaches staff.
+test("wave 5.42: staff and owner viewers — public faces stay public, private data stays its owner's", async () => {
+  const w = await seedWorld();
+  // DB roles (api/core/roles.mjs): "admin" = the site owner (boss), "moderator" = an admin.
+  const deputy = await seedUser(w.db, { username: "deputy", role: "moderator" });
+  const faces = ["/feed.xml", "/c/showcase/feed.xml", "/c/general/feed.xml", "/llms.txt", "/sitemap.xml",
+    "/api/week", "/week", "/api/traditions/showcase", "/api/traditions/qotd", "/api/users/alice", "/users/alice"];
+  const faceNeedles = ["HIDDENROOTTXT", "UNDERHIDDENTXT", "BANNEDTXT", "WIPEDTXT", "DOOMEDREPLYTXT", "HIDDENEDITTXT",
+    "STALESTATUSTXT", "STAFFONLYTXT", ...Object.keys(OWNER_ONLY)];
+  let swept = 0;
+  for (const [label, session] of [["owner boss", forgeSession(w.db, w.id.boss)], ["admin deputy", forgeSession(w.db, deputy)]]) {
+    for (const path of faces) {
+      assertClean(await fetchText(w.env, path, { session }), faceNeedles, label + " " + path);
+      swept++;
+    }
+    const week = JSON.parse(await fetchText(w.env, "/api/week", { session }));
+    assert.equal(week.staffPick, null, label + ": the newest pick is hidden and no older pick stands in");
+    const alice = JSON.parse(await fetchText(w.env, "/api/users/alice", { session }));
+    assert.equal(alice.pinnedThread, null, label + ": a pin on a hidden root stays off the public face");
+    assert.ok(!Object.keys(alice).some((key) => /follow/i.test(key)), label + ": no follower list or count on a profile");
+    // Private stores: own rows only, and another member's folder is a 404.
+    for (const path of ["/api/me/bookmark-folders", "/api/me/following", "/api/me/notification-prefs"]) {
+      const text = await fetchText(w.env, path, { session });
+      assertClean(text, [...Object.keys(OWNER_ONLY), "sweep folder", "alice", "zzblock"], label + " " + path);
+      swept++;
+    }
+    assert.deepEqual(JSON.parse(await fetchText(w.env, "/api/me/notification-prefs", { session })).muted, [], label + " prefs");
+    for (const member of ["viewer", "zzblocker", "zzblocked"]) {
+      const res = await call(w.env, "/api/me/bookmark-folders/" + w.folder[member] + "/items", { session });
+      assert.equal(res.status, 404, label + " reads " + member + "'s folder");
+      assertClean(await res.text(), ["VISIBLEOKTXT", "sweep folder"], label + " folder " + member);
+    }
+    assert.deepEqual(JSON.parse(await fetchText(w.env, "/api/users/alice/follow", { session })), { following: false },
+      label + ": follow state is the caller's own, never the member's followers");
+  }
+  assert.equal(swept, 2 * (11 + 3));
+  // The data owner reads every private row back (positive control).
+  const viewer = forgeSession(w.db, w.id.viewer);
+  assert.ok((await fetchText(w.env, "/api/me/bookmark-folders", { session: viewer })).includes("PRIVATEFOLDERTXT"));
+  assert.deepEqual(JSON.parse(await fetchText(w.env, "/api/me/notification-prefs", { session: viewer })).muted, ["mention"]);
+  assert.deepEqual(JSON.parse(await fetchText(w.env, "/api/users/alice/follow", { session: viewer })), { following: true });
+});
+
+// /api/members/newest (v5.35): the ban drops a member, the block pair hides
+// each side from the other, staff skip only the block filter, and an expired
+// ban counts as unbanned. The swept members are made the newest accounts so
+// every one of them is inside the list's window.
+test("wave 5.42: newest members drop the actively banned and the block pair both ways", async () => {
+  const w = await seedWorld();
+  const later = now() + 100;
+  for (const [index, name] of ["zzbanned", "zzexpired", "zzblocker", "zzblocked"].entries()) {
+    w.db.prepare("UPDATE users SET created_at = ? WHERE id = ?").run(later + index, w.id[name]);
+  }
+  const names = async (session) =>
+    JSON.parse(await fetchText(w.env, "/api/members/newest", { session })).members.map((row) => row.username);
+  for (const [label, session] of [["guest", undefined], ["viewer", forgeSession(w.db, w.id.viewer)]]) {
+    const list = await names(session);
+    assert.ok(!list.includes("zzbanned"), label + " lists the banned member");
+    for (const name of ["zzexpired", "zzblocker", "zzblocked"]) assert.ok(list.includes(name), label + " misses " + name);
+  }
+  for (const [member, other] of [["zzblocker", "zzblocked"], ["zzblocked", "zzblocker"]]) {
+    const list = await names(forgeSession(w.db, w.id[member]));
+    assert.ok(!list.includes(other) && !list.includes("zzbanned"), member + " lists " + other);
+    assert.ok(list.includes("zzexpired"), member + ": an expired ban stays listed");
+  }
+  const staff = await names(forgeSession(w.db, w.id.boss));
+  assert.ok(staff.includes("zzblocker") && staff.includes("zzblocked") && !staff.includes("zzbanned"), "staff: block bypass, ban kept");
+  const raw = await fetchText(w.env, "/api/members/newest");
+  assert.ok(!/created|joined|"id"/i.test(raw), "no join time or member id leaves the server");
+});
+
+// GET /api/users/:name/follow (v5.39): a block pair answers the same 404 as a
+// missing member, both ways; guests read nothing; an unrelated member's own
+// state is all anyone learns.
+test("wave 5.42: the follow-state read refuses the block pair both ways and guests", async () => {
+  const w = await seedWorld();
+  assert.equal((await call(w.env, "/api/users/alice/follow")).status, 401, "guest");
+  for (const [member, other] of [["zzblocker", "zzblocked"], ["zzblocked", "zzblocker"]]) {
+    const session = forgeSession(w.db, w.id[member]);
+    const paired = await call(w.env, "/api/users/" + other + "/follow", { session });
+    const missing = await call(w.env, "/api/users/zznobody/follow", { session });
+    assert.equal(paired.status, 404, member + " -> " + other);
+    assert.deepEqual(await paired.json(), await missing.json(), member + ": the pair reads exactly like a missing member");
+  }
+  const viewer = forgeSession(w.db, w.id.viewer);
+  assert.deepEqual(JSON.parse(await fetchText(w.env, "/api/users/zzblocker/follow", { session: viewer })), { following: true });
 });
