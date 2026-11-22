@@ -11,6 +11,8 @@ version = 1
 path = [
   "public/locales/**",
   "public/icons/**",
+  "public/og-image.svg",
+  "public/og-image.png",
   "public/index.html",
   "public/.well-known/**",
   "package.json",

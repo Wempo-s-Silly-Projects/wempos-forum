@@ -35,6 +35,8 @@ import { createContrastPicker, CONTRAST_STORAGE_KEY } from "../public/js/high-co
 import { createPostCard, openEditForm, renderEditHistoryPanel } from "../public/js/render.js";
 import { SPOILER_MASK } from "../public/js/markdown.js";
 import { FakeNode, makeFakeDocument } from "./helpers/fake-dom.mjs";
+import { makeAssets, makeEnv } from "./helpers/d1.mjs";
+import { call, seedPost, seedUser } from "./helpers/seed.mjs";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const ORIGIN = "https://forum.example";
@@ -193,6 +195,55 @@ test("index.html has no inline script and the CSP still forbids inline script an
   const http = read("api/vendor/http.mjs");
   assert.match(http, /script-src 'self' https:\/\/challenges\.cloudflare\.com; style-src 'self';/);
   assert.doesNotMatch(http, /unsafe-inline|unsafe-eval/);
+});
+
+// v5.31.0: the worker injects JSON-LD as <script type="application/ld+json">
+// data blocks (never executed; CSP script-src does not apply). That exact tag
+// is the ONLY inline script allowed in a served document — any other src-less
+// script, an ld+json tag with extra attributes, or an inline handler fails.
+const LD_JSON_TAG = '<script type="application/ld+json">';
+function assertOnlyDataBlockInlineScripts(html) {
+  for (const [tag] of html.matchAll(/<script\b[^>]*>/gi)) {
+    if (tag === LD_JSON_TAG) continue;
+    assert.match(tag, /^<script\b[^>]*\bsrc="\/js\/[a-z0-9-]+\.js"[^>]*>$/, tag);
+  }
+  for (const [, body] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+    assert.doesNotMatch(body, /</, "a JSON-LD block never carries a raw <");
+    JSON.parse(body);
+  }
+  assert.doesNotMatch(html, /\son[a-z]+=/i, "no inline event handlers");
+}
+
+test("served shell: JSON-LD data blocks are the only inline scripts", async () => {
+  const shell = read("public/index.html");
+  const assets = makeAssets(() => new Response(shell, { headers: { "Content-Type": "text/html; charset=utf-8" } }));
+  const env = makeEnv({ ASSETS: assets });
+  const authorId = await seedUser(env.__sqlite, { username: "pinned" });
+  const postId = seedPost(env.__sqlite, { authorId, body: "</script><script>alert(1)</script>" });
+  for (const path of ["/", `/posts/${postId}`]) {
+    const html = await (await call(env, path)).text();
+    assert.ok(html.includes(LD_JSON_TAG), `${path} carries a JSON-LD block`);
+    assertOnlyDataBlockInlineScripts(html);
+  }
+});
+
+test("the inline-script pin still rejects every non-ld+json inline script", () => {
+  const ok = `<head>${LD_JSON_TAG}{"a":"\\u003c/script>"}</script><script type="module" src="/js/app.js"></script></head>`;
+  assertOnlyDataBlockInlineScripts(ok);
+  const rejected = [
+    "<script>alert(1)</script>",
+    '<script type="module">import("/x")</script>',
+    '<script type="text/javascript">alert(1)</script>',
+    '<script type="application/ld+json" onload="alert(1)">{}</script>',
+    '<script type="application/ld+json " >{}</script>',
+    '<script type="application/json">{}</script>',
+    '<SCRIPT>alert(1)</SCRIPT>',
+    '<script src="https://evil.example/x.js"></script>',
+    `${LD_JSON_TAG}{"a":"</b>"}</script>`,
+  ];
+  for (const html of rejected) {
+    assert.throws(() => assertOnlyDataBlockInlineScripts(`<head>${html}</head>`), undefined, html);
+  }
 });
 
 // --- CSS: high contrast never unmasks or hides (v5.27) ----------------------------------

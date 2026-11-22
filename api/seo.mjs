@@ -1,0 +1,231 @@
+// Copyright 2026 ItsWempo
+//
+// This file is part of Wempo's Forum.
+//
+// Wempo's Forum is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 ItsWempo
+
+// Per-page head for crawlers and share previews (v5.31.0). The worker serves
+// one SPA shell for every page; this module replaces the shell's static
+// <title> and <meta name="description"> with the page's own, and adds the
+// canonical link, Open Graph + Twitter card tags, JSON-LD data blocks and a
+// noindex where a page must not be indexed.
+//
+// Visibility law: the head shows only what an anonymous visitor may see — a
+// thread's excerpt only when canViewPost passes for a NON-staff viewer (staff
+// get the public face too), a profile's name only when the member has no
+// active ban. A signed-in viewer's block pair (either direction) also gets
+// the generic head, so a blocked member's words never ride the tab title.
+// Hidden, banned, blocked, deleted and missing all render the SAME generic,
+// noindexed head: no existence oracle. A failed read degrades to that head.
+//
+// Escaping: every attribute value goes through attributeEscape; JSON-LD is a
+// data block (never executed; CSP script-src does not apply) serialized with
+// JSON.stringify and then <, > and & escaped as \u003c, \u003e, \u0026, so a
+// post containing "</script>" cannot close the block.
+import { readSession } from "./core/auth.mjs";
+import { blockPairExists } from "./core/blocks.mjs";
+import { siteOrigin } from "./core/site.mjs";
+import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
+import { ACTIVE_BAN_SQL, canViewPost } from "./core/visibility.mjs";
+import { BRANDING_DEFAULTS } from "./branding.mjs";
+import { POST_ROW_SQL, PUBLIC_REPLY_COUNT_SQL, titleOf } from "./discovery.mjs";
+import { routeForPath } from "../public/js/router.js";
+
+const DESCRIPTION_MAX = 150;
+const OG_IMAGE_PATH = "/og-image.png";
+const SCHEMA_CONTEXT = "https://schema.org";
+
+const PROFILE_SQL =
+  "SELECT u.id, u.username FROM users u WHERE u.username_key = ? AND NOT " + ACTIVE_BAN_SQL("u.id") + " LIMIT 1";
+
+const REPLY_COUNT_SQL = "SELECT " + PUBLIC_REPLY_COUNT_SQL + " AS reply_count FROM posts p WHERE p.id = ? LIMIT 1";
+
+export function attributeEscape(value) {
+  return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function attributeUnescape(value) {
+  return String(value).replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+}
+
+// jsonLdBlock(data) -> one <script type="application/ld+json"> data block
+// whose text holds no raw "<" (so no "</script>" or "<!--" can appear).
+export function jsonLdBlock(data) {
+  const text = JSON.stringify(data)
+    .replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+  return `<script type="application/ld+json">${text}</script>`;
+}
+
+// ogImageUrl(env, origin) -> OG_IMAGE_URL when it is an http(s) URL, else the
+// forum's own /og-image.png.
+export function ogImageUrl(env, origin) {
+  const raw = env && typeof env.OG_IMAGE_URL === "string" ? env.OG_IMAGE_URL.trim() : "";
+  if (raw) {
+    try {
+      const url = new URL(raw);
+      if (url.protocol === "https:" || url.protocol === "http:") return url.href;
+    } catch {
+      // not a URL: fall through to the default card
+    }
+  }
+  return origin + OG_IMAGE_PATH;
+}
+
+const isoDate = (seconds) => new Date(Number(seconds) * 1000).toISOString();
+const flatExcerpt = (body) => maskedExcerpt(maskSpoilers(String(body)).replace(/\s+/g, " ").trim(), DESCRIPTION_MAX);
+
+// The viewer for the block check only: staff are treated as members so the
+// head is always the public face (canViewPost's staff bypass never applies).
+async function blockViewer(request, env) {
+  if (!request.headers.get("Cookie")) return null;
+  const session = await readSession(request, env);
+  return session && session.user ? { id: session.user.id, role: "member" } : null;
+}
+
+async function threadHead(env, viewer, id, origin, site) {
+  if (!Number.isSafeInteger(id) || id < 1) return null;
+  const row = await env.FORUM_DB.prepare(POST_ROW_SQL).bind(id).first();
+  if (!row || !(await canViewPost(env, row, viewer))) return null;
+  const counted = await env.FORUM_DB.prepare(REPLY_COUNT_SQL).bind(id).first();
+  const url = origin + "/posts/" + row.id;
+  const headline = titleOf(row);
+  const description = flatExcerpt(row.body);
+  const posting = {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "DiscussionForumPosting",
+    headline,
+    text: description,
+    url,
+    author: { "@type": "Person", name: row.author_username, url: origin + "/users/" + encodeURIComponent(row.author_username) },
+    datePublished: isoDate(row.created_at),
+    ...(row.edited_at ? { dateModified: isoDate(row.edited_at) } : {}),
+    interactionStatistic: {
+      "@type": "InteractionCounter",
+      interactionType: SCHEMA_CONTEXT + "/CommentAction",
+      userInteractionCount: Number((counted && counted.reply_count) || 0),
+    },
+  };
+  return { title: `${headline} — ${site.name}`, description, canonical: url, type: "article", ld: [posting] };
+}
+
+async function profileHead(env, viewer, username, origin, site) {
+  const user = await env.FORUM_DB.prepare(PROFILE_SQL).bind(String(username).toLowerCase()).first();
+  if (!user) return null;
+  if (viewer && viewer.id !== Number(user.id) && (await blockPairExists(env, viewer.id, user.id))) return null;
+  return {
+    title: `${user.username} — ${site.name}`,
+    description: `${user.username}'s profile and recent topics on ${site.name}.`,
+    canonical: origin + "/users/" + encodeURIComponent(user.username),
+    type: "profile",
+    ld: [],
+  };
+}
+
+// The record-backed pages (thread, profile); null = show the generic head.
+async function recordHead(request, env, route, origin, site) {
+  if (route.name !== "post" && route.name !== "profile") return undefined;
+  if (!env.FORUM_DB) return null;
+  try {
+    const viewer = await blockViewer(request, env);
+    return route.name === "post"
+      ? await threadHead(env, viewer, route.id, origin, site)
+      : await profileHead(env, viewer, route.username, origin, site);
+  } catch (error) {
+    console.error("Page head lookup failed; serving the generic head:", error);
+    return null;
+  }
+}
+
+function siteBlocks(site, origin, image) {
+  return [
+    {
+      "@context": SCHEMA_CONTEXT,
+      "@type": "WebSite",
+      name: site.name,
+      url: origin + "/",
+      description: site.description,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: origin + "/?q={search_term_string}",
+        "query-input": "required name=search_term_string",
+      },
+    },
+    { "@context": SCHEMA_CONTEXT, "@type": "Organization", name: site.name, url: origin + "/", logo: image },
+  ];
+}
+
+async function pageHead(request, env, url, site, origin) {
+  const route = routeForPath(url.pathname, url.search);
+  const generic = { title: site.title, description: site.description, canonical: origin + url.pathname, type: "website", ld: [] };
+  if (route.name === "not-found") return { ...generic, title: `Not found — ${site.name}`, canonical: "", noindex: true };
+  if (route.name === "category") {
+    return {
+      ...generic,
+      title: `${route.board} — ${site.name}`,
+      description: `Recent topics in the ${route.board} board on ${site.name}.`,
+      canonical: origin + "/c/" + route.board,
+    };
+  }
+  const record = await recordHead(request, env, route, origin, site);
+  if (record === undefined) return generic;
+  return record || { ...generic, canonical: "", noindex: true };
+}
+
+function renderHead(head, site, image) {
+  const meta = (attr, key, value) => `<meta ${attr}="${key}" content="${attributeEscape(value)}">`;
+  return [
+    `<title>${attributeEscape(head.title)}</title>`,
+    meta("name", "description", head.description),
+    head.noindex ? meta("name", "robots", "noindex") : "",
+    head.canonical ? `<link rel="canonical" href="${attributeEscape(head.canonical)}">` : "",
+    meta("property", "og:site_name", site.name),
+    meta("property", "og:title", head.title),
+    meta("property", "og:description", head.description),
+    head.canonical ? meta("property", "og:url", head.canonical) : "",
+    meta("property", "og:type", head.type),
+    meta("property", "og:image", image),
+    meta("name", "twitter:card", "summary_large_image"),
+    meta("name", "twitter:title", head.title),
+    meta("name", "twitter:description", head.description),
+    meta("name", "twitter:image", image),
+    ...head.ld.map(jsonLdBlock),
+  ].join("");
+}
+
+const SHELL_TITLE = /<title>[\s\S]*?<\/title>/i;
+const SHELL_DESCRIPTION = /<meta name="description" content="([^"]*)">/i;
+
+// withPageHead(html, request, env, url, storedBranding) -> the shell with its
+// static title + description swapped for this page's head (before </head>).
+export async function withPageHead(html, request, env, url, storedBranding) {
+  if (!html.includes("</head>")) return html;
+  const name = storedBranding.name || BRANDING_DEFAULTS.name;
+  const tagline = storedBranding.tagline || BRANDING_DEFAULTS.tagline;
+  const shellDescription = html.match(SHELL_DESCRIPTION);
+  const site = {
+    name,
+    title: `${name}: ${tagline}`,
+    description: shellDescription ? attributeUnescape(shellDescription[1]) : `${name}: ${tagline}`,
+  };
+  const origin = siteOrigin(env, request);
+  const image = ogImageUrl(env, origin);
+  const head = await pageHead(request, env, url, site, origin);
+  const tags = renderHead({ ...head, ld: [...siteBlocks(site, origin, image), ...head.ld] }, site, image);
+  return html.replace(SHELL_TITLE, "").replace(SHELL_DESCRIPTION, "").replace("</head>", tags + "</head>");
+}

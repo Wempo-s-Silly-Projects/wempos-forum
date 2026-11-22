@@ -82,7 +82,7 @@ const PUBLIC_REPLIES_SQL =
   "ORDER BY r.created_at ASC, r.id ASC LIMIT " + MARKDOWN_REPLY_LIMIT;
 
 // Same reply visibility as above, counted per root for the feed listings.
-const PUBLIC_REPLY_COUNT_SQL =
+export const PUBLIC_REPLY_COUNT_SQL =
   "(SELECT COUNT(*) FROM posts rc LEFT JOIN posts rl ON rl.id = rc.parent_id " +
   "WHERE (rc.parent_id = p.id OR (rl.parent_id = p.id AND rl.visibility = 'public' AND " + banFilterSql("rl") + ")) " +
   "AND rc.visibility = 'public' AND " + banFilterSql("rc") + ")";
@@ -102,7 +102,7 @@ function feedSql(withBoard) {
     " ORDER BY p.last_activity_at DESC, p.id DESC LIMIT ?";
 }
 
-const POST_ROW_SQL =
+export const POST_ROW_SQL =
   "SELECT p.id, p.author_id, p.parent_id, p.body, p.visibility, p.board, p.created_at, p.edited_at, " +
   "u.username AS author_username FROM posts p JOIN users u ON u.id = p.author_id WHERE p.id = ? LIMIT 1";
 
@@ -199,7 +199,7 @@ function isoDate(seconds) {
   return new Date(Number(seconds) * 1000).toISOString();
 }
 
-function titleOf(row) {
+export function titleOf(row) {
   const firstLine = maskSpoilers(row.body).split("\n").map((line) => line.trim()).find(Boolean) || "";
   if (!firstLine) return "Post #" + row.id;
   return maskedExcerpt(firstLine, TITLE_MAX);
