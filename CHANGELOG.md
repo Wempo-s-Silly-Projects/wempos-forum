@@ -15,6 +15,25 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.67.0] - 2026-11-22
+
+### Security
+- Profile updates (`PATCH /api/me`) are now rate-limited with the shared
+  write limit, per member, like other profile writes. A signed-in member
+  could previously send profile edits without limit, each one queueing an
+  AutoMod review row.
+
+### Fixed
+- The account returned right after sign-up now reads all 27 social link
+  fields from the one shared list, so the column lists can no longer drift
+  apart. A brand-new account has no social links, so nothing visible
+  changes.
+
+### Tests
+- New pins: profile updates answer 429 and write nothing once the write
+  limit is spent, and use the write limiter keyed by member; the sign-up
+  read selects exactly the shared social columns and nothing else.
+
 ## [5.66.0] - 2026-11-22
 
 ### Security
