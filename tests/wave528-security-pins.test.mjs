@@ -187,8 +187,8 @@ test("theme-preload adds no globals, one media listener, and no eval-like or mar
 
 test("index.html has no inline script and the CSP still forbids inline script and style", () => {
   const html = read("public/index.html");
-  for (const tag of html.match(/<script\b[^>]*>/g) ?? []) assert.match(tag, /\bsrc="\/js\/[a-z0-9-]+\.js"/, tag);
-  assert.doesNotMatch(html, /<script\b(?![^>]*\bsrc=)[^>]*>/);
+  for (const tag of html.match(/<script\b[^>]*>/gi) ?? []) assert.match(tag, /\bsrc="\/js\/[a-z0-9-]+\.js"/, tag);
+  assert.doesNotMatch(html, /<script\b(?![^>]*\bsrc=)[^>]*>/i);
   assert.doesNotMatch(html, /\son[a-z]+=/i, "no inline event handlers");
   const http = read("api/vendor/http.mjs");
   assert.match(http, /script-src 'self' https:\/\/challenges\.cloudflare\.com; style-src 'self';/);
