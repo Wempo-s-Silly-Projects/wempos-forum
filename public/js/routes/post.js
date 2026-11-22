@@ -328,6 +328,17 @@ export const ACTIONS = {
     });
     await state.renderRoute(state.activeRoute);
   },
+  // v5.38.0 F3: set ("" clears) the poll's closing time — seconds from now.
+  "poll-deadline": async (button) => {
+    if (state.activeRoute.name !== "post") return;
+    const select = button.closest(".poll-deadline")?.querySelector(".poll-deadline-select");
+    if (!select) return;
+    await api("/api/posts/" + state.activeRoute.id + "/poll", {
+      method: "PATCH",
+      body: { closesIn: select.value === "" ? null : Number(select.value) },
+    });
+    await state.renderRoute(state.activeRoute);
+  },
   "edit-post": (button) => {
     const article = editTargetArticle(button);
     if (article) openEditForm(article, document);

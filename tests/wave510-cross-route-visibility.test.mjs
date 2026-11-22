@@ -47,7 +47,9 @@ const ALWAYS_FORBIDDEN = ["HIDDENROOTTXT", "UNDERHIDDENTXT", "BANNEDTXT", "DOOME
   "HIDDENEDITTXT", "zzbanned", "zzghost", "zzwiped",
   // Wave 5.32: staff-only records (reports, appeals, AutoMod, analytics
   // referrers) never reach a non-staff route.
-  "STAFFONLYTXT", "staffonly-referrer"];
+  "STAFFONLYTXT", "staffonly-referrer",
+  // Wave 5.38: an expired custom status never reaches any route.
+  "STALESTATUSTXT"];
 const SIDE_FORBIDDEN = { zzblocker: ["BLOCKEDTXT", "zzblocked"], zzblocked: ["BLOCKERTXT", "zzblocker"] };
 
 async function seedWorld() {
@@ -130,8 +132,28 @@ async function seedWorld() {
   run("INSERT INTO dm_group_messages (group_id, user_id, body, created_at) VALUES (?, ?, 'GROUPOKTXT', ?)", w.group, id.alice, at);
   seedStaffOnly(w, at);
   seedStaffPicks(w, at);
+  seedProfileExtras(w, at);
   await seedArchive(w);
   return w;
+}
+
+// Wave 5.38 (migration 0066): stored pins and statuses that the read must
+// re-check — alice's pin points at her HIDDEN root and her status expired;
+// the banned and block-paired members carry a pin and a live status each.
+function seedProfileExtras(w, at) {
+  const { db, id } = w;
+  const run = (sql, ...args) => db.prepare(sql).run(...args);
+  run("INSERT INTO profile_pins (user_id, post_id, pinned_at) VALUES (?, ?, ?)", id.alice, w.hiddenRoot, at);
+  run("INSERT INTO user_status (user_id, text, emoji, expires_at, updated_at) VALUES (?, 'STALESTATUSTXT', '', ?, ?)", id.alice, at - 1, at);
+  run("INSERT INTO profile_pins (user_id, post_id, pinned_at) VALUES (?, ?, ?)", id.zzbanned, w.bannedRoot, at);
+  run("INSERT INTO profile_pins (user_id, post_id, pinned_at) VALUES (?, ?, ?)", id.zzblocker, w.blockerRoot, at);
+  run("INSERT INTO profile_pins (user_id, post_id, pinned_at) VALUES (?, ?, ?)", id.zzblocked, w.blockedRoot, at);
+  w.expiredBanRoot = Number(db.prepare("SELECT id FROM posts WHERE author_id = ? AND parent_id IS NULL LIMIT 1").get(id.zzexpired).id);
+  run("INSERT INTO profile_pins (user_id, post_id, pinned_at) VALUES (?, ?, ?)", id.zzexpired, w.expiredBanRoot, at);
+  for (const [user, text] of [[id.zzbanned, "BANNEDTXT status"], [id.zzblocker, "BLOCKERTXT status"],
+    [id.zzblocked, "BLOCKEDTXT status"], [id.zzexpired, "EXPIREDOKTXT status"]]) {
+    run("INSERT INTO user_status (user_id, text, emoji, expires_at, updated_at) VALUES (?, ?, '', NULL, ?)", user, text, at);
+  }
 }
 
 // Wave 5.32: one row in every staff-only store, each carrying STAFFONLYTXT.
@@ -518,4 +540,32 @@ test("wave 5.32 pins: no @mention ping across a block pair; pending avatars stay
     const list = JSON.parse(await fetchText(w.env, "/api/me/blocks", { session: forgeSession(w.db, w.id[member]) })).blocks;
     assert.deepEqual(list.map((row) => [row.username, row.ownDirection]), [[other, own]], member);
   }
+});
+
+// ---- wave 5.38: profile pin and custom status (migration 0066) ----
+
+test("wave 5.38: the profile's pin and status re-check hidden, banned, expired and block pairs on every read", async () => {
+  const w = await seedWorld();
+  const viewers = [["guest", undefined], ["viewer", forgeSession(w.db, w.id.viewer)],
+    ["boss", forgeSession(w.db, w.id.boss)], ["self", forgeSession(w.db, w.id.alice)]];
+  for (const [label, session] of viewers) {
+    const alice = JSON.parse(await fetchText(w.env, "/api/users/alice", { session }));
+    assert.equal(alice.pinnedThread, null, label + ": a pin on a hidden root never shows (public face, staff too)");
+    assert.equal(alice.status, null, label + ": an expired status never shows");
+    const banned = await fetchText(w.env, "/api/users/zzbanned", { session });
+    assertClean(banned, ["BANNEDTXT"], label + " /api/users/zzbanned");
+    const expired = JSON.parse(await fetchText(w.env, "/api/users/zzexpired", { session }));
+    assert.equal(expired.pinnedThread?.id, w.expiredBanRoot, label + ": an expired ban keeps the pin");
+    assert.equal(expired.status?.text, "EXPIREDOKTXT status", label + ": an expired ban keeps the status");
+  }
+  for (const [member, other, needles] of [["zzblocker", "zzblocked", ["BLOCKEDTXT"]], ["zzblocked", "zzblocker", ["BLOCKERTXT"]]]) {
+    const text = await fetchText(w.env, "/api/users/" + other, { session: forgeSession(w.db, w.id[member]) });
+    assertClean(text, needles, member + " -> /api/users/" + other);
+    assert.equal(JSON.parse(text).unavailable, true);
+  }
+  // Positive control: an unrelated member sees both block-pair members' pins and statuses.
+  const viewer = forgeSession(w.db, w.id.viewer);
+  const blocker = JSON.parse(await fetchText(w.env, "/api/users/zzblocker", { session: viewer }));
+  assert.equal(blocker.pinnedThread?.id, w.blockerRoot);
+  assert.equal(blocker.status?.text, "BLOCKERTXT status");
 });

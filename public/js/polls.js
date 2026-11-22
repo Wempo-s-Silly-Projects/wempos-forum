@@ -25,8 +25,47 @@
 // changeable). Widths are CSSOM width assignments (never inline style
 // attributes in markup — CSP-compatible), and every color reads the theme
 // tokens via classes, so the block renders correctly in light and dark.
-import { t, tn } from "./i18n.js";
+import { DEFAULT_LOCALE, currentLocale, t, tn } from "./i18n.js";
 import { createIcon } from "./icons.js";
+
+// v5.38.0 F3: "in 3 hours" in the reader's language (Intl, no strings), or ""
+// for a missing, unparseable or already passed closing time.
+const RELATIVE_UNITS = [["day", 86400], ["hour", 3600], ["minute", 60]];
+export function formatClosesIn(closesAt, nowMs = Date.now(), locale = DEFAULT_LOCALE) {
+  if (!closesAt) return "";
+  const left = (Date.parse(closesAt) - nowMs) / 1000;
+  if (!Number.isFinite(left) || left <= 0) return "";
+  let format;
+  try {
+    format = new Intl.RelativeTimeFormat(locale, { numeric: "always" });
+  } catch {
+    format = new Intl.RelativeTimeFormat(DEFAULT_LOCALE, { numeric: "always" });
+  }
+  const [unit, size] = RELATIVE_UNITS.find(([, seconds]) => left >= seconds) ?? RELATIVE_UNITS.at(-1);
+  return format.format(Math.max(1, Math.round(left / size)), unit);
+}
+
+// v5.38.0 F3: closing-time choices (seconds from now; "" clears).
+export const POLL_DEADLINE_CHOICES = [
+  ["", "polls.deadlineNone"], ["3600", "polls.deadlineHour"], ["86400", "polls.deadlineDay"],
+  ["604800", "polls.deadlineWeek"], ["2592000", "polls.deadlineMonth"],
+];
+
+function deadlineControl(document) {
+  const wrap = document.createElement("div");
+  wrap.className = "poll-deadline";
+  const select = document.createElement("select");
+  select.className = "poll-deadline-select";
+  select.setAttribute("aria-label", t("polls.deadlineLabel"));
+  for (const [value, key] of POLL_DEADLINE_CHOICES) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = t(key);
+    select.append(option);
+  }
+  wrap.append(select, pollButton(document, "poll-deadline", "button button-quiet poll-deadline-save", t("polls.deadlineSave")));
+  return wrap;
+}
 
 export function renderPollBlock(poll, document, currentUser = null) {
   if (!poll || !Array.isArray(poll.options) || poll.options.length === 0) return null;
@@ -91,7 +130,14 @@ export function renderPollBlock(poll, document, currentUser = null) {
     closedNote.className = "poll-closed muted";
     closedNote.textContent = t("polls.closed");
     block.append(closedNote);
-  } else if (currentUser && hasVote) {
+  } else if (formatClosesIn(poll.closesAt, Date.now(), currentLocale())) {
+    // v5.38.0 F3: the closing time, computed at render from the payload.
+    const closes = document.createElement("p");
+    closes.className = "poll-closes muted";
+    closes.textContent = t("polls.closesIn", { time: formatClosesIn(poll.closesAt, Date.now(), currentLocale()) });
+    block.append(closes);
+  }
+  if (!poll.closed && currentUser && hasVote) {
     const hint = document.createElement("p");
     hint.className = "poll-hint muted";
     hint.textContent = t("polls.changeHint");
@@ -105,6 +151,8 @@ export function renderPollBlock(poll, document, currentUser = null) {
       poll.closed ? t("polls.reopen") : t("polls.close"));
     manage.dataset.closed = String(!poll.closed);
     block.append(manage);
+    // v5.38.0 F3: set or clear the closing time while voting is open.
+    if (!poll.closed) block.append(deadlineControl(document));
   }
   return block;
 }
