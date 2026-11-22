@@ -29,11 +29,44 @@ when they do. Shipped work is listed in [CHANGELOG.md](CHANGELOG.md).
 7. **Keep up with the community.** Fix bugs and build the features people ask
    for in the forum's **Suggestions** board and in GitHub issues.
 
+## Progress since this plan was written
+
+This plan was written at v5.30. Up to v5.63.1:
+
+- **Goal 1 (safe and private):** security reviews covered v5.28 to v5.31 and
+  every batch from v5.33 to v5.60 (written up in
+  [docs/security-reviews/](docs/security-reviews/)), and whole-forum privacy
+  audits ran at v5.32, v5.42, v5.52 and v5.62, each recorded in
+  [docs/visibility-inventory.md](docs/visibility-inventory.md).
+- **Goal 2 (self-hosting):** the new optional switches (`ANALYTICS_ENABLED`,
+  `AUTOMOD_ENABLED`, `OG_IMAGE_URL`) ship off or empty in
+  `wrangler.example.toml` and are documented in
+  [docs/self-hosting.md](docs/self-hosting.md).
+- **Goal 3 (images out of the database):** not started.
+- **Goal 4 (translations and accessibility):** new strings ship in all 41
+  languages; easy-reading spacing, a fix for the "Skip to content" link and an
+  accessibility pass over the reorganized thread page, settings and menus
+  shipped.
+- **Goal 7 (community requests):** shipped, among others: share buttons, RSS
+  feeds, invite links, the This week page, staff picks, following members,
+  bookmark folders, custom status, poll closing times, notification types,
+  thread tags, muting threads, private notes, saved searches, thread TL;DRs,
+  thread locks and slow mode, plus a settings page and tidier navigation.
+  The full list is in [CHANGELOG.md](CHANGELOG.md).
+- Goals 5 and 6 have no change to report.
+
+Since 2026-11-22 the owner has paused new features. A list of features
+that overlap or are hard to find, with options for each, is waiting for the
+owner's decision: [docs/trim-list.md](docs/trim-list.md). Nothing on it has
+been decided.
+
 ## Non-goals (what the project will not do)
 
 - **No ads, trackers or selling data.** The forum collects as little as it
   can, and nothing that sends data to a third party is ever turned on by
-  default.
+  default. The private visit counts keep daily totals only (no IP address,
+  account, cookie or record of single visits), and Do Not Track and Global
+  Privacy Control turn them off for that browser.
 - **No framework, bundler or build step on the browser side.** The browser
   runs the files in `public/js/` exactly as written, as plain JavaScript
   modules.
