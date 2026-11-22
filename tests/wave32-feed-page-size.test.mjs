@@ -169,3 +169,18 @@ test("posts-feed.mjs has no options.limit and no bare page-size literals", () =>
   assert.doesNotMatch(source, /LIMIT 21|slice\(0, 20\)|> 20;/);
   assert.match(source, /FEED_PAGE_SIZE/);
 });
+
+// Wave 5.35: the This-week page's thread list is a new feed-shaped query —
+// a full FEED_PAGE_SIZE page for a blocking member (every block slot armed in
+// the root filter and the reply tally) stays far under the bind ceiling.
+test("/api/week binds < 100 params at a full page for a blocking member", async () => {
+  const { env, viewer } = await seedWorstCase();
+  const session = forgeSession(env.__sqlite, viewer);
+  const spied = spyBinds(env);
+  const res = await call(spied.env, "/api/week", { session });
+  assert.equal(res.status, 200);
+  const body = await res.json();
+  assert.equal(body.threads.length, FEED_PAGE_SIZE);
+  const worst = Math.max(...spied.counts);
+  assert.ok(worst < D1_MAX_BOUND_PARAMS, "worst-case bind count " + worst);
+});
