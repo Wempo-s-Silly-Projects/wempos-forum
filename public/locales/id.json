@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Hapus catatan",
   "privateNote.saved": "Catatan disimpan.",
   "privateNote.deleted": "Catatan dihapus.",
-  "privateNote.saveError": "Catatan tidak dapat disimpan. Coba lagi.",
-  "readingTime.minutes.one": "{count} menit baca",
-  "readingTime.minutes.other": "{count} menit baca"
+  "privateNote.saveError": "Catatan tidak dapat disimpan. Coba lagi."
 }

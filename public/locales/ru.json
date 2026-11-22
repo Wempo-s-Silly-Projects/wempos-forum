@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Удалить заметку",
   "privateNote.saved": "Заметка сохранена.",
   "privateNote.deleted": "Заметка удалена.",
-  "privateNote.saveError": "Не удалось сохранить заметку. Попробуйте ещё раз.",
-  "readingTime.minutes.one": "{count} мин чтения",
-  "readingTime.minutes.other": "{count} мин чтения"
+  "privateNote.saveError": "Не удалось сохранить заметку. Попробуйте ещё раз."
 }

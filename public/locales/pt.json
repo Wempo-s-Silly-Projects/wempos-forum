@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Excluir nota",
   "privateNote.saved": "Nota salva.",
   "privateNote.deleted": "Nota excluída.",
-  "privateNote.saveError": "Não foi possível salvar a nota. Tente novamente.",
-  "readingTime.minutes.one": "{count} min de leitura",
-  "readingTime.minutes.other": "{count} min de leitura"
+  "privateNote.saveError": "Não foi possível salvar a nota. Tente novamente."
 }

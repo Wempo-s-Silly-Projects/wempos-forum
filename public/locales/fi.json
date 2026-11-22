@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Poista muistiinpano",
   "privateNote.saved": "Muistiinpano tallennettu.",
   "privateNote.deleted": "Muistiinpano poistettu.",
-  "privateNote.saveError": "Muistiinpanoa ei voitu tallentaa. Yritä uudelleen.",
-  "readingTime.minutes.one": "{count} min lukuaika",
-  "readingTime.minutes.other": "{count} min lukuaika"
+  "privateNote.saveError": "Muistiinpanoa ei voitu tallentaa. Yritä uudelleen."
 }

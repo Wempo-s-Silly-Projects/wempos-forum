@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Odstrániť poznámku",
   "privateNote.saved": "Poznámka uložená.",
   "privateNote.deleted": "Poznámka odstránená.",
-  "privateNote.saveError": "Poznámku sa nepodarilo uložiť. Skúste to znova.",
-  "readingTime.minutes.one": "{count} min čítania",
-  "readingTime.minutes.other": "{count} min čítania"
+  "privateNote.saveError": "Poznámku sa nepodarilo uložiť. Skúste to znova."
 }

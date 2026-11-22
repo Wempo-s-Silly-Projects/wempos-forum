@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Futa dokezo",
   "privateNote.saved": "Dokezo limehifadhiwa.",
   "privateNote.deleted": "Dokezo limefutwa.",
-  "privateNote.saveError": "Imeshindikana kuhifadhi dokezo. Jaribu tena.",
-  "readingTime.minutes.one": "Dakika {count} ya kusoma",
-  "readingTime.minutes.other": "Dakika {count} za kusoma"
+  "privateNote.saveError": "Imeshindikana kuhifadhi dokezo. Jaribu tena."
 }

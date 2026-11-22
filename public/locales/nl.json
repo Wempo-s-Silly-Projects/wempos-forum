@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Notitie verwijderen",
   "privateNote.saved": "Notitie opgeslagen.",
   "privateNote.deleted": "Notitie verwijderd.",
-  "privateNote.saveError": "De notitie kon niet worden opgeslagen. Probeer het opnieuw.",
-  "readingTime.minutes.one": "{count} min leestijd",
-  "readingTime.minutes.other": "{count} min leestijd"
+  "privateNote.saveError": "De notitie kon niet worden opgeslagen. Probeer het opnieuw."
 }

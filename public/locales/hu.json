@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Jegyzet törlése",
   "privateNote.saved": "Jegyzet elmentve.",
   "privateNote.deleted": "Jegyzet törölve.",
-  "privateNote.saveError": "A jegyzetet nem sikerült menteni. Próbáld újra.",
-  "readingTime.minutes.one": "{count} perc olvasás",
-  "readingTime.minutes.other": "{count} perc olvasás"
+  "privateNote.saveError": "A jegyzetet nem sikerült menteni. Próbáld újra."
 }

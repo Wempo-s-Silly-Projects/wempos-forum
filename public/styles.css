@@ -3925,8 +3925,7 @@ mark.search-hit {
 .dm-reaction:hover { border-color: var(--line); }
 .dm-reaction-active { border-color: currentColor; }
 
-/* v5.47.0: thread reading time under the title; the private note box. */
-.thread-reading-time { margin: 0 0 8px; color: var(--muted); font-size: 0.9rem; }
+/* v5.47.0: the private note box on profiles. */
 .private-note-input { display: block; width: 100%; box-sizing: border-box; resize: vertical; font: inherit; }
 .private-note-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .private-note-status:empty { display: none; }

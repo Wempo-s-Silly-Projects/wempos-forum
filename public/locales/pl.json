@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Usuń notatkę",
   "privateNote.saved": "Notatka zapisana.",
   "privateNote.deleted": "Notatka usunięta.",
-  "privateNote.saveError": "Nie udało się zapisać notatki. Spróbuj ponownie.",
-  "readingTime.minutes.one": "{count} min czytania",
-  "readingTime.minutes.other": "{count} min czytania"
+  "privateNote.saveError": "Nie udało się zapisać notatki. Spróbuj ponownie."
 }

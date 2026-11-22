@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Notu sil",
   "privateNote.saved": "Not kaydedildi.",
   "privateNote.deleted": "Not silindi.",
-  "privateNote.saveError": "Not kaydedilemedi. Tekrar dene.",
-  "readingTime.minutes.one": "{count} dk okuma",
-  "readingTime.minutes.other": "{count} dk okuma"
+  "privateNote.saveError": "Not kaydedilemedi. Tekrar dene."
 }

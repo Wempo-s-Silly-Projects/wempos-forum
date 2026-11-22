@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Șterge nota",
   "privateNote.saved": "Nota a fost salvată.",
   "privateNote.deleted": "Nota a fost ștearsă.",
-  "privateNote.saveError": "Nota nu a putut fi salvată. Încearcă din nou.",
-  "readingTime.minutes.one": "{count} min de citit",
-  "readingTime.minutes.other": "{count} min de citit"
+  "privateNote.saveError": "Nota nu a putut fi salvată. Încearcă din nou."
 }

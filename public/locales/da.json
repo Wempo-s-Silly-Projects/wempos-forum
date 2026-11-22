@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Slet note",
   "privateNote.saved": "Note gemt.",
   "privateNote.deleted": "Note slettet.",
-  "privateNote.saveError": "Noten kunne ikke gemmes. Prøv igen.",
-  "readingTime.minutes.one": "{count} min. læsning",
-  "readingTime.minutes.other": "{count} min. læsning"
+  "privateNote.saveError": "Noten kunne ikke gemmes. Prøv igen."
 }

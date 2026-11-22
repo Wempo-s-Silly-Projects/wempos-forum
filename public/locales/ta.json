@@ -1178,7 +1178,5 @@
   "privateNote.delete": "குறிப்பை நீக்கு",
   "privateNote.saved": "குறிப்பு சேமிக்கப்பட்டது.",
   "privateNote.deleted": "குறிப்பு நீக்கப்பட்டது.",
-  "privateNote.saveError": "குறிப்பைச் சேமிக்க முடியவில்லை. மீண்டும் முயலவும்.",
-  "readingTime.minutes.one": "{count} நிமிட வாசிப்பு",
-  "readingTime.minutes.other": "{count} நிமிட வாசிப்பு"
+  "privateNote.saveError": "குறிப்பைச் சேமிக்க முடியவில்லை. மீண்டும் முயலவும்."
 }

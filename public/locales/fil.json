@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Burahin ang tala",
   "privateNote.saved": "Na-save ang tala.",
   "privateNote.deleted": "Nabura ang tala.",
-  "privateNote.saveError": "Hindi ma-save ang tala. Subukang muli.",
-  "readingTime.minutes.one": "{count} minutong basa",
-  "readingTime.minutes.other": "{count} minutong basa"
+  "privateNote.saveError": "Hindi ma-save ang tala. Subukang muli."
 }

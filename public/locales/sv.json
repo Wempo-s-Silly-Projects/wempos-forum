@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Radera anteckning",
   "privateNote.saved": "Anteckningen sparades.",
   "privateNote.deleted": "Anteckningen raderades.",
-  "privateNote.saveError": "Det gick inte att spara anteckningen. Försök igen.",
-  "readingTime.minutes.one": "{count} min läsning",
-  "readingTime.minutes.other": "{count} min läsning"
+  "privateNote.saveError": "Det gick inte att spara anteckningen. Försök igen."
 }

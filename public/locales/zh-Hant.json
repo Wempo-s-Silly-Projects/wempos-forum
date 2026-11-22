@@ -1178,7 +1178,5 @@
   "privateNote.delete": "刪除備註",
   "privateNote.saved": "備註已儲存。",
   "privateNote.deleted": "備註已刪除。",
-  "privateNote.saveError": "無法儲存備註，請再試一次。",
-  "readingTime.minutes.one": "閱讀約需 {count} 分鐘",
-  "readingTime.minutes.other": "閱讀約需 {count} 分鐘"
+  "privateNote.saveError": "無法儲存備註，請再試一次。"
 }

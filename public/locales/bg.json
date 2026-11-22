@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Изтрий бележката",
   "privateNote.saved": "Бележката е запазена.",
   "privateNote.deleted": "Бележката е изтрита.",
-  "privateNote.saveError": "Бележката не можа да се запази. Опитайте отново.",
-  "readingTime.minutes.one": "{count} мин. четене",
-  "readingTime.minutes.other": "{count} мин. четене"
+  "privateNote.saveError": "Бележката не можа да се запази. Опитайте отново."
 }

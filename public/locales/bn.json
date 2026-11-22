@@ -1178,7 +1178,5 @@
   "privateNote.delete": "নোট মুছুন",
   "privateNote.saved": "নোট সংরক্ষিত হয়েছে।",
   "privateNote.deleted": "নোট মুছে ফেলা হয়েছে।",
-  "privateNote.saveError": "নোট সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
-  "readingTime.minutes.one": "{count} মিনিটে পড়া",
-  "readingTime.minutes.other": "{count} মিনিটে পড়া"
+  "privateNote.saveError": "নোট সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।"
 }

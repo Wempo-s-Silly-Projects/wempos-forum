@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Padam nota",
   "privateNote.saved": "Nota disimpan.",
   "privateNote.deleted": "Nota dipadam.",
-  "privateNote.saveError": "Nota tidak dapat disimpan. Cuba lagi.",
-  "readingTime.minutes.one": "{count} minit bacaan",
-  "readingTime.minutes.other": "{count} minit bacaan"
+  "privateNote.saveError": "Nota tidak dapat disimpan. Cuba lagi."
 }

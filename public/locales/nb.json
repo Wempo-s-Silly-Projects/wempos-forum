@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Slett notat",
   "privateNote.saved": "Notatet er lagret.",
   "privateNote.deleted": "Notatet er slettet.",
-  "privateNote.saveError": "Kunne ikke lagre notatet. Prøv igjen.",
-  "readingTime.minutes.one": "{count} min lesing",
-  "readingTime.minutes.other": "{count} min lesing"
+  "privateNote.saveError": "Kunne ikke lagre notatet. Prøv igjen."
 }

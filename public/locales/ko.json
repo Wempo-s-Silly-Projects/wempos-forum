@@ -1178,7 +1178,5 @@
   "privateNote.delete": "메모 삭제",
   "privateNote.saved": "메모를 저장했습니다.",
   "privateNote.deleted": "메모를 삭제했습니다.",
-  "privateNote.saveError": "메모를 저장하지 못했습니다. 다시 시도하세요.",
-  "readingTime.minutes.one": "{count}분 분량",
-  "readingTime.minutes.other": "{count}분 분량"
+  "privateNote.saveError": "메모를 저장하지 못했습니다. 다시 시도하세요."
 }

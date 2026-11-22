@@ -1178,7 +1178,5 @@
   "privateNote.delete": "حذف یادداشت",
   "privateNote.saved": "یادداشت ذخیره شد.",
   "privateNote.deleted": "یادداشت حذف شد.",
-  "privateNote.saveError": "ذخیره یادداشت ممکن نشد. دوباره تلاش کنید.",
-  "readingTime.minutes.one": "{count} دقیقه مطالعه",
-  "readingTime.minutes.other": "{count} دقیقه مطالعه"
+  "privateNote.saveError": "ذخیره یادداشت ممکن نشد. دوباره تلاش کنید."
 }

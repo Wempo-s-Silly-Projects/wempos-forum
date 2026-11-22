@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Delete note",
   "privateNote.saved": "Note saved.",
   "privateNote.deleted": "Note deleted.",
-  "privateNote.saveError": "Could not save the note. Try again.",
-  "readingTime.minutes.one": "{count} min read",
-  "readingTime.minutes.other": "{count} min read"
+  "privateNote.saveError": "Could not save the note. Try again."
 }

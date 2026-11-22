@@ -1178,7 +1178,5 @@
   "privateNote.delete": "Διαγραφή σημείωσης",
   "privateNote.saved": "Η σημείωση αποθηκεύτηκε.",
   "privateNote.deleted": "Η σημείωση διαγράφηκε.",
-  "privateNote.saveError": "Δεν ήταν δυνατή η αποθήκευση της σημείωσης. Δοκιμάστε ξανά.",
-  "readingTime.minutes.one": "{count} λεπτό ανάγνωσης",
-  "readingTime.minutes.other": "{count} λεπτά ανάγνωσης"
+  "privateNote.saveError": "Δεν ήταν δυνατή η αποθήκευση της σημείωσης. Δοκιμάστε ξανά."
 }
