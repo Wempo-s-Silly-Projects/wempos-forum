@@ -20,21 +20,13 @@
 
 import { t, currentLocale } from "./i18n.js";
 import { formatRelative } from "./reltime.js";
-import { clearDraft } from "./drafts.js";
+import { clearDraft, draftStorage } from "./drafts.js";
 
 // Wave 31: a composer that restored an unsent draft says so — "Restored your
 // unsent draft (saved 5m ago)." — with a Discard draft button. Discard asks
 // first, then empties the box and removes that one stored draft; autosave
 // stays armed so new typing saves as before. Local-only: it reads the
 // existing draft key on the form and makes no request.
-
-const browserStorage = () => {
-  try {
-    return globalThis.localStorage ?? null;
-  } catch {
-    return null;
-  }
-};
 
 const askDiscard = () =>
   (typeof globalThis.confirm === "function" ? globalThis.confirm(t("drafts.discardConfirm")) : true);
@@ -45,7 +37,7 @@ function savedWhen(savedAt) {
 }
 
 export function createDraftNotice(document, {
-  form, textarea, savedAt, storage = browserStorage(), confirmDiscard = askDiscard,
+  form, textarea, savedAt, storage = draftStorage(), confirmDiscard = askDiscard,
 }) {
   const notice = document.createElement("div");
   notice.className = "draft-notice";

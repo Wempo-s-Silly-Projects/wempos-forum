@@ -159,7 +159,7 @@ test("drafts.js builds its store on the vendored idb-keyval; draft-notice uses t
 test("sign-out awaits the draft wipe before leaving the page", () => {
   const nav = read("public/js/routes/account-nav.js");
   const wipe = nav.match(/function wipeAccountLocalData\(\)\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
-  assert.match(wipe, /clearAllDrafts\(\)/);
-  assert.match(wipe, /return\b/);
-  assert.match(nav, /await wipeAccountLocalData\(\)/);
+  assert.match(wipe, /lastDraftWipe = clearAllDrafts\(\)/);
+  const logout = nav.match(/logout: async \(\) => \{([\s\S]*?)\n {2}\},/)?.[1] ?? "";
+  assert.match(logout, /finally \{\s*wipeAccountLocalData\(\);\s*\}\s*await lastDraftWipe;/);
 });
