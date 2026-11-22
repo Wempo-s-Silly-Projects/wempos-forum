@@ -15,6 +15,24 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.52.0] - 2026-11-22
+
+### Security
+- Whole-forum privacy re-audit (done every tenth version): every page, list
+  and action added since v5.42 (staff notes, report claiming, slow mode, DM
+  message reactions, thread tags, thread mutes, private notes, saved
+  searches, the TL;DR, the edit-history word diff and thread locks) is now
+  listed in [docs/visibility-inventory.md](docs/visibility-inventory.md)
+  with the filters it applies and the test that checks it, and the data
+  export was re-checked as a whole. No leaks were found.
+
+### Fixed
+- The automated privacy checks now also cover the tag list, who can see a
+  thread mute, that a locked thread you cannot see never says it is locked
+  (site and agent reply tool), DM reaction counts between members who
+  blocked each other, every section of the data export, the staff-only
+  actions added since v5.42, and the tag listing as staff see it.
+
 ## [5.51.0] - 2026-11-22
 
 ### Added
