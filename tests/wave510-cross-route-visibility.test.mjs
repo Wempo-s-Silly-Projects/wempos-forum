@@ -270,6 +270,9 @@ function seedStaffOnly(w, at) {
   const reportId = db.prepare("SELECT id FROM reports WHERE reason = 'STAFFONLYTXT report'").get().id;
   run("INSERT INTO report_claims (report_id, staff_id, claimed_at) VALUES (?, ?, ?)", reportId, id.boss, at);
   run("INSERT INTO thread_slowmode (post_id, seconds, set_by, set_at) VALUES (?, 60, ?, ?)", w.publicRoot, id.boss, at);
+  // Wave 5.51: a staff lock on the public root. `locked` is public (the
+  // thread page shows it); the reason is staff-only and carries the needle.
+  run("INSERT INTO thread_locks (post_id, locked_by, reason, locked_at) VALUES (?, ?, 'STAFFONLYTXT lock reason', ?)", w.publicRoot, id.boss, at);
 }
 
 // Wave 5.35: staff picks (migration 0065). An older pick on a block-paired
@@ -651,7 +654,9 @@ const STAFF_ONLY_GETS = (w) => ["/api/admin/reports", "/api/admin/profile-report
   // Wave 5.42: the staff-pick mod log (v5.35).
   "/api/admin/staff-picks",
   // Wave 5.43: staff notes on the viewer (migration 0069).
-  "/api/admin/members/" + w.id.viewer + "/notes"];
+  "/api/admin/members/" + w.id.viewer + "/notes",
+  // Wave 5.51: the desk's read of a thread lock (the reason lives here only).
+  "/api/admin/threads/" + w.publicRoot + "/lock"];
 
 test("wave 5.32 sweep: every staff-only read refuses guests and members and leaks nothing", async () => {
   const w = await seedWorld();
@@ -675,6 +680,10 @@ test("wave 5.32 sweep: every staff-only read refuses guests and members and leak
   assert.ok((await fetchText(w.env, "/api/admin/analytics", { session: boss })).includes("staffonly-referrer"));
   // Wave 5.43: staff read the notes back (positive control for the needle).
   assert.ok((await fetchText(w.env, "/api/admin/members/" + w.id.viewer + "/notes", { session: boss })).includes("STAFFNOTETXT about viewer"));
+  // Wave 5.51: staff read the lock reason back on the desk route (positive
+  // control), while the public thread payload carries only `locked: true`.
+  assert.ok((await fetchText(w.env, "/api/admin/threads/" + w.publicRoot + "/lock", { session: boss })).includes("STAFFONLYTXT lock reason"));
+  assert.equal(JSON.parse(await fetchText(w.env, "/api/posts/" + w.publicRoot)).locked, true);
 });
 
 test("wave 5.32 sweep: page heads show the thread to who may see it and the generic head otherwise", async () => {
