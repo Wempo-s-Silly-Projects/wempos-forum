@@ -35,13 +35,14 @@ import { nowSeconds, randomToken, sha256Hex } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { verifyPassword } from "./core/passwords.mjs";
 import { publicUser, userByUsernameKey } from "./core/shapers.mjs";
-import { generateTotpSecret, normalizeTotpAlgorithm, otpauthUri, verifyTotpCode } from "./core/totp.mjs";
+import { generateTotpSecret, normalizeTotpAlgorithm, otpauthUri, totpMatchStep, verifyTotpCode } from "./core/totp.mjs";
 import { siteName } from "./branding.mjs";
 
 // Backup codes (v4.8.1): the Discord-style single-use sign-in codes used
-// INSTEAD of the authenticator code when the app is lost or renamed. The raw
-// code is randomToken(6) — exactly 8 base64url chars, the same call that mints
-// single-use invite tokens — and only its SHA-256 hash is stored in
+// INSTEAD of the authenticator code when the app is lost or renamed. Since
+// Batch F a new code is human-readable base32 ("K7QXM-2RTZA", mintBackupCode
+// below); sets minted before it (8 base64url chars) keep verifying until
+// regenerated. Only the SHA-256 hash of a code is stored in
 // totp_backup_codes (same rule as totp_challenges); the raw list rides the
 // generation response exactly once and is never shown again.
 const CHALLENGE_TTL_SECONDS = 5 * 60;
@@ -63,15 +64,49 @@ function codeAnswer(value) {
 // family a real code would have belonged to.
 async function verifyCodeAnswer(db, userId, secret, code, algorithm) {
   if (isSixDigitCode(code)) {
-    return verifyTotpCode(secret, code, nowSeconds(), normalizeTotpAlgorithm(algorithm));
+    const step = await totpMatchStep(secret, code, nowSeconds(), normalizeTotpAlgorithm(algorithm));
+    return step !== null && claimTotpStep(db, userId, step);
   }
-  if (BACKUP_CODE_PATTERN.test(code)) {
+  // Legacy 8-char base64url codes are matched raw (they are case-sensitive
+  // and may contain "-"); the Batch F recovery codes are matched in their
+  // normalized form, so "abcde fghij" and "ABCDE-FGHIJ" are the same code.
+  const backup = BACKUP_CODE_PATTERN.test(code) ? code : normalizeBackupCode(code);
+  if (backup) {
     const burned = await db.prepare(
       "DELETE FROM totp_backup_codes WHERE user_id = ? AND code_hash = ? AND used_at IS NULL",
-    ).bind(userId, await sha256Hex(code)).run();
+    ).bind(userId, await sha256Hex(backup)).run();
     return Number(burned.meta?.changes) === 1;
   }
   return false;
+}
+
+// Batch F replay refusal: a TOTP step is spendable once per member. ONE
+// conditional upsert claims it — the row moves only to a STRICTLY newer step,
+// so a replayed code (same step) or an older in-window code matches zero rows.
+// Confirm (the pending secret) never claims: the first live-secret use does.
+async function claimTotpStep(db, userId, step) {
+  const claimed = await db.prepare(
+    "INSERT INTO totp_used_steps (user_id, last_step) VALUES (?, ?) " +
+      "ON CONFLICT(user_id) DO UPDATE SET last_step = excluded.last_step " +
+      "WHERE excluded.last_step > totp_used_steps.last_step",
+  ).bind(userId, step).run();
+  return Number(claimed.meta?.changes) === 1;
+}
+
+// Batch F recovery codes: 10 base32 characters shown as two groups of five
+// ("K7QXM-2RTZA"), 50 bits each. Input is forgiving — case, spaces and the
+// hyphen are ignored — and the normalized form is what gets hashed.
+export function normalizeBackupCode(value) {
+  if (typeof value !== "string") return null;
+  const compact = value.replace(/[\s-]/g, "").toUpperCase();
+  return /^[A-Z2-7]{10}$/.test(compact) ? compact : null;
+}
+
+function mintBackupCode() {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  // 32 symbols divide 256 evenly, so byte & 31 is unbiased.
+  const chars = Array.from(crypto.getRandomValues(new Uint8Array(10)), (byte) => alphabet[byte & 31]);
+  return chars.slice(0, 5).join("") + "-" + chars.slice(5).join("");
 }
 
 // Codes are the one thing here that can be brute-forced, so every
@@ -231,12 +266,12 @@ async function handleTotpRoutes(request, env, url, path, method) {
       db.prepare("DELETE FROM totp_backup_codes WHERE user_id = ?").bind(session.user.id),
     ];
     for (let index = 0; index < BACKUP_CODE_COUNT; index++) {
-      const raw = randomToken(6);
+      const raw = mintBackupCode();
       codes.push(raw);
       statements.push(
         db.prepare(
           "INSERT INTO totp_backup_codes (user_id, code_hash, created_at) VALUES (?, ?, ?)",
-        ).bind(session.user.id, await sha256Hex(raw), nowSeconds()),
+        ).bind(session.user.id, await sha256Hex(normalizeBackupCode(raw)), nowSeconds()),
       );
     }
     await db.batch(statements);

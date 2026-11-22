@@ -122,8 +122,10 @@ export async function totpAt(base32Secret, time, digits = TOTP_DIGITS, algorithm
 // The ±1-step verifying window authenticators and servers share: a drifted
 // clock on one side never locks the member out. Comparison uses the
 // constant-time comparator (equality, not order) per candidate step.
-export async function verifyTotpCode(base32Secret, code, time, algorithm = TOTP_DEFAULT_ALGORITHM) {
-  if (typeof code !== "string" || !/^\d{6}$/.test(code)) return false;
+// Batch F: returns the matched time-step counter (or null) so the caller can
+// spend it exactly once — the replay refusal lives in twofa.mjs's claim.
+export async function totpMatchStep(base32Secret, code, time, algorithm = TOTP_DEFAULT_ALGORITHM) {
+  if (typeof code !== "string" || !/^\d{6}$/.test(code)) return null;
   const keyBytes = base32Decode(base32Secret);
   const counter = Math.floor(time / TOTP_STEP);
   for (const drift of [-1, 0, 1]) {
@@ -132,9 +134,13 @@ export async function verifyTotpCode(base32Secret, code, time, algorithm = TOTP_
     for (let i = 0; i < 6; i++) {
       difference |= candidate.charCodeAt(i) ^ code.charCodeAt(i);
     }
-    if (difference === 0) return true;
+    if (difference === 0) return counter + drift;
   }
-  return false;
+  return null;
+}
+
+export async function verifyTotpCode(base32Secret, code, time, algorithm = TOTP_DEFAULT_ALGORITHM) {
+  return (await totpMatchStep(base32Secret, code, time, algorithm)) !== null;
 }
 
 // The provisioning URI authenticator apps scan or paste. PCT-encoded

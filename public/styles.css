@@ -2823,6 +2823,14 @@ mark.search-hit {
 }
 .backup-codes-actions { margin: 0.7rem 0 0; }
 
+/* Batch F: the in-page enrolment QR (always dark-on-white for scanners). */
+.totp-qr {
+  display: block;
+  width: min(14rem, 100%);
+  height: auto;
+  margin: 0.6rem 0;
+}
+
 /* Chat widget + Who's Online roster: the floating launcher and its panel ride
    fixed positioning above the page chrome (native dialogs live in the top
    layer, so nothing needs to out-z them); both surfaces reuse the site's

@@ -32,6 +32,7 @@ import { createPanel, element, setMessage } from "../dom.js";
 import { createCheckbox, createForm, createInput, addText } from "../forms.js";
 import { state } from "../state.js";
 import { t } from "../i18n.js";
+import { otpauthQrSvg } from "../totp-qr.js";
 
 // The account settings section. Appended by renderAccountSettings into the
 // settings `details` panel; the panel body swaps between the off and on
@@ -69,7 +70,7 @@ export function renderTotpSettings(container, session) {
   panel.append(createForm(document, "totp-disable", [
     createInput(document, {
       id: "totp-disable-code", name: "code", label: t("twofa.codeOrBackup"),
-      maxLength: 8, required: true,
+      maxLength: 11, required: true, autoComplete: "one-time-code",
       description: t("twofa.disableCodeHelp"),
     }),
   ], t("twofa.disable")));
@@ -112,7 +113,7 @@ function openBackupCodeForm(panel) {
     }),
     createInput(document, {
       id: "totp-backups-code", name: "code", label: t("twofa.codeOrBackup"),
-      maxLength: 8, required: true,
+      maxLength: 11, required: true, autoComplete: "one-time-code",
       description: t("twofa.generateCodeHelp"),
     }),
   ], t("twofa.generate")));
@@ -139,9 +140,10 @@ function renderBackupCodes(panel, codes) {
 }
 
 // The staged-secret step: rendered in place when the setup request returns.
-// The secret and the otpauth URI are shown as copyable read-only fields —
-// no image QR (hand-entry or paste-URI both work in every authenticator),
-// and the code field proves possession before anything is kept. The setup
+// Batch F: a QR drawn in-page from the otpauth URI (totp-qr.js — the secret
+// never leaves the browser), plus the secret and URI as copyable read-only
+// fields for hand entry; the code field proves possession before anything
+// is kept. The setup
 // POST carries the account's current password (server re-proofs it).
 async function submitTotpSetup(form, text) {
   const result = await api("/api/me/totp/setup", {
@@ -164,6 +166,7 @@ async function openSetupStep(panel, result) {
   const note = element("p", "form-note");
   note.textContent = t("twofa.setupNote");
   panel.append(note);
+  panel.append(otpauthQrSvg(document, result.otpauth));
   const secretLabel = element("label", "form-label");
   secretLabel.append(document.createTextNode(t("twofa.secret")));
   const secretInput = element("input", "form-input");
