@@ -106,8 +106,13 @@
         <nav class="account-nav" aria-label="Site and account navigation" data-i18n-aria-label="shell.accountNav" id="account-actions"></nav>
       </div>
     </header>
-    <!-- v5.58: drawn by routes/account-nav.js from the one list in js/nav-items.js. -->
-    <nav class="mobile-bar" aria-label="Mobile navigation" data-i18n-aria-label="shell.mobileNav"></nav>
+    <!-- v5.58: drawn by routes/account-nav.js from the one list in js/nav-items.js.
+         v5.63 (L9): until the session read answers, a static guest-safe fallback
+         (Home + Sign in only) keeps the bar usable; the renderer replaces it. -->
+    <nav class="mobile-bar" aria-label="Mobile navigation" data-i18n-aria-label="shell.mobileNav">
+      <a class="mobile-bar-item" href="/" data-nav-fallback="home" aria-label="Home" data-i18n-aria-label="shell.home"><span data-i18n="shell.home">Home</span></a>
+      <a class="mobile-bar-item" href="/login" data-nav-fallback="signin" aria-label="Sign in" data-i18n-aria-label="shell.signIn"><span data-i18n="shell.signIn">Sign in</span></a>
+    </nav>
     <div class="status-bar">
       <p id="status-message" role="status"></p>
       <p id="error-message" role="alert"></p>

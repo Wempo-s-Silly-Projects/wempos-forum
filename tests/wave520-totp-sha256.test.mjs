@@ -232,10 +232,7 @@ test("the algorithm row is wiped with the account: users FK with ON DELETE CASCA
   assert.equal(fks[0].on_delete, "CASCADE");
 });
 
-test("account deletion through /api/me/delete takes the algorithm row with it", {
-  todo: "BUG (pre-existing, not 5.20): migrations/0043_fleet_boosts.sql:21 REFERENCES gc_messages, " +
-    "a table the forum schema lacks, so every users DELETE fails with 'no such table: main.gc_messages'",
-}, async () => {
+test("account deletion through /api/me/delete takes the algorithm row with it", async () => {
   const env = makeEnv();
   const alice = await member(env);
   const setup = await enroll(env, alice, "SHA256");

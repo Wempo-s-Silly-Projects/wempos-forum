@@ -44,7 +44,7 @@
 // lobbyOnlineCount, read-time ban filter included); lobby_post (token-gated)
 // runs POST /api/chat's gates — assertNotBanned, the "write" rate tier, then
 // chat.mjs insertLobbyMessage (500-char cap, word filter, insert, @mentions).
-import { REPLY_BUMP_SQL, THREAD_REPLY_INSERT_SQL } from "../constants.mjs";
+import { THREAD_REPLY_INSERT_SQL } from "../constants.mjs";
 import { LOBBY_CHAT_MAX_CHARS, insertLobbyMessage, lobbyMessageRows, lobbyOnlineCount } from "./chat.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { BOARD_VALUES, GENERAL_BOARD_DEFAULT, SUGGESTIONS_BOARD, boardField, isStaffOnlyBoard } from "./boards.mjs";
@@ -53,7 +53,7 @@ import { ensureFilterWords, filterWords } from "./filterstore.mjs";
 import { mentionFanOutStatements } from "./mentions.mjs";
 import { notificationBatchStatements } from "./notifications.mjs";
 import { banFilterSql } from "./posts-feed.mjs";
-import { MAX_COMPOSER_BODY_CHARS, deleteAuthoredPost, rootPostInsertSql } from "./posts-write.mjs";
+import { MAX_COMPOSER_BODY_CHARS, bumpThreadForReply, deleteAuthoredPost, rootPostInsertSql } from "./posts-write.mjs";
 import { runFanOutChunks, subscriptionReplyFanOut } from "./subscriptions.mjs";
 import { agentFromRequest } from "./core/agent-auth.mjs";
 import { assertNotBanned } from "./core/auth.mjs";
@@ -647,7 +647,8 @@ async function createReply(env, args, ctx) {
   }
   const replyId = Number(results[0].meta.last_row_id);
   // L3 (v5.59): bump only after the INSERT landed, bound to the new reply row.
-  await db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId, replyId).run();
+  // Best-effort (L8): a failed bump is logged, never a tool error.
+  await bumpThreadForReply(db, now, bumpTargetId, replyId);
   const recipientId = target.author_id === null || target.author_id === undefined ? null : Number(target.author_id);
   await replyFanOut(db, { agent, message, targetId, replyId, recipientId, bumpTargetId, now });
   return { id: replyId, url: ctx.origin + "/posts/" + replyId, parent_id: targetId };

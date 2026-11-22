@@ -26,7 +26,7 @@
 // the read module); shared creation plumbing comes from posts-write.mjs
 // (idempotency family, staged persistence, attachment staging —
 // the Task-5 ruling places it there since both create routes consume it).
-import { REPLY_BUMP_SQL, THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL } from "../constants.mjs";
+import { THREAD_REPLY_INSERT_SQL, THREAD_REPLY_INSERT_STAGED_SQL } from "../constants.mjs";
 import { insertAttachments, MAX_ATTACHMENT_FILES, readComposedBody } from "./attachments.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
@@ -37,6 +37,7 @@ import { runFanOutChunks, subscriptionReplyFanOut } from "./subscriptions.mjs";
 import { attachSubReplyCounts, listReplies } from "./posts-feed.mjs";
 import {
   MAX_COMPOSER_BODY_CHARS,
+  bumpThreadForReply,
   existingIdempotentPost,
   getPostIdempotencyKey,
   persistStagedPostAttachments,
@@ -195,8 +196,8 @@ export async function handleReplyCreateRoute(request, env, url, path, method) {
     const replyId = Number(results[0].meta.last_row_id);
     // L3 (v5.59): the bump runs only once the INSERT has landed, bound to the
     // new reply row, so a refused reply never moves the thread. Staged
-    // (attachment) replies bump when they publish instead.
-    if (!hasAttachments) await db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId, replyId).run();
+    // (attachment) replies bump when they publish instead. Best-effort (L8).
+    if (!hasAttachments) await bumpThreadForReply(db, now, bumpTargetId, replyId);
     // Attachment-bearing replies stay hidden until the entire attachment batch
     // succeeds. The row id is always the new reply, not its bump target.
     if (hasAttachments) {
