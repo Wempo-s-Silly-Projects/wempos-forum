@@ -169,6 +169,7 @@ import { applyTabUnread, normaliseTabCount, pageStorage } from "./tab-unread.js"
 import { paintSourceLink } from "./source-link.js";
 import { attachRecentSearches } from "./recent-searches.js";
 import { wireSkipLink } from "./skip-link.js";
+import { captureMoreFocus, restoreMoreFocus } from "./thread-actions.js";
 
 async function prepareRouteContext(version) {
   const [sessionReply, setup] = await Promise.all([
@@ -449,10 +450,15 @@ async function handleClick(event) {
   if (handleInternalNavigation(event)) return;
   const button = event.target.closest("button[data-action]");
   if (!button) return;
+  // L5 (v5.57 review): an action inside the thread's More menu re-renders the
+  // page; More reopens and focus returns to the control afterwards.
+  const moreFocus = captureMoreFocus(button);
   try {
     await handleButtonAction(button);
   } catch (error) {
     setMessage(error.message, true);
+  } finally {
+    restoreMoreFocus(document, moreFocus);
   }
 }
 document.addEventListener("click", handleClick);

@@ -56,7 +56,7 @@ import { openLightbox } from "../lightbox.js";
 import { anchorReplyCard, bindReplyHashChange, highlightReplyFromHash } from "../reply-anchor.js";
 import { createSaveThreadButton } from "../thread-text.js";
 import { startReadingProgress } from "../reading-progress.js";
-import { createShareButton } from "../share.js";
+import { createShareButton, shareMenuOffersCopyLink } from "../share.js";
 import { createSlowModeForm, createSlowModeNote, slowModePath } from "../slow-mode.js";
 import { canReplyToThread, createThreadLockNote, createThreadLockReason, stripReplyControls, threadLockPath } from "../thread-lock.js";
 import { createTagChips, createTagEditor, postTagsPath } from "../tags.js";
@@ -113,7 +113,14 @@ async function renderPostRoute(route, context, version) {
   // Declutter (v5.55, docs/ia-map.md): root threads keep Like, Dislike, Share
   // and More; the rest of the row moves into More's groups and Staff menu.
   // (canShare already refuses replies, so a reply page never has a Share.)
-  if (!post.parent) organizeThreadActions(document, rootCard, { postId: post.id, share, tagEditor, staffForms });
+  // v5.58: one visible Copy link (Share's, when its menu has one) and no
+  // Open post link pointing at this very page.
+  if (!post.parent) {
+    organizeThreadActions(document, rootCard, {
+      postId: post.id, share, tagEditor, staffForms,
+      currentPath: location.pathname, shareHasCopyLink: Boolean(share) && shareMenuOffersCopyLink(),
+    });
+  }
   // Thread at a glance (wave 2026-11-21): from the posts already loaded.
   if (post.replies.length) {
     main.append(createThreadGlance(document, summarizeThread(post, post.replies), main));

@@ -74,6 +74,12 @@ const ICON_PATHS = {
 
   // My posts (v5.56): a bulleted list.
   list: ["M8 6h13", "M8 12h13", "M8 18h13", "M3 6h.01", "M3 12h.01", "M3 18h.01"],
+
+  // Navigation (v5.58): the phone bar's Home (the shape it always had), the
+  // Browse menu's This week, and the bar's More.
+  home: ["M3 10.5L12 3l9 7.5", "M5 9.5V21h14V9.5"],
+  calendar: ["M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z", "M16 2v4", "M8 2v4", "M3 10h18"],
+  dots: ["M5 12h.01", "M12 12h.01", "M19 12h.01"],
 };
 
 const iconAria = (name) => ({

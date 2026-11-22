@@ -221,6 +221,11 @@ function fillMenu(document, menu, url, title, host, deps) {
 // createShareButton(document, post, viewer, deps) -> a wrapper with the
 // Share button and its (closed) fallback menu, or null when the thread may
 // not be shared.
+// v5.58: with no device share sheet, Share opens its own menu, whose first
+// item is Copy link; the thread card then drops its duplicate Copy link.
+export const shareMenuOffersCopyLink = (navigator = globalThis.navigator) =>
+  typeof navigator?.share !== "function";
+
 export function createShareButton(document, post, viewer, {
   origin = globalThis.location?.origin ?? "",
   navigator = globalThis.navigator ?? {},

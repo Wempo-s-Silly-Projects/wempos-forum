@@ -43,6 +43,14 @@ const STAFF_ACTIONS = Object.freeze(new Set([
   "thread-pin", "thread-unpin", "thread-lock", "thread-unlock", "staff-pick", "staff-unpick", "suggestion-status",
 ]));
 
+// Paired toggles: after Pin the same slot reads Unpin (L5 focus follows it).
+const PAIRED_ACTIONS = Object.freeze({
+  "thread-pin": "thread-unpin", "thread-unpin": "thread-pin",
+  "thread-lock": "thread-unlock", "thread-unlock": "thread-lock",
+  "staff-pick": "staff-unpick", "staff-unpick": "staff-pick",
+});
+const LINK_BASE = "https://wempos-forum.invalid";
+
 const hasClass = (node, names) => String(node.className ?? "").split(/\s+/).some((name) => names.includes(name));
 
 // "chip" | "primary" | a MORE_GROUPS name | "staff"
@@ -112,17 +120,38 @@ export function placeInThreadHeader(card, node) {
   else card.append(node);
 }
 
-// organizeThreadActions(document, card, { postId, share, tagEditor, staffForms })
-// regroups the root card's action row in place. `share` (the Share wrapper or
-// null) joins the primary row; `tagEditor` (author/staff) sits collapsed under
-// This post; `staffForms` (staff only, e.g. slow mode) join the Staff menu.
+const linkPath = (node) => {
+  try {
+    return new URL(node.getAttribute?.("href") || node.href || "", LINK_BASE).pathname;
+  } catch {
+    return "";
+  }
+};
+
+// v5.58 (ia-map §5.1-5.2): two entries the thread page shows twice. The
+// card's Copy link goes when Share's own menu already offers one (the
+// capability stays, in Share); the Open post link goes when it points at the
+// page it sits on. Elsewhere (feed cards) both stay.
+function isDuplicateEntry(node, { share, shareHasCopyLink, currentPath }) {
+  if (hasClass(node, ["copy-link-wrap"])) return Boolean(share) && shareHasCopyLink === true;
+  return node.tagName === "A" && Boolean(currentPath) && linkPath(node) === currentPath;
+}
+
+// organizeThreadActions(document, card, { postId, share, tagEditor, staffForms,
+// currentPath, shareHasCopyLink }) regroups the root card's action row in
+// place. `share` (the Share wrapper or null) joins the primary row;
+// `tagEditor` (author/staff) sits collapsed under This post; `staffForms`
+// (staff only, e.g. slow mode) join the Staff menu; `currentPath` and
+// `shareHasCopyLink` drop the duplicate entries (isDuplicateEntry).
 export function organizeThreadActions(document, card, {
-  postId, share = null, tagEditor = null, staffForms = [],
+  postId, share = null, tagEditor = null, staffForms = [], currentPath = null, shareHasCopyLink = false,
 } = {}) {
   const row = actionRowOf(card);
   if (!row) return;
   const slots = { chip: [], primary: [], staff: [], reading: [], following: [], sharing: [], post: [] };
-  for (const node of Array.from(row.children)) slots[slotOf(node)].push(node);
+  for (const node of Array.from(row.children)) {
+    if (!isDuplicateEntry(node, { share, shareHasCopyLink, currentPath })) slots[slotOf(node)].push(node);
+  }
   if (tagEditor) {
     slots.post.push(createDisclosure(document, {
       kind: "tags", id: `thread-tags-${postId}`, label: t("threadActions.editTags"), content: [tagEditor],
@@ -144,4 +173,54 @@ export function organizeThreadActions(document, card, {
     })]
     : [];
   row.replaceChildren(...primary.slice(0, 2), ...slots.chip, ...primary.slice(2), ...more);
+}
+
+// L5 (v5.57 review): an action inside More re-renders the whole route, which
+// rebuilds the card with More closed and drops focus. The page's click
+// handler takes a snapshot before the action and restores after it: More
+// (and Staff, if the control sat there) reopens and focus returns to the
+// same control, its paired toggle (Pin -> Unpin), or else the More button.
+// A control outside More, or an action that did not re-render (a dialog
+// opened), is left alone. Page view only: nothing stored or fetched.
+export function captureMoreFocus(control) {
+  const panel = control?.closest?.(".thread-more-panel");
+  if (!panel?.id) return null;
+  return {
+    panel,
+    moreId: panel.id,
+    staffId: control.closest(".thread-staff-panel")?.id ?? null,
+    action: control.dataset?.action ?? null,
+    postId: control.dataset?.postId ?? null,
+    status: control.dataset?.status ?? null,
+  };
+}
+
+const toggleFor = (panel) => Array.from(panel.parentNode?.children ?? [])
+  .find((node) => node.tagName === "BUTTON" && node.getAttribute("aria-controls") === panel.id) ?? null;
+
+function reopen(panel) {
+  const toggle = toggleFor(panel);
+  if (toggle) setOpen(toggle, panel, true);
+  return toggle;
+}
+
+function findControl(panel, snapshot) {
+  const buttons = Array.from(panel.querySelectorAll("button"))
+    .filter((node) => (node.dataset?.postId ?? null) === snapshot.postId);
+  const same = (action) => buttons.find((node) => node.dataset?.action === action
+    && (node.dataset?.status ?? null) === snapshot.status);
+  return (snapshot.action && same(snapshot.action)) || (PAIRED_ACTIONS[snapshot.action] && same(PAIRED_ACTIONS[snapshot.action])) || null;
+}
+
+export function restoreMoreFocus(doc, snapshot) {
+  if (!snapshot) return;
+  const panel = doc?.getElementById?.(snapshot.moreId);
+  // Same panel: the page did not re-render, so focus never left.
+  if (!panel || panel === snapshot.panel) return;
+  const moreToggle = reopen(panel);
+  if (snapshot.staffId) {
+    const staff = Array.from(panel.querySelectorAll("div")).find((node) => node.id === snapshot.staffId);
+    if (staff) reopen(staff);
+  }
+  (findControl(panel, snapshot) ?? moreToggle)?.focus?.();
 }
