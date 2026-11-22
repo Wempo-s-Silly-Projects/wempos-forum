@@ -56,6 +56,7 @@ import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
 import { createTextSizePicker } from "../text-size.js";
 import { createEasyReadingToggle, createLineSpacingPicker, createLinkUnderlineToggle } from "../reading-comfort.js";
+import { createStrongLanguageToggle } from "../strong-language.js";
 import { createContrastPicker } from "../high-contrast.js";
 import { applyTabUnread, createTabUnreadToggle } from "../tab-unread.js";
 import { createQuietHoursControls } from "../quiet-hours.js";
@@ -197,6 +198,7 @@ function renderAccountSettings(session) {
   addText(document, readingComfort, "p", t("readingComfort.underlineLinksHelp"), "muted reading-comfort-help");
   readingComfort.append(createEasyReadingToggle(document, storage));
   addText(document, readingComfort, "p", t("readingComfort.easyReadingHelp"), "muted reading-comfort-help");
+  readingComfort.append(createStrongLanguageToggle(document, storage));
   readingComfort.append(createContrastPicker(document, storage, window));
   addText(document, readingComfort, "p", t("readingComfort.contrastHelp"), "muted reading-comfort-help");
   account.append(readingComfort);
