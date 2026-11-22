@@ -50,7 +50,7 @@ SOURCE_URL = ""
 # counted; totals older than 90 days are deleted. Staff see them on the
 # desk's Visits page. Any other value (or leaving it out) turns counting off.
 ANALYTICS_ENABLED = "false"
-VERSION = "5.29.0"
+VERSION = "5.30.0"
 
 [assets]
 directory = "./public"

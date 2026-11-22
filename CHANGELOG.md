@@ -15,6 +15,23 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.30.0] - 2026-11-21
+
+### Added
+- Private visit counts. The forum now counts page views as totals only: how
+  many times each kind of page (home, a thread, a profile, a board...) was
+  opened each day, and which other sites people arrived from (the site's
+  name only). It stores no IP address, no account, no browser details, no
+  cookie and no record of single visits. Browsers that send Do Not Track or
+  Global Privacy Control are never counted, and neither are bots. Totals are
+  deleted after 90 days.
+- A **Visits** page on the moderation desk (staff only) shows visits per
+  day, the most visited kinds of page and the referring sites for the last
+  7 or 30 days.
+- Self-hosters turn counting on or off with `ANALYTICS_ENABLED` in
+  `wrangler.toml` (off in the example file). See `docs/self-hosting.md`.
+- Migration `0063_page_view_counts.sql` (new tables only).
+
 ## [5.29.0] - 2026-11-21
 
 ### Fixed
