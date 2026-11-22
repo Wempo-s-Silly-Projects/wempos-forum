@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "साझा करना",
   "threadActions.thisPost": "यह पोस्ट",
   "threadActions.staff": "स्टाफ़",
-  "threadActions.editTags": "टैग संपादित करें"
+  "threadActions.editTags": "टैग संपादित करें",
+  "safety.hideStrongLanguage": "कठोर भाषा छिपाएँ (क्लिक करने तक धुंधली)",
+  "safety.hiddenWord": "छिपा हुआ शब्द — दिखाने के लिए दबाएँ",
+  "safety.linkWarningTitle": "यह लिंक शायद वहाँ न जाए जहाँ यह दिखता है",
+  "safety.linkWarningBody": "पते में एक जैसे दिखने वाले अक्षर मिले हैं, इसलिए यह किसी दूसरी साइट की नकल कर सकता है। असली पता है:",
+  "safety.linkWarningDomain": "पंजीकृत डोमेन: {domain}",
+  "safety.linkWarningBack": "वापस जाएँ",
+  "safety.linkWarningContinue": "फिर भी जारी रखें",
+  "safety.previewShow": "लिंक का पूर्वावलोकन दिखाएँ",
+  "safety.previewUnavailable": "इस लिंक का कोई पूर्वावलोकन नहीं है।",
+  "safety.previewLabel": "लिंक पूर्वावलोकन"
 }

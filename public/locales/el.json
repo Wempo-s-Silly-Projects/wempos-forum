@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Κοινοποίηση",
   "threadActions.thisPost": "Αυτή η ανάρτηση",
   "threadActions.staff": "Ομάδα",
-  "threadActions.editTags": "Επεξεργασία ετικετών"
+  "threadActions.editTags": "Επεξεργασία ετικετών",
+  "safety.hideStrongLanguage": "Απόκρυψη χυδαίας γλώσσας (θολή μέχρι να κάνετε κλικ)",
+  "safety.hiddenWord": "Κρυφή λέξη — πατήστε για εμφάνιση",
+  "safety.linkWarningTitle": "Αυτός ο σύνδεσμος ίσως δεν οδηγεί εκεί που φαίνεται",
+  "safety.linkWarningBody": "Η διεύθυνση αναμειγνύει όμοια γράμματα, οπότε μπορεί να μιμείται άλλον ιστότοπο. Η πραγματική διεύθυνση είναι:",
+  "safety.linkWarningDomain": "Καταχωρισμένος τομέας: {domain}",
+  "safety.linkWarningBack": "Επιστροφή",
+  "safety.linkWarningContinue": "Συνέχεια παρ' όλα αυτά",
+  "safety.previewShow": "Εμφάνιση προεπισκόπησης συνδέσμου",
+  "safety.previewUnavailable": "Δεν υπάρχει προεπισκόπηση για αυτόν τον σύνδεσμο.",
+  "safety.previewLabel": "Προεπισκόπηση συνδέσμου"
 }

@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Поделиться",
   "threadActions.thisPost": "Этот пост",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Изменить теги"
+  "threadActions.editTags": "Изменить теги",
+  "safety.hideStrongLanguage": "Скрывать грубые слова (размыты, пока не нажмёте)",
+  "safety.hiddenWord": "Скрытое слово — нажмите, чтобы показать",
+  "safety.linkWarningTitle": "Эта ссылка может вести не туда, куда кажется",
+  "safety.linkWarningBody": "Адрес смешивает похожие буквы, поэтому может подделывать другой сайт. Настоящий адрес:",
+  "safety.linkWarningDomain": "Зарегистрированный домен: {domain}",
+  "safety.linkWarningBack": "Вернуться",
+  "safety.linkWarningContinue": "Всё равно перейти",
+  "safety.previewShow": "Показать предпросмотр ссылки",
+  "safety.previewUnavailable": "Для этой ссылки нет предпросмотра.",
+  "safety.previewLabel": "Предпросмотр ссылки"
 }

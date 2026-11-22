@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Pagbabahagi",
   "threadActions.thisPost": "Ang post na ito",
   "threadActions.staff": "Kawani",
-  "threadActions.editTags": "I-edit ang mga tag"
+  "threadActions.editTags": "I-edit ang mga tag",
+  "safety.hideStrongLanguage": "Itago ang matatapang na salita (malabo hanggang i-click mo)",
+  "safety.hiddenWord": "Nakatagong salita — pindutin para ipakita",
+  "safety.linkWarningTitle": "Maaaring hindi pumunta ang link na ito sa mukhang pupuntahan nito",
+  "safety.linkWarningBody": "Hinahalo ng address ang magkakamukhang titik, kaya maaari itong manggaya ng ibang site. Ang tunay na address ay:",
+  "safety.linkWarningDomain": "Nakarehistrong domain: {domain}",
+  "safety.linkWarningBack": "Bumalik",
+  "safety.linkWarningContinue": "Magpatuloy pa rin",
+  "safety.previewShow": "Ipakita ang preview ng link",
+  "safety.previewUnavailable": "Walang preview para sa link na ito.",
+  "safety.previewLabel": "Preview ng link"
 }

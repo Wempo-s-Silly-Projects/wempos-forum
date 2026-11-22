@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Sharing",
   "threadActions.thisPost": "This post",
   "threadActions.staff": "Staff",
-  "threadActions.editTags": "Edit tags"
+  "threadActions.editTags": "Edit tags",
+  "safety.hideStrongLanguage": "Hide strong language (blurred until you click)",
+  "safety.hiddenWord": "Hidden word — press to show",
+  "safety.linkWarningTitle": "This link may not go where it looks",
+  "safety.linkWarningBody": "The address mixes look-alike letters, so it may imitate another site. The real address is:",
+  "safety.linkWarningDomain": "Registered domain: {domain}",
+  "safety.linkWarningBack": "Go back",
+  "safety.linkWarningContinue": "Continue anyway",
+  "safety.previewShow": "Show link preview",
+  "safety.previewUnavailable": "No preview for this link.",
+  "safety.previewLabel": "Link preview"
 }

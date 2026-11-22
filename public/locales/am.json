@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "ማጋራት",
   "threadActions.thisPost": "ይህ ልጥፍ",
   "threadActions.staff": "ሠራተኞች",
-  "threadActions.editTags": "መለያዎችን አርትዕ"
+  "threadActions.editTags": "መለያዎችን አርትዕ",
+  "safety.hideStrongLanguage": "ጠንካራ ቋንቋን ደብቅ (እስኪጫኑ ድረስ ይደበዝዛል)",
+  "safety.hiddenWord": "የተደበቀ ቃል — ለማሳየት ይጫኑ",
+  "safety.linkWarningTitle": "ይህ አገናኝ ወደሚመስለው ቦታ ላይሄድ ይችላል",
+  "safety.linkWarningBody": "አድራሻው ተመሳሳይ የሚመስሉ ፊደሎችን ያቀላቅላል፣ ስለዚህ ሌላ ጣቢያን ሊያስመስል ይችላል። ትክክለኛው አድራሻ፦",
+  "safety.linkWarningDomain": "የተመዘገበ ጎራ፦ {domain}",
+  "safety.linkWarningBack": "ተመለስ",
+  "safety.linkWarningContinue": "ቢሆንም ቀጥል",
+  "safety.previewShow": "የአገናኝ ቅድመ እይታ አሳይ",
+  "safety.previewUnavailable": "ለዚህ አገናኝ ቅድመ እይታ የለም።",
+  "safety.previewLabel": "የአገናኝ ቅድመ እይታ"
 }

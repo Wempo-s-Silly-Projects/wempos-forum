@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Aquesta publicació",
   "threadActions.staff": "Equip",
-  "threadActions.editTags": "Edita les etiquetes"
+  "threadActions.editTags": "Edita les etiquetes",
+  "safety.hideStrongLanguage": "Amaga el llenguatge fort (difuminat fins que hi facis clic)",
+  "safety.hiddenWord": "Paraula amagada — prem per mostrar-la",
+  "safety.linkWarningTitle": "Aquest enllaç podria no anar on sembla",
+  "safety.linkWarningBody": "L'adreça barreja lletres que s'assemblen, així que podria imitar un altre lloc. L'adreça real és:",
+  "safety.linkWarningDomain": "Domini registrat: {domain}",
+  "safety.linkWarningBack": "Torna",
+  "safety.linkWarningContinue": "Continua igualment",
+  "safety.previewShow": "Mostra la previsualització de l'enllaç",
+  "safety.previewUnavailable": "No hi ha previsualització per a aquest enllaç.",
+  "safety.previewLabel": "Previsualització de l'enllaç"
 }

@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Zdieľanie",
   "threadActions.thisPost": "Tento príspevok",
   "threadActions.staff": "Tím",
-  "threadActions.editTags": "Upraviť štítky"
+  "threadActions.editTags": "Upraviť štítky",
+  "safety.hideStrongLanguage": "Skryť vulgarizmy (rozmazané, kým neklepnete)",
+  "safety.hiddenWord": "Skryté slovo — stlačte na zobrazenie",
+  "safety.linkWarningTitle": "Tento odkaz možno nevedie tam, kam sa zdá",
+  "safety.linkWarningBody": "Adresa mieša podobne vyzerajúce písmená, takže môže napodobňovať iný web. Skutočná adresa je:",
+  "safety.linkWarningDomain": "Registrovaná doména: {domain}",
+  "safety.linkWarningBack": "Späť",
+  "safety.linkWarningContinue": "Napriek tomu pokračovať",
+  "safety.previewShow": "Zobraziť náhľad odkazu",
+  "safety.previewUnavailable": "Pre tento odkaz nie je náhľad.",
+  "safety.previewLabel": "Náhľad odkazu"
 }

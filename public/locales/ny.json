@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Kugawana",
   "threadActions.thisPost": "Positi iyi",
   "threadActions.staff": "Oyang'anira",
-  "threadActions.editTags": "Sinthani matagi"
+  "threadActions.editTags": "Sinthani matagi",
+  "safety.hideStrongLanguage": "Bisa mawu amwano (osaoneka bwino mpaka mutadina)",
+  "safety.hiddenWord": "Mawu obisika — dinani kuti muwone",
+  "safety.linkWarningTitle": "Ulalo uwu mwina sukupita komwe ukuoneka",
+  "safety.linkWarningBody": "Adilesi imasakaniza zilembo zofanana, choncho ingathe kutengera tsamba lina. Adilesi yeniyeni ndi:",
+  "safety.linkWarningDomain": "Domeni yolembetsedwa: {domain}",
+  "safety.linkWarningBack": "Bwererani",
+  "safety.linkWarningContinue": "Pitirizani komabe",
+  "safety.previewShow": "Onetsani chithunzithunzi cha ulalo",
+  "safety.previewUnavailable": "Palibe chithunzithunzi cha ulalo uwu.",
+  "safety.previewLabel": "Chithunzithunzi cha ulalo"
 }

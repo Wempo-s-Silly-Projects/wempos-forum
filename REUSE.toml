@@ -68,3 +68,37 @@ path = "public/js/vendor/**"
 precedence = "override"
 SPDX-FileCopyrightText = "Lea Verou and PrismJS contributors"
 SPDX-License-Identifier = "MIT"
+
+# Batch L (reader safety) vendored libraries, each kept byte-for-byte with no
+# added banner (sha256 pinned by tests/batchl-reader-safety.test.mjs). All
+# are MIT, compatible with AGPL-3.0-or-later. These blocks come after the
+# Prism catch-all above, so they override it for their own folders.
+# tldts 7.5.5 (dist/index.esm.min.js): public-suffix-aware domain parsing.
+[[annotations]]
+path = "public/js/vendor/tldts/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Rémi Berson"
+SPDX-License-Identifier = "MIT"
+
+# punycode.js 2.3.1 (punycode.es6.js): IDN host decoding.
+[[annotations]]
+path = "public/js/vendor/punycode/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Mathias Bynens"
+SPDX-License-Identifier = "MIT"
+
+# bad-words-next 3.2.0 (lib/decode.mjs and the nine word lists only; the
+# matcher is first-party in public/js/strong-language.js).
+[[annotations]]
+path = "public/js/vendor/bad-words-next/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Void Resort"
+SPDX-License-Identifier = "MIT"
+
+# franc-min 6.2.0 (data.js trigram profiles and expressions.js script
+# ranges; the scorer is first-party in public/js/lang-detect.js).
+[[annotations]]
+path = "public/js/vendor/franc-min/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Titus Wormer"
+SPDX-License-Identifier = "MIT"

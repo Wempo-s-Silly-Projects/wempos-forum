@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Дељење",
   "threadActions.thisPost": "Ова објава",
   "threadActions.staff": "Особље",
-  "threadActions.editTags": "Уреди ознаке"
+  "threadActions.editTags": "Уреди ознаке",
+  "safety.hideStrongLanguage": "Сакриј грубе речи (замућене док не кликнете)",
+  "safety.hiddenWord": "Скривена реч — притисните за приказ",
+  "safety.linkWarningTitle": "Овај линк можда не води тамо где изгледа",
+  "safety.linkWarningBody": "Адреса меша слова која изгледају слично, па може да опонаша други сајт. Права адреса је:",
+  "safety.linkWarningDomain": "Регистровани домен: {domain}",
+  "safety.linkWarningBack": "Назад",
+  "safety.linkWarningContinue": "Ипак настави",
+  "safety.previewShow": "Прикажи преглед линка",
+  "safety.previewUnavailable": "Нема прегледа за овај линк.",
+  "safety.previewLabel": "Преглед линка"
 }

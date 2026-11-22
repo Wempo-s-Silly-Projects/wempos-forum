@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Kushiriki",
   "threadActions.thisPost": "Chapisho hili",
   "threadActions.staff": "Wafanyakazi",
-  "threadActions.editTags": "Hariri lebo"
+  "threadActions.editTags": "Hariri lebo",
+  "safety.hideStrongLanguage": "Ficha lugha kali (imefifishwa hadi ubofye)",
+  "safety.hiddenWord": "Neno lililofichwa — bonyeza ili kuonyesha",
+  "safety.linkWarningTitle": "Kiungo hiki huenda kisiende kinapoonekana kwenda",
+  "safety.linkWarningBody": "Anwani inachanganya herufi zinazofanana, kwa hiyo huenda inaiga tovuti nyingine. Anwani halisi ni:",
+  "safety.linkWarningDomain": "Kikoa kilichosajiliwa: {domain}",
+  "safety.linkWarningBack": "Rudi nyuma",
+  "safety.linkWarningContinue": "Endelea hata hivyo",
+  "safety.previewShow": "Onyesha muhtasari wa kiungo",
+  "safety.previewUnavailable": "Hakuna muhtasari wa kiungo hiki.",
+  "safety.previewLabel": "Muhtasari wa kiungo"
 }

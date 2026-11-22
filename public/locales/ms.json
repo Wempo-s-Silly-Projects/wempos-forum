@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Berkongsi",
   "threadActions.thisPost": "Siaran ini",
   "threadActions.staff": "Kakitangan",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "safety.hideStrongLanguage": "Sembunyikan bahasa kesat (dikaburkan sehingga anda klik)",
+  "safety.hiddenWord": "Perkataan tersembunyi — tekan untuk menunjukkan",
+  "safety.linkWarningTitle": "Pautan ini mungkin tidak pergi ke tempat yang kelihatan",
+  "safety.linkWarningBody": "Alamat ini mencampurkan huruf yang serupa, jadi ia mungkin meniru laman lain. Alamat sebenar ialah:",
+  "safety.linkWarningDomain": "Domain berdaftar: {domain}",
+  "safety.linkWarningBack": "Kembali",
+  "safety.linkWarningContinue": "Teruskan juga",
+  "safety.previewShow": "Tunjukkan pratonton pautan",
+  "safety.previewUnavailable": "Tiada pratonton untuk pautan ini.",
+  "safety.previewLabel": "Pratonton pautan"
 }

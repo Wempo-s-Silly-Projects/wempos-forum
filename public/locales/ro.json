@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Distribuire",
   "threadActions.thisPost": "Această postare",
   "threadActions.staff": "Echipă",
-  "threadActions.editTags": "Editează etichetele"
+  "threadActions.editTags": "Editează etichetele",
+  "safety.hideStrongLanguage": "Ascunde limbajul vulgar (estompat până dai clic)",
+  "safety.hiddenWord": "Cuvânt ascuns — apasă pentru a-l afișa",
+  "safety.linkWarningTitle": "Este posibil ca acest link să nu ducă unde pare",
+  "safety.linkWarningBody": "Adresa amestecă litere asemănătoare, așa că ar putea imita alt site. Adresa reală este:",
+  "safety.linkWarningDomain": "Domeniu înregistrat: {domain}",
+  "safety.linkWarningBack": "Înapoi",
+  "safety.linkWarningContinue": "Continuă oricum",
+  "safety.previewShow": "Arată previzualizarea linkului",
+  "safety.previewUnavailable": "Nu există previzualizare pentru acest link.",
+  "safety.previewLabel": "Previzualizarea linkului"
 }

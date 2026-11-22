@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Partage",
   "threadActions.thisPost": "Ce message",
   "threadActions.staff": "Équipe",
-  "threadActions.editTags": "Modifier les étiquettes"
+  "threadActions.editTags": "Modifier les étiquettes",
+  "safety.hideStrongLanguage": "Masquer le langage grossier (flouté jusqu'au clic)",
+  "safety.hiddenWord": "Mot masqué — appuyez pour l'afficher",
+  "safety.linkWarningTitle": "Ce lien ne mène peut-être pas là où il semble",
+  "safety.linkWarningBody": "L'adresse mélange des lettres qui se ressemblent et pourrait imiter un autre site. La véritable adresse est :",
+  "safety.linkWarningDomain": "Domaine enregistré : {domain}",
+  "safety.linkWarningBack": "Revenir",
+  "safety.linkWarningContinue": "Continuer quand même",
+  "safety.previewShow": "Afficher l'aperçu du lien",
+  "safety.previewUnavailable": "Aucun aperçu pour ce lien.",
+  "safety.previewLabel": "Aperçu du lien"
 }

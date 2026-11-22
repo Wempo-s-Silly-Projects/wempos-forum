@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Поширення",
   "threadActions.thisPost": "Цей допис",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Змінити теги"
+  "threadActions.editTags": "Змінити теги",
+  "safety.hideStrongLanguage": "Приховувати грубі слова (розмиті, доки не натиснете)",
+  "safety.hiddenWord": "Приховане слово — натисніть, щоб показати",
+  "safety.linkWarningTitle": "Це посилання може вести не туди, куди здається",
+  "safety.linkWarningBody": "Адреса змішує схожі літери, тож може підробляти інший сайт. Справжня адреса:",
+  "safety.linkWarningDomain": "Зареєстрований домен: {domain}",
+  "safety.linkWarningBack": "Повернутися",
+  "safety.linkWarningContinue": "Однаково перейти",
+  "safety.previewShow": "Показати попередній перегляд посилання",
+  "safety.previewUnavailable": "Для цього посилання немає перегляду.",
+  "safety.previewLabel": "Попередній перегляд посилання"
 }

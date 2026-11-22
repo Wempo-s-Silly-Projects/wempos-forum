@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Partilhar",
   "threadActions.thisPost": "Esta publicação",
   "threadActions.staff": "Equipa",
-  "threadActions.editTags": "Editar etiquetas"
+  "threadActions.editTags": "Editar etiquetas",
+  "safety.hideStrongLanguage": "Ocultar linguagem forte (desfocada até clicar)",
+  "safety.hiddenWord": "Palavra oculta — toque para mostrar",
+  "safety.linkWarningTitle": "Este link pode não levar aonde parece",
+  "safety.linkWarningBody": "O endereço mistura letras parecidas, por isso pode imitar outro site. O endereço real é:",
+  "safety.linkWarningDomain": "Domínio registado: {domain}",
+  "safety.linkWarningBack": "Voltar",
+  "safety.linkWarningContinue": "Continuar mesmo assim",
+  "safety.previewShow": "Mostrar pré-visualização do link",
+  "safety.previewUnavailable": "Sem pré-visualização para este link.",
+  "safety.previewLabel": "Pré-visualização do link"
 }

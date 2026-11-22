@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "שיתוף",
   "threadActions.thisPost": "הפוסט הזה",
   "threadActions.staff": "צוות",
-  "threadActions.editTags": "עריכת תגיות"
+  "threadActions.editTags": "עריכת תגיות",
+  "safety.hideStrongLanguage": "הסתרת שפה בוטה (מטושטשת עד שלוחצים)",
+  "safety.hiddenWord": "מילה מוסתרת — לחצו כדי להציג",
+  "safety.linkWarningTitle": "ייתכן שהקישור הזה לא מוביל לאן שנראה",
+  "safety.linkWarningBody": "הכתובת מערבבת אותיות דומות למראה, ולכן היא עלולה להתחזות לאתר אחר. הכתובת האמיתית היא:",
+  "safety.linkWarningDomain": "דומיין רשום: {domain}",
+  "safety.linkWarningBack": "חזרה",
+  "safety.linkWarningContinue": "להמשיך בכל זאת",
+  "safety.previewShow": "הצגת תצוגה מקדימה של הקישור",
+  "safety.previewUnavailable": "אין תצוגה מקדימה לקישור הזה.",
+  "safety.previewLabel": "תצוגה מקדימה של קישור"
 }

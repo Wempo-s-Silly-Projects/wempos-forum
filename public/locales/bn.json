@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "শেয়ার করা",
   "threadActions.thisPost": "এই পোস্ট",
   "threadActions.staff": "কর্মী দল",
-  "threadActions.editTags": "ট্যাগ সম্পাদনা"
+  "threadActions.editTags": "ট্যাগ সম্পাদনা",
+  "safety.hideStrongLanguage": "কড়া ভাষা লুকান (ক্লিক না করা পর্যন্ত ঝাপসা)",
+  "safety.hiddenWord": "লুকানো শব্দ — দেখাতে চাপুন",
+  "safety.linkWarningTitle": "এই লিংকটি যেখানে মনে হয় সেখানে নাও যেতে পারে",
+  "safety.linkWarningBody": "ঠিকানাটি একই রকম দেখতে অক্ষর মেশায়, তাই এটি অন্য সাইটের ছদ্মবেশ নিতে পারে। আসল ঠিকানা হলো:",
+  "safety.linkWarningDomain": "নিবন্ধিত ডোমেইন: {domain}",
+  "safety.linkWarningBack": "ফিরে যান",
+  "safety.linkWarningContinue": "তবুও চালিয়ে যান",
+  "safety.previewShow": "লিংকের প্রিভিউ দেখান",
+  "safety.previewUnavailable": "এই লিংকের কোনো প্রিভিউ নেই।",
+  "safety.previewLabel": "লিংকের প্রিভিউ"
 }

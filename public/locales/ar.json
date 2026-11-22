@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "المشاركة",
   "threadActions.thisPost": "هذا المنشور",
   "threadActions.staff": "الطاقم",
-  "threadActions.editTags": "تعديل الوسوم"
+  "threadActions.editTags": "تعديل الوسوم",
+  "safety.hideStrongLanguage": "إخفاء الألفاظ النابية (مموّهة حتى تنقر)",
+  "safety.hiddenWord": "كلمة مخفية — اضغط لإظهارها",
+  "safety.linkWarningTitle": "قد لا يقودك هذا الرابط إلى حيث يبدو",
+  "safety.linkWarningBody": "يخلط العنوان بين حروف متشابهة، لذا قد ينتحل موقعًا آخر. العنوان الحقيقي هو:",
+  "safety.linkWarningDomain": "النطاق المسجّل: {domain}",
+  "safety.linkWarningBack": "رجوع",
+  "safety.linkWarningContinue": "المتابعة على أي حال",
+  "safety.previewShow": "عرض معاينة الرابط",
+  "safety.previewUnavailable": "لا توجد معاينة لهذا الرابط.",
+  "safety.previewLabel": "معاينة الرابط"
 }

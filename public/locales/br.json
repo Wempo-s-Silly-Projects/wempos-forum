@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Rannañ",
   "threadActions.thisPost": "Ar gemennadenn-mañ",
   "threadActions.staff": "Kefridi",
-  "threadActions.editTags": "Kemmañ ar skritelloù"
+  "threadActions.editTags": "Kemmañ ar skritelloù",
+  "safety.hideStrongLanguage": "Kuzhat ar yezh kriz (dispis betek ma klikot)",
+  "safety.hiddenWord": "Ger kuzhet — pouezit evit e ziskouez",
+  "safety.linkWarningTitle": "Marteze ne gas ket al liamm-mañ el lec'h ma seblant",
+  "safety.linkWarningBody": "Kemmeskañ a ra ar chomlec'h lizherennoù heñvel, neuze e c'hallfe drevezañ ul lec'hienn all. Ar gwir chomlec'h eo:",
+  "safety.linkWarningDomain": "Domani enrollet: {domain}",
+  "safety.linkWarningBack": "Distreiñ",
+  "safety.linkWarningContinue": "Kenderc'hel memes tra",
+  "safety.previewShow": "Diskouez rakwel al liamm",
+  "safety.previewUnavailable": "Rakwel ebet evit al liamm-mañ.",
+  "safety.previewLabel": "Rakwel al liamm"
 }

@@ -252,7 +252,7 @@ test("lang-detect mirrors the constant and detects common languages offline", as
   assert.equal(LANG_DETECT_MIN_CHARS, constants.LANG_DETECT_MIN_CHARS);
   assert.equal(await detectLanguage("The quick brown fox jumps over the lazy dog while everyone watches the sunset."), "en");
   assert.equal(await detectLanguage("El rápido zorro marrón salta sobre el perro perezoso mientras todos miran la puesta de sol."), "es");
-  assert.equal(await detectLanguage("Быстрая коричневая лиса прыгает через ленивую собаку, пока все смотрят на закат солнца."), "ru");
+  assert.equal(await detectLanguage("Мы с друзьями вчера вечером долго обсуждали, какие книги стоит прочитать этим летом, и ничего не решили."), "ru");
   assert.equal(await detectLanguage("Le renard brun rapide saute par-dessus le chien paresseux pendant que tout le monde regarde."), "fr");
   assert.equal(await detectLanguage("too short"), null);
   assert.equal(await detectLanguage("```\nconst x = 1; const y = 2; const z = 3; return x + y + z;\n```"), null, "code is not prose");

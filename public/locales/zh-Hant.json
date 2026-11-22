@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "這篇貼文",
   "threadActions.staff": "管理團隊",
-  "threadActions.editTags": "編輯標籤"
+  "threadActions.editTags": "編輯標籤",
+  "safety.hideStrongLanguage": "隱藏粗話(點擊前保持模糊)",
+  "safety.hiddenWord": "已隱藏的字詞 — 按下顯示",
+  "safety.linkWarningTitle": "此連結可能不會前往它看起來的地方",
+  "safety.linkWarningBody": "該網址混用了外形相似的字母,可能在冒充其他網站。真實網址是:",
+  "safety.linkWarningDomain": "註冊網域:{domain}",
+  "safety.linkWarningBack": "返回",
+  "safety.linkWarningContinue": "仍要繼續",
+  "safety.previewShow": "顯示連結預覽",
+  "safety.previewUnavailable": "此連結沒有預覽。",
+  "safety.previewLabel": "連結預覽"
 }

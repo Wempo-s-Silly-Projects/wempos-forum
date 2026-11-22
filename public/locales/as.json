@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "শ্বেয়াৰ",
   "threadActions.thisPost": "এই পোষ্ট",
   "threadActions.staff": "কৰ্মী",
-  "threadActions.editTags": "টেগ সম্পাদনা কৰক"
+  "threadActions.editTags": "টেগ সম্পাদনা কৰক",
+  "safety.hideStrongLanguage": "কঠোৰ ভাষা লুকুৱাওক (ক্লিক নকৰালৈকে অস্পষ্ট)",
+  "safety.hiddenWord": "লুকুৱা শব্দ — দেখুৱাবলৈ টিপক",
+  "safety.linkWarningTitle": "এই লিংকটোৱে যেনেকুৱা দেখা যায় তালৈ নাযাবও পাৰে",
+  "safety.linkWarningBody": "ঠিকনাটোৱে একে যেন লগা আখৰ মিহলায়, গতিকে ই আন এটা ছাইটৰ অনুকৰণ কৰিব পাৰে। আচল ঠিকনাটো হ'ল:",
+  "safety.linkWarningDomain": "পঞ্জীয়নভুক্ত ডমেইন: {domain}",
+  "safety.linkWarningBack": "উভতি যাওক",
+  "safety.linkWarningContinue": "তথাপিও আগবাঢ়ক",
+  "safety.previewShow": "লিংকৰ পূৰ্বদৰ্শন দেখুৱাওক",
+  "safety.previewUnavailable": "এই লিংকৰ কোনো পূৰ্বদৰ্শন নাই।",
+  "safety.previewLabel": "লিংকৰ পূৰ্বদৰ্शন"
 }

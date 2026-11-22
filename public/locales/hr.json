@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Dijeljenje",
   "threadActions.thisPost": "Ova objava",
   "threadActions.staff": "Osoblje",
-  "threadActions.editTags": "Uredi oznake"
+  "threadActions.editTags": "Uredi oznake",
+  "safety.hideStrongLanguage": "Sakrij grube riječi (zamućene dok ne kliknete)",
+  "safety.hiddenWord": "Skrivena riječ — pritisnite za prikaz",
+  "safety.linkWarningTitle": "Ova poveznica možda ne vodi onamo kamo se čini",
+  "safety.linkWarningBody": "Adresa miješa slova koja izgledaju slično, pa može oponašati drugu stranicu. Prava adresa je:",
+  "safety.linkWarningDomain": "Registrirana domena: {domain}",
+  "safety.linkWarningBack": "Natrag",
+  "safety.linkWarningContinue": "Ipak nastavi",
+  "safety.previewShow": "Prikaži pretpregled poveznice",
+  "safety.previewUnavailable": "Nema pretpregleda za ovu poveznicu.",
+  "safety.previewLabel": "Pretpregled poveznice"
 }

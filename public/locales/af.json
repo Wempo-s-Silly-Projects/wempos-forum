@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Deel",
   "threadActions.thisPost": "Hierdie plasing",
   "threadActions.staff": "Personeel",
-  "threadActions.editTags": "Wysig etikette"
+  "threadActions.editTags": "Wysig etikette",
+  "safety.hideStrongLanguage": "Versteek kragtaal (vervaag totdat jy klik)",
+  "safety.hiddenWord": "Versteekte woord — druk om te wys",
+  "safety.linkWarningTitle": "Hierdie skakel gaan dalk nie waarheen dit lyk nie",
+  "safety.linkWarningBody": "Die adres meng soortgelyke letters, so dit kan 'n ander webwerf naboots. Die werklike adres is:",
+  "safety.linkWarningDomain": "Geregistreerde domein: {domain}",
+  "safety.linkWarningBack": "Gaan terug",
+  "safety.linkWarningContinue": "Gaan tog voort",
+  "safety.previewShow": "Wys skakelvoorskou",
+  "safety.previewUnavailable": "Geen voorskou vir hierdie skakel nie.",
+  "safety.previewLabel": "Skakelvoorskou"
 }

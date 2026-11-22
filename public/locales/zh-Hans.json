@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "这篇帖子",
   "threadActions.staff": "管理团队",
-  "threadActions.editTags": "编辑标签"
+  "threadActions.editTags": "编辑标签",
+  "safety.hideStrongLanguage": "隐藏粗话(点击前保持模糊)",
+  "safety.hiddenWord": "已隐藏的词 — 按下显示",
+  "safety.linkWarningTitle": "此链接可能不会通往它看起来的地方",
+  "safety.linkWarningBody": "该地址混用了外形相似的字母,可能在冒充其他网站。真实地址是:",
+  "safety.linkWarningDomain": "注册域名:{domain}",
+  "safety.linkWarningBack": "返回",
+  "safety.linkWarningContinue": "仍然继续",
+  "safety.previewShow": "显示链接预览",
+  "safety.previewUnavailable": "此链接没有预览。",
+  "safety.previewLabel": "链接预览"
 }

@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette indlæg",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tags"
+  "threadActions.editTags": "Rediger tags",
+  "safety.hideStrongLanguage": "Skjul grimt sprog (sløret, indtil du klikker)",
+  "safety.hiddenWord": "Skjult ord — tryk for at vise",
+  "safety.linkWarningTitle": "Dette link fører måske ikke derhen, hvor det ser ud til",
+  "safety.linkWarningBody": "Adressen blander bogstaver, der ligner hinanden, så den kan efterligne et andet websted. Den rigtige adresse er:",
+  "safety.linkWarningDomain": "Registreret domæne: {domain}",
+  "safety.linkWarningBack": "Gå tilbage",
+  "safety.linkWarningContinue": "Fortsæt alligevel",
+  "safety.previewShow": "Vis forhåndsvisning af link",
+  "safety.previewUnavailable": "Ingen forhåndsvisning af dette link.",
+  "safety.previewLabel": "Forhåndsvisning af link"
 }

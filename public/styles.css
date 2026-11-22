@@ -4350,3 +4350,27 @@ mark.search-hit {
 .nav-group { display: grid; gap: 0.2rem; }
 .nav-group + .nav-group { margin-top: 0.35rem; padding-top: 0.45rem; border-top: 1px solid var(--line); }
 .nav-group-label { padding-inline: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+
+/* Batch L reader safety: the opt-in strong-language blur (click to show),
+   the lookalike-link warning, and the text-only link preview card. */
+.strong-language:not(.is-revealed) { filter: blur(0.3em); cursor: pointer; border-radius: 0.2em; }
+.strong-language:not(.is-revealed):focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  .strong-language:not(.is-revealed) { filter: none; background: currentColor; }
+}
+.link-warning {
+  position: fixed; inset: auto 1rem 1rem; z-index: 1000; max-width: 32rem; margin-inline: auto;
+  padding: 1rem 1.1rem; border: 2px solid var(--coral); border-radius: var(--button-radius);
+  background: var(--paper); color: var(--ink); box-shadow: 0 0.4rem 1.4rem var(--paper-shadow);
+}
+.link-warning-title { margin: 0 0 0.4rem; font-size: 1.1rem; }
+.link-warning-host code { overflow-wrap: anywhere; font-weight: 700; }
+.link-warning-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
+.link-preview-show { margin: 0.2rem 0 0.6rem; font-size: 0.85rem; }
+.link-preview-card {
+  margin: 0.2rem 0 0.8rem; padding: 0.6rem 0.8rem; border: 1px solid var(--line);
+  border-inline-start: 4px solid var(--green); border-radius: var(--button-radius); background: var(--field);
+}
+.link-preview-title { font-weight: 700; overflow-wrap: anywhere; }
+.link-preview-description { margin: 0.25rem 0; }
+.link-preview-site, .link-preview-unavailable { margin: 0; font-size: 0.85rem; }

@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Paylaşma",
   "threadActions.thisPost": "Bu yazı",
   "threadActions.staff": "Heyət",
-  "threadActions.editTags": "Teqləri redaktə et"
+  "threadActions.editTags": "Teqləri redaktə et",
+  "safety.hideStrongLanguage": "Kobud ifadələri gizlət (klikləyənə qədər bulanıq)",
+  "safety.hiddenWord": "Gizlədilmiş söz — göstərmək üçün basın",
+  "safety.linkWarningTitle": "Bu keçid göründüyü yerə getməyə bilər",
+  "safety.linkWarningBody": "Ünvan bir-birinə bənzəyən hərfləri qarışdırır, ona görə başqa saytı təqlid edə bilər. Əsl ünvan:",
+  "safety.linkWarningDomain": "Qeydiyyatlı domen: {domain}",
+  "safety.linkWarningBack": "Geri qayıt",
+  "safety.linkWarningContinue": "Yenə də davam et",
+  "safety.previewShow": "Keçidin önizləməsini göstər",
+  "safety.previewUnavailable": "Bu keçid üçün önizləmə yoxdur.",
+  "safety.previewLabel": "Keçid önizləməsi"
 }

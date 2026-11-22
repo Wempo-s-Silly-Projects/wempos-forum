@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Tilali",
   "threadActions.thisPost": "Nin sɛbɛn",
   "threadActions.staff": "Baarakɛlaw",
-  "threadActions.editTags": "Taamasiyɛnninw yɛlɛma"
+  "threadActions.editTags": "Taamasiyɛnninw yɛlɛma",
+  "safety.hideStrongLanguage": "Kuma juguw dogo (a bɛ dibi fo i ka digi a kan)",
+  "safety.hiddenWord": "Kuma dogolen — digi a kan walasa a ka ye",
+  "safety.linkWarningTitle": "Nin siri tɛ se ka taa a bɛ i n'a fɔ yɔrɔ min na",
+  "safety.linkWarningBody": "Adɛrɛsi bɛ sɛbɛnni bɔlen ɲɔgɔn na ɲagami, o la a bɛ se ka siti wɛrɛ ladege. Adɛrɛsi lakika ye:",
+  "safety.linkWarningDomain": "Domɛni sɛbɛnnen: {domain}",
+  "safety.linkWarningBack": "Segin kɔ",
+  "safety.linkWarningContinue": "Taa ɲɛ o bɛɛ n'a ta",
+  "safety.previewShow": "Siri ɲɛfɛlajɛ jira",
+  "safety.previewUnavailable": "Ɲɛfɛlajɛ si tɛ nin siri ye.",
+  "safety.previewLabel": "Siri ɲɛfɛlajɛ"
 }

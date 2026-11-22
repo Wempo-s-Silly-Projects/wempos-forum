@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Paylaşım",
   "threadActions.thisPost": "Bu gönderi",
   "threadActions.staff": "Ekip",
-  "threadActions.editTags": "Etiketleri düzenle"
+  "threadActions.editTags": "Etiketleri düzenle",
+  "safety.hideStrongLanguage": "Kaba dili gizle (tıklayana kadar bulanık)",
+  "safety.hiddenWord": "Gizli sözcük — göstermek için basın",
+  "safety.linkWarningTitle": "Bu bağlantı göründüğü yere gitmeyebilir",
+  "safety.linkWarningBody": "Adres birbirine benzeyen harfleri karıştırıyor, bu yüzden başka bir siteyi taklit ediyor olabilir. Gerçek adres:",
+  "safety.linkWarningDomain": "Kayıtlı alan adı: {domain}",
+  "safety.linkWarningBack": "Geri dön",
+  "safety.linkWarningContinue": "Yine de devam et",
+  "safety.previewShow": "Bağlantı önizlemesini göster",
+  "safety.previewUnavailable": "Bu bağlantı için önizleme yok.",
+  "safety.previewLabel": "Bağlantı önizlemesi"
 }

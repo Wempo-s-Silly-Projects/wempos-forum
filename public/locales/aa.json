@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Farakkiyya",
   "threadActions.thisPost": "Ah kitbat",
   "threadActions.staff": "Taamitte",
-  "threadActions.editTags": "Astooti massos"
+  "threadActions.editTags": "Astooti massos",
+  "safety.hideStrongLanguage": "Gibdi af qellisi (tabbaqqa fanah dudduubite)",
+  "safety.hiddenWord": "Qellisime qangara — uybulluuk tabbaq",
+  "safety.linkWarningTitle": "Too link isi tablem fan maadu waytam duuda",
+  "safety.linkWarningBody": "Ad-reesih fidlah ittat-ittal faxxa, tama dabaqah tan saytak ummaanam duuda. Nummah tan ad-reesa:",
+  "safety.linkWarningDomain": "Qambaalisime doomeen: {domain}",
+  "safety.linkWarningBack": "Gaceenih",
+  "safety.linkWarningContinue": "Tetteek gexe",
+  "safety.previewShow": "Link sugu-qussa uybulluuk",
+  "safety.previewUnavailable": "Too linkih sugu-qussa mali.",
+  "safety.previewLabel": "Link sugu-qussa"
 }

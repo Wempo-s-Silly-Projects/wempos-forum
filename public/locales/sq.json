@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Ndarja",
   "threadActions.thisPost": "Ky postim",
   "threadActions.staff": "Stafi",
-  "threadActions.editTags": "Ndrysho etiketat"
+  "threadActions.editTags": "Ndrysho etiketat",
+  "safety.hideStrongLanguage": "Fshih gjuhën e fortë (e turbullt derisa të klikosh)",
+  "safety.hiddenWord": "Fjalë e fshehur — shtyp për ta shfaqur",
+  "safety.linkWarningTitle": "Kjo lidhje mund të mos të çojë aty ku duket",
+  "safety.linkWarningBody": "Adresa përzien shkronja që ngjajnë, ndaj mund të imitojë një sajt tjetër. Adresa e vërtetë është:",
+  "safety.linkWarningDomain": "Domeni i regjistruar: {domain}",
+  "safety.linkWarningBack": "Kthehu",
+  "safety.linkWarningContinue": "Vazhdo gjithsesi",
+  "safety.previewShow": "Shfaq parapamjen e lidhjes",
+  "safety.previewUnavailable": "Nuk ka parapamje për këtë lidhje.",
+  "safety.previewLabel": "Parapamja e lidhjes"
 }

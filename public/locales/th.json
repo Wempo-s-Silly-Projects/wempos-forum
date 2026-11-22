@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "การแชร์",
   "threadActions.thisPost": "โพสต์นี้",
   "threadActions.staff": "ทีมงาน",
-  "threadActions.editTags": "แก้ไขแท็ก"
+  "threadActions.editTags": "แก้ไขแท็ก",
+  "safety.hideStrongLanguage": "ซ่อนคำหยาบ (เบลอไว้จนกว่าจะคลิก)",
+  "safety.hiddenWord": "คำที่ซ่อนอยู่ — กดเพื่อแสดง",
+  "safety.linkWarningTitle": "ลิงก์นี้อาจไม่ได้พาไปยังที่ที่เห็น",
+  "safety.linkWarningBody": "ที่อยู่นี้ปนตัวอักษรที่หน้าตาคล้ายกัน จึงอาจปลอมเป็นเว็บไซต์อื่น ที่อยู่จริงคือ:",
+  "safety.linkWarningDomain": "โดเมนที่จดทะเบียน: {domain}",
+  "safety.linkWarningBack": "ย้อนกลับ",
+  "safety.linkWarningContinue": "ไปต่ออยู่ดี",
+  "safety.previewShow": "แสดงตัวอย่างลิงก์",
+  "safety.previewUnavailable": "ไม่มีตัวอย่างสำหรับลิงก์นี้",
+  "safety.previewLabel": "ตัวอย่างลิงก์"
 }

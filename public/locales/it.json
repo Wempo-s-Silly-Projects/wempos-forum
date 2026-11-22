@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Condivisione",
   "threadActions.thisPost": "Questo post",
   "threadActions.staff": "Staff",
-  "threadActions.editTags": "Modifica tag"
+  "threadActions.editTags": "Modifica tag",
+  "safety.hideStrongLanguage": "Nascondi il linguaggio forte (sfocato finché non clicchi)",
+  "safety.hiddenWord": "Parola nascosta — premi per mostrarla",
+  "safety.linkWarningTitle": "Questo link potrebbe non portare dove sembra",
+  "safety.linkWarningBody": "L'indirizzo mescola lettere simili, quindi potrebbe imitare un altro sito. L'indirizzo reale è:",
+  "safety.linkWarningDomain": "Dominio registrato: {domain}",
+  "safety.linkWarningBack": "Torna indietro",
+  "safety.linkWarningContinue": "Continua comunque",
+  "safety.previewShow": "Mostra l'anteprima del link",
+  "safety.previewUnavailable": "Nessuna anteprima per questo link.",
+  "safety.previewLabel": "Anteprima del link"
 }

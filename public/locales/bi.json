@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Sasem",
   "threadActions.thisPost": "Pos ia",
   "threadActions.staff": "Stafe",
-  "threadActions.editTags": "Janjem tag"
+  "threadActions.editTags": "Janjem tag",
+  "safety.hideStrongLanguage": "Haedem ol strong tok (i blur kasem yu kliki)",
+  "safety.hiddenWord": "Wod we i haed — presem blong luk",
+  "safety.linkWarningTitle": "Link ya i maet no go long ples we i luk olsem",
+  "safety.linkWarningBody": "Adres ya i miksim ol leta we oli luk sem mak, ale i save giaman olsem narafala saet. Tru adres i:",
+  "safety.linkWarningDomain": "Domen we i rejista: {domain}",
+  "safety.linkWarningBack": "Go bak",
+  "safety.linkWarningContinue": "Go hed nomo",
+  "safety.previewShow": "Soem smol lukluk blong link",
+  "safety.previewUnavailable": "I no gat smol lukluk blong link ya.",
+  "safety.previewLabel": "Smol lukluk blong link"
 }

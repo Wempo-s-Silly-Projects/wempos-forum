@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Уртаҡлашыу",
   "threadActions.thisPost": "Был яҙма",
   "threadActions.staff": "Хеҙмәткәрҙәр",
-  "threadActions.editTags": "Тегтарҙы мөхәррирләргә"
+  "threadActions.editTags": "Тегтарҙы мөхәррирләргә",
+  "safety.hideStrongLanguage": "Ҡаты һүҙҙәрҙе йәшереү (баҫҡансы томанлы)",
+  "safety.hiddenWord": "Йәшерелгән һүҙ — күрһәтеү өсөн баҫығыҙ",
+  "safety.linkWarningTitle": "Был һылтанма күренгән урынға илтмәҫкә мөмкин",
+  "safety.linkWarningBody": "Адреста оҡшаш хәрефтәр ҡатнаш, шуға ул башҡа сайтҡа оҡшатылыуы мөмкин. Ысын адрес:",
+  "safety.linkWarningDomain": "Теркәлгән домен: {domain}",
+  "safety.linkWarningBack": "Кире ҡайтыу",
+  "safety.linkWarningContinue": "Барыбер дауам итеү",
+  "safety.previewShow": "Һылтанманы алдан ҡарауҙы күрһәтеү",
+  "safety.previewUnavailable": "Был һылтанма өсөн алдан ҡарау юҡ.",
+  "safety.previewLabel": "Һылтанманы алдан ҡарау"
 }

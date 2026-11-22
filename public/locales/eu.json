@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Partekatzea",
   "threadActions.thisPost": "Bidalketa hau",
   "threadActions.staff": "Taldea",
-  "threadActions.editTags": "Editatu etiketak"
+  "threadActions.editTags": "Editatu etiketak",
+  "safety.hideStrongLanguage": "Ezkutatu hizkera gogorra (lausotuta klik egin arte)",
+  "safety.hiddenWord": "Ezkutuko hitza — sakatu erakusteko",
+  "safety.linkWarningTitle": "Baliteke esteka hau ez joatea dirudien tokira",
+  "safety.linkWarningBody": "Helbideak antzeko itxurako letrak nahasten ditu, beraz beste gune bat imitatu dezake. Benetako helbidea hau da:",
+  "safety.linkWarningDomain": "Erregistratutako domeinua: {domain}",
+  "safety.linkWarningBack": "Itzuli",
+  "safety.linkWarningContinue": "Jarraitu hala ere",
+  "safety.previewShow": "Erakutsi estekaren aurrebista",
+  "safety.previewUnavailable": "Esteka honek ez du aurrebistarik.",
+  "safety.previewLabel": "Estekaren aurrebista"
 }

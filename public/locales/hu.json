@@ -1221,5 +1221,15 @@
   "threadActions.sharing": "Megosztás",
   "threadActions.thisPost": "Ez a bejegyzés",
   "threadActions.staff": "Csapat",
-  "threadActions.editTags": "Címkék szerkesztése"
+  "threadActions.editTags": "Címkék szerkesztése",
+  "safety.hideStrongLanguage": "Durva szavak elrejtése (elmosva, amíg nem kattintasz)",
+  "safety.hiddenWord": "Rejtett szó — nyomd meg a megjelenítéshez",
+  "safety.linkWarningTitle": "Lehet, hogy ez a hivatkozás nem oda visz, ahová látszik",
+  "safety.linkWarningBody": "A cím hasonló kinézetű betűket kever, így egy másik oldalt utánozhat. A valódi cím:",
+  "safety.linkWarningDomain": "Regisztrált domain: {domain}",
+  "safety.linkWarningBack": "Vissza",
+  "safety.linkWarningContinue": "Folytatás mégis",
+  "safety.previewShow": "Hivatkozás előnézetének megjelenítése",
+  "safety.previewUnavailable": "Ehhez a hivatkozáshoz nincs előnézet.",
+  "safety.previewLabel": "Hivatkozás előnézete"
 }
