@@ -26,6 +26,8 @@
 // assigned to the textarea's .value property, so user content can never be
 // parsed as HTML by the page and never enters an element's markup.
 
+import { replaceFieldRange } from "./field-edit.js";
+
 export const QUOTE_SNIPPET_LIMIT = 120;
 
 // Collapses every run of whitespace (newlines and tabs included) to single
@@ -45,11 +47,11 @@ export const quoteLine = (username, body) =>
   `${truncate(collapseWhitespace(body), QUOTE_SNIPPET_LIMIT)}\n`;
 
 // Prepends the quote line to whatever the composer already holds and focuses
-// the textarea. Assignment through .value only — never innerHTML, never
-// markup. Returns the new value (handy for tests).
+// the textarea. Text only — never innerHTML, never markup. Batch H: the line
+// goes in through field-edit.js (native undo; plain .value splice for a field
+// without selection support). Returns the new value (handy for tests).
 export function prefillQuote(textarea, username, body) {
-  const existing = typeof textarea.value === "string" ? textarea.value : "";
-  textarea.value = quoteLine(username, body) + existing;
+  replaceFieldRange(textarea, 0, 0, quoteLine(username, body));
   textarea.focus();
   return textarea.value;
 }
