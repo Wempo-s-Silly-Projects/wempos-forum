@@ -36,6 +36,8 @@ import {
 } from "../attachments.js";
 import { addGifsToComposer, removeGifFromComposer, renderGifThumbs, spareComposerSlots } from "../gifs.js";
 import { arrangeGallery, readRecents, rememberRecents, writeRecents } from "../gallery-picks.js";
+import { prefersReducedMotion } from "../focus-utils.js";
+import { freezeInPlace } from "../still-gif.js";
 import { addTurnstileSlot, refreshTurnstile, takeTurnstileToken } from "../turnstile.js";
 import { COMPOSER_MAX_CHARS } from "../composer-limits.js";
 import { attachDraftAutosave, clearFormDraft, draftKey } from "../drafts.js";
@@ -322,6 +324,7 @@ function galleryThumb(dialog, gif, pressed) {
   img.loading = "lazy";
   img.alt = t("composer.libraryImage");
   thumb.append(img);
+  if (prefersReducedMotion()) freezeInPlace(document, img);
   thumb.addEventListener("click", () => {
     const isPressed = thumb.getAttribute("aria-pressed") === "true";
     if (!isPressed && selectedGalleryIds(dialog).length >= galleryView.spare) {

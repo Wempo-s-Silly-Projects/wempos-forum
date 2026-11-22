@@ -3348,6 +3348,35 @@ mark.search-hit {
 }
 .chat-gif-toggle:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .chat-gif-loading { visibility: hidden; }
+/* Reduced-motion GIFs in posts and the gallery (shared still-gif.js): the
+   frame canvas takes the image's own class/size; post GIF attachments get a
+   small play/pause badge beside the expand button. */
+.still-gif-loading { visibility: hidden; }
+.still-gif-toggle {
+  align-self: flex-start;
+  padding: 0.15rem 0.5rem;
+  border: 2px solid var(--line);
+  border-radius: 0.4rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.still-gif-toggle[aria-pressed="true"] { border-color: var(--green); }
+.still-gif-toggle:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.gif-grid-item canvas {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  display: block;
+}
+.gif-chip canvas {
+  height: 2.6rem;
+  width: auto;
+  display: block;
+}
 .chat-widget-gif-button { flex-shrink: 0; font-weight: 700; font-size: 0.75rem; }
 .chat-widget-gif-grid {
   position: absolute;

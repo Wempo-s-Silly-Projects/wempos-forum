@@ -26,6 +26,8 @@
 // defers its network request).
 import { MAX_COMPOSER_FILES } from "./attachments.js";
 import { t } from "./i18n.js";
+import { prefersReducedMotion } from "./focus-utils.js";
+import { freezeInPlace } from "./still-gif.js";
 
 export const GIF_PICKER_DIALOG_ID = "gif-picker";
 
@@ -67,6 +69,7 @@ export function renderGifThumbs(document, form) {
     remove.dataset.action = "remove-gif";
     remove.dataset.gifId = gifId;
     chip.append(img, remove);
+    if (prefersReducedMotion()) freezeInPlace(document, img);
     wrap.append(chip);
   }
   return wrap;

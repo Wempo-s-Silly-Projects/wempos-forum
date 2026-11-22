@@ -19,6 +19,8 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 import { attachmentUrl } from "./attachments.js";
+import { prefersReducedMotion } from "./focus-utils.js";
+import { GIF_MIME, stillGifToggle } from "./still-gif.js";
 import { createIcon } from "./icons.js";
 import { maskSpoilers, parseBlocks, parseInline } from "./markdown.js";
 import { createTextarea } from "./forms.js";
@@ -88,6 +90,15 @@ const renderAttachments = (post, document, article) => {
     );
     expand.append(image);
     strip.append(expand);
+    if (attachment.mime === GIF_MIME && prefersReducedMotion()) {
+      // Reduced motion: a still first frame in the expand button (the image
+      // stays inside, hidden, so the lightbox keeps its source) plus a
+      // play/pause badge reusing chat's GIF label.
+      const toggle = stillGifToggle(document, image, {
+        label: t("chat.gifAlt"), buttonClass: "still-gif-toggle", stillClass: "post-attachment", host: expand,
+      });
+      if (toggle) strip.append(toggle);
+    }
     if (attachment.awaiting) {
       const pending = createElement(document, "p", "attachment-pending icon-inline");
       pending.append(createIcon(document, "image"), document.createTextNode(t("render.imageAwaitingReview")));

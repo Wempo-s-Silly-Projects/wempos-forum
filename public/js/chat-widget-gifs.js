@@ -27,6 +27,7 @@ import { isEmojiOnly } from "./dm-effects.js";
 import { fillImageBody, imageIdOf } from "./dm-extras.js";
 import { el, ui } from "./chat-widget-state.js";
 import { prefersReducedMotion } from "./focus-utils.js";
+import { freezeWhenLoaded, stillGifToggle } from "./still-gif.js";
 
 // GIFs in chat: a message whose WHOLE body is `[gif:<library-id>]` renders as
 // the library image — the same by-reference convention posts use (gifIds
@@ -44,54 +45,13 @@ export const gifIdOf = (body) => {
 export const gifToken = (gifId) => `[gif:${gifId}]`;
 
 // Wave 5.73.1: under prefers-reduced-motion a GIF shows its first frame on a
-// <canvas>. The image is same-origin (/api/gifs/:id), so the canvas is never
-// tainted. The <img> stays hidden (visibility, so lazy loading still fires)
-// until the frame is captured; if the canvas cannot draw, the image shows.
-const stillFrameOf = (img, className) => {
-  const canvas = el("canvas", className);
-  canvas.width = img.naturalWidth;
-  canvas.height = img.naturalHeight;
-  const context = canvas.getContext?.("2d");
-  if (!context) return null;
-  try {
-    context.drawImage(img, 0, 0);
-  } catch {
-    return null; // undecodable frame: the caller keeps the animated image
-  }
-  return canvas;
-};
-
-const freezeWhenLoaded = (img, className, onStill) => {
-  img.classList.add("chat-gif-loading");
-  img.addEventListener("load", () => {
-    const still = stillFrameOf(img, className);
-    img.classList.remove("chat-gif-loading");
-    if (still) onStill(still);
-  }, { once: true });
-};
-
-// The reduced-motion message GIF: a toggle button (no new strings: the label
-// is the image's own alt key) that swaps the still canvas and the animated
-// image. Clicks before the frame is captured are ignored.
-const reducedMotionGifButton = (img) => {
-  const button = el("button", "chat-gif-toggle");
-  button.type = "button";
-  button.setAttribute("aria-pressed", "false");
-  button.setAttribute("aria-label", t("chat.gifAlt"));
-  let still = null;
-  freezeWhenLoaded(img, "chat-gif", (canvas) => {
-    still = canvas;
-    button.replaceChildren(canvas);
-  });
-  button.addEventListener("click", () => {
-    if (!still) return;
-    const playing = button.getAttribute("aria-pressed") !== "true";
-    button.setAttribute("aria-pressed", String(playing));
-    button.replaceChildren(playing ? img : still);
-  });
-  button.append(img);
-  return button;
-};
+// <canvas> (the shared still-gif.js). The image is same-origin
+// (/api/gifs/:id), so the canvas is never tainted. The message GIF sits in a
+// toggle button (no new strings: the label is the image's own alt key) that
+// swaps the still canvas and the animated image.
+const CHAT_STILL = { stillClass: "chat-gif", loadingClass: "chat-gif-loading" };
+const reducedMotionGifButton = (img) =>
+  stillGifToggle(document, img, { ...CHAT_STILL, label: t("chat.gifAlt"), buttonClass: "chat-gif-toggle" }) ?? img;
 
 // A message body node: a GIF token becomes a lazy <img> from the library's
 // serving route; anything else (and a token whose image 404s — unknown or
@@ -163,7 +123,9 @@ export const buildGifPicker = (onPick) => {
       img.alt = "";
       img.loading = "lazy";
       img.decoding = "async";
-      if (prefersReducedMotion()) freezeWhenLoaded(img, "", (canvas) => pick.replaceChildren(canvas));
+      if (prefersReducedMotion()) {
+        freezeWhenLoaded(document, img, { loadingClass: CHAT_STILL.loadingClass }, (canvas) => pick.replaceChildren(canvas));
+      }
       pick.append(img);
       pick.addEventListener("click", () => {
         closeGrid();
