@@ -44,7 +44,10 @@ import { call, forgeSession, now, seedBan, seedPost, seedUser, sha256 } from "./
 const TOKENS = { viewer: "w510-viewer-token-0123456789abcdefghijkl", zzblocker: "w510-blocker-token-0123456789abcdefghijk",
   zzblocked: "w510-blocked-token-0123456789abcdefghijk" };
 const ALWAYS_FORBIDDEN = ["HIDDENROOTTXT", "UNDERHIDDENTXT", "BANNEDTXT", "DOOMEDREPLYTXT", "WIPEDTXT",
-  "HIDDENEDITTXT", "zzbanned", "zzghost", "zzwiped"];
+  "HIDDENEDITTXT", "zzbanned", "zzghost", "zzwiped",
+  // Wave 5.32: staff-only records (reports, appeals, AutoMod, analytics
+  // referrers) never reach a non-staff route.
+  "STAFFONLYTXT", "staffonly-referrer"];
 const SIDE_FORBIDDEN = { zzblocker: ["BLOCKEDTXT", "zzblocked"], zzblocked: ["BLOCKERTXT", "zzblocker"] };
 
 async function seedWorld() {
@@ -62,16 +65,19 @@ async function seedWorld() {
 
   w.publicRoot = seedPost(db, { authorId: id.alice, body: "zzsweep VISIBLEOKTXT public root" });
   w.hiddenRoot = seedPost(db, { authorId: id.alice, body: "zzsweep HIDDENROOTTXT", visibility: "hidden" });
-  seedPost(db, { authorId: id.alice, body: "zzsweep UNDERHIDDENTXT", parentId: w.hiddenRoot });
+  w.underHidden = seedPost(db, { authorId: id.alice, body: "zzsweep UNDERHIDDENTXT", parentId: w.hiddenRoot });
   seedPost(db, { authorId: id.zzbanned, body: "zzsweep BANNEDTXT root", board: "suggestions" });
   const bannedRoot = seedPost(db, { authorId: id.zzbanned, body: "zzsweep BANNEDTXT ancestor root" });
-  seedPost(db, { authorId: id.zzbanned, body: "zzsweep BANNEDTXT reply", parentId: w.publicRoot });
+  w.bannedRoot = bannedRoot;
+  w.bannedReply = seedPost(db, { authorId: id.zzbanned, body: "zzsweep BANNEDTXT reply", parentId: w.publicRoot });
   seedPost(db, { authorId: id.zzexpired, body: "zzsweep EXPIREDOKTXT root" });
   seedPost(db, { authorId: id.zzexpired, body: "zzsweep EXPIREDOKTXT reply", parentId: w.publicRoot });
-  seedPost(db, { authorId: id.zzblocker, body: "zzsweep BLOCKERTXT root" });
+  w.blockerRoot = seedPost(db, { authorId: id.zzblocker, body: "zzsweep BLOCKERTXT root" });
   const blockerReply = seedPost(db, { authorId: id.zzblocker, body: "zzsweep BLOCKERTXT reply", parentId: w.publicRoot });
-  seedPost(db, { authorId: id.zzblocked, body: "zzsweep BLOCKEDTXT root" });
+  w.blockedRoot = seedPost(db, { authorId: id.zzblocked, body: "zzsweep BLOCKEDTXT root" });
   const blockedReply = seedPost(db, { authorId: id.zzblocked, body: "zzsweep BLOCKEDTXT reply", parentId: w.publicRoot });
+  w.blockerReply = blockerReply;
+  w.blockedReply = blockedReply;
   seedPost(db, { authorId: id.alice, body: "zzsweep level two a", parentId: blockerReply });
   seedPost(db, { authorId: id.alice, body: "zzsweep level two b", parentId: blockedReply });
   // F4 count fixture: viewer's public replies under a hidden root and under a
@@ -119,8 +125,22 @@ async function seedWorld() {
   }
   run("INSERT INTO dm_group_messages (group_id, user_id, body, created_at) VALUES (?, ?, 'BANNEDTXT group', ?)", w.group, id.zzbanned, at);
   run("INSERT INTO dm_group_messages (group_id, user_id, body, created_at) VALUES (?, ?, 'GROUPOKTXT', ?)", w.group, id.alice, at);
+  seedStaffOnly(w, at);
   await seedArchive(w);
   return w;
+}
+
+// Wave 5.32: one row in every staff-only store, each carrying STAFFONLYTXT.
+function seedStaffOnly(w, at) {
+  const { db, id } = w;
+  const run = (sql, ...args) => db.prepare(sql).run(...args);
+  run("INSERT INTO reports (post_id, reporter_id, reason, created_at) VALUES (?, ?, 'STAFFONLYTXT report', ?)", w.publicRoot, id.outsider, at);
+  run("INSERT INTO profile_reports (profile_user_id, reporter_id, reason, created_at) VALUES (?, ?, 'STAFFONLYTXT profile', ?)", id.alice, id.outsider, at);
+  run("INSERT INTO dm_reports (thread_id, reporter_id, reason, created_at) VALUES (?, ?, 'STAFFONLYTXT dm report', ?)", w.pairThread, id.zzblocker, at);
+  run("INSERT INTO appeals (user_id, kind, body, created_at) VALUES (?, 'ban', 'STAFFONLYTXT appeal', ?)", id.zzbanned, at);
+  run("INSERT INTO automod_actions (action, target_type, target_id, target_user_id, reason, created_at) " +
+    "VALUES ('report', 'post', ?, ?, 'STAFFONLYTXT automod', ?)", w.publicRoot, id.alice, at);
+  run("INSERT INTO referrer_counts (day, referrer_host, views) VALUES (date('now'), 'staffonly-referrer.example', 7)");
 }
 
 // F1, driven through the real write routes: alice deletes a thread whose
@@ -161,10 +181,23 @@ function routes(w, member) {
     ["/sitemap.xml", { guestOnly: true }], ["/", { guestOnly: true, markdown: true }],
     ["/c/general", { guestOnly: true, markdown: true }], ["/c/suggestions", { guestOnly: true, markdown: true }],
     ["/posts/" + w.publicRoot, { guestOnly: true, markdown: true }],
+    // Wave 5.32: the v5.31 page heads + JSON-LD (api/seo.mjs) for every
+    // viewer — hidden, banned-author and block-paired threads and profiles
+    // must render the generic head; plus the remaining public JSON reads.
+    ["/posts/" + w.publicRoot], ["/posts/" + w.hiddenRoot], ["/posts/" + w.bannedRoot],
+    ["/posts/" + w.blockerRoot], ["/posts/" + w.blockedRoot],
+    ["/users/zzbanned"], ["/users/zzblocker"], ["/users/zzblocked"], ["/c/general"], ["/"],
+    ["/api/rules"], ["/api/branding"], ["/api/posts?board=polls"], ["/api/posts?board=showcase"],
+    ["/api/users/" + w.id.zzblocker + "/threads", { pairRefuses: true }],
+    ["/api/users/" + w.id.zzblocked + "/threads", { pairRefuses: true }],
+    ["/api/search?q=STAFFONLYTXT"],
   ];
   if (member) {
     list.push(["/api/me/notifications"], ["/api/me/bookmarks"], ["/api/session"], ["/api/posts?mine=1"],
-      ["/api/dm/threads", { keepParticipantNames: true }]);
+      ["/api/dm/threads", { keepParticipantNames: true }],
+      // Wave 5.32: the data export (own words only; 1:1 partner names kept
+      // like the DM list) and the account-security page.
+      ["/api/me/export", { keepParticipantNames: true }], ["/api/me/security"]);
     if (member === "viewer") list.push(["/api/dm/groups/" + w.group]);
     else list.push(["/api/dm/threads/" + w.pairThread, { keepParticipantNames: true }]);
   }
@@ -174,19 +207,20 @@ function routes(w, member) {
 const MCP_CALLS = (w) => [["recent_posts", {}], ["search_posts", { query: "zzsweep" }], ["list_board", { board: "general" }],
   ["list_board", { board: "suggestions" }], ["get_post", { id: w.publicRoot }], ["lobby_read", {}]];
 
-async function fetchText(env, path, { session, markdown } = {}) {
+async function fetchText(env, path, { session, markdown, refusable } = {}) {
   const res = await call(env, path, { session, headers: markdown ? { Accept: "text/markdown" } : {} });
+  if (refusable && res.status === 403) return res.text();
   assert.equal(res.status, 200, path);
   return res.text();
 }
 
-async function mcpText(env, name, args, token) {
+async function mcpText(env, name, args, token, { refused = false } = {}) {
   const headers = { "Content-Type": "application/json" };
   if (token) headers.Authorization = "Bearer " + token;
   const res = await call(env, "/mcp", { method: "POST", headers,
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name, arguments: args } }) });
   const reply = await res.json();
-  assert.equal(reply.result.isError, false, name);
+  assert.equal(reply.result.isError, refused, name);
   return reply.result.content[0].text;
 }
 
@@ -203,7 +237,10 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
     const forbidden = [...ALWAYS_FORBIDDEN, ...(SIDE_FORBIDDEN[member] || [])];
     for (const [path, options = {}] of routes(w, member)) {
       if (options.guestOnly && member) continue;
-      const text = await fetchText(w.env, path, { session, markdown: options.markdown });
+      // A per-member page refuses the block pair with 403 (wave-40 law); the
+      // refusal body is swept too.
+      const refusable = Boolean(options.pairRefuses && SIDE_FORBIDDEN[member]);
+      const text = await fetchText(w.env, path, { session, markdown: options.markdown, refusable });
       const needles = options.keepParticipantNames ? forbidden.filter((n) => !/^zz(block|banned)/.test(n)) : forbidden;
       assertClean(text, needles, label + " " + path);
       swept++;
@@ -218,6 +255,9 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
     }
   }
   assert.ok(swept >= 142, "swept " + swept); // 28 guest + 3 x (23 + 6 member) + MCP 6x4 + 3
+  // Wave 5.32: + 17 page-head and public reads for each of the 4 viewers,
+  // + export and security for each of the 3 members.
+  assert.ok(swept >= 216, "swept " + swept);
 });
 
 test("wave 5.10 sweep: hidden-root reads are 404 and the DM non-member is refused", async () => {
@@ -315,4 +355,92 @@ test("F4 counts: replies under a hidden or banned-author root count on neither t
   assert.equal(own.repliesCount, 4, "the member's own view keeps the full count");
   const boss = JSON.parse(await fetchText(w.env, "/api/users/outsider", { session: forgeSession(w.db, w.id.boss) }));
   assert.equal(boss.repliesCount, 4, "staff keep the full count");
+});
+
+// ---- wave 5.32: staff-only stores and the page heads ----
+
+const STAFF_ONLY_GETS = (w) => ["/api/admin/reports", "/api/admin/profile-reports", "/api/admin/dm-reports",
+  "/api/admin/appeals", "/api/admin/automod", "/api/automod/queue", "/api/admin/analytics", "/api/admin/hidden",
+  "/api/admin/bans", "/api/admin/chat", "/api/admin/dms", "/api/admin/avatars", "/api/admin/attachments",
+  "/api/admin/gifs", "/api/admin/css", "/api/admin/filter", "/api/admin/users/search?q=zz",
+  "/api/admin/users/" + w.id.zzbanned + "/recent-posts"];
+
+test("wave 5.32 sweep: every staff-only read refuses guests and members and leaks nothing", async () => {
+  const w = await seedWorld();
+  const members = [["guest", undefined], ...["viewer", "zzblocker", "outsider"].map((name) => [name, forgeSession(w.db, w.id[name])])];
+  let refused = 0;
+  for (const path of STAFF_ONLY_GETS(w)) {
+    for (const [label, session] of members) {
+      const res = await call(w.env, path, { session });
+      // 404 only where the store is off entirely (the AutoMod key route).
+      const ok = [401, 403].includes(res.status) || (path.startsWith("/api/automod/") && res.status === 404);
+      assert.ok(ok, label + " " + path + " -> " + res.status);
+      assertClean(await res.text(), [...ALWAYS_FORBIDDEN, "VISIBLEOKTXT"], label + " " + path);
+      refused++;
+    }
+  }
+  assert.equal(refused, STAFF_ONLY_GETS(w).length * 4);
+  const boss = forgeSession(w.db, w.id.boss);
+  for (const path of ["/api/admin/reports", "/api/admin/appeals", "/api/admin/automod"]) {
+    assert.ok((await fetchText(w.env, path, { session: boss })).includes("STAFFONLYTXT"), "staff read " + path);
+  }
+  assert.ok((await fetchText(w.env, "/api/admin/analytics", { session: boss })).includes("staffonly-referrer"));
+});
+
+test("wave 5.32 sweep: page heads show the thread to who may see it and the generic head otherwise", async () => {
+  const w = await seedWorld();
+  const head = (html) => html.slice(0, html.indexOf("</head>"));
+  const guestPublic = head(await fetchText(w.env, "/posts/" + w.publicRoot));
+  assert.ok(guestPublic.includes("VISIBLEOKTXT") && guestPublic.includes("DiscussionForumPosting"));
+  const viewer = forgeSession(w.db, w.id.viewer);
+  assert.ok(head(await fetchText(w.env, "/posts/" + w.blockerRoot, { session: viewer })).includes("BLOCKERTXT"));
+  const boss = forgeSession(w.db, w.id.boss);
+  for (const [path, session] of [["/posts/" + w.hiddenRoot, boss], ["/posts/" + w.bannedRoot, boss],
+    ["/posts/" + w.blockerRoot, forgeSession(w.db, w.id.zzblocked)], ["/users/zzbanned", undefined]]) {
+    const text = head(await fetchText(w.env, path, { session }));
+    assert.ok(text.includes('name="robots" content="noindex"'), path + " is the generic noindexed head");
+    assert.ok(!text.includes("DiscussionForumPosting"), path + " carries no thread JSON-LD");
+  }
+});
+
+test("wave 5.32 sweep: every by-id read of a forbidden post refuses, for every viewer and the MCP twin", async () => {
+  const w = await seedWorld();
+  const always = [w.hiddenRoot, w.underHidden, w.bannedRoot, w.bannedReply];
+  const side = { zzblocker: [w.blockedRoot, w.blockedReply], zzblocked: [w.blockerRoot, w.blockerReply] };
+  let refused = 0;
+  for (const member of [null, "viewer", "zzblocker", "zzblocked"]) {
+    const session = member ? forgeSession(w.db, w.id[member]) : undefined;
+    const forbidden = [...ALWAYS_FORBIDDEN, ...(SIDE_FORBIDDEN[member] || [])];
+    for (const postId of [...always, ...(side[member] || [])]) {
+      for (const path of ["/api/posts/" + postId, "/api/posts/" + postId + "/replies", "/api/posts/" + postId + "/edits"]) {
+        const res = await call(w.env, path, { session });
+        assert.ok([403, 404].includes(res.status), (member || "guest") + " " + path + " -> " + res.status);
+        assertClean(await res.text(), forbidden, (member || "guest") + " " + path);
+        refused++;
+      }
+      const head = await fetchText(w.env, "/posts/" + postId, { session });
+      assertClean(head.slice(0, head.indexOf("</head>")), forbidden, (member || "guest") + " head " + postId);
+      assertClean(await mcpText(w.env, "get_post", { id: postId }, member ? TOKENS[member] : null, { refused: true }), forbidden,
+        (member || "guest") + " mcp get_post " + postId);
+      refused += 2;
+    }
+  }
+  assert.equal(refused, 4 * 4 * 5 + 2 * 2 * 5);
+});
+
+// L1 (wave 5.32): the thread head's JSON-LD reply count (api/seo.mjs) counted
+// block-paired replies — and sub-replies under them — for a signed-in member,
+// while the feed (viewer-aware rollup) hides them. The head must say what the
+// feed says, for every viewer kind.
+test("L1 head count: the JSON-LD reply count matches the viewer's feed count, block pairs included", async () => {
+  const w = await seedWorld();
+  for (const member of [null, "viewer", "zzblocker", "zzblocked"]) {
+    const session = member ? forgeSession(w.db, w.id[member]) : undefined;
+    const feed = JSON.parse(await fetchText(w.env, "/api/posts?sort=new", { session })).posts;
+    const row = feed.find((post) => post.id === w.publicRoot);
+    assert.ok(row, "public root in the feed");
+    const html = await fetchText(w.env, "/posts/" + w.publicRoot, { session });
+    const counted = Number(html.match(/"userInteractionCount":(\d+)/)[1]);
+    assert.equal(counted, row.replyCount, (member || "guest") + " head count matches the feed");
+  }
 });
