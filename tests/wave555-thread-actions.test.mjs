@@ -239,8 +239,12 @@ test("every control stays reachable by its accessible name (nothing removed)", (
     for (const action of ["reaction", "toggle-bookmark", "toggle-subscribe", "toggle-thread-mute", "report",
       "edit-post", "delete-post", "thread-pin", "thread-unpin", "thread-lock", "thread-unlock", "staff-pick",
       "suggestion-status"]) {
-      const was = createPostCard(post, doc, viewer).querySelectorAll(`[data-action=${action}]`).length;
-      assert.equal(card.querySelectorAll(`[data-action=${action}]`).length, was, `${label} ${action}`);
+      // v5.57: counted by dataset; the fake DOM's [data-action=...] selector
+      // never sees dataset writes, so the old query compared 0 with 0.
+      const withAction = (root) => Array.from(root.querySelectorAll("button"))
+        .filter((node) => node.dataset.action === action).length;
+      const was = withAction(createPostCard(post, doc, viewer));
+      assert.equal(withAction(card), was, `${label} ${action}`);
     }
   }
 });

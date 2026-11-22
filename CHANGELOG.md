@@ -15,6 +15,23 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.57.0] - 2026-11-22
+
+### Security
+- Security review of v5.53-v5.56 (the slow-mode, diff, control-character
+  and lock fixes, the tidier thread page and the settings hub):
+  [docs/security-reviews/2026-11-22-v5.53-v5.56.md](docs/security-reviews/2026-11-22-v5.53-v5.56.md).
+  No critical, high or medium findings, so nothing in the forum's behaviour
+  changes in this release. The four fixes from v5.54 are confirmed. The
+  thread page's new menus show staff tools only to staff and lose no
+  control, and the settings page shows only your own settings. Four low
+  findings are recorded: a reply refused by slow mode in a race can still
+  move its thread up the feed; the settings page's headings are all at one
+  level for screen readers; using a control inside More closes the menu and
+  moves keyboard focus away; and one of the v5.55 tests could not fail
+  (fixed in this release, tests only). The owner items from earlier
+  reviews are unchanged.
+
 ## [5.56.0] - 2026-11-22
 
 ### Changed
