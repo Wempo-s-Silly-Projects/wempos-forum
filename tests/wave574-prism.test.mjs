@@ -349,7 +349,8 @@ test("the line-number gutter uses logical properties (RTL-safe)", () => {
 test("CSP is unchanged: same script origins, style-src 'self', nothing inline", () => {
   const csp = secureResponse(new Response("x")).headers.get("Content-Security-Policy");
   const scriptSrc = (csp.match(/script-src ([^;]+);/) ?? [])[1].split(/\s+/);
-  assert.deepEqual(scriptSrc, ["'self'", "https://challenges.cloudflare.com", "https://cdnjs.cloudflare.com"]);
+  // v5.73.1 scoped cdnjs to the polyfill path; Prism must not widen it again.
+  assert.deepEqual(scriptSrc, ["'self'", "https://challenges.cloudflare.com", "https://cdnjs.cloudflare.com/polyfill/"]);
   assert.match(csp, /style-src 'self';/);
   assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval|font-src/);
 });
