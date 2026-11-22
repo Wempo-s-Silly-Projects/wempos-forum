@@ -35,6 +35,7 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { isValidUsername } from "./core/shapers.mjs";
 import { SEARCH_IN_SCOPES, SEARCH_QUERY_MAX_CHARS } from "./search.mjs";
+import { isRefusedChar } from "./thread-summaries.mjs";
 import { SAVED_SEARCH_NAME_MAX_CHARS, SAVED_SEARCHES_MAX } from "../constants.mjs";
 
 const LIST_PATH = "/api/me/saved-searches";
@@ -67,9 +68,13 @@ const shape = (row) => ({
   createdAt: isoOf(row.created_at),
 });
 
+// v5.54 (L1): a NUL trips the table CHECKs (SQLite's length() stops at it);
+// names and queries are one line, so every control character is a 400.
+const hasRefusedChar = (text) => [...text].some((ch) => isRefusedChar(ch.codePointAt(0)));
+
 function savedName(value) {
   const name = typeof value === "string" ? value.trim() : "";
-  if (!name) throw new HttpError(400, "Give the saved search a name.");
+  if (!name || hasRefusedChar(name)) throw new HttpError(400, "Give the saved search a name.");
   if (name.length > SAVED_SEARCH_NAME_MAX_CHARS) {
     throw new HttpError(400, "Names can be up to " + SAVED_SEARCH_NAME_MAX_CHARS + " characters.");
   }
@@ -81,7 +86,7 @@ function savedName(value) {
 // text is stored as typed.
 function savedQuery(value) {
   const q = typeof value === "string" ? value.trim() : "";
-  if (!q || q.toLowerCase().length > SEARCH_QUERY_MAX_CHARS) {
+  if (!q || q.toLowerCase().length > SEARCH_QUERY_MAX_CHARS || hasRefusedChar(q)) {
     throw new HttpError(400, "Search must be 1–" + SEARCH_QUERY_MAX_CHARS + " characters long.");
   }
   return q;
