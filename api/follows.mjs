@@ -40,7 +40,7 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit } from "./core/http.mjs";
 import { userByUsernameKey } from "./core/shapers.mjs";
 import { ACTIVE_BAN_SQL } from "./core/visibility.mjs";
-import { mutedKindSql } from "./notifications.mjs";
+import { mutedKindSql, mutedThreadSql } from "./notifications.mjs";
 
 export const FOLLOW_FANOUT_CAP = 500;
 export const FOLLOWING_MAX = 200;
@@ -71,7 +71,10 @@ const FANOUT_INSERT_SQL =
   "SELECT e.follower_id, p.id, p.id, ?, ? FROM posts p JOIN (" + ELIGIBLE_FOLLOWERS_SQL +
   ") e WHERE p.id = ? AND p.author_id = ? AND p.parent_id IS NULL AND p.visibility = 'public' " +
   "AND NOT " + ACTIVE_BAN_SQL("p.author_id") +
-  " AND NOT EXISTS (SELECT 1 FROM notifications n WHERE n.user_id = e.follower_id AND n.reply_id = p.id)";
+  " AND NOT EXISTS (SELECT 1 FROM notifications n WHERE n.user_id = e.follower_id AND n.reply_id = p.id)" +
+  // v5.46.0: a follower who muted this thread (migration 0071) is skipped;
+  // the predicate keys on columns, so the binds stay at 5.
+  " AND NOT " + mutedThreadSql("e.follower_id", "p.id");
 
 // Keeps each notified follower's bell at its 50-row cap (the per-recipient
 // prune every other fan-out runs, as one correlated statement). Binds (1).

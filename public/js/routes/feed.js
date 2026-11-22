@@ -652,6 +652,16 @@ export const ACTIONS = {
     await state.renderRoute(state.activeRoute);
     setMessage(subscribed ? t("feed.unsubscribed") : t("feed.subscribed"));
   },
+  // Mute a thread (v5.46.0): idempotent both ways server-side; the re-render
+  // refetches viewerMuted rather than trusting the click.
+  "toggle-thread-mute": async (button) => {
+    const muted = button.dataset.muted === "1";
+    await api("/api/posts/" + button.dataset.postId + "/mute", {
+      method: muted ? "DELETE" : "PUT",
+    });
+    await state.renderRoute(state.activeRoute);
+    setMessage(muted ? t("feed.threadUnmuted") : t("feed.threadMuted"));
+  },
   // Suggestion status (v3.1): staff flip resolved/declined/open; the
   // route re-render refetches the payload so the chip and buttons come
   // back from the server, never from the echo.
