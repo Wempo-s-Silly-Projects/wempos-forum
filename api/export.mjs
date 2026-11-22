@@ -33,6 +33,8 @@
 //   member's text — so the visibility law has nothing to filter here.
 // - Blocks carry only the caller's OWN direction; who blocked the caller is
 //   the other member's record.
+// - Private notes (v5.47): only notes the caller WROTE (subject username,
+//   body, time). Notes other members keep about the caller are theirs.
 // - Direct messages: only messages the caller AUTHORED (1:1 and group), with
 //   the conversation's other username / group name for context. Replies
 //   written by others belong to them and stay out.
@@ -115,6 +117,10 @@ const SECTION_READERS = {
   dmReactions: (db, id, cap) => rowsCapped(db,
     "SELECT message_id, emoji, created_at FROM dm_message_reactions WHERE user_id = ? " +
     "ORDER BY created_at DESC, message_id DESC", [id], cap),
+  // v5.47: the caller's OWN private notes (migration 0072), owner-keyed.
+  privateNotes: (db, id, cap) => rowsCapped(db,
+    "SELECT u.username AS subject, n.body, n.updated_at FROM private_notes n JOIN users u ON u.id = n.subject_id " +
+    "WHERE n.owner_id = ? ORDER BY n.updated_at DESC, n.subject_id DESC", [id], cap),
 };
 
 // Both DM stores, caller-authored rows only, merged newest first under one cap.
@@ -162,6 +168,7 @@ const SECTION_SHAPERS = {
     sentAt: isoOrNull(row.created_at),
   }),
   dmReactions: (row) => ({ messageId: Number(row.message_id), value: row.emoji, reactedAt: isoOrNull(row.created_at) }),
+  privateNotes: (row) => ({ subject: row.subject, body: row.body, updatedAt: isoOrNull(row.updated_at) }),
 };
 
 export async function buildExport(env, userId) {

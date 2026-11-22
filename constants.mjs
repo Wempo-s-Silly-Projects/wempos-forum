@@ -140,6 +140,12 @@ export const DM_GROUP_LIST_LIMIT = 50;
 // it; a typed text body of this shape is refused.
 export const DM_IMAGE_TOKEN_PATTERN = /^\[img:[0-9a-f-]{36}\]$/;
 
+// v5.47 private notes about members (migration 0072): one note per
+// (owner, subject), at most PRIVATE_NOTE_MAX_CHARS characters (the table's
+// CHECK matches), at most PRIVATE_NOTES_MAX subjects per owner.
+export const PRIVATE_NOTE_MAX_CHARS = 280;
+export const PRIVATE_NOTES_MAX = 1000;
+
 // v4.23 Download my data (GET /api/me/export): the most rows each section of
 // the caller's own export carries, newest first. A section that hit its cap
 // is flagged in the export's `truncated` map so the file never silently
@@ -153,4 +159,6 @@ export const EXPORT_SECTION_CAPS = Object.freeze({
   directMessages: 2000,
   // v5.44: the caller's own reactions on 1:1 DM messages (ids + value only).
   dmReactions: 2000,
+  // v5.47: the caller's OWN private notes (subject username, body, time).
+  privateNotes: PRIVATE_NOTES_MAX,
 });
