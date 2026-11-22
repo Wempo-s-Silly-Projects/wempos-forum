@@ -1235,5 +1235,15 @@
   "desk.health.poor": "ضعيف",
   "desk.health.noData": "لا توجد بيانات",
   "desk.health.empty": "لا توجد قياسات بعد.",
-  "settings.vitalsNote": "لمعرفة سرعة الموقع، قد يرسل متصفحك قياسات سرعة مجهولة الهوية: نوع الصفحة (وليس عنوانها أبدًا) وبعض التوقيتات. لا شيء يحدد هويتك، ولا يُحفظ سوى المجاميع اليومية لمدة 90 يومًا. يُعطّل Do Not Track أو Global Privacy Control ذلك."
+  "settings.vitalsNote": "لمعرفة سرعة الموقع، قد يرسل متصفحك قياسات سرعة مجهولة الهوية: نوع الصفحة (وليس عنوانها أبدًا) وبعض التوقيتات. لا شيء يحدد هويتك، ولا يُحفظ سوى المجاميع اليومية لمدة 90 يومًا. يُعطّل Do Not Track أو Global Privacy Control ذلك.",
+  "quotecard.action": "بطاقة اقتباس",
+  "quotecard.actionLabel": "إنشاء بطاقة اقتباس من {name}",
+  "quotecard.title": "بطاقة اقتباس",
+  "quotecard.preparing": "جارٍ رسم البطاقة…",
+  "quotecard.download": "تنزيل PNG",
+  "quotecard.copy": "نسخ الصورة",
+  "quotecard.copied": "تم نسخ الصورة.",
+  "quotecard.copyFailed": "تعذّر نسخ الصورة.",
+  "quotecard.failed": "تعذّر إنشاء الصورة.",
+  "quotecard.lightTheme": "بطاقة فاتحة"
 }

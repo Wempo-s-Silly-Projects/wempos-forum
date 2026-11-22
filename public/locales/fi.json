@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Heikko",
   "desk.health.noData": "Ei tietoja",
   "desk.health.empty": "Ei vielä mittauksia.",
-  "settings.vitalsNote": "Jotta nähdään, kuinka nopea sivusto on, selaimesi voi lähettää nimettömiä nopeusmittauksia: sivun tyypin (ei koskaan sen osoitetta) ja muutamia aikoja. Mikään ei tunnista sinua, ja vain päivittäiset summat tallennetaan 90 päivän ajan. Do Not Track tai Global Privacy Control kytkee tämän pois."
+  "settings.vitalsNote": "Jotta nähdään, kuinka nopea sivusto on, selaimesi voi lähettää nimettömiä nopeusmittauksia: sivun tyypin (ei koskaan sen osoitetta) ja muutamia aikoja. Mikään ei tunnista sinua, ja vain päivittäiset summat tallennetaan 90 päivän ajan. Do Not Track tai Global Privacy Control kytkee tämän pois.",
+  "quotecard.action": "Lainauskortti",
+  "quotecard.actionLabel": "Tee lainauskortti käyttäjältä {name}",
+  "quotecard.title": "Lainauskortti",
+  "quotecard.preparing": "Piirretään korttia…",
+  "quotecard.download": "Lataa PNG",
+  "quotecard.copy": "Kopioi kuva",
+  "quotecard.copied": "Kuva kopioitu.",
+  "quotecard.copyFailed": "Kuvaa ei voitu kopioida.",
+  "quotecard.failed": "Kuvaa ei voitu tehdä.",
+  "quotecard.lightTheme": "Vaalea kortti"
 }

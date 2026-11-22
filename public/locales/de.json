@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Schlecht",
   "desk.health.noData": "Keine Daten",
   "desk.health.empty": "Noch keine Messungen.",
-  "settings.vitalsNote": "Damit sichtbar wird, wie schnell die Website ist, kann dein Browser anonyme Geschwindigkeitsmessungen senden: den Seitentyp (nie die Adresse) und einige Zeitwerte. Nichts davon identifiziert dich, und gespeichert werden nur Tagessummen, 90 Tage lang. Do Not Track oder Global Privacy Control schaltet das ab."
+  "settings.vitalsNote": "Damit sichtbar wird, wie schnell die Website ist, kann dein Browser anonyme Geschwindigkeitsmessungen senden: den Seitentyp (nie die Adresse) und einige Zeitwerte. Nichts davon identifiziert dich, und gespeichert werden nur Tagessummen, 90 Tage lang. Do Not Track oder Global Privacy Control schaltet das ab.",
+  "quotecard.action": "Zitatkarte",
+  "quotecard.actionLabel": "Zitatkarte von {name} erstellen",
+  "quotecard.title": "Zitatkarte",
+  "quotecard.preparing": "Karte wird gezeichnet…",
+  "quotecard.download": "PNG herunterladen",
+  "quotecard.copy": "Bild kopieren",
+  "quotecard.copied": "Bild kopiert.",
+  "quotecard.copyFailed": "Das Bild konnte nicht kopiert werden.",
+  "quotecard.failed": "Das Bild konnte nicht erstellt werden.",
+  "quotecard.lightTheme": "Helle Karte"
 }

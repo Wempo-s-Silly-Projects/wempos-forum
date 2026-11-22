@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Txarra",
   "desk.health.noData": "Daturik ez",
   "desk.health.empty": "Oraindik ez dago neurketarik.",
-  "settings.vitalsNote": "Gunea zein azkarra den jakiteko, zure nabigatzaileak abiadura-neurketa anonimoak bidal ditzake: orri mota (inoiz ez haren helbidea) eta denbora batzuk. Ezerk ez zaitu identifikatzen, eta eguneko guztizkoak bakarrik gordetzen dira, 90 egunez. Do Not Track edo Global Privacy Control aukerak hau desaktibatzen du."
+  "settings.vitalsNote": "Gunea zein azkarra den jakiteko, zure nabigatzaileak abiadura-neurketa anonimoak bidal ditzake: orri mota (inoiz ez haren helbidea) eta denbora batzuk. Ezerk ez zaitu identifikatzen, eta eguneko guztizkoak bakarrik gordetzen dira, 90 egunez. Do Not Track edo Global Privacy Control aukerak hau desaktibatzen du.",
+  "quotecard.action": "Aipu-txartela",
+  "quotecard.actionLabel": "Sortu {name}(r)en aipu-txartela",
+  "quotecard.title": "Aipu-txartela",
+  "quotecard.preparing": "Txartela marrazten…",
+  "quotecard.download": "Deskargatu PNG",
+  "quotecard.copy": "Kopiatu irudia",
+  "quotecard.copied": "Irudia kopiatu da.",
+  "quotecard.copyFailed": "Ezin izan da irudia kopiatu.",
+  "quotecard.failed": "Ezin izan da irudia sortu.",
+  "quotecard.lightTheme": "Txartel argia"
 }

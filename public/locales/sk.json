@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Slabé",
   "desk.health.noData": "Žiadne údaje",
   "desk.health.empty": "Zatiaľ žiadne merania.",
-  "settings.vitalsNote": "Aby bolo vidieť, aký rýchly je web, tvoj prehliadač môže odosielať anonymné merania rýchlosti: typ stránky (nikdy jej adresu) a niekoľko časov. Nič ťa neidentifikuje a uchovávajú sa iba denné súčty, 90 dní. Do Not Track alebo Global Privacy Control to vypína."
+  "settings.vitalsNote": "Aby bolo vidieť, aký rýchly je web, tvoj prehliadač môže odosielať anonymné merania rýchlosti: typ stránky (nikdy jej adresu) a niekoľko časov. Nič ťa neidentifikuje a uchovávajú sa iba denné súčty, 90 dní. Do Not Track alebo Global Privacy Control to vypína.",
+  "quotecard.action": "Kartička s citátom",
+  "quotecard.actionLabel": "Vytvoriť kartičku s citátom od {name}",
+  "quotecard.title": "Kartička s citátom",
+  "quotecard.preparing": "Kreslím kartičku…",
+  "quotecard.download": "Stiahnuť PNG",
+  "quotecard.copy": "Kopírovať obrázok",
+  "quotecard.copied": "Obrázok skopírovaný.",
+  "quotecard.copyFailed": "Obrázok sa nepodarilo skopírovať.",
+  "quotecard.failed": "Obrázok sa nepodarilo vytvoriť.",
+  "quotecard.lightTheme": "Svetlá kartička"
 }

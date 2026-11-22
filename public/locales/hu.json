@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Gyenge",
   "desk.health.noData": "Nincs adat",
   "desk.health.empty": "Még nincsenek mérések.",
-  "settings.vitalsNote": "Hogy látható legyen, milyen gyors az oldal, a böngésződ névtelen sebességméréseket küldhet: az oldal típusát (soha nem a címét) és néhány időadatot. Semmi sem azonosít téged, és csak napi összesítéseket tárolunk, 90 napig. A Do Not Track vagy a Global Privacy Control ezt kikapcsolja."
+  "settings.vitalsNote": "Hogy látható legyen, milyen gyors az oldal, a böngésződ névtelen sebességméréseket küldhet: az oldal típusát (soha nem a címét) és néhány időadatot. Semmi sem azonosít téged, és csak napi összesítéseket tárolunk, 90 napig. A Do Not Track vagy a Global Privacy Control ezt kikapcsolja.",
+  "quotecard.action": "Idézetkártya",
+  "quotecard.actionLabel": "Idézetkártya készítése {name} szavaiból",
+  "quotecard.title": "Idézetkártya",
+  "quotecard.preparing": "A kártya rajzolása…",
+  "quotecard.download": "PNG letöltése",
+  "quotecard.copy": "Kép másolása",
+  "quotecard.copied": "Kép másolva.",
+  "quotecard.copyFailed": "Nem sikerült másolni a képet.",
+  "quotecard.failed": "Nem sikerült elkészíteni a képet.",
+  "quotecard.lightTheme": "Világos kártya"
 }

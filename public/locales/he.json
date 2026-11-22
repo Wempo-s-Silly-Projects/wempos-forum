@@ -1235,5 +1235,15 @@
   "desk.health.poor": "גרוע",
   "desk.health.noData": "אין נתונים",
   "desk.health.empty": "אין מדידות עדיין.",
-  "settings.vitalsNote": "כדי לראות כמה מהיר האתר, הדפדפן שלך עשוי לשלוח מדידות מהירות אנונימיות: סוג הדף (לעולם לא הכתובת שלו) וכמה זמנים. שום דבר לא מזהה אותך, ונשמרים רק סיכומים יומיים, למשך 90 יום. Do Not Track או Global Privacy Control מכבים זאת."
+  "settings.vitalsNote": "כדי לראות כמה מהיר האתר, הדפדפן שלך עשוי לשלוח מדידות מהירות אנונימיות: סוג הדף (לעולם לא הכתובת שלו) וכמה זמנים. שום דבר לא מזהה אותך, ונשמרים רק סיכומים יומיים, למשך 90 יום. Do Not Track או Global Privacy Control מכבים זאת.",
+  "quotecard.action": "כרטיס ציטוט",
+  "quotecard.actionLabel": "יצירת כרטיס ציטוט מ־{name}",
+  "quotecard.title": "כרטיס ציטוט",
+  "quotecard.preparing": "מצייר את הכרטיס…",
+  "quotecard.download": "הורדת PNG",
+  "quotecard.copy": "העתקת התמונה",
+  "quotecard.copied": "התמונה הועתקה.",
+  "quotecard.copyFailed": "לא ניתן היה להעתיק את התמונה.",
+  "quotecard.failed": "לא ניתן היה ליצור את התמונה.",
+  "quotecard.lightTheme": "כרטיס בהיר"
 }

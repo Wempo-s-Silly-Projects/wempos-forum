@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Kém",
   "desk.health.noData": "Không có dữ liệu",
   "desk.health.empty": "Chưa có phép đo nào.",
-  "settings.vitalsNote": "Để biết trang chạy nhanh đến đâu, trình duyệt của bạn có thể gửi các số đo tốc độ ẩn danh: loại trang (không bao giờ gửi địa chỉ) và một vài mốc thời gian. Không có gì nhận dạng bạn, và chỉ tổng số theo ngày được lưu, trong 90 ngày. Do Not Track hoặc Global Privacy Control sẽ tắt tính năng này."
+  "settings.vitalsNote": "Để biết trang chạy nhanh đến đâu, trình duyệt của bạn có thể gửi các số đo tốc độ ẩn danh: loại trang (không bao giờ gửi địa chỉ) và một vài mốc thời gian. Không có gì nhận dạng bạn, và chỉ tổng số theo ngày được lưu, trong 90 ngày. Do Not Track hoặc Global Privacy Control sẽ tắt tính năng này.",
+  "quotecard.action": "Thẻ trích dẫn",
+  "quotecard.actionLabel": "Tạo thẻ trích dẫn từ {name}",
+  "quotecard.title": "Thẻ trích dẫn",
+  "quotecard.preparing": "Đang vẽ thẻ…",
+  "quotecard.download": "Tải xuống PNG",
+  "quotecard.copy": "Sao chép ảnh",
+  "quotecard.copied": "Đã sao chép ảnh.",
+  "quotecard.copyFailed": "Không thể sao chép ảnh.",
+  "quotecard.failed": "Không thể tạo ảnh.",
+  "quotecard.lightTheme": "Thẻ sáng"
 }

@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Deficient",
   "desk.health.noData": "Sense dades",
   "desk.health.empty": "Encara no hi ha mesures.",
-  "settings.vitalsNote": "Per saber com de ràpid va el lloc, el teu navegador pot enviar mesures de velocitat anònimes: el tipus de pàgina (mai la seva adreça) i alguns temps. Res no t'identifica, i només es guarden totals diaris, durant 90 dies. Do Not Track o Global Privacy Control ho desactiven."
+  "settings.vitalsNote": "Per saber com de ràpid va el lloc, el teu navegador pot enviar mesures de velocitat anònimes: el tipus de pàgina (mai la seva adreça) i alguns temps. Res no t'identifica, i només es guarden totals diaris, durant 90 dies. Do Not Track o Global Privacy Control ho desactiven.",
+  "quotecard.action": "Targeta de cita",
+  "quotecard.actionLabel": "Fes una targeta de cita de {name}",
+  "quotecard.title": "Targeta de cita",
+  "quotecard.preparing": "S'està dibuixant la targeta…",
+  "quotecard.download": "Baixa el PNG",
+  "quotecard.copy": "Copia la imatge",
+  "quotecard.copied": "Imatge copiada.",
+  "quotecard.copyFailed": "No s'ha pogut copiar la imatge.",
+  "quotecard.failed": "No s'ha pogut crear la imatge.",
+  "quotecard.lightTheme": "Targeta clara"
 }

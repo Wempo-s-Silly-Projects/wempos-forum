@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Lemah",
   "desk.health.noData": "Tiada data",
   "desk.health.empty": "Belum ada ukuran.",
-  "settings.vitalsNote": "Untuk melihat sepantas mana laman ini, pelayar anda mungkin menghantar ukuran kelajuan tanpa nama: jenis halaman (tidak sekali-kali alamatnya) dan beberapa catatan masa. Tiada apa-apa yang mengenal pasti anda, dan hanya jumlah harian disimpan, selama 90 hari. Do Not Track atau Global Privacy Control mematikan ini."
+  "settings.vitalsNote": "Untuk melihat sepantas mana laman ini, pelayar anda mungkin menghantar ukuran kelajuan tanpa nama: jenis halaman (tidak sekali-kali alamatnya) dan beberapa catatan masa. Tiada apa-apa yang mengenal pasti anda, dan hanya jumlah harian disimpan, selama 90 hari. Do Not Track atau Global Privacy Control mematikan ini.",
+  "quotecard.action": "Kad petikan",
+  "quotecard.actionLabel": "Buat kad petikan daripada {name}",
+  "quotecard.title": "Kad petikan",
+  "quotecard.preparing": "Melukis kad…",
+  "quotecard.download": "Muat turun PNG",
+  "quotecard.copy": "Salin imej",
+  "quotecard.copied": "Imej disalin.",
+  "quotecard.copyFailed": "Tidak dapat menyalin imej.",
+  "quotecard.failed": "Tidak dapat membuat imej.",
+  "quotecard.lightTheme": "Kad cerah"
 }

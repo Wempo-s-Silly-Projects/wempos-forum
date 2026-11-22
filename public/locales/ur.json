@@ -1235,5 +1235,15 @@
   "desk.health.poor": "کمزور",
   "desk.health.noData": "کوئی ڈیٹا نہیں",
   "desk.health.empty": "ابھی کوئی پیمائش نہیں۔",
-  "settings.vitalsNote": "سائٹ کی رفتار جاننے کے لیے آپ کا براؤزر گمنام رفتار کی پیمائشیں بھیج سکتا ہے: صفحے کی قسم (کبھی اس کا پتہ نہیں) اور چند اوقات۔ کچھ بھی آپ کی شناخت نہیں کرتا، اور صرف روزانہ کے مجموعے 90 دن تک رکھے جاتے ہیں۔ Do Not Track یا Global Privacy Control اسے بند کر دیتا ہے۔"
+  "settings.vitalsNote": "سائٹ کی رفتار جاننے کے لیے آپ کا براؤزر گمنام رفتار کی پیمائشیں بھیج سکتا ہے: صفحے کی قسم (کبھی اس کا پتہ نہیں) اور چند اوقات۔ کچھ بھی آپ کی شناخت نہیں کرتا، اور صرف روزانہ کے مجموعے 90 دن تک رکھے جاتے ہیں۔ Do Not Track یا Global Privacy Control اسے بند کر دیتا ہے۔",
+  "quotecard.action": "اقتباس کارڈ",
+  "quotecard.actionLabel": "{name} سے اقتباس کارڈ بنائیں",
+  "quotecard.title": "اقتباس کارڈ",
+  "quotecard.preparing": "کارڈ بنایا جا رہا ہے…",
+  "quotecard.download": "PNG ڈاؤن لوڈ کریں",
+  "quotecard.copy": "تصویر کاپی کریں",
+  "quotecard.copied": "تصویر کاپی ہو گئی۔",
+  "quotecard.copyFailed": "تصویر کاپی نہیں ہو سکی۔",
+  "quotecard.failed": "تصویر نہیں بن سکی۔",
+  "quotecard.lightTheme": "ہلکا کارڈ"
 }

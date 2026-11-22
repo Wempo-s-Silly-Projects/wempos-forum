@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Jan wali",
   "desk.health.noData": "Janiw yatiyawix utjkiti",
   "desk.health.empty": "Janïr kuna tupuyawis utjkiti.",
-  "settings.vitalsNote": "Sitiox kunjam jank'akis uñjañataki, browser-amax jan khitis uñt'ayir jank'a tupuyawinak apayaspa: laphi kasta (janipuniw direcciónapa) ukat mä qawqha pacha tupunaka. Janiw kunas jumar uñt'aykiti, sapa uru taqpach jakhünakakiw 90 urunak imasi. Do Not Track jan ukax Global Privacy Control ukax ukx sayt'ayi."
+  "settings.vitalsNote": "Sitiox kunjam jank'akis uñjañataki, browser-amax jan khitis uñt'ayir jank'a tupuyawinak apayaspa: laphi kasta (janipuniw direcciónapa) ukat mä qawqha pacha tupunaka. Janiw kunas jumar uñt'aykiti, sapa uru taqpach jakhünakakiw 90 urunak imasi. Do Not Track jan ukax Global Privacy Control ukax ukx sayt'ayi.",
+  "quotecard.action": "Arsut tarjeta",
+  "quotecard.actionLabel": "{name} ukan arsupat tarjeta luraña",
+  "quotecard.title": "Arsut tarjeta",
+  "quotecard.preparing": "Tarjeta dibujaski…",
+  "quotecard.download": "PNG apsuña",
+  "quotecard.copy": "Jamuqa qillqantaña",
+  "quotecard.copied": "Jamuqax qillqantatawa.",
+  "quotecard.copyFailed": "Jamuqax janiw qillqantañjamäkänti.",
+  "quotecard.failed": "Jamuqax janiw lurañjamäkänti.",
+  "quotecard.lightTheme": "Qhana tarjeta"
 }

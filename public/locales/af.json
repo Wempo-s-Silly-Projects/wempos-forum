@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Swak",
   "desk.health.noData": "Geen data nie",
   "desk.health.empty": "Nog geen metings nie.",
-  "settings.vitalsNote": "Om te sien hoe vinnig die werf is, kan jou blaaier anonieme spoedmetings stuur: die soort bladsy (nooit die adres nie) en 'n paar tye. Niks identifiseer jou nie, en net daaglikse totale word gehou, vir 90 dae. Do Not Track of Global Privacy Control skakel dit af."
+  "settings.vitalsNote": "Om te sien hoe vinnig die werf is, kan jou blaaier anonieme spoedmetings stuur: die soort bladsy (nooit die adres nie) en 'n paar tye. Niks identifiseer jou nie, en net daaglikse totale word gehou, vir 90 dae. Do Not Track of Global Privacy Control skakel dit af.",
+  "quotecard.action": "Aanhalingskaart",
+  "quotecard.actionLabel": "Maak 'n aanhalingskaart van {name}",
+  "quotecard.title": "Aanhalingskaart",
+  "quotecard.preparing": "Teken die kaart…",
+  "quotecard.download": "Laai PNG af",
+  "quotecard.copy": "Kopieer prent",
+  "quotecard.copied": "Prent gekopieer.",
+  "quotecard.copyFailed": "Kon nie die prent kopieer nie.",
+  "quotecard.failed": "Kon nie die prent maak nie.",
+  "quotecard.lightTheme": "Ligte kaart"
 }

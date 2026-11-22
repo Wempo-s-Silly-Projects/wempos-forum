@@ -1235,5 +1235,15 @@
   "desk.health.poor": "不良",
   "desk.health.noData": "データなし",
   "desk.health.empty": "まだ計測データがありません。",
-  "settings.vitalsNote": "サイトの速さを把握するため、ブラウザから匿名の速度計測が送信されることがあります：ページの種類（アドレスは決して送信しません）といくつかの所要時間です。あなたを特定する情報はなく、保存するのは日ごとの合計だけで、期間は 90 日です。Do Not Track または Global Privacy Control を有効にすると送信されません。"
+  "settings.vitalsNote": "サイトの速さを把握するため、ブラウザから匿名の速度計測が送信されることがあります：ページの種類（アドレスは決して送信しません）といくつかの所要時間です。あなたを特定する情報はなく、保存するのは日ごとの合計だけで、期間は 90 日です。Do Not Track または Global Privacy Control を有効にすると送信されません。",
+  "quotecard.action": "引用カード",
+  "quotecard.actionLabel": "{name} の引用カードを作成",
+  "quotecard.title": "引用カード",
+  "quotecard.preparing": "カードを描画中…",
+  "quotecard.download": "PNG をダウンロード",
+  "quotecard.copy": "画像をコピー",
+  "quotecard.copied": "画像をコピーしました。",
+  "quotecard.copyFailed": "画像をコピーできませんでした。",
+  "quotecard.failed": "画像を作成できませんでした。",
+  "quotecard.lightTheme": "ライトカード"
 }

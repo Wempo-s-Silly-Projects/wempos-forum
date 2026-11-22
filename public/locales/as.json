@@ -1235,5 +1235,15 @@
   "desk.health.poor": "বেয়া",
   "desk.health.noData": "কোনো তথ্য নাই",
   "desk.health.empty": "এতিয়াও কোনো জোখ নাই।",
-  "settings.vitalsNote": "চাইটটো কিমান দ্ৰুত চাবলৈ আপোনাৰ ব্ৰাউজাৰে বেনামী গতিৰ জোখ পঠিয়াব পাৰে: পৃষ্ঠাৰ প্ৰকাৰ (কেতিয়াও ইয়াৰ ঠিকনা নহয়) আৰু কেইটামান সময়ৰ হিচাপ। একোৱেই আপোনাক চিনাক্ত নকৰে, আৰু কেৱল দৈনিক মুঠ সংখ্যা ৯০ দিনলৈ ৰখা হয়। Do Not Track বা Global Privacy Control-এ ইয়াক বন্ধ কৰে।"
+  "settings.vitalsNote": "চাইটটো কিমান দ্ৰুত চাবলৈ আপোনাৰ ব্ৰাউজাৰে বেনামী গতিৰ জোখ পঠিয়াব পাৰে: পৃষ্ঠাৰ প্ৰকাৰ (কেতিয়াও ইয়াৰ ঠিকনা নহয়) আৰু কেইটামান সময়ৰ হিচাপ। একোৱেই আপোনাক চিনাক্ত নকৰে, আৰু কেৱল দৈনিক মুঠ সংখ্যা ৯০ দিনলৈ ৰখা হয়। Do Not Track বা Global Privacy Control-এ ইয়াক বন্ধ কৰে।",
+  "quotecard.action": "উদ্ধৃতি কাৰ্ড",
+  "quotecard.actionLabel": "{name}ৰ পৰা উদ্ধৃতি কাৰ্ড বনাওক",
+  "quotecard.title": "উদ্ধৃতি কাৰ্ড",
+  "quotecard.preparing": "কাৰ্ডখন আঁকি আছে…",
+  "quotecard.download": "PNG ডাউনলোড কৰক",
+  "quotecard.copy": "ছবি কপি কৰক",
+  "quotecard.copied": "ছবি কপি কৰা হ'ল।",
+  "quotecard.copyFailed": "ছবি কপি কৰিব পৰা নগ'ল।",
+  "quotecard.failed": "ছবি বনাব পৰা নগ'ল।",
+  "quotecard.lightTheme": "পাতল কাৰ্ড"
 }

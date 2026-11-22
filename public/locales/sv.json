@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Dålig",
   "desk.health.noData": "Inga data",
   "desk.health.empty": "Inga mätningar än.",
-  "settings.vitalsNote": "För att se hur snabb webbplatsen är kan din webbläsare skicka anonyma hastighetsmätningar: sidtypen (aldrig dess adress) och några tider. Inget identifierar dig, och bara dagliga summor sparas, i 90 dagar. Do Not Track eller Global Privacy Control stänger av detta."
+  "settings.vitalsNote": "För att se hur snabb webbplatsen är kan din webbläsare skicka anonyma hastighetsmätningar: sidtypen (aldrig dess adress) och några tider. Inget identifierar dig, och bara dagliga summor sparas, i 90 dagar. Do Not Track eller Global Privacy Control stänger av detta.",
+  "quotecard.action": "Citatkort",
+  "quotecard.actionLabel": "Skapa ett citatkort från {name}",
+  "quotecard.title": "Citatkort",
+  "quotecard.preparing": "Ritar kortet…",
+  "quotecard.download": "Ladda ner PNG",
+  "quotecard.copy": "Kopiera bild",
+  "quotecard.copied": "Bilden kopierades.",
+  "quotecard.copyFailed": "Det gick inte att kopiera bilden.",
+  "quotecard.failed": "Det gick inte att skapa bilden.",
+  "quotecard.lightTheme": "Ljust kort"
 }

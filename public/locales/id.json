@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Buruk",
   "desk.health.noData": "Tidak ada data",
   "desk.health.empty": "Belum ada pengukuran.",
-  "settings.vitalsNote": "Untuk melihat seberapa cepat situs ini, peramban Anda dapat mengirim pengukuran kecepatan anonim: jenis halaman (tidak pernah alamatnya) dan beberapa catatan waktu. Tidak ada yang mengidentifikasi Anda, dan hanya total harian yang disimpan, selama 90 hari. Do Not Track atau Global Privacy Control mematikan ini."
+  "settings.vitalsNote": "Untuk melihat seberapa cepat situs ini, peramban Anda dapat mengirim pengukuran kecepatan anonim: jenis halaman (tidak pernah alamatnya) dan beberapa catatan waktu. Tidak ada yang mengidentifikasi Anda, dan hanya total harian yang disimpan, selama 90 hari. Do Not Track atau Global Privacy Control mematikan ini.",
+  "quotecard.action": "Kartu kutipan",
+  "quotecard.actionLabel": "Buat kartu kutipan dari {name}",
+  "quotecard.title": "Kartu kutipan",
+  "quotecard.preparing": "Menggambar kartu…",
+  "quotecard.download": "Unduh PNG",
+  "quotecard.copy": "Salin gambar",
+  "quotecard.copied": "Gambar disalin.",
+  "quotecard.copyFailed": "Tidak dapat menyalin gambar.",
+  "quotecard.failed": "Tidak dapat membuat gambar.",
+  "quotecard.lightTheme": "Kartu terang"
 }

@@ -1235,5 +1235,15 @@
   "desk.health.poor": "ደካማ",
   "desk.health.noData": "ምንም ውሂብ የለም",
   "desk.health.empty": "እስካሁን ምንም መለኪያ የለም።",
-  "settings.vitalsNote": "ጣቢያው ምን ያህል ፈጣን እንደሆነ ለማየት፣ አሳሽዎ ማንነትን የማይገልጹ የፍጥነት መለኪያዎችን ሊልክ ይችላል፦ የገጹን ዓይነት (አድራሻውን በፍጹም አይደለም) እና ጥቂት የጊዜ መለኪያዎች። እርስዎን የሚለይ ምንም ነገር የለም፣ ዕለታዊ ድምሮች ብቻ ለ90 ቀናት ይቀመጣሉ። Do Not Track ወይም Global Privacy Control ይህን ያጠፋል።"
+  "settings.vitalsNote": "ጣቢያው ምን ያህል ፈጣን እንደሆነ ለማየት፣ አሳሽዎ ማንነትን የማይገልጹ የፍጥነት መለኪያዎችን ሊልክ ይችላል፦ የገጹን ዓይነት (አድራሻውን በፍጹም አይደለም) እና ጥቂት የጊዜ መለኪያዎች። እርስዎን የሚለይ ምንም ነገር የለም፣ ዕለታዊ ድምሮች ብቻ ለ90 ቀናት ይቀመጣሉ። Do Not Track ወይም Global Privacy Control ይህን ያጠፋል።",
+  "quotecard.action": "የጥቅስ ካርድ",
+  "quotecard.actionLabel": "ከ{name} የጥቅስ ካርድ ፍጠር",
+  "quotecard.title": "የጥቅስ ካርድ",
+  "quotecard.preparing": "ካርዱን በመሳል ላይ…",
+  "quotecard.download": "PNG አውርድ",
+  "quotecard.copy": "ምስል ቅዳ",
+  "quotecard.copied": "ምስሉ ተቀድቷል።",
+  "quotecard.copyFailed": "ምስሉን መቅዳት አልተቻለም።",
+  "quotecard.failed": "ምስሉን መፍጠር አልተቻለም።",
+  "quotecard.lightTheme": "ቀላል ካርድ"
 }

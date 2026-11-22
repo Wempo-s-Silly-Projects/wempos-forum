@@ -1235,5 +1235,15 @@
   "desk.health.poor": "খারাপ",
   "desk.health.noData": "কোনো ডেটা নেই",
   "desk.health.empty": "এখনো কোনো পরিমাপ নেই।",
-  "settings.vitalsNote": "সাইট কত দ্রুত তা দেখতে আপনার ব্রাউজার বেনামে গতির পরিমাপ পাঠাতে পারে: পাতার ধরন (কখনো তার ঠিকানা নয়) ও কয়েকটি সময়ের হিসাব। কিছুই আপনাকে শনাক্ত করে না, এবং শুধু দৈনিক মোট ৯০ দিন রাখা হয়। Do Not Track বা Global Privacy Control এটি বন্ধ করে।"
+  "settings.vitalsNote": "সাইট কত দ্রুত তা দেখতে আপনার ব্রাউজার বেনামে গতির পরিমাপ পাঠাতে পারে: পাতার ধরন (কখনো তার ঠিকানা নয়) ও কয়েকটি সময়ের হিসাব। কিছুই আপনাকে শনাক্ত করে না, এবং শুধু দৈনিক মোট ৯০ দিন রাখা হয়। Do Not Track বা Global Privacy Control এটি বন্ধ করে।",
+  "quotecard.action": "উদ্ধৃতি কার্ড",
+  "quotecard.actionLabel": "{name}-এর উদ্ধৃতি কার্ড তৈরি করুন",
+  "quotecard.title": "উদ্ধৃতি কার্ড",
+  "quotecard.preparing": "কার্ড আঁকা হচ্ছে…",
+  "quotecard.download": "PNG ডাউনলোড করুন",
+  "quotecard.copy": "ছবি কপি করুন",
+  "quotecard.copied": "ছবি কপি হয়েছে।",
+  "quotecard.copyFailed": "ছবি কপি করা যায়নি।",
+  "quotecard.failed": "ছবি তৈরি করা যায়নি।",
+  "quotecard.lightTheme": "হালকা কার্ড"
 }

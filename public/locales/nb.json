@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Dårlig",
   "desk.health.noData": "Ingen data",
   "desk.health.empty": "Ingen målinger ennå.",
-  "settings.vitalsNote": "For å se hvor raskt nettstedet er, kan nettleseren din sende anonyme hastighetsmålinger: sidetypen (aldri adressen) og noen få tider. Ingenting identifiserer deg, og bare daglige totaler lagres, i 90 dager. Do Not Track eller Global Privacy Control slår dette av."
+  "settings.vitalsNote": "For å se hvor raskt nettstedet er, kan nettleseren din sende anonyme hastighetsmålinger: sidetypen (aldri adressen) og noen få tider. Ingenting identifiserer deg, og bare daglige totaler lagres, i 90 dager. Do Not Track eller Global Privacy Control slår dette av.",
+  "quotecard.action": "Sitatkort",
+  "quotecard.actionLabel": "Lag et sitatkort fra {name}",
+  "quotecard.title": "Sitatkort",
+  "quotecard.preparing": "Tegner kortet…",
+  "quotecard.download": "Last ned PNG",
+  "quotecard.copy": "Kopier bilde",
+  "quotecard.copied": "Bildet er kopiert.",
+  "quotecard.copyFailed": "Kunne ikke kopiere bildet.",
+  "quotecard.failed": "Kunne ikke lage bildet.",
+  "quotecard.lightTheme": "Lyst kort"
 }

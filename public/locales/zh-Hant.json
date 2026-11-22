@@ -1235,5 +1235,15 @@
   "desk.health.poor": "較差",
   "desk.health.noData": "無資料",
   "desk.health.empty": "尚無測量資料。",
-  "settings.vitalsNote": "為了解網站速度，你的瀏覽器可能會傳送匿名的速度測量：頁面類型（絕不包含其網址）和幾項耗時。這些資料無法識別你的身分，且僅保留每日彙總，保存 90 天。啟用 Do Not Track 或 Global Privacy Control 即可關閉此功能。"
+  "settings.vitalsNote": "為了解網站速度，你的瀏覽器可能會傳送匿名的速度測量：頁面類型（絕不包含其網址）和幾項耗時。這些資料無法識別你的身分，且僅保留每日彙總，保存 90 天。啟用 Do Not Track 或 Global Privacy Control 即可關閉此功能。",
+  "quotecard.action": "引用卡片",
+  "quotecard.actionLabel": "為 {name} 製作引用卡片",
+  "quotecard.title": "引用卡片",
+  "quotecard.preparing": "正在繪製卡片…",
+  "quotecard.download": "下載 PNG",
+  "quotecard.copy": "複製圖片",
+  "quotecard.copied": "圖片已複製。",
+  "quotecard.copyFailed": "無法複製圖片。",
+  "quotecard.failed": "無法產生圖片。",
+  "quotecard.lightTheme": "淺色卡片"
 }

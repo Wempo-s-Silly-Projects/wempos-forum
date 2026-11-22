@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Kötü",
   "desk.health.noData": "Veri yok",
   "desk.health.empty": "Henüz ölçüm yok.",
-  "settings.vitalsNote": "Sitenin ne kadar hızlı olduğunu görmek için tarayıcınız anonim hız ölçümleri gönderebilir: sayfanın türü (asla adresi değil) ve birkaç süre. Hiçbir şey sizi tanımlamaz ve yalnızca günlük toplamlar 90 gün saklanır. Do Not Track veya Global Privacy Control bunu kapatır."
+  "settings.vitalsNote": "Sitenin ne kadar hızlı olduğunu görmek için tarayıcınız anonim hız ölçümleri gönderebilir: sayfanın türü (asla adresi değil) ve birkaç süre. Hiçbir şey sizi tanımlamaz ve yalnızca günlük toplamlar 90 gün saklanır. Do Not Track veya Global Privacy Control bunu kapatır.",
+  "quotecard.action": "Alıntı kartı",
+  "quotecard.actionLabel": "{name} için alıntı kartı oluştur",
+  "quotecard.title": "Alıntı kartı",
+  "quotecard.preparing": "Kart çiziliyor…",
+  "quotecard.download": "PNG indir",
+  "quotecard.copy": "Görseli kopyala",
+  "quotecard.copied": "Görsel kopyalandı.",
+  "quotecard.copyFailed": "Görsel kopyalanamadı.",
+  "quotecard.failed": "Görsel oluşturulamadı.",
+  "quotecard.lightTheme": "Açık kart"
 }

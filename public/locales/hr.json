@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Loše",
   "desk.health.noData": "Nema podataka",
   "desk.health.empty": "Još nema mjerenja.",
-  "settings.vitalsNote": "Kako bi se vidjelo koliko je stranica brza, tvoj preglednik može slati anonimna mjerenja brzine: vrstu stranice (nikad njezinu adresu) i nekoliko vremena. Ništa te ne identificira, a čuvaju se samo dnevni zbrojevi, 90 dana. Do Not Track ili Global Privacy Control to isključuje."
+  "settings.vitalsNote": "Kako bi se vidjelo koliko je stranica brza, tvoj preglednik može slati anonimna mjerenja brzine: vrstu stranice (nikad njezinu adresu) i nekoliko vremena. Ništa te ne identificira, a čuvaju se samo dnevni zbrojevi, 90 dana. Do Not Track ili Global Privacy Control to isključuje.",
+  "quotecard.action": "Kartica s citatom",
+  "quotecard.actionLabel": "Izradi karticu s citatom od {name}",
+  "quotecard.title": "Kartica s citatom",
+  "quotecard.preparing": "Crtanje kartice…",
+  "quotecard.download": "Preuzmi PNG",
+  "quotecard.copy": "Kopiraj sliku",
+  "quotecard.copied": "Slika je kopirana.",
+  "quotecard.copyFailed": "Sliku nije moguće kopirati.",
+  "quotecard.failed": "Sliku nije moguće izraditi.",
+  "quotecard.lightTheme": "Svijetla kartica"
 }

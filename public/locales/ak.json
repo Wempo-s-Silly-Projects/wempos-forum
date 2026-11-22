@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Ɛnye",
   "desk.health.noData": "Data biara nni hɔ",
   "desk.health.empty": "Nsusuwii biara nni hɔ da.",
-  "settings.vitalsNote": "Sɛ wobɛhu sɛnea wɛbsaet no yɛ ntɛm a, wo browser betumi de ntɛmyɛ nsusuwii a ɛnkyerɛ wo amena: krataafa su (ɛnyɛ ne address da) ne bere nsusuwii kakra. Biribiara nkyerɛ wo, na dodow a ɛfa da biara ho nkutoo na wɔkora, nna 90. Do Not Track anaa Global Privacy Control dum eyi."
+  "settings.vitalsNote": "Sɛ wobɛhu sɛnea wɛbsaet no yɛ ntɛm a, wo browser betumi de ntɛmyɛ nsusuwii a ɛnkyerɛ wo amena: krataafa su (ɛnyɛ ne address da) ne bere nsusuwii kakra. Biribiara nkyerɛ wo, na dodow a ɛfa da biara ho nkutoo na wɔkora, nna 90. Do Not Track anaa Global Privacy Control dum eyi.",
+  "quotecard.action": "Kasa krataa",
+  "quotecard.actionLabel": "Yɛ {name} kasa krataa",
+  "quotecard.title": "Kasa krataa",
+  "quotecard.preparing": "Ɛreyɛ krataa no…",
+  "quotecard.download": "Twe PNG",
+  "quotecard.copy": "Kɔ mfonini no fa",
+  "quotecard.copied": "Wɔakɔ mfonini no afa.",
+  "quotecard.copyFailed": "Yɛantumi ankɔ mfonini no fa.",
+  "quotecard.failed": "Yɛantumi anyɛ mfonini no.",
+  "quotecard.lightTheme": "Krataa a ɛyɛ hann"
 }

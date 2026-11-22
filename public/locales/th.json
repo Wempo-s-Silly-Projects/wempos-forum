@@ -1235,5 +1235,15 @@
   "desk.health.poor": "แย่",
   "desk.health.noData": "ไม่มีข้อมูล",
   "desk.health.empty": "ยังไม่มีการวัด",
-  "settings.vitalsNote": "เพื่อดูว่าเว็บไซต์เร็วแค่ไหน เบราว์เซอร์ของคุณอาจส่งค่าวัดความเร็วแบบไม่ระบุตัวตน: ประเภทของหน้า (ไม่ส่งที่อยู่ของหน้าเลย) และค่าเวลาไม่กี่ค่า ไม่มีสิ่งใดระบุตัวคุณได้ และเก็บเฉพาะยอดรวมรายวันไว้ 90 วัน Do Not Track หรือ Global Privacy Control จะปิดการทำงานนี้"
+  "settings.vitalsNote": "เพื่อดูว่าเว็บไซต์เร็วแค่ไหน เบราว์เซอร์ของคุณอาจส่งค่าวัดความเร็วแบบไม่ระบุตัวตน: ประเภทของหน้า (ไม่ส่งที่อยู่ของหน้าเลย) และค่าเวลาไม่กี่ค่า ไม่มีสิ่งใดระบุตัวคุณได้ และเก็บเฉพาะยอดรวมรายวันไว้ 90 วัน Do Not Track หรือ Global Privacy Control จะปิดการทำงานนี้",
+  "quotecard.action": "การ์ดคำคม",
+  "quotecard.actionLabel": "สร้างการ์ดคำคมจาก {name}",
+  "quotecard.title": "การ์ดคำคม",
+  "quotecard.preparing": "กำลังวาดการ์ด…",
+  "quotecard.download": "ดาวน์โหลด PNG",
+  "quotecard.copy": "คัดลอกรูปภาพ",
+  "quotecard.copied": "คัดลอกรูปภาพแล้ว",
+  "quotecard.copyFailed": "คัดลอกรูปภาพไม่ได้",
+  "quotecard.failed": "สร้างรูปภาพไม่ได้",
+  "quotecard.lightTheme": "การ์ดสีอ่อน"
 }

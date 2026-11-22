@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Fall",
   "desk.health.noData": "Roadenn ebet",
   "desk.health.empty": "Muzuliadur ebet c'hoazh.",
-  "settings.vitalsNote": "Evit gouzout pegen buan eo al lec'hienn, da verdeer a c'hall kas muzuliadurioù tizh dizanv: seurt ar bajenn (biken he chomlec'h) hag un nebeud amzerioù. Netra n'az anavez, hag ar sammoù pemdeziek hepken a vez miret, e-pad 90 deiz. Do Not Track pe Global Privacy Control a lazh an dra-se."
+  "settings.vitalsNote": "Evit gouzout pegen buan eo al lec'hienn, da verdeer a c'hall kas muzuliadurioù tizh dizanv: seurt ar bajenn (biken he chomlec'h) hag un nebeud amzerioù. Netra n'az anavez, hag ar sammoù pemdeziek hepken a vez miret, e-pad 90 deiz. Do Not Track pe Global Privacy Control a lazh an dra-se.",
+  "quotecard.action": "Kartenn venegiñ",
+  "quotecard.actionLabel": "Ober ur gartenn venegiñ eus {name}",
+  "quotecard.title": "Kartenn venegiñ",
+  "quotecard.preparing": "O tresañ ar gartenn…",
+  "quotecard.download": "Pellgargañ PNG",
+  "quotecard.copy": "Eilañ ar skeudenn",
+  "quotecard.copied": "Skeudenn eilet.",
+  "quotecard.copyFailed": "N'eus ket bet gallet eilañ ar skeudenn.",
+  "quotecard.failed": "N'eus ket bet gallet ober ar skeudenn.",
+  "quotecard.lightTheme": "Kartenn sklaer"
 }

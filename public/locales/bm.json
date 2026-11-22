@@ -1235,5 +1235,15 @@
   "desk.health.poor": "A ma ɲi",
   "desk.health.noData": "Kunnafoni si tɛ",
   "desk.health.empty": "Sumanni si ma kɛ fɔlɔ.",
-  "settings.vitalsNote": "Walasa ka siti teliya lɔn, i ka browser bɛ se ka teliya sumanni dɔw ci k'a sɔrɔ i tɛ jira: ɲɛ suguya (a adirɛsi abada) ani waati sumanni dɔɔnin. Foyi tɛ i jira, ani don o don jate dafalenw dɔrɔn de bɛ mara, tile 90. Do Not Track wala Global Privacy Control b'a faga."
+  "settings.vitalsNote": "Walasa ka siti teliya lɔn, i ka browser bɛ se ka teliya sumanni dɔw ci k'a sɔrɔ i tɛ jira: ɲɛ suguya (a adirɛsi abada) ani waati sumanni dɔɔnin. Foyi tɛ i jira, ani don o don jate dafalenw dɔrɔn de bɛ mara, tile 90. Do Not Track wala Global Privacy Control b'a faga.",
+  "quotecard.action": "Kokura karti",
+  "quotecard.actionLabel": "Kokura karti dilan {name} ka kuma la",
+  "quotecard.title": "Kokura karti",
+  "quotecard.preparing": "Karti bɛ ka ja…",
+  "quotecard.download": "PNG jigin",
+  "quotecard.copy": "Ja kopi",
+  "quotecard.copied": "Ja kopira.",
+  "quotecard.copyFailed": "Ja ma se ka kopi.",
+  "quotecard.failed": "Ja ma se ka dilan.",
+  "quotecard.lightTheme": "Karti jɛman"
 }

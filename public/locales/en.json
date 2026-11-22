@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Poor",
   "desk.health.noData": "No data",
   "desk.health.empty": "No measurements yet.",
-  "settings.vitalsNote": "To see how fast the site is, your browser may send anonymous speed measurements: the type of page (never its address) and a few timings. Nothing identifies you, and only daily totals are kept, for 90 days. Do Not Track or Global Privacy Control turns this off."
+  "settings.vitalsNote": "To see how fast the site is, your browser may send anonymous speed measurements: the type of page (never its address) and a few timings. Nothing identifies you, and only daily totals are kept, for 90 days. Do Not Track or Global Privacy Control turns this off.",
+  "quotecard.action": "Quote card",
+  "quotecard.actionLabel": "Make a quote card from {name}",
+  "quotecard.title": "Quote card",
+  "quotecard.preparing": "Drawing the card…",
+  "quotecard.download": "Download PNG",
+  "quotecard.copy": "Copy image",
+  "quotecard.copied": "Image copied.",
+  "quotecard.copyFailed": "Couldn't copy the image.",
+  "quotecard.failed": "Couldn't make the image.",
+  "quotecard.lightTheme": "Light card"
 }

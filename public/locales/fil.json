@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Mahina",
   "desk.health.noData": "Walang data",
   "desk.health.empty": "Wala pang mga sukat.",
-  "settings.vitalsNote": "Para makita kung gaano kabilis ang site, maaaring magpadala ang iyong browser ng mga sukat ng bilis nang hindi nagpapakilala: ang uri ng pahina (hindi kailanman ang address nito) at ilang tiyempo. Walang anumang tumutukoy sa iyo, at mga pang-araw-araw na kabuuan lang ang itinatago, sa loob ng 90 araw. Pinapatay ito ng Do Not Track o Global Privacy Control."
+  "settings.vitalsNote": "Para makita kung gaano kabilis ang site, maaaring magpadala ang iyong browser ng mga sukat ng bilis nang hindi nagpapakilala: ang uri ng pahina (hindi kailanman ang address nito) at ilang tiyempo. Walang anumang tumutukoy sa iyo, at mga pang-araw-araw na kabuuan lang ang itinatago, sa loob ng 90 araw. Pinapatay ito ng Do Not Track o Global Privacy Control.",
+  "quotecard.action": "Kard ng sipi",
+  "quotecard.actionLabel": "Gumawa ng kard ng sipi mula kay {name}",
+  "quotecard.title": "Kard ng sipi",
+  "quotecard.preparing": "Iginuguhit ang kard…",
+  "quotecard.download": "I-download ang PNG",
+  "quotecard.copy": "Kopyahin ang larawan",
+  "quotecard.copied": "Nakopya ang larawan.",
+  "quotecard.copyFailed": "Hindi makopya ang larawan.",
+  "quotecard.failed": "Hindi magawa ang larawan.",
+  "quotecard.lightTheme": "Maliwanag na kard"
 }

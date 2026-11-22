@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Ti maolek",
   "desk.health.noData": "Taya' dåtos",
   "desk.health.empty": "Taya' midida på'go.",
-  "settings.vitalsNote": "Para un li'e ki taimanu lalålo' i sitio, siña i browser-mu manna'hånao midida lalålo' sin na'an: i klåsen påhina (ti i address-ña) yan didide' na tiempo. Taya' ni ha'tingo' hayi hao, yan kuenta kada diha ha' ma'satba, para 90 diha. I Do Not Track pat Global Privacy Control ha'apåga este."
+  "settings.vitalsNote": "Para un li'e ki taimanu lalålo' i sitio, siña i browser-mu manna'hånao midida lalålo' sin na'an: i klåsen påhina (ti i address-ña) yan didide' na tiempo. Taya' ni ha'tingo' hayi hao, yan kuenta kada diha ha' ma'satba, para 90 diha. I Do Not Track pat Global Privacy Control ha'apåga este.",
+  "quotecard.action": "Kåtta kuota",
+  "quotecard.actionLabel": "Fa'tinas kåtta kuota gi as {name}",
+  "quotecard.title": "Kåtta kuota",
+  "quotecard.preparing": "Ma'gogo'te i kåtta…",
+  "quotecard.download": "Na'tunok PNG",
+  "quotecard.copy": "Kopia i litråtu",
+  "quotecard.copied": "Ma'kopia i litråtu.",
+  "quotecard.copyFailed": "Ti siña ma'kopia i litråtu.",
+  "quotecard.failed": "Ti siña ma'fa'tinas i litråtu.",
+  "quotecard.lightTheme": "Kåtta ni' manana"
 }

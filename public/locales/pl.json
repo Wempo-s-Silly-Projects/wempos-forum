@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Słabo",
   "desk.health.noData": "Brak danych",
   "desk.health.empty": "Brak pomiarów.",
-  "settings.vitalsNote": "Aby sprawdzić, jak szybka jest witryna, Twoja przeglądarka może wysyłać anonimowe pomiary szybkości: typ strony (nigdy jej adres) i kilka czasów. Nic Cię nie identyfikuje, a przechowujemy tylko dzienne sumy, przez 90 dni. Do Not Track lub Global Privacy Control to wyłącza."
+  "settings.vitalsNote": "Aby sprawdzić, jak szybka jest witryna, Twoja przeglądarka może wysyłać anonimowe pomiary szybkości: typ strony (nigdy jej adres) i kilka czasów. Nic Cię nie identyfikuje, a przechowujemy tylko dzienne sumy, przez 90 dni. Do Not Track lub Global Privacy Control to wyłącza.",
+  "quotecard.action": "Karta z cytatem",
+  "quotecard.actionLabel": "Utwórz kartę z cytatem od {name}",
+  "quotecard.title": "Karta z cytatem",
+  "quotecard.preparing": "Rysowanie karty…",
+  "quotecard.download": "Pobierz PNG",
+  "quotecard.copy": "Kopiuj obraz",
+  "quotecard.copied": "Obraz skopiowany.",
+  "quotecard.copyFailed": "Nie udało się skopiować obrazu.",
+  "quotecard.failed": "Nie udało się utworzyć obrazu.",
+  "quotecard.lightTheme": "Jasna karta"
 }

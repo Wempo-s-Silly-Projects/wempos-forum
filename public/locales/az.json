@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Zəif",
   "desk.health.noData": "Məlumat yoxdur",
   "desk.health.empty": "Hələ ölçmə yoxdur.",
-  "settings.vitalsNote": "Saytın nə qədər sürətli olduğunu görmək üçün brauzeriniz anonim sürət ölçmələri göndərə bilər: səhifənin növü (heç vaxt ünvanı yox) və bir neçə vaxt göstəricisi. Heç nə sizi tanıtmır və yalnız gündəlik cəmlər 90 gün saxlanılır. Do Not Track və ya Global Privacy Control bunu söndürür."
+  "settings.vitalsNote": "Saytın nə qədər sürətli olduğunu görmək üçün brauzeriniz anonim sürət ölçmələri göndərə bilər: səhifənin növü (heç vaxt ünvanı yox) və bir neçə vaxt göstəricisi. Heç nə sizi tanıtmır və yalnız gündəlik cəmlər 90 gün saxlanılır. Do Not Track və ya Global Privacy Control bunu söndürür.",
+  "quotecard.action": "Sitat kartı",
+  "quotecard.actionLabel": "{name} üçün sitat kartı yarat",
+  "quotecard.title": "Sitat kartı",
+  "quotecard.preparing": "Kart çəkilir…",
+  "quotecard.download": "PNG yüklə",
+  "quotecard.copy": "Şəkli kopyala",
+  "quotecard.copied": "Şəkil kopyalandı.",
+  "quotecard.copyFailed": "Şəkli kopyalamaq mümkün olmadı.",
+  "quotecard.failed": "Şəkli yaratmaq mümkün olmadı.",
+  "quotecard.lightTheme": "Açıq kart"
 }

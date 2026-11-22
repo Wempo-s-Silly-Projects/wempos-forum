@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Slab",
   "desk.health.noData": "Fără date",
   "desk.health.empty": "Încă nu există măsurători.",
-  "settings.vitalsNote": "Ca să se vadă cât de rapid este site-ul, browserul tău poate trimite măsurători anonime de viteză: tipul paginii (niciodată adresa ei) și câțiva timpi. Nimic nu te identifică și se păstrează doar totaluri zilnice, timp de 90 de zile. Do Not Track sau Global Privacy Control dezactivează acest lucru."
+  "settings.vitalsNote": "Ca să se vadă cât de rapid este site-ul, browserul tău poate trimite măsurători anonime de viteză: tipul paginii (niciodată adresa ei) și câțiva timpi. Nimic nu te identifică și se păstrează doar totaluri zilnice, timp de 90 de zile. Do Not Track sau Global Privacy Control dezactivează acest lucru.",
+  "quotecard.action": "Card cu citat",
+  "quotecard.actionLabel": "Creează un card cu citat de la {name}",
+  "quotecard.title": "Card cu citat",
+  "quotecard.preparing": "Se desenează cardul…",
+  "quotecard.download": "Descarcă PNG",
+  "quotecard.copy": "Copiază imaginea",
+  "quotecard.copied": "Imagine copiată.",
+  "quotecard.copyFailed": "Imaginea nu a putut fi copiată.",
+  "quotecard.failed": "Imaginea nu a putut fi creată.",
+  "quotecard.lightTheme": "Card deschis"
 }

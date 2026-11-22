@@ -1235,5 +1235,15 @@
   "desk.health.poor": "I no gud",
   "desk.health.noData": "I no gat infomesen",
   "desk.health.empty": "I no gat mesa yet.",
-  "settings.vitalsNote": "Blong luk hamas spid saet i gat, browser blong yu i save sanem ol mesa blong spid we i no soem hu yu: kaen blong pej (i neva adres blong hem) mo smol taem nomo. I no gat samting we i soem hu yu, mo namba blong wanwan dei nomo i stap, blong 90 dei. Do Not Track o Global Privacy Control i stopem samting ia."
+  "settings.vitalsNote": "Blong luk hamas spid saet i gat, browser blong yu i save sanem ol mesa blong spid we i no soem hu yu: kaen blong pej (i neva adres blong hem) mo smol taem nomo. I no gat samting we i soem hu yu, mo namba blong wanwan dei nomo i stap, blong 90 dei. Do Not Track o Global Privacy Control i stopem samting ia.",
+  "quotecard.action": "Kad blong kotem",
+  "quotecard.actionLabel": "Mekem wan kad blong kotem {name}",
+  "quotecard.title": "Kad blong kotem",
+  "quotecard.preparing": "I stap droem kad…",
+  "quotecard.download": "Daonlodem PNG",
+  "quotecard.copy": "Kopi pija",
+  "quotecard.copied": "Pija i kopi finis.",
+  "quotecard.copyFailed": "I no save kopi pija.",
+  "quotecard.failed": "I no save mekem pija.",
+  "quotecard.lightTheme": "Kad we i laet"
 }

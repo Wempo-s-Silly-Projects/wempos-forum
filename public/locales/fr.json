@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Mauvais",
   "desk.health.noData": "Aucune donnée",
   "desk.health.empty": "Aucune mesure pour l'instant.",
-  "settings.vitalsNote": "Pour savoir à quelle vitesse le site répond, ton navigateur peut envoyer des mesures de vitesse anonymes : le type de page (jamais son adresse) et quelques durées. Rien ne t'identifie, et seuls des totaux quotidiens sont conservés, pendant 90 jours. Do Not Track ou Global Privacy Control désactive cette mesure."
+  "settings.vitalsNote": "Pour savoir à quelle vitesse le site répond, ton navigateur peut envoyer des mesures de vitesse anonymes : le type de page (jamais son adresse) et quelques durées. Rien ne t'identifie, et seuls des totaux quotidiens sont conservés, pendant 90 jours. Do Not Track ou Global Privacy Control désactive cette mesure.",
+  "quotecard.action": "Carte citation",
+  "quotecard.actionLabel": "Créer une carte citation de {name}",
+  "quotecard.title": "Carte citation",
+  "quotecard.preparing": "Dessin de la carte…",
+  "quotecard.download": "Télécharger le PNG",
+  "quotecard.copy": "Copier l’image",
+  "quotecard.copied": "Image copiée.",
+  "quotecard.copyFailed": "Impossible de copier l’image.",
+  "quotecard.failed": "Impossible de créer l’image.",
+  "quotecard.lightTheme": "Carte claire"
 }

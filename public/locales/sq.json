@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Dobët",
   "desk.health.noData": "Nuk ka të dhëna",
   "desk.health.empty": "Ende nuk ka matje.",
-  "settings.vitalsNote": "Për të parë sa i shpejtë është sajti, shfletuesi yt mund të dërgojë matje anonime të shpejtësisë: llojin e faqes (kurrë adresën e saj) dhe disa kohë. Asgjë nuk të identifikon dhe ruhen vetëm totalet ditore, për 90 ditë. Do Not Track ose Global Privacy Control e çaktivizon këtë."
+  "settings.vitalsNote": "Për të parë sa i shpejtë është sajti, shfletuesi yt mund të dërgojë matje anonime të shpejtësisë: llojin e faqes (kurrë adresën e saj) dhe disa kohë. Asgjë nuk të identifikon dhe ruhen vetëm totalet ditore, për 90 ditë. Do Not Track ose Global Privacy Control e çaktivizon këtë.",
+  "quotecard.action": "Kartë citimi",
+  "quotecard.actionLabel": "Krijo një kartë citimi nga {name}",
+  "quotecard.title": "Kartë citimi",
+  "quotecard.preparing": "Po vizatohet karta…",
+  "quotecard.download": "Shkarko PNG",
+  "quotecard.copy": "Kopjo imazhin",
+  "quotecard.copied": "Imazhi u kopjua.",
+  "quotecard.copyFailed": "Imazhi nuk u kopjua dot.",
+  "quotecard.failed": "Imazhi nuk u krijua dot.",
+  "quotecard.lightTheme": "Kartë e çelët"
 }

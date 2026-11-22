@@ -243,3 +243,14 @@ export const VITALS_RETENTION_DAYS = 90;
 // One bounded prune per beacon / read keeps every DELETE small.
 export const VITALS_RETENTION_DELETE_LIMIT = 100;
 export const VITALS_WINDOWS = Object.freeze({ week: 7, month: 28 });
+
+// Batch O: the "Make it a Quote" card (public/js/quote-card.js), drawn on an
+// offscreen canvas entirely in the browser. The PNG is QUOTE_CARD_WIDTH x
+// QUOTE_CARD_HEIGHT; the quote is cut to QUOTE_CARD_MAX_CHARS graphemes and
+// its font shrinks from QUOTE_CARD_FONT_MAX to QUOTE_CARD_FONT_MIN px to fit.
+// The client mirrors these (tests/quote-card.test.mjs pins them equal).
+export const QUOTE_CARD_WIDTH = 1200;
+export const QUOTE_CARD_HEIGHT = 630;
+export const QUOTE_CARD_MAX_CHARS = 500;
+export const QUOTE_CARD_FONT_MAX = 64;
+export const QUOTE_CARD_FONT_MIN = 24;

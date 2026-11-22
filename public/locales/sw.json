@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Duni",
   "desk.health.noData": "Hakuna data",
   "desk.health.empty": "Bado hakuna vipimo.",
-  "settings.vitalsNote": "Ili kuona jinsi tovuti ilivyo haraka, kivinjari chako kinaweza kutuma vipimo vya kasi bila kukutambulisha: aina ya ukurasa (kamwe si anwani yake) na vipimo vichache vya muda. Hakuna kinachokutambulisha, na jumla za kila siku pekee huhifadhiwa, kwa siku 90. Do Not Track au Global Privacy Control huzima hili."
+  "settings.vitalsNote": "Ili kuona jinsi tovuti ilivyo haraka, kivinjari chako kinaweza kutuma vipimo vya kasi bila kukutambulisha: aina ya ukurasa (kamwe si anwani yake) na vipimo vichache vya muda. Hakuna kinachokutambulisha, na jumla za kila siku pekee huhifadhiwa, kwa siku 90. Do Not Track au Global Privacy Control huzima hili.",
+  "quotecard.action": "Kadi ya nukuu",
+  "quotecard.actionLabel": "Tengeneza kadi ya nukuu kutoka kwa {name}",
+  "quotecard.title": "Kadi ya nukuu",
+  "quotecard.preparing": "Inachora kadi…",
+  "quotecard.download": "Pakua PNG",
+  "quotecard.copy": "Nakili picha",
+  "quotecard.copied": "Picha imenakiliwa.",
+  "quotecard.copyFailed": "Imeshindwa kunakili picha.",
+  "quotecard.failed": "Imeshindwa kutengeneza picha.",
+  "quotecard.lightTheme": "Kadi angavu"
 }

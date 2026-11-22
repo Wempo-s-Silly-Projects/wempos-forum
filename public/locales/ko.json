@@ -1235,5 +1235,15 @@
   "desk.health.poor": "나쁨",
   "desk.health.noData": "데이터 없음",
   "desk.health.empty": "아직 측정값이 없습니다.",
-  "settings.vitalsNote": "사이트 속도를 확인하기 위해 브라우저가 익명 속도 측정값을 보낼 수 있습니다: 페이지 유형(주소는 절대 보내지 않음)과 몇 가지 소요 시간입니다. 사용자를 식별하는 정보는 없으며, 일별 합계만 90일 동안 보관합니다. Do Not Track 또는 Global Privacy Control을 켜면 전송되지 않습니다."
+  "settings.vitalsNote": "사이트 속도를 확인하기 위해 브라우저가 익명 속도 측정값을 보낼 수 있습니다: 페이지 유형(주소는 절대 보내지 않음)과 몇 가지 소요 시간입니다. 사용자를 식별하는 정보는 없으며, 일별 합계만 90일 동안 보관합니다. Do Not Track 또는 Global Privacy Control을 켜면 전송되지 않습니다.",
+  "quotecard.action": "인용 카드",
+  "quotecard.actionLabel": "{name}님의 인용 카드 만들기",
+  "quotecard.title": "인용 카드",
+  "quotecard.preparing": "카드를 그리는 중…",
+  "quotecard.download": "PNG 다운로드",
+  "quotecard.copy": "이미지 복사",
+  "quotecard.copied": "이미지를 복사했습니다.",
+  "quotecard.copyFailed": "이미지를 복사할 수 없습니다.",
+  "quotecard.failed": "이미지를 만들 수 없습니다.",
+  "quotecard.lightTheme": "밝은 카드"
 }

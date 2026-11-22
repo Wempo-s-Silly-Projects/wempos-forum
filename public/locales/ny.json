@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Zoipa",
   "desk.health.noData": "Palibe deta",
   "desk.health.empty": "Palibe miyeso pakadali pano.",
-  "settings.vitalsNote": "Kuti tidziwe momwe webusaiti ikuyendera mwachangu, msakatuli wanu ukhoza kutumiza miyeso ya liŵiro mosadziwika: mtundu wa tsamba (osati adiresi yake) ndi nthawi zochepa. Palibe chomwe chimakuzindikiritsani, ndipo ziŵerengero za tsiku lililonse zokha zimasungidwa, kwa masiku 90. Do Not Track kapena Global Privacy Control zimazimitsa izi."
+  "settings.vitalsNote": "Kuti tidziwe momwe webusaiti ikuyendera mwachangu, msakatuli wanu ukhoza kutumiza miyeso ya liŵiro mosadziwika: mtundu wa tsamba (osati adiresi yake) ndi nthawi zochepa. Palibe chomwe chimakuzindikiritsani, ndipo ziŵerengero za tsiku lililonse zokha zimasungidwa, kwa masiku 90. Do Not Track kapena Global Privacy Control zimazimitsa izi.",
+  "quotecard.action": "Khadi la mawu",
+  "quotecard.actionLabel": "Pangani khadi la mawu a {name}",
+  "quotecard.title": "Khadi la mawu",
+  "quotecard.preparing": "Ikujambula khadi…",
+  "quotecard.download": "Tsitsani PNG",
+  "quotecard.copy": "Koperani chithunzi",
+  "quotecard.copied": "Chithunzi chakopedwa.",
+  "quotecard.copyFailed": "Chithunzi sichinakopedwe.",
+  "quotecard.failed": "Chithunzi sichinapangidwe.",
+  "quotecard.lightTheme": "Khadi lowala"
 }

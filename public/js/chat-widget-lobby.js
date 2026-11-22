@@ -25,6 +25,7 @@ import { currentLocale, t, tn } from "./i18n.js";
 import { el, ui } from "./chat-widget-state.js";
 import { buildGifPicker, gifToken, messageBodyNode } from "./chat-widget-gifs.js";
 import { REPLY_BODY_MAX, withReplyMention } from "./lobby-reply.js";
+import { createQuoteCardButton } from "./quote-card-action.js";
 
 const LOBBY_MESSAGE_MAX = REPLY_BODY_MAX;
 
@@ -104,6 +105,8 @@ const lobbyMessageRow = (message) => {
   head.append(when);
   row.append(head, messageBodyNode("chat-message-body", message.body));
   if (!row.classList.contains("chat-mine")) row.append(buildReplyButton(message));
+  const quoteCard = createQuoteCardButton(document, message, ui.widgetUser);
+  if (quoteCard) row.append(quoteCard);
   if (isStaff()) {
     const remove = el("button", "chat-message-delete", "×");
     remove.type = "button";

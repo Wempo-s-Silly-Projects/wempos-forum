@@ -1235,5 +1235,15 @@
   "desk.health.poor": "खराब",
   "desk.health.noData": "कोई डेटा नहीं",
   "desk.health.empty": "अभी कोई माप नहीं।",
-  "settings.vitalsNote": "साइट कितनी तेज़ है यह देखने के लिए आपका ब्राउज़र गुमनाम गति माप भेज सकता है: पेज का प्रकार (कभी उसका पता नहीं) और कुछ समय-माप। कुछ भी आपकी पहचान नहीं करता, और केवल दैनिक योग 90 दिनों तक रखे जाते हैं। Do Not Track या Global Privacy Control इसे बंद कर देता है।"
+  "settings.vitalsNote": "साइट कितनी तेज़ है यह देखने के लिए आपका ब्राउज़र गुमनाम गति माप भेज सकता है: पेज का प्रकार (कभी उसका पता नहीं) और कुछ समय-माप। कुछ भी आपकी पहचान नहीं करता, और केवल दैनिक योग 90 दिनों तक रखे जाते हैं। Do Not Track या Global Privacy Control इसे बंद कर देता है।",
+  "quotecard.action": "उद्धरण कार्ड",
+  "quotecard.actionLabel": "{name} से उद्धरण कार्ड बनाएँ",
+  "quotecard.title": "उद्धरण कार्ड",
+  "quotecard.preparing": "कार्ड बनाया जा रहा है…",
+  "quotecard.download": "PNG डाउनलोड करें",
+  "quotecard.copy": "छवि कॉपी करें",
+  "quotecard.copied": "छवि कॉपी हो गई।",
+  "quotecard.copyFailed": "छवि कॉपी नहीं हो सकी।",
+  "quotecard.failed": "छवि नहीं बन सकी।",
+  "quotecard.lightTheme": "हल्का कार्ड"
 }

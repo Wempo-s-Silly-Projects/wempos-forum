@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Deficient",
   "desk.health.noData": "Sin datos",
   "desk.health.empty": "Encara no i hai mesuras.",
-  "settings.vitalsNote": "Pa saber cuán rapido va o puesto, o tuyo navegador puede ninviar mesuras de velocidat anonimas: o tipo de pachina (nunca a suya adreza) y bels tiempos. Cosa no te identifica, y nomás se guardan totals diarios, mientres 90 días. Do Not Track u Global Privacy Control lo desactivan."
+  "settings.vitalsNote": "Pa saber cuán rapido va o puesto, o tuyo navegador puede ninviar mesuras de velocidat anonimas: o tipo de pachina (nunca a suya adreza) y bels tiempos. Cosa no te identifica, y nomás se guardan totals diarios, mientres 90 días. Do Not Track u Global Privacy Control lo desactivan.",
+  "quotecard.action": "Tarcheta de cita",
+  "quotecard.actionLabel": "Fer una tarcheta de cita de {name}",
+  "quotecard.title": "Tarcheta de cita",
+  "quotecard.preparing": "Dibuixando a tarcheta…",
+  "quotecard.download": "Descargar PNG",
+  "quotecard.copy": "Copiar imachen",
+  "quotecard.copied": "Imachen copiada.",
+  "quotecard.copyFailed": "No s'ha puesto copiar a imachen.",
+  "quotecard.failed": "No s'ha puesto fer a imachen.",
+  "quotecard.lightTheme": "Tarcheta clara"
 }

@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Slecht",
   "desk.health.noData": "Geen gegevens",
   "desk.health.empty": "Nog geen metingen.",
-  "settings.vitalsNote": "Om te zien hoe snel de site is, kan je browser anonieme snelheidsmetingen versturen: het type pagina (nooit het adres) en een paar tijden. Niets identificeert jou, en alleen dagtotalen worden bewaard, 90 dagen lang. Do Not Track of Global Privacy Control zet dit uit."
+  "settings.vitalsNote": "Om te zien hoe snel de site is, kan je browser anonieme snelheidsmetingen versturen: het type pagina (nooit het adres) en een paar tijden. Niets identificeert jou, en alleen dagtotalen worden bewaard, 90 dagen lang. Do Not Track of Global Privacy Control zet dit uit.",
+  "quotecard.action": "Citaatkaart",
+  "quotecard.actionLabel": "Maak een citaatkaart van {name}",
+  "quotecard.title": "Citaatkaart",
+  "quotecard.preparing": "Kaart wordt getekend…",
+  "quotecard.download": "PNG downloaden",
+  "quotecard.copy": "Afbeelding kopiëren",
+  "quotecard.copied": "Afbeelding gekopieerd.",
+  "quotecard.copyFailed": "Kon de afbeelding niet kopiëren.",
+  "quotecard.failed": "Kon de afbeelding niet maken.",
+  "quotecard.lightTheme": "Lichte kaart"
 }

@@ -118,7 +118,8 @@ test("More is grouped: Reading, Following, Sharing, This post, in that order", (
   assert.deepEqual(inGroup("following"),
     [t("render.muteThread"), t("render.savePost"), t("render.subscribe")].sort());
   assert.deepEqual(inGroup("sharing"), [t("render.copyLink"), t("render.openPost")].sort());
-  assert.deepEqual(inGroup("post"), [t("render.deleteThread"), t("render.editPost"), t("render.reportPost")].sort());
+  assert.deepEqual(inGroup("post"), [t("quotecard.actionLabel", { name: "alice" }), t("render.deleteThread"),
+    t("render.editPost"), t("render.reportPost")].sort());
   for (const group of groups) {
     const labelId = group.getAttribute("aria-labelledby");
     const heading = group.querySelector(`[id=${labelId}]`);

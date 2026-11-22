@@ -1235,5 +1235,15 @@
   "desk.health.poor": "Deficiente",
   "desk.health.noData": "Sin datos",
   "desk.health.empty": "Aún no hay mediciones.",
-  "settings.vitalsNote": "Para saber lo rápido que va el sitio, tu navegador puede enviar mediciones de velocidad anónimas: el tipo de página (nunca su dirección) y algunos tiempos. Nada te identifica y solo se guardan totales diarios, durante 90 días. Do Not Track o Global Privacy Control lo desactivan."
+  "settings.vitalsNote": "Para saber lo rápido que va el sitio, tu navegador puede enviar mediciones de velocidad anónimas: el tipo de página (nunca su dirección) y algunos tiempos. Nada te identifica y solo se guardan totales diarios, durante 90 días. Do Not Track o Global Privacy Control lo desactivan.",
+  "quotecard.action": "Tarjeta de cita",
+  "quotecard.actionLabel": "Crear una tarjeta de cita de {name}",
+  "quotecard.title": "Tarjeta de cita",
+  "quotecard.preparing": "Dibujando la tarjeta…",
+  "quotecard.download": "Descargar PNG",
+  "quotecard.copy": "Copiar imagen",
+  "quotecard.copied": "Imagen copiada.",
+  "quotecard.copyFailed": "No se pudo copiar la imagen.",
+  "quotecard.failed": "No se pudo crear la imagen.",
+  "quotecard.lightTheme": "Tarjeta clara"
 }
