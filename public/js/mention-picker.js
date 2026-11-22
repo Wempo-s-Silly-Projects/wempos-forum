@@ -28,6 +28,8 @@
 import { api } from "./api.js";
 import { t } from "./i18n.js";
 import { isImeComposing } from "./focus-utils.js";
+import { replaceFieldRange } from "./field-edit.js";
+import fuzzysort from "./vendor/fuzzysort.min.js";
 
 export const MAX_MENTION_SUGGESTIONS = 6;
 export const MENTION_SEARCH_DELAY_MS = 200;
@@ -52,17 +54,30 @@ export function applyMention(text, start, caret, username) {
   };
 }
 
-// Username matches only (bio-only search hits dropped): prefix matches first,
-// then substring matches, each alphabetical; capped.
+// Batch H: ranked by the vendored fuzzysort (match quality: contiguous runs,
+// word starts, shorter names). Exact handles come first, then prefix
+// matches, then other contiguous matches, then scattered ones, each by
+// score; ties alphabetical. Username matches only
+// (bio-only search hits dropped); capped.
+const byName = (a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
+const mentionTier = (key, needle) => (key === needle ? 0 : key.startsWith(needle) ? 1 : key.includes(needle) ? 2 : 3);
+
 export function rankMentionUsers(users, query) {
   const needle = String(query ?? "").toLowerCase();
-  const scored = (Array.isArray(users) ? users : [])
-    .filter((user) => typeof user?.username === "string" && user.username.toLowerCase().includes(needle))
-    .map((user) => ({ user, key: user.username.toLowerCase() }));
-  const byKey = (a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
-  const prefix = scored.filter((entry) => entry.key.startsWith(needle)).sort(byKey);
-  const rest = scored.filter((entry) => !entry.key.startsWith(needle)).sort(byKey);
-  return [...prefix, ...rest].slice(0, MAX_MENTION_SUGGESTIONS).map((entry) => entry.user);
+  const named = (Array.isArray(users) ? users : []).filter((user) => typeof user?.username === "string");
+  if (!needle) return named.slice(0, MAX_MENTION_SUGGESTIONS);
+  return fuzzysort.go(needle, named, { key: "username", threshold: 0 })
+    .map((result) => ({ user: result.obj, score: result.score, key: result.obj.username.toLowerCase() }))
+    .sort((a, b) => mentionTier(a.key, needle) - mentionTier(b.key, needle) || b.score - a.score || byName(a, b))
+    .slice(0, MAX_MENTION_SUGGESTIONS)
+    .map((entry) => entry.user);
+}
+
+// Puts "@username " over field.value[start, caret) through field-edit.js, so
+// the pick lands on the native undo stack.
+export function insertMention(field, start, caret, username) {
+  const inserted = "@" + username + " ";
+  replaceFieldRange(field, start, caret, inserted);
 }
 
 // Wires one composer textarea. State lives in this closure; every async
@@ -101,11 +116,10 @@ export function attachMentionPicker(textarea, document) {
   const choose = (index) => {
     const user = users[index];
     if (!user || !token) return;
-    const result = applyMention(textarea.value, token.start, textarea.selectionStart, user.username);
-    textarea.value = result.text;
-    textarea.setSelectionRange(result.caret, result.caret);
+    const { start } = token;
+    const caret = textarea.selectionStart;
     close();
-    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+    insertMention(textarea, start, caret, user.username);
     textarea.focus();
   };
 
