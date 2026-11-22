@@ -63,7 +63,9 @@ test("M1: the HTML leg allows only the cdnjs polyfill path, not the whole CDN", 
   const csp = secureResponse(new Response("x")).headers.get("Content-Security-Policy");
   const scriptSrc = directives(csp).get("script-src");
   assert.deepEqual(scriptSrc, ["'self'", "https://challenges.cloudflare.com", POLYFILL_SOURCE]);
-  assert.ok(!scriptSrc.includes("https://cdnjs.cloudflare.com"), "no host-wide cdnjs source");
+  // Exact source-list comparison (not a URL substring test): no entry may be the bare CDN origin.
+  const HOST_WIDE_CDNJS = "https://cdnjs.cloudflare.com";
+  assert.equal(scriptSrc.filter((source) => source === HOST_WIDE_CDNJS).length, 0, "no host-wide cdnjs source");
   // The shell's polyfill URL sits under the allowed path.
   const src = (read("public/index.html").match(/<script src="(https:\/\/cdnjs\.cloudflare\.com\/[^"]+)"/) ?? [])[1];
   assert.ok(src && src.startsWith(POLYFILL_SOURCE), src);
