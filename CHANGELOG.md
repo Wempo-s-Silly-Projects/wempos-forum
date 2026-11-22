@@ -15,6 +15,29 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.61.0] - 2026-11-22
+
+### Security
+- Security review of v5.57-v5.60 (the new navigation, the Browse and
+  Account menus, the phone bar, the fix for replies that moved a thread
+  after slow mode refused them, and the v5.60 polish):
+  [docs/security-reviews/2026-11-22-v5.57-v5.60.md](docs/security-reviews/2026-11-22-v5.57-v5.60.md).
+  No critical, high or medium findings, and nothing on the server changes
+  in this release. The three fixes from v5.58 and v5.59 are confirmed. The
+  menus and the phone bar show staff entries only to staff, and the
+  navigation reuse added in v5.60 never keeps the wrong member, role or
+  staff entry. Three low findings are recorded; one is fixed here (below).
+  The other two: if moving a thread up the feed fails right after a reply
+  is saved, the reply is posted but the poster sees an error and no one is
+  notified; and on phones the bottom bar stays empty until the forum has
+  loaded your session. The owner items from earlier reviews are unchanged.
+
+### Fixed
+- After "Mark all read", the notification bell could stay without its dot
+  when a new notification arrived at that moment, until you opened another
+  page. The header now redraws whenever the bell no longer matches your
+  unread count.
+
 ## [5.60.0] - 2026-11-22
 
 ### Changed
