@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "فقط شناسهٔ {platform}، نه کل نشانی.",
   "profileEditor.links.one": "{count} پیوند",
   "profileEditor.links.other": "{count} پیوند",
+  "profileEditor.paymentNote": "پیوندها سرویس را مستقیماً باز می‌کنند؛ انجمن هرگز پرداختی را انجام نمی‌دهد.",
   "profileEditor.polytoriaHelp": "نام کاربری Polytoria شما.",
   "profileEditor.save": "ذخیرهٔ پروفایل",
   "profileEditor.title": "ویرایش پروفایل",

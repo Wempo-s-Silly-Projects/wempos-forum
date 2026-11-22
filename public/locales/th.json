@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "ใส่แค่ชื่อบัญชี {platform} ไม่ต้องใส่ URL เต็ม",
   "profileEditor.links.one": "{count} ลิงก์",
   "profileEditor.links.other": "{count} ลิงก์",
+  "profileEditor.paymentNote": "ลิงก์จะเปิดบริการโดยตรง ฟอรัมไม่เคยจัดการการชำระเงิน",
   "profileEditor.polytoriaHelp": "ชื่อผู้ใช้ Polytoria ของคุณ",
   "profileEditor.save": "บันทึกโปรไฟล์",
   "profileEditor.title": "แก้ไขโปรไฟล์ของคุณ",

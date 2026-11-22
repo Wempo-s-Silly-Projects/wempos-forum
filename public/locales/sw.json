@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Jina la mtumiaji la {platform} tu, si URL nzima.",
   "profileEditor.links.one": "Kiungo {count}",
   "profileEditor.links.other": "Viungo {count}",
+  "profileEditor.paymentNote": "Viungo hufungua huduma moja kwa moja; jukwaa halishughulikii malipo kamwe.",
   "profileEditor.polytoriaHelp": "Jina lako la mtumiaji la Polytoria.",
   "profileEditor.save": "Hifadhi wasifu",
   "profileEditor.title": "Hariri wasifu wako",

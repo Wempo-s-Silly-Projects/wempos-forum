@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Только ник в {platform}, а не полная ссылка.",
   "profileEditor.links.one": "{count} ссылка",
   "profileEditor.links.other": "Ссылок: {count}",
+  "profileEditor.paymentNote": "Ссылки открывают сервис напрямую; форум никогда не обрабатывает платежи.",
   "profileEditor.polytoriaHelp": "Твоё имя пользователя в Polytoria.",
   "profileEditor.save": "Сохранить профиль",
   "profileEditor.title": "Редактирование профиля",

@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Лише ім'я в {platform}, а не повна URL-адреса.",
   "profileEditor.links.one": "{count} посилання",
   "profileEditor.links.other": "Посилання: {count}",
+  "profileEditor.paymentNote": "Посилання відкривають сервіс напряму; форум ніколи не обробляє платежі.",
   "profileEditor.polytoriaHelp": "Твоє ім'я користувача в Polytoria.",
   "profileEditor.save": "Зберегти профіль",
   "profileEditor.title": "Редагування профілю",

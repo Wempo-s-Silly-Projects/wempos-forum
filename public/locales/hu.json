@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Csak a(z) {platform}-azonosító, nem a teljes URL.",
   "profileEditor.links.one": "{count} hivatkozás",
   "profileEditor.links.other": "{count} hivatkozás",
+  "profileEditor.paymentNote": "A hivatkozások közvetlenül a szolgáltatást nyitják meg; a fórum soha nem kezel fizetéseket.",
   "profileEditor.polytoriaHelp": "A Polytoria felhasználóneved.",
   "profileEditor.save": "Profil mentése",
   "profileEditor.title": "A profilod szerkesztése",

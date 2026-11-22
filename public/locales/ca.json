@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Només el nom d'usuari de {platform}, no tot l'URL.",
   "profileEditor.links.one": "{count} enllaç",
   "profileEditor.links.other": "{count} enllaços",
+  "profileEditor.paymentNote": "Els enllaços obren el servei directament; el fòrum mai no gestiona pagaments.",
   "profileEditor.polytoriaHelp": "El teu nom d'usuari de Polytoria.",
   "profileEditor.save": "Desa el perfil",
   "profileEditor.title": "Edita el teu perfil",

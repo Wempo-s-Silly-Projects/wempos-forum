@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "只填 {platform} 帳號名稱，不要填完整網址。",
   "profileEditor.links.one": "{count} 個連結",
   "profileEditor.links.other": "{count} 個連結",
+  "profileEditor.paymentNote": "連結會直接開啟該服務；論壇從不處理付款。",
   "profileEditor.polytoriaHelp": "你的 Polytoria 使用者名稱。",
   "profileEditor.save": "儲存個人檔案",
   "profileEditor.title": "編輯個人檔案",

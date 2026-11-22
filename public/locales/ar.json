@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "معرّف {platform} فقط، وليس الرابط كاملًا.",
   "profileEditor.links.one": "{count} رابط",
   "profileEditor.links.other": "الروابط: {count}",
+  "profileEditor.paymentNote": "تفتح الروابط الخدمة مباشرة؛ لا يتعامل المنتدى مع المدفوعات أبدًا.",
   "profileEditor.polytoriaHelp": "اسم المستخدم الخاص بك في Polytoria.",
   "profileEditor.save": "حفظ الملف الشخصي",
   "profileEditor.title": "عدّل ملفك الشخصي",

@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Ang {platform} handle lang, hindi ang buong URL.",
   "profileEditor.links.one": "{count} na link",
   "profileEditor.links.other": "{count} na link",
+  "profileEditor.paymentNote": "Direktang binubuksan ng mga link ang serbisyo; hindi kailanman humahawak ng bayad ang forum.",
   "profileEditor.polytoriaHelp": "Ang Polytoria username mo.",
   "profileEditor.save": "I-save ang profile",
   "profileEditor.title": "I-edit ang profile mo",

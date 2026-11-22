@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "只填 {platform} 账号名，不要填完整网址。",
   "profileEditor.links.one": "{count} 个链接",
   "profileEditor.links.other": "{count} 个链接",
+  "profileEditor.paymentNote": "链接会直接打开该服务；论坛从不处理付款。",
   "profileEditor.polytoriaHelp": "你的 Polytoria 用户名。",
   "profileEditor.save": "保存个人主页",
   "profileEditor.title": "编辑个人主页",

@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "전체 URL 말고 {platform} 핸들만 입력하세요.",
   "profileEditor.links.one": "링크 {count}개",
   "profileEditor.links.other": "링크 {count}개",
+  "profileEditor.paymentNote": "링크는 서비스를 바로 엽니다. 포럼은 결제를 절대 처리하지 않습니다.",
   "profileEditor.polytoriaHelp": "내 Polytoria 사용자 이름.",
   "profileEditor.save": "프로필 저장",
   "profileEditor.title": "프로필 편집",

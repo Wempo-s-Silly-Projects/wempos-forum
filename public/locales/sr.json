@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Samo {platform} korisničko ime, ne ceo URL.",
   "profileEditor.links.one": "{count} veza",
   "profileEditor.links.other": "Veza: {count}",
+  "profileEditor.paymentNote": "Везе директно отварају услугу; форум никада не обрађује плаћања.",
   "profileEditor.polytoriaHelp": "Tvoje Polytoria korisničko ime.",
   "profileEditor.save": "Sačuvaj profil",
   "profileEditor.title": "Uredi svoj profil",

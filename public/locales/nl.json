@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Alleen je {platform}-gebruikersnaam, niet de hele URL.",
   "profileEditor.links.one": "{count} link",
   "profileEditor.links.other": "{count} links",
+  "profileEditor.paymentNote": "Links openen de dienst rechtstreeks; het forum verwerkt nooit betalingen.",
   "profileEditor.polytoriaHelp": "Je Polytoria-gebruikersnaam.",
   "profileEditor.save": "Profiel opslaan",
   "profileEditor.title": "Je profiel bewerken",

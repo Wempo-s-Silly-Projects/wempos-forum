@@ -90,8 +90,37 @@ export const SOCIAL_PLATFORMS = [
   { key: "instagram", column: "social_instagram", regex: /^[A-Za-z0-9_.]{1,30}$/ },
   { key: "tiktok", column: "social_tiktok", regex: /^[A-Za-z0-9_.]{1,24}$/ },
   { key: "twitch", column: "social_twitch", regex: /^[A-Za-z0-9_]{1,25}$/ },
+  // v5.65.0 (migration 0077). Subdomain networks (tumblr, shopify, substack)
+  // follow DNS-label rules (no edge hyphen, no dots); dot-permitting path
+  // networks refuse a bare "." or ".." so a handle can never be a dot segment.
+  { key: "facebook", column: "social_facebook", regex: /^[A-Za-z0-9.]{5,50}$/ },
+  { key: "tumblr", column: "social_tumblr", regex: /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,30}[A-Za-z0-9])?$/ },
+  { key: "indiegogo", column: "social_indiegogo", regex: /^[a-z0-9-]{1,80}$/ },
+  { key: "shopify", column: "social_shopify", regex: /^[a-z0-9][a-z0-9-]{1,58}[a-z0-9]$/ },
+  { key: "substack", column: "social_substack", regex: /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/ },
+  { key: "kickstarter", column: "social_kickstarter", regex: /^[A-Za-z0-9_-]{1,40}$/ },
+  { key: "cameo", column: "social_cameo", regex: /^(?!\.{1,2}$)[A-Za-z0-9_.-]{1,40}$/ },
+  { key: "linktree", column: "social_linktree", regex: /^(?!\.{1,2}$)[A-Za-z0-9_.]{1,30}$/ },
+  { key: "beacons", column: "social_beacons", regex: /^(?!\.{1,2}$)[A-Za-z0-9_.]{1,30}$/ },
+  { key: "soundcloud", column: "social_soundcloud", regex: /^[a-z0-9_-]{3,25}$/ },
+  { key: "spotify", column: "social_spotify", regex: /^[A-Za-z0-9]{22}$/ },
+  // Payment-link networks: links only, the forum never handles payments.
+  { key: "patreon", column: "social_patreon", regex: /^[A-Za-z0-9_-]{1,64}$/ },
+  { key: "kofi", column: "social_kofi", regex: /^[A-Za-z0-9_]{1,40}$/ },
+  { key: "buymeacoffee", column: "social_buymeacoffee", regex: /^[A-Za-z0-9_]{1,50}$/ },
+  { key: "paypal", column: "social_paypal", regex: /^[A-Za-z0-9]{1,20}$/ },
+  // Cash App: the cashtag WITHOUT its "$" (normalizeSocialHandle strips one).
+  { key: "cashapp", column: "social_cashapp", regex: /^[A-Za-z][A-Za-z0-9_-]{0,19}$/ },
+  { key: "venmo", column: "social_venmo", regex: /^[A-Za-z0-9_-]{5,30}$/ },
   { key: "polytoria", column: "polytoria_username", regex: /^[A-Za-z0-9_]{1,24}$/ },
 ];
+
+// One input normalization before validation: a pasted cashtag keeps its
+// leading "$"; exactly one is dropped (the stored value is the bare tag).
+export function normalizeSocialHandle(key, value) {
+  if (key === "cashapp" && typeof value === "string" && value.startsWith("$")) return value.slice(1);
+  return value;
+}
 
 const SOCIAL_SELECT_COLUMNS =
   SOCIAL_PLATFORMS.map((platform) => platform.column).join(", ") + ", ";

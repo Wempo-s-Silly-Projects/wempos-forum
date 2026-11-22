@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Sama nazwa w serwisie {platform}, nie cały adres URL.",
   "profileEditor.links.one": "{count} link",
   "profileEditor.links.other": "Linki: {count}",
+  "profileEditor.paymentNote": "Linki otwierają usługę bezpośrednio; forum nigdy nie obsługuje płatności.",
   "profileEditor.polytoriaHelp": "Twoja nazwa użytkownika w Polytorii.",
   "profileEditor.save": "Zapisz profil",
   "profileEditor.title": "Edytuj swój profil",

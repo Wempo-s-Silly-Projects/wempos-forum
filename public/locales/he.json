@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "רק שם המשתמש ב־{platform}, לא כל הכתובת.",
   "profileEditor.links.one": "{count} קישור",
   "profileEditor.links.other": "קישורים: {count}",
+  "profileEditor.paymentNote": "הקישורים פותחים את השירות ישירות; הפורום לעולם אינו מטפל בתשלומים.",
   "profileEditor.polytoriaHelp": "שם המשתמש שלך ב־Polytoria.",
   "profileEditor.save": "שמירת הפרופיל",
   "profileEditor.title": "עריכת הפרופיל שלך",

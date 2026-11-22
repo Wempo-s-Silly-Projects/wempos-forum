@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Μόνο το όνομα χρήστη {platform}, όχι ολόκληρο το URL.",
   "profileEditor.links.one": "{count} σύνδεσμος",
   "profileEditor.links.other": "{count} σύνδεσμοι",
+  "profileEditor.paymentNote": "Οι σύνδεσμοι ανοίγουν απευθείας την υπηρεσία· το φόρουμ δεν χειρίζεται ποτέ πληρωμές.",
   "profileEditor.polytoriaHelp": "Το όνομα χρήστη σου στο Polytoria.",
   "profileEditor.save": "Αποθήκευση προφίλ",
   "profileEditor.title": "Επεξεργασία του προφίλ σου",
