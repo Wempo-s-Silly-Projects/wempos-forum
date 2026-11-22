@@ -15,6 +15,31 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.40.0] - 2026-11-22
+
+### Added
+- Notification types: a new settings panel with one checkbox per kind of
+  notification: replies to your posts, new replies in threads you subscribed
+  to, mentions in posts and replies, mentions in chat, new threads from
+  members you follow, and friends who join with your invite link. Untick a
+  kind and the forum stops creating those notifications for you; tick it
+  again and new ones arrive as before. Everything starts ticked. Decisions
+  about your account, like appeal results, always reach you and can't be
+  turned off.
+- Easy-reading spacing: a new option under Reading comfort that adds more
+  space between letters, words, lines and paragraphs (the WCAG 1.4.12 text
+  spacing levels). It is saved in this browser only, like the other Reading
+  comfort options, and doesn't change the font.
+
+### Fixed
+- "Skip to content" (the first thing the Tab key reaches on every page) now
+  moves keyboard focus straight to the main content. Before, it changed the
+  page address, which made the forum redraw the page and lose your place.
+
+### Changed
+- Database migration `0068_notification_prefs.sql` adds the
+  `notification_prefs` table. It is CREATE-only.
+
 ## [5.39.0] - 2026-11-22
 
 ### Added

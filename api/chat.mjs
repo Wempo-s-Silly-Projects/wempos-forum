@@ -128,6 +128,7 @@ async function insertLobbyMessage(env, user, rawBody) {
       actorId: user.id, now: nowSeconds(),
       actorUsername: user.username,
       label: chatMentionLabel(user.username),
+      kind: "chat_mention",
     });
     if (mentionStatements.length > 0) await env.FORUM_DB.batch(mentionStatements);
   } catch {

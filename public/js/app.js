@@ -166,6 +166,7 @@ import { stopReadingProgress } from "./reading-progress.js";
 import { applyTabUnread, normaliseTabCount, pageStorage } from "./tab-unread.js";
 import { paintSourceLink } from "./source-link.js";
 import { attachRecentSearches } from "./recent-searches.js";
+import { wireSkipLink } from "./skip-link.js";
 
 async function prepareRouteContext(version) {
   const [sessionReply, setup] = await Promise.all([
@@ -448,6 +449,8 @@ async function handleClick(event) {
   }
 }
 document.addEventListener("click", handleClick);
+// v5.40.0: "Skip to content" moves focus to <main> without a URL change.
+wireSkipLink(document);
 // The attachment lightbox wires its own close/step listeners on first open
 // (lightbox.js, wave 21); Escape is native to <dialog>.
 // Composer file inputs: folder/picker selections are folded into the form's

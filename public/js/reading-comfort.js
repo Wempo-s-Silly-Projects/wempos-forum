@@ -38,6 +38,12 @@ export const LINK_UNDERLINE_STORAGE_KEY = "forum-link-underline";
 const LINK_UNDERLINE_ON = "on";
 const LINK_UNDERLINE_OFF = "off";
 
+// Easy-reading spacing (v5.40.0 F3): WCAG 1.4.12 text spacing (letters,
+// words, lines, paragraphs) as one class on <html>; same device-preference
+// storage as the rest of Reading comfort.
+export const EASY_READING_STORAGE_KEY = "forum-easy-reading";
+export const EASY_READING_CLASS = "easy-reading";
+
 export const normalizeLineSpacing = (value) => (LINE_SPACINGS.includes(value) ? value : "default");
 
 export function readLineSpacing(storage) {
@@ -107,5 +113,32 @@ export function createLinkUnderlineToggle(doc, storage) {
     applyLinkUnderline(doc, on);
   });
   wrapper.append(box, doc.createTextNode(" " + t("readingComfort.underlineLinks")));
+  return wrapper;
+}
+
+export function readEasyReading(storage) {
+  try {
+    return storage?.getItem(EASY_READING_STORAGE_KEY) === LINK_UNDERLINE_ON;
+  } catch {
+    return false;
+  }
+}
+
+export function applyEasyReading(doc, on) {
+  doc.documentElement.classList.toggle(EASY_READING_CLASS, Boolean(on));
+}
+
+export function createEasyReadingToggle(doc, storage) {
+  const wrapper = doc.createElement("label");
+  wrapper.className = "easy-reading-pref";
+  const box = doc.createElement("input");
+  box.type = "checkbox";
+  box.checked = readEasyReading(storage);
+  box.addEventListener("change", () => {
+    const on = Boolean(box.checked);
+    storeQuietly(storage, EASY_READING_STORAGE_KEY, on ? LINK_UNDERLINE_ON : LINK_UNDERLINE_OFF);
+    applyEasyReading(doc, on);
+  });
+  wrapper.append(box, doc.createTextNode(" " + t("readingComfort.easyReading")));
   return wrapper;
 }

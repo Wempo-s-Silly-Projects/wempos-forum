@@ -40,6 +40,7 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit } from "./core/http.mjs";
 import { userByUsernameKey } from "./core/shapers.mjs";
 import { ACTIVE_BAN_SQL } from "./core/visibility.mjs";
+import { mutedKindSql } from "./notifications.mjs";
 
 export const FOLLOW_FANOUT_CAP = 500;
 export const FOLLOWING_MAX = 200;
@@ -55,10 +56,12 @@ const PAIR_SQL = (a, b) =>
   "OR (bk.blocker_id = " + b + " AND bk.blocked_id = " + a + "))";
 
 // The eligible followers of one author, earliest first, capped. Binds: the
-// followee id once.
+// followee id once. v5.40.0: a follower who muted follow_thread is not
+// eligible (so muted members never use up the cap); the mute adds no binds.
 const ELIGIBLE_FOLLOWERS_SQL =
   "SELECT f.follower_id FROM user_follows f WHERE f.followee_id = ? AND f.follower_id <> f.followee_id " +
   "AND NOT " + ACTIVE_BAN_SQL("f.follower_id") + " AND NOT " + PAIR_SQL("f.follower_id", "f.followee_id") +
+  " AND NOT " + mutedKindSql("f.follower_id", "follow_thread") +
   " ORDER BY f.created_at ASC, f.follower_id ASC LIMIT " + FOLLOW_FANOUT_CAP;
 
 // Binds (5) in text order: now, label, authorId (followers), postId,

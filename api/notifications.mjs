@@ -21,13 +21,38 @@
 // Notification routes and the insert-batch pieces Task 5 spreads into the
 // reply-insert transaction. Notification rows live in D1 (see
 // migrations/0002_forum_v2.sql) and are recipient-only data throughout.
-import { requireSignedInRead, requireUser } from "./core/auth.mjs";
+import { assertNotBanned, requireSignedInRead, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { HttpError, json } from "./core/http.mjs";
+import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { maskedExcerpt } from "./core/spoilers.mjs";
 import { ACTIVE_BAN_SQL, VIEWABLE_POST_BINDS, viewablePostSql } from "./core/visibility.mjs";
 
 const NOTIFICATIONS_PER_USER = 50;
+
+// v5.40.0: per-kind notification preferences (migration 0068). The fixed
+// allowlist of member-mutable kinds, one per creating path:
+//   reply          notificationBatchStatements — a reply to your post/reply
+//                  (replies.mjs, the MCP reply tool);
+//   subscription   subscriptions.mjs — a reply in a thread you subscribed to;
+//   mention        mentions.mjs — an @mention in a post or reply;
+//   chat_mention   chat.mjs — an @mention in the lobby chat;
+//   follow_thread  follows.mjs — a new thread from a member you follow;
+//   invite_joined  invites.mjs — a friend joined with your invite link.
+// Appeal outcomes (appeals.mjs, notifyStatement with no kind) are safety
+// notices: never in this list, never mutable.
+export const NOTIFICATION_KINDS = Object.freeze([
+  "reply", "subscription", "mention", "chat_mention", "follow_thread", "invite_joined",
+]);
+const MAX_PREFS_ENTRIES = NOTIFICATION_KINDS.length * 4;
+
+// "The recipient muted this kind", for an INSERT…SELECT's WHERE. The kind is
+// an allowlist literal (never user text) so the predicate binds nothing;
+// `recipientExpr` is a column or a "?" the caller binds itself. One PK probe.
+export function mutedKindSql(recipientExpr, kind) {
+  if (!NOTIFICATION_KINDS.includes(kind)) throw new Error("Unknown notification kind: " + kind);
+  return "EXISTS (SELECT 1 FROM notification_prefs np WHERE np.user_id = " + recipientExpr +
+    " AND instr(',' || np.muted || ',', '," + kind + ",') > 0)";
+}
 
 // Statements ready to spread into the reply-insert D1 batch. Empty when there
 // is no recipient (no author row to notify) or the reply author would be
@@ -39,18 +64,22 @@ const NOTIFICATIONS_PER_USER = 50;
 // post and the unbanned author, so the residual risk this guard addresses is
 // the duplicate notification row (batch retries / accidental double fans).
 // The dedupe also keeps unreadCount from double counting one reply.
-const INSERT_NOTIFICATION_SQL =
-  "INSERT INTO notifications (user_id, target_post_id, reply_id, created_at) " +
-    "SELECT ?, ?, ?, ? WHERE NOT EXISTS (" +
-    "SELECT 1 FROM notifications WHERE user_id = ? AND reply_id = ? LIMIT 1)";
+// v5.40.0: plus the recipient's mute for the path's kind, bound once more at
+// the end (7 binds unlabelled, 8 labelled — fixed per statement).
+const insertNotificationSql = (kind, withLabel) =>
+  "INSERT INTO notifications (user_id, target_post_id, reply_id, created_at" + (withLabel ? ", label" : "") + ") " +
+    "SELECT ?, ?, ?, ?" + (withLabel ? ", ?" : "") + " WHERE NOT EXISTS (" +
+    "SELECT 1 FROM notifications WHERE user_id = ? AND reply_id = ? LIMIT 1) AND NOT " + mutedKindSql("?", kind);
 
 // The labelled variant (fix round C): the only fan-out source that
 // self-describes is the mention scan — "You were mentioned by <username>".
 // Everything else inserts with no label (NULL) and keeps the generic copy.
-const INSERT_NOTIFICATION_WITH_LABEL_SQL =
-  "INSERT INTO notifications (user_id, target_post_id, reply_id, created_at, label) " +
-    "SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
-    "SELECT 1 FROM notifications WHERE user_id = ? AND reply_id = ? LIMIT 1)";
+const INSERT_SQL_BY_KIND = Object.freeze(Object.fromEntries(NOTIFICATION_KINDS.map((kind) =>
+  [kind, Object.freeze({ plain: insertNotificationSql(kind, false), labelled: insertNotificationSql(kind, true) })])));
+const insertSqlFor = (kind) => {
+  if (!Object.hasOwn(INSERT_SQL_BY_KIND, kind)) throw new Error("Unknown notification kind: " + kind);
+  return INSERT_SQL_BY_KIND[kind];
+};
 
 const PRUNE_NOTIFICATIONS_SQL =
   "DELETE FROM notifications WHERE user_id = ? AND id NOT IN (" +
@@ -126,8 +155,8 @@ function publicNotification(row) {
 function notificationBatchStatements(db, recipientId, replyAuthorId, targetPostId, replyId, now) {
   if (recipientId === null || Number(recipientId) === Number(replyAuthorId)) return [];
   return [
-    db.prepare(INSERT_NOTIFICATION_SQL)
-      .bind(recipientId, targetPostId, replyId, now, recipientId, replyId),
+    db.prepare(insertSqlFor("reply").plain)
+      .bind(recipientId, targetPostId, replyId, now, recipientId, replyId, recipientId),
     db.prepare(PRUNE_NOTIFICATIONS_SQL).bind(recipientId, recipientId),
   ];
 }
@@ -138,14 +167,17 @@ function notificationBatchStatements(db, recipientId, replyAuthorId, targetPostI
 // list. Caller-side exclusions (reply author, ordinary target, self-mention)
 // are applied BEFORE this runs; the INSERT's own NOT EXISTS guard remains the
 // last line of defense against duplicate notifications for one (member, reply).
-export function fanOutStatements(db, recipientIds, { targetPostId, replyId, now, label }) {
+export function fanOutStatements(db, recipientIds, { targetPostId, replyId, now, label, kind }) {
   const hasLabel = typeof label === "string" && label.length > 0;
   if (hasLabel && label.length > 200) {
     // Labels are server-computed copy (never user text beyond the actor's own
     // 24-char username); a runaway label is a caller bug — refuse loudly.
     throw new HttpError(500, "Notification label too long.");
   }
-  const insertSql = hasLabel ? INSERT_NOTIFICATION_WITH_LABEL_SQL : INSERT_NOTIFICATION_SQL;
+  // v5.40.0: every fan-out names its kind; the INSERT skips a recipient who
+  // muted it (an unknown kind is a caller bug and throws).
+  const sqlForKind = insertSqlFor(kind);
+  const insertSql = hasLabel ? sqlForKind.labelled : sqlForKind.plain;
   const statements = [];
   const seen = new Set();
   for (const rawId of recipientIds || []) {
@@ -155,9 +187,9 @@ export function fanOutStatements(db, recipientIds, { targetPostId, replyId, now,
     statements.push(
       hasLabel
         ? db.prepare(insertSql)
-          .bind(recipientId, targetPostId, replyId, now, label, recipientId, replyId)
+          .bind(recipientId, targetPostId, replyId, now, label, recipientId, replyId, recipientId)
         : db.prepare(insertSql)
-          .bind(recipientId, targetPostId, replyId, now, recipientId, replyId),
+          .bind(recipientId, targetPostId, replyId, now, recipientId, replyId, recipientId),
       db.prepare(PRUNE_NOTIFICATIONS_SQL).bind(recipientId, recipientId),
     );
   }
@@ -165,14 +197,71 @@ export function fanOutStatements(db, recipientIds, { targetPostId, replyId, now,
 }
 
 // A label-only notification (v4.2): the row has NO post target — appeal
-// outcomes, chat/DM pings — so it is a plain INSERT; the reply-dedupe guard
-// above keys on reply_id, which is NULL here (nothing to dedupe against).
-// Labels are server-computed copy, capped like every other label.
-function notifyStatement(db, userId, label) {
+// outcomes, chat/DM pings — so there is no reply-dedupe guard (it keys on
+// reply_id, which is NULL here). Labels are server-computed copy, capped like
+// every other label. v5.40.0: a `kind` from NOTIFICATION_KINDS makes the row
+// mutable (the recipient's mute is checked in the same statement); no kind =
+// a safety notice (appeal outcomes) that always lands.
+function notifyStatement(db, userId, label, kind = null) {
+  const capped = String(label).slice(0, 200);
+  if (kind === null) {
+    return db.prepare(
+      "INSERT INTO notifications (user_id, target_post_id, reply_id, created_at, label) " +
+        "VALUES (?, NULL, NULL, ?, ?)",
+    ).bind(userId, nowSeconds(), capped);
+  }
   return db.prepare(
     "INSERT INTO notifications (user_id, target_post_id, reply_id, created_at, label) " +
-      "VALUES (?, NULL, NULL, ?, ?)",
-  ).bind(userId, nowSeconds(), String(label).slice(0, 200));
+      "SELECT ?, NULL, NULL, ?, ? WHERE NOT " + mutedKindSql("?", kind),
+  ).bind(userId, nowSeconds(), capped, userId);
+}
+
+// Stored list -> allowlist order, unknown entries dropped (a kind retired in
+// a later version simply stops counting).
+const parseMuted = (stored) => {
+  const entries = new Set(String(stored ?? "").split(","));
+  return NOTIFICATION_KINDS.filter((kind) => entries.has(kind));
+};
+
+// PUT body -> the validated list, or a 400. Strict: an array of exact
+// allowlist strings (case and whitespace count), bounded length.
+function validMuted(body) {
+  const muted = body?.muted;
+  if (!Array.isArray(muted) || muted.length > MAX_PREFS_ENTRIES) {
+    throw new HttpError(400, "Send the list of notification kinds to mute.");
+  }
+  for (const kind of muted) {
+    if (typeof kind !== "string" || !NOTIFICATION_KINDS.includes(kind)) {
+      throw new HttpError(400, "That notification kind is not one you can mute.");
+    }
+  }
+  return NOTIFICATION_KINDS.filter((kind) => muted.includes(kind));
+}
+
+async function readPrefs(env, userId) {
+  const row = await env.FORUM_DB.prepare("SELECT muted FROM notification_prefs WHERE user_id = ? LIMIT 1")
+    .bind(userId).first();
+  return { kinds: [...NOTIFICATION_KINDS], muted: parseMuted(row?.muted) };
+}
+
+// GET/PUT /api/me/notification-prefs: own row only. Writes are signed in +
+// CSRF (requireUser), not banned, and on the write rate limit tier.
+async function handleNotificationPrefsRoute(request, env, method) {
+  if (method === "GET") {
+    const user = await requireSignedInRead(request, env);
+    return json(await readPrefs(env, Number(user.user.id)));
+  }
+  if (method !== "PUT") throw new HttpError(405, "That method is not supported.");
+  const session = await requireUser(request, env);
+  const userId = Number(session.user.id);
+  await assertNotBanned(env, userId);
+  await rateLimit(request, env, "write", String(userId));
+  const muted = validMuted(await readJson(request));
+  await env.FORUM_DB.prepare(
+    "INSERT INTO notification_prefs (user_id, muted, updated_at) VALUES (?, ?, ?) " +
+      "ON CONFLICT(user_id) DO UPDATE SET muted = excluded.muted, updated_at = excluded.updated_at",
+  ).bind(userId, muted.join(","), nowSeconds()).run();
+  return json({ kinds: [...NOTIFICATION_KINDS], muted });
 }
 
 // The unread badge: the same rows the list shows (wave 40) — staff count
@@ -191,6 +280,8 @@ async function unreadCount(env, userId, role = null) {
 
 async function handleNotificationsRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
+
+  if (path === "/api/me/notification-prefs") return handleNotificationPrefsRoute(request, env, method);
 
   if (path === "/api/me/notifications") {
     if (method !== "GET") throw new HttpError(405, "That method is not supported.");

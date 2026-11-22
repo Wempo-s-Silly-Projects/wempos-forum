@@ -641,3 +641,24 @@ test("wave 5.39: a new thread notifies followers except across a block pair or w
   const recipients = w.db.prepare("SELECT user_id FROM notifications WHERE reply_id = ?").all(postId).map((row) => Number(row.user_id)).sort((a, b) => a - b);
   assert.deepEqual(recipients, [w.id.viewer, w.id.outsider].sort((a, b) => a - b), "zzblocker (pair) and zzbanned (banned) get nothing");
 });
+
+test("wave 5.40: a follow_thread mute composes with the ban and block exclusions; the prefs read is own-row only", async () => {
+  const w = await seedWorld();
+  w.db.prepare("INSERT INTO user_follows (follower_id, followee_id, created_at) VALUES (?, ?, ?)").run(w.id.zzbanned, w.id.zzblocked, now());
+  w.db.prepare("INSERT INTO user_follows (follower_id, followee_id, created_at) VALUES (?, ?, ?)").run(w.id.outsider, w.id.zzblocked, now());
+  const prefs = "/api/me/notification-prefs";
+  const muted = await call(w.env, prefs, { method: "PUT", session: forgeSession(w.db, w.id.viewer), body: { muted: ["follow_thread"] } });
+  assert.equal(muted.status, 200);
+  const created = await call(w.env, "/api/posts", { method: "POST", session: forgeSession(w.db, w.id.zzblocked),
+    body: { body: "zzsweep 5.40 thread from the blocked side" } });
+  assert.equal(created.status, 201);
+  const postId = (await created.json()).id;
+  const recipients = w.db.prepare("SELECT user_id FROM notifications WHERE reply_id = ?").all(postId).map((row) => Number(row.user_id));
+  assert.deepEqual(recipients, [w.id.outsider], "viewer muted; zzblocker (pair) and zzbanned (banned) still get nothing");
+  assert.equal((await call(w.env, prefs)).status, 401, "guests read nothing");
+  for (const name of ["outsider", "zzblocker", "zzblocked", "boss"]) {
+    const body = await fetchText(w.env, prefs, { session: forgeSession(w.db, w.id[name]) });
+    assert.deepEqual(JSON.parse(body).muted, [], name + " never sees the viewer's mutes");
+    for (const forbidden of [...ALWAYS_FORBIDDEN, "viewer"]) assert.ok(!body.includes(forbidden), name + ": " + forbidden);
+  }
+});
