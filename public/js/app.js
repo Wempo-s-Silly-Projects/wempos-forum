@@ -166,6 +166,7 @@ import { createFolderActions } from "./bookmark-folders.js";
 import { stopReadAloud } from "./read-aloud.js";
 import { stopReadingProgress } from "./reading-progress.js";
 import { applyTabUnread, normaliseTabCount, pageStorage } from "./tab-unread.js";
+import { setTabBadgeCount } from "./tab-badge.js";
 import { paintSourceLink } from "./source-link.js";
 import { attachRecentSearches } from "./recent-searches.js";
 import { wireSkipLink } from "./skip-link.js";
@@ -286,6 +287,7 @@ async function renderRoute(route) {
   if (!context) return;
   setRouteTitle(route);
   applyTabUnread(document, state.unreadNotifications, pageStorage());
+  setTabBadgeCount("notifications", state.unreadNotifications);
 
   const renderers = {
     setup: () => renderSetupRoute(context),

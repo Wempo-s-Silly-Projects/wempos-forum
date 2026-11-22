@@ -106,6 +106,7 @@ export const notificationItemView = (item) => {
 // stays in the DOM so updateBell() can reveal it later without a rebuild.
 import { createIcon } from "./icons.js";
 import { applyTabUnread, pageStorage } from "./tab-unread.js";
+import { setTabBadgeCount } from "./tab-badge.js";
 
 export const createNotificationBell = (unreadCount, document) => {
   const bell = document.createElement("a");
@@ -137,6 +138,7 @@ export function updateBell(unreadCount) {
   badge.textContent = ""; // a dot, not a number — the count lives in aria-label
   badge.hidden = count === 0;
   applyTabUnread(document, count, pageStorage()); // opt-in tab-title count (v5.3)
+  setTabBadgeCount("notifications", count); // favicon badge on hidden tabs
   const bell = document.querySelector("#notification-bell");
   if (bell) {
     bell.setAttribute("aria-label",

@@ -27,6 +27,7 @@ import { t } from "./i18n.js";
 import { readPins, sortPinnedFirst } from "./chat-pins.js";
 import { isMuted, readMutes, unmutedUnreadTotal } from "./chat-mutes.js";
 import { state } from "./state.js";
+import { setTabBadgeCount } from "./tab-badge.js";
 import { FILTER_QUERY_MAX, filterConversations, onlyUnread } from "./chat-filter.js";
 import { groupTitle, imageIdOf } from "./dm-extras.js";
 import { buildAvatar, conversationKey, el, kindOf, ui } from "./chat-widget-state.js";
@@ -116,6 +117,7 @@ export const paintBadge = () => {
   });
   ui.badge.textContent = String(total);
   ui.badge.hidden = total === 0;
+  setTabBadgeCount("dms", total); // favicon badge on hidden tabs
 };
 
 export const paintThreadList = () => {
