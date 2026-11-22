@@ -10,6 +10,22 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.79.0] - 2026-11-22
+
+### Added
+- **Make it a Quote:** turn any post, reply or lobby message you can see into a shareable PNG card — avatar on the left fading into a dark background, the quote on the right with the author's name and @handle. Download it or copy the image. Spoilers stay masked; right-to-left text renders correctly (vendored canvas-txt and bidi-js).
+- **Math, diagrams and logs in posts:** `$…$` / `$$…$$` math (KaTeX, self-hosted fonts), ```mermaid diagrams (strict mode, pan and zoom for big ones), coloured ```ansi / ```console logs (ansi_up) and collapsible trees for long ```json blocks (json-formatter-js). DOMPurify adds a final safety pass on everything these produce.
+- **Click-to-load embeds and players:** standalone YouTube links show a local placeholder and only load youtube-nocookie after you press play; same-origin video (HLS via hls.js), audio waveforms (WaveSurfer), an accessible player skin (Plyr) and click-to-load 3D models (model-viewer). Nothing contacts a third party before you click.
+- **Keyboard and navigation polish:** shortcuts (g h, g c, /, ? for help, with an off switch), a thin loading bar, badge tooltips, the "Jump to" outline follows your reading position, smooth list changes, sortable leaderboard and admin tables, counting-up scores and a header that tucks away on small screens — all still under reduced motion.
+- **Offline and sync:** a service worker caches the app's static files for faster repeat visits and shows an offline page (never caches your private data); drafts move to IndexedDB; "Download my data" now streams a ZIP including your own uploaded images; signing out, theme and unread counts sync across open tabs; network hiccups retry safe requests automatically.
+- **Fun extras (all off by default):** confetti for new badges, animated badge art, highlight underlines, a typed headline, synthesized notification sounds, a sketch tool for attachments and a few easter eggs — find them under Settings → Appearance.
+
+### Security
+- The page policy allows only what the new embeds need: youtube-nocookie frames after a click, local `blob:` media, and one hashed WaveSurfer style. No unsafe-inline or eval anywhere.
+
+### Dependencies
+- Vendored (all AGPL-compatible): canvas-txt, bidi-js, DOMPurify, KaTeX, Mermaid, svg-pan-zoom, ansi_up, json-formatter-js, hls.js, Plyr, WaveSurfer, model-viewer, tinykeys, NProgress, Floating UI, AutoAnimate, tablesort, CountUp.js, Headroom.js, idb-keyval, client-zip, nanoevents, canvas-confetti, Lottie (light), rough-notation, vanilla-tilt, TypeIt, Splitting, ZzFX, cursor-effects, Matter.js and signature_pad.
+
 ## [5.78.0] - 2026-11-22
 
 ### Added
