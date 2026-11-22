@@ -3938,3 +3938,15 @@ mark.search-hit {
 .saved-search-list { list-style: none; margin: 8px 0 0; padding: 0; }
 .saved-search-item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 4px 0; }
 .saved-search-query { overflow-wrap: anywhere; }
+
+/* Thread TL;DR (v5.50.0): the author's summary above the replies. */
+.thread-tldr-title { margin: 0 0 4px; font-size: 1rem; }
+.thread-tldr-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.thread-tldr-input { display: block; width: 100%; box-sizing: border-box; resize: vertical; font: inherit; margin-top: 8px; }
+.thread-tldr-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.thread-tldr-status:empty { display: none; }
+
+/* Edit history word diff (v5.50.0): marks carry an underline/strike, not
+   color alone, so they read in every theme and without color vision. */
+.edit-diff-ins { text-decoration: underline; text-decoration-thickness: 2px; color: var(--success-ink); background: none; }
+.edit-diff-del { text-decoration: line-through; color: var(--muted); background: none; }

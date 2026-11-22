@@ -60,6 +60,7 @@ import { createShareButton } from "../share.js";
 import { createSlowModeForm, createSlowModeNote, slowModePath } from "../slow-mode.js";
 import { createTagChips, createTagEditor, postTagsPath } from "../tags.js";
 import { createThreadOutline } from "../thread-outline.js";
+import { createThreadSummary, loadThreadSummary } from "../thread-summary.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -81,6 +82,15 @@ async function renderPostRoute(route, context, version) {
   // author and staff. A failed tag read leaves the page without chips.
   if (!post.parent) await appendThreadTags(post, viewer, version);
   if (version !== state.renderVersion) return;
+  // TL;DR (v5.50): roots only, above the replies; the editor for the author
+  // and staff (the server gates it again). It fills in without blocking.
+  if (!post.parent) {
+    const isStaffViewer = viewer?.role === "owner" || viewer?.role === "admin";
+    const canEdit = Boolean(viewer) && (isStaffViewer || Number(post.author?.id) === Number(viewer.id));
+    const tldr = createThreadSummary(document, { postId: post.id, canEdit });
+    main.append(tldr);
+    loadThreadSummary(tldr);
+  }
   // Share (v5.34): public root threads only, never for staff viewers.
   const share = createShareButton(document, post, context.session.user);
   if (share) main.append(share);
@@ -409,7 +419,7 @@ export const ACTIONS = {
       return;
     }
     const data = await api(`/api/posts/${encodeURIComponent(button.dataset.postId)}/edits`);
-    article.append(renderEditHistoryPanel(document, data.edits));
+    article.append(renderEditHistoryPanel(document, data.edits, article.postBody));
   },
 };
 

@@ -153,6 +153,10 @@ export const PRIVATE_NOTES_MAX = 1000;
 export const SAVED_SEARCH_NAME_MAX_CHARS = 40;
 export const SAVED_SEARCHES_MAX = 20;
 
+// v5.50 thread TL;DR (migration 0074): one summary per root, at most
+// THREAD_SUMMARY_MAX_CHARS characters (the table's CHECK matches).
+export const THREAD_SUMMARY_MAX_CHARS = 280;
+
 // v4.23 Download my data (GET /api/me/export): the most rows each section of
 // the caller's own export carries, newest first. A section that hit its cap
 // is flagged in the export's `truncated` map so the file never silently
@@ -170,4 +174,6 @@ export const EXPORT_SECTION_CAPS = Object.freeze({
   privateNotes: PRIVATE_NOTES_MAX,
   // v5.48: the caller's OWN saved searches (name, q, by, in, time).
   savedSearches: SAVED_SEARCHES_MAX,
+  // v5.50: TL;DR summaries the caller WROTE (post id, body, time).
+  threadSummaries: 2000,
 });

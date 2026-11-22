@@ -37,6 +37,9 @@
 //   body, time). Notes other members keep about the caller are theirs.
 // - Saved searches (v5.48): the caller's OWN saved searches (name, q, by,
 //   in, time), owner-keyed.
+// - Thread TL;DRs (v5.50): only summaries the caller WROTE (post id, body,
+//   time) — on their own threads or, for staff, on others'. A summary staff
+//   wrote on the caller's thread is the writer's record.
 // - Direct messages: only messages the caller AUTHORED (1:1 and group), with
 //   the conversation's other username / group name for context. Replies
 //   written by others belong to them and stay out.
@@ -127,6 +130,10 @@ const SECTION_READERS = {
   savedSearches: (db, id, cap) => rowsCapped(db,
     "SELECT name, q, by_username, in_scope, created_at FROM saved_searches WHERE owner_id = ? " +
     "ORDER BY created_at DESC, id DESC", [id], cap),
+  // v5.50: TL;DR summaries the caller WROTE (migration 0074), writer-keyed.
+  threadSummaries: (db, id, cap) => rowsCapped(db,
+    "SELECT post_id, body, updated_at FROM thread_summaries WHERE updated_by = ? " +
+    "ORDER BY updated_at DESC, post_id DESC", [id], cap),
 };
 
 // Both DM stores, caller-authored rows only, merged newest first under one cap.
@@ -178,6 +185,7 @@ const SECTION_SHAPERS = {
   savedSearches: (row) => ({
     name: row.name, q: row.q, by: row.by_username ?? null, in: row.in_scope ?? null, createdAt: isoOrNull(row.created_at),
   }),
+  threadSummaries: (row) => ({ postId: Number(row.post_id), body: row.body, updatedAt: isoOrNull(row.updated_at) }),
 };
 
 export async function buildExport(env, userId) {
