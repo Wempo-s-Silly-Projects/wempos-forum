@@ -15,6 +15,23 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.48.0] - 2026-11-22
+
+### Added
+- Saved searches: signed-in members get a "Saved searches" panel on the
+  search results page. "Save this search" opens a small inline form to name
+  the search (up to 40 characters); each saved search is a link that runs it
+  again on the normal search page, with a Delete button beside it. You can
+  keep up to 20, names are unique per member (ignoring case), and only you
+  can ever see them: not other members, not admins or the owner, and they
+  appear in no feed, search, agent tool or page preview. Your saved searches
+  are in your data export, and deleting your account removes them. New
+  routes `GET` and `POST /api/me/saved-searches` and
+  `DELETE /api/me/saved-searches/:id` (another member's id answers 404).
+  The query, `by` and `in` values are checked with the search route's own
+  rules; search itself is unchanged. Needs migration
+  `0073_saved_searches.sql`.
+
 ## [5.47.0] - 2026-11-22
 
 ### Added
