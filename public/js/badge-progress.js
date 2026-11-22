@@ -54,6 +54,8 @@ export function nextBadgeProgress(totalContributions) {
 export function createNextBadge(doc, totalContributions) {
   const line = doc.createElement("p");
   line.className = "profile-next-badge";
+  // Batch M: the badge held now, for the opt-in milestone confetti (fun/).
+  line.dataset.funBadge = badgeKeyFor(totalContributions);
   const progress = nextBadgeProgress(totalContributions);
   if (!progress) {
     line.textContent = t("profile.topBadge");

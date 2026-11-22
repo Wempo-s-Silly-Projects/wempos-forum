@@ -117,6 +117,12 @@ export function attachPasteAndDrop(form, textarea, document, onNotice = () => {}
   return strip;
 }
 
+// Batch M hook: the opt-in sketch tool (fun/sketch.js) stages its PNG here,
+// exactly like a pasted image.
+export function stagePendingFiles(form, files, onNotice = () => {}) {
+  stageFiles(form, files, onNotice);
+}
+
 // Attach: re-run the gate (the attached list may have changed since staging)
 // and return any refusals for the caller's status line.
 export function confirmPendingFiles(form) {

@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Puntuación",
   "data.zipNote": "Descarga un ZIP con tot lo que has escrito y configurau aquí en fichers JSON, y as imachens que has puyau. Nomás se replega quan pretas o botón y va dreito t'o tuyo dispositivo.",
   "data.zipReady": "O tuyo ZIP de datos se ye descargando.",
-  "data.imagesMissing": "O tuyo ZIP de datos se ye descargando. {count} d'as tuyas imachens no s'han puesto cargar y s'han deixau fuera."
+  "data.imagesMissing": "O tuyo ZIP de datos se ye descargando. {count} d'as tuyas imachens no s'han puesto cargar y s'han deixau fuera.",
+  "fun.title": "Extras divertius",
+  "fun.help": "Extras chugadors nomás ta iste dispositivo. Cadaguno se queda desactivau dica que l’actives.",
+  "fun.confetti": "Confeti quan gane una insignia nueva",
+  "fun.motion": "Insignias y resaltaus animaus",
+  "fun.heroType": "Titular escrito a maquina en a pachina d’inicio",
+  "fun.sounds": "Sons de notificación (as horas de silencio continan aplicando-se)",
+  "fun.easterEggs": "Uevos de Pascua (preba o codigo Konami)",
+  "fun.sketch": "Amostrar «Adchuntar un dibuixo» en l’editor",
+  "fun.reducedMotion": "O tuyo dispositivo demanda menos movimiento, asinas que os efectos animaus se quedan quietos.",
+  "fun.sketchButton": "Adchuntar un dibuixo",
+  "fun.sketchCanvas": "Aria de dibuixo",
+  "fun.sketchClear": "Borrar",
+  "fun.sketchAttach": "Adchuntar dibuixo",
+  "fun.toyTitle": "Chuguet de gravedat"
 }

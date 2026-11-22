@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Point",
   "data.zipNote": "Download en ZIP med alt, hvad du har skrevet og indstillet her, som JSON-filer, plus de billeder, du har uploadet. Den hentes kun, når du trykker på knappen, og går direkte til din enhed.",
   "data.zipReady": "Din data-ZIP bliver downloadet.",
-  "data.imagesMissing": "Din data-ZIP bliver downloadet. {count} af dine billeder kunne ikke hentes og er udeladt."
+  "data.imagesMissing": "Din data-ZIP bliver downloadet. {count} af dine billeder kunne ikke hentes og er udeladt.",
+  "fun.title": "Sjove ekstrafunktioner",
+  "fun.help": "Legesyge ekstrafunktioner kun til denne enhed. Hver enkelt er slået fra, indtil du slår den til.",
+  "fun.confetti": "Konfetti når jeg får et nyt badge",
+  "fun.motion": "Animerede badges og fremhævninger",
+  "fun.heroType": "Maskinskrevet overskrift på forsiden",
+  "fun.sounds": "Notifikationslyde (stille timer gælder stadig)",
+  "fun.easterEggs": "Easter eggs (prøv Konami-koden)",
+  "fun.sketch": "Vis “Vedhæft en skitse” i editoren",
+  "fun.reducedMotion": "Din enhed beder om mindre bevægelse, så bevægelige effekter står stille.",
+  "fun.sketchButton": "Vedhæft en skitse",
+  "fun.sketchCanvas": "Tegneområde",
+  "fun.sketchClear": "Ryd",
+  "fun.sketchAttach": "Vedhæft skitse",
+  "fun.toyTitle": "Tyngdekraftslegetøj"
 }

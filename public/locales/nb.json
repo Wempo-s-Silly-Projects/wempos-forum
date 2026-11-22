@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Poeng",
   "data.zipNote": "Last ned en ZIP med alt du har skrevet og stilt inn her som JSON-filer, pluss bildene du har lastet opp. Den hentes bare når du trykker på knappen, og går rett til enheten din.",
   "data.zipReady": "Data-ZIP-en din lastes ned.",
-  "data.imagesMissing": "Data-ZIP-en din lastes ned. {count} av bildene dine kunne ikke lastes og ble utelatt."
+  "data.imagesMissing": "Data-ZIP-en din lastes ned. {count} av bildene dine kunne ikke lastes og ble utelatt.",
+  "fun.title": "Morsomme ekstrafunksjoner",
+  "fun.help": "Lekne ekstrafunksjoner bare for denne enheten. Hver av dem er av til du slår den på.",
+  "fun.confetti": "Konfetti når jeg får et nytt merke",
+  "fun.motion": "Animerte merker og uthevinger",
+  "fun.heroType": "Maskinskrevet overskrift på forsiden",
+  "fun.sounds": "Varsellyder (stille timer gjelder fortsatt)",
+  "fun.easterEggs": "Påskeegg (prøv Konami-koden)",
+  "fun.sketch": "Vis «Legg ved en skisse» i redigeringsfeltet",
+  "fun.reducedMotion": "Enheten din ber om mindre bevegelse, så bevegelige effekter står stille.",
+  "fun.sketchButton": "Legg ved en skisse",
+  "fun.sketchCanvas": "Tegneområde",
+  "fun.sketchClear": "Tøm",
+  "fun.sketchAttach": "Legg ved skisse",
+  "fun.toyTitle": "Tyngdekraftsleke"
 }

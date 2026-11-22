@@ -1257,5 +1257,19 @@
   "ux.lbScore": "ነጥብ",
   "data.zipNote": "እዚህ የጻፉትንና ያዘጋጁትን ሁሉ በJSON ፋይሎች እንዲሁም የሰቀሉትን ምስሎች የያዘ ZIP ያውርዱ። ቁልፉን ሲጫኑ ብቻ ይመጣል፣ በቀጥታም ወደ መሣሪያዎ ይሄዳል።",
   "data.zipReady": "የመረጃ ZIPዎ እየወረደ ነው።",
-  "data.imagesMissing": "የመረጃ ZIPዎ እየወረደ ነው። ከምስሎችዎ {count} ሊጫኑ ስላልቻሉ ቀርተዋል።"
+  "data.imagesMissing": "የመረጃ ZIPዎ እየወረደ ነው። ከምስሎችዎ {count} ሊጫኑ ስላልቻሉ ቀርተዋል።",
+  "fun.title": "አዝናኝ ተጨማሪዎች",
+  "fun.help": "ለዚህ መሣሪያ ብቻ የሆኑ ተጫዋች ተጨማሪዎች። እያንዳንዳቸው እርስዎ እስኪያበሩ ድረስ ጠፍተው ይቆያሉ።",
+  "fun.confetti": "አዲስ ባጅ ሳገኝ ኮንፈቲ",
+  "fun.motion": "ተንቀሳቃሽ ባጆችና ድምቀቶች",
+  "fun.heroType": "በመነሻ ገጽ ላይ የሚተየብ ርዕስ",
+  "fun.sounds": "የማሳወቂያ ድምፆች (የጸጥታ ሰዓታት አሁንም ይሠራሉ)",
+  "fun.easterEggs": "የተደበቁ አስገራሚዎች (የKonami ኮድን ይሞክሩ)",
+  "fun.sketch": "በአርታዒው ውስጥ “ንድፍ አያይዝ” አሳይ",
+  "fun.reducedMotion": "መሣሪያዎ ያነሰ እንቅስቃሴ ይጠይቃል፣ ስለዚህ ተንቀሳቃሽ ውጤቶች ጸጥ ብለው ይቆያሉ።",
+  "fun.sketchButton": "ንድፍ አያይዝ",
+  "fun.sketchCanvas": "የመሳያ ቦታ",
+  "fun.sketchClear": "አጽዳ",
+  "fun.sketchAttach": "ንድፉን አያይዝ",
+  "fun.toyTitle": "የስበት መጫወቻ"
 }

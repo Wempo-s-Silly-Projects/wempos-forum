@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Punteggio",
   "data.zipNote": "Scarica uno ZIP con tutto ciò che hai scritto e impostato qui in file JSON, più le immagini che hai caricato. Viene recuperato solo quando premi il pulsante e va dritto sul tuo dispositivo.",
   "data.zipReady": "Lo ZIP dei tuoi dati è in download.",
-  "data.imagesMissing": "Lo ZIP dei tuoi dati è in download. {count} delle tue immagini non sono state caricate e sono state escluse."
+  "data.imagesMissing": "Lo ZIP dei tuoi dati è in download. {count} delle tue immagini non sono state caricate e sono state escluse.",
+  "fun.title": "Extra divertenti",
+  "fun.help": "Extra giocosi solo per questo dispositivo. Ognuno resta spento finché non lo attivi.",
+  "fun.confetti": "Coriandoli quando ottengo un nuovo distintivo",
+  "fun.motion": "Distintivi ed evidenziazioni animati",
+  "fun.heroType": "Titolo dattiloscritto nella pagina iniziale",
+  "fun.sounds": "Suoni di notifica (le ore di silenzio valgono comunque)",
+  "fun.easterEggs": "Easter egg (prova il codice Konami)",
+  "fun.sketch": "Mostra «Allega uno schizzo» nell’editor",
+  "fun.reducedMotion": "Il tuo dispositivo chiede meno movimento, quindi gli effetti animati restano fermi.",
+  "fun.sketchButton": "Allega uno schizzo",
+  "fun.sketchCanvas": "Area di disegno",
+  "fun.sketchClear": "Cancella",
+  "fun.sketchAttach": "Allega schizzo",
+  "fun.toyTitle": "Giocattolo a gravità"
 }

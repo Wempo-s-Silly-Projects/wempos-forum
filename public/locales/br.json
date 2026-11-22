@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Skor",
   "data.zipNote": "Pellgargit ur ZIP gant kement tra ho peus skrivet ha kefluniet amañ e restroù JSON, hag ar skeudennoù ho peus pellgaset. N'eo kerc'het nemet pa bouezit war ar bouton hag ez a war-eeun d'ho trevnad.",
   "data.zipReady": "Emañ ho ZIP roadennoù o pellgargañ.",
-  "data.imagesMissing": "Emañ ho ZIP roadennoù o pellgargañ. {count} eus ho skeudennoù n'int ket bet karget hag a zo bet lezet a-gostez."
+  "data.imagesMissing": "Emañ ho ZIP roadennoù o pellgargañ. {count} eus ho skeudennoù n'int ket bet karget hag a zo bet lezet a-gostez.",
+  "fun.title": "Traoù fentus ouzhpenn",
+  "fun.help": "Traoù c’hoariek evit an ardivink-mañ hepken. Pep hini a chom lazhet betek ma vo enaouet ganeoc’h.",
+  "fun.confetti": "Konfeti pa c’hounezan ur badj nevez",
+  "fun.motion": "Badjoù ha lakadurioù war wel bevet",
+  "fun.heroType": "Titl skrivet war ar bajenn degemer",
+  "fun.sounds": "Sonioù kemenn (an eurioù sioul a dalv atav)",
+  "fun.easterEggs": "Viou Pask (klaskit ar c’hod Konami)",
+  "fun.sketch": "Diskouez « Stagañ ur brastres » er skridaozer",
+  "fun.reducedMotion": "Goulenn a ra hoc’h ardivink nebeutoc’h a fiñv, neuze e chom difiñv an efedoù.",
+  "fun.sketchButton": "Stagañ ur brastres",
+  "fun.sketchCanvas": "Takad tresañ",
+  "fun.sketchClear": "Skarzhañ",
+  "fun.sketchAttach": "Stagañ ar brastres",
+  "fun.toyTitle": "C’hoariell pouezerezh"
 }

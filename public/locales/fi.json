@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Pisteet",
   "data.zipNote": "Lataa ZIP, jossa on kaikki mitä olet täällä kirjoittanut ja asettanut JSON-tiedostoina, sekä lataamasi kuvat. Se haetaan vain, kun painat painiketta, ja se menee suoraan laitteellesi.",
   "data.zipReady": "Tietojesi ZIP latautuu.",
-  "data.imagesMissing": "Tietojesi ZIP latautuu. {count} kuvaasi ei voitu ladata, joten ne jäivät pois."
+  "data.imagesMissing": "Tietojesi ZIP latautuu. {count} kuvaasi ei voitu ladata, joten ne jäivät pois.",
+  "fun.title": "Hauskat lisät",
+  "fun.help": "Leikkisiä lisiä vain tälle laitteelle. Jokainen pysyy pois päältä, kunnes otat sen käyttöön.",
+  "fun.confetti": "Konfetteja, kun ansaitsen uuden merkin",
+  "fun.motion": "Animoidut merkit ja korostukset",
+  "fun.heroType": "Kirjoituskoneella kirjoitettu otsikko etusivulla",
+  "fun.sounds": "Ilmoitusäänet (hiljaiset tunnit pätevät yhä)",
+  "fun.easterEggs": "Pääsiäismunat (kokeile Konami-koodia)",
+  "fun.sketch": "Näytä ”Liitä luonnos” kirjoituskentässä",
+  "fun.reducedMotion": "Laitteesi pyytää vähemmän liikettä, joten liikkuvat tehosteet pysyvät paikallaan.",
+  "fun.sketchButton": "Liitä luonnos",
+  "fun.sketchCanvas": "Piirtoalue",
+  "fun.sketchClear": "Tyhjennä",
+  "fun.sketchAttach": "Liitä luonnos",
+  "fun.toyTitle": "Painovoimalelu"
 }

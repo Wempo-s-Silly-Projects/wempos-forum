@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Poäng",
   "data.zipNote": "Ladda ner en ZIP med allt du har skrivit och ställt in här som JSON-filer, plus bilderna du har laddat upp. Den hämtas bara när du trycker på knappen och går direkt till din enhet.",
   "data.zipReady": "Din data-ZIP laddas ner.",
-  "data.imagesMissing": "Din data-ZIP laddas ner. {count} av dina bilder kunde inte läsas in och utelämnades."
+  "data.imagesMissing": "Din data-ZIP laddas ner. {count} av dina bilder kunde inte läsas in och utelämnades.",
+  "fun.title": "Roliga extrafunktioner",
+  "fun.help": "Lekfulla extrafunktioner bara för den här enheten. Var och en är av tills du slår på den.",
+  "fun.confetti": "Konfetti när jag får ett nytt märke",
+  "fun.motion": "Animerade märken och markeringar",
+  "fun.heroType": "Maskinskriven rubrik på startsidan",
+  "fun.sounds": "Aviseringsljud (tysta timmar gäller fortfarande)",
+  "fun.easterEggs": "Påskägg (testa Konami-koden)",
+  "fun.sketch": "Visa ”Bifoga en skiss” i redigeraren",
+  "fun.reducedMotion": "Din enhet ber om mindre rörelse, så rörliga effekter står still.",
+  "fun.sketchButton": "Bifoga en skiss",
+  "fun.sketchCanvas": "Ritområde",
+  "fun.sketchClear": "Rensa",
+  "fun.sketchAttach": "Bifoga skiss",
+  "fun.toyTitle": "Gravitationsleksak"
 }

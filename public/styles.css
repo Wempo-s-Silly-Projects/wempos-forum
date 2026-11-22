@@ -4441,3 +4441,6 @@ th[aria-sort="descending"]::after { content: " \2193"; }
 .shortcut-help { max-width: min(34rem, calc(100vw - 2rem)); border: 2px solid var(--line); border-radius: var(--button-radius); background: var(--paper); color: var(--ink); }
 .shortcut-help-list { padding-inline-start: 1.1rem; display: grid; gap: 0.35rem; }
 .shortcut-help-switch { display: flex; align-items: center; gap: 0.4rem; margin: 0.8rem 0; }
+/* Batch M fun extras: the settings panel only. Everything that moves lives in
+   public/fun.css, loaded only once an extra is switched on. */
+.fun-extras-toggle { display: block; margin-block: 0.35rem; }

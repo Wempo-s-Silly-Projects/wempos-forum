@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Skóre",
   "data.zipNote": "Stáhni si ZIP se vším, co jsi tu napsal a nastavil, jako soubory JSON a k tomu obrázky, které jsi nahrál. Načte se jen po stisknutí tlačítka a jde rovnou do tvého zařízení.",
   "data.zipReady": "ZIP s tvými daty se stahuje.",
-  "data.imagesMissing": "ZIP s tvými daty se stahuje. {count} tvých obrázků se nepodařilo načíst, takže chybí."
+  "data.imagesMissing": "ZIP s tvými daty se stahuje. {count} tvých obrázků se nepodařilo načíst, takže chybí.",
+  "fun.title": "Zábavné doplňky",
+  "fun.help": "Hravé doplňky jen pro toto zařízení. Každý zůstává vypnutý, dokud ho nezapnete.",
+  "fun.confetti": "Konfety, když získám nový odznak",
+  "fun.motion": "Animované odznaky a zvýraznění",
+  "fun.heroType": "Psaný nadpis na domovské stránce",
+  "fun.sounds": "Zvuky oznámení (tiché hodiny stále platí)",
+  "fun.easterEggs": "Velikonoční vajíčka (zkuste kód Konami)",
+  "fun.sketch": "Zobrazit „Připojit náčrt“ v editoru",
+  "fun.reducedMotion": "Vaše zařízení žádá méně pohybu, takže pohyblivé efekty zůstávají v klidu.",
+  "fun.sketchButton": "Připojit náčrt",
+  "fun.sketchCanvas": "Plocha pro kreslení",
+  "fun.sketchClear": "Vymazat",
+  "fun.sketchAttach": "Připojit náčrt",
+  "fun.toyTitle": "Gravitační hračka"
 }

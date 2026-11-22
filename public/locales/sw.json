@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Alama",
   "data.zipNote": "Pakua ZIP yenye kila ulichoandika na kuweka hapa kama faili za JSON, pamoja na picha ulizopakia. Inaletwa tu unapobonyeza kitufe na inaenda moja kwa moja kwenye kifaa chako.",
   "data.zipReady": "ZIP ya data yako inapakuliwa.",
-  "data.imagesMissing": "ZIP ya data yako inapakuliwa. Picha zako {count} hazikuweza kupakiwa na zimeachwa."
+  "data.imagesMissing": "ZIP ya data yako inapakuliwa. Picha zako {count} hazikuweza kupakiwa na zimeachwa.",
+  "fun.title": "Ziada za kufurahisha",
+  "fun.help": "Ziada za kuchezea kwa kifaa hiki pekee. Kila moja hubaki imezimwa hadi uiwashe.",
+  "fun.confetti": "Konfeti ninapopata beji mpya",
+  "fun.motion": "Beji na vivutio vinavyosonga",
+  "fun.heroType": "Kichwa kinachoandikwa kwenye ukurasa wa nyumbani",
+  "fun.sounds": "Sauti za arifa (saa za utulivu bado zinatumika)",
+  "fun.easterEggs": "Mayai ya Pasaka (jaribu msimbo wa Konami)",
+  "fun.sketch": "Onyesha “Ambatisha mchoro” kwenye kihariri",
+  "fun.reducedMotion": "Kifaa chako kinaomba mwendo mdogo, kwa hiyo madoido yanayosonga hubaki tuli.",
+  "fun.sketchButton": "Ambatisha mchoro",
+  "fun.sketchCanvas": "Eneo la kuchora",
+  "fun.sketchClear": "Futa",
+  "fun.sketchAttach": "Ambatisha mchoro",
+  "fun.toyTitle": "Kichezeo cha mvuto"
 }

@@ -112,8 +112,10 @@ const REMOVAL = /\.removeItem\s*\(|(?:local|session)Storage\s*\.\s*clear\s*\(|st
 // remembered Mastodon server), both cleared by the sign-out wipe.
 // v5.36: + recent-searches.js (account-scoped, cleared by the sign-out wipe).
 // v5.46: + thread-outline.js (account-scoped open state, cleared by the wipe).
-const REMOVAL_FILES = ["catch-up.js", "chat-mutes.js", "chat-pins.js", "drafts.js", "gallery-picks.js", "invite.js", "newcomer.js",
-  "quiet-hours.js", "recent-searches.js", "share.js", "thread-outline.js"];
+// Batch M: + fun/settings.js (per-member milestone-badge markers for the
+// opt-in confetti, cleared by the wipe; the switches themselves stay).
+const REMOVAL_FILES = ["catch-up.js", "chat-mutes.js", "chat-pins.js", "drafts.js", "fun/settings.js", "gallery-picks.js", "invite.js",
+  "newcomer.js", "quiet-hours.js", "recent-searches.js", "share.js", "thread-outline.js"];
 
 test("storage removals appear only in the account-scoped families", () => {
   const removers = [...sources].filter(([, src]) => REMOVAL.test(src)).map(([path]) => path).sort();

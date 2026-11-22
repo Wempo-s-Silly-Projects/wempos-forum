@@ -39,6 +39,7 @@ import { clearAllMutes } from "../chat-mutes.js";
 import { clearAllRecents } from "../gallery-picks.js";
 import { clearAllRecentSearches } from "../recent-searches.js";
 import { clearAllQuietHours } from "../quiet-hours.js";
+import { clearAllFunExtras } from "../fun/settings.js";
 import { clearAllThreadOutline } from "../thread-outline.js";
 import { createNotificationBell } from "../notifications.js";
 import { createShortcutSheet } from "../shortcut-sheet.js";
@@ -325,6 +326,7 @@ function wipeAccountLocalData() {
   clearAllMutes();
   clearAllRecents();
   clearAllQuietHours();
+  clearAllFunExtras();
   clearAllRecentSearches();
   clearAllThreadOutline();
 }

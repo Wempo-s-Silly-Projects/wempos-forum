@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Pikët",
   "data.zipNote": "Shkarko një ZIP me gjithçka që ke shkruar dhe vendosur këtu si skedarë JSON, si dhe imazhet që ke ngarkuar. Merret vetëm kur shtyp butonin dhe shkon drejt e në pajisjen tënde.",
   "data.zipReady": "ZIP-i me të dhënat e tua po shkarkohet.",
-  "data.imagesMissing": "ZIP-i me të dhënat e tua po shkarkohet. {count} nga imazhet e tua nuk u ngarkuan dhe u lanë jashtë."
+  "data.imagesMissing": "ZIP-i me të dhënat e tua po shkarkohet. {count} nga imazhet e tua nuk u ngarkuan dhe u lanë jashtë.",
+  "fun.title": "Shtesa argëtuese",
+  "fun.help": "Shtesa lozonjare vetëm për këtë pajisje. Secila mbetet e fikur derisa ta ndezësh.",
+  "fun.confetti": "Konfeti kur fitoj një stemë të re",
+  "fun.motion": "Stema dhe theksime të animuara",
+  "fun.heroType": "Titull i shtypur në faqen kryesore",
+  "fun.sounds": "Tinguj njoftimesh (orët e qetësisë vlejnë ende)",
+  "fun.easterEggs": "Vezë Pashke (provo kodin Konami)",
+  "fun.sketch": "Shfaq “Bashkëngjit një skicë” te redaktori",
+  "fun.reducedMotion": "Pajisja jote kërkon më pak lëvizje, ndaj efektet lëvizëse qëndrojnë të palëvizura.",
+  "fun.sketchButton": "Bashkëngjit një skicë",
+  "fun.sketchCanvas": "Zona e vizatimit",
+  "fun.sketchClear": "Pastro",
+  "fun.sketchAttach": "Bashkëngjit skicën",
+  "fun.toyTitle": "Lodër me gravitet"
 }

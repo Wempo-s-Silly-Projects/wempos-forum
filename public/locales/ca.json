@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Puntuació",
   "data.zipNote": "Baixa un ZIP amb tot el que has escrit i configurat aquí en fitxers JSON, més les imatges que has penjat. Només es demana quan prems el botó i va directament al teu dispositiu.",
   "data.zipReady": "S'està baixant el ZIP amb les teves dades.",
-  "data.imagesMissing": "S'està baixant el ZIP amb les teves dades. No s'han pogut carregar {count} de les teves imatges i s'han deixat fora."
+  "data.imagesMissing": "S'està baixant el ZIP amb les teves dades. No s'han pogut carregar {count} de les teves imatges i s'han deixat fora.",
+  "fun.title": "Extres divertits",
+  "fun.help": "Extres juganers només per a aquest dispositiu. Cadascun resta desactivat fins que l’activis.",
+  "fun.confetti": "Confeti quan guanyi una insígnia nova",
+  "fun.motion": "Insígnies i ressaltats animats",
+  "fun.heroType": "Titular mecanografiat a la pàgina d’inici",
+  "fun.sounds": "Sons de notificació (les hores de silenci continuen vigents)",
+  "fun.easterEggs": "Ous de Pasqua (prova el codi Konami)",
+  "fun.sketch": "Mostra «Adjunta un dibuix» a l’editor",
+  "fun.reducedMotion": "El teu dispositiu demana menys moviment, així que els efectes animats es queden quiets.",
+  "fun.sketchButton": "Adjunta un dibuix",
+  "fun.sketchCanvas": "Àrea de dibuix",
+  "fun.sketchClear": "Esborra",
+  "fun.sketchAttach": "Adjunta el dibuix",
+  "fun.toyTitle": "Joguina de gravetat"
 }

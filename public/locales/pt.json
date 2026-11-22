@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Pontuação",
   "data.zipNote": "Baixe um ZIP com tudo o que você escreveu e configurou aqui em arquivos JSON, mais as imagens que você enviou. Ele só é buscado quando você aperta o botão e vai direto para o seu dispositivo.",
   "data.zipReady": "Seu ZIP de dados está sendo baixado.",
-  "data.imagesMissing": "Seu ZIP de dados está sendo baixado. {count} das suas imagens não puderam ser carregadas e ficaram de fora."
+  "data.imagesMissing": "Seu ZIP de dados está sendo baixado. {count} das suas imagens não puderam ser carregadas e ficaram de fora.",
+  "fun.title": "Extras divertidos",
+  "fun.help": "Extras lúdicos só para este dispositivo. Cada um fica desligado até você o ativar.",
+  "fun.confetti": "Confetes quando eu ganhar um novo emblema",
+  "fun.motion": "Emblemas e destaques animados",
+  "fun.heroType": "Título datilografado na página inicial",
+  "fun.sounds": "Sons de notificação (o horário de silêncio continua valendo)",
+  "fun.easterEggs": "Easter eggs (experimente o código Konami)",
+  "fun.sketch": "Mostrar “Anexar um desenho” no editor",
+  "fun.reducedMotion": "Seu dispositivo pede menos movimento, então os efeitos animados ficam parados.",
+  "fun.sketchButton": "Anexar um desenho",
+  "fun.sketchCanvas": "Área de desenho",
+  "fun.sketchClear": "Limpar",
+  "fun.sketchAttach": "Anexar desenho",
+  "fun.toyTitle": "Brinquedo de gravidade"
 }

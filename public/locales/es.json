@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Puntuación",
   "data.zipNote": "Descarga un ZIP con todo lo que has escrito y configurado aquí en archivos JSON, más las imágenes que has subido. Solo se obtiene cuando pulsas el botón y va directo a tu dispositivo.",
   "data.zipReady": "Tu ZIP de datos se está descargando.",
-  "data.imagesMissing": "Tu ZIP de datos se está descargando. {count} de tus imágenes no se pudieron cargar y se dejaron fuera."
+  "data.imagesMissing": "Tu ZIP de datos se está descargando. {count} de tus imágenes no se pudieron cargar y se dejaron fuera.",
+  "fun.title": "Extras divertidos",
+  "fun.help": "Extras lúdicos solo para este dispositivo. Cada uno sigue desactivado hasta que lo actives.",
+  "fun.confetti": "Confeti cuando gane una insignia nueva",
+  "fun.motion": "Insignias y resaltados animados",
+  "fun.heroType": "Titular escrito a máquina en la página de inicio",
+  "fun.sounds": "Sonidos de notificación (las horas de silencio siguen aplicándose)",
+  "fun.easterEggs": "Huevos de Pascua (prueba el código Konami)",
+  "fun.sketch": "Mostrar «Adjuntar un dibujo» en el editor",
+  "fun.reducedMotion": "Tu dispositivo pide menos movimiento, así que los efectos animados se quedan quietos.",
+  "fun.sketchButton": "Adjuntar un dibujo",
+  "fun.sketchCanvas": "Zona de dibujo",
+  "fun.sketchClear": "Borrar",
+  "fun.sketchAttach": "Adjuntar dibujo",
+  "fun.toyTitle": "Juguete de gravedad"
 }

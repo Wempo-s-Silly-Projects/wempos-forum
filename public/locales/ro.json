@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Scor",
   "data.zipNote": "Descarcă un ZIP cu tot ce ai scris și setat aici, ca fișiere JSON, plus imaginile pe care le-ai încărcat. Este preluat doar când apeși butonul și ajunge direct pe dispozitivul tău.",
   "data.zipReady": "ZIP-ul cu datele tale se descarcă.",
-  "data.imagesMissing": "ZIP-ul cu datele tale se descarcă. {count} dintre imaginile tale nu au putut fi încărcate și au fost omise."
+  "data.imagesMissing": "ZIP-ul cu datele tale se descarcă. {count} dintre imaginile tale nu au putut fi încărcate și au fost omise.",
+  "fun.title": "Extra distractive",
+  "fun.help": "Extra jucăușe doar pentru acest dispozitiv. Fiecare rămâne oprit până îl pornești.",
+  "fun.confetti": "Confetti când primesc o insignă nouă",
+  "fun.motion": "Insigne și evidențieri animate",
+  "fun.heroType": "Titlu tastat pe pagina principală",
+  "fun.sounds": "Sunete de notificare (orele de liniște se aplică în continuare)",
+  "fun.easterEggs": "Easter eggs (încearcă codul Konami)",
+  "fun.sketch": "Arată „Atașează o schiță” în editor",
+  "fun.reducedMotion": "Dispozitivul tău cere mai puțină mișcare, așa că efectele animate rămân nemișcate.",
+  "fun.sketchButton": "Atașează o schiță",
+  "fun.sketchCanvas": "Zonă de desen",
+  "fun.sketchClear": "Șterge",
+  "fun.sketchAttach": "Atașează schița",
+  "fun.toyTitle": "Jucărie cu gravitație"
 }

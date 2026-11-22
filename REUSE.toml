@@ -190,4 +190,67 @@ SPDX-License-Identifier = "MIT"
 path = "public/js/vendor/nanoevents.js"
 precedence = "override"
 SPDX-FileCopyrightText = "2016 Andrey Sitnik"
+
+# Batch M fun extras: browser libraries vendored byte-for-byte from their
+# published registry tarballs (sha256 pinned by tests/batch-m-fun.test.mjs).
+# Each file is named here, after the vendor/** block, so its own upstream
+# license wins. All are AGPL-3.0-or-later compatible (MIT, ISC, GPL-3.0).
+[[annotations]]
+path = "public/js/vendor/confetti.browser.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2020 Kiril Vatev"
+SPDX-License-Identifier = "ISC"
+
+[[annotations]]
+path = "public/js/vendor/lottie_light.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2015 Bodymovin"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/rough-notation.iife.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2020 Preet Shihn"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/vanilla-tilt.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2017 Șandor Sergiu"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/typeit.umd.js"
+precedence = "override"
+SPDX-FileCopyrightText = "Alex MacArthur"
+SPDX-License-Identifier = "GPL-3.0-only"
+
+[[annotations]]
+path = "public/js/vendor/splitting.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2018 Stephen Shaw"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/zzfx.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2019 Frank Force"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/cursor-effects.browser.js"
+precedence = "override"
+SPDX-FileCopyrightText = "Tim Holman"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/matter.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "Liam Brummitt and contributors"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/signature_pad.umd.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2018 Szymon Nowak"
 SPDX-License-Identifier = "MIT"

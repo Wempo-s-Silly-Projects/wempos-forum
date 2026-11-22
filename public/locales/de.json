@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Punkte",
   "data.zipNote": "Lade ein ZIP mit allem herunter, was du hier geschrieben und eingestellt hast, als JSON-Dateien, dazu die Bilder, die du hochgeladen hast. Es wird nur abgerufen, wenn du den Knopf drückst, und landet direkt auf deinem Gerät.",
   "data.zipReady": "Dein Daten-ZIP wird heruntergeladen.",
-  "data.imagesMissing": "Dein Daten-ZIP wird heruntergeladen. {count} deiner Bilder konnten nicht geladen werden und fehlen."
+  "data.imagesMissing": "Dein Daten-ZIP wird heruntergeladen. {count} deiner Bilder konnten nicht geladen werden und fehlen.",
+  "fun.title": "Spaßige Extras",
+  "fun.help": "Verspielte Extras nur für dieses Gerät. Jedes bleibt aus, bis du es einschaltest.",
+  "fun.confetti": "Konfetti, wenn ich ein neues Abzeichen bekomme",
+  "fun.motion": "Animierte Abzeichen und Hervorhebungen",
+  "fun.heroType": "Getippte Überschrift auf der Startseite",
+  "fun.sounds": "Benachrichtigungstöne (Ruhezeiten gelten weiterhin)",
+  "fun.easterEggs": "Easter Eggs (probier den Konami-Code)",
+  "fun.sketch": "„Skizze anhängen“ im Editor zeigen",
+  "fun.reducedMotion": "Dein Gerät wünscht weniger Bewegung, daher bleiben bewegte Effekte still.",
+  "fun.sketchButton": "Skizze anhängen",
+  "fun.sketchCanvas": "Zeichenfläche",
+  "fun.sketchClear": "Leeren",
+  "fun.sketchAttach": "Skizze anhängen",
+  "fun.toyTitle": "Schwerkraft-Spielzeug"
 }

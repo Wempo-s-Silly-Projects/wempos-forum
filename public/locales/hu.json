@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Pontszám",
   "data.zipNote": "Tölts le egy ZIP-et mindazzal, amit itt írtál és beállítottál, JSON-fájlokként, valamint a feltöltött képeiddel. Csak akkor kérjük le, amikor megnyomod a gombot, és egyenesen az eszközödre kerül.",
   "data.zipReady": "Az adataidat tartalmazó ZIP letöltődik.",
-  "data.imagesMissing": "Az adataidat tartalmazó ZIP letöltődik. {count} képedet nem sikerült betölteni, ezért kimaradtak."
+  "data.imagesMissing": "Az adataidat tartalmazó ZIP letöltődik. {count} képedet nem sikerült betölteni, ezért kimaradtak.",
+  "fun.title": "Vicces extrák",
+  "fun.help": "Játékos extrák csak ehhez az eszközhöz. Mindegyik ki van kapcsolva, amíg be nem kapcsolod.",
+  "fun.confetti": "Konfetti, amikor új jelvényt szerzek",
+  "fun.motion": "Animált jelvények és kiemelések",
+  "fun.heroType": "Gépelt főcím a kezdőlapon",
+  "fun.sounds": "Értesítési hangok (a csendes órák továbbra is érvényesek)",
+  "fun.easterEggs": "Húsvéti tojások (próbáld ki a Konami-kódot)",
+  "fun.sketch": "„Vázlat csatolása” megjelenítése a szerkesztőben",
+  "fun.reducedMotion": "Az eszközöd kevesebb mozgást kér, ezért a mozgó effektek állva maradnak.",
+  "fun.sketchButton": "Vázlat csatolása",
+  "fun.sketchCanvas": "Rajzterület",
+  "fun.sketchClear": "Törlés",
+  "fun.sketchAttach": "Vázlat csatolása",
+  "fun.toyTitle": "Gravitációs játék"
 }

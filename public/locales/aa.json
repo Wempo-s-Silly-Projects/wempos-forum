@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Lakkoofa",
   "data.zipNote": "Kaa ixxiga kee taamitte haytem JSON faylah ZIP kak culsis, kee ku sawwir. Butten taamitta waqdi bahte, ku qaxuuk tan maaliinah gexa.",
   "data.zipReady": "Ku datah ZIP culsimaah tan.",
-  "data.imagesMissing": "Ku datah ZIP culsimaah tan. Ku sawwirittek {count} culsimaane, kaxxa ma geytimin."
+  "data.imagesMissing": "Ku datah ZIP culsimaah tan. Ku sawwirittek {count} culsimaane, kaxxa ma geytimin.",
+  "fun.title": "Kaxxa-le fayya",
+  "fun.help": "Ta qalaatih inkih tu yan sugtaamah fayya. Inkitti dabaq le, atu kaa fakkiseh xayyo.",
+  "fun.confetti": "Qusba astooti baahe waqdi konfeti",
+  "fun.motion": "Dangayta astooti kee qelloysiyya",
+  "fun.heroType": "Ummattoh qaxxih bagul uktubtaama qanqa",
+  "fun.sounds": "Kassiisiyyah xongoloola (xinniqa saacat ama-le)",
+  "fun.easterEggs": "Qaxxaame gabbatte (Konami koodu cabbis)",
+  "fun.sketch": "Aysaxxiseh «Masawwar uytubu» ceel",
+  "fun.reducedMotion": "Ku qalaati dagoh dangayti esseera, tokkel dangayta cayta sugtaanah.",
+  "fun.sketchButton": "Masawwar uytubu",
+  "fun.sketchCanvas": "Masawwar uktubeh bagul",
+  "fun.sketchClear": "Saffis",
+  "fun.sketchAttach": "Masawwar uytubu",
+  "fun.toyTitle": "Culaanu ciyaarit"
 }

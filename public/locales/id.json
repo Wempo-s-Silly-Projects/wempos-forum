@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Skor",
   "data.zipNote": "Unduh ZIP berisi semua yang kamu tulis dan atur di sini sebagai file JSON, ditambah gambar yang kamu unggah. Hanya diambil saat kamu menekan tombol dan langsung masuk ke perangkatmu.",
   "data.zipReady": "ZIP datamu sedang diunduh.",
-  "data.imagesMissing": "ZIP datamu sedang diunduh. {count} gambarmu tidak bisa dimuat sehingga tidak disertakan."
+  "data.imagesMissing": "ZIP datamu sedang diunduh. {count} gambarmu tidak bisa dimuat sehingga tidak disertakan.",
+  "fun.title": "Ekstra seru",
+  "fun.help": "Ekstra jenaka hanya untuk perangkat ini. Masing-masing tetap mati sampai Anda menyalakannya.",
+  "fun.confetti": "Konfeti saat saya mendapat lencana baru",
+  "fun.motion": "Lencana dan sorotan beranimasi",
+  "fun.heroType": "Judul yang diketik di beranda",
+  "fun.sounds": "Suara notifikasi (jam tenang tetap berlaku)",
+  "fun.easterEggs": "Telur Paskah (coba kode Konami)",
+  "fun.sketch": "Tampilkan “Lampirkan sketsa” di editor",
+  "fun.reducedMotion": "Perangkat Anda meminta gerakan dikurangi, jadi efek bergerak tetap diam.",
+  "fun.sketchButton": "Lampirkan sketsa",
+  "fun.sketchCanvas": "Area menggambar",
+  "fun.sketchClear": "Hapus",
+  "fun.sketchAttach": "Lampirkan sketsa",
+  "fun.toyTitle": "Mainan gravitasi"
 }

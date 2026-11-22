@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Puntos",
   "data.zipNote": "Chule' un ZIP yan todu i tinige'-mu yan i finiksåm-mu guini kalang JSON na file, yan i litråtu siha ni un na'kahat. Ha'chule' ha' annai un yemmok i butón ya hånao direkto para i dispositivo-mu.",
   "data.zipReady": "Ma'chule' i ZIP i dåtos-mu.",
-  "data.imagesMissing": "Ma'chule' i ZIP i dåtos-mu. {count} na litråtu-mu ti siña ma'chule', ya ti ma na'halom."
+  "data.imagesMissing": "Ma'chule' i ZIP i dåtos-mu. {count} na litråtu-mu ti siña ma'chule', ya ti ma na'halom.",
+  "fun.title": "Ti mangge na extra",
+  "fun.help": "Extra para mangge para este na aparatu ha’. Kada uno siña mamaga’ asta ki un na’ulu.",
+  "fun.confetti": "Confetti yanggen hu gana nuebu na insignia",
+  "fun.motion": "Insignia yan highlight ni manmamomokat",
+  "fun.heroType": "Titulu ni ma tatype gi fanhaluman na pahina",
+  "fun.sounds": "Son notifikasion (ti para i oran silensio)",
+  "fun.easterEggs": "Guinaha ni mana’na’ana’ (pruebba i kodigu Konami)",
+  "fun.sketch": "Na’annok “Achetton un pentura” gi editor",
+  "fun.reducedMotion": "I aparatu-mu ha gagao didide’ na kinalamten, enao na i manmamomokat na efekto manmata’chong.",
+  "fun.sketchButton": "Achetton un pentura",
+  "fun.sketchCanvas": "Lugat pumentura",
+  "fun.sketchClear": "Na’gasgas",
+  "fun.sketchAttach": "Achetton i pentura",
+  "fun.toyTitle": "Gugugat gravedåt"
 }

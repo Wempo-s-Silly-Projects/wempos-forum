@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Điểm",
   "data.zipNote": "Tải về một tệp ZIP chứa mọi thứ bạn đã viết và thiết lập ở đây dưới dạng tệp JSON, kèm theo ảnh bạn đã tải lên. Tệp chỉ được lấy khi bạn bấm nút và đi thẳng về thiết bị của bạn.",
   "data.zipReady": "Tệp ZIP dữ liệu của bạn đang được tải về.",
-  "data.imagesMissing": "Tệp ZIP dữ liệu của bạn đang được tải về. Không tải được {count} ảnh của bạn nên chúng đã bị bỏ qua."
+  "data.imagesMissing": "Tệp ZIP dữ liệu của bạn đang được tải về. Không tải được {count} ảnh của bạn nên chúng đã bị bỏ qua.",
+  "fun.title": "Tiện ích vui",
+  "fun.help": "Những tiện ích vui nhộn chỉ cho thiết bị này. Mỗi mục đều tắt cho đến khi bạn bật lên.",
+  "fun.confetti": "Pháo giấy khi tôi đạt huy hiệu mới",
+  "fun.motion": "Huy hiệu và đánh dấu có hoạt ảnh",
+  "fun.heroType": "Tiêu đề tự gõ trên trang chủ",
+  "fun.sounds": "Âm thanh thông báo (giờ yên lặng vẫn áp dụng)",
+  "fun.easterEggs": "Trứng phục sinh (thử mã Konami)",
+  "fun.sketch": "Hiện “Đính kèm bản vẽ” trong trình soạn thảo",
+  "fun.reducedMotion": "Thiết bị của bạn yêu cầu giảm chuyển động, nên các hiệu ứng động sẽ đứng yên.",
+  "fun.sketchButton": "Đính kèm bản vẽ",
+  "fun.sketchCanvas": "Vùng vẽ",
+  "fun.sketchClear": "Xóa",
+  "fun.sketchAttach": "Đính kèm bản vẽ",
+  "fun.toyTitle": "Đồ chơi trọng lực"
 }

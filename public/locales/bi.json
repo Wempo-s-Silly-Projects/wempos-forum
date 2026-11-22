@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Skoa",
   "data.zipNote": "Daonlodem wan ZIP wetem evri samting we yu raetem mo setem long ples ia olsem ol JSON fael, wetem ol pikja we yu aplodem. Hem i kam nomo taem yu presem baten, mo i go stret long divaes blong yu.",
   "data.zipReady": "ZIP blong data blong yu i daonlod.",
-  "data.imagesMissing": "ZIP blong data blong yu i daonlod. {count} pikja blong yu i no save lod, ale oli no stap."
+  "data.imagesMissing": "ZIP blong data blong yu i daonlod. {count} pikja blong yu i no save lod, ale oli no stap.",
+  "fun.title": "Ol fani samting",
+  "fun.help": "Ol plei samting blong divaes ia nomo. Evri wan i stap of kasem we yu openem.",
+  "fun.confetti": "Konfeti taem mi winim wan niu baj",
+  "fun.motion": "Ol baj mo hailaet we oli muv",
+  "fun.heroType": "Hedlaen we i taep long hom pej",
+  "fun.sounds": "Ol saon blong notis (ol kwaet aoa oli stap yet)",
+  "fun.easterEggs": "Ol haed sapraes (traem Konami kod)",
+  "fun.sketch": "Soemaot “Joenem wan pikja” long edita",
+  "fun.reducedMotion": "Divaes blong yu i askem blong smol muv nomo, taswe ol samting we i muv oli stap stil.",
+  "fun.sketchButton": "Joenem wan pikja",
+  "fun.sketchCanvas": "Ples blong drowem pikja",
+  "fun.sketchClear": "Klinim",
+  "fun.sketchAttach": "Joenem pikja",
+  "fun.toyTitle": "Toe blong graviti"
 }

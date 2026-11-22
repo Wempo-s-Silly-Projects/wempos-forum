@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Markah",
   "data.zipNote": "Muat turun ZIP yang mengandungi semua yang anda tulis dan tetapkan di sini sebagai fail JSON, beserta imej yang anda muat naik. Ia hanya diambil apabila anda menekan butang dan terus ke peranti anda.",
   "data.zipReady": "ZIP data anda sedang dimuat turun.",
-  "data.imagesMissing": "ZIP data anda sedang dimuat turun. {count} imej anda tidak dapat dimuatkan dan ditinggalkan."
+  "data.imagesMissing": "ZIP data anda sedang dimuat turun. {count} imej anda tidak dapat dimuatkan dan ditinggalkan.",
+  "fun.title": "Ekstra menyeronokkan",
+  "fun.help": "Ekstra yang ceria untuk peranti ini sahaja. Setiap satu kekal mati sehingga anda menghidupkannya.",
+  "fun.confetti": "Konfeti apabila saya mendapat lencana baharu",
+  "fun.motion": "Lencana dan serlahan beranimasi",
+  "fun.heroType": "Tajuk yang ditaip di halaman utama",
+  "fun.sounds": "Bunyi pemberitahuan (waktu senyap masih terpakai)",
+  "fun.easterEggs": "Telur Easter (cuba kod Konami)",
+  "fun.sketch": "Tunjukkan “Lampirkan lakaran” dalam editor",
+  "fun.reducedMotion": "Peranti anda meminta kurang gerakan, jadi kesan bergerak kekal pegun.",
+  "fun.sketchButton": "Lampirkan lakaran",
+  "fun.sketchCanvas": "Ruang lukisan",
+  "fun.sketchClear": "Kosongkan",
+  "fun.sketchAttach": "Lampirkan lakaran",
+  "fun.toyTitle": "Mainan graviti"
 }

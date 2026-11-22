@@ -1257,5 +1257,19 @@
   "ux.lbScore": "積分",
   "data.zipNote": "下載一個 ZIP，內含你在這裡寫下和設定的全部內容（JSON 檔案）以及你上傳的圖片。只有按下按鈕時才會取得，並直接存到你的裝置。",
   "data.zipReady": "你的資料 ZIP 正在下載。",
-  "data.imagesMissing": "你的資料 ZIP 正在下載。有 {count} 張圖片無法載入，已略過。"
+  "data.imagesMissing": "你的資料 ZIP 正在下載。有 {count} 張圖片無法載入，已略過。",
+  "fun.title": "趣味功能",
+  "fun.help": "僅限此裝置的趣味功能。每一項在你開啟之前都保持關閉。",
+  "fun.confetti": "獲得新徽章時灑彩紙",
+  "fun.motion": "動態徽章與醒目標示",
+  "fun.heroType": "首頁標題打字效果",
+  "fun.sounds": "通知音效(勿擾時段依然有效)",
+  "fun.easterEggs": "彩蛋(試試科樂美秘技)",
+  "fun.sketch": "在編輯框中顯示「附加草圖」",
+  "fun.reducedMotion": "你的裝置要求減少動態效果,因此動畫效果保持靜止。",
+  "fun.sketchButton": "附加草圖",
+  "fun.sketchCanvas": "繪圖區域",
+  "fun.sketchClear": "清除",
+  "fun.sketchAttach": "附加草圖",
+  "fun.toyTitle": "重力玩具"
 }

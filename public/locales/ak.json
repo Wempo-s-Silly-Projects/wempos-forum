@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Akontaa",
   "data.zipNote": "Twe ZIP a nea wokyerɛw ne nea wohyehyɛɛ wɔ ha nyinaa wom sɛ JSON fael, ne mfoni a wode too so. Wɔfa no bere a wobɔ bɔtɔn no nkutoo, na ɛkɔ wo mfiri so tẽẽ.",
   "data.zipReady": "Wo data ZIP no reba.",
-  "data.imagesMissing": "Wo data ZIP no reba. Wo mfoni {count} antumi amma, enti wogyaw no."
+  "data.imagesMissing": "Wo data ZIP no reba. Wo mfoni {count} antumi amma, enti wogyaw no.",
+  "fun.title": "Nneɛma a ɛyɛ anigye ka ho",
+  "fun.help": "Agodie nneɛma a ɛka ho ma saa mfiri yi nko ara. Biara dum kosi sɛ wobɛsɔ no.",
+  "fun.confetti": "Konfeti bere a menya badge foforo",
+  "fun.motion": "Badge ne nsɛm a wɔahyɛ no nsow a ɛkeka ne ho",
+  "fun.heroType": "Atifi asɛm a wɔkyerɛw no wɔ fie krataafa so",
+  "fun.sounds": "Nkra nnyigyei (komm nnɔn no da so yɛ adwuma)",
+  "fun.easterEggs": "Ahintasɛm nkonimdi (sɔ Konami kood no hwɛ)",
+  "fun.sketch": "Kyerɛ “Fa mfoni ka ho” wɔ nsɛm kyerɛwbea",
+  "fun.reducedMotion": "Wo mfiri no hwehwɛ sɛ ɛkeka ne ho kakra, enti nneɛma a ɛkeka ne ho no gyina hɔ dinn.",
+  "fun.sketchButton": "Fa mfoni ka ho",
+  "fun.sketchCanvas": "Mfoni ase bea",
+  "fun.sketchClear": "Popa",
+  "fun.sketchAttach": "Fa mfoni no ka ho",
+  "fun.toyTitle": "Asase twe agodie"
 }

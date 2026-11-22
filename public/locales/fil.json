@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Puntos",
   "data.zipNote": "Mag-download ng ZIP na naglalaman ng lahat ng isinulat at itinakda mo rito bilang mga JSON file, kasama ang mga larawang in-upload mo. Kinukuha lang ito kapag pinindot mo ang button at diretso itong mapupunta sa device mo.",
   "data.zipReady": "Dina-download na ang ZIP ng data mo.",
-  "data.imagesMissing": "Dina-download na ang ZIP ng data mo. Hindi ma-load ang {count} sa mga larawan mo kaya hindi ito naisama."
+  "data.imagesMissing": "Dina-download na ang ZIP ng data mo. Hindi ma-load ang {count} sa mga larawan mo kaya hindi ito naisama.",
+  "fun.title": "Mga nakakatuwang dagdag",
+  "fun.help": "Mga mapaglarong dagdag para sa device na ito lamang. Nakapatay ang bawat isa hangga’t hindi mo ito binubuksan.",
+  "fun.confetti": "Confetti kapag nakakuha ako ng bagong badge",
+  "fun.motion": "Mga gumagalaw na badge at highlight",
+  "fun.heroType": "Headline na tinitipa sa home page",
+  "fun.sounds": "Mga tunog ng abiso (umiiral pa rin ang tahimik na oras)",
+  "fun.easterEggs": "Mga Easter egg (subukan ang Konami code)",
+  "fun.sketch": "Ipakita ang “Maglakip ng guhit” sa editor",
+  "fun.reducedMotion": "Humihiling ang device mo ng mas kaunting galaw, kaya nananatiling tahimik ang mga gumagalaw na epekto.",
+  "fun.sketchButton": "Maglakip ng guhit",
+  "fun.sketchCanvas": "Lugar ng pagguhit",
+  "fun.sketchClear": "Burahin",
+  "fun.sketchAttach": "Ilakip ang guhit",
+  "fun.toyTitle": "Laruang gravity"
 }

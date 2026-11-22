@@ -270,3 +270,13 @@ export const API_RETRY_FACTOR = 3;
 export const API_BATCH_CONCURRENCY = 4;
 // Boot waits at most this long for IndexedDB drafts before the composer mounts.
 export const DRAFT_HYDRATE_TIMEOUT_MS = 1500;
+
+// Batch M fun extras (all opt-in, device-only). The confetti burst's particle
+// count, the Konami gravity toy's body cap, the sketch canvas edge in CSS
+// pixels and the shortest gap between two notification sounds.
+// public/js/fun/*.js mirror these (the client cannot import this file;
+// tests/batch-m-fun.test.mjs pins them equal).
+export const FUN_CONFETTI_PARTICLES = 120;
+export const FUN_GRAVITY_BODIES_MAX = 24;
+export const FUN_SKETCH_SIZE_PX = 480;
+export const FUN_SOUND_MIN_GAP_MS = 4000;

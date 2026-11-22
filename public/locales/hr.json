@@ -1257,5 +1257,19 @@
   "ux.lbScore": "Bodovi",
   "data.zipNote": "Preuzmi ZIP sa svime što si ovdje napisao i postavio kao JSON datoteke, uz slike koje si učitao. Dohvaća se samo kad pritisneš gumb i ide ravno na tvoj uređaj.",
   "data.zipReady": "Tvoj ZIP s podacima se preuzima.",
-  "data.imagesMissing": "Tvoj ZIP s podacima se preuzima. {count} tvojih slika nije se moglo učitati pa su izostavljene."
+  "data.imagesMissing": "Tvoj ZIP s podacima se preuzima. {count} tvojih slika nije se moglo učitati pa su izostavljene.",
+  "fun.title": "Zabavni dodaci",
+  "fun.help": "Razigrani dodaci samo za ovaj uređaj. Svaki ostaje isključen dok ga ne uključiš.",
+  "fun.confetti": "Konfeti kad osvojim novu značku",
+  "fun.motion": "Animirane značke i isticanja",
+  "fun.heroType": "Tipkani naslov na početnoj stranici",
+  "fun.sounds": "Zvukovi obavijesti (tihi sati i dalje vrijede)",
+  "fun.easterEggs": "Uskrsna jaja (isprobaj Konami kod)",
+  "fun.sketch": "Prikaži „Priloži skicu” u uređivaču",
+  "fun.reducedMotion": "Tvoj uređaj traži manje kretanja, pa pokretni efekti miruju.",
+  "fun.sketchButton": "Priloži skicu",
+  "fun.sketchCanvas": "Područje za crtanje",
+  "fun.sketchClear": "Očisti",
+  "fun.sketchAttach": "Priloži skicu",
+  "fun.toyTitle": "Igračka s gravitacijom"
 }

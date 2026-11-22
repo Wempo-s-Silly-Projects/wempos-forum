@@ -1257,5 +1257,19 @@
   "ux.lbScore": "スコア",
   "data.zipNote": "ここで書いたこと・設定したことすべてを JSON ファイルにまとめ、アップロードした画像も入れた ZIP をダウンロードします。ボタンを押したときだけ取得され、そのままあなたの端末に保存されます。",
   "data.zipReady": "データの ZIP をダウンロードしています。",
-  "data.imagesMissing": "データの ZIP をダウンロードしています。画像のうち {count} 件は読み込めなかったため含まれていません。"
+  "data.imagesMissing": "データの ZIP をダウンロードしています。画像のうち {count} 件は読み込めなかったため含まれていません。",
+  "fun.title": "お楽しみ機能",
+  "fun.help": "このデバイスだけの遊び心ある機能です。オンにするまでどれもオフのままです。",
+  "fun.confetti": "新しいバッジを獲得したら紙吹雪",
+  "fun.motion": "アニメーションするバッジとハイライト",
+  "fun.heroType": "ホームページの見出しをタイプ表示",
+  "fun.sounds": "通知音(おやすみ時間は引き続き有効)",
+  "fun.easterEggs": "隠し要素(コナミコマンドを試してね)",
+  "fun.sketch": "編集欄に「スケッチを添付」を表示",
+  "fun.reducedMotion": "お使いのデバイスは動きを減らす設定のため、動く効果は静止したままです。",
+  "fun.sketchButton": "スケッチを添付",
+  "fun.sketchCanvas": "描画エリア",
+  "fun.sketchClear": "消去",
+  "fun.sketchAttach": "スケッチを添付",
+  "fun.toyTitle": "重力おもちゃ"
 }
