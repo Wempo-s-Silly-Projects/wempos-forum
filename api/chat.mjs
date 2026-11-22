@@ -616,5 +616,5 @@ export async function handleChatRoutes(request, env, url, path, method, ctx) {
 }
 
 export { LOBBY_CHAT_MAX_CHARS, insertLobbyMessage, lobbyMessageRows, lobbyOnlineCount };
-export { dmMessageShape, isoTime };
+export { dmMessageShape, isoTime, DM_VISIBLE_MESSAGE_SQL };
 export { DM_MAX_BODY_CHARS, PRESENCE_WINDOW, PRESENCE_UPSERT_SQL, PRESENCE_KEEP_SQL, DM_THREAD_OPEN_SQL, DM_THREAD_FIND_SQL };

@@ -46,6 +46,7 @@ import { appendPostList } from "../render.js";
 import { maskSpoilers } from "../markdown.js";
 import { appendHighlighted } from "../search-highlight.js";
 import { SEARCH_SECTION_IDS, createSearchSummary } from "../search-summary.js";
+import { createSearchFilters, searchApiPath } from "../search-filters.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
@@ -121,6 +122,8 @@ function renderHomeContent(session, data, route) {
   addHeading(main, route.name === "search" ? t("feed.searchResults") : t("feed.recentActivity"), 2);
   if (route.name === "search") {
     addText(document, main, "p", t("feed.searchResultsFor", { query: route.query }), "muted");
+    // Wave 5.36: date-range and sort chips (shareable via ?since=&sort=).
+    main.append(createSearchFilters(document, route));
     renderSearchResults(main, data.search, route.query);
     return;
   }
@@ -334,7 +337,7 @@ function renderSearchResults(container, results, query = "") {
 }
 async function renderHomeRoute(route, context, version) {
   const data = route.name === "search"
-    ? { search: await api(`/api/search?q=${encodeURIComponent(route.query)}&in=replies`) }
+    ? { search: await api(searchApiPath(route)) }
     : { feed: await api("/api/posts" + (feedViewQuery(route.view) ? "?" + feedViewQuery(route.view) : "")) };
   if (version !== state.renderVersion) return;
   renderHome(context.session, context.setupRequired, context.setupConfigured, data, route);

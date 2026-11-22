@@ -184,3 +184,22 @@ test("/api/week binds < 100 params at a full page for a blocking member", async 
   const worst = Math.max(...spied.counts);
   assert.ok(worst < D1_MAX_BOUND_PARAMS, "worst-case bind count " + worst);
 });
+
+// Wave 5.36: search's date-range + sort filters (and a by-author filter, and
+// the deep reply search) ride the same pin — a blocking member's full search
+// page keeps every statement under the bind ceiling, rollup still widest.
+test("filtered search (since, sort, by, in=replies) binds < 100 params at a full page", async () => {
+  const { env, viewer } = await seedWorstCase();
+  const session = forgeSession(env.__sqlite, viewer);
+  for (const query of ["q=root&since=week&sort=new&in=replies", "q=root&since=year&sort=relevant",
+    "q=root&by=author&since=month&sort=new&in=replies"]) {
+    const spied = spyBinds(env);
+    const res = await call(spied.env, "/api/search?" + query, { session });
+    assert.equal(res.status, 200, query);
+    const body = await res.json();
+    assert.equal(body.posts.length, FEED_PAGE_SIZE, query);
+    const worst = Math.max(...spied.counts);
+    assert.ok(worst < D1_MAX_BOUND_PARAMS, query + " worst-case bind count " + worst);
+    assert.equal(worst, 2 * FEED_PAGE_SIZE + 11, query + ": the rollup stays the widest statement");
+  }
+});

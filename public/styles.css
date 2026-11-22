@@ -3750,3 +3750,62 @@ mark.search-hit {
 .newest-members-list { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; margin: 0; padding: 0; list-style: none; }
 .newest-member-link { display: inline-flex; align-items: center; gap: 0.35rem; min-width: 0; overflow-wrap: anywhere; }
 .newest-member-avatar { width: 1.5rem; height: 1.5rem; }
+
+/* Wave 5.36: search filter chips (two .feed-views groups), the recent-search
+   panel under the header search box, and search inside a conversation. */
+.search-filters { display: flex; flex-wrap: wrap; gap: 0 1rem; }
+.header-search { position: relative; }
+.recent-searches {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  border: 2px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--paper);
+  color: var(--ink);
+}
+.recent-searches[hidden] { display: none; }
+.recent-searches-title { width: 100%; color: var(--muted); font-size: 0.85rem; font-weight: 700; }
+.recent-searches-list { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.recent-search-chip {
+  max-width: 100%;
+  padding: 0.2rem 0.7rem;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.recent-searches-clear { margin-inline-start: auto; font-size: 0.85rem; }
+.chat-widget-search { flex: 1 1 100%; margin: 0.25rem 0; }
+.chat-widget-search-input { width: 100%; }
+.chat-widget-search-results { display: flex; flex-direction: column; gap: 0.2rem; max-height: 12rem; overflow-y: auto; }
+.chat-widget-search-hit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: start;
+  cursor: pointer;
+}
+.chat-widget-search-who { font-weight: 700; }
+.chat-widget-search-time { color: var(--muted); }
+.chat-widget-search-excerpt { flex: 1 1 100%; overflow-wrap: anywhere; }
+.chat-widget-search-empty { margin: 0.2rem 0; color: var(--muted); font-size: 0.85rem; }
+.chat-widget-message-hit { outline: 3px solid var(--yellow); outline-offset: 2px; }
