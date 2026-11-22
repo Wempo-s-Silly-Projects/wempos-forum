@@ -15,6 +15,21 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.73.1] - 2026-11-22
+
+### Security
+- Security review of v5.71 to v5.73
+  (`docs/security-review-v5.71-v5.73.md`): one medium issue, fixed below.
+  Also checked the sixteen new language files (no markup, hidden or
+  direction-changing characters; placeholders match English), the
+  no-module notice, the two-state theme setting and the direct-message
+  bubble change. New pins in `tests/wave5731-security-review.test.mjs`.
+
+### Fixed
+- The page's script policy allowed any script on the cdnjs code host,
+  which also hosts libraries known to get around such policies. It now
+  allows only the polyfill path the forum actually loads.
+
 ## [5.73.0] - 2026-11-22
 
 ### Changed
