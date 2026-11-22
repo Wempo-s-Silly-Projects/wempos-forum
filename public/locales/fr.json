@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Impossible d'enregistrer la recherche. Réessayez.",
   "savedSearch.deleteError": "Impossible de supprimer la recherche enregistrée. Réessayez.",
   "savedSearch.empty": "Aucune recherche enregistrée pour l'instant.",
-  "savedSearch.deleteLabel": "Supprimer la recherche enregistrée {name}"
+  "savedSearch.deleteLabel": "Supprimer la recherche enregistrée {name}",
+  "threadLock.note": "Ce fil est verrouillé. Les nouvelles réponses sont fermées.",
+  "threadLock.reason": "Motif du verrouillage (équipe uniquement) : {reason}",
+  "threadLock.lock": "Verrouiller",
+  "threadLock.unlock": "Déverrouiller",
+  "threadLock.reasonPrompt": "Verrouiller ce fil ? Ajoutez un motif facultatif visible uniquement par l'équipe, ou laissez vide.",
+  "threadLock.locked": "Fil verrouillé.",
+  "threadLock.unlocked": "Fil déverrouillé.",
+  "errors.threadLocked": "Ce fil est verrouillé. Seule l'équipe peut répondre."
 }

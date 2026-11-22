@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Căutarea nu a putut fi salvată. Încearcă din nou.",
   "savedSearch.deleteError": "Căutarea salvată nu a putut fi ștearsă. Încearcă din nou.",
   "savedSearch.empty": "Nicio căutare salvată încă.",
-  "savedSearch.deleteLabel": "Șterge căutarea salvată {name}"
+  "savedSearch.deleteLabel": "Șterge căutarea salvată {name}",
+  "threadLock.note": "Această discuție este blocată. Răspunsurile noi sunt închise.",
+  "threadLock.reason": "Motivul blocării (doar pentru echipă): {reason}",
+  "threadLock.lock": "Blochează",
+  "threadLock.unlock": "Deblochează",
+  "threadLock.reasonPrompt": "Blochezi această discuție? Adaugă opțional un motiv pe care îl vede doar echipa sau lasă gol.",
+  "threadLock.locked": "Discuția a fost blocată.",
+  "threadLock.unlocked": "Discuția a fost deblocată.",
+  "errors.threadLocked": "Această discuție este blocată. Doar echipa poate răspunde."
 }

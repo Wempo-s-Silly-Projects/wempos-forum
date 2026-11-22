@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Carian tidak dapat disimpan. Cuba lagi.",
   "savedSearch.deleteError": "Carian tersimpan tidak dapat dipadam. Cuba lagi.",
   "savedSearch.empty": "Belum ada carian tersimpan.",
-  "savedSearch.deleteLabel": "Padam carian tersimpan {name}"
+  "savedSearch.deleteLabel": "Padam carian tersimpan {name}",
+  "threadLock.note": "Bebenang ini dikunci. Balasan baharu ditutup.",
+  "threadLock.reason": "Sebab dikunci (staf sahaja): {reason}",
+  "threadLock.lock": "Kunci",
+  "threadLock.unlock": "Buka kunci",
+  "threadLock.reasonPrompt": "Kunci bebenang ini? Tambah sebab pilihan yang hanya staf boleh lihat, atau biarkan kosong.",
+  "threadLock.locked": "Bebenang dikunci.",
+  "threadLock.unlocked": "Kunci bebenang dibuka.",
+  "errors.threadLocked": "Bebenang ini dikunci. Hanya staf boleh membalas."
 }

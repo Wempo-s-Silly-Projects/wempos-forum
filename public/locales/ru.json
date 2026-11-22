@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Не удалось сохранить поиск. Попробуйте ещё раз.",
   "savedSearch.deleteError": "Не удалось удалить сохранённый поиск. Попробуйте ещё раз.",
   "savedSearch.empty": "Сохранённых поисков пока нет.",
-  "savedSearch.deleteLabel": "Удалить сохранённый поиск {name}"
+  "savedSearch.deleteLabel": "Удалить сохранённый поиск {name}",
+  "threadLock.note": "Эта тема закрыта. Новые ответы не принимаются.",
+  "threadLock.reason": "Причина закрытия (только для команды): {reason}",
+  "threadLock.lock": "Закрыть",
+  "threadLock.unlock": "Открыть",
+  "threadLock.reasonPrompt": "Закрыть эту тему? Укажите необязательную причину, видимую только команде, или оставьте поле пустым.",
+  "threadLock.locked": "Тема закрыта.",
+  "threadLock.unlocked": "Тема открыта.",
+  "errors.threadLocked": "Эта тема закрыта. Отвечать может только команда."
 }

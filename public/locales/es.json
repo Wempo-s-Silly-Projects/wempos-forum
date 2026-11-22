@@ -1197,5 +1197,13 @@
   "savedSearch.error": "No se pudo guardar la búsqueda. Inténtalo de nuevo.",
   "savedSearch.deleteError": "No se pudo eliminar la búsqueda guardada. Inténtalo de nuevo.",
   "savedSearch.empty": "Aún no hay búsquedas guardadas.",
-  "savedSearch.deleteLabel": "Eliminar la búsqueda guardada {name}"
+  "savedSearch.deleteLabel": "Eliminar la búsqueda guardada {name}",
+  "threadLock.note": "Este hilo está bloqueado. Las respuestas nuevas están cerradas.",
+  "threadLock.reason": "Motivo del bloqueo (solo el equipo): {reason}",
+  "threadLock.lock": "Bloquear",
+  "threadLock.unlock": "Desbloquear",
+  "threadLock.reasonPrompt": "¿Bloquear este hilo? Añade un motivo opcional que solo verá el equipo, o déjalo en blanco.",
+  "threadLock.locked": "Hilo bloqueado.",
+  "threadLock.unlocked": "Hilo desbloqueado.",
+  "errors.threadLocked": "Este hilo está bloqueado. Solo el equipo puede responder."
 }

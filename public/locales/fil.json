@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Hindi ma-save ang paghahanap. Subukan ulit.",
   "savedSearch.deleteError": "Hindi mabura ang naka-save na paghahanap. Subukan ulit.",
   "savedSearch.empty": "Wala pang naka-save na paghahanap.",
-  "savedSearch.deleteLabel": "Burahin ang naka-save na paghahanap na {name}"
+  "savedSearch.deleteLabel": "Burahin ang naka-save na paghahanap na {name}",
+  "threadLock.note": "Naka-lock ang thread na ito. Sarado na ang mga bagong sagot.",
+  "threadLock.reason": "Dahilan ng pag-lock (staff lang): {reason}",
+  "threadLock.lock": "I-lock",
+  "threadLock.unlock": "I-unlock",
+  "threadLock.reasonPrompt": "I-lock ang thread na ito? Magdagdag ng opsyonal na dahilan na staff lang ang makakakita, o iwanang blangko.",
+  "threadLock.locked": "Na-lock ang thread.",
+  "threadLock.unlocked": "Na-unlock ang thread.",
+  "errors.threadLocked": "Naka-lock ang thread na ito. Staff lang ang puwedeng sumagot."
 }

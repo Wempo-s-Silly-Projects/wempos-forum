@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Arama kaydedilemedi. Tekrar deneyin.",
   "savedSearch.deleteError": "Kayıtlı arama silinemedi. Tekrar deneyin.",
   "savedSearch.empty": "Henüz kayıtlı arama yok.",
-  "savedSearch.deleteLabel": "{name} kayıtlı aramasını sil"
+  "savedSearch.deleteLabel": "{name} kayıtlı aramasını sil",
+  "threadLock.note": "Bu konu kilitli. Yeni yanıtlar kapalı.",
+  "threadLock.reason": "Kilitleme nedeni (yalnızca ekip): {reason}",
+  "threadLock.lock": "Kilitle",
+  "threadLock.unlock": "Kilidi aç",
+  "threadLock.reasonPrompt": "Bu konu kilitlensin mi? Yalnızca ekibin göreceği isteğe bağlı bir neden ekleyin ya da boş bırakın.",
+  "threadLock.locked": "Konu kilitlendi.",
+  "threadLock.unlocked": "Konunun kilidi açıldı.",
+  "errors.threadLocked": "Bu konu kilitli. Yalnızca ekip yanıt verebilir."
 }

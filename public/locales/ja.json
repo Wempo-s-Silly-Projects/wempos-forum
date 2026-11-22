@@ -1197,5 +1197,13 @@
   "savedSearch.error": "検索を保存できませんでした。もう一度お試しください。",
   "savedSearch.deleteError": "保存した検索を削除できませんでした。もう一度お試しください。",
   "savedSearch.empty": "保存した検索はまだありません。",
-  "savedSearch.deleteLabel": "保存した検索「{name}」を削除"
+  "savedSearch.deleteLabel": "保存した検索「{name}」を削除",
+  "threadLock.note": "このスレッドはロックされています。新しい返信は受け付けていません。",
+  "threadLock.reason": "ロックの理由(スタッフのみ): {reason}",
+  "threadLock.lock": "ロック",
+  "threadLock.unlock": "ロック解除",
+  "threadLock.reasonPrompt": "このスレッドをロックしますか?スタッフだけが見られる理由を任意で入力するか、空欄のままにしてください。",
+  "threadLock.locked": "スレッドをロックしました。",
+  "threadLock.unlocked": "スレッドのロックを解除しました。",
+  "errors.threadLocked": "このスレッドはロックされています。返信できるのはスタッフのみです。"
 }

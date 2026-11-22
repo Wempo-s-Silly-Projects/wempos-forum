@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Pencarian tidak dapat disimpan. Coba lagi.",
   "savedSearch.deleteError": "Pencarian tersimpan tidak dapat dihapus. Coba lagi.",
   "savedSearch.empty": "Belum ada pencarian tersimpan.",
-  "savedSearch.deleteLabel": "Hapus pencarian tersimpan {name}"
+  "savedSearch.deleteLabel": "Hapus pencarian tersimpan {name}",
+  "threadLock.note": "Utas ini dikunci. Balasan baru ditutup.",
+  "threadLock.reason": "Alasan penguncian (hanya staf): {reason}",
+  "threadLock.lock": "Kunci",
+  "threadLock.unlock": "Buka kunci",
+  "threadLock.reasonPrompt": "Kunci utas ini? Tambahkan alasan opsional yang hanya bisa dilihat staf, atau biarkan kosong.",
+  "threadLock.locked": "Utas dikunci.",
+  "threadLock.unlocked": "Kunci utas dibuka.",
+  "errors.threadLocked": "Utas ini dikunci. Hanya staf yang dapat membalas."
 }

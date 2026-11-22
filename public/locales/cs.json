@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Hledání se nepodařilo uložit. Zkuste to znovu.",
   "savedSearch.deleteError": "Uložené hledání se nepodařilo smazat. Zkuste to znovu.",
   "savedSearch.empty": "Zatím žádná uložená hledání.",
-  "savedSearch.deleteLabel": "Smazat uložené hledání {name}"
+  "savedSearch.deleteLabel": "Smazat uložené hledání {name}",
+  "threadLock.note": "Toto vlákno je zamčené. Nové odpovědi jsou uzavřeny.",
+  "threadLock.reason": "Důvod zamčení (jen pro tým): {reason}",
+  "threadLock.lock": "Zamknout",
+  "threadLock.unlock": "Odemknout",
+  "threadLock.reasonPrompt": "Zamknout toto vlákno? Přidejte volitelný důvod, který uvidí jen tým, nebo nechte prázdné.",
+  "threadLock.locked": "Vlákno zamčeno.",
+  "threadLock.unlocked": "Vlákno odemčeno.",
+  "errors.threadLocked": "Toto vlákno je zamčené. Odpovídat může jen tým."
 }

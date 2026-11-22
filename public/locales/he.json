@@ -1197,5 +1197,13 @@
   "savedSearch.error": "לא ניתן היה לשמור את החיפוש. נסו שוב.",
   "savedSearch.deleteError": "לא ניתן היה למחוק את החיפוש השמור. נסו שוב.",
   "savedSearch.empty": "אין עדיין חיפושים שמורים.",
-  "savedSearch.deleteLabel": "מחיקת החיפוש השמור {name}"
+  "savedSearch.deleteLabel": "מחיקת החיפוש השמור {name}",
+  "threadLock.note": "השרשור הזה נעול. תגובות חדשות סגורות.",
+  "threadLock.reason": "סיבת הנעילה (לצוות בלבד): {reason}",
+  "threadLock.lock": "נעילה",
+  "threadLock.unlock": "ביטול נעילה",
+  "threadLock.reasonPrompt": "לנעול את השרשור? אפשר להוסיף סיבה שרק הצוות יראה, או להשאיר ריק.",
+  "threadLock.locked": "השרשור ננעל.",
+  "threadLock.unlocked": "נעילת השרשור בוטלה.",
+  "errors.threadLocked": "השרשור הזה נעול. רק הצוות יכול להגיב."
 }

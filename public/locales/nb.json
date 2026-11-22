@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Kunne ikke lagre søket. Prøv igjen.",
   "savedSearch.deleteError": "Kunne ikke slette det lagrede søket. Prøv igjen.",
   "savedSearch.empty": "Ingen lagrede søk ennå.",
-  "savedSearch.deleteLabel": "Slett lagret søk {name}"
+  "savedSearch.deleteLabel": "Slett lagret søk {name}",
+  "threadLock.note": "Denne tråden er låst. Nye svar er stengt.",
+  "threadLock.reason": "Årsak til låsing (kun ansatte): {reason}",
+  "threadLock.lock": "Lås",
+  "threadLock.unlock": "Lås opp",
+  "threadLock.reasonPrompt": "Vil du låse denne tråden? Legg til en valgfri årsak som bare de ansatte ser, eller la feltet stå tomt.",
+  "threadLock.locked": "Tråden er låst.",
+  "threadLock.unlocked": "Tråden er låst opp.",
+  "errors.threadLocked": "Denne tråden er låst. Bare de ansatte kan svare."
 }

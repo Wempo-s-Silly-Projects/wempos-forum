@@ -1197,5 +1197,13 @@
   "savedSearch.error": "De zoekopdracht kon niet worden opgeslagen. Probeer het opnieuw.",
   "savedSearch.deleteError": "De opgeslagen zoekopdracht kon niet worden verwijderd. Probeer het opnieuw.",
   "savedSearch.empty": "Nog geen opgeslagen zoekopdrachten.",
-  "savedSearch.deleteLabel": "Opgeslagen zoekopdracht {name} verwijderen"
+  "savedSearch.deleteLabel": "Opgeslagen zoekopdracht {name} verwijderen",
+  "threadLock.note": "Deze draad is vergrendeld. Nieuwe reacties zijn gesloten.",
+  "threadLock.reason": "Reden van vergrendeling (alleen team): {reason}",
+  "threadLock.lock": "Vergrendelen",
+  "threadLock.unlock": "Ontgrendelen",
+  "threadLock.reasonPrompt": "Deze draad vergrendelen? Voeg optioneel een reden toe die alleen het team ziet, of laat het leeg.",
+  "threadLock.locked": "Draad vergrendeld.",
+  "threadLock.unlocked": "Draad ontgrendeld.",
+  "errors.threadLocked": "Deze draad is vergrendeld. Alleen het team kan reageren."
 }

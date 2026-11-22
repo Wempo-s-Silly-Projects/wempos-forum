@@ -1197,5 +1197,13 @@
   "savedSearch.error": "บันทึกการค้นหาไม่สำเร็จ โปรดลองอีกครั้ง",
   "savedSearch.deleteError": "ลบการค้นหาที่บันทึกไว้ไม่สำเร็จ โปรดลองอีกครั้ง",
   "savedSearch.empty": "ยังไม่มีการค้นหาที่บันทึกไว้",
-  "savedSearch.deleteLabel": "ลบการค้นหาที่บันทึกไว้ {name}"
+  "savedSearch.deleteLabel": "ลบการค้นหาที่บันทึกไว้ {name}",
+  "threadLock.note": "กระทู้นี้ถูกล็อกแล้ว ปิดรับการตอบกลับใหม่",
+  "threadLock.reason": "เหตุผลที่ล็อก (เฉพาะทีมงาน): {reason}",
+  "threadLock.lock": "ล็อก",
+  "threadLock.unlock": "ปลดล็อก",
+  "threadLock.reasonPrompt": "ล็อกกระทู้นี้ไหม เพิ่มเหตุผลที่เฉพาะทีมงานเห็นได้ หรือเว้นว่างไว้",
+  "threadLock.locked": "ล็อกกระทู้แล้ว",
+  "threadLock.unlocked": "ปลดล็อกกระทู้แล้ว",
+  "errors.threadLocked": "กระทู้นี้ถูกล็อกแล้ว เฉพาะทีมงานเท่านั้นที่ตอบกลับได้"
 }

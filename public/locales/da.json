@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Søgningen kunne ikke gemmes. Prøv igen.",
   "savedSearch.deleteError": "Den gemte søgning kunne ikke slettes. Prøv igen.",
   "savedSearch.empty": "Ingen gemte søgninger endnu.",
-  "savedSearch.deleteLabel": "Slet gemt søgning {name}"
+  "savedSearch.deleteLabel": "Slet gemt søgning {name}",
+  "threadLock.note": "Denne tråd er låst. Nye svar er lukket.",
+  "threadLock.reason": "Årsag til låsning (kun personale): {reason}",
+  "threadLock.lock": "Lås",
+  "threadLock.unlock": "Lås op",
+  "threadLock.reasonPrompt": "Vil du låse denne tråd? Tilføj en valgfri årsag, som kun personalet kan se, eller lad feltet stå tomt.",
+  "threadLock.locked": "Tråden er låst.",
+  "threadLock.unlocked": "Tråden er låst op.",
+  "errors.threadLocked": "Denne tråd er låst. Kun personalet kan svare."
 }

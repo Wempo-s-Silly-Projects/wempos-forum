@@ -535,6 +535,15 @@ export const createPostCard = (post, document, currentUser = null) => {
     pinButton.dataset.action = isPinned ? "thread-unpin" : "thread-pin";
     pinButton.dataset.postId = String(post.id);
     actions.append(pinButton);
+    // Thread lock (v5.51): the payload's `locked` picks Lock or Unlock; the
+    // server gates the same roles and roots only.
+    const isLocked = post.locked === true;
+    const lockButton = createElement(document, "button", "button button-quiet",
+      isLocked ? t("threadLock.unlock") : t("threadLock.lock"));
+    lockButton.type = "button";
+    lockButton.dataset.action = isLocked ? "thread-unlock" : "thread-lock";
+    lockButton.dataset.postId = String(post.id);
+    actions.append(lockButton);
     // Staff pick of the week (v5.35): public Showcase roots only (the server
     // refuses anything else); the payload's staffPick picks the label.
     if (post.board === "showcase" && post.visibility === "public") {

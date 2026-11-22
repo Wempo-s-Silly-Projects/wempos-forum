@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Претрага није могла да се сачува. Покушајте поново.",
   "savedSearch.deleteError": "Сачувана претрага није могла да се обрише. Покушајте поново.",
   "savedSearch.empty": "Још нема сачуваних претрага.",
-  "savedSearch.deleteLabel": "Обриши сачувану претрагу {name}"
+  "savedSearch.deleteLabel": "Обриши сачувану претрагу {name}",
+  "threadLock.note": "Ова тема је закључана. Нови одговори су затворени.",
+  "threadLock.reason": "Разлог закључавања (само за особље): {reason}",
+  "threadLock.lock": "Закључај",
+  "threadLock.unlock": "Откључај",
+  "threadLock.reasonPrompt": "Закључати ову тему? Додајте необавезан разлог који види само особље или оставите празно.",
+  "threadLock.locked": "Тема је закључана.",
+  "threadLock.unlocked": "Тема је откључана.",
+  "errors.threadLocked": "Ова тема је закључана. Одговарати може само особље."
 }

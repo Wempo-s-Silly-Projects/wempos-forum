@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Търсенето не можа да се запази. Опитайте отново.",
   "savedSearch.deleteError": "Запазеното търсене не можа да се изтрие. Опитайте отново.",
   "savedSearch.empty": "Все още няма запазени търсения.",
-  "savedSearch.deleteLabel": "Изтрий запазеното търсене {name}"
+  "savedSearch.deleteLabel": "Изтрий запазеното търсене {name}",
+  "threadLock.note": "Тази тема е заключена. Новите отговори са спрени.",
+  "threadLock.reason": "Причина за заключване (само за екипа): {reason}",
+  "threadLock.lock": "Заключи",
+  "threadLock.unlock": "Отключи",
+  "threadLock.reasonPrompt": "Да се заключи ли темата? Добавете причина по желание, видима само за екипа, или оставете празно.",
+  "threadLock.locked": "Темата е заключена.",
+  "threadLock.unlocked": "Темата е отключена.",
+  "errors.threadLocked": "Тази тема е заключена. Само екипът може да отговаря."
 }

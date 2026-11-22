@@ -1197,5 +1197,13 @@
   "savedSearch.error": "无法保存搜索，请重试。",
   "savedSearch.deleteError": "无法删除保存的搜索，请重试。",
   "savedSearch.empty": "还没有保存的搜索。",
-  "savedSearch.deleteLabel": "删除保存的搜索 {name}"
+  "savedSearch.deleteLabel": "删除保存的搜索 {name}",
+  "threadLock.note": "此主题已锁定，不再接受新回复。",
+  "threadLock.reason": "锁定原因（仅管理团队可见）：{reason}",
+  "threadLock.lock": "锁定",
+  "threadLock.unlock": "解锁",
+  "threadLock.reasonPrompt": "要锁定此主题吗？可填写仅管理团队可见的原因，也可以留空。",
+  "threadLock.locked": "主题已锁定。",
+  "threadLock.unlocked": "主题已解锁。",
+  "errors.threadLocked": "此主题已锁定，只有管理团队可以回复。"
 }

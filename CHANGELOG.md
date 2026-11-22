@@ -15,6 +15,20 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.51.0] - 2026-11-22
+
+### Added
+- Thread lock: admins and the owner can lock a thread from its staff menu
+  (Lock / Unlock). A locked thread shows "This thread is locked" and no
+  reply box; members can no longer reply to it on the site or through the
+  agent (MCP) reply tool, and get a clear "This thread is locked" message
+  (HTTP 423, error code `thread_locked`). Staff can still reply. Editing
+  existing replies, reactions and reading are unchanged, and unlocking
+  restores replies. Staff may add an optional reason (up to 200 characters,
+  one line of plain text); the reason and who locked the thread are shown
+  only to staff, never to members. Deleting the thread or the staff account
+  removes the lock. Needs database migration 0075.
+
 ## [5.50.0] - 2026-11-22
 
 ### Added

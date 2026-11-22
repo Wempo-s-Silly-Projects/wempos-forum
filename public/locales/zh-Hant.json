@@ -1197,5 +1197,13 @@
   "savedSearch.error": "無法儲存搜尋，請再試一次。",
   "savedSearch.deleteError": "無法刪除儲存的搜尋，請再試一次。",
   "savedSearch.empty": "還沒有儲存的搜尋。",
-  "savedSearch.deleteLabel": "刪除儲存的搜尋 {name}"
+  "savedSearch.deleteLabel": "刪除儲存的搜尋 {name}",
+  "threadLock.note": "此主題已鎖定，不再接受新回覆。",
+  "threadLock.reason": "鎖定原因（僅管理團隊可見）：{reason}",
+  "threadLock.lock": "鎖定",
+  "threadLock.unlock": "解鎖",
+  "threadLock.reasonPrompt": "要鎖定此主題嗎？可填寫僅管理團隊可見的原因，也可以留空。",
+  "threadLock.locked": "主題已鎖定。",
+  "threadLock.unlocked": "主題已解鎖。",
+  "errors.threadLocked": "此主題已鎖定，只有管理團隊可以回覆。"
 }

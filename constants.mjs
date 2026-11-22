@@ -157,6 +157,10 @@ export const SAVED_SEARCHES_MAX = 20;
 // THREAD_SUMMARY_MAX_CHARS characters (the table's CHECK matches).
 export const THREAD_SUMMARY_MAX_CHARS = 280;
 
+// v5.51 staff thread lock (migration 0075): the optional staff-only reason is
+// at most THREAD_LOCK_REASON_MAX_CHARS characters (the table's CHECK matches).
+export const THREAD_LOCK_REASON_MAX_CHARS = 200;
+
 // v4.23 Download my data (GET /api/me/export): the most rows each section of
 // the caller's own export carries, newest first. A section that hit its cap
 // is flagged in the export's `truncated` map so the file never silently

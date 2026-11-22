@@ -1197,5 +1197,13 @@
   "savedSearch.error": "खोज सहेजी नहीं जा सकी। फिर से कोशिश करें।",
   "savedSearch.deleteError": "सहेजी गई खोज हटाई नहीं जा सकी। फिर से कोशिश करें।",
   "savedSearch.empty": "अभी तक कोई सहेजी गई खोज नहीं है।",
-  "savedSearch.deleteLabel": "सहेजी गई खोज {name} हटाएँ"
+  "savedSearch.deleteLabel": "सहेजी गई खोज {name} हटाएँ",
+  "threadLock.note": "यह थ्रेड लॉक है। नए जवाब बंद हैं।",
+  "threadLock.reason": "लॉक का कारण (केवल स्टाफ़): {reason}",
+  "threadLock.lock": "लॉक करें",
+  "threadLock.unlock": "अनलॉक करें",
+  "threadLock.reasonPrompt": "यह थ्रेड लॉक करें? चाहें तो ऐसा कारण जोड़ें जिसे केवल स्टाफ़ देख सके, या खाली छोड़ दें।",
+  "threadLock.locked": "थ्रेड लॉक हो गया।",
+  "threadLock.unlocked": "थ्रेड अनलॉक हो गया।",
+  "errors.threadLocked": "यह थ्रेड लॉक है। केवल स्टाफ़ जवाब दे सकता है।"
 }

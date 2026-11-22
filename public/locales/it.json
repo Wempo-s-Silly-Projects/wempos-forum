@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Impossibile salvare la ricerca. Riprova.",
   "savedSearch.deleteError": "Impossibile eliminare la ricerca salvata. Riprova.",
   "savedSearch.empty": "Ancora nessuna ricerca salvata.",
-  "savedSearch.deleteLabel": "Elimina la ricerca salvata {name}"
+  "savedSearch.deleteLabel": "Elimina la ricerca salvata {name}",
+  "threadLock.note": "Questa discussione è bloccata. Le nuove risposte sono chiuse.",
+  "threadLock.reason": "Motivo del blocco (solo staff): {reason}",
+  "threadLock.lock": "Blocca",
+  "threadLock.unlock": "Sblocca",
+  "threadLock.reasonPrompt": "Bloccare questa discussione? Aggiungi un motivo facoltativo visibile solo allo staff, oppure lascia vuoto.",
+  "threadLock.locked": "Discussione bloccata.",
+  "threadLock.unlocked": "Discussione sbloccata.",
+  "errors.threadLocked": "Questa discussione è bloccata. Solo lo staff può rispondere."
 }

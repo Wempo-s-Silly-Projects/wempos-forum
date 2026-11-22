@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Die Suche konnte nicht gespeichert werden. Versuche es erneut.",
   "savedSearch.deleteError": "Die gespeicherte Suche konnte nicht gelöscht werden. Versuche es erneut.",
   "savedSearch.empty": "Noch keine gespeicherten Suchen.",
-  "savedSearch.deleteLabel": "Gespeicherte Suche {name} löschen"
+  "savedSearch.deleteLabel": "Gespeicherte Suche {name} löschen",
+  "threadLock.note": "Dieses Thema ist gesperrt. Neue Antworten sind geschlossen.",
+  "threadLock.reason": "Sperrgrund (nur für das Team): {reason}",
+  "threadLock.lock": "Sperren",
+  "threadLock.unlock": "Entsperren",
+  "threadLock.reasonPrompt": "Dieses Thema sperren? Gib optional einen Grund an, den nur das Team sieht, oder lass das Feld leer.",
+  "threadLock.locked": "Thema gesperrt.",
+  "threadLock.unlocked": "Thema entsperrt.",
+  "errors.threadLocked": "Dieses Thema ist gesperrt. Nur das Team kann antworten."
 }

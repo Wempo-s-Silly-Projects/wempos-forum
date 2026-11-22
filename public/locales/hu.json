@@ -1197,5 +1197,13 @@
   "savedSearch.error": "A keresést nem sikerült menteni. Próbáld újra.",
   "savedSearch.deleteError": "A mentett keresést nem sikerült törölni. Próbáld újra.",
   "savedSearch.empty": "Még nincs mentett keresés.",
-  "savedSearch.deleteLabel": "{name} mentett keresés törlése"
+  "savedSearch.deleteLabel": "{name} mentett keresés törlése",
+  "threadLock.note": "Ez a téma le van zárva. Új válaszok nem küldhetők.",
+  "threadLock.reason": "A lezárás oka (csak a stábnak): {reason}",
+  "threadLock.lock": "Lezárás",
+  "threadLock.unlock": "Feloldás",
+  "threadLock.reasonPrompt": "Lezárod ezt a témát? Megadhatsz egy okot, amelyet csak a stáb lát, vagy hagyd üresen.",
+  "threadLock.locked": "A téma lezárva.",
+  "threadLock.unlocked": "A téma feloldva.",
+  "errors.threadLocked": "Ez a téma le van zárva. Csak a stáb válaszolhat."
 }

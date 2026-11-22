@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Не вдалося зберегти пошук. Спробуйте ще раз.",
   "savedSearch.deleteError": "Не вдалося видалити збережений пошук. Спробуйте ще раз.",
   "savedSearch.empty": "Збережених пошуків поки немає.",
-  "savedSearch.deleteLabel": "Видалити збережений пошук {name}"
+  "savedSearch.deleteLabel": "Видалити збережений пошук {name}",
+  "threadLock.note": "Цю тему закрито. Нові відповіді не приймаються.",
+  "threadLock.reason": "Причина закриття (лише для команди): {reason}",
+  "threadLock.lock": "Закрити",
+  "threadLock.unlock": "Відкрити",
+  "threadLock.reasonPrompt": "Закрити цю тему? Додайте необов'язкову причину, яку бачитиме лише команда, або залиште поле порожнім.",
+  "threadLock.locked": "Тему закрито.",
+  "threadLock.unlocked": "Тему відкрито.",
+  "errors.threadLocked": "Цю тему закрито. Відповідати може лише команда."
 }

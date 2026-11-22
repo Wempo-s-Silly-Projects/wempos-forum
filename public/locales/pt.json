@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Não foi possível guardar a pesquisa. Tente novamente.",
   "savedSearch.deleteError": "Não foi possível eliminar a pesquisa guardada. Tente novamente.",
   "savedSearch.empty": "Ainda não há pesquisas guardadas.",
-  "savedSearch.deleteLabel": "Eliminar a pesquisa guardada {name}"
+  "savedSearch.deleteLabel": "Eliminar a pesquisa guardada {name}",
+  "threadLock.note": "Este tópico está trancado. Novas respostas estão fechadas.",
+  "threadLock.reason": "Motivo do trancamento (só a equipe): {reason}",
+  "threadLock.lock": "Trancar",
+  "threadLock.unlock": "Destrancar",
+  "threadLock.reasonPrompt": "Trancar este tópico? Adicione um motivo opcional que só a equipe verá, ou deixe em branco.",
+  "threadLock.locked": "Tópico trancado.",
+  "threadLock.unlocked": "Tópico destrancado.",
+  "errors.threadLocked": "Este tópico está trancado. Só a equipe pode responder."
 }
