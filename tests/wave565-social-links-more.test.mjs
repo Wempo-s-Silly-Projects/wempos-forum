@@ -193,7 +193,7 @@ test("payment group: six adjacent keys and a translated muted note under them", 
 
 test("the payment note exists in every locale, translated outside English", () => {
   const files = readdirSync(new URL("../public/locales/", import.meta.url)).filter((f) => f.endsWith(".json"));
-  assert.equal(files.length, 49);
+  assert.equal(files.length, 57);
   const en = JSON.parse(read("public/locales/en.json"))["profileEditor.paymentNote"];
   assert.equal(en, "Links open the service directly; the forum never handles payments.");
   for (const file of files) {

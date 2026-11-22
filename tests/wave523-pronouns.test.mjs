@@ -283,7 +283,7 @@ test("the new strings exist in en and every locale", async () => {
   const keys = ["profileEditor.pronouns", "profileEditor.pronounsHelp", "errors.pronounsInvalid", "errors.pronounsNotAllowed"];
   const english = JSON.parse(read("public/locales/en.json"));
   assert.equal(english["profileEditor.pronounsHelp"], "Optional. Letters, spaces, / and - only, up to 24 characters.");
-  assert.equal(LOCALES.length, 49);
+  assert.equal(LOCALES.length, 57);
   for (const locale of LOCALES) {
     const code = typeof locale === "string" ? locale : locale.code;
     const table = JSON.parse(read(`public/locales/${code}.json`));
