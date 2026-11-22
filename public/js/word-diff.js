@@ -33,6 +33,10 @@
 // through createElement + textContent only.
 
 export const DIFF_MAX_WORDS = 2000;
+// v5.54 (M2): the edit-history panel spends at most this many LCS cells in
+// total, one worst-case diff at the word cap (~70 ms on a desktop); the
+// versions past the budget show plain.
+export const DIFF_PANEL_CELL_BUDGET = DIFF_MAX_WORDS * DIFF_MAX_WORDS;
 
 // Leading whitespace rides as its own token so b rebuilds exactly.
 function tokenize(text, limit) {
@@ -97,6 +101,15 @@ function diffMiddle(runs, a, b) {
 }
 
 export function diffWords(before, after) {
+  const within = diffWordsWithin(before, after, Infinity);
+  return within ? within.runs : null;
+}
+
+// diffWords with a cell budget: { runs, cells } where cells is the LCS table
+// size actually spent, or null when either side is over the word cap or the
+// table (after the common prefix and suffix are trimmed) would exceed
+// maxCells. Tokenizing is linear; the table is never built past the budget.
+export function diffWordsWithin(before, after, maxCells) {
   const a = tokenize(String(before ?? ""), DIFF_MAX_WORDS);
   const b = a && tokenize(String(after ?? ""), DIFF_MAX_WORDS);
   if (!a || !b) return null;
@@ -108,11 +121,13 @@ export function diffWords(before, after) {
     endA -= 1;
     endB -= 1;
   }
+  const cells = (endA - start) * (endB - start);
+  if (cells > maxCells) return null;
   const runs = [];
   pushRun(runs, "equal", b.slice(0, start).join(""));
   diffMiddle(runs, a.slice(start, endA), b.slice(start, endB));
   pushRun(runs, "equal", b.slice(endB).join(""));
-  return runs;
+  return { runs, cells };
 }
 
 const RUN_TAGS = { insert: ["ins", "edit-diff-ins"], delete: ["del", "edit-diff-del"] };

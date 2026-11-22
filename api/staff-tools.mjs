@@ -79,6 +79,17 @@ export async function assertSlowModeAllows(db, user, rootId) {
   if (hit) throw new HttpError(429, SLOW_MODE_REFUSAL);
 }
 
+// v5.54 (M1): the same predicate rides inside the reply INSERT's WHERE, so
+// the cooldown is atomic with the write and parallel replies serialise on
+// it. Appended after the INSERT's last clause; binds root id, author id, now.
+export const SLOW_MODE_INSERT_GUARD_SQL = " AND NOT EXISTS (" + SLOW_MODE_CHECK_SQL + ")";
+
+// Staff skip the guard (no extra binds), as they skip the early check.
+export function withSlowModeGuard(sql, values, user, rootId, now) {
+  if (isStaffRole(user)) return [sql, values];
+  return [sql + SLOW_MODE_INSERT_GUARD_SQL, [...values, Number(rootId), Number(user.id), now]];
+}
+
 async function setSlowMode(request, env, postId, session) {
   const body = await readJson(request);
   const seconds = body.seconds;

@@ -23,9 +23,9 @@
 // thread-mute root resolution on every reply depth and on label-only rows,
 // byte-identical 404s on the new owner-keyed routes, the JS length check
 // staying stricter than the table CHECKs, and the export's section list —
-// plus one `todo` (L1): a body or name that starts with U+0000 trips the
-// table CHECK (SQLite's length() stops at the first NUL) and answers 500
-// instead of a 400.
+// plus L1 (a `todo` until v5.54): a body or name that starts with U+0000
+// tripped the table CHECK (SQLite's length() stops at the first NUL) and
+// answered 500 instead of a 400.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { makeEnv } from "./helpers/d1.mjs";
@@ -111,9 +111,8 @@ test("export: privateNotes and savedSearches are present; there is no thread-mut
   assert.ok(!/thread_?mutes/i.test(JSON.stringify(Object.keys(data))));
 });
 
-test("a note body, saved-search name or q starting with U+0000 is a 400, not a 500", {
-  todo: "BUG (L1, LOW): SQLite length() stops at the first NUL, so the table CHECK fails and the route answers 500",
-}, async () => {
+// L1 fixed in v5.54: the validators refuse control characters before the INSERT.
+test("a note body, saved-search name or q starting with U+0000 is a 400, not a 500", async () => {
   const w = await world();
   assert.equal((await putNote(w, "alice", "bob", "\u0000note")).status, 400);
   assert.equal((await saveSearch(w, "alice", { name: "\u0000name", q: "cats" })).status, 400);

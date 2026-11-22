@@ -33,6 +33,7 @@ import { assertNotBanned, requireSignedInRead, requireUser } from "./core/auth.m
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { userByUsernameKey } from "./core/shapers.mjs";
+import { isRefusedChar } from "./thread-summaries.mjs";
 import { PRIVATE_NOTE_MAX_CHARS, PRIVATE_NOTES_MAX } from "../constants.mjs";
 
 const NOTE_PATH = /^\/api\/users\/([^/]{1,200})\/note$/;
@@ -71,6 +72,11 @@ function noteBody(value) {
   if (!body) throw new HttpError(400, "Write a note, or delete it instead.");
   if (body.length > PRIVATE_NOTE_MAX_CHARS) {
     throw new HttpError(400, "Notes can be up to " + PRIVATE_NOTE_MAX_CHARS + " characters.");
+  }
+  // v5.54 (L1): a NUL trips the table CHECK (SQLite's length() stops at it),
+  // so control characters are a 400 here. Notes are multi-line: \n and \t stay.
+  if ([...body].some((ch) => ch !== "\n" && ch !== "\t" && isRefusedChar(ch.codePointAt(0)))) {
+    throw new HttpError(400, "Write a note, or delete it instead.");
   }
   return body;
 }

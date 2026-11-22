@@ -49,7 +49,7 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, requireTurnstile, requiredText } from "./core/http.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
-import { assertSlowModeAllows } from "./staff-tools.mjs";
+import { assertSlowModeAllows, withSlowModeGuard } from "./staff-tools.mjs";
 import { assertThreadUnlocked } from "./thread-locks.mjs";
 
 export async function handleRepliesReadRoute(request, env, url, path, method) {
@@ -168,10 +168,11 @@ export async function handleReplyCreateRoute(request, env, url, path, method) {
       ? null
       : Number(target.author_id);
     const hasAttachments = files.length > 0 || gifEntries.length > 0;
-    const insertSql = hasAttachments ? THREAD_REPLY_INSERT_STAGED_SQL : THREAD_REPLY_INSERT_SQL;
-    const insertValues = hasAttachments
+    const baseSql = hasAttachments ? THREAD_REPLY_INSERT_STAGED_SQL : THREAD_REPLY_INSERT_SQL;
+    const baseValues = hasAttachments
       ? [session.user.id, targetId, message, "hidden", now, now, threadBoard, idempotencyKey, idempotencyFingerprint, hasAttachments ? now : null, targetId, session.user.id, now, idempotencyKey, session.user.id, idempotencyKey]
       : [session.user.id, targetId, message, now, now, threadBoard, idempotencyKey, idempotencyFingerprint, null, targetId, session.user.id, now, idempotencyKey, session.user.id, idempotencyKey];
+    const [insertSql, insertValues] = withSlowModeGuard(baseSql, baseValues, session.user, bumpTargetId, now);
     const insertStatements = [db.prepare(insertSql).bind(...insertValues)];
     if (!hasAttachments) insertStatements.push(db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId));
     let results;
@@ -189,6 +190,8 @@ export async function handleReplyCreateRoute(request, env, url, path, method) {
       await throwIfArchivedIdempotencyKey(db, session.user.id, idempotencyKey);
       const archivedReplay = await replayIdempotentPost(db, session.user.id, idempotencyKey, idempotencyFingerprint);
       if (archivedReplay) return archivedReplay;
+      // A parallel reply landed inside the cooldown: the same 429 slow_mode.
+      await assertSlowModeAllows(db, session.user, bumpTargetId);
       throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
     }
     const replyId = Number(results[0].meta.last_row_id);
