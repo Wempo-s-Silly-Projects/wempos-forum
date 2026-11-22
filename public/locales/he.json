@@ -1178,5 +1178,16 @@
   "privateNote.delete": "מחיקת הערה",
   "privateNote.saved": "ההערה נשמרה.",
   "privateNote.deleted": "ההערה נמחקה.",
-  "privateNote.saveError": "לא ניתן היה לשמור את ההערה. נסו שוב."
+  "privateNote.saveError": "לא ניתן היה לשמור את ההערה. נסו שוב.",
+  "savedSearch.title": "חיפושים שמורים",
+  "savedSearch.open": "שמירת החיפוש הזה",
+  "savedSearch.nameLabel": "תנו שם לחיפוש הזה",
+  "savedSearch.saved": "החיפוש נשמר.",
+  "savedSearch.deleted": "החיפוש השמור נמחק.",
+  "savedSearch.duplicate": "כבר יש לך חיפוש שמור בשם הזה.",
+  "savedSearch.cap": "אפשר לשמור עד {max} חיפושים.",
+  "savedSearch.error": "לא ניתן היה לשמור את החיפוש. נסו שוב.",
+  "savedSearch.deleteError": "לא ניתן היה למחוק את החיפוש השמור. נסו שוב.",
+  "savedSearch.empty": "אין עדיין חיפושים שמורים.",
+  "savedSearch.deleteLabel": "מחיקת החיפוש השמור {name}"
 }

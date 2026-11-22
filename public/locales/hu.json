@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Jegyzet törlése",
   "privateNote.saved": "Jegyzet elmentve.",
   "privateNote.deleted": "Jegyzet törölve.",
-  "privateNote.saveError": "A jegyzetet nem sikerült menteni. Próbáld újra."
+  "privateNote.saveError": "A jegyzetet nem sikerült menteni. Próbáld újra.",
+  "savedSearch.title": "Mentett keresések",
+  "savedSearch.open": "Keresés mentése",
+  "savedSearch.nameLabel": "Nevezd el ezt a keresést",
+  "savedSearch.saved": "Keresés elmentve.",
+  "savedSearch.deleted": "Mentett keresés törölve.",
+  "savedSearch.duplicate": "Már van ilyen nevű mentett keresésed.",
+  "savedSearch.cap": "Legfeljebb {max} mentett keresésed lehet.",
+  "savedSearch.error": "A keresést nem sikerült menteni. Próbáld újra.",
+  "savedSearch.deleteError": "A mentett keresést nem sikerült törölni. Próbáld újra.",
+  "savedSearch.empty": "Még nincs mentett keresés.",
+  "savedSearch.deleteLabel": "{name} mentett keresés törlése"
 }

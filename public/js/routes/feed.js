@@ -50,6 +50,7 @@ import { maskSpoilers } from "../markdown.js";
 import { appendHighlighted } from "../search-highlight.js";
 import { SEARCH_SECTION_IDS, createSearchSummary } from "../search-summary.js";
 import { createSearchFilters, searchApiPath } from "../search-filters.js";
+import { createSavedSearches, loadSavedSearches } from "../saved-searches.js";
 import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
@@ -127,6 +128,12 @@ function renderHomeContent(session, data, route) {
     addText(document, main, "p", t("feed.searchResultsFor", { query: route.query }), "muted");
     // Wave 5.36: date-range and sort chips (shareable via ?since=&sort=).
     main.append(createSearchFilters(document, route));
+    // v5.48: saved searches — signed-in members only, owner-only list.
+    if (session.user) {
+      const savedPanel = createSavedSearches(document, { query: route.query });
+      main.append(savedPanel);
+      loadSavedSearches(savedPanel);
+    }
     renderSearchResults(main, data.search, route.query);
     return;
   }

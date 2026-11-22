@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Padam nota",
   "privateNote.saved": "Nota disimpan.",
   "privateNote.deleted": "Nota dipadam.",
-  "privateNote.saveError": "Nota tidak dapat disimpan. Cuba lagi."
+  "privateNote.saveError": "Nota tidak dapat disimpan. Cuba lagi.",
+  "savedSearch.title": "Carian tersimpan",
+  "savedSearch.open": "Simpan carian ini",
+  "savedSearch.nameLabel": "Namakan carian ini",
+  "savedSearch.saved": "Carian disimpan.",
+  "savedSearch.deleted": "Carian tersimpan dipadam.",
+  "savedSearch.duplicate": "Anda sudah mempunyai carian tersimpan dengan nama itu.",
+  "savedSearch.cap": "Anda boleh menyimpan sehingga {max} carian.",
+  "savedSearch.error": "Carian tidak dapat disimpan. Cuba lagi.",
+  "savedSearch.deleteError": "Carian tersimpan tidak dapat dipadam. Cuba lagi.",
+  "savedSearch.empty": "Belum ada carian tersimpan.",
+  "savedSearch.deleteLabel": "Padam carian tersimpan {name}"
 }

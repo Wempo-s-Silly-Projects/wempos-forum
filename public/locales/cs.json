@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Smazat poznámku",
   "privateNote.saved": "Poznámka uložena.",
   "privateNote.deleted": "Poznámka smazána.",
-  "privateNote.saveError": "Poznámku se nepodařilo uložit. Zkuste to znovu."
+  "privateNote.saveError": "Poznámku se nepodařilo uložit. Zkuste to znovu.",
+  "savedSearch.title": "Uložená hledání",
+  "savedSearch.open": "Uložit toto hledání",
+  "savedSearch.nameLabel": "Pojmenujte toto hledání",
+  "savedSearch.saved": "Hledání uloženo.",
+  "savedSearch.deleted": "Uložené hledání bylo smazáno.",
+  "savedSearch.duplicate": "Uložené hledání s tímto názvem už máte.",
+  "savedSearch.cap": "Můžete mít nejvýše {max} uložených hledání.",
+  "savedSearch.error": "Hledání se nepodařilo uložit. Zkuste to znovu.",
+  "savedSearch.deleteError": "Uložené hledání se nepodařilo smazat. Zkuste to znovu.",
+  "savedSearch.empty": "Zatím žádná uložená hledání.",
+  "savedSearch.deleteLabel": "Smazat uložené hledání {name}"
 }

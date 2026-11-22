@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Usuń notatkę",
   "privateNote.saved": "Notatka zapisana.",
   "privateNote.deleted": "Notatka usunięta.",
-  "privateNote.saveError": "Nie udało się zapisać notatki. Spróbuj ponownie."
+  "privateNote.saveError": "Nie udało się zapisać notatki. Spróbuj ponownie.",
+  "savedSearch.title": "Zapisane wyszukiwania",
+  "savedSearch.open": "Zapisz to wyszukiwanie",
+  "savedSearch.nameLabel": "Nazwij to wyszukiwanie",
+  "savedSearch.saved": "Wyszukiwanie zapisane.",
+  "savedSearch.deleted": "Zapisane wyszukiwanie usunięte.",
+  "savedSearch.duplicate": "Masz już zapisane wyszukiwanie o tej nazwie.",
+  "savedSearch.cap": "Możesz mieć maksymalnie {max} zapisanych wyszukiwań.",
+  "savedSearch.error": "Nie udało się zapisać wyszukiwania. Spróbuj ponownie.",
+  "savedSearch.deleteError": "Nie udało się usunąć zapisanego wyszukiwania. Spróbuj ponownie.",
+  "savedSearch.empty": "Brak zapisanych wyszukiwań.",
+  "savedSearch.deleteLabel": "Usuń zapisane wyszukiwanie {name}"
 }

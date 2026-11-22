@@ -1178,5 +1178,16 @@
   "privateNote.delete": "メモを削除",
   "privateNote.saved": "メモを保存しました。",
   "privateNote.deleted": "メモを削除しました。",
-  "privateNote.saveError": "メモを保存できませんでした。もう一度お試しください。"
+  "privateNote.saveError": "メモを保存できませんでした。もう一度お試しください。",
+  "savedSearch.title": "保存した検索",
+  "savedSearch.open": "この検索を保存",
+  "savedSearch.nameLabel": "この検索に名前を付ける",
+  "savedSearch.saved": "検索を保存しました。",
+  "savedSearch.deleted": "保存した検索を削除しました。",
+  "savedSearch.duplicate": "同じ名前の保存した検索がすでにあります。",
+  "savedSearch.cap": "保存できる検索は最大 {max} 件です。",
+  "savedSearch.error": "検索を保存できませんでした。もう一度お試しください。",
+  "savedSearch.deleteError": "保存した検索を削除できませんでした。もう一度お試しください。",
+  "savedSearch.empty": "保存した検索はまだありません。",
+  "savedSearch.deleteLabel": "保存した検索「{name}」を削除"
 }

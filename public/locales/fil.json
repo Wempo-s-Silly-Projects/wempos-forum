@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Burahin ang tala",
   "privateNote.saved": "Na-save ang tala.",
   "privateNote.deleted": "Nabura ang tala.",
-  "privateNote.saveError": "Hindi ma-save ang tala. Subukang muli."
+  "privateNote.saveError": "Hindi ma-save ang tala. Subukang muli.",
+  "savedSearch.title": "Mga naka-save na paghahanap",
+  "savedSearch.open": "I-save ang paghahanap na ito",
+  "savedSearch.nameLabel": "Pangalanan ang paghahanap na ito",
+  "savedSearch.saved": "Na-save ang paghahanap.",
+  "savedSearch.deleted": "Nabura ang naka-save na paghahanap.",
+  "savedSearch.duplicate": "May naka-save ka nang paghahanap na may ganyang pangalan.",
+  "savedSearch.cap": "Hanggang {max} naka-save na paghahanap lang ang puwede mong itago.",
+  "savedSearch.error": "Hindi ma-save ang paghahanap. Subukan ulit.",
+  "savedSearch.deleteError": "Hindi mabura ang naka-save na paghahanap. Subukan ulit.",
+  "savedSearch.empty": "Wala pang naka-save na paghahanap.",
+  "savedSearch.deleteLabel": "Burahin ang naka-save na paghahanap na {name}"
 }

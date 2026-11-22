@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Esborra la nota",
   "privateNote.saved": "Nota desada.",
   "privateNote.deleted": "Nota esborrada.",
-  "privateNote.saveError": "No s'ha pogut desar la nota. Torna-ho a provar."
+  "privateNote.saveError": "No s'ha pogut desar la nota. Torna-ho a provar.",
+  "savedSearch.title": "Cerques desades",
+  "savedSearch.open": "Desa aquesta cerca",
+  "savedSearch.nameLabel": "Posa nom a aquesta cerca",
+  "savedSearch.saved": "Cerca desada.",
+  "savedSearch.deleted": "S'ha suprimit la cerca desada.",
+  "savedSearch.duplicate": "Ja tens una cerca desada amb aquest nom.",
+  "savedSearch.cap": "Pots tenir fins a {max} cerques desades.",
+  "savedSearch.error": "No s'ha pogut desar la cerca. Torna-ho a provar.",
+  "savedSearch.deleteError": "No s'ha pogut suprimir la cerca desada. Torna-ho a provar.",
+  "savedSearch.empty": "Encara no hi ha cerques desades.",
+  "savedSearch.deleteLabel": "Suprimeix la cerca desada {name}"
 }

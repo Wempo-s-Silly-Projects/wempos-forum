@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Supprimer la note",
   "privateNote.saved": "Note enregistrée.",
   "privateNote.deleted": "Note supprimée.",
-  "privateNote.saveError": "Impossible d'enregistrer la note. Réessayez."
+  "privateNote.saveError": "Impossible d'enregistrer la note. Réessayez.",
+  "savedSearch.title": "Recherches enregistrées",
+  "savedSearch.open": "Enregistrer cette recherche",
+  "savedSearch.nameLabel": "Nommer cette recherche",
+  "savedSearch.saved": "Recherche enregistrée.",
+  "savedSearch.deleted": "Recherche enregistrée supprimée.",
+  "savedSearch.duplicate": "Vous avez déjà une recherche enregistrée portant ce nom.",
+  "savedSearch.cap": "Vous pouvez garder jusqu'à {max} recherches enregistrées.",
+  "savedSearch.error": "Impossible d'enregistrer la recherche. Réessayez.",
+  "savedSearch.deleteError": "Impossible de supprimer la recherche enregistrée. Réessayez.",
+  "savedSearch.empty": "Aucune recherche enregistrée pour l'instant.",
+  "savedSearch.deleteLabel": "Supprimer la recherche enregistrée {name}"
 }

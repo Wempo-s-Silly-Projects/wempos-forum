@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Notu sil",
   "privateNote.saved": "Not kaydedildi.",
   "privateNote.deleted": "Not silindi.",
-  "privateNote.saveError": "Not kaydedilemedi. Tekrar dene."
+  "privateNote.saveError": "Not kaydedilemedi. Tekrar dene.",
+  "savedSearch.title": "Kayıtlı aramalar",
+  "savedSearch.open": "Bu aramayı kaydet",
+  "savedSearch.nameLabel": "Bu aramaya bir ad ver",
+  "savedSearch.saved": "Arama kaydedildi.",
+  "savedSearch.deleted": "Kayıtlı arama silindi.",
+  "savedSearch.duplicate": "Bu adla kayıtlı bir aramanız zaten var.",
+  "savedSearch.cap": "En fazla {max} kayıtlı arama tutabilirsiniz.",
+  "savedSearch.error": "Arama kaydedilemedi. Tekrar deneyin.",
+  "savedSearch.deleteError": "Kayıtlı arama silinemedi. Tekrar deneyin.",
+  "savedSearch.empty": "Henüz kayıtlı arama yok.",
+  "savedSearch.deleteLabel": "{name} kayıtlı aramasını sil"
 }

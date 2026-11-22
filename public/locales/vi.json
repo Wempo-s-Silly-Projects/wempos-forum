@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Xóa ghi chú",
   "privateNote.saved": "Đã lưu ghi chú.",
   "privateNote.deleted": "Đã xóa ghi chú.",
-  "privateNote.saveError": "Không lưu được ghi chú. Hãy thử lại."
+  "privateNote.saveError": "Không lưu được ghi chú. Hãy thử lại.",
+  "savedSearch.title": "Tìm kiếm đã lưu",
+  "savedSearch.open": "Lưu tìm kiếm này",
+  "savedSearch.nameLabel": "Đặt tên cho tìm kiếm này",
+  "savedSearch.saved": "Đã lưu tìm kiếm.",
+  "savedSearch.deleted": "Đã xóa tìm kiếm đã lưu.",
+  "savedSearch.duplicate": "Bạn đã có một tìm kiếm đã lưu với tên đó.",
+  "savedSearch.cap": "Bạn có thể lưu tối đa {max} tìm kiếm.",
+  "savedSearch.error": "Không lưu được tìm kiếm. Hãy thử lại.",
+  "savedSearch.deleteError": "Không xóa được tìm kiếm đã lưu. Hãy thử lại.",
+  "savedSearch.empty": "Chưa có tìm kiếm đã lưu nào.",
+  "savedSearch.deleteLabel": "Xóa tìm kiếm đã lưu {name}"
 }

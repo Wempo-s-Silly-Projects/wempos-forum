@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Hapus catatan",
   "privateNote.saved": "Catatan disimpan.",
   "privateNote.deleted": "Catatan dihapus.",
-  "privateNote.saveError": "Catatan tidak dapat disimpan. Coba lagi."
+  "privateNote.saveError": "Catatan tidak dapat disimpan. Coba lagi.",
+  "savedSearch.title": "Pencarian tersimpan",
+  "savedSearch.open": "Simpan pencarian ini",
+  "savedSearch.nameLabel": "Beri nama pencarian ini",
+  "savedSearch.saved": "Pencarian disimpan.",
+  "savedSearch.deleted": "Pencarian tersimpan dihapus.",
+  "savedSearch.duplicate": "Kamu sudah punya pencarian tersimpan dengan nama itu.",
+  "savedSearch.cap": "Kamu bisa menyimpan hingga {max} pencarian.",
+  "savedSearch.error": "Pencarian tidak dapat disimpan. Coba lagi.",
+  "savedSearch.deleteError": "Pencarian tersimpan tidak dapat dihapus. Coba lagi.",
+  "savedSearch.empty": "Belum ada pencarian tersimpan.",
+  "savedSearch.deleteLabel": "Hapus pencarian tersimpan {name}"
 }

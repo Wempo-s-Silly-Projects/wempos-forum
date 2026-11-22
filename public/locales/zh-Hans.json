@@ -1178,5 +1178,16 @@
   "privateNote.delete": "删除备注",
   "privateNote.saved": "备注已保存。",
   "privateNote.deleted": "备注已删除。",
-  "privateNote.saveError": "无法保存备注，请重试。"
+  "privateNote.saveError": "无法保存备注，请重试。",
+  "savedSearch.title": "已保存的搜索",
+  "savedSearch.open": "保存此搜索",
+  "savedSearch.nameLabel": "为此搜索命名",
+  "savedSearch.saved": "搜索已保存。",
+  "savedSearch.deleted": "已删除保存的搜索。",
+  "savedSearch.duplicate": "你已有同名的保存搜索。",
+  "savedSearch.cap": "最多可保存 {max} 个搜索。",
+  "savedSearch.error": "无法保存搜索，请重试。",
+  "savedSearch.deleteError": "无法删除保存的搜索，请重试。",
+  "savedSearch.empty": "还没有保存的搜索。",
+  "savedSearch.deleteLabel": "删除保存的搜索 {name}"
 }

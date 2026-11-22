@@ -1178,5 +1178,16 @@
   "privateNote.delete": "نوٹ حذف کریں",
   "privateNote.saved": "نوٹ محفوظ ہو گیا۔",
   "privateNote.deleted": "نوٹ حذف ہو گیا۔",
-  "privateNote.saveError": "نوٹ محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
+  "privateNote.saveError": "نوٹ محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+  "savedSearch.title": "محفوظ تلاشیں",
+  "savedSearch.open": "یہ تلاش محفوظ کریں",
+  "savedSearch.nameLabel": "اس تلاش کو نام دیں",
+  "savedSearch.saved": "تلاش محفوظ ہو گئی۔",
+  "savedSearch.deleted": "محفوظ تلاش حذف ہو گئی۔",
+  "savedSearch.duplicate": "اس نام کی ایک محفوظ تلاش آپ کے پاس پہلے سے ہے۔",
+  "savedSearch.cap": "آپ زیادہ سے زیادہ {max} تلاشیں محفوظ رکھ سکتے ہیں۔",
+  "savedSearch.error": "تلاش محفوظ نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
+  "savedSearch.deleteError": "محفوظ تلاش حذف نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
+  "savedSearch.empty": "ابھی کوئی محفوظ تلاش نہیں ہے۔",
+  "savedSearch.deleteLabel": "محفوظ تلاش {name} حذف کریں"
 }

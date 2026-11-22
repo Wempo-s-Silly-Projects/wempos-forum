@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Notitie verwijderen",
   "privateNote.saved": "Notitie opgeslagen.",
   "privateNote.deleted": "Notitie verwijderd.",
-  "privateNote.saveError": "De notitie kon niet worden opgeslagen. Probeer het opnieuw."
+  "privateNote.saveError": "De notitie kon niet worden opgeslagen. Probeer het opnieuw.",
+  "savedSearch.title": "Opgeslagen zoekopdrachten",
+  "savedSearch.open": "Deze zoekopdracht opslaan",
+  "savedSearch.nameLabel": "Geef deze zoekopdracht een naam",
+  "savedSearch.saved": "Zoekopdracht opgeslagen.",
+  "savedSearch.deleted": "Opgeslagen zoekopdracht verwijderd.",
+  "savedSearch.duplicate": "Je hebt al een opgeslagen zoekopdracht met die naam.",
+  "savedSearch.cap": "Je kunt maximaal {max} zoekopdrachten opslaan.",
+  "savedSearch.error": "De zoekopdracht kon niet worden opgeslagen. Probeer het opnieuw.",
+  "savedSearch.deleteError": "De opgeslagen zoekopdracht kon niet worden verwijderd. Probeer het opnieuw.",
+  "savedSearch.empty": "Nog geen opgeslagen zoekopdrachten.",
+  "savedSearch.deleteLabel": "Opgeslagen zoekopdracht {name} verwijderen"
 }

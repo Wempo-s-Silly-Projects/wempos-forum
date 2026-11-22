@@ -1178,5 +1178,16 @@
   "privateNote.delete": "Удалить заметку",
   "privateNote.saved": "Заметка сохранена.",
   "privateNote.deleted": "Заметка удалена.",
-  "privateNote.saveError": "Не удалось сохранить заметку. Попробуйте ещё раз."
+  "privateNote.saveError": "Не удалось сохранить заметку. Попробуйте ещё раз.",
+  "savedSearch.title": "Сохранённые поиски",
+  "savedSearch.open": "Сохранить этот поиск",
+  "savedSearch.nameLabel": "Назовите этот поиск",
+  "savedSearch.saved": "Поиск сохранён.",
+  "savedSearch.deleted": "Сохранённый поиск удалён.",
+  "savedSearch.duplicate": "У вас уже есть сохранённый поиск с таким названием.",
+  "savedSearch.cap": "Можно хранить не более {max} сохранённых поисков.",
+  "savedSearch.error": "Не удалось сохранить поиск. Попробуйте ещё раз.",
+  "savedSearch.deleteError": "Не удалось удалить сохранённый поиск. Попробуйте ещё раз.",
+  "savedSearch.empty": "Сохранённых поисков пока нет.",
+  "savedSearch.deleteLabel": "Удалить сохранённый поиск {name}"
 }
