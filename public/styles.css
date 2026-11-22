@@ -4350,3 +4350,83 @@ mark.search-hit {
 .nav-group { display: grid; gap: 0.2rem; }
 .nav-group + .nav-group { margin-top: 0.35rem; padding-top: 0.45rem; border-top: 1px solid var(--line); }
 .nav-group-label { padding-inline: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+
+/* Batch H (composer and chat input): formatting toolbar, emoji popover,
+   side-by-side preview, and textareas that grow with their text. */
+.composer-toolbar {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-block: 0.25rem 0.35rem;
+}
+.composer-tool {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0.2rem 0.45rem;
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  cursor: pointer;
+}
+.composer-tool:hover { border-color: var(--focus); }
+.composer-tool:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+.composer-tool[aria-expanded="true"] { border-color: var(--focus); }
+.composer-emoji { font-family: inherit; font-size: 1rem; }
+.emoji-popover {
+  position: absolute;
+  z-index: 30;
+  top: 100%;
+  inset-inline-start: 0;
+  margin-top: 0.25rem;
+  max-width: calc(100vw - 2rem);
+}
+.emoji-popover-error {
+  padding: 0.5rem 0.75rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.emoji-popover-error .form-note { margin: 0; }
+.chat-widget-composer,
+.chat-widget-lobby-send { position: relative; }
+.chat-widget-composer .emoji-popover,
+.chat-widget-lobby-send .emoji-popover {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+}
+.chat-widget-lobby-send .mention-picker {
+  position: absolute;
+  z-index: 30;
+  bottom: 100%;
+  inset-inline-start: 0.75rem;
+}
+.compose-split-toggle { align-self: flex-start; }
+.compose-split-toggle[aria-pressed="true"] { border-color: var(--focus); }
+.compose-split {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+.compose-split > * { min-width: 0; }
+.compose-split > .compose-preview-pane { overflow: auto; }
+.compose-split > .gutter {
+  flex: none;
+  cursor: col-resize;
+  background: var(--line);
+  border-radius: 4px;
+}
+form[data-form] .form-field textarea[name="body"],
+.chat-widget-input {
+  field-sizing: content;
+}
+form[data-form] .form-field textarea[name="body"] {
+  min-height: 6.5rem;
+  max-height: 480px;
+}
