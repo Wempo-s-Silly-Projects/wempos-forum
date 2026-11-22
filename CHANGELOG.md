@@ -15,6 +15,35 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.64.0] - 2026-11-22
+
+### Changed
+- Docs brought up to date with v5.63.1 (no code or behaviour changes; the
+  owner's feature freeze holds):
+  - [docs/using-the-forum.md](docs/using-the-forum.md) explains the header,
+    Browse and Account menus and the phone bar, the settings page and its
+    four groups, the thread page's More menu, sharing and RSS feeds, invite
+    links, This week, searching (filters, recent and saved searches), tags,
+    TL;DRs, locked threads and slow mode, muting threads, following members,
+    bookmark folders, custom status, private notes, poll closing times,
+    notification types and DM reactions and search. The list of what
+    "Download my data" includes is corrected.
+  - [docs/admin-guide.md](docs/admin-guide.md) matches the desk's sections
+    (Staff picks, Tags, Branding and Visits added; report claims and staff
+    notes explained), says where the desk entry now lives, and gains a
+    "Staff tools on a thread" section (pin, lock, staff pick, suggestion
+    status, slow mode).
+  - [docs/architecture.md](docs/architecture.md) lists the modules added
+    since v5.30, the RSS/llms.txt, page-head and visit-count steps, and
+    migrations 0060 to 0076.
+  - [docs/self-hosting.md](docs/self-hosting.md) documents `OG_IMAGE_URL`
+    and the optional AutoMod switch, and points at the desk by its real
+    name; `wrangler.example.toml` comments refreshed and its `VERSION`
+    brought up to this release.
+  - [ROADMAP.md](ROADMAP.md) records what shipped since it was written and
+    that the [trim list](docs/trim-list.md) awaits the owner's decision.
+  - The README's feature tour matches the current forum.
+
 ## [5.63.1] - 2026-11-22
 
 ### Fixed
