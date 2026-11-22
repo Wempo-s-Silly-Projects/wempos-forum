@@ -265,12 +265,38 @@ function closeMenusOnOutsideClick() {
   });
 }
 
+// v5.60 perf: every route render (each action on a thread re-renders the
+// route) used to rebuild the header and the phone bar from scratch (member:
+// ~230 nodes + 7 listeners). When nothing the nav shows has changed — same
+// member, unread count and page — and both are still the nodes built last
+// time with every menu closed, the render reuses them. Any difference, or an
+// open menu (which a rebuild closes, as before), rebuilds.
+let lastBuild = null;
+
+const navKeyOf = (role, user, unread) =>
+  JSON.stringify([role, user?.username ?? "", user?.role ?? "", unread, location.pathname, location.search]);
+
+const firstChildOf = (node) => node?.children?.[0] ?? null;
+
+function canReuseNav(key, bar) {
+  if (!lastBuild || lastBuild.key !== key) return false;
+  if (firstChildOf(accountActions) !== lastBuild.header || firstChildOf(bar) !== lastBuild.bar) return false;
+  return !lastBuild.toggles.some((toggle) => toggle.getAttribute("aria-expanded") === "true");
+}
+
 function renderAccountNavigation(user, unreadNotifications = 0) {
   const currentUser = isValidUser(user) ? user : null;
   const role = navRoleOf(currentUser);
+  const unread = normaliseUnreadCount(unreadNotifications);
+  const key = navKeyOf(role, currentUser, unread);
+  const bar = document.querySelector(".mobile-bar");
 
-  renderHeader(role, currentUser, normaliseUnreadCount(unreadNotifications));
-  renderMobileBar(role, currentUser);
+  if (!canReuseNav(key, bar)) {
+    renderHeader(role, currentUser, unread);
+    renderMobileBar(role, currentUser);
+    const toggles = [accountActions, bar].flatMap((root) => Array.from(root?.querySelectorAll?.(".nav-menu-toggle") ?? []));
+    lastBuild = { key, header: firstChildOf(accountActions), bar: firstChildOf(bar), toggles };
+  }
   closeMenusOnOutsideClick();
 }
 
