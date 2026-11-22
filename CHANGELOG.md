@@ -15,6 +15,17 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.73.0] - 2026-11-22
+
+### Changed
+- Short direct messages now sit in a bubble only as wide as the text. Long
+  messages still wrap at the old width cap, and your own bubbles line up at
+  the end of the row in right-to-left languages too.
+
+### Added
+- Browsers too old to run the forum's modules now show a short notice with a
+  link to get an up-to-date browser, instead of a blank page.
+
 ## [5.72.0] - 2026-11-22
 
 ### Added
