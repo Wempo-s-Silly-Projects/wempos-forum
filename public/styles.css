@@ -3983,3 +3983,47 @@ mark.search-hit {
 .thread-tags-panel { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.55rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--line); }
 .thread-staff-panel .slow-mode-form,
 .thread-tags-panel .tag-editor { flex-basis: 100%; margin: 0; }
+
+/* Navigation menus (v5.58, ORGANIZE #3): the header's Browse and Account
+   menus and the phone bar's More are disclosure buttons whose panel drops
+   over the page; entries are full-width rows with an icon and their name. */
+.nav-menu { position: relative; }
+.nav-menu-panel {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  inset-inline-end: 0;
+  z-index: 20;
+  display: grid;
+  gap: 0.2rem;
+  min-width: 14rem;
+  max-width: min(22rem, calc(100vw - 2rem));
+  padding: 0.5rem;
+  border: 2px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--paper);
+  box-shadow: 3px 4px 0 var(--paper-shadow);
+}
+.nav-menu-panel[hidden] { display: none; }
+.nav-menu-toggle[aria-expanded="true"] { font-weight: 600; }
+.nav-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  width: 100%;
+  text-align: start;
+  white-space: nowrap;
+}
+.nav-menu-item svg { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+.nav-menu-item svg path,
+.mobile-bar .nav-menu-toggle svg path {
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nav-menu-panel .shortcut-sheet { margin: 0.25rem 0.5rem; }
+.nav-group { display: grid; gap: 0.2rem; }
+.nav-group + .nav-group { margin-top: 0.35rem; padding-top: 0.45rem; border-top: 1px solid var(--line); }
+.nav-group-label { padding-inline: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); }

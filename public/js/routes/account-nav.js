@@ -19,15 +19,16 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 
-// v4.0 plan 4 Task 9: the header chrome — renderAccountNavigation (mobile
-// bar identity, the site-section icon links, chat toggle, profile/saved/
-// bell/shield, sign-in toggle) plus the logout action its quiet
-// button dispatches. Bodies moved verbatim out of app.js.
+// v4.0 plan 4 Task 9: the header chrome — renderAccountNavigation plus the
+// logout action its button dispatches. v5.58 (ORGANIZE #3): both the header
+// and the phone bar are drawn here from the one list in nav-items.js — the
+// header as Browse menu + direct links + Account menu, the phone bar as its
+// slots + a More menu holding the same Browse grouping.
 import { clearAllShare } from "../share.js";
 import { clearAllInvite } from "../invite.js";
 import { api, setCsrfToken } from "../api.js";
-import { accountActions, element } from "../dom.js";
-import { iconButton } from "../icons.js";
+import { accountActions } from "../dom.js";
+import { createIcon, iconButton } from "../icons.js";
 import { createLanguagePicker, t } from "../i18n.js";
 import { clearAllDrafts } from "../drafts.js";
 import { clearAllCatchUp } from "../catch-up.js";
@@ -39,7 +40,9 @@ import { clearAllRecentSearches } from "../recent-searches.js";
 import { clearAllQuietHours } from "../quiet-hours.js";
 import { clearAllThreadOutline } from "../thread-outline.js";
 import { createNotificationBell } from "../notifications.js";
-import { SETTINGS_PATH } from "../settings-groups.js";
+import { createShortcutSheet } from "../shortcut-sheet.js";
+import { createDisclosure } from "../thread-actions.js";
+import { navItemsFor, navRoleOf } from "../nav-items.js";
 // The §4b door-swap: every auth link (header Sign in, mobile guest rung)
 // targets Wempo Accounts with an origin-only return; logout hands the browser
 // to the Accounts sign-out land so the Accounts session clears too.
@@ -47,6 +50,8 @@ import {
   wempoAccountsSignInUrl,
   wempoAccountsSignOutUrl,
 } from "../sso.js";
+
+const MENU_GROUP_LABEL_KEYS = Object.freeze({ browse: "nav.browse", account: "nav.account" });
 
 function isValidUser(user) {
   return Boolean(
@@ -58,43 +63,80 @@ function isValidUser(user) {
   );
 }
 
-function getMobileIdentityItem() {
-  return (
-    document.querySelector("#mobile-signin") ||
-    document.querySelector("#mobile-profile")
-  );
+function normaliseUnreadCount(value) {
+  const count = Number(value);
+
+  return Number.isSafeInteger(count) && count >= 0
+    ? count
+    : 0;
 }
 
-function updateMobileIdentity(user) {
-  const mobileItem = getMobileIdentityItem();
+// The two session-dependent hrefs; every other item carries its own.
+function hrefOf(entry, user) {
+  if (entry.id === "signin") return wempoAccountsSignInUrl(location.origin);
+  if (entry.id === "profile") return "/users/" + encodeURIComponent(user.username);
+  return entry.href;
+}
 
-  if (!mobileItem) {
-    return;
-  }
+const labelOf = (entry, user) => t(entry.labelKey, { name: user?.username ?? "" });
+// The Wempo Accounts handoff is a full page load, every other link is in-app.
+const isAppLink = (entry) => entry.id !== "signin";
 
-  const span = mobileItem.querySelector("span:last-of-type");
+// The phone bar's active destination (v4.0): the current route's slot reads
+// aria-current="page" and responsive.css paints it with the green accent bar.
+function isCurrentPage(entry, user) {
+  const path = location.pathname;
+  if (entry.id === "home") return path === "/" && !new URLSearchParams(location.search).has("settings");
+  if (entry.id === "profile") return path === hrefOf(entry, user);
+  return entry.id !== "signin" && path === entry.href;
+}
 
-  mobileItem.id = user ? "mobile-profile" : "mobile-signin";
-  mobileItem.href = user
-    ? "/users/" + encodeURIComponent(user.username)
-    : wempoAccountsSignInUrl(location.origin);
-
-  mobileItem.setAttribute(
-    "aria-label",
-    user ? t("common.profile") : t("common.signIn"),
-  );
-
-  mobileItem.title = user ? t("common.profile") : t("common.signIn");
-
-  if (span) {
-    span.textContent = user ? t("common.profile") : t("common.signIn");
-  }
-
-  if (user) {
-    mobileItem.dataset.appLink = "";
+// A labelled entry inside a menu panel: icon + visible text.
+function createMenuEntry(entry, user) {
+  if (entry.kind === "sheet") return createShortcutSheet(document);
+  const node = document.createElement(entry.kind === "action" ? "button" : "a");
+  node.className = "button button-quiet nav-menu-item";
+  if (entry.kind === "action") {
+    node.type = "button";
+    node.dataset.action = entry.action;
   } else {
-    mobileItem.removeAttribute("data-app-link");
+    node.href = hrefOf(entry, user);
+    if (isAppLink(entry)) node.setAttribute("data-app-link", "");
   }
+  const text = document.createElement("span");
+  text.textContent = labelOf(entry, user);
+  if (entry.icon) node.append(createIcon(document, entry.icon));
+  node.append(text);
+  return node;
+}
+
+// A disclosure menu (thread-actions.js's: a real button with aria-expanded +
+// aria-controls; Escape closes it and returns focus), restyled for the nav.
+function createNavMenu({ kind, label, toggleClass, content, toggleContent = null, ariaLabel = null }) {
+  const menu = createDisclosure(document, { kind, id: `nav-${kind}-panel`, label, content });
+  menu.className = `nav-menu nav-${kind}`;
+  const [toggle, panel] = Array.from(menu.children);
+  toggle.className = `${toggleClass} nav-menu-toggle`;
+  panel.className = "nav-menu-panel";
+  if (toggleContent) toggle.replaceChildren(...toggleContent);
+  if (ariaLabel) {
+    toggle.setAttribute("aria-label", ariaLabel);
+    toggle.title = ariaLabel;
+  }
+  return menu;
+}
+
+function createMenuGroup(name, scope, entries, user) {
+  const group = document.createElement("div");
+  group.className = `nav-group nav-group-${name}`;
+  group.setAttribute("role", "group");
+  const heading = document.createElement("span");
+  heading.className = "nav-group-label";
+  heading.id = `nav-${scope}-group-${name}`;
+  heading.textContent = t(MENU_GROUP_LABEL_KEYS[name]);
+  group.setAttribute("aria-labelledby", heading.id);
+  group.append(heading, ...entries.map((entry) => createMenuEntry(entry, user)));
+  return group;
 }
 
 function createSectionLink(icon, href, label) {
@@ -110,171 +152,109 @@ function createSectionLink(icon, href, label) {
   return link;
 }
 
-function normaliseUnreadCount(value) {
-  const count = Number(value);
+function createHeaderItem(entry, user, unreadNotifications) {
+  if (entry.id === "notifications") return createNotificationBell(unreadNotifications, document);
+  if (entry.id === "signin") {
+    const signIn = document.createElement("a");
+    signIn.className = "button button-secondary";
+    signIn.textContent = labelOf(entry, user);
+    signIn.href = hrefOf(entry, user);
+    return signIn;
+  }
+  return createSectionLink(entry.icon, hrefOf(entry, user), labelOf(entry, user));
+}
 
-  return Number.isSafeInteger(count) && count >= 0
-    ? count
-    : 0;
+// Desktop header: Browse, the direct links, the Account menu, the language
+// picker (members: 7 items, HEADER_ITEM_LIMIT).
+function renderHeader(role, user, unreadNotifications) {
+  const items = navItemsFor(role, "header");
+  const browse = createNavMenu({
+    kind: "browse",
+    label: t("nav.browse"),
+    toggleClass: "button button-secondary",
+    content: items.filter((entry) => entry.header === "browse").map((entry) => createMenuEntry(entry, user)),
+  });
+  const direct = items
+    .filter((entry) => entry.header === "direct")
+    .map((entry) => createHeaderItem(entry, user, unreadNotifications));
+  const accountItems = items.filter((entry) => entry.header === "account");
+  const account = accountItems.length
+    ? [createNavMenu({
+      kind: "account",
+      label: t("nav.account"),
+      ariaLabel: t("nav.account"),
+      toggleClass: "button button-secondary icon-button",
+      toggleContent: [createIcon(document, "person")],
+      content: accountItems.map((entry) => createMenuEntry(entry, user)),
+    })]
+    : [];
+  accountActions.replaceChildren(browse, ...direct, ...account, createLanguagePicker(document));
+}
+
+function createBarItem(entry, user) {
+  const link = document.createElement("a");
+  link.className = "mobile-bar-item";
+  link.href = hrefOf(entry, user);
+  if (isAppLink(entry)) link.setAttribute("data-app-link", "");
+  if (entry.id === "signin") link.id = "mobile-signin";
+  if (entry.id === "profile") link.id = "mobile-profile";
+  const label = t(entry.mobileLabelKey);
+  link.setAttribute("aria-label", label);
+  link.title = label;
+  if (isCurrentPage(entry, user)) link.setAttribute("aria-current", "page");
+  const text = document.createElement("span");
+  text.textContent = t(entry.shortKey);
+  link.append(createIcon(document, entry.icon), text);
+  return link;
+}
+
+// Phone bar: its slots, then More (the Browse group, then the Account group).
+function renderMobileBar(role, user) {
+  const bar = document.querySelector(".mobile-bar");
+  if (!bar) return;
+  const items = navItemsFor(role, "mobile");
+  const slots = items.filter((entry) => entry.mobile === "bar").map((entry) => createBarItem(entry, user));
+  const inMore = items.filter((entry) => entry.mobile === "more");
+  const groups = [
+    ["browse", inMore.filter((entry) => entry.header === "browse")],
+    ["account", inMore.filter((entry) => entry.header !== "browse")],
+  ].filter(([, entries]) => entries.length)
+    .map(([name, entries]) => createMenuGroup(name, "mobile", entries, user));
+  const label = document.createElement("span");
+  label.textContent = t("nav.more");
+  const more = createNavMenu({
+    kind: "mobile-more",
+    label: t("nav.more"),
+    toggleClass: "mobile-bar-item",
+    toggleContent: [createIcon(document, "dots"), label],
+    content: groups,
+  });
+  bar.replaceChildren(...slots, more);
+}
+
+// A click outside an open nav menu closes it (Escape is the keyboard path).
+let outsideClickWired = false;
+function closeMenusOnOutsideClick() {
+  if (outsideClickWired || typeof document.addEventListener !== "function") return;
+  outsideClickWired = true;
+  document.addEventListener("click", (event) => {
+    for (const menu of document.querySelectorAll(".nav-menu")) {
+      if (menu.contains(event.target)) continue;
+      const toggle = menu.querySelector(".nav-menu-toggle");
+      if (toggle?.getAttribute("aria-expanded") !== "true") continue;
+      toggle.setAttribute("aria-expanded", "false");
+      menu.querySelector(".nav-menu-panel").hidden = true;
+    }
+  });
 }
 
 function renderAccountNavigation(user, unreadNotifications = 0) {
   const currentUser = isValidUser(user) ? user : null;
+  const role = navRoleOf(currentUser);
 
-  accountActions.replaceChildren();
-
-  // The mobile bar's last item mirrors the session: Profile (signed in) --
-  // the static markup ships a Sign-in item for guests; the id marks it.
-  updateMobileIdentity(currentUser);
-
-  // Suggestions board link (v2.4.1): the header's site-section link, styled
-  // exactly like the links around it and visible to guests and signed-in
-  // members alike; internal navigation handles it like every other header
-  // anchor. The brand stays Home.
-  accountActions.append(
-    createSectionLink("lightbulb", "/suggestions", t("nav.suggestions")),
-  );
-
-  // Accountability archive (v2.4.1): public to guests and members alike.
-  accountActions.append(
-    createSectionLink("archive", "/archive", t("nav.archive")),
-  );
-
-  accountActions.append(
-    createSectionLink("trophy", "/leaderboard", t("nav.leaderboard")),
-  );
-
-  accountActions.append(
-    createSectionLink("scroll", "/rules", t("nav.rules")),
-  );
-
-
-  if (!currentUser) {
-    const signIn = element(
-      "a",
-      "button button-secondary",
-      t("common.signIn"),
-    );
-
-    signIn.href = wempoAccountsSignInUrl(location.origin);
-    signIn.setAttribute("data-app-link", "");
-
-    accountActions.append(signIn);
-    accountActions.append(createLanguagePicker(document));
-
-    markMobileBarItem(null);
-    return;
-  }
-
-  const profile = createSectionLink(
-    "person",
-    "/users/" + encodeURIComponent(currentUser.username),
-    t("nav.profileOf", { name: currentUser.username }),
-  );
-
-  accountActions.append(profile);
-
-  // Bookmarks (C4): the private saved list — members only.
-  accountActions.append(
-    createSectionLink("bookmarks", "/bookmarks", t("nav.savedPosts")),
-  );
-
-  // v5.56: My posts gets a desktop entry (it was a feed tab and a mobile-bar
-  // item only), and Settings its first real one (the hub at /?settings).
-  accountActions.append(
-    createSectionLink("list", "/mine", t("feed.myPosts")),
-  );
-
-  accountActions.append(
-    createSectionLink("sliders", SETTINGS_PATH, t("settings.title")),
-  );
-
-  accountActions.append(
-    createNotificationBell(
-      normaliseUnreadCount(unreadNotifications),
-      document,
-    ),
-  );
-
-  if (
-    currentUser.role === "owner" ||
-    currentUser.role === "admin"
-  ) {
-    const reports = createSectionLink(
-      "shield",
-      "/admin",
-      t("nav.moderationDesk"),
-    );
-
-    accountActions.append(reports);
-  }
-
-  const logout = iconButton(document, "logout", {
-    className: "button button-quiet icon-button",
-    dataset: { action: "logout" },
-    ariaLabel: t("common.signOut"),
-  });
-
-  accountActions.append(logout);
-  accountActions.append(createLanguagePicker(document));
-
-  markMobileBarItem(currentUser);
-}
-
-// The bottom app bar's active destination (v4.0 responsive rebuild): the bar
-// owns phone navigation, so the current route's item reads aria-current="page"
-// and responsive.css paints it with the green accent bar. Runs on every route
-// render (after history.pushState, so location.pathname is already the new
-// route); items without a match (guests, other pages) keep no current state.
-// The Profile/Sign-in rung is looked up BY ID, not by href: its href is
-// session-dependent ("/users/<name>" signed in, the Wempo Accounts handoff
-// as a guest) and was rewritten earlier in renderAccountNavigation, so a
-// href match can never fire for the signed-in profile — the id is the stable
-// handle.
-function markMobileBarItem(user) {
-  const path = location.pathname;
-
-  const isSelfProfile =
-    Boolean(user) &&
-    path === "/users/" + encodeURIComponent(user.username);
-
-  const matches = [
-    ["/", path === "/" && !new URLSearchParams(location.search).has("settings")],
-    ["/mine", path === "/mine"],
-    [
-      "/suggestions",
-      path === "/suggestions" || path === "/c/suggestions",
-    ],
-    ["/notifications", path === "/notifications"],
-  ];
-
-  for (const [href, active] of matches) {
-    const item = Array.from(
-      document.querySelectorAll(".mobile-bar-item"),
-    ).find((candidate) => candidate.getAttribute("href") === href);
-
-    if (!item) {
-      continue;
-    }
-
-    if (active) {
-      item.setAttribute("aria-current", "page");
-    } else {
-      item.removeAttribute("aria-current");
-    }
-  }
-
-  const profileItem = document.querySelector(
-    "#mobile-profile, #mobile-signin",
-  );
-
-  if (profileItem) {
-    if (isSelfProfile) {
-      profileItem.setAttribute("aria-current", "page");
-    } else {
-      profileItem.removeAttribute("aria-current");
-    }
-  }
+  renderHeader(role, currentUser, normaliseUnreadCount(unreadNotifications));
+  renderMobileBar(role, currentUser);
+  closeMenusOnOutsideClick();
 }
 
 // Shared-browser privacy: unsent drafts, read marks, chat pins, gallery
