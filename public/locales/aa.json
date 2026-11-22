@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Farakkiyya",
   "threadActions.thisPost": "Ah kitbat",
   "threadActions.staff": "Taamitte",
-  "threadActions.editTags": "Astooti massos"
+  "threadActions.editTags": "Astooti massos",
+  "data.zipNote": "Kaa ixxiga kee taamitte haytem JSON faylah ZIP kak culsis, kee ku sawwir. Butten taamitta waqdi bahte, ku qaxuuk tan maaliinah gexa.",
+  "data.zipReady": "Ku datah ZIP culsimaah tan.",
+  "data.imagesMissing": "Ku datah ZIP culsimaah tan. Ku sawwirittek {count} culsimaane, kaxxa ma geytimin."
 }

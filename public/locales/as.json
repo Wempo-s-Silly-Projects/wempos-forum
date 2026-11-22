@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "শ্বেয়াৰ",
   "threadActions.thisPost": "এই পোষ্ট",
   "threadActions.staff": "কৰ্মী",
-  "threadActions.editTags": "টেগ সম্পাদনা কৰক"
+  "threadActions.editTags": "টেগ সম্পাদনা কৰক",
+  "data.zipNote": "ইয়াত আপুনি লিখা আৰু ছেট কৰা সকলো JSON ফাইল হিচাপে, লগতে আপুনি আপল'ড কৰা ছবিসমূহৰ সৈতে এটা ZIP ডাউনল'ড কৰক। বুটামটো টিপিলেহে আনা হয় আৰু পোনপটীয়াকৈ আপোনাৰ ডিভাইচলৈ যায়।",
+  "data.zipReady": "আপোনাৰ তথ্যৰ ZIP ডাউনল'ড হৈ আছে।",
+  "data.imagesMissing": "আপোনাৰ তথ্যৰ ZIP ডাউনল'ড হৈ আছে। আপোনাৰ {count}খন ছবি ল'ড কৰিব পৰা নগ'ল, সেয়ে বাদ দিয়া হ'ল।"
 }

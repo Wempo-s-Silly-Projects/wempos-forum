@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "這篇貼文",
   "threadActions.staff": "管理團隊",
-  "threadActions.editTags": "編輯標籤"
+  "threadActions.editTags": "編輯標籤",
+  "data.zipNote": "下載一個 ZIP，內含你在這裡寫下和設定的全部內容（JSON 檔案）以及你上傳的圖片。只有按下按鈕時才會取得，並直接存到你的裝置。",
+  "data.zipReady": "你的資料 ZIP 正在下載。",
+  "data.imagesMissing": "你的資料 ZIP 正在下載。有 {count} 張圖片無法載入，已略過。"
 }

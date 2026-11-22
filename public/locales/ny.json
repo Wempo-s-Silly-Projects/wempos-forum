@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Kugawana",
   "threadActions.thisPost": "Positi iyi",
   "threadActions.staff": "Oyang'anira",
-  "threadActions.editTags": "Sinthani matagi"
+  "threadActions.editTags": "Sinthani matagi",
+  "data.zipNote": "Tsitsani ZIP yokhala ndi zonse zomwe mudalemba ndi kukhazikitsa pano ngati mafayilo a JSON, pamodzi ndi zithunzi zomwe mudakweza. Imabweretsedwa pokhapokha mutadina batani ndipo imapita molunjika ku chipangizo chanu.",
+  "data.zipReady": "ZIP ya zambiri zanu ikutsitsidwa.",
+  "data.imagesMissing": "ZIP ya zambiri zanu ikutsitsidwa. Zithunzi zanu {count} sizinathe kutsegulidwa ndipo zasiyidwa."
 }

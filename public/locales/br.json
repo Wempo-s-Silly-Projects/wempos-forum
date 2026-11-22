@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Rannañ",
   "threadActions.thisPost": "Ar gemennadenn-mañ",
   "threadActions.staff": "Kefridi",
-  "threadActions.editTags": "Kemmañ ar skritelloù"
+  "threadActions.editTags": "Kemmañ ar skritelloù",
+  "data.zipNote": "Pellgargit ur ZIP gant kement tra ho peus skrivet ha kefluniet amañ e restroù JSON, hag ar skeudennoù ho peus pellgaset. N'eo kerc'het nemet pa bouezit war ar bouton hag ez a war-eeun d'ho trevnad.",
+  "data.zipReady": "Emañ ho ZIP roadennoù o pellgargañ.",
+  "data.imagesMissing": "Emañ ho ZIP roadennoù o pellgargañ. {count} eus ho skeudennoù n'int ket bet karget hag a zo bet lezet a-gostez."
 }

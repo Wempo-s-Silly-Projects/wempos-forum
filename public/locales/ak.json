@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Kyɛ",
   "threadActions.thisPost": "Nkyerɛwee yi",
   "threadActions.staff": "Adwumayɛfo",
-  "threadActions.editTags": "Sesa agyiraehyɛde"
+  "threadActions.editTags": "Sesa agyiraehyɛde",
+  "data.zipNote": "Twe ZIP a nea wokyerɛw ne nea wohyehyɛɛ wɔ ha nyinaa wom sɛ JSON fael, ne mfoni a wode too so. Wɔfa no bere a wobɔ bɔtɔn no nkutoo, na ɛkɔ wo mfiri so tẽẽ.",
+  "data.zipReady": "Wo data ZIP no reba.",
+  "data.imagesMissing": "Wo data ZIP no reba. Wo mfoni {count} antumi amma, enti wogyaw no."
 }

@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette indlæg",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tags"
+  "threadActions.editTags": "Rediger tags",
+  "data.zipNote": "Download en ZIP med alt, hvad du har skrevet og indstillet her, som JSON-filer, plus de billeder, du har uploadet. Den hentes kun, når du trykker på knappen, og går direkte til din enhed.",
+  "data.zipReady": "Din data-ZIP bliver downloadet.",
+  "data.imagesMissing": "Din data-ZIP bliver downloadet. {count} af dine billeder kunne ikke hentes og er udeladt."
 }

@@ -134,6 +134,13 @@ const SECTION_READERS = {
   threadSummaries: (db, id, cap) => rowsCapped(db,
     "SELECT post_id, body, updated_at FROM thread_summaries WHERE updated_by = ? " +
     "ORDER BY updated_at DESC, post_id DESC", [id], cap),
+  // Batch K: post images the caller UPLOADED (ids + mime only, never bytes;
+  // the client fetches each through the normal attachment route into the
+  // ZIP). Marketplace GIF picks are someone else's image and stay out.
+  uploads: (db, id, cap) => rowsCapped(db,
+    "SELECT id, post_id, status, mime, created_at FROM attachments " +
+    "WHERE created_by = ? AND source_kind <> 'gif' AND status <> 'rejected' " +
+    "ORDER BY created_at DESC, id DESC", [id], cap),
 };
 
 // Both DM stores, caller-authored rows only, merged newest first under one cap.
@@ -186,6 +193,9 @@ const SECTION_SHAPERS = {
     name: row.name, q: row.q, by: row.by_username ?? null, in: row.in_scope ?? null, createdAt: isoOrNull(row.created_at),
   }),
   threadSummaries: (row) => ({ postId: Number(row.post_id), body: row.body, updatedAt: isoOrNull(row.updated_at) }),
+  uploads: (row) => ({
+    id: row.id, postId: Number(row.post_id), status: row.status, mime: row.mime, uploadedAt: isoOrNull(row.created_at),
+  }),
 };
 
 export async function buildExport(env, userId) {

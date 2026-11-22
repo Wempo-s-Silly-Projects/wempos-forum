@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Paylaşma",
   "threadActions.thisPost": "Bu yazı",
   "threadActions.staff": "Heyət",
-  "threadActions.editTags": "Teqləri redaktə et"
+  "threadActions.editTags": "Teqləri redaktə et",
+  "data.zipNote": "Burada yazdığın və ayarladığın hər şeyi JSON faylları kimi, üstəlik yüklədiyin şəkillərlə birlikdə ZIP olaraq endir. Yalnız düyməni basanda gətirilir və birbaşa cihazına gedir.",
+  "data.zipReady": "Məlumat ZIP-in yüklənir.",
+  "data.imagesMissing": "Məlumat ZIP-in yüklənir. Şəkillərindən {count} yüklənmədi və çıxarıldı."
 }

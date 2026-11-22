@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Ашара",
   "threadActions.thisPost": "Ари аҭыжьымҭа",
   "threadActions.staff": "Аперсонал",
-  "threadActions.editTags": "Атегқәа рыриашара"
+  "threadActions.editTags": "Атегқәа рыриашара",
+  "data.zipNote": "Арахь иушәҩыз зегьы JSON фаилқәа ракны ZIP-с иҭагала, иара убас иҭажәгалаз асахьақәа. Ақәыӷәӷәара шәақәыӷәӷәанаҵ ауп иаагахо, ишаалакь шәмаругь ахь ицоит.",
+  "data.zipReady": "Шәдырқәа рZIP иҭагалахоит.",
+  "data.imagesMissing": "Шәдырқәа рZIP иҭагалахоит. Шәсахьақәа рҟынтә {count} аагара ауам, иаанхеит."
 }

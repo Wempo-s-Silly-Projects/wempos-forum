@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Paylaşım",
   "threadActions.thisPost": "Bu gönderi",
   "threadActions.staff": "Ekip",
-  "threadActions.editTags": "Etiketleri düzenle"
+  "threadActions.editTags": "Etiketleri düzenle",
+  "data.zipNote": "Burada yazdığın ve ayarladığın her şeyi JSON dosyaları olarak, yüklediğin görsellerle birlikte bir ZIP halinde indir. Yalnızca düğmeye bastığında alınır ve doğrudan cihazına gider.",
+  "data.zipReady": "Veri ZIP'in indiriliyor.",
+  "data.imagesMissing": "Veri ZIP'in indiriliyor. Görsellerinden {count} tanesi yüklenemedi ve dışarıda bırakıldı."
 }

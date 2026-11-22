@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Tilali",
   "threadActions.thisPost": "Nin sɛbɛn",
   "threadActions.staff": "Baarakɛlaw",
-  "threadActions.editTags": "Taamasiyɛnninw yɛlɛma"
+  "threadActions.editTags": "Taamasiyɛnninw yɛlɛma",
+  "data.zipNote": "I ye min sɛbɛn ani ka min labɛn yan, olu bɛɛ jigin ZIP kɔnɔ JSON fisiye ja la, ani i ye ja minnu bila. A bɛ ta ni i ye butɔn digi dɔrɔn, a bɛ taa i ka minɛn kan tilennen.",
+  "data.zipReady": "I ka kunnafoni ZIP bɛ ka jigin.",
+  "data.imagesMissing": "I ka kunnafoni ZIP bɛ ka jigin. I ka ja {count} ma se ka ta, olu bilala kɔ."
 }

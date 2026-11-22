@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Dela",
   "threadActions.thisPost": "Det här inlägget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Redigera taggar"
+  "threadActions.editTags": "Redigera taggar",
+  "data.zipNote": "Ladda ner en ZIP med allt du har skrivit och ställt in här som JSON-filer, plus bilderna du har laddat upp. Den hämtas bara när du trycker på knappen och går direkt till din enhet.",
+  "data.zipReady": "Din data-ZIP laddas ner.",
+  "data.imagesMissing": "Din data-ZIP laddas ner. {count} av dina bilder kunde inte läsas in och utelämnades."
 }

@@ -723,8 +723,10 @@ export const ACTIONS = {
     button.disabled = true;
     setMessage(t("settings.dataPreparing"));
     try {
-      await downloadMyData({ api });
-      setMessage(t("settings.dataReady"));
+      const { missingImages } = await downloadMyData({ api });
+      setMessage(missingImages > 0
+        ? t("data.imagesMissing", { count: missingImages })
+        : t("data.zipReady"));
     } finally {
       button.disabled = false;
     }

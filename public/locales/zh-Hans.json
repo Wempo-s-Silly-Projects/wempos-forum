@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "这篇帖子",
   "threadActions.staff": "管理团队",
-  "threadActions.editTags": "编辑标签"
+  "threadActions.editTags": "编辑标签",
+  "data.zipNote": "下载一个 ZIP，内含你在这里写下和设置的全部内容（JSON 文件）以及你上传的图片。只有按下按钮时才会获取，并直接保存到你的设备。",
+  "data.zipReady": "你的数据 ZIP 正在下载。",
+  "data.imagesMissing": "你的数据 ZIP 正在下载。有 {count} 张图片无法加载，已略过。"
 }

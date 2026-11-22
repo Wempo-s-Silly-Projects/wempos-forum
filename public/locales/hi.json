@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "साझा करना",
   "threadActions.thisPost": "यह पोस्ट",
   "threadActions.staff": "स्टाफ़",
-  "threadActions.editTags": "टैग संपादित करें"
+  "threadActions.editTags": "टैग संपादित करें",
+  "data.zipNote": "यहाँ आपने जो कुछ लिखा और सेट किया है, वह सब JSON फ़ाइलों के रूप में, साथ में आपकी अपलोड की हुई तस्वीरों के साथ एक ZIP में डाउनलोड करें। यह केवल बटन दबाने पर लाया जाता है और सीधे आपके डिवाइस पर जाता है।",
+  "data.zipReady": "आपका डेटा ZIP डाउनलोड हो रहा है।",
+  "data.imagesMissing": "आपका डेटा ZIP डाउनलोड हो रहा है। आपकी {count} तस्वीरें लोड नहीं हो सकीं, इसलिए छोड़ दी गईं।"
 }

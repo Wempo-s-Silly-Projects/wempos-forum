@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Pagbabahagi",
   "threadActions.thisPost": "Ang post na ito",
   "threadActions.staff": "Kawani",
-  "threadActions.editTags": "I-edit ang mga tag"
+  "threadActions.editTags": "I-edit ang mga tag",
+  "data.zipNote": "Mag-download ng ZIP na naglalaman ng lahat ng isinulat at itinakda mo rito bilang mga JSON file, kasama ang mga larawang in-upload mo. Kinukuha lang ito kapag pinindot mo ang button at diretso itong mapupunta sa device mo.",
+  "data.zipReady": "Dina-download na ang ZIP ng data mo.",
+  "data.imagesMissing": "Dina-download na ang ZIP ng data mo. Hindi ma-load ang {count} sa mga larawan mo kaya hindi ito naisama."
 }

@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Condivisione",
   "threadActions.thisPost": "Questo post",
   "threadActions.staff": "Staff",
-  "threadActions.editTags": "Modifica tag"
+  "threadActions.editTags": "Modifica tag",
+  "data.zipNote": "Scarica uno ZIP con tutto ciò che hai scritto e impostato qui in file JSON, più le immagini che hai caricato. Viene recuperato solo quando premi il pulsante e va dritto sul tuo dispositivo.",
+  "data.zipReady": "Lo ZIP dei tuoi dati è in download.",
+  "data.imagesMissing": "Lo ZIP dei tuoi dati è in download. {count} delle tue immagini non sono state caricate e sono state escluse."
 }

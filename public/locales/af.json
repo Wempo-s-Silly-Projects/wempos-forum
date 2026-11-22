@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Deel",
   "threadActions.thisPost": "Hierdie plasing",
   "threadActions.staff": "Personeel",
-  "threadActions.editTags": "Wysig etikette"
+  "threadActions.editTags": "Wysig etikette",
+  "data.zipNote": "Laai 'n ZIP af met alles wat jy hier geskryf en gestel het as JSON-lêers, plus die prente wat jy opgelaai het. Dit word net gehaal wanneer jy die knoppie druk en gaan reguit na jou toestel.",
+  "data.zipReady": "Jou data-ZIP word afgelaai.",
+  "data.imagesMissing": "Jou data-ZIP word afgelaai. {count} van jou prente kon nie gelaai word nie en is weggelaat."
 }

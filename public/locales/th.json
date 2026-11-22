@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "การแชร์",
   "threadActions.thisPost": "โพสต์นี้",
   "threadActions.staff": "ทีมงาน",
-  "threadActions.editTags": "แก้ไขแท็ก"
+  "threadActions.editTags": "แก้ไขแท็ก",
+  "data.zipNote": "ดาวน์โหลด ZIP ที่รวมทุกอย่างที่คุณเขียนและตั้งค่าไว้ที่นี่เป็นไฟล์ JSON พร้อมรูปภาพที่คุณอัปโหลด ระบบจะดึงข้อมูลเมื่อคุณกดปุ่มเท่านั้น และส่งตรงไปยังอุปกรณ์ของคุณ",
+  "data.zipReady": "กำลังดาวน์โหลด ZIP ข้อมูลของคุณ",
+  "data.imagesMissing": "กำลังดาวน์โหลด ZIP ข้อมูลของคุณ รูปภาพ {count} รูปโหลดไม่ได้จึงไม่ได้ใส่ไว้"
 }

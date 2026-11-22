@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Aquesta publicació",
   "threadActions.staff": "Equip",
-  "threadActions.editTags": "Edita les etiquetes"
+  "threadActions.editTags": "Edita les etiquetes",
+  "data.zipNote": "Baixa un ZIP amb tot el que has escrit i configurat aquí en fitxers JSON, més les imatges que has penjat. Només es demana quan prems el botó i va directament al teu dispositiu.",
+  "data.zipReady": "S'està baixant el ZIP amb les teves dades.",
+  "data.imagesMissing": "S'està baixant el ZIP amb les teves dades. No s'han pogut carregar {count} de les teves imatges i s'han deixat fora."
 }

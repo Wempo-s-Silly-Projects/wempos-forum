@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Дийцар",
   "threadActions.thisPost": "Хӏара пост",
   "threadActions.staff": "Белхалой",
-  "threadActions.editTags": "Тегаш нисде"
+  "threadActions.editTags": "Тегаш нисде",
+  "data.zipNote": "Кхузахь ахь яздинарг а, нисдинарг а дерриге JSON-файлаш санна, кхин ахь чудиллина суьрташ а долу ZIP чуяккха. Кнопка тӀе тӀетаӀийча бен ца доьду, хьан гӀирсе нийсса доьду.",
+  "data.zipReady": "Хьан хаамийн ZIP чуйоьхуш ю.",
+  "data.imagesMissing": "Хьан хаамийн ZIP чуйоьхуш ю. Хьан суьрташна юкъара {count} чу ца яьлла, юкъара дӀаяьхна."
 }

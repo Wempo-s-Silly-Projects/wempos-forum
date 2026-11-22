@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Jakaminen",
   "threadActions.thisPost": "Tämä viesti",
   "threadActions.staff": "Ylläpito",
-  "threadActions.editTags": "Muokkaa tunnisteita"
+  "threadActions.editTags": "Muokkaa tunnisteita",
+  "data.zipNote": "Lataa ZIP, jossa on kaikki mitä olet täällä kirjoittanut ja asettanut JSON-tiedostoina, sekä lataamasi kuvat. Se haetaan vain, kun painat painiketta, ja se menee suoraan laitteellesi.",
+  "data.zipReady": "Tietojesi ZIP latautuu.",
+  "data.imagesMissing": "Tietojesi ZIP latautuu. {count} kuvaasi ei voitu ladata, joten ne jäivät pois."
 }

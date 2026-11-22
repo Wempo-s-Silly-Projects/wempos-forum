@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "المشاركة",
   "threadActions.thisPost": "هذا المنشور",
   "threadActions.staff": "الطاقم",
-  "threadActions.editTags": "تعديل الوسوم"
+  "threadActions.editTags": "تعديل الوسوم",
+  "data.zipNote": "نزّل ملف ZIP يضم كل ما كتبته وضبطته هنا كملفات JSON، مع الصور التي رفعتها. لا يُجلب إلا عند الضغط على الزر ويذهب مباشرة إلى جهازك.",
+  "data.zipReady": "يجري تنزيل ملف ZIP لبياناتك.",
+  "data.imagesMissing": "يجري تنزيل ملف ZIP لبياناتك. تعذّر تحميل {count} من صورك فاستُبعدت."
 }

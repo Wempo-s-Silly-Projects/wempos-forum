@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Teilen",
   "threadActions.thisPost": "Dieser Beitrag",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Tags bearbeiten"
+  "threadActions.editTags": "Tags bearbeiten",
+  "data.zipNote": "Lade ein ZIP mit allem herunter, was du hier geschrieben und eingestellt hast, als JSON-Dateien, dazu die Bilder, die du hochgeladen hast. Es wird nur abgerufen, wenn du den Knopf drückst, und landet direkt auf deinem Gerät.",
+  "data.zipReady": "Dein Daten-ZIP wird heruntergeladen.",
+  "data.imagesMissing": "Dein Daten-ZIP wird heruntergeladen. {count} deiner Bilder konnten nicht geladen werden und fehlen."
 }

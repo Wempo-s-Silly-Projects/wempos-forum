@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Пайлашу",
   "threadActions.thisPost": "Ку пост",
   "threadActions.staff": "Ӗҫченсем",
-  "threadActions.editTags": "Тегсене улӑштар"
+  "threadActions.editTags": "Тегсене улӑштар",
+  "data.zipNote": "Кунта ҫырнине тата ӗнерленине пӗтӗмпех JSON файлсем пек, тата эсир кӗртнӗ ӳкерчӗксемпе пӗрле ZIP ҫӗклесе илӗр. Кнопкӑна пуснӑ чухне ҫеҫ илет те тӳрех хӑвӑр хатӗре каять.",
+  "data.zipReady": "Даннӑй ZIP-не ҫӗклет.",
+  "data.imagesMissing": "Даннӑй ZIP-не ҫӗклет. Ӳкерчӗксенчен {count} тиеймерӗ, вӗсене кӑларса хӑварнӑ."
 }

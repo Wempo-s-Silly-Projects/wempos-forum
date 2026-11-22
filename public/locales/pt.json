@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Partilhar",
   "threadActions.thisPost": "Esta publicação",
   "threadActions.staff": "Equipa",
-  "threadActions.editTags": "Editar etiquetas"
+  "threadActions.editTags": "Editar etiquetas",
+  "data.zipNote": "Baixe um ZIP com tudo o que você escreveu e configurou aqui em arquivos JSON, mais as imagens que você enviou. Ele só é buscado quando você aperta o botão e vai direto para o seu dispositivo.",
+  "data.zipReady": "Seu ZIP de dados está sendo baixado.",
+  "data.imagesMissing": "Seu ZIP de dados está sendo baixado. {count} das suas imagens não puderam ser carregadas e ficaram de fora."
 }

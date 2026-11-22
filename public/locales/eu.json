@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Partekatzea",
   "threadActions.thisPost": "Bidalketa hau",
   "threadActions.staff": "Taldea",
-  "threadActions.editTags": "Editatu etiketak"
+  "threadActions.editTags": "Editatu etiketak",
+  "data.zipNote": "Deskargatu hemen idatzi eta ezarri duzun guztia JSON fitxategi gisa duen ZIP bat, igotako irudiekin batera. Botoia sakatzen duzunean bakarrik eskuratzen da eta zuzenean zure gailura doa.",
+  "data.zipReady": "Zure datuen ZIPa deskargatzen ari da.",
+  "data.imagesMissing": "Zure datuen ZIPa deskargatzen ari da. Zure irudietako {count} ezin izan dira kargatu eta kanpoan geratu dira."
 }

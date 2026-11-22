@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Delen",
   "threadActions.thisPost": "Dit bericht",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Tags bewerken"
+  "threadActions.editTags": "Tags bewerken",
+  "data.zipNote": "Download een ZIP met alles wat je hier hebt geschreven en ingesteld als JSON-bestanden, plus de afbeeldingen die je hebt geüpload. Hij wordt alleen opgehaald als je op de knop drukt en gaat rechtstreeks naar je apparaat.",
+  "data.zipReady": "Je gegevens-ZIP wordt gedownload.",
+  "data.imagesMissing": "Je gegevens-ZIP wordt gedownload. {count} van je afbeeldingen konden niet worden geladen en zijn weggelaten."
 }

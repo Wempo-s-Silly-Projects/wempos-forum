@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Partage",
   "threadActions.thisPost": "Ce message",
   "threadActions.staff": "Équipe",
-  "threadActions.editTags": "Modifier les étiquettes"
+  "threadActions.editTags": "Modifier les étiquettes",
+  "data.zipNote": "Télécharge un ZIP avec tout ce que tu as écrit et réglé ici en fichiers JSON, plus les images que tu as envoyées. Il n'est récupéré que lorsque tu appuies sur le bouton et va directement sur ton appareil.",
+  "data.zipReady": "Ton ZIP de données est en cours de téléchargement.",
+  "data.imagesMissing": "Ton ZIP de données est en cours de téléchargement. {count} de tes images n'ont pas pu être chargées et ont été laissées de côté."
 }

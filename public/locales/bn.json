@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "শেয়ার করা",
   "threadActions.thisPost": "এই পোস্ট",
   "threadActions.staff": "কর্মী দল",
-  "threadActions.editTags": "ট্যাগ সম্পাদনা"
+  "threadActions.editTags": "ট্যাগ সম্পাদনা",
+  "data.zipNote": "এখানে আপনি যা লিখেছেন ও সেট করেছেন সবকিছু JSON ফাইল হিসেবে, সঙ্গে আপনার আপলোড করা ছবিগুলোসহ একটি ZIP ডাউনলোড করুন। বোতাম চাপলেই কেবল আনা হয় এবং সরাসরি আপনার ডিভাইসে যায়।",
+  "data.zipReady": "আপনার ডেটার ZIP ডাউনলোড হচ্ছে।",
+  "data.imagesMissing": "আপনার ডেটার ZIP ডাউনলোড হচ্ছে। আপনার {count}টি ছবি লোড করা যায়নি, তাই বাদ দেওয়া হয়েছে।"
 }

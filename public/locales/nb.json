@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette innlegget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tagger"
+  "threadActions.editTags": "Rediger tagger",
+  "data.zipNote": "Last ned en ZIP med alt du har skrevet og stilt inn her som JSON-filer, pluss bildene du har lastet opp. Den hentes bare når du trykker på knappen, og går rett til enheten din.",
+  "data.zipReady": "Data-ZIP-en din lastes ned.",
+  "data.imagesMissing": "Data-ZIP-en din lastes ned. {count} av bildene dine kunne ikke lastes og ble utelatt."
 }

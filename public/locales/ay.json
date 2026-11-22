@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Uñt'ayaña",
   "threadActions.thisPost": "Aka qillqata",
   "threadActions.staff": "Irnaqirinaka",
-  "threadActions.editTags": "Chimpunak askichaña"
+  "threadActions.editTags": "Chimpunak askichaña",
+  "data.zipNote": "Akan qillqatanakamxa, wakicht'atanakamxa JSON archivonakan ZIP ukar apaqam, ukhamarak apkatat uñacht'awinakamampi. Botón ch'iqt'kasaxa apsuski, dispositivoman chiqak saraski.",
+  "data.zipReady": "Dato ZIPamax apaqaskiwa.",
+  "data.imagesMissing": "Dato ZIPamax apaqaskiwa. {count} uñacht'awinakamax janiw apsuñjamäkänti, ukat jaytatawa."
 }

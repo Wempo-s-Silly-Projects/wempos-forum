@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "ማጋራት",
   "threadActions.thisPost": "ይህ ልጥፍ",
   "threadActions.staff": "ሠራተኞች",
-  "threadActions.editTags": "መለያዎችን አርትዕ"
+  "threadActions.editTags": "መለያዎችን አርትዕ",
+  "data.zipNote": "እዚህ የጻፉትንና ያዘጋጁትን ሁሉ በJSON ፋይሎች እንዲሁም የሰቀሉትን ምስሎች የያዘ ZIP ያውርዱ። ቁልፉን ሲጫኑ ብቻ ይመጣል፣ በቀጥታም ወደ መሣሪያዎ ይሄዳል።",
+  "data.zipReady": "የመረጃ ZIPዎ እየወረደ ነው።",
+  "data.imagesMissing": "የመረጃ ZIPዎ እየወረደ ነው። ከምስሎችዎ {count} ሊጫኑ ስላልቻሉ ቀርተዋል።"
 }

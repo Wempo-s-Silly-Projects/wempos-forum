@@ -1221,5 +1221,8 @@
   "threadActions.sharing": "Dijeljenje",
   "threadActions.thisPost": "Ova objava",
   "threadActions.staff": "Osoblje",
-  "threadActions.editTags": "Uredi oznake"
+  "threadActions.editTags": "Uredi oznake",
+  "data.zipNote": "Preuzmi ZIP sa svime što si ovdje napisao i postavio kao JSON datoteke, uz slike koje si učitao. Dohvaća se samo kad pritisneš gumb i ide ravno na tvoj uređaj.",
+  "data.zipReady": "Tvoj ZIP s podacima se preuzima.",
+  "data.imagesMissing": "Tvoj ZIP s podacima se preuzima. {count} tvojih slika nije se moglo učitati pa su izostavljene."
 }
