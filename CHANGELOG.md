@@ -10,6 +10,12 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.78.0] - 2026-11-22
+
+### Added
+- Admin "Site health" page (staff desk) showing how fast the forum feels to real visitors: the 75th-percentile Core Web Vitals (LCP, INP, CLS, FCP, TTFB) per page type over the last 7 and 28 days, banded good / needs improvement / poor.
+- Anonymous, self-hosted measurement with the vendored web-vitals library (Apache-2.0): only the metric, its value and the page type are sent to the forum's own Worker, once per page view, and stored as daily totals (new `web_vitals_daily` table, migration 0079, kept 90 days). No account, IP address, user agent, cookie or URL is stored, nothing goes to a third party, and browsers sending Global Privacy Control or Do Not Track are skipped entirely. Described under Settings → Your data.
+
 ## [5.77.0] - 2026-11-22
 
 ### Added
