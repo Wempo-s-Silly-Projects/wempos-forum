@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Zdieľanie",
   "threadActions.thisPost": "Tento príspevok",
   "threadActions.staff": "Tím",
-  "threadActions.editTags": "Upraviť štítky"
+  "threadActions.editTags": "Upraviť štítky",
+  "embed.youtubeTitle": "Video YouTube",
+  "embed.youtubePlay": "Prehrať {title}",
+  "embed.youtubeNotice": "Načíta sa z youtube-nocookie.com, až keď stlačíte prehrať.",
+  "embed.youtubeOpen": "Otvoriť na YouTube",
+  "embed.modelLoad": "Načítať 3D model",
+  "embed.modelAlt": "3D model: {name}",
+  "embed.loadFailed": "Toto médium sa nepodarilo prehrať.",
+  "embed.player.play": "Prehrať",
+  "embed.player.pause": "Pozastaviť",
+  "embed.player.mute": "Stlmiť",
+  "embed.player.unmute": "Zapnúť zvuk",
+  "embed.player.seek": "Posun",
+  "embed.player.volume": "Hlasitosť",
+  "embed.player.currentTime": "Aktuálny čas",
+  "embed.player.enterFullscreen": "Celá obrazovka",
+  "embed.player.exitFullscreen": "Ukončiť celú obrazovku"
 }

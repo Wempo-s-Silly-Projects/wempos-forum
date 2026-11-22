@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Berkongsi",
   "threadActions.thisPost": "Siaran ini",
   "threadActions.staff": "Kakitangan",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "embed.youtubeTitle": "Video YouTube",
+  "embed.youtubePlay": "Main {title}",
+  "embed.youtubeNotice": "Dimuatkan daripada youtube-nocookie.com hanya apabila anda menekan main.",
+  "embed.youtubeOpen": "Buka di YouTube",
+  "embed.modelLoad": "Muatkan model 3D",
+  "embed.modelAlt": "Model 3D: {name}",
+  "embed.loadFailed": "Media ini tidak dapat dimainkan.",
+  "embed.player.play": "Main",
+  "embed.player.pause": "Jeda",
+  "embed.player.mute": "Senyap",
+  "embed.player.unmute": "Nyahsenyap",
+  "embed.player.seek": "Cari",
+  "embed.player.volume": "Kelantangan",
+  "embed.player.currentTime": "Masa semasa",
+  "embed.player.enterFullscreen": "Skrin penuh",
+  "embed.player.exitFullscreen": "Keluar skrin penuh"
 }

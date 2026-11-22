@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Kugawana",
   "threadActions.thisPost": "Positi iyi",
   "threadActions.staff": "Oyang'anira",
-  "threadActions.editTags": "Sinthani matagi"
+  "threadActions.editTags": "Sinthani matagi",
+  "embed.youtubeTitle": "Kanema wa YouTube",
+  "embed.youtubePlay": "Sewerani {title}",
+  "embed.youtubeNotice": "Imatsitsidwa kuchokera ku youtube-nocookie.com pokhapokha mukadina sewerani.",
+  "embed.youtubeOpen": "Tsegulani pa YouTube",
+  "embed.modelLoad": "Tsitsani chitsanzo cha 3D",
+  "embed.modelAlt": "Chitsanzo cha 3D: {name}",
+  "embed.loadFailed": "Sizinatheke kusewera media iyi.",
+  "embed.player.play": "Sewerani",
+  "embed.player.pause": "Imitsani",
+  "embed.player.mute": "Tsekani mawu",
+  "embed.player.unmute": "Tsegulani mawu",
+  "embed.player.seek": "Pitani",
+  "embed.player.volume": "Mphamvu ya mawu",
+  "embed.player.currentTime": "Nthawi yapano",
+  "embed.player.enterFullscreen": "Sikirini yonse",
+  "embed.player.exitFullscreen": "Tulukani pa sikirini yonse"
 }

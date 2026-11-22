@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "မျှဝေမှု",
   "threadActions.thisPost": "ဤပို့စ်",
   "threadActions.staff": "ဝန်ထမ်း",
-  "threadActions.editTags": "တဂ်များ ပြင်ရန်"
+  "threadActions.editTags": "တဂ်များ ပြင်ရန်",
+  "embed.youtubeTitle": "YouTube ဗီဒီယို",
+  "embed.youtubePlay": "{title} ဖွင့်ရန်",
+  "embed.youtubeNotice": "ဖွင့်ရန် နှိပ်မှသာ youtube-nocookie.com မှ ဖွင့်သည်။",
+  "embed.youtubeOpen": "YouTube တွင် ဖွင့်ရန်",
+  "embed.modelLoad": "3D မော်ဒယ် ဖွင့်ရန်",
+  "embed.modelAlt": "3D မော်ဒယ်- {name}",
+  "embed.loadFailed": "ဤမီဒီယာကို ဖွင့်၍မရပါ။",
+  "embed.player.play": "ဖွင့်ရန်",
+  "embed.player.pause": "ခဏရပ်ရန်",
+  "embed.player.mute": "အသံပိတ်ရန်",
+  "embed.player.unmute": "အသံဖွင့်ရန်",
+  "embed.player.seek": "ရှာရန်",
+  "embed.player.volume": "အသံအတိုးအကျယ်",
+  "embed.player.currentTime": "လက်ရှိအချိန်",
+  "embed.player.enterFullscreen": "မျက်နှာပြင်အပြည့်",
+  "embed.player.exitFullscreen": "မျက်နှာပြင်အပြည့်မှ ထွက်ရန်"
 }

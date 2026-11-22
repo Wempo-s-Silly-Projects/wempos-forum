@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Sdílení",
   "threadActions.thisPost": "Tento příspěvek",
   "threadActions.staff": "Tým",
-  "threadActions.editTags": "Upravit štítky"
+  "threadActions.editTags": "Upravit štítky",
+  "embed.youtubeTitle": "Video YouTube",
+  "embed.youtubePlay": "Přehrát {title}",
+  "embed.youtubeNotice": "Načte se z youtube-nocookie.com, až když stisknete přehrát.",
+  "embed.youtubeOpen": "Otevřít na YouTube",
+  "embed.modelLoad": "Načíst 3D model",
+  "embed.modelAlt": "3D model: {name}",
+  "embed.loadFailed": "Toto médium nelze přehrát.",
+  "embed.player.play": "Přehrát",
+  "embed.player.pause": "Pozastavit",
+  "embed.player.mute": "Ztlumit",
+  "embed.player.unmute": "Zapnout zvuk",
+  "embed.player.seek": "Posun",
+  "embed.player.volume": "Hlasitost",
+  "embed.player.currentTime": "Aktuální čas",
+  "embed.player.enterFullscreen": "Celá obrazovka",
+  "embed.player.exitFullscreen": "Ukončit celou obrazovku"
 }

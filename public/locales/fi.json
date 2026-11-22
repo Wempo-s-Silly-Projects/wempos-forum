@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Jakaminen",
   "threadActions.thisPost": "Tämä viesti",
   "threadActions.staff": "Ylläpito",
-  "threadActions.editTags": "Muokkaa tunnisteita"
+  "threadActions.editTags": "Muokkaa tunnisteita",
+  "embed.youtubeTitle": "YouTube-video",
+  "embed.youtubePlay": "Toista {title}",
+  "embed.youtubeNotice": "Ladataan palvelusta youtube-nocookie.com vasta, kun painat toista.",
+  "embed.youtubeOpen": "Avaa YouTubessa",
+  "embed.modelLoad": "Lataa 3D-malli",
+  "embed.modelAlt": "3D-malli: {name}",
+  "embed.loadFailed": "Tätä mediaa ei voitu toistaa.",
+  "embed.player.play": "Toista",
+  "embed.player.pause": "Tauko",
+  "embed.player.mute": "Mykistä",
+  "embed.player.unmute": "Poista mykistys",
+  "embed.player.seek": "Siirry",
+  "embed.player.volume": "Äänenvoimakkuus",
+  "embed.player.currentTime": "Nykyinen aika",
+  "embed.player.enterFullscreen": "Koko näyttö",
+  "embed.player.exitFullscreen": "Poistu koko näytöstä"
 }

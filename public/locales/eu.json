@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Partekatzea",
   "threadActions.thisPost": "Bidalketa hau",
   "threadActions.staff": "Taldea",
-  "threadActions.editTags": "Editatu etiketak"
+  "threadActions.editTags": "Editatu etiketak",
+  "embed.youtubeTitle": "YouTube bideoa",
+  "embed.youtubePlay": "Erreproduzitu {title}",
+  "embed.youtubeNotice": "Erreproduzitu sakatzen duzunean bakarrik kargatzen da youtube-nocookie.com gunetik.",
+  "embed.youtubeOpen": "Ireki YouTuben",
+  "embed.modelLoad": "Kargatu 3D eredua",
+  "embed.modelAlt": "3D eredua: {name}",
+  "embed.loadFailed": "Ezin izan da euskarri hau erreproduzitu.",
+  "embed.player.play": "Erreproduzitu",
+  "embed.player.pause": "Pausatu",
+  "embed.player.mute": "Mututu",
+  "embed.player.unmute": "Desmututu",
+  "embed.player.seek": "Bilatu",
+  "embed.player.volume": "Bolumena",
+  "embed.player.currentTime": "Uneko denbora",
+  "embed.player.enterFullscreen": "Pantaila osoa",
+  "embed.player.exitFullscreen": "Irten pantaila osotik"
 }

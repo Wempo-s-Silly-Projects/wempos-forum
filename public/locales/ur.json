@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "شیئر کرنا",
   "threadActions.thisPost": "یہ پوسٹ",
   "threadActions.staff": "عملہ",
-  "threadActions.editTags": "ٹیگز میں ترمیم کریں"
+  "threadActions.editTags": "ٹیگز میں ترمیم کریں",
+  "embed.youtubeTitle": "YouTube ویڈیو",
+  "embed.youtubePlay": "{title} چلائیں",
+  "embed.youtubeNotice": "صرف چلائیں دبانے پر youtube-nocookie.com سے لوڈ ہوتا ہے۔",
+  "embed.youtubeOpen": "YouTube پر کھولیں",
+  "embed.modelLoad": "3D ماڈل لوڈ کریں",
+  "embed.modelAlt": "3D ماڈل: {name}",
+  "embed.loadFailed": "یہ میڈیا نہیں چل سکا۔",
+  "embed.player.play": "چلائیں",
+  "embed.player.pause": "روکیں",
+  "embed.player.mute": "خاموش کریں",
+  "embed.player.unmute": "آواز کھولیں",
+  "embed.player.seek": "آگے پیچھے کریں",
+  "embed.player.volume": "آواز",
+  "embed.player.currentTime": "موجودہ وقت",
+  "embed.player.enterFullscreen": "پوری اسکرین",
+  "embed.player.exitFullscreen": "پوری اسکرین سے باہر نکلیں"
 }

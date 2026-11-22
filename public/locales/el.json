@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Κοινοποίηση",
   "threadActions.thisPost": "Αυτή η ανάρτηση",
   "threadActions.staff": "Ομάδα",
-  "threadActions.editTags": "Επεξεργασία ετικετών"
+  "threadActions.editTags": "Επεξεργασία ετικετών",
+  "embed.youtubeTitle": "Βίντεο YouTube",
+  "embed.youtubePlay": "Αναπαραγωγή {title}",
+  "embed.youtubeNotice": "Φορτώνει από το youtube-nocookie.com μόνο όταν πατήσετε αναπαραγωγή.",
+  "embed.youtubeOpen": "Άνοιγμα στο YouTube",
+  "embed.modelLoad": "Φόρτωση τρισδιάστατου μοντέλου",
+  "embed.modelAlt": "Τρισδιάστατο μοντέλο: {name}",
+  "embed.loadFailed": "Δεν ήταν δυνατή η αναπαραγωγή αυτού του μέσου.",
+  "embed.player.play": "Αναπαραγωγή",
+  "embed.player.pause": "Παύση",
+  "embed.player.mute": "Σίγαση",
+  "embed.player.unmute": "Κατάργηση σίγασης",
+  "embed.player.seek": "Μετάβαση",
+  "embed.player.volume": "Ένταση",
+  "embed.player.currentTime": "Τρέχων χρόνος",
+  "embed.player.enterFullscreen": "Πλήρης οθόνη",
+  "embed.player.exitFullscreen": "Έξοδος από πλήρη οθόνη"
 }

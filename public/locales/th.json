@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "การแชร์",
   "threadActions.thisPost": "โพสต์นี้",
   "threadActions.staff": "ทีมงาน",
-  "threadActions.editTags": "แก้ไขแท็ก"
+  "threadActions.editTags": "แก้ไขแท็ก",
+  "embed.youtubeTitle": "วิดีโอ YouTube",
+  "embed.youtubePlay": "เล่น {title}",
+  "embed.youtubeNotice": "โหลดจาก youtube-nocookie.com เฉพาะเมื่อคุณกดเล่นเท่านั้น",
+  "embed.youtubeOpen": "เปิดใน YouTube",
+  "embed.modelLoad": "โหลดโมเดล 3 มิติ",
+  "embed.modelAlt": "โมเดล 3 มิติ: {name}",
+  "embed.loadFailed": "ไม่สามารถเล่นสื่อนี้ได้",
+  "embed.player.play": "เล่น",
+  "embed.player.pause": "หยุดชั่วคราว",
+  "embed.player.mute": "ปิดเสียง",
+  "embed.player.unmute": "เปิดเสียง",
+  "embed.player.seek": "เลื่อนไปยัง",
+  "embed.player.volume": "ระดับเสียง",
+  "embed.player.currentTime": "เวลาปัจจุบัน",
+  "embed.player.enterFullscreen": "เต็มหน้าจอ",
+  "embed.player.exitFullscreen": "ออกจากเต็มหน้าจอ"
 }

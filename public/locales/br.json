@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Rannañ",
   "threadActions.thisPost": "Ar gemennadenn-mañ",
   "threadActions.staff": "Kefridi",
-  "threadActions.editTags": "Kemmañ ar skritelloù"
+  "threadActions.editTags": "Kemmañ ar skritelloù",
+  "embed.youtubeTitle": "Video YouTube",
+  "embed.youtubePlay": "Lenn {title}",
+  "embed.youtubeNotice": "Kargañ a ra eus youtube-nocookie.com pa pouezit war lenn hepken.",
+  "embed.youtubeOpen": "Digeriñ war YouTube",
+  "embed.modelLoad": "Kargañ ar patrom 3D",
+  "embed.modelAlt": "Patrom 3D: {name}",
+  "embed.loadFailed": "N'eus ket bet gallet lenn ar media-mañ.",
+  "embed.player.play": "Lenn",
+  "embed.player.pause": "Ehan",
+  "embed.player.mute": "Mudañ",
+  "embed.player.unmute": "Dimudañ",
+  "embed.player.seek": "Klask",
+  "embed.player.volume": "Ampled",
+  "embed.player.currentTime": "Eur bremañ",
+  "embed.player.enterFullscreen": "Skramm a-bezh",
+  "embed.player.exitFullscreen": "Kuitaat ar skramm a-bezh"
 }

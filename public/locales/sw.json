@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Kushiriki",
   "threadActions.thisPost": "Chapisho hili",
   "threadActions.staff": "Wafanyakazi",
-  "threadActions.editTags": "Hariri lebo"
+  "threadActions.editTags": "Hariri lebo",
+  "embed.youtubeTitle": "Video ya YouTube",
+  "embed.youtubePlay": "Cheza {title}",
+  "embed.youtubeNotice": "Inapakiwa kutoka youtube-nocookie.com pale tu unapobonyeza cheza.",
+  "embed.youtubeOpen": "Fungua kwenye YouTube",
+  "embed.modelLoad": "Pakia modeli ya 3D",
+  "embed.modelAlt": "Modeli ya 3D: {name}",
+  "embed.loadFailed": "Haikuwezekana kucheza media hii.",
+  "embed.player.play": "Cheza",
+  "embed.player.pause": "Sitisha",
+  "embed.player.mute": "Zima sauti",
+  "embed.player.unmute": "Washa sauti",
+  "embed.player.seek": "Tafuta",
+  "embed.player.volume": "Sauti",
+  "embed.player.currentTime": "Muda wa sasa",
+  "embed.player.enterFullscreen": "Skrini nzima",
+  "embed.player.exitFullscreen": "Toka kwenye skrini nzima"
 }

@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "这篇帖子",
   "threadActions.staff": "管理团队",
-  "threadActions.editTags": "编辑标签"
+  "threadActions.editTags": "编辑标签",
+  "embed.youtubeTitle": "YouTube 视频",
+  "embed.youtubePlay": "播放 {title}",
+  "embed.youtubeNotice": "仅在你按下播放时才从 youtube-nocookie.com 加载。",
+  "embed.youtubeOpen": "在 YouTube 上打开",
+  "embed.modelLoad": "加载 3D 模型",
+  "embed.modelAlt": "3D 模型：{name}",
+  "embed.loadFailed": "无法播放此媒体。",
+  "embed.player.play": "播放",
+  "embed.player.pause": "暂停",
+  "embed.player.mute": "静音",
+  "embed.player.unmute": "取消静音",
+  "embed.player.seek": "跳转",
+  "embed.player.volume": "音量",
+  "embed.player.currentTime": "当前时间",
+  "embed.player.enterFullscreen": "全屏",
+  "embed.player.exitFullscreen": "退出全屏"
 }

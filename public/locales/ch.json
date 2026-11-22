@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Na'sågue",
   "threadActions.thisPost": "Este na mensåhi",
   "threadActions.staff": "Atministradot",
-  "threadActions.editTags": "Edita i etiketa"
+  "threadActions.editTags": "Edita i etiketa",
+  "embed.youtubeTitle": "Video YouTube",
+  "embed.youtubePlay": "Tutuhon {title}",
+  "embed.youtubeNotice": "Ha karga ginen youtube-nocookie.com ya kada un po'lo i tutuhon.",
+  "embed.youtubeOpen": "Baba gi YouTube",
+  "embed.modelLoad": "Karga i 3D modelo",
+  "embed.modelAlt": "3D modelo: {name}",
+  "embed.loadFailed": "Ti siña ma tutuhon este na media.",
+  "embed.player.play": "Tutuhon",
+  "embed.player.pause": "Para dididi'",
+  "embed.player.mute": "Na'famta'lo",
+  "embed.player.unmute": "Na'gåsgas i sinia",
+  "embed.player.seek": "Aligao",
+  "embed.player.volume": "Bos",
+  "embed.player.currentTime": "Ora pago",
+  "embed.player.enterFullscreen": "Todu i pantaya",
+  "embed.player.exitFullscreen": "Huyong gi todu i pantaya"
 }

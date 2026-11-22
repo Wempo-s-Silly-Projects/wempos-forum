@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "المشاركة",
   "threadActions.thisPost": "هذا المنشور",
   "threadActions.staff": "الطاقم",
-  "threadActions.editTags": "تعديل الوسوم"
+  "threadActions.editTags": "تعديل الوسوم",
+  "embed.youtubeTitle": "فيديو YouTube",
+  "embed.youtubePlay": "تشغيل {title}",
+  "embed.youtubeNotice": "يُحمَّل من youtube-nocookie.com فقط عند الضغط على تشغيل.",
+  "embed.youtubeOpen": "فتح على YouTube",
+  "embed.modelLoad": "تحميل نموذج ثلاثي الأبعاد",
+  "embed.modelAlt": "نموذج ثلاثي الأبعاد: {name}",
+  "embed.loadFailed": "تعذّر تشغيل هذه الوسائط.",
+  "embed.player.play": "تشغيل",
+  "embed.player.pause": "إيقاف مؤقت",
+  "embed.player.mute": "كتم الصوت",
+  "embed.player.unmute": "إلغاء الكتم",
+  "embed.player.seek": "انتقال",
+  "embed.player.volume": "مستوى الصوت",
+  "embed.player.currentTime": "الوقت الحالي",
+  "embed.player.enterFullscreen": "ملء الشاشة",
+  "embed.player.exitFullscreen": "الخروج من ملء الشاشة"
 }

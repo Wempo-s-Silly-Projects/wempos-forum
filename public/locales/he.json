@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "שיתוף",
   "threadActions.thisPost": "הפוסט הזה",
   "threadActions.staff": "צוות",
-  "threadActions.editTags": "עריכת תגיות"
+  "threadActions.editTags": "עריכת תגיות",
+  "embed.youtubeTitle": "סרטון YouTube",
+  "embed.youtubePlay": "הפעלת {title}",
+  "embed.youtubeNotice": "נטען מ־youtube-nocookie.com רק כשלוחצים על הפעלה.",
+  "embed.youtubeOpen": "פתיחה ב־YouTube",
+  "embed.modelLoad": "טעינת מודל תלת־ממדי",
+  "embed.modelAlt": "מודל תלת־ממדי: {name}",
+  "embed.loadFailed": "לא ניתן היה להפעיל את המדיה הזו.",
+  "embed.player.play": "הפעלה",
+  "embed.player.pause": "השהיה",
+  "embed.player.mute": "השתקה",
+  "embed.player.unmute": "ביטול השתקה",
+  "embed.player.seek": "דילוג",
+  "embed.player.volume": "עוצמת קול",
+  "embed.player.currentTime": "זמן נוכחי",
+  "embed.player.enterFullscreen": "מסך מלא",
+  "embed.player.exitFullscreen": "יציאה ממסך מלא"
 }

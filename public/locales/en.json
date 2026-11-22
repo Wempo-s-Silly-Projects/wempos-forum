@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Sharing",
   "threadActions.thisPost": "This post",
   "threadActions.staff": "Staff",
-  "threadActions.editTags": "Edit tags"
+  "threadActions.editTags": "Edit tags",
+  "embed.youtubeTitle": "YouTube video",
+  "embed.youtubePlay": "Play {title}",
+  "embed.youtubeNotice": "Loads from youtube-nocookie.com only when you press play.",
+  "embed.youtubeOpen": "Open on YouTube",
+  "embed.modelLoad": "Load 3D model",
+  "embed.modelAlt": "3D model: {name}",
+  "embed.loadFailed": "This media could not be played.",
+  "embed.player.play": "Play",
+  "embed.player.pause": "Pause",
+  "embed.player.mute": "Mute",
+  "embed.player.unmute": "Unmute",
+  "embed.player.seek": "Seek",
+  "embed.player.volume": "Volume",
+  "embed.player.currentTime": "Current time",
+  "embed.player.enterFullscreen": "Enter fullscreen",
+  "embed.player.exitFullscreen": "Exit fullscreen"
 }

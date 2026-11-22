@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Chia sẻ",
   "threadActions.thisPost": "Bài viết này",
   "threadActions.staff": "Ban quản trị",
-  "threadActions.editTags": "Sửa thẻ"
+  "threadActions.editTags": "Sửa thẻ",
+  "embed.youtubeTitle": "Video YouTube",
+  "embed.youtubePlay": "Phát {title}",
+  "embed.youtubeNotice": "Chỉ tải từ youtube-nocookie.com khi bạn nhấn phát.",
+  "embed.youtubeOpen": "Mở trên YouTube",
+  "embed.modelLoad": "Tải mô hình 3D",
+  "embed.modelAlt": "Mô hình 3D: {name}",
+  "embed.loadFailed": "Không thể phát nội dung này.",
+  "embed.player.play": "Phát",
+  "embed.player.pause": "Tạm dừng",
+  "embed.player.mute": "Tắt tiếng",
+  "embed.player.unmute": "Bật tiếng",
+  "embed.player.seek": "Tua",
+  "embed.player.volume": "Âm lượng",
+  "embed.player.currentTime": "Thời gian hiện tại",
+  "embed.player.enterFullscreen": "Toàn màn hình",
+  "embed.player.exitFullscreen": "Thoát toàn màn hình"
 }

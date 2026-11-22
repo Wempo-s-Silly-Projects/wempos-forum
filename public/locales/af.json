@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Deel",
   "threadActions.thisPost": "Hierdie plasing",
   "threadActions.staff": "Personeel",
-  "threadActions.editTags": "Wysig etikette"
+  "threadActions.editTags": "Wysig etikette",
+  "embed.youtubeTitle": "YouTube-video",
+  "embed.youtubePlay": "Speel {title}",
+  "embed.youtubeNotice": "Laai slegs van youtube-nocookie.com wanneer jy op speel druk.",
+  "embed.youtubeOpen": "Maak oop op YouTube",
+  "embed.modelLoad": "Laai 3D-model",
+  "embed.modelAlt": "3D-model: {name}",
+  "embed.loadFailed": "Hierdie media kon nie gespeel word nie.",
+  "embed.player.play": "Speel",
+  "embed.player.pause": "Pouse",
+  "embed.player.mute": "Demp",
+  "embed.player.unmute": "Ontdemp",
+  "embed.player.seek": "Soek",
+  "embed.player.volume": "Volume",
+  "embed.player.currentTime": "Huidige tyd",
+  "embed.player.enterFullscreen": "Volskerm",
+  "embed.player.exitFullscreen": "Verlaat volskerm"
 }

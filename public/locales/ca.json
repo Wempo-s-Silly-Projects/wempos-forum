@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Aquesta publicació",
   "threadActions.staff": "Equip",
-  "threadActions.editTags": "Edita les etiquetes"
+  "threadActions.editTags": "Edita les etiquetes",
+  "embed.youtubeTitle": "Vídeo de YouTube",
+  "embed.youtubePlay": "Reprodueix {title}",
+  "embed.youtubeNotice": "Es carrega des de youtube-nocookie.com només quan premeu reprodueix.",
+  "embed.youtubeOpen": "Obre a YouTube",
+  "embed.modelLoad": "Carrega el model 3D",
+  "embed.modelAlt": "Model 3D: {name}",
+  "embed.loadFailed": "No s'ha pogut reproduir aquest contingut.",
+  "embed.player.play": "Reprodueix",
+  "embed.player.pause": "Pausa",
+  "embed.player.mute": "Silencia",
+  "embed.player.unmute": "Activa el so",
+  "embed.player.seek": "Cerca",
+  "embed.player.volume": "Volum",
+  "embed.player.currentTime": "Temps actual",
+  "embed.player.enterFullscreen": "Pantalla completa",
+  "embed.player.exitFullscreen": "Surt de la pantalla completa"
 }

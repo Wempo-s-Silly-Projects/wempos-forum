@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Delen",
   "threadActions.thisPost": "Dit bericht",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Tags bewerken"
+  "threadActions.editTags": "Tags bewerken",
+  "embed.youtubeTitle": "YouTube-video",
+  "embed.youtubePlay": "{title} afspelen",
+  "embed.youtubeNotice": "Laadt pas van youtube-nocookie.com als je op afspelen drukt.",
+  "embed.youtubeOpen": "Openen op YouTube",
+  "embed.modelLoad": "3D-model laden",
+  "embed.modelAlt": "3D-model: {name}",
+  "embed.loadFailed": "Dit medium kon niet worden afgespeeld.",
+  "embed.player.play": "Afspelen",
+  "embed.player.pause": "Pauzeren",
+  "embed.player.mute": "Dempen",
+  "embed.player.unmute": "Dempen opheffen",
+  "embed.player.seek": "Zoeken",
+  "embed.player.volume": "Volume",
+  "embed.player.currentTime": "Huidige tijd",
+  "embed.player.enterFullscreen": "Volledig scherm",
+  "embed.player.exitFullscreen": "Volledig scherm sluiten"
 }

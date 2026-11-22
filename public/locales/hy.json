@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Կիսվել",
   "threadActions.thisPost": "Այս գրառումը",
   "threadActions.staff": "Անձնակազմ",
-  "threadActions.editTags": "Խմբագրել պիտակները"
+  "threadActions.editTags": "Խմբագրել պիտակները",
+  "embed.youtubeTitle": "YouTube տեսանյութ",
+  "embed.youtubePlay": "Նվագարկել {title}",
+  "embed.youtubeNotice": "Բեռնվում է youtube-nocookie.com-ից միայն, երբ սեղմում եք նվագարկել։",
+  "embed.youtubeOpen": "Բացել YouTube-ում",
+  "embed.modelLoad": "Բեռնել 3D մոդելը",
+  "embed.modelAlt": "3D մոդել՝ {name}",
+  "embed.loadFailed": "Այս մեդիան չհաջողվեց նվագարկել։",
+  "embed.player.play": "Նվագարկել",
+  "embed.player.pause": "Դադար",
+  "embed.player.mute": "Անջատել ձայնը",
+  "embed.player.unmute": "Միացնել ձայնը",
+  "embed.player.seek": "Անցնել",
+  "embed.player.volume": "Ձայնի ուժգնություն",
+  "embed.player.currentTime": "Ընթացիկ ժամանակ",
+  "embed.player.enterFullscreen": "Լիէկրան",
+  "embed.player.exitFullscreen": "Դուրս գալ լիէկրանից"
 }

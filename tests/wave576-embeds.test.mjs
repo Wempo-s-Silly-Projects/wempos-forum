@@ -43,6 +43,7 @@ import {
 import { WAVESURFER_SRC } from "../public/js/embeds/waveform.js";
 import { MODEL_VIEWER_SRC, modelViewerConfig } from "../public/js/embeds/model.js";
 import { renderBodyBlocks } from "../public/js/render.js";
+import { t } from "../public/js/i18n.js";
 import { FakeNode, findByClass, makeFakeDocument } from "./helpers/fake-dom.mjs";
 
 const ROOT = new URL("../", import.meta.url);
@@ -223,8 +224,12 @@ test("YouTube: before the click nothing third-party is referenced, loaded or pai
   const button = findByClass(host, "embed-youtube-play");
   assert.equal(button.tagName, "BUTTON");
   assert.equal(button.type, "button");
-  assert.match(button.getAttribute("aria-label"), /Launch talk/);
-  assert.match(findByClass(host, "embed-youtube-notice").textContent, /youtube-nocookie\.com/);
+  assert.equal(button.getAttribute("aria-label"), t("embed.youtubePlay", { title: "Launch talk" }));
+  assert.equal(findByClass(host, "embed-youtube-title").textContent, "Launch talk");
+  assert.equal(findByClass(host, "embed-youtube-notice").textContent, t("embed.youtubeNotice"));
+  const en = JSON.parse(read("public/locales/en.json"));
+  assert.match(en["embed.youtubeNotice"], /youtube-nocookie\.com/);
+  assert.match(en["embed.youtubePlay"], /\{title\}/);
   const original = findByClass(host, "embed-original");
   assert.equal(original.getAttribute("href"), `https://www.youtube.com/watch?v=${VIDEO_ID}`);
   assert.equal(original.getAttribute("rel"), "noopener noreferrer");
@@ -502,5 +507,5 @@ test("locales: the embed.* keys form one contiguous block in every table", () =>
 
 test("render.js wires the embeds folder with one call", () => {
   assert.ok(existsSync(new URL("public/js/embeds/embeds.js", ROOT)));
-  assert.equal((read("public/js/render.js").match(/createEmbed\(/g) ?? []).length, 1);
+  assert.equal((read("public/js/render.js").match(/embedParagraph\(/g) ?? []).length, 1);
 });

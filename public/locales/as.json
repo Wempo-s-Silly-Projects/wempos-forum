@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "শ্বেয়াৰ",
   "threadActions.thisPost": "এই পোষ্ট",
   "threadActions.staff": "কৰ্মী",
-  "threadActions.editTags": "টেগ সম্পাদনা কৰক"
+  "threadActions.editTags": "টেগ সম্পাদনা কৰক",
+  "embed.youtubeTitle": "YouTube ভিডিঅ'",
+  "embed.youtubePlay": "{title} চলাওক",
+  "embed.youtubeNotice": "চলাওক টিপিলেহে কেৱল youtube-nocookie.comৰ পৰা ল'ড হয়।",
+  "embed.youtubeOpen": "YouTubeত খোলক",
+  "embed.modelLoad": "3D মডেল ল'ড কৰক",
+  "embed.modelAlt": "3D মডেল: {name}",
+  "embed.loadFailed": "এই মিডিয়া চলাব পৰা নগ'ল।",
+  "embed.player.play": "চলাওক",
+  "embed.player.pause": "ৰখাওক",
+  "embed.player.mute": "মিউট কৰক",
+  "embed.player.unmute": "আনমিউট কৰক",
+  "embed.player.seek": "সন্ধান",
+  "embed.player.volume": "ভলিউম",
+  "embed.player.currentTime": "বৰ্তমান সময়",
+  "embed.player.enterFullscreen": "সম্পূৰ্ণ স্ক্ৰীণ",
+  "embed.player.exitFullscreen": "সম্পূৰ্ণ স্ক্ৰীণৰ পৰা ওলাওক"
 }

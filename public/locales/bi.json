@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Sasem",
   "threadActions.thisPost": "Pos ia",
   "threadActions.staff": "Stafe",
-  "threadActions.editTags": "Janjem tag"
+  "threadActions.editTags": "Janjem tag",
+  "embed.youtubeTitle": "YouTube video",
+  "embed.youtubePlay": "Plei {title}",
+  "embed.youtubeNotice": "Hem i kam long youtube-nocookie.com nomo taem yu presem plei.",
+  "embed.youtubeOpen": "Openem long YouTube",
+  "embed.modelLoad": "Lodem 3D model",
+  "embed.modelAlt": "3D model: {name}",
+  "embed.loadFailed": "Mifala i no save pleiem media ia.",
+  "embed.player.play": "Plei",
+  "embed.player.pause": "Stop smol",
+  "embed.player.mute": "Stopem saon",
+  "embed.player.unmute": "Openem saon",
+  "embed.player.seek": "Faenem ples",
+  "embed.player.volume": "Saon",
+  "embed.player.currentTime": "Taem naoia",
+  "embed.player.enterFullscreen": "Fulskrin",
+  "embed.player.exitFullscreen": "Aot long fulskrin"
 }

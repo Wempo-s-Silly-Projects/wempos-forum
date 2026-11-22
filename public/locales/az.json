@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Paylaşma",
   "threadActions.thisPost": "Bu yazı",
   "threadActions.staff": "Heyət",
-  "threadActions.editTags": "Teqləri redaktə et"
+  "threadActions.editTags": "Teqləri redaktə et",
+  "embed.youtubeTitle": "YouTube videosu",
+  "embed.youtubePlay": "{title} oynat",
+  "embed.youtubeNotice": "Yalnız oynat düyməsini basanda youtube-nocookie.com saytından yüklənir.",
+  "embed.youtubeOpen": "YouTube-da aç",
+  "embed.modelLoad": "3D modeli yüklə",
+  "embed.modelAlt": "3D model: {name}",
+  "embed.loadFailed": "Bu media oynadıla bilmədi.",
+  "embed.player.play": "Oynat",
+  "embed.player.pause": "Fasilə",
+  "embed.player.mute": "Səsi bağla",
+  "embed.player.unmute": "Səsi aç",
+  "embed.player.seek": "Keç",
+  "embed.player.volume": "Səs",
+  "embed.player.currentTime": "Cari vaxt",
+  "embed.player.enterFullscreen": "Tam ekran",
+  "embed.player.exitFullscreen": "Tam ekrandan çıx"
 }

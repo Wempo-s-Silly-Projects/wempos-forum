@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette innlegget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tagger"
+  "threadActions.editTags": "Rediger tagger",
+  "embed.youtubeTitle": "YouTube-video",
+  "embed.youtubePlay": "Spill av {title}",
+  "embed.youtubeNotice": "Lastes fra youtube-nocookie.com først når du trykker spill av.",
+  "embed.youtubeOpen": "Åpne på YouTube",
+  "embed.modelLoad": "Last inn 3D-modell",
+  "embed.modelAlt": "3D-modell: {name}",
+  "embed.loadFailed": "Dette mediet kunne ikke spilles av.",
+  "embed.player.play": "Spill av",
+  "embed.player.pause": "Pause",
+  "embed.player.mute": "Demp",
+  "embed.player.unmute": "Slå på lyd",
+  "embed.player.seek": "Spol",
+  "embed.player.volume": "Volum",
+  "embed.player.currentTime": "Nåværende tid",
+  "embed.player.enterFullscreen": "Fullskjerm",
+  "embed.player.exitFullscreen": "Avslutt fullskjerm"
 }

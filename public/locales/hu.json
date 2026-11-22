@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Megosztás",
   "threadActions.thisPost": "Ez a bejegyzés",
   "threadActions.staff": "Csapat",
-  "threadActions.editTags": "Címkék szerkesztése"
+  "threadActions.editTags": "Címkék szerkesztése",
+  "embed.youtubeTitle": "YouTube-videó",
+  "embed.youtubePlay": "{title} lejátszása",
+  "embed.youtubeNotice": "Csak akkor töltődik be a(z) youtube-nocookie.com oldalról, ha megnyomod a lejátszást.",
+  "embed.youtubeOpen": "Megnyitás a YouTube-on",
+  "embed.modelLoad": "3D modell betöltése",
+  "embed.modelAlt": "3D modell: {name}",
+  "embed.loadFailed": "Ezt a médiát nem sikerült lejátszani.",
+  "embed.player.play": "Lejátszás",
+  "embed.player.pause": "Szünet",
+  "embed.player.mute": "Némítás",
+  "embed.player.unmute": "Némítás feloldása",
+  "embed.player.seek": "Tekerés",
+  "embed.player.volume": "Hangerő",
+  "embed.player.currentTime": "Aktuális idő",
+  "embed.player.enterFullscreen": "Teljes képernyő",
+  "embed.player.exitFullscreen": "Kilépés a teljes képernyőből"
 }

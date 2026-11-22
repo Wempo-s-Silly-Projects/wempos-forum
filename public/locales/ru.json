@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Поделиться",
   "threadActions.thisPost": "Этот пост",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Изменить теги"
+  "threadActions.editTags": "Изменить теги",
+  "embed.youtubeTitle": "Видео YouTube",
+  "embed.youtubePlay": "Воспроизвести {title}",
+  "embed.youtubeNotice": "Загружается с youtube-nocookie.com, только когда вы нажмёте «Воспроизвести».",
+  "embed.youtubeOpen": "Открыть на YouTube",
+  "embed.modelLoad": "Загрузить 3D-модель",
+  "embed.modelAlt": "3D-модель: {name}",
+  "embed.loadFailed": "Не удалось воспроизвести это медиа.",
+  "embed.player.play": "Воспроизвести",
+  "embed.player.pause": "Пауза",
+  "embed.player.mute": "Выключить звук",
+  "embed.player.unmute": "Включить звук",
+  "embed.player.seek": "Перемотка",
+  "embed.player.volume": "Громкость",
+  "embed.player.currentTime": "Текущее время",
+  "embed.player.enterFullscreen": "Полноэкранный режим",
+  "embed.player.exitFullscreen": "Выйти из полноэкранного режима"
 }

@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Udostępnianie",
   "threadActions.thisPost": "Ten post",
   "threadActions.staff": "Zespół",
-  "threadActions.editTags": "Edytuj tagi"
+  "threadActions.editTags": "Edytuj tagi",
+  "embed.youtubeTitle": "Film w YouTube",
+  "embed.youtubePlay": "Odtwórz {title}",
+  "embed.youtubeNotice": "Ładuje się z youtube-nocookie.com dopiero po naciśnięciu odtwarzania.",
+  "embed.youtubeOpen": "Otwórz w YouTube",
+  "embed.modelLoad": "Wczytaj model 3D",
+  "embed.modelAlt": "Model 3D: {name}",
+  "embed.loadFailed": "Nie udało się odtworzyć tego pliku.",
+  "embed.player.play": "Odtwórz",
+  "embed.player.pause": "Pauza",
+  "embed.player.mute": "Wycisz",
+  "embed.player.unmute": "Wyłącz wyciszenie",
+  "embed.player.seek": "Przewiń",
+  "embed.player.volume": "Głośność",
+  "embed.player.currentTime": "Bieżący czas",
+  "embed.player.enterFullscreen": "Pełny ekran",
+  "embed.player.exitFullscreen": "Zamknij pełny ekran"
 }

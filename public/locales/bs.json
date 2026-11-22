@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Dijeljenje",
   "threadActions.thisPost": "Ova objava",
   "threadActions.staff": "Osoblje",
-  "threadActions.editTags": "Uredi oznake"
+  "threadActions.editTags": "Uredi oznake",
+  "embed.youtubeTitle": "YouTube video",
+  "embed.youtubePlay": "Pusti {title}",
+  "embed.youtubeNotice": "Učitava se s youtube-nocookie.com tek kada pritisnete pusti.",
+  "embed.youtubeOpen": "Otvori na YouTubeu",
+  "embed.modelLoad": "Učitaj 3D model",
+  "embed.modelAlt": "3D model: {name}",
+  "embed.loadFailed": "Ovaj medij nije moguće reproducirati.",
+  "embed.player.play": "Pusti",
+  "embed.player.pause": "Pauza",
+  "embed.player.mute": "Isključi zvuk",
+  "embed.player.unmute": "Uključi zvuk",
+  "embed.player.seek": "Premotaj",
+  "embed.player.volume": "Jačina zvuka",
+  "embed.player.currentTime": "Trenutno vrijeme",
+  "embed.player.enterFullscreen": "Cijeli ekran",
+  "embed.player.exitFullscreen": "Izađi iz cijelog ekrana"
 }

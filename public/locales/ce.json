@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Дийцар",
   "threadActions.thisPost": "Хӏара пост",
   "threadActions.staff": "Белхалой",
-  "threadActions.editTags": "Тегаш нисде"
+  "threadActions.editTags": "Тегаш нисде",
+  "embed.youtubeTitle": "YouTube видео",
+  "embed.youtubePlay": "{title} лато",
+  "embed.youtubeNotice": "Лато тӀе таӀийча бен youtube-nocookie.com тӀера ца долу.",
+  "embed.youtubeOpen": "YouTube-хь схьаелла",
+  "embed.modelLoad": "3D модель чуяккха",
+  "embed.modelAlt": "3D модель: {name}",
+  "embed.loadFailed": "ХӀара медиа лато ца делира.",
+  "embed.player.play": "Лато",
+  "embed.player.pause": "Сацо",
+  "embed.player.mute": "Аз дӀабайа",
+  "embed.player.unmute": "Аз лато",
+  "embed.player.seek": "Лахар",
+  "embed.player.volume": "Аз",
+  "embed.player.currentTime": "ХӀинцалера хан",
+  "embed.player.enterFullscreen": "Ерриг экран",
+  "embed.player.exitFullscreen": "Ерриг экранера арадала"
 }

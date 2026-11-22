@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Uñt'ayaña",
   "threadActions.thisPost": "Aka qillqata",
   "threadActions.staff": "Irnaqirinaka",
-  "threadActions.editTags": "Chimpunak askichaña"
+  "threadActions.editTags": "Chimpunak askichaña",
+  "embed.youtubeTitle": "YouTube video",
+  "embed.youtubePlay": "{title} uñjaña",
+  "embed.youtubeNotice": "Uñjaña limt'asaxa youtube-nocookie.com ukata apsuni.",
+  "embed.youtubeOpen": "YouTube ukan jist'araña",
+  "embed.modelLoad": "3D uñacht'äwi apsuña",
+  "embed.modelAlt": "3D uñacht'äwi: {name}",
+  "embed.loadFailed": "Aka medio janiw uñjañjamäkiti.",
+  "embed.player.play": "Uñjaña",
+  "embed.player.pause": "Sayt'ayaña",
+  "embed.player.mute": "Amukiyaña",
+  "embed.player.unmute": "Arsuyaña",
+  "embed.player.seek": "Thaqhaña",
+  "embed.player.volume": "Ch'ama",
+  "embed.player.currentTime": "Jichha pacha",
+  "embed.player.enterFullscreen": "Taqpach pantalla",
+  "embed.player.exitFullscreen": "Taqpach pantallat mistuña"
 }

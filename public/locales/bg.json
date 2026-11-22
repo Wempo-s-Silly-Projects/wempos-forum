@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Споделяне",
   "threadActions.thisPost": "Тази публикация",
   "threadActions.staff": "Екип",
-  "threadActions.editTags": "Редактиране на етикетите"
+  "threadActions.editTags": "Редактиране на етикетите",
+  "embed.youtubeTitle": "Видео в YouTube",
+  "embed.youtubePlay": "Пусни {title}",
+  "embed.youtubeNotice": "Зарежда се от youtube-nocookie.com само когато натиснете „Пусни“.",
+  "embed.youtubeOpen": "Отвори в YouTube",
+  "embed.modelLoad": "Зареди 3D модел",
+  "embed.modelAlt": "3D модел: {name}",
+  "embed.loadFailed": "Тази медия не можа да бъде възпроизведена.",
+  "embed.player.play": "Пусни",
+  "embed.player.pause": "Пауза",
+  "embed.player.mute": "Без звук",
+  "embed.player.unmute": "Включи звука",
+  "embed.player.seek": "Превъртане",
+  "embed.player.volume": "Сила на звука",
+  "embed.player.currentTime": "Текущо време",
+  "embed.player.enterFullscreen": "Цял екран",
+  "embed.player.exitFullscreen": "Изход от цял екран"
 }

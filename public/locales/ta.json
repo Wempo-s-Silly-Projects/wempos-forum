@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "பகிர்தல்",
   "threadActions.thisPost": "இந்த இடுகை",
   "threadActions.staff": "பணியாளர்கள்",
-  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து"
+  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து",
+  "embed.youtubeTitle": "YouTube வீடியோ",
+  "embed.youtubePlay": "{title} இயக்கு",
+  "embed.youtubeNotice": "இயக்கு அழுத்தும்போது மட்டுமே youtube-nocookie.com இலிருந்து ஏற்றப்படும்.",
+  "embed.youtubeOpen": "YouTube-இல் திற",
+  "embed.modelLoad": "3D மாதிரியை ஏற்று",
+  "embed.modelAlt": "3D மாதிரி: {name}",
+  "embed.loadFailed": "இந்த ஊடகத்தை இயக்க முடியவில்லை.",
+  "embed.player.play": "இயக்கு",
+  "embed.player.pause": "இடைநிறுத்து",
+  "embed.player.mute": "ஒலியடக்கு",
+  "embed.player.unmute": "ஒலி இயக்கு",
+  "embed.player.seek": "நகர்த்து",
+  "embed.player.volume": "ஒலியளவு",
+  "embed.player.currentTime": "தற்போதைய நேரம்",
+  "embed.player.enterFullscreen": "முழுத்திரை",
+  "embed.player.exitFullscreen": "முழுத்திரையிலிருந்து வெளியேறு"
 }

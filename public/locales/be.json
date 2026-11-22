@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Падзяліцца",
   "threadActions.thisPost": "Гэты допіс",
   "threadActions.staff": "Каманда",
-  "threadActions.editTags": "Рэдагаваць тэгі"
+  "threadActions.editTags": "Рэдагаваць тэгі",
+  "embed.youtubeTitle": "Відэа YouTube",
+  "embed.youtubePlay": "Прайграць {title}",
+  "embed.youtubeNotice": "Загружаецца з youtube-nocookie.com толькі калі вы націснеце «Прайграць».",
+  "embed.youtubeOpen": "Адкрыць на YouTube",
+  "embed.modelLoad": "Загрузіць 3D-мадэль",
+  "embed.modelAlt": "3D-мадэль: {name}",
+  "embed.loadFailed": "Не ўдалося прайграць гэта медыя.",
+  "embed.player.play": "Прайграць",
+  "embed.player.pause": "Паўза",
+  "embed.player.mute": "Выключыць гук",
+  "embed.player.unmute": "Уключыць гук",
+  "embed.player.seek": "Перамотка",
+  "embed.player.volume": "Гучнасць",
+  "embed.player.currentTime": "Бягучы час",
+  "embed.player.enterFullscreen": "Поўнаэкранны рэжым",
+  "embed.player.exitFullscreen": "Выйсці з поўнаэкраннага рэжыму"
 }

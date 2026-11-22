@@ -1221,5 +1221,21 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette indlæg",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tags"
+  "threadActions.editTags": "Rediger tags",
+  "embed.youtubeTitle": "YouTube-video",
+  "embed.youtubePlay": "Afspil {title}",
+  "embed.youtubeNotice": "Indlæses fra youtube-nocookie.com, først når du trykker afspil.",
+  "embed.youtubeOpen": "Åbn på YouTube",
+  "embed.modelLoad": "Indlæs 3D-model",
+  "embed.modelAlt": "3D-model: {name}",
+  "embed.loadFailed": "Dette medie kunne ikke afspilles.",
+  "embed.player.play": "Afspil",
+  "embed.player.pause": "Pause",
+  "embed.player.mute": "Slå lyd fra",
+  "embed.player.unmute": "Slå lyd til",
+  "embed.player.seek": "Spol",
+  "embed.player.volume": "Lydstyrke",
+  "embed.player.currentTime": "Aktuel tid",
+  "embed.player.enterFullscreen": "Fuld skærm",
+  "embed.player.exitFullscreen": "Afslut fuld skærm"
 }
