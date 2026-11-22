@@ -3116,6 +3116,23 @@ mark.search-hit {
   box-shadow: inset 4px 0 0 var(--coral);
 }
 
+/* Link to a reply (wave 5.25 F1): the reply a #reply-<id> link lands on is
+   outlined for a moment; the fade runs only when motion is allowed. */
+.post-card.reply-target {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .post-card.reply-target-fade {
+    animation: reply-target-fade 2.4s ease-out;
+  }
+}
+
+@keyframes reply-target-fade {
+  from { background-color: var(--yellow); }
+}
+
 .new-chip {
   margin-inline-start: 8px;
   padding: 1px 8px;
@@ -3265,6 +3282,8 @@ mark.search-hit {
 :root[data-text-size="larger"] { font-size: 125%; }
 .text-size-pref,
 .tab-unread-pref,
+.quiet-hours-toggle,
+.quiet-hours-range,
 .corner-pref {
   display: flex;
   align-items: center;

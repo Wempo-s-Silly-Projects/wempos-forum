@@ -50,7 +50,8 @@ import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
 import { createTextSizePicker } from "../text-size.js";
-import { createTabUnreadToggle } from "../tab-unread.js";
+import { applyTabUnread, createTabUnreadToggle } from "../tab-unread.js";
+import { createQuietHoursControls } from "../quiet-hours.js";
 import { createAppearanceReset } from "../appearance-reset.js";
 import { createBoardRegulars } from "../board-regulars.js";
 import { createDataExportPanel, downloadMyData } from "../data-export.js";
@@ -161,6 +162,13 @@ function renderAccountSettings(session) {
     createTabUnreadToggle(document, storage, () => state.unreadNotifications));
   appearance.append(createAppearanceReset(document, storage, appearance));
   account.append(appearance);
+  // Quiet hours (wave 5.25 F2): opt-in, this device only; a change re-checks
+  // the tab title at once.
+  const quietHours = createPanel(t("quietHours.title"), t("quietHours.help"));
+  quietHours.append(createQuietHoursControls(document, storage, {
+    onChange: () => applyTabUnread(document, state.unreadNotifications, storage),
+  }));
+  account.append(quietHours);
 
   const passwordPanel = createPanel(t("feed.changePasswordTitle"), t("feed.changePasswordNote"));
   passwordPanel.append(createForm(document, "password", [

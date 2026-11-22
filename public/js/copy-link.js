@@ -49,18 +49,22 @@ function showStatus(button, status, copied, schedule) {
   }, COPIED_STATUS_MS);
 }
 
-// Returns a wrapper: the icon button plus its polite status.
+// Returns a wrapper: the icon button plus its polite status. `link` and
+// `labelKey` let a caller copy a prebuilt link (wave 5.25: a reply's
+// /posts/<thread>#reply-<id>) under its own label; a null link copies nothing.
 export function createCopyLinkButton(document, postId, {
   origin = defaultOrigin(),
   clipboard = defaultClipboard(),
   schedule = setTimeout,
+  link = undefined,
+  labelKey = "render.copyLink",
 } = {}) {
   const wrap = document.createElement("span");
   wrap.className = "copy-link-wrap";
   const button = document.createElement("button");
   button.type = "button";
   button.className = "button button-quiet icon-button copy-link";
-  const label = t("render.copyLink");
+  const label = t(labelKey);
   button.setAttribute("aria-label", label);
   button.setAttribute("title", label);
   button.append(createIcon(document, "link"));
@@ -70,11 +74,11 @@ export function createCopyLinkButton(document, postId, {
   wrap.append(button, status);
   button.addEventListener("click", async (event) => {
     event.preventDefault();
-    const link = postPermalink(origin, postId);
+    const target = link === undefined ? postPermalink(origin, postId) : link;
     let copied = false;
     try {
-      if (link && clipboard && typeof clipboard.writeText === "function") {
-        await clipboard.writeText(link);
+      if (target && clipboard && typeof clipboard.writeText === "function") {
+        await clipboard.writeText(target);
         copied = true;
       }
     } catch {

@@ -33,6 +33,7 @@ import { clearAllNewcomer } from "../newcomer.js";
 import { clearAllPins } from "../chat-pins.js";
 import { clearAllMutes } from "../chat-mutes.js";
 import { clearAllRecents } from "../gallery-picks.js";
+import { clearAllQuietHours } from "../quiet-hours.js";
 import { createNotificationBell } from "../notifications.js";
 // The §4b door-swap: every auth link (header Sign in, mobile guest rung)
 // targets Wempo Accounts with an origin-only return; logout hands the browser
@@ -262,8 +263,8 @@ function markMobileBarItem(user) {
 }
 
 // Shared-browser privacy: unsent drafts, read marks, chat pins, gallery
-// recents and newcomer-card dismissals leave with the member. Device
-// preferences (theme, text size, locale, DM effects) stay.
+// recents, newcomer-card dismissals and quiet hours (wave 5.25) leave with
+// the member. Device preferences (theme, text size, locale, DM effects) stay.
 function wipeAccountLocalData() {
   clearAllDrafts();
   clearAllCatchUp();
@@ -271,6 +272,7 @@ function wipeAccountLocalData() {
   clearAllPins();
   clearAllMutes();
   clearAllRecents();
+  clearAllQuietHours();
 }
 
 export const ACTIONS = {

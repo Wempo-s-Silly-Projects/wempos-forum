@@ -116,6 +116,21 @@ export class FakeNode {
     return this._nodes.length ? this._nodes.map((child) => child.textContent ?? "").join("") : this._text;
   }
   set textContent(value) { this._detachAll(); this._text = String(value ?? ""); }
+  // A DOMTokenList over className (wave 5.25: the reply highlight).
+  get classList() {
+    const tokens = () => this.className.split(/\s+/).filter(Boolean);
+    const write = (list) => { this.className = [...new Set(list)].join(" "); };
+    return {
+      add: (...names) => write([...tokens(), ...names]),
+      remove: (...names) => write(tokens().filter((name) => !names.includes(name))),
+      contains: (name) => tokens().includes(name),
+      toggle: (name, force) => {
+        const on = force ?? !tokens().includes(name);
+        write(on ? [...tokens(), name] : tokens().filter((token) => token !== name));
+        return on;
+      },
+    };
+  }
   get id() { return this.attributes.id ?? ""; }
   set id(value) { this.attributes.id = String(value); }
   setAttribute(name, value) {
