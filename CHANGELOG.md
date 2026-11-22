@@ -10,6 +10,13 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.73.2] - 2026-11-22
+
+### Fixed
+- Chat GIFs no longer play on their own when your device asks for reduced
+  motion. Each GIF shows a still first frame; select it to play it, and select
+  it again to pause. GIF picker thumbnails stay still too.
+
 ### Changed
 - Rewrote the README, agent guides and moderation docs; added
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
