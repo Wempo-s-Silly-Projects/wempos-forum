@@ -54,8 +54,21 @@ const walk = (dir) => readdirSync(dir).flatMap((name) => {
   return name.endsWith(".js") ? [full] : [];
 });
 
+// Batch K: IndexedDB through the vendored idb-keyval is storage too — any
+// module importing it is a writer and must register its clearAll in the wipe.
+const IDB_WRITE = /from\s*"(?:\.\.?\/)+vendor\/idb-keyval\.js"/;
+
 const sources = new Map(walk(JS_ROOT).map((full) => [relative(JS_ROOT, full), readFileSync(full, "utf8")]));
-const writers = [...sources].filter(([, src]) => STORAGE_WRITE.test(src)).map(([path]) => path);
+const writers = [...sources].filter(([, src]) => STORAGE_WRITE.test(src) || IDB_WRITE.test(src)).map(([path]) => path);
+const idbWriters = [...sources].filter(([, src]) => IDB_WRITE.test(src)).map(([path]) => path);
+
+test("the IndexedDB rule catches idb-keyval importers, and drafts.js is one", () => {
+  assert.ok(IDB_WRITE.test('import { set } from "./vendor/idb-keyval.js";'));
+  assert.ok(IDB_WRITE.test('import { set } from "../vendor/idb-keyval.js";'));
+  assert.ok(!IDB_WRITE.test('import { api } from "./api.js";'));
+  assert.ok(idbWriters.includes("drafts.js"), "drafts.js keeps drafts in IndexedDB: " + idbWriters.join(", "));
+  assert.ok(idbWriters.every((path) => !DEVICE_PREF_FILES.has(path)), "IndexedDB stores are account data, never device prefs");
+});
 
 const NAV = sources.get("routes/account-nav.js");
 const wipeBody = NAV.match(/function wipeAccountLocalData\(\)\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
