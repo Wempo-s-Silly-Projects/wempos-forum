@@ -15,6 +15,28 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.66.0] - 2026-11-22
+
+### Security
+- Security review of v5.62.0 through v5.65.0: no critical, high or medium
+  findings. Visibility, input validation, link building, SQL binds, error
+  text and the v5.63.1 test fixes all checked.
+
+### Fixed
+- The profile editor's format hint for 14 social link fields (YouTube,
+  Reddit, GitHub, Discord, Tumblr, Indiegogo, Shopify, Substack,
+  Kickstarter, Cameo, SoundCloud, Patreon, Cash App, Venmo) works again.
+  Browsers had been ignoring those patterns as invalid. The server checks
+  were always in force.
+
+### Tests
+- New regression pins for all 27 social fields: every one refuses
+  `javascript:` links, full web addresses, whitespace, a trailing newline
+  and look-alike Unicode letters; error messages never echo the input; the
+  profile update keeps its same-origin and CSRF checks and stays under the
+  database's bound-parameter limit; every column keeps its 120-character
+  cap; the best-effort thread bump never wraps the reply insert.
+
 ## [5.65.0] - 2026-11-22
 
 ### Added

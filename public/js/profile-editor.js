@@ -148,6 +148,16 @@ const SOCIAL_LINK_BASES = {
 export const normalizeSocialHandle = (key, value) =>
   key === "cashapp" && typeof value === "string" && value.startsWith("$") ? value.slice(1) : value;
 
+// The editor's `pattern` attribute for a platform (v5.66.0). Browsers compile
+// it with the `v` flag, where a literal "-" inside a class must be escaped —
+// unescaped, the whole pattern is invalid and silently ignored (14 platforms
+// lost the hint). Every literal dash in these classes sits right before "]".
+// Cash App also accepts a pasted "$" (stripped before the save).
+export const socialInputPattern = (key) => {
+  const source = SOCIAL_PATTERNS[key].source.replace(/-\]/g, "\\-]");
+  return key === "cashapp" ? "\\$?" + source.slice(1, -1) : source;
+};
+
 // The muted note under the payment-link group (v5.65.0).
 export const createPaymentNote = (document) => {
   const note = document.createElement("p");
@@ -299,10 +309,7 @@ export function renderProfileEditor(main, user) {
     const input = form.querySelector(`#profile-social-${key}`);
     const value = socials[key];
     input.value = typeof value === "string" ? value : "";
-    // Cash App also accepts a pasted "$" (stripped before the save).
-    input.pattern = key === "cashapp"
-      ? "\\$?" + SOCIAL_PATTERNS[key].source.slice(1, -1)
-      : SOCIAL_PATTERNS[key].source;
+    input.pattern = socialInputPattern(key);
   }
   form.querySelector("#profile-banner-color").value = user?.bannerColor || "";
   form.querySelector("#profile-banner-text").value = user?.bannerText || "";
