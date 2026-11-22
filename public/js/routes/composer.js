@@ -46,6 +46,9 @@ import { attachPasteAndDrop, confirmPendingFiles, dismissPendingFiles } from "..
 import { createDraftNotice } from "../draft-notice.js";
 import { attachPollHelpers, duplicatePollSlots, refreshPollHelpers } from "../poll-preview.js";
 import { createCapsGuard } from "../caps-guard.js";
+import { createComposerToolbar } from "../composer-toolbar.js";
+import { attachRichPaste } from "../rich-paste.js";
+import { attachAutogrow } from "../autogrow.js";
 
 let activeGifComposerForm = null;
 let activePollComposerForm = null;
@@ -85,6 +88,12 @@ function createComposer(name, label, buttonLabel, postID = null,
   const restoredDraft = attachDraftAutosave(form, bodyField, draftKey(name, postID, board, state.currentUser?.id));
   // Restored-draft notice + Discard draft (wave 31): only after a restore.
   if (restoredDraft) form.append(createDraftNotice(document, { form, textarea: bodyField, savedAt: restoredDraft.savedAt }));
+  // Batch H: formatting toolbar (Ctrl/Cmd+B/I/K too, emoji picker inside),
+  // rich-HTML paste to Markdown, and a body field that grows with its text.
+  // Every insertion goes through field-edit.js, so Ctrl/Cmd+Z undoes it.
+  bodyField.insertAdjacentElement("beforebegin", createComposerToolbar(bodyField, document));
+  attachRichPaste(bodyField);
+  attachAutogrow(bodyField);
   // @mention autocomplete (wave 2026-11-21): suggestions from /api/search.
   attachMentionPicker(bodyField, document);
   // Caps guard (wave 5.5 F1): a shouting note + one-click fix, local only.

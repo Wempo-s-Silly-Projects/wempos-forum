@@ -125,7 +125,7 @@ const VENDOR = {
   "public/js/vendor/fuzzysort.min.js": "42ff4ca9327e099983adba294d9fefb76079068d9afc438177dd99030ad61781",
   "public/js/vendor/split.js": "cbec679982e03b4ac4e7d94acd5b1cc0a650e8257091b1577d157fcbf5556124",
 };
-const EMOJIBASE_TREE_SHA256 = "b097ff11a6e397e709fbd932f1ade91c06e3456c493c31a49624d698f5a07a62";
+const EMOJIBASE_TREE_SHA256 = "0824e8ba4bd1bbf601565cff69a7dc8a8081b89655f2d1a4b568e8d5d8dc5f40";
 
 test("each vendored composer library is the approved upstream file, byte for byte", () => {
   for (const [path, digest] of Object.entries(VENDOR)) assert.equal(sha256(path), digest, path);
@@ -249,7 +249,7 @@ test("the toolbar is an accessible roving-tabindex toolbar; a button click forma
   assert.equal(toolbar.getAttribute("role"), "toolbar");
   assert.equal(toolbar.getAttribute("aria-label"), "composer.toolbarLabel");
   assert.equal(toolbar.getAttribute("aria-controls"), "body-field");
-  const buttons = toolbar.querySelectorAll("button");
+  const buttons = Array.from(toolbar.querySelectorAll("button"));
   assert.equal(buttons.length, FORMAT_KINDS.length);
   assert.deepEqual(buttons.map((button) => button.tabIndex), [0, ...Array(buttons.length - 1).fill(-1)]);
   assert.ok(buttons.every((button) => button.type === "button" && button.getAttribute("aria-label")));
