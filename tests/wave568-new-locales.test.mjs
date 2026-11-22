@@ -17,6 +17,7 @@
 // see <https://www.gnu.org/licenses/>.
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
+
 // Wave 5.68 (v5.68.0): four more interface languages, all Latin script and
 // left-to-right. Pins each bundle (same keys in the same order as en.json,
 // identical {placeholders}, real translations, CLDR plural forms), the picker
