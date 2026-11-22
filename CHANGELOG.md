@@ -15,6 +15,11 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.71.2] - 2026-11-22
+
+### Added
+- Older browsers that can't or won't update get missing JavaScript features from the cdnjs polyfill service, loaded before the forum's modules. Only HTML pages allow `https://cdnjs.cloudflare.com` in `script-src`; JSON, feeds and images keep the stricter policy, and the vendored framework file is unchanged.
+
 ## [5.71.1] - 2026-11-22
 
 ### Fixed

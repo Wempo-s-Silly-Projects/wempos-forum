@@ -189,7 +189,14 @@ test("theme-preload adds no globals, one media listener, and no eval-like or mar
 
 test("index.html has no inline script and the CSP still forbids inline script and style", () => {
   const html = read("public/index.html");
-  for (const tag of html.match(/<script\b[^>]*>/gi) ?? []) assert.match(tag, /\bsrc="\/js\/[a-z0-9-]+\.js"/, tag);
+  // v5.71.2: the one owner-approved external script is the cdnjs polyfill
+  // service (pinned in tests/wave5712-polyfill-csp.test.mjs); every other
+  // tag must still be a same-origin /js/ file.
+  const POLYFILL_TAG = /\bsrc="https:\/\/cdnjs\.cloudflare\.com\/polyfill\/v3\/polyfill\.min\.js\?version=4\.8\.0&amp;features=[^"]+" referrerpolicy="no-referrer"/;
+  for (const tag of html.match(/<script\b[^>]*>/gi) ?? []) {
+    if (POLYFILL_TAG.test(tag)) continue;
+    assert.match(tag, /\bsrc="\/js\/[a-z0-9-]+\.js"/, tag);
+  }
   assert.doesNotMatch(html, /<script\b(?![^>]*\bsrc=)[^>]*>/i);
   assert.doesNotMatch(html, /\son[a-z]+=/i, "no inline event handlers");
   const http = read("api/vendor/http.mjs");
@@ -202,9 +209,12 @@ test("index.html has no inline script and the CSP still forbids inline script an
 // is the ONLY inline script allowed in a served document — any other src-less
 // script, an ld+json tag with extra attributes, or an inline handler fails.
 const LD_JSON_TAG = '<script type="application/ld+json">';
+// v5.71.2: the one owner-approved external script (cdnjs polyfill service).
+const POLYFILL_SCRIPT_TAG = /^<script src="https:\/\/cdnjs\.cloudflare\.com\/polyfill\/v3\/polyfill\.min\.js\?version=4\.8\.0&amp;features=[^"]+" referrerpolicy="no-referrer">$/;
 function assertOnlyDataBlockInlineScripts(html) {
   for (const [tag] of html.matchAll(/<script\b[^>]*>/gi)) {
     if (tag === LD_JSON_TAG) continue;
+    if (POLYFILL_SCRIPT_TAG.test(tag)) continue; // v5.71.2 owner-approved cdnjs polyfill
     assert.match(tag, /^<script\b[^>]*\bsrc="\/js\/[a-z0-9-]+\.js"[^>]*>$/, tag);
   }
   for (const [, body] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {

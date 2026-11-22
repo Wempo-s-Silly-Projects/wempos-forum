@@ -47,14 +47,35 @@ export { HttpError, MAX_JSON_BYTES, errorReply };
 export const securityHeaders = vendorSecurityHeaders;
 export const json = vendorJson;
 
-// The config-bound half: the forum's limiter map and the shared JSON cap.
-// Phase-4 Kitskey migration: the static leg rides makeHttp too — the forum
-// binds NO securityHeaders override because the framework default set is
-// already this app's set byte-for-byte, so app.secureResponse re-wraps with
-// exactly the headers the inline twin applied.
+// v5.71.2 (owner Nov 22 13:35, "Override CSP"): the HTML shell loads the
+// cdnjs polyfill service as a classic script before the module graph, for
+// visitors on browsers that can't or won't update. The vendored framework
+// file stays untouched; the static leg binds this app-owned header set via
+// makeHttp's securityHeaders hook (the framework's own extension point for a
+// divergent app). Only HTML responses (the static leg) carry it; JSON,
+// feeds, images and discovery keep the vendor set.
+const POLYFILL_ORIGIN = "https://cdnjs.cloudflare.com";
+const VENDOR_SCRIPT_SRC = "script-src 'self' https://challenges.cloudflare.com;";
+
+export function forumDocumentSecurityHeaders(headers = new Headers()) {
+  const result = vendorSecurityHeaders(headers);
+  const csp = result.get("Content-Security-Policy") ?? "";
+  // Fail closed: if the vendor policy ever changes shape, keep it as-is
+  // rather than splicing an origin into an unknown directive.
+  if (!csp.includes(VENDOR_SCRIPT_SRC)) return result;
+  result.set(
+    "Content-Security-Policy",
+    csp.replace(VENDOR_SCRIPT_SRC, "script-src 'self' https://challenges.cloudflare.com " + POLYFILL_ORIGIN + ";"),
+  );
+  return result;
+}
+
+// The config-bound half: the forum's limiter map, the shared JSON cap, and
+// (since v5.71.2) the document header set above for the static leg.
 const app = makeHttp({
   rateLimitBindings: RATE_LIMIT_BINDINGS,
   maxJsonBytes: MAX_JSON_BYTES,
+  securityHeaders: forumDocumentSecurityHeaders,
 });
 export const rateLimit = app.rateLimit;
 export const requireMutationApplied = app.requireMutationApplied;
