@@ -17,6 +17,7 @@
 // see <https://www.gnu.org/licenses/>.
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
+
 // v5.74.1: IPv6 bans key on the /64 prefix (ipaddr.js), so a banned member
 // cannot walk out of a ban by rotating their IPv6 interface address. IPv4
 // hashes stay byte-identical to the v3.1 formula, and the ban gate still
