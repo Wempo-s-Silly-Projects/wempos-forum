@@ -3052,6 +3052,22 @@ mark.search-hit {
   height: auto;
   border-radius: 6px;
 }
+/* Wave 5.73.1: under prefers-reduced-motion the GIF is a still canvas in a
+   play/pause toggle. The button adds no chrome and keeps one box in both
+   states (canvas and image share the .chat-gif size). */
+.chat-gif-toggle {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  line-height: 0;
+  cursor: pointer;
+}
+.chat-gif-toggle:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.chat-gif-loading { visibility: hidden; }
 .chat-widget-gif-button { flex-shrink: 0; font-weight: 700; font-size: 0.75rem; }
 .chat-widget-gif-grid {
   position: absolute;
@@ -3077,7 +3093,8 @@ mark.search-hit {
   cursor: pointer;
   aspect-ratio: 1;
 }
-.chat-widget-gif-pick img {
+.chat-widget-gif-pick img,
+.chat-widget-gif-pick canvas {
   width: 100%;
   height: 100%;
   object-fit: cover;

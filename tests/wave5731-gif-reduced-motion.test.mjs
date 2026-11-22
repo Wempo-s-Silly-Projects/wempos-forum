@@ -183,7 +183,7 @@ test("no reduced motion: picker thumbnails stay animated images", async () => {
 test("source: no innerHTML, no new i18n keys, reduced-motion query read via matchMedia", () => {
   const source = read("public/js/chat-widget-gifs.js");
   assert.doesNotMatch(source, /innerHTML/);
-  assert.match(source, /\(prefers-reduced-motion: reduce\)/);
+  assert.match(source, /import \{ prefersReducedMotion \} from "\.\/focus-utils\.js"/);
   const keys = [...new Set([...source.matchAll(/\bt\("([^"]+)"\)/g)].map((m) => m[1]))].sort();
   assert.deepEqual(keys, ["chat.gifAlt", "chat.gifLibrary", "chat.gifsEmpty", "chat.gifsFailed",
     "chat.gifsLoading", "chat.sendGif", "chat.sendThisGif"]);
