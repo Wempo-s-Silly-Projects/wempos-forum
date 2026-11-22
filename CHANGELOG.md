@@ -15,6 +15,25 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.46.0] - 2026-11-22
+
+### Added
+- Mute a thread: a Mute thread / Unmute thread button on a thread's first
+  post. While a thread is muted you get no notifications that come from it:
+  replies to you, replies in a thread you subscribed to, @mentions inside it,
+  and new-thread alerts from members you follow. Other members are not
+  affected, and chat mentions and invite notices still arrive. Deleting the
+  thread or your account removes the mute. New routes
+  `PUT /api/posts/:id/mute` and `DELETE /api/posts/:id/mute` (thread first
+  posts only), and the thread payload gains `viewerMuted` for signed-in
+  members. Needs migration `0071_thread_mutes.sql`.
+- Thread outline: threads with 8 or more replies get a collapsible "Jump to"
+  list showing each reply's author and how long ago it was posted. Picking
+  an entry scrolls to that reply and moves focus to it. The list is built in
+  the browser from the replies already on the page. Whether it is open or
+  closed is remembered in this browser for your account and cleared when you
+  sign out.
+
 ## [5.45.0] - 2026-11-22
 
 ### Security
