@@ -111,6 +111,7 @@ SPDX-License-Identifier = "MIT"
 path = "public/js/vendor/bidi.js"
 precedence = "override"
 SPDX-FileCopyrightText = "2021 Jason Johnston"
+SPDX-License-Identifier = "MIT"
 
 # Batch J (navigation, keyboard and reading polish): browser libraries
 # vendored byte-for-byte from their published package tarballs, each
@@ -169,6 +170,7 @@ SPDX-License-Identifier = "MIT"
 path = "public/js/vendor/headroom.js"
 precedence = "override"
 SPDX-FileCopyrightText = "2013 Nick Williams"
+SPDX-License-Identifier = "MIT"
 
 # Batch K vendored libraries, byte-for-byte from their published package
 # tarballs with no added banner, sha256-pinned by tests/wavek-vendor.test.mjs.
@@ -190,6 +192,7 @@ SPDX-License-Identifier = "MIT"
 path = "public/js/vendor/nanoevents.js"
 precedence = "override"
 SPDX-FileCopyrightText = "2016 Andrey Sitnik"
+SPDX-License-Identifier = "MIT"
 
 # Batch M fun extras: browser libraries vendored byte-for-byte from their
 # published registry tarballs (sha256 pinned by tests/batch-m-fun.test.mjs).
@@ -253,6 +256,7 @@ SPDX-License-Identifier = "MIT"
 path = "public/js/vendor/signature_pad.umd.min.js"
 precedence = "override"
 SPDX-FileCopyrightText = "2018 Szymon Nowak"
+SPDX-License-Identifier = "MIT"
 
 # Batch C (post content rendering): more browser libraries vendored
 # byte-for-byte under public/js/vendor/, each pinned by sha256 in

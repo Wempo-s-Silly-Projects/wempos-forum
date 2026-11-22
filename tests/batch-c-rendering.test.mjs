@@ -117,7 +117,9 @@ test("CSP unchanged: script-src pinned, no unsafe-eval/inline, fonts ride defaul
     securityHeaders(new Headers()).get("Content-Security-Policy")]) {
     assert.doesNotMatch(csp, /unsafe-eval|unsafe-inline|wasm-unsafe-eval/);
     assert.match(csp, /default-src 'self';/);
-    assert.match(csp, /style-src 'self';/);
+    // 'self' plus, at most, exact sha256 hashes (v5.79 embeds add WaveSurfer's
+    // one static shadow <style>); never 'unsafe-inline'.
+    assert.match(csp, /style-src 'self'(?: 'sha256-[A-Za-z0-9+/=]+')*;/);
     assert.doesNotMatch(csp, /font-src/, "no font-src: default-src 'self' covers the KaTeX fonts");
   }
   const html = secureResponse(new Response("x")).headers.get("Content-Security-Policy");
