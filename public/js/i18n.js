@@ -57,6 +57,7 @@ export const LOCALES = Object.freeze([
   { code: "el", name: "Ελληνικά", dir: "ltr" },
   { code: "ru", name: "Русский", dir: "ltr" },
   { code: "uk", name: "Українська", dir: "ltr" },
+  { code: "ab", name: "Аҧсуа", dir: "ltr" },
   { code: "tr", name: "Türkçe", dir: "ltr" },
   { code: "az", name: "Azərbaycanca", dir: "ltr" },
   { code: "ar", name: "العربية", dir: "rtl" },
@@ -72,6 +73,9 @@ export const LOCALES = Object.freeze([
   { code: "vi", name: "Tiếng Việt", dir: "ltr" },
   { code: "th", name: "ไทย", dir: "ltr" },
   { code: "sw", name: "Kiswahili", dir: "ltr" },
+  { code: "am", name: "አማርኛ", dir: "ltr" },
+  { code: "aa", name: "Qafar af", dir: "ltr" },
+  { code: "ak", name: "Akan", dir: "ltr" },
   { code: "ja", name: "日本語", dir: "ltr" },
   { code: "ko", name: "한국어", dir: "ltr" },
   { code: "zh-Hans", name: "简体中文", dir: "ltr" },
@@ -150,18 +154,31 @@ function brandOverrides(siteName, brand) {
   return overrides;
 }
 
+// Intl.PluralRules quietly resolves a locale it has no data for (Abkhaz and
+// Afar today) to the runtime's default locale, so a browser set to Russian
+// would pick Russian plural forms for them. Keep the rules only when they
+// resolved to the requested language; otherwise use English's n = 1 rule,
+// which is CLDR's rule for ab and the one/other split pinned for aa (CLDR has
+// no aa entry). Dates and numbers for those codes still fall back to the
+// runtime default, which only changes formatting, not the words.
+function pluralRulesFor(locale) {
+  const language = String(locale).split("-")[0].toLowerCase();
+  try {
+    const rules = new Intl.PluralRules(locale);
+    if (rules.resolvedOptions().locale.split("-")[0].toLowerCase() === language) return rules;
+  } catch {
+    // An invalid tag falls through to English rules.
+  }
+  return new Intl.PluralRules(DEFAULT_LOCALE);
+}
+
 // Pure translator: messages for the active locale, English as the fallback.
 // Plural keys come in pairs (key.one / key.other) in every locale, so the key
 // sets stay identical; Intl.PluralRules picks the pair member.
 export function createTranslator(locale, messages = {}, fallback = {}, brand = {}) {
   const siteName = typeof brand.siteName === "string" && brand.siteName ? brand.siteName : DEFAULT_SITE_NAME;
   const overrides = brandOverrides(siteName, brand);
-  let rules;
-  try {
-    rules = new Intl.PluralRules(locale);
-  } catch {
-    rules = new Intl.PluralRules(DEFAULT_LOCALE);
-  }
+  const rules = pluralRulesFor(locale);
   const lookup = (key) => {
     if (typeof messages[key] === "string") return messages[key];
     if (typeof fallback[key] === "string") return fallback[key];
