@@ -85,7 +85,13 @@ function createGroup(doc, group) {
 export function buildSettingsHub(doc, root, panels) {
   const groups = SETTINGS_GROUPS.map((group) => createGroup(doc, group));
   const byKey = new Map(SETTINGS_GROUPS.map((group, index) => [group.key, groups[index]]));
-  for (const panel of panels) byKey.get(settingsGroupFor(panel)).append(panel);
+  for (const panel of panels) {
+    byKey.get(settingsGroupFor(panel)).append(panel);
+    // L4 (v5.57 review): a panel's title reads one level below its group's
+    // h2. It stays an H2 element (twofa.js, account-security.js and
+    // panelTitle above look for "h2"); aria-level carries the outline.
+    panel.querySelector("h2")?.setAttribute("aria-level", "3");
+  }
   root.append(...groups);
   return groups;
 }
