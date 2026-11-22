@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Megosztás",
   "threadActions.thisPost": "Ez a bejegyzés",
   "threadActions.staff": "Csapat",
-  "threadActions.editTags": "Címkék szerkesztése"
+  "threadActions.editTags": "Címkék szerkesztése",
+  "ux.keysHome": "G, majd H: ugrás a kezdőlapra",
+  "ux.keysChat": "G, majd C: a csevegés megnyitása vagy bezárása",
+  "ux.keysSearch": "/: ugrás a keresőmezőre",
+  "ux.keysHelp": "?: a billentyűparancsok listájának megjelenítése",
+  "ux.keysToggle": "Egybillentyűs parancsok használata (G H, G C, / és ?)",
+  "ux.lbRank": "Helyezés",
+  "ux.lbMember": "Tag",
+  "ux.lbThreads": "Szálak",
+  "ux.lbScore": "Pontszám"
 }

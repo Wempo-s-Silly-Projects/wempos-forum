@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "শ্বেয়াৰ",
   "threadActions.thisPost": "এই পোষ্ট",
   "threadActions.staff": "কৰ্মী",
-  "threadActions.editTags": "টেগ সম্পাদনা কৰক"
+  "threadActions.editTags": "টেগ সম্পাদনা কৰক",
+  "ux.keysHome": "G তাৰপিছত H: মূল পৃষ্ঠালৈ যাওক",
+  "ux.keysChat": "G তাৰপিছত C: চেট খোলক বা বন্ধ কৰক",
+  "ux.keysSearch": "/: সন্ধান বাকচলৈ যাওক",
+  "ux.keysHelp": "?: চৰ্টকাটৰ এই তালিকা দেখুৱাওক",
+  "ux.keysToggle": "এটা কীৰ চৰ্টকাট ব্যৱহাৰ কৰক (G H, G C, / আৰু ?)",
+  "ux.lbRank": "স্থান",
+  "ux.lbMember": "সদস্য",
+  "ux.lbThreads": "থ্ৰেড",
+  "ux.lbScore": "স্ক'ৰ"
 }

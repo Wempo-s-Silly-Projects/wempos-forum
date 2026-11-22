@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Pagbabahagi",
   "threadActions.thisPost": "Ang post na ito",
   "threadActions.staff": "Kawani",
-  "threadActions.editTags": "I-edit ang mga tag"
+  "threadActions.editTags": "I-edit ang mga tag",
+  "ux.keysHome": "G tapos H: pumunta sa home page",
+  "ux.keysChat": "G tapos C: buksan o isara ang chat",
+  "ux.keysSearch": "/: lumipat sa search box",
+  "ux.keysHelp": "?: ipakita ang listahang ito ng mga shortcut",
+  "ux.keysToggle": "Gamitin ang mga shortcut na iisang key (G H, G C, / at ?)",
+  "ux.lbRank": "Ranggo",
+  "ux.lbMember": "Miyembro",
+  "ux.lbThreads": "Mga thread",
+  "ux.lbScore": "Puntos"
 }

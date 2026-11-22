@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "साझा करना",
   "threadActions.thisPost": "यह पोस्ट",
   "threadActions.staff": "स्टाफ़",
-  "threadActions.editTags": "टैग संपादित करें"
+  "threadActions.editTags": "टैग संपादित करें",
+  "ux.keysHome": "G फिर H: होम पेज पर जाएँ",
+  "ux.keysChat": "G फिर C: चैट खोलें या बंद करें",
+  "ux.keysSearch": "/: सर्च बॉक्स पर जाएँ",
+  "ux.keysHelp": "?: शॉर्टकट की यह सूची दिखाएँ",
+  "ux.keysToggle": "एक-कुंजी वाले शॉर्टकट इस्तेमाल करें (G H, G C, / और ?)",
+  "ux.lbRank": "रैंक",
+  "ux.lbMember": "सदस्य",
+  "ux.lbThreads": "थ्रेड",
+  "ux.lbScore": "स्कोर"
 }

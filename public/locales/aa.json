@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Farakkiyya",
   "threadActions.thisPost": "Ah kitbat",
   "threadActions.staff": "Taamitte",
-  "threadActions.editTags": "Astooti massos"
+  "threadActions.editTags": "Astooti massos",
+  "ux.keysHome": "G tet H: buyyeh qangal gex",
+  "ux.keysChat": "G tet C: chat fak hinnay alif",
+  "ux.keysSearch": "/: gurrumih sanduuqul kud",
+  "ux.keysHelp": "?: tah ruqtah caxxa uybulli",
+  "ux.keysToggle": "Inki kiiboordih ruqta horoc (G H, G C, / kee ?)",
+  "ux.lbRank": "Darajaa",
+  "ux.lbMember": "Miembar",
+  "ux.lbThreads": "Kitbatah caxxa",
+  "ux.lbScore": "Lakkoofa"
 }

@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "공유",
   "threadActions.thisPost": "이 게시물",
   "threadActions.staff": "운영진",
-  "threadActions.editTags": "태그 편집"
+  "threadActions.editTags": "태그 편집",
+  "ux.keysHome": "G 다음 H: 홈 페이지로 이동",
+  "ux.keysChat": "G 다음 C: 채팅 열기 또는 닫기",
+  "ux.keysSearch": "/: 검색창으로 이동",
+  "ux.keysHelp": "?: 이 단축키 목록 보기",
+  "ux.keysToggle": "단일 키 단축키 사용 (G H, G C, / 및 ?)",
+  "ux.lbRank": "순위",
+  "ux.lbMember": "회원",
+  "ux.lbThreads": "스레드",
+  "ux.lbScore": "점수"
 }

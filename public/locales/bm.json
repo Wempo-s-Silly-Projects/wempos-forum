@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Tilali",
   "threadActions.thisPost": "Nin sɛbɛn",
   "threadActions.staff": "Baarakɛlaw",
-  "threadActions.editTags": "Taamasiyɛnninw yɛlɛma"
+  "threadActions.editTags": "Taamasiyɛnninw yɛlɛma",
+  "ux.keysHome": "G o kɔ H: taa daminɛ ɲɛ kan",
+  "ux.keysChat": "G o kɔ C: baro da yɛlɛ walima a datugu",
+  "ux.keysSearch": "/: ɲinini kɛsu sɔrɔ",
+  "ux.keysHelp": "?: digilan surunw ninnu jira",
+  "ux.keysToggle": "Digilan kelen surunw baara (G H, G C, / ani ?)",
+  "ux.lbRank": "Jɔyɔrɔ",
+  "ux.lbMember": "Tɔndenw",
+  "ux.lbThreads": "Kumasenw",
+  "ux.lbScore": "Jate"
 }

@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Sharing",
   "threadActions.thisPost": "This post",
   "threadActions.staff": "Staff",
-  "threadActions.editTags": "Edit tags"
+  "threadActions.editTags": "Edit tags",
+  "ux.keysHome": "G then H: go to the home page",
+  "ux.keysChat": "G then C: open or close the chat",
+  "ux.keysSearch": "/: jump to the search box",
+  "ux.keysHelp": "?: show this list of shortcuts",
+  "ux.keysToggle": "Use the single-key shortcuts (G H, G C, / and ?)",
+  "ux.lbRank": "Rank",
+  "ux.lbMember": "Member",
+  "ux.lbThreads": "Threads",
+  "ux.lbScore": "Score"
 }

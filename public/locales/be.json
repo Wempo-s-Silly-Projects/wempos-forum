@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Падзяліцца",
   "threadActions.thisPost": "Гэты допіс",
   "threadActions.staff": "Каманда",
-  "threadActions.editTags": "Рэдагаваць тэгі"
+  "threadActions.editTags": "Рэдагаваць тэгі",
+  "ux.keysHome": "G, потым H: перайсці на галоўную старонку",
+  "ux.keysChat": "G, потым C: адкрыць або закрыць чат",
+  "ux.keysSearch": "/: перайсці да поля пошуку",
+  "ux.keysHelp": "?: паказаць гэты спіс спалучэнняў",
+  "ux.keysToggle": "Выкарыстоўваць спалучэнні з адной клавішы (G H, G C, / і ?)",
+  "ux.lbRank": "Месца",
+  "ux.lbMember": "Удзельнік",
+  "ux.lbThreads": "Тэмы",
+  "ux.lbScore": "Балы"
 }

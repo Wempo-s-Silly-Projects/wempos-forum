@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "這篇貼文",
   "threadActions.staff": "管理團隊",
-  "threadActions.editTags": "編輯標籤"
+  "threadActions.editTags": "編輯標籤",
+  "ux.keysHome": "先按 G 再按 H：前往首頁",
+  "ux.keysChat": "先按 G 再按 C：開啟或關閉聊天",
+  "ux.keysSearch": "/：跳到搜尋框",
+  "ux.keysHelp": "?：顯示這份快速鍵清單",
+  "ux.keysToggle": "使用單鍵快速鍵（G H、G C、/ 和 ?）",
+  "ux.lbRank": "排名",
+  "ux.lbMember": "成員",
+  "ux.lbThreads": "主題",
+  "ux.lbScore": "積分"
 }

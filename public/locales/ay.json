@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Uñt'ayaña",
   "threadActions.thisPost": "Aka qillqata",
   "threadActions.staff": "Irnaqirinaka",
-  "threadActions.editTags": "Chimpunak askichaña"
+  "threadActions.editTags": "Chimpunak askichaña",
+  "ux.keysHome": "G ukat H: qalltañ laphiru sarañataki",
+  "ux.keysChat": "G ukat C: aruskipäw jist'araña jan ukax jist'antaña",
+  "ux.keysSearch": "/: thaqañ cajaru jaltaña",
+  "ux.keysHelp": "?: aka jank'a thakinak uñacht'ayaña",
+  "ux.keysToggle": "Mä teclampi jank'a thakinak apnaqaña (G H, G C, / ukat ?)",
+  "ux.lbRank": "Thakhi",
+  "ux.lbMember": "Chikancht'iri",
+  "ux.lbThreads": "Yatiyawinaka",
+  "ux.lbScore": "Puntonaka"
 }

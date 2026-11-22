@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Бикьи",
   "threadActions.thisPost": "Гьаб пост",
   "threadActions.staff": "Персонал",
-  "threadActions.editTags": "Тегал хисизе"
+  "threadActions.editTags": "Тегал хисизе",
+  "ux.keysHome": "G, хадуб H: тӏоцебесеб гьумералде ине",
+  "ux.keysChat": "G, хадуб C: чат рагьизе яги къазе",
+  "ux.keysSearch": "/: балагьиялъул къватӏалде ине",
+  "ux.keysHelp": "?: бигьаял нухазул сияхӏ бихьизабизе",
+  "ux.keysToggle": "Цо клавишалъул бигьаял нухал хӏалтӏизаризе (G H, G C, / ва ?)",
+  "ux.lbRank": "Даража",
+  "ux.lbMember": "Гъоркьчӏей",
+  "ux.lbThreads": "Темаби",
+  "ux.lbScore": "Баллал"
 }

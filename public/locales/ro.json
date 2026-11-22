@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Distribuire",
   "threadActions.thisPost": "Această postare",
   "threadActions.staff": "Echipă",
-  "threadActions.editTags": "Editează etichetele"
+  "threadActions.editTags": "Editează etichetele",
+  "ux.keysHome": "G apoi H: mergi la pagina principală",
+  "ux.keysChat": "G apoi C: deschide sau închide chatul",
+  "ux.keysSearch": "/: sari la caseta de căutare",
+  "ux.keysHelp": "?: arată această listă de comenzi rapide",
+  "ux.keysToggle": "Folosește comenzile rapide cu o singură tastă (G H, G C, / și ?)",
+  "ux.lbRank": "Loc",
+  "ux.lbMember": "Membru",
+  "ux.lbThreads": "Discuții",
+  "ux.lbScore": "Scor"
 }

@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Partage",
   "threadActions.thisPost": "Ce message",
   "threadActions.staff": "Équipe",
-  "threadActions.editTags": "Modifier les étiquettes"
+  "threadActions.editTags": "Modifier les étiquettes",
+  "ux.keysHome": "G puis H : aller à la page d'accueil",
+  "ux.keysChat": "G puis C : ouvrir ou fermer le chat",
+  "ux.keysSearch": "/ : aller au champ de recherche",
+  "ux.keysHelp": "? : afficher cette liste de raccourcis",
+  "ux.keysToggle": "Utiliser les raccourcis à une touche (G H, G C, / et ?)",
+  "ux.lbRank": "Rang",
+  "ux.lbMember": "Membre",
+  "ux.lbThreads": "Fils",
+  "ux.lbScore": "Score"
 }

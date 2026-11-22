@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Споделяне",
   "threadActions.thisPost": "Тази публикация",
   "threadActions.staff": "Екип",
-  "threadActions.editTags": "Редактиране на етикетите"
+  "threadActions.editTags": "Редактиране на етикетите",
+  "ux.keysHome": "G, после H: към началната страница",
+  "ux.keysChat": "G, после C: отваряне или затваряне на чата",
+  "ux.keysSearch": "/: към полето за търсене",
+  "ux.keysHelp": "?: показване на този списък с комбинации",
+  "ux.keysToggle": "Използвай клавишни комбинации с един клавиш (G H, G C, / и ?)",
+  "ux.lbRank": "Място",
+  "ux.lbMember": "Член",
+  "ux.lbThreads": "Теми",
+  "ux.lbScore": "Точки"
 }

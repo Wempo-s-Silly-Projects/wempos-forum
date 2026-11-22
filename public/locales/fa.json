@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "اشتراک‌گذاری",
   "threadActions.thisPost": "این پست",
   "threadActions.staff": "کادر",
-  "threadActions.editTags": "ویرایش برچسب‌ها"
+  "threadActions.editTags": "ویرایش برچسب‌ها",
+  "ux.keysHome": "G سپس H: رفتن به صفحهٔ اصلی",
+  "ux.keysChat": "G سپس C: باز یا بسته کردن گفت‌وگو",
+  "ux.keysSearch": "/: پرش به کادر جست‌وجو",
+  "ux.keysHelp": "?: نمایش این فهرست میان‌برها",
+  "ux.keysToggle": "استفاده از میان‌برهای تک‌کلیدی (G H، G C، / و ?)",
+  "ux.lbRank": "رتبه",
+  "ux.lbMember": "عضو",
+  "ux.lbThreads": "رشته‌ها",
+  "ux.lbScore": "امتیاز"
 }

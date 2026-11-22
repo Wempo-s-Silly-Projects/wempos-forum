@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Дийцар",
   "threadActions.thisPost": "Хӏара пост",
   "threadActions.staff": "Белхалой",
-  "threadActions.editTags": "Тегаш нисде"
+  "threadActions.editTags": "Тегаш нисде",
+  "ux.keysHome": "G, тӏаккха H: коьрта агӀоне гӀо",
+  "ux.keysChat": "G, тӏаккха C: чат схьаелла я дӀакъовла",
+  "ux.keysSearch": "/: лахаран метте гӀо",
+  "ux.keysHelp": "?: кехатийн и могӀам гайта",
+  "ux.keysToggle": "Цхьа клавишан кехаташ лело (G H, G C, / а ?)",
+  "ux.lbRank": "Меттиг",
+  "ux.lbMember": "Декъашхо",
+  "ux.lbThreads": "Темаш",
+  "ux.lbScore": "Баллаш"
 }

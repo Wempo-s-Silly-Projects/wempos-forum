@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Dijeljenje",
   "threadActions.thisPost": "Ova objava",
   "threadActions.staff": "Osoblje",
-  "threadActions.editTags": "Uredi oznake"
+  "threadActions.editTags": "Uredi oznake",
+  "ux.keysHome": "G pa H: idi na početnu stranicu",
+  "ux.keysChat": "G pa C: otvori ili zatvori chat",
+  "ux.keysSearch": "/: skoči na polje za pretragu",
+  "ux.keysHelp": "?: prikaži ovu listu prečica",
+  "ux.keysToggle": "Koristi prečice s jednom tipkom (G H, G C, / i ?)",
+  "ux.lbRank": "Rang",
+  "ux.lbMember": "Član",
+  "ux.lbThreads": "Teme",
+  "ux.lbScore": "Bodovi"
 }

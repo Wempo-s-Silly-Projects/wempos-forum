@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "பகிர்தல்",
   "threadActions.thisPost": "இந்த இடுகை",
   "threadActions.staff": "பணியாளர்கள்",
-  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து"
+  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து",
+  "ux.keysHome": "G பிறகு H: முகப்புப் பக்கத்துக்குச் செல்",
+  "ux.keysChat": "G பிறகு C: அரட்டையைத் திற அல்லது மூடு",
+  "ux.keysSearch": "/: தேடல் பெட்டிக்குத் தாவு",
+  "ux.keysHelp": "?: இந்தக் குறுக்குவழிப் பட்டியலைக் காட்டு",
+  "ux.keysToggle": "ஒற்றை விசைக் குறுக்குவழிகளைப் பயன்படுத்து (G H, G C, / மற்றும் ?)",
+  "ux.lbRank": "தரவரிசை",
+  "ux.lbMember": "உறுப்பினர்",
+  "ux.lbThreads": "இழைகள்",
+  "ux.lbScore": "மதிப்பெண்"
 }

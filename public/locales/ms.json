@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Berkongsi",
   "threadActions.thisPost": "Siaran ini",
   "threadActions.staff": "Kakitangan",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "ux.keysHome": "G kemudian H: pergi ke halaman utama",
+  "ux.keysChat": "G kemudian C: buka atau tutup sembang",
+  "ux.keysSearch": "/: lompat ke kotak carian",
+  "ux.keysHelp": "?: tunjukkan senarai pintasan ini",
+  "ux.keysToggle": "Gunakan pintasan satu kekunci (G H, G C, / dan ?)",
+  "ux.lbRank": "Kedudukan",
+  "ux.lbMember": "Ahli",
+  "ux.lbThreads": "Bebenang",
+  "ux.lbScore": "Markah"
 }

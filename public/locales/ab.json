@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Ашара",
   "threadActions.thisPost": "Ари аҭыжьымҭа",
   "threadActions.staff": "Аперсонал",
-  "threadActions.editTags": "Атегқәа рыриашара"
+  "threadActions.editTags": "Атегқәа рыриашара",
+  "ux.keysHome": "G, нас H: ахада адаҟьахь",
+  "ux.keysChat": "G, нас C: ачат аартра ма аркра",
+  "ux.keysSearch": "/: аԥшаара аҭыԥахь аиасра",
+  "ux.keysHelp": "?: ашәҭқәа рсиа аарԥшра",
+  "ux.keysToggle": "Ақәыӷәӷәара закә ашәҭқәа рхархәара (G H, G C, / и ?)",
+  "ux.lbRank": "Аҩаӡара",
+  "ux.lbMember": "Алахәыла",
+  "ux.lbThreads": "Атемақәа",
+  "ux.lbScore": "Абаллқәа"
 }

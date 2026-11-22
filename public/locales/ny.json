@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Kugawana",
   "threadActions.thisPost": "Positi iyi",
   "threadActions.staff": "Oyang'anira",
-  "threadActions.editTags": "Sinthani matagi"
+  "threadActions.editTags": "Sinthani matagi",
+  "ux.keysHome": "G kenako H: pitani ku tsamba loyamba",
+  "ux.keysChat": "G kenako C: tsegulani kapena tsekani macheza",
+  "ux.keysSearch": "/: dumphirani ku bokosi losakira",
+  "ux.keysHelp": "?: onetsani mndandandawu wa njira zachidule",
+  "ux.keysToggle": "Gwiritsani ntchito njira zachidule za kiyi imodzi (G H, G C, / ndi ?)",
+  "ux.lbRank": "Udindo",
+  "ux.lbMember": "Membala",
+  "ux.lbThreads": "Mitu",
+  "ux.lbScore": "Mapointi"
 }

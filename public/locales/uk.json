@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Поширення",
   "threadActions.thisPost": "Цей допис",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Змінити теги"
+  "threadActions.editTags": "Змінити теги",
+  "ux.keysHome": "G, потім H: перейти на головну",
+  "ux.keysChat": "G, потім C: відкрити або закрити чат",
+  "ux.keysSearch": "/: перейти до поля пошуку",
+  "ux.keysHelp": "?: показати цей список комбінацій",
+  "ux.keysToggle": "Використовувати комбінації з однієї клавіші (G H, G C, / і ?)",
+  "ux.lbRank": "Місце",
+  "ux.lbMember": "Учасник",
+  "ux.lbThreads": "Теми",
+  "ux.lbScore": "Бали"
 }

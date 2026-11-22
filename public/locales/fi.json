@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Jakaminen",
   "threadActions.thisPost": "Tämä viesti",
   "threadActions.staff": "Ylläpito",
-  "threadActions.editTags": "Muokkaa tunnisteita"
+  "threadActions.editTags": "Muokkaa tunnisteita",
+  "ux.keysHome": "G ja sitten H: siirry etusivulle",
+  "ux.keysChat": "G ja sitten C: avaa tai sulje chat",
+  "ux.keysSearch": "/: hyppää hakukenttään",
+  "ux.keysHelp": "?: näytä tämä pikanäppäinluettelo",
+  "ux.keysToggle": "Käytä yhden näppäimen pikanäppäimiä (G H, G C, / ja ?)",
+  "ux.lbRank": "Sija",
+  "ux.lbMember": "Jäsen",
+  "ux.lbThreads": "Ketjut",
+  "ux.lbScore": "Pisteet"
 }

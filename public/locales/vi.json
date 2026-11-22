@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Chia sẻ",
   "threadActions.thisPost": "Bài viết này",
   "threadActions.staff": "Ban quản trị",
-  "threadActions.editTags": "Sửa thẻ"
+  "threadActions.editTags": "Sửa thẻ",
+  "ux.keysHome": "G rồi H: về trang chủ",
+  "ux.keysChat": "G rồi C: mở hoặc đóng trò chuyện",
+  "ux.keysSearch": "/: chuyển tới ô tìm kiếm",
+  "ux.keysHelp": "?: hiện danh sách phím tắt này",
+  "ux.keysToggle": "Dùng phím tắt một phím (G H, G C, / và ?)",
+  "ux.lbRank": "Hạng",
+  "ux.lbMember": "Thành viên",
+  "ux.lbThreads": "Chủ đề",
+  "ux.lbScore": "Điểm"
 }

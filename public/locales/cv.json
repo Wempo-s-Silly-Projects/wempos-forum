@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Пайлашу",
   "threadActions.thisPost": "Ку пост",
   "threadActions.staff": "Ӗҫченсем",
-  "threadActions.editTags": "Тегсене улӑштар"
+  "threadActions.editTags": "Тегсене улӑштар",
+  "ux.keysHome": "G, унтан H: тӗп страницӑна куҫ",
+  "ux.keysChat": "G, унтан C: чата уҫ е хуп",
+  "ux.keysSearch": "/: шырав йӗркине куҫ",
+  "ux.keysHelp": "?: ҫак ҫӑмӑллатӑвсен списокне кӑтарт",
+  "ux.keysToggle": "Пӗр клавишлӑ ҫӑмӑллатӑвсемпе усӑ кур (G H, G C, / тата ?)",
+  "ux.lbRank": "Вырӑн",
+  "ux.lbMember": "Хутшӑнакан",
+  "ux.lbThreads": "Темӑсем",
+  "ux.lbScore": "Балсем"
 }

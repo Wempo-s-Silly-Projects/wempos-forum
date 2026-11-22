@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "ማጋራት",
   "threadActions.thisPost": "ይህ ልጥፍ",
   "threadActions.staff": "ሠራተኞች",
-  "threadActions.editTags": "መለያዎችን አርትዕ"
+  "threadActions.editTags": "መለያዎችን አርትዕ",
+  "ux.keysHome": "G ከዚያ H፦ ወደ መነሻ ገጽ ይሂዱ",
+  "ux.keysChat": "G ከዚያ C፦ ውይይቱን ይክፈቱ ወይም ይዝጉ",
+  "ux.keysSearch": "/፦ ወደ መፈለጊያ ሳጥኑ ይዝለሉ",
+  "ux.keysHelp": "?፦ ይህን የአቋራጮች ዝርዝር ያሳዩ",
+  "ux.keysToggle": "ባለአንድ ቁልፍ አቋራጮችን ተጠቀም (G H፣ G C፣ / እና ?)",
+  "ux.lbRank": "ደረጃ",
+  "ux.lbMember": "አባል",
+  "ux.lbThreads": "ርዕሶች",
+  "ux.lbScore": "ነጥብ"
 }

@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Deel",
   "threadActions.thisPost": "Hierdie plasing",
   "threadActions.staff": "Personeel",
-  "threadActions.editTags": "Wysig etikette"
+  "threadActions.editTags": "Wysig etikette",
+  "ux.keysHome": "G dan H: gaan na die tuisblad",
+  "ux.keysChat": "G dan C: maak die klets oop of toe",
+  "ux.keysSearch": "/: spring na die soekkassie",
+  "ux.keysHelp": "?: wys hierdie lys kortpaaie",
+  "ux.keysToggle": "Gebruik die enkelsleutel-kortpaaie (G H, G C, / en ?)",
+  "ux.lbRank": "Rang",
+  "ux.lbMember": "Lid",
+  "ux.lbThreads": "Drade",
+  "ux.lbScore": "Telling"
 }

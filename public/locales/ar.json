@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "المشاركة",
   "threadActions.thisPost": "هذا المنشور",
   "threadActions.staff": "الطاقم",
-  "threadActions.editTags": "تعديل الوسوم"
+  "threadActions.editTags": "تعديل الوسوم",
+  "ux.keysHome": "G ثم H: الانتقال إلى الصفحة الرئيسية",
+  "ux.keysChat": "G ثم C: فتح الدردشة أو إغلاقها",
+  "ux.keysSearch": "/: الانتقال إلى مربع البحث",
+  "ux.keysHelp": "?: عرض قائمة الاختصارات هذه",
+  "ux.keysToggle": "استخدام اختصارات المفتاح الواحد (G H وG C و/ و?)",
+  "ux.lbRank": "الترتيب",
+  "ux.lbMember": "العضو",
+  "ux.lbThreads": "المواضيع",
+  "ux.lbScore": "النقاط"
 }

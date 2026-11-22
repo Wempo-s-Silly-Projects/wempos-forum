@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "שיתוף",
   "threadActions.thisPost": "הפוסט הזה",
   "threadActions.staff": "צוות",
-  "threadActions.editTags": "עריכת תגיות"
+  "threadActions.editTags": "עריכת תגיות",
+  "ux.keysHome": "G ואז H: מעבר לדף הבית",
+  "ux.keysChat": "G ואז C: פתיחה או סגירה של הצ'אט",
+  "ux.keysSearch": "/: קפיצה לתיבת החיפוש",
+  "ux.keysHelp": "?: הצגת רשימת הקיצורים הזו",
+  "ux.keysToggle": "שימוש בקיצורים של מקש אחד (G H,‏ G C,‏ / ו־?)",
+  "ux.lbRank": "דירוג",
+  "ux.lbMember": "חבר/ה",
+  "ux.lbThreads": "שרשורים",
+  "ux.lbScore": "ניקוד"
 }

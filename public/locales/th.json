@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "การแชร์",
   "threadActions.thisPost": "โพสต์นี้",
   "threadActions.staff": "ทีมงาน",
-  "threadActions.editTags": "แก้ไขแท็ก"
+  "threadActions.editTags": "แก้ไขแท็ก",
+  "ux.keysHome": "G แล้ว H: ไปที่หน้าแรก",
+  "ux.keysChat": "G แล้ว C: เปิดหรือปิดแชท",
+  "ux.keysSearch": "/: ข้ามไปที่ช่องค้นหา",
+  "ux.keysHelp": "?: แสดงรายการแป้นพิมพ์ลัดนี้",
+  "ux.keysToggle": "ใช้แป้นพิมพ์ลัดแบบปุ่มเดียว (G H, G C, / และ ?)",
+  "ux.lbRank": "อันดับ",
+  "ux.lbMember": "สมาชิก",
+  "ux.lbThreads": "กระทู้",
+  "ux.lbScore": "คะแนน"
 }

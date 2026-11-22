@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Sasem",
   "threadActions.thisPost": "Pos ia",
   "threadActions.staff": "Stafe",
-  "threadActions.editTags": "Janjem tag"
+  "threadActions.editTags": "Janjem tag",
+  "ux.keysHome": "G mo H: go long fes pej",
+  "ux.keysChat": "G mo C: openem o sutum jat",
+  "ux.keysSearch": "/: jamp i go long bokis blong lukaot",
+  "ux.keysHelp": "?: soem lis ia blong ol sotkat",
+  "ux.keysToggle": "Yusum ol sotkat blong wan ki nomo (G H, G C, / mo ?)",
+  "ux.lbRank": "Ples",
+  "ux.lbMember": "Memba",
+  "ux.lbThreads": "Ol toktok",
+  "ux.lbScore": "Skoa"
 }

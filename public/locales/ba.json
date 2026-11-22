@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Уртаҡлашыу",
   "threadActions.thisPost": "Был яҙма",
   "threadActions.staff": "Хеҙмәткәрҙәр",
-  "threadActions.editTags": "Тегтарҙы мөхәррирләргә"
+  "threadActions.editTags": "Тегтарҙы мөхәррирләргә",
+  "ux.keysHome": "G, һуңынан H: баш биткә күсеү",
+  "ux.keysChat": "G, һуңынан C: чатты асыу йәки ябыу",
+  "ux.keysSearch": "/: эҙләү юлына күсеү",
+  "ux.keysHelp": "?: ҡыҫҡа юлдар исемлеген күрһәтеү",
+  "ux.keysToggle": "Бер төймәле ҡыҫҡа юлдарҙы ҡулланыу (G H, G C, / һәм ?)",
+  "ux.lbRank": "Урын",
+  "ux.lbMember": "Ағза",
+  "ux.lbThreads": "Темалар",
+  "ux.lbScore": "Балл"
 }

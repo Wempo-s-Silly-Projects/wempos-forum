@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Dela",
   "threadActions.thisPost": "Det här inlägget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Redigera taggar"
+  "threadActions.editTags": "Redigera taggar",
+  "ux.keysHome": "G och sedan H: gå till startsidan",
+  "ux.keysChat": "G och sedan C: öppna eller stäng chatten",
+  "ux.keysSearch": "/: hoppa till sökrutan",
+  "ux.keysHelp": "?: visa den här listan med kortkommandon",
+  "ux.keysToggle": "Använd kortkommandon med en tangent (G H, G C, / och ?)",
+  "ux.lbRank": "Placering",
+  "ux.lbMember": "Medlem",
+  "ux.lbThreads": "Trådar",
+  "ux.lbScore": "Poäng"
 }

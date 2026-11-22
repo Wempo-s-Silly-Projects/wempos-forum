@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette innlegget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tagger"
+  "threadActions.editTags": "Rediger tagger",
+  "ux.keysHome": "G og så H: gå til forsiden",
+  "ux.keysChat": "G og så C: åpne eller lukk chatten",
+  "ux.keysSearch": "/: hopp til søkefeltet",
+  "ux.keysHelp": "?: vis denne listen over snarveier",
+  "ux.keysToggle": "Bruk snarveier med én tast (G H, G C, / og ?)",
+  "ux.lbRank": "Plass",
+  "ux.lbMember": "Medlem",
+  "ux.lbThreads": "Tråder",
+  "ux.lbScore": "Poeng"
 }

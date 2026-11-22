@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Paylaşma",
   "threadActions.thisPost": "Bu yazı",
   "threadActions.staff": "Heyət",
-  "threadActions.editTags": "Teqləri redaktə et"
+  "threadActions.editTags": "Teqləri redaktə et",
+  "ux.keysHome": "G, sonra H: ana səhifəyə keç",
+  "ux.keysChat": "G, sonra C: söhbəti aç və ya bağla",
+  "ux.keysSearch": "/: axtarış qutusuna keç",
+  "ux.keysHelp": "?: bu qısayollar siyahısını göstər",
+  "ux.keysToggle": "Tək düyməli qısayollardan istifadə et (G H, G C, / və ?)",
+  "ux.lbRank": "Yer",
+  "ux.lbMember": "Üzv",
+  "ux.lbThreads": "Mövzular",
+  "ux.lbScore": "Xal"
 }

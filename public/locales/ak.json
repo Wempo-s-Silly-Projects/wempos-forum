@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Kyɛ",
   "threadActions.thisPost": "Nkyerɛwee yi",
   "threadActions.staff": "Adwumayɛfo",
-  "threadActions.editTags": "Sesa agyiraehyɛde"
+  "threadActions.editTags": "Sesa agyiraehyɛde",
+  "ux.keysHome": "G na H: kɔ fie krataafa so",
+  "ux.keysChat": "G na C: bue anaa to nkɔmmɔ no mu",
+  "ux.keysSearch": "/: huri kɔ hwehwɛ adaka no so",
+  "ux.keysHelp": "?: kyerɛ akwan tiawa yi nyinaa",
+  "ux.keysToggle": "Fa keyboard akwan tiawa a ɛyɛ safoa baako (G H, G C, / ne ?)",
+  "ux.lbRank": "Gyinabea",
+  "ux.lbMember": "Ɔmufo",
+  "ux.lbThreads": "Nsɛmfua",
+  "ux.lbScore": "Akontaa"
 }

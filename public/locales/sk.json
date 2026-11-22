@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Zdieľanie",
   "threadActions.thisPost": "Tento príspevok",
   "threadActions.staff": "Tím",
-  "threadActions.editTags": "Upraviť štítky"
+  "threadActions.editTags": "Upraviť štítky",
+  "ux.keysHome": "G a potom H: prejsť na úvodnú stránku",
+  "ux.keysChat": "G a potom C: otvoriť alebo zavrieť chat",
+  "ux.keysSearch": "/: skočiť do vyhľadávacieho poľa",
+  "ux.keysHelp": "?: zobraziť tento zoznam skratiek",
+  "ux.keysToggle": "Používať jednoklávesové skratky (G H, G C, / a ?)",
+  "ux.lbRank": "Poradie",
+  "ux.lbMember": "Člen",
+  "ux.lbThreads": "Vlákna",
+  "ux.lbScore": "Skóre"
 }

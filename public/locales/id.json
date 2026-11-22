@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Berbagi",
   "threadActions.thisPost": "Postingan ini",
   "threadActions.staff": "Staf",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "ux.keysHome": "G lalu H: buka halaman beranda",
+  "ux.keysChat": "G lalu C: buka atau tutup obrolan",
+  "ux.keysSearch": "/: lompat ke kotak pencarian",
+  "ux.keysHelp": "?: tampilkan daftar pintasan ini",
+  "ux.keysToggle": "Gunakan pintasan satu tombol (G H, G C, / dan ?)",
+  "ux.lbRank": "Peringkat",
+  "ux.lbMember": "Anggota",
+  "ux.lbThreads": "Utas",
+  "ux.lbScore": "Skor"
 }

@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Поделиться",
   "threadActions.thisPost": "Этот пост",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Изменить теги"
+  "threadActions.editTags": "Изменить теги",
+  "ux.keysHome": "G, затем H: перейти на главную",
+  "ux.keysChat": "G, затем C: открыть или закрыть чат",
+  "ux.keysSearch": "/: перейти к полю поиска",
+  "ux.keysHelp": "?: показать этот список сочетаний",
+  "ux.keysToggle": "Использовать сочетания из одной клавиши (G H, G C, / и ?)",
+  "ux.lbRank": "Место",
+  "ux.lbMember": "Участник",
+  "ux.lbThreads": "Темы",
+  "ux.lbScore": "Очки"
 }

@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Teilen",
   "threadActions.thisPost": "Dieser Beitrag",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Tags bearbeiten"
+  "threadActions.editTags": "Tags bearbeiten",
+  "ux.keysHome": "G, dann H: zur Startseite",
+  "ux.keysChat": "G, dann C: Chat öffnen oder schließen",
+  "ux.keysSearch": "/: zum Suchfeld springen",
+  "ux.keysHelp": "?: diese Liste der Tastenkürzel zeigen",
+  "ux.keysToggle": "Einzeltasten-Kürzel verwenden (G H, G C, / und ?)",
+  "ux.lbRank": "Rang",
+  "ux.lbMember": "Mitglied",
+  "ux.lbThreads": "Themen",
+  "ux.lbScore": "Punkte"
 }

@@ -1221,5 +1221,14 @@
   "threadActions.sharing": "Rannañ",
   "threadActions.thisPost": "Ar gemennadenn-mañ",
   "threadActions.staff": "Kefridi",
-  "threadActions.editTags": "Kemmañ ar skritelloù"
+  "threadActions.editTags": "Kemmañ ar skritelloù",
+  "ux.keysHome": "G ha goude H: mont d'ar bajenn degemer",
+  "ux.keysChat": "G ha goude C: digeriñ pe serriñ ar flap",
+  "ux.keysSearch": "/: lammat d'ar voestad klask",
+  "ux.keysHelp": "?: diskouez ar roll berradennoù-mañ",
+  "ux.keysToggle": "Implijout ar berradennoù gant un douchenn (G H, G C, / ha ?)",
+  "ux.lbRank": "Renk",
+  "ux.lbMember": "Ezel",
+  "ux.lbThreads": "Neudennoù",
+  "ux.lbScore": "Skor"
 }
