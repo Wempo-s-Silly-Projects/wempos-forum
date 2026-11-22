@@ -89,7 +89,7 @@ async function claimInvite(request, env) {
   const inserted = await env.FORUM_DB.prepare(INSERT_INVITE_SQL).bind(me.id, Number(inviter.id), now).run();
   // Lost a race with a parallel claim: the other request owns the ping.
   if (Number(inserted.meta?.changes) !== 1) return json({ inviter: null });
-  await notifyStatement(env.FORUM_DB, Number(inviter.id), inviteJoinLabel(me.username)).run();
+  await notifyStatement(env.FORUM_DB, Number(inviter.id), inviteJoinLabel(me.username), "invite_joined").run();
   return json({ inviter: String(inviter.username) });
 }
 

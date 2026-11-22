@@ -73,7 +73,7 @@ export function subscriptionFanOutStatements(db, subscriberIds, {
   const recipients = [...new Set(subscriberIds.map(Number))]
     .filter((id) => !excluded.has(id))
     .slice(0, MAX_SUBSCRIPTION_FANOUT);
-  return fanOutStatements(db, recipients, { targetPostId, replyId, now });
+  return fanOutStatements(db, recipients, { targetPostId, replyId, now, kind: "subscription" });
 }
 
 // Slices a fan-out statements list into ≤FANOUT_CHUNK_STATEMENTS batches and

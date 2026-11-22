@@ -65,6 +65,10 @@ test("migration 0068 is CREATE-only, keyed on the member, and cascades on accoun
   assert.equal(refs.length, 1);
   assert.match(refs[0], /users\(id\) ON DELETE CASCADE/);
   const w = await world();
+  // The fleet tables 0043 references are absent from the forum schema (the
+  // pre-existing gc_messages BUG pinned in wave520/wave523); stub them like
+  // the wave538/wave539 cascade tests so a users DELETE can run here.
+  w.db.exec("CREATE TABLE IF NOT EXISTS gc_messages (id INTEGER PRIMARY KEY); CREATE TABLE IF NOT EXISTS gc_channels (id INTEGER PRIMARY KEY)");
   const fks = w.db.prepare("PRAGMA foreign_key_list(notification_prefs)").all();
   assert.equal(fks.length, 1);
   assert.equal(fks[0].on_delete, "CASCADE");
