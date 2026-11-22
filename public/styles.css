@@ -3705,6 +3705,14 @@ mark.search-hit {
 .poll-closes { margin: 0.25rem 0 0; }
 .poll-deadline { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.4rem; }
 
+/* v5.39.0: bookmark folder chips and per-card folder controls; the private
+   Following list in settings. Theme tokens only. */
+.saved-folders .folder-create { margin-inline-start: auto; }
+.folder-manage { margin: 0.4rem 0 0.8rem; }
+.folder-add, .folder-remove { margin-top: 0.5rem; max-width: 100%; }
+.following-row { display: flex; flex-wrap: wrap; gap: 0.4rem 0.8rem; align-items: center; justify-content: space-between; padding: 0.35rem 0; }
+.following-name { overflow-wrap: anywhere; min-width: 0; }
+
 /* Wave 5.23 F1: print-friendly threads. CSS only: the chrome goes, the thread
    title and every post (author + date) stay, black on white, a post keeps to
    one page where it can, and external links spell out where they go. */

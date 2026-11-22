@@ -30,6 +30,7 @@ import { assertNotBanned, requireSignedInRead, requireUser } from "./core/auth.m
 import { nowSeconds } from "./core/crypto.mjs";
 import { blockPairExists } from "./core/blocks.mjs";
 import { HttpError, json, rateLimit } from "./core/http.mjs";
+import { unfollowPairStatement } from "./follows.mjs";
 
 export async function handleBlockRoutes(request, env, url, path, method) {
   const db = env.FORUM_DB;
@@ -56,11 +57,15 @@ export async function handleBlockRoutes(request, env, url, path, method) {
       return json({ blocked: await blockPairExists(env, session.user.id, targetId) });
     }
     // Idempotent: a repeated block resolves to the same state. The pair then
-    // hides both ways — the target can't see the blocker either.
-    await db.prepare(
-      "INSERT INTO blocks (blocker_id, blocked_id, created_at) VALUES (?, ?, ?) " +
-      "ON CONFLICT DO NOTHING",
-    ).bind(session.user.id, targetId, nowSeconds()).run();
+    // hides both ways — the target can't see the blocker either. v5.39: the
+    // same batch removes any follow between the pair, in both directions.
+    await db.batch([
+      db.prepare(
+        "INSERT INTO blocks (blocker_id, blocked_id, created_at) VALUES (?, ?, ?) " +
+        "ON CONFLICT DO NOTHING",
+      ).bind(session.user.id, targetId, nowSeconds()),
+      unfollowPairStatement(db, Number(session.user.id), targetId),
+    ]);
     return json({ blocked: true });
   }
   if (path === "/api/me/blocks" && method === "GET") {

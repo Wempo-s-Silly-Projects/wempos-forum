@@ -15,6 +15,28 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.39.0] - 2026-11-22
+
+### Added
+- Bookmark folders: sort your saved posts into up to 20 private folders
+  (names of 1 to 40 characters). The Saved page shows a row of folder chips;
+  use "Add to folder" on a saved post, or open a folder to rename it, delete
+  it or remove posts from it. One post can be in several folders, deleting a
+  folder keeps its posts saved, and nobody else can see your folders. A post
+  that is hidden, deleted, by a banned member or across a block never shows
+  in a folder, the same as in the saved list.
+- Follow a member: a Follow button on member profiles (for signed-in
+  members). When someone you follow starts a new public thread, you get one
+  notification. Your Following list is in your settings, with Unfollow, and
+  nobody else can see who you follow or who follows you. You can't follow
+  yourself, a banned member or anyone you have a block with, and blocking
+  someone removes any follow between you in both directions. You can follow
+  up to 200 members.
+
+### Changed
+- Database migration `0067_folders_follows.sql` adds the `bookmark_folders`,
+  `bookmark_folder_items` and `user_follows` tables. It is CREATE-only.
+
 ## [5.38.0] - 2026-11-22
 
 ### Added

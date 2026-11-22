@@ -133,6 +133,7 @@ async function seedWorld() {
   seedStaffOnly(w, at);
   seedStaffPicks(w, at);
   seedProfileExtras(w, at);
+  seedFoldersFollows(w, at);
   await seedArchive(w);
   return w;
 }
@@ -153,6 +154,35 @@ function seedProfileExtras(w, at) {
   for (const [user, text] of [[id.zzbanned, "BANNEDTXT status"], [id.zzblocker, "BLOCKERTXT status"],
     [id.zzblocked, "BLOCKEDTXT status"], [id.zzexpired, "EXPIREDOKTXT status"]]) {
     run("INSERT INTO user_status (user_id, text, emoji, expires_at, updated_at) VALUES (?, ?, '', NULL, ?)", user, text, at);
+  }
+}
+
+// Wave 5.39 (migration 0067): each swept member keeps a bookmark folder holding
+// every fixture root (hidden, banned, both block sides, a reply under the
+// hidden root), follows every swept author (raw rows, so the block pair and
+// the ban are already in place) and holds a follow bell row for each of
+// those roots — every read must re-check them.
+function seedFoldersFollows(w, at) {
+  const { db, id } = w;
+  const run = (sql, ...args) => Number(db.prepare(sql).run(...args).lastInsertRowid);
+  const roots = [w.publicRoot, w.hiddenRoot, w.underHidden, w.bannedRoot, w.blockerRoot, w.blockedRoot];
+  const authors = { [w.hiddenRoot]: "alice", [w.bannedRoot]: "zzbanned", [w.blockerRoot]: "zzblocker", [w.blockedRoot]: "zzblocked" };
+  w.folder = {};
+  for (const member of ["viewer", "zzblocker", "zzblocked"]) {
+    w.folder[member] = run("INSERT INTO bookmark_folders (user_id, name, created_at) VALUES (?, 'sweep folder', ?)", id[member], at);
+    for (const post of roots) {
+      run("INSERT OR IGNORE INTO bookmarks (user_id, post_id, created_at) VALUES (?, ?, ?)", id[member], post, at);
+      run("INSERT INTO bookmark_folder_items (folder_id, post_id, added_at) VALUES (?, ?, ?)", w.folder[member], post, at);
+    }
+    for (const author of ["alice", "zzbanned", "zzblocker", "zzblocked"]) {
+      if (author === member) continue;
+      run("INSERT INTO user_follows (follower_id, followee_id, created_at) VALUES (?, ?, ?)", id[member], id[author], at);
+    }
+    for (const [post, author] of Object.entries(authors)) {
+      if (author === member) continue;
+      run("INSERT INTO notifications (user_id, target_post_id, reply_id, created_at, label) VALUES (?, ?, ?, ?, ?)",
+        id[member], Number(post), Number(post), at, "New thread from " + author);
+    }
   }
 }
 
@@ -252,6 +282,10 @@ function routes(w, member) {
     // authors exactly like the chat view.
     if (member === "viewer") list.push(["/api/dm/groups/" + w.group + "/search?q=TXT"]);
     else list.push(["/api/dm/threads/" + w.pairThread + "/search?q=TXT"]);
+    // Wave 5.39: the member's bookmark folders, one folder's contents and
+    // the private Following list.
+    list.push(["/api/me/bookmark-folders"], ["/api/me/bookmark-folders/" + w.folder[member] + "/items"],
+      ["/api/me/following"]);
   }
   return list;
 }
@@ -315,6 +349,8 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
   // Wave 5.36: + 3 filtered searches for each of the 4 viewers, + one
   // conversation search for each of the 3 members.
   assert.ok(swept >= 236, "swept " + swept);
+  // Wave 5.39: + folders, folder contents and Following for each of the 3 members.
+  assert.ok(swept >= 245, "swept " + swept);
 });
 
 test("wave 5.10 sweep: hidden-root reads are 404 and the DM non-member is refused", async () => {
@@ -568,4 +604,40 @@ test("wave 5.38: the profile's pin and status re-check hidden, banned, expired a
   const blocker = JSON.parse(await fetchText(w.env, "/api/users/zzblocker", { session: viewer }));
   assert.equal(blocker.pinnedThread?.id, w.blockerRoot);
   assert.equal(blocker.status?.text, "BLOCKERTXT status");
+});
+
+// ---- wave 5.39: bookmark folders and follows (migration 0067) ----
+
+test("wave 5.39: folder contents and the Following list re-check hidden, banned and block pairs; positive controls", async () => {
+  const w = await seedWorld();
+  const viewer = forgeSession(w.db, w.id.viewer);
+  const folder = await fetchText(w.env, "/api/me/bookmark-folders/" + w.folder.viewer + "/items", { session: viewer });
+  assert.ok(folder.includes("VISIBLEOKTXT"), "control: the public root shows");
+  assert.ok(folder.includes("BLOCKERTXT") && folder.includes("BLOCKEDTXT"), "control: unrelated viewer sees both pair members");
+  const following = JSON.parse(await fetchText(w.env, "/api/me/following", { session: viewer })).following.map((row) => row.username);
+  assert.deepEqual(following.sort(), ["alice", "zzblocked", "zzblocker"], "the banned followee drops");
+  for (const [member, other] of [["zzblocker", "zzblocked"], ["zzblocked", "zzblocker"]]) {
+    const session = forgeSession(w.db, w.id[member]);
+    const list = JSON.parse(await fetchText(w.env, "/api/me/following", { session })).following.map((row) => row.username);
+    assert.deepEqual(list, ["alice"], member + ": the pair partner and the banned member drop");
+    // A folder belongs to its owner alone, staff included.
+    for (const intruder of [viewer, forgeSession(w.db, w.id.boss)]) {
+      assert.equal((await call(w.env, "/api/me/bookmark-folders/" + w.folder[member] + "/items", { session: intruder })).status, 404);
+    }
+    // Following across the pair refuses exactly like a missing member.
+    const refused = await call(w.env, "/api/users/" + other + "/follow", { method: "POST", session });
+    assert.equal(refused.status, 404);
+  }
+});
+
+test("wave 5.39: a new thread notifies followers except across a block pair or when the follower is banned", async () => {
+  const w = await seedWorld();
+  w.db.prepare("INSERT INTO user_follows (follower_id, followee_id, created_at) VALUES (?, ?, ?)").run(w.id.zzbanned, w.id.zzblocked, now());
+  w.db.prepare("INSERT INTO user_follows (follower_id, followee_id, created_at) VALUES (?, ?, ?)").run(w.id.outsider, w.id.zzblocked, now());
+  const created = await call(w.env, "/api/posts", { method: "POST", session: forgeSession(w.db, w.id.zzblocked),
+    body: { body: "zzsweep fresh thread from the blocked side" } });
+  assert.equal(created.status, 201);
+  const postId = (await created.json()).id;
+  const recipients = w.db.prepare("SELECT user_id FROM notifications WHERE reply_id = ?").all(postId).map((row) => Number(row.user_id)).sort((a, b) => a - b);
+  assert.deepEqual(recipients, [w.id.viewer, w.id.outsider].sort((a, b) => a - b), "zzblocker (pair) and zzbanned (banned) get nothing");
 });

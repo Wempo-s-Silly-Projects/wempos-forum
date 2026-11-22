@@ -72,6 +72,13 @@ export const groupNotifications = (items) => {
   return groups;
 };
 
+// v5.39.0: a followed member's new thread is stored as "New thread from <name>"
+// (api/follows.mjs) and painted in the viewer's language.
+const FOLLOW_THREAD_PREFIX = "New thread from ";
+const followThreadLabel = (label) => label.startsWith(FOLLOW_THREAD_PREFIX)
+  ? t("bell.followThread", { username: label.slice(FOLLOW_THREAD_PREFIX.length) })
+  : label;
+
 // Pure, DOM-free. Returns { id, targetPostId, read, href, label }. The payload
 // never includes the replier's identity, so the label stays generic.
 export const notificationItemView = (item) => {
@@ -89,7 +96,7 @@ export const notificationItemView = (item) => {
     // The server-stored label wins (mentions: "You were mentioned by X");
     // every other (or pre-0017) row keeps the generic reply copy.
     label: item.label
-      ? String(item.label)
+      ? followThreadLabel(String(item.label))
       : (preview ? t("bell.newReplyPreview", { preview }) : t("bell.newReply")),
   };
 };

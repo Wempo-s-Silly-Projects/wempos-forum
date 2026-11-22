@@ -47,6 +47,7 @@ import {
   renderProfileSocials,
 } from "../profile-editor.js";
 import { renderProfileWall } from "../wall.js";
+import { createFollowButton, loadFollowState } from "../follows.js";
 import { openChatThread } from "../chat-widget.js";
 import { currentLocale, t, tn } from "../i18n.js";
 import {
@@ -208,6 +209,11 @@ function renderProfile(profile, session) {
     blockButton.dataset.profileId = String(profile.id);
     blockButton.dataset.username = profile.username;
     heading.append(blockButton);
+    // Follow (v5.39.0): signed-in members only, never your own profile; the
+    // caller's own state loads from the server before the button enables.
+    const followButton = createFollowButton(document, { username: profile.username, following: false });
+    heading.append(followButton);
+    loadFollowState(followButton);
     // Report-a-profile (v2.5): the bio/flair/banner/css surface is
     // reportable like post content — same desk, same resolve flow.
     const reportProfile = element("button", "button button-quiet", t("profile.reportProfile"));
