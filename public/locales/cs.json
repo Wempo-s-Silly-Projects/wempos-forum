@@ -1170,5 +1170,15 @@
   "tags.create": "Vytvořit štítek",
   "tags.none": "Zatím žádné štítky.",
   "tags.created": "Štítek vytvořen.",
-  "tags.deleted": "Štítek smazán."
+  "tags.deleted": "Štítek smazán.",
+  "privateNote.title": "Vaše soukromá poznámka",
+  "privateNote.hint": "Tuto poznámku vidíte jen vy.",
+  "privateNote.label": "Soukromá poznámka o tomto členovi",
+  "privateNote.save": "Uložit poznámku",
+  "privateNote.delete": "Smazat poznámku",
+  "privateNote.saved": "Poznámka uložena.",
+  "privateNote.deleted": "Poznámka smazána.",
+  "privateNote.saveError": "Poznámku se nepodařilo uložit. Zkuste to znovu.",
+  "readingTime.minutes.one": "{count} min čtení",
+  "readingTime.minutes.other": "{count} min čtení"
 }

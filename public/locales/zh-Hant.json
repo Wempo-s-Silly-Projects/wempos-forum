@@ -1170,5 +1170,15 @@
   "tags.create": "建立標籤",
   "tags.none": "還沒有標籤。",
   "tags.created": "標籤已建立。",
-  "tags.deleted": "標籤已刪除。"
+  "tags.deleted": "標籤已刪除。",
+  "privateNote.title": "你的私人備註",
+  "privateNote.hint": "只有你能看到這則備註。",
+  "privateNote.label": "關於此成員的私人備註",
+  "privateNote.save": "儲存備註",
+  "privateNote.delete": "刪除備註",
+  "privateNote.saved": "備註已儲存。",
+  "privateNote.deleted": "備註已刪除。",
+  "privateNote.saveError": "無法儲存備註，請再試一次。",
+  "readingTime.minutes.one": "閱讀約需 {count} 分鐘",
+  "readingTime.minutes.other": "閱讀約需 {count} 分鐘"
 }

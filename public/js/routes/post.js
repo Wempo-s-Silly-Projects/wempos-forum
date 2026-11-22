@@ -60,11 +60,15 @@ import { createShareButton } from "../share.js";
 import { createSlowModeForm, createSlowModeNote, slowModePath } from "../slow-mode.js";
 import { createTagChips, createTagEditor, postTagsPath } from "../tags.js";
 import { createThreadOutline } from "../thread-outline.js";
+import { createReadingTime } from "../reading-time.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
   if (version !== state.renderVersion) return;
   addHeading(main, t("post.conversationTitle"), 1);
+  // Reading time (v5.47.0): long roots only, from the posts already loaded.
+  const readingTime = createReadingTime(document, post, post.replies);
+  if (readingTime) main.append(readingTime);
   const rootCard = createPostCard(post, document, context.session.user);
   // Save as text (wave 5.26 F1): only the cards shown on the page, no fetch.
   rootCard.querySelector(".post-actions")

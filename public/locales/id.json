@@ -1170,5 +1170,15 @@
   "tags.create": "Buat tag",
   "tags.none": "Belum ada tag.",
   "tags.created": "Tag dibuat.",
-  "tags.deleted": "Tag dihapus."
+  "tags.deleted": "Tag dihapus.",
+  "privateNote.title": "Catatan pribadimu",
+  "privateNote.hint": "Hanya kamu yang bisa melihat catatan ini.",
+  "privateNote.label": "Catatan pribadi tentang anggota ini",
+  "privateNote.save": "Simpan catatan",
+  "privateNote.delete": "Hapus catatan",
+  "privateNote.saved": "Catatan disimpan.",
+  "privateNote.deleted": "Catatan dihapus.",
+  "privateNote.saveError": "Catatan tidak dapat disimpan. Coba lagi.",
+  "readingTime.minutes.one": "{count} menit baca",
+  "readingTime.minutes.other": "{count} menit baca"
 }

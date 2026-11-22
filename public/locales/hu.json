@@ -1170,5 +1170,15 @@
   "tags.create": "Címke létrehozása",
   "tags.none": "Még nincsenek címkék.",
   "tags.created": "Címke létrehozva.",
-  "tags.deleted": "Címke törölve."
+  "tags.deleted": "Címke törölve.",
+  "privateNote.title": "Saját privát jegyzeted",
+  "privateNote.hint": "Ezt a jegyzetet csak te látod.",
+  "privateNote.label": "Privát jegyzet erről a tagról",
+  "privateNote.save": "Jegyzet mentése",
+  "privateNote.delete": "Jegyzet törlése",
+  "privateNote.saved": "Jegyzet elmentve.",
+  "privateNote.deleted": "Jegyzet törölve.",
+  "privateNote.saveError": "A jegyzetet nem sikerült menteni. Próbáld újra.",
+  "readingTime.minutes.one": "{count} perc olvasás",
+  "readingTime.minutes.other": "{count} perc olvasás"
 }

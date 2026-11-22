@@ -1170,5 +1170,15 @@
   "tags.create": "Opret tag",
   "tags.none": "Ingen tags endnu.",
   "tags.created": "Tag oprettet.",
-  "tags.deleted": "Tag slettet."
+  "tags.deleted": "Tag slettet.",
+  "privateNote.title": "Din private note",
+  "privateNote.hint": "Kun du kan se denne note.",
+  "privateNote.label": "Privat note om dette medlem",
+  "privateNote.save": "Gem note",
+  "privateNote.delete": "Slet note",
+  "privateNote.saved": "Note gemt.",
+  "privateNote.deleted": "Note slettet.",
+  "privateNote.saveError": "Noten kunne ikke gemmes. Prøv igen.",
+  "readingTime.minutes.one": "{count} min. læsning",
+  "readingTime.minutes.other": "{count} min. læsning"
 }

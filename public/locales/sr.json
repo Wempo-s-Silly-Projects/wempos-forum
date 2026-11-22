@@ -1170,5 +1170,15 @@
   "tags.create": "Napravi oznaku",
   "tags.none": "Još nema oznaka.",
   "tags.created": "Oznaka je napravljena.",
-  "tags.deleted": "Oznaka je obrisana."
+  "tags.deleted": "Oznaka je obrisana.",
+  "privateNote.title": "Ваша приватна белешка",
+  "privateNote.hint": "Само ви видите ову белешку.",
+  "privateNote.label": "Приватна белешка о овом члану",
+  "privateNote.save": "Сачувај белешку",
+  "privateNote.delete": "Обриши белешку",
+  "privateNote.saved": "Белешка је сачувана.",
+  "privateNote.deleted": "Белешка је обрисана.",
+  "privateNote.saveError": "Белешка није могла да се сачува. Покушајте поново.",
+  "readingTime.minutes.one": "{count} мин читања",
+  "readingTime.minutes.other": "{count} мин читања"
 }

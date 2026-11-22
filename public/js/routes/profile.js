@@ -48,6 +48,7 @@ import {
 } from "../profile-editor.js";
 import { renderProfileWall } from "../wall.js";
 import { createFollowButton, loadFollowState } from "../follows.js";
+import { createPrivateNoteBox, loadPrivateNote } from "../private-note.js";
 import { openChatThread } from "../chat-widget.js";
 import { currentLocale, t, tn } from "../i18n.js";
 import {
@@ -242,6 +243,13 @@ function renderProfile(profile, session) {
   }
   addText(document, main, "p", profile.bio || t("profile.noBio"), "profile-bio");
   appendProfileSocials(profile, session.user?.id === profile.id);
+  if (session.user && session.user.id !== profile.id) {
+    // Private note (v5.47.0): the viewer's own note about this member —
+    // only the viewer ever reads it; it loads before the editor enables.
+    const noteBox = createPrivateNoteBox(document, { username: profile.username });
+    main.append(noteBox);
+    loadPrivateNote(noteBox);
+  }
   if (session.user?.id === profile.id) {
     // Bio (10,000 chars) plus the ten social fields; submission re-fetches the
     // profile instead of trusting the asymmetric PATCH echo.

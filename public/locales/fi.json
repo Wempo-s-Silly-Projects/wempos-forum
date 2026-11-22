@@ -1170,5 +1170,15 @@
   "tags.create": "Luo tunniste",
   "tags.none": "Ei vielä tunnisteita.",
   "tags.created": "Tunniste luotu.",
-  "tags.deleted": "Tunniste poistettu."
+  "tags.deleted": "Tunniste poistettu.",
+  "privateNote.title": "Oma yksityinen muistiinpanosi",
+  "privateNote.hint": "Vain sinä näet tämän muistiinpanon.",
+  "privateNote.label": "Yksityinen muistiinpano tästä jäsenestä",
+  "privateNote.save": "Tallenna muistiinpano",
+  "privateNote.delete": "Poista muistiinpano",
+  "privateNote.saved": "Muistiinpano tallennettu.",
+  "privateNote.deleted": "Muistiinpano poistettu.",
+  "privateNote.saveError": "Muistiinpanoa ei voitu tallentaa. Yritä uudelleen.",
+  "readingTime.minutes.one": "{count} min lukuaika",
+  "readingTime.minutes.other": "{count} min lukuaika"
 }

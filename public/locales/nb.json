@@ -1170,5 +1170,15 @@
   "tags.create": "Opprett emneknagg",
   "tags.none": "Ingen emneknagger ennå.",
   "tags.created": "Emneknagg opprettet.",
-  "tags.deleted": "Emneknagg slettet."
+  "tags.deleted": "Emneknagg slettet.",
+  "privateNote.title": "Ditt private notat",
+  "privateNote.hint": "Bare du kan se dette notatet.",
+  "privateNote.label": "Privat notat om dette medlemmet",
+  "privateNote.save": "Lagre notat",
+  "privateNote.delete": "Slett notat",
+  "privateNote.saved": "Notatet er lagret.",
+  "privateNote.deleted": "Notatet er slettet.",
+  "privateNote.saveError": "Kunne ikke lagre notatet. Prøv igjen.",
+  "readingTime.minutes.one": "{count} min lesing",
+  "readingTime.minutes.other": "{count} min lesing"
 }

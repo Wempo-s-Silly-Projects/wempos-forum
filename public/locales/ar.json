@@ -1170,5 +1170,15 @@
   "tags.create": "إنشاء وسم",
   "tags.none": "لا توجد وسوم بعد.",
   "tags.created": "تم إنشاء الوسم.",
-  "tags.deleted": "تم حذف الوسم."
+  "tags.deleted": "تم حذف الوسم.",
+  "privateNote.title": "ملاحظتك الخاصة",
+  "privateNote.hint": "لا يرى هذه الملاحظة أحد سواك.",
+  "privateNote.label": "ملاحظة خاصة عن هذا العضو",
+  "privateNote.save": "حفظ الملاحظة",
+  "privateNote.delete": "حذف الملاحظة",
+  "privateNote.saved": "تم حفظ الملاحظة.",
+  "privateNote.deleted": "تم حذف الملاحظة.",
+  "privateNote.saveError": "تعذّر حفظ الملاحظة. حاول مرة أخرى.",
+  "readingTime.minutes.one": "قراءة في {count} دقيقة",
+  "readingTime.minutes.other": "قراءة في {count} دقائق"
 }

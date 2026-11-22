@@ -1170,5 +1170,15 @@
   "tags.create": "タグを作成",
   "tags.none": "タグはまだありません。",
   "tags.created": "タグを作成しました。",
-  "tags.deleted": "タグを削除しました。"
+  "tags.deleted": "タグを削除しました。",
+  "privateNote.title": "あなたの非公開メモ",
+  "privateNote.hint": "このメモはあなたにしか見えません。",
+  "privateNote.label": "このメンバーについての非公開メモ",
+  "privateNote.save": "メモを保存",
+  "privateNote.delete": "メモを削除",
+  "privateNote.saved": "メモを保存しました。",
+  "privateNote.deleted": "メモを削除しました。",
+  "privateNote.saveError": "メモを保存できませんでした。もう一度お試しください。",
+  "readingTime.minutes.one": "{count} 分で読めます",
+  "readingTime.minutes.other": "{count} 分で読めます"
 }

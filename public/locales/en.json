@@ -1170,5 +1170,15 @@
   "tags.create": "Create tag",
   "tags.none": "No tags yet.",
   "tags.created": "Tag created.",
-  "tags.deleted": "Tag deleted."
+  "tags.deleted": "Tag deleted.",
+  "privateNote.title": "Your private note",
+  "privateNote.hint": "Only you can see this note.",
+  "privateNote.label": "Private note about this member",
+  "privateNote.save": "Save note",
+  "privateNote.delete": "Delete note",
+  "privateNote.saved": "Note saved.",
+  "privateNote.deleted": "Note deleted.",
+  "privateNote.saveError": "Could not save the note. Try again.",
+  "readingTime.minutes.one": "{count} min read",
+  "readingTime.minutes.other": "{count} min read"
 }

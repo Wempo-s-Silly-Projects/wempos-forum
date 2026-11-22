@@ -1170,5 +1170,15 @@
   "tags.create": "ٹیگ بنائیں",
   "tags.none": "ابھی کوئی ٹیگ نہیں۔",
   "tags.created": "ٹیگ بن گیا۔",
-  "tags.deleted": "ٹیگ حذف ہو گیا۔"
+  "tags.deleted": "ٹیگ حذف ہو گیا۔",
+  "privateNote.title": "آپ کا نجی نوٹ",
+  "privateNote.hint": "یہ نوٹ صرف آپ دیکھ سکتے ہیں۔",
+  "privateNote.label": "اس رکن کے بارے میں نجی نوٹ",
+  "privateNote.save": "نوٹ محفوظ کریں",
+  "privateNote.delete": "نوٹ حذف کریں",
+  "privateNote.saved": "نوٹ محفوظ ہو گیا۔",
+  "privateNote.deleted": "نوٹ حذف ہو گیا۔",
+  "privateNote.saveError": "نوٹ محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+  "readingTime.minutes.one": "{count} منٹ کی پڑھائی",
+  "readingTime.minutes.other": "{count} منٹ کی پڑھائی"
 }

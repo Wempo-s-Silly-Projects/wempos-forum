@@ -1170,5 +1170,15 @@
   "tags.create": "Δημιουργία ετικέτας",
   "tags.none": "Δεν υπάρχουν ακόμη ετικέτες.",
   "tags.created": "Η ετικέτα δημιουργήθηκε.",
-  "tags.deleted": "Η ετικέτα διαγράφηκε."
+  "tags.deleted": "Η ετικέτα διαγράφηκε.",
+  "privateNote.title": "Η ιδιωτική σας σημείωση",
+  "privateNote.hint": "Μόνο εσείς βλέπετε αυτή τη σημείωση.",
+  "privateNote.label": "Ιδιωτική σημείωση για αυτό το μέλος",
+  "privateNote.save": "Αποθήκευση σημείωσης",
+  "privateNote.delete": "Διαγραφή σημείωσης",
+  "privateNote.saved": "Η σημείωση αποθηκεύτηκε.",
+  "privateNote.deleted": "Η σημείωση διαγράφηκε.",
+  "privateNote.saveError": "Δεν ήταν δυνατή η αποθήκευση της σημείωσης. Δοκιμάστε ξανά.",
+  "readingTime.minutes.one": "{count} λεπτό ανάγνωσης",
+  "readingTime.minutes.other": "{count} λεπτά ανάγνωσης"
 }

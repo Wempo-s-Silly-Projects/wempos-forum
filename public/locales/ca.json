@@ -1170,5 +1170,15 @@
   "tags.create": "Crea l'etiqueta",
   "tags.none": "Encara no hi ha etiquetes.",
   "tags.created": "S'ha creat l'etiqueta.",
-  "tags.deleted": "S'ha suprimit l'etiqueta."
+  "tags.deleted": "S'ha suprimit l'etiqueta.",
+  "privateNote.title": "La teva nota privada",
+  "privateNote.hint": "Només tu pots veure aquesta nota.",
+  "privateNote.label": "Nota privada sobre aquest membre",
+  "privateNote.save": "Desa la nota",
+  "privateNote.delete": "Esborra la nota",
+  "privateNote.saved": "Nota desada.",
+  "privateNote.deleted": "Nota esborrada.",
+  "privateNote.saveError": "No s'ha pogut desar la nota. Torna-ho a provar.",
+  "readingTime.minutes.one": "{count} min de lectura",
+  "readingTime.minutes.other": "{count} min de lectura"
 }

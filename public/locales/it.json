@@ -1170,5 +1170,15 @@
   "tags.create": "Crea etichetta",
   "tags.none": "Ancora nessuna etichetta.",
   "tags.created": "Etichetta creata.",
-  "tags.deleted": "Etichetta eliminata."
+  "tags.deleted": "Etichetta eliminata.",
+  "privateNote.title": "La tua nota privata",
+  "privateNote.hint": "Solo tu puoi vedere questa nota.",
+  "privateNote.label": "Nota privata su questo membro",
+  "privateNote.save": "Salva nota",
+  "privateNote.delete": "Elimina nota",
+  "privateNote.saved": "Nota salvata.",
+  "privateNote.deleted": "Nota eliminata.",
+  "privateNote.saveError": "Impossibile salvare la nota. Riprova.",
+  "readingTime.minutes.one": "{count} min di lettura",
+  "readingTime.minutes.other": "{count} min di lettura"
 }

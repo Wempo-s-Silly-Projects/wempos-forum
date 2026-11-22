@@ -1170,5 +1170,15 @@
   "tags.create": "יצירת תגית",
   "tags.none": "עדיין אין תגיות.",
   "tags.created": "התגית נוצרה.",
-  "tags.deleted": "התגית נמחקה."
+  "tags.deleted": "התגית נמחקה.",
+  "privateNote.title": "ההערה הפרטית שלך",
+  "privateNote.hint": "רק את/ה רואה את ההערה הזו.",
+  "privateNote.label": "הערה פרטית על החבר/ה הזה",
+  "privateNote.save": "שמירת הערה",
+  "privateNote.delete": "מחיקת הערה",
+  "privateNote.saved": "ההערה נשמרה.",
+  "privateNote.deleted": "ההערה נמחקה.",
+  "privateNote.saveError": "לא ניתן היה לשמור את ההערה. נסו שוב.",
+  "readingTime.minutes.one": "קריאה של {count} דקה",
+  "readingTime.minutes.other": "קריאה של {count} דקות"
 }

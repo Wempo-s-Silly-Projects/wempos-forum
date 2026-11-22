@@ -1170,5 +1170,15 @@
   "tags.create": "Utwórz tag",
   "tags.none": "Nie ma jeszcze tagów.",
   "tags.created": "Utworzono tag.",
-  "tags.deleted": "Usunięto tag."
+  "tags.deleted": "Usunięto tag.",
+  "privateNote.title": "Twoja prywatna notatka",
+  "privateNote.hint": "Tylko ty widzisz tę notatkę.",
+  "privateNote.label": "Prywatna notatka o tym członku",
+  "privateNote.save": "Zapisz notatkę",
+  "privateNote.delete": "Usuń notatkę",
+  "privateNote.saved": "Notatka zapisana.",
+  "privateNote.deleted": "Notatka usunięta.",
+  "privateNote.saveError": "Nie udało się zapisać notatki. Spróbuj ponownie.",
+  "readingTime.minutes.one": "{count} min czytania",
+  "readingTime.minutes.other": "{count} min czytania"
 }

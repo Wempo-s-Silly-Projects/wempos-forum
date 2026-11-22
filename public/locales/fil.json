@@ -1170,5 +1170,15 @@
   "tags.create": "Gumawa ng tag",
   "tags.none": "Wala pang mga tag.",
   "tags.created": "Nagawa ang tag.",
-  "tags.deleted": "Nabura ang tag."
+  "tags.deleted": "Nabura ang tag.",
+  "privateNote.title": "Ang iyong pribadong tala",
+  "privateNote.hint": "Ikaw lang ang makakakita ng talang ito.",
+  "privateNote.label": "Pribadong tala tungkol sa miyembrong ito",
+  "privateNote.save": "I-save ang tala",
+  "privateNote.delete": "Burahin ang tala",
+  "privateNote.saved": "Na-save ang tala.",
+  "privateNote.deleted": "Nabura ang tala.",
+  "privateNote.saveError": "Hindi ma-save ang tala. Subukang muli.",
+  "readingTime.minutes.one": "{count} minutong basa",
+  "readingTime.minutes.other": "{count} minutong basa"
 }

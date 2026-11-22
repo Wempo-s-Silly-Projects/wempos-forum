@@ -1170,5 +1170,15 @@
   "tags.create": "Creează eticheta",
   "tags.none": "Încă nu există etichete.",
   "tags.created": "Eticheta a fost creată.",
-  "tags.deleted": "Eticheta a fost ștearsă."
+  "tags.deleted": "Eticheta a fost ștearsă.",
+  "privateNote.title": "Nota ta privată",
+  "privateNote.hint": "Doar tu poți vedea această notă.",
+  "privateNote.label": "Notă privată despre acest membru",
+  "privateNote.save": "Salvează nota",
+  "privateNote.delete": "Șterge nota",
+  "privateNote.saved": "Nota a fost salvată.",
+  "privateNote.deleted": "Nota a fost ștearsă.",
+  "privateNote.saveError": "Nota nu a putut fi salvată. Încearcă din nou.",
+  "readingTime.minutes.one": "{count} min de citit",
+  "readingTime.minutes.other": "{count} min de citit"
 }
