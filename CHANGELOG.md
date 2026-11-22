@@ -15,6 +15,20 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.37.0] - 2026-11-22
+
+### Security
+- Security review of v5.33-v5.36 (RSS feeds, invite links, staff picks, the
+  This week page, newest members, search filters and in-conversation search):
+  [docs/security-reviews/2026-11-22-v5.33-v5.36.md](docs/security-reviews/2026-11-22-v5.33-v5.36.md).
+  No high or medium findings; one owner decision on the data export and the
+  carried-over analytics item remain open.
+
+### Fixed
+- Invite links now credit the inviter on the first page load after signing
+  up: the claim was sent before the session's CSRF token was set, so the
+  server refused it.
+
 ## [5.36.0] - 2026-11-22
 
 ### Added
