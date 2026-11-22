@@ -186,7 +186,9 @@ test("the offline page is static, script-free, carries the icon links and is REU
   assert.match(html, /<link rel="icon" href="\/icons\/icon\.svg" type="image\/svg\+xml">/);
   assert.match(html, /<link rel="stylesheet" href="\/styles\.css">/);
   assert.match(read("REUSE.toml"), /"public\/offline\.html"/);
+  // REUSE-IgnoreStart
   assert.match(read("public/sw.js"), /SPDX-License-Identifier: AGPL-3\.0-or-later/);
+  // REUSE-IgnoreEnd
 });
 
 test("app.js registers the worker after boot", () => {

@@ -228,7 +228,7 @@ test("YouTube: before the click nothing third-party is referenced, loaded or pai
   assert.equal(findByClass(host, "embed-youtube-title").textContent, "Launch talk");
   assert.equal(findByClass(host, "embed-youtube-notice").textContent, t("embed.youtubeNotice"));
   const en = JSON.parse(read("public/locales/en.json"));
-  assert.match(en["embed.youtubeNotice"], /youtube-nocookie\.com/);
+  assert.ok(en["embed.youtubeNotice"].includes("youtube-nocookie.com"), "notice names the nocookie host");
   assert.match(en["embed.youtubePlay"], /\{title\}/);
   const original = findByClass(host, "embed-original");
   assert.equal(original.getAttribute("href"), `https://www.youtube.com/watch?v=${VIDEO_ID}`);

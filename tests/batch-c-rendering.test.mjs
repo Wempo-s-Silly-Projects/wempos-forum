@@ -346,7 +346,7 @@ test("jsonTreePlan: json fences of at least JSON_TREE_MIN_LINES valid lines only
   assert.deepEqual(jsonTreePlan("json", long).value.k0, 0);
   assert.equal(jsonTreePlan("json", '{"a":1}'), null, "short blocks stay plain");
   assert.equal(jsonTreePlan("js", long), null);
-  assert.equal(jsonTreePlan("json", long.replace("{", "{,")), null, "invalid JSON stays plain");
+  assert.equal(jsonTreePlan("json", "," + long), null, "invalid JSON stays plain");
   assert.equal(JSON_FORMATTER_SRC, "/js/vendor/json-formatter.umd.js");
 });
 
