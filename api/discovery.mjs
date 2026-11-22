@@ -82,10 +82,15 @@ const PUBLIC_REPLIES_SQL =
   "ORDER BY r.created_at ASC, r.id ASC LIMIT " + MARKDOWN_REPLY_LIMIT;
 
 // Same reply visibility as above, counted per root for the feed listings.
-export const PUBLIC_REPLY_COUNT_SQL =
-  "(SELECT COUNT(*) FROM posts rc LEFT JOIN posts rl ON rl.id = rc.parent_id " +
-  "WHERE (rc.parent_id = p.id OR (rl.parent_id = p.id AND rl.visibility = 'public' AND " + banFilterSql("rl") + ")) " +
-  "AND rc.visibility = 'public' AND " + banFilterSql("rc") + ")";
+// `extraWhere` (v5.32) appends a caller's own predicate on rc (the counted
+// reply) / rl (its parent) — the page head adds the viewer's block filter.
+export function publicReplyCountSql(extraWhere = "") {
+  return "(SELECT COUNT(*) FROM posts rc LEFT JOIN posts rl ON rl.id = rc.parent_id " +
+    "WHERE (rc.parent_id = p.id OR (rl.parent_id = p.id AND rl.visibility = 'public' AND " + banFilterSql("rl") + ")) " +
+    "AND rc.visibility = 'public' AND " + banFilterSql("rc") + extraWhere + ")";
+}
+
+export const PUBLIC_REPLY_COUNT_SQL = publicReplyCountSql();
 
 const SITEMAP_POSTS_SQL =
   "SELECT p.id, MAX(p.created_at, COALESCE(p.edited_at, 0)) AS lastmod FROM posts p " +
