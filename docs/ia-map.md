@@ -22,20 +22,15 @@ Legend:
 | Brand / home link | `index.html:88` | G M | 0 | |
 | Site search (+ submit) | `index.html:93-96` | G M | 0 | |
 | Theme toggle | `index.html:103` | G M | 0 | |
-| Suggestions link | `routes/account-nav.js:134` | G M | 0 | OVERLAP with mobile bar item |
-| Archive link | `account-nav.js:139` | G M | 0 | |
-| Leaderboard link | `account-nav.js:143` | G M | 0 | |
-| Rules link | `account-nav.js:147` | G M | 0 | |
-| Sign in | `account-nav.js:155` | G | 0 | OVERLAP with mobile bar Sign in |
+| Browse menu (v5.58): Suggestions, Archive, Leaderboard, Rules, This week | `routes/account-nav.js` from `nav-items.js` | G M | 1 | v5.58: the four section links folded into one menu; This week added (was ORPHAN-ish) |
+| Sign in | `account-nav.js` | G | 0 | v5.58: header and phone bar drawn from the same list (`nav-items.js`) |
 | Language picker | `account-nav.js:162,248` | G M | 0 | |
-| Profile link | `account-nav.js:171` | M | 0 | |
+| Account menu (v5.58): Profile, Moderation desk (S), Keyboard shortcuts, Sign out | `account-nav.js` | M | 1 | v5.58: Profile, desk and Sign out moved in; the shortcuts sheet gained an entry here |
 | Saved posts link | `account-nav.js:178` | M | 0 | |
 | My posts link | `account-nav.js` (v5.56) | M | 0 | v5.56: the desktop entry |
 | Settings link | `account-nav.js` (v5.56) | M | 0 | v5.56: opens the settings hub `/?settings` |
 | Notifications bell | `notifications.js:115` | M | 0 | OVERLAP with mobile bar item |
-| Moderation desk link | `account-nav.js:195` | S | 0 | |
-| Sign out | `account-nav.js:204` | M | 0 | |
-| Mobile bar (Home, My posts, Suggestions, Notifications, Sign in) | `index.html:107-120` | G M | 0 (narrow screens) | My posts is otherwise only a feed tab |
+| Mobile bar (Home, My posts, Alerts, Profile/Sign in, More) | `account-nav.js` from `nav-items.js` | G M | 0 (narrow screens) | v5.58: drawn from the header's list; More holds the same Browse group plus (members) Saved posts, Settings, desk, shortcuts, Sign out, which phones did not reach before |
 | Chat widget launcher + panel (lobby, DMs, Who's Online) | `chat-widget.js` | M | 0 / 1 | |
 | Status / error bars | `index.html:125-126` | G M | — | |
 | Report dialog | `index.html:135` | M | 1 (from Report) | |
@@ -101,8 +96,8 @@ Rendered top to bottom by `routes/post.js:66-183`; the root card by
 | 8 | View count chip | `render.js:352-358` | G M | 0 | |
 | 9 | Save post (bookmark) | `render.js:362-373` | M | 0 | name clash with "Save as text" |
 | 10 | Reply count chip | `render.js:377-386` | G M | 0 | |
-| 11 | Open post link | `render.js:387-393` | G M | 0 | OVERLAP: links to the page you are on |
-| 12 | Copy link | `render.js:396` | G M | 0 | OVERLAP with Share menu's own Copy link |
+| 11 | Open post link | `render.js:387-393` | G M | 0 | v5.58: hidden on the page it points at (feed cards keep it) |
+| 12 | Copy link | `render.js:396` | G M | 0 | v5.58: dropped from the card when Share's own menu offers Copy link; kept in More when the device share sheet is used or there is no Share |
 | 13 | Show spoilers | `render.js:398` | G M | 0 | |
 | 14 | Read aloud | `render.js:400-401` | G M | 0 | |
 | 15 | Report | `render.js:402-412` | M | 0 | |
@@ -157,12 +152,15 @@ form and the tag editor as separate blocks.
 
 1. Copy link (card) and the Share menu's Copy link: two controls with the same
    accessible name on a thread page (`render.js:396`, `share.js:156`).
+   (v5.58: one visible path, see §4 row 12.)
 2. Open post link on the thread page points at the page itself (`render.js:387`).
+   (v5.58: hidden there.)
 3. "Save post" (bookmark) vs "Save as text": same verb, different features.
 4. Navigation: four jump buttons, the glance's top-reply jump, the outline and
    J/K keys all move through replies (`post.js:113-174`).
 5. Glance read time vs the reading progress bar (`post.js:113,182`).
 6. Mobile bar duplicates header links (Suggestions, Notifications, Sign in).
+   (v5.58: both drawn from one list, `public/js/nav-items.js`.)
 7. My posts: feed tab and mobile bar only; not in the desktop header.
    (v5.56: now also a header link.)
 8. Follow (profile), Subscribe (thread) and Saved boards are three "keep up
@@ -172,10 +170,14 @@ form and the tag editor as separate blocks.
 
 1. Account settings: no nav entry; a collapsed `<details>` under the home feed
    (`feed.js:151`). (v5.56: fixed by the header Settings link and the hub.)
-2. `/week`: only the home highlights link (`week.js:82`).
+2. `/week`: only the home highlights link (`week.js:82`). (v5.58: in Browse.)
 3. Keyboard shortcuts sheet: only on threads that have replies (`post.js:121`).
+   (v5.58: also in the Account menu.)
 4. Tag pages: only reachable from tag chips (no tag index for members).
-5. `/join?ref=`: only via someone's invite link (by design).
+   (v5.58: still open. There is no tag index page to put in Browse; adding
+   one is a new page, so it waits for the owner.)
+5. `/join?ref=`: only via someone's invite link (by design; no nav entry
+   needed, v5.58).
 
 ## 7. Candidates for the next organize waves
 
