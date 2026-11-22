@@ -22,5 +22,8 @@
     "fast-check": "latest",
     "globals": "latest",
     "wrangler": "latest"
+  },
+  "dependencies": {
+    "ipaddr.js": "latest"
   }
 }
