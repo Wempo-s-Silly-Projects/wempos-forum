@@ -58,6 +58,7 @@ import { handleExportRoutes } from "./api/export.mjs";
 import { handleAutoModRoutes } from "./api/automod.mjs";
 import { handleDmReportRoutes } from "./api/dm-reports.mjs";
 import { handleBrandingRoutes, readStoredBranding } from "./api/branding.mjs";
+import { handleAnalyticsRoutes, scheduleCount } from "./api/analytics.mjs";
 import { handleDiscovery, withDiscoveryHeaders } from "./api/discovery.mjs";
 import { handleMcp } from "./api/mcp.mjs";
 import { accountsOrigin, configuredOrigin } from "./api/core/site.mjs";
@@ -109,7 +110,7 @@ function notFound(request, env, url, path) {
 // dispatch context and answers only the paths it owns; `undefined` falls
 // through to the next handler or the notFound tail — the vendor's dispatch()
 // replaces the inlined handlers-for-loop, built once from the vendor import.
-const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes];
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleAnalyticsRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
@@ -248,10 +249,14 @@ export default {
     try {
       // Negotiable pages vary on Accept; the homepage also advertises the
       // discovery documents in its Link header.
-      return withDiscoveryHeaders(
+      const page = withDiscoveryHeaders(
         secureResponse(await stampedAssetResponse(honestAssetResponse(await env.ASSETS.fetch(unconditional(request)), url), env)),
         url.pathname,
       );
+      // Private analytics (v5.30.0): an aggregate count of the page TYPE,
+      // scheduled on waitUntil; it never throws and never delays the page.
+      scheduleCount(ctx, request, env, url, page);
+      return page;
     } catch (error) {
       console.error("Static asset request failed:", error);
       return json({ error: "The requested page could not be loaded." }, 500);
