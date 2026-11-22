@@ -220,7 +220,12 @@ test("gitleaks allowlist is exact anchored fixture values only, on the secret, w
   assert.doesNotMatch(toml, /^\s*(paths|stopwords|commits)\s*=/m);
   const values = [...toml.matchAll(/^\s*'''(.*)'''\s*,?\s*$/gm)].map(([, value]) => value);
   assert.ok(values.length >= 4);
-  for (const value of values) assert.match(value, /^\^[A-Za-z0-9-]{8,}\$$/, value);
+  // Literal values only: letters, digits, dashes, and backslash-escaped + / = (base64-style
+  // public keys). No wildcards, classes or quantifiers — every entry still matches one string.
+  for (const value of values) {
+    assert.match(value, /^\^(?:[A-Za-z0-9-]|\\[+/=])+\$$/, value);
+    assert.ok(value.replace(/\\/g, "").length - 2 >= 8, value);
+  }
 });
 
 // --- listener lifecycle across re-renders (v5.25, v5.26) --------------------------------

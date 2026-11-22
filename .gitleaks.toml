@@ -19,4 +19,7 @@ regexes = [
   # Placeholder pending TOTP secret in tests/wave524-security-pins.test.mjs
   # (proves Download my data never exports it).
   '''^PENDINGSECRETPENDINGSECRET234567$''',
+  # Public Ahrefs Web Analytics site key (meant to sit in page HTML; owner
+  # added then removed it in Nov 2026 — still present in history).
+  '''^a7DvNBy\+d6CecJsDmHc5CA$''',
 ]
