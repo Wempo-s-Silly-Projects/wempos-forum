@@ -233,9 +233,11 @@ test("copy-code still yields the plain source after real Prism highlighting (vm)
   const source = "const a = 1; // <b>&amp;\nfunction f(x) {\n  return `${x}`;\n}";
   const html = context.Prism.highlight(source, context.Prism.languages.javascript, "javascript");
   assert.match(html, /class="token keyword[ "]/, "real tokens were produced");
-  const decode = (text) => text.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'").replace(/&amp;/g, "&");
-  const textContent = decode(html.replace(/<[^>]+>/g, ""));
+  // The painted block's textContent is the concatenation of Prism's token
+  // strings; read it from the token stream instead of regex-stripping markup.
+  const flatten = (token) => (typeof token === "string" ? token
+    : Array.isArray(token) ? token.map(flatten).join("") : flatten(token.content));
+  const textContent = flatten(context.Prism.tokenize(source, context.Prism.languages.javascript));
   const written = [];
   const tools = createCopyCodeButton(makeFakeDocument(), () => textContent, {
     clipboard: { writeText: async (text) => { written.push(text); } }, schedule: () => {},
