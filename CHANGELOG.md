@@ -15,6 +15,28 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.43.0] - 2026-11-22
+
+### Added
+- Staff notes on members: staff can add and delete short notes (up to 500
+  characters) about a member from the member peek on the moderation desk.
+  Notes are visible to staff only: they never appear on profiles, in feeds,
+  search, exports, the agent (MCP) tools or page previews, not even to the
+  member they are about.
+- Report claiming: staff can claim a post report so others know it is being
+  handled ("Claimed by @name"), and any staff member can release it. Only one
+  person can hold a claim; resolving or dismissing the report clears it.
+  Profile and DM reports are separate queues and are not claimable yet.
+- Thread slow mode: staff can limit a thread to one reply every 30 seconds,
+  1 minute, 5 minutes or 15 minutes. The thread shows a "Slow mode" note, and
+  a member who replies again too soon (on the website or through the agent
+  tools) is asked to wait. Staff are not limited.
+
+### Changed
+- Database migration 0069 adds three new tables (member notes, report
+  claims, thread slow mode). It must be applied before this version is
+  deployed.
+
 ## [5.42.0] - 2026-11-22
 
 ### Security
