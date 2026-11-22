@@ -304,12 +304,13 @@ test("the conversation marks every bubble with its id and mounts the search box"
   assert.doesNotMatch(read("public/js/search-filters.js"), /innerHTML|outerHTML|insertAdjacentHTML/);
 });
 
-test("new strings ship in en and all 49 locales, translated", () => {
+test("new strings ship in en and all 57 locales, translated", () => {
   const en = JSON.parse(read("public/locales/en.json"));
   const files = ["aa", "ab", "af", "ak", "am", "ar", "az", "bg", "bn", "ca", "cs", "da", "de", "el", "es", "eu",
     "fa", "fi", "fil", "fr", "he", "hi", "hr", "hu", "id", "it", "ja", "ko", "ms", "nb", "nl", "pl", "pt", "ro",
-    "ru", "sk", "sq", "sr", "sv", "sw", "ta", "th", "tr", "uk", "ur", "vi", "zh-Hans", "zh-Hant"];
-  assert.equal(files.length + 1, 49);
+    "ru", "sk", "sq", "sr", "sv", "sw", "ta", "th", "tr", "uk", "ur", "vi", "zh-Hans", "zh-Hant",
+    "an", "hy", "as", "av", "ay", "bm", "ba", "be"];
+  assert.equal(files.length + 1, 57);
   for (const key of NEW_KEYS) assert.ok(en[key], "en " + key);
   for (const code of files) {
     const table = JSON.parse(read("public/locales/" + code + ".json"));

@@ -277,9 +277,9 @@ test("every former phone-bar destination is still on the phone bar, by accessibl
 
 // ----------------------------------------------------------- strings
 
-test("new menu strings exist in en and all 49 locales, translated", () => {
+test("new menu strings exist in en and all 57 locales, translated", () => {
   const files = readdirSync(new URL("../public/locales/", import.meta.url)).filter((name) => name.endsWith(".json"));
-  assert.equal(files.length, 49);
+  assert.equal(files.length, 57);
   for (const file of files) {
     const table = JSON.parse(read("public/locales/" + file));
     for (const key of ["nav.browse", "nav.account", "nav.more"]) {

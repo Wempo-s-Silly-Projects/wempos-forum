@@ -21,7 +21,7 @@
 // v5.35 client: the /week route and page builders, the "New 👋" chip, the
 // staff-pick control on showcase roots, the pick pinned atop the showcase
 // gallery, the home "Newest members" list + This-week link, the desk's
-// staff-pick log, and every new string in all 49 locales.
+// staff-pick log, and every new string in all 57 locales.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
@@ -146,10 +146,10 @@ test("wiring: app renders /week, home fetches newest members and links /week, de
   assert.doesNotMatch(source("week.js"), /localStorage|sessionStorage|api\(/);
 });
 
-test("every v5.35 string exists in all 49 locales, translated", () => {
+test("every v5.35 string exists in all 57 locales, translated", () => {
   const dir = new URL("../public/locales/", import.meta.url);
   const files = readdirSync(dir).filter((name) => name.endsWith(".json"));
-  assert.equal(files.length, 49);
+  assert.equal(files.length, 57);
   const en = JSON.parse(readFileSync(new URL("en.json", dir), "utf8"));
   for (const key of NEW_KEYS) assert.ok(en[key], "en " + key);
   for (const file of files.filter((name) => name !== "en.json")) {
