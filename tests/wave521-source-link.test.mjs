@@ -138,7 +138,7 @@ test("index.html footer carries a translated Source code link with a repo fallba
 test("shell.sourceCode exists in en and every locale", () => {
   const dir = new URL("../public/locales/", import.meta.url);
   const files = readdirSync(dir).filter((name) => name.endsWith(".json"));
-  assert.equal(files.length, 57);
+  assert.equal(files.length, 65);
   for (const name of files) {
     const table = JSON.parse(readFileSync(new URL(name, dir), "utf8"));
     assert.equal(typeof table["shell.sourceCode"], "string", name);
