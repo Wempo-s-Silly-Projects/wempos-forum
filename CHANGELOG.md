@@ -15,6 +15,26 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.36.0] - 2026-11-22
+
+### Added
+- Search date range and sort: chips on the search page narrow results to the
+  past week, month or year and sort by most relevant or newest. The choice
+  rides the URL (`?since=` and `?sort=`) so a filtered search can be shared;
+  `/?q=` alone works as before. Every visibility rule still applies.
+- Search inside a DM or group conversation from a box in the chat header.
+  Only the conversation's own members can search it, messages hidden in the
+  chat view stay hidden, and excerpts mask spoilers. Clicking a result jumps
+  to that message, loading older messages if needed. Queries are not logged
+  or stored.
+- Recent searches: your last 8 forum searches appear as chips when the search
+  box is focused and empty. They stay in this browser only, can be cleared
+  with "Clear recent searches", and are wiped when you sign out.
+
+### Fixed
+- In a conversation, "Load older" pages now keep their order and survive the
+  5-second refresh, and a reader scrolled up keeps their place.
+
 ## [5.35.1] - 2026-11-22
 
 ### Security
