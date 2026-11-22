@@ -203,6 +203,16 @@
           <input id="poll-option-4" type="text" maxlength="80">
         </div>
         <p id="poll-options-note" class="gif-picker-note" data-i18n="shell.pollOptionsNote">Two to four non-duplicate options.</p>
+        <div class="form-field">
+          <label for="poll-closes" data-i18n="polls.deadlineLabel">Closing time</label>
+          <select id="poll-closes">
+            <option value="" data-i18n="polls.deadlineNone">No closing time</option>
+            <option value="3600" data-i18n="polls.deadlineHour">In 1 hour</option>
+            <option value="86400" data-i18n="polls.deadlineDay">In 1 day</option>
+            <option value="604800" data-i18n="polls.deadlineWeek">In 1 week</option>
+            <option value="2592000" data-i18n="polls.deadlineMonth">In 30 days</option>
+          </select>
+        </div>
         <div class="form-actions">
           <button class="button button-secondary" type="button" data-action="cancel-poll-dialog" data-i18n="common.cancel">Cancel</button>
           <button class="button button-primary" type="submit" data-action="confirm-poll-dialog" data-i18n="shell.pollAdd">Add poll</button>

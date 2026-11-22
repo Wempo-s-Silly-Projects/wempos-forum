@@ -253,8 +253,7 @@ test("F2 pure helpers: emoji allowlist and expiry math", () => {
 
 test("F2 content filter: a filtered word is refused (the post filter), never stored", async () => {
   const w = await world();
-  w.db.prepare("INSERT INTO site_settings (key, value) VALUES ('filtered_words', ?) " +
-    "ON CONFLICT(key) DO UPDATE SET value = excluded.value").run(JSON.stringify(["badword"]));
+  w.env.FILTERED_WORDS = "badword"; // the filter source before any desk row exists
   const res = await setStatus(w, w.session("alice"), { text: "such badword wow", expiry: "never" });
   assert.equal(res.status, 400);
   assert.equal(count(w.db, "user_status"), 0);
@@ -292,8 +291,7 @@ test("F2 read re-checks: banned member never shows a status (staff too); block p
   }
   w.db.prepare("UPDATE bans SET revoked_at = ? WHERE user_id = ?").run(now(), w.id.alice);
   assert.equal((await profile(w, "alice", "carol")).status.text, "STATUSTXT");
-  w.db.prepare("INSERT INTO site_settings (key, value) VALUES ('filtered_words', ?) " +
-    "ON CONFLICT(key) DO UPDATE SET value = excluded.value").run(JSON.stringify(["statustxt"]));
+  w.env.FILTERED_WORDS = "statustxt"; // a word added after the save
   assert.ok(!(await profile(w, "alice", "carol")).status?.text?.includes("STATUSTXT"));
 });
 

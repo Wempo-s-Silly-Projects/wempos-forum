@@ -99,7 +99,10 @@ test("poll: 'Closes …' while open, 'Voting is closed.' after; deadline control
   const base = { question: "Q", options: [{ id: 1, label: "A", count: 0 }], totalVotes: 0, viewerOption: null };
   const future = new Date(Date.now() + 3 * 3600 * 1000).toISOString();
   const open = renderPollBlock({ ...base, closed: false, canManage: false, closesAt: future }, doc, { id: 1 });
-  assert.match(findByClass(open, "poll-closes").textContent, /3 hours/);
+  // The test translator has no tables loaded, so t() echoes keys; the wording
+  // itself is pinned through formatClosesIn below.
+  assert.equal(findByClass(open, "poll-closes").textContent, t("polls.closesIn", { time: formatClosesIn(future, Date.now(), "en") }));
+  assert.match(formatClosesIn(future, Date.now(), "en"), /in 3 hours/);
   assert.equal(countByClass(open, "poll-deadline-select"), 0);
   const closed = renderPollBlock({ ...base, closed: true, canManage: false, closesAt: new Date(Date.now() - 1000).toISOString() }, doc, { id: 1 });
   assert.equal(countByClass(closed, "poll-closes"), 0);

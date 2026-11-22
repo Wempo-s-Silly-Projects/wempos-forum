@@ -29,6 +29,14 @@ import { postById } from "./core/shapers.mjs";
 import { ACTIVE_BAN_SQL, canViewPost } from "./core/visibility.mjs";
 import { applyWordFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
+// v5.38.0 F3: optional closing time (migration 0066).
+import {
+  POLL_DEADLINE_AHEAD_SQL,
+  deadlinePassed,
+  deadlineWriteStatement,
+  parseClosesIn,
+  readPollDeadline,
+} from "./poll-deadlines.mjs";
 
 const MAX_POLL_QUESTION_CHARS = 200;
 const MAX_POLL_OPTION_CHARS = 80;
@@ -72,6 +80,8 @@ export async function pollPayload(db, postId, viewerId, canManage = false) {
     label: row.label,
     count: Number(row.vote_count || 0),
   }));
+  // v5.38.0: a passed closing time reads as closed (computed now, no cron).
+  const closesAt = await readPollDeadline(db, postId);
   let viewerOption = null;
   if (viewerId !== null && viewerId !== undefined) {
     const own = await db.prepare(VIEWER_OPTION_SQL).bind(Number(poll.id), viewerId).first();
@@ -82,7 +92,8 @@ export async function pollPayload(db, postId, viewerId, canManage = false) {
     options: rows,
     totalVotes: rows.reduce((sum, option) => sum + option.count, 0),
     viewerOption,
-    closed: poll.closed_at !== null && poll.closed_at !== undefined,
+    closed: (poll.closed_at !== null && poll.closed_at !== undefined) || deadlinePassed(closesAt, nowSeconds()),
+    closesAt: closesAt === null ? null : new Date(closesAt * 1000).toISOString(),
     canManage: Boolean(canManage),
   };
 }
@@ -102,14 +113,24 @@ async function pollForWrite(request, env, path) {
   return { session, post, poll };
 }
 
-// Wave 5.16 S1: vote writes carry this guard (binds the poll id once) so the
-// open/closed check and the write are one statement, not a read-then-write.
-const POLL_OPEN_SQL = "EXISTS (SELECT 1 FROM polls WHERE id = ? AND closed_at IS NULL)";
+// Wave 5.16 S1: vote writes carry this guard so the open/closed check and the
+// write are one statement, not a read-then-write. v5.38.0: it also refuses a
+// passed closing time; binds the poll id, then "now".
+const POLL_OPEN_SQL = "EXISTS (SELECT 1 FROM polls WHERE id = ? AND closed_at IS NULL AND " +
+  POLL_DEADLINE_AHEAD_SQL + ")";
 
 async function assertPollStillOpen(db, pollId) {
-  const open = await db.prepare("SELECT 1 AS open FROM polls WHERE id = ? AND closed_at IS NULL LIMIT 1")
-    .bind(Number(pollId)).first();
+  const open = await db.prepare("SELECT 1 AS open FROM polls WHERE id = ? AND closed_at IS NULL AND " +
+    POLL_DEADLINE_AHEAD_SQL + " LIMIT 1").bind(Number(pollId), nowSeconds()).first();
   if (!open) throw new HttpError(409, "This poll is closed.");
+}
+
+// v5.38.0: closed by hand OR past its closing time — one answer for every path.
+async function assertPollOpen(db, poll, postId) {
+  if ((poll.closed_at !== null && poll.closed_at !== undefined) ||
+      deadlinePassed(await readPollDeadline(db, postId), nowSeconds())) {
+    throw new HttpError(409, "This poll is closed.");
+  }
 }
 
 const isStaffRole = (user) => user.role === "owner" || user.role === "admin";
@@ -122,6 +143,15 @@ async function handlePollCloseRoute(request, env, url, path, method) {
     throw new HttpError(403, "Only the author can close this poll.");
   }
   const body = await readJson(request);
+  // v5.38.0 F3: a body carrying closesIn sets (seconds from now) or clears
+  // (null) the closing time — open polls only; the closed flag is untouched.
+  if (body && Object.hasOwn(body, "closesIn")) {
+    const closesIn = parseClosesIn(body.closesIn);
+    await assertPollOpen(env.FORUM_DB, poll, post.id);
+    const closesAt = closesIn === null ? null : nowSeconds() + closesIn;
+    await deadlineWriteStatement(env.FORUM_DB, post.id, closesAt).run();
+    return json({ ok: true, closesAt: closesAt === null ? null : new Date(closesAt * 1000).toISOString() });
+  }
   if (typeof body.closed !== "boolean") throw new HttpError(400, "Say whether voting is closed.");
   await env.FORUM_DB.prepare("UPDATE polls SET closed_at = ? WHERE id = ?")
     .bind(body.closed ? nowSeconds() : null, Number(poll.id)).run();
@@ -131,15 +161,13 @@ async function handlePollCloseRoute(request, env, url, path, method) {
 // F2: take back my vote — removes only the caller's own row, open polls only.
 async function handlePollUnvoteRoute(request, env, url, path, method) {
   if (method !== "DELETE" || !/^\/api\/posts\/[0-9]+\/poll$/.test(path)) return null;
-  const { session, poll } = await pollForWrite(request, env, path);
-  if (poll.closed_at !== null && poll.closed_at !== undefined) {
-    throw new HttpError(409, "This poll is closed.");
-  }
+  const { session, post, poll } = await pollForWrite(request, env, path);
+  await assertPollOpen(env.FORUM_DB, poll, post.id);
   // Wave 5.16 S1: the delete re-checks that voting is open, so a close that
   // lands after the read above still wins; zero rows on a now-closed poll = 409.
   const result = await env.FORUM_DB.prepare(
     "DELETE FROM poll_votes WHERE poll_id = ? AND user_id = ? AND " + POLL_OPEN_SQL,
-  ).bind(Number(poll.id), session.user.id, Number(poll.id)).run();
+  ).bind(Number(poll.id), session.user.id, Number(poll.id), nowSeconds()).run();
   if (!(Number(result.meta?.changes) > 0)) await assertPollStillOpen(env.FORUM_DB, poll.id);
   return json({ ok: true });
 }
@@ -190,6 +218,8 @@ async function handlePollCreateRoute(request, env, url, path, method) {
       seen.add(key);
       labels.push(label);
     }
+    // v5.38.0 F3: an optional closing time, validated before anything is written.
+    const closesIn = parseClosesIn(body.closesIn) ?? null;
     // One atomic batch: the poll row, then each option resolving its poll id
     // by subquery (D1 batches run sequentially, but option ids need the poll
     // id NOW — the subselect keeps the whole creation in one round trip).
@@ -201,6 +231,7 @@ async function handlePollCreateRoute(request, env, url, path, method) {
         "INSERT INTO poll_options (poll_id, label, position) " +
           "SELECT (SELECT id FROM polls WHERE post_id = ?), ?, ?",
       ).bind(postId, label, index + 1)),
+      ...(closesIn === null ? [] : [deadlineWriteStatement(db, postId, nowSeconds() + closesIn)]),
     ]);
     return json({ ok: true }, 201);
   }
@@ -220,9 +251,7 @@ async function handlePollVoteRoute(request, env, url, path, method) {
     if (!(await canViewPost(env, post, session.user))) throw new HttpError(404, "Post not found.");
     const poll = await db.prepare(POLL_BY_POST_SQL).bind(postId).first();
     if (!poll) throw new HttpError(404, "That thread has no poll.");
-    if (poll.closed_at !== null && poll.closed_at !== undefined) {
-      throw new HttpError(409, "This poll is closed.");
-    }
+    await assertPollOpen(db, poll, postId);
     const body = await readJson(request);
     const optionId = Number(body.optionId);
     if (!Number.isSafeInteger(optionId) || optionId < 1) {
@@ -240,7 +269,7 @@ async function handlePollVoteRoute(request, env, url, path, method) {
     const result = await db.prepare(
       "INSERT INTO poll_votes (poll_id, user_id, option_id, voted_at) SELECT ?, ?, ?, ? WHERE " + POLL_OPEN_SQL + " " +
         "ON CONFLICT(poll_id, user_id) DO UPDATE SET option_id = excluded.option_id, voted_at = excluded.voted_at",
-    ).bind(Number(poll.id), session.user.id, optionId, nowSeconds(), Number(poll.id)).run();
+    ).bind(Number(poll.id), session.user.id, optionId, nowSeconds(), Number(poll.id), nowSeconds()).run();
     if (!(Number(result.meta?.changes) > 0)) throw new HttpError(409, "This poll is closed.");
     return json({ ok: true });
   }

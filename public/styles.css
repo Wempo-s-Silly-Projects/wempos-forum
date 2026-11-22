@@ -3687,6 +3687,24 @@ mark.search-hit {
 /* Wave 5.23 F2: optional pronouns, shown next to the name in the profile header. */
 .profile-pronouns { margin-inline-start: 0.5rem; color: var(--muted); font-size: 0.6em; font-weight: 400; }
 
+/* v5.38.0: custom status under the profile name, the pinned thread on top of
+   the profile, and the poll's closing time. Theme tokens only. */
+.profile-status { margin: 0.25rem 0 0; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: baseline; overflow-wrap: anywhere; }
+.profile-status-emoji { font-size: 1.1em; }
+.pinned-thread {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.8rem;
+  margin: 0.75rem 0;
+  padding: 0.6rem 0.8rem;
+  border-inline-start: 3px solid var(--profile-accent, currentColor);
+}
+.pinned-thread-label { margin: 0; flex-basis: 100%; color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+.pinned-thread-link { overflow-wrap: anywhere; min-width: 0; }
+.poll-closes { margin: 0.25rem 0 0; }
+.poll-deadline { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.4rem; }
+
 /* Wave 5.23 F1: print-friendly threads. CSS only: the chrome goes, the thread
    title and every post (author + date) stay, black on white, a post keeps to
    one page where it can, and external links spell out where they go. */

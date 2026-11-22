@@ -47,6 +47,9 @@ import { handleProfileThreadsRoute } from "./profile-threads.mjs";
 import { recordProfileEdit } from "./automod.mjs";
 // v5.23.0 F2: optional pronouns (own table, own write route).
 import { handlePronounsRoutes, readPronouns } from "./pronouns.mjs";
+// v5.38.0 F1/F2: pinned thread and custom status (migration 0066).
+import { handleProfilePinRoutes, readPinnedThread } from "./profile-pin.mjs";
+import { handleStatusRoutes, readStatus } from "./user-status.mjs";
 
 // PATCH /api/me carries up to a 10,000-character bio, so this route lifts the
 // 16 KB global JSON cap to 64 KB (Task 2 pre-approved per-route interface).
@@ -139,6 +142,11 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       // v5.24.0 S1: masked at read like flair, so a word added to the filter
       // after the save stops showing.
       pronouns: applyWordFilter(await readPronouns(env.FORUM_DB, user.id), filterWords(env)) || "",
+      // v5.38.0: the pinned thread and the custom status ride only this
+      // visible-profile branch (never the block-pair refusal above); both
+      // re-check visibility, ban and expiry on every read.
+      pinnedThread: await readPinnedThread(env, user.id),
+      status: await readStatus(env, user.id),
       socials: socialsFromRow(user),
       polytoriaUsername: user.polytoria_username || null,
       avatarUrl: user.avatar_mime ? "/api/avatars/" + user.id + "?v=" + user.avatar_version : null,
@@ -611,6 +619,8 @@ async function handleProfileRoutes(request, env, url, path, method, ctx) {
     handleProfileThreadsRoute,
     handleProfileUpdateRoute,
     handlePronounsRoutes,
+    handleProfilePinRoutes,
+    handleStatusRoutes,
     handleCssSetRoute,
     handleCssClearRoute,
     handleProfileReportRoute,
