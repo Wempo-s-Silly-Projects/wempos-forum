@@ -165,6 +165,7 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
   if (path === "/api/me" && method === "PATCH") {
     const session = await requireUser(request, env);
     await assertNotBanned(env, session.user.id);
+    await rateLimit(request, env, "write", String(session.user.id));
     const body = await readJson(request, ME_JSON_BYTES);
     // Absent keys never touch their columns; both present together write in
     // one ban-gated UPDATE.

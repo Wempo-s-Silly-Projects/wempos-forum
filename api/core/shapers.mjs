@@ -122,7 +122,7 @@ export function normalizeSocialHandle(key, value) {
   return value;
 }
 
-const SOCIAL_SELECT_COLUMNS =
+export const SOCIAL_SELECT_COLUMNS =
   SOCIAL_PLATFORMS.map((platform) => platform.column).join(", ") + ", ";
 
 // Sparse socials map for read responses: only platforms holding a non-empty
