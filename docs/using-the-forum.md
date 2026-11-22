@@ -207,6 +207,21 @@ text size and language stay.
 - Found a security bug? Please report it privately — see
   [SECURITY.md](../SECURITY.md).
 
+## Privacy: what the forum counts
+
+The forum keeps private visit totals so the people who run it can see how
+it is used. For each day it counts how many times each kind of page was
+opened (the home page, a thread, a profile, a board...) and, when you arrive
+from another site, the name of that site (just the name, never the page you
+came from). That's all. It does not store your IP address, your account,
+your browser details or the address of the page you opened, it sets no
+cookie, and it keeps no record of single visits, so nothing in these totals
+can tell anyone who you are or what you read.
+
+If your browser sends **Do Not Track** or **Global Privacy Control**, you
+are not counted at all. Bots aren't counted either. Totals are deleted after
+90 days. Only staff can see them.
+
 ## Need help?
 
 Post in **Bugs & Troubleshooting & Help**, or drop an idea in **Suggestions**.
