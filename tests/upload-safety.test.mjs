@@ -296,7 +296,10 @@ test("browser-image-compression 2.0.2 is vendored byte for byte, MIT in REUSE.to
 test("the client loads the compressor lazily from the same origin (no CDN, no worker)", () => {
   const prep = read("public/js/upload-prep.js");
   assert.match(prep, /import\("\.\/vendor\/browser-image-compression\.mjs"\)/);
-  assert.doesNotMatch(prep, /https?:\/\/(?!www\.gnu\.org)/);
+  // Every URL host in the file, compared exactly (only the licence header's
+  // gnu.org link may appear) — no hostname inside a regex.
+  const hosts = [...prep.matchAll(/https?:\/\/([^/\s"'`)<>]+)/g)].map((match) => match[1]);
+  assert.deepEqual(hosts.filter((host) => host !== "www.gnu.org"), []);
 });
 
 test("worker libraries are AGPL-compatible dependencies pinned to latest", () => {
