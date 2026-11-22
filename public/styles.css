@@ -3314,6 +3314,27 @@ mark.search-hit {
   margin-block: 0.5rem;
 }
 
+/* Easy-reading spacing (v5.40.0 F3): WCAG 1.4.12 text spacing, set by
+   reading-comfort.js and preloaded by theme-preload.js. Form controls don't
+   inherit letter/word spacing, so they are named. Line height 1.8 is above
+   every base body-text value; the Relaxed/Spacious line spacing below still
+   wins (higher specificity). Image, GIF and jumbo-emoji chat bodies keep
+   their own line boxes. No font change. */
+:root.easy-reading body,
+:root.easy-reading :where(input, textarea, select, button) {
+  letter-spacing: 0.12em;
+  word-spacing: 0.16em;
+}
+:root.easy-reading body {
+  line-height: 1.8;
+}
+:root.easy-reading :where(p, li, dd, blockquote, h1, h2, h3, h4, h5, h6, label, summary, td, th, textarea, .post-body, .chat-message-body):not(.chat-gif-body, .chat-dm-image-body, .chat-emoji-jumbo) {
+  line-height: 1.8;
+}
+:root.easy-reading :where(p, li, blockquote) {
+  margin-block-end: 2em;
+}
+
 /* Reading comfort (wave 5.27 F1): line spacing on post bodies, chat
    messages and the text boxes you write in; image/GIF/jumbo-emoji chat
    bodies keep their tight line boxes. Plus always-underlined links (button-
@@ -3330,6 +3351,8 @@ mark.search-hit {
 }
 .line-spacing-pref,
 .link-underline-pref,
+.easy-reading-pref,
+.notification-pref,
 .contrast-pref {
   display: flex;
   align-items: center;

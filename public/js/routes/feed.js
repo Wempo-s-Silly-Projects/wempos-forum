@@ -39,6 +39,7 @@ import { renderTotpSettings } from "./twofa.js";
 import { renderAccountSecurity } from "../account-security.js";
 import { renderBlockedSettings } from "./blocks.js";
 import { renderFollowingSettings } from "../follows.js";
+import { renderNotificationPrefs } from "../notification-prefs.js";
 import { createFolderFilter, createFolderManage, decorateSavedCards, folderAdder, folderItemsPath, FOLDERS_PATH } from "../bookmark-folders.js";
 import { createComposer } from "./composer.js";
 // The §4b door-swap: the guests' sign-in prompts (mine/bookmarks gates) are
@@ -53,7 +54,7 @@ import { BOARDS, BOARD_BY_SLUG, composerBoardChoices } from "../boards.js";
 import { homepageInterests, homepageIntro } from "../home-intro.js";
 import { t } from "../i18n.js";
 import { createTextSizePicker } from "../text-size.js";
-import { createLineSpacingPicker, createLinkUnderlineToggle } from "../reading-comfort.js";
+import { createEasyReadingToggle, createLineSpacingPicker, createLinkUnderlineToggle } from "../reading-comfort.js";
 import { createContrastPicker } from "../high-contrast.js";
 import { applyTabUnread, createTabUnreadToggle } from "../tab-unread.js";
 import { createQuietHoursControls } from "../quiet-hours.js";
@@ -182,6 +183,8 @@ function renderAccountSettings(session) {
   addText(document, readingComfort, "p", t("readingComfort.lineSpacingHelp"), "muted reading-comfort-help");
   readingComfort.append(createLinkUnderlineToggle(document, storage));
   addText(document, readingComfort, "p", t("readingComfort.underlineLinksHelp"), "muted reading-comfort-help");
+  readingComfort.append(createEasyReadingToggle(document, storage));
+  addText(document, readingComfort, "p", t("readingComfort.easyReadingHelp"), "muted reading-comfort-help");
   readingComfort.append(createContrastPicker(document, storage, window));
   addText(document, readingComfort, "p", t("readingComfort.contrastHelp"), "muted reading-comfort-help");
   account.append(readingComfort);
@@ -192,6 +195,9 @@ function renderAccountSettings(session) {
     onChange: () => applyTabUnread(document, state.unreadNotifications, storage),
   }));
   account.append(quietHours);
+  // Notification preferences (v5.40.0): one checkbox per kind, saved on the
+  // server (it skips muted kinds when notifications are created).
+  renderNotificationPrefs(account);
 
   const passwordPanel = createPanel(t("feed.changePasswordTitle"), t("feed.changePasswordNote"));
   passwordPanel.append(createForm(document, "password", [
