@@ -684,13 +684,12 @@ textarea {
   resize: vertical;
 }
 
-.turnstile-slot {
-  display: flex;
-  justify-content: center;
+.human-check-slot {
+  display: block;
   margin-block: 0.85rem;
 }
 
-.turnstile-slot:empty {
+.human-check-slot:empty {
   display: none;
 }
 

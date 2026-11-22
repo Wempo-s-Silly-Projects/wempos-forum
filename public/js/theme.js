@@ -49,7 +49,6 @@ function readOsPreference(doc) {
 
 import { t } from "./i18n.js";
 import { createIcon } from "./icons.js";
-import { rethemeTurnstile } from "./turnstile.js";
 
 // Corners (v2.5): "round" is the default; the account-settings checkbox
 // flips the appearance pref. Same client-side persistence as the theme.
@@ -91,7 +90,6 @@ export function initTheme(doc, storage) {
       );
       toggle.replaceChildren(createIcon(doc, theme === "dark" ? "moon" : "sun"));
       toggle.title = theme === "dark" ? t("theme.switchToLight") : t("theme.switchToDark");
-      rethemeTurnstile();
     }
   };
 

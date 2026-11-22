@@ -27,9 +27,9 @@ import { isPlainLeftClick, startRouter } from "./router.js";
 import { buildNotFoundLinks } from "./not-found.js";
 import { applyCornerPreference, initTheme } from "./theme.js";
 import {
-  renderTurnstileSlots,
-  teardownTurnstile,
-} from "./turnstile.js";
+  renderHumanCheckSlots,
+  teardownHumanCheck,
+} from "./human-check.js";
 // v4.0 plan 4 Task 1: the shell singletons + panel helpers live in dom.js.
 import {
   addHeading,
@@ -87,6 +87,8 @@ import {
 } from "./routes/twofa.js";
 // Wave 5.14: "Sign out everywhere else" lives in account-security.js.
 import { ACTIONS as accountSecurityActions } from "./account-security.js";
+// Batch F: passkeys (settings section + the guest door button).
+import { ACTIONS as passkeyActions, FORM_HANDLERS as passkeyFormHandlers } from "./passkeys.js";
 // v4.0 profile wall: its module owns the render + the post/pin registrations.
 import {
   ACTIONS as wallActions,
@@ -279,7 +281,7 @@ async function renderRoute(route) {
   // that for the accent).
   main.classList.remove("profile-theme-scope");
   clearProfileTheme();
-  teardownTurnstile();
+  teardownHumanCheck();
   main.replaceChildren();
   setMessage();
 
@@ -320,7 +322,7 @@ async function renderRoute(route) {
     main.replaceChildren();
     renderNotFoundRoute();
   }
-  await renderTurnstileSlots(main);
+  await renderHumanCheckSlots(main);
 }
 
 function readForm(form) {
@@ -351,6 +353,7 @@ async function submitForm(form) {
     ...reportFormHandlers,
     // The two-factor confirm/disable/login step lives in routes/twofa.js.
     ...twofaFormHandlers,
+    ...passkeyFormHandlers,
   };
   const handler = handlers[type];
   // Forms this layer does not own (the chat lobby's) handle their own submit;
@@ -402,6 +405,7 @@ async function handleButtonAction(button) {
     ...createFolderActions({ setMessage, prompt: (text, value) => window.prompt(text, value), confirm: (text) => window.confirm(text) }),
     // Two-factor setup lives in routes/twofa.js.
     ...twofaActions,
+    ...passkeyActions,
     // Signed-in devices (wave 5.14) live in account-security.js.
     ...accountSecurityActions,
     "confirm-block": async () => {

@@ -68,24 +68,24 @@ export function addComposerFiles(currentFiles, pickedFiles) {
 
 // Builds the request body a post/reply composer submits through api():
 // - files present → multipart/form-data (repeatable "images" parts plus the
-//   "body"/"cf-turnstile-response" text fields Task 3's server accepts); api()
+//   "body"/"altcha" text fields Task 3's server accepts); api()
 //   leaves FormData bodies alone (no JSON Content-Type).
 // - no files → the exact pre-attachment JSON payload, byte-identical to what
 //   the composers produced before attachments existed.
 // - board (v2.4.1): the Suggestions composer tags root posts with their board
 //   (JSON key / multipart text part, only when set). Replies never send one —
 //   the server derives their board from the thread root.
-export function buildComposerBody({ body, turnstileToken, files = [], gifs = [], board }) {
+export function buildComposerBody({ body, altcha = "", files = [], gifs = [], board }) {
   // GIF references (v2.5): selected library gifs ride EITHER payload shape as
   // gifIds (repeatable fields in the multipart form; an array in JSON).
   if ((!Array.isArray(files) || files.length === 0) && (!Array.isArray(gifs) || gifs.length === 0)) {
-    const payload = { body, "cf-turnstile-response": turnstileToken };
+    const payload = altcha ? { body, altcha } : { body };
     if (board) payload.board = board;
     return { multipart: false, body: payload };
   }
   const form = new FormData();
   form.append("body", body);
-  form.append("cf-turnstile-response", turnstileToken);
+  if (altcha) form.append("altcha", altcha);
   if (board) form.append("board", board);
   for (const file of files) form.append("images", file, file.name);
   for (const gifId of Array.isArray(gifs) ? gifs : []) form.append("gifIds", gifId);

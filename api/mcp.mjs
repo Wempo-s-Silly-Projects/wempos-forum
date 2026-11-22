@@ -38,7 +38,7 @@
 // cap, the word filter, the staff-only updates board, the write/post-write
 // rate-limit tiers keyed by the agent's user id, the visibility law, the
 // guarded INSERTs, and the notification/@mention/subscription fan-out.
-// Turnstile is the one human gate replaced: the bearer token is the proof.
+// The human check is the one human gate replaced: the bearer token is the proof.
 // Lobby: lobby_read (public) reads the public chat lobby through the SAME
 // shared helpers as GET /api/chat (chat.mjs lobbyMessageRows /
 // lobbyOnlineCount, read-time ban filter included); lobby_post (token-gated)

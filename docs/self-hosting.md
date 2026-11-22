@@ -49,7 +49,6 @@ line marked `CHANGE ME`:
 | `database_name`, `database_id` | The values from step 2. |
 | `SITE_ORIGIN` | Your forum's public address, e.g. `https://forum.example.org`. Leave it empty to use the `workers.dev` address. When set, the `workers.dev` address redirects there. |
 | `ACCOUNTS_ORIGIN` | Your Wempo Accounts address, e.g. `https://accounts.example.org`. Sign-in does not work until this is set. |
-| `TURNSTILE_SITEKEY`, `TURNSTILE_HOSTNAMES` | Optional, see step 6. |
 | `SOURCE_URL` | Where the footer's **Source code** link points. Leave it empty to link the upstream repository at the deployed commit. If you modify the forum, point this at YOUR source, e.g. `https://git.example.org/you/my-forum` (see below). Only `https://` addresses are used. |
 | `RELAY_WORKER_NAME` | The name your Wempo Accounts copy knows this forum by. Keep `wempos-forum` unless you changed it there. |
 | `OG_IMAGE_URL` | Optional. The picture link previews show for every page. Leave it empty to use the forum's own `/og-image.png`, or set a full `https://` (or `http://`) image address, ideally 1200x630. Anything that isn't such an address falls back to the default. |
@@ -91,20 +90,21 @@ pnpm exec wrangler secret put RELAY_TOKEN
 `.dev.vars.example` lists every name with a short note, for local testing
 with `pnpm run dev` (copy it to `.dev.vars`, which is never committed).
 
-## 6. Turnstile (optional)
+## 6. Human check (optional)
 
-Cloudflare Turnstile checks that a person, not a script, is signing up,
-signing in or posting. It is off unless you turn it on; rate limits are
-always on either way.
+A small proof-of-work check (ALTCHA, self-hosted: no third-party script,
+frame or cookie) makes signing up, signing in and posting cost a browser a
+second or two of hashing, which slows scripts down. It is off unless you
+turn it on; rate limits are always on.
 
-To turn it on, create a Turnstile widget in the Cloudflare dashboard for your
-forum's hostname, then:
+To turn it on, store a long random key as a secret:
 
-1. put its sitekey in `TURNSTILE_SITEKEY` and your hostname in
-   `TURNSTILE_HOSTNAMES` in `wrangler.toml`, and
-2. `pnpm exec wrangler secret put TURNSTILE_SECRET` with its secret key.
+```sh
+openssl rand -hex 32 | pnpm exec wrangler secret put ALTCHA_HMAC_KEY
+```
 
-With no `TURNSTILE_SECRET`, the forum shows no widget and asks for no check.
+With no `ALTCHA_HMAC_KEY` (and no legacy `TURNSTILE_SECRET`, from which a key
+is derived if present), the forum asks for no check.
 
 ## 7. Deploy the forum
 

@@ -11,13 +11,13 @@ routes = [
 ]
 
 [vars]
-TURNSTILE_HOSTNAMES = "wempos-forum.com"
 # Self-hosting (v5.17.0): these used to be hard-coded; the owner's values keep
 # this deployment exactly as before (canonical origin + workers.dev 301,
-# Accounts sign-in, Turnstile on). See wrangler.example.toml for a fresh copy.
+# Accounts sign-in). The human check (Batch F: self-hosted ALTCHA) needs no
+# var: it keys off the ALTCHA_HMAC_KEY secret, or derives a key from the
+# existing TURNSTILE_SECRET secret. See wrangler.example.toml for a fresh copy.
 SITE_ORIGIN = "https://wempos-forum.com"
 ACCOUNTS_ORIGIN = "https://accounts.wempos-forum.com"
-TURNSTILE_SITEKEY = "0x4AAAAAAFXrK9dxFMt6fp46"
 RELAY_WORKER_NAME = "wempos-forum"
 # Private analytics (v5.30.0): aggregate page-type/day/referring-site counts
 # only (no IP, no member id, no user agent, no cookie). "true" = on.
@@ -150,9 +150,7 @@ service = "accounts"
 
 # Named preview environment: never inherit the production D1 or rate-limit bindings.
 [env.preview.vars]
-TURNSTILE_HOSTNAMES = "wempos-forum-preview.itswempo.workers.dev"
 ACCOUNTS_ORIGIN = "https://accounts.wempos-forum.com"
-TURNSTILE_SITEKEY = "0x4AAAAAAFXrK9dxFMt6fp46"
 VERSION = "4.4.0-preview"
 
 [env.preview.assets]

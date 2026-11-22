@@ -26,7 +26,8 @@ import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } fro
 import { filterWords } from "./filterstore.mjs";
 import { createSession, assertNetworkNotBanned, readSession, requireCsrf, requireUser } from "./core/auth.mjs";
 import { equalConstantTime, nowSeconds, sha256Hex } from "./core/crypto.mjs";
-import { HttpError, json, rateLimit, readJson, requireTurnstile, securityHeaders } from "./core/http.mjs";
+import { HttpError, json, rateLimit, readJson, securityHeaders } from "./core/http.mjs";
+import { requireHumanCheck } from "./core/human-check.mjs";
 import { hashPassword, isValidPassword, isValidPasswordPepper, isValidSetupSecret, verifyPassword } from "./core/passwords.mjs";
 import { ROLE_ADMIN_DB, ROLE_OWNER_DB } from "./core/roles.mjs";
 import { isValidUsername, publicUser, SOCIAL_SELECT_COLUMNS, userByUsernameKey } from "./core/shapers.mjs";
@@ -187,7 +188,7 @@ async function handleRegistrationRoute(request, env, url, path, method) {
     // credential work, so the response carries no oracle.
     await assertNetworkNotBanned(request, env);
     const body = await readJson(request);
-    await requireTurnstile(request, env, body, "signup");
+    await requireHumanCheck(request, env, body);
     const credentials = validateNewCredentials(body);
     // Usernames must survive the word filter untouched: unlike bios (and post
     // bodies), a username is never worth masking, so ANY alteration (masking,
@@ -219,7 +220,7 @@ async function handleLoginRoute(request, env, url, path, method) {
     const guest = await requireCsrf(request, env);
     await rateLimit(request, env, "login");
     const body = await readJson(request);
-    await requireTurnstile(request, env, body, "login");
+    await requireHumanCheck(request, env, body);
     const username = typeof body.username === "string" ? body.username.trim() : "";
     const password = typeof body.password === "string" ? body.password : "";
     if (!isValidUsername(username) || password.length < 1 || password.length > 128) {

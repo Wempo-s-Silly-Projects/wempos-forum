@@ -188,10 +188,10 @@ test("unset Accounts origin / key: no config metas in the shell", async () => {
 });
 
 test("config meta values are attribute-escaped", async () => {
-  const env = makeEnv({ ACCOUNTS_ORIGIN: 'https://a.example"><script>&' });
+  const env = makeEnv({ ACCOUNTS_ORIGIN: 'https://a.example"><script>', VERSION: 'v"><script>&' });
   const html = await (await fetchAt(env, SELF_HOST + "/", { headers: { Accept: "text/html" } })).text();
   assert.equal(html.toLowerCase().includes("<script>"), false, "the injected tag never reaches the page raw");
-  assert.match(html, /&quot;&gt;&lt;script&gt;&amp;/);
+  assert.match(html, /content="v&quot;&gt;&lt;script&gt;&amp;@/);
 });
 
 function withMetas(metas, fn) {

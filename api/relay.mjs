@@ -30,7 +30,7 @@
 // password oracle if exposed. The gate is a shared secret token env.RELAY_TOKEN
 // (a Cloudflare secret installed on BOTH workers; never in git — the
 // constant-time compare below is the whole auth). No cookies, no CSRF, no
-// Turnstile: the token IS the auth, and the existing login/password-change
+// human check: the token IS the auth, and the existing login/password-change
 // rate limiters throttle per-username hammering exactly like the forum's own
 // login route. Response bodies never include salt/hash material — only ids,
 // usernames, and roles.

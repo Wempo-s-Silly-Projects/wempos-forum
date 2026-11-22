@@ -628,7 +628,7 @@ export const createSubReplyContainer = (postId, replies, document, currentUser =
 // Inline edit composer (v2.4): the form an author's Edit click swaps into the
 // card. Same textarea contract as the create composers — maxLength 1,000 with
 // the shared live counter (forms.js createTextarea) — prefilled with the
-// post's CURRENT body through the value option. No Turnstile slot (owner-
+// post's CURRENT body through the value option. No human-check slot (owner-
 // approved default: the editor is session-verified and the server reuses
 // create's filter/limit gates) and no attachment row: edits are text-only in
 // v1, attachments stay exactly as originally posted.

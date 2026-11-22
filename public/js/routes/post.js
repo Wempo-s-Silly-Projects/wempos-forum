@@ -40,7 +40,7 @@ import {
 import { createComposer } from "./composer.js";
 import { t, tn } from "../i18n.js";
 import { prefillQuote } from "../quotes.js";
-import { renderTurnstileSlots } from "../turnstile.js";
+import { renderHumanCheckSlots } from "../human-check.js";
 import { applyCatchUp } from "../catch-up.js";
 import { createThreadGlance, summarizeThread } from "../thread-glance.js";
 import { markThreadStarterReplies, threadStarterId } from "../thread-starter.js";
@@ -219,7 +219,7 @@ async function toggleReplyComposer(button) {
     return;
   }
   // Mini composer under the level-1 reply; replies go to /api/posts/:thatId
-  // with Turnstile action "reply".
+  // with the same human check as every composer.
   const panel = createComposer("reply", t("post.miniReplyPlaceholder"), t("common.reply"), postId, "reply");
   panel.dataset.replyComposerFor = postId;
   // submitReplyForm reads the FORM's dataset (the thread root it should
@@ -230,7 +230,7 @@ async function toggleReplyComposer(button) {
     panel.querySelector("form").dataset.threadId = String(state.activeRoute.id);
   }
   article.after(panel);
-  await renderTurnstileSlots(panel);
+  await renderHumanCheckSlots(panel);
 }
 
 async function toggleSubReplies(button) {

@@ -173,7 +173,10 @@ test("Turnstile is gone from first-party code", () => {
   for (const file of files) {
     if (!/\.(mjs|js|css|html)$/.test(file)) continue;
     const text = readFileSync(file, "utf8");
-    assert.doesNotMatch(text, /turnstile|challenges\.cloudflare\.com/i, file);
+    // Only human-check.mjs (legacy key derivation) and http.mjs (stripping the
+    // origin from the vendor CSP) may still NAME the retired service.
+    assert.doesNotMatch(text, /requireTurnstile|cf-turnstile|turnstile-slot|turnstile\.js|TURNSTILE_SITEKEY|TURNSTILE_HOSTNAMES|turnstile\/v0|window\.turnstile/i, file);
+    if (!/core\/(human-check|http)\.mjs$/.test(file)) assert.doesNotMatch(text, /turnstile|challenges\.cloudflare\.com/i, file);
   }
 });
 
