@@ -52,6 +52,9 @@ line marked `CHANGE ME`:
 | `TURNSTILE_SITEKEY`, `TURNSTILE_HOSTNAMES` | Optional, see step 6. |
 | `SOURCE_URL` | Where the footer's **Source code** link points. Leave it empty to link the upstream repository at the deployed commit. If you modify the forum, point this at YOUR source, e.g. `https://git.example.org/you/my-forum` (see below). Only `https://` addresses are used. |
 | `RELAY_WORKER_NAME` | The name your Wempo Accounts copy knows this forum by. Keep `wempos-forum` unless you changed it there. |
+| `OG_IMAGE_URL` | Optional. The picture link previews show for every page. Leave it empty to use the forum's own `/og-image.png`, or set a full `https://` (or `http://`) image address, ideally 1200x630. Anything that isn't such an address falls back to the default. |
+| `ANALYTICS_ENABLED` | Optional, off in the example file. See step 11. |
+| `AUTOMOD_ENABLED` | Optional, left out (off) in the example file. See step 12. |
 | `[[services]] service` | Your Wempo Accounts worker's name (from step 8). |
 
 To use your own domain, add it as a custom domain for the worker in the
@@ -134,8 +137,8 @@ the owner account. The setup page only works while the forum has no owner.
 
 ## 10. Name your forum
 
-Signed in as the owner, open **Admin**, then **Branding**
-(`https://<your forum>/admin/branding`). Fill in:
+Signed in as the owner, open the **Moderation desk** (in the header's
+**Account** menu), then **Branding** (`https://<your forum>/admin/branding`). Fill in:
 
 - **Forum name**: shown in the header, the browser tab, the home page, the
   two-factor app entry and the pages written for search engines and agents
@@ -161,13 +164,29 @@ Do Not Track (`DNT: 1`) or Global Privacy Control (`Sec-GPC: 1`) are never
 counted, and neither are bots or `HEAD` requests. Totals older than 90 days
 are deleted.
 
-Staff see the totals under **Admin**, then **Visits**
+Staff see the totals on the moderation desk's **Visits** page
 (`https://<your forum>/admin/visits`).
 
 The example `wrangler.toml` ships with `ANALYTICS_ENABLED = "false"`, so a
 new copy counts nothing. To turn counting on, set it to `"true"` and deploy.
 To turn it off again, set it back to `"false"` (or delete the line) and
 deploy; the totals already counted expire on their own after 90 days.
+
+## 12. AutoMod (optional)
+
+AutoMod lets a program you run yourself hide rule-breaking posts, hand out
+short bans and flag items for staff, through a private API. It is off unless
+**both** of these are true:
+
+1. `AUTOMOD_ENABLED = "true"` is set in `[vars]` (the example file leaves it
+   commented out), and
+2. the `AUTOMOD_KEY` secret is set:
+   `pnpm exec wrangler secret put AUTOMOD_KEY` with a long random value.
+
+The key alone never turns it on, and with either one missing every
+`/api/automod/*` address answers 404. What AutoMod can do, and how to switch
+it off or replace the key if it ever leaks, is in the
+[admin guide](admin-guide.md#automod-api).
 
 ## Sharing your source code
 
