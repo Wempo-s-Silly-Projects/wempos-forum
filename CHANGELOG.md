@@ -10,6 +10,18 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.74.0] - 2026-11-22
+
+### Added
+- Code blocks that name their language after the opening fence (for
+  example ```` ```js ````) are now colour-highlighted, with line numbers on
+  blocks of five lines or more and the language shown when you hover or
+  focus the block. Colours meet 4.5:1 contrast in light and dark themes,
+  get stronger when your system asks for more contrast, and go plain in
+  forced-colours mode. The highlighter (Prism 1.30.0, MIT licence, shipped
+  unminified) loads only on pages with such a block; the copy button still
+  copies exactly what was written, and very long blocks stay plain.
+
 ## [5.73.2] - 2026-11-22
 
 ### Fixed
