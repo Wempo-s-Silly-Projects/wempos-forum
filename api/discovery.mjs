@@ -24,6 +24,7 @@
 // index.html). Every document here describes only what really exists:
 //   GET /robots.txt                        crawler policy + Sitemap line
 //   GET /sitemap.xml                       sitemaps.org urlset, built from D1
+//   (RSS feeds + /llms.txt live in api/feeds.mjs, v5.34)
 //   GET /.well-known/api-catalog           RFC 9727 linkset
 //   GET /openapi.json                      OpenAPI 3.1 for the public reads
 //   GET /auth.md                           how auth actually works (no OAuth)
@@ -100,7 +101,8 @@ const SITEMAP_USERS_SQL =
   "SELECT u.username FROM users u WHERE EXISTS (SELECT 1 FROM posts p " +
   "WHERE p.author_id = u.id AND " + PUBLIC_ROOT_WHERE + ") ORDER BY u.id ASC LIMIT ?";
 
-function feedSql(withBoard) {
+// Exported (v5.34): the RSS feeds (api/feeds.mjs) page the same SQL.
+export function feedSql(withBoard) {
   return "SELECT p.id, p.body, p.board, p.created_at, u.username AS author_username, " +
     PUBLIC_REPLY_COUNT_SQL + " AS reply_count FROM posts p JOIN users u ON u.id = p.author_id " +
     "WHERE " + PUBLIC_ROOT_WHERE + (withBoard ? " AND p.board = ?" : "") +
@@ -305,7 +307,7 @@ export async function markdownResponse(request, env, path) {
 
 // ---- sitemap -------------------------------------------------------------
 
-function xmlEscape(text) {
+export function xmlEscape(text) {
   return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
@@ -339,7 +341,9 @@ export function apiCatalog(origin) {
     linkset: [{
       anchor: origin + "/api/",
       "service-desc": [{ href: origin + "/openapi.json", type: "application/openapi+json" }],
-      "service-doc": [{ href: README_URL, type: "text/html" }],
+      "service-doc": [{ href: README_URL, type: "text/html" }, { href: origin + "/llms.txt", type: "text/plain" }],
+      // v5.34: the RSS feed of the latest public topics (per board: /c/<board>/feed.xml).
+      alternate: [{ href: origin + "/feed.xml", type: "application/rss+xml" }],
       status: [{ href: origin + "/api/version", type: "application/json" }],
     }],
   };
@@ -415,6 +419,8 @@ export function robotsTxt(origin) {
 # forum; AI model-training crawlers may not use members' posts.
 # Note (RFC 9309): a crawler follows only the ONE group that best matches its
 # name, so every group repeats the private-path rules.
+# Summary for AI assistants: ${origin}/llms.txt
+# RSS feed of the latest public topics: ${origin}/feed.xml
 
 # Everyone else (classic search engines included).
 User-agent: *

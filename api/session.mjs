@@ -31,6 +31,7 @@ import { hashPassword, isValidPassword, isValidPasswordPepper, isValidSetupSecre
 import { ROLE_ADMIN_DB, ROLE_OWNER_DB } from "./core/roles.mjs";
 import { isValidUsername, publicUser, userByUsernameKey } from "./core/shapers.mjs";
 import { issueTotpChallenge } from "./twofa.mjs";
+import { invitedBy } from "./invites.mjs";
 
 const DUMMY_SALT = "00000000000000000000000000000000";
 const DUMMY_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
@@ -114,8 +115,10 @@ async function handleSessionRoute(request, env, url, path, method) {
         return json({ user: existing.user, csrfToken: existing.csrfToken }, 200,
           existing.migrateCookies ? migrateHeaders() : undefined);
       }
+      // Invite links (v5.34): the welcome card's "Invited by @user" line —
+      // null unless the inviter is still unbanned and not block-paired.
       return json({
-        user: existing.user,
+        user: { ...existing.user, invitedBy: await invitedBy(env, existing.user.id) },
         csrfToken: existing.csrfToken,
         unreadNotifications: await unreadCount(env, existing.user.id, existing.user.role),
       }, 200, existing.migrateCookies ? migrateHeaders() : undefined);

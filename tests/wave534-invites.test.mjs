@@ -143,3 +143,21 @@ test("nothing about invites is public: profiles and the export of others never s
     assert.ok(!/invite/i.test(text), path);
   }
 });
+
+// D1 enforces foreign keys: both invites references cascade, so deleting the
+// inviter or the invitee succeeds and takes the row with it. The harness
+// schema lacks the retired gc_messages/gc_channels tables that 0043_fleet_boosts still
+// references (the known pre-existing gap that blocks every users DELETE
+// here), so test-local stubs stand in for them.
+test("deleting the inviter or the invitee succeeds and removes the invites row (ON DELETE CASCADE)", async () => {
+  for (const victim of ["alice", "bob"]) {
+    const w = await world();
+    w.db.exec("CREATE TABLE IF NOT EXISTS gc_messages (id INTEGER PRIMARY KEY); CREATE TABLE IF NOT EXISTS gc_channels (id INTEGER PRIMARY KEY)");
+    await claim(w.env, forgeSession(w.db, w.id.bob), "alice");
+    assert.deepEqual(inviteRows(w.db), [[w.id.bob, w.id.alice]]);
+    w.db.prepare("DELETE FROM sessions WHERE user_id = ?").run(w.id[victim]);
+    w.db.prepare("DELETE FROM notifications WHERE user_id = ?").run(w.id[victim]);
+    w.db.prepare("DELETE FROM users WHERE id = ?").run(w.id[victim]);
+    assert.deepEqual(inviteRows(w.db), [], victim);
+  }
+});
