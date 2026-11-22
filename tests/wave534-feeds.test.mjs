@@ -105,6 +105,12 @@ test("XML breakout: member text cannot close an element, inject markup or end CD
   assert.equal(items(xml).length, 1, "a forged <item> opened");
   assert.equal((xml.match(/<\/title>/g) || []).length, 2, "channel + one item title only");
   assert.ok(xml.includes("&lt;/title&gt;&lt;script&gt;alert(1)&lt;/script&gt;]]&gt;&amp;amp;"));
+  // Characters XML 1.0 cannot carry are dropped, never emitted.
+  seedPost(db, { authorId: evil, body: "ctrl\u0001\u0008\u000Bchars\uFFFE here" });
+  const withControls = await (await call(env, "/feed.xml")).text();
+  assert.ok(withControls.includes("ctrlchars here"));
+  // eslint-disable-next-line no-control-regex -- matching control characters is the point
+  assert.ok(!/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/.test(withControls), "XML-forbidden character");
   // Every & in the document starts a known entity.
   assert.ok(!/&(?!(?:amp|lt|gt|quot|apos);)/.test(xml), "bare ampersand");
 });
