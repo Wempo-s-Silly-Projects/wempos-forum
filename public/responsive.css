@@ -380,3 +380,18 @@ table,
     padding-top: env(safe-area-inset-top);
   }
 }
+
+/* Hiding header (Batch J, Headroom.js): small screens only. The header
+   sticks to the top and slides away on scroll-down; header-headroom.js adds
+   .headroom-still under reduced motion, and the media query below is a
+   second guard, so it then hides without the slide. */
+@media (max-width: 640px) {
+  .site-header.headroom { position: sticky; top: 0; z-index: 900; transition: transform 200ms ease-out; }
+  .site-header.headroom--unpinned { transform: translateY(-100%); }
+  .site-header.headroom--pinned { transform: translateY(0); }
+  .site-header.headroom-still { transition: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header.headroom { transition: none; }
+}
