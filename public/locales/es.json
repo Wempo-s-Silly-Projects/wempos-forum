@@ -1149,5 +1149,20 @@
   "slowMode.save": "Activar modo lento",
   "slowMode.set": "Modo lento actualizado.",
   "slowMode.cleared": "Modo lento desactivado.",
-  "errors.slowMode": "El modo lento está activo en este hilo. Espera un poco antes de volver a responder."
+  "errors.slowMode": "El modo lento está activo en este hilo. Espera un poco antes de volver a responder.",
+  "app.pageTag": "Etiqueta",
+  "admin.section.tags": "Etiquetas",
+  "admin.lede.tags": "Crea las etiquetas que los miembros pueden añadir a sus hilos.",
+  "dm.reactionsLabel": "Reacciones",
+  "tags.chipsLabel": "Etiquetas",
+  "tags.pageTitle": "Hilos etiquetados con {label}",
+  "tags.empty": "Todavía no hay hilos con esta etiqueta.",
+  "tags.editLabel": "Etiquetas (hasta {count})",
+  "tags.saved": "Etiquetas guardadas.",
+  "tags.slugLabel": "Identificador (a–z, 0–9, -)",
+  "tags.labelField": "Nombre",
+  "tags.create": "Crear etiqueta",
+  "tags.none": "Todavía no hay etiquetas.",
+  "tags.created": "Etiqueta creada.",
+  "tags.deleted": "Etiqueta eliminada."
 }

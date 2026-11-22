@@ -1149,5 +1149,20 @@
   "slowMode.save": "슬로 모드 설정",
   "slowMode.set": "슬로 모드를 업데이트했습니다.",
   "slowMode.cleared": "슬로 모드를 껐습니다.",
-  "errors.slowMode": "이 스레드에는 슬로 모드가 켜져 있습니다. 잠시 기다린 후 다시 답글을 남겨 주세요."
+  "errors.slowMode": "이 스레드에는 슬로 모드가 켜져 있습니다. 잠시 기다린 후 다시 답글을 남겨 주세요.",
+  "app.pageTag": "태그",
+  "admin.section.tags": "태그 목록",
+  "admin.lede.tags": "회원이 자신의 스레드에 추가할 수 있는 태그를 만드세요.",
+  "dm.reactionsLabel": "반응",
+  "tags.chipsLabel": "태그 목록",
+  "tags.pageTitle": "{label} 태그가 달린 스레드",
+  "tags.empty": "아직 이 태그가 달린 스레드가 없습니다.",
+  "tags.editLabel": "태그 (최대 {count}개)",
+  "tags.saved": "태그를 저장했습니다.",
+  "tags.slugLabel": "슬러그 (a–z, 0–9, -)",
+  "tags.labelField": "이름",
+  "tags.create": "태그 만들기",
+  "tags.none": "아직 태그가 없습니다.",
+  "tags.created": "태그를 만들었습니다.",
+  "tags.deleted": "태그를 삭제했습니다."
 }

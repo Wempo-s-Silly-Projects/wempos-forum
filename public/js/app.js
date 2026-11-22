@@ -121,6 +121,7 @@ import {
   renderLeaderboardRoute,
   renderRulesRoute,
   renderWeekRoute,
+  renderTagRoute,
 } from "./routes/pages.js";
 
 // v4.0 plan 4 Task 7: the appeals concern (the /appeals route and its
@@ -206,6 +207,7 @@ function setRouteTitle(route) {
     leaderboard: t("app.pageLeaderboard"),
     rules: t("app.pageRules"),
     week: t("app.pageWeek"),
+    tag: t("app.pageTag"),
     post: t("app.pagePost"),
     profile: t("app.pageProfile"),
     admin: t("app.pageAdmin"),
@@ -290,6 +292,7 @@ async function renderRoute(route) {
     leaderboard: () => renderLeaderboardRoute(context, version),
     rules: () => renderRulesRoute(context, version),
     week: () => renderWeekRoute(context, version),
+    tag: () => renderTagRoute(route, context, version),
     category: () => renderCategoryRoute(route, context, version),
     archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),
@@ -306,7 +309,8 @@ async function renderRoute(route) {
   } catch (error) {
     // A post that no longer exists (deleted, or a stale link/history entry)
     // is a 404 page, not an error bar (wave 5.6 F1).
-    if (route.name !== "post" || error?.status !== 404 || version !== state.renderVersion) throw error;
+    // An unknown tag (v5.44) is the same 404 page.
+    if ((route.name !== "post" && route.name !== "tag") || error?.status !== 404 || version !== state.renderVersion) throw error;
     main.replaceChildren();
     renderNotFoundRoute();
   }

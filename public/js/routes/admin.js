@@ -49,6 +49,7 @@ import { createReportQueue } from "../desk/reports.js";
 import { createAutoModLog, createDmReportQueue } from "../desk/automod.js";
 import { createMemberPeek } from "../desk/member-tools.js";
 import { createMemberNotes, memberNotesPath } from "../desk/staff-tools.js";
+import { adminTagPath, createTagManager } from "../tags.js";
 import { createFilterEditor } from "../desk/filter.js";
 import { createBrandingEditor, submitBrandingSave } from "../desk/branding.js";
 import { createVisitsPanel } from "../desk/visits.js";
@@ -76,6 +77,7 @@ const DESK_SECTIONS = [
   { slug: "dm-reports", labelKey: "admin.section.dmReports" },
   { slug: "automod", labelKey: "admin.section.automod" },
   { slug: "staff-picks", labelKey: "admin.section.staffPicks" },
+  { slug: "tags", labelKey: "admin.section.tags" },
   { slug: "rules", labelKey: "admin.section.rules" },
   { slug: "filter", labelKey: "admin.section.filter" },
   { slug: "branding", labelKey: "admin.section.branding" },
@@ -158,6 +160,12 @@ const DESK_BUILDERS = {
     ledeKey: "admin.lede.staffPicks",
     load: () => api("/api/admin/staff-picks"),
     build: (data) => createStaffPickLog(data.log, document),
+  },
+  // v5.44: thread tags — create and delete (the thread page applies them).
+  "tags": {
+    ledeKey: "admin.lede.tags",
+    load: () => api("/api/tags"),
+    build: (data) => createTagManager(document, data.tags),
   },
   "rules": {
     ledeKey: "admin.lede.rules",
@@ -519,6 +527,11 @@ export const FORM_HANDLERS = {
   "admin-member-search": (form, text) => submitMemberSearch(form, text),
   "admin-hide-recent": (form, text) => submitHideRecent(form, text),
   "member-note-add": (form, text) => submitMemberNote(form, text),
+  "tag-create": async (form, text) => {
+    await api(adminTagPath(), { method: "POST", body: { slug: text("slug").trim(), label: text("label") } });
+    await state.renderRoute(state.activeRoute);
+    setMessage(t("tags.created"));
+  },
   "filter-save": async (form, text) => submitFilterSave(form, text),
   "filter-bulk-add": async (form, text) => submitFilterBulkAdd(form, text),
   "branding-save": async (form, text) => {
@@ -592,6 +605,11 @@ export const ACTIONS = {
     "member-peek": (button) => toggleMemberPeek(button),
     "report-claim": (button) => changeReportClaim(button, "POST"),
     "report-release": (button) => changeReportClaim(button, "DELETE"),
+    "tag-delete": async (button) => {
+      await api(adminTagPath(button.dataset.tagId), { method: "DELETE" });
+      await state.renderRoute(state.activeRoute);
+      setMessage(t("tags.deleted"));
+    },
     "member-note-delete": async (button) => {
       await api(memberNotesPath(button.dataset.memberId, button.dataset.noteId), { method: "DELETE" });
       await refreshMemberNotes(button);

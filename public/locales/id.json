@@ -1149,5 +1149,20 @@
   "slowMode.save": "Atur mode lambat",
   "slowMode.set": "Mode lambat diperbarui.",
   "slowMode.cleared": "Mode lambat dimatikan.",
-  "errors.slowMode": "Mode lambat aktif di utas ini. Tunggu sebentar sebelum membalas lagi."
+  "errors.slowMode": "Mode lambat aktif di utas ini. Tunggu sebentar sebelum membalas lagi.",
+  "app.pageTag": "Tag",
+  "admin.section.tags": "Tag",
+  "admin.lede.tags": "Buat tag yang dapat ditambahkan anggota ke utas mereka.",
+  "dm.reactionsLabel": "Reaksi",
+  "tags.chipsLabel": "Daftar tag",
+  "tags.pageTitle": "Utas dengan tag {label}",
+  "tags.empty": "Belum ada utas dengan tag ini.",
+  "tags.editLabel": "Tag (maksimal {count})",
+  "tags.saved": "Tag disimpan.",
+  "tags.slugLabel": "Slug (a–z, 0–9, -)",
+  "tags.labelField": "Nama",
+  "tags.create": "Buat tag",
+  "tags.none": "Belum ada tag.",
+  "tags.created": "Tag dibuat.",
+  "tags.deleted": "Tag dihapus."
 }

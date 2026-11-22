@@ -1149,5 +1149,20 @@
   "slowMode.save": "Đặt chế độ chậm",
   "slowMode.set": "Đã cập nhật chế độ chậm.",
   "slowMode.cleared": "Đã tắt chế độ chậm.",
-  "errors.slowMode": "Chủ đề này đang bật chế độ chậm. Hãy đợi một chút trước khi trả lời tiếp."
+  "errors.slowMode": "Chủ đề này đang bật chế độ chậm. Hãy đợi một chút trước khi trả lời tiếp.",
+  "app.pageTag": "Thẻ",
+  "admin.section.tags": "Các thẻ",
+  "admin.lede.tags": "Tạo các thẻ mà thành viên có thể gắn vào chủ đề của họ.",
+  "dm.reactionsLabel": "Cảm xúc",
+  "tags.chipsLabel": "Các thẻ",
+  "tags.pageTitle": "Chủ đề gắn thẻ {label}",
+  "tags.empty": "Chưa có chủ đề nào gắn thẻ này.",
+  "tags.editLabel": "Thẻ (tối đa {count})",
+  "tags.saved": "Đã lưu thẻ.",
+  "tags.slugLabel": "Tên rút gọn (a–z, 0–9, -)",
+  "tags.labelField": "Tên",
+  "tags.create": "Tạo thẻ",
+  "tags.none": "Chưa có thẻ nào.",
+  "tags.created": "Đã tạo thẻ.",
+  "tags.deleted": "Đã xóa thẻ."
 }

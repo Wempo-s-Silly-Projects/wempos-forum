@@ -1149,5 +1149,20 @@
   "slowMode.save": "سست موڈ مقرر کریں",
   "slowMode.set": "سست موڈ تازہ ہو گیا۔",
   "slowMode.cleared": "سست موڈ بند کر دیا گیا۔",
-  "errors.slowMode": "اس تھریڈ میں سست موڈ آن ہے۔ دوبارہ جواب دینے سے پہلے تھوڑا انتظار کریں۔"
+  "errors.slowMode": "اس تھریڈ میں سست موڈ آن ہے۔ دوبارہ جواب دینے سے پہلے تھوڑا انتظار کریں۔",
+  "app.pageTag": "ٹیگ",
+  "admin.section.tags": "ٹیگز",
+  "admin.lede.tags": "وہ ٹیگ بنائیں جو اراکین اپنے تھریڈز میں شامل کر سکیں۔",
+  "dm.reactionsLabel": "ردِعمل",
+  "tags.chipsLabel": "ٹیگز",
+  "tags.pageTitle": "{label} ٹیگ والے تھریڈز",
+  "tags.empty": "اس ٹیگ والا ابھی کوئی تھریڈ نہیں۔",
+  "tags.editLabel": "ٹیگز ({count} تک)",
+  "tags.saved": "ٹیگز محفوظ ہو گئے۔",
+  "tags.slugLabel": "مختصر نام (a–z، 0–9، -)",
+  "tags.labelField": "نام",
+  "tags.create": "ٹیگ بنائیں",
+  "tags.none": "ابھی کوئی ٹیگ نہیں۔",
+  "tags.created": "ٹیگ بن گیا۔",
+  "tags.deleted": "ٹیگ حذف ہو گیا۔"
 }

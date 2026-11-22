@@ -1149,5 +1149,20 @@
   "slowMode.save": "設定慢速模式",
   "slowMode.set": "慢速模式已更新。",
   "slowMode.cleared": "慢速模式已關閉。",
-  "errors.slowMode": "此主題已開啟慢速模式。請稍候再回覆。"
+  "errors.slowMode": "此主題已開啟慢速模式。請稍候再回覆。",
+  "app.pageTag": "標籤",
+  "admin.section.tags": "標籤列表",
+  "admin.lede.tags": "建立成員可以新增到其討論串中的標籤。",
+  "dm.reactionsLabel": "回應",
+  "tags.chipsLabel": "標籤列表",
+  "tags.pageTitle": "標記為「{label}」的討論串",
+  "tags.empty": "還沒有討論串使用此標籤。",
+  "tags.editLabel": "標籤（最多 {count} 個）",
+  "tags.saved": "標籤已儲存。",
+  "tags.slugLabel": "短名稱（a–z、0–9、-）",
+  "tags.labelField": "名稱",
+  "tags.create": "建立標籤",
+  "tags.none": "還沒有標籤。",
+  "tags.created": "標籤已建立。",
+  "tags.deleted": "標籤已刪除。"
 }

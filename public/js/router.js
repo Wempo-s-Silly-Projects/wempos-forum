@@ -100,6 +100,10 @@ export const routeForPath = (pathname, search = "") => {
       ? withFeedView({ name: "category", board: category[1] }, search)
       : { name: "not-found" };
   }
+  // Thread tags (v5.44): /tag/<slug>; the slug shape is the server's
+  // ([a-z0-9-]{2,24}), anything else is a 404 like any unknown path.
+  const tag = pathname.match(/^\/tag\/([a-z0-9-]{2,24})$/);
+  if (tag) return { name: "tag", slug: tag[1] };
   const post = pathname.match(/^\/posts\/(\d+)$/);
   if (post) return { name: "post", id: Number(post[1]) };
   const user = pathname.match(/^\/users\/([^/]+)$/);

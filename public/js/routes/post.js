@@ -58,6 +58,7 @@ import { createSaveThreadButton } from "../thread-text.js";
 import { startReadingProgress } from "../reading-progress.js";
 import { createShareButton } from "../share.js";
 import { createSlowModeForm, createSlowModeNote, slowModePath } from "../slow-mode.js";
+import { createTagChips, createTagEditor, postTagsPath } from "../tags.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -75,6 +76,10 @@ async function renderPostRoute(route, context, version) {
   if (!post.parent && (viewer?.role === "owner" || viewer?.role === "admin")) {
     main.append(createSlowModeForm(document, post.id, post.slowModeSeconds));
   }
+  // Thread tags (v5.44): chips for everyone on a root; the picker for the
+  // author and staff. A failed tag read leaves the page without chips.
+  if (!post.parent) await appendThreadTags(post, viewer, version);
+  if (version !== state.renderVersion) return;
   // Share (v5.34): public root threads only, never for staff viewers.
   const share = createShareButton(document, post, context.session.user);
   if (share) main.append(share);
@@ -299,6 +304,21 @@ async function loadOlderReplies(button) {
   else button.remove();
 }
 
+async function appendThreadTags(post, viewer, version) {
+  const isStaffViewer = viewer?.role === "owner" || viewer?.role === "admin";
+  const canEdit = Boolean(viewer) && (isStaffViewer || Number(post.author?.id) === Number(viewer.id));
+  const [own, all] = await Promise.all([
+    api(postTagsPath(post.id)).catch(() => ({ tags: [] })),
+    canEdit ? api("/api/tags").catch(() => ({ tags: [] })) : Promise.resolve({ tags: [] }),
+  ]);
+  if (version !== state.renderVersion) return;
+  const chips = createTagChips(document, own.tags);
+  if (chips) main.append(chips);
+  if (!canEdit) return;
+  const editor = createTagEditor(document, post.id, all.tags, (own.tags || []).map((tag) => tag.id));
+  if (editor) main.append(editor);
+}
+
 // The registration seam: post-edit submits through FORM_HANDLERS; the detail
 // route's own actions merge into handleButtonAction's dispatch map.
 export const FORM_HANDLERS = {
@@ -311,6 +331,13 @@ export const FORM_HANDLERS = {
     await api(path, seconds > 0 ? { method: "PUT", body: { seconds } } : { method: "DELETE" });
     await state.renderRoute(state.activeRoute);
     setMessage(t(seconds > 0 ? "slowMode.set" : "slowMode.cleared"));
+  },
+  // Thread tags (v5.44): the checked boxes are the whole new set.
+  "thread-tags": async (form, text, values) => {
+    const tagIds = values.getAll("tagId").map(Number);
+    await api(postTagsPath(form.dataset.postId), { method: "PUT", body: { tagIds } });
+    await state.renderRoute(state.activeRoute);
+    setMessage(t("tags.saved"));
   },
 };
 

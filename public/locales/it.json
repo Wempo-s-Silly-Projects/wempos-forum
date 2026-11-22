@@ -1149,5 +1149,20 @@
   "slowMode.save": "Imposta modalità lenta",
   "slowMode.set": "Modalità lenta aggiornata.",
   "slowMode.cleared": "Modalità lenta disattivata.",
-  "errors.slowMode": "In questa discussione è attiva la modalità lenta. Attendi un po' prima di rispondere di nuovo."
+  "errors.slowMode": "In questa discussione è attiva la modalità lenta. Attendi un po' prima di rispondere di nuovo.",
+  "app.pageTag": "Etichetta",
+  "admin.section.tags": "Etichette",
+  "admin.lede.tags": "Crea le etichette che i membri possono aggiungere alle loro discussioni.",
+  "dm.reactionsLabel": "Reazioni",
+  "tags.chipsLabel": "Etichette",
+  "tags.pageTitle": "Discussioni con etichetta {label}",
+  "tags.empty": "Nessuna discussione ha ancora questa etichetta.",
+  "tags.editLabel": "Etichette (fino a {count})",
+  "tags.saved": "Etichette salvate.",
+  "tags.slugLabel": "Identificativo (a–z, 0–9, -)",
+  "tags.labelField": "Nome",
+  "tags.create": "Crea etichetta",
+  "tags.none": "Ancora nessuna etichetta.",
+  "tags.created": "Etichetta creata.",
+  "tags.deleted": "Etichetta eliminata."
 }

@@ -1149,5 +1149,20 @@
   "slowMode.save": "设置慢速模式",
   "slowMode.set": "慢速模式已更新。",
   "slowMode.cleared": "慢速模式已关闭。",
-  "errors.slowMode": "此主题已开启慢速模式。请稍等片刻再回复。"
+  "errors.slowMode": "此主题已开启慢速模式。请稍等片刻再回复。",
+  "app.pageTag": "标签",
+  "admin.section.tags": "标签列表",
+  "admin.lede.tags": "创建成员可以添加到其帖子中的标签。",
+  "dm.reactionsLabel": "回应",
+  "tags.chipsLabel": "标签列表",
+  "tags.pageTitle": "标记为“{label}”的帖子",
+  "tags.empty": "还没有帖子使用此标签。",
+  "tags.editLabel": "标签（最多 {count} 个）",
+  "tags.saved": "标签已保存。",
+  "tags.slugLabel": "短名称（a–z、0–9、-）",
+  "tags.labelField": "名称",
+  "tags.create": "创建标签",
+  "tags.none": "还没有标签。",
+  "tags.created": "标签已创建。",
+  "tags.deleted": "标签已删除。"
 }

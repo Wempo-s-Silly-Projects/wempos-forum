@@ -1149,5 +1149,20 @@
   "slowMode.save": "הגדרת מצב איטי",
   "slowMode.set": "המצב האיטי עודכן.",
   "slowMode.cleared": "המצב האיטי כובה.",
-  "errors.slowMode": "מצב איטי פעיל בשרשור הזה. יש להמתין מעט לפני תגובה נוספת."
+  "errors.slowMode": "מצב איטי פעיל בשרשור הזה. יש להמתין מעט לפני תגובה נוספת.",
+  "app.pageTag": "תגית",
+  "admin.section.tags": "תגיות",
+  "admin.lede.tags": "צרו את התגיות שחברים יכולים להוסיף לשרשורים שלהם.",
+  "dm.reactionsLabel": "תגובות רגש",
+  "tags.chipsLabel": "תגיות",
+  "tags.pageTitle": "שרשורים עם התגית {label}",
+  "tags.empty": "עדיין אין שרשורים עם התגית הזו.",
+  "tags.editLabel": "תגיות (עד {count})",
+  "tags.saved": "התגיות נשמרו.",
+  "tags.slugLabel": "מזהה (a–z, 0–9, -)",
+  "tags.labelField": "שם",
+  "tags.create": "יצירת תגית",
+  "tags.none": "עדיין אין תגיות.",
+  "tags.created": "התגית נוצרה.",
+  "tags.deleted": "התגית נמחקה."
 }

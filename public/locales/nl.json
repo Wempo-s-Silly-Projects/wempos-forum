@@ -1149,5 +1149,20 @@
   "slowMode.save": "Langzame modus instellen",
   "slowMode.set": "Langzame modus bijgewerkt.",
   "slowMode.cleared": "Langzame modus uitgezet.",
-  "errors.slowMode": "In dit topic staat de langzame modus aan. Wacht even voordat je opnieuw reageert."
+  "errors.slowMode": "In dit topic staat de langzame modus aan. Wacht even voordat je opnieuw reageert.",
+  "app.pageTag": "Label",
+  "admin.section.tags": "Labels",
+  "admin.lede.tags": "Maak de labels aan die leden aan hun topics kunnen toevoegen.",
+  "dm.reactionsLabel": "Reacties",
+  "tags.chipsLabel": "Labels",
+  "tags.pageTitle": "Topics met het label {label}",
+  "tags.empty": "Nog geen topics met dit label.",
+  "tags.editLabel": "Labels (maximaal {count})",
+  "tags.saved": "Labels opgeslagen.",
+  "tags.slugLabel": "Korte naam (a–z, 0–9, -)",
+  "tags.labelField": "Naam",
+  "tags.create": "Label aanmaken",
+  "tags.none": "Nog geen labels.",
+  "tags.created": "Label aangemaakt.",
+  "tags.deleted": "Label verwijderd."
 }

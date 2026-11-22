@@ -1149,5 +1149,20 @@
   "slowMode.save": "Yavaş modu ayarla",
   "slowMode.set": "Yavaş mod güncellendi.",
   "slowMode.cleared": "Yavaş mod kapatıldı.",
-  "errors.slowMode": "Bu konuda yavaş mod açık. Tekrar yanıtlamadan önce biraz bekle."
+  "errors.slowMode": "Bu konuda yavaş mod açık. Tekrar yanıtlamadan önce biraz bekle.",
+  "app.pageTag": "Etiket",
+  "admin.section.tags": "Etiketler",
+  "admin.lede.tags": "Üyelerin konularına ekleyebileceği etiketleri oluşturun.",
+  "dm.reactionsLabel": "Tepkiler",
+  "tags.chipsLabel": "Etiketler",
+  "tags.pageTitle": "{label} etiketli konular",
+  "tags.empty": "Bu etikete sahip henüz konu yok.",
+  "tags.editLabel": "Etiketler (en fazla {count})",
+  "tags.saved": "Etiketler kaydedildi.",
+  "tags.slugLabel": "Kısa ad (a–z, 0–9, -)",
+  "tags.labelField": "Ad",
+  "tags.create": "Etiket oluştur",
+  "tags.none": "Henüz etiket yok.",
+  "tags.created": "Etiket oluşturuldu.",
+  "tags.deleted": "Etiket silindi."
 }

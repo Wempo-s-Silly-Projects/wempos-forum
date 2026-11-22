@@ -1149,5 +1149,20 @@
   "slowMode.save": "ضبط الوضع البطيء",
   "slowMode.set": "تم تحديث الوضع البطيء.",
   "slowMode.cleared": "تم إيقاف الوضع البطيء.",
-  "errors.slowMode": "الوضع البطيء مفعّل في هذا الموضوع. انتظر قليلًا قبل الرد مرة أخرى."
+  "errors.slowMode": "الوضع البطيء مفعّل في هذا الموضوع. انتظر قليلًا قبل الرد مرة أخرى.",
+  "app.pageTag": "وسم",
+  "admin.section.tags": "الوسوم",
+  "admin.lede.tags": "أنشئ الوسوم التي يمكن للأعضاء إضافتها إلى مواضيعهم.",
+  "dm.reactionsLabel": "التفاعلات",
+  "tags.chipsLabel": "الوسوم",
+  "tags.pageTitle": "مواضيع موسومة بـ {label}",
+  "tags.empty": "لا توجد مواضيع بهذا الوسم بعد.",
+  "tags.editLabel": "الوسوم (حتى {count})",
+  "tags.saved": "تم حفظ الوسوم.",
+  "tags.slugLabel": "المعرّف (a–z، 0–9، -)",
+  "tags.labelField": "التسمية",
+  "tags.create": "إنشاء وسم",
+  "tags.none": "لا توجد وسوم بعد.",
+  "tags.created": "تم إنشاء الوسم.",
+  "tags.deleted": "تم حذف الوسم."
 }

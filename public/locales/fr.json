@@ -1149,5 +1149,20 @@
   "slowMode.save": "Régler le mode lent",
   "slowMode.set": "Mode lent mis à jour.",
   "slowMode.cleared": "Mode lent désactivé.",
-  "errors.slowMode": "Le mode lent est actif dans ce fil. Patientez un peu avant de répondre à nouveau."
+  "errors.slowMode": "Le mode lent est actif dans ce fil. Patientez un peu avant de répondre à nouveau.",
+  "app.pageTag": "Étiquette",
+  "admin.section.tags": "Étiquettes",
+  "admin.lede.tags": "Créez les étiquettes que les membres peuvent ajouter à leurs fils.",
+  "dm.reactionsLabel": "Réactions",
+  "tags.chipsLabel": "Étiquettes",
+  "tags.pageTitle": "Fils étiquetés {label}",
+  "tags.empty": "Aucun fil ne porte encore cette étiquette.",
+  "tags.editLabel": "Étiquettes (jusqu'à {count})",
+  "tags.saved": "Étiquettes enregistrées.",
+  "tags.slugLabel": "Identifiant (a–z, 0–9, -)",
+  "tags.labelField": "Libellé",
+  "tags.create": "Créer l'étiquette",
+  "tags.none": "Aucune étiquette pour l'instant.",
+  "tags.created": "Étiquette créée.",
+  "tags.deleted": "Étiquette supprimée."
 }

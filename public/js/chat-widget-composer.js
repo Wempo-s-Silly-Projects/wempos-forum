@@ -35,6 +35,7 @@ import { dropGroup, paintBadge, paintThreadList, refreshUnread } from "./chat-wi
 import { relativeTime } from "./chat-widget.js";
 import { buildNewDivider, newMarkerFor } from "./chat-new-divider.js";
 import { buildChatSearch, jumpToMessage } from "./chat-search.js";
+import { buildDmReactions, dmReactionPath } from "./dm-reactions.js";
 
 let sendInFlight = false;
 
@@ -189,6 +190,16 @@ const buildMuteToggle = (current) => {
   return [toggle, note];
 };
 
+// v5.44: set, switch or remove the viewer's reaction, then repaint quietly.
+const toggleDmReaction = async (messageId, value) => {
+  try {
+    await api(dmReactionPath(messageId), value ? { method: "PUT", body: { value } } : { method: "DELETE" });
+    if (ui.activeThread) await openThread(ui.activeThread, { silent: true });
+  } catch (error) {
+    showSendError(error?.message || t("chat.sendFailed"));
+  }
+};
+
 export const paintConversation = () => {
   if (!ui.conversationEl || !ui.conversation) return;
   // The reader's scroll: a full re-render (the 5s poll replaces every node)
@@ -284,6 +295,8 @@ export const paintConversation = () => {
     const time = el("span", "chat-widget-message-time", relativeTime(message.createdAt));
     time.title = message.createdAt || "";
     bubble.append(body, time);
+    // v5.44: the like/dislike pair under 1:1 messages (group DMs have none).
+    if (!isGroup) bubble.append(buildDmReactions(document, message, toggleDmReaction));
     scroll.append(bubble);
   }
   const older = el("button", "chat-widget-older");

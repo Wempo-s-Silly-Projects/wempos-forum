@@ -1149,5 +1149,20 @@
   "slowMode.save": "Defineix el mode lent",
   "slowMode.set": "S'ha actualitzat el mode lent.",
   "slowMode.cleared": "S'ha desactivat el mode lent.",
-  "errors.slowMode": "El mode lent és actiu en aquest fil. Espera una mica abans de tornar a respondre."
+  "errors.slowMode": "El mode lent és actiu en aquest fil. Espera una mica abans de tornar a respondre.",
+  "app.pageTag": "Etiqueta",
+  "admin.section.tags": "Etiquetes",
+  "admin.lede.tags": "Crea les etiquetes que els membres poden afegir als seus fils.",
+  "dm.reactionsLabel": "Reaccions",
+  "tags.chipsLabel": "Etiquetes",
+  "tags.pageTitle": "Fils etiquetats amb {label}",
+  "tags.empty": "Encara no hi ha cap fil amb aquesta etiqueta.",
+  "tags.editLabel": "Etiquetes (fins a {count})",
+  "tags.saved": "S'han desat les etiquetes.",
+  "tags.slugLabel": "Identificador (a–z, 0–9, -)",
+  "tags.labelField": "Nom",
+  "tags.create": "Crea l'etiqueta",
+  "tags.none": "Encara no hi ha etiquetes.",
+  "tags.created": "S'ha creat l'etiqueta.",
+  "tags.deleted": "S'ha suprimit l'etiqueta."
 }

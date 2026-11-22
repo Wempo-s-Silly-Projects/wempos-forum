@@ -1149,5 +1149,20 @@
   "slowMode.save": "Постави спори режим",
   "slowMode.set": "Спори режим је ажуриран.",
   "slowMode.cleared": "Спори режим је искључен.",
-  "errors.slowMode": "У овој теми је укључен спори режим. Сачекај мало пре новог одговора."
+  "errors.slowMode": "У овој теми је укључен спори режим. Сачекај мало пре новог одговора.",
+  "app.pageTag": "Oznaka",
+  "admin.section.tags": "Oznake",
+  "admin.lede.tags": "Napravite oznake koje članovi mogu da dodaju svojim temama.",
+  "dm.reactionsLabel": "Reakcije",
+  "tags.chipsLabel": "Oznake",
+  "tags.pageTitle": "Teme sa oznakom {label}",
+  "tags.empty": "Još nema tema sa ovom oznakom.",
+  "tags.editLabel": "Oznake (najviše {count})",
+  "tags.saved": "Oznake su sačuvane.",
+  "tags.slugLabel": "Kratak naziv (a–z, 0–9, -)",
+  "tags.labelField": "Naziv",
+  "tags.create": "Napravi oznaku",
+  "tags.none": "Još nema oznaka.",
+  "tags.created": "Oznaka je napravljena.",
+  "tags.deleted": "Oznaka je obrisana."
 }

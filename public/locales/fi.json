@@ -1149,5 +1149,20 @@
   "slowMode.save": "Aseta hidas tila",
   "slowMode.set": "Hidas tila päivitetty.",
   "slowMode.cleared": "Hidas tila poistettu käytöstä.",
-  "errors.slowMode": "Tässä ketjussa on hidas tila päällä. Odota hetki ennen kuin vastaat uudelleen."
+  "errors.slowMode": "Tässä ketjussa on hidas tila päällä. Odota hetki ennen kuin vastaat uudelleen.",
+  "app.pageTag": "Tunniste",
+  "admin.section.tags": "Tunnisteet",
+  "admin.lede.tags": "Luo tunnisteet, joita jäsenet voivat lisätä ketjuihinsa.",
+  "dm.reactionsLabel": "Reaktiot",
+  "tags.chipsLabel": "Tunnisteet",
+  "tags.pageTitle": "Ketjut tunnisteella {label}",
+  "tags.empty": "Tällä tunnisteella ei ole vielä ketjuja.",
+  "tags.editLabel": "Tunnisteet (enintään {count})",
+  "tags.saved": "Tunnisteet tallennettu.",
+  "tags.slugLabel": "Lyhytnimi (a–z, 0–9, -)",
+  "tags.labelField": "Nimi",
+  "tags.create": "Luo tunniste",
+  "tags.none": "Ei vielä tunnisteita.",
+  "tags.created": "Tunniste luotu.",
+  "tags.deleted": "Tunniste poistettu."
 }
