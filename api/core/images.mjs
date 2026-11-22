@@ -19,9 +19,12 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 // v4.0 core leaf: image intake sanitization (polyglot / metadata payload
-// defense), magic-byte sniffing, and egress re-verification. Imports only
-// the crypto leaf (random tokens) and the http leaf (HttpError,
-// securityHeaders). Everything here is pure byte work — no D1, no session.
+// defense), magic-byte sniffing, and egress re-verification. Imports the
+// crypto leaf (random tokens), the http leaf (HttpError, securityHeaders) and
+// two pure byte libraries (file-type, image-dimensions). Everything here is
+// pure byte work — no D1 queries run here, no session.
+import { fileTypeFromBuffer } from "file-type";
+import { imageDimensionsFromData } from "image-dimensions";
 import { randomToken } from "./crypto.mjs";
 import { HttpError, securityHeaders } from "./http.mjs";
 
@@ -277,6 +280,66 @@ export function sanitizeImage(bytes) {
     : sanitizeWebp(bytes);
   if (!sanitized) return null;
   return { bytes: sanitized, mime };
+}
+
+// ---- Authoritative intake inspection (upload safety pipeline) ----
+//
+// Every image intake route calls inspectImageUpload on the raw upload bytes.
+// Two independent detectors must agree before anything is stored: the
+// structural sniffer above (which the sanitizer walks) and the file-type
+// library's signature table. A renamed .exe/.html/.svg, a PDF, or anything
+// the two disagree on is refused. The client's own checks are a courtesy;
+// this is the gate. file-type reports an animated PNG as image/apng — the
+// same PNG container, so it maps back to image/png.
+const FILE_TYPE_ALIASES = Object.freeze({ "image/apng": "image/png" });
+
+async function detectedMime(bytes) {
+  try {
+    const detected = await fileTypeFromBuffer(bytes);
+    if (!detected) return null;
+    return FILE_TYPE_ALIASES[detected.mime] ?? detected.mime;
+  } catch {
+    // A parser hard-limit or malformed-structure error from the library is a
+    // "could not identify" answer, never a pass.
+    return null;
+  }
+}
+
+// Width/height from the header bytes alone (image-dimensions), or null when
+// the header does not carry them. Used for <img width/height> so attachments
+// reserve their box before the bytes arrive (no layout shift).
+export function imageDimensions(bytes) {
+  if (!(bytes instanceof Uint8Array) || bytes.length === 0) return null;
+  let size;
+  try {
+    size = imageDimensionsFromData(bytes);
+  } catch {
+    return null;
+  }
+  if (!size || !Number.isSafeInteger(size.width) || !Number.isSafeInteger(size.height)) return null;
+  if (size.width < 1 || size.height < 1) return null;
+  return { width: size.width, height: size.height };
+}
+
+// Returns { mime, bytes, width, height } (bytes sanitized; width/height null
+// when the header lacks them) or null when the upload is not an allowed image.
+export async function inspectImageUpload(bytes) {
+  const mime = sniffImageMime(bytes);
+  if (!mime) return null;
+  if (await detectedMime(bytes) !== mime) return null;
+  const sanitized = sanitizeImage(bytes);
+  if (!sanitized) return null;
+  const size = imageDimensions(sanitized.bytes);
+  return { mime, bytes: sanitized.bytes, width: size?.width ?? null, height: size?.height ?? null };
+}
+
+// Content-addressed dimensions row (migration 0080). INSERT OR IGNORE: the
+// same clean bytes always have the same size, so the first writer wins.
+// Returns null when there is nothing to record.
+export function imageDimensionsStatement(db, hash, image) {
+  if (!image?.width || !image?.height) return null;
+  return db.prepare("INSERT OR IGNORE INTO image_dimensions (hash, width, height) VALUES (?, ?, ?)")
+    .bind(hash, image.width, image.height);
 }
 
 // Egress for stored image bytes. The row's claimed MIME is re-verified

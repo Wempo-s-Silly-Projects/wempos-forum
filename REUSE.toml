@@ -68,3 +68,15 @@ path = "public/js/vendor/**"
 precedence = "override"
 SPDX-FileCopyrightText = "Lea Verou and PrismJS contributors"
 SPDX-License-Identifier = "MIT"
+
+# browser-image-compression 2.0.2
+# (https://github.com/Donaldcwl/browser-image-compression), its
+# dist/browser-image-compression.mjs kept byte-for-byte with its own upstream
+# banner (upload safety pipeline). MIT, compatible with AGPL-3.0-or-later; the
+# sha256 is pinned by tests/upload-safety.test.mjs. Listed after the
+# public/js/vendor/** block so this narrower path wins.
+[[annotations]]
+path = "public/js/vendor/browser-image-compression.mjs"
+precedence = "override"
+SPDX-FileCopyrightText = "2019 Donald Chan"
+SPDX-License-Identifier = "MIT"

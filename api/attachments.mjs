@@ -28,7 +28,9 @@
 import { assertNotBanned, readSession, requireStaff } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, readLimitedBody, readJson } from "./core/http.mjs";
-import { blobToUint8Array, createAvatarVersion, imageResponse, sanitizeImage, sniffImageMime } from "./core/images.mjs";
+import {
+  blobToUint8Array, createAvatarVersion, imageDimensionsStatement, imageResponse, inspectImageUpload, sniffImageMime,
+} from "./core/images.mjs";
 import { assembledGifBytes, GIF_FIELD } from "./gifs.mjs";
 
 export const MAX_ATTACHMENT_FILES = 3;
@@ -132,18 +134,23 @@ export async function readComposedBody(request, env, options = {}) {
       // Polyglot/metadata defense: strip text-carrying segments (JPEG APPn/COM,
       // PNG tEXt/iTXt/EXIF, GIF comments, WebP EXIF/XMP) and any payload
       // appended after the image's logical end, and require valid structure.
-      const sanitized = sanitizeImage(bytes);
-      if (!sanitized) {
+      // inspectImageUpload adds the authoritative second opinion (file-type
+      // must agree with the sniff) and reads width/height from the header.
+      const inspected = await inspectImageUpload(bytes);
+      if (!inspected) {
         throw new HttpError(400, "That image could not be read. Try re-saving it and uploading again.");
       }
-      const clean = sanitized.bytes;
+      const clean = inspected.bytes;
       // v2.5 dedup + auto-approve: identical SANITIZED bytes to previously
       // approved content skip moderation, but direct file uploads still get
       // their own chunks. Hashing the clean bytes means the same image with
       // junk appended dedups to the same canonical hash.
       const hash = await sha256Hex(clean);
       const canonical = await lookupCanonicalByHash(env.FORUM_DB, hash);
-      files.push({ mime, bytes: clean, hash, preApproved: Boolean(canonical) });
+      files.push({
+        mime, bytes: clean, hash, preApproved: Boolean(canonical),
+        width: inspected.width, height: inspected.height,
+      });
     } else if (name === GIF_FIELD) {
       // Library GIFs attach BY REFERENCE (v2.5): repeatable gifIds text
       // fields; only ids resolving to an APPROVED gif pass — anything else
@@ -258,6 +265,8 @@ export async function insertAttachments(db, postId, createdBy, files, gifEntries
       ).bind(id, postId, createdBy, now, preApproved ? 1 : 0, file.hash,
         createAvatarVersion(), file.mime, file.hash),
     );
+    const dimensions = imageDimensionsStatement(db, file.hash, file);
+    if (dimensions) statements.push(dimensions);
     // Keep an independent byte set for every attachment, even when identical
     // bytes were approved before. The hash grants approval, not shared storage
     // lifetime: the original post or GIF may later be removed.
@@ -543,7 +552,11 @@ export async function attachmentRowsForView(db, postIds, viewer) {
   const ids = [...new Set(postIds.map(Number))];
   const placeholders = ids.map(() => "?").join(", ");
   const result = await db.prepare(
-    "SELECT id, post_id, status, created_by, version, mime " +
+    "SELECT id, post_id, status, created_by, version, mime, " +
+      // Migration 0080: header width/height by content hash (null when the
+      // intake predates it or the header carried none).
+      "(SELECT d.width FROM image_dimensions d WHERE d.hash = attachments.hash) AS width, " +
+      "(SELECT d.height FROM image_dimensions d WHERE d.hash = attachments.hash) AS height " +
       "FROM attachments WHERE post_id IN (" + placeholders + ") " +
       "AND (status <> 'approved' OR NOT EXISTS (SELECT 1 FROM revoked_attachment_hashes r WHERE r.hash = attachments.hash)) " +
       // Byte-existence filter (2026-11-19 full-DB read found legacy debris: a
@@ -584,6 +597,8 @@ export async function attachmentRowsForView(db, postIds, viewer) {
       mime: row.mime,
       version: row.version,
       awaiting: row.status === "pending",
+      width: row.width ?? null,
+      height: row.height ?? null,
     });
     byPost.set(postId, rows);
   }

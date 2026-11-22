@@ -28,6 +28,7 @@ import { api } from "./api.js";
 import { t, tn } from "./i18n.js";
 import { readEffectsPref, writeEffectsPref } from "./dm-effects.js";
 import { buildGroupRename } from "./group-rename.js";
+import { prepareImageUpload } from "./upload-prep.js";
 
 const IMAGE_TOKEN = /^\[img:([0-9a-f-]{36})\]$/;
 const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
@@ -109,9 +110,10 @@ export const buildImageButton = (onFile) => {
   return wrap;
 };
 
-export const uploadDmImage = (conversation, file) => {
+export const uploadDmImage = async (conversation, file) => {
   const form = new FormData();
-  form.append("image", file);
+  // Upload safety pipeline: byte-check, strip metadata, shrink photos.
+  form.append("image", await prepareImageUpload(file));
   return api(`${conversationBase(conversation)}/images`, { method: "POST", body: form });
 };
 

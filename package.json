@@ -24,6 +24,8 @@
     "wrangler": "latest"
   },
   "dependencies": {
+    "file-type": "latest",
+    "image-dimensions": "latest",
     "ipaddr.js": "latest"
   }
 }

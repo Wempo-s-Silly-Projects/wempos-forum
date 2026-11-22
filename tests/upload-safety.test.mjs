@@ -33,9 +33,10 @@ import * as constants from "../constants.mjs";
 import { imageDimensions, inspectImageUpload, sanitizeImage } from "../api/core/images.mjs";
 import { attachmentRowsForView, insertAttachments, readComposedBody } from "../api/attachments.mjs";
 import {
-  UPLOAD_MAX_LONG_SIDE, UPLOAD_TARGET_MAX_MB, isAnimatedImage, prepareImageUpload, prepareImageUploads,
-  sniffUploadType,
+  UPLOAD_AVATAR_TARGET_MAX_MB, UPLOAD_MAX_LONG_SIDE, UPLOAD_TARGET_MAX_MB, isAnimatedImage, prepareImageUpload,
+  prepareImageUploads, sniffUploadType,
 } from "../public/js/upload-prep.js";
+import { t } from "../public/js/i18n.js";
 import { makeEnv } from "./helpers/d1.mjs";
 import { seedPost, seedUser } from "./helpers/seed.mjs";
 
@@ -196,6 +197,8 @@ test("client: animated PNG/WebP are detected so they skip the canvas", () => {
 });
 
 const neverCompress = () => { throw new Error("compressor must not run"); };
+// The refusal reuses the composer's translated wrong-type notice.
+const wrongType = (name) => (error) => error.message === t("attachments.wrongType", { name });
 
 test("client: a GIF passes through byte-identical (same File, no re-encode)", async () => {
   const original = file(gif(5, 5), "party.gif", "image/gif");
@@ -207,11 +210,11 @@ test("client: a GIF passes through byte-identical (same File, no re-encode)", as
 test("client: a renamed .exe/.html/.svg is refused before upload", async () => {
   for (const bytes of [EXE, HTML, SVG]) {
     await assert.rejects(prepareImageUpload(file(bytes, "photo.png", "image/png"), { compress: neverCompress }),
-      /photo\.png/);
+      wrongType("photo.png"));
   }
   await assert.rejects(
     prepareImageUpload(file(gif(1, 1), "a.gif", "image/gif"), { compress: neverCompress, accept: ["image/png"] }),
-    /a\.gif/,
+    wrongType("a.gif"),
   );
 });
 
@@ -260,7 +263,7 @@ test("client: prepareImageUploads keeps order and refuses the batch on one bad f
   const files = [file(gif(1, 1), "1.gif", "image/gif"), file(png(1, 1), "2.png", "image/png")];
   const prepared = await prepareImageUploads(files, { compress: keep });
   assert.deepEqual(prepared.map((entry) => entry.name), ["1.gif", "2.png"]);
-  await assert.rejects(prepareImageUploads([...files, file(EXE, "3.png", "image/png")], { compress: keep }), /3\.png/);
+  await assert.rejects(prepareImageUploads([...files, file(EXE, "3.png", "image/png")], { compress: keep }), wrongType("3.png"));
 });
 
 test("caps live in root constants.mjs and the client mirrors them", () => {
@@ -268,6 +271,7 @@ test("caps live in root constants.mjs and the client mirrors them", () => {
   assert.equal(constants.UPLOAD_TARGET_MAX_MB, 2);
   assert.equal(UPLOAD_MAX_LONG_SIDE, constants.UPLOAD_MAX_LONG_SIDE);
   assert.equal(UPLOAD_TARGET_MAX_MB, constants.UPLOAD_TARGET_MAX_MB);
+  assert.equal(UPLOAD_AVATAR_TARGET_MAX_MB, constants.UPLOAD_AVATAR_TARGET_MAX_MB);
 });
 
 test("every upload path prepares files before sending", () => {

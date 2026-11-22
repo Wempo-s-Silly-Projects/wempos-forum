@@ -493,6 +493,8 @@ const OPENAPI_SCHEMAS = {
       mime: { type: "string" },
       version: { type: "integer" },
       awaiting: { type: "boolean" },
+      width: { type: ["integer", "null"], description: "pixel width from the image header, when known" },
+      height: { type: ["integer", "null"], description: "pixel height from the image header, when known" },
     },
   },
   Post: {
