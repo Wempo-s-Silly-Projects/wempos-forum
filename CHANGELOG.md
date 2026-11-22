@@ -15,6 +15,23 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.27.0] - 2026-11-21
+
+### Added
+- Reading comfort: a new panel in your account settings, after Appearance,
+  with two settings saved in this browser only. Line spacing (Normal,
+  Relaxed or Spacious) adds space between lines in posts, chat messages and
+  the boxes you type in. Always underline links underlines every link,
+  including names and menu links that are normally shown without a line.
+- High contrast: Auto, On or Off (Auto by default). It switches to black
+  text on white (white on black in the dark theme), solid outlines around
+  boxes and buttons, and thicker focus outlines; nothing on the page moves.
+  Auto turns it on when your device's settings ask for more contrast, On
+  always uses it, and Off never does.
+- These choices stay when you sign out, like the text size, and are applied
+  before the page draws, so there is no flash. Reset appearance doesn't
+  change them.
+
 ## [5.26.0] - 2026-11-21
 
 ### Added
