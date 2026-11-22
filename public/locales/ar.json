@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "تلقائي (يتبع هذا الجهاز)",
   "readingComfort.contrastOn": "تشغيل",
   "readingComfort.contrastOff": "إيقاف",
-  "readingComfort.contrastHelp": "نص أسود على أبيض (أبيض على أسود في السمة الداكنة)، وحدود واضحة حول المربعات والأزرار، وإطارات تركيز أسمك. يفعّله الوضع التلقائي عندما تطلب إعدادات جهازك تباينًا أكثر."
+  "readingComfort.contrastHelp": "نص أسود على أبيض (أبيض على أسود في السمة الداكنة)، وحدود واضحة حول المربعات والأزرار، وإطارات تركيز أسمك. يفعّله الوضع التلقائي عندما تطلب إعدادات جهازك تباينًا أكثر.",
+  "share.button": "مشاركة",
+  "share.menuLabel": "مشاركة هذا الموضوع",
+  "share.on": "مشاركة على {service}",
+  "share.mastodonInstance": "خادم Mastodon الخاص بك",
+  "share.mastodonSave": "حفظ",
+  "share.mastodonInvalid": "أدخل اسم خادم مثل mastodon.social.",
+  "invite.title": "ادعُ صديقًا",
+  "invite.body": "شارك رابطك الشخصي. عندما يسجّل صديق من خلاله، سيصلك إشعار.",
+  "invite.linkLabel": "رابط الدعوة الخاص بك",
+  "invite.copy": "نسخ رابط الدعوة",
+  "invite.invitedBy": "بدعوة من @{name}",
+  "join.title": "أنت مدعو!",
+  "join.body": "دعاك أحد أعضاء هذا المنتدى. أنشئ حسابًا للانضمام إلى النقاش.",
+  "join.signUp": "إنشاء حساب"
 }

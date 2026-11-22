@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "خودکار (اس ڈیوائس کے مطابق)",
   "readingComfort.contrastOn": "آن",
   "readingComfort.contrastOff": "آف",
-  "readingComfort.contrastHelp": "سفید پر سیاہ متن (ڈارک تھیم میں سیاہ پر سفید)، خانوں اور بٹنوں کے گرد واضح لکیریں، اور موٹی فوکس لکیریں۔ جب آپ کی ڈیوائس کی ترتیبات زیادہ کنٹراسٹ مانگیں تو خودکار اسے آن کر دیتا ہے۔"
+  "readingComfort.contrastHelp": "سفید پر سیاہ متن (ڈارک تھیم میں سیاہ پر سفید)، خانوں اور بٹنوں کے گرد واضح لکیریں، اور موٹی فوکس لکیریں۔ جب آپ کی ڈیوائس کی ترتیبات زیادہ کنٹراسٹ مانگیں تو خودکار اسے آن کر دیتا ہے۔",
+  "share.button": "شیئر کریں",
+  "share.menuLabel": "یہ تھریڈ شیئر کریں",
+  "share.on": "{service} پر شیئر کریں",
+  "share.mastodonInstance": "آپ کا Mastodon سرور",
+  "share.mastodonSave": "محفوظ کریں",
+  "share.mastodonInvalid": "mastodon.social جیسا سرور کا نام درج کریں۔",
+  "invite.title": "کسی دوست کو مدعو کریں",
+  "invite.body": "اپنا ذاتی لنک شیئر کریں۔ جب کوئی دوست اس کے ذریعے سائن اپ کرے گا تو آپ کو اطلاع ملے گی۔",
+  "invite.linkLabel": "آپ کا دعوتی لنک",
+  "invite.copy": "دعوتی لنک کاپی کریں",
+  "invite.invitedBy": "@{name} کی دعوت پر",
+  "join.title": "آپ مدعو ہیں!",
+  "join.body": "اس فورم کے ایک رکن نے آپ کو مدعو کیا ہے۔ گفتگو میں شامل ہونے کے لیے اکاؤنٹ بنائیں۔",
+  "join.signUp": "سائن اپ کریں"
 }

@@ -3714,3 +3714,14 @@ mark.search-hit {
 .visits-count { position: relative; width: 45%; }
 .visits-bar { position: absolute; inset-block: 0.25rem; inset-inline-start: 0; background: var(--soft-green); border-radius: 0.2rem; z-index: 0; }
 .visits-count span:last-child { position: relative; z-index: 1; padding-inline-start: 0.3rem; }
+
+/* Share + invite links (v5.34). */
+.share-wrap { margin: 0.5rem 0 1rem; }
+.share-menu { display: grid; gap: 0.5rem; margin-top: 0.5rem; padding: 0.75rem; border: 1px solid var(--line); border-radius: 0.5rem; max-width: 32rem; }
+.share-menu[hidden] { display: none; }
+.share-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
+.share-mastodon { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.share-mastodon-input { flex: 1 1 12rem; min-width: 0; }
+.share-mastodon-error:empty, .share-status:empty, .invite-status:empty { display: none; }
+.invite-link { width: 100%; max-width: 32rem; margin: 0.3rem 0; }
+.newcomer-invited { font-weight: 600; }

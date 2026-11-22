@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Otomatis (ikuti perangkat ini)",
   "readingComfort.contrastOn": "Aktif",
   "readingComfort.contrastOff": "Nonaktif",
-  "readingComfort.contrastHelp": "Teks hitam di atas putih (putih di atas hitam pada tema gelap), garis tepi tegas di sekitar kotak dan tombol, serta garis fokus yang lebih tebal. Otomatis menyalakannya saat pengaturan perangkat Anda meminta kontras lebih tinggi."
+  "readingComfort.contrastHelp": "Teks hitam di atas putih (putih di atas hitam pada tema gelap), garis tepi tegas di sekitar kotak dan tombol, serta garis fokus yang lebih tebal. Otomatis menyalakannya saat pengaturan perangkat Anda meminta kontras lebih tinggi.",
+  "share.button": "Bagikan",
+  "share.menuLabel": "Bagikan utas ini",
+  "share.on": "Bagikan ke {service}",
+  "share.mastodonInstance": "Server Mastodon kamu",
+  "share.mastodonSave": "Simpan",
+  "share.mastodonInvalid": "Masukkan nama server seperti mastodon.social.",
+  "invite.title": "Undang teman",
+  "invite.body": "Bagikan tautan pribadimu. Saat teman mendaftar lewat tautan itu, kamu akan mendapat notifikasi.",
+  "invite.linkLabel": "Tautan undanganmu",
+  "invite.copy": "Salin tautan undangan",
+  "invite.invitedBy": "Diundang oleh @{name}",
+  "join.title": "Kamu diundang!",
+  "join.body": "Seorang anggota forum ini mengundangmu. Buat akun untuk ikut mengobrol.",
+  "join.signUp": "Daftar"
 }

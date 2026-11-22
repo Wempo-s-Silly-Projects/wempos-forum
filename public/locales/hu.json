@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Automatikus (az eszköz szerint)",
   "readingComfort.contrastOn": "Be",
   "readingComfort.contrastOff": "Ki",
-  "readingComfort.contrastHelp": "Fekete szöveg fehéren (sötét témában fehér feketén), határozott körvonalak a mezők és gombok körül, és vastagabb fókuszkeret. Az Automatikus akkor kapcsolja be, ha az eszköz beállításai nagyobb kontrasztot kérnek."
+  "readingComfort.contrastHelp": "Fekete szöveg fehéren (sötét témában fehér feketén), határozott körvonalak a mezők és gombok körül, és vastagabb fókuszkeret. Az Automatikus akkor kapcsolja be, ha az eszköz beállításai nagyobb kontrasztot kérnek.",
+  "share.button": "Megosztás",
+  "share.menuLabel": "Szál megosztása",
+  "share.on": "Megosztás itt: {service}",
+  "share.mastodonInstance": "A Mastodon-szervered",
+  "share.mastodonSave": "Mentés",
+  "share.mastodonInvalid": "Adj meg egy szervernevet, például mastodon.social.",
+  "invite.title": "Hívj meg egy barátot",
+  "invite.body": "Oszd meg a személyes linkedet. Ha egy barátod ezzel regisztrál, értesítést kapsz.",
+  "invite.linkLabel": "A meghívó linked",
+  "invite.copy": "Meghívó link másolása",
+  "invite.invitedBy": "Meghívott: @{name}",
+  "join.title": "Meghívást kaptál!",
+  "join.body": "A fórum egyik tagja meghívott. Hozz létre egy fiókot, és csatlakozz a beszélgetéshez.",
+  "join.signUp": "Regisztráció"
 }

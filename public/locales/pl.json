@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Automatycznie (jak to urządzenie)",
   "readingComfort.contrastOn": "Wł.",
   "readingComfort.contrastOff": "Wył.",
-  "readingComfort.contrastHelp": "Czarny tekst na białym (biały na czarnym w ciemnym motywie), wyraźne obramowania pól i przycisków oraz grubsze obramowanie fokusu. Tryb automatyczny włącza go, gdy ustawienia urządzenia proszą o większy kontrast."
+  "readingComfort.contrastHelp": "Czarny tekst na białym (biały na czarnym w ciemnym motywie), wyraźne obramowania pól i przycisków oraz grubsze obramowanie fokusu. Tryb automatyczny włącza go, gdy ustawienia urządzenia proszą o większy kontrast.",
+  "share.button": "Udostępnij",
+  "share.menuLabel": "Udostępnij ten wątek",
+  "share.on": "Udostępnij w {service}",
+  "share.mastodonInstance": "Twój serwer Mastodon",
+  "share.mastodonSave": "Zapisz",
+  "share.mastodonInvalid": "Wpisz nazwę serwera, np. mastodon.social.",
+  "invite.title": "Zaproś znajomego",
+  "invite.body": "Udostępnij swój osobisty link. Gdy znajomy zarejestruje się przez niego, dostaniesz powiadomienie.",
+  "invite.linkLabel": "Twój link z zaproszeniem",
+  "invite.copy": "Kopiuj link z zaproszeniem",
+  "invite.invitedBy": "Zaproszenie od @{name}",
+  "join.title": "Masz zaproszenie!",
+  "join.body": "Członek tego forum cię zaprosił. Załóż konto, aby dołączyć do rozmowy.",
+  "join.signUp": "Zarejestruj się"
 }

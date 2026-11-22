@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "自动（跟随此设备）",
   "readingComfort.contrastOn": "开",
   "readingComfort.contrastOff": "关",
-  "readingComfort.contrastHelp": "白底黑字（深色主题下为黑底白字），输入框和按钮带清晰的边框，焦点框更粗。设为自动时，若设备设置要求更高对比度就会开启。"
+  "readingComfort.contrastHelp": "白底黑字（深色主题下为黑底白字），输入框和按钮带清晰的边框，焦点框更粗。设为自动时，若设备设置要求更高对比度就会开启。",
+  "share.button": "分享",
+  "share.menuLabel": "分享此帖子",
+  "share.on": "分享到 {service}",
+  "share.mastodonInstance": "你的 Mastodon 服务器",
+  "share.mastodonSave": "保存",
+  "share.mastodonInvalid": "请输入服务器名称，例如 mastodon.social。",
+  "invite.title": "邀请好友",
+  "invite.body": "分享你的专属链接。好友通过它注册后，你会收到通知。",
+  "invite.linkLabel": "你的邀请链接",
+  "invite.copy": "复制邀请链接",
+  "invite.invitedBy": "由 @{name} 邀请",
+  "join.title": "你收到了邀请！",
+  "join.body": "本论坛的一位成员邀请了你。创建账号，加入讨论吧。",
+  "join.signUp": "注册"
 }

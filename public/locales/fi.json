@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Automaattinen (tämän laitteen mukaan)",
   "readingComfort.contrastOn": "Päällä",
   "readingComfort.contrastOff": "Pois",
-  "readingComfort.contrastHelp": "Mustaa tekstiä valkoisella (valkoista mustalla tummassa teemassa), selkeät ääriviivat kenttien ja painikkeiden ympärillä ja paksummat kohdistuskehykset. Automaattinen ottaa sen käyttöön, kun laitteesi asetukset pyytävät enemmän kontrastia."
+  "readingComfort.contrastHelp": "Mustaa tekstiä valkoisella (valkoista mustalla tummassa teemassa), selkeät ääriviivat kenttien ja painikkeiden ympärillä ja paksummat kohdistuskehykset. Automaattinen ottaa sen käyttöön, kun laitteesi asetukset pyytävät enemmän kontrastia.",
+  "share.button": "Jaa",
+  "share.menuLabel": "Jaa tämä ketju",
+  "share.on": "Jaa palvelussa {service}",
+  "share.mastodonInstance": "Mastodon-palvelimesi",
+  "share.mastodonSave": "Tallenna",
+  "share.mastodonInvalid": "Kirjoita palvelimen nimi, esimerkiksi mastodon.social.",
+  "invite.title": "Kutsu ystävä",
+  "invite.body": "Jaa henkilökohtainen linkkisi. Kun ystävä rekisteröityy sen kautta, saat ilmoituksen.",
+  "invite.linkLabel": "Kutsulinkkisi",
+  "invite.copy": "Kopioi kutsulinkki",
+  "invite.invitedBy": "Kutsujana @{name}",
+  "join.title": "Sinut on kutsuttu!",
+  "join.body": "Tämän foorumin jäsen kutsui sinut. Luo tili ja liity keskusteluun.",
+  "join.signUp": "Rekisteröidy"
 }

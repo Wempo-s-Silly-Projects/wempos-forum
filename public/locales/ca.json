@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Automàtic (segueix aquest dispositiu)",
   "readingComfort.contrastOn": "Activat",
   "readingComfort.contrastOff": "Desactivat",
-  "readingComfort.contrastHelp": "Text negre sobre blanc (blanc sobre negre al tema fosc), contorns sòlids al voltant de caselles i botons, i contorns de focus més gruixuts. Automàtic l'activa quan la configuració del dispositiu demana més contrast."
+  "readingComfort.contrastHelp": "Text negre sobre blanc (blanc sobre negre al tema fosc), contorns sòlids al voltant de caselles i botons, i contorns de focus més gruixuts. Automàtic l'activa quan la configuració del dispositiu demana més contrast.",
+  "share.button": "Comparteix",
+  "share.menuLabel": "Comparteix aquest fil",
+  "share.on": "Comparteix a {service}",
+  "share.mastodonInstance": "El teu servidor de Mastodon",
+  "share.mastodonSave": "Desa",
+  "share.mastodonInvalid": "Escriu el nom d'un servidor, com ara mastodon.social.",
+  "invite.title": "Convida un amic",
+  "invite.body": "Comparteix el teu enllaç personal. Quan un amic s'hi registri, rebràs una notificació.",
+  "invite.linkLabel": "El teu enllaç d'invitació",
+  "invite.copy": "Copia l'enllaç d'invitació",
+  "invite.invitedBy": "Convidat per @{name}",
+  "join.title": "Estàs convidat!",
+  "join.body": "Un membre d'aquest fòrum t'ha convidat. Crea un compte per unir-te a la conversa.",
+  "join.signUp": "Registra't"
 }

@@ -123,9 +123,13 @@ function welcomeBody(document, user) {
     item.append(link);
     list.append(item);
   }
+  // Invite links (v5.34): the server names the inviter only while they are
+  // unbanned and not block-paired (GET /api/session user.invitedBy).
+  const invitedBy = typeof user.invitedBy === "string" && user.invitedBy ? user.invitedBy : "";
   return {
     title: t("newcomer.welcomeTitle", { name: user.username }),
     nodes: [
+      ...(invitedBy ? [textNode(document, "p", "newcomer-invited", t("invite.invitedBy", { name: invitedBy }))] : []),
       textNode(document, "p", "newcomer-copy", t("newcomer.welcomeBody")),
       list,
       textNode(document, "p", "newcomer-nudge", t("newcomer.sayHi")),

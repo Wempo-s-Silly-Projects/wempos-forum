@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Otomatiki (fuata kifaa hiki)",
   "readingComfort.contrastOn": "Imewashwa",
   "readingComfort.contrastOff": "Imezimwa",
-  "readingComfort.contrastHelp": "Maandishi meusi juu ya weupe (meupe juu ya weusi kwenye mandhari meusi), mipaka imara kuzunguka visanduku na vitufe, na mistari minene ya kulenga. Otomatiki huiwasha mipangilio ya kifaa chako inapoomba utofautishaji zaidi."
+  "readingComfort.contrastHelp": "Maandishi meusi juu ya weupe (meupe juu ya weusi kwenye mandhari meusi), mipaka imara kuzunguka visanduku na vitufe, na mistari minene ya kulenga. Otomatiki huiwasha mipangilio ya kifaa chako inapoomba utofautishaji zaidi.",
+  "share.button": "Shiriki",
+  "share.menuLabel": "Shiriki mada hii",
+  "share.on": "Shiriki kwenye {service}",
+  "share.mastodonInstance": "Seva yako ya Mastodon",
+  "share.mastodonSave": "Hifadhi",
+  "share.mastodonInvalid": "Weka jina la seva kama mastodon.social.",
+  "invite.title": "Mwalike rafiki",
+  "invite.body": "Shiriki kiungo chako binafsi. Rafiki akijisajili kupitia kiungo hicho, utapokea arifa.",
+  "invite.linkLabel": "Kiungo chako cha mwaliko",
+  "invite.copy": "Nakili kiungo cha mwaliko",
+  "invite.invitedBy": "Umealikwa na @{name}",
+  "join.title": "Umealikwa!",
+  "join.body": "Mwanachama wa jukwaa hili amekualika. Fungua akaunti ujiunge na mazungumzo.",
+  "join.signUp": "Jisajili"
 }

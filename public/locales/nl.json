@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Automatisch (volg dit apparaat)",
   "readingComfort.contrastOn": "Aan",
   "readingComfort.contrastOff": "Uit",
-  "readingComfort.contrastHelp": "Zwarte tekst op wit (wit op zwart in het donkere thema), duidelijke randen om vakken en knoppen en dikkere focusranden. Automatisch zet het aan als de instellingen van je apparaat om meer contrast vragen."
+  "readingComfort.contrastHelp": "Zwarte tekst op wit (wit op zwart in het donkere thema), duidelijke randen om vakken en knoppen en dikkere focusranden. Automatisch zet het aan als de instellingen van je apparaat om meer contrast vragen.",
+  "share.button": "Delen",
+  "share.menuLabel": "Deze draad delen",
+  "share.on": "Delen op {service}",
+  "share.mastodonInstance": "Jouw Mastodon-server",
+  "share.mastodonSave": "Opslaan",
+  "share.mastodonInvalid": "Vul een servernaam in, zoals mastodon.social.",
+  "invite.title": "Nodig een vriend uit",
+  "invite.body": "Deel je persoonlijke link. Als een vriend zich ermee aanmeldt, krijg je een melding.",
+  "invite.linkLabel": "Jouw uitnodigingslink",
+  "invite.copy": "Uitnodigingslink kopiëren",
+  "invite.invitedBy": "Uitgenodigd door @{name}",
+  "join.title": "Je bent uitgenodigd!",
+  "join.body": "Een lid van dit forum heeft je uitgenodigd. Maak een account aan om mee te praten.",
+  "join.signUp": "Aanmelden"
 }

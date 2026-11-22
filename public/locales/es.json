@@ -1020,5 +1020,19 @@
   "readingComfort.contrastAuto": "Automático (según este dispositivo)",
   "readingComfort.contrastOn": "Activado",
   "readingComfort.contrastOff": "Desactivado",
-  "readingComfort.contrastHelp": "Texto negro sobre blanco (blanco sobre negro en el tema oscuro), contornos sólidos alrededor de cuadros y botones, y contornos de foco más gruesos. Automático lo activa cuando la configuración de tu dispositivo pide más contraste."
+  "readingComfort.contrastHelp": "Texto negro sobre blanco (blanco sobre negro en el tema oscuro), contornos sólidos alrededor de cuadros y botones, y contornos de foco más gruesos. Automático lo activa cuando la configuración de tu dispositivo pide más contraste.",
+  "share.button": "Compartir",
+  "share.menuLabel": "Compartir este hilo",
+  "share.on": "Compartir en {service}",
+  "share.mastodonInstance": "Tu servidor de Mastodon",
+  "share.mastodonSave": "Guardar",
+  "share.mastodonInvalid": "Escribe el nombre de un servidor, como mastodon.social.",
+  "invite.title": "Invita a un amigo",
+  "invite.body": "Comparte tu enlace personal. Cuando un amigo se registre con él, recibirás una notificación.",
+  "invite.linkLabel": "Tu enlace de invitación",
+  "invite.copy": "Copiar enlace de invitación",
+  "invite.invitedBy": "Invitado por @{name}",
+  "join.title": "¡Estás invitado!",
+  "join.body": "Un miembro de este foro te ha invitado. Crea una cuenta para unirte a la conversación.",
+  "join.signUp": "Registrarse"
 }
