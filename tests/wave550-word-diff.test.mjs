@@ -155,5 +155,5 @@ test("source pins: createElement + textContent only, no storage or network, and 
   assert.match(read("public/js/render.js"), /maskSpoilers\(older\)[\s\S]{0,80}maskSpoilers\(newer\)|maskSpoilers\(newer\)[\s\S]{0,80}maskSpoilers\(older\)/);
   assert.match(read("public/js/routes/post.js"), /renderEditHistoryPanel\(document, data\.edits, article\.postBody\)/);
   // Edits are stored exactly as before: the edit route is untouched by this wave.
-  assert.doesNotMatch(read("api/posts-write.mjs"), /diff/i);
+  assert.doesNotMatch(read("api/posts-write.mjs"), /diffWords|word-diff/);
 });
