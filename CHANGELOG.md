@@ -15,6 +15,19 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.33.0] - 2026-11-21
+
+### Security
+- A security review of 5.28 to 5.31 (private visit counts, AutoMod being
+  switched on, and the per-page titles, share previews and search-engine
+  data), written up in `docs/security-reviews/2026-11-21-v5.28-v5.31.md`.
+- Fixed: a thread whose first line held a `$'` or similar `$` sequence could
+  break its page title and share preview, copying part of the page into
+  them. The text now always shows exactly as written. The same fix covers
+  the forum name and tagline set on the desk.
+- The admin guide now explains how to switch off or replace a leaked
+  AutoMod key, and how to undo what it did.
+
 ## [5.32.0] - 2026-11-21
 
 ### Security
