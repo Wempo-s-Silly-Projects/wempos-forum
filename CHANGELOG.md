@@ -10,6 +10,21 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.76.1] - 2026-11-22
+
+### Security
+- JSON request bodies are parsed with secure-json-parse, refusing `__proto__` / `constructor.prototype` payloads at any depth.
+- Token comparisons no longer leak length through an early return (UTF-8, padded, `crypto.subtle.timingSafeEqual` where available).
+- State-changing requests marked `Sec-Fetch-Site: cross-site` or `same-site` are refused before the existing exact-origin check.
+- Content-Type headers are parsed with the content-type package; JSON look-alikes and non-UTF-8 charsets on JSON routes get 415.
+- The WebMCP `goTo` navigation only accepts internal paths.
+
+### Changed
+- Post, reply, chat, DM, bio and MCP bodies drop a leading byte-order mark and normalise CRLF/CR line endings to LF before length limits apply.
+
+### Dependencies
+- Added `secure-json-parse` (BSD-3-Clause) and `content-type` (MIT) to the Worker.
+
 ## [5.76.0] - 2026-11-22
 
 ### Added
