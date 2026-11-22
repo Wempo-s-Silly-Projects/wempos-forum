@@ -19,18 +19,18 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Self-hosting part 1 (v5.17.0): the instance's public origin, the Wempo
-// Accounts origin and the Turnstile pair come from config. The owner's
-// deployment sets SITE_ORIGIN / ACCOUNTS_ORIGIN / TURNSTILE_SITEKEY /
-// TURNSTILE_SECRET and must behave exactly as before; an instance that sets
+// Accounts origin and the human-check key come from config. The owner's
+// deployment sets SITE_ORIGIN / ACCOUNTS_ORIGIN / ALTCHA_HMAC_KEY (Batch F;
+// Turnstile retired) and must behave exactly as before; an instance that sets
 // none of them answers on its own request origin with no redirect and no
-// Turnstile (rate limits stay on).
+// human check (rate limits stay on).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import worker, { requireTurnstile } from "../worker.mjs";
+import worker, { requireHumanCheck } from "../worker.mjs";
 import { makeEnv } from "./helpers/d1.mjs";
 import { forgeSession, makeRequest, seedPost, seedUser } from "./helpers/seed.mjs";
 import { wempoAccountsSignInUrl, wempoAccountsSignOutUrl } from "../public/js/sso.js";
-import { takeTurnstileToken, turnstileSitekey } from "../public/js/turnstile.js";
+import { humanCheckEnabled, takeHumanCheckPayload } from "../public/js/human-check.js";
 
 const OWNER_ORIGIN = "https://wempos-forum.com";
 // The owner's host must never leak into a self-hosted copy. Checked by
@@ -137,34 +137,31 @@ test("a malformed SITE_ORIGIN is ignored (request origin, no redirect)", async (
   assert.equal(card.transport.endpoint, SELF_HOST + "/mcp");
 });
 
-// ---- Turnstile: skipped only when the instance has no secret --------------
+// ---- human check: skipped only when the instance has no key ---------------
 
-test("requireTurnstile: no TURNSTILE_SECRET means no check at all", async () => {
+test("requireHumanCheck: no key means no check at all", async () => {
   const request = new Request(SELF_HOST + "/api/auth/login", { method: "POST" });
-  await requireTurnstile(request, { TURNSTILE_HOSTNAMES: "" }, {}, "login");
+  await requireHumanCheck(request, makeEnv(), {});
 });
 
-test("requireTurnstile: a configured secret still refuses a missing token", async () => {
+test("requireHumanCheck: a configured key still refuses a missing or junk payload", async () => {
   const request = new Request(OWNER_ORIGIN + "/api/auth/login", { method: "POST" });
+  const env = makeEnv({ ALTCHA_HMAC_KEY: "owner-key-0123456789abcdef0123456789" });
   await assert.rejects(
-    requireTurnstile(request, { TURNSTILE_SECRET: "s", TURNSTILE_HOSTNAMES: "wempos-forum.com" }, {}, "login"),
+    requireHumanCheck(request, env, {}),
     (error) => error.status === 403 && /Human verification is required/.test(error.message),
   );
-  // A secret with no hostnames is a misconfiguration, still refused (fail closed).
-  await assert.rejects(
-    requireTurnstile(request, { TURNSTILE_SECRET: "s", TURNSTILE_HOSTNAMES: "" }, { "cf-turnstile-response": "t" }, "login"),
-    (error) => error.status === 403,
-  );
+  await assert.rejects(requireHumanCheck(request, env, { altcha: "not-base64-json" }), (error) => error.status === 403);
 });
 
-test("POST /api/posts: no secret posts without a token; with a secret the token is required", async () => {
+test("POST /api/posts: no key posts without a proof; with a key the proof is required", async () => {
   const open = makeEnv();
   const member = await seedUser(open.__sqlite, { username: "NoCaptcha" });
   const session = forgeSession(open.__sqlite, member);
   const ok = await worker.fetch(makeRequest("/api/posts", { method: "POST", session, body: { body: "no captcha here", board: "general" } }), open, {});
   assert.equal(ok.status, 201, await ok.clone().text());
 
-  const guarded = makeEnv({ TURNSTILE_SECRET: "owner-secret", TURNSTILE_HOSTNAMES: "wempos-forum.com" });
+  const guarded = makeEnv({ ALTCHA_HMAC_KEY: "owner-key-0123456789abcdef0123456789" });
   const other = await seedUser(guarded.__sqlite, { username: "Captcha" });
   const otherSession = forgeSession(guarded.__sqlite, other);
   const refused = await worker.fetch(makeRequest("/api/posts", { method: "POST", session: otherSession, body: { body: "needs a token", board: "general" } }), guarded, {});
@@ -173,28 +170,28 @@ test("POST /api/posts: no secret posts without a token; with a secret the token 
   assert.equal(guarded.__sqlite.prepare("SELECT COUNT(*) AS n FROM posts").get().n, 0);
 });
 
-// ---- client config: Accounts origin + Turnstile sitekey -------------------
+// ---- client config: Accounts origin + human check -------------------------
 
-test("the HTML shell carries the configured Accounts origin and Turnstile sitekey", async () => {
-  const env = makeEnv({ ACCOUNTS_ORIGIN: "https://accounts.wempos-forum.com", TURNSTILE_SITEKEY: "0xSITEKEY" });
+test("the HTML shell carries the configured Accounts origin and the human-check flag", async () => {
+  const env = makeEnv({ ACCOUNTS_ORIGIN: "https://accounts.wempos-forum.com", ALTCHA_HMAC_KEY: "k".repeat(32) });
   const html = await (await fetchAt(env, OWNER_ORIGIN + "/", { headers: { Accept: "text/html" } })).text();
   assert.match(html, /<meta name="accounts-origin" content="https:\/\/accounts\.wempos-forum\.com">/);
-  assert.match(html, /<meta name="turnstile-sitekey" content="0xSITEKEY">/);
+  assert.match(html, /<meta name="human-check" content="altcha">/);
 });
 
-test("unset Accounts origin / sitekey: no config metas in the shell", async () => {
-  const env = makeEnv({ ACCOUNTS_ORIGIN: undefined, TURNSTILE_SITEKEY: undefined });
+test("unset Accounts origin / key: no config metas in the shell", async () => {
+  const env = makeEnv({ ACCOUNTS_ORIGIN: undefined });
   const html = await (await fetchAt(env, SELF_HOST + "/", { headers: { Accept: "text/html" } })).text();
   assert.doesNotMatch(html, /name="accounts-origin"/);
-  assert.doesNotMatch(html, /name="turnstile-sitekey"/);
+  assert.doesNotMatch(html, /name="human-check"/);
   assert.match(html, /<meta name="app-build"/);
 });
 
 test("config meta values are attribute-escaped", async () => {
-  const env = makeEnv({ ACCOUNTS_ORIGIN: 'https://a.example"><script>', TURNSTILE_SITEKEY: "k<&>" });
+  const env = makeEnv({ ACCOUNTS_ORIGIN: 'https://a.example"><script>&' });
   const html = await (await fetchAt(env, SELF_HOST + "/", { headers: { Accept: "text/html" } })).text();
   assert.equal(html.toLowerCase().includes("<script>"), false, "the injected tag never reaches the page raw");
-  assert.match(html, /content="k&lt;&amp;&gt;"/);
+  assert.match(html, /&quot;&gt;&lt;script&gt;&amp;/);
 });
 
 function withMetas(metas, fn) {
@@ -223,10 +220,11 @@ test("sso.js: every Accounts link targets the configured ACCOUNTS_ORIGIN", () =>
   });
 });
 
-test("turnstile.js: the sitekey comes from the shell; none configured means no token needed", () => {
-  withMetas({ "turnstile-sitekey": "0xOWNER" }, () => assert.equal(turnstileSitekey(), "0xOWNER"));
-  withMetas({}, () => {
-    assert.equal(turnstileSitekey(), "");
-    assert.equal(takeTurnstileToken({}), "");
+test("human-check.js: the flag comes from the shell; none configured means no proof needed", async () => {
+  withMetas({ "human-check": "altcha" }, () => assert.equal(humanCheckEnabled(), true));
+  const payload = withMetas({}, () => {
+    assert.equal(humanCheckEnabled(), false);
+    return takeHumanCheckPayload({});
   });
+  assert.equal(await payload, "");
 });

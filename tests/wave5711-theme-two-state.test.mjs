@@ -28,8 +28,7 @@ import assert from "node:assert/strict";
 import { initTheme, resolveTheme, THEME_STORAGE_KEY } from "../public/js/theme.js";
 import { FakeNode, makeFakeDocument } from "./helpers/fake-dom.mjs";
 
-// rethemeTurnstile re-renders against the global document; give it one with
-// no Turnstile slots.
+// theme.js may touch the global document; give it an empty one.
 globalThis.document ??= { querySelectorAll: () => [] };
 
 const fakeStorage = (seed = {}) => {
