@@ -213,6 +213,10 @@ function routes(w, member) {
     ["/llms.txt", { guestOnly: true }],
     // Wave 5.35: the This-week page (JSON for every viewer, the page head too).
     ["/api/week"], ["/week"],
+    // Wave 5.36: the date-range and sort filters on search (every filter
+    // still applies under every combination).
+    ["/api/search?q=zzsweep&in=replies&since=year&sort=new"], ["/api/search?q=zzsweep&since=week&sort=relevant"],
+    ["/api/search?q=zzsweep&by=zzbanned&in=replies&since=month&sort=new"],
   ];
   if (member) {
     list.push(["/api/me/notifications"], ["/api/me/bookmarks"], ["/api/session"], ["/api/posts?mine=1"],
@@ -222,6 +226,10 @@ function routes(w, member) {
       ["/api/me/export", { keepParticipantNames: true }], ["/api/me/security"]);
     if (member === "viewer") list.push(["/api/dm/groups/" + w.group]);
     else list.push(["/api/dm/threads/" + w.pairThread, { keepParticipantNames: true }]);
+    // Wave 5.36: search inside a conversation hides banned and block-paired
+    // authors exactly like the chat view.
+    if (member === "viewer") list.push(["/api/dm/groups/" + w.group + "/search?q=TXT"]);
+    else list.push(["/api/dm/threads/" + w.pairThread + "/search?q=TXT"]);
   }
   return list;
 }
@@ -282,6 +290,9 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
   assert.ok(swept >= 216, "swept " + swept);
   // Wave 5.34: + 4 feeds and llms.txt for the guest.
   assert.ok(swept >= 221, "swept " + swept);
+  // Wave 5.36: + 3 filtered searches for each of the 4 viewers, + one
+  // conversation search for each of the 3 members.
+  assert.ok(swept >= 236, "swept " + swept);
 });
 
 test("wave 5.10 sweep: hidden-root reads are 404 and the DM non-member is refused", async () => {
@@ -301,6 +312,13 @@ test("wave 5.10 sweep: hidden-root reads are 404 and the DM non-member is refuse
   assert.equal(group.status, 404);
   assertClean(await group.text(), ["GROUPOKTXT", "alice", "viewer"], "outsider group");
   assert.equal((await call(w.env, "/api/dm/threads/" + w.pairThread)).status, 401);
+  // Wave 5.36: conversation search never reveals that a conversation exists.
+  for (const path of ["/api/dm/threads/" + w.pairThread + "/search?q=TXT", "/api/dm/groups/" + w.group + "/search?q=TXT"]) {
+    const res = await call(w.env, path, { session: outsider });
+    assert.equal(res.status, 404, path);
+    assertClean(await res.text(), ["BLOCKERTXT", "BLOCKEDTXT", "GROUPOKTXT", "zzblock", "alice", "viewer"], "outsider " + path);
+    assert.equal((await call(w.env, path)).status, 401, "guest " + path);
+  }
 });
 
 test("wave 5.10 sweep: positive controls — expired bans, unrelated members, own content, and staff", async () => {
@@ -319,8 +337,12 @@ test("wave 5.10 sweep: positive controls — expired bans, unrelated members, ow
   assert.ok(bell.includes("mentioned by zzblocked in chat") && bell.includes("mentioned by alice in chat"));
   assert.ok(bell.includes("Your friend zzblocked joined") && bell.includes("Your friend alice joined"));
   assert.ok((await fetchText(w.env, "/api/dm/groups/" + w.group, { session: viewer })).includes("GROUPOKTXT"));
+  assert.ok((await fetchText(w.env, "/api/dm/groups/" + w.group + "/search?q=TXT", { session: viewer })).includes("GROUPOKTXT"));
+  assert.ok((await fetchText(w.env, "/api/search?q=zzsweep&since=week&sort=new", { session: viewer })).includes("VISIBLEOKTXT"));
   const blocker = forgeSession(w.db, w.id.zzblocker);
   assert.ok((await fetchText(w.env, "/api/dm/threads/" + w.pairThread, { session: blocker })).includes("BLOCKERTXT dm"));
+  assert.ok((await fetchText(w.env, "/api/dm/threads/" + w.pairThread + "/search?q=TXT", { session: blocker }))
+    .includes("BLOCKERTXT dm"), "own messages stay searchable");
   assert.ok((await fetchText(w.env, "/api/me/notifications", { session: blocker })).includes("mentioned by alice in chat"));
   const boss = forgeSession(w.db, w.id.boss);
   assert.ok((await fetchText(w.env, "/api/posts/" + w.hiddenRoot, { session: boss })).includes("HIDDENROOTTXT"));
