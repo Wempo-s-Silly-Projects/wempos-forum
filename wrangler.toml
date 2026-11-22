@@ -25,7 +25,7 @@ ANALYTICS_ENABLED = "true"
 # AutoMod (v5.18.0 API): "true" opens /api/automod/* to the runner that
 # holds the AUTOMOD_KEY secret. Owner switched it on 2026-11-21.
 AUTOMOD_ENABLED = "true"
-VERSION = "5.71.1"
+VERSION = "5.71.2"
 
 [assets]
 directory = "./public"
