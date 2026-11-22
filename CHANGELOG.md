@@ -15,6 +15,22 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.55.0] - 2026-11-22
+
+### Changed
+- The thread page is tidier. The first post keeps four buttons (Like,
+  Dislike, Share and More). Everything else is still there, grouped under
+  More: Reading (read aloud, show spoilers, save as text), Following
+  (subscribe, mute, save post), Sharing (copy link, post link) and This post
+  (edit, delete, report, edit tags). Staff tools (pin, lock, staff pick,
+  suggestion status, slow mode) sit in one Staff menu inside More. Tags and
+  the TL;DR now sit with the post, above its buttons. The menus open with a
+  button and close with Escape, which returns focus to that button. No
+  feature was removed.
+- Added `docs/ia-map.md`, a map of every page's controls: where each one
+  lives, who sees it, how many clicks deep it is, and which ones overlap or
+  are hard to find.
+
 ## [5.54.0] - 2026-11-22
 
 ### Fixed
