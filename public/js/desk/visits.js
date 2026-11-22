@@ -49,6 +49,8 @@ function createCountTable(document, { caption, labelHeading, rows, labelOf }) {
     cell.textContent = text;
     headRow.append(cell);
   }
+  // Batch J: the views column sorts numerically (sortable-tables.js).
+  headRow.lastElementChild.setAttribute("data-sort-method", "number");
   head.append(headRow);
   table.append(head);
   const body = document.createElement("tbody");
@@ -59,6 +61,7 @@ function createCountTable(document, { caption, labelHeading, rows, labelOf }) {
     label.textContent = labelOf(row);
     const count = document.createElement("td");
     count.className = "visits-count";
+    count.setAttribute("data-sort", String(Number(row.views) || 0));
     const bar = document.createElement("span");
     bar.className = "visits-bar";
     bar.setAttribute("aria-hidden", "true");
