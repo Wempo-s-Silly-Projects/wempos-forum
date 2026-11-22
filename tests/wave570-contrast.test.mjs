@@ -84,3 +84,49 @@ test(".spoiler-revealed falls back to --paper-shadow and .post-hidden paints it"
   assert.match(CSS, /\.spoiler-revealed\s*\{[^}]*background:\s*var\(--spoiler-revealed-bg,\s*var\(--paper-shadow\)\)/);
   assert.match(CSS, /\.post-hidden\s*\{[^}]*background:\s*var\(--paper-shadow\)/);
 });
+
+// Wave 5.73.0 (B2): code-highlight tokens on the code-block background
+// (--field) in both themes; the OS-dark block repeats the manual dark values;
+// the prefers-contrast: more block lifts every token to at least AAA (7:1).
+const CODE_TOKENS = ["--code-keyword", "--code-string", "--code-comment", "--code-number"];
+const AAA_NORMAL_TEXT = 7;
+for (const [themeName, tokens] of Object.entries(themes)) {
+  for (const code of CODE_TOKENS) {
+    test(`${themeName}: ${code} on --field meets WCAG AA (>= ${AA_NORMAL_TEXT}:1)`, () => {
+      assert.ok(tokens[code], `${code} missing from ${themeName} theme`);
+      const ratio = contrastRatio(tokens[code], tokens["--field"]);
+      assert.ok(ratio >= AA_NORMAL_TEXT, `${themeName} ${code} ${tokens[code]} on --field = ${ratio.toFixed(2)}:1`);
+    });
+  }
+}
+
+function declarationsIn(text, selector) {
+  const escaped = selector.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
+  const match = text.match(new RegExp(`(?:^|\\n)\\s*${escaped}\\s*\\{([^}]*)\\}`));
+  assert.ok(match, `${selector} not found`);
+  return Object.fromEntries([...match[1].matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)].map(([, name, value]) => [name, value.trim()]));
+}
+
+test("OS-dark block repeats the manual dark code tokens", () => {
+  const osDark = CSS.match(/@media \(prefers-color-scheme: dark\) \{\s*:root:not\(\[data-theme="light"\]\):not\(\[data-theme="dark"\]\) \{([^}]*)\}/);
+  assert.ok(osDark, "OS-dark token block");
+  const values = Object.fromEntries([...osDark[1].matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)].map(([, name, value]) => [name, value.trim()]));
+  for (const code of CODE_TOKENS) assert.equal(values[code], themes.dark[code], code);
+});
+
+test("prefers-contrast: more lifts every code token to AAA in both themes", () => {
+  const start = CSS.indexOf("@media (prefers-contrast: more) {");
+  assert.ok(start >= 0, "prefers-contrast: more block");
+  const region = CSS.slice(start, CSS.indexOf("\n}\n", start));
+  const more = {
+    light: { ...themes.light, ...declarationsIn(region, ":root") },
+    dark: { ...themes.dark, ...declarationsIn(region, ':root[data-theme="dark"]') },
+  };
+  for (const [themeName, tokens] of Object.entries(more)) {
+    for (const code of CODE_TOKENS) {
+      assert.ok(tokens[code], `${code} missing from the ${themeName} prefers-contrast block`);
+      const ratio = contrastRatio(tokens[code], tokens["--field"]);
+      assert.ok(ratio >= AAA_NORMAL_TEXT, `${themeName} ${code} ${tokens[code]} = ${ratio.toFixed(2)}:1`);
+    }
+  }
+});
