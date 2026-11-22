@@ -184,6 +184,9 @@ export const EXPORT_SECTION_CAPS = Object.freeze({
   savedSearches: SAVED_SEARCHES_MAX,
   // v5.50: TL;DR summaries the caller WROTE (post id, body, time).
   threadSummaries: 2000,
+  // Batch K: the caller's OWN uploaded post images (ids + mime only; the
+  // client fetches the bytes into the ZIP), GIF picks excluded.
+  uploads: 500,
 });
 
 // v5.74 (slate 2026-11-22-d): vendored Prism highlighting of fenced code.
@@ -193,3 +196,16 @@ export const EXPORT_SECTION_CAPS = Object.freeze({
 // this file; tests/wave574-prism.test.mjs pins them equal).
 export const CODE_LINE_NUMBERS_MIN_LINES = 5;
 export const CODE_HIGHLIGHT_MAX_CHARS = 20000;
+
+// Batch K (data, offline and sync). The client cannot import this file;
+// public/js/request-retry.js and public/js/drafts.js mirror these and
+// tests/wavek-*.test.mjs pin them equal.
+// api() retries an idempotent request this many extra times on a network
+// error or 5xx, waiting BASE, BASE*FACTOR, ... ms between tries.
+export const API_RETRY_ATTEMPTS = 2;
+export const API_RETRY_BASE_DELAY_MS = 300;
+export const API_RETRY_FACTOR = 3;
+// Batched reads (the ZIP export's image fetches) run at most this many at once.
+export const API_BATCH_CONCURRENCY = 4;
+// Boot waits at most this long for IndexedDB drafts before the composer mounts.
+export const DRAFT_HYDRATE_TIMEOUT_MS = 1500;

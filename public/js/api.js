@@ -19,6 +19,7 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 import { t } from "./i18n.js";
+import { API_RETRY_ATTEMPTS, createLimit, isRetryableMethod, withRetry } from "./request-retry.js";
 let csrfToken = "";
 
 export const setCsrfToken = (token) => {
@@ -43,7 +44,21 @@ export function errorMessageFor(result, status, translate = t) {
   return translate("api.requestFailed", { status });
 }
 
-export const api = async (path, { method = "GET", body, idempotencyKey, signal } = {}) => {
+// Batch K: idempotent requests (GET/HEAD/OPTIONS, or a write carrying an
+// Idempotency-Key or `idempotent: true`) are retried with backoff on a
+// network error or a 5xx; a plain POST is sent exactly once. `retry: false`
+// opts out; an aborted request is never retried. The last 5xx answer falls
+// through to the normal error handling below.
+let retrySleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+export const setRetrySleep = (sleep) => {
+  const previous = retrySleep;
+  retrySleep = sleep;
+  return previous;
+};
+
+const isAbort = (error) => error?.name === "AbortError";
+
+async function sendOnce(path, { method, body, idempotencyKey, signal }) {
   const headers = { Accept: "application/json" };
   const mutating = !["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase());
   if (body !== undefined && !(body instanceof FormData)) {
@@ -51,7 +66,7 @@ export const api = async (path, { method = "GET", body, idempotencyKey, signal }
   }
   if (mutating && csrfToken) headers["X-CSRF-Token"] = csrfToken;
   if (mutating && typeof idempotencyKey === "string" && idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
-  const response = await fetch(path, {
+  return fetch(path, {
     method,
     headers,
     credentials: "same-origin",
@@ -59,6 +74,36 @@ export const api = async (path, { method = "GET", body, idempotencyKey, signal }
     body: body === undefined ? undefined :
       body instanceof FormData ? body : JSON.stringify(body),
   });
+}
+
+async function fetchWithRetry(path, options) {
+  const canRetry = options.retry !== false && isRetryableMethod(options.method, options);
+  const attempts = canRetry ? API_RETRY_ATTEMPTS : 0;
+  return withRetry(async (index) => {
+    let response;
+    try {
+      response = await sendOnce(path, options);
+    } catch (error) {
+      if (!isAbort(error)) error.retryable = true;
+      throw error;
+    }
+    if (response.status >= 500 && index < attempts) {
+      throw Object.assign(new Error("retryable server error"), { retryable: true });
+    }
+    return response;
+  }, {
+    attempts,
+    shouldRetry: (error) => error?.retryable === true && !isAbort(error),
+    sleep: (ms) => retrySleep(ms),
+    signal: options.signal,
+  });
+}
+
+export const api = async (path, {
+  method = "GET", body, idempotencyKey, idempotent = false, signal, as, retry,
+} = {}) => {
+  const response = await fetchWithRetry(path, { method, body, idempotencyKey, idempotent, signal, retry });
+  if (as === "blob" && response.ok) return response.blob();
   if (response.status === 204) return null;
   let result;
   try {
@@ -87,4 +132,11 @@ export const api = async (path, { method = "GET", body, idempotencyKey, signal }
     throw error;
   }
   return result;
-}
+};
+
+// Batched reads through one shared limiter (API_BATCH_CONCURRENCY at once):
+// `requests` is a list of [path, options] pairs; the answer is the
+// Promise.allSettled list in the same order.
+const batchLimit = createLimit();
+export const apiBatch = (requests) =>
+  Promise.allSettled(requests.map(([path, options]) => batchLimit(() => api(path, options))));
