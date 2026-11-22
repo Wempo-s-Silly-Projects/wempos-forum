@@ -37,6 +37,7 @@ import { state } from "../state.js";
 import { renderHomeAccess } from "./auth.js";
 import { renderTotpSettings } from "./twofa.js";
 import { renderAccountSecurity } from "../account-security.js";
+import { renderPasskeySettings } from "../passkeys.js";
 import { renderBlockedSettings } from "./blocks.js";
 import { renderFollowingSettings } from "../follows.js";
 import { renderNotificationPrefs } from "../notification-prefs.js";
@@ -233,6 +234,8 @@ function renderAccountSettings(session) {
   // off branch stages an authenticator secret, the on branch takes a disable
   // code. No recovery exists, by the feature's own spec.
   renderTotpSettings(account, session);
+  // Batch F: passkeys as an additional sign-in method (public/js/passkeys.js).
+  renderPasskeySettings(account);
   // Wave 5.14: backup codes left (fills the 2FA backup panel) + signed-in
   // devices with "Sign out everywhere else" (public/js/account-security.js).
   renderAccountSecurity(account);
