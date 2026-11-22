@@ -49,7 +49,14 @@ test("non-HTML responses keep the vendor CSP (no cdnjs on JSON, feeds, images)",
 test("index.html loads the polyfill once, before every module script, without leaking the referrer", () => {
   const html = read("public/index.html");
   const tags = html.match(/<script\b[^>]*>/gi) ?? [];
-  const polyfill = tags.filter((tag) => tag.includes(POLYFILL_ORIGIN));
+  // Exact origin of the src attribute, not a substring (CodeQL
+  // js/incomplete-url-substring-sanitization): a look-alike host such as
+  // cdnjs.cloudflare.com.evil.example must not count as the polyfill.
+  const srcOrigin = (tag) => {
+    const src = (tag.match(/\bsrc="([^"]+)"/) ?? [])[1];
+    return src ? new URL(src, "https://wempos-forum.com").origin : null;
+  };
+  const polyfill = tags.filter((tag) => srcOrigin(tag) === POLYFILL_ORIGIN);
   assert.equal(polyfill.length, 1, "exactly one polyfill tag");
   assert.match(polyfill[0], /src="https:\/\/cdnjs\.cloudflare\.com\/polyfill\/v3\/polyfill\.min\.js\?version=4\.8\.0&amp;features=/);
   assert.match(polyfill[0], /referrerpolicy="no-referrer"/);
