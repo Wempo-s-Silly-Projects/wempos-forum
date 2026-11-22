@@ -444,3 +444,29 @@ test("L1 head count: the JSON-LD reply count matches the viewer's feed count, bl
     assert.equal(counted, row.replyCount, (member || "guest") + " head count matches the feed");
   }
 });
+
+// Rows the v5.32 inventory found with no pin (behavior already correct).
+test("wave 5.32 pins: no @mention ping across a block pair; pending avatars stay private; the blocks list labels direction", async () => {
+  const w = await seedWorld();
+  const unread = async (member) => JSON.parse(await fetchText(w.env, "/api/me/notifications",
+    { session: forgeSession(w.db, w.id[member]) })).notifications.length;
+  const before = { zzblocked: await unread("zzblocked"), alice: await unread("alice") };
+  const created = await call(w.env, "/api/posts", { method: "POST", session: forgeSession(w.db, w.id.zzblocker),
+    body: { body: "zzsweep ping @zzblocked and @alice" } });
+  assert.equal(created.status, 201);
+  assert.equal(await unread("zzblocked"), before.zzblocked, "no mention across the pair");
+  assert.equal(await unread("alice"), before.alice + 1, "control: an unrelated member is pinged");
+
+  const png = Buffer.from("89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d4944415478da63f8ffff3f0005fe02fea7d6a4b80000000049454e44ae426082", "hex");
+  w.db.prepare("UPDATE users SET avatar_status = 'pending', pending_avatar_mime = 'image/png', pending_avatar_data = ?, " +
+    "pending_avatar_updated_at = ?, pending_avatar_version = 'v1' WHERE id = ?").run(png, now(), w.id.alice);
+  for (const session of [undefined, forgeSession(w.db, w.id.viewer)]) {
+    assert.equal((await call(w.env, "/api/avatars/" + w.id.alice, { session })).status, 404, "pending avatar is private");
+  }
+  assert.equal((await call(w.env, "/api/avatars/" + w.id.alice, { session: forgeSession(w.db, w.id.alice) })).status, 200);
+
+  for (const [member, other, own] of [["zzblocker", "zzblocked", true], ["zzblocked", "zzblocker", false]]) {
+    const list = JSON.parse(await fetchText(w.env, "/api/me/blocks", { session: forgeSession(w.db, w.id[member]) })).blocks;
+    assert.deepEqual(list.map((row) => [row.username, row.ownDirection]), [[other, own]], member);
+  }
+});
