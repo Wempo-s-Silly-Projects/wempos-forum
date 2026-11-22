@@ -14,6 +14,7 @@ path = [
   "public/og-image.svg",
   "public/og-image.png",
   "public/index.html",
+  "public/offline.html",
   "public/.well-known/**",
   "package.json",
   "pnpm-lock.yaml",

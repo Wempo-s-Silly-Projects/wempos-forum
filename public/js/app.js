@@ -170,6 +170,7 @@ import { setTabBadgeCount } from "./tab-badge.js";
 import { paintSourceLink } from "./source-link.js";
 import { attachRecentSearches } from "./recent-searches.js";
 import { wireSkipLink } from "./skip-link.js";
+import { registerServiceWorker } from "./sw-register.js";
 import { captureMoreFocus, restoreMoreFocus } from "./thread-actions.js";
 
 async function prepareRouteContext(version) {
@@ -540,6 +541,8 @@ async function boot() {
     initTheme(document, storage);
     applyCornerPreference(document, storage);
     fillVersionTag().catch(() => {});
+    // Batch K: static-asset cache + offline page, versioned by the build stamp.
+    registerServiceWorker().catch(() => {});
     // The §4b door-swap: the forum has no
     // password sign-in UI anymore, so a signed-out open carrying
     // ?wt=<ticket> redeems the one-time ticket RIGHT HERE, before the

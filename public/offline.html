@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+    <link rel="icon" href="/icons/icon-192.png" sizes="192x192" type="image/png">
+    <meta name="color-scheme" content="light dark">
+    <meta name="robots" content="noindex">
+    <title>Offline · Wempo's Forum</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <!-- Batch K: the service worker's offline page. Static on purpose: it is
+       cached once per deploy and must never hold anything personal, so it
+       carries no script and no member data. -->
+  <body>
+    <main id="main" class="panel offline-page">
+      <h1>You're offline</h1>
+      <p>Wempo's Forum can't be reached right now. Check your connection, then reload this page.</p>
+      <p><a href="/">Try again</a></p>
+    </main>
+  </body>
+</html>
