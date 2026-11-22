@@ -15,6 +15,19 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.45.0] - 2026-11-22
+
+### Security
+- Security review of v5.41-v5.44 (staff notes, report claiming, thread slow
+  mode, reactions on direct messages and thread tags):
+  [docs/security-reviews/2026-11-22-v5.41-v5.44.md](docs/security-reviews/2026-11-22-v5.41-v5.44.md).
+  No critical or high findings, so nothing in the forum's behaviour changes
+  in this release. One medium finding (several replies sent at the same
+  moment can all get past a thread's slow mode) and three low findings are
+  left for the owner to decide, along with the three owner items carried
+  over from earlier reviews. New tests lock in the behaviour the review
+  checked.
+
 ## [5.44.0] - 2026-11-22
 
 ### Added
