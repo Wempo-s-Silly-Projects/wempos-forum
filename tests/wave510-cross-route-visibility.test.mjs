@@ -217,6 +217,9 @@ function seedPrivateExtras(w, at) {
   // Wave 5.48: one saved search; the needle rides both the name and the query.
   w.savedSearch = Number(db.prepare("INSERT INTO saved_searches (owner_id, name, q, created_at) VALUES (?, ?, ?, ?)")
     .run(id.viewer, "SAVEDSEARCHTXT name", "SAVEDSEARCHTXT query", at).lastInsertRowid);
+  // Wave 5.52: the viewer mutes the public root (migration 0071). The flag
+  // is the viewer's alone; every other viewer reads it false or absent.
+  db.prepare("INSERT INTO thread_mutes (user_id, post_id, created_at) VALUES (?, ?, ?)").run(id.viewer, w.publicRoot, at);
 }
 
 // Wave 5.44 (migration 0070): one tag on every fixture root — public,
@@ -362,6 +365,8 @@ function routes(w, member) {
     ["/api/search?q=SAVEDSEARCHTXT"],
     // Wave 5.50: the visible thread's TL;DR.
     ["/api/posts/" + w.publicRoot + "/summary"],
+    // Wave 5.52: the public tag list (staff-written labels only).
+    ["/api/tags"],
   ];
   if (member) {
     list.push(["/api/me/notifications"], ["/api/me/bookmarks"], ["/api/session"], ["/api/posts?mine=1"],
@@ -478,6 +483,8 @@ test("wave 5.10 sweep: no hidden, banned, wiped, invisible, or block-paired cont
   assert.ok(swept >= 318, "swept " + swept);
   // Wave 5.50: + the visible thread's TL;DR for each of the 4 viewers.
   assert.ok(swept >= 322, "swept " + swept);
+  // Wave 5.52: + the tag list for each of the 4 viewers.
+  assert.ok(swept >= 326, "swept " + swept);
 });
 
 test("wave 5.50 sweep: the TL;DR is never served for a hidden, banned-author or block-paired thread; positive controls", async () => {
@@ -968,4 +975,202 @@ test("wave 5.42: the follow-state read refuses the block pair both ways and gues
   }
   const viewer = forgeSession(w.db, w.id.viewer);
   assert.deepEqual(JSON.parse(await fetchText(w.env, "/api/users/zzblocker/follow", { session: viewer })), { following: true });
+});
+
+// ---- wave 5.52: the every-tenth-wave re-audit (v5.43 – v5.51 surfaces) ----
+
+// Thread mutes (v5.46, migration 0071): the flag on the detail read is the
+// caller's own — every other viewer reads false (guests: no field); a mute
+// write on a thread the caller cannot see is a 404 that writes nothing; and
+// the muted member gets no row from a reply fan-out in that thread.
+test("wave 5.52: a thread mute is its owner's alone and gated by the visibility law", async () => {
+  const w = await seedWorld();
+  const deputy = await seedUser(w.db, { username: "deputy", role: "moderator" });
+  const flag = async (session) => JSON.parse(await fetchText(w.env, "/api/posts/" + w.publicRoot, { session })).viewerMuted;
+  assert.equal(await flag(forgeSession(w.db, w.id.viewer)), true, "the owner reads their own mute");
+  assert.equal(await flag(undefined), undefined, "guests carry no field");
+  for (const [label, userId] of [["zzblocker", w.id.zzblocker], ["zzblocked", w.id.zzblocked], ["outsider", w.id.outsider],
+    ["owner boss", w.id.boss], ["admin deputy", deputy]]) {
+    assert.equal(await flag(forgeSession(w.db, userId)), false, label + " never sees the viewer's mute");
+  }
+  const muteRows = () => Number(w.db.prepare("SELECT COUNT(*) AS n FROM thread_mutes").get().n);
+  const before = muteRows();
+  const outsider = forgeSession(w.db, w.id.outsider);
+  for (const [session, post, label] of [[outsider, w.hiddenRoot, "hidden root"], [outsider, w.bannedRoot, "banned root"],
+    [forgeSession(w.db, w.id.zzblocker), w.blockedRoot, "pair root"], [forgeSession(w.db, w.id.zzblocked), w.blockerRoot, "pair root back"]]) {
+    const res = await call(w.env, "/api/posts/" + post + "/mute", { method: "PUT", session });
+    assert.equal(res.status, 404, label);
+    assertClean(await res.text(), [...ALWAYS_FORBIDDEN, "BLOCKERTXT", "BLOCKEDTXT"], label);
+  }
+  assert.equal(muteRows(), before, "no refused mute wrote a row");
+  const muted = await call(w.env, "/api/posts/" + w.publicRoot + "/mute", { method: "PUT", session: outsider });
+  assert.equal(muted.status, 200, "control: a visible root mutes");
+  assert.equal((await call(w.env, "/api/posts/" + w.publicRoot + "/mute", { method: "DELETE", session: outsider })).status, 200);
+  // Fan-out: staff (exempt from the lock and slow mode on the root) reply
+  // mentioning both members; the muted viewer gets nothing, the control does.
+  const reply = await call(w.env, "/api/posts/" + w.publicRoot + "/replies", { method: "POST",
+    session: forgeSession(w.db, w.id.boss), body: { body: "zzsweep 5.52 ping @viewer and @outsider" } });
+  assert.equal(reply.status, 201);
+  const replyId = Number((await reply.json()).id);
+  const recipients = w.db.prepare("SELECT user_id FROM notifications WHERE reply_id = ?").all(replyId).map((row) => Number(row.user_id));
+  assert.ok(recipients.includes(w.id.outsider), "control: the unmuted member is pinged");
+  assert.ok(!recipients.includes(w.id.viewer), "the muted member is not");
+});
+
+// Thread locks (v5.51) and slow mode (v5.43): the refusals come AFTER the
+// visibility check, so a lock on a thread the member cannot see answers like
+// any unseen thread (never 423 — no existence oracle), web and MCP alike,
+// and no refusal body carries the staff-only reason.
+test("wave 5.52: lock refusals never reveal a hidden or block-paired thread, nor the reason", async () => {
+  const w = await seedWorld();
+  for (const post of [w.hiddenRoot, w.bannedRoot, w.blockedRoot]) {
+    w.db.prepare("INSERT INTO thread_locks (post_id, locked_by, reason, locked_at) VALUES (?, ?, 'STAFFONLYTXT hidden lock', ?)")
+      .run(post, w.id.boss, now());
+  }
+  const posts = () => Number(w.db.prepare("SELECT COUNT(*) AS n FROM posts").get().n);
+  const before = posts();
+  for (const [member, post] of [["outsider", w.hiddenRoot], ["outsider", w.bannedRoot], ["zzblocker", w.blockedRoot]]) {
+    const res = await call(w.env, "/api/posts/" + post + "/replies", { method: "POST",
+      session: forgeSession(w.db, w.id[member]), body: { body: "zzsweep 5.52 locked probe" } });
+    assert.notEqual(res.status, 423, member + " learns that " + post + " is locked");
+    assert.ok(res.status >= 400 && res.status < 500, member + " " + post + " -> " + res.status);
+    assertClean(await res.text(), [...ALWAYS_FORBIDDEN, "BLOCKEDTXT", "locked"], member + " reply " + post);
+  }
+  for (const post of [w.hiddenRoot, w.bannedRoot, w.blockedRoot]) {
+    const text = await mcpText(w.env, "reply", { post_id: post, body: "zzsweep 5.52 mcp probe" }, TOKENS.zzblocker, { refused: true });
+    assertClean(text, [...ALWAYS_FORBIDDEN, "BLOCKEDTXT", "locked"], "mcp reply " + post);
+  }
+  assert.equal(posts(), before, "no probe wrote a reply");
+  // Control: on the visible locked root a member gets the 423 with the
+  // public copy only — never the reason or the locker.
+  const visible = await call(w.env, "/api/posts/" + w.publicRoot + "/replies", { method: "POST",
+    session: forgeSession(w.db, w.id.outsider), body: { body: "zzsweep 5.52 visible probe" } });
+  assert.equal(visible.status, 423);
+  assertClean(await visible.text(), ["STAFFONLYTXT", "boss"], "visible lock refusal");
+});
+
+// DM reactions (v5.44): inside the pair's own 1:1 thread, a reaction by the
+// other side of the block pair is left out of the counts (only the reader's
+// own reactions stay), both ways; removing the block restores it with no
+// write. Staff read no 1:1 thread they are not in.
+test("wave 5.52: DM reaction counts drop the other side of a block pair, both ways", async () => {
+  const w = await seedWorld();
+  const shapesFor = async (member) => {
+    const thread = JSON.parse(await fetchText(w.env, "/api/dm/threads/" + w.pairThread, { session: forgeSession(w.db, w.id[member]) }));
+    return thread.messages.map((message) => message.reactions);
+  };
+  for (const member of ["zzblocker", "zzblocked"]) {
+    const shapes = await shapesFor(member);
+    assert.ok(shapes.length >= 1, member + " reads the pair thread");
+    for (const shape of shapes) assert.deepEqual(shape, { like: 0, dislike: 0, mine: null }, member + ": the other side's reaction is hidden");
+  }
+  const boss = await call(w.env, "/api/dm/threads/" + w.pairThread, { session: forgeSession(w.db, w.id.boss) });
+  assert.equal(boss.status, 403, "staff are not participants");
+  assertClean(await boss.text(), ["BLOCKERTXT", "BLOCKEDTXT"], "staff pair thread");
+  // Positive control: lift the block and the count comes back with no write.
+  w.db.prepare("DELETE FROM blocks WHERE blocker_id = ? AND blocked_id = ?").run(w.id.zzblocker, w.id.zzblocked);
+  assert.ok((await shapesFor("zzblocker")).some((shape) => shape.like === 1), "an unblock restores the count");
+});
+
+// The data export (v4.23, sections through v5.50) as ONE surface: for every
+// member kind, every section carries only rows keyed on the caller — checked
+// against the database row by row — and no other member's private store.
+test("wave 5.52: the data export carries only the caller's own rows in every section", async () => {
+  const w = await seedWorld();
+  const one = (sql, ...args) => w.db.prepare(sql).get(...args);
+  const OWNED = {
+    posts: [(row) => row.id, "SELECT author_id AS owner FROM posts WHERE id = ?", "SELECT COUNT(*) AS n FROM posts WHERE author_id = ?"],
+    bookmarks: [(row) => row.postId, null, "SELECT COUNT(*) AS n FROM bookmarks WHERE user_id = ?"],
+    followedThreads: [(row) => row.postId, null, "SELECT COUNT(*) AS n FROM thread_subscriptions WHERE user_id = ?"],
+    blocks: [(row) => row.id, null, "SELECT COUNT(*) AS n FROM blocks WHERE blocker_id = ?"],
+    wallPosts: [(row) => row.id, "SELECT author_id AS owner FROM wall_posts WHERE id = ?", "SELECT COUNT(*) AS n FROM wall_posts WHERE author_id = ?"],
+    dmReactions: [(row) => row.messageId, null, "SELECT COUNT(*) AS n FROM dm_message_reactions WHERE user_id = ?"],
+    privateNotes: [null, null, "SELECT COUNT(*) AS n FROM private_notes WHERE owner_id = ?"],
+    savedSearches: [null, null, "SELECT COUNT(*) AS n FROM saved_searches WHERE owner_id = ?"],
+    threadSummaries: [(row) => row.postId, "SELECT updated_by AS owner FROM thread_summaries WHERE post_id = ?",
+      "SELECT COUNT(*) AS n FROM thread_summaries WHERE updated_by = ?"],
+  };
+  const KEYED = {
+    bookmarks: "SELECT 1 AS hit FROM bookmarks WHERE user_id = ? AND post_id = ?",
+    followedThreads: "SELECT 1 AS hit FROM thread_subscriptions WHERE user_id = ? AND post_id = ?",
+    blocks: "SELECT 1 AS hit FROM blocks WHERE blocker_id = ? AND blocked_id = ?",
+    dmReactions: "SELECT 1 AS hit FROM dm_message_reactions WHERE user_id = ? AND message_id = ?",
+  };
+  let checked = 0;
+  for (const member of ["viewer", "alice", "zzblocker", "zzblocked", "outsider", "boss"]) {
+    const userId = w.id[member];
+    const text = await fetchText(w.env, "/api/me/export", { session: forgeSession(w.db, userId) });
+    const data = JSON.parse(text);
+    assert.equal(data.profile.id, userId, member + " profile");
+    for (const [section, [idOf, ownerSql, countSql]] of Object.entries(OWNED)) {
+      const rows = data[section];
+      assert.ok(Array.isArray(rows), member + " " + section);
+      assert.equal(rows.length, Number(one(countSql, userId).n), member + " " + section + " row count is the caller's own");
+      for (const row of rows) {
+        if (ownerSql) assert.equal(Number(one(ownerSql, idOf(row)).owner), userId, member + " " + section + " " + idOf(row));
+        if (KEYED[section]) assert.ok(one(KEYED[section], userId, idOf(row)), member + " " + section + " " + idOf(row));
+        checked++;
+      }
+    }
+    for (const message of data.directMessages) {
+      const table = message.kind === "direct" ? "dm_messages" : "dm_group_messages";
+      assert.equal(Number(one("SELECT user_id FROM " + table + " WHERE id = ?", message.id).user_id), userId, member + " dm " + message.id);
+      checked++;
+    }
+    assertClean(text, [...ownerOnlyNeedles(member), "STAFFNOTETXT", "STAFFONLYTXT", "STALESTATUSTXT"], member + " export");
+  }
+  assert.ok(checked >= 40, "checked " + checked);
+});
+
+// Staff-only writes added in v5.43 – v5.51 refuse guests (401/403) and members
+// (403) before anything is written; the claim reaches the desk only.
+test("wave 5.52: v5.43 – v5.51 staff writes refuse guests and members and write nothing", async () => {
+  const w = await seedWorld();
+  const reportId = Number(w.db.prepare("SELECT id FROM reports LIMIT 1").get().id);
+  const tagId = Number(w.db.prepare("SELECT id FROM forum_tags LIMIT 1").get().id);
+  const noteId = Number(w.db.prepare("SELECT id FROM member_notes WHERE member_id = ? LIMIT 1").get(w.id.viewer).id);
+  const writes = [
+    ["POST", "/api/admin/members/" + w.id.viewer + "/notes", { body: "zzsweep note" }],
+    ["DELETE", "/api/admin/members/" + w.id.viewer + "/notes/" + noteId, undefined],
+    ["POST", "/api/admin/reports/" + reportId + "/claim", undefined],
+    ["DELETE", "/api/admin/reports/" + reportId + "/claim", undefined],
+    ["PUT", "/api/admin/threads/" + w.blockerRoot + "/slowmode", { seconds: 30 }],
+    ["DELETE", "/api/admin/threads/" + w.publicRoot + "/slowmode", undefined],
+    ["PUT", "/api/admin/threads/" + w.blockerRoot + "/lock", { reason: "zzsweep" }],
+    ["DELETE", "/api/admin/threads/" + w.publicRoot + "/lock", undefined],
+    ["POST", "/api/admin/tags", { slug: "zzsweep", label: "zzsweep" }],
+    ["DELETE", "/api/admin/tags/" + tagId, undefined],
+  ];
+  const snapshot = () => ["member_notes", "report_claims", "thread_slowmode", "thread_locks", "forum_tags", "thread_tags"]
+    .map((table) => Number(w.db.prepare("SELECT COUNT(*) AS n FROM " + table).get().n)).join(",");
+  const before = snapshot();
+  let refused = 0;
+  // A guest has no CSRF token, so requireCsrf answers 403 before the 401.
+  for (const [label, session, statuses] of [["guest", undefined, [401, 403]], ["viewer", forgeSession(w.db, w.id.viewer), [403]],
+    ["zzblocker", forgeSession(w.db, w.id.zzblocker), [403]]]) {
+    for (const [method, path, body] of writes) {
+      const res = await call(w.env, path, { method, session, body });
+      assert.ok(statuses.includes(res.status), label + " " + method + " " + path + " -> " + res.status);
+      assertClean(await res.text(), [...ALWAYS_FORBIDDEN, "boss"], label + " " + method + " " + path);
+      refused++;
+    }
+  }
+  assert.equal(refused, 3 * writes.length);
+  assert.equal(snapshot(), before, "no refused write changed a staff store");
+  const queue = await fetchText(w.env, "/api/admin/reports", { session: forgeSession(w.db, w.id.boss) });
+  assert.ok(queue.includes('"username":"boss"'), "control: staff see who claimed the report");
+});
+
+// Public faces for staff (v5.44): the tag listing and its page head keep
+// hidden and banned-author threads off for the owner and an admin too.
+test("wave 5.52: the tag listing is a public face for staff — hidden and banned stay off", async () => {
+  const w = await seedWorld();
+  const deputy = await seedUser(w.db, { username: "deputy", role: "moderator" });
+  for (const [label, session] of [["owner boss", forgeSession(w.db, w.id.boss)], ["admin deputy", forgeSession(w.db, deputy)]]) {
+    const listing = await fetchText(w.env, "/api/tags/sweep/posts", { session });
+    assertClean(listing, ["HIDDENROOTTXT", "UNDERHIDDENTXT", "BANNEDTXT", "STAFFONLYTXT", "STAFFNOTETXT"], label + " listing");
+    const ids = JSON.parse(listing).threads.map((row) => row.id);
+    assert.ok(ids.includes(w.blockerRoot) && ids.includes(w.blockedRoot), label + ": staff skip only the block filter");
+    assertClean(await fetchText(w.env, "/tag/sweep", { session }), ["HIDDENROOTTXT", "BANNEDTXT", "STAFFONLYTXT"], label + " head");
+  }
 });

@@ -1,4 +1,4 @@
-# Visibility inventory (v5.42)
+# Visibility inventory (v5.52)
 
 Every server path that returns or renders post text, member names or
 member-derived data, with the visibility-law filters it applies and the test
@@ -24,6 +24,17 @@ Since v5.42 the same fixture also carries a private folder
 statuses (one expired), and a hidden newest staff pick over an older
 block-paired one; a staff + owner pass checks the public faces and the
 private stores for both staff roles. Swept-count floor: 263 (was 245).
+Waves 5.43 – 5.51 extended the fixture as each surface shipped: staff notes
+(`STAFFNOTETXT`), a claimed report, slow mode and a lock with a staff-only
+reason on the public root, a tag on every fixture root (the hidden one and
+the reply under it included), a 1:1 DM reaction by each side of the pair,
+private notes (`PRIVNOTETXT`) and a saved search (`SAVEDSEARCHTXT`), both
+owner-only, and a TL;DR on every fixture root. Since v5.52 it also carries a
+muted thread (the viewer mutes the public root), and the sweep adds the tag
+list, a mute pass (owner-only flag, visibility-gated writes, fan-out), a lock
+oracle pass (web + MCP), the DM reaction counts across the pair, a row-by-row
+export check for six member kinds, a staff-write refusal pass and a staff pass
+over the tag listing. Swept-count floor: 326 (was 322 after v5.50).
 `tests/wave40-cross-route-visibility.test.mjs` and
 `tests/wave40-visibility-routes.test.mjs` are the older sweeps, kept as-is.
 
@@ -53,7 +64,7 @@ private stores for both staff roles. Swept-count floor: 263 (was 245).
 | Notifications `/api/me/notifications` | api/notifications.mjs:286 | H B K (`viewablePostSql`), chat-mention actor B K, M (client) | sweep; wave510 F2; wave37–39 |
 | Session badge `/api/session` | api/session.mjs:102 | same predicate as the list | sweep; wave510 F2 |
 | Bookmarks `/api/me/bookmarks` | api/bookmarks.mjs:115 | H B K (ancestors) | sweep; wave39 saved-ancestor |
-| Data export `/api/me/export` | api/export.mjs:184 | own rows only (by design: own hidden posts included) | sweep (v5.32) |
+| Data export `/api/me/export` | api/export.mjs:213 (sections :104) | O: every section keyed on the caller (by design: own hidden posts included); DM rows authored by the caller only | sweep (v5.32); wave 5.52 row-by-row export pin (6 member kinds × 10 sections) |
 | Account security `/api/me/security` | api/account-security.mjs:53 | own sessions only | sweep (v5.32) |
 | My blocks `/api/me/blocks` | api/blocks.mjs:71 | the viewer's own pairs only, both directions labelled (by design, v4.4) | sweep (v5.32 pins) |
 | Rules, branding `/api/rules`, `/api/branding` | api/rules.mjs:36, api/branding.mjs:120 | owner copy, no member content | sweep (v5.32) |
@@ -97,6 +108,37 @@ private stores for both staff roles. Swept-count floor: 263 (was 245).
 | Notification prefs `/api/me/notification-prefs` | api/notifications.mjs:249 | O (own row; others read their own empty list) | wave 5.40 pin; sweep (members); wave 5.42 staff/owner pass |
 | Every notification insert path + mute | api/notifications.mjs:51 (`mutedKindSql`) via :155 reply, :170 fan-out (mention, subscription, chat_mention at api/chat.mjs:131), :205 label-only (invite_joined); api/follows.mjs:69 | each names its kind; muted recipients get no row; appeal outcomes (api/appeals.mjs:61) are safety notices with no kind and always land; visibility re-checked at read | wave540-notification-prefs; wave 5.40 pin |
 
+## Added since v5.42 (v5.43 – v5.51)
+
+| Surface | Handler | Filters | Pinned by |
+|---|---|---|---|
+| Slow-mode flag (`slowModeSeconds` in `POST_SELECT`) | api/core/shapers.mjs:55, :263 | public by design (the thread page shows it); rides only posts already visible; `set_by` never selected | sweep (public root carries it on every route) |
+| Slow-mode reply refusal (web + MCP `reply`) | api/replies.mjs:164, api/mcp.mjs:637 (api/staff-tools.mjs:76) | runs AFTER the H B K target check, so an unseen thread never answers 429; staff exempt. Open owner item M1 (check-then-insert race) referenced, not fixed | wave543-staff-tools |
+| Slow-mode writes `PUT/DELETE /api/admin/threads/:id/slowmode` | api/staff-tools.mjs:107 | S (requireStaff + CSRF, not banned, write limiter) | wave 5.52 staff-write pass; wave543 |
+| Report claim writes `POST/DELETE /api/admin/reports/:id/claim` | api/staff-tools.mjs:118 | S; claimer name reaches the desk queue only | wave 5.52 staff-write pass (+ queue positive control); wave543 |
+| Staff-note writes `POST /api/admin/members/:id/notes`, `DELETE …/notes/:noteId` | api/staff-tools.mjs:170, :197 | S; no member-facing read, export, feed, search, MCP tool or head joins `member_notes` | sweep (`STAFFNOTETXT` forbidden on every route, the noted member's own included); wave 5.52 staff-write pass |
+| DM reaction writes `PUT/DELETE /api/dm/messages/:id/reaction` | api/dm-reactions.mjs:64 | participants only (404 to anyone else, staff included), banned author's message 404, K (403 either way) | wave 5.44 sweep pin; wave544-dm-reactions |
+| DM reactions in the 1:1 thread read | api/chat.mjs:382, api/dm-reactions.mjs:89 | participants only (rides the thread gate), B on reactors, K: the other side's reactions dropped while the pair (or their ban) holds; read-time | wave 5.52 DM reaction pin (both ways + unblock control); mutation-checked |
+| Tag list `/api/tags` | api/tags.mjs:121 | staff-written labels only, no post or member data | sweep (all viewers, new v5.52) |
+| Tag writes `POST /api/admin/tags`, `DELETE /api/admin/tags/:id` | api/tags.mjs:246 | S, word filter at create | wave 5.52 staff-write pass; wave544-thread-tags |
+| A thread's tags `GET/PUT /api/posts/:id/tags` | api/tags.mjs:181 | GET: H B K via `canViewPost` (404); PUT: root, author or staff, `canViewPost` first | sweep (chips on the public root); wave 5.44 sweep pin (hidden, banned, pair = 404) |
+| Tag listing `/api/tags/:slug/posts` | api/tags.mjs:218 | H B K roots (`banFilterSql`, `viewablePostSql`, `viewerBlockFilterSql`); hidden off for staff too (public face); reply tally viewer-aware; M | sweep (all viewers); wave 5.44 sweep pin; wave 5.52 staff pass |
+| Tag page head `/tag/:slug` | api/seo.mjs:208 | label only, unknown slug = generic noindexed head | sweep (all viewers); wave 5.52 staff pass |
+| Thread mute writes `PUT/DELETE /api/posts/:id/mute` | api/thread-mutes.mjs:51 | O; H B K via `canViewPost` (404, no write); roots only | wave 5.52 mute pass (hidden, banned, pair both ways); mutation-checked; wave546-thread-mutes |
+| `viewerMuted` on the thread detail | api/posts-feed.mjs:568 | O (caller's own PK probe; guests no field) | wave 5.52 mute pass (5 other viewers incl. owner + admin read false) |
+| Thread mute in every fan-out (`mutedThreadSql`) | api/notifications.mjs:65 (insert :88), api/follows.mjs:77 | write-side only; the muted recipient gets no row; label-only rows never match | wave 5.52 mute pass (fan-out control); wave546 |
+| Private notes `GET/PUT/DELETE /api/users/:username/note` | api/private-notes.mjs:98 | O (no staff bypass; subject never sees it); banned/block-paired subject unchanged by design. Open owner item L1 (NUL → 500) referenced, not fixed | sweep (`PRIVNOTETXT` owner-only on every route + MCP search); wave 5.42 staff/owner pass (extended v5.47) |
+| Export `privateNotes` | api/export.mjs:126 | O (notes the caller wrote) | wave 5.42 owner pass; wave 5.52 export pin |
+| Saved searches `GET/POST /api/me/saved-searches`, `DELETE …/:id` | api/saved-searches.mjs:146 | O (no staff bypass; foreign id = 404, row kept). Open owner item L1 referenced | sweep (`SAVEDSEARCHTXT` owner-only); wave 5.42 staff/owner pass (extended v5.48) |
+| Export `savedSearches` | api/export.mjs:130 | O | wave 5.42 owner pass; wave 5.52 export pin |
+| TL;DR `GET/PUT/DELETE /api/posts/:id/summary` | api/thread-summaries.mjs:107 (read :92) | H B K via `canViewPost` (404), roots only; writer B K (`ACTIVE_BAN_SQL` + `viewerBlockFilterSql` on `updated_by`, staff bypass); writer identity never served | sweep (all viewers); wave 5.50 sweep pin (hidden, banned, pair = 404 + staff controls) |
+| Export `threadSummaries` | api/export.mjs:134 | O (summaries the caller wrote) | wave 5.52 export pin |
+| Export `dmReactions` | api/export.mjs:122 | O (message ids + values, never text) | wave 5.52 export pin |
+| Edit-history word diff (client) | public/js/word-diff.js | renders only what `/api/posts/:id/edits` already returned (H B K via `canViewPost`); no fetch of its own | sweep (edits route, by-id test) |
+| Lock flag (`locked` in `POST_SELECT`) | api/core/shapers.mjs:58 | public by design, bind-free EXISTS; the reason and the locker never selected | sweep (`STAFFONLYTXT lock reason` forbidden on every route); wave 5.32 staff pass control |
+| Lock reply refusal (web + MCP `reply`) | api/replies.mjs:161, api/mcp.mjs:635 (api/thread-locks.mjs:57) | runs AFTER the H B K target check: a locked thread the member cannot see answers like any unseen thread, never 423; refusal copy carries no reason; staff exempt | wave 5.52 lock-oracle pass (hidden, banned, pair; web + MCP; visible 423 control) |
+| Lock writes `PUT/DELETE /api/admin/threads/:id/lock` | api/thread-locks.mjs:118 | S | wave 5.52 staff-write pass; wave551-thread-lock |
+
 ## Discovery, page heads and MCP
 
 | Surface | Handler | Filters | Pinned by |
@@ -134,6 +176,42 @@ staff-only sweep, which also checks staff do read the store.
 | Avatar, attachment, GIF, CSS queues | api/avatars.mjs:134, api/attachments.mjs:426, api/gifs.mjs:249, api/profiles.mjs:422 |
 | Word filter `/api/admin/filter` | api/filterstore.mjs:91 |
 | Staff-pick mod log `/api/admin/staff-picks` (v5.35) | api/staff-picks.mjs:93 |
+| Staff notes `/api/admin/members/:id/notes` (v5.43) | api/staff-tools.mjs:158 |
+| Report claims in the post-report queue (v5.43) | api/reports.mjs:77 |
+| Thread-lock desk read `/api/admin/threads/:id/lock` (v5.51; the reason lives here only) | api/thread-locks.mjs:105 |
+
+## Findings (v5.52)
+
+- **Leaks: none.** Every surface shipped in v5.43–v5.51 applies the shared
+  helpers (`canViewPost`, `viewablePostSql`, `banFilterSql`/`ACTIVE_BAN_SQL`,
+  `viewerBlockFilterSql`/`blockPairExists`), is owner-keyed on the session's
+  id (thread mutes, private notes, saved searches, export sections) or sits
+  behind `requireStaff` (notes, claims, slow-mode and lock writes, the lock
+  desk read, tag writes). The data export, re-checked as one surface, carries
+  only the caller's own rows in all ten sections for six member kinds.
+- **Ordering checked:** the lock (423) and slow-mode (429) reply refusals run
+  after the target's visibility check on the web route and the MCP `reply`
+  tool, so neither is an existence oracle for a hidden, banned-author or
+  block-paired thread, and no refusal carries the staff-only reason.
+- **Rows whose filter differs from the shared helpers (justified):**
+  - api/chat.mjs:382 (`otherHidden`) inlines a both-way blocks EXISTS beside
+    `ACTIVE_BAN_SQL("?")` in one probe instead of `blockPairExists` plus a ban
+    lookup: it is the wave-40 unread predicate the reaction counts reuse, and
+    the predicate is the same both-way EXISTS over `blocks`.
+  - The tag listing and the TL;DR keep hidden posts off for staff (tags) or
+    follow `canViewPost` (summary, staff bypass) exactly like their siblings
+    (the feed's public face and the thread read).
+  - Slow mode and `locked` are public flags by design (the thread page shows
+    them); only the lock reason and the locker are staff-only.
+- **Unpinned rows (now pinned):** the mute flag and the visibility gate on
+  mute writes, the mute in the fan-out, the lock-refusal ordering (web + MCP),
+  the DM reaction counts across a block pair, the export as a whole, the
+  staff-only writes of v5.43–v5.51 and the tag listing as a staff public face
+  had no cross-route pin. Behavior was already correct; mutation checks
+  (dropping `otherHidden` in the thread read, dropping `canViewPost` in the
+  mute gate) each turn the sweep red.
+- **Open owner items (referenced, not fixed):** M1 slow-mode check-then-insert
+  race; L1 NUL → 500 in private notes / saved searches; O1–O7.
 
 ## Findings (v5.42)
 
