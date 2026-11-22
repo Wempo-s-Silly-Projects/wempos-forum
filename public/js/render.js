@@ -33,6 +33,7 @@ import { createReadAloud } from "./read-aloud.js";
 import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";
 import { isQotdBody } from "./traditions.js";
 import { createFoldedBody, isLongPost } from "./long-post.js";
+import { appendWordDiff, diffWords } from "./word-diff.js";
 
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
@@ -686,7 +687,18 @@ export const closeEditForm = (article) => {
 // GET /api/posts/:id/edits, newest first, as plain text rows. Bodies are user
 // content — textContent only, never markup. An empty lineage still renders a
 // muted placeholder so the toggle never feels broken.
-export function renderEditHistoryPanel(document, edits) {
+// Word diff (v5.50.0): with the card's current body, a "Current version" row
+// leads; every row then marks its words inserted/deleted against the version
+// before it (the oldest stays plain). Both sides are masked BEFORE the diff,
+// so a spoiler never surfaces on either side; past the diff's word bound the
+// row falls back to the plain full version.
+function editDiffBody(document, older, newer) {
+  const runs = diffWords(maskSpoilers(older), maskSpoilers(newer));
+  if (!runs) return null;
+  return appendWordDiff(document, createElement(document, "p", "edit-history-body"), runs);
+}
+
+export function renderEditHistoryPanel(document, edits, currentBody) {
   const panel = createElement(document, "div", "edit-history-panel");
   const title = createElement(document, "p", "edit-history-title", t("render.earlierVersions"));
   panel.append(title);
@@ -694,15 +706,23 @@ export function renderEditHistoryPanel(document, edits) {
     panel.append(createElement(document, "p", "edit-history-empty", t("render.noEarlierVersions")));
     return panel;
   }
-  for (const edit of edits) {
+  const versions = typeof currentBody === "string" ? [{ current: true, body: currentBody }, ...edits] : edits;
+  versions.forEach((edit, index) => {
     const entry = createElement(document, "div", "edit-history-entry");
-    const time = createElement(document, "time", "edit-history-time");
-    time.dateTime = edit.editedAt;
-    time.textContent = new Date(edit.editedAt).toLocaleString(currentLocale());
+    let time;
+    if (edit.current) {
+      time = createElement(document, "p", "edit-history-time", t("render.currentVersion"));
+    } else {
+      time = createElement(document, "time", "edit-history-time");
+      time.dateTime = edit.editedAt;
+      time.textContent = new Date(edit.editedAt).toLocaleString(currentLocale());
+    }
+    const older = versions[index + 1];
+    const diffed = older ? editDiffBody(document, String(older.body ?? ""), String(edit.body ?? "")) : null;
     // Earlier versions show as plain text, so their spoilers stay masked.
-    const body = createElement(document, "p", "edit-history-body", maskSpoilers(edit.body));
+    const body = diffed ?? createElement(document, "p", "edit-history-body", maskSpoilers(edit.body));
     entry.append(time, body);
     panel.append(entry);
-  }
+  });
   return panel;
 }
