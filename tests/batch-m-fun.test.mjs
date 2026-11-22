@@ -131,16 +131,16 @@ const VENDORED = {
   "public/js/vendor/signature_pad.umd.min.js": "signature_pad 5.1.5",
 };
 const VENDOR_SHA256 = {
-  "public/js/vendor/confetti.browser.js": "f4aa8b0d9a3ec1b2cfa0f8f9bd9958e8ea5ad94a6cdc7d3eaab2bcb03f2fde0b",
-  "public/js/vendor/lottie_light.min.js": "PIN",
-  "public/js/vendor/rough-notation.iife.js": "PIN",
-  "public/js/vendor/vanilla-tilt.min.js": "PIN",
-  "public/js/vendor/typeit.umd.js": "PIN",
-  "public/js/vendor/splitting.min.js": "PIN",
-  "public/js/vendor/zzfx.js": "PIN",
-  "public/js/vendor/cursor-effects.browser.js": "PIN",
-  "public/js/vendor/matter.min.js": "PIN",
-  "public/js/vendor/signature_pad.umd.min.js": "PIN",
+  "public/js/vendor/confetti.browser.js": "49f4bcbc56e7ceb5c3d25d13db1d0da965b6cd1c8a54a707bb055be0685b0a95",
+  "public/js/vendor/lottie_light.min.js": "9588432bec30c8ef8200bac4a67d8aaad881047bc2a6c9fa624d90ec96402410",
+  "public/js/vendor/rough-notation.iife.js": "f90aa0090e361ff48694b74e0319e109856decb3e757c280dfe25e3607f35fac",
+  "public/js/vendor/vanilla-tilt.min.js": "de6fa8d3f40dbae2726a72f7d1ae46bb0588267af05355bef1d128f737f4a282",
+  "public/js/vendor/typeit.umd.js": "92a942db99594f9d00a807016aaae091c86a3553e98025df6a725ed9f290c468",
+  "public/js/vendor/splitting.min.js": "2c57efb96085bbfd54ec98062087affc0b958ecf408ad49ea6cfa6efbba2fb8d",
+  "public/js/vendor/zzfx.js": "43f321101a935892c112a291e2e943b4da33159b43fcd4a21f3eae710f4a27ff",
+  "public/js/vendor/cursor-effects.browser.js": "19afd3c18b591e805118ab4d5e9e4d3bfe81a6aa3b91c804ccd2361b3def999c",
+  "public/js/vendor/matter.min.js": "72d30be0f579eb02ce1e0b6f9d359a4f392e6837e5a26ba8be5dbee7f88e24ae",
+  "public/js/vendor/signature_pad.umd.min.js": "0575208b6221b7ca986de5945a529f7bdd296f997df744445a878617fe4fa6b4",
 };
 
 // ---------------------------------------------------------------- vendored libraries
@@ -271,12 +271,13 @@ test("the panel sits in the Appearance settings group and the hub renders it", (
   assert.match(feed, /createFunExtrasPanel\(document, storage/);
 });
 
-test("clearAllFunExtras wipes the choices and every badge-seen marker; sign-out calls it", () => {
+test("clearAllFunExtras wipes every badge-seen marker (account data) but keeps the device switches; sign-out calls it", () => {
   const storage = allOn();
+  const switches = storage.getItem(settings.FUN_STORAGE_KEY);
   storage.setItem(settings.FUN_BADGE_SEEN_PREFIX + "7", "profile.badgeNew");
   storage.setItem("unrelated", "keep");
   settings.clearAllFunExtras(storage);
-  assert.deepEqual(storage.dump(), { unrelated: "keep" });
+  assert.deepEqual(storage.dump(), { [settings.FUN_STORAGE_KEY]: switches, unrelated: "keep" });
   assert.doesNotThrow(() => settings.clearAllFunExtras(blockedStorage));
   assert.match(read("public/js/routes/account-nav.js"), /clearAllFunExtras\(/);
 });
@@ -295,10 +296,23 @@ test("with every extra off, a full enhance pass loads nothing and touches no sto
   const label = new FakeNode("span");
   label.className = "role-badge staff-pick-label";
   root.append(intro, label);
-  await fun.enhanceFunView(root, env({ storage, load: recorder.load }));
+  const doc = makeDoc();
+  await fun.enhanceFunView(root, env({ doc, storage, load: recorder.load }));
   assert.deepEqual(recorder.calls, []);
   assert.deepEqual(storage.dump(), {});
   assert.equal(h1.textContent, "Hello");
+  assert.equal(doc.head.children.length, 0, "not even the extras' stylesheet is linked");
+});
+
+test("the moving styles live in public/fun.css, linked once and only by an enabled extra", async () => {
+  assert.doesNotMatch(read("public/styles.css"), /fun-hero-wave|fun-toy|rough-notation-dash/);
+  const doc = makeDoc();
+  await fun.enhanceFunView(new FakeNode("main"), env({ doc, storage: onlyOn("heroType") }));
+  await fun.enhanceFunView(new FakeNode("main"), env({ doc, storage: onlyOn("heroType") }));
+  assert.equal(doc.head.children.length, 1);
+  assert.equal(doc.head.children[0].getAttribute("href"), loader.FUN_STYLESHEET);
+  assert.equal(loader.FUN_STYLESHEET, "/fun.css");
+  assert.match(read("public/fun.css"), /@media \(prefers-reduced-motion: reduce\)/);
 });
 
 // ---------------------------------------------------------------- confetti
@@ -399,7 +413,7 @@ test("labels: rough-notation underlines Staff Pick / Question of the Day once; r
   await highlight.highlightLabels(stillRoot, env({ storage, load: still.load, win: fakeWin({ reduced: true }) }));
   assert.deepEqual(still.calls, []);
   assert.ok(stillLabel.classList.contains("fun-static-underline"));
-  assert.match(read("public/styles.css"), /@keyframes rough-notation-dash/);
+  assert.match(read("public/fun.css"), /@keyframes rough-notation-dash/);
 });
 
 // ---------------------------------------------------------------- hero
@@ -555,7 +569,7 @@ test("a finished sketch becomes one PNG File handed to the existing pending-atta
   const blob = { size: 10, type: "image/png" };
   const files = [];
   const file = await sketch.sketchToFile({ toBlob: (callback, type) => { assert.equal(type, "image/png"); callback(blob); } },
-    (parts, name, options) => ({ parts, name, options }));
+    class { constructor(parts, name, options) { Object.assign(this, { parts, name, options }); } });
   files.push(file);
   assert.equal(files[0].name, sketch.SKETCH_FILE_NAME);
   assert.equal(files[0].options.type, "image/png");
