@@ -106,13 +106,17 @@ async function createFolder(request, env) {
   if (Number(total?.n || 0) >= FOLDERS_MAX) throw new HttpError(400, "You can have up to " + FOLDERS_MAX + " folders.");
   let result;
   try {
+    // Wave 5.41 L3: the cap rides the INSERT too, so a request that raced
+    // past the read above cannot store a folder beyond FOLDERS_MAX.
     result = await env.FORUM_DB.prepare(
-      "INSERT INTO bookmark_folders (user_id, name, created_at) VALUES (?, ?, ?)",
-    ).bind(user.id, name, nowSeconds()).run();
+      "INSERT INTO bookmark_folders (user_id, name, created_at) SELECT ?, ?, ? " +
+      "WHERE (SELECT COUNT(*) FROM bookmark_folders WHERE user_id = ?) < " + FOLDERS_MAX,
+    ).bind(user.id, name, nowSeconds(), user.id).run();
   } catch (error) {
     if (isUniqueClash(error)) throw duplicateName();
     throw error;
   }
+  if (Number(result.meta?.changes) !== 1) throw new HttpError(400, "You can have up to " + FOLDERS_MAX + " folders.");
   const folder = await ownFolder(env, user.id, Number(result.meta.last_row_id));
   return json({ folder: publicFolder(folder) }, 201);
 }
