@@ -15,6 +15,19 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.25.0] - 2026-11-21
+
+### Added
+- Link to a specific reply: every reply on a thread page has a "Copy link
+  to this reply" button. Opening that link scrolls to the reply and
+  highlights it for a moment (no animation if your device asks for reduced
+  motion). If the reply isn't on the page, nothing happens.
+- Quiet hours (off by default): in Settings, pick a start and end hour
+  (it can run past midnight, like 22:00 to 7:00). During those hours on
+  this device, the unread count in the browser tab title is held back; the
+  bell still updates. The setting is stored only in this browser and is
+  cleared when you sign out.
+
 ## [5.24.0] - 2026-11-21
 
 ### Security
