@@ -22,6 +22,7 @@
 // SHA-256 token hashes are stored), CSRF + same-origin enforcement, the
 // role gates, active-ban and banned-network checks, and the keyed IP hash.
 // Imports only the crypto/http/roles leaves and constants.mjs.
+import ipaddr from "ipaddr.js";
 import { SESSION_INSERT_IF_UNBANNED_SQL } from "../../constants.mjs";
 import { equalConstantTime, nowSeconds, randomToken, sha256Hex } from "./crypto.mjs";
 import { HttpError } from "./http.mjs";
@@ -34,9 +35,41 @@ const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 // with PASSWORD_PEPPER (HMAC-SHA-256) so the rows cannot be reversed against
 // a plain IP list, and a missing pepper (tests, unconfigured local dev)
 // falls back to a plain digest.
+//
+// v5.74.1: the hashed key is the NETWORK, not the raw address. IPv6 keys on
+// the /64 prefix (one subscriber allocation — a device rotates its interface
+// bits freely, which made exact-address bans trivial to walk out of); IPv4
+// and IPv4-mapped IPv6 key on the dotted address, byte-identical to v3.1 so
+// existing IPv4 rows keep matching. Unparseable input folds to "unknown".
+const IPV6_BAN_PREFIX_HEXTETS = 4; // 4 × 16 bits = /64
+
+function rawRequestIp(request) {
+  return request.headers.get("CF-Connecting-IP") || "unknown";
+}
+
+export function networkKey(rawIp) {
+  if (!ipaddr.isValid(rawIp)) return "unknown";
+  const address = ipaddr.process(rawIp); // folds ::ffff:a.b.c.d to IPv4
+  if (address.kind() === "ipv4") return address.toString();
+  const prefix = address.toNormalizedString().split(":").slice(0, IPV6_BAN_PREFIX_HEXTETS).join(":");
+  return "v6/64:" + prefix;
+}
+
 export async function requestIpHash(request, env) {
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  const data = new TextEncoder().encode("wempo-forum-ip:" + ip);
+  return hashIpKey(networkKey(rawRequestIp(request)), env);
+}
+
+// Ban-gate lookup set: the network-key hash plus, during the v5.74.1
+// transition, the legacy full-address hash so pre-v5.74.1 IPv6 ban rows keep
+// refusing. Deduped (IPv4 keys equal their legacy form).
+export async function requestIpHashCandidates(request, env) {
+  const raw = rawRequestIp(request);
+  const keys = [...new Set([networkKey(raw), raw])];
+  return Promise.all(keys.map((key) => hashIpKey(key, env)));
+}
+
+async function hashIpKey(key, env) {
+  const data = new TextEncoder().encode("wempo-forum-ip:" + key);
   let digest;
   if (env.PASSWORD_PEPPER) {
     const key = await crypto.subtle.importKey(
@@ -53,7 +86,7 @@ export async function requestIpHash(request, env) {
 // Session creation from a banned network is refused — the ban-evasion teeth.
 // Checked BEFORE credential verification so the response carries no oracle.
 export async function assertNetworkNotBanned(request, env) {
-  const ipHash = await requestIpHash(request, env);
+  const ipHashes = await requestIpHashCandidates(request, env);
   // Join bans for the ACTIVE predicate: an expired or revoked ban clears its
   // own rows on unban/appeal-approval, but the join keeps the gate correct
   // even if rows outlive the ban (review finding — blind membership blocked
@@ -61,9 +94,9 @@ export async function assertNetworkNotBanned(request, env) {
   const now = nowSeconds();
   const row = await env.FORUM_DB.prepare(
     "SELECT 1 FROM banned_ips bi JOIN bans b ON b.id = bi.ban_id " +
-      "WHERE bi.ip_hash = ? AND b.revoked_at IS NULL " +
+      "WHERE bi.ip_hash IN (?, ?) AND b.revoked_at IS NULL " +
       "AND (b.expires_at IS NULL OR b.expires_at > ?) LIMIT 1",
-  ).bind(ipHash, now).first();
+  ).bind(ipHashes[0], ipHashes[1] ?? ipHashes[0], now).first();
   if (row) throw new HttpError(403, "This network is banned from the forum.");
 }
 

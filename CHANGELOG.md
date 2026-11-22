@@ -10,6 +10,14 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.74.1] - 2026-11-22
+
+### Fixed
+- IPv6 network bans now key on the /64 prefix (parsed with ipaddr.js), so a banned member can no longer evade a ban by rotating their IPv6 interface address. IPv4 and IPv4-mapped addresses keep the exact previous key, and pre-existing full-address IPv6 ban rows still match during the transition.
+
+### Dependencies
+- Added `ipaddr.js` (MIT) as the Worker's first runtime dependency.
+
 ## [5.74.0] - 2026-11-22
 
 ### Added
