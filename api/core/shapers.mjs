@@ -24,6 +24,7 @@
 // and publicPost call the accent normalizers, so the colors live here rather
 // than in the profiles topic; core never imports a topic module). Imports only
 // the roles leaf.
+import { NEW_MEMBER_WINDOW_SECONDS } from "../../constants.mjs";
 import { publicRole } from "./roles.mjs";
 import { ACTIVE_BAN_SQL } from "./visibility.mjs";
 
@@ -40,6 +41,15 @@ export const POST_SELECT =
   // Role badges (v3.1): the author's mapped role rides every post so cards
   // can chip owners/admins next to the name.
   "u.role AS author_role, " +
+  // New-member chip (v5.35): a boolean computed in SQL from the author's join
+  // time ("now" is SQL-computed, bind-free) — users.created_at itself never
+  // leaves the server. Strictly younger than the window: exactly 7 days is not
+  // new.
+  "(u.created_at > CAST(strftime('%s','now') AS INTEGER) - " + NEW_MEMBER_WINDOW_SECONDS + ") AS author_is_new, " +
+  // Staff pick (v5.35): is this post the newest featured_posts row? Display
+  // and the staff menu's Pick/Unpick label only; showing the pick on /week and
+  // the gallery re-checks visibility in api/staff-picks.mjs. Bind-free.
+  "(p.id = (SELECT f.post_id FROM featured_posts f ORDER BY f.picked_at DESC, f.id DESC LIMIT 1)) AS staff_pick, " +
   "(SELECT parent.body FROM posts parent WHERE parent.id = p.parent_id) AS parent_body, " +
   // Wave 40: a reaction by an actively-banned member never counts (read
   // time; an unban restores it) — the same tally SUGGESTION_SCORE_SQL sums.
@@ -230,6 +240,9 @@ export function publicPost(row, publicLevel) {
       // Role badges (v3.1): the mapped public role ('owner'/'admin'), null
       // for members so the badge only appears for staff.
       role: row.author_role ? publicRole(row.author_role) : null,
+      // New-member chip (v5.35): true for an account younger than 7 days;
+      // projections without the column read false.
+      isNew: Number(row.author_is_new) === 1,
       avatarUrl: row.author_avatar_mime
         ? "/api/avatars/" + row.author_id + "?v=" + row.author_avatar_version
         : null,
@@ -238,6 +251,8 @@ export function publicPost(row, publicLevel) {
     likeCount: Number(row.like_count || 0),
     dislikeCount: Number(row.dislike_count || 0),
     viewerReaction: row.viewer_reaction || null,
+    // Staff pick (v5.35): the current pick of the week; false elsewhere.
+    staffPick: Number(row.staff_pick) === 1,
     // Pinning (C5): the stamp (epoch seconds) as ISO, null never-pinned. Rows
     // from pre-migration projections normalize to null like editedAt.
     pinnedAt: row.pinned_at === null || row.pinned_at === undefined || Number(row.pinned_at) === 0

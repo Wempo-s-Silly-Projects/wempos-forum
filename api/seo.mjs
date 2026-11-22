@@ -192,6 +192,16 @@ async function pageHead(request, env, url, site, origin) {
       board: route.board,
     };
   }
+  // This week (v5.35): its own title and description; the page lists only
+  // what the anonymous feed already shows, so nothing record-backed rides it.
+  if (route.name === "week") {
+    return {
+      ...generic,
+      title: `This week on ${site.name}`,
+      description: `The busiest threads, newest Showcase builds and the staff pick of the last 7 days on ${site.name}.`,
+      canonical: origin + "/week",
+    };
+  }
   const record = await recordHead(request, env, route, origin, site);
   if (record === undefined) return generic;
   return record || { ...generic, canonical: "", noindex: true };

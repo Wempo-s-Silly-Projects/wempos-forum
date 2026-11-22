@@ -113,6 +113,13 @@ export const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turns
 export const FEED_PAGE_SIZE = 20;
 export const D1_MAX_BOUND_PARAMS = 100;
 
+// v5.35 engagement: the This-week window (/week threads and showcase builds),
+// the new-member window (the "New 👋" chip: an account younger than this),
+// and how many members the home "Newest members" list names.
+export const WEEK_WINDOW_SECONDS = 7 * 24 * 60 * 60;
+export const NEW_MEMBER_WINDOW_SECONDS = 7 * 24 * 60 * 60;
+export const NEWEST_MEMBERS_LIMIT = 5;
+
 // v4.7 group DMs: members per group INCLUDING the creator, and the optional
 // group name's length (the dm_groups.name CHECK in migration 0044 matches).
 export const DM_GROUP_MAX_MEMBERS = 10;
