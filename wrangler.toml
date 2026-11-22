@@ -1,5 +1,6 @@
 name = "wempos-forum"
 main = "worker.mjs"
+upload_source_maps = true
 compatibility_date = "2026-10-13"
 workers_dev = true
 # The forum's home: wempos-forum.com (Cloudflare custom domain, same account).

@@ -9,6 +9,7 @@
 # this same worker.
 name = "wempos-forum"  # CHANGE ME if you like
 main = "worker.mjs"
+upload_source_maps = true
 compatibility_date = "2026-10-13"
 # The forum answers on <name>.<your-subdomain>.workers.dev. To use your own
 # domain, add a custom domain in the Cloudflare dashboard (or a `routes` entry
