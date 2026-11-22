@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Teilen",
   "threadActions.thisPost": "Dieser Beitrag",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Tags bearbeiten"
+  "threadActions.editTags": "Tags bearbeiten",
+  "fun.title": "Spaßige Extras",
+  "fun.help": "Verspielte Extras nur für dieses Gerät. Jedes bleibt aus, bis du es einschaltest.",
+  "fun.confetti": "Konfetti, wenn ich ein neues Abzeichen bekomme",
+  "fun.motion": "Animierte Abzeichen und Hervorhebungen",
+  "fun.heroType": "Getippte Überschrift auf der Startseite",
+  "fun.sounds": "Benachrichtigungstöne (Ruhezeiten gelten weiterhin)",
+  "fun.easterEggs": "Easter Eggs (probier den Konami-Code)",
+  "fun.sketch": "„Skizze anhängen“ im Editor zeigen",
+  "fun.reducedMotion": "Dein Gerät wünscht weniger Bewegung, daher bleiben bewegte Effekte still.",
+  "fun.sketchButton": "Skizze anhängen",
+  "fun.sketchCanvas": "Zeichenfläche",
+  "fun.sketchClear": "Leeren",
+  "fun.sketchAttach": "Skizze anhängen",
+  "fun.toyTitle": "Schwerkraft-Spielzeug"
 }

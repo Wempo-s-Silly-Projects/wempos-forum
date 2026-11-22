@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Chia sẻ",
   "threadActions.thisPost": "Bài viết này",
   "threadActions.staff": "Ban quản trị",
-  "threadActions.editTags": "Sửa thẻ"
+  "threadActions.editTags": "Sửa thẻ",
+  "fun.title": "Tiện ích vui",
+  "fun.help": "Những tiện ích vui nhộn chỉ cho thiết bị này. Mỗi mục đều tắt cho đến khi bạn bật lên.",
+  "fun.confetti": "Pháo giấy khi tôi đạt huy hiệu mới",
+  "fun.motion": "Huy hiệu và đánh dấu có hoạt ảnh",
+  "fun.heroType": "Tiêu đề tự gõ trên trang chủ",
+  "fun.sounds": "Âm thanh thông báo (giờ yên lặng vẫn áp dụng)",
+  "fun.easterEggs": "Trứng phục sinh (thử mã Konami)",
+  "fun.sketch": "Hiện “Đính kèm bản vẽ” trong trình soạn thảo",
+  "fun.reducedMotion": "Thiết bị của bạn yêu cầu giảm chuyển động, nên các hiệu ứng động sẽ đứng yên.",
+  "fun.sketchButton": "Đính kèm bản vẽ",
+  "fun.sketchCanvas": "Vùng vẽ",
+  "fun.sketchClear": "Xóa",
+  "fun.sketchAttach": "Đính kèm bản vẽ",
+  "fun.toyTitle": "Đồ chơi trọng lực"
 }

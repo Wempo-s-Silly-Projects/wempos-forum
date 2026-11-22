@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Tilali",
   "threadActions.thisPost": "Nin sɛbɛn",
   "threadActions.staff": "Baarakɛlaw",
-  "threadActions.editTags": "Taamasiyɛnninw yɛlɛma"
+  "threadActions.editTags": "Taamasiyɛnninw yɛlɛma",
+  "fun.title": "Nisɔndiya fɛnw farali",
+  "fun.help": "Tulon fɛnw minnu bɛ nin minɛn dɔrɔn de ye. U kelen kelen bɛɛ bɛ datugulen fo i k’a yɛlɛ.",
+  "fun.confetti": "Konfeti ni ne ye badji kura sɔrɔ",
+  "fun.motion": "Badji ni jirali minnu bɛ lamaga",
+  "fun.heroType": "Kunkanko min bɛ sɛbɛn so ɲɛ kan",
+  "fun.sounds": "Kunnafoni mankanw (makun waatiw bɛ sira la hali bi)",
+  "fun.easterEggs": "Gundo kabakow (Konami kode lajɛ)",
+  "fun.sketch": "A jira sɛbɛnnikɛyɔrɔ la «Ja dɔ fara a kan»",
+  "fun.reducedMotion": "I ka minɛn bɛ lamagali dɔgɔman ɲini, o de kosɔn fɛnw minnu bɛ lamaga, olu bɛ to u nɔ na.",
+  "fun.sketchButton": "Ja dɔ fara a kan",
+  "fun.sketchCanvas": "Ja tali yɔrɔ",
+  "fun.sketchClear": "A jɔsi",
+  "fun.sketchAttach": "Ja fara a kan",
+  "fun.toyTitle": "Sama tulonkɛfɛn"
 }

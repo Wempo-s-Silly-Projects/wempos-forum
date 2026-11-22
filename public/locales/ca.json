@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Aquesta publicació",
   "threadActions.staff": "Equip",
-  "threadActions.editTags": "Edita les etiquetes"
+  "threadActions.editTags": "Edita les etiquetes",
+  "fun.title": "Extres divertits",
+  "fun.help": "Extres juganers només per a aquest dispositiu. Cadascun resta desactivat fins que l’activis.",
+  "fun.confetti": "Confeti quan guanyi una insígnia nova",
+  "fun.motion": "Insígnies i ressaltats animats",
+  "fun.heroType": "Titular mecanografiat a la pàgina d’inici",
+  "fun.sounds": "Sons de notificació (les hores de silenci continuen vigents)",
+  "fun.easterEggs": "Ous de Pasqua (prova el codi Konami)",
+  "fun.sketch": "Mostra «Adjunta un dibuix» a l’editor",
+  "fun.reducedMotion": "El teu dispositiu demana menys moviment, així que els efectes animats es queden quiets.",
+  "fun.sketchButton": "Adjunta un dibuix",
+  "fun.sketchCanvas": "Àrea de dibuix",
+  "fun.sketchClear": "Esborra",
+  "fun.sketchAttach": "Adjunta el dibuix",
+  "fun.toyTitle": "Joguina de gravetat"
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Esta publicación",
   "threadActions.staff": "Equipo",
-  "threadActions.editTags": "Editar etiquetas"
+  "threadActions.editTags": "Editar etiquetas",
+  "fun.title": "Extras divertidos",
+  "fun.help": "Extras lúdicos solo para este dispositivo. Cada uno sigue desactivado hasta que lo actives.",
+  "fun.confetti": "Confeti cuando gane una insignia nueva",
+  "fun.motion": "Insignias y resaltados animados",
+  "fun.heroType": "Titular escrito a máquina en la página de inicio",
+  "fun.sounds": "Sonidos de notificación (las horas de silencio siguen aplicándose)",
+  "fun.easterEggs": "Huevos de Pascua (prueba el código Konami)",
+  "fun.sketch": "Mostrar «Adjuntar un dibujo» en el editor",
+  "fun.reducedMotion": "Tu dispositivo pide menos movimiento, así que los efectos animados se quedan quietos.",
+  "fun.sketchButton": "Adjuntar un dibujo",
+  "fun.sketchCanvas": "Zona de dibujo",
+  "fun.sketchClear": "Borrar",
+  "fun.sketchAttach": "Adjuntar dibujo",
+  "fun.toyTitle": "Juguete de gravedad"
 }

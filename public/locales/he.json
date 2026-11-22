@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "שיתוף",
   "threadActions.thisPost": "הפוסט הזה",
   "threadActions.staff": "צוות",
-  "threadActions.editTags": "עריכת תגיות"
+  "threadActions.editTags": "עריכת תגיות",
+  "fun.title": "תוספות מהנות",
+  "fun.help": "תוספות שובבות למכשיר הזה בלבד. כל אחת נשארת כבויה עד שתפעילו אותה.",
+  "fun.confetti": "קונפטי כשאני מרוויח תג חדש",
+  "fun.motion": "תגים והדגשות מונפשים",
+  "fun.heroType": "כותרת מוקלדת בדף הבית",
+  "fun.sounds": "צלילי התראות (שעות השקט עדיין חלות)",
+  "fun.easterEggs": "ביצי פסחא (נסו את קוד Konami)",
+  "fun.sketch": "הצגת „צירוף שרבוט” בעורך",
+  "fun.reducedMotion": "המכשיר שלך מבקש פחות תנועה, לכן אפקטים נעים נשארים דוממים.",
+  "fun.sketchButton": "צירוף שרבוט",
+  "fun.sketchCanvas": "אזור ציור",
+  "fun.sketchClear": "ניקוי",
+  "fun.sketchAttach": "צירוף השרבוט",
+  "fun.toyTitle": "צעצוע כבידה"
 }

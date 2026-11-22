@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "การแชร์",
   "threadActions.thisPost": "โพสต์นี้",
   "threadActions.staff": "ทีมงาน",
-  "threadActions.editTags": "แก้ไขแท็ก"
+  "threadActions.editTags": "แก้ไขแท็ก",
+  "fun.title": "ส่วนเสริมสนุก ๆ",
+  "fun.help": "ส่วนเสริมขี้เล่นสำหรับอุปกรณ์นี้เท่านั้น แต่ละรายการปิดอยู่จนกว่าคุณจะเปิด",
+  "fun.confetti": "โปรยกระดาษสีเมื่อฉันได้ป้ายใหม่",
+  "fun.motion": "ป้ายและไฮไลต์แบบเคลื่อนไหว",
+  "fun.heroType": "หัวข้อแบบพิมพ์ทีละตัวบนหน้าแรก",
+  "fun.sounds": "เสียงแจ้งเตือน (ช่วงเวลาเงียบยังมีผล)",
+  "fun.easterEggs": "ไข่อีสเตอร์ (ลองรหัส Konami)",
+  "fun.sketch": "แสดง “แนบภาพสเก็ตช์” ในตัวแก้ไข",
+  "fun.reducedMotion": "อุปกรณ์ของคุณขอให้ลดการเคลื่อนไหว เอฟเฟกต์เคลื่อนไหวจึงหยุดนิ่ง",
+  "fun.sketchButton": "แนบภาพสเก็ตช์",
+  "fun.sketchCanvas": "พื้นที่วาดภาพ",
+  "fun.sketchClear": "ล้าง",
+  "fun.sketchAttach": "แนบภาพสเก็ตช์",
+  "fun.toyTitle": "ของเล่นแรงโน้มถ่วง"
 }

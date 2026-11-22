@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Delen",
   "threadActions.thisPost": "Dit bericht",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Tags bewerken"
+  "threadActions.editTags": "Tags bewerken",
+  "fun.title": "Leuke extra’s",
+  "fun.help": "Speelse extra’s alleen voor dit apparaat. Elk blijft uit tot je het aanzet.",
+  "fun.confetti": "Confetti als ik een nieuwe badge verdien",
+  "fun.motion": "Geanimeerde badges en markeringen",
+  "fun.heroType": "Getypte kop op de startpagina",
+  "fun.sounds": "Meldingsgeluiden (stille uren blijven gelden)",
+  "fun.easterEggs": "Easter eggs (probeer de Konami-code)",
+  "fun.sketch": "„Schets bijvoegen” tonen in de editor",
+  "fun.reducedMotion": "Je apparaat vraagt om minder beweging, dus bewegende effecten blijven stil.",
+  "fun.sketchButton": "Schets bijvoegen",
+  "fun.sketchCanvas": "Tekenvlak",
+  "fun.sketchClear": "Wissen",
+  "fun.sketchAttach": "Schets bijvoegen",
+  "fun.toyTitle": "Zwaartekrachtspeeltje"
 }

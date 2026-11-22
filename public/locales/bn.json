@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "শেয়ার করা",
   "threadActions.thisPost": "এই পোস্ট",
   "threadActions.staff": "কর্মী দল",
-  "threadActions.editTags": "ট্যাগ সম্পাদনা"
+  "threadActions.editTags": "ট্যাগ সম্পাদনা",
+  "fun.title": "মজার বাড়তি",
+  "fun.help": "শুধু এই ডিভাইসের জন্য খেলাচ্ছলে বাড়তি সুবিধা। আপনি চালু না করা পর্যন্ত প্রতিটি বন্ধ থাকে।",
+  "fun.confetti": "নতুন ব্যাজ পেলে কনফেটি",
+  "fun.motion": "অ্যানিমেটেড ব্যাজ ও হাইলাইট",
+  "fun.heroType": "হোম পেজে টাইপ হওয়া শিরোনাম",
+  "fun.sounds": "বিজ্ঞপ্তির শব্দ (নীরব সময় এখনও প্রযোজ্য)",
+  "fun.easterEggs": "লুকানো চমক (Konami কোড চেষ্টা করুন)",
+  "fun.sketch": "এডিটরে “স্কেচ যুক্ত করুন” দেখান",
+  "fun.reducedMotion": "আপনার ডিভাইস কম নড়াচড়া চায়, তাই চলমান প্রভাবগুলো স্থির থাকে।",
+  "fun.sketchButton": "স্কেচ যুক্ত করুন",
+  "fun.sketchCanvas": "আঁকার জায়গা",
+  "fun.sketchClear": "মুছুন",
+  "fun.sketchAttach": "স্কেচ যুক্ত করুন",
+  "fun.toyTitle": "মাধ্যাকর্ষণ খেলনা"
 }

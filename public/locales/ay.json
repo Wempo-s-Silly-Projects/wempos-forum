@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Uñt'ayaña",
   "threadActions.thisPost": "Aka qillqata",
   "threadActions.staff": "Irnaqirinaka",
-  "threadActions.editTags": "Chimpunak askichaña"
+  "threadActions.editTags": "Chimpunak askichaña",
+  "fun.title": "Kusiskañ yapxatanaka",
+  "fun.help": "Aka aparatotaki anatañ yapxatanaka. Sapakunaw jiwt’atawa jumaw qalltaykama.",
+  "fun.confetti": "Machaq insignia katuqañ pachax konfeti",
+  "fun.motion": "Unxtir insignianaka ukat qhanstayatanaka",
+  "fun.heroType": "Nayrïr laphin qillqt’at p’iqi",
+  "fun.sounds": "Yatiyañ ist’awinaka (amukt’ añ pachanakax sarantaskiwa)",
+  "fun.easterEggs": "Imantat musparkañanaka (Konami kodimp yant’am)",
+  "fun.sketch": "Qillqañ chiqan «Mä dibujo chikt’aña» uñacht’ayaña",
+  "fun.reducedMotion": "Aparatomax juk’amp jisk’a unxtäw mayi, ukatwa unxtir efectonakax amukiki.",
+  "fun.sketchButton": "Mä dibujo chikt’aña",
+  "fun.sketchCanvas": "Dibujañ chiqa",
+  "fun.sketchClear": "Pichaña",
+  "fun.sketchAttach": "Dibujo chikt’aña",
+  "fun.toyTitle": "Gravedad anatañ yänaka"
 }

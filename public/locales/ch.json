@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Na'sågue",
   "threadActions.thisPost": "Este na mensåhi",
   "threadActions.staff": "Atministradot",
-  "threadActions.editTags": "Edita i etiketa"
+  "threadActions.editTags": "Edita i etiketa",
+  "fun.title": "Ti mangge na extra",
+  "fun.help": "Extra para mangge para este na aparatu ha’. Kada uno siña mamaga’ asta ki un na’ulu.",
+  "fun.confetti": "Confetti yanggen hu gana nuebu na insignia",
+  "fun.motion": "Insignia yan highlight ni manmamomokat",
+  "fun.heroType": "Titulu ni ma tatype gi fanhaluman na pahina",
+  "fun.sounds": "Son notifikasion (ti para i oran silensio)",
+  "fun.easterEggs": "Guinaha ni mana’na’ana’ (pruebba i kodigu Konami)",
+  "fun.sketch": "Na’annok “Achetton un pentura” gi editor",
+  "fun.reducedMotion": "I aparatu-mu ha gagao didide’ na kinalamten, enao na i manmamomokat na efekto manmata’chong.",
+  "fun.sketchButton": "Achetton un pentura",
+  "fun.sketchCanvas": "Lugat pumentura",
+  "fun.sketchClear": "Na’gasgas",
+  "fun.sketchAttach": "Achetton i pentura",
+  "fun.toyTitle": "Gugugat gravedåt"
 }

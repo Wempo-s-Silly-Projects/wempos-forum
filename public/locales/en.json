@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Sharing",
   "threadActions.thisPost": "This post",
   "threadActions.staff": "Staff",
-  "threadActions.editTags": "Edit tags"
+  "threadActions.editTags": "Edit tags",
+  "fun.title": "Fun extras",
+  "fun.help": "Playful extras for this device only. Each one stays off until you turn it on.",
+  "fun.confetti": "Confetti when I earn a new badge",
+  "fun.motion": "Animated badges and highlights",
+  "fun.heroType": "Typed headline on the home page",
+  "fun.sounds": "Notification sounds (quiet hours still apply)",
+  "fun.easterEggs": "Easter eggs (try the Konami code)",
+  "fun.sketch": "Show “Attach a sketch” in the composer",
+  "fun.reducedMotion": "Your device asks for reduced motion, so moving effects stay still.",
+  "fun.sketchButton": "Attach a sketch",
+  "fun.sketchCanvas": "Sketch drawing area",
+  "fun.sketchClear": "Clear",
+  "fun.sketchAttach": "Attach sketch",
+  "fun.toyTitle": "Gravity toy"
 }

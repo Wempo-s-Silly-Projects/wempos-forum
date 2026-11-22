@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Dijeljenje",
   "threadActions.thisPost": "Ova objava",
   "threadActions.staff": "Osoblje",
-  "threadActions.editTags": "Uredi oznake"
+  "threadActions.editTags": "Uredi oznake",
+  "fun.title": "Zabavni dodaci",
+  "fun.help": "Razigrani dodaci samo za ovaj uređaj. Svaki ostaje isključen dok ga ne uključiš.",
+  "fun.confetti": "Konfete kad osvojim novu značku",
+  "fun.motion": "Animirane značke i isticanja",
+  "fun.heroType": "Tipkani naslov na početnoj stranici",
+  "fun.sounds": "Zvukovi obavještenja (tihi sati i dalje vrijede)",
+  "fun.easterEggs": "Uskršnja jaja (probaj Konami kod)",
+  "fun.sketch": "Prikaži „Priloži skicu” u uređivaču",
+  "fun.reducedMotion": "Tvoj uređaj traži manje pokreta, pa pokretni efekti miruju.",
+  "fun.sketchButton": "Priloži skicu",
+  "fun.sketchCanvas": "Područje za crtanje",
+  "fun.sketchClear": "Očisti",
+  "fun.sketchAttach": "Priloži skicu",
+  "fun.toyTitle": "Igračka s gravitacijom"
 }

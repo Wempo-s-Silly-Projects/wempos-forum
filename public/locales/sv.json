@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Dela",
   "threadActions.thisPost": "Det här inlägget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Redigera taggar"
+  "threadActions.editTags": "Redigera taggar",
+  "fun.title": "Roliga extrafunktioner",
+  "fun.help": "Lekfulla extrafunktioner bara för den här enheten. Var och en är av tills du slår på den.",
+  "fun.confetti": "Konfetti när jag får ett nytt märke",
+  "fun.motion": "Animerade märken och markeringar",
+  "fun.heroType": "Maskinskriven rubrik på startsidan",
+  "fun.sounds": "Aviseringsljud (tysta timmar gäller fortfarande)",
+  "fun.easterEggs": "Påskägg (testa Konami-koden)",
+  "fun.sketch": "Visa ”Bifoga en skiss” i redigeraren",
+  "fun.reducedMotion": "Din enhet ber om mindre rörelse, så rörliga effekter står still.",
+  "fun.sketchButton": "Bifoga en skiss",
+  "fun.sketchCanvas": "Ritområde",
+  "fun.sketchClear": "Rensa",
+  "fun.sketchAttach": "Bifoga skiss",
+  "fun.toyTitle": "Gravitationsleksak"
 }

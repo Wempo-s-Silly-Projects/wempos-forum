@@ -1,0 +1,47 @@
+/*
+ * Copyright 2026 ItsWempo
+ *
+ * This file is part of Wempo's Forum.
+ *
+ * Wempo's Forum is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the
+ * GNU Affero General Public License along with this program.  If not,
+ * see <https://www.gnu.org/licenses/>.
+ */
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* SPDX-FileCopyrightText: 2026 ItsWempo */
+
+/* Batch M fun extras (public/js/fun/): loaded by fun/loader.js only once an
+   extra is switched on, so with every extra off (the default) nothing here
+   ships to the page. Reduced motion stills every animation at the end. */
+.fun-confetti-canvas { position: fixed; inset: 0; z-index: 50; width: 100%; height: 100%; pointer-events: none; }
+.fun-badge-card { display: inline-flex; align-items: center; gap: 0.5rem; transform-style: preserve-3d; }
+.fun-badge-art { display: inline-block; flex: none; width: 2.25rem; height: 2.25rem; }
+/* rough-notation's dash keyframes (its inline <style> is refused by the CSP). */
+@keyframes rough-notation-dash { to { stroke-dashoffset: 0; } }
+.fun-static-underline { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.2em; }
+.fun-hero-wave .char { display: inline-block; animation: fun-hero-wave 0.6s ease-out both; animation-delay: calc(var(--char-index) * 30ms); }
+.fun-hero-wave .whitespace { display: inline; }
+@keyframes fun-hero-wave { 0% { transform: translateY(0); } 40% { transform: translateY(-0.15em); } 100% { transform: translateY(0); } }
+.fun-toy {
+  position: fixed; z-index: 60; inset-block-end: 1rem; inset-inline-end: 1rem; display: grid; gap: 0.5rem; padding: 0.75rem;
+  border: 2px solid var(--line); border-radius: 0.8rem; background: var(--paper); box-shadow: 4px 5px 0 var(--paper-shadow);
+}
+.fun-toy-canvas { width: min(360px, 80vw); height: auto; border-radius: 0.5rem; background: var(--field); }
+.fun-sketch { padding: 1rem; border: 2px solid var(--line); border-radius: 0.8rem; color: var(--ink); background: var(--paper); }
+.fun-sketch::backdrop { background: rgb(0 0 0 / 45%); }
+.fun-sketch-canvas { display: block; width: min(480px, 80vw); height: auto; aspect-ratio: 1; border: 1px solid var(--field-line); border-radius: 0.4rem; background: #fff; touch-action: none; }
+.fun-sketch-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+@media (prefers-reduced-motion: reduce) {
+  .fun-hero-wave .char { animation: none; }
+  .fun-badge-card { transform: none !important; }
+}

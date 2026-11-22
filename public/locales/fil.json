@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Pagbabahagi",
   "threadActions.thisPost": "Ang post na ito",
   "threadActions.staff": "Kawani",
-  "threadActions.editTags": "I-edit ang mga tag"
+  "threadActions.editTags": "I-edit ang mga tag",
+  "fun.title": "Mga nakakatuwang dagdag",
+  "fun.help": "Mga mapaglarong dagdag para sa device na ito lamang. Nakapatay ang bawat isa hangga’t hindi mo ito binubuksan.",
+  "fun.confetti": "Confetti kapag nakakuha ako ng bagong badge",
+  "fun.motion": "Mga gumagalaw na badge at highlight",
+  "fun.heroType": "Headline na tinitipa sa home page",
+  "fun.sounds": "Mga tunog ng abiso (umiiral pa rin ang tahimik na oras)",
+  "fun.easterEggs": "Mga Easter egg (subukan ang Konami code)",
+  "fun.sketch": "Ipakita ang “Maglakip ng guhit” sa editor",
+  "fun.reducedMotion": "Humihiling ang device mo ng mas kaunting galaw, kaya nananatiling tahimik ang mga gumagalaw na epekto.",
+  "fun.sketchButton": "Maglakip ng guhit",
+  "fun.sketchCanvas": "Lugar ng pagguhit",
+  "fun.sketchClear": "Burahin",
+  "fun.sketchAttach": "Ilakip ang guhit",
+  "fun.toyTitle": "Laruang gravity"
 }

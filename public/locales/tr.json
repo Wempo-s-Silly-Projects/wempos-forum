@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Paylaşım",
   "threadActions.thisPost": "Bu gönderi",
   "threadActions.staff": "Ekip",
-  "threadActions.editTags": "Etiketleri düzenle"
+  "threadActions.editTags": "Etiketleri düzenle",
+  "fun.title": "Eğlenceli ekstralar",
+  "fun.help": "Yalnızca bu cihaz için eğlenceli ekstralar. Her biri siz açana kadar kapalı kalır.",
+  "fun.confetti": "Yeni bir rozet kazandığımda konfeti",
+  "fun.motion": "Hareketli rozetler ve vurgular",
+  "fun.heroType": "Ana sayfada daktilo efektli başlık",
+  "fun.sounds": "Bildirim sesleri (sessiz saatler yine geçerli)",
+  "fun.easterEggs": "Sürpriz yumurtalar (Konami kodunu deneyin)",
+  "fun.sketch": "Düzenleyicide “Çizim ekle”yi göster",
+  "fun.reducedMotion": "Cihazınız daha az hareket istiyor, bu yüzden hareketli efektler sabit kalır.",
+  "fun.sketchButton": "Çizim ekle",
+  "fun.sketchCanvas": "Çizim alanı",
+  "fun.sketchClear": "Temizle",
+  "fun.sketchAttach": "Çizimi ekle",
+  "fun.toyTitle": "Yerçekimi oyuncağı"
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Zdieľanie",
   "threadActions.thisPost": "Tento príspevok",
   "threadActions.staff": "Tím",
-  "threadActions.editTags": "Upraviť štítky"
+  "threadActions.editTags": "Upraviť štítky",
+  "fun.title": "Zábavné doplnky",
+  "fun.help": "Hravé doplnky len pre toto zariadenie. Každý zostáva vypnutý, kým ho nezapnete.",
+  "fun.confetti": "Konfety, keď získam nový odznak",
+  "fun.motion": "Animované odznaky a zvýraznenia",
+  "fun.heroType": "Písaný nadpis na domovskej stránke",
+  "fun.sounds": "Zvuky upozornení (tiché hodiny stále platia)",
+  "fun.easterEggs": "Veľkonočné vajíčka (skúste kód Konami)",
+  "fun.sketch": "Zobraziť „Pripojiť náčrt“ v editore",
+  "fun.reducedMotion": "Vaše zariadenie žiada menej pohybu, takže pohyblivé efekty zostávajú v pokoji.",
+  "fun.sketchButton": "Pripojiť náčrt",
+  "fun.sketchCanvas": "Plocha na kreslenie",
+  "fun.sketchClear": "Vymazať",
+  "fun.sketchAttach": "Pripojiť náčrt",
+  "fun.toyTitle": "Gravitačná hračka"
 }

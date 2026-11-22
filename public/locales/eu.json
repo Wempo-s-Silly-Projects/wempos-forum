@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Partekatzea",
   "threadActions.thisPost": "Bidalketa hau",
   "threadActions.staff": "Taldea",
-  "threadActions.editTags": "Editatu etiketak"
+  "threadActions.editTags": "Editatu etiketak",
+  "fun.title": "Gehigarri dibertigarriak",
+  "fun.help": "Gailu honetarako soilik diren gehigarri jostariak. Bakoitza itzalita dago zuk piztu arte.",
+  "fun.confetti": "Konfetiak txapa berri bat irabaztean",
+  "fun.motion": "Txapa eta nabarmentze animatuak",
+  "fun.heroType": "Hasierako orrian idazten den izenburua",
+  "fun.sounds": "Jakinarazpen-soinuak (ordu lasaiek indarrean jarraitzen dute)",
+  "fun.easterEggs": "Pazko arrautzak (probatu Konami kodea)",
+  "fun.sketch": "Erakutsi «Erantsi zirriborro bat» editorean",
+  "fun.reducedMotion": "Zure gailuak mugimendu gutxiago eskatzen du, beraz efektu mugikorrak geldirik geratzen dira.",
+  "fun.sketchButton": "Erantsi zirriborro bat",
+  "fun.sketchCanvas": "Marrazteko eremua",
+  "fun.sketchClear": "Garbitu",
+  "fun.sketchAttach": "Erantsi zirriborroa",
+  "fun.toyTitle": "Grabitate-jostailua"
 }

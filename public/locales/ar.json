@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "المشاركة",
   "threadActions.thisPost": "هذا المنشور",
   "threadActions.staff": "الطاقم",
-  "threadActions.editTags": "تعديل الوسوم"
+  "threadActions.editTags": "تعديل الوسوم",
+  "fun.title": "إضافات ممتعة",
+  "fun.help": "إضافات مرحة لهذا الجهاز فقط. تبقى كل واحدة متوقفة حتى تشغّلها.",
+  "fun.confetti": "قصاصات احتفالية عندما أحصل على شارة جديدة",
+  "fun.motion": "شارات وتمييزات متحركة",
+  "fun.heroType": "عنوان يُكتب تلقائيًا في الصفحة الرئيسية",
+  "fun.sounds": "أصوات الإشعارات (ساعات الهدوء ما زالت سارية)",
+  "fun.easterEggs": "مفاجآت مخفية (جرّب رمز Konami)",
+  "fun.sketch": "إظهار «إرفاق رسم» في المحرر",
+  "fun.reducedMotion": "يطلب جهازك حركة أقل، لذا تبقى المؤثرات المتحركة ثابتة.",
+  "fun.sketchButton": "إرفاق رسم",
+  "fun.sketchCanvas": "مساحة الرسم",
+  "fun.sketchClear": "مسح",
+  "fun.sketchAttach": "إرفاق الرسم",
+  "fun.toyTitle": "لعبة الجاذبية"
 }

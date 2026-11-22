@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Rannañ",
   "threadActions.thisPost": "Ar gemennadenn-mañ",
   "threadActions.staff": "Kefridi",
-  "threadActions.editTags": "Kemmañ ar skritelloù"
+  "threadActions.editTags": "Kemmañ ar skritelloù",
+  "fun.title": "Traoù fentus ouzhpenn",
+  "fun.help": "Traoù c’hoariek evit an ardivink-mañ hepken. Pep hini a chom lazhet betek ma vo enaouet ganeoc’h.",
+  "fun.confetti": "Konfeti pa c’hounezan ur badj nevez",
+  "fun.motion": "Badjoù ha lakadurioù war wel bevet",
+  "fun.heroType": "Titl skrivet war ar bajenn degemer",
+  "fun.sounds": "Sonioù kemenn (an eurioù sioul a dalv atav)",
+  "fun.easterEggs": "Viou Pask (klaskit ar c’hod Konami)",
+  "fun.sketch": "Diskouez « Stagañ ur brastres » er skridaozer",
+  "fun.reducedMotion": "Goulenn a ra hoc’h ardivink nebeutoc’h a fiñv, neuze e chom difiñv an efedoù.",
+  "fun.sketchButton": "Stagañ ur brastres",
+  "fun.sketchCanvas": "Takad tresañ",
+  "fun.sketchClear": "Skarzhañ",
+  "fun.sketchAttach": "Stagañ ar brastres",
+  "fun.toyTitle": "C’hoariell pouezerezh"
 }

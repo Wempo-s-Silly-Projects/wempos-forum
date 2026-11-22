@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Condivisione",
   "threadActions.thisPost": "Questo post",
   "threadActions.staff": "Staff",
-  "threadActions.editTags": "Modifica tag"
+  "threadActions.editTags": "Modifica tag",
+  "fun.title": "Extra divertenti",
+  "fun.help": "Extra giocosi solo per questo dispositivo. Ognuno resta spento finché non lo attivi.",
+  "fun.confetti": "Coriandoli quando ottengo un nuovo distintivo",
+  "fun.motion": "Distintivi ed evidenziazioni animati",
+  "fun.heroType": "Titolo dattiloscritto nella pagina iniziale",
+  "fun.sounds": "Suoni di notifica (le ore di silenzio valgono comunque)",
+  "fun.easterEggs": "Easter egg (prova il codice Konami)",
+  "fun.sketch": "Mostra «Allega uno schizzo» nell’editor",
+  "fun.reducedMotion": "Il tuo dispositivo chiede meno movimento, quindi gli effetti animati restano fermi.",
+  "fun.sketchButton": "Allega uno schizzo",
+  "fun.sketchCanvas": "Area di disegno",
+  "fun.sketchClear": "Cancella",
+  "fun.sketchAttach": "Allega schizzo",
+  "fun.toyTitle": "Giocattolo a gravità"
 }

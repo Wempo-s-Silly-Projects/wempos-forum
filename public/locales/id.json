@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Berbagi",
   "threadActions.thisPost": "Postingan ini",
   "threadActions.staff": "Staf",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "fun.title": "Ekstra seru",
+  "fun.help": "Ekstra jenaka hanya untuk perangkat ini. Masing-masing tetap mati sampai Anda menyalakannya.",
+  "fun.confetti": "Konfeti saat saya mendapat lencana baru",
+  "fun.motion": "Lencana dan sorotan beranimasi",
+  "fun.heroType": "Judul yang diketik di beranda",
+  "fun.sounds": "Suara notifikasi (jam tenang tetap berlaku)",
+  "fun.easterEggs": "Telur Paskah (coba kode Konami)",
+  "fun.sketch": "Tampilkan “Lampirkan sketsa” di editor",
+  "fun.reducedMotion": "Perangkat Anda meminta gerakan dikurangi, jadi efek bergerak tetap diam.",
+  "fun.sketchButton": "Lampirkan sketsa",
+  "fun.sketchCanvas": "Area menggambar",
+  "fun.sketchClear": "Hapus",
+  "fun.sketchAttach": "Lampirkan sketsa",
+  "fun.toyTitle": "Mainan gravitasi"
 }

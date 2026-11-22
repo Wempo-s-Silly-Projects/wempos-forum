@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Berkongsi",
   "threadActions.thisPost": "Siaran ini",
   "threadActions.staff": "Kakitangan",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "fun.title": "Ekstra menyeronokkan",
+  "fun.help": "Ekstra yang ceria untuk peranti ini sahaja. Setiap satu kekal mati sehingga anda menghidupkannya.",
+  "fun.confetti": "Konfeti apabila saya mendapat lencana baharu",
+  "fun.motion": "Lencana dan serlahan beranimasi",
+  "fun.heroType": "Tajuk yang ditaip di halaman utama",
+  "fun.sounds": "Bunyi pemberitahuan (waktu senyap masih terpakai)",
+  "fun.easterEggs": "Telur Easter (cuba kod Konami)",
+  "fun.sketch": "Tunjukkan “Lampirkan lakaran” dalam editor",
+  "fun.reducedMotion": "Peranti anda meminta kurang gerakan, jadi kesan bergerak kekal pegun.",
+  "fun.sketchButton": "Lampirkan lakaran",
+  "fun.sketchCanvas": "Ruang lukisan",
+  "fun.sketchClear": "Kosongkan",
+  "fun.sketchAttach": "Lampirkan lakaran",
+  "fun.toyTitle": "Mainan graviti"
 }

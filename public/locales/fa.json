@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "اشتراک‌گذاری",
   "threadActions.thisPost": "این پست",
   "threadActions.staff": "کادر",
-  "threadActions.editTags": "ویرایش برچسب‌ها"
+  "threadActions.editTags": "ویرایش برچسب‌ها",
+  "fun.title": "افزونه‌های سرگرم‌کننده",
+  "fun.help": "افزونه‌های بازیگوشانه فقط برای این دستگاه. هرکدام خاموش می‌ماند تا خودتان روشنش کنید.",
+  "fun.confetti": "کاغذرنگی وقتی نشان تازه‌ای می‌گیرم",
+  "fun.motion": "نشان‌ها و برجسته‌سازی‌های متحرک",
+  "fun.heroType": "عنوان تایپ‌شونده در صفحهٔ اصلی",
+  "fun.sounds": "صدای اعلان‌ها (ساعت‌های سکوت همچنان اعمال می‌شود)",
+  "fun.easterEggs": "شگفتی‌های پنهان (کد Konami را امتحان کنید)",
+  "fun.sketch": "نمایش «پیوست طرح» در ویرایشگر",
+  "fun.reducedMotion": "دستگاه شما حرکت کمتری می‌خواهد، پس جلوه‌های متحرک ثابت می‌مانند.",
+  "fun.sketchButton": "پیوست طرح",
+  "fun.sketchCanvas": "ناحیهٔ طراحی",
+  "fun.sketchClear": "پاک کردن",
+  "fun.sketchAttach": "پیوست طرح",
+  "fun.toyTitle": "اسباب‌بازی گرانش"
 }

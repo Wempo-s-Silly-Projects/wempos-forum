@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Megosztás",
   "threadActions.thisPost": "Ez a bejegyzés",
   "threadActions.staff": "Csapat",
-  "threadActions.editTags": "Címkék szerkesztése"
+  "threadActions.editTags": "Címkék szerkesztése",
+  "fun.title": "Vicces extrák",
+  "fun.help": "Játékos extrák csak ehhez az eszközhöz. Mindegyik ki van kapcsolva, amíg be nem kapcsolod.",
+  "fun.confetti": "Konfetti, amikor új jelvényt szerzek",
+  "fun.motion": "Animált jelvények és kiemelések",
+  "fun.heroType": "Gépelt főcím a kezdőlapon",
+  "fun.sounds": "Értesítési hangok (a csendes órák továbbra is érvényesek)",
+  "fun.easterEggs": "Húsvéti tojások (próbáld ki a Konami-kódot)",
+  "fun.sketch": "„Vázlat csatolása” megjelenítése a szerkesztőben",
+  "fun.reducedMotion": "Az eszközöd kevesebb mozgást kér, ezért a mozgó effektek állva maradnak.",
+  "fun.sketchButton": "Vázlat csatolása",
+  "fun.sketchCanvas": "Rajzterület",
+  "fun.sketchClear": "Törlés",
+  "fun.sketchAttach": "Vázlat csatolása",
+  "fun.toyTitle": "Gravitációs játék"
 }

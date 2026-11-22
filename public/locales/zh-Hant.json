@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "這篇貼文",
   "threadActions.staff": "管理團隊",
-  "threadActions.editTags": "編輯標籤"
+  "threadActions.editTags": "編輯標籤",
+  "fun.title": "趣味功能",
+  "fun.help": "僅限此裝置的趣味功能。每一項在你開啟之前都保持關閉。",
+  "fun.confetti": "獲得新徽章時灑彩紙",
+  "fun.motion": "動態徽章與醒目標示",
+  "fun.heroType": "首頁標題打字效果",
+  "fun.sounds": "通知音效(勿擾時段依然有效)",
+  "fun.easterEggs": "彩蛋(試試科樂美秘技)",
+  "fun.sketch": "在編輯框中顯示「附加草圖」",
+  "fun.reducedMotion": "你的裝置要求減少動態效果,因此動畫效果保持靜止。",
+  "fun.sketchButton": "附加草圖",
+  "fun.sketchCanvas": "繪圖區域",
+  "fun.sketchClear": "清除",
+  "fun.sketchAttach": "附加草圖",
+  "fun.toyTitle": "重力玩具"
 }

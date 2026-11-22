@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Partage",
   "threadActions.thisPost": "Ce message",
   "threadActions.staff": "Équipe",
-  "threadActions.editTags": "Modifier les étiquettes"
+  "threadActions.editTags": "Modifier les étiquettes",
+  "fun.title": "Extras amusants",
+  "fun.help": "Des extras ludiques pour cet appareil uniquement. Chacun reste désactivé tant que vous ne l’activez pas.",
+  "fun.confetti": "Des confettis quand je gagne un nouveau badge",
+  "fun.motion": "Badges et surlignages animés",
+  "fun.heroType": "Titre tapé à la machine sur la page d’accueil",
+  "fun.sounds": "Sons de notification (les heures calmes s’appliquent toujours)",
+  "fun.easterEggs": "Easter eggs (essayez le code Konami)",
+  "fun.sketch": "Afficher « Joindre un croquis » dans l’éditeur",
+  "fun.reducedMotion": "Votre appareil demande moins d’animations, les effets restent donc immobiles.",
+  "fun.sketchButton": "Joindre un croquis",
+  "fun.sketchCanvas": "Zone de dessin",
+  "fun.sketchClear": "Effacer",
+  "fun.sketchAttach": "Joindre le croquis",
+  "fun.toyTitle": "Jouet à gravité"
 }

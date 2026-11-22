@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "شیئر کرنا",
   "threadActions.thisPost": "یہ پوسٹ",
   "threadActions.staff": "عملہ",
-  "threadActions.editTags": "ٹیگز میں ترمیم کریں"
+  "threadActions.editTags": "ٹیگز میں ترمیم کریں",
+  "fun.title": "مزے دار اضافے",
+  "fun.help": "صرف اس آلے کے لیے چنچل اضافے۔ ہر ایک بند رہتا ہے جب تک آپ اسے آن نہ کریں۔",
+  "fun.confetti": "نیا بیج ملنے پر رنگین کاغذ",
+  "fun.motion": "متحرک بیجز اور نمایاں نشانات",
+  "fun.heroType": "ہوم پیج پر ٹائپ ہوتی سرخی",
+  "fun.sounds": "اطلاعات کی آوازیں (خاموش اوقات اب بھی لاگو ہیں)",
+  "fun.easterEggs": "چھپے سرپرائز (Konami کوڈ آزمائیں)",
+  "fun.sketch": "ایڈیٹر میں ”خاکہ منسلک کریں“ دکھائیں",
+  "fun.reducedMotion": "آپ کا آلہ کم حرکت چاہتا ہے، اس لیے حرکت والے اثرات ساکن رہتے ہیں۔",
+  "fun.sketchButton": "خاکہ منسلک کریں",
+  "fun.sketchCanvas": "ڈرائنگ کی جگہ",
+  "fun.sketchClear": "صاف کریں",
+  "fun.sketchAttach": "خاکہ منسلک کریں",
+  "fun.toyTitle": "کششِ ثقل کا کھلونا"
 }

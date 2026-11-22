@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "这篇帖子",
   "threadActions.staff": "管理团队",
-  "threadActions.editTags": "编辑标签"
+  "threadActions.editTags": "编辑标签",
+  "fun.title": "趣味功能",
+  "fun.help": "仅限此设备的趣味功能。每一项在你打开之前都保持关闭。",
+  "fun.confetti": "获得新徽章时撒彩纸",
+  "fun.motion": "动态徽章与高亮",
+  "fun.heroType": "主页标题打字效果",
+  "fun.sounds": "通知提示音(免打扰时段依然有效)",
+  "fun.easterEggs": "彩蛋(试试科乐美秘技)",
+  "fun.sketch": "在编辑框中显示“附加草图”",
+  "fun.reducedMotion": "你的设备要求减少动态效果,因此动画效果保持静止。",
+  "fun.sketchButton": "附加草图",
+  "fun.sketchCanvas": "绘图区域",
+  "fun.sketchClear": "清除",
+  "fun.sketchAttach": "附加草图",
+  "fun.toyTitle": "重力玩具"
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Deel",
   "threadActions.thisPost": "Hierdie plasing",
   "threadActions.staff": "Personeel",
-  "threadActions.editTags": "Wysig etikette"
+  "threadActions.editTags": "Wysig etikette",
+  "fun.title": "Prettige ekstras",
+  "fun.help": "Speelse ekstras net vir hierdie toestel. Elkeen bly af totdat jy dit aanskakel.",
+  "fun.confetti": "Konfetti wanneer ek ’n nuwe kenteken verdien",
+  "fun.motion": "Geanimeerde kentekens en uitlígte",
+  "fun.heroType": "Getikte opskrif op die tuisblad",
+  "fun.sounds": "Kennisgewingklanke (stil ure geld steeds)",
+  "fun.easterEggs": "Paaseiers (probeer die Konami-kode)",
+  "fun.sketch": "Wys “Heg ’n skets aan” in die redigeerder",
+  "fun.reducedMotion": "Jou toestel vra vir minder beweging, so bewegende effekte bly stil.",
+  "fun.sketchButton": "Heg ’n skets aan",
+  "fun.sketchCanvas": "Tekenarea",
+  "fun.sketchClear": "Vee uit",
+  "fun.sketchAttach": "Heg skets aan",
+  "fun.toyTitle": "Swaartekragspeelding"
 }

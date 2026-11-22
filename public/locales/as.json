@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "শ্বেয়াৰ",
   "threadActions.thisPost": "এই পোষ্ট",
   "threadActions.staff": "কৰ্মী",
-  "threadActions.editTags": "টেগ সম্পাদনা কৰক"
+  "threadActions.editTags": "টেগ সম্পাদনা কৰক",
+  "fun.title": "আমোদজনক অতিৰিক্ত",
+  "fun.help": "কেৱল এই ডিভাইচৰ বাবে খেলুৱৈ অতিৰিক্ত। আপুনি অন নকৰালৈকে প্ৰতিটো বন্ধ থাকে।",
+  "fun.confetti": "নতুন বেজ পালে কনফেটি",
+  "fun.motion": "এনিমেটেড বেজ আৰু হাইলাইট",
+  "fun.heroType": "গৃহ পৃষ্ঠাত টাইপ হোৱা শিৰোনাম",
+  "fun.sounds": "জাননীৰ শব্দ (নিস্তব্ধ সময় এতিয়াও প্ৰযোজ্য)",
+  "fun.easterEggs": "লুকুৱা আচৰিত (Konami ক'ড চেষ্টা কৰক)",
+  "fun.sketch": "সম্পাদকত “স্কেচ সংলগ্ন কৰক” দেখুৱাওক",
+  "fun.reducedMotion": "আপোনাৰ ডিভাইচে কম গতি বিচাৰে, সেয়ে চলমান প্ৰভাৱবোৰ স্থিৰ থাকে।",
+  "fun.sketchButton": "স্কেচ সংলগ্ন কৰক",
+  "fun.sketchCanvas": "অঁকাৰ ঠাই",
+  "fun.sketchClear": "মচক",
+  "fun.sketchAttach": "স্কেচ সংলগ্ন কৰক",
+  "fun.toyTitle": "মাধ্যাকৰ্ষণ খেলনা"
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Дийцар",
   "threadActions.thisPost": "Хӏара пост",
   "threadActions.staff": "Белхалой",
-  "threadActions.editTags": "Тегаш нисде"
+  "threadActions.editTags": "Тегаш нисде",
+  "fun.title": "Самукъане тӀетохарш",
+  "fun.help": "ХӀокху гӀирсана бен доцу ловзаран тӀетохарш. Хӏора а дӏайайина ю, ахь иза латийначех.",
+  "fun.confetti": "Керла значок яьккхича конфетти",
+  "fun.motion": "Анимацин значокаш а, къастийнарш а",
+  "fun.heroType": "Коьрта агӀонгахь зорбанехь яздина корта",
+  "fun.sounds": "Хаамийн аьзнаш (тийна сахьташ хӀинца а болх беш ду)",
+  "fun.easterEggs": "Пасхалкаш (Konami код хьажа)",
+  "fun.sketch": "Редакторехь «Сурт тӀетоха» гайта",
+  "fun.reducedMotion": "Хьан гӀирсо кӀезиг лелар доьху, цундела лела эффекташ лаьтташ ду.",
+  "fun.sketchButton": "Сурт тӀетоха",
+  "fun.sketchCanvas": "Сурт дилла меттиг",
+  "fun.sketchClear": "ЦӀанде",
+  "fun.sketchAttach": "Сурт тӀетоха",
+  "fun.toyTitle": "Гравитацин ловзанг"
 }

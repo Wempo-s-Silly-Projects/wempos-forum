@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette innlegget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tagger"
+  "threadActions.editTags": "Rediger tagger",
+  "fun.title": "Morsomme ekstrafunksjoner",
+  "fun.help": "Lekne ekstrafunksjoner bare for denne enheten. Hver av dem er av til du slår den på.",
+  "fun.confetti": "Konfetti når jeg får et nytt merke",
+  "fun.motion": "Animerte merker og uthevinger",
+  "fun.heroType": "Maskinskrevet overskrift på forsiden",
+  "fun.sounds": "Varsellyder (stille timer gjelder fortsatt)",
+  "fun.easterEggs": "Påskeegg (prøv Konami-koden)",
+  "fun.sketch": "Vis «Legg ved en skisse» i redigeringsfeltet",
+  "fun.reducedMotion": "Enheten din ber om mindre bevegelse, så bevegelige effekter står stille.",
+  "fun.sketchButton": "Legg ved en skisse",
+  "fun.sketchCanvas": "Tegneområde",
+  "fun.sketchClear": "Tøm",
+  "fun.sketchAttach": "Legg ved skisse",
+  "fun.toyTitle": "Tyngdekraftsleke"
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Ndarja",
   "threadActions.thisPost": "Ky postim",
   "threadActions.staff": "Stafi",
-  "threadActions.editTags": "Ndrysho etiketat"
+  "threadActions.editTags": "Ndrysho etiketat",
+  "fun.title": "Shtesa argëtuese",
+  "fun.help": "Shtesa lozonjare vetëm për këtë pajisje. Secila mbetet e fikur derisa ta ndezësh.",
+  "fun.confetti": "Konfeti kur fitoj një stemë të re",
+  "fun.motion": "Stema dhe theksime të animuara",
+  "fun.heroType": "Titull i shtypur në faqen kryesore",
+  "fun.sounds": "Tinguj njoftimesh (orët e qetësisë vlejnë ende)",
+  "fun.easterEggs": "Vezë Pashke (provo kodin Konami)",
+  "fun.sketch": "Shfaq “Bashkëngjit një skicë” te redaktori",
+  "fun.reducedMotion": "Pajisja jote kërkon më pak lëvizje, ndaj efektet lëvizëse qëndrojnë të palëvizura.",
+  "fun.sketchButton": "Bashkëngjit një skicë",
+  "fun.sketchCanvas": "Zona e vizatimit",
+  "fun.sketchClear": "Pastro",
+  "fun.sketchAttach": "Bashkëngjit skicën",
+  "fun.toyTitle": "Lodër me gravitet"
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Paylaşma",
   "threadActions.thisPost": "Bu yazı",
   "threadActions.staff": "Heyət",
-  "threadActions.editTags": "Teqləri redaktə et"
+  "threadActions.editTags": "Teqləri redaktə et",
+  "fun.title": "Əyləncəli əlavələr",
+  "fun.help": "Yalnız bu cihaz üçün oyuncaq əlavələr. Hər biri siz yandırana qədər söndürülü qalır.",
+  "fun.confetti": "Yeni nişan qazananda konfetti",
+  "fun.motion": "Animasiyalı nişanlar və vurğular",
+  "fun.heroType": "Ana səhifədə yazılan başlıq",
+  "fun.sounds": "Bildiriş səsləri (sakit saatlar yenə qüvvədədir)",
+  "fun.easterEggs": "Sürpriz yumurtalar (Konami kodunu sınayın)",
+  "fun.sketch": "Redaktorda “Eskiz əlavə et” göstər",
+  "fun.reducedMotion": "Cihazınız daha az hərəkət istəyir, ona görə hərəkətli effektlər sakit qalır.",
+  "fun.sketchButton": "Eskiz əlavə et",
+  "fun.sketchCanvas": "Rəsm sahəsi",
+  "fun.sketchClear": "Təmizlə",
+  "fun.sketchAttach": "Eskizi əlavə et",
+  "fun.toyTitle": "Cazibə oyuncağı"
 }

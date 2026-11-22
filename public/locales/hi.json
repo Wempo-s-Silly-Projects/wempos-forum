@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "साझा करना",
   "threadActions.thisPost": "यह पोस्ट",
   "threadActions.staff": "स्टाफ़",
-  "threadActions.editTags": "टैग संपादित करें"
+  "threadActions.editTags": "टैग संपादित करें",
+  "fun.title": "मज़ेदार अतिरिक्त",
+  "fun.help": "सिर्फ़ इस डिवाइस के लिए चंचल अतिरिक्त। हर एक तब तक बंद रहता है जब तक आप उसे चालू न करें।",
+  "fun.confetti": "नया बैज मिलने पर कंफ़ेटी",
+  "fun.motion": "एनिमेटेड बैज और हाइलाइट",
+  "fun.heroType": "होम पेज पर टाइप होती हेडलाइन",
+  "fun.sounds": "सूचना ध्वनियाँ (शांत घंटे अब भी लागू हैं)",
+  "fun.easterEggs": "छिपे सरप्राइज़ (Konami कोड आज़माएँ)",
+  "fun.sketch": "एडिटर में “स्केच जोड़ें” दिखाएँ",
+  "fun.reducedMotion": "आपका डिवाइस कम गति चाहता है, इसलिए चलने वाले प्रभाव स्थिर रहते हैं।",
+  "fun.sketchButton": "स्केच जोड़ें",
+  "fun.sketchCanvas": "चित्र बनाने की जगह",
+  "fun.sketchClear": "मिटाएँ",
+  "fun.sketchAttach": "स्केच जोड़ें",
+  "fun.toyTitle": "गुरुत्वाकर्षण खिलौना"
 }

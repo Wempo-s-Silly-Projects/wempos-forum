@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Deling",
   "threadActions.thisPost": "Dette indlæg",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Rediger tags"
+  "threadActions.editTags": "Rediger tags",
+  "fun.title": "Sjove ekstrafunktioner",
+  "fun.help": "Legesyge ekstrafunktioner kun til denne enhed. Hver enkelt er slået fra, indtil du slår den til.",
+  "fun.confetti": "Konfetti når jeg får et nyt badge",
+  "fun.motion": "Animerede badges og fremhævninger",
+  "fun.heroType": "Maskinskrevet overskrift på forsiden",
+  "fun.sounds": "Notifikationslyde (stille timer gælder stadig)",
+  "fun.easterEggs": "Easter eggs (prøv Konami-koden)",
+  "fun.sketch": "Vis “Vedhæft en skitse” i editoren",
+  "fun.reducedMotion": "Din enhed beder om mindre bevægelse, så bevægelige effekter står stille.",
+  "fun.sketchButton": "Vedhæft en skitse",
+  "fun.sketchCanvas": "Tegneområde",
+  "fun.sketchClear": "Ryd",
+  "fun.sketchAttach": "Vedhæft skitse",
+  "fun.toyTitle": "Tyngdekraftslegetøj"
 }

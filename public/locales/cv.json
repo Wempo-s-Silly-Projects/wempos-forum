@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Пайлашу",
   "threadActions.thisPost": "Ку пост",
   "threadActions.staff": "Ӗҫченсем",
-  "threadActions.editTags": "Тегсене улӑштар"
+  "threadActions.editTags": "Тегсене улӑштар",
+  "fun.title": "Савӑнӑҫлӑ хушӑмсем",
+  "fun.help": "Ҫак хатӗр валли ҫеҫ вылякан хушӑмсем. Кашниех эсир ӑна яриччен сӳнтернӗ.",
+  "fun.confetti": "Ҫӗнӗ паллӑ илсен конфетти",
+  "fun.motion": "Анимациллӗ паллӑсем тата уйӑрса кӑтартнисем",
+  "fun.heroType": "Тӗп страницӑра пичетленекен заголовок",
+  "fun.sounds": "Пӗлтерӳ сассисем (лӑпкӑ сехетсем малалла ӗҫлеҫҫӗ)",
+  "fun.easterEggs": "Пасхалкӑсем (Konami кодне тӗрӗслӗр)",
+  "fun.sketch": "Редакторта «Ӳкерчӗк хушас» кӑтартмалла",
+  "fun.reducedMotion": "Сирӗн хатӗр сахалрах хусканӑва ыйтать, ҫавӑнпа хускалакан эффектсем хускалмаҫҫӗ.",
+  "fun.sketchButton": "Ӳкерчӗк хушас",
+  "fun.sketchCanvas": "Ӳкермелли вырӑн",
+  "fun.sketchClear": "Тасат",
+  "fun.sketchAttach": "Ӳкерчӗке хушас",
+  "fun.toyTitle": "Гравитаци теттти"
 }

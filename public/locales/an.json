@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Ista publicación",
   "threadActions.staff": "Equipo",
-  "threadActions.editTags": "Editar etiquetas"
+  "threadActions.editTags": "Editar etiquetas",
+  "fun.title": "Extras divertius",
+  "fun.help": "Extras chugadors nomás ta iste dispositivo. Cadaguno se queda desactivau dica que l’actives.",
+  "fun.confetti": "Confeti quan gane una insignia nueva",
+  "fun.motion": "Insignias y resaltaus animaus",
+  "fun.heroType": "Titular escrito a maquina en a pachina d’inicio",
+  "fun.sounds": "Sons de notificación (as horas de silencio continan aplicando-se)",
+  "fun.easterEggs": "Uevos de Pascua (preba o codigo Konami)",
+  "fun.sketch": "Amostrar «Adchuntar un dibuixo» en l’editor",
+  "fun.reducedMotion": "O tuyo dispositivo demanda menos movimiento, asinas que os efectos animaus se quedan quietos.",
+  "fun.sketchButton": "Adchuntar un dibuixo",
+  "fun.sketchCanvas": "Aria de dibuixo",
+  "fun.sketchClear": "Borrar",
+  "fun.sketchAttach": "Adchuntar dibuixo",
+  "fun.toyTitle": "Chuguet de gravedat"
 }

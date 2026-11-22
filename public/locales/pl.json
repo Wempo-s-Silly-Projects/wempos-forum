@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Udostępnianie",
   "threadActions.thisPost": "Ten post",
   "threadActions.staff": "Zespół",
-  "threadActions.editTags": "Edytuj tagi"
+  "threadActions.editTags": "Edytuj tagi",
+  "fun.title": "Zabawne dodatki",
+  "fun.help": "Zabawne dodatki tylko dla tego urządzenia. Każdy pozostaje wyłączony, dopóki go nie włączysz.",
+  "fun.confetti": "Konfetti, gdy zdobędę nową odznakę",
+  "fun.motion": "Animowane odznaki i wyróżnienia",
+  "fun.heroType": "Pisany na maszynie nagłówek na stronie głównej",
+  "fun.sounds": "Dźwięki powiadomień (godziny ciszy nadal obowiązują)",
+  "fun.easterEggs": "Easter eggi (spróbuj kodu Konami)",
+  "fun.sketch": "Pokaż „Dołącz szkic” w edytorze",
+  "fun.reducedMotion": "Twoje urządzenie prosi o mniej ruchu, więc ruchome efekty pozostają nieruchome.",
+  "fun.sketchButton": "Dołącz szkic",
+  "fun.sketchCanvas": "Obszar rysowania",
+  "fun.sketchClear": "Wyczyść",
+  "fun.sketchAttach": "Dołącz szkic",
+  "fun.toyTitle": "Zabawka grawitacyjna"
 }

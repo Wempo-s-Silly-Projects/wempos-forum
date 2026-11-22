@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "공유",
   "threadActions.thisPost": "이 게시물",
   "threadActions.staff": "운영진",
-  "threadActions.editTags": "태그 편집"
+  "threadActions.editTags": "태그 편집",
+  "fun.title": "재미있는 추가 기능",
+  "fun.help": "이 기기에서만 쓰는 장난스러운 추가 기능입니다. 켜기 전까지 모두 꺼져 있습니다.",
+  "fun.confetti": "새 배지를 얻으면 색종이 효과",
+  "fun.motion": "움직이는 배지와 강조 표시",
+  "fun.heroType": "홈페이지 제목 타자 효과",
+  "fun.sounds": "알림 소리 (방해 금지 시간은 계속 적용)",
+  "fun.easterEggs": "이스터 에그 (코나미 코드를 입력해 보세요)",
+  "fun.sketch": "작성란에 “스케치 첨부” 표시",
+  "fun.reducedMotion": "기기에서 동작 줄이기를 요청해 움직이는 효과는 멈춰 있습니다.",
+  "fun.sketchButton": "스케치 첨부",
+  "fun.sketchCanvas": "그림 그리는 영역",
+  "fun.sketchClear": "지우기",
+  "fun.sketchAttach": "스케치 첨부",
+  "fun.toyTitle": "중력 장난감"
 }

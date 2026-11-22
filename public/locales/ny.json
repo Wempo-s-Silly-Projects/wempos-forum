@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Kugawana",
   "threadActions.thisPost": "Positi iyi",
   "threadActions.staff": "Oyang'anira",
-  "threadActions.editTags": "Sinthani matagi"
+  "threadActions.editTags": "Sinthani matagi",
+  "fun.title": "Zowonjezera zosangalatsa",
+  "fun.help": "Zowonjezera zoseweretsa za chipangizochi chokha. Chilichonse chimakhala chozimitsa mpaka mutayatsa.",
+  "fun.confetti": "Konfeti ndikapeza baji yatsopano",
+  "fun.motion": "Mabaji ndi zowunikira zoyenda",
+  "fun.heroType": "Mutu wolembedwa patsamba loyamba",
+  "fun.sounds": "Mamvekedwe a zidziwitso (maola achete akugwirabe ntchito)",
+  "fun.easterEggs": "Zodabwitsa zobisika (yesani khodi ya Konami)",
+  "fun.sketch": "Onetsani “Lumikizani chojambula” mu mkonzi",
+  "fun.reducedMotion": "Chipangizo chanu chikupempha kusuntha kochepa, choncho zosuntha zimakhala zokhazikika.",
+  "fun.sketchButton": "Lumikizani chojambula",
+  "fun.sketchCanvas": "Malo ojambulira",
+  "fun.sketchClear": "Chotsani",
+  "fun.sketchAttach": "Lumikizani chojambula",
+  "fun.toyTitle": "Chidole cha mphamvu yokoka"
 }

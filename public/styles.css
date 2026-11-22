@@ -4350,3 +4350,7 @@ mark.search-hit {
 .nav-group { display: grid; gap: 0.2rem; }
 .nav-group + .nav-group { margin-top: 0.35rem; padding-top: 0.45rem; border-top: 1px solid var(--line); }
 .nav-group-label { padding-inline: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+
+/* Batch M fun extras: the settings panel only. Everything that moves lives in
+   public/fun.css, loaded only once an extra is switched on. */
+.fun-extras-toggle { display: block; margin-block: 0.35rem; }

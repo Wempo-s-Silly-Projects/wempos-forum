@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Kushiriki",
   "threadActions.thisPost": "Chapisho hili",
   "threadActions.staff": "Wafanyakazi",
-  "threadActions.editTags": "Hariri lebo"
+  "threadActions.editTags": "Hariri lebo",
+  "fun.title": "Ziada za kufurahisha",
+  "fun.help": "Ziada za kuchezea kwa kifaa hiki pekee. Kila moja hubaki imezimwa hadi uiwashe.",
+  "fun.confetti": "Konfeti ninapopata beji mpya",
+  "fun.motion": "Beji na vivutio vinavyosonga",
+  "fun.heroType": "Kichwa kinachoandikwa kwenye ukurasa wa nyumbani",
+  "fun.sounds": "Sauti za arifa (saa za utulivu bado zinatumika)",
+  "fun.easterEggs": "Mayai ya Pasaka (jaribu msimbo wa Konami)",
+  "fun.sketch": "Onyesha “Ambatisha mchoro” kwenye kihariri",
+  "fun.reducedMotion": "Kifaa chako kinaomba mwendo mdogo, kwa hiyo madoido yanayosonga hubaki tuli.",
+  "fun.sketchButton": "Ambatisha mchoro",
+  "fun.sketchCanvas": "Eneo la kuchora",
+  "fun.sketchClear": "Futa",
+  "fun.sketchAttach": "Ambatisha mchoro",
+  "fun.toyTitle": "Kichezeo cha mvuto"
 }
