@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <title>Wempo's Forum: Have fun and meet new people!</title>
+  <rect width="1200" height="630" fill="#131b27"/>
+  <rect x="40" y="40" width="1120" height="550" rx="36" fill="#1d160d" stroke="#f3cf67" stroke-width="4"/>
+  <rect x="110" y="175" width="220" height="220" rx="44" fill="#131b27" stroke="#f3cf67" stroke-width="4"/>
+  <text x="220" y="350" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="170" font-weight="700" fill="#f3cf67" text-anchor="middle">W</text>
+  <text x="380" y="285" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="84" font-weight="700" fill="#f7efdc">Wempo's Forum</text>
+  <text x="382" y="360" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="42" fill="#f3cf67">Have fun and meet new people!</text>
+  <text x="382" y="440" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="30" fill="#c9bfa8">Topics, replies and chat for friendly people</text>
+</svg>

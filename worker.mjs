@@ -61,6 +61,7 @@ import { handleBrandingRoutes, readStoredBranding } from "./api/branding.mjs";
 import { handleAnalyticsRoutes, scheduleCount } from "./api/analytics.mjs";
 import { handleDiscovery, withDiscoveryHeaders } from "./api/discovery.mjs";
 import { handleMcp } from "./api/mcp.mjs";
+import { attributeEscape, withPageHead } from "./api/seo.mjs";
 import { accountsOrigin, configuredOrigin } from "./api/core/site.mjs";
 import { sourceUrl } from "./api/core/source-url.mjs";
 // The client router is the single source of truth for page routes (v5.2): a
@@ -125,10 +126,6 @@ const answerApiRoute = dispatch(API_HANDLERS, notFound);
 // each only when saved, so a forum with no settings row serves today's bytes.
 // Source link (v5.21.0, AGPL-3.0 §13): SOURCE_URL or the repo tree at
 // COMMIT_SHA rides the stamp as source-url; neither set → no meta.
-function attributeEscape(value) {
-  return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
 function shellMetas(env, branding) {
   const build = env.VERSION ? [env.VERSION, env.COMMIT_SHA].filter(Boolean).join("@") : "";
   const sitekey = typeof env.TURNSTILE_SITEKEY === "string" ? env.TURNSTILE_SITEKEY.trim() : "";
@@ -143,12 +140,14 @@ function shellMetas(env, branding) {
     .join("");
 }
 
-async function stampedAssetResponse(assetResponse, env) {
+// SEO + share previews (v5.31.0): the same pass swaps the shell's static
+// title/description for the page's own head (api/seo.mjs, visibility law).
+async function stampedAssetResponse(assetResponse, env, request, url) {
   const type = assetResponse.headers.get("Content-Type") || "";
   if (!type.includes("text/html")) return assetResponse;
-  const stamp = shellMetas(env, await readStoredBranding(env));
-  if (!stamp) return assetResponse;
-  const html = await assetResponse.text();
+  const branding = await readStoredBranding(env);
+  const stamp = shellMetas(env, branding);
+  const html = await withPageHead(await assetResponse.text(), request, env, url, branding);
   // The served bytes change length, so the original Content-Length must go —
   // a stale length would truncate the stamped document. HTML also revalidates
   // by ETag, which only tracks the asset bytes: a deploy that bumps VERSION
@@ -250,7 +249,7 @@ export default {
       // Negotiable pages vary on Accept; the homepage also advertises the
       // discovery documents in its Link header.
       const page = withDiscoveryHeaders(
-        secureResponse(await stampedAssetResponse(honestAssetResponse(await env.ASSETS.fetch(unconditional(request)), url), env)),
+        secureResponse(await stampedAssetResponse(honestAssetResponse(await env.ASSETS.fetch(unconditional(request)), url), env, request, url)),
         url.pathname,
       );
       // Private analytics (v5.30.0): an aggregate count of the page TYPE,
