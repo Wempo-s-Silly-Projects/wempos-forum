@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Hakua ei voitu tallentaa. Yritä uudelleen.",
   "savedSearch.deleteError": "Tallennettua hakua ei voitu poistaa. Yritä uudelleen.",
   "savedSearch.empty": "Ei vielä tallennettuja hakuja.",
-  "savedSearch.deleteLabel": "Poista tallennettu haku {name}"
+  "savedSearch.deleteLabel": "Poista tallennettu haku {name}",
+  "threadLock.note": "Tämä ketju on lukittu. Uudet vastaukset on suljettu.",
+  "threadLock.reason": "Lukitsemisen syy (vain ylläpito): {reason}",
+  "threadLock.lock": "Lukitse",
+  "threadLock.unlock": "Avaa lukitus",
+  "threadLock.reasonPrompt": "Lukitaanko tämä ketju? Lisää halutessasi syy, jonka vain ylläpito näkee, tai jätä tyhjäksi.",
+  "threadLock.locked": "Ketju lukittu.",
+  "threadLock.unlocked": "Ketjun lukitus avattu.",
+  "errors.threadLocked": "Tämä ketju on lukittu. Vain ylläpito voi vastata."
 }

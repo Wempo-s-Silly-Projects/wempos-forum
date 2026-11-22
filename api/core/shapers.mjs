@@ -53,6 +53,9 @@ export const POST_SELECT =
   // Slow mode (v5.43, migration 0069): the thread's cooldown in seconds, NULL
   // when off. A primary-key read, bind-free; who set it never leaves the desk.
   "(SELECT s.seconds FROM thread_slowmode s WHERE s.post_id = p.id) AS slow_mode_seconds, " +
+  // Thread lock (v5.51, migration 0075): a primary-key EXISTS, bind-free. The
+  // reason and the locker never join here (desk-only GET).
+  "EXISTS (SELECT 1 FROM thread_locks l WHERE l.post_id = p.id) AS locked, " +
   "(SELECT parent.body FROM posts parent WHERE parent.id = p.parent_id) AS parent_body, " +
   // Wave 40: a reaction by an actively-banned member never counts (read
   // time; an unban restores it) — the same tally SUGGESTION_SCORE_SQL sums.
@@ -258,6 +261,9 @@ export function publicPost(row, publicLevel) {
     staffPick: Number(row.staff_pick) === 1,
     // Slow mode (v5.43): seconds between a member's replies, null when off.
     slowModeSeconds: Number(row.slow_mode_seconds) > 0 ? Number(row.slow_mode_seconds) : null,
+    // Thread lock (v5.51): true while staff hold the thread closed; false on
+    // every reply row and on projections without the column.
+    locked: Number(row.locked) === 1,
     // Pinning (C5): the stamp (epoch seconds) as ISO, null never-pinned. Rows
     // from pre-migration projections normalize to null like editedAt.
     pinnedAt: row.pinned_at === null || row.pinned_at === undefined || Number(row.pinned_at) === 0

@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Could not save the search. Try again.",
   "savedSearch.deleteError": "Could not delete the saved search. Try again.",
   "savedSearch.empty": "No saved searches yet.",
-  "savedSearch.deleteLabel": "Delete saved search {name}"
+  "savedSearch.deleteLabel": "Delete saved search {name}",
+  "threadLock.note": "This thread is locked. New replies are closed.",
+  "threadLock.reason": "Lock reason (staff only): {reason}",
+  "threadLock.lock": "Lock",
+  "threadLock.unlock": "Unlock",
+  "threadLock.reasonPrompt": "Lock this thread? Add an optional reason only staff can see, or leave it blank.",
+  "threadLock.locked": "Thread locked.",
+  "threadLock.unlocked": "Thread unlocked.",
+  "errors.threadLocked": "This thread is locked. Only staff can reply."
 }

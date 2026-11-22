@@ -1197,5 +1197,13 @@
   "savedSearch.error": "অনুসন্ধান সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
   "savedSearch.deleteError": "সংরক্ষিত অনুসন্ধান মোছা যায়নি। আবার চেষ্টা করুন।",
   "savedSearch.empty": "এখনও কোনো সংরক্ষিত অনুসন্ধান নেই।",
-  "savedSearch.deleteLabel": "সংরক্ষিত অনুসন্ধান {name} মুছুন"
+  "savedSearch.deleteLabel": "সংরক্ষিত অনুসন্ধান {name} মুছুন",
+  "threadLock.note": "এই থ্রেডটি লক করা। নতুন উত্তর বন্ধ।",
+  "threadLock.reason": "লকের কারণ (শুধু স্টাফ): {reason}",
+  "threadLock.lock": "লক করুন",
+  "threadLock.unlock": "আনলক করুন",
+  "threadLock.reasonPrompt": "এই থ্রেডটি লক করবেন? চাইলে একটি কারণ লিখুন যা শুধু স্টাফরা দেখবেন, অথবা ফাঁকা রাখুন।",
+  "threadLock.locked": "থ্রেড লক করা হয়েছে।",
+  "threadLock.unlocked": "থ্রেড আনলক করা হয়েছে।",
+  "errors.threadLocked": "এই থ্রেডটি লক করা। শুধু স্টাফরা উত্তর দিতে পারেন।"
 }

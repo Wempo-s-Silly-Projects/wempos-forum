@@ -54,6 +54,7 @@ import { createFilterEditor } from "../desk/filter.js";
 import { createBrandingEditor, submitBrandingSave } from "../desk/branding.js";
 import { createVisitsPanel } from "../desk/visits.js";
 import { createStaffPickLog } from "../desk/staff-picks.js";
+import { threadLockPath } from "../thread-lock.js";
 import { focusPageHeading } from "../focus-utils.js";
 
 // The desk (v4.2 redesign): /admin is a section-routed panel — a sidebar rail
@@ -632,6 +633,21 @@ export const ACTIONS = {
       await api("/api/admin/threads/" + button.dataset.postId + "/unpin", { method: "POST" });
       await state.renderRoute(state.activeRoute);
       setMessage(t("admin.msg.threadUnpinned"));
+    },
+    // Thread lock (v5.51): the staff menu's Lock asks for an optional,
+    // staff-only reason (Cancel aborts); Unlock removes the lock. Re-render so
+    // the note, the composer and the label follow.
+    "thread-lock": async (button) => {
+      const reason = window.prompt(t("threadLock.reasonPrompt"), "");
+      if (reason === null) return;
+      await api(threadLockPath(button.dataset.postId), { method: "PUT", body: { reason } });
+      await state.renderRoute(state.activeRoute);
+      setMessage(t("threadLock.locked"));
+    },
+    "thread-unlock": async (button) => {
+      await api(threadLockPath(button.dataset.postId), { method: "DELETE" });
+      await state.renderRoute(state.activeRoute);
+      setMessage(t("threadLock.unlocked"));
     },
     // Staff pick of the week (v5.35): the thread's staff menu — POST makes it
     // the pick, DELETE removes it; re-render so the label and /week follow.

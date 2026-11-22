@@ -3900,6 +3900,9 @@ mark.search-hit {
 .member-note-form { display: grid; gap: 0.35rem; }
 .slow-mode-note { margin: 0.5rem 0; color: var(--muted); font-size: 0.9rem; }
 .slow-mode-form { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
+/* Thread lock (v5.51): the locked note for everyone, the reason for staff. */
+.thread-lock-note { margin: 0.5rem 0; font-weight: 600; }
+.thread-lock-reason { margin: 0.25rem 0 0.5rem; color: var(--muted); font-size: 0.9rem; }
 
 /* Thread tags (v5.44): chips on the thread page, the author/staff picker,
    the /tag/<slug> list and the desk manager. */

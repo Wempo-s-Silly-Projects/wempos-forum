@@ -1197,5 +1197,13 @@
   "savedSearch.error": "ذخیرهٔ جست‌وجو ممکن نشد. دوباره تلاش کنید.",
   "savedSearch.deleteError": "حذف جست‌وجوی ذخیره‌شده ممکن نشد. دوباره تلاش کنید.",
   "savedSearch.empty": "هنوز جست‌وجوی ذخیره‌شده‌ای ندارید.",
-  "savedSearch.deleteLabel": "حذف جست‌وجوی ذخیره‌شدهٔ {name}"
+  "savedSearch.deleteLabel": "حذف جست‌وجوی ذخیره‌شدهٔ {name}",
+  "threadLock.note": "این رشته قفل است. پاسخ‌های جدید بسته است.",
+  "threadLock.reason": "دلیل قفل (فقط کارکنان): {reason}",
+  "threadLock.lock": "قفل کردن",
+  "threadLock.unlock": "باز کردن قفل",
+  "threadLock.reasonPrompt": "این رشته قفل شود؟ دلیلی اختیاری بنویسید که فقط کارکنان می‌بینند، یا خالی بگذارید.",
+  "threadLock.locked": "رشته قفل شد.",
+  "threadLock.unlocked": "قفل رشته باز شد.",
+  "errors.threadLocked": "این رشته قفل است. فقط کارکنان می‌توانند پاسخ دهند."
 }

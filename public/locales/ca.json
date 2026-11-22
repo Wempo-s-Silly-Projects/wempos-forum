@@ -1197,5 +1197,13 @@
   "savedSearch.error": "No s'ha pogut desar la cerca. Torna-ho a provar.",
   "savedSearch.deleteError": "No s'ha pogut suprimir la cerca desada. Torna-ho a provar.",
   "savedSearch.empty": "Encara no hi ha cerques desades.",
-  "savedSearch.deleteLabel": "Suprimeix la cerca desada {name}"
+  "savedSearch.deleteLabel": "Suprimeix la cerca desada {name}",
+  "threadLock.note": "Aquest fil està bloquejat. Les respostes noves estan tancades.",
+  "threadLock.reason": "Motiu del bloqueig (només l'equip): {reason}",
+  "threadLock.lock": "Bloqueja",
+  "threadLock.unlock": "Desbloqueja",
+  "threadLock.reasonPrompt": "Vols bloquejar aquest fil? Afegeix un motiu opcional que només veurà l'equip, o deixa-ho en blanc.",
+  "threadLock.locked": "S'ha bloquejat el fil.",
+  "threadLock.unlocked": "S'ha desbloquejat el fil.",
+  "errors.threadLocked": "Aquest fil està bloquejat. Només l'equip hi pot respondre."
 }

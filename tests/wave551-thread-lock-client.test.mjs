@@ -25,7 +25,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { makeFakeDocument, findByClass } from "./helpers/fake-dom.mjs";
+import { makeFakeDocument } from "./helpers/fake-dom.mjs";
 import {
   canReplyToThread,
   createThreadLockNote,

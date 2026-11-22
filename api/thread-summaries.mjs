@@ -63,7 +63,7 @@ const shapeSummary = (row) =>
 // C0 (NUL, tab and line breaks included), DEL and C1, the line/paragraph
 // separators, and the bidi embedding/override (U+202A-202E) and isolate
 // (U+2066-2069) controls. The plain direction marks U+200E/200F stay allowed.
-const isRefusedChar = (code) =>
+export const isRefusedChar = (code) =>
   code < 0x20 || (code >= 0x7f && code <= 0x9f) || code === 0x2028 || code === 0x2029 ||
   (code >= 0x202a && code <= 0x202e) || (code >= 0x2066 && code <= 0x2069);
 

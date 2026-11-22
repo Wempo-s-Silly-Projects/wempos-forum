@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Vyhľadávanie sa nepodarilo uložiť. Skúste to znova.",
   "savedSearch.deleteError": "Uložené vyhľadávanie sa nepodarilo odstrániť. Skúste to znova.",
   "savedSearch.empty": "Zatiaľ žiadne uložené vyhľadávania.",
-  "savedSearch.deleteLabel": "Odstrániť uložené vyhľadávanie {name}"
+  "savedSearch.deleteLabel": "Odstrániť uložené vyhľadávanie {name}",
+  "threadLock.note": "Toto vlákno je zamknuté. Nové odpovede sú uzavreté.",
+  "threadLock.reason": "Dôvod zamknutia (len pre tím): {reason}",
+  "threadLock.lock": "Zamknúť",
+  "threadLock.unlock": "Odomknúť",
+  "threadLock.reasonPrompt": "Zamknúť toto vlákno? Pridajte voliteľný dôvod, ktorý uvidí len tím, alebo nechajte prázdne.",
+  "threadLock.locked": "Vlákno zamknuté.",
+  "threadLock.unlocked": "Vlákno odomknuté.",
+  "errors.threadLocked": "Toto vlákno je zamknuté. Odpovedať môže len tím."
 }

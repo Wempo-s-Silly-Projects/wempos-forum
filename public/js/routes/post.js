@@ -58,6 +58,7 @@ import { createSaveThreadButton } from "../thread-text.js";
 import { startReadingProgress } from "../reading-progress.js";
 import { createShareButton } from "../share.js";
 import { createSlowModeForm, createSlowModeNote, slowModePath } from "../slow-mode.js";
+import { canReplyToThread, createThreadLockNote, createThreadLockReason, stripReplyControls, threadLockPath } from "../thread-lock.js";
 import { createTagChips, createTagEditor, postTagsPath } from "../tags.js";
 import { createThreadOutline } from "../thread-outline.js";
 import { createThreadSummary, loadThreadSummary } from "../thread-summary.js";
@@ -78,6 +79,19 @@ async function renderPostRoute(route, context, version) {
   if (!post.parent && (viewer?.role === "owner" || viewer?.role === "admin")) {
     main.append(createSlowModeForm(document, post.id, post.slowModeSeconds));
   }
+  // Thread lock (v5.51): the note for everyone; staff also read the reason
+  // from the desk route (a failed read just leaves it out).
+  const lockNote = createThreadLockNote(document, post.locked);
+  if (lockNote) {
+    main.append(lockNote);
+    if (viewer?.role === "owner" || viewer?.role === "admin") {
+      const lock = await api(threadLockPath(post.id)).catch(() => null);
+      if (version !== state.renderVersion) return;
+      const reasonLine = createThreadLockReason(document, lock?.reason);
+      if (reasonLine) main.append(reasonLine);
+    }
+  }
+  const lockedForViewer = post.locked === true && !(viewer?.role === "owner" || viewer?.role === "admin");
   // Thread tags (v5.44): chips for everyone on a root; the picker for the
   // author and staff. A failed tag read leaves the page without chips.
   if (!post.parent) await appendThreadTags(post, viewer, version);
@@ -107,12 +121,15 @@ async function renderPostRoute(route, context, version) {
     main.append(createShortcutSheet(document));
     replyList = element("div", "post-list replies-list");
     replyList.dataset.repliesFor = String(post.id);
+    if (lockedForViewer) replyList.dataset.locked = "true";
     // Link to a reply (wave 5.25 F1): id="reply-<id>" + its own copy link.
     for (const reply of post.replies) {
       const card = createPostCard(reply, document, context.session.user);
       anchorReplyCard(document, card, post.id);
       replyList.append(card);
     }
+    // Thread lock (v5.51): members get no per-card Reply/Quote controls.
+    if (lockedForViewer) stripReplyControls(replyList);
     // Jump to the latest reply (wave 2026-11-21-9 F3): long threads only.
     const latestJump = createLatestReplyJump(document, replyList, post.replies.length);
     if (latestJump) main.append(latestJump);
@@ -155,7 +172,7 @@ async function renderPostRoute(route, context, version) {
   // Back to the first post (wave 2026-11-21-12 F3): long threads only.
   const firstJump = createFirstPostJump(document, rootCard, post.replies.length);
   if (firstJump) main.append(firstJump);
-  if (context.session.user && post.visibility !== "hidden" && !post.parent) {
+  if (canReplyToThread(post, context.session.user)) {
     main.append(createComposer("reply", t("post.replyPlaceholder"), t("common.reply"), post.id));
   }
   // A #reply-<id> hash lands on that reply when it is on this page; else no-op.
@@ -310,6 +327,7 @@ async function loadOlderReplies(button) {
     fragment.append(card);
   }
   replyList.prepend(fragment);
+  if (replyList.dataset.locked === "true") stripReplyControls(replyList);
   markThreadStarterReplies(document, replyList, older.replies, Number(replyList.dataset.starterId));
   addReplyFolds(document, replyList);
   ensureFoldAllToggle(document, replyList);

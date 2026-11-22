@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Pretraživanje nije moguće spremiti. Pokušajte ponovno.",
   "savedSearch.deleteError": "Spremljeno pretraživanje nije moguće izbrisati. Pokušajte ponovno.",
   "savedSearch.empty": "Još nema spremljenih pretraživanja.",
-  "savedSearch.deleteLabel": "Izbriši spremljeno pretraživanje {name}"
+  "savedSearch.deleteLabel": "Izbriši spremljeno pretraživanje {name}",
+  "threadLock.note": "Ova je tema zaključana. Novi odgovori su zatvoreni.",
+  "threadLock.reason": "Razlog zaključavanja (samo za osoblje): {reason}",
+  "threadLock.lock": "Zaključaj",
+  "threadLock.unlock": "Otključaj",
+  "threadLock.reasonPrompt": "Zaključati ovu temu? Dodajte neobavezan razlog koji vidi samo osoblje ili ostavite prazno.",
+  "threadLock.locked": "Tema je zaključana.",
+  "threadLock.unlocked": "Tema je otključana.",
+  "errors.threadLocked": "Ova je tema zaključana. Odgovarati može samo osoblje."
 }

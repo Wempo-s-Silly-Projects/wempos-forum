@@ -1197,5 +1197,13 @@
   "savedSearch.error": "تعذّر حفظ البحث. حاول مرة أخرى.",
   "savedSearch.deleteError": "تعذّر حذف البحث المحفوظ. حاول مرة أخرى.",
   "savedSearch.empty": "لا توجد عمليات بحث محفوظة بعد.",
-  "savedSearch.deleteLabel": "احذف البحث المحفوظ {name}"
+  "savedSearch.deleteLabel": "احذف البحث المحفوظ {name}",
+  "threadLock.note": "هذا الموضوع مقفل. الردود الجديدة مغلقة.",
+  "threadLock.reason": "سبب القفل (للطاقم فقط): {reason}",
+  "threadLock.lock": "قفل",
+  "threadLock.unlock": "فتح القفل",
+  "threadLock.reasonPrompt": "هل تريد قفل هذا الموضوع؟ أضف سببًا اختياريًا لا يراه إلا الطاقم، أو اتركه فارغًا.",
+  "threadLock.locked": "تم قفل الموضوع.",
+  "threadLock.unlocked": "تم فتح قفل الموضوع.",
+  "errors.threadLocked": "هذا الموضوع مقفل. لا يمكن الرد إلا للطاقم."
 }

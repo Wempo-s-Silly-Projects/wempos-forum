@@ -65,6 +65,7 @@ import { viewerBlockFilterSql } from "./core/blocks.mjs";
 import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
 import { siteOrigin } from "./core/site.mjs";
 import { assertSlowModeAllows } from "./staff-tools.mjs";
+import { assertThreadUnlocked } from "./thread-locks.mjs";
 
 const SUPPORTED_PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 const DEFAULT_PROTOCOL_VERSION = "2025-06-18";
@@ -630,6 +631,8 @@ async function createReply(env, args, ctx) {
   const message = await filteredBody(env, agent, args.body, "reply");
   await writeRateLimits(env, ctx);
   const { target, bumpTargetId, threadBoard } = await resolveReplyTarget(env, agent, targetId);
+  // Thread lock (v5.51): the web reply route's check, same root, same exemption.
+  await assertThreadUnlocked(db, agent, bumpTargetId);
   // Slow mode (v5.43): the web reply route's check, same root, same exemption.
   await assertSlowModeAllows(db, agent, bumpTargetId);
   const now = nowSeconds();

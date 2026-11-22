@@ -1197,5 +1197,13 @@
   "savedSearch.error": "تلاش محفوظ نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
   "savedSearch.deleteError": "محفوظ تلاش حذف نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
   "savedSearch.empty": "ابھی کوئی محفوظ تلاش نہیں ہے۔",
-  "savedSearch.deleteLabel": "محفوظ تلاش {name} حذف کریں"
+  "savedSearch.deleteLabel": "محفوظ تلاش {name} حذف کریں",
+  "threadLock.note": "یہ تھریڈ مقفل ہے۔ نئے جوابات بند ہیں۔",
+  "threadLock.reason": "مقفل کرنے کی وجہ (صرف عملہ): {reason}",
+  "threadLock.lock": "مقفل کریں",
+  "threadLock.unlock": "کھولیں",
+  "threadLock.reasonPrompt": "یہ تھریڈ مقفل کریں؟ اختیاری وجہ لکھیں جو صرف عملہ دیکھے گا، یا خالی چھوڑ دیں۔",
+  "threadLock.locked": "تھریڈ مقفل ہو گیا۔",
+  "threadLock.unlocked": "تھریڈ کھول دیا گیا۔",
+  "errors.threadLocked": "یہ تھریڈ مقفل ہے۔ صرف عملہ جواب دے سکتا ہے۔"
 }

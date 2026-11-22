@@ -1197,5 +1197,13 @@
   "savedSearch.error": "Nie udało się zapisać wyszukiwania. Spróbuj ponownie.",
   "savedSearch.deleteError": "Nie udało się usunąć zapisanego wyszukiwania. Spróbuj ponownie.",
   "savedSearch.empty": "Brak zapisanych wyszukiwań.",
-  "savedSearch.deleteLabel": "Usuń zapisane wyszukiwanie {name}"
+  "savedSearch.deleteLabel": "Usuń zapisane wyszukiwanie {name}",
+  "threadLock.note": "Ten wątek jest zablokowany. Nowe odpowiedzi są wyłączone.",
+  "threadLock.reason": "Powód blokady (tylko dla zespołu): {reason}",
+  "threadLock.lock": "Zablokuj",
+  "threadLock.unlock": "Odblokuj",
+  "threadLock.reasonPrompt": "Zablokować ten wątek? Dodaj opcjonalny powód widoczny tylko dla zespołu albo zostaw puste.",
+  "threadLock.locked": "Wątek zablokowany.",
+  "threadLock.unlocked": "Wątek odblokowany.",
+  "errors.threadLocked": "Ten wątek jest zablokowany. Odpowiadać może tylko zespół."
 }
