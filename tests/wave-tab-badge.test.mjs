@@ -127,3 +127,43 @@ test("without canvas support the favicon stays plain", () => {
   badge.setCount("notifications", 5);
   assert.deepEqual(hrefs(doc), PLAIN);
 });
+
+// v5.75.0 review: the favicon badge follows the same opt-in as the tab-title
+// count (device pref, off by default) and is held back during quiet hours.
+test("a hidden tab stays plain when the tab-unread opt-in or quiet hours say no", () => {
+  const doc = fakeDocument();
+  let allowed = false;
+  const badge = createTabBadge(doc, { allowed: () => allowed });
+  doc.visibilityState = "hidden";
+  badge.setCount("notifications", 4);
+  assert.deepEqual(hrefs(doc), PLAIN, "opt-in off: no badge");
+  allowed = true;
+  badge.setCount("notifications", 4);
+  assert.deepEqual(hrefs(doc), [BADGED, BADGED], "opt-in on: badge");
+});
+
+test("the page-wide badge is gated on the tab-unread pref and quiet hours", () => {
+  const source = readFileSync(join(PUBLIC, "js", "tab-badge.js"), "utf8");
+  assert.match(source, /readTabUnread\(/);
+  assert.match(source, /notificationAlertsAllowed\(/);
+});
+
+test("setTabBadgeCount runs end to end: plain by default, badged once the tab-unread pref is on", async () => {
+  const doc = fakeDocument();
+  doc.visibilityState = "hidden";
+  const store = new Map();
+  const saved = { document: globalThis.document, localStorage: globalThis.localStorage };
+  globalThis.document = doc;
+  globalThis.localStorage = { getItem: (key) => store.get(key) ?? null, setItem: (key, value) => store.set(key, value) };
+  try {
+    const { setTabBadgeCount } = await import("../public/js/tab-badge.js?end-to-end");
+    setTabBadgeCount("notifications", 3);
+    assert.deepEqual(hrefs(doc), PLAIN, "opt-in off by default");
+    store.set("forum-tab-unread", "on");
+    setTabBadgeCount("notifications", 3);
+    assert.deepEqual(hrefs(doc), [BADGED, BADGED], "opt-in on");
+  } finally {
+    globalThis.document = saved.document;
+    globalThis.localStorage = saved.localStorage;
+  }
+});

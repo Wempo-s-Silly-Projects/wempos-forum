@@ -23,6 +23,11 @@
 // unread notifications plus DMs are drawn as a small coral badge over the
 // icon. Zero, or coming back to the tab, puts the plain icon back. The counts
 // are the ones the bell and chat launcher already hold: no request here.
+// Like the tab-title count it is opt-in (the same device pref, off by
+// default) and held back during quiet hours.
+import { notificationAlertsAllowed } from "./quiet-hours.js";
+import { pageStorage, readTabUnread } from "./tab-unread.js";
+
 const BADGE_CAP = 9;
 const ICON_SIZE = 32;
 const BADGE_RADIUS = 10;
@@ -58,7 +63,7 @@ function drawBadge(doc, label, baseImage) {
   return canvas.toDataURL("image/png");
 }
 
-export function createTabBadge(doc) {
+export function createTabBadge(doc, { allowed = () => true } = {}) {
   const counts = new Map();
   let baseImage = null;
   const icons = () => [...(doc.querySelectorAll?.('link[rel="icon"]') ?? [])];
@@ -68,7 +73,7 @@ export function createTabBadge(doc) {
   };
   const render = () => {
     const total = [...counts.values()].reduce((sum, count) => sum + count, 0);
-    const label = doc.visibilityState === "hidden" ? badgeLabel(total) : "";
+    const label = doc.visibilityState === "hidden" && allowed() ? badgeLabel(total) : "";
     if (label && !baseImage) loadBase();
     const badged = label ? drawBadge(doc, label, baseImage) : null;
     for (const link of icons()) {
@@ -98,6 +103,8 @@ let pageBadge = null;
 // The page-wide badge; `source` is "notifications" or "dms".
 export function setTabBadgeCount(source, count) {
   if (typeof document === "undefined") return;
-  pageBadge ??= createTabBadge(document);
+  pageBadge ??= createTabBadge(document, {
+    allowed: () => readTabUnread(pageStorage()) && notificationAlertsAllowed(pageStorage(), new Date()),
+  });
   pageBadge.setCount(source, count);
 }
