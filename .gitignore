@@ -17,3 +17,6 @@ coverage/
 
 # Fleet ops state (taskboard, tick/cost logs, alerts): local only
 .team/
+
+# Firecrawl scrape output (local tool cache)
+.firecrawl/

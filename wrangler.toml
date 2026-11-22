@@ -1,5 +1,6 @@
 name = "wempos-forum"
 main = "worker.mjs"
+upload_source_maps = true
 compatibility_date = "2026-10-13"
 workers_dev = true
 # The forum's home: wempos-forum.com (Cloudflare custom domain, same account).
@@ -24,7 +25,7 @@ ANALYTICS_ENABLED = "true"
 # AutoMod (v5.18.0 API): "true" opens /api/automod/* to the runner that
 # holds the AUTOMOD_KEY secret. Owner switched it on 2026-11-21.
 AUTOMOD_ENABLED = "true"
-VERSION = "5.71.0"
+VERSION = "5.71.1"
 
 [assets]
 directory = "./public"

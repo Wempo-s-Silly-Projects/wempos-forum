@@ -15,6 +15,19 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.71.1] - 2026-11-22
+
+### Fixed
+- The light/dark toggle now follows your device again when you click back
+  to the look your device uses. Before, one click pinned the theme for good
+  and later device changes were ignored.
+- The image viewer, the chat panel and Who's Online no longer spill past
+  the right edge by the width of a scrollbar on browsers that show one.
+
+### Changed
+- Worker deploys upload source maps and fail if one cannot be resolved, so
+  error stack traces point at the original files and lines.
+
 ## [5.71.0] - 2026-11-22
 
 ### Added
