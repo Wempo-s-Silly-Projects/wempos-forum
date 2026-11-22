@@ -133,7 +133,7 @@ Any third-party code you bring in must be compatible with the AGPLv3.
 
 ## Translations
 
-The forum is translated into 49 languages. If you add or change text that
+The forum is translated into 57 languages. If you add or change text that
 people see:
 
 1. Add the string to `public/locales/en.json` with a clear key.
