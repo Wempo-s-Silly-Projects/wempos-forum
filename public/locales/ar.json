@@ -603,6 +603,8 @@
   "polls.close": "إغلاق التصويت",
   "polls.reopen": "إعادة فتح التصويت",
   "post.conversationTitle": "النقاش",
+  "post.saveAsText": "حفظ كنص",
+  "post.saveAsTextLabel": "حفظ المنشورات المعروضة في هذه الصفحة كملف نصي",
   "post.editSaved": "تم حفظ تعديلك.",
   "post.hideReplies.one": "إخفاء {count} رد",
   "post.hideReplies.other": "إخفاء الردود ({count})",

@@ -603,6 +603,8 @@
   "polls.close": "Tutup pengundian",
   "polls.reopen": "Buka semula pengundian",
   "post.conversationTitle": "Perbualan",
+  "post.saveAsText": "Simpan sebagai teks",
+  "post.saveAsTextLabel": "Simpan siaran yang dipaparkan pada halaman ini sebagai fail teks",
   "post.editSaved": "Suntingan anda telah disimpan.",
   "post.hideReplies.one": "Sembunyikan {count} balasan",
   "post.hideReplies.other": "Sembunyikan {count} balasan",

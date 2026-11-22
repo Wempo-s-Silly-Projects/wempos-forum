@@ -603,6 +603,8 @@
   "polls.close": "Uzavřít hlasování",
   "polls.reopen": "Znovu otevřít hlasování",
   "post.conversationTitle": "Konverzace",
+  "post.saveAsText": "Uložit jako text",
+  "post.saveAsTextLabel": "Uložit příspěvky zobrazené na této stránce jako textový soubor",
   "post.editSaved": "Tvoje úprava byla uložena.",
   "post.hideReplies.one": "Skrýt {count} odpověď",
   "post.hideReplies.other": "Skrýt odpovědi: {count}",

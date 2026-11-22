@@ -603,6 +603,8 @@
   "polls.close": "Oylamayı kapat",
   "polls.reopen": "Oylamayı yeniden aç",
   "post.conversationTitle": "Sohbet",
+  "post.saveAsText": "Metin olarak kaydet",
+  "post.saveAsTextLabel": "Bu sayfada gösterilen gönderileri metin dosyası olarak kaydet",
   "post.editSaved": "Düzenlemen kaydedildi.",
   "post.hideReplies.one": "{count} yanıtı gizle",
   "post.hideReplies.other": "{count} yanıtı gizle",

@@ -603,6 +603,8 @@
   "polls.close": "투표 마감",
   "polls.reopen": "투표 다시 열기",
   "post.conversationTitle": "대화",
+  "post.saveAsText": "텍스트로 저장",
+  "post.saveAsTextLabel": "이 페이지에 표시된 게시물을 텍스트 파일로 저장",
   "post.editSaved": "수정한 내용을 저장했어요.",
   "post.hideReplies.one": "답글 {count}개 숨기기",
   "post.hideReplies.other": "답글 {count}개 숨기기",

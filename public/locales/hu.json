@@ -603,6 +603,8 @@
   "polls.close": "Szavazás lezárása",
   "polls.reopen": "Szavazás újranyitása",
   "post.conversationTitle": "Beszélgetés",
+  "post.saveAsText": "Mentés szövegként",
+  "post.saveAsTextLabel": "Az ezen az oldalon megjelenő bejegyzések mentése szövegfájlként",
   "post.editSaved": "A szerkesztésed el lett mentve.",
   "post.hideReplies.one": "{count} válasz elrejtése",
   "post.hideReplies.other": "{count} válasz elrejtése",

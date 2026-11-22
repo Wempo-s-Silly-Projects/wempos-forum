@@ -603,6 +603,8 @@
   "polls.close": "Затвори гласуването",
   "polls.reopen": "Отвори отново гласуването",
   "post.conversationTitle": "Разговор",
+  "post.saveAsText": "Запази като текст",
+  "post.saveAsTextLabel": "Запази публикациите, показани на тази страница, като текстов файл",
   "post.editSaved": "Промяната ти беше запазена.",
   "post.hideReplies.one": "Скрий {count} отговор",
   "post.hideReplies.other": "Скрий {count} отговора",

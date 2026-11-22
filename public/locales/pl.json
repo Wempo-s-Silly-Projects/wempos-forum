@@ -603,6 +603,8 @@
   "polls.close": "Zamknij głosowanie",
   "polls.reopen": "Otwórz ponownie głosowanie",
   "post.conversationTitle": "Rozmowa",
+  "post.saveAsText": "Zapisz jako tekst",
+  "post.saveAsTextLabel": "Zapisz posty widoczne na tej stronie jako plik tekstowy",
   "post.editSaved": "Twoja edycja została zapisana.",
   "post.hideReplies.one": "Ukryj {count} odpowiedź",
   "post.hideReplies.other": "Ukryj odpowiedzi ({count})",

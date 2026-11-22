@@ -156,6 +156,7 @@ import {
 // the two-factor section); its Unblock action merges here.
 import { ACTIONS as blockActions } from "./routes/blocks.js";
 import { stopReadAloud } from "./read-aloud.js";
+import { stopReadingProgress } from "./reading-progress.js";
 import { applyTabUnread, normaliseTabCount, pageStorage } from "./tab-unread.js";
 import { paintSourceLink } from "./source-link.js";
 
@@ -220,6 +221,8 @@ async function renderRoute(route) {
   const version = ++state.renderVersion;
   // Read aloud (wave 2026-11-21-7): speech never outlives the page it read.
   stopReadAloud();
+  // Reading progress (wave 5.26 F2): the bar and its listeners leave too.
+  stopReadingProgress();
   state.activeRoute = route;
   main.classList.toggle("home-page", route.name === "home");
   // Profile themes (v2.5): main outlives routes — a member's accent class

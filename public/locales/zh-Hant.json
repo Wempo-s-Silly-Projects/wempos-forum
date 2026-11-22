@@ -603,6 +603,8 @@
   "polls.close": "關閉投票",
   "polls.reopen": "重新開放投票",
   "post.conversationTitle": "對話",
+  "post.saveAsText": "另存為文字",
+  "post.saveAsTextLabel": "將此頁面上顯示的貼文儲存為文字檔",
   "post.editSaved": "你的修改已儲存。",
   "post.hideReplies.one": "隱藏 {count} 則回覆",
   "post.hideReplies.other": "隱藏 {count} 則回覆",

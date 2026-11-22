@@ -54,12 +54,17 @@ import { createReplyFilter, refreshReplyFilter } from "../reply-filter.js";
 import { selectedQuoteText } from "../quote-selection.js";
 import { openLightbox } from "../lightbox.js";
 import { anchorReplyCard, bindReplyHashChange, highlightReplyFromHash } from "../reply-anchor.js";
+import { createSaveThreadButton } from "../thread-text.js";
+import { startReadingProgress } from "../reading-progress.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
   if (version !== state.renderVersion) return;
   addHeading(main, t("post.conversationTitle"), 1);
   const rootCard = createPostCard(post, document, context.session.user);
+  // Save as text (wave 5.26 F1): only the cards shown on the page, no fetch.
+  rootCard.querySelector(".post-actions")
+    ?.append(createSaveThreadButton(document, { getRoot: () => main, threadId: post.id }));
   main.append(rootCard);
   // Thread at a glance (wave 2026-11-21): from the posts already loaded.
   if (post.replies.length) {
@@ -125,6 +130,8 @@ async function renderPostRoute(route, context, version) {
   // A #reply-<id> hash lands on that reply when it is on this page; else no-op.
   highlightReplyFromHash(main, location.hash);
   bindReplyHashChange(window, () => main);
+  // Reading progress bar (wave 5.26 F2): stopped by renderRoute on leave.
+  startReadingProgress(document, window, main);
 }
 // Author edit save (v2.4): JSON {body} to PATCH /api/posts/:id (api.js adds the
 // CSRF header). The server reapplies the word filter and 1,000-char cap, stores

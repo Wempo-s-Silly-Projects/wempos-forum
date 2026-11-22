@@ -15,6 +15,20 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.26.0] - 2026-11-21
+
+### Added
+- Save as text: a "Save as text" button on a thread's first post downloads
+  the posts shown on the page as a plain text file (the forum name and
+  thread link, then each post's author, date and text). It uses only what
+  is on screen: replies hidden by a filter are left out, folded replies
+  keep just their name and date, and spoilers you haven't revealed stay
+  masked. Nothing is sent or stored.
+- Reading progress: a thin bar across the top of a thread page shows how
+  far down the thread you've scrolled. It only appears when the thread is
+  longer than the screen, doesn't animate if your device asks for reduced
+  motion, and is hidden when printing.
+
 ## [5.25.0] - 2026-11-21
 
 ### Added

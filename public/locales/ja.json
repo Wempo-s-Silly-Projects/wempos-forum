@@ -603,6 +603,8 @@
   "polls.close": "投票を締め切る",
   "polls.reopen": "投票を再開する",
   "post.conversationTitle": "会話",
+  "post.saveAsText": "テキストとして保存",
+  "post.saveAsTextLabel": "このページに表示されている投稿をテキストファイルとして保存",
   "post.editSaved": "編集を保存しました。",
   "post.hideReplies.one": "返信 {count} 件を隠す",
   "post.hideReplies.other": "返信 {count} 件を隠す",

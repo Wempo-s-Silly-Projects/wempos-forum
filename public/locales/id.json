@@ -603,6 +603,8 @@
   "polls.close": "Tutup pemungutan suara",
   "polls.reopen": "Buka kembali pemungutan suara",
   "post.conversationTitle": "Obrolan",
+  "post.saveAsText": "Simpan sebagai teks",
+  "post.saveAsTextLabel": "Simpan postingan yang ditampilkan di halaman ini sebagai file teks",
   "post.editSaved": "Suntinganmu disimpan.",
   "post.hideReplies.one": "Sembunyikan {count} balasan",
   "post.hideReplies.other": "Sembunyikan {count} balasan",

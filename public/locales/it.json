@@ -603,6 +603,8 @@
   "polls.close": "Chiudi la votazione",
   "polls.reopen": "Riapri la votazione",
   "post.conversationTitle": "Conversazione",
+  "post.saveAsText": "Salva come testo",
+  "post.saveAsTextLabel": "Salva i post mostrati in questa pagina come file di testo",
   "post.editSaved": "La tua modifica è stata salvata.",
   "post.hideReplies.one": "Nascondi {count} risposta",
   "post.hideReplies.other": "Nascondi {count} risposte",

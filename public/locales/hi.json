@@ -603,6 +603,8 @@
   "polls.close": "मतदान बंद करें",
   "polls.reopen": "मतदान फिर से खोलें",
   "post.conversationTitle": "बातचीत",
+  "post.saveAsText": "टेक्स्ट के रूप में सहेजें",
+  "post.saveAsTextLabel": "इस पेज पर दिखाई गई पोस्ट को टेक्स्ट फ़ाइल के रूप में सहेजें",
   "post.editSaved": "आपका एडिट सेव हो गया।",
   "post.hideReplies.one": "{count} जवाब छिपाएँ",
   "post.hideReplies.other": "{count} जवाब छिपाएँ",

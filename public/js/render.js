@@ -252,6 +252,8 @@ export const createPostCard = (post, document, currentUser = null) => {
   // visible label intentionally stays the creation time.
   time.dateTime = post.lastActivityAt ?? post.createdAt;
   time.textContent = new Date(post.createdAt).toLocaleString(currentLocale());
+  // Save as text (wave 5.26 F1) reads the creation time from here.
+  time.dataset.createdAt = String(post.createdAt ?? "");
   header.append(author, time);
   // (edited) marker (v2.4): data-driven off editedAt, which every serialized
   // post carries (null until the author's first edit). A muted token-styled
