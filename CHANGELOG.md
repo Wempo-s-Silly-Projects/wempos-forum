@@ -413,6 +413,12 @@ The big one, rolling up everything from 4.5 to 4.45.
 ### Removed
 - The **Unanswered** feed view (owner's call). Feeds keep Active and Newest.
 
+## [4.45.1] - 2026-11-21
+
+### Removed
+- The **Unanswered** feed view (owner's call). Feeds keep Active and Newest;
+  old links to the Unanswered view open the default view instead.
+
 ## [4.45.0] - 2026-11-21
 
 ### Fixed
@@ -713,35 +719,161 @@ The big one, rolling up everything from 4.5 to 4.45.
 - Drafts that save themselves, @mention suggestions, "New since your last
   visit" markers, and a thread at-a-glance strip.
 
-## [4.0.0] – [4.4.0] - 2026-11-05 to 2026-11-06
+## [4.4.0] - 2026-11-06
 
 ### Added
+- Member blocks, a Who's Online roster, and a banner that offers a reload
+  when a new version is live.
+
+### Fixed
+- Findings from the 4.4 code scan: the DM list, thread-subscription
+  notifications, profile post counts and default values in API replies.
+
+Note: the version in `package.json` was only caught up from 3.0.1 to 4.4.0 on
+2026-11-15; the 3.1 and 4.0–4.3 releases below were stamped in the code but
+never in `package.json`.
+
+## [4.0.0] – [4.3.x] - 2026-11-05 to 2026-11-06
+
+### Added
+- 4.0.1: optional two-factor sign-in with an authenticator app, and the
+  profile Message button opens the actual DM thread.
 - 4.2: a section-based moderation desk and fixes for ban appeals.
 - 4.3: the word filter moved into the database, with a desk editor and bulk
   add.
-- 4.4: member blocks, a Who's Online roster, and a banner that offers a reload
-  when a new version is live.
 
 ### Changed
 - 4.0: the server code was split from a few large files into small modules
   with a shared core, and the responsive layout was rebuilt.
+- 4.0: the longest allowed post grew to 4,750 characters.
 
-## [3.0.0] – [3.1.x] - 2026-10-16 to 2026-11-04
+## [3.1.x] - 2026-11-04
 
 ### Added
-- 3.0: installable on phones (PWA), forum rules page and site settings.
-- 3.1: auto-moderation, ban appeals, roles, network bans, categories, and live
-  chat with direct messages.
+- Auto-moderation, ban appeals, roles, network bans, categories, and live
+  chat with direct messages. Chat has its own full page.
+
+## [3.0.1] - 2026-10-17
+
+### Added
+- Strikethrough (`~~text~~`) in posts.
+- Author flairs and accent-coloured names on post cards.
+
+### Changed
+- The GIF library became the Gallery and now takes JPEG, PNG and WebP images
+  as well as GIFs.
+- Hidden posts, and posts by banned members, are no longer shown to anyone on
+  normal pages, including their author. Moderators and admins find them in a
+  new Hidden posts section of the moderation desk.
 
 ### Fixed
-- 3.0.1: fixes for live issues and gallery images; hidden posts moved to the
-  moderation desk.
+- A crash when using some buttons (profile reports, custom CSS review, saving
+  profile CSS).
+- Reaction thumbs that showed up blank.
+- The forum rules page not rendering.
 
-## [2.x] - 2026-10-10 to 2026-10-16
+## [3.0.0] - 2026-10-16
 
 ### Added
-- The first versions of the forum: boards, threads and replies, a version
-  stamp in the footer, public edit history, view counts, profile accent themes,
-  a "My posts" tab, a markdown subset, the Suggestions board, image
-  attachments, the GIF library, custom profile CSS, search by author and reply
-  text, and a leaderboard.
+- Installable on phones (PWA), with a bottom app bar on small screens and
+  larger touch targets.
+- A forum rules page and site settings.
+
+The 2.5 features were released to members as part of 3.0.0.
+
+## [2.5.0] - 2026-10-16
+
+### Added
+- Profile accent themes, custom profile CSS (sandboxed and approved by a
+  moderator), profile banners, flairs and badges, and a post counter on
+  profiles.
+- A red dot for unread notifications and a "My posts" tab above the composer.
+- A markdown subset in posts, and a Suggestions tab in the feed.
+- A GIF library with a picker in the composer.
+- Following threads, @mentions with notifications, polls with changeable
+  votes, private bookmarks, and pinned threads (admins).
+- Search by author and through reply text, and a weekly leaderboard.
+
+### Changed
+- Identical image uploads are stored once, and an image that was already
+  approved is approved again automatically.
+
+## [2.4.3] - 2026-10-16
+
+### Added
+- View counts: each card shows how many times a thread was opened by people
+  other than its author. Counts are for display only and do not change
+  sorting.
+
+## [2.4.2] - 2026-10-16
+
+### Changed
+- Version number bump only; the README was updated. No changes for members.
+
+## [2.4.1] - 2026-10-16
+
+### Added
+- The Suggestions board, sorted by reactions.
+- Authors can delete their own posts and their whole account.
+- Public edit history for posts.
+- A public archive of deleted posts, for accountability.
+
+### Changed
+- Banning a member hides their posts, and replies into a banned member's
+  threads are refused.
+- Header buttons became compact icons with tooltips, and the Turnstile check
+  follows the light or dark theme.
+
+## [2.4.0] - 2026-10-16
+
+### Added
+- Authors can edit their posts; edited posts show an "(edited)" marker.
+
+### Fixed
+- Image attachment sizing and spacing, including on narrow screens, and the
+  character counter when quoting.
+
+## [2.3.0] - 2026-10-15
+
+### Added
+- Thread cards show reply counts and previews of the latest replies, replies
+  cascade under the post they answer, and posts can be quoted.
+- A 1,000-character limit with a live counter in the composer.
+- Collapsible social links.
+
+### Fixed
+- The word filter matches whole words only.
+
+## [2.2.0] - 2026-10-15
+
+### Added
+- The version number is shown in the footer.
+- The word filter also checks usernames and bios.
+
+### Security
+- Hardening of image attachments after a final review.
+
+## [2.0.0] - 2026-10-15
+
+### Added
+- The second-generation forum: threads with replies, bumping, notifications,
+  moderation tools and social links on profiles.
+- Image attachments (including GIFs) on posts and replies, up to 10 MiB, with
+  a moderation queue.
+- Dark mode that follows your system setting, with a manual toggle.
+
+## [1.0.0] - 2026-10-14
+
+### Added
+- The first release on Cloudflare Workers with a D1 database: accounts, posts,
+  reactions, profile avatars, moderation and bans, and a locked first-admin
+  setup.
+- A Turnstile check against bots.
+
+### Security
+- Rate limits on sign-in attempts (per IP and per account), on avatar uploads
+  and on reactions.
+- Passwords hashed with a server-side pepper; bans and session revocation
+  applied atomically.
+- Origin and CSRF checks on every request that changes data, security headers
+  and HSTS.
