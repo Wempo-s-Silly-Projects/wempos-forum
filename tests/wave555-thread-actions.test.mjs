@@ -295,9 +295,9 @@ test("post.js organizes the root thread card; the module is DOM-safe, storage-fr
   assert.match(read("public/index.html"), /<link rel="modulepreload" href="\/js\/thread-actions\.js">/);
 });
 
-test("menu strings exist in en and all 45 locales", () => {
+test("menu strings exist in en and all 49 locales", () => {
   const files = readdirSync(new URL("../public/locales/", import.meta.url)).filter((name) => name.endsWith(".json"));
-  assert.equal(files.length, 45);
+  assert.equal(files.length, 49);
   const keys = ["threadActions.more", "threadActions.reading", "threadActions.following", "threadActions.sharing",
     "threadActions.thisPost", "threadActions.staff", "threadActions.editTags"];
   const en = JSON.parse(read("public/locales/en.json"));

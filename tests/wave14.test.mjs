@@ -282,7 +282,7 @@ test("strings: the new tradition keys exist in every locale, translated, placeho
     "traditions.galleryTitle", "traditions.galleryEmpty", "traditions.galleryLoadFailed", "traditions.galleryAlt"];
   const en = JSON.parse(read("public/locales/en.json"));
   const files = readdirSync(new URL("../public/locales/", import.meta.url)).filter((name) => name.endsWith(".json"));
-  assert.equal(files.length, 45);
+  assert.equal(files.length, 49);
   for (const file of files) {
     const bundle = JSON.parse(read("public/locales/" + file));
     for (const key of keys) {
