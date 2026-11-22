@@ -33,7 +33,7 @@ import { createReadAloud } from "./read-aloud.js";
 import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";
 import { isQotdBody } from "./traditions.js";
 import { createFoldedBody, isLongPost } from "./long-post.js";
-import { appendWordDiff, diffWords } from "./word-diff.js";
+import { DIFF_PANEL_CELL_BUDGET, appendWordDiff, diffWordsWithin } from "./word-diff.js";
 
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
@@ -701,10 +701,14 @@ export const closeEditForm = (article) => {
 // before it (the oldest stays plain). Both sides are masked BEFORE the diff,
 // so a spoiler never surfaces on either side; past the diff's word bound the
 // row falls back to the plain full version.
-function editDiffBody(document, older, newer) {
-  const runs = diffWords(maskSpoilers(older), maskSpoilers(newer));
-  if (!runs) return null;
-  return appendWordDiff(document, createElement(document, "p", "edit-history-body"), runs);
+// Diff budget (v5.54): the whole panel spends at most DIFF_PANEL_CELL_BUDGET
+// LCS cells; a version whose diff would overrun what is left shows plain, so
+// a post with many large edits never freezes the tab.
+function editDiffBody(document, older, newer, budget) {
+  const within = diffWordsWithin(maskSpoilers(older), maskSpoilers(newer), budget);
+  if (!within) return null;
+  const node = appendWordDiff(document, createElement(document, "p", "edit-history-body"), within.runs);
+  return { node, cells: within.cells };
 }
 
 export function renderEditHistoryPanel(document, edits, currentBody) {
@@ -716,6 +720,7 @@ export function renderEditHistoryPanel(document, edits, currentBody) {
     return panel;
   }
   const versions = typeof currentBody === "string" ? [{ current: true, body: currentBody }, ...edits] : edits;
+  let budget = DIFF_PANEL_CELL_BUDGET;
   versions.forEach((edit, index) => {
     const entry = createElement(document, "div", "edit-history-entry");
     let time;
@@ -727,9 +732,12 @@ export function renderEditHistoryPanel(document, edits, currentBody) {
       time.textContent = new Date(edit.editedAt).toLocaleString(currentLocale());
     }
     const older = versions[index + 1];
-    const diffed = older ? editDiffBody(document, String(older.body ?? ""), String(edit.body ?? "")) : null;
+    const diffed = older && budget > 0
+      ? editDiffBody(document, String(older.body ?? ""), String(edit.body ?? ""), budget)
+      : null;
+    if (diffed) budget -= diffed.cells;
     // Earlier versions show as plain text, so their spoilers stay masked.
-    const body = diffed ?? createElement(document, "p", "edit-history-body", maskSpoilers(edit.body));
+    const body = diffed?.node ?? createElement(document, "p", "edit-history-body", maskSpoilers(edit.body));
     entry.append(time, body);
     panel.append(entry);
   });
