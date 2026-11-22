@@ -639,16 +639,15 @@ async function createReply(env, args, ctx) {
   const [insertSql, insertValues] = withSlowModeGuard(THREAD_REPLY_INSERT_SQL, [
     agent.id, targetId, message, now, now, threadBoard, null, null, null,
     targetId, agent.id, now, null, agent.id, null], agent, bumpTargetId, now);
-  const results = await db.batch([
-    db.prepare(insertSql).bind(...insertValues),
-    db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId),
-  ]);
+  const results = await db.batch([db.prepare(insertSql).bind(...insertValues)]);
   if (Number(results[0]?.meta?.changes) !== 1) {
     // A parallel reply landed inside the cooldown: the same slow_mode refusal.
     await assertSlowModeAllows(db, agent, bumpTargetId);
     throw new HttpError(409, "The conversation is no longer public or your account cannot post.");
   }
   const replyId = Number(results[0].meta.last_row_id);
+  // L3 (v5.59): bump only after the INSERT landed, bound to the new reply row.
+  await db.prepare(REPLY_BUMP_SQL).bind(now, bumpTargetId, replyId).run();
   const recipientId = target.author_id === null || target.author_id === undefined ? null : Number(target.author_id);
   await replyFanOut(db, { agent, message, targetId, replyId, recipientId, bumpTargetId, now });
   return { id: replyId, url: ctx.origin + "/posts/" + replyId, parent_id: targetId };

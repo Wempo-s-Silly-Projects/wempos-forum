@@ -62,19 +62,23 @@ export const THREAD_REPLY_INSERT_STAGED_SQL = THREAD_REPLY_INSERT_SQL.replace(
   "SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ? WHERE EXISTS (",
 );
 
-// Reply replies bump their conversation root: last_activity_at = now on the
-// root row (id resolved in JS as the target root or the target's parent).
+// Replies bump their conversation root: last_activity_at = now on the root
+// row (id resolved in JS as the target root or the target's parent). Binds
+// (now, root id, reply id). The bump is tied to the new reply row itself
+// (v5.59, L3): callers send it only after the guarded INSERT reported one
+// changed row, and the EXISTS re-checks that this reply is public and sits
+// under this root, so a refused reply (slow mode, ban, archived key) never
+// moves the thread.
 export const REPLY_BUMP_SQL =
-  "UPDATE posts SET last_activity_at = MAX(COALESCE(last_activity_at, 0), ?) " +
-  "WHERE id = ? AND visibility = 'public' AND EXISTS (" +
-  "SELECT 1 FROM posts reply WHERE reply.parent_id = posts.id AND reply.visibility = 'public')";
-
-export const STAGED_REPLY_BUMP_SQL =
   "UPDATE posts SET last_activity_at = MAX(COALESCE(last_activity_at, 0), ?) " +
   "WHERE id = ? AND visibility = 'public' AND EXISTS (" +
   "SELECT 1 FROM posts reply LEFT JOIN posts target ON target.id = reply.parent_id " +
   "WHERE reply.id = ? AND reply.visibility = 'public' " +
   "AND (reply.parent_id = posts.id OR target.parent_id = posts.id))";
+
+// Attachment-bearing replies publish and bump together after their staged
+// batch commits; the same row-bound bump.
+export const STAGED_REPLY_BUMP_SQL = REPLY_BUMP_SQL;
 
 export const RATE_LIMIT_BINDINGS = Object.freeze({
   read: "READ_RATE_LIMITER",
