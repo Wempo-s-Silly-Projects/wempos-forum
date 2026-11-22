@@ -2339,11 +2339,14 @@ mark.search-hit {
   .chat-unread-pulse { animation: none; }
 }
 
-/* DM thread view: chat bubbles. Own messages align right in the filled
-   bubble; other messages stay on the paper card. */
+/* DM thread view: chat bubbles. Own messages align to the end in the filled
+   bubble; other messages stay on the paper card. v5.73 (B1): a bubble is as
+   wide as its text (fit-content) up to the 78% cap, and its width depends on
+   content only, never on hover, focus or selection. */
 .dm-thread-view .chat-message-body {
-  display: inline-block;
-  max-width: 78%;
+  display: block;
+  width: fit-content;
+  max-inline-size: 78%;
   padding: 0.45rem 0.7rem;
   border-radius: var(--button-radius);
   background: var(--field);
@@ -2358,6 +2361,7 @@ mark.search-hit {
 }
 .dm-thread-view .chat-message.chat-mine .chat-message-author { color: var(--muted); }
 .dm-thread-view .chat-message.chat-mine .chat-message-body {
+  align-self: end;
   background: var(--green);
   color: #fff;
   border-color: transparent;
@@ -2659,7 +2663,8 @@ mark.search-hit {
   padding: 0.6rem 0.75rem;
 }
 .chat-widget-message {
-  max-width: 85%;
+  width: fit-content;
+  max-inline-size: 85%;
   padding: 0.45rem 0.6rem;
   border: 1px solid var(--line);
   border-radius: var(--button-radius);
