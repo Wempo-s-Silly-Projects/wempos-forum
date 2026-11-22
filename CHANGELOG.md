@@ -15,6 +15,24 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.28.0] - 2026-11-21
+
+### Security
+- Security review of everything shipped in 5.24–5.27 (reply links, quiet
+  hours, save as text, the reading progress bar, reading comfort and high
+  contrast). The full write-up is in
+  [docs/security-reviews/2026-11-21-v5.24-v5.27.md](docs/security-reviews/2026-11-21-v5.24-v5.27.md).
+- Nothing needed fixing. One low-risk note: a thread saved as text while
+  the reply filter is in use still includes the replies the filter is
+  hiding (they are replies you could already see by clearing the filter).
+- New automated checks that a reply link in the address bar can only ever
+  pick a reply that is already on the page, that saved thread files never
+  include unrevealed spoilers, unsent edits or old versions, that their
+  file names can't carry odd or hidden characters, that the settings kept
+  after sign-out never hold account details, that high contrast never
+  reveals a spoiler or hides the "Source code" link, and that the reading
+  progress bar never piles up listeners.
+
 ## [5.27.0] - 2026-11-21
 
 ### Added
