@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Paylaşma",
   "threadActions.thisPost": "Bu yazı",
   "threadActions.staff": "Heyət",
-  "threadActions.editTags": "Teqləri redaktə et"
+  "threadActions.editTags": "Teqləri redaktə et",
+  "profile2.contrastLight": "İşıqlı temada oxumaq çətindir (kontrast {ratio}:1).",
+  "profile2.contrastDark": "Qaranlıq temada oxumaq çətindir (kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Ağ banner mətni bu rəngdə çətin oxunur (kontrast {ratio}:1).",
+  "profile2.contrastUse": "{color} istifadə et",
+  "profile2.pickerOpen": "Rəng seçicini aç",
+  "profile2.pickerClear": "Təmizlə",
+  "profile2.cropTitle": "Şəklini kəs",
+  "profile2.cropUse": "Bu kəsimi istifadə et",
+  "profile2.headerLabel": "Profil başlığı",
+  "profile2.headerNone": "Sadə",
+  "profile2.headerTint": "Şəklimdən çalar",
+  "profile2.headerDots": "Nöqtələr",
+  "profile2.headerStripes": "Zolaqlar",
+  "profile2.headerGrid": "Şəbəkə"
 }

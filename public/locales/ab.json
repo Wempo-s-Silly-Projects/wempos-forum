@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Ашара",
   "threadActions.thisPost": "Ари аҭыжьымҭа",
   "threadActions.staff": "Аперсонал",
-  "threadActions.editTags": "Атегқәа рыриашара"
+  "threadActions.editTags": "Атегқәа рыриашара",
+  "profile2.contrastLight": "Алашара атемаҟны аԥхьара уадаҩуп (аконтраст {ratio}:1).",
+  "profile2.contrastDark": "Алашьцара атемаҟны аԥхьара уадаҩуп (аконтраст {ratio}:1).",
+  "profile2.contrastBanner": "Ари аԥштәы аҟны абаннер ашкәакәа атеқст аԥхьара уадаҩуп (аконтраст {ratio}:1).",
+  "profile2.contrastUse": "{color} ахархәара",
+  "profile2.pickerOpen": "Аԥштәы алхра аартра",
+  "profile2.pickerClear": "Ацқьара",
+  "profile2.cropTitle": "Иуфото ахырхра",
+  "profile2.cropUse": "Ари ахырхра ахархәара",
+  "profile2.headerLabel": "Апрофиль ахы",
+  "profile2.headerNone": "Иармариоу",
+  "profile2.headerTint": "Сфото аҟынтә аԥштәы",
+  "profile2.headerDots": "Акәаԥқәа",
+  "profile2.headerStripes": "Аҵәаӷәақәа",
+  "profile2.headerGrid": "Ацәаҳәақәа"
 }

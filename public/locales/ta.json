@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "பகிர்தல்",
   "threadActions.thisPost": "இந்த இடுகை",
   "threadActions.staff": "பணியாளர்கள்",
-  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து"
+  "threadActions.editTags": "குறிச்சொற்களைத் திருத்து",
+  "profile2.contrastLight": "வெளிர் தீமில் படிப்பது கடினம் (வேறுபாடு {ratio}:1).",
+  "profile2.contrastDark": "இருண்ட தீமில் படிப்பது கடினம் (வேறுபாடு {ratio}:1).",
+  "profile2.contrastBanner": "இந்த நிறத்தில் பேனரின் வெள்ளை உரையைப் படிப்பது கடினம் (வேறுபாடு {ratio}:1).",
+  "profile2.contrastUse": "{color} பயன்படுத்து",
+  "profile2.pickerOpen": "நிறத் தேர்வியைத் திற",
+  "profile2.pickerClear": "அழி",
+  "profile2.cropTitle": "உங்கள் படத்தை செதுக்குங்கள்",
+  "profile2.cropUse": "இந்த செதுக்கலைப் பயன்படுத்து",
+  "profile2.headerLabel": "சுயவிவரத் தலைப்பு",
+  "profile2.headerNone": "எளிமை",
+  "profile2.headerTint": "என் படத்திலிருந்து நிறச்சாயல்",
+  "profile2.headerDots": "புள்ளிகள்",
+  "profile2.headerStripes": "கோடுகள்",
+  "profile2.headerGrid": "கட்டம்"
 }

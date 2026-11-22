@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Kugawana",
   "threadActions.thisPost": "Positi iyi",
   "threadActions.staff": "Oyang'anira",
-  "threadActions.editTags": "Sinthani matagi"
+  "threadActions.editTags": "Sinthani matagi",
+  "profile2.contrastLight": "Ndizovuta kuwerenga pa mutu wowala (kusiyana {ratio}:1).",
+  "profile2.contrastDark": "Ndizovuta kuwerenga pa mutu wakuda (kusiyana {ratio}:1).",
+  "profile2.contrastBanner": "Mawu oyera a mbendera ndi ovuta kuwerenga pa mtundu uwu (kusiyana {ratio}:1).",
+  "profile2.contrastUse": "Gwiritsani {color}",
+  "profile2.pickerOpen": "Tsegulani chosankha mtundu",
+  "profile2.pickerClear": "Chotsani",
+  "profile2.cropTitle": "Dulani chithunzi chanu",
+  "profile2.cropUse": "Gwiritsani chodulidwachi",
+  "profile2.headerLabel": "Mutu wa mbiri",
+  "profile2.headerNone": "Wamba",
+  "profile2.headerTint": "Mtundu wochokera pa chithunzi changa",
+  "profile2.headerDots": "Madontho",
+  "profile2.headerStripes": "Mizere",
+  "profile2.headerGrid": "Gridi"
 }

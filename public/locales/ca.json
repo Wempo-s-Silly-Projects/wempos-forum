@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Aquesta publicació",
   "threadActions.staff": "Equip",
-  "threadActions.editTags": "Edita les etiquetes"
+  "threadActions.editTags": "Edita les etiquetes",
+  "profile2.contrastLight": "Costa de llegir al tema clar (contrast {ratio}:1).",
+  "profile2.contrastDark": "Costa de llegir al tema fosc (contrast {ratio}:1).",
+  "profile2.contrastBanner": "El text blanc del bàner costa de llegir sobre aquest color (contrast {ratio}:1).",
+  "profile2.contrastUse": "Fes servir {color}",
+  "profile2.pickerOpen": "Obre el selector de color",
+  "profile2.pickerClear": "Esborra",
+  "profile2.cropTitle": "Retalla la teva imatge",
+  "profile2.cropUse": "Fes servir aquest retall",
+  "profile2.headerLabel": "Capçalera del perfil",
+  "profile2.headerNone": "Senzilla",
+  "profile2.headerTint": "To de la meva imatge",
+  "profile2.headerDots": "Punts",
+  "profile2.headerStripes": "Ratlles",
+  "profile2.headerGrid": "Quadrícula"
 }

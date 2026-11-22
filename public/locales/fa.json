@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "اشتراک‌گذاری",
   "threadActions.thisPost": "این پست",
   "threadActions.staff": "کادر",
-  "threadActions.editTags": "ویرایش برچسب‌ها"
+  "threadActions.editTags": "ویرایش برچسب‌ها",
+  "profile2.contrastLight": "در پوستهٔ روشن خواندنش دشوار است (کنتراست {ratio}:1).",
+  "profile2.contrastDark": "در پوستهٔ تیره خواندنش دشوار است (کنتراست {ratio}:1).",
+  "profile2.contrastBanner": "متن سفید بنر روی این رنگ به‌سختی خوانده می‌شود (کنتراست {ratio}:1).",
+  "profile2.contrastUse": "استفاده از {color}",
+  "profile2.pickerOpen": "باز کردن انتخابگر رنگ",
+  "profile2.pickerClear": "پاک کردن",
+  "profile2.cropTitle": "تصویرتان را برش دهید",
+  "profile2.cropUse": "استفاده از این برش",
+  "profile2.headerLabel": "سربرگ نمایه",
+  "profile2.headerNone": "ساده",
+  "profile2.headerTint": "رنگ از تصویر من",
+  "profile2.headerDots": "نقطه‌ها",
+  "profile2.headerStripes": "راه‌راه",
+  "profile2.headerGrid": "شبکه"
 }

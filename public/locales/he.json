@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "שיתוף",
   "threadActions.thisPost": "הפוסט הזה",
   "threadActions.staff": "צוות",
-  "threadActions.editTags": "עריכת תגיות"
+  "threadActions.editTags": "עריכת תגיות",
+  "profile2.contrastLight": "קשה לקריאה בערכת הנושא הבהירה (ניגודיות {ratio}:1).",
+  "profile2.contrastDark": "קשה לקריאה בערכת הנושא הכהה (ניגודיות {ratio}:1).",
+  "profile2.contrastBanner": "טקסט הבאנר הלבן קשה לקריאה על הצבע הזה (ניגודיות {ratio}:1).",
+  "profile2.contrastUse": "שימוש ב־{color}",
+  "profile2.pickerOpen": "פתיחת בוחר הצבעים",
+  "profile2.pickerClear": "ניקוי",
+  "profile2.cropTitle": "חיתוך התמונה שלך",
+  "profile2.cropUse": "שימוש בחיתוך הזה",
+  "profile2.headerLabel": "כותרת הפרופיל",
+  "profile2.headerNone": "פשוטה",
+  "profile2.headerTint": "גוון מהתמונה שלי",
+  "profile2.headerDots": "נקודות",
+  "profile2.headerStripes": "פסים",
+  "profile2.headerGrid": "רשת"
 }

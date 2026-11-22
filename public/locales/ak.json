@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Kyɛ",
   "threadActions.thisPost": "Nkyerɛwee yi",
   "threadActions.staff": "Adwumayɛfo",
-  "threadActions.editTags": "Sesa agyiraehyɛde"
+  "threadActions.editTags": "Sesa agyiraehyɛde",
+  "profile2.contrastLight": "Ɛyɛ den sɛ wobɛkenkan wɔ hann theme no so (contrast {ratio}:1).",
+  "profile2.contrastDark": "Ɛyɛ den sɛ wobɛkenkan wɔ sum theme no so (contrast {ratio}:1).",
+  "profile2.contrastBanner": "Banner nkyerɛwee fitaa no yɛ den sɛ wobɛkenkan wɔ kɔla yi so (contrast {ratio}:1).",
+  "profile2.contrastUse": "Fa {color} di dwuma",
+  "profile2.pickerOpen": "Bue kɔla paw",
+  "profile2.pickerClear": "Popa",
+  "profile2.cropTitle": "Twa wo mfonini",
+  "profile2.cropUse": "Fa ntwa yi di dwuma",
+  "profile2.headerLabel": "Profile ti",
+  "profile2.headerNone": "Hwee nni so",
+  "profile2.headerTint": "Kɔla firi me mfonini mu",
+  "profile2.headerDots": "Nsensanee ketewa",
+  "profile2.headerStripes": "Nsensanee",
+  "profile2.headerGrid": "Nkyɛmu"
 }

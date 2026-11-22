@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Berbagi",
   "threadActions.thisPost": "Postingan ini",
   "threadActions.staff": "Staf",
-  "threadActions.editTags": "Edit tag"
+  "threadActions.editTags": "Edit tag",
+  "profile2.contrastLight": "Sulit dibaca pada tema terang (kontras {ratio}:1).",
+  "profile2.contrastDark": "Sulit dibaca pada tema gelap (kontras {ratio}:1).",
+  "profile2.contrastBanner": "Teks banner putih sulit dibaca pada warna ini (kontras {ratio}:1).",
+  "profile2.contrastUse": "Gunakan {color}",
+  "profile2.pickerOpen": "Buka pemilih warna",
+  "profile2.pickerClear": "Hapus",
+  "profile2.cropTitle": "Pangkas gambar Anda",
+  "profile2.cropUse": "Gunakan potongan ini",
+  "profile2.headerLabel": "Kepala profil",
+  "profile2.headerNone": "Polos",
+  "profile2.headerTint": "Rona dari gambar saya",
+  "profile2.headerDots": "Titik",
+  "profile2.headerStripes": "Garis",
+  "profile2.headerGrid": "Kisi"
 }

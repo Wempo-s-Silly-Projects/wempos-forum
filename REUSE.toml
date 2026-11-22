@@ -68,3 +68,37 @@ path = "public/js/vendor/**"
 precedence = "override"
 SPDX-FileCopyrightText = "Lea Verou and PrismJS contributors"
 SPDX-License-Identifier = "MIT"
+
+# Batch I (profiles and identity): browser libraries vendored byte-for-byte
+# from their published package tarballs, no added banner, sha256-pinned by
+# tests/profile2-identity.test.mjs. All MIT (AGPL-3.0-or-later compatible).
+# These later, narrower tables override the Prism holder above for their files.
+[[annotations]]
+path = ["public/js/vendor/colord.mjs", "public/js/vendor/colord-a11y.mjs"]
+precedence = "override"
+SPDX-FileCopyrightText = "2020 Vlad Shilov"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["public/js/vendor/coloris.min.js", "public/js/vendor/coloris.min.css"]
+precedence = "override"
+SPDX-FileCopyrightText = "2021 Melloware"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/minidenticons.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2021 Laurent Payot"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["public/js/vendor/cropper.esm.js", "public/js/vendor/cropper.min.css"]
+precedence = "override"
+SPDX-FileCopyrightText = "2015-present Chen Fengyuan"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "public/js/vendor/vibrant.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = ["2015 Jari Zwarts", "2015 AKFish"]
+SPDX-License-Identifier = "MIT"

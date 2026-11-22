@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "साझा करना",
   "threadActions.thisPost": "यह पोस्ट",
   "threadActions.staff": "स्टाफ़",
-  "threadActions.editTags": "टैग संपादित करें"
+  "threadActions.editTags": "टैग संपादित करें",
+  "profile2.contrastLight": "हल्की थीम पर पढ़ना कठिन है (कंट्रास्ट {ratio}:1)।",
+  "profile2.contrastDark": "गहरी थीम पर पढ़ना कठिन है (कंट्रास्ट {ratio}:1)।",
+  "profile2.contrastBanner": "इस रंग पर बैनर का सफ़ेद टेक्स्ट पढ़ना कठिन है (कंट्रास्ट {ratio}:1)।",
+  "profile2.contrastUse": "{color} इस्तेमाल करें",
+  "profile2.pickerOpen": "रंग चुनने वाला खोलें",
+  "profile2.pickerClear": "साफ़ करें",
+  "profile2.cropTitle": "अपनी तस्वीर क्रॉप करें",
+  "profile2.cropUse": "यह क्रॉप इस्तेमाल करें",
+  "profile2.headerLabel": "प्रोफ़ाइल हेडर",
+  "profile2.headerNone": "सादा",
+  "profile2.headerTint": "मेरी तस्वीर से रंगत",
+  "profile2.headerDots": "बिंदु",
+  "profile2.headerStripes": "धारियाँ",
+  "profile2.headerGrid": "ग्रिड"
 }

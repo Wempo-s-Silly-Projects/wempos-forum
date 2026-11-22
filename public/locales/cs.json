@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Sdílení",
   "threadActions.thisPost": "Tento příspěvek",
   "threadActions.staff": "Tým",
-  "threadActions.editTags": "Upravit štítky"
+  "threadActions.editTags": "Upravit štítky",
+  "profile2.contrastLight": "Ve světlém motivu se špatně čte (kontrast {ratio}:1).",
+  "profile2.contrastDark": "V tmavém motivu se špatně čte (kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Bílý text banneru se na této barvě špatně čte (kontrast {ratio}:1).",
+  "profile2.contrastUse": "Použít {color}",
+  "profile2.pickerOpen": "Otevřít výběr barvy",
+  "profile2.pickerClear": "Vymazat",
+  "profile2.cropTitle": "Ořízněte svůj obrázek",
+  "profile2.cropUse": "Použít tento ořez",
+  "profile2.headerLabel": "Záhlaví profilu",
+  "profile2.headerNone": "Prosté",
+  "profile2.headerTint": "Odstín z mého obrázku",
+  "profile2.headerDots": "Tečky",
+  "profile2.headerStripes": "Pruhy",
+  "profile2.headerGrid": "Mřížka"
 }

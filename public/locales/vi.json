@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Chia sẻ",
   "threadActions.thisPost": "Bài viết này",
   "threadActions.staff": "Ban quản trị",
-  "threadActions.editTags": "Sửa thẻ"
+  "threadActions.editTags": "Sửa thẻ",
+  "profile2.contrastLight": "Khó đọc trên giao diện sáng (độ tương phản {ratio}:1).",
+  "profile2.contrastDark": "Khó đọc trên giao diện tối (độ tương phản {ratio}:1).",
+  "profile2.contrastBanner": "Chữ trắng trên biểu ngữ khó đọc với màu này (độ tương phản {ratio}:1).",
+  "profile2.contrastUse": "Dùng {color}",
+  "profile2.pickerOpen": "Mở bộ chọn màu",
+  "profile2.pickerClear": "Xóa",
+  "profile2.cropTitle": "Cắt ảnh của bạn",
+  "profile2.cropUse": "Dùng vùng cắt này",
+  "profile2.headerLabel": "Đầu trang hồ sơ",
+  "profile2.headerNone": "Đơn giản",
+  "profile2.headerTint": "Sắc màu từ ảnh của tôi",
+  "profile2.headerDots": "Chấm bi",
+  "profile2.headerStripes": "Sọc",
+  "profile2.headerGrid": "Lưới"
 }

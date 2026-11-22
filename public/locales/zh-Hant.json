@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "分享",
   "threadActions.thisPost": "這篇貼文",
   "threadActions.staff": "管理團隊",
-  "threadActions.editTags": "編輯標籤"
+  "threadActions.editTags": "編輯標籤",
+  "profile2.contrastLight": "在淺色主題下難以閱讀（對比度 {ratio}:1）。",
+  "profile2.contrastDark": "在深色主題下難以閱讀（對比度 {ratio}:1）。",
+  "profile2.contrastBanner": "橫幅上的白色文字在此顏色上難以閱讀（對比度 {ratio}:1）。",
+  "profile2.contrastUse": "使用 {color}",
+  "profile2.pickerOpen": "開啟取色器",
+  "profile2.pickerClear": "清除",
+  "profile2.cropTitle": "裁切你的圖片",
+  "profile2.cropUse": "使用此裁切",
+  "profile2.headerLabel": "個人檔案頁首",
+  "profile2.headerNone": "簡潔",
+  "profile2.headerTint": "取自我的圖片的色調",
+  "profile2.headerDots": "圓點",
+  "profile2.headerStripes": "條紋",
+  "profile2.headerGrid": "格線"
 }

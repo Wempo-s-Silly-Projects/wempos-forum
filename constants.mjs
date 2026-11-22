@@ -193,3 +193,15 @@ export const EXPORT_SECTION_CAPS = Object.freeze({
 // this file; tests/wave574-prism.test.mjs pins them equal).
 export const CODE_LINE_NUMBERS_MIN_LINES = 5;
 export const CODE_HIGHLIGHT_MAX_CHARS = 20000;
+
+// Batch I (profiles and identity). The client mirrors each of these (it
+// cannot import this file); tests/profile2-identity.test.mjs pins them equal.
+// WCAG AA contrast floor for member-chosen text colours (accent on the light
+// and dark paper, white banner text on the banner colour).
+export const PROFILE_CONTRAST_MIN = 4.5;
+// Edge length (px) of the square canvas the avatar cropper produces.
+export const AVATAR_CROP_SIZE = 512;
+// Profile header decorations a member may pick ("" = plain). "tint" takes a
+// colour from the member's own same-origin avatar; the rest are static
+// zero-image CSS patterns.
+export const PROFILE_HEADER_STYLES = Object.freeze(["", "tint", "dots", "stripes", "grid"]);

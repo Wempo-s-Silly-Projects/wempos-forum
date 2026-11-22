@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "শেয়ার করা",
   "threadActions.thisPost": "এই পোস্ট",
   "threadActions.staff": "কর্মী দল",
-  "threadActions.editTags": "ট্যাগ সম্পাদনা"
+  "threadActions.editTags": "ট্যাগ সম্পাদনা",
+  "profile2.contrastLight": "হালকা থিমে পড়তে কষ্ট হয় (কনট্রাস্ট {ratio}:1)।",
+  "profile2.contrastDark": "গাঢ় থিমে পড়তে কষ্ট হয় (কনট্রাস্ট {ratio}:1)।",
+  "profile2.contrastBanner": "এই রঙে সাদা ব্যানার লেখা পড়তে কষ্ট হয় (কনট্রাস্ট {ratio}:1)।",
+  "profile2.contrastUse": "{color} ব্যবহার করুন",
+  "profile2.pickerOpen": "রং বাছাই খুলুন",
+  "profile2.pickerClear": "মুছুন",
+  "profile2.cropTitle": "আপনার ছবি ক্রপ করুন",
+  "profile2.cropUse": "এই ক্রপ ব্যবহার করুন",
+  "profile2.headerLabel": "প্রোফাইলের হেডার",
+  "profile2.headerNone": "সাধারণ",
+  "profile2.headerTint": "আমার ছবি থেকে রং",
+  "profile2.headerDots": "বিন্দু",
+  "profile2.headerStripes": "ডোরা",
+  "profile2.headerGrid": "গ্রিড"
 }

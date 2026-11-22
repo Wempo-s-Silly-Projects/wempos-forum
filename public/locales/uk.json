@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Поширення",
   "threadActions.thisPost": "Цей допис",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Змінити теги"
+  "threadActions.editTags": "Змінити теги",
+  "profile2.contrastLight": "Важко читати у світлій темі (контраст {ratio}:1).",
+  "profile2.contrastDark": "Важко читати в темній темі (контраст {ratio}:1).",
+  "profile2.contrastBanner": "Білий текст банера погано читається на цьому кольорі (контраст {ratio}:1).",
+  "profile2.contrastUse": "Використати {color}",
+  "profile2.pickerOpen": "Відкрити вибір кольору",
+  "profile2.pickerClear": "Очистити",
+  "profile2.cropTitle": "Обріжте зображення",
+  "profile2.cropUse": "Використати це обрізання",
+  "profile2.headerLabel": "Шапка профілю",
+  "profile2.headerNone": "Проста",
+  "profile2.headerTint": "Відтінок із мого зображення",
+  "profile2.headerDots": "Крапки",
+  "profile2.headerStripes": "Смуги",
+  "profile2.headerGrid": "Сітка"
 }

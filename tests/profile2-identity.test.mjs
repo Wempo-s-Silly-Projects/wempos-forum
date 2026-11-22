@@ -116,7 +116,10 @@ test("the contrast floor lives in constants.mjs and the client mirrors it", () =
 test("contrast maths follows WCAG 2 relative luminance", () => {
   assert.equal(contrastRatio("#000000", "#ffffff"), 21);
   assert.equal(contrastRatio("#ffffff", "#ffffff"), 1);
-  assert.equal(contrastRatio("#777777", "#ffffff"), 4.48);
+  // WCAG's exact value is 4.478...; colord truncates to two decimals, which
+  // can only under-state a ratio (the safe direction for a floor check).
+  assert.equal(contrastRatio("#777777", "#ffffff"), 4.47);
+  assert.ok(contrastRatio("#777777", "#ffffff") < PROFILE_CONTRAST_MIN);
 });
 
 test("an accent is checked against both themes, with a fix that passes the failing one", () => {

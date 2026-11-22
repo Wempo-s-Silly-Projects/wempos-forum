@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Дељење",
   "threadActions.thisPost": "Ова објава",
   "threadActions.staff": "Особље",
-  "threadActions.editTags": "Уреди ознаке"
+  "threadActions.editTags": "Уреди ознаке",
+  "profile2.contrastLight": "Тешко се чита у светлој теми (контраст {ratio}:1).",
+  "profile2.contrastDark": "Тешко се чита у тамној теми (контраст {ratio}:1).",
+  "profile2.contrastBanner": "Бели текст банера тешко се чита на овој боји (контраст {ratio}:1).",
+  "profile2.contrastUse": "Користи {color}",
+  "profile2.pickerOpen": "Отвори бирач боја",
+  "profile2.pickerClear": "Очисти",
+  "profile2.cropTitle": "Исеците своју слику",
+  "profile2.cropUse": "Користи овај исечак",
+  "profile2.headerLabel": "Заглавље профила",
+  "profile2.headerNone": "Обично",
+  "profile2.headerTint": "Нијанса из моје слике",
+  "profile2.headerDots": "Тачкице",
+  "profile2.headerStripes": "Пруге",
+  "profile2.headerGrid": "Мрежа"
 }

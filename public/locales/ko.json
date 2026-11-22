@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "공유",
   "threadActions.thisPost": "이 게시물",
   "threadActions.staff": "운영진",
-  "threadActions.editTags": "태그 편집"
+  "threadActions.editTags": "태그 편집",
+  "profile2.contrastLight": "밝은 테마에서 읽기 어렵습니다(대비 {ratio}:1).",
+  "profile2.contrastDark": "어두운 테마에서 읽기 어렵습니다(대비 {ratio}:1).",
+  "profile2.contrastBanner": "이 색에서는 배너의 흰 글자를 읽기 어렵습니다(대비 {ratio}:1).",
+  "profile2.contrastUse": "{color} 사용",
+  "profile2.pickerOpen": "색상 선택기 열기",
+  "profile2.pickerClear": "지우기",
+  "profile2.cropTitle": "사진 자르기",
+  "profile2.cropUse": "이대로 자르기",
+  "profile2.headerLabel": "프로필 헤더",
+  "profile2.headerNone": "기본",
+  "profile2.headerTint": "내 사진에서 색조 가져오기",
+  "profile2.headerDots": "점",
+  "profile2.headerStripes": "줄무늬",
+  "profile2.headerGrid": "격자"
 }

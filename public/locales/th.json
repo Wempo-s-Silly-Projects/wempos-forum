@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "การแชร์",
   "threadActions.thisPost": "โพสต์นี้",
   "threadActions.staff": "ทีมงาน",
-  "threadActions.editTags": "แก้ไขแท็ก"
+  "threadActions.editTags": "แก้ไขแท็ก",
+  "profile2.contrastLight": "อ่านยากในธีมสว่าง (คอนทราสต์ {ratio}:1)",
+  "profile2.contrastDark": "อ่านยากในธีมมืด (คอนทราสต์ {ratio}:1)",
+  "profile2.contrastBanner": "ข้อความสีขาวบนแบนเนอร์อ่านยากบนสีนี้ (คอนทราสต์ {ratio}:1)",
+  "profile2.contrastUse": "ใช้ {color}",
+  "profile2.pickerOpen": "เปิดตัวเลือกสี",
+  "profile2.pickerClear": "ล้าง",
+  "profile2.cropTitle": "ครอปรูปของคุณ",
+  "profile2.cropUse": "ใช้การครอปนี้",
+  "profile2.headerLabel": "ส่วนหัวโปรไฟล์",
+  "profile2.headerNone": "เรียบ",
+  "profile2.headerTint": "โทนสีจากรูปของฉัน",
+  "profile2.headerDots": "จุด",
+  "profile2.headerStripes": "ลายทาง",
+  "profile2.headerGrid": "ตาราง"
 }

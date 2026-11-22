@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Կիսվել",
   "threadActions.thisPost": "Այս գրառումը",
   "threadActions.staff": "Անձնակազմ",
-  "threadActions.editTags": "Խմբագրել պիտակները"
+  "threadActions.editTags": "Խմբագրել պիտակները",
+  "profile2.contrastLight": "Բաց թեմայում դժվար է կարդալ (կոնտրաստ {ratio}:1).",
+  "profile2.contrastDark": "Մուգ թեմայում դժվար է կարդալ (կոնտրաստ {ratio}:1).",
+  "profile2.contrastBanner": "Բանների սպիտակ տեքստը դժվար է կարդալ այս գույնի վրա (կոնտրաստ {ratio}:1).",
+  "profile2.contrastUse": "Օգտագործել {color}",
+  "profile2.pickerOpen": "Բացել գույնի ընտրիչը",
+  "profile2.pickerClear": "Մաքրել",
+  "profile2.cropTitle": "Կտրեք ձեր նկարը",
+  "profile2.cropUse": "Օգտագործել այս կտրվածքը",
+  "profile2.headerLabel": "Պրոֆիլի վերնագիր",
+  "profile2.headerNone": "Պարզ",
+  "profile2.headerTint": "Երանգ իմ նկարից",
+  "profile2.headerDots": "Կետեր",
+  "profile2.headerStripes": "Շերտեր",
+  "profile2.headerGrid": "Ցանց"
 }

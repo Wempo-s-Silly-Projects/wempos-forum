@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Zdieľanie",
   "threadActions.thisPost": "Tento príspevok",
   "threadActions.staff": "Tím",
-  "threadActions.editTags": "Upraviť štítky"
+  "threadActions.editTags": "Upraviť štítky",
+  "profile2.contrastLight": "V svetlom motíve sa zle číta (kontrast {ratio}:1).",
+  "profile2.contrastDark": "V tmavom motíve sa zle číta (kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Biely text bannera sa na tejto farbe zle číta (kontrast {ratio}:1).",
+  "profile2.contrastUse": "Použiť {color}",
+  "profile2.pickerOpen": "Otvoriť výber farby",
+  "profile2.pickerClear": "Vymazať",
+  "profile2.cropTitle": "Orežte svoj obrázok",
+  "profile2.cropUse": "Použiť tento orez",
+  "profile2.headerLabel": "Hlavička profilu",
+  "profile2.headerNone": "Jednoduché",
+  "profile2.headerTint": "Odtieň z môjho obrázka",
+  "profile2.headerDots": "Bodky",
+  "profile2.headerStripes": "Pruhy",
+  "profile2.headerGrid": "Mriežka"
 }

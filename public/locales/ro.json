@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Distribuire",
   "threadActions.thisPost": "Această postare",
   "threadActions.staff": "Echipă",
-  "threadActions.editTags": "Editează etichetele"
+  "threadActions.editTags": "Editează etichetele",
+  "profile2.contrastLight": "Greu de citit în tema luminoasă (contrast {ratio}:1).",
+  "profile2.contrastDark": "Greu de citit în tema întunecată (contrast {ratio}:1).",
+  "profile2.contrastBanner": "Textul alb al bannerului se citește greu pe această culoare (contrast {ratio}:1).",
+  "profile2.contrastUse": "Folosește {color}",
+  "profile2.pickerOpen": "Deschide selectorul de culoare",
+  "profile2.pickerClear": "Golește",
+  "profile2.cropTitle": "Decupează-ți imaginea",
+  "profile2.cropUse": "Folosește această decupare",
+  "profile2.headerLabel": "Antetul profilului",
+  "profile2.headerNone": "Simplu",
+  "profile2.headerTint": "Nuanță din imaginea mea",
+  "profile2.headerDots": "Buline",
+  "profile2.headerStripes": "Dungi",
+  "profile2.headerGrid": "Grilă"
 }

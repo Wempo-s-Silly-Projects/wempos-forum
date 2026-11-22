@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Поделиться",
   "threadActions.thisPost": "Этот пост",
   "threadActions.staff": "Команда",
-  "threadActions.editTags": "Изменить теги"
+  "threadActions.editTags": "Изменить теги",
+  "profile2.contrastLight": "Трудно читать в светлой теме (контраст {ratio}:1).",
+  "profile2.contrastDark": "Трудно читать в тёмной теме (контраст {ratio}:1).",
+  "profile2.contrastBanner": "Белый текст баннера плохо читается на этом цвете (контраст {ratio}:1).",
+  "profile2.contrastUse": "Использовать {color}",
+  "profile2.pickerOpen": "Открыть выбор цвета",
+  "profile2.pickerClear": "Очистить",
+  "profile2.cropTitle": "Обрежьте изображение",
+  "profile2.cropUse": "Использовать эту обрезку",
+  "profile2.headerLabel": "Шапка профиля",
+  "profile2.headerNone": "Простая",
+  "profile2.headerTint": "Оттенок из моего изображения",
+  "profile2.headerDots": "Точки",
+  "profile2.headerStripes": "Полосы",
+  "profile2.headerGrid": "Сетка"
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Megosztás",
   "threadActions.thisPost": "Ez a bejegyzés",
   "threadActions.staff": "Csapat",
-  "threadActions.editTags": "Címkék szerkesztése"
+  "threadActions.editTags": "Címkék szerkesztése",
+  "profile2.contrastLight": "Világos témában nehezen olvasható (kontraszt {ratio}:1).",
+  "profile2.contrastDark": "Sötét témában nehezen olvasható (kontraszt {ratio}:1).",
+  "profile2.contrastBanner": "A fehér szalagszöveg nehezen olvasható ezen a színen (kontraszt {ratio}:1).",
+  "profile2.contrastUse": "{color} használata",
+  "profile2.pickerOpen": "Színválasztó megnyitása",
+  "profile2.pickerClear": "Törlés",
+  "profile2.cropTitle": "Vágd körül a képed",
+  "profile2.cropUse": "Ez a kivágás legyen",
+  "profile2.headerLabel": "Profilfejléc",
+  "profile2.headerNone": "Egyszerű",
+  "profile2.headerTint": "Árnyalat a képemből",
+  "profile2.headerDots": "Pöttyök",
+  "profile2.headerStripes": "Csíkok",
+  "profile2.headerGrid": "Rács"
 }

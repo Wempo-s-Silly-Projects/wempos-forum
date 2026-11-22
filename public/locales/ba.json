@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Уртаҡлашыу",
   "threadActions.thisPost": "Был яҙма",
   "threadActions.staff": "Хеҙмәткәрҙәр",
-  "threadActions.editTags": "Тегтарҙы мөхәррирләргә"
+  "threadActions.editTags": "Тегтарҙы мөхәррирләргә",
+  "profile2.contrastLight": "Яҡты темала уҡыуы ауыр (контраст {ratio}:1).",
+  "profile2.contrastDark": "Ҡараңғы темала уҡыуы ауыр (контраст {ratio}:1).",
+  "profile2.contrastBanner": "Был төҫтә баннерҙың аҡ тексын уҡыуы ауыр (контраст {ratio}:1).",
+  "profile2.contrastUse": "{color} ҡулланырға",
+  "profile2.pickerOpen": "Төҫ һайлағысты асырға",
+  "profile2.pickerClear": "Таҙартырға",
+  "profile2.cropTitle": "Һүрәтеңде ҡырҡ",
+  "profile2.cropUse": "Был ҡырҡыуҙы ҡулланырға",
+  "profile2.headerLabel": "Профиль башы",
+  "profile2.headerNone": "Ябай",
+  "profile2.headerTint": "Һүрәтемдән төҫ",
+  "profile2.headerDots": "Нөктәләр",
+  "profile2.headerStripes": "Һыҙаттар",
+  "profile2.headerGrid": "Селтәр"
 }

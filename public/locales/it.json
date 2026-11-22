@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Condivisione",
   "threadActions.thisPost": "Questo post",
   "threadActions.staff": "Staff",
-  "threadActions.editTags": "Modifica tag"
+  "threadActions.editTags": "Modifica tag",
+  "profile2.contrastLight": "Difficile da leggere nel tema chiaro (contrasto {ratio}:1).",
+  "profile2.contrastDark": "Difficile da leggere nel tema scuro (contrasto {ratio}:1).",
+  "profile2.contrastBanner": "Il testo bianco del banner è difficile da leggere su questo colore (contrasto {ratio}:1).",
+  "profile2.contrastUse": "Usa {color}",
+  "profile2.pickerOpen": "Apri il selettore colore",
+  "profile2.pickerClear": "Cancella",
+  "profile2.cropTitle": "Ritaglia la tua immagine",
+  "profile2.cropUse": "Usa questo ritaglio",
+  "profile2.headerLabel": "Intestazione del profilo",
+  "profile2.headerNone": "Semplice",
+  "profile2.headerTint": "Tinta dalla mia immagine",
+  "profile2.headerDots": "Pois",
+  "profile2.headerStripes": "Righe",
+  "profile2.headerGrid": "Griglia"
 }

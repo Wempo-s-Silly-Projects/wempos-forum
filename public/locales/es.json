@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Compartir",
   "threadActions.thisPost": "Esta publicación",
   "threadActions.staff": "Equipo",
-  "threadActions.editTags": "Editar etiquetas"
+  "threadActions.editTags": "Editar etiquetas",
+  "profile2.contrastLight": "Difícil de leer en el tema claro (contraste {ratio}:1).",
+  "profile2.contrastDark": "Difícil de leer en el tema oscuro (contraste {ratio}:1).",
+  "profile2.contrastBanner": "El texto blanco del banner es difícil de leer sobre este color (contraste {ratio}:1).",
+  "profile2.contrastUse": "Usar {color}",
+  "profile2.pickerOpen": "Abrir selector de color",
+  "profile2.pickerClear": "Borrar",
+  "profile2.cropTitle": "Recorta tu imagen",
+  "profile2.cropUse": "Usar este recorte",
+  "profile2.headerLabel": "Cabecera del perfil",
+  "profile2.headerNone": "Sencilla",
+  "profile2.headerTint": "Tono de mi imagen",
+  "profile2.headerDots": "Puntos",
+  "profile2.headerStripes": "Rayas",
+  "profile2.headerGrid": "Cuadrícula"
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Jakaminen",
   "threadActions.thisPost": "Tämä viesti",
   "threadActions.staff": "Ylläpito",
-  "threadActions.editTags": "Muokkaa tunnisteita"
+  "threadActions.editTags": "Muokkaa tunnisteita",
+  "profile2.contrastLight": "Vaikea lukea vaaleassa teemassa (kontrasti {ratio}:1).",
+  "profile2.contrastDark": "Vaikea lukea tummassa teemassa (kontrasti {ratio}:1).",
+  "profile2.contrastBanner": "Valkoista bannerin tekstiä on vaikea lukea tällä värillä (kontrasti {ratio}:1).",
+  "profile2.contrastUse": "Käytä {color}",
+  "profile2.pickerOpen": "Avaa värivalitsin",
+  "profile2.pickerClear": "Tyhjennä",
+  "profile2.cropTitle": "Rajaa kuvasi",
+  "profile2.cropUse": "Käytä tätä rajausta",
+  "profile2.headerLabel": "Profiilin otsake",
+  "profile2.headerNone": "Pelkistetty",
+  "profile2.headerTint": "Sävy kuvastani",
+  "profile2.headerDots": "Pisteet",
+  "profile2.headerStripes": "Raidat",
+  "profile2.headerGrid": "Ruudukko"
 }

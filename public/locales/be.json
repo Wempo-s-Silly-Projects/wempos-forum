@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Падзяліцца",
   "threadActions.thisPost": "Гэты допіс",
   "threadActions.staff": "Каманда",
-  "threadActions.editTags": "Рэдагаваць тэгі"
+  "threadActions.editTags": "Рэдагаваць тэгі",
+  "profile2.contrastLight": "Цяжка чытаць у светлай тэме (кантраст {ratio}:1).",
+  "profile2.contrastDark": "Цяжка чытаць у цёмнай тэме (кантраст {ratio}:1).",
+  "profile2.contrastBanner": "Белы тэкст банера цяжка чытаць на гэтым колеры (кантраст {ratio}:1).",
+  "profile2.contrastUse": "Ужыць {color}",
+  "profile2.pickerOpen": "Адкрыць выбар колеру",
+  "profile2.pickerClear": "Ачысціць",
+  "profile2.cropTitle": "Абрэжце фота",
+  "profile2.cropUse": "Ужыць гэту абрэзку",
+  "profile2.headerLabel": "Шапка профілю",
+  "profile2.headerNone": "Простая",
+  "profile2.headerTint": "Адценне з майго фота",
+  "profile2.headerDots": "Кропкі",
+  "profile2.headerStripes": "Палосы",
+  "profile2.headerGrid": "Сетка"
 }

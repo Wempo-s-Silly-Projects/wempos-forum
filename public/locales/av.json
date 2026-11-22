@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Бикьи",
   "threadActions.thisPost": "Гьаб пост",
   "threadActions.staff": "Персонал",
-  "threadActions.editTags": "Тегал хисизе"
+  "threadActions.editTags": "Тегал хисизе",
+  "profile2.contrastLight": "Канаб темаялда цӀализе захӀмат буго (контраст {ratio}:1).",
+  "profile2.contrastDark": "БакӀаб темаялда цӀализе захӀмат буго (контраст {ratio}:1).",
+  "profile2.contrastBanner": "Гьаб рангалда баннералъул хъахӀаб текст цӀализе захӀмат буго (контраст {ratio}:1).",
+  "profile2.contrastUse": "{color} хӀалтӀизабе",
+  "profile2.pickerOpen": "Ранг бищизе рагье",
+  "profile2.pickerClear": "БацӀцӀад гьабе",
+  "profile2.cropTitle": "Дур сурат хъвагье",
+  "profile2.cropUse": "Гьаб хъвай хӀалтӀизабе",
+  "profile2.headerLabel": "Профилалъул бетӀер",
+  "profile2.headerNone": "ГӀадатияб",
+  "profile2.headerTint": "Дир суратиса ранг",
+  "profile2.headerDots": "Точкаби",
+  "profile2.headerStripes": "ЦӀуцӀаби",
+  "profile2.headerGrid": "Сетка"
 }

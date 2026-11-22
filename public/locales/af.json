@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Deel",
   "threadActions.thisPost": "Hierdie plasing",
   "threadActions.staff": "Personeel",
-  "threadActions.editTags": "Wysig etikette"
+  "threadActions.editTags": "Wysig etikette",
+  "profile2.contrastLight": "Moeilik leesbaar op die ligte tema (kontras {ratio}:1).",
+  "profile2.contrastDark": "Moeilik leesbaar op die donker tema (kontras {ratio}:1).",
+  "profile2.contrastBanner": "Wit baniertekst is moeilik leesbaar op hierdie kleur (kontras {ratio}:1).",
+  "profile2.contrastUse": "Gebruik {color}",
+  "profile2.pickerOpen": "Maak kleurkieser oop",
+  "profile2.pickerClear": "Maak skoon",
+  "profile2.cropTitle": "Sny jou foto by",
+  "profile2.cropUse": "Gebruik hierdie snit",
+  "profile2.headerLabel": "Profielkop",
+  "profile2.headerNone": "Eenvoudig",
+  "profile2.headerTint": "Tint uit my foto",
+  "profile2.headerDots": "Kolle",
+  "profile2.headerStripes": "Strepe",
+  "profile2.headerGrid": "Rooster"
 }

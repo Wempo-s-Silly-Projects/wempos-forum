@@ -50,6 +50,8 @@ import { handlePronounsRoutes, readPronouns } from "./pronouns.mjs";
 // v5.38.0 F1/F2: pinned thread and custom status (migration 0066).
 import { handleProfilePinRoutes, readPinnedThread } from "./profile-pin.mjs";
 import { handleStatusRoutes, readStatus } from "./user-status.mjs";
+// Batch I: the member-picked header decoration (migration 0084).
+import { handleProfileHeaderRoutes, readProfileHeader } from "./profile-header.mjs";
 
 // PATCH /api/me carries up to a 10,000-character bio, so this route lifts the
 // 16 KB global JSON cap to 64 KB (Task 2 pre-approved per-route interface).
@@ -147,6 +149,8 @@ async function handleUserProfileRoute(request, env, url, path, method) {
       // re-check visibility, ban and expiry on every read.
       pinnedThread: await readPinnedThread(env, user.id),
       status: await readStatus(env, user.id),
+      // Batch I: "" (plain), "tint" or a pattern key; visible profiles only.
+      profileHeader: await readProfileHeader(env.FORUM_DB, user.id),
       socials: socialsFromRow(user),
       polytoriaUsername: user.polytoria_username || null,
       avatarUrl: user.avatar_mime ? "/api/avatars/" + user.id + "?v=" + user.avatar_version : null,
@@ -621,6 +625,7 @@ async function handleProfileRoutes(request, env, url, path, method, ctx) {
     handleProfileThreadsRoute,
     handleProfileUpdateRoute,
     handlePronounsRoutes,
+    handleProfileHeaderRoutes,
     handleProfilePinRoutes,
     handleStatusRoutes,
     handleCssSetRoute,

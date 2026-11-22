@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Farakkiyya",
   "threadActions.thisPost": "Ah kitbat",
   "threadActions.staff": "Taamitte",
-  "threadActions.editTags": "Astooti massos"
+  "threadActions.editTags": "Astooti massos",
+  "profile2.contrastLight": "Ifa xaagal yangayyi (kontiraast {ratio}:1).",
+  "profile2.contrastDark": "Dite xaagal yangayyi (kontiraast {ratio}:1).",
+  "profile2.contrastBanner": "Qado baaner maqo ah lakal yangayyi (kontiraast {ratio}:1).",
+  "profile2.contrastUse": "{color} xoqoysi",
+  "profile2.pickerOpen": "Lakal doorite fakki",
+  "profile2.pickerClear": "Tirtir",
+  "profile2.cropTitle": "Ku suurat qaxxaq",
+  "profile2.cropUse": "A qaxxaq xoqoysi",
+  "profile2.headerLabel": "Profaylih amo",
+  "profile2.headerNone": "Wanaysan",
+  "profile2.headerTint": "Ku suuratak lakal",
+  "profile2.headerDots": "Tuxxuqa",
+  "profile2.headerStripes": "Xariiqa",
+  "profile2.headerGrid": "Kaare"
 }

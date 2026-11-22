@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "شیئر کرنا",
   "threadActions.thisPost": "یہ پوسٹ",
   "threadActions.staff": "عملہ",
-  "threadActions.editTags": "ٹیگز میں ترمیم کریں"
+  "threadActions.editTags": "ٹیگز میں ترمیم کریں",
+  "profile2.contrastLight": "ہلکی تھیم پر پڑھنا مشکل ہے (کنٹراسٹ {ratio}:1)۔",
+  "profile2.contrastDark": "گہری تھیم پر پڑھنا مشکل ہے (کنٹراسٹ {ratio}:1)۔",
+  "profile2.contrastBanner": "اس رنگ پر بینر کا سفید متن پڑھنا مشکل ہے (کنٹراسٹ {ratio}:1)۔",
+  "profile2.contrastUse": "{color} استعمال کریں",
+  "profile2.pickerOpen": "رنگ چننے والا کھولیں",
+  "profile2.pickerClear": "صاف کریں",
+  "profile2.cropTitle": "اپنی تصویر تراشیں",
+  "profile2.cropUse": "یہ تراش استعمال کریں",
+  "profile2.headerLabel": "پروفائل ہیڈر",
+  "profile2.headerNone": "سادہ",
+  "profile2.headerTint": "میری تصویر سے رنگت",
+  "profile2.headerDots": "نقطے",
+  "profile2.headerStripes": "دھاریاں",
+  "profile2.headerGrid": "گرڈ"
 }

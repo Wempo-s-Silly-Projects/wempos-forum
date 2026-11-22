@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Ndarja",
   "threadActions.thisPost": "Ky postim",
   "threadActions.staff": "Stafi",
-  "threadActions.editTags": "Ndrysho etiketat"
+  "threadActions.editTags": "Ndrysho etiketat",
+  "profile2.contrastLight": "E vështirë për t'u lexuar në temën e çelët (kontrast {ratio}:1).",
+  "profile2.contrastDark": "E vështirë për t'u lexuar në temën e errët (kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Teksti i bardhë i banerit lexohet me vështirësi mbi këtë ngjyrë (kontrast {ratio}:1).",
+  "profile2.contrastUse": "Përdor {color}",
+  "profile2.pickerOpen": "Hap zgjedhësin e ngjyrave",
+  "profile2.pickerClear": "Pastro",
+  "profile2.cropTitle": "Prit figurën tënde",
+  "profile2.cropUse": "Përdor këtë prerje",
+  "profile2.headerLabel": "Kreu i profilit",
+  "profile2.headerNone": "E thjeshtë",
+  "profile2.headerTint": "Nuancë nga figura ime",
+  "profile2.headerDots": "Pika",
+  "profile2.headerStripes": "Vija",
+  "profile2.headerGrid": "Rrjetë"
 }

@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Delen",
   "threadActions.thisPost": "Dit bericht",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Tags bewerken"
+  "threadActions.editTags": "Tags bewerken",
+  "profile2.contrastLight": "Moeilijk leesbaar in het lichte thema (contrast {ratio}:1).",
+  "profile2.contrastDark": "Moeilijk leesbaar in het donkere thema (contrast {ratio}:1).",
+  "profile2.contrastBanner": "Witte bannertekst is slecht leesbaar op deze kleur (contrast {ratio}:1).",
+  "profile2.contrastUse": "{color} gebruiken",
+  "profile2.pickerOpen": "Kleurkiezer openen",
+  "profile2.pickerClear": "Wissen",
+  "profile2.cropTitle": "Snijd je afbeelding bij",
+  "profile2.cropUse": "Deze uitsnede gebruiken",
+  "profile2.headerLabel": "Profielkop",
+  "profile2.headerNone": "Eenvoudig",
+  "profile2.headerTint": "Tint uit mijn afbeelding",
+  "profile2.headerDots": "Stippen",
+  "profile2.headerStripes": "Strepen",
+  "profile2.headerGrid": "Raster"
 }

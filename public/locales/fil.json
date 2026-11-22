@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Pagbabahagi",
   "threadActions.thisPost": "Ang post na ito",
   "threadActions.staff": "Kawani",
-  "threadActions.editTags": "I-edit ang mga tag"
+  "threadActions.editTags": "I-edit ang mga tag",
+  "profile2.contrastLight": "Mahirap basahin sa light theme (contrast {ratio}:1).",
+  "profile2.contrastDark": "Mahirap basahin sa dark theme (contrast {ratio}:1).",
+  "profile2.contrastBanner": "Mahirap basahin ang puting teksto ng banner sa kulay na ito (contrast {ratio}:1).",
+  "profile2.contrastUse": "Gamitin ang {color}",
+  "profile2.pickerOpen": "Buksan ang pamili ng kulay",
+  "profile2.pickerClear": "Burahin",
+  "profile2.cropTitle": "I-crop ang iyong larawan",
+  "profile2.cropUse": "Gamitin ang crop na ito",
+  "profile2.headerLabel": "Header ng profile",
+  "profile2.headerNone": "Payak",
+  "profile2.headerTint": "Kulay mula sa aking larawan",
+  "profile2.headerDots": "Mga tuldok",
+  "profile2.headerStripes": "Mga guhit",
+  "profile2.headerGrid": "Grid"
 }

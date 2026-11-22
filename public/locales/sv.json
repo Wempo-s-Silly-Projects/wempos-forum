@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Dela",
   "threadActions.thisPost": "Det här inlägget",
   "threadActions.staff": "Team",
-  "threadActions.editTags": "Redigera taggar"
+  "threadActions.editTags": "Redigera taggar",
+  "profile2.contrastLight": "Svårläst i ljust tema (kontrast {ratio}:1).",
+  "profile2.contrastDark": "Svårläst i mörkt tema (kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Vit bannertext är svårläst på den här färgen (kontrast {ratio}:1).",
+  "profile2.contrastUse": "Använd {color}",
+  "profile2.pickerOpen": "Öppna färgväljaren",
+  "profile2.pickerClear": "Rensa",
+  "profile2.cropTitle": "Beskär din bild",
+  "profile2.cropUse": "Använd den här beskärningen",
+  "profile2.headerLabel": "Profilhuvud",
+  "profile2.headerNone": "Enkel",
+  "profile2.headerTint": "Nyans från min bild",
+  "profile2.headerDots": "Prickar",
+  "profile2.headerStripes": "Ränder",
+  "profile2.headerGrid": "Rutnät"
 }

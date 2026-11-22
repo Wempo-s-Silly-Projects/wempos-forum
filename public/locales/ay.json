@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Uñt'ayaña",
   "threadActions.thisPost": "Aka qillqata",
   "threadActions.staff": "Irnaqirinaka",
-  "threadActions.editTags": "Chimpunak askichaña"
+  "threadActions.editTags": "Chimpunak askichaña",
+  "profile2.contrastLight": "Qhana temana liyiñax ch'amawa (contraste {ratio}:1).",
+  "profile2.contrastDark": "Ch'amaka temana liyiñax ch'amawa (contraste {ratio}:1).",
+  "profile2.contrastBanner": "Janq'u banner qillqatax aka saminxa ch'amaw liyiñaxa (contraste {ratio}:1).",
+  "profile2.contrastUse": "{color} apnaqaña",
+  "profile2.pickerOpen": "Sami ajlliña jist'araña",
+  "profile2.pickerClear": "Q'umachaña",
+  "profile2.cropTitle": "Jamuqam khuchuña",
+  "profile2.cropUse": "Aka khuchuta apnaqaña",
+  "profile2.headerLabel": "Perfil p'iqi",
+  "profile2.headerNone": "Sapaki",
+  "profile2.headerTint": "Jamuqajat sami",
+  "profile2.headerDots": "Ch'iqanaka",
+  "profile2.headerStripes": "Siq'inaka",
+  "profile2.headerGrid": "Rejilla"
 }

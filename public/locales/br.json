@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Rannañ",
   "threadActions.thisPost": "Ar gemennadenn-mañ",
   "threadActions.staff": "Kefridi",
-  "threadActions.editTags": "Kemmañ ar skritelloù"
+  "threadActions.editTags": "Kemmañ ar skritelloù",
+  "profile2.contrastLight": "Diaes da lenn gant an tem sklaer (kenstok {ratio}:1).",
+  "profile2.contrastDark": "Diaes da lenn gant an tem teñval (kenstok {ratio}:1).",
+  "profile2.contrastBanner": "Diaes eo lenn testenn wenn ar banniel war al liv-mañ (kenstok {ratio}:1).",
+  "profile2.contrastUse": "Implijout {color}",
+  "profile2.pickerOpen": "Digeriñ an dibaber livioù",
+  "profile2.pickerClear": "Skarzhañ",
+  "profile2.cropTitle": "Troc'hañ ho skeudenn",
+  "profile2.cropUse": "Implijout an troc'h-mañ",
+  "profile2.headerLabel": "Talbenn ar profil",
+  "profile2.headerNone": "Eeun",
+  "profile2.headerTint": "Liv eus ma skeudenn",
+  "profile2.headerDots": "Pikoù",
+  "profile2.headerStripes": "Barrennoù",
+  "profile2.headerGrid": "Kael"
 }

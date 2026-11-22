@@ -1221,5 +1221,19 @@
   "threadActions.sharing": "Пайлашу",
   "threadActions.thisPost": "Ку пост",
   "threadActions.staff": "Ӗҫченсем",
-  "threadActions.editTags": "Тегсене улӑштар"
+  "threadActions.editTags": "Тегсене улӑштар",
+  "profile2.contrastLight": "Ҫутӑ темӑра вулама йывӑр (контраст {ratio}:1).",
+  "profile2.contrastDark": "Тӗттӗм темӑра вулама йывӑр (контраст {ratio}:1).",
+  "profile2.contrastBanner": "Ҫак тӗсре баннерӑн шурӑ текстне вулама йывӑр (контраст {ratio}:1).",
+  "profile2.contrastUse": "{color} усӑ курӑр",
+  "profile2.pickerOpen": "Тӗс суйлавне уҫӑр",
+  "profile2.pickerClear": "Тасатӑр",
+  "profile2.cropTitle": "Сӑнӳкерчӗкне касӑр",
+  "profile2.cropUse": "Ҫак касӑва усӑ курӑр",
+  "profile2.headerLabel": "Профиль пуҫӗ",
+  "profile2.headerNone": "Ахаль",
+  "profile2.headerTint": "Сӑнӳкерчӗкӗмрен тӗс",
+  "profile2.headerDots": "Пӑнчӑсем",
+  "profile2.headerStripes": "Йӗрсем",
+  "profile2.headerGrid": "Сетка"
 }
