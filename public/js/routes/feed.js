@@ -59,6 +59,7 @@ import { createBoardRegulars } from "../board-regulars.js";
 import { createDataExportPanel, downloadMyData } from "../data-export.js";
 import { addSectionAnchors, createSettingsFilter } from "../settings-tools.js";
 import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
+import { createNewestMembers, createWeekLink } from "../week.js";
 import { renderNewcomerCards } from "../newcomer.js";
 import { createInvitePanel } from "../invite.js";
 import { createFeedViews, feedViewEmptyText, feedViewQuery } from "../feed-views.js";
@@ -113,7 +114,10 @@ function renderHomeContent(session, data, route) {
   }
   // Recent activity (v3.1): the homepage mixes every category, 10 posts at a
   // time (the server's no-board feed page size).
-  if (route.name === "home") renderTodaysQotd();
+  if (route.name === "home") {
+    renderTodaysQotd();
+    renderHomeHighlights();
+  }
   addHeading(main, route.name === "search" ? t("feed.searchResults") : t("feed.recentActivity"), 2);
   if (route.name === "search") {
     addText(document, main, "p", t("feed.searchResultsFor", { query: route.query }), "muted");
@@ -463,6 +467,25 @@ async function renderTodaysQotd() {
   slot.append(createQotdBanner(document, data.qotd));
 }
 
+// v5.35: the link to /week and the "Newest members" list, home only. The
+// slot keeps its place above the list; a failed or empty member read just
+// leaves the link.
+async function renderHomeHighlights() {
+  const slot = element("div", "home-highlights");
+  slot.append(createWeekLink(document));
+  main.append(slot);
+  const version = state.renderVersion;
+  let data;
+  try {
+    data = await api("/api/members/newest");
+  } catch {
+    return;
+  }
+  if (version !== state.renderVersion) return;
+  const members = createNewestMembers(document, data?.members);
+  if (members) slot.append(members);
+}
+
 async function renderShowcaseGallery() {
   const panel = createPanel(t("traditions.galleryTitle"));
   panel.classList.add("showcase-gallery-panel");
@@ -476,7 +499,7 @@ async function renderShowcaseGallery() {
     return;
   }
   if (version !== state.renderVersion) return;
-  panel.append(createShowcaseGallery(document, Array.isArray(data?.items) ? data.items : []));
+  panel.append(createShowcaseGallery(document, Array.isArray(data?.items) ? data.items : [], data?.staffPick || null));
 }
 
 // Bookmarks (C4): the private "Saved" page — the member's own saved list.

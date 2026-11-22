@@ -234,6 +234,13 @@ export const createPostCard = (post, document, currentUser = null) => {
     if (isBotUsername(post.author.username)) {
       author.append(createElement(document, "span", "role-badge role-badge-bot", t("render.roleBot")));
     }
+    // New-member chip (v5.35): the server's boolean (account younger than 7
+    // days) — the join time itself never reaches the client.
+    if (post.author.isNew === true) {
+      const newChip = createElement(document, "span", "role-badge role-badge-new", t("render.newMember"));
+      newChip.setAttribute("title", t("render.newMemberTitle"));
+      author.append(newChip);
+    }
     // Flair on cards (v3.0.1): the profile flair chip shown next to the name.
     if (post.author.flair) author.append(createElement(document, "span", "post-flair", post.author.flair));
     // "You" chip (wave 2026-11-21-11 F2): the signed-in member's own posts
@@ -513,6 +520,17 @@ export const createPostCard = (post, document, currentUser = null) => {
     pinButton.dataset.action = isPinned ? "thread-unpin" : "thread-pin";
     pinButton.dataset.postId = String(post.id);
     actions.append(pinButton);
+    // Staff pick of the week (v5.35): public Showcase roots only (the server
+    // refuses anything else); the payload's staffPick picks the label.
+    if (post.board === "showcase" && post.visibility === "public") {
+      const picked = post.staffPick === true;
+      const pickButton = createElement(document, "button", "button button-quiet",
+        picked ? t("staffPick.unpick") : t("staffPick.pick"));
+      pickButton.type = "button";
+      pickButton.dataset.action = picked ? "staff-unpick" : "staff-pick";
+      pickButton.dataset.postId = String(post.id);
+      actions.append(pickButton);
+    }
     // Suggestion status controls (v3.1): staff resolve/decline/reopen
     // suggestion roots in place; the server gates the same roles and
     // suggestions-board roots only. A decided suggestion offers Reopen; an

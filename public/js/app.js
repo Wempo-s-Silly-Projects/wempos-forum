@@ -120,6 +120,7 @@ import {
   renderArchiveRoute,
   renderLeaderboardRoute,
   renderRulesRoute,
+  renderWeekRoute,
 } from "./routes/pages.js";
 
 // v4.0 plan 4 Task 7: the appeals concern (the /appeals route and its
@@ -196,6 +197,7 @@ function setRouteTitle(route) {
     mine: t("app.pageMine"),
     leaderboard: t("app.pageLeaderboard"),
     rules: t("app.pageRules"),
+    week: t("app.pageWeek"),
     post: t("app.pagePost"),
     profile: t("app.pageProfile"),
     admin: t("app.pageAdmin"),
@@ -279,6 +281,7 @@ async function renderRoute(route) {
     mine: () => renderMineRoute(context, version),
     leaderboard: () => renderLeaderboardRoute(context, version),
     rules: () => renderRulesRoute(context, version),
+    week: () => renderWeekRoute(context, version),
     category: () => renderCategoryRoute(route, context, version),
     archive: () => renderArchiveRoute(context, version),
     post: () => renderPostRoute(route, context, version),

@@ -51,6 +51,7 @@ import { createMemberPeek } from "../desk/member-tools.js";
 import { createFilterEditor } from "../desk/filter.js";
 import { createBrandingEditor, submitBrandingSave } from "../desk/branding.js";
 import { createVisitsPanel } from "../desk/visits.js";
+import { createStaffPickLog } from "../desk/staff-picks.js";
 import { focusPageHeading } from "../focus-utils.js";
 
 // The desk (v4.2 redesign): /admin is a section-routed panel — a sidebar rail
@@ -73,6 +74,7 @@ const DESK_SECTIONS = [
   { slug: "dm-log", labelKey: "admin.section.dmLog" },
   { slug: "dm-reports", labelKey: "admin.section.dmReports" },
   { slug: "automod", labelKey: "admin.section.automod" },
+  { slug: "staff-picks", labelKey: "admin.section.staffPicks" },
   { slug: "rules", labelKey: "admin.section.rules" },
   { slug: "filter", labelKey: "admin.section.filter" },
   { slug: "branding", labelKey: "admin.section.branding" },
@@ -149,6 +151,12 @@ const DESK_BUILDERS = {
     ledeKey: "admin.lede.automod",
     load: () => api("/api/admin/automod"),
     build: (data) => createAutoModLog(data.actions, document),
+  },
+  // v5.35: the staff-pick mod log (every pick and unpick).
+  "staff-picks": {
+    ledeKey: "admin.lede.staffPicks",
+    load: () => api("/api/admin/staff-picks"),
+    build: (data) => createStaffPickLog(data.log, document),
   },
   "rules": {
     ledeKey: "admin.lede.rules",
@@ -572,6 +580,18 @@ export const ACTIONS = {
       await api("/api/admin/threads/" + button.dataset.postId + "/unpin", { method: "POST" });
       await state.renderRoute(state.activeRoute);
       setMessage(t("admin.msg.threadUnpinned"));
+    },
+    // Staff pick of the week (v5.35): the thread's staff menu — POST makes it
+    // the pick, DELETE removes it; re-render so the label and /week follow.
+    "staff-pick": async (button) => {
+      await api("/api/admin/threads/" + button.dataset.postId + "/staff-pick", { method: "POST" });
+      await state.renderRoute(state.activeRoute);
+      setMessage(t("staffPick.picked"));
+    },
+    "staff-unpick": async (button) => {
+      await api("/api/admin/threads/" + button.dataset.postId + "/staff-pick", { method: "DELETE" });
+      await state.renderRoute(state.activeRoute);
+      setMessage(t("staffPick.unpicked"));
     },
     "gif-approve": async (button) => {
       await api("/api/admin/gifs/" + encodeURIComponent(button.dataset.gifId) + "/approve", { method: "POST" });

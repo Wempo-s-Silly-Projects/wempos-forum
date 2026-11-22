@@ -29,6 +29,7 @@ import { addText } from "../forms.js";
 import { state } from "../state.js";
 import { renderBodyBlocks } from "../render.js";
 import { t, tn, currentLocale } from "../i18n.js";
+import { createWeekPage } from "../week.js";
 
 async function renderRulesRoute(context, version) {
   const data = await api("/api/rules");
@@ -67,6 +68,16 @@ async function renderLeaderboardRoute(context, version) {
     list.append(row);
   }
   main.append(list);
+}
+
+// This week (v5.35): the staff pick, the most replied threads and the newest
+// Showcase builds of the last 7 days — public, guests included.
+async function renderWeekRoute(context, version) {
+  const data = await api("/api/week");
+  if (version !== state.renderVersion) return;
+  addHeading(main, t("week.title"), 2);
+  addText(document, main, "p", t("week.lede"), "muted");
+  main.append(createWeekPage(document, data));
 }
 
 async function renderArchiveRoute(context, version) {
@@ -141,4 +152,4 @@ export const ACTIONS = {
     "load-more-archive": (button) => loadMoreArchive(button),
 };
 
-export { renderRulesRoute, renderLeaderboardRoute, renderArchiveRoute };
+export { renderRulesRoute, renderLeaderboardRoute, renderArchiveRoute, renderWeekRoute };

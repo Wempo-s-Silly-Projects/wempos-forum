@@ -3725,3 +3725,28 @@ mark.search-hit {
 .share-mastodon-error:empty, .share-status:empty, .invite-status:empty { display: none; }
 .invite-link { width: 100%; max-width: 32rem; margin: 0.3rem 0; }
 .newcomer-invited { font-weight: 600; }
+
+/* v5.35 engagement: the "New 👋" chip, the staff pick tile (gallery + /week),
+   the This-week page lists, and the home highlights (This-week link + Newest
+   members). Tokens only, so every theme follows. */
+.role-badge-new { color: var(--green-dark); border-color: var(--green); text-transform: none; }
+.staff-pick-label { justify-self: start; color: var(--ink); border-color: var(--yellow); text-transform: none; }
+.staff-pick-tile {
+  padding: 0.4rem;
+  border: 1px solid var(--line);
+  border-inline-start: 4px solid var(--yellow);
+  border-radius: var(--button-radius);
+  background: var(--paper);
+}
+.week-staff-pick { max-width: 22rem; margin: 0 0 1rem; }
+.week-section-title { margin: 1.2rem 0 0.5rem; }
+.week-threads { display: grid; gap: 0.5rem; margin: 0; padding-inline-start: 1.4rem; }
+.week-thread { min-width: 0; }
+.week-thread-link { display: block; overflow-wrap: anywhere; }
+.week-thread-meta { font-size: 0.85rem; }
+.home-highlights { margin: 0 0 0.8rem; }
+.week-home-link { margin: 0 0 0.5rem; }
+.newest-members-title { margin: 0 0 0.4rem; font-size: 1rem; }
+.newest-members-list { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; margin: 0; padding: 0; list-style: none; }
+.newest-member-link { display: inline-flex; align-items: center; gap: 0.35rem; min-width: 0; overflow-wrap: anywhere; }
+.newest-member-avatar { width: 1.5rem; height: 1.5rem; }
