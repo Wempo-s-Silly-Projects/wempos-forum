@@ -59,6 +59,7 @@ import { startReadingProgress } from "../reading-progress.js";
 import { createShareButton } from "../share.js";
 import { createSlowModeForm, createSlowModeNote, slowModePath } from "../slow-mode.js";
 import { createTagChips, createTagEditor, postTagsPath } from "../tags.js";
+import { createThreadOutline } from "../thread-outline.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -118,6 +119,9 @@ async function renderPostRoute(route, context, version) {
     // Filter replies (wave 5.5 F2): page view only, nothing stored or sent.
     const replyFilter = createReplyFilter(document, replyList, knownReplyTotal(post));
     if (replyFilter) main.append(replyFilter);
+    // Thread outline (v5.46.0): long threads only, from the cards just built.
+    const outline = createThreadOutline(document, post.replies, replyList, { accountId: state.currentUser?.id });
+    if (outline) main.append(outline);
     main.append(replyList);
     // Thread-author chip (wave 2026-11-21-7 F2): the starter's own replies.
     if (starterId) replyList.dataset.starterId = String(starterId);

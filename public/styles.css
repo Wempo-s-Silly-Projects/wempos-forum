@@ -3202,6 +3202,35 @@ mark.search-hit {
   }
 }
 
+/* Thread outline (v5.46.0): the collapsible "Jump to" list on long threads. */
+.thread-outline {
+  margin: 8px 0;
+}
+
+.thread-outline-list {
+  max-height: 18rem;
+  margin: 6px 0 0;
+  padding-inline-start: 1.6rem;
+  overflow-y: auto;
+}
+
+.thread-outline-entry {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  min-height: 32px;
+  text-align: start;
+}
+
+.thread-outline-entry[aria-current="true"] {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.thread-outline-time {
+  color: var(--muted);
+}
+
 /* Wave i18n (v4.6.0): the header language menu. Native select, sized to sit
    in the account nav at icon-button height; works the same in rtl. */
 .language-picker select {

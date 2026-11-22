@@ -37,6 +37,7 @@ import { clearAllMutes } from "../chat-mutes.js";
 import { clearAllRecents } from "../gallery-picks.js";
 import { clearAllRecentSearches } from "../recent-searches.js";
 import { clearAllQuietHours } from "../quiet-hours.js";
+import { clearAllThreadOutline } from "../thread-outline.js";
 import { createNotificationBell } from "../notifications.js";
 // The §4b door-swap: every auth link (header Sign in, mobile guest rung)
 // targets Wempo Accounts with an origin-only return; logout hands the browser
@@ -279,6 +280,7 @@ function wipeAccountLocalData() {
   clearAllRecents();
   clearAllQuietHours();
   clearAllRecentSearches();
+  clearAllThreadOutline();
 }
 
 export const ACTIONS = {

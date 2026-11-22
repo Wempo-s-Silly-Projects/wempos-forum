@@ -178,7 +178,7 @@ test("open state is per account (:u<id>), read and written only once the id is k
   assert.equal(readOutlineOpen(storage, 7), false, "collapsing is remembered");
   const guest = createThreadOutline(doc, list, replyListFor(doc, list), { now: NOW, storage });
   guest.querySelector("button.thread-outline-toggle").dispatch("click", { preventDefault() {} });
-  assert.deepEqual([...storage.map.keys()], [OUTLINE_STORAGE_KEY + ":u7"], "guest toggles stay page-view only");
+  assert.deepEqual([...storage.map.keys()], [], "collapsed = no key; guest toggles stay page-view only");
 });
 
 test("blocked or broken storage reads as collapsed and never throws", () => {
