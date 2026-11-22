@@ -31,7 +31,7 @@ import { HttpError, json, rateLimit, readJson, readLimitedBody, requireMutationA
 import { hashPassword, isValidPassword, verifyPassword } from "./core/passwords.mjs";
 import { publicRole } from "./core/roles.mjs";
 import { publicChainSql } from "./core/visibility.mjs";
-import { normalizeBannerColor, normalizeProfileAccent, normalizeProfileColorInput, PROFILE_ACCENTS, PROFILE_BANNER_COLORS, SOCIAL_PLATFORMS, socialsFromRow, userByUsernameKey } from "./core/shapers.mjs";
+import { normalizeBannerColor, normalizeProfileAccent, normalizeProfileColorInput, PROFILE_ACCENTS, PROFILE_BANNER_COLORS, normalizeSocialHandle, SOCIAL_PLATFORMS, socialsFromRow, userByUsernameKey } from "./core/shapers.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 // v4.0 plan 3, Task 2: the avatar lifecycle (upload, serve, moderation queue)
@@ -198,7 +198,8 @@ async function handleProfileUpdateRoute(request, env, url, path, method) {
         throw new HttpError(400, "The socials value must be an object.");
       }
       socials = {};
-      for (const [key, value] of Object.entries(body.socials)) {
+      for (const [key, rawValue] of Object.entries(body.socials)) {
+        const value = normalizeSocialHandle(key, rawValue);
         const platform = SOCIAL_PLATFORMS.find((candidate) => candidate.key === key);
         if (!platform) throw new HttpError(400, "That social platform is not supported.");
         if (value === null || value === "") {

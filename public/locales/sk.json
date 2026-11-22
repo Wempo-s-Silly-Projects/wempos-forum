@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Len meno na {platform}, nie celú adresu URL.",
   "profileEditor.links.one": "{count} odkaz",
   "profileEditor.links.other": "Odkazov: {count}",
+  "profileEditor.paymentNote": "Odkazy otvárajú službu priamo; fórum nikdy nespracúva platby.",
   "profileEditor.polytoriaHelp": "Tvoje používateľské meno na Polytorii.",
   "profileEditor.save": "Uložiť profil",
   "profileEditor.title": "Úprava profilu",

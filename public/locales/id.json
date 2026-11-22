@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Cukup handle {platform}-nya saja, bukan URL lengkap.",
   "profileEditor.links.one": "{count} tautan",
   "profileEditor.links.other": "{count} tautan",
+  "profileEditor.paymentNote": "Tautan membuka layanan secara langsung; forum tidak pernah menangani pembayaran.",
   "profileEditor.polytoriaHelp": "Nama pengguna Polytoria-mu.",
   "profileEditor.save": "Simpan profil",
   "profileEditor.title": "Sunting profilmu",

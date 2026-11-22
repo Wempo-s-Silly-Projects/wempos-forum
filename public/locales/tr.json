@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Tüm URL'yi değil, yalnızca {platform} kullanıcı adını yaz.",
   "profileEditor.links.one": "{count} bağlantı",
   "profileEditor.links.other": "{count} bağlantı",
+  "profileEditor.paymentNote": "Bağlantılar hizmeti doğrudan açar; forum hiçbir zaman ödeme işlemez.",
   "profileEditor.polytoriaHelp": "Polytoria kullanıcı adın.",
   "profileEditor.save": "Profili kaydet",
   "profileEditor.title": "Profilini düzenle",

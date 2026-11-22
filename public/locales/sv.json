@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Bara {platform}-namnet, inte hela webbadressen.",
   "profileEditor.links.one": "{count} länk",
   "profileEditor.links.other": "{count} länkar",
+  "profileEditor.paymentNote": "Länkarna öppnar tjänsten direkt; forumet hanterar aldrig betalningar.",
   "profileEditor.polytoriaHelp": "Ditt Polytoria-användarnamn.",
   "profileEditor.save": "Spara profil",
   "profileEditor.title": "Redigera din profil",

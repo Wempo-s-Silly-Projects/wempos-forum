@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "सिर्फ़ {platform} हैंडल, पूरा URL नहीं।",
   "profileEditor.links.one": "{count} लिंक",
   "profileEditor.links.other": "{count} लिंक",
+  "profileEditor.paymentNote": "लिंक सीधे सेवा खोलते हैं; फ़ोरम कभी भी भुगतान नहीं संभालता।",
   "profileEditor.polytoriaHelp": "आपका Polytoria यूज़रनेम।",
   "profileEditor.save": "प्रोफ़ाइल सेव करें",
   "profileEditor.title": "अपनी प्रोफ़ाइल एडिट करें",

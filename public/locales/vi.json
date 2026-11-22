@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Chỉ cần tên tài khoản {platform}, không cần cả URL.",
   "profileEditor.links.one": "{count} liên kết",
   "profileEditor.links.other": "{count} liên kết",
+  "profileEditor.paymentNote": "Các liên kết mở trực tiếp dịch vụ; diễn đàn không bao giờ xử lý thanh toán.",
   "profileEditor.polytoriaHelp": "Tên người dùng Polytoria của bạn.",
   "profileEditor.save": "Lưu hồ sơ",
   "profileEditor.title": "Chỉnh sửa hồ sơ",

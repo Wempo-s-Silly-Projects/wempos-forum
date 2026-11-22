@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Doar numele de utilizator {platform}, nu întregul URL.",
   "profileEditor.links.one": "{count} link",
   "profileEditor.links.other": "Linkuri: {count}",
+  "profileEditor.paymentNote": "Linkurile deschid serviciul direct; forumul nu gestionează niciodată plăți.",
   "profileEditor.polytoriaHelp": "Numele tău de utilizator Polytoria.",
   "profileEditor.save": "Salvează profilul",
   "profileEditor.title": "Editează-ți profilul",

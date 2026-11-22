@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "{platform} பயனர் அடையாளம் மட்டும், முழு URL அல்ல.",
   "profileEditor.links.one": "{count} இணைப்பு",
   "profileEditor.links.other": "{count} இணைப்புகள்",
+  "profileEditor.paymentNote": "இணைப்புகள் சேவையை நேரடியாகத் திறக்கின்றன; மன்றம் ஒருபோதும் பணம் செலுத்துதலைக் கையாளாது.",
   "profileEditor.polytoriaHelp": "உங்கள் Polytoria பயனர்பெயர்.",
   "profileEditor.save": "சுயவிவரத்தைச் சேமி",
   "profileEditor.title": "உங்கள் சுயவிவரத்தைத் திருத்துங்கள்",

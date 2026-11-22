@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Hanya pengendali {platform}, bukan keseluruhan URL.",
   "profileEditor.links.one": "{count} pautan",
   "profileEditor.links.other": "{count} pautan",
+  "profileEditor.paymentNote": "Pautan membuka perkhidmatan secara terus; forum tidak pernah mengendalikan pembayaran.",
   "profileEditor.polytoriaHelp": "Nama pengguna Polytoria anda.",
   "profileEditor.save": "Simpan profil",
   "profileEditor.title": "Sunting profil anda",

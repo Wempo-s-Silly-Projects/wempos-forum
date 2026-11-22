@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "{platform} のハンドルだけを入力してください（URL 全体ではなく）。",
   "profileEditor.links.one": "リンク {count} 件",
   "profileEditor.links.other": "リンク {count} 件",
+  "profileEditor.paymentNote": "リンクはサービスを直接開きます。フォーラムが支払いを扱うことはありません。",
   "profileEditor.polytoriaHelp": "あなたの Polytoria のユーザー名。",
   "profileEditor.save": "プロフィールを保存",
   "profileEditor.title": "プロフィールを編集",

@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Само потребителското име в {platform}, не целия адрес.",
   "profileEditor.links.one": "{count} връзка",
   "profileEditor.links.other": "{count} връзки",
+  "profileEditor.paymentNote": "Връзките отварят услугата директно; форумът никога не обработва плащания.",
   "profileEditor.polytoriaHelp": "Твоето потребителско име в Polytoria.",
   "profileEditor.save": "Запази профила",
   "profileEditor.title": "Редактирай профила си",

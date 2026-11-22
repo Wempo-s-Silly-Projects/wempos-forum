@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Vain {platform}-tunnus, ei koko URL-osoitetta.",
   "profileEditor.links.one": "{count} linkki",
   "profileEditor.links.other": "{count} linkkiä",
+  "profileEditor.paymentNote": "Linkit avaavat palvelun suoraan; foorumi ei koskaan käsittele maksuja.",
   "profileEditor.polytoriaHelp": "Polytoria-käyttäjänimesi.",
   "profileEditor.save": "Tallenna profiili",
   "profileEditor.title": "Muokkaa profiiliasi",

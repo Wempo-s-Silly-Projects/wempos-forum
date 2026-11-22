@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "Kun {platform}-handlet, ikke hele URL'en.",
   "profileEditor.links.one": "{count} link",
   "profileEditor.links.other": "{count} links",
+  "profileEditor.paymentNote": "Links åbner tjenesten direkte; forummet håndterer aldrig betalinger.",
   "profileEditor.polytoriaHelp": "Dit Polytoria-brugernavn.",
   "profileEditor.save": "Gem profil",
   "profileEditor.title": "Redigér din profil",

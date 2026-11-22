@@ -43,6 +43,7 @@ import {
   SOCIAL_LABELS,
   SOCIAL_PLATFORM_ORDER,
   invalidSocialKeys,
+  normalizeSocialHandle,
   renderProfileEditor,
   renderProfileSocials,
 } from "../profile-editor.js";
@@ -329,7 +330,7 @@ function appendProfileRoleControls(profile, session, container) {
 async function submitProfileEditorForm(form, text) {
   const socials = {};
   for (const key of SOCIAL_PLATFORM_ORDER) {
-    const value = text(key).trim();
+    const value = normalizeSocialHandle(key, text(key).trim());
     socials[key] = value === "" ? null : value;
   }
   const invalid = invalidSocialKeys(socials);

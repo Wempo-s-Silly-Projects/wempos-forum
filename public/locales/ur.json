@@ -738,6 +738,7 @@
   "profileEditor.handleHelp": "صرف {platform} ہینڈل، پورا URL نہیں۔",
   "profileEditor.links.one": "{count} لنک",
   "profileEditor.links.other": "{count} لنکس",
+  "profileEditor.paymentNote": "لنکس سروس کو براہِ راست کھولتے ہیں؛ فورم کبھی ادائیگیاں نہیں سنبھالتا۔",
   "profileEditor.polytoriaHelp": "آپ کا Polytoria صارف نام۔",
   "profileEditor.save": "پروفائل محفوظ کریں",
   "profileEditor.title": "اپنا پروفائل ایڈٹ کریں",
