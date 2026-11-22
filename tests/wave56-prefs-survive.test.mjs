@@ -108,7 +108,7 @@ const walk = (dir) => readdirSync(dir).flatMap((name) => {
 });
 const sources = new Map(walk(JS_ROOT).map((full) => [relative(JS_ROOT, full), readFileSync(full, "utf8")]));
 const REMOVAL = /\.removeItem\s*\(|(?:local|session)Storage\s*\.\s*clear\s*\(|storage\s*\.\s*clear\s*\(|Clear-Site-Data/;
-const REMOVAL_FILES = ["catch-up.js", "chat-mutes.js", "chat-pins.js", "drafts.js", "gallery-picks.js", "newcomer.js"];
+const REMOVAL_FILES = ["catch-up.js", "chat-mutes.js", "chat-pins.js", "drafts.js", "gallery-picks.js", "newcomer.js", "quiet-hours.js"];
 
 test("storage removals appear only in the account-scoped families", () => {
   const removers = [...sources].filter(([, src]) => REMOVAL.test(src)).map(([path]) => path).sort();

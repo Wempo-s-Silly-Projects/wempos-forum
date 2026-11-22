@@ -25,6 +25,7 @@
 // pref, stored only in this browser like the text size; the count itself is
 // the one the session already returns. No network call, no account key.
 import { t } from "./i18n.js";
+import { notificationAlertsAllowed } from "./quiet-hours.js";
 
 export const TAB_UNREAD_STORAGE_KEY = "forum-tab-unread";
 export const TAB_UNREAD_CAP = 99;
@@ -65,8 +66,10 @@ export function pageStorage() {
   }
 }
 
-export function applyTabUnread(doc, count, storage) {
-  doc.title = titleWithUnread(doc.title, readTabUnread(storage) ? count : 0);
+// Wave 5.25 F2: inside quiet hours the count is held back (stripped).
+export function applyTabUnread(doc, count, storage, now = new Date()) {
+  const shows = readTabUnread(storage) && notificationAlertsAllowed(storage, now);
+  doc.title = titleWithUnread(doc.title, shows ? count : 0);
 }
 
 // A checkbox for the account settings' Appearance panel. `getCount` reads
@@ -83,7 +86,7 @@ export function createTabUnreadToggle(doc, storage, getCount) {
     } catch {
       // Blocked storage: the choice still applies for this page view.
     }
-    doc.title = titleWithUnread(doc.title, box.checked ? getCount() : 0);
+    doc.title = titleWithUnread(doc.title, box.checked && notificationAlertsAllowed(storage) ? getCount() : 0);
   });
   wrapper.append(box, doc.createTextNode(" " + t("feed.tabUnread")));
   return wrapper;

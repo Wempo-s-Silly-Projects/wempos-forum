@@ -53,6 +53,7 @@ import { addReplyFolds, createFoldAllToggle, ensureFoldAllToggle } from "../repl
 import { createReplyFilter, refreshReplyFilter } from "../reply-filter.js";
 import { selectedQuoteText } from "../quote-selection.js";
 import { openLightbox } from "../lightbox.js";
+import { anchorReplyCard, bindReplyHashChange, highlightReplyFromHash } from "../reply-anchor.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -73,7 +74,12 @@ async function renderPostRoute(route, context, version) {
     main.append(createShortcutSheet(document));
     replyList = element("div", "post-list replies-list");
     replyList.dataset.repliesFor = String(post.id);
-    for (const reply of post.replies) replyList.append(createPostCard(reply, document, context.session.user));
+    // Link to a reply (wave 5.25 F1): id="reply-<id>" + its own copy link.
+    for (const reply of post.replies) {
+      const card = createPostCard(reply, document, context.session.user);
+      anchorReplyCard(document, card, post.id);
+      replyList.append(card);
+    }
     // Jump to the latest reply (wave 2026-11-21-9 F3): long threads only.
     const latestJump = createLatestReplyJump(document, replyList, post.replies.length);
     if (latestJump) main.append(latestJump);
@@ -116,6 +122,9 @@ async function renderPostRoute(route, context, version) {
   if (context.session.user && post.visibility !== "hidden" && !post.parent) {
     main.append(createComposer("reply", t("post.replyPlaceholder"), t("common.reply"), post.id));
   }
+  // A #reply-<id> hash lands on that reply when it is on this page; else no-op.
+  highlightReplyFromHash(main, location.hash);
+  bindReplyHashChange(window, () => main);
 }
 // Author edit save (v2.4): JSON {body} to PATCH /api/posts/:id (api.js adds the
 // CSRF header). The server reapplies the word filter and 1,000-char cap, stores
@@ -257,7 +266,11 @@ async function loadOlderReplies(button) {
   const replyList = main.querySelector('.replies-list[data-replies-for="' + postId + '"]');
   if (!replyList) throw new Error(t("post.replyListGone"));
   const fragment = document.createDocumentFragment();
-  for (const reply of older.replies) fragment.append(createPostCard(reply, document, state.currentUser));
+  for (const reply of older.replies) {
+    const card = createPostCard(reply, document, state.currentUser);
+    anchorReplyCard(document, card, postId);
+    fragment.append(card);
+  }
   replyList.prepend(fragment);
   markThreadStarterReplies(document, replyList, older.replies, Number(replyList.dataset.starterId));
   addReplyFolds(document, replyList);
