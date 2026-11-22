@@ -10,6 +10,15 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.75.0] - 2026-11-22
+
+### Added
+- The forum now has a favicon: every page links the SVG icon with a PNG fallback.
+- Optional unread badge on the browser-tab icon: when the "unread count in tab" setting is on, a hidden tab shows your unread notifications and direct messages (capped at 9+) on its icon. It follows quiet hours, never makes a network request, and restores the plain icon when you come back or the count reaches zero.
+
+### Changed
+- Prism's highlighted-text test now reads the token stream instead of stripping markup with a regex (CodeQL hygiene).
+
 ## [5.74.1] - 2026-11-22
 
 ### Fixed
