@@ -15,6 +15,23 @@ The live version is shown at <https://wempos-forum.com/api/version>.
   `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and human guides for
   members, admins and developers under `docs/`.
 
+## [5.42.0] - 2026-11-22
+
+### Security
+- Whole-forum privacy re-audit (done every tenth version): every page, feed
+  and list added since v5.32 (RSS feeds, llms.txt, This week, newest
+  members, staff picks, invites, search filters, conversation search,
+  pinned threads, custom status, poll closing times, bookmark folders,
+  following members and notification types) is now listed in
+  [docs/visibility-inventory.md](docs/visibility-inventory.md) with the
+  filters it applies and the test that checks it. No leaks were found.
+
+### Fixed
+- The automated privacy checks now also cover the newest-members list, the
+  follow button's state, notification settings, the staff-pick log, and
+  what staff and the site owner see on public pages and in other members'
+  private folders, follows and settings.
+
 ## [5.41.0] - 2026-11-22
 
 ### Security
