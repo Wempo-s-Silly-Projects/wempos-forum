@@ -269,7 +269,9 @@ test("addSectionAnchors gives each section a stable id and a jump button", () =>
 
 test("the account settings area is titled and carries the new panels", () => {
   const feed = read("public/js/routes/feed.js");
-  assert.match(feed, /document\.createElement\("summary"\)/);
+  // v5.56: the settings moved from a <details> under the feed to the hub
+  // view (/?settings); its title is now the page heading.
+  assert.match(feed, /addHeading\(account, t\("settings\.title"\), 1\)/);
   assert.match(feed, /createDataExportPanel\(/);
   assert.match(feed, /createSettingsFilter\(/);
   assert.match(feed, /addSectionAnchors\(/);

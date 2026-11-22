@@ -63,6 +63,13 @@ import { createAppearanceReset } from "../appearance-reset.js";
 import { createBoardRegulars } from "../board-regulars.js";
 import { createDataExportPanel, downloadMyData } from "../data-export.js";
 import { addSectionAnchors, createSettingsFilter } from "../settings-tools.js";
+import {
+  buildSettingsHub,
+  createSettingsLinkPanel,
+  createSettingsSignIn,
+  groupedSettingsPanels,
+  syncSettingsGroups,
+} from "../settings-groups.js";
 import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
 import { createNewestMembers, createWeekLink } from "../week.js";
 import { renderNewcomerCards } from "../newcomer.js";
@@ -149,14 +156,12 @@ function renderHomeContent(session, data, route) {
   main.append(older);
 }
 function renderAccountSettings(session) {
-  const account = document.createElement("details");
-  account.className = "panel";
-  // v4.23: the area carries its own title (it used to render the browser's
-  // bare "Details" label).
-  const summary = document.createElement("summary");
-  summary.className = "settings-summary";
-  summary.textContent = t("settings.title");
-  account.append(summary);
+  // v5.56 hub: the settings are their own view (/?settings), no longer a
+  // collapsed <details> under the home feed; the panels below are built
+  // exactly as before, then moved into four groups (settings-groups.js).
+  const account = document.createElement("div");
+  account.className = "settings-hub";
+  const title = addHeading(account, t("settings.title"), 1);
   // Appearance: the square-corners pref (v2.5) - a checkbox in the account
   // settings panel; stored client-side like the theme choice.
   const corners = document.createElement("label");
@@ -257,17 +262,36 @@ function renderAccountSettings(session) {
   account.append(deletePanel);
   // v4.23: every section is appended synchronously above, so the anchors,
   // the jump list and the filter see the whole set right after the title.
-  const panels = Array.from(account.querySelectorAll(":scope > section.panel"));
-  const jumpNav = addSectionAnchors(document, panels);
-  summary.after(createSettingsFilter(document, panels, jumpNav), jumpNav);
+  // v5.56: the four groups replace the flat stack first, so the jump list
+  // follows the order on screen; a group the filter empties hides with its
+  // panels.
+  const panels = Array.from(account.children).filter((node) => node.matches("section.panel"));
+  const groups = buildSettingsHub(document, account, panels);
+  const grouped = groupedSettingsPanels(groups);
+  const jumpNav = addSectionAnchors(document, grouped);
+  const filter = createSettingsFilter(document, grouped, jumpNav);
+  title.after(filter, jumpNav);
+  filter.querySelector("input").addEventListener("input", () => syncSettingsGroups(groups));
   main.append(account);
+}
+
+// Account settings hub (v5.56): /?settings. Guests get a sign-in prompt,
+// like /mine and /bookmarks.
+async function renderSettingsRoute(context, version) {
+  if (version !== state.renderVersion) return;
+  if (!context.session.user) {
+    main.append(createSettingsSignIn(document, wempoAccountsSignInUrl(location.origin)));
+    return;
+  }
+  renderAccountSettings(context.session);
 }
 
 function renderHome(session, setupRequired, setupConfigured, data, route) {
   renderIntroduction();
   renderHomeAccess(session, setupRequired, setupConfigured);
   renderHomeContent(session, data, route);
-  if (session.user) renderAccountSettings(session);
+  // v5.56: where the collapsed settings used to sit, one link into the hub.
+  if (session.user) main.append(createSettingsLinkPanel(document));
 }
 
 // The invisible toggle's two buttons (visible / invisible), each carrying its
@@ -745,6 +769,7 @@ export const ACTIONS = {
 
 export {
   renderHomeRoute,
+  renderSettingsRoute,
   renderMineRoute,
   renderCategoryRoute,
   renderBookmarksRoute,

@@ -71,6 +71,7 @@ import {
   renderBookmarksRoute,
   renderCategoryRoute,
   renderHomeRoute,
+  renderSettingsRoute,
   renderMineRoute,
 } from "./routes/feed.js";
 import {
@@ -201,6 +202,7 @@ function setRouteTitle(route) {
   const pageNames = {
     home: t("app.siteName"),
     search: t("app.pageSearch"),
+    settings: t("settings.title"),
     suggestions: t("app.pageSuggestions"),
     archive: t("app.pageArchive"),
     mine: t("app.pageMine"),
@@ -288,6 +290,7 @@ async function renderRoute(route) {
     setup: () => renderSetupRoute(context),
     home: () => renderHomeRoute(route, context, version),
     search: () => renderHomeRoute(route, context, version),
+    settings: () => renderSettingsRoute(context, version),
     mine: () => renderMineRoute(context, version),
     leaderboard: () => renderLeaderboardRoute(context, version),
     rules: () => renderRulesRoute(context, version),
