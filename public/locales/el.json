@@ -57,10 +57,8 @@
   "admin.section.appeals": "Προσφυγές",
   "admin.section.avatars": "Avatars",
   "admin.section.bans": "Bans & μέλη",
-  "admin.section.chatLog": "Ιστορικό chat",
   "admin.section.css": "CSS προφίλ",
   "admin.section.dashboard": "Επισκόπηση",
-  "admin.section.dmLog": "Ιστορικό προσωπικών μηνυμάτων",
   "admin.section.filter": "Φίλτρο λέξεων",
   "admin.section.gifs": "Βιβλιοθήκη GIF",
   "admin.section.hidden": "Κρυφές αναρτήσεις",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Δείχνει τον τίτλο και την περίληψη ενός συνδέσμου.",
   "modules.desc.embeds": "Πρόγραμμα αναπαραγωγής βίντεο, ήχου και 3D στις δημοσιεύσεις.",
   "modules.label.search": "Αναζήτηση πλήρους κειμένου",
-  "modules.desc.search": "Αναζητήστε τις λέξεις μέσα σε κάθε ανάρτηση."
+  "modules.desc.search": "Αναζητήστε τις λέξεις μέσα σε κάθε ανάρτηση.",
+  "admin.section.allReports": "Αναφορές",
+  "admin.lede.allReports": "Τι ανέφεραν τα μέλη — αναρτήσεις, προφίλ και συνομιλίες.",
+  "admin.section.chatDmLog": "Ιστορικό chat και προσωπικών μηνυμάτων",
+  "admin.lede.chatDmLog": "Το δημόσιο λόμπι και τα μηνύματα 1:1 — διαγράφονται επί τόπου.",
+  "admin.section.media": "Πολυμέσα",
+  "admin.lede.media": "Εικόνες, άβαταρ και GIF που περιμένουν έλεγχο.",
+  "desk.reports.all": "Όλα",
+  "desk.switch.label": "Εμφάνιση"
 }

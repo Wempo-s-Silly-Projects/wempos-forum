@@ -57,10 +57,8 @@
   "admin.section.appeals": "Апелляцеш",
   "admin.section.avatars": "Аватарш",
   "admin.section.bans": "Банаш а декъашхой а",
-  "admin.section.chatLog": "Чатан тептар",
   "admin.section.css": "Профилан CSS",
   "admin.section.dashboard": "Дерриг хьежам",
-  "admin.section.dmLog": "ДМ тептар",
   "admin.section.filter": "Дешнийн фильтр",
   "admin.section.gifs": "GIF библиотека",
   "admin.section.hidden": "Къайладаьккхина посташ",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Хьажоргин цӀе а, доцца чулацам а гойту.",
   "modules.desc.embeds": "Хаамашкахь видео, аудио, 3D.",
   "modules.label.search": "Йоза буьззина лахар",
-  "modules.desc.search": "Хӏора постехь долу дешнаш лаха."
+  "modules.desc.search": "Хӏора постехь долу дешнаш лаха.",
+  "admin.section.allReports": "Хаамаш",
+  "admin.lede.allReports": "Декъашхоша хаам бина — посташ, профилаш а, къамелаш а.",
+  "admin.section.chatDmLog": "Чатан а, ДМ тептар",
+  "admin.lede.chatDmLog": "Юкъара лобби а, 1:1 хаамаш а — кхузахь дӀадаха мега.",
+  "admin.section.media": "Медиа",
+  "admin.lede.media": "Хьажа лоьху сурташ, аватараш а, GIF а.",
+  "desk.reports.all": "Массо",
+  "desk.switch.label": "Гайта"
 }

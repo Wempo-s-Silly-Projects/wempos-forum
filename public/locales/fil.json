@@ -57,10 +57,8 @@
   "admin.section.appeals": "Mga apela",
   "admin.section.avatars": "Mga avatar",
   "admin.section.bans": "Mga ban at miyembro",
-  "admin.section.chatLog": "Log ng chat",
   "admin.section.css": "CSS ng profile",
   "admin.section.dashboard": "Pangkalahatang-tanaw",
-  "admin.section.dmLog": "Log ng DM",
   "admin.section.filter": "Filter ng salita",
   "admin.section.gifs": "Library ng GIF",
   "admin.section.hidden": "Mga nakatagong post",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Ipinapakita ang pamagat at buod ng link.",
   "modules.desc.embeds": "Mga player ng video, audio at 3D sa mga post.",
   "modules.label.search": "Paghahanap sa buong teksto",
-  "modules.desc.search": "Hanapin ang mga salita sa loob ng bawat post."
+  "modules.desc.search": "Hanapin ang mga salita sa loob ng bawat post.",
+  "admin.section.allReports": "Mga report",
+  "admin.lede.allReports": "Ang ini-report ng mga miyembro — mga post, profile at usapan.",
+  "admin.section.chatDmLog": "Log ng chat at DM",
+  "admin.lede.chatDmLog": "Ang pampublikong lobby at mga 1:1 na mensahe — puwedeng burahin dito mismo.",
+  "admin.section.media": "Media",
+  "admin.lede.media": "Mga larawan, avatar at GIF na naghihintay ng pagsusuri.",
+  "desk.reports.all": "Lahat",
+  "desk.switch.label": "Ipakita"
 }

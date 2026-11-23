@@ -20,7 +20,7 @@
 
 // v4.0 plan 4 Task 8: the moderation desk — the /admin route and its fourteen
 // payloads, the desk section builders that live inside app.js's renderAdmin
-// (profile-report queue, hidden posts queue, rules editor, CSS queue), and the
+// (hidden posts queue, rules editor, CSS queue), and the
 // desk submits (resolve, ban/unban, role changes, avatar/attachment
 // moderation, member search). Bodies moved verbatim out of app.js; bare
 // renderRoute calls inside moved bodies re-read the boot state
@@ -35,26 +35,27 @@ import { currentLocale, t, tn } from "../i18n.js";
 import { createAppealQueue } from "../desk/appeals.js";
 import {
   createActiveBanList,
-  createBanForm,
   createMemberSearch,
   renderMemberSearchResults,
 } from "../desk/bans.js";
-import { createChatLog, createDmLog } from "../desk/chat-log.js";
-import {
-  createAttachmentQueue,
-  createAvatarQueue,
-  createGifQueue,
-} from "../desk/media.js";
-import { createReportQueue } from "../desk/reports.js";
-import { createAutoModLog, createDmReportQueue } from "../desk/automod.js";
+import { createAutoModLog } from "../desk/automod.js";
 import { createMemberPeek } from "../desk/member-tools.js";
 import { createMemberNotes, memberNotesPath } from "../desk/staff-tools.js";
 import { adminTagPath, createTagManager } from "../tags.js";
 import { createFilterEditor } from "../desk/filter.js";
 import { createBrandingEditor, submitBrandingSave } from "../desk/branding.js";
 import { createFoolsSwitch, isOwner, submitFoolsSave } from "../desk/saturday-fools.js";
-import { createVisitsPanel } from "../desk/visits.js";
-import { createSiteHealthPanel } from "../desk/site-health.js";
+import {
+  buildChatLog,
+  buildMedia,
+  buildReports,
+  buildSiteHealth,
+  deskRedirectPath,
+  loadChatLog,
+  loadMedia,
+  loadReports,
+  loadSiteHealth,
+} from "../desk/merged-sections.js";
 import { createModulesPanel } from "../desk/modules.js";
 import { createStaffPickLog } from "../desk/staff-picks.js";
 import { threadLockPath } from "../thread-lock.js";
@@ -64,28 +65,24 @@ import { focusPageHeading } from "../focus-utils.js";
 // of dedicated pages (each loading exactly one desk payload) plus a dashboard
 // overview that counts every queue and shows what actually needs staff eyes.
 // The old single page stacked all fourteen payloads fetch-at-once; sections
-// keep the same endpoint surface, just one fetch per visit.
+// keep the same endpoint surface, just one fetch per visit. v5.92 merged
+// related tabs (desk/merged-sections.js): Reports, Media, Chat & DM log, and
+// Visits inside Site health; the old slugs redirect there.
 const DESK_SECTIONS = [
   { slug: "dashboard", labelKey: "admin.section.dashboard" },
-  { slug: "reports", labelKey: "admin.section.reports" },
-  { slug: "profile-reports", labelKey: "admin.section.profileReports" },
+  { slug: "reports", labelKey: "admin.section.allReports" },
   { slug: "appeals", labelKey: "admin.section.appeals" },
-  { slug: "images", labelKey: "admin.section.images" },
-  { slug: "avatars", labelKey: "admin.section.avatars" },
-  { slug: "gifs", labelKey: "admin.section.gifs" },
+  { slug: "media", labelKey: "admin.section.media" },
   { slug: "css", labelKey: "admin.section.css" },
   { slug: "hidden", labelKey: "admin.section.hidden" },
   { slug: "bans", labelKey: "admin.section.bans" },
-  { slug: "chat-log", labelKey: "admin.section.chatLog" },
-  { slug: "dm-log", labelKey: "admin.section.dmLog" },
-  { slug: "dm-reports", labelKey: "admin.section.dmReports" },
+  { slug: "chat-log", labelKey: "admin.section.chatDmLog" },
   { slug: "automod", labelKey: "admin.section.automod" },
   { slug: "staff-picks", labelKey: "admin.section.staffPicks" },
   { slug: "tags", labelKey: "admin.section.tags" },
   { slug: "rules", labelKey: "admin.section.rules" },
   { slug: "filter", labelKey: "admin.section.filter" },
   { slug: "branding", labelKey: "admin.section.branding" },
-  { slug: "visits", labelKey: "admin.section.visits" },
   { slug: "site-health", labelKey: "admin.section.siteHealth" },
   // Owner only (docs/modules.md): whole features on or off for this forum.
   { slug: "modules", labelKey: "admin.section.modules", ownerOnly: true },
@@ -94,38 +91,25 @@ const DESK_SECTIONS = [
 // The rail and the routes an owner (stored 'admin') or an admin may open.
 const sectionAllowed = (section, user) => !section.ownerOnly || user.role === "owner";
 
-// slug → { lede, load(), build() }. Every build() appends the section's body
-// to `main` after the shell; each loads only what it renders.
+// slug → { lede, load(view), build() }. Every build() appends the section's
+// body to `main` after the shell; each loads only what it renders.
 const DESK_BUILDERS = {
+  // v5.92: post, profile and DM reports behind one type filter (?view=).
   "reports": {
-    ledeKey: "admin.lede.reports",
-    load: () => api("/api/admin/reports"),
-    build: (data, user) => createReportQueue(data.reports, document, user),
-  },
-  "profile-reports": {
-    ledeKey: "admin.lede.profileReports",
-    load: () => api("/api/admin/profile-reports"),
-    build: (data) => createProfileReportQueue(data.profileReports, document),
+    ledeKey: "admin.lede.allReports",
+    load: (view) => loadReports(view, api),
+    build: (data, user) => buildReports(data, document, user),
   },
   "appeals": {
     ledeKey: "admin.lede.appeals",
     load: () => api("/api/admin/appeals"),
     build: (data) => createAppealQueue(data.appeals, document),
   },
-  "images": {
-    ledeKey: "admin.lede.images",
-    load: () => api("/api/admin/attachments"),
-    build: (data) => createAttachmentQueue(data.attachments, document),
-  },
-  "avatars": {
-    ledeKey: "admin.lede.avatars",
-    load: () => api("/api/admin/avatars"),
-    build: (data) => createAvatarQueue(data.avatars, document),
-  },
-  "gifs": {
-    ledeKey: "admin.lede.gifs",
-    load: () => api("/api/admin/gifs"),
-    build: (data) => createGifQueue(data.gifs, document),
+  // v5.92: images, avatars and GIFs as parts of one page.
+  "media": {
+    ledeKey: "admin.lede.media",
+    load: () => loadMedia(api),
+    build: (data) => buildMedia(data, document),
   },
   "css": {
     ledeKey: "admin.lede.css",
@@ -145,20 +129,12 @@ const DESK_BUILDERS = {
       createMemberSearch(document),
     ],
   },
+  // v5.92: the lobby log and the DM log behind a Lobby / DMs switch; the DM
+  // log is fetched only on its own view (?view=dms).
   "chat-log": {
-    ledeKey: "admin.lede.chatLog",
-    load: () => api("/api/admin/chat"),
-    build: (data) => createChatLog(data.messages, document),
-  },
-  "dm-log": {
-    ledeKey: "admin.lede.dmLog",
-    load: () => api("/api/admin/dms"),
-    build: (data) => createDmLog(data.messages, document),
-  },
-  "dm-reports": {
-    ledeKey: "admin.lede.dmReports",
-    load: () => api("/api/admin/dm-reports"),
-    build: (data) => createDmReportQueue(data.dmReports, document),
+    ledeKey: "admin.lede.chatDmLog",
+    load: (view) => loadChatLog(view, api),
+    build: (data) => buildChatLog(data, document),
   },
   "automod": {
     ledeKey: "admin.lede.automod",
@@ -193,17 +169,12 @@ const DESK_BUILDERS = {
     // v5.86: plus the owner-only Saturday Fools off switch.
     build: (data, user) => [createBrandingEditor(data, document), isOwner(user) ? createFoolsSwitch(document) : null],
   },
-  // v5.30.0: aggregate-only visit counts (staff-only on the server too).
-  "visits": {
-    ledeKey: "admin.lede.visits",
-    load: () => api("/api/admin/analytics?days=7"),
-    build: (data) => createVisitsPanel(data, document),
-  },
-  // Anonymous Core Web Vitals: p75 per page type (staff-only on the server too).
+  // Anonymous Core Web Vitals: p75 per page type, then (v5.92) the
+  // aggregate-only Visits counts as a part (both staff-only on the server too).
   "site-health": {
     ledeKey: "admin.lede.siteHealth",
-    load: () => api("/api/admin/site-health"),
-    build: (data) => createSiteHealthPanel(data, document),
+    load: () => loadSiteHealth(api),
+    build: (data) => buildSiteHealth(data, document),
   },
   "modules": {
     ledeKey: "admin.lede.modules",
@@ -213,6 +184,12 @@ const DESK_BUILDERS = {
 };
 
 async function renderAdminRoute(route, context, version) {
+  // v5.92: an old desk tab's URL lands on its merged home (history replaced).
+  const redirect = deskRedirectPath(route.section);
+  if (redirect) {
+    state.router.navigate(redirect, { replace: true });
+    return;
+  }
   const user = context.session.user;
   const staff = Boolean(user && (user.role === "owner" || user.role === "admin"));
   if (!staff) {
@@ -225,7 +202,7 @@ async function renderAdminRoute(route, context, version) {
   const content = renderAdminShell(user, slug);
   if (slug !== "dashboard") {
     const section = DESK_BUILDERS[slug];
-    const data = await section.load();
+    const data = await section.load(route.view);
     if (version !== state.renderVersion) return;
     addHeading(content, t(DESK_SECTIONS.find((s) => s.slug === slug).labelKey), 1);
     addText(document, content, "p", t(section.ledeKey), "page-lede");
@@ -237,7 +214,7 @@ async function renderAdminRoute(route, context, version) {
   }
   // Dashboard: count every work queue and surface what actually needs eyes —
   // status cards first, then the queue tiles.
-  const [reports, appeals, attachments, avatars, gifs, css, profileReports, hidden] = await Promise.all([
+  const [reports, appeals, attachments, avatars, gifs, css, profileReports, hidden, dmReports] = await Promise.all([
     api("/api/admin/reports"),
     api("/api/admin/appeals"),
     api("/api/admin/attachments"),
@@ -246,19 +223,18 @@ async function renderAdminRoute(route, context, version) {
     api("/api/admin/css"),
     api("/api/admin/profile-reports"),
     api("/api/admin/hidden"),
+    api("/api/admin/dm-reports"),
   ]);
   if (version !== state.renderVersion) return;
   addHeading(content, t("admin.section.dashboard"), 1);
   addText(document, content, "p",
     t("admin.overviewLede"), "page-lede");
+  // v5.92: a merged tab's tile counts every queue it holds.
   const counts = {
-    "reports": reports.reports.length,
+    "reports": reports.reports.length + profileReports.profileReports.length + dmReports.dmReports.length,
     "appeals": appeals.appeals.filter((a) => a.status === "pending").length,
-    "images": attachments.attachments.length,
-    "avatars": avatars.avatars.length,
-    "gifs": gifs.gifs.length,
+    "media": attachments.attachments.length + avatars.avatars.length + gifs.gifs.length,
     "css": css.cssSubmissions.length,
-    "profile-reports": profileReports.profileReports.length,
     "hidden": hidden.hidden.length,
   };
   content.append(createDashboardBoard(
@@ -323,35 +299,6 @@ function createDashboardBoard(tiles, document) {
   }
   board.append(tilesHost);
   return board;
-}
-
-function createProfileReportQueue(reports, document) {
-  const container = element("div", "profile-report-queue");
-  if (!reports.length) {
-    addText(document, container, "p", t("admin.noProfileReports"), "empty-state");
-    return container;
-  }
-  for (const report of reports) {
-    const item = element("div", "report-queue-item");
-    const head = element("p", "report-queue-head",
-      t("admin.profileReportHead", { profile: report.profileUsername, reporter: report.reporter }));
-    const reason = element("p", "report-queue-reason");
-    reason.textContent = report.reason;
-    const resolve = element("button", "button", t("admin.resolve"));
-    resolve.type = "button";
-    resolve.dataset.action = "resolve-profile-report";
-    resolve.dataset.reportId = String(report.id);
-    const visit = element("a", "button button-quiet", t("admin.viewProfile"));
-    visit.href = "/users/" + encodeURIComponent(report.profileUsername);
-    visit.setAttribute("data-app-link", "");
-    // Ban affordance (v3.0.2): a profile report used to be resolve-only —
-    // the same admin-ban form as the post-report queue (reason + duration)
-    // lets the mod act on the reported member right here. The generic
-    // data-form="admin-ban" submit handler picks it up unchanged.
-    item.append(head, reason, resolve, visit, createBanForm(document, report.profileUserId, report.profileUsername));
-    container.append(item);
-  }
-  return container;
 }
 
 // Hidden-post card head: author — ban reason or "hidden post" — expiry.

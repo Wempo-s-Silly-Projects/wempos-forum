@@ -267,10 +267,12 @@ test("retention: rows older than 90 days are deleted on read, in bounded batches
 // ---- client, config and docs --------------------------------------------------
 
 test("desk Visits section: staff-only aggregate, painted with textContent only", () => {
-  const admin = source("public/js/routes/admin.js");
-  assert.match(admin, /slug: "visits", labelKey: "admin\.section\.visits"/);
-  assert.match(admin, /\/api\/admin\/analytics\?days=/);
+  // v5.92: Visits is a part of the Site health page (desk/merged-sections.js).
+  const merged = source("public/js/desk/merged-sections.js");
+  assert.match(merged, /createDeskPart\(document, "admin\.section\.visits", "admin\.lede\.visits", createVisitsPanel\(data\.visits, document\)\)/);
+  assert.match(merged, /fetcher\(visitsUrl\(7\)\)/);
   const desk = source("public/js/desk/visits.js");
+  assert.match(desk, /"\/api\/admin\/analytics\?days=" \+ days/);
   assert.doesNotMatch(desk, /innerHTML|insertAdjacentHTML|outerHTML/);
   assert.match(desk, /textContent/);
   assert.doesNotMatch(desk, /localStorage|sessionStorage|document\.cookie/);

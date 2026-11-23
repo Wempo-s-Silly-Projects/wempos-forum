@@ -57,10 +57,8 @@
   "admin.section.appeals": "申訴",
   "admin.section.avatars": "大頭貼",
   "admin.section.bans": "停權與成員",
-  "admin.section.chatLog": "聊天紀錄",
   "admin.section.css": "個人檔案 CSS",
   "admin.section.dashboard": "總覽",
-  "admin.section.dmLog": "私訊紀錄",
   "admin.section.filter": "字詞過濾",
   "admin.section.gifs": "GIF 圖庫",
   "admin.section.hidden": "已隱藏的貼文",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "顯示連結的標題和摘要。",
   "modules.desc.embeds": "貼文中的影片、音訊和 3D 播放器。",
   "modules.label.search": "全文搜尋",
-  "modules.desc.search": "搜尋每篇貼文中的文字。"
+  "modules.desc.search": "搜尋每篇貼文中的文字。",
+  "admin.section.allReports": "檢舉",
+  "admin.lede.allReports": "成員檢舉的內容——貼文、個人檔案和對話。",
+  "admin.section.chatDmLog": "聊天與私訊紀錄",
+  "admin.lede.chatDmLog": "公開大廳和一對一訊息——可當場刪除。",
+  "admin.section.media": "媒體",
+  "admin.lede.media": "等待審核的圖片、頭像和 GIF。",
+  "desk.reports.all": "全部",
+  "desk.switch.label": "顯示"
 }

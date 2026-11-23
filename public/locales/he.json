@@ -57,10 +57,8 @@
   "admin.section.appeals": "ערעורים",
   "admin.section.avatars": "תמונות פרופיל",
   "admin.section.bans": "הרחקות וחברים",
-  "admin.section.chatLog": "יומן צ׳אט",
   "admin.section.css": "CSS לפרופילים",
   "admin.section.dashboard": "סקירה כללית",
-  "admin.section.dmLog": "יומן הודעות פרטיות",
   "admin.section.filter": "מסנן מילים",
   "admin.section.gifs": "ספריית GIF",
   "admin.section.hidden": "פוסטים מוסתרים",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "מציג את הכותרת והתקציר של קישור.",
   "modules.desc.embeds": "נגני וידאו, שמע ותלת־ממד בפוסטים.",
   "modules.label.search": "חיפוש בטקסט מלא",
-  "modules.desc.search": "חיפוש המילים בתוך כל פוסט."
+  "modules.desc.search": "חיפוש המילים בתוך כל פוסט.",
+  "admin.section.allReports": "דיווחים",
+  "admin.lede.allReports": "מה שחברים דיווחו — פוסטים, פרופילים ושיחות.",
+  "admin.section.chatDmLog": "יומן צ׳אט והודעות פרטיות",
+  "admin.lede.chatDmLog": "הלובי הציבורי והודעות 1:1 — ניתנים למחיקה במקום.",
+  "admin.section.media": "מדיה",
+  "admin.lede.media": "תמונות, אווטארים ו-GIF שממתינים לבדיקה.",
+  "desk.reports.all": "הכול",
+  "desk.switch.label": "הצגה"
 }

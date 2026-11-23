@@ -57,10 +57,8 @@
   "admin.section.appeals": "Сӑнавсем",
   "admin.section.avatars": "Аватарсем",
   "admin.section.bans": "Чарусем тата участниксем",
-  "admin.section.chatLog": "Чат ҫырӑвӗ",
   "admin.section.css": "Профиль CSS",
   "admin.section.dashboard": "Пӗр пӑхӑшпа",
-  "admin.section.dmLog": "ЛС ҫырӑвӗ",
   "admin.section.filter": "Сӑмах фильтрӗ",
   "admin.section.gifs": "GIF библиотеки",
   "admin.section.hidden": "Пытарнӑ постсем",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Каҫӑн ятне тата кӗске тытӑмне кӑтартать.",
   "modules.desc.embeds": "Ҫырусенчи видео, аудио тата 3D плеерсем.",
   "modules.label.search": "Тулли текст тӑрӑх шырав",
-  "modules.desc.search": "Кашни ҫырӑвӑн ӑшӗнчи сӑмахсене шырӑр."
+  "modules.desc.search": "Кашни ҫырӑвӑн ӑшӗнчи сӑмахсене шырӑр.",
+  "admin.section.allReports": "Ҫырнисем",
+  "admin.lede.allReports": "Хутшӑнакансем мӗн ҫинчен ҫырнӑ — постсем, профильсем тата калаҫусем.",
+  "admin.section.chatDmLog": "Чат тата ЛС ҫырӑвӗ",
+  "admin.lede.chatDmLog": "Пӗтӗмӗшле лобби тата 1:1 ҫырусем — кунтах кӑларса пӑрахма пулать.",
+  "admin.section.media": "Медиа",
+  "admin.lede.media": "Тӗрӗслеве кӗтекен ӳкерчӗксем, аватарсем тата GIF.",
+  "desk.reports.all": "Пурте",
+  "desk.switch.label": "Кӑтарт"
 }

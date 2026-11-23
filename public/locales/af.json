@@ -57,10 +57,8 @@
   "admin.section.appeals": "Appèlle",
   "admin.section.avatars": "Profielprente",
   "admin.section.bans": "Verbanne en lede",
-  "admin.section.chatLog": "Kletslog",
   "admin.section.css": "Profiel-CSS",
   "admin.section.dashboard": "Oorsig",
-  "admin.section.dmLog": "Privaatboodskaplog",
   "admin.section.filter": "Woordfilter",
   "admin.section.gifs": "GIF-biblioteek",
   "admin.section.hidden": "Versteekte plasings",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Wys 'n skakel se titel en opsomming.",
   "modules.desc.embeds": "Video-, oudio- en 3D-spelers in plasings.",
   "modules.label.search": "Volteks-soektog",
-  "modules.desc.search": "Soek die woorde in elke plasing."
+  "modules.desc.search": "Soek die woorde in elke plasing.",
+  "admin.section.allReports": "Verslae",
+  "admin.lede.allReports": "Wat lede gerapporteer het — plasings, profiele en gesprekke.",
+  "admin.section.chatDmLog": "Klets- en privaatboodskaplog",
+  "admin.lede.chatDmLog": "Die openbare saal en 1:1-boodskappe — hier uitveebaar.",
+  "admin.section.media": "Media",
+  "admin.lede.media": "Prente, avatars en GIF's wat op hersiening wag.",
+  "desk.reports.all": "Alles",
+  "desk.switch.label": "Wys"
 }

@@ -57,10 +57,8 @@
   "admin.section.appeals": "อุทธรณ์",
   "admin.section.avatars": "อวาตาร์",
   "admin.section.bans": "การแบนและสมาชิก",
-  "admin.section.chatLog": "บันทึกแชท",
   "admin.section.css": "CSS โปรไฟล์",
   "admin.section.dashboard": "ภาพรวม",
-  "admin.section.dmLog": "บันทึก DM",
   "admin.section.filter": "ตัวกรองคำ",
   "admin.section.gifs": "คลัง GIF",
   "admin.section.hidden": "โพสต์ที่ซ่อน",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "แสดงชื่อและสรุปของลิงก์",
   "modules.desc.embeds": "เครื่องเล่นวิดีโอ เสียง และ 3D ในโพสต์",
   "modules.label.search": "ค้นหาแบบเต็มข้อความ",
-  "modules.desc.search": "ค้นหาคำในทุกโพสต์"
+  "modules.desc.search": "ค้นหาคำในทุกโพสต์",
+  "admin.section.allReports": "รายงาน",
+  "admin.lede.allReports": "สิ่งที่สมาชิกรายงาน — โพสต์ โปรไฟล์ และบทสนทนา",
+  "admin.section.chatDmLog": "บันทึกแชทและ DM",
+  "admin.lede.chatDmLog": "ล็อบบี้สาธารณะและข้อความ 1:1 — ลบได้ทันทีที่นี่",
+  "admin.section.media": "สื่อ",
+  "admin.lede.media": "รูปภาพ อวาตาร์ และ GIF ที่รอการตรวจ",
+  "desk.reports.all": "ทั้งหมด",
+  "desk.switch.label": "แสดง"
 }

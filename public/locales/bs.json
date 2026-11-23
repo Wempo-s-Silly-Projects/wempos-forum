@@ -57,10 +57,8 @@
   "admin.section.appeals": "Žalbe",
   "admin.section.avatars": "Avatari",
   "admin.section.bans": "Zabrane i članovi",
-  "admin.section.chatLog": "Evidencija čata",
   "admin.section.css": "CSS profila",
   "admin.section.dashboard": "Pregled",
-  "admin.section.dmLog": "Evidencija privatnih poruka",
   "admin.section.filter": "Filter riječi",
   "admin.section.gifs": "Biblioteka GIF-ova",
   "admin.section.hidden": "Skrivene objave",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Prikazuje naslov i sažetak linka.",
   "modules.desc.embeds": "Video, audio i 3D plejeri u objavama.",
   "modules.label.search": "Pretraga cijelog teksta",
-  "modules.desc.search": "Pretražite riječi unutar svake objave."
+  "modules.desc.search": "Pretražite riječi unutar svake objave.",
+  "admin.section.allReports": "Prijave",
+  "admin.lede.allReports": "Šta su članovi prijavili — objave, profili i razgovori.",
+  "admin.section.chatDmLog": "Evidencija čata i privatnih poruka",
+  "admin.lede.chatDmLog": "Javni lobi i poruke 1:1 — brišu se na licu mjesta.",
+  "admin.section.media": "Mediji",
+  "admin.lede.media": "Slike, avatari i GIF-ovi koji čekaju pregled.",
+  "desk.reports.all": "Sve",
+  "desk.switch.label": "Prikaži"
 }

@@ -57,10 +57,8 @@
   "admin.section.appeals": "الطعون",
   "admin.section.avatars": "الصور الرمزية",
   "admin.section.bans": "الحظر والأعضاء",
-  "admin.section.chatLog": "سجل الدردشة",
   "admin.section.css": "CSS الملفات الشخصية",
   "admin.section.dashboard": "نظرة عامة",
-  "admin.section.dmLog": "سجل الرسائل الخاصة",
   "admin.section.filter": "مرشّح الكلمات",
   "admin.section.gifs": "مكتبة GIF",
   "admin.section.hidden": "المنشورات المخفية",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "يعرض عنوان الرابط وملخصه.",
   "modules.desc.embeds": "مشغلات فيديو وصوت وثلاثية الأبعاد في المنشورات.",
   "modules.label.search": "البحث في النص الكامل",
-  "modules.desc.search": "ابحث عن الكلمات داخل كل منشور."
+  "modules.desc.search": "ابحث عن الكلمات داخل كل منشور.",
+  "admin.section.allReports": "البلاغات",
+  "admin.lede.allReports": "ما أبلغ عنه الأعضاء — منشورات وملفات شخصية ومحادثات.",
+  "admin.section.chatDmLog": "سجل الدردشة والرسائل الخاصة",
+  "admin.lede.chatDmLog": "الردهة العامة والرسائل الثنائية — قابلة للحذف في مكانها.",
+  "admin.section.media": "الوسائط",
+  "admin.lede.media": "صور وصور رمزية وصور GIF بانتظار المراجعة.",
+  "desk.reports.all": "الكل",
+  "desk.switch.label": "عرض"
 }

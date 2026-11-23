@@ -57,10 +57,8 @@
   "admin.section.appeals": "اعتراض‌ها",
   "admin.section.avatars": "تصاویر پروفایل",
   "admin.section.bans": "مسدودی‌ها و اعضا",
-  "admin.section.chatLog": "گزارش گپ",
   "admin.section.css": "CSS پروفایل",
   "admin.section.dashboard": "نمای کلی",
-  "admin.section.dmLog": "گزارش پیام‌های مستقیم",
   "admin.section.filter": "فیلتر واژه‌ها",
   "admin.section.gifs": "کتابخانهٔ GIF",
   "admin.section.hidden": "پست‌های پنهان",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "عنوان و خلاصهٔ پیوند را نشان می‌دهد.",
   "modules.desc.embeds": "پخش‌کننده‌های ویدیو، صدا و سه‌بعدی در پست‌ها.",
   "modules.label.search": "جستجوی متن کامل",
-  "modules.desc.search": "واژه‌های درون هر پست را جستجو کنید."
+  "modules.desc.search": "واژه‌های درون هر پست را جستجو کنید.",
+  "admin.section.allReports": "گزارش‌ها",
+  "admin.lede.allReports": "آنچه اعضا گزارش کرده‌اند — پست‌ها، نمایه‌ها و گفتگوها.",
+  "admin.section.chatDmLog": "گزارش گپ و پیام‌های مستقیم",
+  "admin.lede.chatDmLog": "لابی عمومی و پیام‌های ۱:۱ — همین‌جا قابل حذف.",
+  "admin.section.media": "رسانه",
+  "admin.lede.media": "تصاویر، آواتارها و GIFهایی که منتظر بررسی‌اند.",
+  "desk.reports.all": "همه",
+  "desk.switch.label": "نمایش"
 }

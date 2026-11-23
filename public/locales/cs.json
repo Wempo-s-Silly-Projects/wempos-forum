@@ -57,10 +57,8 @@
   "admin.section.appeals": "Odvolání",
   "admin.section.avatars": "Avatary",
   "admin.section.bans": "Bany a členové",
-  "admin.section.chatLog": "Záznam chatu",
   "admin.section.css": "CSS profilů",
   "admin.section.dashboard": "Přehled",
-  "admin.section.dmLog": "Záznam soukromých zpráv",
   "admin.section.filter": "Filtr slov",
   "admin.section.gifs": "Knihovna GIFů",
   "admin.section.hidden": "Skryté příspěvky",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Zobrazí název a shrnutí odkazu.",
   "modules.desc.embeds": "Přehrávače videa, zvuku a 3D v příspěvcích.",
   "modules.label.search": "Fulltextové vyhledávání",
-  "modules.desc.search": "Hledejte slova uvnitř každého příspěvku."
+  "modules.desc.search": "Hledejte slova uvnitř každého příspěvku.",
+  "admin.section.allReports": "Hlášení",
+  "admin.lede.allReports": "Co členové nahlásili — příspěvky, profily a konverzace.",
+  "admin.section.chatDmLog": "Záznam chatu a soukromých zpráv",
+  "admin.lede.chatDmLog": "Veřejná hala a zprávy 1:1 — lze je smazat přímo zde.",
+  "admin.section.media": "Média",
+  "admin.lede.media": "Obrázky, avatary a GIFy čekající na kontrolu.",
+  "desk.reports.all": "Vše",
+  "desk.switch.label": "Zobrazit"
 }

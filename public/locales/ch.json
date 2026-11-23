@@ -57,10 +57,8 @@
   "admin.section.appeals": "Apelasion",
   "admin.section.avatars": "Litråtu",
   "admin.section.bans": "Prohibe yan miembro",
-  "admin.section.chatLog": "Chat log",
   "admin.section.css": "CSS i profile",
   "admin.section.dashboard": "Todu",
-  "admin.section.dmLog": "DM log",
   "admin.section.filter": "Filtran palabra",
   "admin.section.gifs": "Librerian GIF",
   "admin.section.hidden": "Mensåhi ma'hatsa",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Ha fa'nu'i i titulu yan i resumen i link.",
   "modules.desc.embeds": "Bidio, son yan 3D na player gi i post.",
   "modules.label.search": "Guåha gi todu i tinige'",
-  "modules.desc.search": "Aliga' i fino' gi halom kada mensåhi."
+  "modules.desc.search": "Aliga' i fino' gi halom kada mensåhi.",
+  "admin.section.allReports": "Rimiti siha",
+  "admin.lede.allReports": "Håfa i membro siha ma rimiti — mensåhi, profile yan kombetsasion.",
+  "admin.section.chatDmLog": "Chat yan DM log",
+  "admin.lede.chatDmLog": "I publiku na lobby yan i 1:1 na mensåhi — siña ma funa guini.",
+  "admin.section.media": "Media",
+  "admin.lede.media": "Litråtu, avatar yan GIF ni manmanaliligao ma reviså.",
+  "desk.reports.all": "Todu",
+  "desk.switch.label": "Na'annok"
 }

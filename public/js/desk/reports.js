@@ -104,5 +104,38 @@ const createReportQueue = (reports, document, currentUser = null) => {
   return list;
 }
 
+// Profile reports (moved from routes/admin.js in v5.92, when the three report
+// queues became one Reports tab). Ban affordance (v3.0.2): the same admin-ban
+// form as the post-report queue lets the mod act on the reported member here;
+// the generic data-form="admin-ban" submit handler picks it up unchanged.
+const createProfileReportQueue = (reports, document) => {
+  const node = (tagName, className, text) => {
+    const made = document.createElement(tagName);
+    made.className = className;
+    if (text !== undefined) made.textContent = text;
+    return made;
+  };
+  const container = node("div", "profile-report-queue");
+  if (!reports.length) {
+    addText(document, container, "p", t("admin.noProfileReports"), "empty-state");
+    return container;
+  }
+  for (const report of reports) {
+    const item = node("div", "report-queue-item");
+    const head = node("p", "report-queue-head",
+      t("admin.profileReportHead", { profile: report.profileUsername, reporter: report.reporter }));
+    const reason = node("p", "report-queue-reason", report.reason);
+    const resolve = node("button", "button", t("admin.resolve"));
+    resolve.type = "button";
+    resolve.dataset.action = "resolve-profile-report";
+    resolve.dataset.reportId = String(report.id);
+    const visit = node("a", "button button-quiet", t("admin.viewProfile"));
+    visit.href = "/users/" + encodeURIComponent(report.profileUsername);
+    visit.setAttribute("data-app-link", "");
+    item.append(head, reason, resolve, visit, createBanForm(document, report.profileUserId, report.profileUsername));
+    container.append(item);
+  }
+  return container;
+};
 
-export { createReportQueue };
+export { createProfileReportQueue, createReportQueue };

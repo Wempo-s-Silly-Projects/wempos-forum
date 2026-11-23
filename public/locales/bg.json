@@ -57,10 +57,8 @@
   "admin.section.appeals": "Обжалвания",
   "admin.section.avatars": "Аватари",
   "admin.section.bans": "Банове и членове",
-  "admin.section.chatLog": "Дневник на чата",
   "admin.section.css": "CSS на профили",
   "admin.section.dashboard": "Общ преглед",
-  "admin.section.dmLog": "Дневник на личните съобщения",
   "admin.section.filter": "Филтър за думи",
   "admin.section.gifs": "GIF библиотека",
   "admin.section.hidden": "Скрити публикации",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Показва заглавието и резюмето на връзка.",
   "modules.desc.embeds": "Видео, аудио и 3D плейъри в публикациите.",
   "modules.label.search": "Пълнотекстово търсене",
-  "modules.desc.search": "Търсете думите във всяка публикация."
+  "modules.desc.search": "Търсете думите във всяка публикация.",
+  "admin.section.allReports": "Доклади",
+  "admin.lede.allReports": "Какво са докладвали членовете — публикации, профили и разговори.",
+  "admin.section.chatDmLog": "Дневник на чата и личните съобщения",
+  "admin.lede.chatDmLog": "Общото лоби и съобщенията 1:1 — изтриват се на място.",
+  "admin.section.media": "Медия",
+  "admin.lede.media": "Изображения, аватари и GIF-ове, чакащи преглед.",
+  "desk.reports.all": "Всички",
+  "desk.switch.label": "Покажи"
 }

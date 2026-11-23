@@ -57,10 +57,8 @@
   "admin.section.appeals": "Բողոքարկումներ",
   "admin.section.avatars": "Ավատարներ",
   "admin.section.bans": "Արգելափակումներ և անդամներ",
-  "admin.section.chatLog": "Չաթի մատյան",
   "admin.section.css": "Պրոֆիլի CSS",
   "admin.section.dashboard": "Ամփոփում",
-  "admin.section.dmLog": "Անձնական նամակների մատյան",
   "admin.section.filter": "Բառերի զտիչ",
   "admin.section.gifs": "GIF գրադարան",
   "admin.section.hidden": "Թաքցված գրառումներ",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Ցույց է տալիս հղման վերնագիրը և ամփոփումը։",
   "modules.desc.embeds": "Տեսա-, աուդիո և 3D նվագարկիչներ գրառումներում։",
   "modules.label.search": "Ամբողջական տեքստային որոնում",
-  "modules.desc.search": "Որոնեք բառերը յուրաքանչյուր գրառման ներսում։"
+  "modules.desc.search": "Որոնեք բառերը յուրաքանչյուր գրառման ներսում։",
+  "admin.section.allReports": "Բողոքներ",
+  "admin.lede.allReports": "Ինչի մասին են բողոքել անդամները՝ գրառումներ, պրոֆիլներ և զրույցներ։",
+  "admin.section.chatDmLog": "Չաթի և անձնական նամակների մատյան",
+  "admin.lede.chatDmLog": "Հանրային լոբբին և 1:1 նամակները՝ ջնջվում են տեղում։",
+  "admin.section.media": "Մեդիա",
+  "admin.lede.media": "Ստուգման սպասող պատկերներ, ավատարներ և GIF-եր։",
+  "desk.reports.all": "Բոլորը",
+  "desk.switch.label": "Ցույց տալ"
 }

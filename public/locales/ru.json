@@ -57,10 +57,8 @@
   "admin.section.appeals": "Апелляции",
   "admin.section.avatars": "Аватары",
   "admin.section.bans": "Баны и участники",
-  "admin.section.chatLog": "Журнал чата",
   "admin.section.css": "CSS профилей",
   "admin.section.dashboard": "Обзор",
-  "admin.section.dmLog": "Журнал ЛС",
   "admin.section.filter": "Фильтр слов",
   "admin.section.gifs": "Библиотека GIF",
   "admin.section.hidden": "Скрытые посты",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Показывает заголовок и описание ссылки.",
   "modules.desc.embeds": "Видео-, аудио- и 3D-плееры в сообщениях.",
   "modules.label.search": "Полнотекстовый поиск",
-  "modules.desc.search": "Ищите слова внутри каждого сообщения."
+  "modules.desc.search": "Ищите слова внутри каждого сообщения.",
+  "admin.section.allReports": "Жалобы",
+  "admin.lede.allReports": "На что пожаловались участники — посты, профили и переписки.",
+  "admin.section.chatDmLog": "Журнал чата и ЛС",
+  "admin.lede.chatDmLog": "Общее лобби и сообщения 1:1 — удаляются прямо здесь.",
+  "admin.section.media": "Медиа",
+  "admin.lede.media": "Изображения, аватары и GIF, ожидающие проверки.",
+  "desk.reports.all": "Все",
+  "desk.switch.label": "Показать"
 }

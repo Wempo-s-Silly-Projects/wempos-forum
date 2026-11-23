@@ -57,10 +57,8 @@
   "admin.section.appeals": "اپیلیں",
   "admin.section.avatars": "اوتار",
   "admin.section.bans": "پابندیاں اور ارکان",
-  "admin.section.chatLog": "چیٹ لاگ",
   "admin.section.css": "پروفائل CSS",
   "admin.section.dashboard": "جائزہ",
-  "admin.section.dmLog": "DM لاگ",
   "admin.section.filter": "الفاظ کا فلٹر",
   "admin.section.gifs": "GIF لائبریری",
   "admin.section.hidden": "چھپی ہوئی پوسٹس",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "لنک کا عنوان اور خلاصہ دکھاتا ہے۔",
   "modules.desc.embeds": "پوسٹس میں ویڈیو، آڈیو اور 3D پلیئرز۔",
   "modules.label.search": "مکمل متن کی تلاش",
-  "modules.desc.search": "ہر پوسٹ کے اندر موجود الفاظ تلاش کریں۔"
+  "modules.desc.search": "ہر پوسٹ کے اندر موجود الفاظ تلاش کریں۔",
+  "admin.section.allReports": "رپورٹیں",
+  "admin.lede.allReports": "اراکین نے کیا رپورٹ کیا — پوسٹیں، پروفائل اور گفتگو۔",
+  "admin.section.chatDmLog": "چیٹ اور DM لاگ",
+  "admin.lede.chatDmLog": "عوامی لابی اور 1:1 پیغامات — یہیں حذف کیے جا سکتے ہیں۔",
+  "admin.section.media": "میڈیا",
+  "admin.lede.media": "جائزے کی منتظر تصاویر، اوتار اور GIF۔",
+  "desk.reports.all": "سب",
+  "desk.switch.label": "دکھائیں"
 }

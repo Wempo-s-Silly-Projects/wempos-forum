@@ -57,10 +57,8 @@
   "admin.section.appeals": "Contestații",
   "admin.section.avatars": "Avatare",
   "admin.section.bans": "Interdicții și membri",
-  "admin.section.chatLog": "Jurnal chat",
   "admin.section.css": "CSS de profil",
   "admin.section.dashboard": "Prezentare generală",
-  "admin.section.dmLog": "Jurnal mesaje private",
   "admin.section.filter": "Filtru de cuvinte",
   "admin.section.gifs": "Bibliotecă GIF",
   "admin.section.hidden": "Postări ascunse",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Arată titlul și rezumatul unui link.",
   "modules.desc.embeds": "Playere video, audio și 3D în postări.",
   "modules.label.search": "Căutare în tot textul",
-  "modules.desc.search": "Caută cuvintele din interiorul fiecărei postări."
+  "modules.desc.search": "Caută cuvintele din interiorul fiecărei postări.",
+  "admin.section.allReports": "Raportări",
+  "admin.lede.allReports": "Ce au raportat membrii — postări, profiluri și conversații.",
+  "admin.section.chatDmLog": "Jurnal chat și mesaje private",
+  "admin.lede.chatDmLog": "Holul public și mesajele 1:1 — se pot șterge pe loc.",
+  "admin.section.media": "Media",
+  "admin.lede.media": "Imagini, avatare și GIF-uri care așteaptă verificarea.",
+  "desk.reports.all": "Toate",
+  "desk.switch.label": "Arată"
 }

@@ -57,10 +57,8 @@
   "admin.section.appeals": "Recursos",
   "admin.section.avatars": "Avatares",
   "admin.section.bans": "Banimentos e membros",
-  "admin.section.chatLog": "Registro do chat",
   "admin.section.css": "CSS de perfil",
   "admin.section.dashboard": "Visão geral",
-  "admin.section.dmLog": "Registro de DMs",
   "admin.section.filter": "Filtro de palavras",
   "admin.section.gifs": "Biblioteca de GIFs",
   "admin.section.hidden": "Posts ocultos",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Mostra o título e o resumo de um link.",
   "modules.desc.embeds": "Reprodutores de vídeo, áudio e 3D nas publicações.",
   "modules.label.search": "Pesquisa de texto completo",
-  "modules.desc.search": "Pesquise as palavras dentro de cada publicação."
+  "modules.desc.search": "Pesquise as palavras dentro de cada publicação.",
+  "admin.section.allReports": "Denúncias",
+  "admin.lede.allReports": "O que os membros denunciaram — posts, perfis e conversas.",
+  "admin.section.chatDmLog": "Registro de chat e DMs",
+  "admin.lede.chatDmLog": "O lobby público e as mensagens 1:1 — dá para apagar ali mesmo.",
+  "admin.section.media": "Mídia",
+  "admin.lede.media": "Imagens, avatares e GIFs aguardando revisão.",
+  "desk.reports.all": "Todas",
+  "desk.switch.label": "Mostrar"
 }

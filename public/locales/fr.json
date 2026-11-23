@@ -57,10 +57,8 @@
   "admin.section.appeals": "Recours",
   "admin.section.avatars": "Avatars",
   "admin.section.bans": "Bans et membres",
-  "admin.section.chatLog": "Journal du chat",
   "admin.section.css": "CSS de profil",
   "admin.section.dashboard": "Vue d’ensemble",
-  "admin.section.dmLog": "Journal des MP",
   "admin.section.filter": "Filtre de mots",
   "admin.section.gifs": "Bibliothèque de GIF",
   "admin.section.hidden": "Posts masqués",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Affiche le titre et le résumé d'un lien.",
   "modules.desc.embeds": "Lecteurs vidéo, audio et 3D dans les messages.",
   "modules.label.search": "Recherche en texte intégral",
-  "modules.desc.search": "Cherche les mots à l’intérieur de chaque message."
+  "modules.desc.search": "Cherche les mots à l’intérieur de chaque message.",
+  "admin.section.allReports": "Signalements",
+  "admin.lede.allReports": "Ce que les membres ont signalé : posts, profils et conversations.",
+  "admin.section.chatDmLog": "Journal du chat et des MP",
+  "admin.lede.chatDmLog": "Le salon public et les messages 1:1, supprimables sur place.",
+  "admin.section.media": "Médias",
+  "admin.lede.media": "Images, avatars et GIF en attente de validation.",
+  "desk.reports.all": "Tout",
+  "desk.switch.label": "Afficher"
 }

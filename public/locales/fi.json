@@ -57,10 +57,8 @@
   "admin.section.appeals": "Valitukset",
   "admin.section.avatars": "Avatarit",
   "admin.section.bans": "Porttikiellot ja jäsenet",
-  "admin.section.chatLog": "Chat-loki",
   "admin.section.css": "Profiili-CSS",
   "admin.section.dashboard": "Yleiskatsaus",
-  "admin.section.dmLog": "Yksityisviestiloki",
   "admin.section.filter": "Sanasuodatin",
   "admin.section.gifs": "GIF-kirjasto",
   "admin.section.hidden": "Piilotetut viestit",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Näyttää linkin otsikon ja tiivistelmän.",
   "modules.desc.embeds": "Video-, ääni- ja 3D-soittimet viesteissä.",
   "modules.label.search": "Kokotekstihaku",
-  "modules.desc.search": "Hae sanoja jokaisen viestin sisältä."
+  "modules.desc.search": "Hae sanoja jokaisen viestin sisältä.",
+  "admin.section.allReports": "Ilmoitukset",
+  "admin.lede.allReports": "Mistä jäsenet ovat ilmoittaneet — viestit, profiilit ja keskustelut.",
+  "admin.section.chatDmLog": "Chat- ja yksityisviestiloki",
+  "admin.lede.chatDmLog": "Julkinen aula ja 1:1-viestit — poistettavissa suoraan tästä.",
+  "admin.section.media": "Media",
+  "admin.lede.media": "Tarkistusta odottavat kuvat, avatarit ja GIFit.",
+  "desk.reports.all": "Kaikki",
+  "desk.switch.label": "Näytä"
 }

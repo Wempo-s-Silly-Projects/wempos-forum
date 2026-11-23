@@ -57,10 +57,8 @@
   "admin.section.appeals": "ይግባኞች",
   "admin.section.avatars": "አቫታሮች",
   "admin.section.bans": "እገዳዎች እና አባላት",
-  "admin.section.chatLog": "የቻት መዝገብ",
   "admin.section.css": "የመገለጫ CSS",
   "admin.section.dashboard": "አጠቃላይ እይታ",
-  "admin.section.dmLog": "የግል መልዕክት መዝገብ",
   "admin.section.filter": "የቃላት ማጣሪያ",
   "admin.section.gifs": "የGIF ቤተ-መጽሐፍት",
   "admin.section.hidden": "የተደበቁ ልጥፎች",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "የአገናኝን ርዕስ እና ማጠቃለያ ያሳያል።",
   "modules.desc.embeds": "በልጥፎች ውስጥ የቪዲዮ፣ ድምፅ እና 3D ማጫወቻዎች።",
   "modules.label.search": "ሙሉ ጽሑፍ ፍለጋ",
-  "modules.desc.search": "በእያንዳንዱ ልጥፍ ውስጥ ያሉትን ቃላት ይፈልጉ።"
+  "modules.desc.search": "በእያንዳንዱ ልጥፍ ውስጥ ያሉትን ቃላት ይፈልጉ።",
+  "admin.section.allReports": "ሪፖርቶች",
+  "admin.lede.allReports": "አባላት ሪፖርት ያደረጉት — ልጥፎች፣ መገለጫዎች እና ውይይቶች።",
+  "admin.section.chatDmLog": "የቻት እና የግል መልዕክት መዝገብ",
+  "admin.lede.chatDmLog": "የወል ሎቢ እና 1:1 መልዕክቶች — እዚሁ ሊሰረዙ ይችላሉ።",
+  "admin.section.media": "ሚዲያ",
+  "admin.lede.media": "ግምገማ የሚጠብቁ ምስሎች፣ አቫታሮች እና GIFዎች።",
+  "desk.reports.all": "ሁሉም",
+  "desk.switch.label": "አሳይ"
 }

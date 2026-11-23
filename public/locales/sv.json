@@ -57,10 +57,8 @@
   "admin.section.appeals": "Överklaganden",
   "admin.section.avatars": "Avatarer",
   "admin.section.bans": "Avstängningar & medlemmar",
-  "admin.section.chatLog": "Chattlogg",
   "admin.section.css": "Profil-CSS",
   "admin.section.dashboard": "Översikt",
-  "admin.section.dmLog": "DM-logg",
   "admin.section.filter": "Ordfilter",
   "admin.section.gifs": "GIF-bibliotek",
   "admin.section.hidden": "Dolda inlägg",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Visar en länks titel och sammanfattning.",
   "modules.desc.embeds": "Video-, ljud- och 3D-spelare i inlägg.",
   "modules.label.search": "Fritextsökning",
-  "modules.desc.search": "Sök efter orden i varje inlägg."
+  "modules.desc.search": "Sök efter orden i varje inlägg.",
+  "admin.section.allReports": "Anmälningar",
+  "admin.lede.allReports": "Det medlemmar har anmält — inlägg, profiler och samtal.",
+  "admin.section.chatDmLog": "Chatt- och DM-logg",
+  "admin.lede.chatDmLog": "Den offentliga lobbyn och 1:1-meddelanden — kan raderas direkt här.",
+  "admin.section.media": "Media",
+  "admin.lede.media": "Bilder, avatarer och GIF:ar som väntar på granskning.",
+  "desk.reports.all": "Alla",
+  "desk.switch.label": "Visa"
 }
