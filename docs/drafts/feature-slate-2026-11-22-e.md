@@ -41,5 +41,14 @@ None new (E3 reuses the existing no-module notice text). If any is added: en.jso
 - E4: polls render with `Intl.RelativeTimeFormat` deleted; UUID path works with `randomUUID` deleted.
 - `pnpm audit --prod --audit-level=moderate` clean; the lockfile has no `webpack`.
 
+## Build record (E1 + E2 built Nov 22)
+- **core-js version:** 3.51.0 (core-js-builder 3.51.0, core-js-compat 3.51.0).
+- **Command:** `CORE_JS_BUILDER_DIR=<folder outside the repo with core-js-builder@3.51.0> node scripts/build-core-js.mjs`, which calls `builder({ modules, targets: BROWSER_FLOOR, format: "bundle", minify: false, summary: { comment: { size: false, modules: true } } })`. Ran offline. Two runs gave identical bytes.
+- **Inventory result:** 2 modules: `es.array.at` (Array#at in 4 files) and `es.object.has-own` (Object.hasOwn in 5 files). `URL.parse`, `URL.canParse`, `URLSearchParams#size`, two-argument `has`/`delete` and `String#at` are not called, so they stay out.
+- **Output:** `public/js/vendor/core-js.js`, unminified, core-js banner and module summary kept, 50,013 bytes, sha256 `960fb1338bae5d1a503c61146b0fd9ec0ce41e157e26bb6f6feb5926e1e2fff9`. It is mostly webpack 4 bootstrap; only browsers that fail the gate fetch it.
+- **Loader:** `/js/polyfill-loader.js` adds the script with `createElement("script")` and `async = false`. It does not use `document.write`, because the existing client sink pin bans it. The fetch starts from `<head>` before the parser reaches the module tags. That makes the bundle run first in practice, but a module could still win a race on a warm cache. A hard guarantee would need the entry module to wait for the polyfill (an app.js change).
+- **Deps:** `core-js-builder` removed from devDependencies (webpack 4 is gone from the lockfile). `core-js-compat` added at exactly 3.51.0. The `core-js` allowBuilds entry and the four overrides (`braces`, `decode-uri-component`, `micromatch`, `serialize-javascript`) that existed only for core-js-builder's audit findings were removed. `fsevents` stays because it is still in the tree.
+- **Not built in this pass:** E3 (blank-page notice: needs `data-booted` in app.js, another lane's file), E4 (`polls.js` Intl guard, `crypto.randomUUID` fallback), and the VERSION/CHANGELOG release.
+
 ## Ship-review
 Client assets plus a CSP change: checks 1–4 and 7 N/A; 5, 6, 8 and 9 apply. VERSION 5.76.0, CHANGELOG, `.team/release-5.76.0.md`. Firefox check: page loads with no cdnjs request (network panel) and the polyfill is NOT fetched on current Firefox.

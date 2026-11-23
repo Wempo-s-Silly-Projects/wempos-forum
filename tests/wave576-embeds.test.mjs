@@ -477,9 +477,8 @@ test("CSP: media-src is same-origin plus blob: (MSE for hls.js), connect-src add
 test("CSP: style-src is 'self' plus exactly the WaveSurfer shadow-style hash; script-src unchanged", () => {
   const csp = htmlCsp();
   assert.deepEqual(directive(csp, "style-src"), ["'self'", `'${wavesurferStyleHash()}'`]);
-  assert.deepEqual(directive(csp, "script-src"),
-    ["'self'", "https://cdnjs.cloudflare.com/polyfill/"]);
-  assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval|worker-src|\s\*[\s;]/);
+  assert.deepEqual(directive(csp, "script-src"), ["'self'"]);
+  assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval|worker-src|cdnjs|\s\*[\s;]/);
 });
 
 test("CSP: non-HTML responses keep the vendor policy (no embed origins on JSON)", () => {

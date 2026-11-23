@@ -351,8 +351,9 @@ test("the line-number gutter uses logical properties (RTL-safe)", () => {
 test("CSP is unchanged: same script origins, style-src 'self', nothing inline", () => {
   const csp = secureResponse(new Response("x")).headers.get("Content-Security-Policy");
   const scriptSrc = (csp.match(/script-src ([^;]+);/) ?? [])[1].split(/\s+/);
-  // v5.73.1 scoped cdnjs to the polyfill path; Prism must not widen it again.
-  assert.deepEqual(scriptSrc, ["'self'", "https://cdnjs.cloudflare.com/polyfill/"]);
+  // Slate 2026-11-22-e dropped cdnjs entirely; Prism must not widen it again.
+  assert.deepEqual(scriptSrc, ["'self'"]);
+  assert.doesNotMatch(csp, /cdnjs/);
   // v5.76 (Batch D) deliberately adds one hash: WaveSurfer's static shadow style.
   assert.match(csp, /style-src 'self' 'sha256-[A-Za-z0-9+/]+=*';/);
   assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval|font-src/);

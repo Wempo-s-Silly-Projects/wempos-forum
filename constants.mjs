@@ -22,6 +22,19 @@
 // workerd validates every Worker export as a function or ExportedHandler.
 export const PBKDF2_ITERATIONS = 100000;
 
+// Slate 2026-11-22-e: the oldest browsers the client can parse at all. Our
+// own code uses `?.`, `??` and `??=`, which no polyfill can supply, so this is
+// the floor the self-hosted core-js build (scripts/build-core-js.mjs) targets.
+export const BROWSER_FLOOR = Object.freeze({
+  chrome: "85",
+  edge: "85",
+  firefox: "79",
+  safari: "14",
+  ios: "14",
+  samsung: "14",
+  opera: "71",
+});
+
 export const SESSION_INSERT_IF_UNBANNED_SQL =
   "INSERT INTO sessions (token_hash, user_id, csrf_token, created_at, expires_at) " +
     "SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
