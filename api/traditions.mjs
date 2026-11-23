@@ -122,7 +122,7 @@ export async function showcaseGallery(env, viewer, { since = null } = {}) {
       body: String(row.body ?? ""),
       authorName: String(row.username ?? ""),
       createdAt: isoFromSeconds(row.created_at),
-      image: { id: String(cover.id), version: String(cover.version) },
+      image: { id: String(cover.id), version: String(cover.version), mime: String(cover.mime ?? "") },
     }];
   });
 }
@@ -150,7 +150,7 @@ export async function currentStaffPick(env, viewer) {
     excerpt: previewExcerpt(row.body),
     authorName: String(row.username ?? ""),
     createdAt: isoFromSeconds(row.created_at),
-    image: cover ? { id: String(cover.id), version: String(cover.version) } : null,
+    image: cover ? { id: String(cover.id), version: String(cover.version), mime: String(cover.mime ?? "") } : null,
   };
 }
 

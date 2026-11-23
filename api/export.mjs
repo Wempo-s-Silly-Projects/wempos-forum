@@ -47,6 +47,7 @@ import { requireSignedInRead } from "./core/auth.mjs";
 import { json, rateLimit } from "./core/http.mjs";
 import { socialsFromRow, SOCIAL_PLATFORMS } from "./core/shapers.mjs";
 import { normalizeTotpAlgorithm } from "./core/totp.mjs";
+import { readProfileHeader } from "./profile-header.mjs";
 import { readPronouns } from "./pronouns.mjs";
 import { EXPORT_SECTION_CAPS } from "../constants.mjs";
 
@@ -91,6 +92,8 @@ async function readProfile(db, userId) {
     socials: socialsFromRow(row),
     // v5.23.0: opt-in pronouns; null when the member never set any.
     pronouns: (await readPronouns(db, userId)) || null,
+    // Batch I: the member's own header pick ("" = plain, never picked).
+    profileHeader: await readProfileHeader(db, userId),
     joinedAt: isoOrNull(row.created_at),
   };
   const settings = {

@@ -21,7 +21,9 @@
 // v4.0 plan 5 (spec step 6), task 1: the moderation desk's media review queues (attachments, avatars, GIFs) section
 // builders — bodies moved verbatim out of ../admin.js (now dissolved).
 import { addText } from "../forms.js";
+import { prefersReducedMotion } from "../focus-utils.js";
 import { currentLocale, t, tn } from "../i18n.js";
+import { stillGifToggle } from "../still-gif.js";
 
 // Pending image moderation queue (plan Task 6/7): oldest uploads first from
 // GET /api/admin/attachments. Mirrors the avatar queue above, sized down to a
@@ -147,7 +149,15 @@ function createGifQueue(gifs, document) {
       button.textContent = label;
       actions.append(button);
     }
-    card.append(image, actions);
+    card.append(image);
+    // Reduced motion: the still first frame plus chat's play/pause badge.
+    const toggle = prefersReducedMotion()
+      ? stillGifToggle(document, image, {
+        label: t("chat.gifAlt"), buttonClass: "still-gif-toggle", stillClass: "gif-review-still", host: card,
+      })
+      : null;
+    if (toggle) card.append(toggle);
+    card.append(actions);
     list.append(card);
   }
   return list;

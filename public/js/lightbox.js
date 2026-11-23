@@ -18,7 +18,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
+import { prefersReducedMotion } from "./focus-utils.js";
 import { t } from "./i18n.js";
+import { GIF_MIME, stillGifToggle } from "./still-gif.js";
 
 // Image viewer (wave 2026-11-21-21 F1): the native #attachment-lightbox
 // dialog grows a close button, previous/next buttons, an "Image 2 of 3"
@@ -83,9 +85,49 @@ function buildControls(dialog, document) {
   return { close, size, previous, next, counter };
 }
 
+// Reduced motion (shared still-gif.js): a GIF shows its still first frame on
+// a fresh <img> mounted beside the shared viewer image, plus chat's
+// play/pause badge. A fresh image per GIF (its src dropped on teardown) means
+// a late load never paints a frame over the next image shown.
+function createGifView(dialog, document, image) {
+  const view = { gif: null, toggle: null };
+  const clear = () => {
+    if (!view.gif) return;
+    view.gif.removeAttribute("src");
+    dialog.querySelectorAll(".lightbox-still").forEach((still) => still.remove());
+    view.gif.remove();
+    view.toggle.remove();
+    view.gif = null;
+    view.toggle = null;
+    image.hidden = false;
+  };
+  const show = (source) => {
+    if (source.dataset?.mime !== GIF_MIME || !prefersReducedMotion()) return;
+    const gif = document.createElement("img");
+    gif.className = "lightbox-gif";
+    gif.alt = "";
+    gif.src = source.src;
+    dialog.append(gif);
+    const toggle = stillGifToggle(document, gif, {
+      label: t("chat.gifAlt"), buttonClass: "still-gif-toggle lightbox-gif-toggle", stillClass: "lightbox-still", host: dialog,
+    });
+    if (!toggle) {
+      gif.remove();
+      return;
+    }
+    dialog.append(toggle);
+    view.gif = gif;
+    view.toggle = toggle;
+    image.hidden = true;
+  };
+  const isMedia = (node) => Boolean(node) && (node === view.gif || node.classList?.contains("lightbox-still") === true);
+  return { clear, show, isMedia };
+}
+
 function createController(dialog, document) {
   const image = dialog.querySelector("img");
   const controls = buildControls(dialog, document);
+  const gifView = createGifView(dialog, document, image);
   const view = { thumbs: [], index: 0 };
   const isRtl = () => document.documentElement?.dir === "rtl";
   const setActualSize = (actual) => {
@@ -98,7 +140,9 @@ function createController(dialog, document) {
     const source = thumb?.querySelector("img");
     if (!source || !image) return;
     view.index = index;
+    gifView.clear();
     image.src = source.src;
+    gifView.show(source);
     setActualSize(false);
     const total = view.thumbs.length;
     controls.counter.hidden = total < 2;
@@ -129,12 +173,13 @@ function createController(dialog, document) {
     keepStepFocus(controls.next);
   });
   dialog.addEventListener("click", (event) => {
+    const onImage = event.target === image || gifView.isMedia(event.target);
     // At actual size a click on the image zooms back out to fit first.
-    if (event.target === image && dialog.dataset.size === "actual") {
+    if (onImage && dialog.dataset.size === "actual") {
       setActualSize(false);
       return;
     }
-    if (event.target === dialog || event.target === image) dialog.close();
+    if (event.target === dialog || onImage) dialog.close();
   });
   dialog.addEventListener("keydown", (event) => {
     const target = stepIndex(view.index, view.thumbs.length, event.key, isRtl());
@@ -149,6 +194,7 @@ function createController(dialog, document) {
     const thumb = view.thumbs[view.index];
     if (thumb?.isConnected !== false) thumb?.focus?.();
     view.thumbs = [];
+    gifView.clear();
     setActualSize(false);
   });
 
@@ -158,6 +204,7 @@ function createController(dialog, document) {
       // reopens the viewer on the previously shown image.
       const thumbs = stripThumbs(button).filter(hasImage);
       if (!thumbs.includes(button)) {
+        gifView.clear();
         image?.removeAttribute("src");
         return;
       }

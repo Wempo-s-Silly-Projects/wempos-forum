@@ -45,6 +45,7 @@ import { canViewPost } from "./core/visibility.mjs";
 import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
 import { accountsOrigin, siteOrigin } from "./core/site.mjs";
 import { siteName } from "./branding.mjs";
+import { PROFILE_HEADER_STYLES } from "../constants.mjs";
 
 const README_URL = "https://github.com/Wempo-s-Silly-Projects/wempos-forum#readme";
 const DEFAULT_VERSION = "4.4.0";
@@ -578,6 +579,11 @@ const OPENAPI_SCHEMAS = {
       socials: { type: "object", additionalProperties: { type: "string" } },
       polytoriaUsername: nullableString,
       profileAccent: { type: "string" },
+      profileHeader: {
+        type: "string",
+        enum: [...PROFILE_HEADER_STYLES],
+        description: "member-picked header decoration: '' (plain), 'tint' or a pattern key",
+      },
       avatarStatus: nullableString,
       avatarUrl: nullableString,
     },

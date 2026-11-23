@@ -29,8 +29,10 @@
 //   createStaffPickTile — the "Staff pick ⭐" tile (gallery and /week).
 // Excerpts reuse threadExcerpt, which masks spoilers before cutting.
 import { attachmentUrl } from "./attachments.js";
+import { prefersReducedMotion } from "./focus-utils.js";
 import { t } from "./i18n.js";
 import { threadExcerpt } from "./profile-extras.js";
+import { freezeInPlace, GIF_MIME } from "./still-gif.js";
 
 const QOTD_PREFIX = /^[ \t\r\n]*qotd/i;
 
@@ -55,16 +57,29 @@ export function createQotdBanner(document, qotd) {
   return banner;
 }
 
+// A tile's cover image. Under reduced motion a GIF cover shows its still
+// first frame; the tile is a link, so no play/pause button nests inside it —
+// the post itself carries the toggle.
+function createGalleryImage(document, image, title) {
+  const node = make(document, "img", "gallery-image");
+  node.src = attachmentUrl(image);
+  node.alt = t("traditions.galleryAlt", { title });
+  node.loading = "lazy";
+  return node;
+}
+
+function freezeGalleryGif(document, node, image) {
+  if (image?.mime === GIF_MIME && prefersReducedMotion()) freezeInPlace(document, node, { stillClass: "gallery-image" });
+}
+
 function createGalleryTile(document, item) {
   const tile = make(document, "a", "gallery-tile");
   tile.href = "/posts/" + Number(item.id);
   tile.setAttribute("data-app-link", "");
   const title = threadExcerpt(item.body);
-  const image = make(document, "img", "gallery-image");
-  image.src = attachmentUrl(item.image);
-  image.alt = t("traditions.galleryAlt", { title });
-  image.loading = "lazy";
+  const image = createGalleryImage(document, item.image, title);
   tile.append(image, make(document, "span", "gallery-caption", title));
+  freezeGalleryGif(document, image, item.image);
   if (item.authorName) tile.append(make(document, "span", "gallery-author muted", item.authorName));
   return tile;
 }
@@ -78,11 +93,9 @@ export function createStaffPickTile(document, pick) {
   tile.append(make(document, "span", "role-badge staff-pick-label", t("staffPick.label")));
   const title = threadExcerpt(String(pick.excerpt ?? ""));
   if (pick.image) {
-    const image = make(document, "img", "gallery-image");
-    image.src = attachmentUrl(pick.image);
-    image.alt = t("traditions.galleryAlt", { title });
-    image.loading = "lazy";
+    const image = createGalleryImage(document, pick.image, title);
     tile.append(image);
+    freezeGalleryGif(document, image, pick.image);
   }
   tile.append(make(document, "span", "gallery-caption", title));
   if (pick.authorName) tile.append(make(document, "span", "gallery-author muted", pick.authorName));
