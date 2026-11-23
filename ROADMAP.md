@@ -73,10 +73,6 @@ been decided.
 - **No other storage platforms.** Data stays in Cloudflare D1, with R2 for
   images. There are no plans for KV or an outside database.
 - **No voice or video chat** (WebRTC), and no real-time voice signaling.
-- **No public developer platform for third-party bots or apps.** The public
-  read API and the MCP tool server stay as documented in
-  [docs/api.md](docs/api.md), but there are no plans for a bot or app
-  marketplace.
 - **No old versions kept alive.** Only the latest release is supported
   (see [SECURITY.md](SECURITY.md#supported-versions)).
   Self-hosters upgrade by pulling the latest code and applying migrations.
