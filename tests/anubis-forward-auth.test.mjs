@@ -187,16 +187,16 @@ test("CF_Authorization never reaches the browser and is never forwarded", async 
     headers.append("Set-Cookie", "techaro.lol-anubis-cookie-verification-5ab17f3c=1; Path=/");
     return new Response("<html>/.within.website/</html>", { status: 200, headers });
   }, async (calls) => {
-    const res = await worker.fetch(makeRequest("/.within.website/?redir=%2F", { headers: { Cookie: "CF_Authorization=x; c=1" } }), anubisEnv(), {});
+    const res = await worker.fetch(makeRequest("/.within.website/?redir=%2F", { headers: { Cookie: "CF_Authorization=x; c=1; techaro.lol-anubis-auth-5ab17f3c=t" } }), anubisEnv(), {});
     assert.deepEqual(res.headers.getSetCookie(), ["techaro.lol-anubis-cookie-verification-5ab17f3c=1; Path=/"]);
-    assert.equal(calls[0].request.headers.get("Cookie"), "c=1");
+    assert.equal(calls[0].request.headers.get("Cookie"), "techaro.lol-anubis-auth-5ab17f3c=t");
   });
 });
 
 test("check request: forward-auth headers, client IP only from CF-Connecting-IP, spoofed value stripped", async () => {
   await withFetch(() => new Response("", { status: 200 }), async (calls) => {
     const res = await worker.fetch(page("/posts/12?x=1", {
-      Cookie: "a=b", "User-Agent": "UA/1", "X-Wempo-Client-Ip": "6.6.6.6", "X-Forwarded-For": "6.6.6.6", "X-Real-IP": "6.6.6.6",
+      Cookie: "__Host-wempo_session=forumsecret; techaro.lol-anubis-auth-5ab17f3c=tok; a=b", "User-Agent": "UA/1", "X-Wempo-Client-Ip": "6.6.6.6", "X-Forwarded-For": "6.6.6.6", "X-Real-IP": "6.6.6.6",
     }), anubisEnv(), {});
     assert.equal(res.status, 200);
     assert.equal(calls.length, 1);
@@ -213,7 +213,7 @@ test("check request: forward-auth headers, client IP only from CF-Connecting-IP,
     assert.equal(h.get("X-Forwarded-Method"), "GET");
     assert.equal(h.get("User-Agent"), "UA/1");
     assert.equal(h.get("Accept"), "text/html");
-    assert.equal(h.get("Cookie"), "a=b");
+    assert.equal(h.get("Cookie"), "techaro.lol-anubis-auth-5ab17f3c=tok", "only Anubis cookies, never the forum session");
     assert.equal(h.get("X-Forwarded-For"), null);
     assert.equal(h.get("X-Real-IP"), null);
   });
@@ -302,17 +302,19 @@ test("proxy: /.within.website/** goes to ANUBIS_URL with path, query, cookie and
     const headers = new Headers({ "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=600", "Report-To": "{}", "Server-Timing": "x" });
     headers.append("Set-Cookie", "techaro.lol-anubis-cookie-verification-5ab17f3c=1; Path=/; Secure");
     headers.append("Set-Cookie", "techaro.lol-anubis-original-referer=x; Path=/; Secure");
+    headers.append("Set-Cookie", "__cf_bm=zone; Path=/; Secure");
+    headers.append("Set-Cookie", "__cflb=lb; Path=/");
     return new Response("<html>challenge</html>", { status: 200, headers });
   }, async (calls) => {
     const res = await worker.fetch(makeRequest("/.within.website/?redir=https%3A%2F%2Fwempos-forum.com%2F", {
-      headers: { Accept: "text/html", Cookie: "c=1", "CF-Connecting-IP": CLIENT_IP, "X-Wempo-Client-Ip": "6.6.6.6", "User-Agent": "UA/2" },
+      headers: { Accept: "text/html", Cookie: "c=1; __Host-wempo_session=s; techaro.lol-anubis-cookie-verification-5ab17f3c=v", "CF-Connecting-IP": CLIENT_IP, "X-Wempo-Client-Ip": "6.6.6.6", "User-Agent": "UA/2" },
     }), anubisEnv(), {});
     assert.equal(calls.length, 1);
     const { request, init } = calls[0];
     assert.equal(request.url, ANUBIS_URL + "/.within.website/?redir=https%3A%2F%2Fwempos-forum.com%2F");
     assert.equal(request.method, "GET");
     assert.equal(init.redirect, "manual");
-    assert.equal(request.headers.get("Cookie"), "c=1");
+    assert.equal(request.headers.get("Cookie"), "techaro.lol-anubis-cookie-verification-5ab17f3c=v");
     assert.equal(request.headers.get("X-Wempo-Client-Ip"), CLIENT_IP);
     assert.equal(request.headers.get("User-Agent"), "UA/2");
     assert.equal(request.headers.get("X-Forwarded-Host"), "wempos-forum.com");
@@ -349,7 +351,7 @@ test("proxy: an Anubis-sent CSP is kept; POST forwards method and body; deep ass
 test("proxy: redirects stay on our origin (Anubis's own origin is rewritten, foreign refused)", async () => {
   for (const [upstream, expected] of [
     ["https://wempos-forum.com/posts/12", "https://wempos-forum.com/posts/12"],
-    ["/posts/12", "/posts/12"],
+    ["/posts/12", "https://wempos-forum.com/posts/12"],
     [ANUBIS_URL + "/.within.website/?redir=%2F", "https://wempos-forum.com/.within.website/?redir=%2F"],
   ]) {
     await withFetch(() => new Response(null, { status: 302, headers: { Location: upstream } }), async () => {

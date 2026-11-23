@@ -125,6 +125,8 @@ const GATED = [
   "/", "/c/general", "/posts/12", "/users/Ann", "/week", "/settings", "/search",
   "/api", "/apiary", "/mcp/x", "/feed", "/c/general/feed", "/js", "/locales",
   "/.within.websitex/", "/offline.htmlx", "/robots.txt/x",
+  // Review L4: a route whose last segment merely ends like a file is a page.
+  "/c/general/x.json", "/posts/1/a.txt", "/users/Ann/data.xml", "/u/a/b.css", "/search/q.png",
 ];
 
 test("isAnubisExemptPath: the exempt table", () => {
