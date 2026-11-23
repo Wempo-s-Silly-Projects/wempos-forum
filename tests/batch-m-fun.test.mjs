@@ -300,7 +300,7 @@ test("clearAllFunExtras wipes every badge-seen marker (account data) but keeps t
 
 test("with every extra off, a full enhance pass loads nothing and touches no storage", async () => {
   const recorder = recordingLoader();
-  const storage = memoryStorage();
+  const storage = allOff();
   const root = badgeRoot(25);
   const intro = new FakeNode("section");
   intro.className = "personal-intro";
@@ -515,7 +515,7 @@ test("easter eggs: no listener while off; the Konami code starts the toy only wh
   assert.equal(doc.listenerCount("keydown"), 0, "removable");
 
   const started = [];
-  const uninstall = eggs.installEasterEggs(env({ doc, storage: memoryStorage(), start: () => started.push("party") }));
+  const uninstall = eggs.installEasterEggs(env({ doc, storage: allOff(), start: () => started.push("party") }));
   konami(doc);
   assert.deepEqual(started, [], "toggle off: the code does nothing");
   uninstall();
