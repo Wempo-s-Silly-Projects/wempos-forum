@@ -162,8 +162,9 @@ export async function readSession(request, env) {
 }
 
 export async function createSession(request, env, userId = null, oldTokenHash = null, requireUnbanned = false) {
-  // IP bans (v3.1): remember which network each member signed in from —
-  // keyed hash only, best-effort (a tracking failure never blocks sign-in).
+    // IP bans (v3.1): remember which network each member successfully signed
+  // in from — keyed hash only, best-effort (tracking failure never blocks
+  // session creation).
   if (userId !== null) {
     try {
       const ipHash = await requestIpHash(request, env);
