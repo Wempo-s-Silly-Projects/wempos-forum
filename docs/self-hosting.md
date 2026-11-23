@@ -98,7 +98,7 @@ always on, whatever you pick.
 
 | `HUMAN_CHECK` | What it does |
 |---|---|
-| `anubis` (default) | [Anubis](https://github.com/TecharoHQ/anubis) checks browsers before pages load. It runs as its own container next to the forum; support for that container is coming. Until it is set up, pages load normally and no other check is asked for. |
+| `anubis` (default) | [Anubis](https://github.com/TecharoHQ/anubis) checks browsers before pages load (see "Running Anubis" below). Until it is set up, or whenever it cannot be reached, the forum falls back to the `altcha` check. |
 | `altcha` | A lightweight check you host yourself: signing up, signing in and posting cost a browser a second or two of hashing (ALTCHA; no third-party script, frame or cookie). |
 | `off` | No human check. |
 
@@ -115,6 +115,71 @@ openssl rand -hex 32 | pnpm exec wrangler secret put ALTCHA_HMAC_KEY
 
 With no `ALTCHA_HMAC_KEY`, `altcha` mode asks for no check. A legacy
 `TURNSTILE_SECRET`, if still stored, derives the key instead.
+
+### Running Anubis
+
+The forum talks to the whole, unmodified Anubis program (tested with
+v1.28.2) in its subrequest ("forward-auth") mode, as described in Anubis's
+own guide, `docs/docs/admin/configuration/subrequest-auth.mdx`. Anubis runs
+on a machine you control; the Worker reaches it over HTTPS.
+
+1. **Policy.** Use a policy file that imports Anubis's default rules and
+   answers a deny with 403 (the Worker reads 200 as pass, 403 as deny, a
+   307 to `/.within.website/` as "show the challenge"). A ready copy is in
+   [`deploy/anubis/botPolicies.yaml`](../deploy/anubis/botPolicies.yaml).
+2. **Environment.** Run Anubis with:
+   - `TARGET=" "` (a single space: subrequest mode, no upstream);
+   - `POLICY_FNAME` pointing at the policy file above;
+   - `CUSTOM_REAL_IP_HEADER=X-Wempo-Client-Ip`. Cloudflare rewrites
+     `X-Forwarded-For`, so the Worker sends the visitor's address (from
+     `CF-Connecting-IP`) in this header and always overwrites any value a
+     visitor sends. Rules that allow known good crawlers by address (the
+     Internet Archive, for one) depend on it;
+   - a fixed `ED25519_PRIVATE_KEY_HEX`, so the signing key survives restarts.
+     Keep the default `-jwt-restriction-header X-Real-IP`: a pass cookie is
+     then only good from the address that earned it.
+3. **Reach it.** Put Anubis behind HTTPS, for example with a Cloudflare
+   Tunnel to a hostname such as `anubis-origin.example.com`.
+4. **Tell the forum.** In `wrangler.toml` under `[vars]`:
+
+   ```toml
+   HUMAN_CHECK = "anubis"
+   ANUBIS_URL = "https://anubis-origin.example.com"
+   # The public half of ED25519_PRIVATE_KEY_HEX (64 hex digits; not a secret).
+   ANUBIS_PUBLIC_KEY_HEX = "..."
+   ```
+
+5. **Cloudflare Access (optional, recommended).** To keep the Anubis
+   hostname private, protect it with a Cloudflare Access application whose
+   only policy is a service token, and store the token as two secrets:
+
+   ```sh
+   pnpm exec wrangler secret put ANUBIS_ACCESS_CLIENT_ID
+   pnpm exec wrangler secret put ANUBIS_ACCESS_CLIENT_SECRET
+   ```
+
+   The Worker sends them with every request to Anubis, never forwards a
+   visitor's own `CF-Access-*` headers, and never passes Access's
+   `CF_Authorization` cookie to the browser. Without Access, set
+   `ANUBIS_ACCESS = "none"` under `[vars]` instead: the Anubis hostname is
+   then public, and the Worker still overwrites the client-address header.
+   Anubis counts as configured only with `ANUBIS_URL`,
+   `ANUBIS_PUBLIC_KEY_HEX` and either both Access secrets or
+   `ANUBIS_ACCESS = "none"`; otherwise `anubis` mode uses `altcha`.
+
+How it behaves:
+
+- Every page navigation is checked first (API calls, feeds, discovery
+  documents and static files are not). A visitor Anubis wants to test is
+  sent to its challenge, which the Worker serves on your own domain under
+  `/.within.website/`.
+- Signing up, signing in, posting and replying need either a valid Anubis
+  pass cookie (checked by the Worker itself with `ANUBIS_PUBLIC_KEY_HEX`; a
+  deny never counts) or a solved `altcha` check.
+- If Anubis is slow (over 1.5 seconds), down, or Access answers instead of
+  it, pages still load and the forum asks for the `altcha` check instead. Set
+  `ALTCHA_HMAC_KEY` so that fallback works; without it, writes need the
+  Anubis pass.
 
 ## 7. Deploy the forum
 

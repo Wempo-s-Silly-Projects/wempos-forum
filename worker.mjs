@@ -42,8 +42,8 @@ import { handleThreadSummaryRoutes } from "./api/thread-summaries.mjs";
 import { handleThreadLockRoutes } from "./api/thread-locks.mjs";
 import { handleAltchaRoutes } from "./api/altcha.mjs";
 import { handlePasskeyRoutes } from "./api/passkeys.mjs";
-import { humanCheckConfigured, humanCheckMode } from "./api/core/human-check.mjs";
-import { anubisGate } from "./api/core/anubis-gate.mjs";
+import { humanCheckMeta, humanCheckMode } from "./api/core/human-check.mjs";
+import { anubisGate, anubisProxy } from "./api/core/anubis-gate.mjs";
 import { handlePollRoutes } from "./api/polls.mjs";
 import { handleBookmarkRoutes } from "./api/bookmarks.mjs";
 import { handleArchiveRoutes } from "./api/archive.mjs";
@@ -151,9 +151,10 @@ const answerApiRoute = dispatch(API_HANDLERS, notFound);
 // each only when saved, so a forum with no settings row serves today's bytes.
 // Source link (v5.21.0, AGPL-3.0 §13): SOURCE_URL or the repo tree at
 // COMMIT_SHA rides the stamp as source-url; neither set → no meta.
-function shellMetas(env, branding) {
+// The human-check meta is per request since v5.83 (anubis mode: "anubis" for
+// a visitor holding a valid Anubis pass, else the "altcha" fallback).
+function shellMetas(env, branding, humanCheck) {
   const build = env.VERSION ? [env.VERSION, env.COMMIT_SHA].filter(Boolean).join("@") : "";
-  const humanCheck = humanCheckConfigured(env) ? "altcha" : "";
   const accounts = accountsOrigin(env);
   return [
     ["app-build", build], ["accounts-origin", accounts], ["human-check", humanCheck],
@@ -171,7 +172,7 @@ async function stampedAssetResponse(assetResponse, env, request, url) {
   const type = assetResponse.headers.get("Content-Type") || "";
   if (!type.includes("text/html")) return assetResponse;
   const branding = await readStoredBranding(env);
-  const stamp = shellMetas(env, branding);
+  const stamp = shellMetas(env, branding, await humanCheckMeta(request, env));
   const html = await withPageHead(await assetResponse.text(), request, env, url, branding);
   // The served bytes change length, so the original Content-Length must go —
   // a stale length would truncate the stamped document. HTML also revalidates
@@ -277,9 +278,12 @@ export default {
     } catch (error) {
       return errorReply(error, "Discovery request failed:");
     }
-    // HUMAN_CHECK=anubis (the default): HTML document navigations pass the
-    // Anubis seam first; it answers null (serve the page) or its own response.
+    // HUMAN_CHECK=anubis (the default): /.within.website/** is Anubis's own
+    // (proxied same-origin), and HTML document navigations pass the gate
+    // first; each answers null (carry on) or its own response.
     if (humanCheckMode(env) === HUMAN_CHECK_MODES.ANUBIS) {
+      const proxied = await anubisProxy(request, env);
+      if (proxied) return proxied;
       const gated = await anubisGate(request, env);
       if (gated) return gated;
     }

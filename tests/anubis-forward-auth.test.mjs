@@ -287,8 +287,10 @@ test("gate timeout: aborted after ANUBIS_CHECK_TIMEOUT_MS, the page is served wi
   await withFetch((request, init) => new Promise((_, reject) => {
     init.signal.addEventListener("abort", () => reject(init.signal.reason));
   }), async () => {
+    // AbortSignal.timeout's timer is unref'd in Node: hold the loop open.
+    const keepAlive = setTimeout(() => {}, ANUBIS_CHECK_TIMEOUT_MS + 2000);
     const started = Date.now();
-    const res = await worker.fetch(page("/"), anubisEnv(), {});
+    const res = await worker.fetch(page("/"), anubisEnv(), {}).finally(() => clearTimeout(keepAlive));
     assert.ok(Date.now() - started < ANUBIS_CHECK_TIMEOUT_MS + 1000);
     assert.equal(res.status, 200);
     assert.match(await res.text(), /<meta name="human-check" content="altcha">/);

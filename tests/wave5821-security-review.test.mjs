@@ -138,10 +138,14 @@ test("service worker: never answers /api/ or navigations from cache; refuses HTM
   assert.match(sw, /includes\("text\/html"\)/);
 });
 
-test("anubisGate: no client header bypasses the seam; only Accept is read", async () => {
+// v5.83 (real Anubis forward-auth): the gate now forwards an allowlist of
+// headers to Anubis, but decides from Accept alone and takes the client IP
+// only from CF-Connecting-IP — never from a client-sent X-Wempo-Client-Ip.
+test("anubisGate: no client header bypasses the seam; only allowlisted headers are read", async () => {
   const src = read("api/core/anubis-gate.mjs");
-  const headerReads = [...src.matchAll(/headers\.get\("([^"]+)"\)/g)].map(([, name]) => name);
-  assert.deepEqual(headerReads, ["Accept"]);
+  const headerReads = new Set([...src.matchAll(/headers\.get\("([^"]+)"\)/g)].map(([, name]) => name));
+  assert.deepEqual([...headerReads].sort(), ["Accept", "CF-Connecting-IP", "Cookie", "Location"]);
+  assert.doesNotMatch(src, /headers\.get\(ANUBIS_CLIENT_IP_HEADER\)/);
   const request = new Request("https://wempos-forum.com/c/general", {
     headers: { Accept: "text/html", "X-Anubis-Pass": "1", Cookie: "within.website-x-cmd-anubis-auth=forged" },
   });

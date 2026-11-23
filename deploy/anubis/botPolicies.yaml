@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2026 ItsWempo
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# Anubis policy for Wempo's Forum (subrequest/forward-auth mode, TARGET=" ").
+# Anubis's own default rules, with a deny answered as 403 so the Worker can
+# tell it from a pass (200). See docs/self-hosting.md, "Running Anubis".
+bots:
+  - import: (data)/meta/default-config.yaml
+status_codes:
+  CHALLENGE: 200
+  DENY: 403

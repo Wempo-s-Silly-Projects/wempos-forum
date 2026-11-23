@@ -18,7 +18,8 @@ SITE_ORIGIN = "https://wempos-forum.com"
 # Human check (v5.82.0): the code default is "anubis", but the Anubis server
 # is not connected yet, so production pins the self-hosted ALTCHA check (keyed
 # by ALTCHA_HMAC_KEY, or derived from the legacy TURNSTILE_SECRET). Switch to
-# "anubis" only once the ANUBIS binding exists (tests/anubis-gate pins this).
+# "anubis" only with ANUBIS_URL + ANUBIS_PUBLIC_KEY_HEX here and the
+# ANUBIS_ACCESS_CLIENT_ID/_SECRET secrets set (tests/anubis-gate pins this).
 HUMAN_CHECK = "altcha"
 ACCOUNTS_ORIGIN = "https://accounts.wempos-forum.com"
 RELAY_WORKER_NAME = "wempos-forum"
