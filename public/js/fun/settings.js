@@ -19,7 +19,7 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Fun extras (Batch M): one settings panel of playful, opt-in effects. Every
-// toggle is OFF until the member turns it on, lives only in this browser
+// toggle is ON until the member turns it on, lives only in this browser
 // (localStorage, try/catch everywhere: blocked storage reads as all off) and
 // leaves with the member on sign-out (clearAllFunExtras). Nothing here
 // touches the network; each effect lazy-loads its vendored library only once
