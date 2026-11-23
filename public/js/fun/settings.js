@@ -18,9 +18,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// Fun extras (Batch M): one settings panel of playful, opt-in effects. Every
-// toggle is ON until the member turns it on, lives only in this browser
-// (localStorage, try/catch everywhere: blocked storage reads as all off) and
+// Fun extras (Batch M): one settings panel of playful effects. Every toggle
+// defaults ON until the member turns it off, lives only in this browser
+// (localStorage, with a page-local fallback when storage is blocked) and
 // leaves with the member on sign-out (clearAllFunExtras). Nothing here
 // touches the network; each effect lazy-loads its vendored library only once
 // its own toggle is on (loader.js).
@@ -46,28 +46,44 @@ const browserStorage = () => {
   }
 };
 
+const FALLBACK_KEY = Symbol.for("wempos.forum.fun-settings-fallback");
+const fallbackState = () => {
+  const state = globalThis[FALLBACK_KEY] ??= { settings: { ...FUN_DEFAULTS }, blocked: new WeakSet() };
+  return state;
+};
+
 const normalise = (value) =>
   Object.freeze(Object.fromEntries(FUN_KEYS.map((key) => [key, value?.[key] === true])));
 
 export function readFunSettings(storage = browserStorage()) {
+  const fallback = fallbackState();
+  if (!storage || (typeof storage === "object" && fallback.blocked.has(storage))) {
+    return normalise(fallback.settings);
+  }
   try {
-    const raw = storage?.getItem(FUN_STORAGE_KEY);
+    const raw = storage.getItem(FUN_STORAGE_KEY);
     if (!raw) return FUN_DEFAULTS;
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? normalise(parsed) : FUN_DEFAULTS;
+    const result = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? normalise(parsed) : FUN_DEFAULTS;
+    fallback.settings = { ...result };
+    return result;
   } catch {
-    return FUN_DEFAULTS;
+    fallback.blocked.add(storage);
+    return normalise(fallback.settings);
   }
 }
 
 // Returns a new settings object with one key changed and stores it; the
-// previous object is never mutated. Blocked storage keeps it page-only.
+// previous object is never mutated. Blocked storage keeps it page-local.
 export function writeFunSetting(storage, key, enabled) {
   const next = normalise({ ...readFunSettings(storage), [key]: enabled === true });
+  const fallback = fallbackState();
+  fallback.settings = { ...next };
   try {
-    storage?.setItem(FUN_STORAGE_KEY, JSON.stringify(next));
+    if (!storage?.setItem) throw new Error("storage unavailable");
+    storage.setItem(FUN_STORAGE_KEY, JSON.stringify(next));
   } catch {
-    // Blocked storage: nothing persists.
+    if (storage && typeof storage === "object") fallback.blocked.add(storage);
   }
   return next;
 }
@@ -123,10 +139,7 @@ export function createFunExtrasPanel(doc, storage, { win = globalThis, onChange 
   panel.className = "panel fun-extras-panel";
   const heading = doc.createElement("h2");
   heading.textContent = t("fun.title");
-  const help = doc.createElement("p");
-  help.className = "muted";
-  help.textContent = t("fun.help");
-  panel.append(heading, help);
+  panel.append(heading);
   const current = readFunSettings(storage);
   for (const key of FUN_KEYS) panel.append(createSwitch(doc, storage, key, current[key], onChange));
   if (prefersReducedMotion(win)) {
