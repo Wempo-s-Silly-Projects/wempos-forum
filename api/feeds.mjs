@@ -35,6 +35,7 @@
 //
 // llms.txt is static: branding (name/tagline), the boards and the public
 // documents. It never reads a post or a member.
+import fresh from "fresh";
 import { FEED_PAGE_SIZE } from "../constants.mjs";
 import { BOARD_VALUES } from "./boards.mjs";
 import { readBranding } from "./branding.mjs";
@@ -75,13 +76,17 @@ function plain(request, status, body, cache = "public, max-age=60") {
 }
 
 // A weak validator over the exact bytes: a matching If-None-Match gets a 304
-// with no body, like any conditional GET.
+// with no body, like any conditional GET. fresh (L3) does the RFC 9110
+// comparison: weak match, list values, "*", and a no-cache reload never 304s.
 async function cachedDocument(request, documentText, contentType, cache) {
   const etag = 'W/"' + (await sha256Hex(documentText)).slice(0, ETAG_HEX_LENGTH) + '"';
   const headers = baseHeaders(contentType, cache);
   headers.set("ETag", etag);
-  const tags = (request.headers.get("If-None-Match") || "").split(",").map((tag) => tag.trim());
-  if (tags.includes(etag) || tags.includes("*")) return new Response(null, { status: 304, headers });
+  const conditional = {
+    "if-none-match": request.headers.get("If-None-Match") || undefined,
+    "cache-control": request.headers.get("Cache-Control") || undefined,
+  };
+  if (fresh(conditional, { etag })) return new Response(null, { status: 304, headers });
   const isHead = request.method.toUpperCase() === "HEAD";
   return new Response(isHead ? null : documentText, { status: 200, headers });
 }

@@ -24,6 +24,7 @@
 // Imports only the crypto/http/roles leaves and constants.mjs.
 import ipaddr from "ipaddr.js";
 import { SESSION_INSERT_IF_UNBANNED_SQL } from "../../constants.mjs";
+import { cookieValue, sessionCookie } from "./cookies.mjs";
 import { equalConstantTime, nowSeconds, randomToken, sha256Hex } from "./crypto.mjs";
 import { HttpError } from "./http.mjs";
 import { publicRole } from "./roles.mjs";
@@ -105,17 +106,7 @@ export async function assertNetworkNotBanned(request, env) {
 // http://localhost as trustworthy, so the wrangler dev flow survives). The
 // request parameter stays for caller-shape stability.
 function setCookie(request, token, maxAge = SESSION_TTL_SECONDS) {
-  return "__Host-wempo_session=" + token + "; Path=/; HttpOnly; SameSite=Lax; Max-Age=" + maxAge + "; Secure";
-}
-
-function cookieValue(request, name) {
-  const cookieHeader = request.headers.get("Cookie") || "";
-  for (const part of cookieHeader.split(";")) {
-    const separator = part.indexOf("=");
-    if (separator < 0) continue;
-    if (part.slice(0, separator).trim() === name) return part.slice(separator + 1).trim();
-  }
-  return null;
+  return sessionCookie("__Host-wempo_session", token, maxAge);
 }
 
 export async function readSession(request, env) {
@@ -162,9 +153,8 @@ export async function readSession(request, env) {
   const session = { tokenHash: row.token_hash, csrfToken: row.csrf_token, expiresAt: Number(row.expires_at), user };
   if (legacyCookie) {
     session.migrateCookies = [
-      "__Host-wempo_session=" + token + "; Path=/; HttpOnly; SameSite=Lax; Max-Age=" +
-        Math.max(Number(row.expires_at) - nowSeconds(), 0) + "; Secure",
-      "wempo_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+      sessionCookie("__Host-wempo_session", token, Math.max(Number(row.expires_at) - nowSeconds(), 0)),
+      sessionCookie("wempo_session", "", 0),
     ];
   }
   return session;

@@ -38,6 +38,7 @@
 //
 // Self-hosting (v5.17.0): every absolute URL is built on siteOrigin(env,
 // request) — the configured SITE_ORIGIN, else the request's own origin.
+import escapeHtml from "escape-html";
 import { BOARD_VALUES } from "./boards.mjs";
 import { banFilterSql } from "./posts-feed.mjs";
 import { securityHeaders } from "./core/http.mjs";
@@ -308,9 +309,10 @@ export async function markdownResponse(request, env, path) {
 
 // ---- sitemap -------------------------------------------------------------
 
+// escape-html (L3) covers the five XML specials; the apostrophe comes out
+// as the numeric &#39;, which XML 1.0 and HTML both read.
 export function xmlEscape(text) {
-  return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+  return escapeHtml(String(text));
 }
 
 function urlEntry(loc, lastmod) {
