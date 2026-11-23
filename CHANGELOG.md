@@ -10,6 +10,30 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.83.0] - 2026-11-22
+
+### Added
+
+- Serbian now comes in both scripts: Српски (Cyrillic, the default for "sr")
+  and Srpski (latinica). If you picked Serbian before, you will now see
+  Cyrillic; choose Srpski (latinica) to keep Latin letters.
+- With "reduce motion" on, GIFs now hold still in the image lightbox, the staff
+  GIF queue and the traditions gallery too.
+- Download my data includes your profile header choice, and the API schema
+  documents it.
+
+### Fixed
+
+- The "human check failed" message was out of date in every language; it is
+  re-translated everywhere.
+- Clearer security wording in several languages (two-factor, passphrase and
+  secret wording), and plural forms for counts in Belarusian and Bosnian.
+
+### Changed
+
+- Security docs no longer describe Cloudflare Turnstile; they describe the
+  ALTCHA check, the Anubis rollout and the Worker's real outbound requests.
+
 ## [5.82.1] - 2026-11-22
 
 ### Security
