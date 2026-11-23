@@ -10,6 +10,18 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.87.0] - 2026-11-22
+
+### Added
+
+- Modules: an instance owner can switch whole features on or off from the
+  desk (Modules page), or hard-off with `MODULE_<ID>=off`. Covers AutoMod,
+  visit counts, site health, chat, polls, walls, fun extras, Saturday Fools,
+  link previews and embeds; a module that is off answers 404 and its browser
+  code never loads. Every existing feature stays on by default; new optional
+  features will ship off. `GET /api/site` lists the modules that are on.
+  See `docs/modules.md`.
+
 ## [5.86.0] - 2026-11-22
 
 ### Added
