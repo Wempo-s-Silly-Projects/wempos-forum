@@ -10,6 +10,14 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.84.2] - 2026-11-22
+
+### Fixed
+
+- Anubis refused every check because the Worker did not send `X-Real-IP`, so
+  the site silently fell back to ALTCHA. The Worker now sets it from the
+  visitor's real address (never from a header the visitor sent).
+
 ## [5.84.1] - 2026-11-22
 
 ### Changed

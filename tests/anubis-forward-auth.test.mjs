@@ -215,7 +215,10 @@ test("check request: forward-auth headers, client IP only from CF-Connecting-IP,
     assert.equal(h.get("Accept"), "text/html");
     assert.equal(h.get("Cookie"), "techaro.lol-anubis-auth-5ab17f3c=tok", "only Anubis cookies, never the forum session");
     assert.equal(h.get("X-Forwarded-For"), null);
-    assert.equal(h.get("X-Real-IP"), null);
+    // v5.84.2: Anubis's check refuses without X-Real-IP ("[misconfiguration]
+    // X-Real-IP header is not set" seen live), so the worker sets it — always
+    // from CF-Connecting-IP, never the client's forged 6.6.6.6.
+    assert.equal(h.get("X-Real-IP"), CLIENT_IP);
   });
   await withFetch(() => new Response("", { status: 200 }), async (calls) => {
     await worker.fetch(makeRequest("/", { headers: { Accept: "text/html", "X-Wempo-Client-Ip": "6.6.6.6" } }), anubisEnv(), {});

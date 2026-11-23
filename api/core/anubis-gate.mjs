@@ -112,7 +112,13 @@ function upstreamHeaders(request, config, extra = []) {
   const cookie = anubisCookiesOnly(request.headers.get("Cookie"));
   if (cookie) headers.set("Cookie", cookie);
   const clientIp = request.headers.get("CF-Connecting-IP");
-  if (clientIp) headers.set(ANUBIS_CLIENT_IP_HEADER, clientIp);
+  if (clientIp) {
+    headers.set(ANUBIS_CLIENT_IP_HEADER, clientIp);
+    // v5.84.2: Anubis refuses checks without X-Real-IP ("[misconfiguration]
+    // X-Real-IP header is not set" seen live); set it from CF-Connecting-IP
+    // too. Headers start empty, so a visitor's own X-Real-IP never passes.
+    headers.set("X-Real-IP", clientIp);
+  }
   headers.set("X-Forwarded-Host", url.host);
   headers.set("X-Forwarded-Proto", url.protocol.replace(":", ""));
   if (config.access) {
