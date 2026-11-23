@@ -72,8 +72,11 @@ verbatim into any brief you hand to another agent.
 
 ### Browsers
 
-- **No Playwright** — banned machine-wide.
-- Browser lanes are **Firefox-only**. Chrome is excluded.
+- **Free-software browsers only** (owner, Nov 22): Playwright is allowed,
+  driving Firefox (preferred), Chromium or open-source WebKit. Google Chrome,
+  Edge, Safari, Opera, Vivaldi, Brave and every other proprietary browser are
+  banned (`.claude/hookify.block-playwright-chrome.local.md` enforces an
+  allowlist).
 
 ### Secrets and production data
 
