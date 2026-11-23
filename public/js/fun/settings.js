@@ -48,8 +48,21 @@ const browserStorage = () => {
 
 const FALLBACK_KEY = Symbol.for("wempos.forum.fun-settings-fallback");
 const fallbackState = () => {
-  const state = globalThis[FALLBACK_KEY] ??= { settings: { ...FUN_DEFAULTS }, blocked: new WeakSet() };
+  const state = globalThis[FALLBACK_KEY] ??= {
+    settings: { ...FUN_DEFAULTS },
+    byStorage: new WeakMap(),
+    blocked: new WeakSet(),
+  };
   return state;
+};
+const isStorageObject = (storage) => storage !== null
+  && (typeof storage === "object" || typeof storage === "function");
+const fallbackFor = (storage, fallback) => isStorageObject(storage)
+  ? fallback.byStorage.get(storage) ?? FUN_DEFAULTS
+  : fallback.settings;
+const rememberFallback = (storage, settings, fallback) => {
+  if (isStorageObject(storage)) fallback.byStorage.set(storage, { ...settings });
+  else fallback.settings = { ...settings };
 };
 
 const normalise = (value) =>
@@ -57,19 +70,19 @@ const normalise = (value) =>
 
 export function readFunSettings(storage = browserStorage()) {
   const fallback = fallbackState();
-  if (!storage || (typeof storage === "object" && fallback.blocked.has(storage))) {
-    return normalise(fallback.settings);
-  }
+  if (!isStorageObject(storage)) return normalise(fallback.settings);
+  if (fallback.blocked.has(storage)) return normalise(fallbackFor(storage, fallback));
   try {
     const raw = storage.getItem(FUN_STORAGE_KEY);
-    if (!raw) return FUN_DEFAULTS;
-    const parsed = JSON.parse(raw);
-    const result = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? normalise(parsed) : FUN_DEFAULTS;
-    fallback.settings = { ...result };
+    const parsed = raw ? JSON.parse(raw) : null;
+    const result = parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? normalise(parsed)
+      : FUN_DEFAULTS;
+    rememberFallback(storage, result, fallback);
     return result;
   } catch {
     fallback.blocked.add(storage);
-    return normalise(fallback.settings);
+    return normalise(fallbackFor(storage, fallback));
   }
 }
 
@@ -78,12 +91,14 @@ export function readFunSettings(storage = browserStorage()) {
 export function writeFunSetting(storage, key, enabled) {
   const next = normalise({ ...readFunSettings(storage), [key]: enabled === true });
   const fallback = fallbackState();
-  fallback.settings = { ...next };
+  rememberFallback(storage, next, fallback);
   try {
-    if (!storage?.setItem) throw new Error("storage unavailable");
+    if (!isStorageObject(storage) || typeof storage.setItem !== "function") {
+      throw new Error("storage unavailable");
+    }
     storage.setItem(FUN_STORAGE_KEY, JSON.stringify(next));
   } catch {
-    if (storage && typeof storage === "object") fallback.blocked.add(storage);
+    if (isStorageObject(storage)) fallback.blocked.add(storage);
   }
   return next;
 }
@@ -139,7 +154,10 @@ export function createFunExtrasPanel(doc, storage, { win = globalThis, onChange 
   panel.className = "panel fun-extras-panel";
   const heading = doc.createElement("h2");
   heading.textContent = t("fun.title");
-  panel.append(heading);
+  const help = doc.createElement("p");
+  help.className = "muted fun-extras-help";
+  help.textContent = t("fun.help");
+  panel.append(heading, help);
   const current = readFunSettings(storage);
   for (const key of FUN_KEYS) panel.append(createSwitch(doc, storage, key, current[key], onChange));
   if (prefersReducedMotion(win)) {

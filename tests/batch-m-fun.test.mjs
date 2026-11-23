@@ -261,6 +261,9 @@ test("writeFunSetting stores one key without mutating the previous settings obje
   assert.equal(blocked.sounds, false);
   assert.equal(settings.readFunSettings(blockedStorage).sounds, false,
     "an opt-out survives failed reads and writes for the rest of this page");
+  const gate = await import("../public/js/fun-gate.js");
+  assert.equal(gate.funSwitchOn("sounds", blockedStorage), false,
+    "the lazy-load gate sees the same page-local opt-out as the settings panel");
 });
 
 test("the Fun extras panel: unsaved preferences show checked switches, save changes, and show the reduced-motion note", () => {
@@ -269,7 +272,8 @@ test("the Fun extras panel: unsaved preferences show checked switches, save chan
   let seen = null;
   const panel = settings.createFunExtrasPanel(doc, storage, { win: fakeWin(), onChange: (value) => { seen = value; } });
   assert.match(panel.className, /\bpanel\b/);
-  assert.equal(panel.querySelector("p.muted"), null, "no stale help text claims extras start off");
+  assert.match(panel.querySelector("p.fun-extras-help")?.textContent ?? "", /enabled by default/i,
+    "the help text agrees with the checked-by-default switches");
   const boxes = panel.querySelectorAll("input.fun-extras-switch");
   assert.equal(boxes.length, settings.FUN_KEYS.length);
   for (const box of boxes) assert.equal(box.checked, true, box.dataset.funKey + " defaults on");

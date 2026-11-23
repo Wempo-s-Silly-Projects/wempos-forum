@@ -1299,7 +1299,7 @@
   "data.zipReady": "Your data ZIP is downloading.",
   "data.imagesMissing": "Your data ZIP is downloading. {count} of your images could not be loaded and were left out.",
   "fun.title": "Fun extras",
-  "fun.help": "Playful extras for this device only. Each one stays off until you turn it on.",
+  "fun.help": "Playful extras for this device only. They're enabled by default; switch off any you don't want.",
   "fun.confetti": "Confetti when I earn a new badge",
   "fun.motion": "Animated badges and highlights",
   "fun.heroType": "Typed headline on the home page",

@@ -34,8 +34,21 @@ const FUN_GATE_KEYS = ["confetti", "motion", "heroType", "sounds", "easterEggs",
 const FUN_GATE_DEFAULTS = Object.freeze(Object.fromEntries(FUN_GATE_KEYS.map((key) => [key, true])));
 const FALLBACK_KEY = Symbol.for("wempos.forum.fun-settings-fallback");
 const fallbackState = () => {
-  const state = globalThis[FALLBACK_KEY] ??= { settings: { ...FUN_GATE_DEFAULTS }, blocked: new WeakSet() };
+  const state = globalThis[FALLBACK_KEY] ??= {
+    settings: { ...FUN_GATE_DEFAULTS },
+    byStorage: new WeakMap(),
+    blocked: new WeakSet(),
+  };
   return state;
+};
+const isStorageObject = (storage) => storage !== null
+  && (typeof storage === "object" || typeof storage === "function");
+const fallbackFor = (storage, fallback) => isStorageObject(storage)
+  ? fallback.byStorage.get(storage) ?? FUN_GATE_DEFAULTS
+  : fallback.settings;
+const rememberFallback = (storage, settings, fallback) => {
+  if (isStorageObject(storage)) fallback.byStorage.set(storage, { ...settings });
+  else fallback.settings = { ...settings };
 };
 
 const browserStorage = () => {
@@ -48,20 +61,19 @@ const browserStorage = () => {
 
 function storedSwitches(storage) {
   const fallback = fallbackState();
-  if (!storage || (typeof storage === "object" && fallback.blocked.has(storage))) {
-    return fallback.settings;
-  }
+  if (!isStorageObject(storage)) return fallback.settings;
+  if (fallback.blocked.has(storage)) return fallbackFor(storage, fallback);
   try {
     const raw = storage.getItem(FUN_GATE_STORAGE_KEY);
-    if (!raw) return FUN_GATE_DEFAULTS;
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return FUN_GATE_DEFAULTS;
-    const settings = Object.fromEntries(FUN_GATE_KEYS.map((key) => [key, parsed[key] === true]));
-    fallback.settings = settings;
+    const parsed = raw ? JSON.parse(raw) : null;
+    const settings = parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? Object.fromEntries(FUN_GATE_KEYS.map((key) => [key, parsed[key] === true]))
+      : FUN_GATE_DEFAULTS;
+    rememberFallback(storage, settings, fallback);
     return settings;
   } catch {
     fallback.blocked.add(storage);
-    return fallback.settings;
+    return fallbackFor(storage, fallback);
   }
 }
 

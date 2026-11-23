@@ -202,7 +202,9 @@ test("fun gate: the storage key mirrors fun/settings.js; switches read safely", 
   assert.equal(funGate.anyFunOn(memoryStorage({ sketch: true })), true);
   assert.equal(funGate.funSwitchOn("sketch", memoryStorage({ sketch: true })), true);
   assert.equal(funGate.funSwitchOn("sounds", memoryStorage({ sketch: true })), false);
-  assert.equal(funGate.anyFunOn({ getItem: () => { throw new Error("blocked"); } }), true);
+  const blocked = { getItem: () => { throw new Error("blocked"); } };
+  assert.equal(funGate.anyFunOn(blocked), true);
+  assert.equal(funGate.funSwitchOn("confetti", blocked), true, "blocked storage starts from the all-on defaults");
   assert.equal(funGate.anyFunOn({ getItem: () => "[true]" }), true, "invalid storage uses defaults");
   assert.equal(funGate.anyFunOn(memoryStorage({})), false, "a valid saved object with no enabled keys is all off");
 });
