@@ -33,7 +33,8 @@ import { createWeekPage } from "../week.js";
 import { createLeaderboardTable } from "../leaderboard-table.js";
 import { createLoadMoreTag, createTagPage, createTagThreadRows, tagListingPath } from "../tags.js";
 import { rememberSearch } from "../recent-searches.js";
-import { searchPagePath } from "../search-filters.js";
+import { fullSearchPagePath, searchPagePath } from "../search-filters.js";
+import { siteModuleOn } from "../site-modules.js";
 
 async function renderRulesRoute(context, version) {
   const data = await api("/api/rules");
@@ -148,7 +149,9 @@ async function submitSiteSearch(text) {
   const query = text("q").trim();
   // Wave 5.36: remembered in this browser only (account-scoped, never sent).
   rememberSearch(undefined, state.currentUser?.id ?? null, query);
-  state.router.navigate(searchPagePath(query));
+  // The search module on: the header box opens the full-text page, which
+  // links back to the classic people-and-threads search.
+  state.router.navigate(siteModuleOn("search") ? fullSearchPagePath(query) : searchPagePath(query));
 }
 export const FORM_HANDLERS = {
   "site-search": (form, text) => submitSiteSearch(text),

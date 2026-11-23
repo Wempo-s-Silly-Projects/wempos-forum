@@ -49,6 +49,15 @@ export function searchPagePath(query, filters = {}) {
   return url.pathname + url.search;
 }
 
+// The search module's full-text page path, e.g. "/search?q=cats&sort=new"
+// (only the non-default sort rides the URL).
+export function fullSearchPagePath(query, sort = null) {
+  const url = new URL("/search", URL_BASE);
+  url.searchParams.set("q", String(query ?? ""));
+  if (sort === "new") url.searchParams.set("sort", sort);
+  return url.pathname + url.search;
+}
+
 // The /api/search request for a search route (deep reply search included).
 export function searchApiPath(route) {
   const params = new URLSearchParams();

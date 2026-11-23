@@ -41,7 +41,7 @@ import {
 } from "../public/js/translate-validate.js";
 import { EXPORT_SQL, mergeApproved, serializeTable } from "../scripts/translate-export.mjs";
 import { ROUTE_MODULE_LOADERS, ROUTE_OWNERS } from "../public/js/route-modules.js";
-import { routeForPath } from "../public/js/router.js";
+import { routeForPath, routeModuleId } from "../public/js/router.js";
 import { paintTranslateLink } from "../public/js/translate-link.js";
 
 const ROOT = new URL("../", import.meta.url);
@@ -125,11 +125,11 @@ test("module off: /translate is the honest not-found page and the meta says tran
   const env = makeEnv({ ASSETS: localeAssets(), HUMAN_CHECK: "off" });
   const off = await worker.fetch(new Request(ORIGIN + "/translate/fr"), env, {});
   assert.equal(off.status, 404);
-  assert.match(await off.text(), /<meta name="site-modules-off" content="translate">/);
+  assert.match(await off.text(), /<meta name="site-modules-off" content="[^"]*\btranslate\b[^"]*">/);
   storeModule(env, true);
   const on = await worker.fetch(new Request(ORIGIN + "/translate/fr"), env, {});
   assert.equal(on.status, 200);
-  assert.doesNotMatch(await on.text(), /site-modules-off/);
+  assert.doesNotMatch(await on.text(), /<meta name="site-modules-off" content="[^"]*\btranslate\b/);
 });
 
 test("browser: the route exists, loads lazily, and app.js swaps it for not-found when off", () => {
@@ -140,7 +140,10 @@ test("browser: the route exists, loads lazily, and app.js swaps it for not-found
   assert.equal(typeof ROUTE_MODULE_LOADERS.translate, "function");
   assert.doesNotMatch(read("public/js/router.js"), /translate\.js/);
   assert.doesNotMatch(read("public/js/app.js"), /from "\.\/routes\/translate\.js"/);
-  assert.match(read("public/js/app.js"), /\.name === "translate" && !siteModuleOn\("translate"\)/);
+  // The shared page-module gate (router.js MODULE_ROUTES) covers translate.
+  assert.equal(routeModuleId("translate"), "translate");
+  assert.match(read("public/js/app.js"), /routeModuleId\(route\.name\)/);
+  assert.match(read("public/js/app.js"), /if \(pageModule && !siteModuleOn\(pageModule\)\) return renderRoute\(\{ name: "not-found" \}\)/);
 });
 
 test("nav: the footer Translate link paints only when the module is on", () => {

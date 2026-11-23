@@ -10,6 +10,19 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+### Added
+
+- Search module (off by default): full-text search of every post with D1's
+  FTS5 index. A `/search` page (the header search box opens it while the
+  module is on) lists matching posts and replies, newest or most relevant
+  first, with the searched words marked and spoilers masked in every excerpt.
+  Results follow the same visibility rules as the rest of the forum: hidden
+  posts, members under an active ban, blocked members (both ways) and
+  replies under a hidden thread never show. Search terms are matched as
+  plain words, never as search operators. The classic people-and-threads
+  search stays as it is. New index in `migrations/0097_search.sql`; the owner
+  fills it for older posts once from the search page. See `docs/modules.md`.
+
 ## [5.88.0] - 2026-11-23
 
 ### Added

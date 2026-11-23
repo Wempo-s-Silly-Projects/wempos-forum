@@ -64,9 +64,10 @@ const KNOWN_ROUTES = [
   ...BOARDS.map((board) => `/c/${board.slug}?view=new`),
 ];
 
-// Routes of a default-off module (the translate module): honest 404 while
-// off (tests/translate-p1.test.mjs pins both states), so not in the 200 list.
-const MODULE_ROUTES = ["/translate", "/translate/fr"];
+// Routes of a default-off module (translate, search): honest 404 while off
+// (tests/translate-p1.test.mjs and tests/search-module.test.mjs pin both
+// states), so not in the 200 list.
+const MODULE_ROUTES = ["/translate", "/translate/fr", "/search", "/search?q=cats"];
 
 test("the route list covers every route name routeForPath can return", () => {
   const names = new Set([...KNOWN_ROUTES, ...MODULE_ROUTES].map((path) => {

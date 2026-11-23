@@ -55,8 +55,16 @@ export const searchFilters = (params) => {
 // as its allow-list: a page TYPE, never a path, id or slug.
 export const ROUTE_NAMES = Object.freeze([
   "setup", "home", "admin", "notifications", "bookmarks", "category", "archive", "mine", "leaderboard",
-  "rules", "week", "join", "tag", "post", "profile", "search", "settings", "translate", "not-found",
+  "rules", "week", "join", "tag", "post", "profile", "search", "settings", "translate", "full-search",
+  "not-found",
 ]);
+
+// Page routes a module owns: route name → module id (docs/modules.md). While
+// the module is off the worker answers the page with 404 and app.js paints
+// the not-found view, so the module's code never loads. "search" (the
+// classic /?q= page) is core; "full-search" (/search) is the search module.
+export const MODULE_ROUTES = Object.freeze({ translate: "translate", "full-search": "search" });
+export const routeModuleId = (name) => (Object.hasOwn(MODULE_ROUTES, name) ? MODULE_ROUTES[name] : null);
 
 export const routeForPath = (pathname, search = "") => {
   if (pathname === "/setup") return { name: "setup" };
@@ -102,6 +110,14 @@ export const routeForPath = (pathname, search = "") => {
   if (pathname === "/translate") return { name: "translate" };
   const translate = pathname.match(/^\/translate\/([A-Za-z]{2,3}(?:-[A-Za-z]{2,4})?)$/);
   if (translate) return { name: "translate", locale: translate[1] };
+  // The search module (docs/modules.md): /search?q=<words>&sort=new is the
+  // full-text page; an empty q shows the box. Only the non-default sort
+  // rides the route.
+  if (pathname === "/search") {
+    const params = new URLSearchParams(search);
+    const query = params.get("q")?.trim() ?? "";
+    return { name: "full-search", query, ...(params.get("sort") === "new" ? { sort: "new" } : {}) };
+  }
   // Invite links (v5.34): /join?ref=<username>; a malformed ref is "" (the
   // page still shows, it just credits no one). Same shape as invite.js.
   if (pathname === "/join") {

@@ -23,7 +23,7 @@ import { i18nReady, t } from "./i18n.js";
 import { addText } from "./forms.js";
 import { renderBannedScreen } from "./banned.js";
 import { boardLabel } from "./boards.js";
-import { isPlainLeftClick, startRouter } from "./router.js";
+import { isPlainLeftClick, routeModuleId, startRouter } from "./router.js";
 import { buildNotFoundLinks } from "./not-found.js";
 import { applyCornerPreference, initTheme } from "./theme.js";
 import {
@@ -168,6 +168,7 @@ function setRouteTitle(route) {
     "not-found": t("app.pageNotFound"),
     join: t("join.title"),
     translate: t("translate.title"),
+    "full-search": t("modules.label.search"),
   };
   document.title = route.name === "home"
     ? t("app.siteName")
@@ -205,7 +206,8 @@ function renderNotFoundRoute() {
 
 async function renderRoute(route) {
   // An off module's page is the not-found page; its module never loads.
-  if (route.name === "translate" && !siteModuleOn("translate")) return renderRoute({ name: "not-found" });
+  const pageModule = routeModuleId(route.name);
+  if (pageModule && !siteModuleOn(pageModule)) return renderRoute({ name: "not-found" });
   const version = ++state.renderVersion;
   // Read aloud (wave 2026-11-21-7): speech never outlives the page it read.
   stopReadAloud();
@@ -254,6 +256,7 @@ async function renderRoute(route) {
     renderSetupRoute, renderHomeRoute, renderSettingsRoute, renderMineRoute, renderLeaderboardRoute,
     renderRulesRoute, renderWeekRoute, renderTagRoute, renderCategoryRoute, renderArchiveRoute, renderPostRoute,
     renderProfileRoute, renderAdminRoute, renderNotificationsRoute, renderBookmarksRoute, renderTranslateRoute,
+    renderFullSearchRoute,
   } = view ?? {};
   const renderers = {
     setup: () => renderSetupRoute(context),
@@ -273,6 +276,7 @@ async function renderRoute(route) {
     notifications: () => renderNotificationsRoute(context, version),
     bookmarks: () => renderBookmarksRoute(route, context, version),
     translate: () => renderTranslateRoute(route, context, version),
+    "full-search": () => renderFullSearchRoute(route, context, version),
     "not-found": () => renderNotFoundRoute(),
     join: () => renderJoinRoute(route, context),
   };

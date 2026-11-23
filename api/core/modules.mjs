@@ -113,6 +113,14 @@ export const MODULES = Object.freeze([
     id: "translate", labelKey: "translate.nav", descriptionKey: "translate.moduleDesc",
     default: MODULE_OFF, client: true, paths: Object.freeze(["/api/translate", "/api/translate/"]),
   }),
+  // Full-text search of post bodies (D1 FTS5, migration 0097): the /search
+  // page, its API under /api/search/ and the owner's index backfill. The
+  // classic GET /api/search (members + threads) is not under the prefix and
+  // stays on. New, so default off.
+  entry({
+    id: "search", labelKey: "modules.label.search", descriptionKey: "modules.desc.search",
+    default: MODULE_OFF, client: true, paths: Object.freeze(["/api/search/"]),
+  }),
 ]);
 
 const BY_ID = new Map(MODULES.map((module) => [module.id, module]));

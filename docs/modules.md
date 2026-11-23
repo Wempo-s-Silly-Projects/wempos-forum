@@ -23,6 +23,7 @@ The list lives in one place: `api/core/modules.mjs`.
 | `link-previews` | The "show link preview" button | on | `MODULE_LINK_PREVIEWS=off` |
 | `embeds` | Video, audio and 3D players for links in posts | on | `MODULE_EMBEDS=off` |
 | `translate` | The `/translate` page: members suggest translations, staff review them, the owner exports them ([docs/translating.md](translating.md)) | **off** | `MODULE_TRANSLATE=off` |
+| `search` | Full-text search of every post body (D1 FTS5): the `/search` page, the header search box opens it, and `GET /api/search/full`. Results obey the visibility law; spoilers stay masked. The classic people-and-threads search (`GET /api/search`, `/?q=`) is core and stays on. The owner fills the index for older posts once ([self-hosting](self-hosting.md#14-full-text-search-optional)) | **off** | `MODULE_SEARCH=off` |
 
 "On, once set up" means the module is off until its env switch (and secret,
 if any) is in place, exactly as before modules existed.

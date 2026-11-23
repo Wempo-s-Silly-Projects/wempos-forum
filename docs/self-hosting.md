@@ -292,6 +292,31 @@ It needs no extra binding, secret, account or container: only D1 and the
 static assets. How it works for members is in
 [docs/translating.md](translating.md).
 
+## 14. Full-text search (optional)
+
+The `search` module adds a `/search` page that finds posts by any word in
+them, using D1's built-in full-text index (FTS5). It ships off. To use it:
+
+1. Its index comes from `migrations/0097_search.sql`, which step 4 already
+   applied. From then on every new, edited or deleted post updates the index
+   by itself.
+2. Turn it on in the desk's **Modules** page (or leave it off for good with
+   `MODULE_SEARCH = "off"` in `[vars]`).
+3. **Backfill once:** posts written before the migration are not in the index
+   yet. Signed in as the owner, open `/search` and press **Build the search
+   index**. It indexes 500 posts per request until it reaches the newest one
+   (`POST /api/search/backfill`, owner only). It skips posts that are already
+   indexed, so pressing it again is safe.
+
+It needs no extra binding, secret, account or container. Two things to know:
+
+- The index stores a copy of each post body, so the database grows by about
+  the size of your posts' text.
+- D1's standard `wrangler d1 export` does not support databases that contain
+  a virtual table. Use `wrangler d1 export --compatibility sqlite3_cli_only`
+  (a dump for the SQLite command line, which D1 cannot import back) or
+  Time Travel for backups.
+
 ## Sharing your source code
 
 The forum is licensed under the GNU Affero General Public License, version 3
