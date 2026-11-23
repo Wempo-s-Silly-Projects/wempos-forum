@@ -129,14 +129,48 @@ export const ALTCHA_PAYLOAD_MAX_LENGTH = 2048;
 // Owner order (Nov 22): the human/bot gate is chosen by env HUMAN_CHECK.
 // "anubis" (the default when unset or unrecognised) gates HTML navigations
 // through the Anubis program (TecharoHQ/anubis, run whole and unmodified
-// behind the Worker; api/core/anubis-gate.mjs is the seam) and skips the
-// per-form ALTCHA check; "altcha" is the lighter self-hosted per-form check
+// behind the Worker; api/core/anubis-gate.mjs is the seam); writes then need
+// an Anubis pass cookie OR the ALTCHA fallback (ALTCHA alone while Anubis is
+// not configured); "altcha" is the lighter self-hosted per-form check
 // exactly as Batch F shipped it; "off" asks for neither.
 export const HUMAN_CHECK_MODES = Object.freeze({ ANUBIS: "anubis", ALTCHA: "altcha", OFF: "off" });
 export const DEFAULT_HUMAN_CHECK_MODE = HUMAN_CHECK_MODES.ANUBIS;
 // The path prefix Anubis serves its own challenge pages, assets and API
 // under; reserved for the container, never gated by it.
 export const ANUBIS_RESERVED_PREFIX = "/.within.website/";
+// Anubis v1.28.2 in subrequest/forward-auth mode (TARGET=" "): the check
+// endpoint the gate asks, how long it may take before the page fails open to
+// ALTCHA, and how long a proxied challenge page/asset/pass may take.
+export const ANUBIS_CHECK_PATH = "/.within.website/x/cmd/anubis/api/check";
+export const ANUBIS_CHECK_TIMEOUT_MS = 1500;
+export const ANUBIS_PROXY_TIMEOUT_MS = 8000;
+// Anubis runs with CUSTOM_REAL_IP_HEADER set to this name; the worker always
+// overwrites it with CF-Connecting-IP (Cloudflare rewrites X-Forwarded-For).
+export const ANUBIS_CLIENT_IP_HEADER = "X-Wempo-Client-Ip";
+// The only rule Anubis's PassChallenge ever signs into a pass cookie.
+export const ANUBIS_PASS_ACTION = "CHALLENGE";
+// "<cookie-prefix>-auth" plus the optional dynamic "-<8 hex>" suffix.
+export const ANUBIS_AUTH_COOKIE_PATTERN = /^[\w.-]+-auth(?:-[0-9a-f]{8})?$/;
+// Every cookie Anubis sets: "<prefix>-auth", "-cookie-verification" and
+// "-original-referer", each with the optional suffix. Only these cross the
+// proxy in either direction (never forum session or Cloudflare cookies).
+export const ANUBIS_COOKIE_PATTERN = /^[\w.-]+-(?:auth|cookie-verification|original-referer)(?:-[0-9a-f]{8})?$/;
+export const ANUBIS_COOKIE_MAX_LENGTH = 4096;
+// The largest request body the proxy forwards (Anubis's pass form is tiny).
+export const ANUBIS_PROXY_MAX_BODY_BYTES = 64 * 1024;
+// /api GETs that never ask Anubis: the build stamp, the ALTCHA fallback, the
+// shell's own session bootstrap and setup probe, and the machine endpoints
+// with their own auth (AutoMod runner key, Accounts relay token).
+export const ANUBIS_API_EXEMPT_EXACT = Object.freeze(["/api/version", "/api/altcha/challenge", "/api/session", "/api/setup/status"]);
+export const ANUBIS_API_EXEMPT_PREFIXES = Object.freeze(["/api/automod/", "/api/relay/"]);
+export const ANUBIS_COOKIE_MAX_CANDIDATES = 4;
+// The cookie Cloudflare Access sets on its own origin; never passed on.
+export const ACCESS_COOKIE_NAME = "CF_Authorization";
+// The Anubis pages carry no CSP of their own; this one is applied when the
+// upstream sends none (inline script/style: Anubis's own page, no user text).
+export const ANUBIS_PAGE_CSP = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; " +
+  "img-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; " +
+  "form-action 'self'; frame-ancestors 'none'";
 
 // Batch F passkeys (WebAuthn): ceremony challenge lifetime, per-member cap,
 // and the display-name ceiling.

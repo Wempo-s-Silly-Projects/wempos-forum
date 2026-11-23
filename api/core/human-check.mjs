@@ -33,6 +33,7 @@ import { createChallenge, verifySolution } from "altcha-lib/v1";
 import {
   ALTCHA_MAX_NUMBER, ALTCHA_PAYLOAD_MAX_LENGTH, ALTCHA_TTL_SECONDS, DEFAULT_HUMAN_CHECK_MODE, HUMAN_CHECK_MODES,
 } from "../../constants.mjs";
+import { anubisConfig, hasAnubisPass } from "./anubis-pass.mjs";
 import { nowSeconds, sha256Hex } from "./crypto.mjs";
 import { HttpError } from "./http.mjs";
 
@@ -48,12 +49,22 @@ export function humanCheckMode(env) {
   return KNOWN_MODES.has(raw) ? raw : DEFAULT_HUMAN_CHECK_MODE;
 }
 
-const altchaMode = (env) => humanCheckMode(env) === HUMAN_CHECK_MODES.ALTCHA;
+// ALTCHA serves altcha mode, and anubis mode as its fallback (Anubis not
+// configured, unreachable, or a visitor without a pass cookie).
+const altchaMode = (env) => humanCheckMode(env) !== HUMAN_CHECK_MODES.OFF;
+const anubisLive = (env) => humanCheckMode(env) === HUMAN_CHECK_MODES.ANUBIS && Boolean(anubisConfig(env));
 
-// True when the per-form ALTCHA check is live: altcha mode AND key material.
-// The shell announces it to the client (<meta name="human-check">) only then.
+// True when the per-form ALTCHA check can run: altcha or anubis mode AND key.
 export function humanCheckConfigured(env) {
   return altchaMode(env) && Boolean(nonEmpty(env.ALTCHA_HMAC_KEY) || nonEmpty(env.TURNSTILE_SECRET));
+}
+
+// The shell's <meta name="human-check"> for THIS request: "anubis" when the
+// visitor already holds a valid Anubis pass (the client shows no widget),
+// "altcha" when the per-form ALTCHA check applies, "" for none.
+export async function humanCheckMeta(request, env) {
+  if (anubisLive(env) && await hasAnubisPass(request, env)) return "anubis";
+  return humanCheckConfigured(env) ? "altcha" : "";
 }
 
 function nonEmpty(value) {
@@ -110,12 +121,20 @@ function payloadExpiry(payload) {
   return match ? Number(match[1]) : nowSeconds() + ALTCHA_TTL_SECONDS;
 }
 
-// anubis mode skips it (the gate vets the browser before any page loads);
-// off mode asks for nothing; altcha mode is Batch F unchanged.
+// off mode asks for nothing; altcha mode is Batch F unchanged. anubis mode
+// with Anubis configured passes a valid Anubis pass cookie (verified locally,
+// api/core/anubis-pass.mjs) OR a valid ALTCHA payload, else 403: the API is
+// exempt from the page gate, so writes must prove it here. anubis mode with
+// no Anubis configured behaves as altcha mode.
 export async function requireHumanCheck(request, env, body) {
   if (!altchaMode(env)) return;
+  const anubis = anubisLive(env);
+  if (anubis && await hasAnubisPass(request, env)) return;
   const hmacKey = await humanCheckKey(env);
-  if (!hmacKey) return;
+  if (!hmacKey) {
+    if (anubis) throw new HttpError(403, "Human verification is required.");
+    return;
+  }
   const raw = body && typeof body.altcha === "string" ? body.altcha : "";
   if (!raw || raw.length > ALTCHA_PAYLOAD_MAX_LENGTH) {
     throw new HttpError(403, "Human verification is required.");

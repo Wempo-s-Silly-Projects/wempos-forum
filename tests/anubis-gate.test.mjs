@@ -57,16 +57,19 @@ test("humanCheckMode: unset, empty or unknown is anubis; values are trimmed and 
   assert.equal(humanCheckMode({ HUMAN_CHECK: "Off" }), "off");
 });
 
-test("anubis mode (default): a configured ALTCHA key asks for no per-form proof", async () => {
+test("anubis mode with no Anubis configured: the ALTCHA check stands in (security review: writes stay guarded)", async () => {
   for (const extra of [{}, { HUMAN_CHECK: "anubis" }]) {
     const env = makeEnv({ ALTCHA_HMAC_KEY: KEY, ...extra });
-    await requireHumanCheck(post(), env, {});
-    assert.equal((await call(env, "/api/altcha/challenge")).status, 404);
-    assert.doesNotMatch(await shell(env), /name="human-check"/);
+    await assert.rejects(requireHumanCheck(post(), env, {}), (error) => error.status === 403);
+    assert.equal((await call(env, "/api/altcha/challenge")).status, 200);
+    assert.match(await shell(env), /<meta name="human-check" content="altcha">/);
   }
+  const keyless = makeEnv({});
+  await requireHumanCheck(post(), keyless, {});
+  assert.doesNotMatch(await shell(keyless), /name="human-check"/);
 });
 
-test("anubis mode: HTML navigations still reach the shell while no container is bound", async () => {
+test("anubis mode: HTML navigations still reach the shell while no Anubis is configured", async () => {
   const env = makeEnv({ ALTCHA_HMAC_KEY: KEY });
   const res = await worker.fetch(makeRequest("/", { headers: { Accept: "text/html" } }), env, {});
   assert.equal(res.status, 200);
@@ -88,13 +91,22 @@ test("altcha mode: today's Batch F behaviour, unchanged", async () => {
 
 test("off mode: no per-form proof, no challenge endpoint, no gate", async () => {
   let gateCalls = 0;
-  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY, HUMAN_CHECK: "off", ANUBIS: { fetch: () => { gateCalls += 1; } } });
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => { gateCalls += 1; return new Response("", { status: 200 }); };
+  const env = makeEnv({
+    ALTCHA_HMAC_KEY: KEY, HUMAN_CHECK: "off", ANUBIS_URL: "https://anubis.test", ANUBIS_PUBLIC_KEY_HEX: "ab".repeat(32),
+    ANUBIS_ACCESS_CLIENT_ID: "id", ANUBIS_ACCESS_CLIENT_SECRET: "secret",
+  });
+  try {
   await requireHumanCheck(post(), env, {});
   assert.equal((await call(env, "/api/altcha/challenge")).status, 404);
   const html = await shell(env);
   assert.doesNotMatch(html, /name="human-check"/);
   assert.match(html, /shell/);
   assert.equal(gateCalls, 0);
+  } finally {
+    globalThis.fetch = original;
+  }
 });
 
 const EXEMPT = [
@@ -113,6 +125,8 @@ const GATED = [
   "/", "/c/general", "/posts/12", "/users/Ann", "/week", "/settings", "/search",
   "/api", "/apiary", "/mcp/x", "/feed", "/c/general/feed", "/js", "/locales",
   "/.within.websitex/", "/offline.htmlx", "/robots.txt/x",
+  // Review L4: a route whose last segment merely ends like a file is a page.
+  "/c/general/x.json", "/posts/1/a.txt", "/users/Ann/data.xml", "/u/a/b.css", "/search/q.png",
 ];
 
 test("isAnubisExemptPath: the exempt table", () => {
@@ -136,19 +150,48 @@ test("anubisGateApplies: only GET/HEAD HTML navigations to non-exempt paths", ()
   assert.equal(anubisGateApplies(nav("/.within.website/x/cmd/anubis/api/pass-challenge")), false);
 });
 
-test("anubisGate: no ANUBIS binding passes through; a bound one is reserved (still null, untouched)", async () => {
-  assert.equal(await anubisGate(nav("/"), {}), null);
+test("anubisGate: Anubis not configured passes through without a network call", async () => {
+  const original = globalThis.fetch;
   let touched = 0;
-  const bound = { ANUBIS: { fetch: () => { touched += 1; return new Response("challenge"); } } };
-  assert.equal(await anubisGate(nav("/"), bound), null);
-  assert.equal(await anubisGate(nav("/api/posts"), bound), null);
-  assert.equal(touched, 0);
+  globalThis.fetch = async () => { touched += 1; return new Response("challenge", { status: 403 }); };
+  try {
+    assert.equal(await anubisGate(nav("/"), {}), null);
+    assert.equal(await anubisGate(nav("/"), { ANUBIS_URL: "https://anubis.test" }), null, "no public key");
+    assert.equal(await anubisGate(nav("/api/posts"), {}), null);
+    assert.equal(touched, 0);
+  } finally {
+    globalThis.fetch = original;
+  }
 });
 
-test("production wrangler.toml pins ALTCHA while no ANUBIS binding exists", () => {
+// The guard: production may say HUMAN_CHECK = "anubis" only when the top
+// [vars] table also carries a valid ANUBIS_URL (https origin) and a 64-hex
+// ANUBIS_PUBLIC_KEY_HEX. Returns the violation text, or "" when fine.
+function productionPinViolation(toml) {
+  const topVars = (toml.split(/^\[vars\]$/m)[1] ?? "").split(/^\[/m)[0];
+  const value = (name) => (topVars.match(new RegExp(`^${name}\\s*=\\s*"([^"]*)"`, "m")) ?? [])[1];
+  const mode = value("HUMAN_CHECK");
+  if (mode === "altcha" || mode === "off") return "";
+  const url = value("ANUBIS_URL") ?? "";
+  const key = value("ANUBIS_PUBLIC_KEY_HEX") ?? "";
+  if (mode === "anubis" && /^https:\/\/[a-z0-9.-]+\/?$/i.test(url) && /^[0-9a-f]{64}$/i.test(key)) return "";
+  return `HUMAN_CHECK=${mode ?? "(unset)"} needs ANUBIS_URL + ANUBIS_PUBLIC_KEY_HEX in [vars], else pin "altcha"`;
+}
+
+test("production pin guard is red-capable (fixtures)", () => {
+  const vars = (body) => `name = "x"\n[vars]\n${body}\n[assets]\ndirectory = "./public"\n`;
+  const okKey = `ANUBIS_PUBLIC_KEY_HEX = "${"ab".repeat(32)}"`;
+  assert.equal(productionPinViolation(vars('HUMAN_CHECK = "altcha"')), "");
+  assert.equal(productionPinViolation(vars(`HUMAN_CHECK = "anubis"\nANUBIS_URL = "https://a.example"\n${okKey}`)), "");
+  assert.notEqual(productionPinViolation(vars('HUMAN_CHECK = "anubis"')), "");
+  assert.notEqual(productionPinViolation(vars(`HUMAN_CHECK = "anubis"\n${okKey}`)), "");
+  assert.notEqual(productionPinViolation(vars(`HUMAN_CHECK = "anubis"\nANUBIS_URL = "http://a.example"\n${okKey}`)), "");
+  assert.notEqual(productionPinViolation(vars('HUMAN_CHECK = "anubis"\nANUBIS_URL = "https://a.example"\nANUBIS_PUBLIC_KEY_HEX = "abc"')), "");
+  assert.notEqual(productionPinViolation(vars("")), "", "unset mode defaults to anubis");
+  assert.notEqual(productionPinViolation(`[vars]\nHUMAN_CHECK = "altcha"\n[env.preview.vars]\n`.replace("altcha", "anubis")), "");
+});
+
+test("production wrangler.toml: anubis only with ANUBIS_URL + ANUBIS_PUBLIC_KEY_HEX in [vars]", () => {
   const toml = readFileSync(new URL("../wrangler.toml", import.meta.url), "utf8");
-  const topVars = toml.split(/^\[vars\]$/m)[1].split(/^\[/m)[0];
-  const pinned = (topVars.match(/^HUMAN_CHECK\s*=\s*"([^"]*)"/m) ?? [])[1];
-  const anubisBound = /^\s*(binding|name)\s*=\s*"ANUBIS"/m.test(toml);
-  if (!anubisBound) assert.equal(pinned, "altcha", "without the Anubis server, production must keep the ALTCHA check");
+  assert.equal(productionPinViolation(toml), "");
 });
