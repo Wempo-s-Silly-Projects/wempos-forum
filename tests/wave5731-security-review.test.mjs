@@ -57,21 +57,18 @@ const directives = (csp) => new Map(csp.split(";").map((part) => part.trim()).fi
     const [name, ...sources] = part.split(/\s+/);
     return [name, sources];
   }));
-const POLYFILL_SOURCE = "https://cdnjs.cloudflare.com/polyfill/";
-
-test("M1: the HTML leg allows only the cdnjs polyfill path, not the whole CDN", () => {
+// Slate 2026-11-22-e closes M1 fully: the polyfill is self-hosted core-js, so
+// the HTML leg's script-src is 'self' alone, no cdnjs path or host at all.
+test("M1: the HTML leg allows no cdnjs source at all (script-src is 'self' only)", () => {
   const csp = secureResponse(new Response("x")).headers.get("Content-Security-Policy");
   const scriptSrc = directives(csp).get("script-src");
-  assert.deepEqual(scriptSrc, ["'self'", POLYFILL_SOURCE]);
-  // Exact source-list comparison (not a URL substring test): no entry may be the bare CDN origin.
-  const HOST_WIDE_CDNJS = "https://cdnjs.cloudflare.com";
-  assert.equal(scriptSrc.filter((source) => source === HOST_WIDE_CDNJS).length, 0, "no host-wide cdnjs source");
-  // The shell's polyfill URL sits under the allowed path.
-  const src = (read("public/index.html").match(/<script src="(https:\/\/cdnjs\.cloudflare\.com\/[^"]+)"/) ?? [])[1];
-  assert.ok(src && src.startsWith(POLYFILL_SOURCE), src);
+  assert.deepEqual(scriptSrc, ["'self'"]);
+  assert.doesNotMatch(csp, /cdnjs/);
+  // The shell references no cdnjs URL either.
+  assert.doesNotMatch(read("public/index.html"), /cdnjs/);
 });
 
-test("the HTML leg differs from the vendor CSP in script-src only, and loosens nothing else", () => {
+test("the HTML leg loosens nothing beyond the pinned splices", () => {
   const html = directives(secureResponse(new Response("x")).headers.get("Content-Security-Policy"));
   const vendor = directives(securityHeaders(new Headers()).get("Content-Security-Policy"));
   // Batch F: the app set (Turnstile origin stripped, empty frame-src dropped)
@@ -79,14 +76,14 @@ test("the HTML leg differs from the vendor CSP in script-src only, and loosens n
   // only, after a click) and only append to four directives;
   // tests/wave576-embeds.test.mjs pins the values.
   const added = new Set(["media-src", "frame-src"]);
-  const widened = new Set(["script-src", "style-src", "img-src", "connect-src"]);
+  const widened = new Set(["style-src", "img-src", "connect-src"]);
   assert.ok(!vendor.has("frame-src"), "no frame-src in the Turnstile-free baseline");
   assert.deepEqual([...html.keys()].filter((name) => !added.has(name)), [...vendor.keys()]);
   for (const [name, sources] of vendor) if (!widened.has(name)) assert.deepEqual(html.get(name), sources, name);
   for (const [name, sources] of vendor) {
     if (widened.has(name)) assert.deepEqual(html.get(name).slice(0, sources.length), sources, name + " only appends");
   }
-  assert.equal(html.get("script-src").length, 2);
+  assert.deepEqual(html.get("script-src"), ["'self'"]);
   assert.equal(html.get("style-src").length, 2);
   assert.match(html.get("style-src")[1], /^'sha256-[A-Za-z0-9+/]+=*'$/);
   assert.deepEqual(html.get("frame-src"), ["https://www.youtube-nocookie.com"]);
@@ -98,11 +95,13 @@ test("the HTML leg differs from the vendor CSP in script-src only, and loosens n
   assert.equal(json({}).headers.get("Content-Security-Policy"), securityHeaders(new Headers()).get("Content-Security-Policy"));
 });
 
-test("the polyfill tag is exactly one classic external script with src and no-referrer only", () => {
+test("the polyfill tag is exactly one same-origin classic script with src only", () => {
   const html = read("public/index.html");
-  const external = (html.match(/<script\b[^>]*>/gi) ?? []).filter((tag) => /\bsrc="https?:/i.test(tag));
-  assert.equal(external.length, 1);
-  assert.match(external[0], /^<script src="https:\/\/cdnjs\.cloudflare\.com\/polyfill\/v3\/polyfill\.min\.js\?[^"\s<>]+" referrerpolicy="no-referrer">$/);
+  const tags = html.match(/<script\b[^>]*>/gi) ?? [];
+  const external = tags.filter((tag) => /\bsrc="(?:https?:)?\/\//i.test(tag));
+  assert.deepEqual(external, []);
+  const polyfill = tags.filter((tag) => /polyfill/.test(tag));
+  assert.deepEqual(polyfill, ['<script src="/js/polyfill-loader.js">']);
 });
 
 test("the nomodule notice: same-origin classic file, static hidden block, plain ES5 with no side channels", () => {

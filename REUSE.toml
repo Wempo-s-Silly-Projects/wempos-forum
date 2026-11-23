@@ -70,6 +70,19 @@ precedence = "override"
 SPDX-FileCopyrightText = "Lea Verou and PrismJS contributors"
 SPDX-License-Identifier = "MIT"
 
+# core-js 3.51.0 (https://github.com/zloirock/core-js): a core-js-builder
+# 3.51.0 bundle of only es.array.at and es.object.has-own for the browser
+# floor (slate 2026-11-22-e), kept byte-for-byte as public/js/vendor/core-js.js
+# with core-js's own banner. Rebuilt by scripts/build-core-js.mjs. MIT,
+# compatible with AGPL-3.0-or-later; the sha256 is pinned by
+# tests/core-js-polyfill.test.mjs. Listed after the public/js/vendor/** block
+# so this narrower path wins.
+[[annotations]]
+path = "public/js/vendor/core-js.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2013-2025 Denis Pushkarev, 2025-2026 CoreJS Company"
+SPDX-License-Identifier = "MIT"
+
 # browser-image-compression 2.0.2
 # (https://github.com/Donaldcwl/browser-image-compression), its
 # dist/browser-image-compression.mjs kept byte-for-byte with its own upstream

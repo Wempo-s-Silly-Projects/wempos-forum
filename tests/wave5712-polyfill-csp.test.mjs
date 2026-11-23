@@ -22,8 +22,11 @@
 // for people who can't update"; option "Override CSP" picked 13:35). The
 // cdnjs polyfill service loads as a classic script before the module graph,
 // and only the HTML (static) leg's CSP allows https://cdnjs.cloudflare.com.
-// api/vendor/http.mjs stays byte-untouched: the allowance rides makeHttp's
+// api/vendor/http.mjs stays byte-untouched: the allowance rode makeHttp's
 // securityHeaders hook from the app-owned api/core/http.mjs.
+// Slate 2026-11-22-e: the cdnjs service is replaced by a self-hosted core-js
+// build behind /js/polyfill-loader.js (tests/core-js-polyfill.test.mjs), so
+// these pins now assert cdnjs is ABSENT from the shell and every CSP.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -34,11 +37,11 @@ const read = (path) => readFileSync(new URL("../" + path, import.meta.url), "utf
 const POLYFILL_ORIGIN = "https://cdnjs.cloudflare.com";
 const scriptSrc = (csp) => (csp.match(/script-src ([^;]+);/) ?? [])[1] ?? "";
 
-test("the HTML leg's CSP allows the cdnjs polyfill origin and still forbids inline and eval", () => {
+test("the HTML leg's CSP allows no cdnjs source and still forbids inline and eval", () => {
   const csp = secureResponse(new Response("x")).headers.get("Content-Security-Policy");
   const sources = scriptSrc(csp).split(/\s+/);
-  // v5.73.1 (security review M1): the polyfill path only, never the whole CDN.
-  assert.deepEqual(sources, ["'self'", POLYFILL_ORIGIN + "/polyfill/"]);
+  assert.deepEqual(sources, ["'self'"]);
+  assert.equal(cspHosts(csp).has("cdnjs.cloudflare.com"), false);
   assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval|https:\/\/\*|\s\*[\s;]/);
   assert.match(csp, /object-src 'none'/);
 });
@@ -49,25 +52,24 @@ test("non-HTML responses: no cdnjs and (Batch F) no Turnstile origin on JSON, fe
   assert.equal(cspHosts(csp).has("challenges.cloudflare.com"), false);
 });
 
-test("index.html loads the polyfill once, before every module script, without leaking the referrer", () => {
+test("index.html loads the polyfill gate once, same-origin, before every module script", () => {
   const html = read("public/index.html");
   const tags = html.match(/<script\b[^>]*>/gi) ?? [];
   // Exact origin of the src attribute, not a substring (CodeQL
-  // js/incomplete-url-substring-sanitization): a look-alike host such as
-  // cdnjs.cloudflare.com.evil.example must not count as the polyfill.
+  // js/incomplete-url-substring-sanitization).
   const srcOrigin = (tag) => {
     const src = (tag.match(/\bsrc="([^"]+)"/) ?? [])[1];
     return src ? new URL(src, "https://wempos-forum.com").origin : null;
   };
-  const polyfill = tags.filter((tag) => srcOrigin(tag) === POLYFILL_ORIGIN);
-  assert.equal(polyfill.length, 1, "exactly one polyfill tag");
-  assert.match(polyfill[0], /src="https:\/\/cdnjs\.cloudflare\.com\/polyfill\/v3\/polyfill\.min\.js\?version=4\.8\.0&amp;features=/);
-  assert.match(polyfill[0], /referrerpolicy="no-referrer"/);
+  assert.deepEqual(tags.filter((tag) => srcOrigin(tag) === POLYFILL_ORIGIN), [], "no cdnjs tag");
+  assert.doesNotMatch(html, /cdnjs/);
+  const polyfill = tags.filter((tag) => /polyfill/.test(tag));
+  assert.deepEqual(polyfill, ['<script src="/js/polyfill-loader.js">'], "exactly one same-origin gate tag");
   assert.doesNotMatch(polyfill[0], /\b(async|defer|type="module")\b/, "classic blocking script so it runs before modules");
   const firstModule = tags.findIndex((tag) => /type="module"/.test(tag));
-  assert.ok(tags.indexOf(polyfill[0]) < firstModule, "polyfill precedes the first module script");
-  const external = tags.filter((tag) => /src="https?:\/\//.test(tag));
-  assert.deepEqual(external, polyfill, "the polyfill is the only external script in the shell");
+  assert.ok(tags.indexOf(polyfill[0]) < firstModule, "polyfill gate precedes the first module script");
+  const external = tags.filter((tag) => srcOrigin(tag) !== "https://wempos-forum.com");
+  assert.deepEqual(external, [], "no external script in the shell");
 });
 
 test("the vendored framework file is untouched (its CSP still lists Turnstile; the app strips it)", () => {

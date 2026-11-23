@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@eslint/js": "latest",
-    "core-js-builder": "latest",
+    "core-js-compat": "3.51.0",
     "eslint": "latest",
     "fast-check": "latest",
     "globals": "latest",

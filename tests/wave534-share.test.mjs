@@ -213,11 +213,11 @@ test("wiring pins: sign-out wipe, thread page mount, settings panel, welcome lin
   assert.doesNotMatch(share, /api\(|fetch\(|XMLHttpRequest|<script|createElement\("script"\)|innerHTML/);
   assert.doesNotMatch(read("public/js/invite.js"), /innerHTML|fetch\(/);
   const html = read("public/index.html");
-  // v5.71.2: the cdnjs polyfill is the one owner-approved external script
-  // (pinned in wave5712-polyfill-csp); the share/invite wiring adds none.
-  const external = html.match(/<script[^>]+src="https?:[^>]*>/g) ?? [];
-  assert.ok(external.every((tag) => tag.includes('src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?')), external.join("\n"));
-  assert.ok(external.length <= 1);
+  // Slate 2026-11-22-e: the shell loads no external script at all (the cdnjs
+  // polyfill became a self-hosted core-js build); share/invite adds none.
+  const external = html.match(/<script[^>]+src="(?:https?:)?\/\/[^>]*>/g) ?? [];
+  assert.deepEqual(external, []);
+  assert.doesNotMatch(html, /cdnjs/);
 });
 
 // v5.35.1 — CodeQL #22 (js/xss-through-dom): the Mastodon host a member types

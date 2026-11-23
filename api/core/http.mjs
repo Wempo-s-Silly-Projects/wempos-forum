@@ -77,17 +77,13 @@ export function json(data, status = 200, headers = {}) {
   return response;
 }
 
-// v5.71.2 (owner Nov 22 13:35, "Override CSP"): the HTML shell loads the
-// cdnjs polyfill service as a classic script before the module graph, for
-// visitors on browsers that can't or won't update. The vendored framework
-// file stays untouched; the static leg binds this app-owned header set via
-// makeHttp's securityHeaders hook (the framework's own extension point for a
-// divergent app). Only static-leg (ASSETS) responses carry it; JSON,
-// feeds, images and discovery keep the vendor set.
-// v5.73.1 (security review M1): scoped to the polyfill path, not the whole
-// CDN — cdnjs also hosts libraries that are known CSP-bypass gadgets.
-const POLYFILL_ORIGIN = "https://cdnjs.cloudflare.com/polyfill/";
-const VENDOR_SCRIPT_SRC = "script-src 'self';";
+// The static leg binds this app-owned header set via makeHttp's
+// securityHeaders hook (the framework's own extension point for a divergent
+// app); the vendored framework file stays untouched. Only static-leg
+// (ASSETS) responses carry it; JSON, feeds, images and discovery keep the
+// vendor set. Slate 2026-11-22-e: the cdnjs polyfill service (v5.71.2) is
+// replaced by a self-hosted core-js build, so script-src stays the vendor's
+// bare 'self' and no splice widens it.
 // Splices run on the policy AFTER securityHeaders has retired Turnstile (its
 // origin is gone and the then-empty frame-src dropped). Each names the exact
 // directive it widens. v5.76 embeds: frame-src admits youtube-nocookie only
@@ -95,7 +91,6 @@ const VENDOR_SCRIPT_SRC = "script-src 'self';";
 // thumbnail host; blob: covers hls.js MediaSource and <model-viewer> textures;
 // the style hash admits exactly WaveSurfer's static shadow <style>.
 const DOCUMENT_CSP_SPLICES = [
-  [VENDOR_SCRIPT_SRC, "script-src 'self' " + POLYFILL_ORIGIN + ";"],
   ["style-src 'self';", "style-src 'self' '" + WAVESURFER_STYLE_HASH + "';"],
   ["img-src 'self' data:;", "img-src 'self' data: blob:; media-src 'self' blob:;"],
   ["connect-src 'self';", "connect-src 'self' blob:;"],
