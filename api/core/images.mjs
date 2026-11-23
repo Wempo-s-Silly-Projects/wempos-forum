@@ -43,23 +43,49 @@ export function blobToUint8Array(value) {
 }
 
 export function sniffImageMime(bytes) {
-  if (!(bytes instanceof Uint8Array) || bytes.length < 12) return null;
-  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
+  if (!(bytes instanceof Uint8Array)) return null;
+
   if (
-    bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e &&
-    bytes[3] === 0x47 && bytes[4] === 0x0d && bytes[5] === 0x0a &&
-    bytes[6] === 0x1a && bytes[7] === 0x0a
+    bytes.length >= 3 &&
+    bytes[0] === 0xff &&
+    bytes[1] === 0xd8 &&
+    bytes[2] === 0xff
+  ) return "image/jpeg";
+
+  if (
+    bytes.length >= 8 &&
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47 &&
+    bytes[4] === 0x0d &&
+    bytes[5] === 0x0a &&
+    bytes[6] === 0x1a &&
+    bytes[7] === 0x0a
   ) return "image/png";
+
   if (
-    bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 &&
-    bytes[3] === 0x46 && bytes[8] === 0x57 && bytes[9] === 0x45 &&
-    bytes[10] === 0x42 && bytes[11] === 0x50
+    bytes.length >= 12 &&
+    bytes[0] === 0x52 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x46 &&
+    bytes[8] === 0x57 &&
+    bytes[9] === 0x45 &&
+    bytes[10] === 0x42 &&
+    bytes[11] === 0x50
   ) return "image/webp";
+
   if (
-    bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 &&
-    bytes[3] === 0x38 && (bytes[4] === 0x37 || bytes[4] === 0x39) &&
+    bytes.length >= 6 &&
+    bytes[0] === 0x47 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x38 &&
+    (bytes[4] === 0x37 || bytes[4] === 0x39) &&
     bytes[5] === 0x61
   ) return "image/gif";
+
   return null;
 }
 
@@ -100,207 +126,478 @@ function assembleSanitized(bytes, keep) {
   return output;
 }
 
-// PNG: chunk walk. First chunk must be IHDR; text/EXIF-carrying ancillary
-// chunks are dropped; everything else (IDAT, PLTE, tRNS, iCCP, gAMA, pHYs…)
-// passes through with its CRC intact; the file must reach IEND, and any
-// bytes after IEND (the classic append vector) are truncated away.
+
 const PNG_DROP_CHUNKS = new Set(["tEXt", "zTXt", "iTXt", "eXIf", "tIME"]);
+
+function readU32BE(bytes, offset) {
+  return bytes[offset] * 0x1000000 +
+    bytes[offset + 1] * 0x10000 +
+    bytes[offset + 2] * 0x100 +
+    bytes[offset + 3];
+}
+
+function readU32LE(bytes, offset) {
+  return bytes[offset] +
+    bytes[offset + 1] * 0x100 +
+    bytes[offset + 2] * 0x10000 +
+    bytes[offset + 3] * 0x1000000;
+}
+
+function crc32(bytes, start, end) {
+  let crc = 0xffffffff;
+
+  for (let i = start; i < end; i += 1) {
+    crc ^= bytes[i];
+
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc >>> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
+    }
+  }
+
+  return (crc ^ 0xffffffff) >>> 0;
+}
 
 function sanitizePng(bytes) {
   const keep = [[0, 8]];
   let offset = 8;
   let seenIhdr = false;
+  let seenPlte = false;
+  let seenIdat = false;
+  let idatEnded = false;
+  let seenIend = false;
+  let colorType = -1;
+
   while (offset + 12 <= bytes.length) {
-    const length = bytes[offset] * 2 ** 24 + bytes[offset + 1] * 2 ** 16 +
-      bytes[offset + 2] * 2 ** 8 + bytes[offset + 3];
+    const length = readU32BE(bytes, offset);
     if (length > bytes.length - offset - 12) return null;
-    const type = String.fromCharCode(bytes[offset + 4], bytes[offset + 5], bytes[offset + 6], bytes[offset + 7]);
+
+    const type = String.fromCharCode(
+      bytes[offset + 4],
+      bytes[offset + 5],
+      bytes[offset + 6],
+      bytes[offset + 7],
+    );
+
     if (!/^[A-Za-z]{4}$/.test(type)) return null;
-    if (type !== "IHDR" && !seenIhdr) return null;
-    seenIhdr = true;
-    const total = 12 + length;
-    if (type === "IEND") {
-      keep.push([offset, offset + total]);
-      return assembleSanitized(bytes, keep);
-    }
-    if (!PNG_DROP_CHUNKS.has(type)) keep.push([offset, offset + total]);
-    offset += total;
-  }
-  return null; // never reached IEND
-}
 
-// JPEG: marker walk. APPn (EXIF/XMP/...) and COM segments are dropped; SOF,
-// DHT, DQT, DRI, SOS and entropy data pass through with byte stuffing (FF 00)
-// and restart markers respected; the scan must reach EOI, and bytes after it
-// are truncated. Handles progressive JPEGs (multiple SOS scans).
-function jpegEntropyEnd(bytes, from) {
-  let at = from;
-  while (at + 1 < bytes.length) {
-    if (bytes[at] === 0xff) {
-      const next = bytes[at + 1];
-      if (next === 0x00 || (next >= 0xd0 && next <= 0xd7)) {
-        at += 2;
-        continue;
-      }
-      return at; // index of the 0xFF starting the next real marker
-    }
-    at += 1;
-  }
-  return -1; // stream ends without a marker: no EOI anywhere
-}
+    const dataStart = offset + 8;
+    const dataEnd = dataStart + length;
+    const chunkEnd = dataEnd + 4;
 
-function sanitizeJpeg(bytes) {
-  const keep = [[0, 2]]; // SOI
-  let offset = 2;
-  while (offset + 1 < bytes.length) {
-    if (bytes[offset] !== 0xff) return null;
-    const marker = bytes[offset + 1];
-    if (marker === 0xff) {
-      offset += 1; // fill bytes before a marker are legal
+    // Verify every chunk CRC before retaining or discarding it.
+    if (crc32(bytes, offset + 4, dataEnd) !== readU32BE(bytes, dataEnd)) {
+      return null;
+    }
+
+    const isCritical = (bytes[offset + 4] & 0x20) === 0;
+
+    if (!seenIhdr) {
+      if (type !== "IHDR" || length !== 13) return null;
+      seenIhdr = true;
+
+      const width = readU32BE(bytes, dataStart);
+      const height = readU32BE(bytes, dataStart + 4);
+      const bitDepth = bytes[dataStart + 8];
+      colorType = bytes[dataStart + 9];
+      const compression = bytes[dataStart + 10];
+      const filter = bytes[dataStart + 11];
+      const interlace = bytes[dataStart + 12];
+
+      if (width === 0 || height === 0) return null;
+      if (compression !== 0 || filter !== 0 || interlace > 1) return null;
+
+      const validDepths = {
+        0: [1, 2, 4, 8, 16],
+        2: [8, 16],
+        3: [1, 2, 4, 8],
+        4: [8, 16],
+        6: [8, 16],
+      };
+
+      if (!validDepths[colorType]?.includes(bitDepth)) return null;
+
+      keep.push([offset, chunkEnd]);
+      offset = chunkEnd;
       continue;
     }
+
+    if (type === "IHDR") return null;
+
+    if (type === "PLTE") {
+      if (seenPlte || seenIdat || length === 0 || length > 768 || length % 3 !== 0) {
+        return null;
+      }
+      if (colorType === 0 || colorType === 4) return null;
+      if (colorType === 3 && length / 3 > 2 ** bytes[dataStart + 8]) {
+        return null;
+      }
+      seenPlte = true;
+    }
+
+    if (type === "IDAT") {
+      if (idatEnded) return null;
+      seenIdat = true;
+    } else if (seenIdat) {
+      idatEnded = true;
+    }
+
+    if (type === "IEND") {
+      if (length !== 0 || !seenIdat) return null;
+      if (colorType === 3 && !seenPlte) return null;
+
+      keep.push([offset, chunkEnd]);
+      seenIend = true;
+      break;
+    }
+
+    // Unknown critical chunks cannot safely be discarded or interpreted.
+    if (isCritical && !["PLTE", "IDAT"].includes(type)) return null;
+
+    if (!PNG_DROP_CHUNKS.has(type)) {
+      keep.push([offset, chunkEnd]);
+    }
+
+    offset = chunkEnd;
+  }
+
+  if (!seenIhdr || !seenIdat || !seenIend) return null;
+  return assembleSanitized(bytes, keep);
+}
+
+function jpegEntropyEnd(bytes, from) {
+  let at = from;
+
+  while (at + 1 < bytes.length) {
+    if (bytes[at] !== 0xff) {
+      at += 1;
+      continue;
+    }
+
+    const next = bytes[at + 1];
+
+    // Byte stuffing and restart markers belong to the entropy stream.
+    if (next === 0x00 || (next >= 0xd0 && next <= 0xd7)) {
+      at += 2;
+      continue;
+    }
+
+    return at;
+  }
+
+  return -1;
+}
+
+const JPEG_SOF_MARKERS = new Set([
+  0xc0, 0xc1, 0xc2, 0xc3,
+  0xc5, 0xc6, 0xc7,
+  0xc9, 0xca, 0xcb,
+  0xcd, 0xce, 0xcf,
+]);
+
+function sanitizeJpeg(bytes) {
+  const keep = [[0, 2]];
+  let offset = 2;
+  let seenFrame = false;
+  let seenScan = false;
+
+  while (offset + 1 < bytes.length) {
+    if (bytes[offset] !== 0xff) return null;
+
+    // Consume legal marker fill bytes.
+    while (offset < bytes.length && bytes[offset] === 0xff) {
+      offset += 1;
+    }
+
+    if (offset >= bytes.length) return null;
+
+    const marker = bytes[offset];
+    const markerStart = offset - 1;
+
+    if (marker === 0x00) return null;
+
     if (marker === 0xd9) {
-      keep.push([offset, offset + 2]); // EOI: the logical end of the image
+      if (!seenFrame || !seenScan) return null;
+      keep.push([markerStart, offset + 1]);
       return assembleSanitized(bytes, keep);
     }
-    if (marker === 0xd8 || marker < 0xc0) return null; // second SOI / marker invalid at this position
-    if (offset + 4 > bytes.length) return null;
-    const segmentLength = (bytes[offset + 2] << 8) | bytes[offset + 3];
-    if (segmentLength < 2 || offset + 2 + segmentLength > bytes.length) return null;
+
+    // SOI cannot occur inside a JPEG image. TEM and restart markers
+    // are standalone markers, but restart markers outside scans are invalid.
+    if (marker === 0xd8 || (marker >= 0xd0 && marker <= 0xd7)) return null;
+
+    if (marker === 0x01) {
+      keep.push([markerStart, offset + 1]);
+      offset += 1;
+      continue;
+    }
+
+    if (offset + 3 >= bytes.length) return null;
+
+    const segmentLength = (bytes[offset + 1] << 8) | bytes[offset + 2];
+    if (segmentLength < 2 || segmentLength > bytes.length - offset - 1) {
+      return null;
+    }
+
+    const segmentEnd = offset + 1 + segmentLength;
+    const payloadStart = offset + 3;
+
+    if (JPEG_SOF_MARKERS.has(marker)) {
+      if (seenFrame || segmentLength < 8) return null;
+
+      const precision = bytes[payloadStart];
+      const height = (bytes[payloadStart + 1] << 8) | bytes[payloadStart + 2];
+      const width = (bytes[payloadStart + 3] << 8) | bytes[payloadStart + 4];
+      const components = bytes[payloadStart + 5];
+
+      if (
+        precision === 0 || width === 0 || height === 0 ||
+        components === 0 || components > 4 ||
+        segmentLength !== 8 + components * 3
+      ) {
+        return null;
+      }
+
+      seenFrame = true;
+    }
+
     if (marker === 0xda) {
-      // SOS: keep the header segment, then the entropy-coded scan up to the
-      // next real marker (EOI, or the next scan's DHT/SOS in progressive).
-      keep.push([offset, offset + 2 + segmentLength]);
-      const entropyStart = offset + 2 + segmentLength;
+      if (!seenFrame || segmentLength < 8) return null;
+
+      const components = bytes[payloadStart];
+      if (
+        components === 0 || components > 4 ||
+        segmentLength !== 6 + components * 2
+      ) {
+        return null;
+      }
+
+      keep.push([markerStart, segmentEnd]);
+
+      const entropyStart = segmentEnd;
       const stop = jpegEntropyEnd(bytes, entropyStart);
       if (stop === -1) return null;
+
       keep.push([entropyStart, stop]);
+      seenScan = true;
       offset = stop;
       continue;
     }
-    const drop = (marker >= 0xe0 && marker <= 0xef) || marker === 0xfe; // APPn + COM
-    if (!drop) keep.push([offset, offset + 2 + segmentLength]);
-    offset += 2 + segmentLength;
+
+    // APPn and COM segments are the metadata-bearing segments removed here.
+    const drop = (marker >= 0xe0 && marker <= 0xef) || marker === 0xfe;
+
+    if (!drop) keep.push([markerStart, segmentEnd]);
+
+    offset = segmentEnd;
   }
-  return null; // ran out of bytes before EOI
+
+  return null;
 }
 
-// GIF: block walk. Comment (0x21 0xFE) and plaintext (0x21 0x01) extensions
-// are dropped; graphic control (0x21 0xF9) and application extensions
-// (0x21 0xFF — the animation loop) survive, as do image descriptors with
-// their color tables and LZW data; the file must reach its trailer (0x3B),
-// and bytes after it are truncated.
 function gifSubBlocksEnd(bytes, from) {
   let at = from;
+
   while (at < bytes.length) {
     const size = bytes[at];
     at += 1;
+
     if (size === 0) return at;
+    if (size > bytes.length - at) return -1;
+
     at += size;
   }
-  return -1; // sub-block chain never terminated
+
+  return -1;
 }
 
 function sanitizeGif(bytes) {
+  if (bytes.length < 13) return null;
+
+  const width = bytes[6] | (bytes[7] << 8);
+  const height = bytes[8] | (bytes[9] << 8);
+  if (width === 0 || height === 0) return null;
+
   const packed = bytes[10];
-  const colorTableBytes = (packed & 0x80) ? 3 * 2 ** ((packed & 0x07) + 1) : 0;
+  const colorTableBytes = (packed & 0x80)
+    ? 3 * 2 ** ((packed & 0x07) + 1)
+    : 0;
+
   let offset = 13 + colorTableBytes;
-  const keep = [[0, offset]]; // header + logical screen descriptor (+ global color table)
+  if (offset > bytes.length) return null;
+
+  const keep = [[0, offset]];
+  let imageCount = 0;
+
   while (offset < bytes.length) {
     const block = bytes[offset];
+
     if (block === 0x3b) {
-      keep.push([offset, offset + 1]); // trailer: the logical end
+      if (imageCount === 0) return null;
+
+      keep.push([offset, offset + 1]);
       return assembleSanitized(bytes, keep);
     }
+
     if (block === 0x21) {
-      if (offset + 1 >= bytes.length) return null;
+      if (offset + 2 > bytes.length) return null;
+
       const label = bytes[offset + 1];
       const end = gifSubBlocksEnd(bytes, offset + 2);
       if (end === -1) return null;
-      if (label !== 0xfe && label !== 0x01) keep.push([offset, end]);
+
+      // Only known extension types are accepted.
+      if (![0xf9, 0xfe, 0x01, 0xff].includes(label)) return null;
+
+      // Graphic Control Extension has exactly one four-byte data block.
+      if (label === 0xf9) {
+        if (
+          bytes[offset + 2] !== 4 ||
+          end !== offset + 8 ||
+          bytes[offset + 7] !== 0
+        ) {
+          return null;
+        }
+      }
+
+      // Plain Text and Application extensions have fixed-size headers.
+      if (label === 0x01 && bytes[offset + 2] !== 12) return null;
+      if (label === 0xff && bytes[offset + 2] !== 11) return null;
+
+      if (label !== 0xfe && label !== 0x01) {
+        keep.push([offset, end]);
+      }
+
       offset = end;
       continue;
     }
+
     if (block === 0x2c) {
       if (offset + 10 > bytes.length) return null;
-      const localTable = (bytes[offset + 9] & 0x80) ? 3 * 2 ** ((bytes[offset + 9] & 0x07) + 1) : 0;
-      // Image data = LZW minimum-code-size byte, THEN the sub-block chain —
-      // the +1 skips that bare code-size byte before the first size byte.
-      const end = gifSubBlocksEnd(bytes, offset + 10 + localTable + 1);
+
+      const imageWidth = bytes[offset + 5] | (bytes[offset + 6] << 8);
+      const imageHeight = bytes[offset + 7] | (bytes[offset + 8] << 8);
+      const imagePacked = bytes[offset + 9];
+
+      if (imageWidth === 0 || imageHeight === 0) return null;
+
+      const localTableBytes = (imagePacked & 0x80)
+        ? 3 * 2 ** ((imagePacked & 0x07) + 1)
+        : 0;
+
+      const codeSizeOffset = offset + 10 + localTableBytes;
+      if (codeSizeOffset >= bytes.length) return null;
+
+      const codeSize = bytes[codeSizeOffset];
+      if (codeSize < 2 || codeSize > 8) return null;
+
+      const end = gifSubBlocksEnd(bytes, codeSizeOffset + 1);
       if (end === -1) return null;
+
       keep.push([offset, end]);
+      imageCount += 1;
       offset = end;
       continue;
     }
-    return null; // unknown block byte
+
+    return null;
   }
-  return null; // never reached the trailer
+
+  return null;
 }
 
-// WebP: RIFF chunk walk bounded by the declared RIFF size. EXIF/XMP chunks
-// are dropped; frame/animation chunks (VP8, VP8L, VP8X, ANIM/ANMF, ALPH)
-// survive; at least one frame chunk must be present, and bytes past the RIFF
-// end are truncated.
-
 function sanitizeWebp(bytes) {
-  const riffSize = bytes[4] + bytes[5] * 2 ** 8 + bytes[6] * 2 ** 16 + bytes[7] * 2 ** 24;
+  if (bytes.length < 12) return null;
+
+  const riffSize = readU32LE(bytes, 4);
   const riffEnd = 8 + riffSize;
+
   if (riffSize < 4 || riffEnd > bytes.length) return null;
 
   const keep = [[0, 12]];
   let offset = 12;
-  let sawFrame = false;
-  let vp8xOffset = -1;
+  let keptLength = 12;
+  let vp8xOutputOffset = -1;
+  let seenVp8x = false;
+  let seenImage = false;
+  let seenExif = false;
+  let seenXmp = false;
   let removedExif = false;
   let removedXmp = false;
 
   while (offset + 8 <= riffEnd) {
     const tag = String.fromCharCode(
-      bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3],
+      bytes[offset],
+      bytes[offset + 1],
+      bytes[offset + 2],
+      bytes[offset + 3],
     );
-    const size = bytes[offset + 4] + bytes[offset + 5] * 2 ** 8 +
-      bytes[offset + 6] * 2 ** 16 + bytes[offset + 7] * 2 ** 24;
-    const total = 8 + size + (size % 2);
 
-    if (offset + total > riffEnd) return null;
+    const size = readU32LE(bytes, offset + 4);
+    const total = 8 + size + (size & 1);
+
+    if (total > riffEnd - offset) return null;
+
+    const chunkEnd = offset + total;
 
     if (tag === "VP8X") {
-      if (vp8xOffset !== -1 || size !== 10 || offset + total > riffEnd) return null;
-      vp8xOffset = offset;
+      if (seenVp8x || offset !== 12 || size !== 10) return null;
+      seenVp8x = true;
+      vp8xOutputOffset = keptLength;
+
+      const flags = bytes[offset + 8];
+      if (flags & 0xc1) return null;
     }
 
-    if (tag === "VP8 " || tag === "VP8L" || tag === "ANMF") {
-      sawFrame = true;
+    if (["VP8 ", "VP8L", "ANMF"].includes(tag)) {
+      seenImage = true;
     }
 
-    if (tag === "EXIF") removedExif = true;
-    if (tag === "XMP ") removedXmp = true;
+    if (tag === "EXIF") {
+      if (seenExif) return null;
+      seenExif = true;
+      removedExif = true;
+    }
+
+    if (tag === "XMP ") {
+      if (seenXmp) return null;
+      seenXmp = true;
+      removedXmp = true;
+    }
 
     if (tag !== "EXIF" && tag !== "XMP ") {
-      keep.push([offset, offset + total]);
+      keep.push([offset, chunkEnd]);
+      keptLength += total;
     }
 
-    offset += total;
+    offset = chunkEnd;
   }
 
-  if (offset !== riffEnd || !sawFrame) return null;
+  if (offset !== riffEnd || !seenImage) return null;
+
+  // Extended WebP metadata flags must agree with the chunks that remain.
+  if (seenVp8x) {
+    const flags = bytes[vp8xOutputOffset + 8];
+
+    if (removedExif && !(flags & 0x08)) return null;
+    if (removedXmp && !(flags & 0x04)) return null;
+  } else if (removedExif || removedXmp) {
+    // Metadata chunks require the extended WebP container.
+    return null;
+  }
 
   const output = assembleSanitized(bytes, keep);
 
   if (output !== bytes) {
     const newSize = output.length - 8;
-    output[4] = newSize & 255;
-    output[5] = (newSize >>> 8) & 255;
-    output[6] = (newSize >>> 16) & 255;
-    output[7] = (newSize >>> 24) & 255;
 
-    if (vp8xOffset !== -1) {
-      const outputVp8xOffset = vp8xOffset - keep
-        .filter(([start]) => start < vp8xOffset)
-        .reduce((sum, [start, end]) => sum + (end - start), 0) +
-        12;
+    output[4] = newSize & 0xff;
+    output[5] = (newSize >>> 8) & 0xff;
+    output[6] = (newSize >>> 16) & 0xff;
+    output[7] = (newSize >>> 24) & 0xff;
 
-      const flagsOffset = outputVp8xOffset + 8;
+    if (vp8xOutputOffset !== -1) {
+      const flagsOffset = vp8xOutputOffset + 8;
+
       if (removedExif) output[flagsOffset] &= ~0x08;
       if (removedXmp) output[flagsOffset] &= ~0x04;
     }
@@ -308,6 +605,7 @@ function sanitizeWebp(bytes) {
 
   return output;
 }
+
 
 
 export function sanitizeImage(bytes) {
@@ -363,13 +661,27 @@ export function imageDimensions(bytes) {
 // Returns { mime, bytes, width, height } (bytes sanitized; width/height null
 // when the header lacks them) or null when the upload is not an allowed image.
 export async function inspectImageUpload(bytes) {
+  if (!(bytes instanceof Uint8Array) || bytes.length === 0) return null;
+
   const mime = sniffImageMime(bytes);
   if (!mime) return null;
+
   if (await detectedMime(bytes) !== mime) return null;
+
   const sanitized = sanitizeImage(bytes);
-  if (!sanitized) return null;
+  if (!sanitized || sanitized.mime !== mime) return null;
+
   const size = imageDimensions(sanitized.bytes);
-  return { mime, bytes: sanitized.bytes, width: size?.width ?? null, height: size?.height ?? null };
+
+  // A structurally valid image must also have usable dimensions.
+  if (!size) return null;
+
+  return {
+    mime,
+    bytes: sanitized.bytes,
+    width: size.width,
+    height: size.height,
+  };
 }
 
 // Content-addressed dimensions row (migration 0080). INSERT OR IGNORE: the
@@ -389,13 +701,17 @@ export function imageDimensionsStatement(db, hash, image) {
 // guess the type, and Content-Disposition: inline with a fixed ASCII
 // filename so no execution context is ever inherited from the path.
 export function imageResponse(bytes, claimedMime, cacheControl) {
+  if (!(bytes instanceof Uint8Array)) return null;
+
   const sniffed = sniffImageMime(bytes);
   if (!sniffed || sniffed !== claimedMime) return null;
+
   const headers = securityHeaders();
   headers.set("Content-Type", sniffed);
   headers.set("Cache-Control", cacheControl);
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("Content-Disposition", 'inline; filename="image"');
   headers.set("Content-Length", String(bytes.length));
+
   return new Response(bytes, { status: 200, headers });
 }
