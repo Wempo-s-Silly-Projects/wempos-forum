@@ -48,6 +48,7 @@ const DEVICE_PREF_FILES = new Map([
   ["i18n.js", "interface language"],
   ["appearance-reset.js", "corners, text size and tab-title count back to defaults (wave 5.7)"],
   ["global-keys.js", "single-key shortcuts on/off (Batch J)"],
+  ["api.js", "Anubis reload-guard timestamp in sessionStorage (tab-scoped, no account data; v5.84)"],
 ]);
 
 const walk = (dir) => readdirSync(dir).flatMap((name) => {

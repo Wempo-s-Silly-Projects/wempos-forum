@@ -29,7 +29,7 @@
 // served and its shell meta says "altcha" (the visitor holds no pass cookie).
 // Nothing here logs or returns the Access secrets.
 import {
-  ANUBIS_API_EXEMPT_EXACT, ANUBIS_API_EXEMPT_PREFIXES, ANUBIS_CHECK_PATH, ANUBIS_CHECK_TIMEOUT_MS,
+  ANUBIS_API_CHALLENGE_ERROR, ANUBIS_API_EXEMPT_EXACT, ANUBIS_API_EXEMPT_PREFIXES, ANUBIS_CHECK_PATH, ANUBIS_CHECK_TIMEOUT_MS,
   ANUBIS_CLIENT_IP_HEADER, ANUBIS_COOKIE_PATTERN, ANUBIS_PAGE_CSP, ANUBIS_PROXY_MAX_BODY_BYTES,
   ANUBIS_PROXY_TIMEOUT_MS, ANUBIS_RESERVED_PREFIX, STATIC_HTML_PAGES,
 } from "../../constants.mjs";
@@ -262,7 +262,7 @@ export async function anubisApiGate(request, env) {
   if (!upstream || upstream.status === 200) return null;
   if (await isAccessRefusal(upstream)) return failOpen("access " + upstream.status);
   if (upstream.status === 403) return unavailable(403, "Access denied.");
-  if (REDIRECT_STATUSES.has(upstream.status)) return unavailable(401, "human check required");
+  if (REDIRECT_STATUSES.has(upstream.status)) return unavailable(401, ANUBIS_API_CHALLENGE_ERROR);
   return failOpen("status " + upstream.status);
 }
 

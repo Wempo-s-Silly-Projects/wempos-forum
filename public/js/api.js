@@ -99,6 +99,31 @@ async function fetchWithRetry(path, options) {
   });
 }
 
+// Anubis API gate recovery. Mirrors ANUBIS_API_CHALLENGE_ERROR in
+// constants.mjs (pinned equal by tests/anubis-api-recovery.test.mjs). A
+// signed-out reader whose pass cookie stopped matching (e.g. a new IP) gets
+// this 401 on JSON reads; one reload lets the page gate re-challenge them.
+// The guard allows at most one reload per minute so it can never loop.
+export const HUMAN_CHECK_REQUIRED_ERROR = "human check required"; // i18n-ignore: protocol value, never painted
+const HUMAN_CHECK_RELOAD_KEY = "wempo:anubis-reload-at";
+const HUMAN_CHECK_RELOAD_GAP_MS = 60_000;
+
+export function shouldReloadForHumanCheck(status, result, storage, now = Date.now()) {
+  if (status !== 401 || !result || result.error !== HUMAN_CHECK_REQUIRED_ERROR) return false;
+  try {
+    const raw = storage.getItem(HUMAN_CHECK_RELOAD_KEY);
+    if (raw !== null && now - Number(raw) < HUMAN_CHECK_RELOAD_GAP_MS) return false;
+    storage.setItem(HUMAN_CHECK_RELOAD_KEY, String(now));
+  } catch {
+    // Storage blocked (private mode): allow this one reload decision.
+  }
+  return true;
+}
+
+const sessionStore = () => {
+  try { return globalThis.sessionStorage; } catch { return null; }
+};
+
 export const api = async (path, {
   method = "GET", body, idempotencyKey, idempotent = false, signal, as, retry,
 } = {}) => {
@@ -118,6 +143,10 @@ export const api = async (path, {
     throw error;
   }
   if (!response.ok) {
+    const store = sessionStore();
+    if (store && globalThis.location && shouldReloadForHumanCheck(response.status, result, store)) {
+      globalThis.location.reload();
+    }
     const error = new Error(errorMessageFor(result, response.status));
     error.status = response.status;
     // Copy the JSON body's extra fields onto the error (banned/reason/expiresAt

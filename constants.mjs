@@ -147,6 +147,10 @@ export const ANUBIS_PROXY_TIMEOUT_MS = 8000;
 // Anubis runs with CUSTOM_REAL_IP_HEADER set to this name; the worker always
 // overwrites it with CF-Connecting-IP (Cloudflare rewrites X-Forwarded-For).
 export const ANUBIS_CLIENT_IP_HEADER = "X-Wempo-Client-Ip";
+// The API gate's 401 body error; public/js/api.js mirrors it (pinned equal by
+// tests/anubis-api-recovery.test.mjs) and reloads once so the page gate can
+// send the reader back through the challenge.
+export const ANUBIS_API_CHALLENGE_ERROR = "human check required";
 // The only rule Anubis's PassChallenge ever signs into a pass cookie.
 export const ANUBIS_PASS_ACTION = "CHALLENGE";
 // "<cookie-prefix>-auth" plus the optional dynamic "-<8 hex>" suffix.
