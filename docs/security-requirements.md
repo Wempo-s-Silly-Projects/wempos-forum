@@ -19,8 +19,13 @@ How the design meets these requirements is argued in the
   `SameSite=Lax` (`api/core/auth.mjs`).
 - You can turn on two-factor sign-in with any TOTP authenticator app, keep
   backup codes, and sign out your other devices.
-- Sign-in, sign-up and other abuse-prone routes are rate-limited, and can be
-  protected with Cloudflare Turnstile.
+- Sign-in, sign-up and other abuse-prone routes are rate-limited. A human
+  check chosen by `HUMAN_CHECK` (`anubis`, the code default; `altcha`; or
+  `off`) guards sign-up, sign-in, posts and replies. Production runs
+  `altcha`: a self-hosted proof-of-work check with no third-party script or
+  frame. Anubis (free software, MIT) is being rolled out as a whole-site
+  gate, falling back to ALTCHA when it cannot be reached. Cloudflare
+  Turnstile was retired in v5.80.0.
 
 **Your requests**
 

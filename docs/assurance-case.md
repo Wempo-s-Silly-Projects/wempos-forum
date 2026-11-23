@@ -45,9 +45,16 @@ devices. These limits are stated in
 3. **Forum worker ↔ Wempo Accounts worker.** These talk over a private
    service binding, authenticated with a shared secret (`api/relay.mjs`).
    Accounts never sees password hashes.
-4. **Worker ↔ Cloudflare Turnstile.** The worker's only outbound internet
-   request goes to Turnstile's fixed HTTPS siteverify endpoint
-   (`api/core/http.mjs`). The worker treats the reply as untrusted input.
+4. **Worker ↔ outbound internet.** Cloudflare Turnstile is retired
+   (v5.80.0); the human check is the self-hosted ALTCHA proof-of-work
+   (`api/altcha.mjs`, `api/core/human-check.mjs`), which makes no outbound
+   request. The worker's outbound requests are now: (a) `GET /api/link-preview`
+   (`api/link-preview.mjs`), only for a signed-in member who clicks "Show link
+   preview"; it resolves the host over DNS-over-HTTPS at a fixed endpoint and
+   refuses private, loopback and link-local addresses, re-checking each
+   redirect by hand; and (b) once Anubis is enabled, the Anubis check endpoint
+   at one fixed configured origin (`api/core/anubis-gate.mjs`). The worker
+   treats every reply as untrusted input.
 5. **Repository ↔ CI and deploy.** Dependencies are pinned by
    `pnpm-lock.yaml` and installed with `--frozen-lockfile`. GitHub Actions
    are pinned to commit hashes. Secrets live only in Cloudflare and GitHub
@@ -95,10 +102,10 @@ devices. These limits are stated in
 | A04 Insecure design | This assurance case; threat-driven reviews of each release batch | [security-reviews/](security-reviews/) |
 | A05 Security misconfiguration | Security headers on every response (worker-first assets); a deny-by-default CSP; required secrets checked before use (for example, sign-in refuses to run without a valid pepper) | `api/vendor/http.mjs`, `wrangler.toml` (`run_worker_first = true`) |
 | A06 Vulnerable components | Few dependencies; lockfile with integrity hashes; `pnpm audit` on every push and weekly; Dependabot alerts | `.github/workflows/audit.yml` |
-| A07 Authentication failures (CWE-287, CWE-307) | Rate limits and optional Turnstile on sign-in; TOTP two-factor; `__Host-` Secure HttpOnly cookies; server-side session revocation | `api/core/auth.mjs`, `api/core/totp.mjs`, `worker.mjs` |
+| A07 Authentication failures (CWE-287, CWE-307) | Rate limits; the ALTCHA or Anubis human check (`HUMAN_CHECK`) on sign-up, sign-in, posts and replies; TOTP two-factor; passkeys; recovery codes; `__Host-` Secure HttpOnly cookies; server-side session revocation | `api/core/auth.mjs`, `api/core/totp.mjs`, `api/passkeys.mjs`, `api/core/human-check.mjs`, `worker.mjs` |
 | A08 Integrity failures | Signed release tags; Actions pinned by hash; frozen lockfile | [SECURITY.md](../SECURITY.md#verifying-a-release), `.github/workflows/` |
 | A09 Logging and monitoring | Moderation log of staff actions; no secrets or passwords in logs | `api/modlogs.mjs` |
-| A10 SSRF (CWE-918) | The worker makes exactly one outbound internet request, to a fixed HTTPS endpoint (Turnstile). Its only other outbound call goes over the Accounts service binding. It never fetches a URL that a user supplies. | `constants.mjs` (`TURNSTILE_SITEVERIFY_URL`), `api/core/http.mjs`, `api/accounts.mjs` |
+| A10 SSRF (CWE-918) | The one route that fetches a URL a user supplies is `GET /api/link-preview`: signed-in only, run only on a member's explicit click, HTTP(S) only, host resolved over DNS-over-HTTPS at a fixed endpoint and refused unless every address is public unicast (private, loopback and link-local refused), redirects followed by hand and re-checked, images never fetched. The Anubis check (once enabled) goes to one fixed configured origin. The Accounts call goes over the service binding. | `api/link-preview.mjs`, `constants.mjs` (`LINK_PREVIEW_DOH_ENDPOINT`), `api/core/anubis-gate.mjs`, `api/accounts.mjs` |
 | CSRF (CWE-352) | CSRF token, same-origin check and SameSite cookie on every write | `requireUser` / `assertSameOrigin` in `api/core/auth.mjs` |
 | Clickjacking (CWE-1021) | `X-Frame-Options` and CSP `frame-ancestors 'none'` | `api/vendor/http.mjs` |
 | Unrestricted upload (CWE-434) | Image type found by sniffing the bytes; size limits; served with `nosniff` and a fixed Content-Type | `api/core/images.mjs`, `api/attachments.mjs` |
