@@ -24,6 +24,8 @@
 // its classic look and behaviour. Only the modules below may default ON:
 // they are the forum's pre-module features (each still env/owner-gated)
 // plus the weekly Saturday Fools gag. Adding a name here needs the owner.
+// Owner, 2026-11-23 10:03: "i mean stuff that turns it into discourse" —
+// Discourse-style extras stay off; the forum's own extras stay on.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

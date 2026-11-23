@@ -55,7 +55,7 @@ export const searchFilters = (params) => {
 // as its allow-list: a page TYPE, never a path, id or slug.
 export const ROUTE_NAMES = Object.freeze([
   "setup", "home", "admin", "notifications", "bookmarks", "category", "archive", "mine", "leaderboard",
-  "rules", "week", "join", "tag", "post", "profile", "search", "settings", "translate", "full-search",
+  "rules", "week", "join", "tag", "post", "profile", "search", "settings", "full-search",
   "not-found",
 ]);
 
@@ -63,7 +63,7 @@ export const ROUTE_NAMES = Object.freeze([
 // the module is off the worker answers the page with 404 and app.js paints
 // the not-found view, so the module's code never loads. "search" (the
 // classic /?q= page) is core; "full-search" (/search) is the search module.
-export const MODULE_ROUTES = Object.freeze({ translate: "translate", "full-search": "search" });
+export const MODULE_ROUTES = Object.freeze({ "full-search": "search" });
 export const routeModuleId = (name) => (Object.hasOwn(MODULE_ROUTES, name) ? MODULE_ROUTES[name] : null);
 
 export const routeForPath = (pathname, search = "") => {
@@ -103,13 +103,6 @@ export const routeForPath = (pathname, search = "") => {
   // This week (v5.35): the busiest threads, newest Showcase builds and the
   // staff pick of the last 7 days.
   if (pathname === "/week") return { name: "week" };
-  // The translate module (docs/translating.md): /translate lists languages,
-  // /translate/<code> opens one (the code shape of public/js/i18n.js LOCALES;
-  // an unknown code still routes and the page says so). app.js swaps the
-  // route for not-found while the module is off.
-  if (pathname === "/translate") return { name: "translate" };
-  const translate = pathname.match(/^\/translate\/([A-Za-z]{2,3}(?:-[A-Za-z]{2,4})?)$/);
-  if (translate) return { name: "translate", locale: translate[1] };
   // The search module (docs/modules.md): /search?q=<words>&sort=new is the
   // full-text page; an empty q shows the box. Only the non-default sort
   // rides the route.

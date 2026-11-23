@@ -275,24 +275,7 @@ The key alone never turns it on, and with either one missing every
 it off or replace the key if it ever leaks, is in the
 [admin guide](admin-guide.md#automod-api).
 
-## 13. Translations page (optional)
-
-The `translate` module adds a `/translate` page where your members suggest
-translations and your staff review them. It ships off. To use it:
-
-1. Turn it on in the desk's **Modules** page (or leave it off for good with
-   `MODULE_TRANSLATE = "off"` in `[vars]`).
-2. Its tables come from `migrations/0096_translate.sql`, which step 4
-   already applied.
-3. To ship approved text, run
-   `node scripts/translate-export.mjs --db <your-database-name>` on your own
-   machine, review the diff in `public/locales/`, commit it and deploy.
-
-It needs no extra binding, secret, account or container: only D1 and the
-static assets. How it works for members is in
-[docs/translating.md](translating.md).
-
-## 14. Full-text search (optional)
+## 13. Full-text search (optional)
 
 The `search` module adds a `/search` page that finds posts by any word in
 them, using D1's built-in full-text index (FTS5). It ships off, and it stays
