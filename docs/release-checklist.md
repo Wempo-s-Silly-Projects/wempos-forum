@@ -68,7 +68,7 @@ pnpm exec wrangler d1 migrations apply wempo-forum-preview --env preview --remot
 pnpm run deploy -- --env preview
 ```
 
-Preview needs its own `SETUP_SECRET`, `PASSWORD_PEPPER`, and `TURNSTILE_SECRET`, set as Cloudflare secrets for that environment. Never reuse the production values.
+Preview needs its own `SETUP_SECRET` and `PASSWORD_PEPPER`, plus an optional `ALTCHA_HMAC_KEY` for the ALTCHA human check, set as Cloudflare secrets for that environment. Without `ALTCHA_HMAC_KEY`, a legacy `TURNSTILE_SECRET` binding still works: the key is derived from it by HMAC with a fixed label, never used raw. Never reuse the production values.
 
 ## The scripts in `docs/sql/`
 

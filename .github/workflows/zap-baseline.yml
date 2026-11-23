@@ -40,8 +40,9 @@ jobs:
 
       # Local-only settings, written at job runtime and never committed. The
       # pepper is a fixed, public test value (not a secret: this throwaway
-      # database holds no real accounts). No TURNSTILE_SECRET, so the human
-      # check is off. SITE_ORIGIN points documents at the local copy.
+      # database holds no real accounts). No ALTCHA_HMAC_KEY (and no legacy
+      # TURNSTILE_SECRET to derive one from), so the human check is off for
+      # the scan. SITE_ORIGIN points documents at the local copy.
       - name: Write local-only .dev.vars
         run: |
           printf '%s\n' \

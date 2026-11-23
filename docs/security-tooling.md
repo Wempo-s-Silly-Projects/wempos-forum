@@ -69,7 +69,8 @@ its own workflow file and is described in `CONTRIBUTING.md`.
 - **What the local copy covers:** the same worker code, routes, response
   headers and pages as production, on an empty database with no members.
   The job writes a `.dev.vars` file at run time with a fixed test pepper
-  (a public placeholder, not a secret) and no Turnstile secret. It does
+  (a public placeholder, not a secret) and no `ALTCHA_HMAC_KEY` (or legacy
+  `TURNSTILE_SECRET`), so the human check is off for the scan. It does
   **not** cover anything Cloudflare adds in front of the live site (TLS,
   the bot check, edge caching), signed-in pages, or content that only
   exists in the live database.
