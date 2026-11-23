@@ -10,6 +10,13 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.85.1] - 2026-11-22
+
+### Fixed
+
+- A test regex flagged by code scanning (no change to the site). v5.85.0 was
+  held back by the release gate; this release ships its changes.
+
 ## [5.85.0] - 2026-11-22
 
 ### Added

@@ -89,7 +89,7 @@ test("cookies: a forged session cookie still signs the member in; a lookalike na
 test("text: normalizeBodyText is strip-bom (normalize-newline skipped: leaves lone CR) and keeps its contract", async () => {
   const text = source("api/core/text.mjs");
   assert.match(text, /from "strip-bom"/);
-  assert.ok(!/^import .*LEADING_BOM|const LEADING_BOM/m.test(text), "in-house BOM regex still present");
+  assert.ok(!/^import .*LEADING_BOM/m.test(text) && !/const LEADING_BOM/.test(text), "in-house BOM regex still present");
   const { normalizeBodyText } = await import("../api/core/text.mjs");
   assert.equal(normalizeBodyText("﻿﻿a\r\n\r\nb\rc"), "﻿a\n\nb\nc", "only ONE leading BOM goes");
   assert.equal(normalizeBodyText("a﻿b"), "a﻿b", "an inner BOM stays");
