@@ -107,6 +107,12 @@ export const MODULES = Object.freeze([
     id: "embeds", labelKey: "modules.label.embeds", descriptionKey: "modules.desc.embeds",
     default: MODULE_ON, client: true,
   }),
+  // The in-forum translation service (docs/translating.md, migration 0096):
+  // members suggest, staff review, the owner exports. New, so default off.
+  entry({
+    id: "translate", labelKey: "translate.nav", descriptionKey: "translate.moduleDesc",
+    default: MODULE_OFF, client: true, paths: Object.freeze(["/api/translate", "/api/translate/"]),
+  }),
 ]);
 
 const BY_ID = new Map(MODULES.map((module) => [module.id, module]));

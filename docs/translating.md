@@ -10,11 +10,36 @@ translation platform setup at the end.
 - **A GitHub pull request** (works today). Edit the file for your language in
   `public/locales/` (for example `public/locales/de.json`) and open a pull
   request against `main`. Read [CONTRIBUTING.md](../CONTRIBUTING.md) first.
-- **In the forum itself** (planned). A built-in translation page where
-  signed-in members suggest strings and staff review them is being built as
-  an optional module; see
-  [the slate](drafts/feature-slate-2026-11-22-translate.md). It will land in
-  the same files and pass the same tests.
+- **In the forum itself**, on forums whose owner has turned on the
+  `translate` module (it ships off; see [modules](modules.md)). The footer
+  then shows a **Translate** link to `/translate`:
+  - `/translate` lists every language with how much of it is translated.
+    Anyone can read it.
+  - `/translate/<code>` (for example `/translate/de`) lists the keys of one
+    language: the key, the English text and the text the forum shows now.
+    "Missing" shows only the values that are still the same as English.
+  - Signed-in members press **Suggest** on a key, type their wording and
+    send it. The box checks the same rules as the test suite while you
+    type: the same `{placeholders}`, no tags or line breaks, not a copy of
+    the English, and a length limit. Each member can have 200 suggestions
+    waiting, and each key takes 10 at most.
+  - Staff (admins and the owner) approve or reject suggestions, on the key
+    or in the **Review queue** on `/translate`. Approving one suggestion
+    rejects the other waiting ones for that key. A suggestion whose English
+    text has changed since cannot be approved.
+  - Approved text reaches the forum when the owner exports it:
+    `node scripts/translate-export.mjs --db <database-name>` reads the
+    approved suggestions (it never writes to the database), merges them into
+    `public/locales/*.json` in the usual format, and runs
+    `tests/i18n.test.mjs`. The owner reviews the diff, commits it and deploys.
+  - Privacy: a suggestion stores your member number, the text, its status
+    and the day, nothing else (no address, no browser details). Your
+    username is shown with it only if you tick the credit box; otherwise it
+    says "a member". Staff always see who wrote it. Deleting your account
+    deletes your suggestions; rejected ones are removed after 90 days.
+    Approved text becomes part of the forum's free software under its
+    licence, and names are never written into the locale files.
+  - There is no machine translation and nothing is sent to anyone else.
 
 Instances that prefer Weblate can still use it; the maintainer settings at
 the end of this guide describe a Weblate component for these files.

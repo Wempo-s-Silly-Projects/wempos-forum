@@ -96,6 +96,10 @@ import { EVENTS, bus } from "./event-bus.js";
 import { createTabSync } from "./tab-sync.js";
 import { updateBell } from "./notifications.js";
 import { paintSourceLink } from "./source-link.js";
+// The translate module (docs/translating.md): its page and footer link
+// exist only while the module is on (site-modules-off meta).
+import { siteModuleOn } from "./site-modules.js";
+import { paintTranslateLink } from "./translate-link.js";
 import { attachRecentSearches } from "./recent-searches.js";
 import { wireSkipLink } from "./skip-link.js";
 import { registerServiceWorker } from "./sw-register.js";
@@ -163,6 +167,7 @@ function setRouteTitle(route) {
     setup: t("app.pageSetup"),
     "not-found": t("app.pageNotFound"),
     join: t("join.title"),
+    translate: t("translate.title"),
   };
   document.title = route.name === "home"
     ? t("app.siteName")
@@ -199,6 +204,8 @@ function renderNotFoundRoute() {
 }
 
 async function renderRoute(route) {
+  // An off module's page is the not-found page; its module never loads.
+  if (route.name === "translate" && !siteModuleOn("translate")) return renderRoute({ name: "not-found" });
   const version = ++state.renderVersion;
   // Read aloud (wave 2026-11-21-7): speech never outlives the page it read.
   stopReadAloud();
@@ -246,7 +253,7 @@ async function renderRoute(route) {
   const {
     renderSetupRoute, renderHomeRoute, renderSettingsRoute, renderMineRoute, renderLeaderboardRoute,
     renderRulesRoute, renderWeekRoute, renderTagRoute, renderCategoryRoute, renderArchiveRoute, renderPostRoute,
-    renderProfileRoute, renderAdminRoute, renderNotificationsRoute, renderBookmarksRoute,
+    renderProfileRoute, renderAdminRoute, renderNotificationsRoute, renderBookmarksRoute, renderTranslateRoute,
   } = view ?? {};
   const renderers = {
     setup: () => renderSetupRoute(context),
@@ -265,6 +272,7 @@ async function renderRoute(route) {
     admin: () => renderAdminRoute(route, context, version),
     notifications: () => renderNotificationsRoute(context, version),
     bookmarks: () => renderBookmarksRoute(route, context, version),
+    translate: () => renderTranslateRoute(route, context, version),
     "not-found": () => renderNotFoundRoute(),
     join: () => renderJoinRoute(route, context),
   };
@@ -481,6 +489,7 @@ async function boot() {
   // AGPL-3.0 §13 footer link: synchronous, needs no translation or network.
   paintSourceLink(document);
   await i18nReady();
+  paintTranslateLink(document);
   try {
     let storage;
     try { storage = window.localStorage; }

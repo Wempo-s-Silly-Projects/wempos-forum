@@ -40,6 +40,7 @@ export const ROUTE_MODULE_LOADERS = Object.freeze({
   reports: () => import("./routes/reports.js"),
   blocks: () => import("./routes/blocks.js"),
   twofa: () => import("./routes/twofa.js"),
+  translate: () => import("./routes/translate.js"),
 });
 
 // route.name → the module whose render function paints it ("not-found" and
@@ -61,6 +62,7 @@ export const ROUTE_OWNERS = Object.freeze({
   profile: "profile",
   admin: "admin",
   notifications: "notifications",
+  translate: "translate",
 });
 
 const owners = (table) => Object.freeze(Object.fromEntries(

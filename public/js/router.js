@@ -55,7 +55,7 @@ export const searchFilters = (params) => {
 // as its allow-list: a page TYPE, never a path, id or slug.
 export const ROUTE_NAMES = Object.freeze([
   "setup", "home", "admin", "notifications", "bookmarks", "category", "archive", "mine", "leaderboard",
-  "rules", "week", "join", "tag", "post", "profile", "search", "settings", "not-found",
+  "rules", "week", "join", "tag", "post", "profile", "search", "settings", "translate", "not-found",
 ]);
 
 export const routeForPath = (pathname, search = "") => {
@@ -95,6 +95,13 @@ export const routeForPath = (pathname, search = "") => {
   // This week (v5.35): the busiest threads, newest Showcase builds and the
   // staff pick of the last 7 days.
   if (pathname === "/week") return { name: "week" };
+  // The translate module (docs/translating.md): /translate lists languages,
+  // /translate/<code> opens one (the code shape of public/js/i18n.js LOCALES;
+  // an unknown code still routes and the page says so). app.js swaps the
+  // route for not-found while the module is off.
+  if (pathname === "/translate") return { name: "translate" };
+  const translate = pathname.match(/^\/translate\/([A-Za-z]{2,3}(?:-[A-Za-z]{2,4})?)$/);
+  if (translate) return { name: "translate", locale: translate[1] };
   // Invite links (v5.34): /join?ref=<username>; a malformed ref is "" (the
   // page still shows, it just credits no one). Same shape as invite.js.
   if (pathname === "/join") {
