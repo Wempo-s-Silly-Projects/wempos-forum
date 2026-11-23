@@ -45,6 +45,16 @@ export function highlightParts(text, query) {
   return parts;
 }
 
+// Several terms (the search module's full-text results): each term splits
+// the still-unmarked runs further; empty runs are dropped.
+export function highlightTerms(text, terms) {
+  let parts = [{ text: String(text ?? ""), hit: false }];
+  for (const term of terms) {
+    parts = parts.flatMap((part) => (part.hit ? [part] : highlightParts(part.text, term)));
+  }
+  return parts.filter((part) => part.text !== "");
+}
+
 export function appendHighlighted(document, parent, text, query) {
   for (const part of highlightParts(text, query)) {
     if (!part.hit) {

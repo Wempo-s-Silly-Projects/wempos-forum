@@ -87,13 +87,15 @@ import { handleMcp } from "./api/mcp.mjs";
 import { handleLinkPreviewRoutes } from "./api/link-preview.mjs";
 import { handleModuleRoutes } from "./api/modules.mjs";
 import { handleTranslateRoutes } from "./api/translate.mjs";
+import { handleFullSearchRoutes } from "./api/full-search.mjs";
+import { rememberExecutionContext } from "./api/search-index.mjs";
 import { gateModulePath, offClientModuleIds } from "./api/core/modules.mjs";
 import { attributeEscape, withPageHead } from "./api/seo.mjs";
 import { accountsOrigin, configuredOrigin } from "./api/core/site.mjs";
 import { sourceUrl } from "./api/core/source-url.mjs";
 // The client router is the single source of truth for page routes (v5.2): a
 // path it can't match answers the shell with an honest 404.
-import { routeForPath } from "./public/js/router.js";
+import { routeForPath, routeModuleId } from "./public/js/router.js";
 
 export { canViewPost } from "./api/core/visibility.mjs";
 export { isValidUsername } from "./api/core/shapers.mjs";
@@ -139,7 +141,7 @@ function notFound(request, env, url, path) {
 // dispatch context and answers only the paths it owns; `undefined` falls
 // through to the next handler or the notFound tail — the vendor's dispatch()
 // replaces the inlined handlers-for-loop, built once from the vendor import.
-const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleSaturdayFoolsRoutes, handleAnalyticsRoutes, handleVitalsRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes, handleAltchaRoutes, handlePasskeyRoutes, handleLinkPreviewRoutes, handleModuleRoutes, handleTranslateRoutes];
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleSaturdayFoolsRoutes, handleAnalyticsRoutes, handleVitalsRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes, handleAltchaRoutes, handlePasskeyRoutes, handleLinkPreviewRoutes, handleModuleRoutes, handleTranslateRoutes, handleFullSearchRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
@@ -197,8 +199,9 @@ async function stampedAssetResponse(assetResponse, env, request, url) {
   headers.delete("Last-Modified");
   headers.set("Cache-Control", "no-store");
   // An off module's page is the honest not-found page (the client paints its
-  // 404 view): today only the translate module owns a page route.
-  const moduleOff = assetResponse.status === 200 && offModules.includes(routeForPath(url.pathname, url.search).name);
+  // 404 view): MODULE_ROUTES maps each module-owned page to its module.
+  const pageModule = routeModuleId(routeForPath(url.pathname, url.search).name);
+  const moduleOff = assetResponse.status === 200 && pageModule !== null && offModules.includes(pageModule);
   return new Response(html.includes("</head>") ? html.replace("</head>", () => stamp + "</head>") : html, {
     status: moduleOff ? 404 : assetResponse.status,
     statusText: moduleOff ? "Not Found" : assetResponse.statusText,
@@ -255,6 +258,8 @@ async function routeApi(request, env, ctx) {
 
 export default {
   async fetch(request, env, ctx) {
+    // The search module's write-path sync runs detached under waitUntil.
+    rememberExecutionContext(request, ctx);
     const url = new URL(request.url);
     // Canonical host: with SITE_ORIGIN configured, every *.workers.dev request
     // (API or page) answers a 301 there with its path and query intact. Unset

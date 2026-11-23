@@ -292,6 +292,39 @@ It needs no extra binding, secret, account or container: only D1 and the
 static assets. How it works for members is in
 [docs/translating.md](translating.md).
 
+## 14. Full-text search (optional)
+
+The `search` module adds a `/search` page that finds posts by any word in
+them, using D1's built-in full-text index (FTS5). It ships off, and it stays
+off until you give it its own database. The index lives there and not in
+your main database, because D1's standard `wrangler d1 export` cannot export
+a database that holds a full-text table. To use it:
+
+1. Create the search database and apply its one migration:
+
+   ```sh
+   wrangler d1 create wempo-forum-search
+   wrangler d1 migrations apply wempo-forum-search --remote
+   ```
+
+2. Add it to `wrangler.toml` with the binding `SEARCH_DB` and
+   `migrations_dir = "migrations-search"` (the commented block in
+   `wrangler.example.toml` shows the shape), then deploy.
+3. Turn the module on in the desk's **Modules** page (or leave it off for
+   good with `MODULE_SEARCH = "off"` in `[vars]`).
+4. **Build the index once:** signed in as the owner, open `/search` and press
+   **Build the search index**. It works through 500 posts per request
+   (`POST /api/search/backfill`, owner only) and also removes entries for
+   posts that were deleted or hidden since. Press it again any time; it is
+   safe to repeat.
+
+From then on new, edited, deleted, hidden and unhidden posts update the index
+in the background. If the search database is ever unreachable, posting keeps
+working; the next rebuild catches up. The index holds only public post text
+with spoilers masked, and every result is checked against your main database
+before anyone sees it. You can delete the search database and rebuild it at
+any time.
+
 ## Sharing your source code
 
 The forum is licensed under the GNU Affero General Public License, version 3

@@ -44,6 +44,7 @@ import { normalizeBodyText } from "./core/text.mjs";
 import { requireHumanCheck } from "./core/human-check.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
+import { syncSearchPosts } from "./search-index.mjs";
 
 // Vision first-pass (v3.1): every freshly PENDING direct upload is background-
 // Composer body cap (owner-set): root post AND reply bodies accept at most
@@ -365,6 +366,8 @@ export async function handlePostCreateRoute(request, env, url, path, method) {
     } catch {
       // Ignore: a follow ping is a convenience, not a post precondition.
     }
+    // Search module: detached, best-effort; never fails the post.
+    syncSearchPosts(env, request, [postId]);
     return json({ id: postId }, 201);
   }
   return null;
@@ -422,6 +425,7 @@ export async function handlePostEditRoute(request, env, url, path, method) {
       ).bind(message, editedAt, postId, session.user.id),
     ]);
     if (Number(results[1]?.meta?.changes) !== 1) throw new HttpError(404, "Post not found.");
+    syncSearchPosts(env, request, [postId]);
     return json({ id: postId, editedAt: new Date(editedAt * 1000).toISOString() });
   }
   return null;
@@ -523,6 +527,7 @@ export async function handlePostDeleteRoute(request, env, url, path, method) {
     await rateLimit(request, env, "write");
     await rateLimit(request, env, "post-write", String(session.user.id));
     await deleteAuthoredPost(env, session.user, Number(deleteMatch[1]));
+    syncSearchPosts(env, request, [Number(deleteMatch[1])]);
     return json({ deleted: true });
   }
   return null;

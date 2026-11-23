@@ -33,6 +33,7 @@ import { assertNotBanned, requireStaff } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicRole } from "./core/roles.mjs";
+import { syncSearchPosts } from "./search-index.mjs";
 
 export const PEEK_LIMIT = 10;
 export const HIDE_RECENT_MAX = 50;
@@ -146,6 +147,7 @@ async function handleHideRecentRoute(request, env, path, method) {
   if (!ids.length) throw new HttpError(409, "This member has no public posts left to hide.");
   const hidden = await hidePostsBatch(db, ids, target.id, session.user.id);
   if (!hidden) throw new HttpError(409, "Those posts were already hidden by another mod.");
+  syncSearchPosts(env, request, ids);
   return json({ ok: true, hidden, postIds: ids });
 }
 
@@ -169,6 +171,7 @@ async function handleRestoreRoute(request, env, path, method) {
   ).bind(...ids).run();
   const restored = Number(result.meta?.changes) || 0;
   if (!restored) throw new HttpError(409, "Nothing there is waiting to be restored.");
+  syncSearchPosts(env, request, ids);
   return json({ ok: true, restored });
 }
 

@@ -46,7 +46,7 @@ const MAPPED = {
   "chat": MODULE_ON, "polls": MODULE_ON, "wall": MODULE_ON, "fun": MODULE_ON,
   "saturday-fools": MODULE_ON, "link-previews": MODULE_ON, "embeds": MODULE_ON,
   // New modules ship off (the default-off rule); the owner turns them on.
-  "translate": MODULE_OFF,
+  "translate": MODULE_OFF, "search": MODULE_OFF,
 };
 
 const states = (env, rows = {}) => resolveModules(env, new Map(Object.entries(rows)));
@@ -110,7 +110,10 @@ test("each existing switch is wired: legacy env names and owned API paths", () =
     "/api/posts/9/poll": "polls", "/api/users/4/wall": "wall", "/api/wall/7/pin": "wall",
     "/api/link-preview": "link-previews",
     "/api/translate/progress": "translate", "/api/translate/fr/keys": "translate",
+    "/api/search/full": "search", "/api/search/backfill": "search",
   };
+  // The classic member + thread search is core: never gated by the module.
+  assert.equal(moduleForPath("/api/search"), null);
   for (const [path, id] of Object.entries(owned)) assert.equal(moduleForPath(path), id, path);
   // Staff read-back of stored history stays reachable when a module is off.
   for (const path of ["/api/admin/automod", "/api/admin/analytics", "/api/admin/site-health", "/api/admin/chat",
@@ -130,6 +133,7 @@ test("production wrangler.toml vars resolve exactly today's behaviour", () => {
   expected["saturday-fools"] = vars.SATURDAY_FOOLS === "on";
   // New modules stay off until the owner turns them on from the desk.
   expected.translate = false;
+  expected.search = false;
   assert.deepEqual(enabled(vars), expected);
 });
 
@@ -137,9 +141,12 @@ test("a fresh self-hosted copy (no vars): opt-in modules stay off, the rest on",
   assert.deepEqual(enabled({}), {
     "automod": false, "analytics": false, "web-vitals": true, "human-check": true, "chat": true,
     "polls": true, "wall": true, "fun": true, "saturday-fools": false, "link-previews": true, "embeds": true,
-    "translate": false,
+    "translate": false, "search": false,
   });
   const reasons = states({});
+  // The search module needs its own SEARCH_DB binding, even when stored on.
+  assert.equal(states({}, { search: true }).get("search").reason, "setup");
+  assert.equal(states({ SEARCH_DB: {} }, { search: true }).get("search").enabled, true);
   assert.equal(reasons.get("automod").reason, "env");
   assert.equal(reasons.get("chat").reason, "default");
 });
@@ -344,10 +351,13 @@ test("/api/site lists only the ON module ids, nothing secret", async () => {
 
 const shell = async (env) => (await worker.fetch(new Request("https://wempos-forum.com/"), env, {})).text();
 
-test("shell: only the default-off translate module rides the meta by default; off browser modules join it", async () => {
-  const env = makeEnv({ HUMAN_CHECK: "off" });
-  assert.match(await shell(env), /<meta name="site-modules-off" content="translate">/);
+test("shell: only the default-off modules ride the meta by default; off browser modules join it", async () => {
+  // SEARCH_DB present (any binding object): the search module's setup is done.
+  const env = makeEnv({ HUMAN_CHECK: "off", SEARCH_DB: {} });
+  assert.match(await shell(env), /<meta name="site-modules-off" content="translate,search">/);
   storeRow(env, "translate", true);
+  assert.match(await shell(env), /<meta name="site-modules-off" content="search">/);
+  storeRow(env, "search", true);
   assert.doesNotMatch(await shell(env), /site-modules-off/);
   storeRow(env, "chat", false);
   storeRow(env, "embeds", false);

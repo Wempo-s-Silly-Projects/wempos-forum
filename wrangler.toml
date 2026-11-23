@@ -56,6 +56,17 @@ database_name = "wempo-forum-data"
 database_id = "e648d306-2c2b-4ddc-aaf1-cef2e023a88c"
 migrations_dir = "migrations"
 
+# The search module's own index (docs/modules.md): an FTS5 table in a
+# separate database, so the shared forum + Accounts database never holds a
+# virtual table (which would block `wrangler d1 export`). A derived index:
+# rebuildable from FORUM_DB at any time. Without this binding the search
+# module stays off.
+[[d1_databases]]
+binding = "SEARCH_DB"
+database_name = "wempo-forum-search"
+database_id = "ecf80a34-60c5-4151-94c5-b6490cdd7de2"
+migrations_dir = "migrations-search"
+
 # R2 media store (MIGRATION PATH — enable when the account has R2; see
 # docs/r2-migration.md before uncommenting). Bucket names are global per
 # account; create it first:  wrangler r2 bucket create wempo-forum-media
