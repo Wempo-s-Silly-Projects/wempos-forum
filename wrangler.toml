@@ -45,7 +45,7 @@ AUTOMOD_ENABLED = "true"
 # (docs/saturday-fools.md). "on" | "off"; the code default is "off". The owner
 # can also force it off site-wide from the desk (Branding section).
 SATURDAY_FOOLS = "on"
-VERSION = "5.90.0"
+VERSION = "5.91.0"
 
 [assets]
 directory = "./public"

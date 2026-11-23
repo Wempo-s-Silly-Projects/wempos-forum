@@ -10,6 +10,28 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.91.0] - 2026-11-23
+
+### Changed
+
+- Faster thread pages (Site Health showed thread pages taking about 3 s
+  to the first byte):
+  - Visitors who already passed the human check (a valid Anubis pass,
+    with its signature, expiry and address binding verified) no longer
+    wait on a round trip to the Anubis server for every page. Anyone
+    without a valid pass is still checked exactly as before.
+  - The start-of-page database reads (branding, modules, the human
+    check, Saturday Fools and the page's title and description) run
+    together instead of one after another. Every visibility check is
+    still made: a hidden, banned or blocked thread still gets a generic
+    page title.
+  - Counting a thread view no longer delays the page; it is written
+    after the response is sent. The viewer's own settings for the
+    thread are read together.
+  - Replies are drawn without waiting for the thread's tags.
+  - Smart Placement is on (`[placement] mode = "smart"`), so Cloudflare
+    can run the forum close to its database when that is faster.
+
 ## [5.90.0] - 2026-11-23
 
 ### Fixed
