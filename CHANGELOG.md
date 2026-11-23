@@ -10,6 +10,18 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.86.0] - 2026-11-22
+
+### Added
+
+- Saturday Fools: one harmless, purely cosmetic gag on each visitor's local
+  Saturday, switched per deployment (`SATURDAY_FOOLS`) with an owner-only
+  off switch in the desk. Every gag keeps accessible names, has no flashing,
+  and never changes what a form submits. The first one is scheduled for
+  Saturday 2026-11-28 and is removed the next day.
+- A translation guide (`docs/translating.md`) for volunteers, and a plan for
+  a built-in, optional translation module.
+
 ## [5.85.1] - 2026-11-22
 
 ### Fixed

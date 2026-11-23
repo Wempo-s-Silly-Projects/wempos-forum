@@ -7,16 +7,17 @@ translation platform setup at the end.
 
 ## Where to translate
 
-- **Hosted Weblate** (once the project is live):
-  `https://hosted.weblate.org/projects/wempos-forum/`. Hosted Weblate is a
-  free software translation platform. Its free "Libre" plan is for free
-  software projects. Sign in, pick your language and translate in the
-  browser. Weblate sends your work back to this repository as a pull request.
-- **A GitHub pull request** works too. Edit the file for your language in
+- **A GitHub pull request** (works today). Edit the file for your language in
   `public/locales/` (for example `public/locales/de.json`) and open a pull
   request against `main`. Read [CONTRIBUTING.md](../CONTRIBUTING.md) first.
+- **In the forum itself** (planned). A built-in translation page where
+  signed-in members suggest strings and staff review them is being built as
+  an optional module; see
+  [the slate](drafts/feature-slate-2026-11-22-translate.md). It will land in
+  the same files and pass the same tests.
 
-Both routes land in the same files and pass the same tests.
+Instances that prefer Weblate can still use it; the maintainer settings at
+the end of this guide describe a Weblate component for these files.
 
 ## How the files work
 
@@ -131,9 +132,12 @@ The review only read the security, safety, two-factor, fun and count
 strings by hand. Profiles, the composer and the rest of the site are not
 reviewed in any locale.
 
-## Maintainers: setting up the Weblate component
+## Maintainers: setting up a Weblate component (optional)
 
-Use these settings when you create the project on Hosted Weblate:
+The main instance does not use Weblate (Hosted Weblate's free plan needs
+three months of project history, and the in-forum module replaces it). For
+self-hosters or a later move, use these settings on Hosted or self-hosted
+Weblate:
 
 | Setting | Value |
 |---|---|
