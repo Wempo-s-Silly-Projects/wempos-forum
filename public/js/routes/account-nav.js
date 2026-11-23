@@ -41,6 +41,7 @@ import { clearAllRecentSearches } from "../recent-searches.js";
 import { clearAllQuietHours } from "../quiet-hours.js";
 import { clearAllFunExtras } from "../fun/settings.js";
 import { clearAllThreadOutline } from "../thread-outline.js";
+import { clearAllEmojiRecents } from "../emoji-picker.js";
 import { createNotificationBell } from "../notifications.js";
 import { createShortcutSheet } from "../shortcut-sheet.js";
 import { createDisclosure } from "../thread-actions.js";
@@ -329,6 +330,7 @@ function wipeAccountLocalData() {
   clearAllFunExtras();
   clearAllRecentSearches();
   clearAllThreadOutline();
+  clearAllEmojiRecents();
 }
 
 export const ACTIONS = {
