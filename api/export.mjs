@@ -144,11 +144,6 @@ const SECTION_READERS = {
     "SELECT id, post_id, status, mime, created_at FROM attachments " +
     "WHERE created_by = ? AND source_kind <> 'gif' AND status <> 'rejected' " +
     "ORDER BY created_at DESC, id DESC", [id], cap),
-  // The translate module (migration 0096): suggestions the caller WROTE;
-  // the reviewer and the review note stay out (staff's own record).
-  translateSuggestions: (db, id, cap) => rowsCapped(db,
-    "SELECT locale, msg_key, value, status, credit, created_day FROM translate_suggestions " +
-    "WHERE user_id = ? ORDER BY id DESC", [id], cap),
 };
 
 // Both DM stores, caller-authored rows only, merged newest first under one cap.
@@ -201,10 +196,6 @@ const SECTION_SHAPERS = {
     name: row.name, q: row.q, by: row.by_username ?? null, in: row.in_scope ?? null, createdAt: isoOrNull(row.created_at),
   }),
   threadSummaries: (row) => ({ postId: Number(row.post_id), body: row.body, updatedAt: isoOrNull(row.updated_at) }),
-  translateSuggestions: (row) => ({
-    locale: row.locale, key: row.msg_key, value: row.value, status: row.status, credit: Number(row.credit) === 1,
-    day: new Date(Number(row.created_day) * 86400000).toISOString().slice(0, 10),
-  }),
   uploads: (row) => ({
     id: row.id, postId: Number(row.post_id), status: row.status, mime: row.mime, uploadedAt: isoOrNull(row.created_at),
   }),

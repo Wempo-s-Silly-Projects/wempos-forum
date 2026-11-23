@@ -40,7 +40,6 @@ export const ROUTE_MODULE_LOADERS = Object.freeze({
   reports: () => import("./routes/reports.js"),
   blocks: () => import("./routes/blocks.js"),
   twofa: () => import("./routes/twofa.js"),
-  translate: () => import("./routes/translate.js"),
   "full-search": () => import("./routes/full-search.js"),
 });
 
@@ -63,7 +62,6 @@ export const ROUTE_OWNERS = Object.freeze({
   profile: "profile",
   admin: "admin",
   notifications: "notifications",
-  translate: "translate",
   "full-search": "full-search",
 });
 
