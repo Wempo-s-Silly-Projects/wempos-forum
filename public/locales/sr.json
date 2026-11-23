@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Ипак настави",
   "safety.previewShow": "Прикажи преглед линка",
   "safety.previewUnavailable": "Нема прегледа за овај линк.",
-  "safety.previewLabel": "Преглед линка"
+  "safety.previewLabel": "Преглед линка",
+  "fools.banner": "🃏 Суботње шале: {name}",
+  "fools.20261128.name": "Субота вике",
+  "fools.20261128.yell": "Вичи!",
+  "desk.fools.title": "Суботње шале",
+  "desk.fools.offLabel": "Искључи суботње шале за све",
+  "desk.fools.save": "Сачувај прекидач",
+  "admin.msg.foolsSaved": "Подешавање суботњих шала је сачувано."
 }

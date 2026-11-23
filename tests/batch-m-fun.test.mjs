@@ -186,7 +186,8 @@ test("no audio, Lottie JSON or sprite assets ship for the extras (sounds are syn
 
 test("fun modules only ever load from /js/vendor/ (no CDN, no other origin, no fetch)", () => {
   const dir = new URL("public/js/fun/", ROOT).pathname;
-  for (const name of readdirSync(dir)) {
+  // v5.86: recursive (fun/saturday-fools/ holds the weekly gag modules).
+  for (const name of readdirSync(dir, { recursive: true }).filter((entry) => entry.endsWith(".js"))) {
     const source = readFileSync(join(dir, name), "utf8");
     assert.doesNotMatch(source, /["'`]https?:\/\/(?!www\.gnu\.org)/, name);
     assert.doesNotMatch(source, /\bfetch\(|XMLHttpRequest|getUserMedia/, name);

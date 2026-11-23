@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Go hed nomo",
   "safety.previewShow": "Soem smol lukluk blong link",
   "safety.previewUnavailable": "I no gat smol lukluk blong link ya.",
-  "safety.previewLabel": "Smol lukluk blong link"
+  "safety.previewLabel": "Smol lukluk blong link",
+  "fools.banner": "🃏 Fani blong Sarede: {name}",
+  "fools.20261128.name": "Sarede blong singaot",
+  "fools.20261128.yell": "Singaot!",
+  "desk.fools.title": "Fani blong Sarede",
+  "desk.fools.offLabel": "Sarem Fani blong Sarede blong evriwan",
+  "desk.fools.save": "Sevem swij",
+  "admin.msg.foolsSaved": "Seting blong Fani blong Sarede i sev."
 }

@@ -52,6 +52,7 @@ import { createMemberNotes, memberNotesPath } from "../desk/staff-tools.js";
 import { adminTagPath, createTagManager } from "../tags.js";
 import { createFilterEditor } from "../desk/filter.js";
 import { createBrandingEditor, submitBrandingSave } from "../desk/branding.js";
+import { createFoolsSwitch, isOwner, submitFoolsSave } from "../desk/saturday-fools.js";
 import { createVisitsPanel } from "../desk/visits.js";
 import { createSiteHealthPanel } from "../desk/site-health.js";
 import { createStaffPickLog } from "../desk/staff-picks.js";
@@ -183,7 +184,8 @@ const DESK_BUILDERS = {
   "branding": {
     ledeKey: "admin.lede.branding",
     load: () => api("/api/branding"),
-    build: (data) => createBrandingEditor(data, document),
+    // v5.86: plus the owner-only Saturday Fools off switch.
+    build: (data, user) => [createBrandingEditor(data, document), isOwner(user) ? createFoolsSwitch(document) : null],
   },
   // v5.30.0: aggregate-only visit counts (staff-only on the server too).
   "visits": {
@@ -546,6 +548,10 @@ export const FORM_HANDLERS = {
   "branding-save": async (form, text) => {
     await submitBrandingSave(text);
     setMessage(t("admin.msg.brandingSaved"));
+  },
+  "saturday-fools-save": async (form, text, values) => {
+    await submitFoolsSave(values);
+    setMessage(t("admin.msg.foolsSaved"));
   },
 };
 

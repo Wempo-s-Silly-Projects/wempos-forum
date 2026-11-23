@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Vazhdo gjithsesi",
   "safety.previewShow": "Shfaq parapamjen e lidhjes",
   "safety.previewUnavailable": "Nuk ka parapamje për këtë lidhje.",
-  "safety.previewLabel": "Parapamja e lidhjes"
+  "safety.previewLabel": "Parapamja e lidhjes",
+  "fools.banner": "🃏 Shakaja e së shtunës: {name}",
+  "fools.20261128.name": "E shtuna e të bërtiturave",
+  "fools.20261128.yell": "Bërtit!",
+  "desk.fools.title": "Shakaja e së shtunës",
+  "desk.fools.offLabel": "Çaktivizo shakanë e së shtunës për të gjithë",
+  "desk.fools.save": "Ruaj çelësin",
+  "admin.msg.foolsSaved": "Cilësimi i shakasë së së shtunës u ruajt."
 }

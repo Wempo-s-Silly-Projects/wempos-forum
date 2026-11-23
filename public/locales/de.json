@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Trotzdem fortfahren",
   "safety.previewShow": "Linkvorschau anzeigen",
   "safety.previewUnavailable": "Keine Vorschau für diesen Link.",
-  "safety.previewLabel": "Linkvorschau"
+  "safety.previewLabel": "Linkvorschau",
+  "fools.banner": "🃏 Samstagsscherz: {name}",
+  "fools.20261128.name": "Brüllsamstag",
+  "fools.20261128.yell": "Brüllen!",
+  "desk.fools.title": "Samstagsscherz",
+  "desk.fools.offLabel": "Samstagsscherz für alle ausschalten",
+  "desk.fools.save": "Schalter speichern",
+  "admin.msg.foolsSaved": "Einstellung für den Samstagsscherz gespeichert."
 }

@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Continar de todas trazas",
   "safety.previewShow": "Amostrar l'avance d'o vinclo",
   "safety.previewUnavailable": "No i hai avance ta iste vinclo.",
-  "safety.previewLabel": "Avance d'o vinclo"
+  "safety.previewLabel": "Avance d'o vinclo",
+  "fools.banner": "🃏 Inocents de sabado: {name}",
+  "fools.20261128.name": "Sabado de berridos",
+  "fools.20261128.yell": "¡Berrida!",
+  "desk.fools.title": "Inocents de sabado",
+  "desk.fools.offLabel": "Desactivar os Inocents de sabado ta totz",
+  "desk.fools.save": "Alzar l'interruptor",
+  "admin.msg.foolsSaved": "S'ha alzau a configuración d'os Inocents de sabado."
 }

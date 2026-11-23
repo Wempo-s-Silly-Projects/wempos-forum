@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Folytatás mégis",
   "safety.previewShow": "Hivatkozás előnézetének megjelenítése",
   "safety.previewUnavailable": "Ehhez a hivatkozáshoz nincs előnézet.",
-  "safety.previewLabel": "Hivatkozás előnézete"
+  "safety.previewLabel": "Hivatkozás előnézete",
+  "fools.banner": "🃏 Szombati bolondság: {name}",
+  "fools.20261128.name": "Ordítós szombat",
+  "fools.20261128.yell": "Ordíts!",
+  "desk.fools.title": "Szombati bolondság",
+  "desk.fools.offLabel": "Szombati bolondság kikapcsolása mindenkinek",
+  "desk.fools.save": "Kapcsoló mentése",
+  "admin.msg.foolsSaved": "A szombati bolondság beállítása mentve."
 }

@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Toch doorgaan",
   "safety.previewShow": "Linkvoorbeeld tonen",
   "safety.previewUnavailable": "Geen voorbeeld voor deze link.",
-  "safety.previewLabel": "Linkvoorbeeld"
+  "safety.previewLabel": "Linkvoorbeeld",
+  "fools.banner": "🃏 Zaterdaggrap: {name}",
+  "fools.20261128.name": "Schreeuwzaterdag",
+  "fools.20261128.yell": "Schreeuw!",
+  "desk.fools.title": "Zaterdaggrap",
+  "desk.fools.offLabel": "Zaterdaggrap voor iedereen uitzetten",
+  "desk.fools.save": "Schakelaar opslaan",
+  "admin.msg.foolsSaved": "Instelling voor de zaterdaggrap opgeslagen."
 }

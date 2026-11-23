@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Ipak nastavi",
   "safety.previewShow": "Prikaži pretpregled poveznice",
   "safety.previewUnavailable": "Nema pretpregleda za ovu poveznicu.",
-  "safety.previewLabel": "Pretpregled poveznice"
+  "safety.previewLabel": "Pretpregled poveznice",
+  "fools.banner": "🃏 Subotnje šale: {name}",
+  "fools.20261128.name": "Subota vikanja",
+  "fools.20261128.yell": "Viči!",
+  "desk.fools.title": "Subotnje šale",
+  "desk.fools.offLabel": "Isključi subotnje šale za sve",
+  "desk.fools.save": "Spremi prekidač",
+  "admin.msg.foolsSaved": "Postavka subotnjih šala je spremljena."
 }

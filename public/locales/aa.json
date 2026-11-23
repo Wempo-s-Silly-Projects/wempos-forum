@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Tetteek gexe",
   "safety.previewShow": "Link sugu-qussa uybulluuk",
   "safety.previewUnavailable": "Too linkih sugu-qussa mali.",
-  "safety.previewLabel": "Link sugu-qussa"
+  "safety.previewLabel": "Link sugu-qussa",
+  "fools.banner": "🃏 Sabti Doqqa: {name}",
+  "fools.20261128.name": "Sabti Xiyyi",
+  "fools.20261128.yell": "Xiyyi!",
+  "desk.fools.title": "Sabti Doqqa",
+  "desk.fools.offLabel": "Sabti Doqqa inkih marah cabsi",
+  "desk.fools.save": "Migaq kaydi",
+  "admin.msg.foolsSaved": "Sabti Doqqa migaq kaydime."
 }

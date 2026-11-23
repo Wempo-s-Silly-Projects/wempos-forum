@@ -69,6 +69,7 @@ import { handleExportRoutes } from "./api/export.mjs";
 import { handleAutoModRoutes } from "./api/automod.mjs";
 import { handleDmReportRoutes } from "./api/dm-reports.mjs";
 import { handleBrandingRoutes, readStoredBranding } from "./api/branding.mjs";
+import { handleSaturdayFoolsRoutes, saturdayFoolsMeta } from "./api/saturday-fools.mjs";
 import { handleAnalyticsRoutes, scheduleCount } from "./api/analytics.mjs";
 import { handleVitalsRoutes } from "./api/vitals.mjs";
 import { handleDiscovery, withDiscoveryHeaders } from "./api/discovery.mjs";
@@ -135,7 +136,7 @@ function notFound(request, env, url, path) {
 // dispatch context and answers only the paths it owns; `undefined` falls
 // through to the next handler or the notFound tail — the vendor's dispatch()
 // replaces the inlined handlers-for-loop, built once from the vendor import.
-const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleAnalyticsRoutes, handleVitalsRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes, handleAltchaRoutes, handlePasskeyRoutes, handleLinkPreviewRoutes];
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleSaturdayFoolsRoutes, handleAnalyticsRoutes, handleVitalsRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes, handleAltchaRoutes, handlePasskeyRoutes, handleLinkPreviewRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
@@ -153,13 +154,15 @@ const answerApiRoute = dispatch(API_HANDLERS, notFound);
 // COMMIT_SHA rides the stamp as source-url; neither set → no meta.
 // The human-check meta is per request since v5.83 (anubis mode: "anubis" for
 // a visitor holding a valid Anubis pass, else the "altcha" fallback).
-function shellMetas(env, branding, humanCheck) {
+// Saturday Fools (v5.86): "saturday-fools" = "on" only when env SATURDAY_FOOLS
+// is "on" and the owner has not forced it off (api/saturday-fools.mjs).
+function shellMetas(env, branding, humanCheck, fools = "") {
   const build = env.VERSION ? [env.VERSION, env.COMMIT_SHA].filter(Boolean).join("@") : "";
   const accounts = accountsOrigin(env);
   return [
     ["app-build", build], ["accounts-origin", accounts], ["human-check", humanCheck],
     ["site-name", branding.name], ["site-tagline", branding.tagline], ["site-footer", branding.footer],
-    ["source-url", sourceUrl(env)],
+    ["source-url", sourceUrl(env)], ["saturday-fools", fools],
   ]
     .filter(([, content]) => content)
     .map(([name, content]) => `<meta name="${name}" content="${attributeEscape(content)}">`)
@@ -172,7 +175,7 @@ async function stampedAssetResponse(assetResponse, env, request, url) {
   const type = assetResponse.headers.get("Content-Type") || "";
   if (!type.includes("text/html")) return assetResponse;
   const branding = await readStoredBranding(env);
-  const stamp = shellMetas(env, branding, await humanCheckMeta(request, env));
+  const stamp = shellMetas(env, branding, await humanCheckMeta(request, env), await saturdayFoolsMeta(env));
   const html = await withPageHead(await assetResponse.text(), request, env, url, branding);
   // The served bytes change length, so the original Content-Length must go —
   // a stale length would truncate the stamped document. HTML also revalidates

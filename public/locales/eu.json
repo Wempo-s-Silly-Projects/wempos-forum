@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Jarraitu hala ere",
   "safety.previewShow": "Erakutsi estekaren aurrebista",
   "safety.previewUnavailable": "Esteka honek ez du aurrebistarik.",
-  "safety.previewLabel": "Estekaren aurrebista"
+  "safety.previewLabel": "Estekaren aurrebista",
+  "fools.banner": "🃏 Larunbateko txantxak: {name}",
+  "fools.20261128.name": "Oihu-larunbata",
+  "fools.20261128.yell": "Oihu egin!",
+  "desk.fools.title": "Larunbateko txantxak",
+  "desk.fools.offLabel": "Desaktibatu larunbateko txantxak guztientzat",
+  "desk.fools.save": "Gorde etengailua",
+  "admin.msg.foolsSaved": "Larunbateko txantxen ezarpena gorde da."
 }

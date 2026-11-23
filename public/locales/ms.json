@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Teruskan juga",
   "safety.previewShow": "Tunjukkan pratonton pautan",
   "safety.previewUnavailable": "Tiada pratonton untuk pautan ini.",
-  "safety.previewLabel": "Pratonton pautan"
+  "safety.previewLabel": "Pratonton pautan",
+  "fools.banner": "🃏 Gurauan Sabtu: {name}",
+  "fools.20261128.name": "Sabtu Menjerit",
+  "fools.20261128.yell": "Jerit!",
+  "desk.fools.title": "Gurauan Sabtu",
+  "desk.fools.offLabel": "Matikan Gurauan Sabtu untuk semua orang",
+  "desk.fools.save": "Simpan suis",
+  "admin.msg.foolsSaved": "Tetapan Gurauan Sabtu disimpan."
 }

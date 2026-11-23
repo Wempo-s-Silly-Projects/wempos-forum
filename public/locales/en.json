@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Continue anyway",
   "safety.previewShow": "Show link preview",
   "safety.previewUnavailable": "No preview for this link.",
-  "safety.previewLabel": "Link preview"
+  "safety.previewLabel": "Link preview",
+  "fools.banner": "🃏 Saturday Fools: {name}",
+  "fools.20261128.name": "Yell Saturday",
+  "fools.20261128.yell": "Yell!",
+  "desk.fools.title": "Saturday Fools",
+  "desk.fools.offLabel": "Turn Saturday Fools off for everyone",
+  "desk.fools.save": "Save switch",
+  "admin.msg.foolsSaved": "Saturday Fools setting saved."
 }

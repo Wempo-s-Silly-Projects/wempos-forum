@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "ไปต่ออยู่ดี",
   "safety.previewShow": "แสดงตัวอย่างลิงก์",
   "safety.previewUnavailable": "ไม่มีตัวอย่างสำหรับลิงก์นี้",
-  "safety.previewLabel": "ตัวอย่างลิงก์"
+  "safety.previewLabel": "ตัวอย่างลิงก์",
+  "fools.banner": "🃏 วันเสาร์จอมป่วน: {name}",
+  "fools.20261128.name": "วันเสาร์แห่งการตะโกน",
+  "fools.20261128.yell": "ตะโกน!",
+  "desk.fools.title": "วันเสาร์จอมป่วน",
+  "desk.fools.offLabel": "ปิดวันเสาร์จอมป่วนสำหรับทุกคน",
+  "desk.fools.save": "บันทึกสวิตช์",
+  "admin.msg.foolsSaved": "บันทึกการตั้งค่าวันเสาร์จอมป่วนแล้ว"
 }

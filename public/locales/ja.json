@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "このまま続ける",
   "safety.previewShow": "リンクのプレビューを表示",
   "safety.previewUnavailable": "このリンクにはプレビューがありません。",
-  "safety.previewLabel": "リンクのプレビュー"
+  "safety.previewLabel": "リンクのプレビュー",
+  "fools.banner": "🃏 土曜のおふざけ: {name}",
+  "fools.20261128.name": "叫びの土曜日",
+  "fools.20261128.yell": "叫べ！",
+  "desk.fools.title": "土曜のおふざけ",
+  "desk.fools.offLabel": "土曜のおふざけを全員に対してオフにする",
+  "desk.fools.save": "スイッチを保存",
+  "admin.msg.foolsSaved": "土曜のおふざけの設定を保存しました。"
 }

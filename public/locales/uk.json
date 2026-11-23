@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Однаково перейти",
   "safety.previewShow": "Показати попередній перегляд посилання",
   "safety.previewUnavailable": "Для цього посилання немає перегляду.",
-  "safety.previewLabel": "Попередній перегляд посилання"
+  "safety.previewLabel": "Попередній перегляд посилання",
+  "fools.banner": "🃏 Суботні жарти: {name}",
+  "fools.20261128.name": "Субота крику",
+  "fools.20261128.yell": "Кричи!",
+  "desk.fools.title": "Суботні жарти",
+  "desk.fools.offLabel": "Вимкнути суботні жарти для всіх",
+  "desk.fools.save": "Зберегти перемикач",
+  "admin.msg.foolsSaved": "Налаштування суботніх жартів збережено."
 }

@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Միևնույն է շարունակել",
   "safety.previewShow": "Ցույց տալ հղման նախադիտումը",
   "safety.previewUnavailable": "Այս հղման համար նախադիտում չկա։",
-  "safety.previewLabel": "Հղման նախադիտում"
+  "safety.previewLabel": "Հղման նախադիտում",
+  "fools.banner": "🃏 Շաբաթօրյա կատակ: {name}",
+  "fools.20261128.name": "Գոռոցի շաբաթ",
+  "fools.20261128.yell": "Գոռա՛",
+  "desk.fools.title": "Շաբաթօրյա կատակ",
+  "desk.fools.offLabel": "Անջատել շաբաթօրյա կատակը բոլորի համար",
+  "desk.fools.save": "Պահել փոխարկիչը",
+  "admin.msg.foolsSaved": "Շաբաթօրյա կատակի կարգավորումը պահվեց։"
 }

@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Gaan tog voort",
   "safety.previewShow": "Wys skakelvoorskou",
   "safety.previewUnavailable": "Geen voorskou vir hierdie skakel nie.",
-  "safety.previewLabel": "Skakelvoorskou"
+  "safety.previewLabel": "Skakelvoorskou",
+  "fools.banner": "🃏 Saterdag-gekke: {name}",
+  "fools.20261128.name": "Skree-Saterdag",
+  "fools.20261128.yell": "Skree!",
+  "desk.fools.title": "Saterdag-gekke",
+  "desk.fools.offLabel": "Skakel Saterdag-gekke vir almal af",
+  "desk.fools.save": "Stoor skakelaar",
+  "admin.msg.foolsSaved": "Saterdag-gekke-instelling gestoor."
 }

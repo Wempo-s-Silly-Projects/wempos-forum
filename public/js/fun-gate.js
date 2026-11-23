@@ -76,9 +76,44 @@ export function loadFunExtras(importFun = () => import("./fun/index.js")) {
   return loading;
 }
 
+// Saturday Fools (v5.86): fun/saturday-fools.js loads only when the shell's
+// meta says "on" (env SATURDAY_FOOLS + the owner's switch) AND it is Saturday
+// in the visitor's local time; every other day nothing is fetched. The tab
+// re-checks on visibility / focus so an open tab picks Saturday up after
+// local midnight (the module itself switches off the next midnight).
+export const FOOLS_META_SELECTOR = 'meta[name="saturday-fools"]';
+export const FOOLS_SATURDAY = 6;
+
+export function saturdayFoolsDue(doc = globalThis.document, now = new Date()) {
+  return doc?.querySelector?.(FOOLS_META_SELECTOR)?.getAttribute?.("content") === "on"
+    && now.getDay() === FOOLS_SATURDAY;
+}
+
+let foolsLoading = null;
+let fools = null;
+
+// Imports fun/saturday-fools.js once (a failed import is forgotten).
+export function loadSaturdayFools(importFools = () => import("./fun/saturday-fools.js")) {
+  if (!foolsLoading) {
+    foolsLoading = importFools().then((module) => {
+      module.startSaturdayFools();
+      fools = module;
+      return module;
+    });
+    foolsLoading.catch(() => { foolsLoading = null; });
+  }
+  return foolsLoading;
+}
+
+export function checkSaturdayFools(doc = globalThis.document, now = new Date(), importFools = undefined) {
+  if (fools || !saturdayFoolsDue(doc, now)) return null;
+  return loadSaturdayFools(importFools).catch(() => null);
+}
+
 // After every route render: nothing to do (and nothing loaded) while every
 // switch is off.
 export function enhanceFunView(root, storage = browserStorage()) {
+  fools?.enhanceSaturdayFools(root);
   if (loaded) return loaded.enhanceFunView(root);
   if (!anyFunOn(storage)) return Promise.resolve();
   return loadFunExtras().then((fun) => fun.enhanceFunView(root)).catch(() => null);
@@ -93,6 +128,10 @@ export function noteUnreadCount(count, storage = browserStorage()) {
 // At boot: load now when a switch is already on; otherwise wait for another
 // tab to turn one on (the settings panel in this tab loads fun/ itself).
 export function startFunExtras(win = globalThis) {
+  const recheckFools = () => checkSaturdayFools(win.document);
+  recheckFools();
+  win.document?.addEventListener?.("visibilitychange", recheckFools);
+  win.addEventListener?.("focus", recheckFools);
   if (anyFunOn()) {
     loadFunExtras().catch(() => null);
     return;

@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Kɔ so ara",
   "safety.previewShow": "Kyerɛ link no nhwɛsoɔ",
   "safety.previewUnavailable": "Nhwɛsoɔ biara nni link yi ho.",
-  "safety.previewLabel": "Link nhwɛsoɔ"
+  "safety.previewLabel": "Link nhwɛsoɔ",
+  "fools.banner": "🃏 Memeneda Nkwaseasɛm: {name}",
+  "fools.20261128.name": "Memeneda Nteɛm",
+  "fools.20261128.yell": "Teɛm!",
+  "desk.fools.title": "Memeneda Nkwaseasɛm",
+  "desk.fools.offLabel": "Dum Memeneda Nkwaseasɛm ma obiara",
+  "desk.fools.save": "Kora nsakrae",
+  "admin.msg.foolsSaved": "Wɔakora Memeneda Nkwaseasɛm nhyehyɛe no."
 }

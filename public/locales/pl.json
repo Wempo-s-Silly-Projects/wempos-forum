@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Mimo to kontynuuj",
   "safety.previewShow": "Pokaż podgląd linku",
   "safety.previewUnavailable": "Brak podglądu dla tego linku.",
-  "safety.previewLabel": "Podgląd linku"
+  "safety.previewLabel": "Podgląd linku",
+  "fools.banner": "🃏 Sobotni prima aprilis: {name}",
+  "fools.20261128.name": "Sobota krzyku",
+  "fools.20261128.yell": "Krzycz!",
+  "desk.fools.title": "Sobotni prima aprilis",
+  "desk.fools.offLabel": "Wyłącz sobotni prima aprilis dla wszystkich",
+  "desk.fools.save": "Zapisz przełącznik",
+  "admin.msg.foolsSaved": "Zapisano ustawienie sobotniego prima aprilis."
 }

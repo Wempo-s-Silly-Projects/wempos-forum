@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Continuă oricum",
   "safety.previewShow": "Arată previzualizarea linkului",
   "safety.previewUnavailable": "Nu există previzualizare pentru acest link.",
-  "safety.previewLabel": "Previzualizarea linkului"
+  "safety.previewLabel": "Previzualizarea linkului",
+  "fools.banner": "🃏 Păcăleala de sâmbătă: {name}",
+  "fools.20261128.name": "Sâmbăta strigătelor",
+  "fools.20261128.yell": "Strigă!",
+  "desk.fools.title": "Păcăleala de sâmbătă",
+  "desk.fools.offLabel": "Dezactivează Păcăleala de sâmbătă pentru toți",
+  "desk.fools.save": "Salvează comutatorul",
+  "admin.msg.foolsSaved": "Setarea Păcălelii de sâmbătă a fost salvată."
 }

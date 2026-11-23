@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "তথাপিও আগবাঢ়ক",
   "safety.previewShow": "লিংকৰ পূৰ্বদৰ্শন দেখুৱাওক",
   "safety.previewUnavailable": "এই লিংকৰ কোনো পূৰ্বদৰ্শন নাই।",
-  "safety.previewLabel": "লিংকৰ পূৰ্বদৰ্शন"
+  "safety.previewLabel": "লিংকৰ পূৰ্বদৰ্शন",
+  "fools.banner": "🃏 শনিবৰীয়া ধেমালি: {name}",
+  "fools.20261128.name": "চিঞৰৰ শনিবাৰ",
+  "fools.20261128.yell": "চিঞৰক!",
+  "desk.fools.title": "শনিবৰীয়া ধেমালি",
+  "desk.fools.offLabel": "সকলোৰে বাবে শনিবৰীয়া ধেমালি বন্ধ কৰক",
+  "desk.fools.save": "ছুইচ সংৰক্ষণ কৰক",
+  "admin.msg.foolsSaved": "শনিবৰীয়া ধেমালিৰ ছেটিং সংৰক্ষিত হ'ল।"
 }

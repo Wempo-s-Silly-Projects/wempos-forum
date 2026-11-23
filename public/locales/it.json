@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Continua comunque",
   "safety.previewShow": "Mostra l'anteprima del link",
   "safety.previewUnavailable": "Nessuna anteprima per questo link.",
-  "safety.previewLabel": "Anteprima del link"
+  "safety.previewLabel": "Anteprima del link",
+  "fools.banner": "🃏 Pesce del sabato: {name}",
+  "fools.20261128.name": "Sabato degli urli",
+  "fools.20261128.yell": "Urla!",
+  "desk.fools.title": "Pesce del sabato",
+  "desk.fools.offLabel": "Disattiva il Pesce del sabato per tutti",
+  "desk.fools.save": "Salva interruttore",
+  "admin.msg.foolsSaved": "Impostazione del Pesce del sabato salvata."
 }

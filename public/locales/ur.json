@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "پھر بھی جاری رکھیں",
   "safety.previewShow": "لنک کا پیش منظر دکھائیں",
   "safety.previewUnavailable": "اس لنک کا کوئی پیش منظر نہیں۔",
-  "safety.previewLabel": "لنک کا پیش منظر"
+  "safety.previewLabel": "لنک کا پیش منظر",
+  "fools.banner": "🃏 ہفتے کا مذاق: {name}",
+  "fools.20261128.name": "چیخ والا ہفتہ",
+  "fools.20261128.yell": "چیخو!",
+  "desk.fools.title": "ہفتے کا مذاق",
+  "desk.fools.offLabel": "سب کے لیے ہفتے کا مذاق بند کریں",
+  "desk.fools.save": "سوئچ محفوظ کریں",
+  "admin.msg.foolsSaved": "ہفتے کے مذاق کی ترتیب محفوظ ہو گئی۔"
 }

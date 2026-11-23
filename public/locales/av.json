@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Цинги бачине",
   "safety.previewShow": "Линкалъул бихьизабиги бихизабе",
   "safety.previewUnavailable": "Гьаб линкалъул бихьизаби гьечӀо.",
-  "safety.previewLabel": "Линкалъул бихьизаби"
+  "safety.previewLabel": "Линкалъул бихьизаби",
+  "fools.banner": "🃏 Шамат кьалал: {name}",
+  "fools.20261128.name": "Ахӏи-шамат",
+  "fools.20261128.yell": "Ахӏе!",
+  "desk.fools.title": "Шамат кьалал",
+  "desk.fools.offLabel": "Шамат кьалал киназдаго ахизе",
+  "desk.fools.save": "Тӏамизаби цӏунизе",
+  "admin.msg.foolsSaved": "Шамат кьалалазул тӏасан цӏунана."
 }

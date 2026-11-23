@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "仍要繼續",
   "safety.previewShow": "顯示連結預覽",
   "safety.previewUnavailable": "此連結沒有預覽。",
-  "safety.previewLabel": "連結預覽"
+  "safety.previewLabel": "連結預覽",
+  "fools.banner": "🃏 週六愚人節: {name}",
+  "fools.20261128.name": "大喊星期六",
+  "fools.20261128.yell": "大喊！",
+  "desk.fools.title": "週六愚人節",
+  "desk.fools.offLabel": "為所有人關閉週六愚人節",
+  "desk.fools.save": "儲存開關",
+  "admin.msg.foolsSaved": "週六愚人節設定已儲存。"
 }

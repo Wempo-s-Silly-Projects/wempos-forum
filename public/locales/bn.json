@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "তবুও চালিয়ে যান",
   "safety.previewShow": "লিংকের প্রিভিউ দেখান",
   "safety.previewUnavailable": "এই লিংকের কোনো প্রিভিউ নেই।",
-  "safety.previewLabel": "লিংকের প্রিভিউ"
+  "safety.previewLabel": "লিংকের প্রিভিউ",
+  "fools.banner": "🃏 শনিবারের মজা: {name}",
+  "fools.20261128.name": "চিৎকারের শনিবার",
+  "fools.20261128.yell": "চিৎকার!",
+  "desk.fools.title": "শনিবারের মজা",
+  "desk.fools.offLabel": "সবার জন্য শনিবারের মজা বন্ধ করুন",
+  "desk.fools.save": "সুইচ সংরক্ষণ করুন",
+  "admin.msg.foolsSaved": "শনিবারের মজার সেটিং সংরক্ষিত হয়েছে।"
 }

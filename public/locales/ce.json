@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Цхьаъ а доцуш дӏадахьа",
   "safety.previewShow": "Хьажоргах хьалхара хьажар гайта",
   "safety.previewUnavailable": "ХӀокху хьажоргна хьалхара хьажар дац.",
-  "safety.previewLabel": "Хьажоргах хьалхара хьажар"
+  "safety.previewLabel": "Хьажоргах хьалхара хьажар",
+  "fools.banner": "🃏 Шоттан забарш: {name}",
+  "fools.20261128.name": "Мохь тохаран шот",
+  "fools.20261128.yell": "Мохь бетта!",
+  "desk.fools.title": "Шоттан забарш",
+  "desk.fools.offLabel": "Шоттан забарш массарна а дӀайайа",
+  "desk.fools.save": "ДӀасакъовларг ӏалашъе",
+  "admin.msg.foolsSaved": "Шоттан забарийн нисдар ӏалашдина."
 }

@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Continuar mesmo assim",
   "safety.previewShow": "Mostrar pré-visualização do link",
   "safety.previewUnavailable": "Sem pré-visualização para este link.",
-  "safety.previewLabel": "Pré-visualização do link"
+  "safety.previewLabel": "Pré-visualização do link",
+  "fools.banner": "🃏 Mentira de sábado: {name}",
+  "fools.20261128.name": "Sábado dos gritos",
+  "fools.20261128.yell": "Grita!",
+  "desk.fools.title": "Mentira de sábado",
+  "desk.fools.offLabel": "Desligar a Mentira de sábado para todos",
+  "desk.fools.save": "Guardar interruptor",
+  "admin.msg.foolsSaved": "Definição da Mentira de sábado guardada."
 }

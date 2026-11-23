@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Jatka silti",
   "safety.previewShow": "Näytä linkin esikatselu",
   "safety.previewUnavailable": "Tälle linkille ei ole esikatselua.",
-  "safety.previewLabel": "Linkin esikatselu"
+  "safety.previewLabel": "Linkin esikatselu",
+  "fools.banner": "🃏 Lauantaipila: {name}",
+  "fools.20261128.name": "Huutolauantai",
+  "fools.20261128.yell": "Huuda!",
+  "desk.fools.title": "Lauantaipila",
+  "desk.fools.offLabel": "Poista lauantaipila käytöstä kaikilta",
+  "desk.fools.save": "Tallenna kytkin",
+  "admin.msg.foolsSaved": "Lauantaipilan asetus tallennettu."
 }

@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Přesto pokračovat",
   "safety.previewShow": "Zobrazit náhled odkazu",
   "safety.previewUnavailable": "Pro tento odkaz není náhled.",
-  "safety.previewLabel": "Náhled odkazu"
+  "safety.previewLabel": "Náhled odkazu",
+  "fools.banner": "🃏 Sobotní apríl: {name}",
+  "fools.20261128.name": "Sobota křiku",
+  "fools.20261128.yell": "Řvi!",
+  "desk.fools.title": "Sobotní apríl",
+  "desk.fools.offLabel": "Vypnout sobotní apríl pro všechny",
+  "desk.fools.save": "Uložit přepínač",
+  "admin.msg.foolsSaved": "Nastavení sobotního aprílu uloženo."
 }

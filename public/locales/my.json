@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "မည်သို့ပင်ဖြစ်စေ ဆက်လုပ်မည်",
   "safety.previewShow": "လင့်ခ် အစမ်းကြည့်ရှုမှု ပြရန်",
   "safety.previewUnavailable": "ဤလင့်ခ်အတွက် အစမ်းကြည့်ရှုမှု မရှိပါ။",
-  "safety.previewLabel": "လင့်ခ် အစမ်းကြည့်ရှုမှု"
+  "safety.previewLabel": "လင့်ခ် အစမ်းကြည့်ရှုမှု",
+  "fools.banner": "🃏 စနေနေ့ ပျော်စရာ: {name}",
+  "fools.20261128.name": "အော်ဟစ်သော စနေနေ့",
+  "fools.20261128.yell": "အော်လိုက်!",
+  "desk.fools.title": "စနေနေ့ ပျော်စရာ",
+  "desk.fools.offLabel": "စနေနေ့ ပျော်စရာကို လူတိုင်းအတွက် ပိတ်ရန်",
+  "desk.fools.save": "ခလုတ်ကို သိမ်းရန်",
+  "admin.msg.foolsSaved": "စနေနေ့ ပျော်စရာ ဆက်တင်ကို သိမ်းပြီးပါပြီ။"
 }

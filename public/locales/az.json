@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Yenə də davam et",
   "safety.previewShow": "Keçidin önizləməsini göstər",
   "safety.previewUnavailable": "Bu keçid üçün önizləmə yoxdur.",
-  "safety.previewLabel": "Keçid önizləməsi"
+  "safety.previewLabel": "Keçid önizləməsi",
+  "fools.banner": "🃏 Şənbə zarafatı: {name}",
+  "fools.20261128.name": "Bağırtı şənbəsi",
+  "fools.20261128.yell": "Bağır!",
+  "desk.fools.title": "Şənbə zarafatı",
+  "desk.fools.offLabel": "Şənbə zarafatını hamı üçün söndür",
+  "desk.fools.save": "Açarı yadda saxla",
+  "admin.msg.foolsSaved": "Şənbə zarafatı ayarı yadda saxlanıldı."
 }

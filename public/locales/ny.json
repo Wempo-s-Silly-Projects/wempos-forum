@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Pitirizani komabe",
   "safety.previewShow": "Onetsani chithunzithunzi cha ulalo",
   "safety.previewUnavailable": "Palibe chithunzithunzi cha ulalo uwu.",
-  "safety.previewLabel": "Chithunzithunzi cha ulalo"
+  "safety.previewLabel": "Chithunzithunzi cha ulalo",
+  "fools.banner": "🃏 Nthabwala za Loweruka: {name}",
+  "fools.20261128.name": "Loweruka la Kufuula",
+  "fools.20261128.yell": "Fuula!",
+  "desk.fools.title": "Nthabwala za Loweruka",
+  "desk.fools.offLabel": "Zimitsa Nthabwala za Loweruka kwa aliyense",
+  "desk.fools.save": "Sungani chosinthira",
+  "admin.msg.foolsSaved": "Kakhazikitsidwe ka Nthabwala za Loweruka kasungidwa."
 }

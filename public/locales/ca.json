@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Continua igualment",
   "safety.previewShow": "Mostra la previsualització de l'enllaç",
   "safety.previewUnavailable": "No hi ha previsualització per a aquest enllaç.",
-  "safety.previewLabel": "Previsualització de l'enllaç"
+  "safety.previewLabel": "Previsualització de l'enllaç",
+  "fools.banner": "🃏 Innocents de dissabte: {name}",
+  "fools.20261128.name": "Dissabte de crits",
+  "fools.20261128.yell": "Crida!",
+  "desk.fools.title": "Innocents de dissabte",
+  "desk.fools.offLabel": "Desactiva els Innocents de dissabte per a tothom",
+  "desk.fools.save": "Desa l'interruptor",
+  "admin.msg.foolsSaved": "S'ha desat la configuració dels Innocents de dissabte."
 }

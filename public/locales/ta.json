@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "இருந்தாலும் தொடர்",
   "safety.previewShow": "இணைப்பு முன்னோட்டத்தைக் காட்டு",
   "safety.previewUnavailable": "இந்த இணைப்புக்கு முன்னோட்டம் இல்லை.",
-  "safety.previewLabel": "இணைப்பு முன்னோட்டம்"
+  "safety.previewLabel": "இணைப்பு முன்னோட்டம்",
+  "fools.banner": "🃏 சனிக்கிழமை கேலி: {name}",
+  "fools.20261128.name": "கத்தும் சனிக்கிழமை",
+  "fools.20261128.yell": "கத்து!",
+  "desk.fools.title": "சனிக்கிழமை கேலி",
+  "desk.fools.offLabel": "அனைவருக்கும் சனிக்கிழமை கேலியை முடக்கு",
+  "desk.fools.save": "சுவிட்சைச் சேமி",
+  "admin.msg.foolsSaved": "சனிக்கிழமை கேலி அமைப்பு சேமிக்கப்பட்டது."
 }

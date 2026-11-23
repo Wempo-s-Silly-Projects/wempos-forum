@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Continuer quand même",
   "safety.previewShow": "Afficher l'aperçu du lien",
   "safety.previewUnavailable": "Aucun aperçu pour ce lien.",
-  "safety.previewLabel": "Aperçu du lien"
+  "safety.previewLabel": "Aperçu du lien",
+  "fools.banner": "🃏 Poisson du samedi: {name}",
+  "fools.20261128.name": "Samedi des cris",
+  "fools.20261128.yell": "Crie !",
+  "desk.fools.title": "Poisson du samedi",
+  "desk.fools.offLabel": "Désactiver le Poisson du samedi pour tout le monde",
+  "desk.fools.save": "Enregistrer l'interrupteur",
+  "admin.msg.foolsSaved": "Réglage du Poisson du samedi enregistré."
 }

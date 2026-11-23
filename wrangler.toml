@@ -34,6 +34,10 @@ ANALYTICS_ENABLED = "true"
 # AutoMod (v5.18.0 API): "true" opens /api/automod/* to the runner that
 # holds the AUTOMOD_KEY secret. Owner switched it on 2026-11-21.
 AUTOMOD_ENABLED = "true"
+# Saturday Fools (v5.86): one cosmetic gag on the visitor's local Saturday
+# (docs/saturday-fools.md). "on" | "off"; the code default is "off". The owner
+# can also force it off site-wide from the desk (Branding section).
+SATURDAY_FOOLS = "on"
 VERSION = "5.85.1"
 
 [assets]
