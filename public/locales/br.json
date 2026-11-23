@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Plijadur ha kejadennoù nevez!",
   "theme.switchToDark": "Cheñch d'an tem teñval",
   "theme.switchToLight": "Cheñch d'an tem sklaer",
-  "security.humanCheckFailed": "N'eo ket bet karget ar benveg gwiriañ denel. Freskait ar bajenn ha klaskit en-dro.",
+  "security.humanCheckFailed": "C'hwitet eo ar gwiriañ denel. Freskait ar bajenn ha klaskit en-dro.",
   "security.humanCheckIncomplete": "Echuit ar gwiriañ denel da gentañ mar plij.",
   "security.passkeyAdd": "Ouzhpennañ un alc'hwez tremen",
   "security.passkeyAdded": "Alc'hwez tremen ouzhpennet.",

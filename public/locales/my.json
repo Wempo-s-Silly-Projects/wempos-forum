@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: ပျော်ပျော်နေပြီး လူသစ်များနှင့် တွေ့ဆုံပါ!",
   "theme.switchToDark": "အမှောင်အပြင်အဆင်သို့ ပြောင်းရန်",
   "theme.switchToLight": "အလင်းအပြင်အဆင်သို့ ပြောင်းရန်",
-  "security.humanCheckFailed": "လူသားစစ်ဆေးမှုကိရိယာ မဖွင့်နိုင်ပါ။ စာမျက်နှာကို ပြန်ဖွင့်ပြီး ထပ်စမ်းကြည့်ပါ။",
+  "security.humanCheckFailed": "လူသားစစ်ဆေးမှု မအောင်မြင်ပါ။ စာမျက်နှာကို ပြန်ဖွင့်ပြီး ထပ်စမ်းကြည့်ပါ။",
   "security.humanCheckIncomplete": "လူသားစစ်ဆေးမှုအဆင့်ကို အရင်ပြီးမြောက်ပါ။",
   "security.passkeyAdd": "ပတ်စ်ကီး ထည့်ရန်",
   "security.passkeyAdded": "ပတ်စ်ကီး ထည့်ပြီးပါပြီ။",
@@ -1343,7 +1343,7 @@
   "safety.linkWarningBody": "လိပ်စာတွင် ဆင်တူသော စာလုံးများ ရောနှောထားသဖြင့် အခြားဆိုက်တစ်ခုကို အယောင်ဆောင်နိုင်သည်။ အမှန်တကယ် လိပ်စာ:",
   "safety.linkWarningDomain": "မှတ်ပုံတင်ထားသော ဒိုမိန်း: {domain}",
   "safety.linkWarningBack": "နောက်သို့",
-  "safety.linkWarningContinue": "ဆက်လုပ်မည်",
+  "safety.linkWarningContinue": "မည်သို့ပင်ဖြစ်စေ ဆက်လုပ်မည်",
   "safety.previewShow": "လင့်ခ် အစမ်းကြည့်ရှုမှု ပြရန်",
   "safety.previewUnavailable": "ဤလင့်ခ်အတွက် အစမ်းကြည့်ရှုမှု မရှိပါ။",
   "safety.previewLabel": "လင့်ခ် အစမ်းကြည့်ရှုမှု"

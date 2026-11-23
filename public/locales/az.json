@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Əylən və yeni insanlarla tanış ol!",
   "theme.switchToDark": "Qaranlıq temaya keç",
   "theme.switchToLight": "İşıqlı temaya keç",
-  "security.humanCheckFailed": "İnsan yoxlaması vidceti yüklənmədi. Səhifəni yenilə və yenidən cəhd et.",
+  "security.humanCheckFailed": "İnsan yoxlaması uğursuz oldu. Səhifəni yenilə və yenidən cəhd et.",
   "security.humanCheckIncomplete": "Lütfən, əvvəlcə insan yoxlaması addımını tamamla.",
   "security.passkeyAdd": "Giriş açarı əlavə et",
   "security.passkeyAdded": "Giriş açarı əlavə edildi.",

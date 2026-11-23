@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Bav sa a spoznávaj nových ľudí!",
   "theme.switchToDark": "Prepnúť na tmavú tému",
   "theme.switchToLight": "Prepnúť na svetlú tému",
-  "security.humanCheckFailed": "Nástroj na overenie, že nie si robot, sa nenačítal. Obnov stránku a skús to znova.",
+  "security.humanCheckFailed": "Overenie, že nie si robot, zlyhalo. Obnov stránku a skús to znova.",
   "security.humanCheckIncomplete": "Najprv prosím dokonči krok overenia, že nie si robot.",
   "security.passkeyAdd": "Pridať prístupový kľúč",
   "security.passkeyAdded": "Prístupový kľúč pridaný.",

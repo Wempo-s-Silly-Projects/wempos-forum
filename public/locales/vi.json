@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Vui vẻ và làm quen bạn mới!",
   "theme.switchToDark": "Chuyển sang giao diện tối",
   "theme.switchToLight": "Chuyển sang giao diện sáng",
-  "security.humanCheckFailed": "Không tải được tiện ích xác minh. Hãy làm mới trang và thử lại.",
+  "security.humanCheckFailed": "Xác minh không thành công. Hãy làm mới trang và thử lại.",
   "security.humanCheckIncomplete": "Vui lòng hoàn tất bước xác minh bạn là người trước.",
   "security.passkeyAdd": "Thêm khóa truy cập",
   "security.passkeyAdded": "Đã thêm khóa truy cập.",

@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Күңел асығыҙ һәм яңы кешеләр менән танышығыҙ!",
   "theme.switchToDark": "Ҡараңғы темаға күсергә",
   "theme.switchToLight": "Яҡты темаға күсергә",
-  "security.humanCheckFailed": "Кеше икәнлекте тикшереү виджеты йөкләнмәне. Битте яңыртып, ҡабат тырышып ҡарағыҙ.",
+  "security.humanCheckFailed": "Кеше икәнлекте тикшереү уңышһыҙ булды. Битте яңыртып, ҡабат тырышып ҡарағыҙ.",
   "security.humanCheckIncomplete": "Зинһар, башта кеше икәнлекте тикшереү аҙымын үтегеҙ.",
   "security.passkeyAdd": "Инеү асҡысы өҫтәргә",
   "security.passkeyAdded": "Инеү асҡысы өҫтәлде.",

@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Ondo pasa eta ezagutu jende berria!",
   "theme.switchToDark": "Aldatu gai ilunera",
   "theme.switchToLight": "Aldatu gai argira",
-  "security.humanCheckFailed": "Gizaki-egiaztapenaren trepetak ez du kargatu. Freskatu orria eta saiatu berriro.",
+  "security.humanCheckFailed": "Gizaki-egiaztapenak huts egin du. Freskatu orria eta saiatu berriro.",
   "security.humanCheckIncomplete": "Osatu gizaki-egiaztapenaren urratsa lehenengo.",
   "security.passkeyAdd": "Gehitu sarbide-gako bat",
   "security.passkeyAdded": "Sarbide-gakoa gehitu da.",

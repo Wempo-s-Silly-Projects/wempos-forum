@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Pidä hauskaa ja tapaa uusia ihmisiä!",
   "theme.switchToDark": "Vaihda tummaan teemaan",
   "theme.switchToLight": "Vaihda vaaleaan teemaan",
-  "security.humanCheckFailed": "Ihmisyyden varmistuswidgetin lataus epäonnistui. Päivitä sivu ja yritä uudelleen.",
+  "security.humanCheckFailed": "Ihmisyyden varmistus epäonnistui. Päivitä sivu ja yritä uudelleen.",
   "security.humanCheckIncomplete": "Suorita ensin ihmisyyden varmistus.",
   "security.passkeyAdd": "Lisää pääsyavain",
   "security.passkeyAdded": "Pääsyavain lisätty.",

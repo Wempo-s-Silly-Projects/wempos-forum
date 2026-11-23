@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: 즐겁게 놀고 새로운 사람들을 만나요!",
   "theme.switchToDark": "다크 테마로 전환",
   "theme.switchToLight": "라이트 테마로 전환",
-  "security.humanCheckFailed": "사람 확인 위젯을 불러오지 못했어요. 페이지를 새로고침하고 다시 시도해 주세요.",
+  "security.humanCheckFailed": "사람 확인에 실패했어요. 페이지를 새로고침하고 다시 시도해 주세요.",
   "security.humanCheckIncomplete": "먼저 사람 확인 단계를 완료해 주세요.",
   "security.passkeyAdd": "패스키 추가",
   "security.passkeyAdded": "패스키를 추가했습니다.",

@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Argëtohu dhe njih njerëz të rinj!",
   "theme.switchToDark": "Kalo te tema e errët",
   "theme.switchToLight": "Kalo te tema e çelët",
-  "security.humanCheckFailed": "Mjeti i verifikimit njerëzor nuk u ngarkua. Rifresko faqen dhe provo sërish.",
+  "security.humanCheckFailed": "Verifikimi njerëzor dështoi. Rifresko faqen dhe provo sërish.",
   "security.humanCheckIncomplete": "Të lutem plotëso fillimisht hapin e verifikimit njerëzor.",
   "security.passkeyAdd": "Shto një çelës hyrjeje",
   "security.passkeyAdded": "Çelësi i hyrjes u shtua.",

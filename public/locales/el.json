@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Πέρασε καλά και γνώρισε νέους ανθρώπους!",
   "theme.switchToDark": "Αλλαγή σε σκούρο θέμα",
   "theme.switchToLight": "Αλλαγή σε φωτεινό θέμα",
-  "security.humanCheckFailed": "Το widget επαλήθευσης ότι είσαι άνθρωπος απέτυχε να φορτώσει. Ανανέωσε τη σελίδα και δοκίμασε ξανά.",
+  "security.humanCheckFailed": "Η επαλήθευση ότι είσαι άνθρωπος απέτυχε. Ανανέωσε τη σελίδα και δοκίμασε ξανά.",
   "security.humanCheckIncomplete": "Ολοκλήρωσε πρώτα το βήμα επαλήθευσης ότι είσαι άνθρωπος.",
   "security.passkeyAdd": "Προσθήκη κλειδιού πρόσβασης",
   "security.passkeyAdded": "Το κλειδί πρόσβασης προστέθηκε.",

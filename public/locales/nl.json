@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: heb plezier en leer nieuwe mensen kennen!",
   "theme.switchToDark": "Overschakelen naar donker thema",
   "theme.switchToLight": "Overschakelen naar licht thema",
-  "security.humanCheckFailed": "De mensencontrole kon niet worden geladen. Vernieuw de pagina en probeer het opnieuw.",
+  "security.humanCheckFailed": "De mensencontrole is mislukt. Vernieuw de pagina en probeer het opnieuw.",
   "security.humanCheckIncomplete": "Rond eerst de controle af dat je een mens bent.",
   "security.passkeyAdd": "Passkey toevoegen",
   "security.passkeyAdded": "Passkey toegevoegd.",

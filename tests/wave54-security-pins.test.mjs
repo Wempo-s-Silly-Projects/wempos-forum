@@ -21,7 +21,7 @@
 
 // Wave 5.4 security review of v4.45.0..v5.3.0 (docs/drafts/security-review-5.4.md):
 // regression pins for the honest-404 path (routeForPath runs on the worker
-// against attacker-chosen paths), the 65 locale bundles (strings render as
+// against attacker-chosen paths), the 66 locale bundles (strings render as
 // text, never markup) and the tab-title count.
 
 import { test } from "node:test";
@@ -121,7 +121,7 @@ const UNSAFE_TEXT = /[<>]|&#?\w+;|javascript:|data:|vbscript:|[‪-‮⁦-⁩]/i
 test("every shipped locale has a bundle and every bundle is a shipped locale", () => {
   const files = readdirSync(LOCALE_DIR).filter((name) => name.endsWith(".json")).map((name) => name.slice(0, -5));
   assert.deepEqual(files.sort(), LOCALES.map((locale) => locale.code).sort());
-  assert.equal(files.length, 65);
+  assert.equal(files.length, 66);
 });
 
 test("no locale string carries markup, entities, script URLs or bidi overrides", () => {

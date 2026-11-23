@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: مزے کریں اور نئے لوگوں سے ملیں!",
   "theme.switchToDark": "تاریک تھیم پر جائیں",
   "theme.switchToLight": "روشن تھیم پر جائیں",
-  "security.humanCheckFailed": "انسان ہونے کی تصدیق کا ویجٹ لوڈ نہیں ہو سکا۔ صفحہ ریفریش کریں اور دوبارہ کوشش کریں۔",
+  "security.humanCheckFailed": "انسان ہونے کی تصدیق ناکام ہو گئی۔ صفحہ ریفریش کریں اور دوبارہ کوشش کریں۔",
   "security.humanCheckIncomplete": "براہِ کرم پہلے انسان ہونے کی تصدیق کا مرحلہ مکمل کریں۔",
   "security.passkeyAdd": "پاس کی شامل کریں",
   "security.passkeyAdded": "پاس کی شامل ہو گئی۔",

@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Hab Spaß und lerne neue Leute kennen!",
   "theme.switchToDark": "Zum dunklen Design wechseln",
   "theme.switchToLight": "Zum hellen Design wechseln",
-  "security.humanCheckFailed": "Das Widget zur Menschen-Bestätigung konnte nicht geladen werden. Lade die Seite neu und versuch es nochmal.",
+  "security.humanCheckFailed": "Die Menschen-Bestätigung ist fehlgeschlagen. Lade die Seite neu und versuch es nochmal.",
   "security.humanCheckIncomplete": "Bitte schließ zuerst die Bestätigung ab, dass du ein Mensch bist.",
   "security.passkeyAdd": "Passkey hinzufügen",
   "security.passkeyAdded": "Passkey hinzugefügt.",

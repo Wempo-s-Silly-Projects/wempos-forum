@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Ha det gøy og møt nye folk!",
   "theme.switchToDark": "Bytt til mørkt tema",
   "theme.switchToLight": "Bytt til lyst tema",
-  "security.humanCheckFailed": "Bekreftelsesmodulen for mennesker kunne ikke lastes. Oppdater siden og prøv igjen.",
+  "security.humanCheckFailed": "Menneskekontrollen mislyktes. Oppdater siden og prøv igjen.",
   "security.humanCheckIncomplete": "Fullfør bekreftelsessteget for mennesker først.",
   "security.passkeyAdd": "Legg til en tilgangsnøkkel",
   "security.passkeyAdded": "Tilgangsnøkkel lagt til.",

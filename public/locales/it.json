@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: divertiti e conosci gente nuova!",
   "theme.switchToDark": "Passa al tema scuro",
   "theme.switchToLight": "Passa al tema chiaro",
-  "security.humanCheckFailed": "Il widget di verifica anti-bot non si è caricato. Aggiorna la pagina e riprova.",
+  "security.humanCheckFailed": "La verifica anti-bot non è riuscita. Aggiorna la pagina e riprova.",
   "security.humanCheckIncomplete": "Completa prima la verifica anti-bot.",
   "security.passkeyAdd": "Aggiungi una passkey",
   "security.passkeyAdded": "Passkey aggiunta.",

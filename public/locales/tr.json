@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Eğlen ve yeni insanlarla tanış!",
   "theme.switchToDark": "Koyu temaya geç",
   "theme.switchToLight": "Açık temaya geç",
-  "security.humanCheckFailed": "İnsan doğrulama aracı yüklenemedi. Sayfayı yenileyip tekrar dene.",
+  "security.humanCheckFailed": "İnsan doğrulaması başarısız oldu. Sayfayı yenileyip tekrar dene.",
   "security.humanCheckIncomplete": "Lütfen önce insan doğrulama adımını tamamla.",
   "security.passkeyAdd": "Geçiş anahtarı ekle",
   "security.passkeyAdded": "Geçiş anahtarı eklendi.",

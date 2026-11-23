@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}. Զվարճացեք և ծանոթացեք նոր մարդկանց հետ։",
   "theme.switchToDark": "Անցնել մուգ թեմայի",
   "theme.switchToLight": "Անցնել բաց թեմայի",
-  "security.humanCheckFailed": "Մարդ լինելու ստուգման վիջեթը չբեռնվեց։ Թարմացրեք էջը և կրկին փորձեք։",
+  "security.humanCheckFailed": "Մարդ լինելու ստուգումը ձախողվեց։ Թարմացրեք էջը և կրկին փորձեք։",
   "security.humanCheckIncomplete": "Խնդրում ենք նախ անցնել մարդ լինելու ստուգումը։",
   "security.passkeyAdd": "Ավելացնել մուտքի բանալի",
   "security.passkeyAdded": "Մուտքի բանալին ավելացվեց։",

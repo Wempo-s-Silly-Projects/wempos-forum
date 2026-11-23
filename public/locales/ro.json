@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Distrează-te și cunoaște oameni noi!",
   "theme.switchToDark": "Treci la tema întunecată",
   "theme.switchToLight": "Treci la tema luminoasă",
-  "security.humanCheckFailed": "Widgetul de verificare umană nu s-a încărcat. Reîmprospătează pagina și încearcă din nou.",
+  "security.humanCheckFailed": "Verificarea umană a eșuat. Reîmprospătează pagina și încearcă din nou.",
   "security.humanCheckIncomplete": "Te rugăm să finalizezi mai întâi pasul de verificare umană.",
   "security.passkeyAdd": "Adaugă o cheie de acces",
   "security.passkeyAdded": "Cheie de acces adăugată.",
