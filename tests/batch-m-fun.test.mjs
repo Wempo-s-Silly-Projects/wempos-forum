@@ -301,6 +301,7 @@ test("clearAllFunExtras wipes every badge-seen marker (account data) but keeps t
 test("with every extra off, a full enhance pass loads nothing and touches no storage", async () => {
   const recorder = recordingLoader();
   const storage = allOff();
+  const before = storage.dump();
   const root = badgeRoot(25);
   const intro = new FakeNode("section");
   intro.className = "personal-intro";
@@ -313,7 +314,7 @@ test("with every extra off, a full enhance pass loads nothing and touches no sto
   const doc = makeDoc();
   await fun.enhanceFunView(root, env({ doc, storage, load: recorder.load }));
   assert.deepEqual(recorder.calls, []);
-  assert.deepEqual(storage.dump(), {});
+  assert.deepEqual(storage.dump(), before, "the enhance pass does not touch preferences");
   assert.equal(h1.textContent, "Hello");
   assert.equal(doc.head.children.length, 0, "not even the extras' stylesheet is linked");
 });
