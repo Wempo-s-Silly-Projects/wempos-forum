@@ -250,7 +250,7 @@ test("stored fun preferences are normalized to known boolean keys and respected"
   assert.equal(settings.isFunOn("confetti", storage), false);
 });
 
-test("writeFunSetting stores one key without mutating the previous settings object", () => {
+test("writeFunSetting stores one key without mutating the previous settings object", async () => {
   const storage = memoryStorage();
   const before = settings.readFunSettings(storage);
   const after = settings.writeFunSetting(storage, "sounds", true);
