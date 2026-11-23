@@ -30,8 +30,21 @@ NOW="$(date -u +%FT%TZ)"
 
 FORUM_VERSION="$(curl -s --max-time 20 https://wempos-forum.com/api/version)"
 ACCOUNTS_STATUS="$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://accounts.wempos-forum.com/)"
+# Anubis (Nov 22): the whole Anubis program runs on this Mac (Colima container
+# on 127.0.0.1:8923) behind the com.wempo.anubis-tunnel LaunchAgent. Read-only
+# probes: any HTTP status = alive (000 = down); the tunnel agent must be running.
+# When either is down the Worker falls back to ALTCHA, so this is a warning,
+# not an outage — but it means the whole-site gate is off.
+ANUBIS_LOCAL="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://127.0.0.1:8923/.within.website/x/cmd/anubis/api/check)"
+ANUBIS_TUNNEL="$(launchctl print "gui/$(id -u)/com.wempo.anubis-tunnel" 2>/dev/null | awk '/^\tstate = /{print $3; exit}')"
 
 alert=""
+if [ "${ANUBIS_LOCAL:-000}" = "000" ]; then
+  alert="${alert:+$alert; }Anubis container not answering on 127.0.0.1:8923 (site falls back to ALTCHA)"
+fi
+if [ "$ANUBIS_TUNNEL" != "running" ]; then
+  alert="${alert:+$alert; }Anubis tunnel agent not running (state=${ANUBIS_TUNNEL:-missing})"
+fi
 if ! printf '%s' "$FORUM_VERSION" | grep -q '"commit"'; then
   alert="${alert:+$alert; }Forum version probe failed: ${FORUM_VERSION:-<empty>}"
 fi
