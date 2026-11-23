@@ -53,6 +53,10 @@ function base64Url(bytes) {
 }
 
 export function randomToken(size = 32) {
+  if (!Number.isSafeInteger(size) || size < 1 || size > 65536) {
+    throw new RangeError("Token size must be an integer between 1 and 65536 bytes.");
+  }
+
   return base64Url(crypto.getRandomValues(new Uint8Array(size)));
 }
 
