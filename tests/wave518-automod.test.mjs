@@ -396,7 +396,11 @@ test("client: 1:1 conversations carry Report conversation; groups do not; textCo
 
 test("client: the desk lists DM reports and the AutoMod log, with Restore on live hides", () => {
   const admin = read("public/js/routes/admin.js");
-  assert.match(admin, /slug: "dm-reports"/);
+  // v5.92: DM reports are the DMs part of the merged Reports tab.
+  assert.match(admin, /slug: "reports"/);
+  const merged = read("public/js/desk/merged-sections.js");
+  assert.match(merged, /\{ view: "dms", url: "\/api\/admin\/dm-reports", field: "dmReports"/);
+  assert.match(merged, /createDmReportQueue\(items, document\)/);
   assert.match(admin, /slug: "automod"/);
   assert.match(admin, /"resolve-dm-report": async/);
   const doc = makeFakeDocument();

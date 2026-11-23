@@ -472,8 +472,11 @@ test("CSP is unchanged and the loader builds a same-origin script element", () =
 test("the desk lists Site health and loads /api/admin/site-health", () => {
   const admin = read("public/js/routes/admin.js");
   assert.match(admin, /\{ slug: "site-health", labelKey: "admin\.section\.siteHealth" \}/);
-  assert.match(admin, /api\("\/api\/admin\/site-health"\)/);
-  assert.match(admin, /createSiteHealthPanel\(data, document\)/);
+  // v5.92: the page (with its Visits part) loads through desk/merged-sections.js.
+  assert.match(admin, /load: \(\) => loadSiteHealth\(api\)/);
+  const merged = read("public/js/desk/merged-sections.js");
+  assert.match(merged, /fetcher\("\/api\/admin\/site-health"\)/);
+  assert.match(merged, /createSiteHealthPanel\(data\.health, document\)/);
 });
 
 test("createSiteHealthPanel paints an accessible table with a band class per cell", () => {
