@@ -50,14 +50,14 @@ async function solvedPayload(env) {
 }
 
 test("no key configured: no human check, and no challenge endpoint", async () => {
-  const env = makeEnv();
+  const env = makeEnv({ HUMAN_CHECK: "altcha" });
   await requireHumanCheck(request(), env, {});
   assert.equal(await humanCheckKey(env), null);
   assert.equal((await call(env, "/api/altcha/challenge")).status, 404);
 });
 
 test("challenge endpoint: signed SHA-256 challenge, capped work, no key material", async () => {
-  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY });
+  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY, HUMAN_CHECK: "altcha" });
   const res = await call(env, "/api/altcha/challenge");
   assert.equal(res.status, 200);
   assert.equal(res.headers.get("Cache-Control"), "no-store");
@@ -71,7 +71,7 @@ test("challenge endpoint: signed SHA-256 challenge, capped work, no key material
 });
 
 test("a configured key refuses a missing or oversized payload", async () => {
-  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY });
+  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY, HUMAN_CHECK: "altcha" });
   await assert.rejects(requireHumanCheck(request(), env, {}),
     (error) => error.status === 403 && /Human verification is required/.test(error.message));
   await assert.rejects(requireHumanCheck(request(), env, { altcha: "x".repeat(5000) }),
@@ -79,7 +79,7 @@ test("a configured key refuses a missing or oversized payload", async () => {
 });
 
 test("a solved challenge passes once; the replay is refused", async () => {
-  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY });
+  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY, HUMAN_CHECK: "altcha" });
   const altcha = await solvedPayload(env);
   await requireHumanCheck(request(), env, { altcha });
   await assert.rejects(requireHumanCheck(request(), env, { altcha }),
@@ -87,7 +87,7 @@ test("a solved challenge passes once; the replay is refused", async () => {
 });
 
 test("a tampered number or a foreign signature is refused", async () => {
-  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY });
+  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY, HUMAN_CHECK: "altcha" });
   const altcha = await solvedPayload(env);
   const decoded = JSON.parse(atob(altcha));
   const wrongNumber = btoa(JSON.stringify({ ...decoded, number: decoded.number + 1 }));
@@ -99,7 +99,7 @@ test("a tampered number or a foreign signature is refused", async () => {
 });
 
 test("an expired challenge is refused", async () => {
-  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY });
+  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY, HUMAN_CHECK: "altcha" });
   const stale = await createChallenge({ hmacKey: KEY, maxNumber: 50, expires: new Date(Date.now() - 1000) });
   const solution = await solveChallenge(stale.challenge, stale.salt, stale.algorithm, 50).promise;
   const altcha = btoa(JSON.stringify({
@@ -110,7 +110,7 @@ test("an expired challenge is refused", async () => {
 });
 
 test("existing deployments keep a check with no new secret: the key derives from TURNSTILE_SECRET", async () => {
-  const env = makeEnv({ TURNSTILE_SECRET: "legacy-owner-secret" });
+  const env = makeEnv({ TURNSTILE_SECRET: "legacy-owner-secret", HUMAN_CHECK: "altcha" });
   const key = await humanCheckKey(env);
   assert.equal(typeof key, "string");
   assert.notEqual(key, "legacy-owner-secret", "the stored secret is never used raw");
@@ -122,7 +122,7 @@ test("existing deployments keep a check with no new secret: the key derives from
 });
 
 test("POST /api/posts and replies: refused without a solution, accepted with one", async () => {
-  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY });
+  const env = makeEnv({ ALTCHA_HMAC_KEY: KEY, HUMAN_CHECK: "altcha" });
   const id = await seedUser(env.__sqlite, { username: "Poster" });
   const session = forgeSession(env.__sqlite, id);
   const refused = await call(env, "/api/posts", { method: "POST", session, body: { body: "no proof", board: "general" } });
@@ -137,11 +137,11 @@ test("POST /api/posts and replies: refused without a solution, accepted with one
 });
 
 test("the HTML shell announces the human check only when configured; no Turnstile meta", async () => {
-  const on = makeEnv({ ALTCHA_HMAC_KEY: KEY, TURNSTILE_SITEKEY: "0xOLD" });
+  const on = makeEnv({ ALTCHA_HMAC_KEY: KEY, TURNSTILE_SITEKEY: "0xOLD", HUMAN_CHECK: "altcha" });
   const html = await (await worker.fetch(makeRequest("/", { headers: { Accept: "text/html" } }), on, {})).text();
   assert.match(html, /<meta name="human-check" content="altcha">/);
   assert.doesNotMatch(html, /turnstile/i);
-  const off = makeEnv();
+  const off = makeEnv({ HUMAN_CHECK: "altcha" });
   const plain = await (await worker.fetch(makeRequest("/", { headers: { Accept: "text/html" } }), off, {})).text();
   assert.doesNotMatch(plain, /name="human-check"/);
 });

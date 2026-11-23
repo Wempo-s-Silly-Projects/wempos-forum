@@ -126,6 +126,18 @@ export const ALTCHA_MAX_NUMBER = 100_000;
 export const ALTCHA_TTL_SECONDS = 10 * 60;
 export const ALTCHA_PAYLOAD_MAX_LENGTH = 2048;
 
+// Owner order (Nov 22): the human/bot gate is chosen by env HUMAN_CHECK.
+// "anubis" (the default when unset or unrecognised) gates HTML navigations
+// through the Anubis program (TecharoHQ/anubis, run whole and unmodified
+// behind the Worker; api/core/anubis-gate.mjs is the seam) and skips the
+// per-form ALTCHA check; "altcha" is the lighter self-hosted per-form check
+// exactly as Batch F shipped it; "off" asks for neither.
+export const HUMAN_CHECK_MODES = Object.freeze({ ANUBIS: "anubis", ALTCHA: "altcha", OFF: "off" });
+export const DEFAULT_HUMAN_CHECK_MODE = HUMAN_CHECK_MODES.ANUBIS;
+// The path prefix Anubis serves its own challenge pages, assets and API
+// under; reserved for the container, never gated by it.
+export const ANUBIS_RESERVED_PREFIX = "/.within.website/";
+
 // Batch F passkeys (WebAuthn): ceremony challenge lifetime, per-member cap,
 // and the display-name ceiling.
 export const PASSKEY_CHALLENGE_TTL_SECONDS = 5 * 60;

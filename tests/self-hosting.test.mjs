@@ -141,12 +141,12 @@ test("a malformed SITE_ORIGIN is ignored (request origin, no redirect)", async (
 
 test("requireHumanCheck: no key means no check at all", async () => {
   const request = new Request(SELF_HOST + "/api/auth/login", { method: "POST" });
-  await requireHumanCheck(request, makeEnv(), {});
+  await requireHumanCheck(request, makeEnv({ HUMAN_CHECK: "altcha" }), {});
 });
 
 test("requireHumanCheck: a configured key still refuses a missing or junk payload", async () => {
   const request = new Request(OWNER_ORIGIN + "/api/auth/login", { method: "POST" });
-  const env = makeEnv({ ALTCHA_HMAC_KEY: "owner-key-0123456789abcdef0123456789" });
+  const env = makeEnv({ ALTCHA_HMAC_KEY: "owner-key-0123456789abcdef0123456789", HUMAN_CHECK: "altcha" });
   await assert.rejects(
     requireHumanCheck(request, env, {}),
     (error) => error.status === 403 && /Human verification is required/.test(error.message),
@@ -155,13 +155,13 @@ test("requireHumanCheck: a configured key still refuses a missing or junk payloa
 });
 
 test("POST /api/posts: no key posts without a proof; with a key the proof is required", async () => {
-  const open = makeEnv();
+  const open = makeEnv({ HUMAN_CHECK: "altcha" });
   const member = await seedUser(open.__sqlite, { username: "NoCaptcha" });
   const session = forgeSession(open.__sqlite, member);
   const ok = await worker.fetch(makeRequest("/api/posts", { method: "POST", session, body: { body: "no captcha here", board: "general" } }), open, {});
   assert.equal(ok.status, 201, await ok.clone().text());
 
-  const guarded = makeEnv({ ALTCHA_HMAC_KEY: "owner-key-0123456789abcdef0123456789" });
+  const guarded = makeEnv({ ALTCHA_HMAC_KEY: "owner-key-0123456789abcdef0123456789", HUMAN_CHECK: "altcha" });
   const other = await seedUser(guarded.__sqlite, { username: "Captcha" });
   const otherSession = forgeSession(guarded.__sqlite, other);
   const refused = await worker.fetch(makeRequest("/api/posts", { method: "POST", session: otherSession, body: { body: "needs a token", board: "general" } }), guarded, {});
@@ -173,7 +173,7 @@ test("POST /api/posts: no key posts without a proof; with a key the proof is req
 // ---- client config: Accounts origin + human check -------------------------
 
 test("the HTML shell carries the configured Accounts origin and the human-check flag", async () => {
-  const env = makeEnv({ ACCOUNTS_ORIGIN: "https://accounts.wempos-forum.com", ALTCHA_HMAC_KEY: "k".repeat(32) });
+  const env = makeEnv({ ACCOUNTS_ORIGIN: "https://accounts.wempos-forum.com", ALTCHA_HMAC_KEY: "k".repeat(32), HUMAN_CHECK: "altcha" });
   const html = await (await fetchAt(env, OWNER_ORIGIN + "/", { headers: { Accept: "text/html" } })).text();
   assert.match(html, /<meta name="accounts-origin" content="https:\/\/accounts\.wempos-forum\.com">/);
   assert.match(html, /<meta name="human-check" content="altcha">/);
