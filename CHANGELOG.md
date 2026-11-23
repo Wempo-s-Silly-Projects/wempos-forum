@@ -10,6 +10,34 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.90.0] - 2026-11-23
+
+### Fixed
+
+- The emoji picker was unstyled everywhere (composer and chat). The vendored
+  picmo script names its classes `picmo__*`, but the stylesheet shipped next
+  to it used unprefixed selectors, so none of its rules matched (picmo's own
+  releases ship the same mismatch). `public/js/vendor/picmo.css` is now an
+  exact copy of the stylesheet embedded in the vendored script, and a test
+  keeps the two in step. The page still never lets picmo inject styles.
+
+### Removed
+
+- The translate module (added in 5.88.0, off by default) and its
+  `/api/translate` routes, `/translate` page and export script, on the
+  owner's order. Exception to the versioning policy, approved by the owner:
+  the module was one day old, off by default and never enabled on the main
+  forum, so it is treated as never part of the stable API and removed in a
+  MINOR release without a deprecation period. Volunteers translate through
+  pull requests again (`docs/translating.md`). Its empty tables stay in the
+  database (migration `0096` is already applied and stays as it is).
+
+### Changed
+
+- `tests/module-vibe-guard.test.mjs` pins which modules may default on:
+  only the forum's own features. Discourse-parity features ship off for
+  self-hosters to turn on.
+
 ## [5.89.0] - 2026-11-23
 
 ### Added
