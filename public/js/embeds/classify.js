@@ -62,6 +62,23 @@ export function standaloneLink(text) {
   return BARE_LINK.test(value) ? { url: value, label: "" } : null;
 }
 
+// A body paragraph keeps its blank lines (parseBlocks), so it is cut into
+// blank-line-separated runs; each run is then checked on its own.
+export function paragraphRuns(text) {
+  const runs = [];
+  let current = [];
+  for (const line of String(text ?? "").split("\n")) {
+    if (line.trim() === "") {
+      if (current.length) runs.push(current.join("\n"));
+      current = [];
+    } else {
+      current.push(line);
+    }
+  }
+  if (current.length) runs.push(current.join("\n"));
+  return runs;
+}
+
 // YouTube's t= / start= value: "90", "1m30s", "1h2m3s". Anything else, or
 // more than a day, is 0 (play from the start).
 export function parseStartSeconds(raw) {

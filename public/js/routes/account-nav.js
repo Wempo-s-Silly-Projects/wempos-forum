@@ -39,7 +39,6 @@ import { clearAllMutes } from "../chat-mutes.js";
 import { clearAllRecents } from "../gallery-picks.js";
 import { clearAllRecentSearches } from "../recent-searches.js";
 import { clearAllQuietHours } from "../quiet-hours.js";
-import { clearAllFunExtras } from "../fun/settings.js";
 import { clearAllThreadOutline } from "../thread-outline.js";
 import { clearAllEmojiRecents } from "../emoji-picker.js";
 import { createNotificationBell } from "../notifications.js";
@@ -317,6 +316,9 @@ function renderAccountNavigation(user, unreadNotifications = 0) {
 // Batch K: drafts live in IndexedDB, whose clear is async — the returned
 // promise is kept so sign-out can wait for it before the page navigates away.
 let lastDraftWipe = Promise.resolve();
+// v5.84: fun/ is not on the boot path, so its badge-marker wipe is imported
+// here; sign-out waits for it like the draft wipe.
+let lastFunWipe = Promise.resolve();
 function wipeAccountLocalData() {
   clearAllShare();
   clearAllInvite();
@@ -327,7 +329,7 @@ function wipeAccountLocalData() {
   clearAllMutes();
   clearAllRecents();
   clearAllQuietHours();
-  clearAllFunExtras();
+  lastFunWipe = import("../fun/settings.js").then(({ clearAllFunExtras }) => clearAllFunExtras()).catch(() => {});
   clearAllRecentSearches();
   clearAllThreadOutline();
   clearAllEmojiRecents();
@@ -349,6 +351,7 @@ export const ACTIONS = {
       wipeAccountLocalData();
     }
     await lastDraftWipe;
+    await lastFunWipe;
     // Batch K: other open tabs hear the sign-out (tab-sync.js) and reload.
     bus.emit(EVENTS.signout);
 

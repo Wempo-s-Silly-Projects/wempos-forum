@@ -30,8 +30,9 @@
     <script type="module" src="/js/app.js"></script>
     <!-- Chat widget + Who's Online roster: two self-mounting client modules
          (each gates itself on its own boot probe, so no app.js wiring is
-         needed; both stay inert when the surfaces they serve are absent). -->
-    <script type="module" src="/js/chat-widget.js"></script>
+         needed; both stay inert when the surfaces they serve are absent).
+         The chat widget's loader imports it once the page is idle (v5.84). -->
+    <script type="module" src="/js/chat-widget-loader.js"></script>
     <script type="module" src="/js/who-online.js"></script>
     <script type="module" src="/js/webmcp.js"></script>
     <!-- Feed/thread hot path (wave 2026-11-21-10): these modules sit two or
@@ -94,7 +95,6 @@
     <link rel="modulepreload" href="/js/thread-actions.js">
     <link rel="modulepreload" href="/js/nav-items.js">
     <link rel="modulepreload" href="/js/composer-format.js">
-    <link rel="modulepreload" href="/js/mention-picker.js">
   </head>
   <body>
     <a class="skip-link" href="#main-content" data-i18n="shell.skipToContent">Skip to content</a>

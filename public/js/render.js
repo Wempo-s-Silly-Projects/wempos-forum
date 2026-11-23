@@ -34,7 +34,7 @@ import { createCopyCodeButton } from "./copy-code.js";
 import { codeBlockPlan, highlightCodeBlocks } from "./code-highlight.js";
 import { createMathNode, splitMath } from "./math.js";
 import { createJsonTreeToggle, enhanceRenderedBody, isAnsiFence, isMermaidFence, jsonTreePlan } from "./rich-blocks.js";
-import { embedParagraph } from "./embeds/embeds.js";
+import { embedParagraph } from "./embeds/lazy.js";
 import { createReadAloud } from "./read-aloud.js";
 import { createQuoteCardButton } from "./quote-card-action.js";
 import { createRevealSpoilersButton, hasSpoilers } from "./reveal-spoilers.js";

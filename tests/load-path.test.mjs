@@ -37,9 +37,15 @@ test("every modulepreload href in index.html exists under public/", () => {
   }
 });
 
-test("every modulepreload hint is part of the static boot graph (no dead hints)", () => {
-  const reachable = new Set(buildGraph().modules.map((m) => m.path));
-  for (const href of modulePreloads()) assert.ok(reachable.has(href), `${href} is imported by an entry`);
+// v5.84: the router imports the route modules on navigation through
+// route-modules.js, so the boot graph is the entries plus those modules.
+const routeModules = () => buildGraph().lazy
+  .filter((edge) => edge.from === "/js/route-modules.js").map((edge) => edge.path);
+
+test("every modulepreload hint is part of the boot graph: entries + routed modules (no dead hints)", () => {
+  assert.ok(routeModules().length >= 12, "route-modules.js lists the route modules");
+  const reachable = new Set(buildGraph([...moduleEntries(), ...routeModules()]).modules.map((m) => m.path));
+  for (const href of modulePreloads()) assert.ok(reachable.has(href), `${href} is imported by an entry or a route module`);
 });
 
 test("every static import and every lazy import() in the client resolves to a file", () => {

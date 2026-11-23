@@ -24,7 +24,7 @@
 // holding the embed figure; anything else returns null and renders as text.
 // Every embed is click-to-load (YouTube, 3D) or same-origin only (video,
 // audio): nothing contacts a third party until the reader explicitly asks.
-import { classifyEmbed, standaloneLink } from "./classify.js";
+import { classifyEmbed, paragraphRuns, standaloneLink } from "./classify.js";
 import { createVendorLoader } from "./loader.js";
 import { createYouTubeFacade } from "./youtube.js";
 import { createMediaPlayer } from "./media.js";
@@ -70,23 +70,13 @@ export function createEmbed(document, text, options = {}) {
   }
 }
 
-// A body paragraph keeps its blank lines (parseBlocks), so it is cut into
-// blank-line-separated runs; a run that is one embeddable link becomes an
+// A run (classify.js paragraphRuns) that is one embeddable link becomes an
 // embed and every other run goes back through renderText (the caller's
 // ordinary paragraph). No embeddable run: null, and the caller renders the
-// paragraph exactly as before.
+// paragraph exactly as before. render.js reaches this through lazy.js
+// (v5.84), so the players load only for a post that holds one.
 export function embedParagraph(document, text, renderText, options = {}) {
-  const runs = [];
-  let current = [];
-  for (const line of String(text ?? "").split("\n")) {
-    if (line.trim() === "") {
-      if (current.length) runs.push(current.join("\n"));
-      current = [];
-    } else {
-      current.push(line);
-    }
-  }
-  if (current.length) runs.push(current.join("\n"));
+  const runs = paragraphRuns(text);
   const embeds = runs.map((run) => createEmbed(document, run, options));
   if (!embeds.some(Boolean)) return null;
   return runs.map((run, index) => embeds[index] ?? renderText(run));

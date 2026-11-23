@@ -43,13 +43,15 @@ import {
   main,
   setMessage,
 } from "./dom.js";
-// v4.0 plan 4 Task 2: the auth concern (auth panels, setup screens, their
-// submit handlers) lives in routes/auth.js; the route + form registries
-// spread its handlers as the dispatch entries that used to live inline here.
+// v5.84 load order: every route module except the header chrome is
+// imported on demand (route-modules.js) — when a route renders it or a click
+// or submit needs one of its handlers — instead of all of them at boot.
 import {
-  FORM_HANDLERS as authFormHandlers,
-  renderSetupRoute,
-} from "./routes/auth.js";
+  ROUTE_OWNERS,
+  lazyHandler,
+  loadRouteModule,
+  loadedRouteModule,
+} from "./route-modules.js";
 
 // v4.0 plan 4 Task 2: the boot state lives in state.js (route modules read
 // and write the same bag). renderRoute is hoisted, so it can be published
@@ -61,30 +63,9 @@ state.renderRoute = renderRoute;
 import { redeemReturnTicket, wempoAccountsSignInUrl } from "./sso.js";
 // Invite links (v5.34): the /join landing and the one-time claim.
 import { claimPendingInvite, createJoinPage, rememberInviteRef } from "./invite.js";
-// v4.0 plan 4 Task 3: the feed concern (home/search/mine/category/bookmarks
-// routes, feed tabs, feed pagination + card actions) lives in routes/feed.js;
-// the composer family (builder, submits, gif/poll dialogs) lives in
-// composer.js since the plan 7 follow-up; registries spread both modules'
-// handlers as dispatch entries.
-import {
-  ACTIONS as feedActions,
-  renderBookmarksRoute,
-  renderCategoryRoute,
-  renderHomeRoute,
-  renderSettingsRoute,
-  renderMineRoute,
-} from "./routes/feed.js";
-import {
-  ACTIONS as composerActions,
-  FORM_HANDLERS as composerFormHandlers,
-  handleComposerFileSelection,
-  uploadCommunityGif,
-} from "./routes/composer.js";
-// v4.0.1: the two-factor section (settings + login step) lives in routes/twofa.js.
-import {
-  ACTIONS as twofaActions,
-  FORM_HANDLERS as twofaFormHandlers,
-} from "./routes/twofa.js";
+// The feed, composer, two-factor, post, profile, pages, appeals,
+// notifications, desk, reports and blocks modules (v4.0 plan 4 Tasks 3-9,
+// v4.0.1, v4.4) are loaded through route-modules.js since v5.84.
 // Wave 5.14: "Sign out everywhere else" lives in account-security.js.
 import { ACTIONS as accountSecurityActions } from "./account-security.js";
 // Batch F: passkeys (settings section + the guest door button).
@@ -94,74 +75,15 @@ import {
   ACTIONS as wallActions,
   FORM_HANDLERS as wallFormHandlers,
 } from "./wall.js";
-// v4.0 plan 4 Task 4: the post-detail concern (the /post/:id route, its
-// reply mini-composers and sub-reply cascades, quote prefill, the edit
-// flow, and the attachment lightbox) lives in routes/post.js; registries
-// spread its handlers as the dispatch entries that used to live inline.
-import {
-  ACTIONS as postActions,
-  FORM_HANDLERS as postFormHandlers,
-  renderPostRoute,
-} from "./routes/post.js";
-// v4.0 plan 4 Task 5: the profile concern (the /users/:username
-// route plus its surface, submit handlers, and delete dialogs) lives
-// in routes/profile.js; registries spread its handlers as dispatch
-// entries.
-import {
-  ACTIONS as profileActions,
-  FORM_HANDLERS as profileFormHandlers,
-  renderProfileRoute,
-} from "./routes/profile.js";
-import { clearProfileTheme } from "./routes/profile.js";
 
-// v4.0 plan 4 Task 6: the content pages (rules/leaderboard/archive) plus
-// the site-search submit and page actions (archive paging, rules save) live
-// in routes/pages.js.
-import {
-  ACTIONS as pagesActions,
-  FORM_HANDLERS as pagesFormHandlers,
-  renderArchiveRoute,
-  renderLeaderboardRoute,
-  renderRulesRoute,
-  renderWeekRoute,
-  renderTagRoute,
-} from "./routes/pages.js";
-
-// v4.0 plan 4 Task 7: the appeals concern (the /appeals route and its
-// submits) and the notifications concern (the /notifications route and
-// its actions) live in routes/appeals.js and routes/notifications.js.
-import {
-  FORM_HANDLERS as appealFormHandlers,
-} from "./routes/appeals.js";
-import {
-  ACTIONS as notificationActions,
-  renderNotificationsRoute,
-} from "./routes/notifications.js";
-
-// v4.0 plan 4 Task 8: the moderation desk (the /admin route, its section
-// builders, and its submits/actions) lives in routes/admin.js.
-import {
-  ACTIONS as adminActions,
-  FORM_HANDLERS as adminFormHandlers,
-  renderAdminRoute,
-} from "./routes/admin.js";
-
-// v4.0 plan 4 Task 9: the report dialog and the header chrome (mobile bar +
-// site-section icons + logout) live in routes/reports.js and
-// routes/account-nav.js.
-import {
-  ACTIONS as reportActions,
-  FORM_HANDLERS as reportFormHandlers,
-} from "./routes/reports.js";
+// v4.0 plan 4 Task 9: the header chrome (mobile bar + site-section icons +
+// logout) lives in routes/account-nav.js; it paints on every route, so it
+// stays on the boot path.
 import {
   ACTIONS as accountNavActions,
   renderAccountNavigation,
 } from "./routes/account-nav.js";
 
-// Blocks (v4.4): the blocked-members settings section lives in
-// routes/blocks.js (rendered into the account area by routes/feed.js, like
-// the two-factor section); its Unblock action merges here.
-import { ACTIONS as blockActions } from "./routes/blocks.js";
 // v5.39.0: member follows and bookmark folders.
 import { createFollowActions } from "./follows.js";
 import { createFolderActions } from "./bookmark-folders.js";
@@ -187,8 +109,9 @@ import { initHeaderHeadroom } from "./header-headroom.js";
 import { initTooltips } from "./tooltips.js";
 
 const routeProgress = createRouteProgress();
-// Batch M: opt-in fun extras (all off by default; public/js/fun/).
-import { enhanceFunView, noteUnreadCount, startFunExtras } from "./fun/index.js";
+// Batch M: opt-in fun extras (all off by default; public/js/fun/). v5.84:
+// fun-gate.js imports fun/ only once a switch is on.
+import { enhanceFunView, noteUnreadCount, startFunExtras } from "./fun-gate.js";
 
 async function prepareRouteContext(version) {
   const [sessionReply, setup] = await Promise.all([
@@ -297,17 +220,34 @@ async function renderRoute(route) {
   // the class never tints a non-profile route (the review caught exactly
   // that for the accent).
   main.classList.remove("profile-theme-scope");
-  clearProfileTheme();
+  // v5.84: a profile theme can only be applied once routes/profile.js has
+  // loaded; before that there is nothing to clear.
+  loadedRouteModule("profile")?.clearProfileTheme();
   teardownHumanCheck();
   main.replaceChildren();
   setMessage();
 
+  // v5.84: the route's module downloads alongside the session probe. Its
+  // failure surfaces when it is awaited below (the router's error screen);
+  // the catch here only keeps a superseded route's failure quiet.
+  const owner = ROUTE_OWNERS[route.name] ?? null;
+  const routeModule = owner ? loadRouteModule(owner) : null;
+  routeModule?.catch(() => {});
   const context = await prepareRouteContext(version);
   if (!context) return;
+  const view = routeModule ? await routeModule : null;
+  if (version !== state.renderVersion) return;
   setRouteTitle(route);
   applyTabUnread(document, state.unreadNotifications, pageStorage());
   bus.emit(EVENTS.unread, "notifications", state.unreadNotifications);
 
+  // `view` is the route's own module (route-modules.js ROUTE_OWNERS); only
+  // the render function its ROUTE_OWNERS entry names is called.
+  const {
+    renderSetupRoute, renderHomeRoute, renderSettingsRoute, renderMineRoute, renderLeaderboardRoute,
+    renderRulesRoute, renderWeekRoute, renderTagRoute, renderCategoryRoute, renderArchiveRoute, renderPostRoute,
+    renderProfileRoute, renderAdminRoute, renderNotificationsRoute, renderBookmarksRoute,
+  } = view ?? {};
   const renderers = {
     setup: () => renderSetupRoute(context),
     home: () => renderHomeRoute(route, context, version),
@@ -354,27 +294,13 @@ async function submitForm(form) {
   const text = (name) => String(values.get(name) ?? "");
 
   const handlers = {
-    ...authFormHandlers,
-    // The create/reply submits live in composer.js.
-    ...composerFormHandlers,
     ...wallFormHandlers,
-    // The post-detail edit form lives in routes/post.js.
-    ...postFormHandlers,
-    // The profile submit handlers live in routes/profile.js.
-    ...profileFormHandlers,
-    // The site-search submit lives in routes/pages.js.
-    ...pagesFormHandlers,
-    // The appeal submits live in routes/appeals.js.
-    ...appealFormHandlers,
-    // The desk submits live in routes/admin.js.
-    ...adminFormHandlers,
-    // The report form lives in routes/reports.js.
-    ...reportFormHandlers,
-    // The two-factor confirm/disable/login step lives in routes/twofa.js.
-    ...twofaFormHandlers,
     ...passkeyFormHandlers,
   };
-  const handler = handlers[type];
+  // v5.84: the route modules' submits (auth setup, composer create/reply,
+  // post edit, profile, site search, appeals, desk, report, two-factor) are
+  // found through route-modules.js FORM_OWNERS, loading the module if needed.
+  const handler = handlers[type] ?? await lazyHandler("form", type);
   // Forms this layer does not own (the chat lobby's) handle their own submit;
   // painting Saving… for them left it stuck on the status bar (wave 5.6 F3).
   if (!handler) return;
@@ -395,35 +321,17 @@ function handleInternalNavigation(event) {
 }
 
 async function handleButtonAction(button) {
+  // v5.84: the route modules' actions (feed cards, composer, post, profile,
+  // pages, notifications, desk, report dialog, unblock, two-factor) are found
+  // through route-modules.js ACTION_OWNERS below, loading the module if needed.
   const handlers = {
-    // The card reactions, bookmark/subscribe toggles, and suggestion status
-    // live in routes/feed.js.
-    ...feedActions,
-    // The composer attachment/gif/poll actions live in composer.js.
-    ...composerActions,
     // Profile wall actions (v4.0).
     ...wallActions,
-    // The post-detail conversation actions (incl. polls) live in routes/post.js.
-    ...postActions,
-    // The profile surface's actions live in routes/profile.js.
-    ...profileActions,
-    // The content-page actions (archive paging, rules save) live in routes/pages.js.
-    ...pagesActions,
-    // Notification actions live in routes/notifications.js.
-    ...notificationActions,
-    // The desk actions live in routes/admin.js.
-    ...adminActions,
-    // The report dialog lives in routes/reports.js.
-    ...reportActions,
     // The header's sign-out lives in routes/account-nav.js.
     ...accountNavActions,
-    // The blocked-members unblock action lives in routes/blocks.js.
-    ...blockActions,
     // Follows and bookmark folders (v5.39.0).
     ...createFollowActions({ setMessage }),
     ...createFolderActions({ setMessage, prompt: (text, value) => window.prompt(text, value), confirm: (text) => window.confirm(text) }),
-    // Two-factor setup lives in routes/twofa.js.
-    ...twofaActions,
     ...passkeyActions,
     // Signed-in devices (wave 5.14) live in account-security.js.
     ...accountSecurityActions,
@@ -464,7 +372,7 @@ async function handleButtonAction(button) {
       confirmDialog.close();
     },
   };
-  const handler = handlers[button.dataset.action];
+  const handler = handlers[button.dataset.action] ?? await lazyHandler("action", button.dataset.action);
   // Pass the button: handlers written as (button) => {} MUST get it — calling
   // them bare crashes with "reading 'dataset' of undefined" (the live
   // resolve-profile-report/css-desk breakage).
@@ -496,10 +404,14 @@ wireSkipLink(document);
 document.addEventListener("change", (event) => {
   const input = event.target;
   if (!(input instanceof HTMLInputElement)) return;
+  // v5.84: a composer input exists only once routes/composer.js has painted
+  // it, so this import resolves from the module map at once.
   if (input.dataset.composerInput === "images") {
-    handleComposerFileSelection(input);
+    loadRouteModule("composer").then(({ handleComposerFileSelection }) => handleComposerFileSelection(input))
+      .catch((error) => setMessage(error.message, true));
   } else if (input.dataset.composerInput === "gif-marketplace") {
-    uploadCommunityGif(input).catch((error) => setMessage(error.message, true));
+    loadRouteModule("composer").then(({ uploadCommunityGif }) => uploadCommunityGif(input))
+      .catch((error) => setMessage(error.message, true));
   }
 });
 document.addEventListener("submit", async (event) => {

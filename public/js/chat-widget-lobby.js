@@ -28,7 +28,7 @@ import { REPLY_BODY_MAX, withReplyMention } from "./lobby-reply.js";
 import { createQuoteCardButton } from "./quote-card-action.js";
 import { replaceFieldRange } from "./field-edit.js";
 import { createEmojiButton } from "./emoji-picker.js";
-import { attachMentionPicker } from "./mention-picker.js";
+import { attachMentionPicker } from "./mention-lazy.js";
 
 const LOBBY_MESSAGE_MAX = REPLY_BODY_MAX;
 

@@ -1,6 +1,9 @@
 name = "wempos-forum"
 main = "worker.mjs"
 upload_source_maps = true
+# v5.84: minify the bundle; stack traces stay readable through the uploaded
+# source map above.
+minify = true
 compatibility_date = "2026-10-13"
 workers_dev = true
 # The forum's home: wempos-forum.com (Cloudflare custom domain, same account).

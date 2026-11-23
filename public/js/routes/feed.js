@@ -61,7 +61,7 @@ import { createStrongLanguageToggle } from "../strong-language.js";
 import { createContrastPicker } from "../high-contrast.js";
 import { applyTabUnread, createTabUnreadToggle } from "../tab-unread.js";
 import { createQuietHoursControls } from "../quiet-hours.js";
-import { createFunExtrasPanel } from "../fun/settings.js";
+import { loadFunExtras } from "../fun-gate.js";
 import { createAppearanceReset } from "../appearance-reset.js";
 import { createBoardRegulars } from "../board-regulars.js";
 import { createDataExportPanel, downloadMyData } from "../data-export.js";
@@ -158,7 +158,7 @@ function renderHomeContent(session, data, route) {
   if (route.view) older.dataset.view = route.view;
   main.append(older);
 }
-function renderAccountSettings(session) {
+function renderAccountSettings(session, createFunExtrasPanel = null) {
   // v5.56 hub: the settings are their own view (/?settings), no longer a
   // collapsed <details> under the home feed; the panels below are built
   // exactly as before, then moved into four groups (settings-groups.js).
@@ -205,7 +205,8 @@ function renderAccountSettings(session) {
   addText(document, readingComfort, "p", t("readingComfort.contrastHelp"), "muted reading-comfort-help");
   account.append(readingComfort);
   // Fun extras (Batch M): opt-in effects, all off by default, this device only.
-  account.append(createFunExtrasPanel(document, storage, { win: window }));
+  // v5.84: fun/ is imported by the settings route (fun-gate.js), not at boot.
+  if (createFunExtrasPanel) account.append(createFunExtrasPanel(document, storage, { win: window }));
   // Quiet hours (wave 5.25 F2): opt-in, this device only; a change re-checks
   // the tab title at once.
   const quietHours = createPanel(t("quietHours.title"), t("quietHours.help"));
@@ -291,7 +292,11 @@ async function renderSettingsRoute(context, version) {
     main.append(createSettingsSignIn(document, wempoAccountsSignInUrl(location.origin)));
     return;
   }
-  renderAccountSettings(context.session);
+  // v5.84: the fun extras panel's module loads with this view (and installs
+  // the easter eggs); offline, the rest of the settings still render.
+  const fun = await loadFunExtras().catch(() => null);
+  if (version !== state.renderVersion) return;
+  renderAccountSettings(context.session, fun?.createFunExtrasPanel ?? null);
 }
 
 function renderHome(session, setupRequired, setupConfigured, data, route) {

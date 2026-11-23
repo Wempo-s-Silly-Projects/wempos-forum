@@ -42,11 +42,11 @@ import { freezeInPlace } from "../still-gif.js";
 import { addHumanCheckSlot, takeHumanCheckPayload } from "../human-check.js";
 import { COMPOSER_MAX_CHARS } from "../composer-limits.js";
 import { attachDraftAutosave, clearFormDraft, draftKey } from "../drafts.js";
-import { attachMentionPicker } from "../mention-picker.js";
+import { attachMentionPicker } from "../mention-lazy.js";
 import { t, tn } from "../i18n.js";
 import { createComposePreview } from "../compose-preview.js";
 import { attachPasteAndDrop, confirmPendingFiles, dismissPendingFiles } from "../composer-paste.js";
-import { createSketchButton } from "../fun/sketch.js";
+import { funSwitchOn, loadFunExtras } from "../fun-gate.js";
 import { createDraftNotice } from "../draft-notice.js";
 import { attachPollHelpers, duplicatePollSlots, refreshPollHelpers } from "../poll-preview.js";
 import { createCapsGuard } from "../caps-guard.js";
@@ -156,9 +156,18 @@ function createComposerAttachmentRow(withPollButton = false) {
   strip.dataset.composerStrip = "images";
   strip.hidden = true;
   const row = element("div", "composer-attach-row");
-  // Batch M: "Attach a sketch" only when its opt-in switch is on (null otherwise).
-  const sketchButton = createSketchButton(document);
-  row.append(attach, gifButton, ...pollBits, ...(sketchButton ? [sketchButton] : []), description, strip, gifStrip, input);
+  // Batch M: "Attach a sketch" only when its opt-in switch is on. v5.84: fun/
+  // loads only then; a hidden seat holds the button's place until it has.
+  const sketchSlot = funSwitchOn("sketch") ? element("span", "fun-sketch-slot") : null;
+  if (sketchSlot) {
+    sketchSlot.hidden = true;
+    loadFunExtras().then(({ createSketchButton }) => {
+      const sketchButton = createSketchButton(document);
+      if (sketchButton) sketchSlot.replaceWith(sketchButton);
+      else sketchSlot.remove();
+    }, () => sketchSlot.remove());
+  }
+  row.append(attach, gifButton, ...pollBits, ...(sketchSlot ? [sketchSlot] : []), description, strip, gifStrip, input);
   return row;
 }
 
