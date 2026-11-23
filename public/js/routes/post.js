@@ -99,8 +99,14 @@ async function renderPostRoute(route, context, version) {
   const lockedForViewer = post.locked === true && !(viewer?.role === "owner" || viewer?.role === "admin");
   // Thread tags (v5.44): chips for everyone on a root; the picker for the
   // author and staff. A failed tag read leaves the page without chips.
-  const tagEditor = post.parent ? null : await appendThreadTags(rootCard, post, viewer, version);
-  if (version !== state.renderVersion) return;
+  // Perf: the read starts here and never blocks the replies; the chips fill
+  // in when it lands, and the picker joins More once the replies are drawn.
+  const tagsReady = post.parent
+    ? Promise.resolve(null)
+    : appendThreadTags(rootCard, post, viewer, version).catch(() => null);
+  // The same author-or-staff rule appendThreadTags applies (server re-checks).
+  const wantsTagEditor = !post.parent && Boolean(viewer) && (viewer.role === "owner" ||
+    viewer.role === "admin" || Number(post.author?.id) === Number(viewer.id));
   // TL;DR (v5.50): roots only, above the replies; the editor for the author
   // and staff (the server gates it again). It fills in without blocking.
   if (!post.parent) {
@@ -117,12 +123,12 @@ async function renderPostRoute(route, context, version) {
   // (canShare already refuses replies, so a reply page never has a Share.)
   // v5.58: one visible Copy link (Share's, when its menu has one) and no
   // Open post link pointing at this very page.
-  if (!post.parent) {
-    organizeThreadActions(document, rootCard, {
-      postId: post.id, share, tagEditor, staffForms,
-      currentPath: location.pathname, shareHasCopyLink: Boolean(share) && shareMenuOffersCopyLink(),
-    });
-  }
+  const organizeActions = (tagEditor) => organizeThreadActions(document, rootCard, {
+    postId: post.id, share, tagEditor, staffForms,
+    currentPath: location.pathname, shareHasCopyLink: Boolean(share) && shareMenuOffersCopyLink(),
+  });
+  // A viewer who cannot edit tags never gets a picker: organize now.
+  if (!post.parent && !wantsTagEditor) organizeActions(null);
   // Thread at a glance (wave 2026-11-21): from the posts already loaded.
   if (post.replies.length) {
     main.append(createThreadGlance(document, summarizeThread(post, post.replies), main));
@@ -195,6 +201,11 @@ async function renderPostRoute(route, context, version) {
   bindReplyHashChange(window, () => main);
   // Reading progress bar (wave 5.26 F2): stopped by renderRoute on leave.
   startReadingProgress(document, window, main);
+  // The tags read finishes here, after the replies are on screen; the author
+  // and staff get the picker in More once it lands.
+  const tagEditor = await tagsReady;
+  if (version !== state.renderVersion) return;
+  if (wantsTagEditor) organizeActions(tagEditor);
 }
 // Author edit save (v2.4): JSON {body} to PATCH /api/posts/:id (api.js adds the
 // CSRF header). The server reapplies the word filter and 1,000-char cap, stores

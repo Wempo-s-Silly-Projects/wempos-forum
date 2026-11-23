@@ -108,11 +108,21 @@ async function blockViewer(request, env) {
   return session && session.user ? { id: session.user.id, role: "member" } : null;
 }
 
-async function threadHead(env, viewer, id, origin, site) {
+// Perf: the viewer and the row are read together, then the reply count is
+// read alongside canViewPost. The count is used only after canViewPost says
+// yes, so a hidden, banned or blocked thread's count never leaves here.
+async function threadHead(request, env, id, origin, site) {
   if (!Number.isSafeInteger(id) || id < 1) return null;
-  const row = await env.FORUM_DB.prepare(POST_ROW_SQL).bind(id).first();
-  if (!row || !(await canViewPost(env, row, viewer))) return null;
-  const counted = await replyCountStatement(env.FORUM_DB, viewer, id).first();
+  const [viewer, row] = await Promise.all([
+    blockViewer(request, env),
+    env.FORUM_DB.prepare(POST_ROW_SQL).bind(id).first(),
+  ]);
+  if (!row) return null;
+  const [visible, counted] = await Promise.all([
+    canViewPost(env, row, viewer),
+    replyCountStatement(env.FORUM_DB, viewer, id).first(),
+  ]);
+  if (!visible) return null;
   const url = origin + "/posts/" + row.id;
   const headline = titleOf(row);
   const description = flatExcerpt(row.body);
@@ -152,10 +162,9 @@ async function recordHead(request, env, route, origin, site) {
   if (route.name !== "post" && route.name !== "profile") return undefined;
   if (!env.FORUM_DB) return null;
   try {
-    const viewer = await blockViewer(request, env);
     return route.name === "post"
-      ? await threadHead(env, viewer, route.id, origin, site)
-      : await profileHead(env, viewer, route.username, origin, site);
+      ? await threadHead(request, env, route.id, origin, site)
+      : await profileHead(env, await blockViewer(request, env), route.username, origin, site);
   } catch (error) {
     console.error("Page head lookup failed; serving the generic head:", error);
     return null;
@@ -249,8 +258,11 @@ const SHELL_DESCRIPTION = /<meta name="description" content="([^"]*)">/i;
 
 // withPageHead(html, request, env, url, storedBranding) -> the shell with its
 // static title + description swapped for this page's head (before </head>).
-export async function withPageHead(html, request, env, url, storedBranding) {
+// storedBranding may be a promise of it.
+export async function withPageHead(html, request, env, url, brandingOrPromise) {
   if (!html.includes("</head>")) return html;
+  // The caller may hand over the branding read still in flight (perf).
+  const storedBranding = await brandingOrPromise;
   const name = storedBranding.name || BRANDING_DEFAULTS.name;
   const tagline = storedBranding.tagline || BRANDING_DEFAULTS.tagline;
   const shellDescription = html.match(SHELL_DESCRIPTION);

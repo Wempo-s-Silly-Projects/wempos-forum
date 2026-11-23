@@ -180,10 +180,18 @@ function shellMetas(env, branding, humanCheck, fools = "", offModules = []) {
 async function stampedAssetResponse(assetResponse, env, request, url) {
   const type = assetResponse.headers.get("Content-Type") || "";
   if (!type.includes("text/html")) return assetResponse;
-  const branding = await readStoredBranding(env);
-  const offModules = await offClientModuleIds(env, request);
-  const stamp = shellMetas(env, branding, await humanCheckMeta(request, env), await saturdayFoolsMeta(env), offModules);
-  const html = await withPageHead(await assetResponse.text(), request, env, url, branding);
+  // The shell's reads are independent of one another: issued together, the
+  // document pays the slowest one instead of their sum (perf, thread TTFB).
+  // The page head starts with them; it only needs the branding to format.
+  const brandingRead = readStoredBranding(env);
+  const [branding, offModules, humanCheck, fools, html] = await Promise.all([
+    brandingRead,
+    offClientModuleIds(env, request),
+    humanCheckMeta(request, env),
+    saturdayFoolsMeta(env),
+    assetResponse.text().then((shell) => withPageHead(shell, request, env, url, brandingRead)),
+  ]);
+  const stamp = shellMetas(env, branding, humanCheck, fools, offModules);
   // The served bytes change length, so the original Content-Length must go —
   // a stale length would truncate the stamped document. HTML also revalidates
   // by ETag, which only tracks the asset bytes: a deploy that bumps VERSION

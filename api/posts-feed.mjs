@@ -513,7 +513,53 @@ export async function attachSubReplyCounts(env, replies, { showAll, viewerId, vi
   });
 }
 
-export async function handlePostDetailRoute(request, env, url, path, method) {
+// View counter (v2.4.3, raw impressions): every non-author detail read is one
+// view. Best-effort and detached: handed to ctx.waitUntil when the worker gave
+// one; a failure is logged, never thrown into the read.
+function scheduleViewIncrement(env, ctx, postId) {
+  const task = Promise.resolve()
+    .then(() => env.FORUM_DB.prepare(VIEW_INCREMENT_SQL).bind(postId).first())
+    .catch((error) => console.error("Post view count increment failed (the read itself succeeded):", error));
+  try {
+    ctx?.waitUntil?.(task);
+  } catch (error) {
+    console.error("Post view count increment could not be scheduled:", error);
+  }
+}
+
+// The detail's direct replies with their sub-reply counts. The detail post's
+// id folds into the replies page's single attachments lookup, so the whole
+// detail read pays one attachments query; the counts use the same batched
+// pattern as the replies page (attachSubReplyCounts).
+async function repliesWithCounts(env, row, viewer, showAll, detailDepth) {
+  const viewerId = viewer ? viewer.id : null;
+  const replyPage = await listReplies(env, Number(row.id), viewer, showAll, null,
+    detailDepth + 1, [Number(row.id)]);
+  const replies = await attachSubReplyCounts(env, replyPage.replies, { showAll, viewerId, viewer });
+  return { ...replyPage, replies };
+}
+
+// The viewer's per-thread flags, read concurrently. Thread subscriptions (C1):
+// root-only dimension, replies read false without a query. Bookmarks (C4):
+// members only (guests carry no field). Thread mutes (v5.46.0): a member's
+// own state on a ROOT, one PK probe. Polls (C3): the poll rides the ROOT's
+// detail read; results are always visible, the viewer's own option for members.
+async function viewerFlags(env, row, viewer) {
+  const viewerId = viewer ? viewer.id : null;
+  const postId = Number(row.id);
+  const isRoot = !row.parent_id;
+  const canManagePoll = Boolean(viewer) && (viewer.id === Number(row.author_id) ||
+    viewer.role === "owner" || viewer.role === "admin");
+  const [subscribed, viewerBookmarked, viewerMuted, poll] = await Promise.all([
+    subscriberFlagForViewer(env.FORUM_DB, viewerId, row),
+    viewerId !== null ? bookmarkFlagForViewer(env.FORUM_DB, viewerId, postId) : undefined,
+    viewerId !== null && isRoot ? threadMuteFlagForViewer(env.FORUM_DB, viewerId, postId) : undefined,
+    isRoot ? pollPayload(env.FORUM_DB, postId, viewerId, canManagePoll) : null,
+  ]);
+  return { subscribed, viewerBookmarked, viewerMuted, poll };
+}
+
+export async function handlePostDetailRoute(request, env, url, path, method, ctx) {
   const postMatch = path.match(/^\/api\/posts\/([0-9]+)$/);
   if (postMatch && method === "GET") {
     const postId = Number(postMatch[1]);
@@ -527,54 +573,30 @@ export async function handlePostDetailRoute(request, env, url, path, method) {
     // View counter (v2.4.3, raw impressions): every non-author detail read is
     // one view. RETURNING keeps the payload's count fresh; a failed/0-change
     // increment (post deleted mid-request) just keeps the stale read value.
+    // Perf: the UPDATE runs on waitUntil, off the response path; the payload
+    // counts this view itself (what RETURNING used to hand back).
     const isOwnView = viewer && viewer.id === Number(row.author_id);
     if (!isOwnView) {
-      try {
-        const counted = await env.FORUM_DB.prepare(VIEW_INCREMENT_SQL).bind(postId).first();
-        const fresh = counted && counted.view_count !== undefined ? Number(counted.view_count) : null;
-        if (fresh !== null) row.view_count = fresh;
-      } catch {
-        // Counting is best-effort; a failed increment never fails the read.
-      }
+      scheduleViewIncrement(env, ctx, postId);
+      row.view_count = Number(row.view_count || 0) + 1;
     }
     // Depth annotation: this post is a root when parent_id is null, else a
     // level-1 reply; its direct replies are one level deeper.
     const detailDepth = row.parent_id ? 1 : 0;
     const post = publicPost(row, detailDepth);
-    // The detail post's id folds into the replies page's single attachments
-    // lookup, so the whole detail read pays one attachments query.
-    const replyPage = await listReplies(env, postId, viewer, showAll, null,
-      detailDepth + 1, [Number(row.id)]);
-    // Same batched count pattern as the replies page (attachSubReplyCounts).
-    post.replies = await attachSubReplyCounts(env, replyPage.replies, {
-      showAll,
-      viewerId,
-      viewer,
-    });
+    // Perf: the replies page and the viewer flags are independent reads, so
+    // they are issued together; the payload keys keep their order below.
+    const [replyPage, flags] = await Promise.all([
+      repliesWithCounts(env, row, viewer, showAll, detailDepth),
+      viewerFlags(env, row, viewer),
+    ]);
+    post.replies = replyPage.replies;
     post.repliesNextBefore = replyPage.nextBefore;
     post.attachments = replyPage.attachments.get(Number(row.id)) || [];
-    // Thread subscriptions (C1): the detail carries the viewer's subscribed
-    // state (root-only dimension — replies read false without a query, like
-    // boards read 'general' on pre-migration rows).
-    post.subscribed = await subscriberFlagForViewer(env.FORUM_DB, viewerId, row);
-    // Bookmarks (C4): the detail carries the viewer's saved state too (guests
-    // read no such query — the field is simply absent for them).
-    if (viewerId !== null) {
-      post.viewerBookmarked = await bookmarkFlagForViewer(env.FORUM_DB, viewerId, postId);
-    }
-    // Thread mutes (v5.46.0): a member's own mute state on a ROOT, one PK
-    // probe (guests and reply details carry no field).
-    if (viewerId !== null && !row.parent_id) {
-      post.viewerMuted = await threadMuteFlagForViewer(env.FORUM_DB, viewerId, postId);
-    }
-    // Polls (C3): the poll rides the ROOT's detail read (replies carry none).
-    // Results are always visible; the viewer's own option rides for members.
-    if (!row.parent_id) {
-      const canManagePoll = Boolean(viewer) && (viewer.id === Number(row.author_id) ||
-        viewer.role === "owner" || viewer.role === "admin");
-      const poll = await pollPayload(env.FORUM_DB, postId, viewerId, canManagePoll);
-      if (poll) post.poll = poll;
-    }
+    post.subscribed = flags.subscribed;
+    if (flags.viewerBookmarked !== undefined) post.viewerBookmarked = flags.viewerBookmarked;
+    if (flags.viewerMuted !== undefined) post.viewerMuted = flags.viewerMuted;
+    if (flags.poll) post.poll = flags.poll;
     return json(post);
   }
   return null;
