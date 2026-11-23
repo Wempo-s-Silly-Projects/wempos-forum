@@ -59,7 +59,7 @@ Self-hosters get fixes by updating to the latest release (see
 
 ## Verifying a release
 
-Every release since v4.5.0 is a GPG-signed Git tag `vX.Y.Z`, with a matching
+Every release since v4.5.0 is a GPG-signed Git tag `vMAJOR.MINOR.PATCH`, with a matching
 [GitHub Release](https://github.com/Wempo-s-Silly-Projects/wempos-forum/releases).
 The signing key is the maintainer's Ed25519 key, with fingerprint
 `1A72 F3E3 5BD7 E5D0 14B7  B855 5A74 55E7 1384 675E`. The public key is
