@@ -531,3 +531,35 @@ test("client: only content=altcha renders the widget; anubis and unknown mean no
     globalThis.document = original;
   }
 });
+
+// Speed fix (perf seat): a page navigation holding a VALID pass skips the
+// Anubis server round-trip (the tunnel to it is slow or asleep), exactly as
+// the API gate does; a forged, expired, wrong-IP or deny cookie still asks.
+test("page gate: a valid pass cookie makes zero Anubis calls; forged/expired/other-IP/deny still check", async () => {
+  await withFetch(() => new Response("", { status: 200 }), async (calls) => {
+    const env = anubisEnv();
+    const res = await worker.fetch(page("/posts/1", { Cookie: `${COOKIE_NAME}=${await validToken()}` }), env, {});
+    assert.equal(res.status, 200);
+    assert.equal(calls.length, 0, "a verified pass needs no Anubis round-trip");
+    const forged = await signToken(await passClaims(), { privateKey: otherPair.privateKey });
+    const refused = [
+      page("/", { Cookie: `${COOKIE_NAME}=${forged}` }),
+      page("/", { Cookie: `${COOKIE_NAME}=${await validToken({ exp: now() - 10 })}` }),
+      page("/", { Cookie: `${COOKIE_NAME}=${await validToken({ action: "DENY" })}` }),
+      page("/", { Cookie: `${COOKIE_NAME}=${await validToken()}`, "CF-Connecting-IP": "198.51.100.9" }),
+      page("/"),
+    ];
+    for (const request of refused) await worker.fetch(request, env, {});
+    assert.equal(calls.length, refused.length, "every request without a verified pass is checked");
+  });
+});
+
+test("page gate: a forged pass cookie is still challenged (Anubis's redirect stands)", async () => {
+  const forged = await signToken(await passClaims(), { privateKey: otherPair.privateKey });
+  const challenge = () => new Response(null, { status: 307, headers: { Location: "https://wempos-forum.com/.within.website/?redir=%2F" } });
+  await withFetch(challenge, async () => {
+    const res = await worker.fetch(page("/", { Cookie: `${COOKIE_NAME}=${forged}` }), anubisEnv(), {});
+    assert.equal(res.status, 307);
+    assert.match(res.headers.get("Location"), /\/\.within\.website\//);
+  });
+});

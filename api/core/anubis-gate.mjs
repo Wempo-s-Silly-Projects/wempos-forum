@@ -232,6 +232,10 @@ export async function anubisGate(request, env) {
   const config = anubisConfig(env);
   if (!config) return null;
   if (isTrustedCrawler(request)) return null;
+  // A verified pass (signature, expiry, action and client-IP binding checked
+  // against ANUBIS_PUBLIC_KEY_HEX, the same helper the API gate uses) skips
+  // the round-trip to the Anubis server; anything less still asks it.
+  if (await hasAnubisPass(request, env)) return null;
   const upstream = await askAnubis(request, config);
   return upstream ? judge(upstream, request, env) : null;
 }
