@@ -30,14 +30,30 @@
 // never used raw. Neither set = no human check at all (self-hosting; the
 // rate limits still apply) — the same on/off contract Turnstile had.
 import { createChallenge, verifySolution } from "altcha-lib/v1";
-import { ALTCHA_MAX_NUMBER, ALTCHA_PAYLOAD_MAX_LENGTH, ALTCHA_TTL_SECONDS } from "../../constants.mjs";
+import {
+  ALTCHA_MAX_NUMBER, ALTCHA_PAYLOAD_MAX_LENGTH, ALTCHA_TTL_SECONDS, DEFAULT_HUMAN_CHECK_MODE, HUMAN_CHECK_MODES,
+} from "../../constants.mjs";
 import { nowSeconds, sha256Hex } from "./crypto.mjs";
 import { HttpError } from "./http.mjs";
 
 const DERIVE_LABEL = "wempos-forum altcha hmac v1";
+const KNOWN_MODES = new Set(Object.values(HUMAN_CHECK_MODES));
 
+// The ONE mode resolver (owner order, Nov 22): env HUMAN_CHECK, trimmed and
+// case-folded; unset, empty or unrecognised falls back to the default
+// (anubis). Every human-check decision (the per-form check, the challenge
+// endpoint, the shell's human-check meta, the Anubis gate) reads this.
+export function humanCheckMode(env) {
+  const raw = env && typeof env.HUMAN_CHECK === "string" ? env.HUMAN_CHECK.trim().toLowerCase() : "";
+  return KNOWN_MODES.has(raw) ? raw : DEFAULT_HUMAN_CHECK_MODE;
+}
+
+const altchaMode = (env) => humanCheckMode(env) === HUMAN_CHECK_MODES.ALTCHA;
+
+// True when the per-form ALTCHA check is live: altcha mode AND key material.
+// The shell announces it to the client (<meta name="human-check">) only then.
 export function humanCheckConfigured(env) {
-  return Boolean(nonEmpty(env.ALTCHA_HMAC_KEY) || nonEmpty(env.TURNSTILE_SECRET));
+  return altchaMode(env) && Boolean(nonEmpty(env.ALTCHA_HMAC_KEY) || nonEmpty(env.TURNSTILE_SECRET));
 }
 
 function nonEmpty(value) {
@@ -58,8 +74,10 @@ export async function humanCheckKey(env) {
   return [...new Uint8Array(bits)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-// A fresh signed challenge, or null when the instance runs without a check.
+// A fresh signed challenge, or null when the instance runs without the
+// per-form check (another mode, or no key).
 export async function createHumanChallenge(env) {
+  if (!altchaMode(env)) return null;
   const hmacKey = await humanCheckKey(env);
   if (!hmacKey) return null;
   const challenge = await createChallenge({
@@ -92,7 +110,10 @@ function payloadExpiry(payload) {
   return match ? Number(match[1]) : nowSeconds() + ALTCHA_TTL_SECONDS;
 }
 
+// anubis mode skips it (the gate vets the browser before any page loads);
+// off mode asks for nothing; altcha mode is Batch F unchanged.
 export async function requireHumanCheck(request, env, body) {
+  if (!altchaMode(env)) return;
   const hmacKey = await humanCheckKey(env);
   if (!hmacKey) return;
   const raw = body && typeof body.altcha === "string" ? body.altcha : "";

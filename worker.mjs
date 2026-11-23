@@ -23,7 +23,7 @@
 // validates every Worker export as a function or ExportedHandler, so besides
 // the default fetch only `export { ... } from` re-exports appear here.
 import { HttpError, json, secureResponse, unconditional } from "./api/core/http.mjs";
-import { STATIC_HTML_PAGES } from "./constants.mjs";
+import { HUMAN_CHECK_MODES, STATIC_HTML_PAGES } from "./constants.mjs";
 // Phase-2 Kitskey migration: the ONE error classifier and the dispatch chain
 // come from the vendored framework (core re-exports both; the byte-pin keeps
 // them identical). worker.mjs stops carrying its second copy of the mapping.
@@ -42,7 +42,8 @@ import { handleThreadSummaryRoutes } from "./api/thread-summaries.mjs";
 import { handleThreadLockRoutes } from "./api/thread-locks.mjs";
 import { handleAltchaRoutes } from "./api/altcha.mjs";
 import { handlePasskeyRoutes } from "./api/passkeys.mjs";
-import { humanCheckConfigured } from "./api/core/human-check.mjs";
+import { humanCheckConfigured, humanCheckMode } from "./api/core/human-check.mjs";
+import { anubisGate } from "./api/core/anubis-gate.mjs";
 import { handlePollRoutes } from "./api/polls.mjs";
 import { handleBookmarkRoutes } from "./api/bookmarks.mjs";
 import { handleArchiveRoutes } from "./api/archive.mjs";
@@ -275,6 +276,12 @@ export default {
       if (discovery) return discovery;
     } catch (error) {
       return errorReply(error, "Discovery request failed:");
+    }
+    // HUMAN_CHECK=anubis (the default): HTML document navigations pass the
+    // Anubis seam first; it answers null (serve the page) or its own response.
+    if (humanCheckMode(env) === HUMAN_CHECK_MODES.ANUBIS) {
+      const gated = await anubisGate(request, env);
+      if (gated) return gated;
     }
     if (!env.ASSETS) return json({ error: "Static assets are not configured." }, 503);
     try {

@@ -92,19 +92,29 @@ with `pnpm run dev` (copy it to `.dev.vars`, which is never committed).
 
 ## 6. Human check (optional)
 
-A small proof-of-work check (ALTCHA, self-hosted: no third-party script,
-frame or cookie) makes signing up, signing in and posting cost a browser a
-second or two of hashing, which slows scripts down. It is off unless you
-turn it on; rate limits are always on.
+The `HUMAN_CHECK` setting picks how the forum tells people from scripts. Set
+it in `wrangler.toml` under `[vars]` (it is not a secret). Rate limits are
+always on, whatever you pick.
 
-To turn it on, store a long random key as a secret:
+| `HUMAN_CHECK` | What it does |
+|---|---|
+| `anubis` (default) | [Anubis](https://github.com/TecharoHQ/anubis) checks browsers before pages load. It runs as its own container next to the forum; support for that container is coming. Until it is set up, pages load normally and no other check is asked for. |
+| `altcha` | A lightweight check you host yourself: signing up, signing in and posting cost a browser a second or two of hashing (ALTCHA; no third-party script, frame or cookie). |
+| `off` | No human check. |
+
+For `altcha`, set the mode and store a long random key as a secret:
+
+```toml
+[vars]
+HUMAN_CHECK = "altcha"
+```
 
 ```sh
 openssl rand -hex 32 | pnpm exec wrangler secret put ALTCHA_HMAC_KEY
 ```
 
-With no `ALTCHA_HMAC_KEY` (and no legacy `TURNSTILE_SECRET`, from which a key
-is derived if present), the forum asks for no check.
+With no `ALTCHA_HMAC_KEY`, `altcha` mode asks for no check. A legacy
+`TURNSTILE_SECRET`, if still stored, derives the key instead.
 
 ## 7. Deploy the forum
 
