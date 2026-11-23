@@ -11,9 +11,8 @@ body:
     attributes:
       label: Area
       options:
-        - Project Experience (API)
-        - Project Frontload (The frontend/actual site(
-        - UI / UX
+        - Project Experience (Anything outside of public/ that is not repo docs or repo config)
+        - Project Frontload (The frontend/actual site)
         - Other
     validations:
       required: true
