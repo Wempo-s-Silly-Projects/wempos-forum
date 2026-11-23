@@ -34,6 +34,7 @@
 // There is no counting API — the only route here is the staff-only read.
 import { requireStaff } from "./core/auth.mjs";
 import { HttpError, json } from "./core/http.mjs";
+import { isModuleOn } from "./core/modules.mjs";
 import { configuredOrigin } from "./core/site.mjs";
 import { routeForPath } from "../public/js/router.js";
 
@@ -129,7 +130,11 @@ export function scheduleCount(ctx, request, env, url, response) {
     if (!ctx || typeof ctx.waitUntil !== "function") return;
     const plan = pageViewPlan(request, env, url, response);
     if (!plan) return;
-    ctx.waitUntil(recordPageView(env, plan).catch((error) => {
+    // Modules: ANALYTICS_ENABLED is the env hard switch; the owner can also
+    // turn the "analytics" module off from the desk.
+    const counted = isModuleOn(env, "analytics", request)
+      .then((on) => (on ? recordPageView(env, plan) : null));
+    ctx.waitUntil(counted.catch((error) => {
       console.error("Analytics count failed (page unaffected):", error);
     }));
   } catch (error) {

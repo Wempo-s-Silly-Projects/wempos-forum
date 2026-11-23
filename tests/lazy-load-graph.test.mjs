@@ -82,7 +82,7 @@ test("every lazy-only module is still reachable through a dynamic import()", () 
     assert.ok(lazyTargets.has(path), path + " has a dynamic import() edge");
   }
   const reachable = new Set(all.modules.map((m) => m.path));
-  for (const path of ["/js/desk/reports.js", "/js/embeds/model.js", "/js/embeds/waveform.js", "/js/profile-editor.js",
+  for (const path of ["/js/desk/reports.js", "/js/desk/modules.js", "/js/embeds/model.js", "/js/embeds/waveform.js", "/js/profile-editor.js",
     "/js/vendor/fuzzysort.min.js", "/js/fun/sketch.js"]) {
     assert.ok(reachable.has(path), path + " loads with its feature");
   }

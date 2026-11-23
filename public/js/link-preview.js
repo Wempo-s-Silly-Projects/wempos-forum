@@ -26,6 +26,7 @@
 // image. A refused or failed preview says so quietly.
 import { api } from "./api.js";
 import { t } from "./i18n.js";
+import { siteModuleOn } from "./site-modules.js";
 
 const PREVIEW_PATH = "/api/link-preview?url=";
 const LINK_REL = "noopener noreferrer nofollow ugc"; // i18n-ignore
@@ -85,8 +86,10 @@ function previewButton(document, href, request) {
 }
 
 // Adds a button after each standalone-link paragraph directly inside
-// `article`; returns how many it added. Nothing is fetched here.
+// `article`; returns how many it added. Nothing is fetched here. None while
+// the owner has the "link-previews" module off (docs/modules.md).
 export function addPreviewButtons(document, article, { request = api, currentHost } = {}) {
+  if (!siteModuleOn("link-previews")) return 0;
   let count = 0;
   for (const paragraph of Array.from(article?.children ?? [])) {
     if (paragraph.tagName !== "P") continue;

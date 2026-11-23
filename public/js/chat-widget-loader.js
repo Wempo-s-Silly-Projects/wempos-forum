@@ -25,6 +25,7 @@
 // earlier when something opens a conversation (the profile "Chat" button).
 // Once imported, chat-widget.js boots exactly as before: its single probe,
 // the badge, the 30s unread poll and the bus events are unchanged.
+import { siteModuleOn } from "./site-modules.js";
 
 // The longest the widget waits for an idle moment.
 export const CHAT_WIDGET_IDLE_TIMEOUT_MS = 2000;
@@ -43,8 +44,10 @@ export function loadChatWidget(importWidget = () => import("./chat-widget.js")) 
   return loading;
 }
 
-// requestIdleCallback when the browser has it, else a short timeout.
+// requestIdleCallback when the browser has it, else a short timeout. Nothing
+// is scheduled while the owner has the "chat" module off (docs/modules.md).
 export function scheduleChatWidget(win = globalThis, load = () => loadChatWidget()) {
+  if (!siteModuleOn("chat", win.document)) return;
   const run = () => { load().catch(() => null); };
   if (typeof win.requestIdleCallback === "function") {
     win.requestIdleCallback(run, { timeout: CHAT_WIDGET_IDLE_TIMEOUT_MS });
