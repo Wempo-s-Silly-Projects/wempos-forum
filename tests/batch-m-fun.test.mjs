@@ -19,7 +19,7 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Batch M: Fun extras. Pins the vendored libraries byte for byte and their
-// REUSE licensing, the one settings panel (every toggle OFF by default), and
+// REUSE licensing, the one settings panel (every toggle ON by default), and
 // for each effect: nothing loads while its toggle is off, reduced motion
 // keeps everything still, nothing reaches the network (or the camera) before
 // an explicit action, and every library comes only from /js/vendor/.
@@ -228,7 +228,7 @@ test("the vendor loader adds one same-origin classic script per library, once, a
 
 // ---------------------------------------------------------------- settings
 
-test("every fun extra is OFF by default, and blocked or broken storage reads as all off", () => {
+test("every fun extra is ON by default, and blocked or broken storage reads as all on", () => {
   assert.deepEqual(settings.FUN_KEYS, ["confetti", "motion", "heroType", "sounds", "easterEggs", "sketch"]);
   for (const storage of [memoryStorage(), blockedStorage, null, memoryStorage({ [settings.FUN_STORAGE_KEY]: "{oops" }),
     memoryStorage({ [settings.FUN_STORAGE_KEY]: "[true]" })]) {
@@ -255,7 +255,7 @@ test("the Fun extras panel: one unchecked switch per extra, saved on change, red
   assert.match(panel.className, /\bpanel\b/);
   const boxes = panel.querySelectorAll("input.fun-extras-switch");
   assert.equal(boxes.length, settings.FUN_KEYS.length);
-  for (const box of boxes) assert.equal(box.checked, false, box.dataset.funKey + " starts off");
+  for (const box of boxes) assert.equal(box.checked, false, box.dataset.funKey + " starts on");
   assert.deepEqual(storage.dump(), {}, "rendering stores nothing");
   boxes[0].checked = true;
   boxes[0].dispatch("change", {});
@@ -455,7 +455,7 @@ test("hero: TypeIt types the home headline then Splitting splits it; reduced mot
 
 // ---------------------------------------------------------------- sounds
 
-test("sounds: off by default; on, a rise in unread plays one synthesised chime; quiet hours and repeats stay silent", async () => {
+test("sounds: on by default; on, a rise in unread plays one synthesised chime; quiet hours and repeats stay silent", async () => {
   const played = [];
   const zzfxModule = { zzfx: (...parameters) => played.push(parameters) };
   const importModule = async (src) => { assert.equal(src, loader.ZZFX_MODULE); return zzfxModule; };
