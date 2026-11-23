@@ -15,10 +15,20 @@ SETUP_SECRET=
 # Wempo Accounts worker; it authenticates the calls between the two workers.
 RELAY_TOKEN=
 
-# Optional: Cloudflare Turnstile. When set, sign-up, sign-in, posts and
-# replies require the Turnstile check (also set TURNSTILE_SITEKEY and
-# TURNSTILE_HOSTNAMES in wrangler.toml). Unset = no Turnstile.
-TURNSTILE_SECRET=
+# Optional: which human/bot check runs. Not a secret (it can also go in
+# wrangler.toml [vars]). One of:
+#   anubis  (default when unset) the Anubis gate in front of pages. It needs
+#           the Anubis container, which is coming; until it is set up, pages
+#           pass through and no per-form check is asked for.
+#   altcha  the lightweight self-hosted proof-of-work check on sign-up,
+#           sign-in, posts and replies (needs ALTCHA_HMAC_KEY below).
+#   off     no human check at all (rate limits still apply).
+HUMAN_CHECK=
+
+# Optional, used when HUMAN_CHECK=altcha: a long random key that signs the
+# ALTCHA challenges (e.g. `openssl rand -hex 32`). Unset = no ALTCHA check.
+# A legacy TURNSTILE_SECRET, if still stored, also derives this key.
+ALTCHA_HMAC_KEY=
 
 # Optional: extra filtered words, comma-separated (the admin page can also
 # manage this list in the database).
