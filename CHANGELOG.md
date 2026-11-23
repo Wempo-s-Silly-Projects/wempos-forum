@@ -10,6 +10,23 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.84.0] - 2026-11-22
+
+### Added
+
+- Anubis support: the Worker can now gate page loads and anonymous API reads
+  through the unmodified Anubis program (forward-auth mode, behind a
+  Cloudflare Tunnel and Access). Sign-up, sign-in, posts and replies need
+  an Anubis pass or a solved ALTCHA check. If Anubis cannot be reached, the
+  site falls back to ALTCHA. This deployment still runs ALTCHA until the
+  live test passes.
+- Self-hosting guide: how to run Anubis (`docs/self-hosting.md`).
+
+### Security
+
+- The Anubis proxy refuses foreign redirects, forwards only Anubis's own
+  cookies, caps request bodies and serves its pages with a strict CSP.
+
 ## [5.83.0] - 2026-11-22
 
 ### Added
