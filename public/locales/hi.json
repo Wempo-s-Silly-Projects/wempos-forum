@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "मेरी तस्वीर से रंगत",
   "profile2.headerDots": "बिंदु",
   "profile2.headerStripes": "धारियाँ",
-  "profile2.headerGrid": "ग्रिड"
+  "profile2.headerGrid": "ग्रिड",
+  "safety.hideStrongLanguage": "कठोर भाषा छिपाएँ (क्लिक करने तक धुंधली)",
+  "safety.hiddenWord": "छिपा हुआ शब्द — दिखाने के लिए दबाएँ",
+  "safety.linkWarningTitle": "यह लिंक शायद वहाँ न जाए जहाँ यह दिखता है",
+  "safety.linkWarningBody": "पते में एक जैसे दिखने वाले अक्षर मिले हैं, इसलिए यह किसी दूसरी साइट की नकल कर सकता है। असली पता है:",
+  "safety.linkWarningDomain": "पंजीकृत डोमेन: {domain}",
+  "safety.linkWarningBack": "वापस जाएँ",
+  "safety.linkWarningContinue": "फिर भी जारी रखें",
+  "safety.previewShow": "लिंक का पूर्वावलोकन दिखाएँ",
+  "safety.previewUnavailable": "इस लिंक का कोई पूर्वावलोकन नहीं है।",
+  "safety.previewLabel": "लिंक पूर्वावलोकन"
 }

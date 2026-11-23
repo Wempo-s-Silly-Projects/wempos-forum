@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Odcień z mojego obrazu",
   "profile2.headerDots": "Kropki",
   "profile2.headerStripes": "Paski",
-  "profile2.headerGrid": "Siatka"
+  "profile2.headerGrid": "Siatka",
+  "safety.hideStrongLanguage": "Ukryj wulgaryzmy (rozmyte, dopóki nie klikniesz)",
+  "safety.hiddenWord": "Ukryte słowo — naciśnij, aby pokazać",
+  "safety.linkWarningTitle": "Ten link może nie prowadzić tam, gdzie się wydaje",
+  "safety.linkWarningBody": "Adres miesza podobnie wyglądające litery, więc może podszywać się pod inną stronę. Prawdziwy adres to:",
+  "safety.linkWarningDomain": "Zarejestrowana domena: {domain}",
+  "safety.linkWarningBack": "Wróć",
+  "safety.linkWarningContinue": "Mimo to kontynuuj",
+  "safety.previewShow": "Pokaż podgląd linku",
+  "safety.previewUnavailable": "Brak podglądu dla tego linku.",
+  "safety.previewLabel": "Podgląd linku"
 }

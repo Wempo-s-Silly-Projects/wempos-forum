@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "ကျွန်ုပ်ပုံမှ အရောင်",
   "profile2.headerDots": "အစက်များ",
   "profile2.headerStripes": "အစင်းများ",
-  "profile2.headerGrid": "ဇယားကွက်"
+  "profile2.headerGrid": "ဇယားကွက်",
+  "safety.hideStrongLanguage": "ကြမ်းတမ်းသော စကားလုံးများကို ဖုံးထားရန် (နှိပ်သည်အထိ ဝါးထားသည်)",
+  "safety.hiddenWord": "ဖုံးထားသော စကားလုံး — ပြရန် နှိပ်ပါ",
+  "safety.linkWarningTitle": "ဤလင့်ခ်သည် မြင်ရသည့်နေရာသို့ မသွားနိုင်ပါ",
+  "safety.linkWarningBody": "လိပ်စာတွင် ဆင်တူသော စာလုံးများ ရောနှောထားသဖြင့် အခြားဆိုက်တစ်ခုကို အယောင်ဆောင်နိုင်သည်။ အမှန်တကယ် လိပ်စာ:",
+  "safety.linkWarningDomain": "မှတ်ပုံတင်ထားသော ဒိုမိန်း: {domain}",
+  "safety.linkWarningBack": "နောက်သို့",
+  "safety.linkWarningContinue": "ဆက်လုပ်မည်",
+  "safety.previewShow": "လင့်ခ် အစမ်းကြည့်ရှုမှု ပြရန်",
+  "safety.previewUnavailable": "ဤလင့်ခ်အတွက် အစမ်းကြည့်ရှုမှု မရှိပါ။",
+  "safety.previewLabel": "လင့်ခ် အစမ်းကြည့်ရှုမှု"
 }

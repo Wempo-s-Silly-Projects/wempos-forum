@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Nyans från min bild",
   "profile2.headerDots": "Prickar",
   "profile2.headerStripes": "Ränder",
-  "profile2.headerGrid": "Rutnät"
+  "profile2.headerGrid": "Rutnät",
+  "safety.hideStrongLanguage": "Dölj grovt språk (suddigt tills du klickar)",
+  "safety.hiddenWord": "Dolt ord — tryck för att visa",
+  "safety.linkWarningTitle": "Den här länken kanske inte leder dit den verkar",
+  "safety.linkWarningBody": "Adressen blandar bokstäver som liknar varandra, så den kan härma en annan webbplats. Den riktiga adressen är:",
+  "safety.linkWarningDomain": "Registrerad domän: {domain}",
+  "safety.linkWarningBack": "Gå tillbaka",
+  "safety.linkWarningContinue": "Fortsätt ändå",
+  "safety.previewShow": "Visa förhandsgranskning av länk",
+  "safety.previewUnavailable": "Ingen förhandsgranskning för den här länken.",
+  "safety.previewLabel": "Förhandsgranskning av länk"
 }

@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Сӑнӳкерчӗкӗмрен тӗс",
   "profile2.headerDots": "Пӑнчӑсем",
   "profile2.headerStripes": "Йӗрсем",
-  "profile2.headerGrid": "Сетка"
+  "profile2.headerGrid": "Сетка",
+  "safety.hideStrongLanguage": "Хытӑ сӑмахсене пытар (пусиччен тӗтреллӗ)",
+  "safety.hiddenWord": "Пытарнӑ сӑмах — кӑтартма пусӑр",
+  "safety.linkWarningTitle": "Ку каҫӑ курӑннӑ вырӑна илсе каймасан та пултарать",
+  "safety.linkWarningBody": "Адресра пӗр евӗрлӗ саспаллисем хутӑшнӑ, ҫавӑнпа вӑл урӑх сайт евӗр пулма пултарать. Чӑн адрес:",
+  "safety.linkWarningDomain": "Регистрациленӗ домен: {domain}",
+  "safety.linkWarningBack": "Каялла",
+  "safety.linkWarningContinue": "Ҫапах та малалла",
+  "safety.previewShow": "Каҫӑ малтанхи курӑнӑвне кӑтарт",
+  "safety.previewUnavailable": "Ку каҫӑн малтанхи курӑнӑвӗ ҫук.",
+  "safety.previewLabel": "Каҫӑ малтанхи курӑнӑвӗ"
 }

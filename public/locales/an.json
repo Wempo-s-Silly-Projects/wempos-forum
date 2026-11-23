@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Tinta d'a mía imachen",
   "profile2.headerDots": "Puntos",
   "profile2.headerStripes": "Rayas",
-  "profile2.headerGrid": "Quadricula"
+  "profile2.headerGrid": "Quadricula",
+  "safety.hideStrongLanguage": "Amagar o luengache fuerte (difuminau dica que fagas clic)",
+  "safety.hiddenWord": "Parola amagada — preta ta amostrar-la",
+  "safety.linkWarningTitle": "Iste vinclo podría no ir an que pareixe",
+  "safety.linkWarningBody": "L'adreza mezcla letras que se semellan, asinas que podría imitar unatro puesto. L'adreza real ye:",
+  "safety.linkWarningDomain": "Dominio rechistrau: {domain}",
+  "safety.linkWarningBack": "Tornar",
+  "safety.linkWarningContinue": "Continar de todas trazas",
+  "safety.previewShow": "Amostrar l'avance d'o vinclo",
+  "safety.previewUnavailable": "No i hai avance ta iste vinclo.",
+  "safety.previewLabel": "Avance d'o vinclo"
 }

@@ -101,6 +101,10 @@ export const RATE_LIMIT_BINDINGS = Object.freeze({
   // The anonymous web-vitals beacon rides the read binding under its own
   // scope (its own per-caller bucket), so beacons never eat into writes.
   vitals: "READ_RATE_LIMITER",
+
+  // Batch L: link previews ride the write tier per member (each miss is one
+  // outbound fetch), on top of the per-IP read tier.
+  "link-preview": "WRITE_RATE_LIMITER",
 });
 
 // The reaction allowlist (posts since v2.0; 1:1 DM messages since v5.44):
@@ -334,3 +338,26 @@ export const AVATAR_CROP_SIZE = 512;
 // colour from the member's own same-origin avatar; the rest are static
 // zero-image CSS patterns.
 export const PROFILE_HEADER_STYLES = Object.freeze(["", "tint", "dots", "stripes", "grid"]);
+
+// Batch L (reader safety): GET /api/link-preview fetches a pasted https link's
+// OpenGraph title/description on a member's explicit click. Every hop is
+// re-validated (https only, every resolved address must be public unicast),
+// at most this many redirects, one overall timeout, a byte cap on the body,
+// and short clamps on what is stored and returned. Images are never fetched
+// or returned (no third-party hotlinking to readers).
+export const LINK_PREVIEW_MAX_REDIRECTS = 3;
+export const LINK_PREVIEW_TIMEOUT_MS = 5000;
+export const LINK_PREVIEW_MAX_BYTES = 512 * 1024;
+export const LINK_PREVIEW_URL_MAX_CHARS = 2048;
+export const LINK_PREVIEW_TITLE_MAX_CHARS = 200;
+export const LINK_PREVIEW_DESCRIPTION_MAX_CHARS = 300;
+export const LINK_PREVIEW_SITE_MAX_CHARS = 100;
+export const LINK_PREVIEW_TTL_SECONDS = 24 * 60 * 60;
+export const LINK_PREVIEW_FAILURE_TTL_SECONDS = 60 * 60;
+export const LINK_PREVIEW_PRUNE_AFTER_SECONDS = 7 * 24 * 60 * 60;
+// DNS-over-HTTPS resolver the guard asks for A and AAAA records (Workers
+// have no DNS API); a fixed public host, never a member-supplied one.
+export const LINK_PREVIEW_DOH_ENDPOINT = "https://cloudflare-dns.com/dns-query";
+// The client's language hint (public/js/lang-detect.js mirrors it): a post
+// body shorter than this many letters gets no lang attribute.
+export const LANG_DETECT_MIN_CHARS = 40;

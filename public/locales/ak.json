@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Kɔla firi me mfonini mu",
   "profile2.headerDots": "Nsensanee ketewa",
   "profile2.headerStripes": "Nsensanee",
-  "profile2.headerGrid": "Nkyɛmu"
+  "profile2.headerGrid": "Nkyɛmu",
+  "safety.hideStrongLanguage": "Fa kasa a ɛyɛ den sie (ɛbɛyɛ kusuu kosi sɛ wobɛmia so)",
+  "safety.hiddenWord": "Asɛmfua a wɔde asie — mia so na ɛnna adi",
+  "safety.linkWarningTitle": "Link yi bɛtumi ankɔ baabi a ɛte sɛ ɛkɔ",
+  "safety.linkWarningBody": "Address no de nkyerɛwde a ɛsɛ wɔn ho afrafra, enti ebetumi ayɛ sɛ website foforo. Address ankasa ne:",
+  "safety.linkWarningDomain": "Domain a wɔakyerɛw din: {domain}",
+  "safety.linkWarningBack": "San w'akyi",
+  "safety.linkWarningContinue": "Kɔ so ara",
+  "safety.previewShow": "Kyerɛ link no nhwɛsoɔ",
+  "safety.previewUnavailable": "Nhwɛsoɔ biara nni link yi ho.",
+  "safety.previewLabel": "Link nhwɛsoɔ"
 }

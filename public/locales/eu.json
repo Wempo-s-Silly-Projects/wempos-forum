@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Nire irudiko ñabardura",
   "profile2.headerDots": "Puntuak",
   "profile2.headerStripes": "Marrak",
-  "profile2.headerGrid": "Sareta"
+  "profile2.headerGrid": "Sareta",
+  "safety.hideStrongLanguage": "Ezkutatu hizkera gogorra (lausotuta klik egin arte)",
+  "safety.hiddenWord": "Ezkutuko hitza — sakatu erakusteko",
+  "safety.linkWarningTitle": "Baliteke esteka hau ez joatea dirudien tokira",
+  "safety.linkWarningBody": "Helbideak antzeko itxurako letrak nahasten ditu, beraz beste gune bat imitatu dezake. Benetako helbidea hau da:",
+  "safety.linkWarningDomain": "Erregistratutako domeinua: {domain}",
+  "safety.linkWarningBack": "Itzuli",
+  "safety.linkWarningContinue": "Jarraitu hala ere",
+  "safety.previewShow": "Erakutsi estekaren aurrebista",
+  "safety.previewUnavailable": "Esteka honek ez du aurrebistarik.",
+  "safety.previewLabel": "Estekaren aurrebista"
 }

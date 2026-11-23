@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "মোৰ ছবিৰ পৰা ৰং",
   "profile2.headerDots": "বিন্দু",
   "profile2.headerStripes": "ডোৰা",
-  "profile2.headerGrid": "গ্ৰিড"
+  "profile2.headerGrid": "গ্ৰিড",
+  "safety.hideStrongLanguage": "কঠোৰ ভাষা লুকুৱাওক (ক্লিক নকৰালৈকে অস্পষ্ট)",
+  "safety.hiddenWord": "লুকুৱা শব্দ — দেখুৱাবলৈ টিপক",
+  "safety.linkWarningTitle": "এই লিংকটোৱে যেনেকুৱা দেখা যায় তালৈ নাযাবও পাৰে",
+  "safety.linkWarningBody": "ঠিকনাটোৱে একে যেন লগা আখৰ মিহলায়, গতিকে ই আন এটা ছাইটৰ অনুকৰণ কৰিব পাৰে। আচল ঠিকনাটো হ'ল:",
+  "safety.linkWarningDomain": "পঞ্জীয়নভুক্ত ডমেইন: {domain}",
+  "safety.linkWarningBack": "উভতি যাওক",
+  "safety.linkWarningContinue": "তথাপিও আগবাঢ়ক",
+  "safety.previewShow": "লিংকৰ পূৰ্বদৰ্শন দেখুৱাওক",
+  "safety.previewUnavailable": "এই লিংকৰ কোনো পূৰ্বদৰ্শন নাই।",
+  "safety.previewLabel": "লিংকৰ পূৰ্বদৰ্शন"
 }

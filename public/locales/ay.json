@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Jamuqajat sami",
   "profile2.headerDots": "Ch'iqanaka",
   "profile2.headerStripes": "Siq'inaka",
-  "profile2.headerGrid": "Rejilla"
+  "profile2.headerGrid": "Rejilla",
+  "safety.hideStrongLanguage": "Jach'a arunaka imaña (ch'iqt'añkamaw jiwq'ata)",
+  "safety.hiddenWord": "Imata aru — uñacht'ayañatakix ch'iqt'am",
+  "safety.linkWarningTitle": "Aka link jan uñtatar sarkaspa",
+  "safety.linkWarningBody": "Direcciónax kikpa uñtat qillqanak chhaqtayi, ukat yaqha sitiw uñtataspa. Chiqpach direcciónax akawa:",
+  "safety.linkWarningDomain": "Qillqantat dominio: {domain}",
+  "safety.linkWarningBack": "Kutt'aña",
+  "safety.linkWarningContinue": "Ukhamarus sarantaña",
+  "safety.previewShow": "Link nayra uñacht'äwi uñacht'ayaña",
+  "safety.previewUnavailable": "Aka linkatakix janiw nayra uñacht'äwix utjkiti.",
+  "safety.previewLabel": "Link nayra uñacht'äwi"
 }

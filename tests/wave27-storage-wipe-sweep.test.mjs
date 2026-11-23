@@ -44,6 +44,7 @@ const DEVICE_PREF_FILES = new Map([
   ["tab-unread.js", "unread count in the tab title on/off"],
   ["routes/feed.js", "square/round corners preference"],
   ["dm-effects.js", "DM effects on/off"],
+  ["strong-language.js", "Hide strong language on/off (batch L)"],
   ["i18n.js", "interface language"],
   ["appearance-reset.js", "corners, text size and tab-title count back to defaults (wave 5.7)"],
   ["global-keys.js", "single-key shortcuts on/off (Batch J)"],

@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Երանգ իմ նկարից",
   "profile2.headerDots": "Կետեր",
   "profile2.headerStripes": "Շերտեր",
-  "profile2.headerGrid": "Ցանց"
+  "profile2.headerGrid": "Ցանց",
+  "safety.hideStrongLanguage": "Թաքցնել կոպիտ խոսքը (մշուշոտ է, մինչև սեղմեք)",
+  "safety.hiddenWord": "Թաքցված բառ — սեղմեք՝ ցուցադրելու համար",
+  "safety.linkWarningTitle": "Այս հղումը կարող է չտանել այնտեղ, ուր թվում է",
+  "safety.linkWarningBody": "Հասցեն խառնում է իրար նման տառեր, ուստի կարող է ընդօրինակել այլ կայք։ Իրական հասցեն է՝",
+  "safety.linkWarningDomain": "Գրանցված տիրույթ՝ {domain}",
+  "safety.linkWarningBack": "Հետ գնալ",
+  "safety.linkWarningContinue": "Միևնույն է շարունակել",
+  "safety.previewShow": "Ցույց տալ հղման նախադիտումը",
+  "safety.previewUnavailable": "Այս հղման համար նախադիտում չկա։",
+  "safety.previewLabel": "Հղման նախադիտում"
 }

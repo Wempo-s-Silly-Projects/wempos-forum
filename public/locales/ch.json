@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Kolot ginen i litratu-hu",
   "profile2.headerDots": "Punto siha",
   "profile2.headerStripes": "Raya siha",
-  "profile2.headerGrid": "Grid"
+  "profile2.headerGrid": "Grid",
+  "safety.hideStrongLanguage": "Na'na' i mappot na lengguahi (ma'atof asta ki ya un pacha')",
+  "safety.hiddenWord": "Finaila' na palabra — pacha' para un li'e'",
+  "safety.linkWarningTitle": "Siña ti humånao este na link guatu gi parehu na lugåt",
+  "safety.linkWarningBody": "I direksion ha nana'chetton letra ni parehu, enao mina' siña ha a'atte' otro na sitio. I magåhet na direksion:",
+  "safety.linkWarningDomain": "Rehistrao na domain: {domain}",
+  "safety.linkWarningBack": "Bira tåtte",
+  "safety.linkWarningContinue": "Kontinua ha' lokkue'",
+  "safety.previewShow": "Na'annok i fine'nana na li'e' i link",
+  "safety.previewUnavailable": "Taya' fine'nana na li'e' para este na link.",
+  "safety.previewLabel": "Fine'nana na li'e' i link"
 }

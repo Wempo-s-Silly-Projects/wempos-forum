@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Nijansa iz moje slike",
   "profile2.headerDots": "Točkice",
   "profile2.headerStripes": "Pruge",
-  "profile2.headerGrid": "Mreža"
+  "profile2.headerGrid": "Mreža",
+  "safety.hideStrongLanguage": "Sakrij grube riječi (zamućene dok ne kliknete)",
+  "safety.hiddenWord": "Skrivena riječ — pritisnite za prikaz",
+  "safety.linkWarningTitle": "Ova poveznica možda ne vodi onamo kamo se čini",
+  "safety.linkWarningBody": "Adresa miješa slova koja izgledaju slično, pa može oponašati drugu stranicu. Prava adresa je:",
+  "safety.linkWarningDomain": "Registrirana domena: {domain}",
+  "safety.linkWarningBack": "Natrag",
+  "safety.linkWarningContinue": "Ipak nastavi",
+  "safety.previewShow": "Prikaži pretpregled poveznice",
+  "safety.previewUnavailable": "Nema pretpregleda za ovu poveznicu.",
+  "safety.previewLabel": "Pretpregled poveznice"
 }

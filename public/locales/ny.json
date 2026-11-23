@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Mtundu wochokera pa chithunzi changa",
   "profile2.headerDots": "Madontho",
   "profile2.headerStripes": "Mizere",
-  "profile2.headerGrid": "Gridi"
+  "profile2.headerGrid": "Gridi",
+  "safety.hideStrongLanguage": "Bisa mawu amwano (osaoneka bwino mpaka mutadina)",
+  "safety.hiddenWord": "Mawu obisika — dinani kuti muwone",
+  "safety.linkWarningTitle": "Ulalo uwu mwina sukupita komwe ukuoneka",
+  "safety.linkWarningBody": "Adilesi imasakaniza zilembo zofanana, choncho ingathe kutengera tsamba lina. Adilesi yeniyeni ndi:",
+  "safety.linkWarningDomain": "Domeni yolembetsedwa: {domain}",
+  "safety.linkWarningBack": "Bwererani",
+  "safety.linkWarningContinue": "Pitirizani komabe",
+  "safety.previewShow": "Onetsani chithunzithunzi cha ulalo",
+  "safety.previewUnavailable": "Palibe chithunzithunzi cha ulalo uwu.",
+  "safety.previewLabel": "Chithunzithunzi cha ulalo"
 }

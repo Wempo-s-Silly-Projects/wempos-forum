@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Fargetone fra bildet mitt",
   "profile2.headerDots": "Prikker",
   "profile2.headerStripes": "Striper",
-  "profile2.headerGrid": "Rutenett"
+  "profile2.headerGrid": "Rutenett",
+  "safety.hideStrongLanguage": "Skjul grovt språk (uskarpt til du klikker)",
+  "safety.hiddenWord": "Skjult ord — trykk for å vise",
+  "safety.linkWarningTitle": "Denne lenken går kanskje ikke dit den ser ut til",
+  "safety.linkWarningBody": "Adressen blander bokstaver som ligner hverandre, så den kan etterligne et annet nettsted. Den ekte adressen er:",
+  "safety.linkWarningDomain": "Registrert domene: {domain}",
+  "safety.linkWarningBack": "Gå tilbake",
+  "safety.linkWarningContinue": "Fortsett likevel",
+  "safety.previewShow": "Vis forhåndsvisning av lenke",
+  "safety.previewUnavailable": "Ingen forhåndsvisning for denne lenken.",
+  "safety.previewLabel": "Forhåndsvisning av lenke"
 }

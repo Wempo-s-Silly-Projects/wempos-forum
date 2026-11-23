@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Оттенък от снимката ми",
   "profile2.headerDots": "Точки",
   "profile2.headerStripes": "Райета",
-  "profile2.headerGrid": "Мрежа"
+  "profile2.headerGrid": "Мрежа",
+  "safety.hideStrongLanguage": "Скриване на груби думи (размазани, докато не щракнете)",
+  "safety.hiddenWord": "Скрита дума — натиснете, за да се покаже",
+  "safety.linkWarningTitle": "Тази връзка може да не води там, където изглежда",
+  "safety.linkWarningBody": "Адресът смесва подобни на вид букви, така че може да имитира друг сайт. Истинският адрес е:",
+  "safety.linkWarningDomain": "Регистриран домейн: {domain}",
+  "safety.linkWarningBack": "Назад",
+  "safety.linkWarningContinue": "Продължи въпреки това",
+  "safety.previewShow": "Показване на преглед на връзката",
+  "safety.previewUnavailable": "Няма преглед за тази връзка.",
+  "safety.previewLabel": "Преглед на връзката"
 }

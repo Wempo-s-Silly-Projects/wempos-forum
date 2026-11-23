@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Адценне з майго фота",
   "profile2.headerDots": "Кропкі",
   "profile2.headerStripes": "Палосы",
-  "profile2.headerGrid": "Сетка"
+  "profile2.headerGrid": "Сетка",
+  "safety.hideStrongLanguage": "Хаваць грубыя словы (размытыя, пакуль не націснеце)",
+  "safety.hiddenWord": "Схаванае слова — націсніце, каб паказаць",
+  "safety.linkWarningTitle": "Гэтая спасылка можа весці не туды, куды здаецца",
+  "safety.linkWarningBody": "Адрас змешвае падобныя літары, таму можа падрабляць іншы сайт. Сапраўдны адрас:",
+  "safety.linkWarningDomain": "Зарэгістраваны дамен: {domain}",
+  "safety.linkWarningBack": "Вярнуцца",
+  "safety.linkWarningContinue": "Усё роўна працягнуць",
+  "safety.previewShow": "Паказаць папярэдні прагляд спасылкі",
+  "safety.previewUnavailable": "Для гэтай спасылкі няма прагляду.",
+  "safety.previewLabel": "Папярэдні прагляд спасылкі"
 }

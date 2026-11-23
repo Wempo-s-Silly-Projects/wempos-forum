@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Nuance fra mit billede",
   "profile2.headerDots": "Prikker",
   "profile2.headerStripes": "Striber",
-  "profile2.headerGrid": "Gitter"
+  "profile2.headerGrid": "Gitter",
+  "safety.hideStrongLanguage": "Skjul grimt sprog (sløret, indtil du klikker)",
+  "safety.hiddenWord": "Skjult ord — tryk for at vise",
+  "safety.linkWarningTitle": "Dette link fører måske ikke derhen, hvor det ser ud til",
+  "safety.linkWarningBody": "Adressen blander bogstaver, der ligner hinanden, så den kan efterligne et andet websted. Den rigtige adresse er:",
+  "safety.linkWarningDomain": "Registreret domæne: {domain}",
+  "safety.linkWarningBack": "Gå tilbage",
+  "safety.linkWarningContinue": "Fortsæt alligevel",
+  "safety.previewShow": "Vis forhåndsvisning af link",
+  "safety.previewUnavailable": "Ingen forhåndsvisning af dette link.",
+  "safety.previewLabel": "Forhåndsvisning af link"
 }

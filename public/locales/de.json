@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Farbton aus meinem Bild",
   "profile2.headerDots": "Punkte",
   "profile2.headerStripes": "Streifen",
-  "profile2.headerGrid": "Raster"
+  "profile2.headerGrid": "Raster",
+  "safety.hideStrongLanguage": "Kraftausdrücke verbergen (verschwommen, bis du klickst)",
+  "safety.hiddenWord": "Verborgenes Wort — zum Anzeigen drücken",
+  "safety.linkWarningTitle": "Dieser Link führt vielleicht nicht dorthin, wohin er scheint",
+  "safety.linkWarningBody": "Die Adresse mischt ähnlich aussehende Buchstaben und könnte eine andere Website nachahmen. Die echte Adresse lautet:",
+  "safety.linkWarningDomain": "Registrierte Domain: {domain}",
+  "safety.linkWarningBack": "Zurück",
+  "safety.linkWarningContinue": "Trotzdem fortfahren",
+  "safety.previewShow": "Linkvorschau anzeigen",
+  "safety.previewUnavailable": "Keine Vorschau für diesen Link.",
+  "safety.previewLabel": "Linkvorschau"
 }

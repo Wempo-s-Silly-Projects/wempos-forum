@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Odstín z mého obrázku",
   "profile2.headerDots": "Tečky",
   "profile2.headerStripes": "Pruhy",
-  "profile2.headerGrid": "Mřížka"
+  "profile2.headerGrid": "Mřížka",
+  "safety.hideStrongLanguage": "Skrýt vulgarismy (rozmazané, dokud neklepnete)",
+  "safety.hiddenWord": "Skryté slovo — stiskněte pro zobrazení",
+  "safety.linkWarningTitle": "Tento odkaz možná nevede tam, kam se zdá",
+  "safety.linkWarningBody": "Adresa míchá podobně vypadající písmena, takže může napodobovat jiný web. Skutečná adresa je:",
+  "safety.linkWarningDomain": "Registrovaná doména: {domain}",
+  "safety.linkWarningBack": "Zpět",
+  "safety.linkWarningContinue": "Přesto pokračovat",
+  "safety.previewShow": "Zobrazit náhled odkazu",
+  "safety.previewUnavailable": "Pro tento odkaz není náhled.",
+  "safety.previewLabel": "Náhled odkazu"
 }

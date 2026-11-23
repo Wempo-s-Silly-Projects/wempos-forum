@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "رنگ از تصویر من",
   "profile2.headerDots": "نقطه‌ها",
   "profile2.headerStripes": "راه‌راه",
-  "profile2.headerGrid": "شبکه"
+  "profile2.headerGrid": "شبکه",
+  "safety.hideStrongLanguage": "پنهان کردن الفاظ زننده (تا کلیک نکنید محو است)",
+  "safety.hiddenWord": "واژهٔ پنهان — برای نمایش فشار دهید",
+  "safety.linkWarningTitle": "این پیوند ممکن است به جایی که به نظر می‌رسد نرود",
+  "safety.linkWarningBody": "این نشانی حروف شبیه به هم را مخلوط می‌کند، پس ممکن است از سایت دیگری تقلید کند. نشانی واقعی:",
+  "safety.linkWarningDomain": "دامنهٔ ثبت‌شده: {domain}",
+  "safety.linkWarningBack": "بازگشت",
+  "safety.linkWarningContinue": "به هر حال ادامه بده",
+  "safety.previewShow": "نمایش پیش‌نمایش پیوند",
+  "safety.previewUnavailable": "این پیوند پیش‌نمایشی ندارد.",
+  "safety.previewLabel": "پیش‌نمایش پیوند"
 }

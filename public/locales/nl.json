@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Tint uit mijn afbeelding",
   "profile2.headerDots": "Stippen",
   "profile2.headerStripes": "Strepen",
-  "profile2.headerGrid": "Raster"
+  "profile2.headerGrid": "Raster",
+  "safety.hideStrongLanguage": "Grove taal verbergen (vervaagd tot je klikt)",
+  "safety.hiddenWord": "Verborgen woord — druk om te tonen",
+  "safety.linkWarningTitle": "Deze link gaat misschien niet waar hij lijkt heen te gaan",
+  "safety.linkWarningBody": "Het adres mengt letters die op elkaar lijken, dus het kan een andere site nadoen. Het echte adres is:",
+  "safety.linkWarningDomain": "Geregistreerd domein: {domain}",
+  "safety.linkWarningBack": "Ga terug",
+  "safety.linkWarningContinue": "Toch doorgaan",
+  "safety.previewShow": "Linkvoorbeeld tonen",
+  "safety.previewUnavailable": "Geen voorbeeld voor deze link.",
+  "safety.previewLabel": "Linkvoorbeeld"
 }

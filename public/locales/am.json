@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "ከፎቶዬ የተወሰደ ቀለም",
   "profile2.headerDots": "ነጥቦች",
   "profile2.headerStripes": "መስመሮች",
-  "profile2.headerGrid": "ፍርግርግ"
+  "profile2.headerGrid": "ፍርግርግ",
+  "safety.hideStrongLanguage": "ጠንካራ ቋንቋን ደብቅ (እስኪጫኑ ድረስ ይደበዝዛል)",
+  "safety.hiddenWord": "የተደበቀ ቃል — ለማሳየት ይጫኑ",
+  "safety.linkWarningTitle": "ይህ አገናኝ ወደሚመስለው ቦታ ላይሄድ ይችላል",
+  "safety.linkWarningBody": "አድራሻው ተመሳሳይ የሚመስሉ ፊደሎችን ያቀላቅላል፣ ስለዚህ ሌላ ጣቢያን ሊያስመስል ይችላል። ትክክለኛው አድራሻ፦",
+  "safety.linkWarningDomain": "የተመዘገበ ጎራ፦ {domain}",
+  "safety.linkWarningBack": "ተመለስ",
+  "safety.linkWarningContinue": "ቢሆንም ቀጥል",
+  "safety.previewShow": "የአገናኝ ቅድመ እይታ አሳይ",
+  "safety.previewUnavailable": "ለዚህ አገናኝ ቅድመ እይታ የለም።",
+  "safety.previewLabel": "የአገናኝ ቅድመ እይታ"
 }

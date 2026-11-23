@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Sắc màu từ ảnh của tôi",
   "profile2.headerDots": "Chấm bi",
   "profile2.headerStripes": "Sọc",
-  "profile2.headerGrid": "Lưới"
+  "profile2.headerGrid": "Lưới",
+  "safety.hideStrongLanguage": "Ẩn ngôn từ thô tục (làm mờ cho đến khi bạn bấm)",
+  "safety.hiddenWord": "Từ bị ẩn — nhấn để hiện",
+  "safety.linkWarningTitle": "Liên kết này có thể không dẫn đến nơi trông như vậy",
+  "safety.linkWarningBody": "Địa chỉ trộn các chữ cái trông giống nhau, nên có thể giả mạo một trang khác. Địa chỉ thật là:",
+  "safety.linkWarningDomain": "Tên miền đã đăng ký: {domain}",
+  "safety.linkWarningBack": "Quay lại",
+  "safety.linkWarningContinue": "Vẫn tiếp tục",
+  "safety.previewShow": "Hiện bản xem trước liên kết",
+  "safety.previewUnavailable": "Không có bản xem trước cho liên kết này.",
+  "safety.previewLabel": "Xem trước liên kết"
 }

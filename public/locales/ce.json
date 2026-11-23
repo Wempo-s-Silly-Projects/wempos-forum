@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Сан суьртара бос",
   "profile2.headerDots": "Тӏадамаш",
   "profile2.headerStripes": "Сизаш",
-  "profile2.headerGrid": "Бой"
+  "profile2.headerGrid": "Бой",
+  "safety.hideStrongLanguage": "Чӏогӏа дешнаш дӏалачуьлдар (тӏетаӏийначча къайладаьлла)",
+  "safety.hiddenWord": "Къайлаяьккхина дош — гайта тӏетаӏа",
+  "safety.linkWarningTitle": "ХӀара хьажорг гуш долчу метте ца гӀерта мега",
+  "safety.linkWarningBody": "Адресехь цхьатерра гуш долу элпаш вовшахкхетта, цундела кхин сайт тардан мега. Бакъ долу адрес:",
+  "safety.linkWarningDomain": "Дӏаяздина домен: {domain}",
+  "safety.linkWarningBack": "Юхадерза",
+  "safety.linkWarningContinue": "Цхьаъ а доцуш дӏадахьа",
+  "safety.previewShow": "Хьажоргах хьалхара хьажар гайта",
+  "safety.previewUnavailable": "ХӀокху хьажоргна хьалхара хьажар дац.",
+  "safety.previewLabel": "Хьажоргах хьалхара хьажар"
 }

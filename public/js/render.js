@@ -42,6 +42,7 @@ import { isQotdBody } from "./traditions.js";
 import { createFoldedBody, isLongPost } from "./long-post.js";
 import { DIFF_PANEL_CELL_BUDGET, appendWordDiff, diffWordsWithin } from "./word-diff.js";
 import { avatarSource } from "./profile-identity.js";
+import { applyReaderSafety } from "./reader-safety.js";
 
 const createElement = (document, tagName, className, text) => {
   const element = document.createElement(tagName);
@@ -211,6 +212,7 @@ export const renderBodyBlocks = (post, document, article) => {
   }
   highlightCodeBlocks(document, highlightable);
   enhanceRenderedBody(document, work);
+  applyReaderSafety(document, article, post.body);
 };
 
 // Markdown-inline runs appended INTO an existing element (link hrefs are

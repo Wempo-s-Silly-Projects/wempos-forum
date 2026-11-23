@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Şəklimdən çalar",
   "profile2.headerDots": "Nöqtələr",
   "profile2.headerStripes": "Zolaqlar",
-  "profile2.headerGrid": "Şəbəkə"
+  "profile2.headerGrid": "Şəbəkə",
+  "safety.hideStrongLanguage": "Kobud ifadələri gizlət (klikləyənə qədər bulanıq)",
+  "safety.hiddenWord": "Gizlədilmiş söz — göstərmək üçün basın",
+  "safety.linkWarningTitle": "Bu keçid göründüyü yerə getməyə bilər",
+  "safety.linkWarningBody": "Ünvan bir-birinə bənzəyən hərfləri qarışdırır, ona görə başqa saytı təqlid edə bilər. Əsl ünvan:",
+  "safety.linkWarningDomain": "Qeydiyyatlı domen: {domain}",
+  "safety.linkWarningBack": "Geri qayıt",
+  "safety.linkWarningContinue": "Yenə də davam et",
+  "safety.previewShow": "Keçidin önizləməsini göstər",
+  "safety.previewUnavailable": "Bu keçid üçün önizləmə yoxdur.",
+  "safety.previewLabel": "Keçid önizləməsi"
 }

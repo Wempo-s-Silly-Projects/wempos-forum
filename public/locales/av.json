@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Дир суратиса ранг",
   "profile2.headerDots": "Точкаби",
   "profile2.headerStripes": "ЦӀуцӀаби",
-  "profile2.headerGrid": "Сетка"
+  "profile2.headerGrid": "Сетка",
+  "safety.hideStrongLanguage": "Бакъараб мацӀ бахчизе (ничӀчӀизегӀан бахчун)",
+  "safety.hiddenWord": "Бахчараб рагӀи — бихизе ничӀчӀе",
+  "safety.linkWarningTitle": "Гьаб линк бихулелде иналде гьечӀеб бугеб бажари",
+  "safety.linkWarningBody": "Адресалъ релълъарал хӀарпал гъорлъе ккола, гьелъ цогидаб сайталде релълъинаризе бегьула. ХӀакъикъияб адрес:",
+  "safety.linkWarningDomain": "Регистрация гьабураб домен: {domain}",
+  "safety.linkWarningBack": "Нахъе",
+  "safety.linkWarningContinue": "Цинги бачине",
+  "safety.previewShow": "Линкалъул бихьизабиги бихизабе",
+  "safety.previewUnavailable": "Гьаб линкалъул бихьизаби гьечӀо.",
+  "safety.previewLabel": "Линкалъул бихьизаби"
 }

@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "自分の画像から色付け",
   "profile2.headerDots": "ドット",
   "profile2.headerStripes": "ストライプ",
-  "profile2.headerGrid": "グリッド"
+  "profile2.headerGrid": "グリッド",
+  "safety.hideStrongLanguage": "強い言葉を隠す(クリックするまでぼかす)",
+  "safety.hiddenWord": "隠された単語 — 押すと表示",
+  "safety.linkWarningTitle": "このリンクは見た目どおりの場所に移動しない可能性があります",
+  "safety.linkWarningBody": "このアドレスはよく似た文字を混ぜており、別のサイトを装っている可能性があります。本当のアドレス:",
+  "safety.linkWarningDomain": "登録ドメイン: {domain}",
+  "safety.linkWarningBack": "戻る",
+  "safety.linkWarningContinue": "このまま続ける",
+  "safety.previewShow": "リンクのプレビューを表示",
+  "safety.previewUnavailable": "このリンクにはプレビューがありません。",
+  "safety.previewLabel": "リンクのプレビュー"
 }

@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Sävy kuvastani",
   "profile2.headerDots": "Pisteet",
   "profile2.headerStripes": "Raidat",
-  "profile2.headerGrid": "Ruudukko"
+  "profile2.headerGrid": "Ruudukko",
+  "safety.hideStrongLanguage": "Piilota rumat sanat (sumennettu, kunnes napsautat)",
+  "safety.hiddenWord": "Piilotettu sana — paina näyttääksesi",
+  "safety.linkWarningTitle": "Tämä linkki ei ehkä vie sinne, minne näyttää",
+  "safety.linkWarningBody": "Osoite sekoittaa samannäköisiä kirjaimia, joten se voi jäljitellä toista sivustoa. Todellinen osoite on:",
+  "safety.linkWarningDomain": "Rekisteröity verkkotunnus: {domain}",
+  "safety.linkWarningBack": "Palaa",
+  "safety.linkWarningContinue": "Jatka silti",
+  "safety.previewShow": "Näytä linkin esikatselu",
+  "safety.previewUnavailable": "Tälle linkille ei ole esikatselua.",
+  "safety.previewLabel": "Linkin esikatselu"
 }

@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "என் படத்திலிருந்து நிறச்சாயல்",
   "profile2.headerDots": "புள்ளிகள்",
   "profile2.headerStripes": "கோடுகள்",
-  "profile2.headerGrid": "கட்டம்"
+  "profile2.headerGrid": "கட்டம்",
+  "safety.hideStrongLanguage": "கடுமையான சொற்களை மறை (கிளிக் செய்யும் வரை மங்கலாக)",
+  "safety.hiddenWord": "மறைக்கப்பட்ட சொல் — காட்ட அழுத்தவும்",
+  "safety.linkWarningTitle": "இந்த இணைப்பு தோன்றும் இடத்திற்குச் செல்லாமல் இருக்கலாம்",
+  "safety.linkWarningBody": "முகவரி ஒரே மாதிரி தோன்றும் எழுத்துகளைக் கலக்கிறது, எனவே இது வேறு தளத்தைப் போலிருக்கலாம். உண்மையான முகவரி:",
+  "safety.linkWarningDomain": "பதிவுசெய்யப்பட்ட டொமைன்: {domain}",
+  "safety.linkWarningBack": "பின் செல்",
+  "safety.linkWarningContinue": "இருந்தாலும் தொடர்",
+  "safety.previewShow": "இணைப்பு முன்னோட்டத்தைக் காட்டு",
+  "safety.previewUnavailable": "இந்த இணைப்புக்கு முன்னோட்டம் இல்லை.",
+  "safety.previewLabel": "இணைப்பு முன்னோட்டம்"
 }

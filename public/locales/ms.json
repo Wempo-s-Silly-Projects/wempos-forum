@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Rona daripada gambar saya",
   "profile2.headerDots": "Titik",
   "profile2.headerStripes": "Jalur",
-  "profile2.headerGrid": "Grid"
+  "profile2.headerGrid": "Grid",
+  "safety.hideStrongLanguage": "Sembunyikan bahasa kesat (dikaburkan sehingga anda klik)",
+  "safety.hiddenWord": "Perkataan tersembunyi — tekan untuk menunjukkan",
+  "safety.linkWarningTitle": "Pautan ini mungkin tidak pergi ke tempat yang kelihatan",
+  "safety.linkWarningBody": "Alamat ini mencampurkan huruf yang serupa, jadi ia mungkin meniru laman lain. Alamat sebenar ialah:",
+  "safety.linkWarningDomain": "Domain berdaftar: {domain}",
+  "safety.linkWarningBack": "Kembali",
+  "safety.linkWarningContinue": "Teruskan juga",
+  "safety.previewShow": "Tunjukkan pratonton pautan",
+  "safety.previewUnavailable": "Tiada pratonton untuk pautan ini.",
+  "safety.previewLabel": "Pratonton pautan"
 }

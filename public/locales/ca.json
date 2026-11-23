@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "To de la meva imatge",
   "profile2.headerDots": "Punts",
   "profile2.headerStripes": "Ratlles",
-  "profile2.headerGrid": "Quadrícula"
+  "profile2.headerGrid": "Quadrícula",
+  "safety.hideStrongLanguage": "Amaga el llenguatge fort (difuminat fins que hi facis clic)",
+  "safety.hiddenWord": "Paraula amagada — prem per mostrar-la",
+  "safety.linkWarningTitle": "Aquest enllaç podria no anar on sembla",
+  "safety.linkWarningBody": "L'adreça barreja lletres que s'assemblen, així que podria imitar un altre lloc. L'adreça real és:",
+  "safety.linkWarningDomain": "Domini registrat: {domain}",
+  "safety.linkWarningBack": "Torna",
+  "safety.linkWarningContinue": "Continua igualment",
+  "safety.previewShow": "Mostra la previsualització de l'enllaç",
+  "safety.previewUnavailable": "No hi ha previsualització per a aquest enllaç.",
+  "safety.previewLabel": "Previsualització de l'enllaç"
 }

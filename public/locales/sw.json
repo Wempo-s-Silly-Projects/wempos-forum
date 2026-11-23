@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Rangi kutoka kwa picha yangu",
   "profile2.headerDots": "Nukta",
   "profile2.headerStripes": "Mistari",
-  "profile2.headerGrid": "Gridi"
+  "profile2.headerGrid": "Gridi",
+  "safety.hideStrongLanguage": "Ficha lugha kali (imefifishwa hadi ubofye)",
+  "safety.hiddenWord": "Neno lililofichwa — bonyeza ili kuonyesha",
+  "safety.linkWarningTitle": "Kiungo hiki huenda kisiende kinapoonekana kwenda",
+  "safety.linkWarningBody": "Anwani inachanganya herufi zinazofanana, kwa hiyo huenda inaiga tovuti nyingine. Anwani halisi ni:",
+  "safety.linkWarningDomain": "Kikoa kilichosajiliwa: {domain}",
+  "safety.linkWarningBack": "Rudi nyuma",
+  "safety.linkWarningContinue": "Endelea hata hivyo",
+  "safety.previewShow": "Onyesha muhtasari wa kiungo",
+  "safety.previewUnavailable": "Hakuna muhtasari wa kiungo hiki.",
+  "safety.previewLabel": "Muhtasari wa kiungo"
 }

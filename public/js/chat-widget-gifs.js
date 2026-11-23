@@ -28,6 +28,7 @@ import { fillImageBody, imageIdOf } from "./dm-extras.js";
 import { el, ui } from "./chat-widget-state.js";
 import { prefersReducedMotion } from "./focus-utils.js";
 import { freezeWhenLoaded, stillGifToggle } from "./still-gif.js";
+import { applyStrongLanguageBlur } from "./strong-language.js";
 
 // GIFs in chat: a message whose WHOLE body is `[gif:<library-id>]` renders as
 // the library image — the same by-reference convention posts use (gifIds
@@ -64,6 +65,7 @@ export const messageBodyNode = (className, body, { dm = false, authorName = "" }
   if (!gifId) {
     if (body !== undefined) node.textContent = body;
     if (dm && ui.effectsOn && isEmojiOnly(body)) node.classList.add("chat-emoji-jumbo");
+    applyStrongLanguageBlur(node);
     return node;
   }
   node.classList.add("chat-gif-body");

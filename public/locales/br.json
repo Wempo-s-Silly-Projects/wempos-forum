@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Liv eus ma skeudenn",
   "profile2.headerDots": "Pikoù",
   "profile2.headerStripes": "Barrennoù",
-  "profile2.headerGrid": "Kael"
+  "profile2.headerGrid": "Kael",
+  "safety.hideStrongLanguage": "Kuzhat ar yezh kriz (dispis betek ma klikot)",
+  "safety.hiddenWord": "Ger kuzhet — pouezit evit e ziskouez",
+  "safety.linkWarningTitle": "Marteze ne gas ket al liamm-mañ el lec'h ma seblant",
+  "safety.linkWarningBody": "Kemmeskañ a ra ar chomlec'h lizherennoù heñvel, neuze e c'hallfe drevezañ ul lec'hienn all. Ar gwir chomlec'h eo:",
+  "safety.linkWarningDomain": "Domani enrollet: {domain}",
+  "safety.linkWarningBack": "Distreiñ",
+  "safety.linkWarningContinue": "Kenderc'hel memes tra",
+  "safety.previewShow": "Diskouez rakwel al liamm",
+  "safety.previewUnavailable": "Rakwel ebet evit al liamm-mañ.",
+  "safety.previewLabel": "Rakwel al liamm"
 }

@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Rona dari gambar saya",
   "profile2.headerDots": "Titik",
   "profile2.headerStripes": "Garis",
-  "profile2.headerGrid": "Kisi"
+  "profile2.headerGrid": "Kisi",
+  "safety.hideStrongLanguage": "Sembunyikan kata kasar (diburamkan sampai Anda klik)",
+  "safety.hiddenWord": "Kata tersembunyi — tekan untuk menampilkan",
+  "safety.linkWarningTitle": "Tautan ini mungkin tidak menuju ke tempat yang terlihat",
+  "safety.linkWarningBody": "Alamat ini mencampur huruf yang mirip, jadi bisa meniru situs lain. Alamat sebenarnya adalah:",
+  "safety.linkWarningDomain": "Domain terdaftar: {domain}",
+  "safety.linkWarningBack": "Kembali",
+  "safety.linkWarningContinue": "Tetap lanjutkan",
+  "safety.previewShow": "Tampilkan pratinjau tautan",
+  "safety.previewUnavailable": "Tidak ada pratinjau untuk tautan ini.",
+  "safety.previewLabel": "Pratinjau tautan"
 }

@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Сфото аҟынтә аԥштәы",
   "profile2.headerDots": "Акәаԥқәа",
   "profile2.headerStripes": "Аҵәаӷәақәа",
-  "profile2.headerGrid": "Ацәаҳәақәа"
+  "profile2.headerGrid": "Ацәаҳәақәа",
+  "safety.hideStrongLanguage": "Аҳәарақәа ццакқәа раҵәахра (уқәыӷәӷәаанӡа иҵәахуп)",
+  "safety.hiddenWord": "Иҵәаху ажәа — аарԥшразы иқәыӷәӷәа",
+  "safety.linkWarningTitle": "Ари азхьарԥш иаанагаз ахь ицаӡом ҟалап",
+  "safety.linkWarningBody": "Аҳасабырба еиԥшу анбанқәа еилаҳәоуп, даҽа саит ахаҭа иаԥсаҳар ҟалоит. Иаша аҳасабырба:",
+  "safety.linkWarningDomain": "Анҵамҭа здыру адомен: {domain}",
+  "safety.linkWarningBack": "Шьҭахьҟа",
+  "safety.linkWarningContinue": "Иацҵатәуп",
+  "safety.previewShow": "Азхьарԥш ахәаԥшра аарԥшра",
+  "safety.previewUnavailable": "Ари азхьарԥш ахәаԥшра амам.",
+  "safety.previewLabel": "Азхьарԥш ахәаԥшра"
 }

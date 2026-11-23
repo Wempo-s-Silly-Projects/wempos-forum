@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "میری تصویر سے رنگت",
   "profile2.headerDots": "نقطے",
   "profile2.headerStripes": "دھاریاں",
-  "profile2.headerGrid": "گرڈ"
+  "profile2.headerGrid": "گرڈ",
+  "safety.hideStrongLanguage": "سخت زبان چھپائیں (کلک کرنے تک دھندلی)",
+  "safety.hiddenWord": "چھپا ہوا لفظ — دکھانے کے لیے دبائیں",
+  "safety.linkWarningTitle": "ممکن ہے یہ لنک وہاں نہ جائے جہاں یہ دکھائی دیتا ہے",
+  "safety.linkWarningBody": "پتے میں ملتے جلتے حروف ملے ہوئے ہیں، اس لیے یہ کسی دوسری سائٹ کی نقل کر سکتا ہے۔ اصل پتا یہ ہے:",
+  "safety.linkWarningDomain": "رجسٹرڈ ڈومین: {domain}",
+  "safety.linkWarningBack": "واپس جائیں",
+  "safety.linkWarningContinue": "پھر بھی جاری رکھیں",
+  "safety.previewShow": "لنک کا پیش منظر دکھائیں",
+  "safety.previewUnavailable": "اس لنک کا کوئی پیش منظر نہیں۔",
+  "safety.previewLabel": "لنک کا پیش منظر"
 }

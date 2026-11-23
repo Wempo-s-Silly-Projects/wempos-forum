@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "Відтінок із мого зображення",
   "profile2.headerDots": "Крапки",
   "profile2.headerStripes": "Смуги",
-  "profile2.headerGrid": "Сітка"
+  "profile2.headerGrid": "Сітка",
+  "safety.hideStrongLanguage": "Приховувати грубі слова (розмиті, доки не натиснете)",
+  "safety.hiddenWord": "Приховане слово — натисніть, щоб показати",
+  "safety.linkWarningTitle": "Це посилання може вести не туди, куди здається",
+  "safety.linkWarningBody": "Адреса змішує схожі літери, тож може підробляти інший сайт. Справжня адреса:",
+  "safety.linkWarningDomain": "Зареєстрований домен: {domain}",
+  "safety.linkWarningBack": "Повернутися",
+  "safety.linkWarningContinue": "Однаково перейти",
+  "safety.previewShow": "Показати попередній перегляд посилання",
+  "safety.previewUnavailable": "Для цього посилання немає перегляду.",
+  "safety.previewLabel": "Попередній перегляд посилання"
 }

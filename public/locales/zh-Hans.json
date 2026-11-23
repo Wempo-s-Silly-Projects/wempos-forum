@@ -1328,5 +1328,15 @@
   "profile2.headerTint": "取自我的图片的色调",
   "profile2.headerDots": "圆点",
   "profile2.headerStripes": "条纹",
-  "profile2.headerGrid": "网格"
+  "profile2.headerGrid": "网格",
+  "safety.hideStrongLanguage": "隐藏粗话(点击前保持模糊)",
+  "safety.hiddenWord": "已隐藏的词 — 按下显示",
+  "safety.linkWarningTitle": "此链接可能不会通往它看起来的地方",
+  "safety.linkWarningBody": "该地址混用了外形相似的字母,可能在冒充其他网站。真实地址是:",
+  "safety.linkWarningDomain": "注册域名:{domain}",
+  "safety.linkWarningBack": "返回",
+  "safety.linkWarningContinue": "仍然继续",
+  "safety.previewShow": "显示链接预览",
+  "safety.previewUnavailable": "此链接没有预览。",
+  "safety.previewLabel": "链接预览"
 }
