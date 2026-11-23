@@ -22,6 +22,9 @@ regexes = [
   # Public Ahrefs Web Analytics site key (meant to sit in page HTML; owner
   # added then removed it in Nov 2026 — still present in history).
   '''^a7DvNBy\+d6CecJsDmHc5CA$''',
+  # Placeholder ALTCHA_HMAC_KEY passed to makeEnv() in
+  # tests/self-hosting.test.mjs (never a deployed key).
+  '''^owner-key-0123456789abcdef0123456789$''',
 ]
 
 # Owner-approved 2026-11-22 18:24: the vendored, unmodified Mermaid release

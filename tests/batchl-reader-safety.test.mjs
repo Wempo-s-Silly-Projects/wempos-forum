@@ -96,7 +96,9 @@ test("package.json gains no browser library (vendored files only); no runtime CD
     assert.equal(pkg.dependencies?.[name], undefined, name);
   }
   for (const file of ["link-safety.js", "strong-language.js", "lang-detect.js", "link-preview.js", "reader-safety.js"]) {
-    assert.doesNotMatch(read("public/js/" + file), /https?:\/\/(?!www\.gnu\.org)/, file);
+    for (const url of read("public/js/" + file).match(/https?:\/\/[^\s"'`)<>]+/g) ?? []) {
+      assert.equal(new URL(url).hostname, "www.gnu.org", file + ": " + url);
+    }
   }
 });
 

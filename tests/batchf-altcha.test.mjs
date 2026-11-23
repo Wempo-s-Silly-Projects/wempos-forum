@@ -36,6 +36,7 @@ import { humanCheckKey, requireHumanCheck } from "../api/core/human-check.mjs";
 import { solveHumanChallenge } from "../public/js/human-check.js";
 import { ALTCHA_MAX_NUMBER } from "../constants.mjs";
 import { BATCHF_VENDOR_PINS } from "./helpers/batchf-vendor-pins.mjs";
+import { cspHosts } from "./helpers/csp.mjs";
 
 const ROOT = new URL("../", import.meta.url);
 const read = (path) => readFileSync(new URL(path, ROOT), "utf8");
@@ -152,7 +153,7 @@ test("CSP: challenges.cloudflare.com is gone from documents and JSON", async () 
   for (const [res, isDocument] of [[doc, true], [api, false]]) {
     const csp = res.headers.get("Content-Security-Policy");
     assert.ok(csp, "CSP present");
-    assert.doesNotMatch(csp, /challenges\.cloudflare\.com/);
+    assert.equal(cspHosts(csp).has("challenges.cloudflare.com"), false);
     assert.match(csp, /script-src 'self'/);
     if (isDocument) {
       // v5.80: the only frame source left is the click-to-load YouTube embed.

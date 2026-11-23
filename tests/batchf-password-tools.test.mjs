@@ -54,7 +54,8 @@ test("REUSE.toml annotates each vendored library with its upstream licence", () 
   ]) {
     const block = reuse.split("[[annotations]]").find((part) => part.includes('"' + path + '"'));
     assert.ok(block, "annotation for " + path);
-    assert.match(block, new RegExp("SPDX-License-Identifier = \"[^\"]*" + licence.replace(/[.-]/g, "\\$&")));
+    const expression = (block.match(/SPDX-License-Identifier = "([^"]*)"/) ?? [])[1] ?? "";
+    assert.ok(expression.split(/[\s()]+/).includes(licence), path + " licence " + licence + " in " + expression);
   }
   for (const text of ["LICENSES/CC-BY-4.0.txt", "LICENSES/ODC-By-1.0.txt", "LICENSES/MIT.txt"]) {
     assert.ok(read(text).length > 500, text);

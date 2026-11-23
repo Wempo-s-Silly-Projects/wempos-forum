@@ -28,6 +28,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { secureResponse, securityHeaders } from "../api/core/http.mjs";
+import { cspHosts } from "./helpers/csp.mjs";
 
 const read = (path) => readFileSync(new URL("../" + path, import.meta.url), "utf8");
 const POLYFILL_ORIGIN = "https://cdnjs.cloudflare.com";
@@ -44,8 +45,8 @@ test("the HTML leg's CSP allows the cdnjs polyfill origin and still forbids inli
 
 test("non-HTML responses: no cdnjs and (Batch F) no Turnstile origin on JSON, feeds, images", () => {
   const csp = securityHeaders(new Headers()).get("Content-Security-Policy");
-  assert.doesNotMatch(csp, /cdnjs/);
-  assert.doesNotMatch(csp, /challenges\.cloudflare\.com/);
+  assert.equal(cspHosts(csp).has("cdnjs.cloudflare.com"), false);
+  assert.equal(cspHosts(csp).has("challenges.cloudflare.com"), false);
 });
 
 test("index.html loads the polyfill once, before every module script, without leaking the referrer", () => {
