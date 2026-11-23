@@ -26,6 +26,7 @@
 // and the embed figure takes its place as soon as embeds.js has loaded. If
 // that import fails, the plain link simply stays.
 import { classifyEmbed, paragraphRuns, standaloneLink } from "./classify.js";
+import { siteModuleOn } from "../site-modules.js";
 
 let loading = null;
 
@@ -65,7 +66,9 @@ function embedHost(document, run, kind, renderText, options, load) {
 
 // Same contract as embeds.js embedParagraph: null when no run embeds, else
 // one node per run (a host for each embeddable run, renderText otherwise).
+// The owner's "embeds" module off (docs/modules.md): links stay plain links.
 export function embedParagraph(document, text, renderText, options = {}, load = () => loadEmbeds()) {
+  if (!siteModuleOn("embeds")) return null;
   const runs = paragraphRuns(text);
   const origin = options.origin ?? globalThis.location?.origin ?? null;
   const kinds = runs.map((run) => embedKind(run, origin));

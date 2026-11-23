@@ -55,6 +55,7 @@ import { createBrandingEditor, submitBrandingSave } from "../desk/branding.js";
 import { createFoolsSwitch, isOwner, submitFoolsSave } from "../desk/saturday-fools.js";
 import { createVisitsPanel } from "../desk/visits.js";
 import { createSiteHealthPanel } from "../desk/site-health.js";
+import { createModulesPanel } from "../desk/modules.js";
 import { createStaffPickLog } from "../desk/staff-picks.js";
 import { threadLockPath } from "../thread-lock.js";
 import { focusPageHeading } from "../focus-utils.js";
@@ -86,7 +87,12 @@ const DESK_SECTIONS = [
   { slug: "branding", labelKey: "admin.section.branding" },
   { slug: "visits", labelKey: "admin.section.visits" },
   { slug: "site-health", labelKey: "admin.section.siteHealth" },
+  // Owner only (docs/modules.md): whole features on or off for this forum.
+  { slug: "modules", labelKey: "admin.section.modules", ownerOnly: true },
 ];
+
+// The rail and the routes an owner (stored 'admin') or an admin may open.
+const sectionAllowed = (section, user) => !section.ownerOnly || user.role === "owner";
 
 // slug → { lede, load(), build() }. Every build() appends the section's body
 // to `main` after the shell; each loads only what it renders.
@@ -199,6 +205,11 @@ const DESK_BUILDERS = {
     load: () => api("/api/admin/site-health"),
     build: (data) => createSiteHealthPanel(data, document),
   },
+  "modules": {
+    ledeKey: "admin.lede.modules",
+    load: () => api("/api/admin/modules"),
+    build: (data) => createModulesPanel(data, document),
+  },
 };
 
 async function renderAdminRoute(route, context, version) {
@@ -209,7 +220,8 @@ async function renderAdminRoute(route, context, version) {
     addText(document, main, "p", t("admin.staffOnly"), "muted");
     return;
   }
-  const slug = DESK_BUILDERS[route.section] ? route.section : "dashboard";
+  const requested = DESK_SECTIONS.find((s) => s.slug === route.section);
+  const slug = DESK_BUILDERS[route.section] && sectionAllowed(requested, user) ? route.section : "dashboard";
   const content = renderAdminShell(user, slug);
   if (slug !== "dashboard") {
     const section = DESK_BUILDERS[slug];
@@ -251,7 +263,7 @@ async function renderAdminRoute(route, context, version) {
   };
   content.append(createDashboardBoard(
     DESK_SECTIONS
-      .filter((s) => s.slug !== "dashboard" && DESK_BUILDERS[s.slug])
+      .filter((s) => s.slug !== "dashboard" && DESK_BUILDERS[s.slug] && sectionAllowed(s, user))
       .map((s) => ({ slug: s.slug, label: t(s.labelKey), count: counts[s.slug] })),
     document,
   ));
@@ -271,7 +283,7 @@ function renderAdminShell(user, activeSlug) {
   nav.append(name);
   const list = document.createElement("ul");
   list.className = "desk-nav-list";
-  for (const section of DESK_SECTIONS) {
+  for (const section of DESK_SECTIONS.filter((s) => sectionAllowed(s, user))) {
     const item = document.createElement("li");
     const link = document.createElement("a");
     link.className = "desk-nav-link" + (section.slug === activeSlug ? " desk-nav-active" : "");

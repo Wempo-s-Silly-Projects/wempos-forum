@@ -27,6 +27,7 @@
 // no URL, no id, no cookie read, no storage, no third party. The server keeps
 // only daily totals (api/vitals.mjs).
 import { ROUTE_NAMES, routeForPath } from "./router.js";
+import { siteModuleOn } from "./site-modules.js";
 
 export const VITALS_ENDPOINT = "/api/vitals";
 export const WEB_VITALS_SRC = "/js/vendor/web-vitals.iife.js";
@@ -100,6 +101,8 @@ export function startVitals({
   fetchImpl = (...args) => globalThis.fetch(...args),
 } = {}) {
   if (!vitalsAllowed(nav)) return;
+  // The owner's "web-vitals" module off (docs/modules.md): nothing loads.
+  if (!siteModuleOn("web-vitals", doc)) return;
   const route = routeTemplate(loc);
   if (!route) return;
   const metrics = {};

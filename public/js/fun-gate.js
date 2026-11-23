@@ -25,6 +25,7 @@
 // another tab turns one on. Once loaded, everything behaves exactly as
 // before: the unread watcher is seeded with the last count and the easter
 // egg listener is installed.
+import { siteModuleOn } from "./site-modules.js";
 
 // Mirrors fun/settings.js FUN_STORAGE_KEY (pinned equal by
 // tests/lazy-load-graph.test.mjs).
@@ -52,8 +53,10 @@ export function funSwitchOn(key, storage = browserStorage()) {
   return storedSwitches(storage)[key] === true;
 }
 
-// True when any switch is on.
+// True when any switch is on (never while the owner has the "fun" module
+// off, docs/modules.md).
 export function anyFunOn(storage = browserStorage()) {
+  if (!siteModuleOn("fun")) return false;
   return Object.values(storedSwitches(storage)).some((value) => value === true);
 }
 

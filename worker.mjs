@@ -85,6 +85,8 @@ import { handleDmReactionRoutes } from "./api/dm-reactions.mjs";
 import { handleTagRoutes } from "./api/tags.mjs";
 import { handleMcp } from "./api/mcp.mjs";
 import { handleLinkPreviewRoutes } from "./api/link-preview.mjs";
+import { handleModuleRoutes } from "./api/modules.mjs";
+import { gateModulePath, offClientModuleIds } from "./api/core/modules.mjs";
 import { attributeEscape, withPageHead } from "./api/seo.mjs";
 import { accountsOrigin, configuredOrigin } from "./api/core/site.mjs";
 import { sourceUrl } from "./api/core/source-url.mjs";
@@ -136,7 +138,7 @@ function notFound(request, env, url, path) {
 // dispatch context and answers only the paths it owns; `undefined` falls
 // through to the next handler or the notFound tail — the vendor's dispatch()
 // replaces the inlined handlers-for-loop, built once from the vendor import.
-const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleSaturdayFoolsRoutes, handleAnalyticsRoutes, handleVitalsRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes, handleAltchaRoutes, handlePasskeyRoutes, handleLinkPreviewRoutes];
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleSaturdayFoolsRoutes, handleAnalyticsRoutes, handleVitalsRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes, handleAltchaRoutes, handlePasskeyRoutes, handleLinkPreviewRoutes, handleModuleRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
@@ -156,13 +158,15 @@ const answerApiRoute = dispatch(API_HANDLERS, notFound);
 // a visitor holding a valid Anubis pass, else the "altcha" fallback).
 // Saturday Fools (v5.86): "saturday-fools" = "on" only when env SATURDAY_FOOLS
 // is "on" and the owner has not forced it off (api/saturday-fools.mjs).
-function shellMetas(env, branding, humanCheck, fools = "") {
+// Modules (docs/modules.md): the browser-side modules that are off ride
+// site-modules-off; with every one on (the default) no meta is added.
+function shellMetas(env, branding, humanCheck, fools = "", offModules = []) {
   const build = env.VERSION ? [env.VERSION, env.COMMIT_SHA].filter(Boolean).join("@") : "";
   const accounts = accountsOrigin(env);
   return [
     ["app-build", build], ["accounts-origin", accounts], ["human-check", humanCheck],
     ["site-name", branding.name], ["site-tagline", branding.tagline], ["site-footer", branding.footer],
-    ["source-url", sourceUrl(env)], ["saturday-fools", fools],
+    ["source-url", sourceUrl(env)], ["saturday-fools", fools], ["site-modules-off", offModules.join(",")],
   ]
     .filter(([, content]) => content)
     .map(([name, content]) => `<meta name="${name}" content="${attributeEscape(content)}">`)
@@ -175,7 +179,8 @@ async function stampedAssetResponse(assetResponse, env, request, url) {
   const type = assetResponse.headers.get("Content-Type") || "";
   if (!type.includes("text/html")) return assetResponse;
   const branding = await readStoredBranding(env);
-  const stamp = shellMetas(env, branding, await humanCheckMeta(request, env), await saturdayFoolsMeta(env));
+  const stamp = shellMetas(env, branding, await humanCheckMeta(request, env), await saturdayFoolsMeta(env),
+    await offClientModuleIds(env, request));
   const html = await withPageHead(await assetResponse.text(), request, env, url, branding);
   // The served bytes change length, so the original Content-Length must go —
   // a stale length would truncate the stamped document. HTML also revalidates
@@ -238,6 +243,8 @@ async function routeApi(request, env, ctx) {
   // Filter store (v4.3): prime the word-filter list cache once per request —
   // the D1 row when it exists, else the FILTERED_WORDS secret.
   await ensureFilterWords(env);
+  // Modules: a path an off module owns answers 404 before any handler.
+  await gateModulePath(request, env, path);
 
   return answerApiRoute(request, env, url, path, method, ctx);
 }
