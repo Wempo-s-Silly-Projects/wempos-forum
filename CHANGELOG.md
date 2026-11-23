@@ -10,6 +10,19 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.84.3] - 2026-11-22
+
+### Fixed
+
+- Anubis now actually gates the site. It reads the visitor address from
+  `Cf-Connecting-Ip`; before, it refused every check and the site fell back
+  to ALTCHA.
+- The Internet Archive (Wayback Machine), Google, Bing and Apple crawlers
+  are let through again. Cloudflare gives Anubis a shared address instead
+  of the visitor's, so the Worker now checks the real network itself: the
+  crawler's user agent must match AND the request must come from that
+  crawler's own network, so a faked user agent does not help.
+
 ## [5.84.2] - 2026-11-22
 
 ### Fixed

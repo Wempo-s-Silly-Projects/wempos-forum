@@ -151,6 +151,18 @@ export const ANUBIS_CLIENT_IP_HEADER = "X-Wempo-Client-Ip";
 // tests/anubis-api-recovery.test.mjs) and reloads once so the page gate can
 // send the reader back through the challenge.
 export const ANUBIS_API_CHALLENGE_ERROR = "human check required";
+// v5.84.3: Cloudflare gives Anubis the shared Workers address on same-zone
+// subrequests, so Anubis's IP allow rules never match. The worker checks the
+// real network itself: a request skips the Anubis check only when its UA
+// claims one of these crawlers AND request.cf.asn is that crawler's own
+// network (Cloudflare derives the ASN from the connection; it can't be faked).
+// Mirrors the good-crawler pairs in Anubis's data/crawlers/_allow-good.yaml.
+export const ANUBIS_TRUSTED_CRAWLERS = Object.freeze([
+  Object.freeze({ name: "internet-archive", ua: /\b(?:archive\.org_bot|ia_archiver)\b/i, asns: Object.freeze([7941]) }),
+  Object.freeze({ name: "google", ua: /\b(?:Googlebot|Google-InspectionTool|GoogleOther|Storebot-Google)\b/i, asns: Object.freeze([15169]) }),
+  Object.freeze({ name: "bing", ua: /\b(?:bingbot|BingPreview|msnbot)\b/i, asns: Object.freeze([8075]) }),
+  Object.freeze({ name: "apple", ua: /\bApplebot\b/i, asns: Object.freeze([714]) }),
+]);
 // The only rule Anubis's PassChallenge ever signs into a pass cookie.
 export const ANUBIS_PASS_ACTION = "CHALLENGE";
 // "<cookie-prefix>-auth" plus the optional dynamic "-<8 hex>" suffix.

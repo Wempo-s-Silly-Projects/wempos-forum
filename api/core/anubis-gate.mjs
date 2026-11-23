@@ -31,7 +31,7 @@
 import {
   ANUBIS_API_CHALLENGE_ERROR, ANUBIS_API_EXEMPT_EXACT, ANUBIS_API_EXEMPT_PREFIXES, ANUBIS_CHECK_PATH, ANUBIS_CHECK_TIMEOUT_MS,
   ANUBIS_CLIENT_IP_HEADER, ANUBIS_COOKIE_PATTERN, ANUBIS_PAGE_CSP, ANUBIS_PROXY_MAX_BODY_BYTES,
-  ANUBIS_PROXY_TIMEOUT_MS, ANUBIS_RESERVED_PREFIX, STATIC_HTML_PAGES,
+  ANUBIS_PROXY_TIMEOUT_MS, ANUBIS_RESERVED_PREFIX, ANUBIS_TRUSTED_CRAWLERS, STATIC_HTML_PAGES,
 } from "../../constants.mjs";
 import { agentFromRequest } from "./agent-auth.mjs";
 import { anubisConfig, hasAnubisPass } from "./anubis-pass.mjs";
@@ -216,10 +216,22 @@ async function askAnubis(request, config) {
 
 // anubisGate(request, env) -> a Response that replaces the page (Anubis's
 // deny or a redirect to its challenge), or null to serve the page.
+// isTrustedCrawler(request) -> true only when the User-Agent claims a known
+// good crawler AND request.cf.asn is that crawler's own network (v5.84.3).
+// Cloudflare hands Anubis the shared Workers address, so its own IP allow
+// rules can't match; the worker sees the real ASN. No cf data -> false.
+export function isTrustedCrawler(request) {
+  const asn = Number(request.cf && request.cf.asn);
+  if (!Number.isInteger(asn) || asn <= 0) return false;
+  const ua = request.headers.get("User-Agent") || "";
+  return ANUBIS_TRUSTED_CRAWLERS.some((crawler) => crawler.asns.includes(asn) && crawler.ua.test(ua));
+}
+
 export async function anubisGate(request, env) {
   if (!anubisGateApplies(request)) return null;
   const config = anubisConfig(env);
   if (!config) return null;
+  if (isTrustedCrawler(request)) return null;
   const upstream = await askAnubis(request, config);
   return upstream ? judge(upstream, request, env) : null;
 }
@@ -262,6 +274,7 @@ export async function anubisApiGate(request, env) {
   if (!anubisApiGateApplies(request)) return null;
   const config = anubisConfig(env);
   if (!config) return null;
+  if (isTrustedCrawler(request)) return null;
   if (await hasAnubisPass(request, env)) return null;
   if (await signedIn(request, env)) return null;
   const upstream = await askAnubis(request, config);
