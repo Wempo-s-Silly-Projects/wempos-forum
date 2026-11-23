@@ -4753,3 +4753,38 @@ form[data-form] .form-field textarea[name="body"] {
   min-height: 6.5rem;
   max-height: 480px;
 }
+
+/* L2 library wave. Terminal sessions (Prism command-line plugin): the
+   prompt column is drawn from data-prompt and is never selected or copied. */
+.post-codeblock.command-line > code {
+  position: relative;
+  display: block;
+  padding-inline-start: 1.6em;
+}
+.post-codeblock .command-line-prompt {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  border-inline-end: 1px solid var(--line);
+  pointer-events: none;
+  user-select: none;
+}
+.post-codeblock .command-line-prompt > span::before {
+  content: " ";
+  display: block;
+  padding-inline-end: 0.4em;
+  color: var(--muted);
+}
+.post-codeblock .command-line-prompt > span[data-prompt]::before {
+  content: attr(data-prompt);
+}
+/* Search the saved posts on the page (MiniSearch). */
+.saved-search { display: grid; gap: 0.25rem; max-width: 28rem; margin: 0 0 0.8rem; }
+.saved-search-input { width: 100%; }
+.saved-search-none { margin: 0; }
+/* Keep screen awake (NoSleep.js): the pressed state reads at a glance. */
+.keep-awake[aria-pressed="true"] { border-color: var(--green); color: var(--green-dark); }
+/* Newcomer tour (Driver.js): the popover follows the forum's paper and ink. */
+.driver-popover.forum-tour { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
+.driver-popover.forum-tour .driver-popover-description { color: var(--ink); }
+.newcomer-tour { justify-self: start; }

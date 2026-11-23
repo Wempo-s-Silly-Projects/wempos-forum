@@ -24,6 +24,7 @@
 // The CSP is untouched: both scripts are 'self' and built with createElement.
 // Blocks Prism never sees (no or unsafe language, over the size cap, Prism
 // failed to load) stay exactly the plain text they were before.
+import { needsCommandLine } from "./command-line.js";
 
 // Mirrors constants.mjs (pinned equal by tests/wave574-prism.test.mjs).
 export const CODE_LINE_NUMBERS_MIN_LINES = 5;
@@ -31,6 +32,9 @@ export const CODE_HIGHLIGHT_MAX_CHARS = 20000;
 
 export const PRISM_CONFIG_SRC = "/js/prism-config.js";
 export const PRISM_SRC = "/js/vendor/prism.js";
+// Terminal sessions (command-line.js): Prism's command-line plugin, from the
+// same 1.30.0 release, fetched after Prism and only for a command-line block.
+export const PRISM_COMMAND_LINE_SRC = "/js/vendor/prism-command-line.min.js";
 // Every language is bundled, so the autoloader only ever asks this
 // same-origin folder for names the build lacks (and gets a 404).
 export const PRISM_AUTOLOADER_PATH = "/js/vendor/components/";
@@ -80,6 +84,12 @@ export function createCodeHighlighter(document, getPrism = () => globalThis.Pris
       .then(() => appendScript(document, PRISM_SRC, { "data-autoloader-path": PRISM_AUTOLOADER_PATH }));
     return loading;
   };
+  // A plugin that fails to load still lets the session paint as plain bash.
+  let commandLine = null;
+  const loadCommandLine = () => {
+    commandLine ??= load().then(() => appendScript(document, PRISM_COMMAND_LINE_SRC).catch(() => {}));
+    return commandLine;
+  };
   const paint = (codes) => {
     const prism = getPrism();
     if (!prism || typeof prism.highlightElement !== "function") return;
@@ -89,7 +99,7 @@ export function createCodeHighlighter(document, getPrism = () => globalThis.Pris
     highlight(codes) {
       const list = Array.from(codes ?? []);
       if (!list.length || typeof document?.head?.append !== "function") return;
-      load().then(() => paint(list), () => {
+      (needsCommandLine(list) ? loadCommandLine() : load()).then(() => paint(list), () => {
         // Plain text is the designed fallback; nothing to undo.
       });
     },

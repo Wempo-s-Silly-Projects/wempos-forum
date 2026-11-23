@@ -55,6 +55,7 @@ import { selectedQuoteText } from "../quote-selection.js";
 import { openLightbox } from "../lightbox.js";
 import { anchorReplyCard, bindReplyHashChange, highlightReplyFromHash } from "../reply-anchor.js";
 import { createSaveThreadButton } from "../thread-text.js";
+import { createKeepAwakeButton } from "../keep-awake.js";
 import { startReadingProgress } from "../reading-progress.js";
 import { createShareButton, shareMenuOffersCopyLink } from "../share.js";
 import { createSlowModeForm, createSlowModeNote, slowModePath } from "../slow-mode.js";
@@ -71,7 +72,8 @@ async function renderPostRoute(route, context, version) {
   const rootCard = createPostCard(post, document, context.session.user);
   // Save as text (wave 5.26 F1): only the cards shown on the page, no fetch.
   rootCard.querySelector(".post-actions")
-    ?.append(createSaveThreadButton(document, { getRoot: () => main, threadId: post.id }));
+    ?.append(createSaveThreadButton(document, { getRoot: () => main, threadId: post.id }),
+      createKeepAwakeButton(document));
   main.append(rootCard);
   // Slow mode (v5.43): the note for everyone, the setter for staff (roots only).
   const slowNote = createSlowModeNote(document, post.slowModeSeconds);

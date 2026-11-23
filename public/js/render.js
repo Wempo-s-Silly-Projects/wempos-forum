@@ -32,6 +32,7 @@ import { t, tn, currentLocale } from "./i18n.js";
 import { createCopyLinkButton } from "./copy-link.js";
 import { createCopyCodeButton } from "./copy-code.js";
 import { codeBlockPlan, highlightCodeBlocks } from "./code-highlight.js";
+import { COMMAND_LINE_LANGUAGE, COMMAND_PROMPT, commandLinePlan } from "./command-line.js";
 import { createMathNode, splitMath } from "./math.js";
 import { createJsonTreeToggle, enhanceRenderedBody, isAnsiFence, isMermaidFence, jsonTreePlan } from "./rich-blocks.js";
 import { embedParagraph } from "./embeds/embeds.js";
@@ -146,9 +147,25 @@ const renderAttachments = (post, document, article) => {
 // in the tool row (rich-blocks.js).
 const PLAIN_PLAN = Object.freeze({ languageClass: "language-none", highlight: false, lineNumbers: false });
 
+// A ```console session with "$ " prompts (command-line.js): the prompts come
+// off the text and the Prism command-line plugin draws them; the copy button
+// copies the commands and their output, never the prompts.
+function createCommandLineBlock(document, session) {
+  const pre = createElement(document, "pre", "post-codeblock command-line");
+  pre.setAttribute("data-prompt", COMMAND_PROMPT);
+  if (session.output) pre.setAttribute("data-output", session.output);
+  const code = document.createElement("code");
+  code.className = COMMAND_LINE_LANGUAGE + " no-whitespace-normalization";
+  code.textContent = session.code;
+  pre.append(createCopyCodeButton(document, () => code.textContent), code);
+  return { pre, code };
+}
+
 function createCodeBlock(document, block, work) {
   const text = block.text.join("\n");
   const ansi = isAnsiFence(block.info, text);
+  const session = ansi ? null : commandLinePlan(block.info, text);
+  if (session) return createCommandLineBlock(document, session);
   const plan = ansi ? PLAIN_PLAN : codeBlockPlan(block.info, text);
   const pre = createElement(document, "pre", plan.lineNumbers ? "post-codeblock line-numbers" : "post-codeblock");
   const code = document.createElement("code");

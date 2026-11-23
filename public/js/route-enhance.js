@@ -23,6 +23,7 @@
 // something for it (a sortable table, a counter, an animated list), and a
 // library that fails to load leaves the page exactly as rendered.
 import { prefersReducedMotion } from "./focus-utils.js";
+import { releaseKeepAwake } from "./keep-awake.js";
 import { animateLists, motionTargets } from "./list-motion.js";
 import { loadTablesort, makeTablesSortable, sortableTables } from "./sortable-tables.js";
 import { countUpStats } from "./stat-count.js";
@@ -31,6 +32,8 @@ import { prepareTooltips } from "./tooltips.js";
 const quietly = (promise) => promise.catch(() => {});
 
 export function enhanceRoute(root, { win = globalThis } = {}) {
+  // A wake lock asked for on the last thread never outlives it (keep-awake.js).
+  releaseKeepAwake();
   prepareTooltips(root);
   const jobs = [];
   if (sortableTables(root).length) {
