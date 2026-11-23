@@ -153,8 +153,17 @@ test("anubisGate: no client header bypasses the seam; only allowlisted headers a
   assert.equal(await anubisGate(request, {}), null);
 });
 
-test("human check: production wrangler.toml pins altcha; altcha mode refuses a missing proof", async () => {
-  assert.match(read("wrangler.toml"), /^HUMAN_CHECK = "altcha"$/m);
+test("human check: production runs altcha, or anubis only when fully configured; altcha mode refuses a missing proof", async () => {
+  // v5.84.1 (owner "switch to ANUBIS"): anubis is allowed in production only
+  // with a real https origin and a 64-hex public key beside it; anything else
+  // must stay altcha. Never "off".
+  const toml = read("wrangler.toml");
+  const mode = (toml.match(/^HUMAN_CHECK = "([a-z]+)"$/m) ?? [])[1];
+  assert.ok(mode === "altcha" || mode === "anubis", `production HUMAN_CHECK is ${mode}`);
+  if (mode === "anubis") {
+    assert.match(toml, /^ANUBIS_URL = "https:\/\/[a-z0-9.-]+"$/m);
+    assert.match(toml, /^ANUBIS_PUBLIC_KEY_HEX = "[0-9a-f]{64}"$/m);
+  }
   assert.equal(humanCheckMode({ HUMAN_CHECK: "altcha" }), "altcha");
   const env = makeEnv({ HUMAN_CHECK: "altcha", ALTCHA_HMAC_KEY: "k".repeat(32) });
   const res = await call(env, "/api/auth/login", { method: "POST", body: { username: "nobody", password: "x" } });
