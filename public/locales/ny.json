@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, kenako Enter kapena Tab: sankhani lingaliro la @kutchula",
   "shortcuts.close": "Esc: tsekani chowonera zithunzi kapena malingaliro a @kutchula",
   "attachments.wrongType": "\"{name}\" sinawonjezedwe: zithunzi za JPEG, PNG, WebP ndi GIF zokha ndizomwe zingawonjezedwe.",
+  "attachments.locationKept": "\"{name}\" sinawonjezedwe: chikadali ndi zambiri za malo a GPS.",
   "composer.pendingImages.one": "Chithunzi 1 chokonzeka kuwonjezera: {names}. Palibe chikwezedwa mpaka mutachiwonjezera ndi kutumiza.",
   "composer.pendingImages.other": "Zithunzi {count} zokonzeka kuwonjezera: {names}. Palibe chikwezedwa mpaka mutaziwonjezera ndi kutumiza.",
   "composer.pendingAttach": "Onjezani",

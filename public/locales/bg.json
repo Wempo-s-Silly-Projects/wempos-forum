@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, после Enter или Tab: избери предложение за @споменаване",
   "shortcuts.close": "Esc: затвори прегледа на изображение или предложенията за @споменаване",
   "attachments.wrongType": "„{name}“ не беше добавен: могат да се прикачат само изображения JPEG, PNG, WebP и GIF.",
+  "attachments.locationKept": "„{name}“ не беше добавен: все още съдържа GPS данни за местоположение.",
   "composer.pendingImages.one": "1 изображение е готово за прикачване: {names}. Нищо не се качва, докато не го прикачиш и не публикуваш.",
   "composer.pendingImages.other": "{count} изображения са готови за прикачване: {names}. Нищо не се качва, докато не ги прикачиш и не публикуваш.",
   "composer.pendingAttach": "Прикачи",

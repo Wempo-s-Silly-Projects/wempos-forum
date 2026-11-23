@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, pak Enter nebo Tab: výběr návrhu @zmínky",
   "shortcuts.close": "Esc: zavře prohlížeč obrázků nebo návrhy @zmínek",
   "attachments.wrongType": "„{name}“ nebylo přidáno: přiložit lze jen obrázky JPEG, PNG, WebP a GIF.",
+  "attachments.locationKept": "„{name}“ nebylo přidáno: stále obsahuje údaje o poloze GPS.",
   "composer.pendingImages.one": "1 obrázek připravený k přiložení: {names}. Nic se nenahraje, dokud ho nepřiložíš a neodešleš.",
   "composer.pendingImages.other": "Obrázků připravených k přiložení: {count}: {names}. Nic se nenahraje, dokud je nepřiložíš a neodešleš.",
   "composer.pendingAttach": "Přiložit",

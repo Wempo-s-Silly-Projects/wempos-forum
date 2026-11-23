@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, afei Enter anaa Tab: paw @din a wɔde ama",
   "shortcuts.close": "Esc: to mfonini nhwɛbea no anaa @din nyansahyɛ no mu",
   "attachments.wrongType": "Wɔamfa \"{name}\" anka ho: JPEG, PNG, WebP ne GIF mfonini nkutoo na wubetumi de aka ho.",
+  "attachments.locationKept": "Wɔamfa \"{name}\" anka ho: GPS beae ho nsɛm da so wɔ mu.",
   "composer.pendingImages.one": "Mfonini a ɛreda hɔ sɛ wode bɛka ho: {names}. Biribiara nkɔ kosi sɛ wode bɛka ho na woadi.",
   "composer.pendingImages.other": "Mfonini {count} a ɛreda hɔ sɛ wode bɛka ho: {names}. Biribiara nkɔ kosi sɛ wode bɛka ho na woadi.",
   "composer.pendingAttach": "Fa ka ho",

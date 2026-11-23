@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, kisha Enter au Tab: chagua pendekezo la @kutaja",
   "shortcuts.close": "Esc: funga kitazamaji cha picha au mapendekezo ya @kutaja",
   "attachments.wrongType": "\"{name}\" haikuongezwa: picha za JPEG, PNG, WebP na GIF pekee ndizo zinazoweza kuambatishwa.",
+  "attachments.locationKept": "\"{name}\" haikuongezwa: bado ina data ya mahali ya GPS.",
   "composer.pendingImages.one": "Picha 1 iko tayari kuambatishwa: {names}. Hakuna kinachopakiwa hadi uiambatishe na uchapishe.",
   "composer.pendingImages.other": "Picha {count} ziko tayari kuambatishwa: {names}. Hakuna kinachopakiwa hadi uziambatishe na uchapishe.",
   "composer.pendingAttach": "Ambatisha",

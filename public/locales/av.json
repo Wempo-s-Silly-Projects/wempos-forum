@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, хадуб Enter яги Tab: @цӏар бахъиялъул таклиф бищизе",
   "shortcuts.close": "Esc: суратал балагьулеб бакӏ яги @цӏар бахъиялъул таклифал къазе",
   "attachments.wrongType": "«{name}» жубачӏо: JPEG, PNG, WebP ва GIF суратал гурони жубазе бегьуларо.",
+  "attachments.locationKept": "«{name}» жубачӏо: гьелъул жеги GPS бакӀалъул баянал руго.",
   "composer.pendingImages.one": "1 сурат жубазе хӏадур буго: {names}. Мун жубайгӏан ва пост бахъизегӏан щибниги битуларо.",
   "composer.pendingImages.other": "{count} сурат жубазе хӏадур буго: {names}. Мун жубайгӏан ва пост бахъизегӏан щибниги битуларо.",
   "composer.pendingAttach": "Жубазе",

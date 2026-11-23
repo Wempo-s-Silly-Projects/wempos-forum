@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, dann Enter oder Tab: einen @Erwähnungs-Vorschlag auswählen",
   "shortcuts.close": "Esc: Bildansicht oder @Erwähnungs-Vorschläge schließen",
   "attachments.wrongType": "„{name}“ wurde nicht hinzugefügt: Nur JPEG-, PNG-, WebP- und GIF-Bilder können angehängt werden.",
+  "attachments.locationKept": "„{name}“ wurde nicht hinzugefügt: Es enthält noch GPS-Standortdaten.",
   "composer.pendingImages.one": "1 Bild bereit zum Anhängen: {names}. Nichts wird hochgeladen, bis du es anhängst und postest.",
   "composer.pendingImages.other": "{count} Bilder bereit zum Anhängen: {names}. Nichts wird hochgeladen, bis du sie anhängst und postest.",
   "composer.pendingAttach": "Anhängen",

@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, dan Enter of Tab: kies een @vermelding-suggestie",
   "shortcuts.close": "Esc: sluit de afbeeldingsviewer of de @vermelding-suggesties",
   "attachments.wrongType": "“{name}” is niet toegevoegd: alleen JPEG-, PNG-, WebP- en GIF-afbeeldingen kunnen worden bijgevoegd.",
+  "attachments.locationKept": "“{name}” is niet toegevoegd: het bevat nog GPS-locatiegegevens.",
   "composer.pendingImages.one": "1 afbeelding klaar om bij te voegen: {names}. Er wordt niets geüpload tot je hem bijvoegt en plaatst.",
   "composer.pendingImages.other": "{count} afbeeldingen klaar om bij te voegen: {names}. Er wordt niets geüpload tot je ze bijvoegt en plaatst.",
   "composer.pendingAttach": "Bijvoegen",

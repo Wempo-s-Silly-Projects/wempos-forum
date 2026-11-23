@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, afta Enter o Tab: joosem wan @mention",
   "shortcuts.close": "Esc: sutum luk blong pija o lis blong @mention",
   "attachments.wrongType": "Oli no putum \"{name}\": JPEG, PNG, WebP mo GIF pija nomo oli save go wetem.",
+  "attachments.locationKept": "Oli no putum \"{name}\": hem i gat GPS infomesen blong ples yet.",
   "composer.pendingImages.one": "1 pija i redi blong putum: {names}. I no gat samting i apload kasem taem yu putum mo postem.",
   "composer.pendingImages.other": "{count} pija i redi blong putum: {names}. I no gat samting i apload kasem taem yu putum mo postem.",
   "composer.pendingAttach": "Putum",

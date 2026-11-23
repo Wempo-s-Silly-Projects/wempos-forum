@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, then Enter or Tab: pick an @mention suggestion",
   "shortcuts.close": "Esc: close the image viewer or the @mention suggestions",
   "attachments.wrongType": "\"{name}\" was not added: only JPEG, PNG, WebP and GIF images can be attached.",
+  "attachments.locationKept": "\"{name}\" was not added: it still carries GPS location data.",
   "composer.pendingImages.one": "1 image ready to attach: {names}. Nothing uploads until you attach it and post.",
   "composer.pendingImages.other": "{count} images ready to attach: {names}. Nothing uploads until you attach them and post.",
   "composer.pendingAttach": "Attach",

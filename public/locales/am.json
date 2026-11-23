@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓፣ ከዚያ Enter ወይም Tab፦ የ@መጠቀስ ጥቆማ ይምረጡ",
   "shortcuts.close": "Esc፦ የምስል መመልከቻውን ወይም የ@መጠቀስ ጥቆማዎችን ዝጋ",
   "attachments.wrongType": "«{name}» አልታከለም፦ ማያያዝ የሚቻለው JPEG፣ PNG፣ WebP እና GIF ምስሎችን ብቻ ነው።",
+  "attachments.locationKept": "«{name}» አልታከለም፦ አሁንም የGPS አካባቢ መረጃ ይዟል።",
   "composer.pendingImages.one": "ለማያያዝ ዝግጁ የሆነ ምስል፦ {names}። እስኪያያይዙት እና እስኪለጥፉ ድረስ ምንም አይጫንም።",
   "composer.pendingImages.other": "ለማያያዝ ዝግጁ የሆኑ {count} ምስሎች፦ {names}። እስኪያያይዟቸው እና እስኪለጥፉ ድረስ ምንም አይጫንም።",
   "composer.pendingAttach": "አያይዝ",

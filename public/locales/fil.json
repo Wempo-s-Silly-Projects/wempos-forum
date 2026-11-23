@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, saka Enter o Tab: pumili ng mungkahi sa @mention",
   "shortcuts.close": "Esc: isara ang image viewer o ang mga mungkahi sa @mention",
   "attachments.wrongType": "Hindi naidagdag ang \"{name}\": mga larawang JPEG, PNG, WebP at GIF lang ang puwedeng i-attach.",
+  "attachments.locationKept": "Hindi naidagdag ang \"{name}\": may GPS na datos ng lokasyon pa rin ito.",
   "composer.pendingImages.one": "1 larawang handang i-attach: {names}. Walang maa-upload hangga't hindi mo ina-attach at pino-post.",
   "composer.pendingImages.other": "{count} larawang handang i-attach: {names}. Walang maa-upload hangga't hindi mo ina-attach at pino-post.",
   "composer.pendingAttach": "I-attach",

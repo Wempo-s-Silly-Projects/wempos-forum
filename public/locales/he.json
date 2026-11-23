@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓ ואז Enter או Tab: בחירת הצעה ל-@אזכור",
   "shortcuts.close": "Esc: סגירת מציג התמונות או הצעות ה-@אזכור",
   "attachments.wrongType": "„{name}” לא נוסף: אפשר לצרף רק תמונות JPEG,‏ PNG,‏ WebP ו‑GIF.",
+  "attachments.locationKept": "„{name}” לא נוסף: הוא עדיין מכיל נתוני מיקום GPS.",
   "composer.pendingImages.one": "תמונה אחת מוכנה לצירוף: {names}. שום דבר לא עולה עד שתצרף ותפרסם.",
   "composer.pendingImages.other": "{count} תמונות מוכנות לצירוף: {names}. שום דבר לא עולה עד שתצרף ותפרסם.",
   "composer.pendingAttach": "צירוף",

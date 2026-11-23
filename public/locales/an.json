@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, y dimpués Enter u Tab: tría una sucherencia de @mención",
   "shortcuts.close": "Esc: zarrar o visor d'imáchens u as sucherencias de @mención",
   "attachments.wrongType": "\"{name}\" no s'ha adhibiu: nomás se pueden adchuntar imáchens JPEG, PNG, WebP y GIF.",
+  "attachments.locationKept": "\"{name}\" no s'ha adhibiu: encara contién datos de localización GPS.",
   "composer.pendingImages.one": "1 imachen lista ta adchuntar: {names}. No se puya cosa dica que l'adchuntes y publiques.",
   "composer.pendingImages.other": "{count} imáchens listas ta adchuntar: {names}. No se puya cosa dica que las adchuntes y publiques.",
   "composer.pendingAttach": "Adchuntar",

@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓，然后按 Enter 或 Tab：选择一个 @提及 建议",
   "shortcuts.close": "Esc：关闭图片查看器或 @提及 建议",
   "attachments.wrongType": "未添加“{name}”：只能附加 JPEG、PNG、WebP 和 GIF 图片。",
+  "attachments.locationKept": "未添加“{name}”：它仍含有 GPS 位置信息。",
   "composer.pendingImages.one": "有 1 张图片待附加：{names}。在你附加并发布之前不会上传任何内容。",
   "composer.pendingImages.other": "有 {count} 张图片待附加：{names}。在你附加并发布之前不会上传任何内容。",
   "composer.pendingAttach": "附加",

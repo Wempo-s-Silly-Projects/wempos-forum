@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, pastaj Enter ose Tab: zgjidh një sugjerim @përmendjeje",
   "shortcuts.close": "Esc: mbyll shikuesin e imazheve ose sugjerimet e @përmendjeve",
   "attachments.wrongType": "“{name}” nuk u shtua: mund të bashkëngjiten vetëm imazhe JPEG, PNG, WebP dhe GIF.",
+  "attachments.locationKept": "“{name}” nuk u shtua: ende përmban të dhëna vendndodhjeje GPS.",
   "composer.pendingImages.one": "1 imazh gati për t'u bashkëngjitur: {names}. Asgjë nuk ngarkohet derisa ta bashkëngjitësh dhe të postosh.",
   "composer.pendingImages.other": "{count} imazhe gati për t'u bashkëngjitur: {names}. Asgjë nuk ngarkohet derisa t'i bashkëngjitësh dhe të postosh.",
   "composer.pendingAttach": "Bashkëngjit",

@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, ukat Enter jan ukax Tab: mä @suti amtäw ajlliña",
   "shortcuts.close": "Esc: jamuq uñjiri jan ukax @suti amtäwinak jist'antaña",
   "attachments.wrongType": "«{name}» janiw yapxatatäkiti: JPEG, PNG, WebP ukat GIF jamuqanakakiw chikt'asispa.",
+  "attachments.locationKept": "«{name}» janiw yapxatatäkiti: jichhakamaw GPS chiqa yatiyäwinak utji.",
   "composer.pendingImages.one": "1 jamuqaw chikt'añatak wakicht'ata: {names}. Chikt'añkam qillqantañkamax janiw kunas apayaskiti.",
   "composer.pendingImages.other": "{count} jamuqanakaw chikt'añatak wakicht'ata: {names}. Chikt'añkam qillqantañkamax janiw kunas apayaskiti.",
   "composer.pendingAttach": "Chikt'aña",

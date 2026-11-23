@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓ のあと Enter または Tab：@メンションの候補を選択",
   "shortcuts.close": "Esc：画像ビューアーや @メンションの候補を閉じる",
   "attachments.wrongType": "「{name}」は追加されませんでした: 添付できるのは JPEG・PNG・WebP・GIF 画像のみです。",
+  "attachments.locationKept": "「{name}」は追加されませんでした: GPS 位置情報がまだ含まれています。",
   "composer.pendingImages.one": "添付待ちの画像が 1 枚あります: {names}。添付して投稿するまで何もアップロードされません。",
   "composer.pendingImages.other": "添付待ちの画像が {count} 枚あります: {names}。添付して投稿するまで何もアップロードされません。",
   "composer.pendingAttach": "添付",

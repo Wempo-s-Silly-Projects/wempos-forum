@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓ ပြီးနောက် Enter သို့မဟုတ် Tab: @အမည်ခေါ်ရန် အကြံပြုချက်ကို ရွေးရန်",
   "shortcuts.close": "Esc: ပုံကြည့်ရှုစက် သို့မဟုတ် @အမည်ခေါ်ရန် အကြံပြုချက်များကို ပိတ်ရန်",
   "attachments.wrongType": "\"{name}\" ကို မထည့်ပါ: JPEG၊ PNG၊ WebP နှင့် GIF ပုံများသာ ပူးတွဲနိုင်သည်။",
+  "attachments.locationKept": "\"{name}\" ကို မထည့်ပါ: GPS တည်နေရာ အချက်အလက် ပါဝင်နေဆဲ ဖြစ်သည်။",
   "composer.pendingImages.one": "ပူးတွဲရန်အသင့် ပုံ ၁ ပုံ: {names}။ ပူးတွဲပြီး မတင်မချင်း ဘာမျှ မတင်ပါ။",
   "composer.pendingImages.other": "ပူးတွဲရန်အသင့် ပုံ {count} ပုံ: {names}။ ပူးတွဲပြီး မတင်မချင်း ဘာမျှ မတင်ပါ။",
   "composer.pendingAttach": "ပူးတွဲရန်",

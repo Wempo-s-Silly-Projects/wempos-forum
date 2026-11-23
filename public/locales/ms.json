@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, kemudian Enter atau Tab: pilih cadangan @mention",
   "shortcuts.close": "Esc: tutup pemapar imej atau cadangan @mention",
   "attachments.wrongType": "\"{name}\" tidak ditambah: hanya imej JPEG, PNG, WebP dan GIF boleh dilampirkan.",
+  "attachments.locationKept": "\"{name}\" tidak ditambah: ia masih mengandungi data lokasi GPS.",
   "composer.pendingImages.one": "1 imej sedia dilampirkan: {names}. Tiada apa-apa dimuat naik sehingga anda melampirkannya dan menyiarkan.",
   "composer.pendingImages.other": "{count} imej sedia dilampirkan: {names}. Tiada apa-apa dimuat naik sehingga anda melampirkannya dan menyiarkan.",
   "composer.pendingAttach": "Lampirkan",

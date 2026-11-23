@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, нас Enter ма Tab: @ахьӡ арбара абжьгара алхра",
   "shortcuts.close": "Esc: асахьа ахәаԥшрҭа ма @ахьӡ арбара абжьгарақәа раркра",
   "attachments.wrongType": "«{name}» иацҵам: JPEG, PNG, WebP насгьы GIF асахьақәа мацара рацҵара ауеит.",
+  "attachments.locationKept": "«{name}» иацҵам: иара иахьагьы GPS атыԥ иазку адыррақәа амоуп.",
   "composer.pendingImages.one": "1 асахьа ацҵаразы ихиоуп: {names}. Иацышәҵаанӡа, ишәҭыжьаанӡа акгьы иҭагалахом.",
   "composer.pendingImages.other": "{count} асахьа ацҵаразы ихиоуп: {names}. Иацышәҵаанӡа, ишәҭыжьаанӡа акгьы иҭагалахом.",
   "composer.pendingAttach": "Ацҵара",

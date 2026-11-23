@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, шунан Enter йәки Tab: @телгә алыу тәҡдимен һайларға",
   "shortcuts.close": "Esc: һүрәт ҡарау ҡоралын йәки @телгә алыу тәҡдимдәрен ябырға",
   "attachments.wrongType": "«{name}» өҫтәлмәне: JPEG, PNG, WebP һәм GIF һүрәттәрен генә беркетергә була.",
+  "attachments.locationKept": "«{name}» өҫтәлмәне: унда әле лә GPS урын мәғлүмәттәре бар.",
   "composer.pendingImages.one": "Беркетергә әҙер 1 һүрәт: {names}. Беркетеп баҫтырмайынса бер нәмә лә тейәлмәй.",
   "composer.pendingImages.other": "Беркетергә әҙер {count} һүрәт: {names}. Уларҙы беркетеп баҫтырмайынса бер нәмә лә тейәлмәй.",
   "composer.pendingAttach": "Беркетергә",

@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, பின்னர் Enter அல்லது Tab: @குறிப்பு பரிந்துரையைத் தேர்ந்தெடு",
   "shortcuts.close": "Esc: பட நோக்கியை அல்லது @குறிப்புப் பரிந்துரைகளை மூடு",
   "attachments.wrongType": "\"{name}\" சேர்க்கப்படவில்லை: JPEG, PNG, WebP, GIF படங்களை மட்டுமே இணைக்க முடியும்.",
+  "attachments.locationKept": "\"{name}\" சேர்க்கப்படவில்லை: இதில் இன்னும் GPS இருப்பிடத் தரவு உள்ளது.",
   "composer.pendingImages.one": "1 படம் இணைக்கத் தயார்: {names}. நீங்கள் இணைத்து இடும் வரை எதுவும் பதிவேறாது.",
   "composer.pendingImages.other": "{count} படங்கள் இணைக்கத் தயார்: {names}. நீங்கள் இணைத்து இடும் வரை எதுவும் பதிவேறாது.",
   "composer.pendingAttach": "இணை",

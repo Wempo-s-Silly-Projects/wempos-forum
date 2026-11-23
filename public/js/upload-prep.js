@@ -87,11 +87,35 @@ const loadCompressor = async (file, options) => {
 };
 
 const wrongTypeMessage = (name) => t("attachments.wrongType", { name });
+const locationKeptMessage = (name) => t("attachments.locationKept", { name });
+
+// GPS guard (exifr, lite build: JPEG/HEIC EXIF). The canvas re-encode above
+// is what strips EXIF; when it cannot run, a JPEG would leave the browser
+// with its metadata intact. Before that original is sent, the vendored exifr
+// (imported lazily, only on this fallback path) looks for GPS coordinates,
+// and a photo that still holds them is refused rather than uploaded: the
+// location never leaves the device. A parse failure (no EXIF, a format the
+// lite build does not read) is "no location found"; the Worker still strips
+// every metadata segment it receives.
+const loadLocator = async (buffer) => {
+  const { gps } = await import("./vendor/exifr/lite.esm.mjs");
+  return gps(buffer);
+};
+
+export async function carriesLocation(bytes, locate = loadLocator) {
+  try {
+    const found = await locate(bytes.slice().buffer);
+    return Number.isFinite(found?.latitude) && Number.isFinite(found?.longitude);
+  } catch {
+    return false;
+  }
+}
 
 // Returns the File to upload: the original (GIF, animated, or when the canvas
 // path fails or yields something unusable) or the re-encoded, metadata-free
 // copy under the original name. Throws an Error carrying a translated
-// wrong-type message when the bytes are not an accepted image.
+// wrong-type message when the bytes are not an accepted image, or a
+// location-kept message when an un-re-encoded JPEG still holds GPS data.
 export async function prepareImageUpload(file, options = {}) {
   const {
     compress = loadCompressor,
@@ -99,10 +123,17 @@ export async function prepareImageUpload(file, options = {}) {
     maxSizeMB = UPLOAD_TARGET_MAX_MB,
     wrongType = wrongTypeMessage,
     detectAnimation = loadIsAnimated,
+    locate = loadLocator,
   } = options;
   const header = await readHeader(file);
   const mime = sniffUploadType(header);
   if (!mime || !accept.includes(mime)) throw new Error(wrongType(file.name));
+  const sendOriginal = async () => {
+    if (mime === "image/jpeg" && await carriesLocation(new Uint8Array(await file.arrayBuffer()), locate)) {
+      throw new Error(locationKeptMessage(file.name));
+    }
+    return file;
+  };
   if (await isAnimatedImage(new Uint8Array(await file.arrayBuffer()), mime, detectAnimation)) return file;
   let output;
   try {
@@ -116,13 +147,14 @@ export async function prepareImageUpload(file, options = {}) {
       fileType: mime,
     });
   } catch {
-    // No canvas, an undecodable image, or a browser quirk: send the original.
-    // The Worker strips its metadata and refuses it if it is not an image.
-    return file;
+    // No canvas, an undecodable image, or a browser quirk: send the original
+    // (unless it still holds GPS). The Worker strips its metadata and refuses
+    // it if it is not an image.
+    return sendOriginal();
   }
-  if (!(output instanceof Blob)) return file;
+  if (!(output instanceof Blob)) return sendOriginal();
   const outputMime = sniffUploadType(await readHeader(output));
-  if (!outputMime || !accept.includes(outputMime)) return file;
+  if (!outputMime || !accept.includes(outputMime)) return sendOriginal();
   return new File([output], file.name, { type: outputMime, lastModified: file.lastModified });
 }
 

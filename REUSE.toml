@@ -511,3 +511,13 @@ path = "public/js/vendor/is-animated/**"
 precedence = "override"
 SPDX-FileCopyrightText = "2024 FRSOURCE"
 SPDX-License-Identifier = "MIT"
+
+# exifr 7.1.3 (https://github.com/MikeKovarik/exifr): its dist/lite.esm.mjs
+# kept byte-for-byte (sha256 pinned by tests/media-libs.test.mjs). The upload
+# GPS guard reads EXIF with it before an un-re-encoded photo is sent. MIT,
+# compatible with AGPL-3.0-or-later.
+[[annotations]]
+path = "public/js/vendor/exifr/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2020 Mike Kovařík, Mutiny.cz"
+SPDX-License-Identifier = "MIT"

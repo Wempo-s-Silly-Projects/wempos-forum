@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, poi Invio o Tab: scegli un suggerimento di @menzione",
   "shortcuts.close": "Esc: chiude il visualizzatore di immagini o i suggerimenti di @menzione",
   "attachments.wrongType": "«{name}» non è stato aggiunto: si possono allegare solo immagini JPEG, PNG, WebP e GIF.",
+  "attachments.locationKept": "«{name}» non è stato aggiunto: contiene ancora dati di posizione GPS.",
   "composer.pendingImages.one": "1 immagine pronta da allegare: {names}. Niente viene caricato finché non la alleghi e pubblichi.",
   "composer.pendingImages.other": "{count} immagini pronte da allegare: {names}. Niente viene caricato finché non le alleghi e pubblichi.",
   "composer.pendingAttach": "Allega",
