@@ -1,7 +1,7 @@
 {
   "name": "wempos-forum",
   "version": "5.92.0",
-  "private": true,
+  "private": false,
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "engines": {
@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@eslint/js": "latest",
-    "core-js-compat": "3.51.0",
+    "core-js-compat": "latest",
     "eslint": "latest",
     "fast-check": "latest",
     "globals": "latest",
