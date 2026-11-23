@@ -27,10 +27,15 @@
     "@simplewebauthn/server": "latest",
     "altcha-lib": "latest",
     "content-type": "latest",
+    "cookie-es": "latest",
     "css-tree": "latest",
+    "escape-html": "latest",
     "file-type": "latest",
+    "fresh": "latest",
     "image-dimensions": "latest",
     "ipaddr.js": "latest",
-    "secure-json-parse": "latest"
+    "secure-json-parse": "latest",
+    "serialize-error": "latest",
+    "strip-bom": "latest"
   }
 }

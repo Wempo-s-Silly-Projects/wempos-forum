@@ -18,14 +18,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-const LEADING_BOM = /^\uFEFF/;
+import stripBom from "strip-bom";
+
+// normalize-newline was evaluated and NOT used: v5 folds only CRLF and
+// leaves a lone CR (old Mac line ending) in place, which this contract folds.
 const LINE_BREAKS = /\r\n?/g;
 
 // normalizeBodyText(value) -> member-written text with one leading U+FEFF
-// dropped and CRLF / lone CR folded to LF. Runs BEFORE trimming and length
-// caps so a pasted Windows body is counted the way it is stored. Non-strings
-// pass through untouched so the caller's own type check still answers.
+// dropped (strip-bom) and CRLF / lone CR folded to LF. Runs BEFORE trimming
+// and length caps so a pasted Windows body is counted the way it is stored.
+// Non-strings pass through untouched (strip-bom throws on them) so the
+// caller's own type check still answers.
 export function normalizeBodyText(value) {
   if (typeof value !== "string") return value;
-  return value.replace(LEADING_BOM, "").replace(LINE_BREAKS, "\n");
+  return stripBom(value).replace(LINE_BREAKS, "\n");
 }

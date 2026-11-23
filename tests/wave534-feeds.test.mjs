@@ -111,8 +111,9 @@ test("XML breakout: member text cannot close an element, inject markup or end CD
   assert.ok(withControls.includes("ctrlchars here"));
   // eslint-disable-next-line no-control-regex -- matching control characters is the point
   assert.ok(!/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/.test(withControls), "XML-forbidden character");
-  // Every & in the document starts a known entity.
-  assert.ok(!/&(?!(?:amp|lt|gt|quot|apos);)/.test(xml), "bare ampersand");
+  // Every & in the document starts a known entity (escape-html writes the
+  // apostrophe as the numeric &#39;, L3).
+  assert.ok(!/&(?!(?:amp|lt|gt|quot|apos|#39);)/.test(xml), "bare ampersand");
 });
 
 test("feed descriptions mask spoilers before the cut", async () => {

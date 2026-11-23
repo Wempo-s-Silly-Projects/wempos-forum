@@ -25,6 +25,7 @@ import { unreadCount } from "./notifications.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 import { createSession, assertNetworkNotBanned, readSession, requireCsrf, requireUser } from "./core/auth.mjs";
+import { sessionCookie } from "./core/cookies.mjs";
 import { equalConstantTime, nowSeconds, sha256Hex } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson, securityHeaders } from "./core/http.mjs";
 import { requireHumanCheck } from "./core/human-check.mjs";
@@ -95,7 +96,7 @@ function validateNewCredentials(body) {
 // __Host- wave: the clear rides the prefixed name; Secure is unconditional
 // with it.
 function expiredCookie() {
-  return "__Host-wempo_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure";
+  return sessionCookie("__Host-wempo_session", "", 0);
 }
 
 async function handleSessionRoute(request, env, url, path, method) {

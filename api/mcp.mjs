@@ -59,6 +59,7 @@ import { agentFromRequest } from "./core/agent-auth.mjs";
 import { assertNotBanned } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, parseJsonSafely, rateLimit, readLimitedBody, requireMutationApplied, requiredText } from "./core/http.mjs";
+import { serializeError } from "serialize-error";
 import { normalizeBodyText } from "./core/text.mjs";
 import { postById } from "./core/shapers.mjs";
 import { VIEWABLE_POST_BINDS, canViewPost, viewablePostSql } from "./core/visibility.mjs";
@@ -348,7 +349,7 @@ async function dispatch(message, env, ctx) {
   try {
     return await routeMethod(id, message.method, params, env, ctx);
   } catch (error) {
-    console.error("mcp: internal error", message.method, error && error.stack ? error.stack : error);
+    console.error("mcp: internal error", message.method, serializeError(error));
     return rpcError(id, RPC_INTERNAL_ERROR, "Internal error.");
   }
 }
