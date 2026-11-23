@@ -28,13 +28,19 @@ verbatim into any brief you hand to another agent.
   (`build:""` on `/api/version`), disables the stale-build banner, and breaks
   the client's `?v=` script cache-buster. (This bit the fleet on 2026-11-17:
   seven bare deploys went out before the cause was found.)
-- A push to `main` can trigger an automatic hosted build that ships without the
-  stamp. After any push, run `pnpm run deploy` last, from a checkout at the
-  pushed `main` tip.
+- **Branch model (since 2026-11-23):** `main` is development; `release` is
+  production. Ship chain: push `main` → `.team/tools/release-gate.sh <sha>
+  <pushed-at>` prints GATE GREEN → fast-forward `release` to that exact SHA
+  (`git push origin <sha>:refs/heads/release`; never `--force` — a rejected
+  non-fast-forward means STOP) → `pnpm run deploy` last, from a checkout at
+  that SHA. Cloudflare Workers Builds now watches `release` only and runs
+  `pnpm run deploy` (stamped), so a push to `main` deploys nothing. Rollback =
+  move `release` forward to a revert commit, never backwards with force.
 
 ### The repo is PUBLIC
 
-- Pushes to `main` publish immediately.
+- Pushes to `main` publish the source immediately (but deploy nothing; see
+  the branch model above).
 - Never commit `.dev.vars`, `.env` or `.env.*`. They are git-ignored, hold real
   credentials, and are never printed or committed.
 
