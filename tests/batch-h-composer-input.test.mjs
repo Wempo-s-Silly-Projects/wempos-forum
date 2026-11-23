@@ -121,7 +121,7 @@ const VENDOR = {
   "public/js/vendor/text-field-edit.js": "7acad2eaf12c3c691e28b16e190045a59ec1b3725d23a524f084a876a55716d6",
   "public/js/vendor/turndown.js": "bea8cd6ac440d6fcf5b3617c7ba49fb2917beedfc8522c0af7c95ce9a6214354",
   "public/js/vendor/picmo.js": "c6aa345305d1c49eacba7284a8b2aa7b2c55269ec21e5a469b2bfe9798d8efb7",
-  "public/js/vendor/picmo.css": "f8049e5f746c5cbe836c525fca078dd3ee034bae651d8ba9c49246e074cf44ec",
+  "public/js/vendor/picmo.css": "6b936549eab1202e96b3b06f4976dd5ba464fc59aeb71a1d74ad5247ccc9b59c",
   "public/js/vendor/fuzzysort.min.js": "42ff4ca9327e099983adba294d9fefb76079068d9afc438177dd99030ad61781",
   "public/js/vendor/split.js": "cbec679982e03b4ac4e7d94acd5b1cc0a650e8257091b1577d157fcbf5556124",
 };

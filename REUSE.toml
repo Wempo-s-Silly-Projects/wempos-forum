@@ -487,7 +487,8 @@ precedence = "override"
 SPDX-FileCopyrightText = "2017 Dom Christie"
 SPDX-License-Identifier = "MIT"
 
-# picmo 5.8.5 (dist/index.js, dist/index.css): the native-emoji picker.
+# picmo 5.8.5 (dist/index.js; picmo.css = the runtime stylesheet embedded in
+# dist/index.js, verbatim: the shipped dist/index.css lacks the picmo__ prefix).
 [[annotations]]
 path = ["public/js/vendor/picmo.js", "public/js/vendor/picmo.css"]
 precedence = "override"
