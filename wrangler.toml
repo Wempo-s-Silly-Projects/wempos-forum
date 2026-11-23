@@ -13,6 +13,13 @@ routes = [
   { pattern = "wempos-forum.com", custom_domain = true },
 ]
 
+# Smart Placement (perf): a page or API read makes several D1 round trips, so
+# Cloudflare may run the worker near the database instead of the visitor when
+# that is measurably faster. It only moves when it helps; the env.preview
+# block inherits it. Docs: developers.cloudflare.com/workers/configuration/placement/
+[placement]
+mode = "smart"
+
 [vars]
 # Self-hosting (v5.17.0): these used to be hard-coded; the owner's values keep
 # this deployment exactly as before (canonical origin + workers.dev 301,

@@ -16,6 +16,12 @@ compatibility_date = "2026-10-13"
 # here) and set SITE_ORIGIN below to it.
 workers_dev = true
 
+# Smart Placement: lets Cloudflare run the worker near its D1 database when
+# that is measurably faster than running it near the visitor. Remove the two
+# lines below to always run nearest the visitor.
+[placement]
+mode = "smart"
+
 [vars]
 # The forum's public origin, e.g. "https://forum.example.org". When set, the
 # workers.dev address 301s here and every sitemap/robots/MCP/OpenAPI link uses
