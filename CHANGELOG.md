@@ -10,6 +10,8 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.88.0] - 2026-11-23
+
 ### Added
 
 - Translate module (off by default): a `/translate` page where signed-in
