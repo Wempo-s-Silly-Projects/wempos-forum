@@ -57,10 +57,8 @@
   "admin.section.appeals": "Fellebbezések",
   "admin.section.avatars": "Profilképek",
   "admin.section.bans": "Kitiltások és tagok",
-  "admin.section.chatLog": "Csevegésnapló",
   "admin.section.css": "Profil-CSS",
   "admin.section.dashboard": "Áttekintés",
-  "admin.section.dmLog": "Privátüzenet-napló",
   "admin.section.filter": "Szószűrő",
   "admin.section.gifs": "GIF-könyvtár",
   "admin.section.hidden": "Elrejtett bejegyzések",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Megmutatja egy hivatkozás címét és összefoglalóját.",
   "modules.desc.embeds": "Videó-, hang- és 3D-lejátszók a bejegyzésekben.",
   "modules.label.search": "Teljes szöveges keresés",
-  "modules.desc.search": "Keresés a szavakra minden bejegyzésen belül."
+  "modules.desc.search": "Keresés a szavakra minden bejegyzésen belül.",
+  "admin.section.allReports": "Jelentések",
+  "admin.lede.allReports": "Amit a tagok jelentettek — bejegyzések, profilok és beszélgetések.",
+  "admin.section.chatDmLog": "Csevegés- és privátüzenet-napló",
+  "admin.lede.chatDmLog": "A nyilvános előcsarnok és az 1:1 üzenetek — helyben törölhetők.",
+  "admin.section.media": "Média",
+  "admin.lede.media": "Ellenőrzésre váró képek, avatarok és GIF-ek.",
+  "desk.reports.all": "Mind",
+  "desk.switch.label": "Mutasd"
 }

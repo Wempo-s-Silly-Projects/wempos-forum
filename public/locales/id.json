@@ -57,10 +57,8 @@
   "admin.section.appeals": "Banding",
   "admin.section.avatars": "Avatar",
   "admin.section.bans": "Ban & member",
-  "admin.section.chatLog": "Log chat",
   "admin.section.css": "CSS profil",
   "admin.section.dashboard": "Ringkasan",
-  "admin.section.dmLog": "Log DM",
   "admin.section.filter": "Filter kata",
   "admin.section.gifs": "Perpustakaan GIF",
   "admin.section.hidden": "Postingan tersembunyi",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Menampilkan judul dan ringkasan tautan.",
   "modules.desc.embeds": "Pemutar video, audio, dan 3D di postingan.",
   "modules.label.search": "Pencarian teks lengkap",
-  "modules.desc.search": "Cari kata-kata di dalam setiap postingan."
+  "modules.desc.search": "Cari kata-kata di dalam setiap postingan.",
+  "admin.section.allReports": "Laporan",
+  "admin.lede.allReports": "Yang dilaporkan anggota — postingan, profil, dan percakapan.",
+  "admin.section.chatDmLog": "Log chat & DM",
+  "admin.lede.chatDmLog": "Lobi publik dan pesan 1:1 — bisa dihapus di tempat.",
+  "admin.section.media": "Media",
+  "admin.lede.media": "Gambar, avatar, dan GIF yang menunggu peninjauan.",
+  "desk.reports.all": "Semua",
+  "desk.switch.label": "Tampilkan"
 }

@@ -57,10 +57,8 @@
   "admin.section.appeals": "Rayuan",
   "admin.section.avatars": "Avatar",
   "admin.section.bans": "Larangan & ahli",
-  "admin.section.chatLog": "Log sembang",
   "admin.section.css": "CSS profil",
   "admin.section.dashboard": "Gambaran keseluruhan",
-  "admin.section.dmLog": "Log DM",
   "admin.section.filter": "Penapis perkataan",
   "admin.section.gifs": "Pustaka GIF",
   "admin.section.hidden": "Siaran tersembunyi",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Menunjukkan tajuk dan ringkasan pautan.",
   "modules.desc.embeds": "Pemain video, audio dan 3D dalam siaran.",
   "modules.label.search": "Carian teks penuh",
-  "modules.desc.search": "Cari perkataan di dalam setiap siaran."
+  "modules.desc.search": "Cari perkataan di dalam setiap siaran.",
+  "admin.section.allReports": "Laporan",
+  "admin.lede.allReports": "Apa yang dilaporkan ahli — siaran, profil dan perbualan.",
+  "admin.section.chatDmLog": "Log sembang & DM",
+  "admin.lede.chatDmLog": "Lobi awam dan mesej 1:1 — boleh dipadam di situ juga.",
+  "admin.section.media": "Media",
+  "admin.lede.media": "Imej, avatar dan GIF yang menunggu semakan.",
+  "desk.reports.all": "Semua",
+  "desk.switch.label": "Tunjuk"
 }

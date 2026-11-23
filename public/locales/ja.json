@@ -57,10 +57,8 @@
   "admin.section.appeals": "異議申し立て",
   "admin.section.avatars": "アバター",
   "admin.section.bans": "BAN とメンバー",
-  "admin.section.chatLog": "チャットログ",
   "admin.section.css": "プロフィール CSS",
   "admin.section.dashboard": "概要",
-  "admin.section.dmLog": "DM ログ",
   "admin.section.filter": "ワードフィルター",
   "admin.section.gifs": "GIF ライブラリ",
   "admin.section.hidden": "非表示の投稿",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "リンクのタイトルと概要を表示します。",
   "modules.desc.embeds": "投稿内の動画・音声・3D プレーヤー。",
   "modules.label.search": "全文検索",
-  "modules.desc.search": "すべての投稿の中の言葉を検索します。"
+  "modules.desc.search": "すべての投稿の中の言葉を検索します。",
+  "admin.section.allReports": "通報",
+  "admin.lede.allReports": "メンバーが通報したもの — 投稿、プロフィール、会話。",
+  "admin.section.chatDmLog": "チャットと DM のログ",
+  "admin.lede.chatDmLog": "公開ロビーと 1:1 メッセージ — その場で削除できます。",
+  "admin.section.media": "メディア",
+  "admin.lede.media": "審査待ちの画像、アバター、GIF。",
+  "desk.reports.all": "すべて",
+  "desk.switch.label": "表示"
 }

@@ -57,10 +57,8 @@
   "admin.section.appeals": "Оскарження",
   "admin.section.avatars": "Аватари",
   "admin.section.bans": "Бани та учасники",
-  "admin.section.chatLog": "Журнал чату",
   "admin.section.css": "CSS профілів",
   "admin.section.dashboard": "Огляд",
-  "admin.section.dmLog": "Журнал особистих",
   "admin.section.filter": "Фільтр слів",
   "admin.section.gifs": "Бібліотека GIF",
   "admin.section.hidden": "Приховані дописи",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Показує назву й короткий опис посилання.",
   "modules.desc.embeds": "Відео-, аудіо- та 3D-плеєри в дописах.",
   "modules.label.search": "Повнотекстовий пошук",
-  "modules.desc.search": "Шукайте слова всередині кожного допису."
+  "modules.desc.search": "Шукайте слова всередині кожного допису.",
+  "admin.section.allReports": "Скарги",
+  "admin.lede.allReports": "На що поскаржилися учасники — дописи, профілі й розмови.",
+  "admin.section.chatDmLog": "Журнал чату й особистих",
+  "admin.lede.chatDmLog": "Спільне лобі та повідомлення 1:1 — видаляються просто тут.",
+  "admin.section.media": "Медіа",
+  "admin.lede.media": "Зображення, аватари й GIF, що чекають на перевірку.",
+  "desk.reports.all": "Усі",
+  "desk.switch.label": "Показати"
 }

@@ -57,10 +57,8 @@
   "admin.section.appeals": "আপিল",
   "admin.section.avatars": "অ্যাভাটার",
   "admin.section.bans": "নিষেধাজ্ঞা ও সদস্য",
-  "admin.section.chatLog": "চ্যাট লগ",
   "admin.section.css": "প্রোফাইল CSS",
   "admin.section.dashboard": "সারসংক্ষেপ",
-  "admin.section.dmLog": "DM লগ",
   "admin.section.filter": "শব্দ ফিল্টার",
   "admin.section.gifs": "GIF লাইব্রেরি",
   "admin.section.hidden": "লুকানো পোস্ট",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "লিংকের শিরোনাম ও সারাংশ দেখায়।",
   "modules.desc.embeds": "পোস্টে ভিডিও, অডিও ও 3D প্লেয়ার।",
   "modules.label.search": "সম্পূর্ণ লেখা অনুসন্ধান",
-  "modules.desc.search": "প্রতিটি পোস্টের ভেতরের শব্দ খুঁজুন।"
+  "modules.desc.search": "প্রতিটি পোস্টের ভেতরের শব্দ খুঁজুন।",
+  "admin.section.allReports": "রিপোর্ট",
+  "admin.lede.allReports": "সদস্যরা যা রিপোর্ট করেছেন — পোস্ট, প্রোফাইল ও কথোপকথন।",
+  "admin.section.chatDmLog": "চ্যাট ও DM লগ",
+  "admin.lede.chatDmLog": "পাবলিক লবি ও ১:১ বার্তা — এখানেই মুছে ফেলা যায়।",
+  "admin.section.media": "মিডিয়া",
+  "admin.lede.media": "পর্যালোচনার অপেক্ষায় থাকা ছবি, অবতার ও GIF।",
+  "desk.reports.all": "সব",
+  "desk.switch.label": "দেখান"
 }

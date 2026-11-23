@@ -57,10 +57,8 @@
   "admin.section.appeals": "Апелляциял",
   "admin.section.avatars": "Аватарал",
   "admin.section.bans": "Банал ва гӏахьалчаги",
-  "admin.section.chatLog": "Чаталъул журнал",
   "admin.section.css": "Профилалъул CSS",
   "admin.section.dashboard": "Цӏалкъого балагьи",
-  "admin.section.dmLog": "Хасал кагъатазул журнал",
   "admin.section.filter": "Рагӏабазул фильтр",
   "admin.section.gifs": "GIF библиотека",
   "admin.section.hidden": "Бахчарал постал",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Ссылкаялъул цӀар ва кӀудиял лъугьа-бахъин бихьизабула.",
   "modules.desc.embeds": "Хъвай-хъвагӀиялда видео, гьаракь ва 3D.",
   "modules.label.search": "Текст цӏакъго балагьи",
-  "modules.desc.search": "Щибаб хъвавуралъуль раъалал рагӏаби ралагьизе."
+  "modules.desc.search": "Щибаб хъвавуралъуль раъалал рагӏаби ралагьизе.",
+  "admin.section.allReports": "Шикаятал",
+  "admin.lede.allReports": "ГӀахьалчагӀаз шикаят гьабураб — постал, профильал ва гара-чӀвари.",
+  "admin.section.chatDmLog": "Чаталъул ва хасал кагъатазул журнал",
+  "admin.lede.chatDmLog": "ГӀамма лобби ва 1:1 кагъатал — гьаниб тӀагӀинаризе бегьула.",
+  "admin.section.media": "Медиа",
+  "admin.lede.media": "Хал гьабизе гӀодорал суратал, аватарал ва GIF.",
+  "desk.reports.all": "Киналго",
+  "desk.switch.label": "Бихьизабе"
 }

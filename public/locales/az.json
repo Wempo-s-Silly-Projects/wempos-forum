@@ -57,10 +57,8 @@
   "admin.section.appeals": "Etirazlar",
   "admin.section.avatars": "Avatarlar",
   "admin.section.bans": "Banlar və üzvlər",
-  "admin.section.chatLog": "Çat jurnalı",
   "admin.section.css": "Profil CSS",
   "admin.section.dashboard": "İcmal",
-  "admin.section.dmLog": "Şəxsi mesaj jurnalı",
   "admin.section.filter": "Söz filtri",
   "admin.section.gifs": "GIF kitabxanası",
   "admin.section.hidden": "Gizlədilmiş yazılar",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Linkin başlığını və xülasəsini göstərir.",
   "modules.desc.embeds": "Yazılarda video, audio və 3D pleyerlər.",
   "modules.label.search": "Tam mətn axtarışı",
-  "modules.desc.search": "Hər yazının içindəki sözləri axtarın."
+  "modules.desc.search": "Hər yazının içindəki sözləri axtarın.",
+  "admin.section.allReports": "Şikayətlər",
+  "admin.lede.allReports": "Üzvlərin şikayət etdikləri — yazılar, profillər və söhbətlər.",
+  "admin.section.chatDmLog": "Çat və şəxsi mesaj jurnalı",
+  "admin.lede.chatDmLog": "Ümumi lobbi və 1:1 mesajlar — yerindəcə silinə bilər.",
+  "admin.section.media": "Media",
+  "admin.lede.media": "Yoxlanış gözləyən şəkillər, avatarlar və GIF-lər.",
+  "desk.reports.all": "Hamısı",
+  "desk.switch.label": "Göstər"
 }

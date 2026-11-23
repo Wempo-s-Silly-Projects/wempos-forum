@@ -57,10 +57,8 @@
   "admin.section.appeals": "Kháng nghị",
   "admin.section.avatars": "Ảnh đại diện",
   "admin.section.bans": "Lệnh cấm & thành viên",
-  "admin.section.chatLog": "Nhật ký chat",
   "admin.section.css": "CSS hồ sơ",
   "admin.section.dashboard": "Tổng quan",
-  "admin.section.dmLog": "Nhật ký DM",
   "admin.section.filter": "Bộ lọc từ",
   "admin.section.gifs": "Thư viện GIF",
   "admin.section.hidden": "Bài viết bị ẩn",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Hiển thị tiêu đề và tóm tắt của liên kết.",
   "modules.desc.embeds": "Trình phát video, âm thanh và 3D trong bài viết.",
   "modules.label.search": "Tìm kiếm toàn văn",
-  "modules.desc.search": "Tìm các từ bên trong mọi bài viết."
+  "modules.desc.search": "Tìm các từ bên trong mọi bài viết.",
+  "admin.section.allReports": "Báo cáo",
+  "admin.lede.allReports": "Những gì thành viên đã báo cáo — bài viết, hồ sơ và cuộc trò chuyện.",
+  "admin.section.chatDmLog": "Nhật ký chat và DM",
+  "admin.lede.chatDmLog": "Sảnh công khai và tin nhắn 1:1 — có thể xóa ngay tại chỗ.",
+  "admin.section.media": "Phương tiện",
+  "admin.lede.media": "Hình ảnh, ảnh đại diện và GIF đang chờ duyệt.",
+  "desk.reports.all": "Tất cả",
+  "desk.switch.label": "Hiển thị"
 }

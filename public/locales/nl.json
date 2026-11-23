@@ -57,10 +57,8 @@
   "admin.section.appeals": "Bezwaren",
   "admin.section.avatars": "Avatars",
   "admin.section.bans": "Bans & leden",
-  "admin.section.chatLog": "Chatlog",
   "admin.section.css": "Profiel-CSS",
   "admin.section.dashboard": "Overzicht",
-  "admin.section.dmLog": "DM-log",
   "admin.section.filter": "Woordfilter",
   "admin.section.gifs": "GIF-bibliotheek",
   "admin.section.hidden": "Verborgen berichten",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Toont de titel en samenvatting van een link.",
   "modules.desc.embeds": "Video-, audio- en 3D-spelers in berichten.",
   "modules.label.search": "Volledige tekst doorzoeken",
-  "modules.desc.search": "Zoek naar de woorden in elk bericht."
+  "modules.desc.search": "Zoek naar de woorden in elk bericht.",
+  "admin.section.allReports": "Meldingen",
+  "admin.lede.allReports": "Wat leden hebben gemeld — berichten, profielen en gesprekken.",
+  "admin.section.chatDmLog": "Chat- en DM-log",
+  "admin.lede.chatDmLog": "De openbare lobby en 1-op-1-berichten — ter plekke te verwijderen.",
+  "admin.section.media": "Media",
+  "admin.lede.media": "Afbeeldingen, avatars en GIF's die op controle wachten.",
+  "desk.reports.all": "Alles",
+  "desk.switch.label": "Toon"
 }

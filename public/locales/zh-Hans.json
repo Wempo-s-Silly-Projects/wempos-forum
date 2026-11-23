@@ -57,10 +57,8 @@
   "admin.section.appeals": "申诉",
   "admin.section.avatars": "头像",
   "admin.section.bans": "封禁与成员",
-  "admin.section.chatLog": "聊天记录",
   "admin.section.css": "个人主页 CSS",
   "admin.section.dashboard": "概览",
-  "admin.section.dmLog": "私信记录",
   "admin.section.filter": "敏感词过滤",
   "admin.section.gifs": "GIF 图库",
   "admin.section.hidden": "已隐藏的帖子",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "显示链接的标题和摘要。",
   "modules.desc.embeds": "帖子中的视频、音频和 3D 播放器。",
   "modules.label.search": "全文搜索",
-  "modules.desc.search": "搜索每个帖子中的文字。"
+  "modules.desc.search": "搜索每个帖子中的文字。",
+  "admin.section.allReports": "举报",
+  "admin.lede.allReports": "成员举报的内容——帖子、个人资料和对话。",
+  "admin.section.chatDmLog": "聊天与私信记录",
+  "admin.lede.chatDmLog": "公共大厅和一对一消息——可当场删除。",
+  "admin.section.media": "媒体",
+  "admin.lede.media": "等待审核的图片、头像和 GIF。",
+  "desk.reports.all": "全部",
+  "desk.switch.label": "显示"
 }

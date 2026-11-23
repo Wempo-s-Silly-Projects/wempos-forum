@@ -57,10 +57,8 @@
   "admin.section.appeals": "Mayiwinaka",
   "admin.section.avatars": "Uñnaqanaka",
   "admin.section.bans": "Jark'awinaka ukat jaqinaka",
-  "admin.section.chatLog": "Aruskipt'aw qillqata",
   "admin.section.css": "Perfil CSS",
   "admin.section.dashboard": "Taqpach uñjawi",
-  "admin.section.dmLog": "Sapa yatiyaw qillqata",
   "admin.section.filter": "Aru suysuña",
   "admin.section.gifs": "GIF imawi",
   "admin.section.hidden": "Imantat qillqatanaka",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Link sutipa ukhamarak juk'a arunak uñacht'ayi.",
   "modules.desc.embeds": "Qillqatanakan video, ist'añataki, 3D.",
   "modules.label.search": "Taqpach qillqat thaqhaña",
-  "modules.desc.search": "Sapa qillqatan arunakap thaqhaña."
+  "modules.desc.search": "Sapa qillqatan arunakap thaqhaña.",
+  "admin.section.allReports": "Qhanancht'awinaka",
+  "admin.lede.allReports": "Kunanaktï jaqinakax qhanancht'apxi — qillqatanaka, perfilanaka, aruskipawinaka.",
+  "admin.section.chatDmLog": "Aruskipt'aw ukat sapa yatiyaw qillqata",
+  "admin.lede.chatDmLog": "Taqi jaqin lobby ukat 1:1 yatiyawinaka — akan chhaqtayañjamawa.",
+  "admin.section.media": "Medios",
+  "admin.lede.media": "Jamuqanaka, avatar ukat GIF uñakipañatak suyt'ki.",
+  "desk.reports.all": "Taqpacha",
+  "desk.switch.label": "Uñacht'ayaña"
 }

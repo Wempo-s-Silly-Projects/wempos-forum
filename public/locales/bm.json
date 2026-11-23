@@ -57,10 +57,8 @@
   "admin.section.appeals": "Kɔseginɲininiw",
   "admin.section.avatars": "Porofili jaw",
   "admin.section.bans": "Baliw ani tɔndenw",
-  "admin.section.chatLog": "Baro sɛbɛnnen",
   "admin.section.css": "Porofili CSS",
   "admin.section.dashboard": "Ɲɛfilɛli",
-  "admin.section.dmLog": "Cikan gundolenw sɛbɛnnen",
   "admin.section.filter": "Kuma sɛnsɛnnan",
   "admin.section.gifs": "GIF maracogo",
   "admin.section.hidden": "Sɛbɛn dogolenw",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "A bɛ jɛɲɔgɔnya tɔgɔ ni a kunnafoni dɔ yira.",
   "modules.desc.embeds": "Bataki kɔnɔ wideyo, kumakan ani 3D.",
   "modules.label.search": "Sɛbɛn bɛɛ ɲinini",
-  "modules.desc.search": "Kumaden minnu bɛ sɛbɛn kelen-kelen bɛɛ kɔnɔ, olu ɲini."
+  "modules.desc.search": "Kumaden minnu bɛ sɛbɛn kelen-kelen bɛɛ kɔnɔ, olu ɲini.",
+  "admin.section.allReports": "Jalakiw",
+  "admin.lede.allReports": "Tɔndenw ye min jalaki — sɛbɛnw, profili ani kumakanw.",
+  "admin.section.chatDmLog": "Baro ani cikan gundolenw sɛbɛnnen",
+  "admin.lede.chatDmLog": "Lobi jamana ni cikan 1:1 — i bɛ se ka u jɔsi yan.",
+  "admin.section.media": "Media",
+  "admin.lede.media": "Jaw, avatar ani GIF minnu bɛ lajɛli makɔnɔ.",
+  "desk.reports.all": "Bɛɛ",
+  "desk.switch.label": "A jira"
 }

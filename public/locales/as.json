@@ -57,10 +57,8 @@
   "admin.section.appeals": "আপীল",
   "admin.section.avatars": "অৱতাৰ",
   "admin.section.bans": "নিষেধাজ্ঞা আৰু সদস্য",
-  "admin.section.chatLog": "চেট লগ",
   "admin.section.css": "প্ৰফাইল CSS",
   "admin.section.dashboard": "অৱলোকন",
-  "admin.section.dmLog": "ব্যক্তিগত বাৰ্তাৰ লগ",
   "admin.section.filter": "শব্দ ফিল্টাৰ",
   "admin.section.gifs": "GIF লাইব্ৰেৰী",
   "admin.section.hidden": "লুকুৱা পোষ্ট",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "লিংকৰ শিৰোনাম আৰু সাৰাংশ দেখুৱায়।",
   "modules.desc.embeds": "পোষ্টত ভিডিঅ', অডিঅ' আৰু 3D প্লেয়াৰ।",
   "modules.label.search": "সম্পূৰ্ণ পাঠ সন্ধান",
-  "modules.desc.search": "প্ৰতিটো পোষ্টৰ ভিতৰৰ শব্দ সন্ধান কৰক।"
+  "modules.desc.search": "প্ৰতিটো পোষ্টৰ ভিতৰৰ শব্দ সন্ধান কৰক।",
+  "admin.section.allReports": "অভিযোগ",
+  "admin.lede.allReports": "সদস্যসকলে অভিযোগ কৰা বিষয় — পোষ্ট, প্ৰফাইল আৰু কথোপকথন।",
+  "admin.section.chatDmLog": "চেট আৰু ব্যক্তিগত বাৰ্তাৰ লগ",
+  "admin.lede.chatDmLog": "ৰাজহুৱা লবী আৰু ১:১ বাৰ্তা — ইয়াতে মচিব পাৰি।",
+  "admin.section.media": "মিডিয়া",
+  "admin.lede.media": "পৰ্যালোচনাৰ অপেক্ষাত থকা ছবি, অৱতাৰ আৰু GIF।",
+  "desk.reports.all": "সকলো",
+  "desk.switch.label": "দেখুৱাওক"
 }

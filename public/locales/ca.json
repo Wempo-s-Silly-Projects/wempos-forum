@@ -57,10 +57,8 @@
   "admin.section.appeals": "Apel·lacions",
   "admin.section.avatars": "Avatars",
   "admin.section.bans": "Bloqueigs i membres",
-  "admin.section.chatLog": "Registre del xat",
   "admin.section.css": "CSS de perfil",
   "admin.section.dashboard": "Resum",
-  "admin.section.dmLog": "Registre de missatges directes",
   "admin.section.filter": "Filtre de paraules",
   "admin.section.gifs": "Biblioteca de GIF",
   "admin.section.hidden": "Publicacions ocultes",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Mostra el títol i el resum d'un enllaç.",
   "modules.desc.embeds": "Reproductors de vídeo, àudio i 3D a les publicacions.",
   "modules.label.search": "Cerca de text complet",
-  "modules.desc.search": "Cerca les paraules dins de cada publicació."
+  "modules.desc.search": "Cerca les paraules dins de cada publicació.",
+  "admin.section.allReports": "Denúncies",
+  "admin.lede.allReports": "El que han denunciat els membres: publicacions, perfils i converses.",
+  "admin.section.chatDmLog": "Registre del xat i dels missatges directes",
+  "admin.lede.chatDmLog": "El vestíbul públic i els missatges 1:1, que es poden esborrar aquí mateix.",
+  "admin.section.media": "Multimèdia",
+  "admin.lede.media": "Imatges, avatars i GIF pendents de revisió.",
+  "desk.reports.all": "Tot",
+  "desk.switch.label": "Mostra"
 }

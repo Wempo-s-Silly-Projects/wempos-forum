@@ -57,10 +57,8 @@
   "admin.section.appeals": "Recursos",
   "admin.section.avatars": "Avatars",
   "admin.section.bans": "Vetos y miembros",
-  "admin.section.chatLog": "Rechistro d'o chat",
   "admin.section.css": "CSS de perfil",
   "admin.section.dashboard": "Resumen",
-  "admin.section.dmLog": "Rechistro de mensaches privaus",
   "admin.section.filter": "Filtro de parolas",
   "admin.section.gifs": "Biblioteca de GIFs",
   "admin.section.hidden": "Publicacions amagadas",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Amuestra o titol y o resumen d'un vinclo.",
   "modules.desc.embeds": "Reproductors de video, audio y 3D en publicacions.",
   "modules.label.search": "Busqueda de texto completo",
-  "modules.desc.search": "Busca as parolas adintro de cada mensache."
+  "modules.desc.search": "Busca as parolas adintro de cada mensache.",
+  "admin.section.allReports": "Denuncias",
+  "admin.lede.allReports": "Lo que han denunciau os miembros — publicacions, perfils y conversas.",
+  "admin.section.chatDmLog": "Rechistro de chat y mensaches privaus",
+  "admin.lede.chatDmLog": "O lobby publico y os mensaches 1:1 — se pueden borrar astí mesmo.",
+  "admin.section.media": "Multimedia",
+  "admin.lede.media": "Imáchens, avatars y GIFs que asperan revisión.",
+  "desk.reports.all": "Totz",
+  "desk.switch.label": "Amostrar"
 }

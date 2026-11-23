@@ -57,10 +57,8 @@
   "admin.section.appeals": "Adesrɛ",
   "admin.section.avatars": "Ho mfonini",
   "admin.section.bans": "Bara ne mufo",
-  "admin.section.chatLog": "Nkɔmmɔ nkrataa",
   "admin.section.css": "Ho nsɛm CSS",
   "admin.section.dashboard": "Nhwɛ mu",
-  "admin.section.dmLog": "Nkra kokoam nkrataa",
   "admin.section.filter": "Nsɛmfua ntwitwa",
   "admin.section.gifs": "GIF nkorabea",
   "admin.section.hidden": "Nkyerɛwee a wɔahintaw",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Ɛkyerɛ link bi din ne ne mua.",
   "modules.desc.embeds": "Video, nnyigyei ne 3D agodi wɔ nkrataa mu.",
   "modules.label.search": "Nsɛm nyinaa mu hwehwɛ",
-  "modules.desc.search": "Hwehwɛ nsɛmfua a ɛwɔ nkrataa biara mu."
+  "modules.desc.search": "Hwehwɛ nsɛmfua a ɛwɔ nkrataa biara mu.",
+  "admin.section.allReports": "Amanneɛbɔ",
+  "admin.lede.allReports": "Deɛ akuomufoɔ bɔɔ amanneɛ — nkyerɛwee, profaele ne nkɔmmɔbɔ.",
+  "admin.section.chatDmLog": "Nkɔmmɔ ne nkra kokoam nkrataa",
+  "admin.lede.chatDmLog": "Baguam nkɔmmɔ ne nkra kokoam — wobɛtumi apepa wɔ ha.",
+  "admin.section.media": "Mfonini ne nneɛma",
+  "admin.lede.media": "Mfonini, avatar ne GIF a ɛretwɛn nhwehwɛmu.",
+  "desk.reports.all": "Ne nyinaa",
+  "desk.switch.label": "Kyerɛ"
 }

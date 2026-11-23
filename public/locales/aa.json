@@ -57,10 +57,8 @@
   "admin.section.appeals": "Gaxsa essero",
   "admin.section.avatars": "Suurat-profayl",
   "admin.section.bans": "Kalo kee maraa",
-  "admin.section.chatLog": "Yabih yab",
   "admin.section.css": "Profaylih CSS",
   "admin.section.dashboard": "Inkih ableh",
-  "admin.section.dmLog": "Sirrih farmoh yab",
   "admin.section.filter": "Yabih filtar",
   "admin.section.gifs": "GIF maktab",
   "admin.section.hidden": "Dummusime kitbat",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Linkih migaaqaay koobaasa yaybulle.",
   "modules.desc.embeds": "Mihrafih viidiyo, sagal kee 3D yaybulle.",
   "modules.label.search": "Inkih qangaxa geyto",
-  "modules.desc.search": "Inkih maxcoocal addal tan qangaxa geyto."
+  "modules.desc.search": "Inkih maxcoocal addal tan qangaxa geyto.",
+  "admin.section.allReports": "Cabsi",
+  "admin.lede.allReports": "Wakkaytit cabseh tan — kitbatih, profaylih kee yab.",
+  "admin.section.chatDmLog": "Yab kee sirrih farmoh yab",
+  "admin.lede.chatDmLog": "Ummattah yab kee sirrih farmo — tamah bayissiyam duudan.",
+  "admin.section.media": "Midiya",
+  "admin.lede.media": "Suurat, avatar kee GIF ilaaliyih sugta.",
+  "desk.reports.all": "Inkih",
+  "desk.switch.label": "Ubul"
 }

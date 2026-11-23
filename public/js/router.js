@@ -77,9 +77,17 @@ export const routeForPath = (pathname, search = "") => {
   // The moderation desk (v4.2): a section-routed panel — /admin is the
   // overview, /admin/<slug> a dedicated page. Unknown slugs still route (the
   // desk falls back to the overview) so old links like /admin/reports keep
-  // working as the reports section.
+  // working as the reports section. v5.92: merged desk tabs read ?view= (a
+  // short slug; anything else is dropped and the tab opens its default view).
   const adminSection = pathname.match(/^\/admin(?:\/([\w-]+))?$/);
-  if (adminSection) return { name: "admin", section: adminSection[1] || "dashboard" };
+  if (adminSection) {
+    const view = new URLSearchParams(search).get("view");
+    return {
+      name: "admin",
+      section: adminSection[1] || "dashboard",
+      ...(view && /^[a-z-]{1,20}$/.test(view) ? { view } : {}),
+    };
+  }
   if (pathname === "/notifications") return { name: "notifications" };
   // Saved posts by board (wave 36): /bookmarks?board=<slug>; an unknown
   // slug degrades to the whole list rather than a 404.

@@ -57,10 +57,8 @@
   "admin.section.appeals": "Apelimet",
   "admin.section.avatars": "Avatarët",
   "admin.section.bans": "Ndalimet dhe anëtarët",
-  "admin.section.chatLog": "Regjistri i bisedës",
   "admin.section.css": "CSS i profilit",
   "admin.section.dashboard": "Përmbledhje",
-  "admin.section.dmLog": "Regjistri i mesazheve private",
   "admin.section.filter": "Filtri i fjalëve",
   "admin.section.gifs": "Biblioteka e GIF-eve",
   "admin.section.hidden": "Postime të fshehura",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Shfaq titullin dhe përmbledhjen e një lidhjeje.",
   "modules.desc.embeds": "Luajtës video, audio dhe 3D në postime.",
   "modules.label.search": "Kërkim në tekst të plotë",
-  "modules.desc.search": "Kërko fjalët brenda çdo postimi."
+  "modules.desc.search": "Kërko fjalët brenda çdo postimi.",
+  "admin.section.allReports": "Raportime",
+  "admin.lede.allReports": "Çfarë kanë raportuar anëtarët — postime, profile dhe biseda.",
+  "admin.section.chatDmLog": "Regjistri i bisedës dhe i mesazheve private",
+  "admin.lede.chatDmLog": "Holli publik dhe mesazhet 1:1 — fshihen aty për aty.",
+  "admin.section.media": "Media",
+  "admin.lede.media": "Imazhe, avatarë dhe GIF në pritje të shqyrtimit.",
+  "desk.reports.all": "Të gjitha",
+  "desk.switch.label": "Shfaq"
 }

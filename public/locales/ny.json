@@ -57,10 +57,8 @@
   "admin.section.appeals": "Zopempha",
   "admin.section.avatars": "Zithunzi za mbiri",
   "admin.section.bans": "Ziletso ndi mamembala",
-  "admin.section.chatLog": "Mbiri ya macheza",
   "admin.section.css": "CSS ya mbiri",
   "admin.section.dashboard": "Chidule",
-  "admin.section.dmLog": "Mbiri ya mauthenga achinsinsi",
   "admin.section.filter": "Fyuluta ya mawu",
   "admin.section.gifs": "Laibulale ya GIF",
   "admin.section.hidden": "Mapositi obisika",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Imaonetsa mutu ndi chidule cha ulalo.",
   "modules.desc.embeds": "Zosewerera kanema, mawu ndi 3D m'zolemba.",
   "modules.label.search": "Kusaka m'mawu onse",
-  "modules.desc.search": "Sakani mawu omwe ali mkati mwa uthenga uliwonse."
+  "modules.desc.search": "Sakani mawu omwe ali mkati mwa uthenga uliwonse.",
+  "admin.section.allReports": "Madandaulo",
+  "admin.lede.allReports": "Zomwe mamembala adandaula — mapositi, mbiri za anthu ndi macheza.",
+  "admin.section.chatDmLog": "Mbiri ya macheza ndi mauthenga achinsinsi",
+  "admin.lede.chatDmLog": "Malo ochezera a anthu onse ndi mauthenga a 1:1 — mutha kuwafufuta pomwepa.",
+  "admin.section.media": "Zofalitsa",
+  "admin.lede.media": "Zithunzi, ma avatar ndi ma GIF odikira kuwunikidwa.",
+  "desk.reports.all": "Zonse",
+  "desk.switch.label": "Onetsa"
 }

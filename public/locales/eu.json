@@ -57,10 +57,8 @@
   "admin.section.appeals": "Helegiteak",
   "admin.section.avatars": "Abatarrak",
   "admin.section.bans": "Debekuak eta kideak",
-  "admin.section.chatLog": "Txat-erregistroa",
   "admin.section.css": "Profileko CSSa",
   "admin.section.dashboard": "Ikuspegi orokorra",
-  "admin.section.dmLog": "Mezu zuzenen erregistroa",
   "admin.section.filter": "Hitz-iragazkia",
   "admin.section.gifs": "GIF liburutegia",
   "admin.section.hidden": "Ezkutatutako bidalketak",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Esteka baten izenburua eta laburpena erakusten ditu.",
   "modules.desc.embeds": "Bideo, audio eta 3D erreproduzigailuak argitalpenetan.",
   "modules.label.search": "Testu osoko bilaketa",
-  "modules.desc.search": "Bilatu argitalpen bakoitzaren barruko hitzak."
+  "modules.desc.search": "Bilatu argitalpen bakoitzaren barruko hitzak.",
+  "admin.section.allReports": "Salaketak",
+  "admin.lede.allReports": "Kideek salatu dutena: bidalketak, profilak eta elkarrizketak.",
+  "admin.section.chatDmLog": "Txat eta mezu zuzenen erregistroa",
+  "admin.lede.chatDmLog": "Lobby publikoa eta 1:1 mezuak, bertan ezaba daitezke.",
+  "admin.section.media": "Multimedia",
+  "admin.lede.media": "Berrikuspenaren zain dauden irudiak, avatarrak eta GIFak.",
+  "desk.reports.all": "Guztiak",
+  "desk.switch.label": "Erakutsi"
 }

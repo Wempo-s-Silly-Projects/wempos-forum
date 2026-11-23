@@ -57,10 +57,8 @@
   "admin.section.appeals": "Rufaa",
   "admin.section.avatars": "Picha za wasifu",
   "admin.section.bans": "Marufuku na wanachama",
-  "admin.section.chatLog": "Kumbukumbu ya mazungumzo",
   "admin.section.css": "CSS ya wasifu",
   "admin.section.dashboard": "Muhtasari",
-  "admin.section.dmLog": "Kumbukumbu ya jumbe za moja kwa moja",
   "admin.section.filter": "Kichujio cha maneno",
   "admin.section.gifs": "Maktaba ya GIF",
   "admin.section.hidden": "Machapisho yaliyofichwa",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Huonyesha kichwa na muhtasari wa kiungo.",
   "modules.desc.embeds": "Vicheza video, sauti na 3D katika machapisho.",
   "modules.label.search": "Utafutaji wa maandishi kamili",
-  "modules.desc.search": "Tafuta maneno yaliyo ndani ya kila chapisho."
+  "modules.desc.search": "Tafuta maneno yaliyo ndani ya kila chapisho.",
+  "admin.section.allReports": "Ripoti",
+  "admin.lede.allReports": "Walichoripoti wanachama — machapisho, wasifu na mazungumzo.",
+  "admin.section.chatDmLog": "Kumbukumbu ya mazungumzo na jumbe za moja kwa moja",
+  "admin.lede.chatDmLog": "Ukumbi wa umma na jumbe za 1:1 — zinaweza kufutwa hapo hapo.",
+  "admin.section.media": "Midia",
+  "admin.lede.media": "Picha, avatari na GIF zinazosubiri kukaguliwa.",
+  "desk.reports.all": "Zote",
+  "desk.switch.label": "Onyesha"
 }

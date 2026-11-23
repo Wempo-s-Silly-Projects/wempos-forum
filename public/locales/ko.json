@@ -57,10 +57,8 @@
   "admin.section.appeals": "이의 제기",
   "admin.section.avatars": "아바타",
   "admin.section.bans": "이용 정지 및 멤버",
-  "admin.section.chatLog": "채팅 기록",
   "admin.section.css": "프로필 CSS",
   "admin.section.dashboard": "개요",
-  "admin.section.dmLog": "DM 기록",
   "admin.section.filter": "단어 필터",
   "admin.section.gifs": "GIF 라이브러리",
   "admin.section.hidden": "숨긴 게시물",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "링크의 제목과 요약을 보여 줍니다.",
   "modules.desc.embeds": "게시물 안의 동영상, 오디오, 3D 플레이어.",
   "modules.label.search": "전체 텍스트 검색",
-  "modules.desc.search": "모든 게시물 안의 단어를 검색합니다."
+  "modules.desc.search": "모든 게시물 안의 단어를 검색합니다.",
+  "admin.section.allReports": "신고",
+  "admin.lede.allReports": "회원이 신고한 내용 — 게시물, 프로필, 대화.",
+  "admin.section.chatDmLog": "채팅 및 DM 기록",
+  "admin.lede.chatDmLog": "공개 로비와 1:1 메시지 — 그 자리에서 삭제할 수 있습니다.",
+  "admin.section.media": "미디어",
+  "admin.lede.media": "검토를 기다리는 이미지, 아바타, GIF.",
+  "desk.reports.all": "전체",
+  "desk.switch.label": "보기"
 }

@@ -57,10 +57,8 @@
   "admin.section.appeals": "अपील",
   "admin.section.avatars": "अवतार",
   "admin.section.bans": "बैन और मेंबर",
-  "admin.section.chatLog": "चैट लॉग",
   "admin.section.css": "प्रोफ़ाइल CSS",
   "admin.section.dashboard": "ओवरव्यू",
-  "admin.section.dmLog": "DM लॉग",
   "admin.section.filter": "वर्ड फ़िल्टर",
   "admin.section.gifs": "GIF लाइब्रेरी",
   "admin.section.hidden": "छिपी पोस्ट",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "लिंक का शीर्षक और सारांश दिखाता है।",
   "modules.desc.embeds": "पोस्ट में वीडियो, ऑडियो और 3D प्लेयर।",
   "modules.label.search": "पूर्ण-पाठ खोज",
-  "modules.desc.search": "हर पोस्ट के अंदर के शब्द खोजें।"
+  "modules.desc.search": "हर पोस्ट के अंदर के शब्द खोजें।",
+  "admin.section.allReports": "रिपोर्ट",
+  "admin.lede.allReports": "सदस्यों ने क्या रिपोर्ट किया — पोस्ट, प्रोफ़ाइल और बातचीत।",
+  "admin.section.chatDmLog": "चैट और DM लॉग",
+  "admin.lede.chatDmLog": "सार्वजनिक लॉबी और 1:1 संदेश — यहीं हटाए जा सकते हैं।",
+  "admin.section.media": "मीडिया",
+  "admin.lede.media": "समीक्षा की प्रतीक्षा में इमेज, अवतार और GIF।",
+  "desk.reports.all": "सभी",
+  "desk.switch.label": "दिखाएँ"
 }

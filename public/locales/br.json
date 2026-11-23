@@ -57,10 +57,8 @@
   "admin.section.appeals": "Ekleoù",
   "admin.section.avatars": "Skeudennigoù-kont",
   "admin.section.bans": "Berzadennoù hag izili",
-  "admin.section.chatLog": "Marilh ar saloñs",
   "admin.section.css": "CSS ar profiloù",
   "admin.section.dashboard": "Sell hollek",
-  "admin.section.dmLog": "Marilh ar c'hemennadennoù prevez",
   "admin.section.filter": "Sil ar gerioù",
   "admin.section.gifs": "Levraoueg GIF",
   "admin.section.hidden": "Kemennadennoù kuzhet",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Diskouez a ra titl ha berradenn ul liamm.",
   "modules.desc.embeds": "Lennerien video, son ha 3D er c'hemennadennoù.",
   "modules.label.search": "Klask en testenn a-bezh",
-  "modules.desc.search": "Klask ar gerioù e pep kemennadenn."
+  "modules.desc.search": "Klask ar gerioù e pep kemennadenn.",
+  "admin.section.allReports": "Danevelloù",
+  "admin.lede.allReports": "Ar pezh o deus danevellet an izili — kemennadennoù, profiloù ha kaozeadennoù.",
+  "admin.section.chatDmLog": "Marilh ar saloñs hag ar c'hemennadennoù prevez",
+  "admin.lede.chatDmLog": "Ar saloñs foran hag ar c'hemennadennoù 1:1 — da ziverkañ war al lec'h.",
+  "admin.section.media": "Mediaoù",
+  "admin.lede.media": "Skeudennoù, avataroù ha GIFoù o c'hortoz bezañ gwiriet.",
+  "desk.reports.all": "Pep tra",
+  "desk.switch.label": "Diskouez"
 }

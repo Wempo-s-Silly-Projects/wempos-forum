@@ -57,10 +57,8 @@
   "admin.section.appeals": "Anker",
   "admin.section.avatars": "Avatarer",
   "admin.section.bans": "Udelukkelser og medlemmer",
-  "admin.section.chatLog": "Chatlog",
   "admin.section.css": "Profil-CSS",
   "admin.section.dashboard": "Overblik",
-  "admin.section.dmLog": "DM-log",
   "admin.section.filter": "Ordfilter",
   "admin.section.gifs": "GIF-bibliotek",
   "admin.section.hidden": "Skjulte indlæg",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Viser et links titel og resumé.",
   "modules.desc.embeds": "Video-, lyd- og 3D-afspillere i indlæg.",
   "modules.label.search": "Fuldtekstsøgning",
-  "modules.desc.search": "Søg efter ordene i hvert indlæg."
+  "modules.desc.search": "Søg efter ordene i hvert indlæg.",
+  "admin.section.allReports": "Anmeldelser",
+  "admin.lede.allReports": "Det, medlemmerne har anmeldt — indlæg, profiler og samtaler.",
+  "admin.section.chatDmLog": "Chat- og DM-log",
+  "admin.lede.chatDmLog": "Den offentlige lobby og 1:1-beskeder — kan slettes direkte her.",
+  "admin.section.media": "Medier",
+  "admin.lede.media": "Billeder, avatarer og GIF'er, der venter på gennemsyn.",
+  "desk.reports.all": "Alle",
+  "desk.switch.label": "Vis"
 }

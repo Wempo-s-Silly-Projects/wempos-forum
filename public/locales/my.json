@@ -57,10 +57,8 @@
   "admin.section.appeals": "အယူခံများ",
   "admin.section.avatars": "ပရိုဖိုင်ပုံများ",
   "admin.section.bans": "ပိတ်ပင်မှုနှင့် အဖွဲ့ဝင်များ",
-  "admin.section.chatLog": "ချတ်မှတ်တမ်း",
   "admin.section.css": "ပရိုဖိုင် CSS",
   "admin.section.dashboard": "အနှစ်ချုပ်",
-  "admin.section.dmLog": "ကိုယ်ရေးစာမှတ်တမ်း",
   "admin.section.filter": "စကားလုံးစစ်ထုတ်မှု",
   "admin.section.gifs": "GIF ကြည့်တိုက်",
   "admin.section.hidden": "ဝှက်ထားသော ပို့စ်များ",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "လင့်ခ်၏ ခေါင်းစဉ်နှင့် အကျဉ်းကို ပြသည်။",
   "modules.desc.embeds": "ပို့စ်များထဲရှိ ဗီဒီယို၊ အသံနှင့် 3D ဖွင့်စက်များ။",
   "modules.label.search": "စာသားအပြည့်အစုံ ရှာဖွေမှု",
-  "modules.desc.search": "ပို့စ်တိုင်းအတွင်းရှိ စကားလုံးများကို ရှာပါ။"
+  "modules.desc.search": "ပို့စ်တိုင်းအတွင်းရှိ စကားလုံးများကို ရှာပါ။",
+  "admin.section.allReports": "တိုင်ကြားမှုများ",
+  "admin.lede.allReports": "အဖွဲ့ဝင်များ တိုင်ကြားထားသည်များ — ပို့စ်များ၊ ပရိုဖိုင်များနှင့် စကားဝိုင်းများ။",
+  "admin.section.chatDmLog": "ချတ်နှင့် ကိုယ်ရေးစာမှတ်တမ်း",
+  "admin.lede.chatDmLog": "အများသုံး လော်ဘီနှင့် ၁:၁ စာများ — ဤနေရာတွင် ဖျက်နိုင်သည်။",
+  "admin.section.media": "မီဒီယာ",
+  "admin.lede.media": "စစ်ဆေးရန် စောင့်နေသော ပုံများ၊ ရုပ်ပုံများနှင့် GIF များ။",
+  "desk.reports.all": "အားလုံး",
+  "desk.switch.label": "ပြပါ"
 }

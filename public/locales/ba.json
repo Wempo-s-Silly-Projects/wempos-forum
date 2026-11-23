@@ -57,10 +57,8 @@
   "admin.section.appeals": "Шикәйәттәр",
   "admin.section.avatars": "Аватарҙар",
   "admin.section.bans": "Тыйыуҙар һәм ағзалар",
-  "admin.section.chatLog": "Чат журналы",
   "admin.section.css": "Профиль CSS",
   "admin.section.dashboard": "Дөйөм күренеш",
-  "admin.section.dmLog": "Шәхси хәбәрҙәр журналы",
   "admin.section.filter": "Һүҙ фильтры",
   "admin.section.gifs": "GIF китапханаһы",
   "admin.section.hidden": "Йәшерелгән яҙмалар",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "Һылтанманың исемен һәм ҡыҫҡаһын күрһәтә.",
   "modules.desc.embeds": "Яҙмаларҙа видео, аудио һәм 3D плеерҙар.",
   "modules.label.search": "Тулы текст буйынса эҙләү",
-  "modules.desc.search": "Һәр яҙма эсендәге һүҙҙәрҙе эҙләү."
+  "modules.desc.search": "Һәр яҙма эсендәге һүҙҙәрҙе эҙләү.",
+  "admin.section.allReports": "Шикәйәттәр",
+  "admin.lede.allReports": "Ҡатнашыусылар шикәйәт иткәндәр — яҙмалар, профилдәр һәм әңгәмәләр.",
+  "admin.section.chatDmLog": "Чат һәм шәхси хәбәрҙәр журналы",
+  "admin.lede.chatDmLog": "Дөйөм лобби һәм 1:1 хәбәрҙәр — ошонда уҡ юйырға була.",
+  "admin.section.media": "Медиа",
+  "admin.lede.media": "Тикшереүҙе көткән һүрәттәр, аватарҙар һәм GIF.",
+  "desk.reports.all": "Барыһы ла",
+  "desk.switch.label": "Күрһәтергә"
 }

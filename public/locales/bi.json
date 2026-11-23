@@ -57,10 +57,8 @@
   "admin.section.appeals": "Apil",
   "admin.section.avatars": "Avata",
   "admin.section.bans": "Ban mo memba",
-  "admin.section.chatLog": "Rekod blong jat",
   "admin.section.css": "CSS blong profael",
   "admin.section.dashboard": "Lukluk bigwan",
-  "admin.section.dmLog": "Rekod blong DM",
   "admin.section.filter": "Filta blong wod",
   "admin.section.gifs": "Haos blong GIF",
   "admin.section.hidden": "Pos we i haed",
@@ -1389,5 +1387,13 @@
   "modules.desc.linkPreviews": "I soemaot taetol mo sotfala tok blong link.",
   "modules.desc.embeds": "Ol pleya blong video, saon mo 3D long ol post.",
   "modules.label.search": "Sarej long evri toktok",
-  "modules.desc.search": "Sarej ol wod insaed long evri pos."
+  "modules.desc.search": "Sarej ol wod insaed long evri pos.",
+  "admin.section.allReports": "Ripot",
+  "admin.lede.allReports": "Wanem ol memba oli ripotem — pos, profael mo toktok.",
+  "admin.section.chatDmLog": "Rekod blong jat mo DM",
+  "admin.lede.chatDmLog": "Pablik lobi mo 1:1 mesej — yu save dilitim hia.",
+  "admin.section.media": "Pija mo vidio",
+  "admin.lede.media": "Pija, avata mo GIF we oli wet blong jekem.",
+  "desk.reports.all": "Evriwan",
+  "desk.switch.label": "Soem"
 }
