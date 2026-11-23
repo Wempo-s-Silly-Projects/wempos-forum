@@ -28,7 +28,7 @@ const read = (path) => readFileSync(new URL(path, ROOT), "utf8");
 test("package metadata permits publication and declares the supported runtime", () => {
   const pkg = JSON.parse(read("package.json"));
   assert.match(pkg.name, /^[a-z0-9][a-z0-9._-]*$/);
-  assert.match(pkg.version, /^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$/);
+  assert.match(pkg.version, /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/);
   assert.equal(pkg.private, false, "the package must not be marked private");
   assert.equal(pkg.license, "AGPL-3.0-or-later");
   assert.equal(pkg.type, "module");
@@ -39,7 +39,7 @@ test("package metadata permits publication and declares the supported runtime", 
 test("every declared runtime and development dependency has a matching pnpm lock entry", () => {
   const pkg = JSON.parse(read("package.json"));
   const lock = read("pnpm-lock.yaml");
-  assert.match(lock, /^lockfileVersion: ['"]?9\\.0/m);
+  assert.ok(lock.startsWith("lockfileVersion: '9.0'"));
 
   const groups = [
     ["dependencies", pkg.dependencies ?? {}],
@@ -48,13 +48,8 @@ test("every declared runtime and development dependency has a matching pnpm lock
   for (const [group, dependencies] of groups) {
     assert.ok(Object.keys(dependencies).length > 0, group + " are declared");
     for (const [name, specifier] of Object.entries(dependencies)) {
-      const escapedName = name.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
-      const escapedSpecifier = String(specifier).replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
-      const entry = new RegExp(
-        `^      ['"]?${escapedName}['"]?:\\n        specifier: ${escapedSpecifier}\\n        version: \\S+`,
-        "m",
-      );
-      assert.match(lock, entry, group + ": " + name + " has a resolved lockfile entry");
+      const expected = \`      '\${name}':\n        specifier: \${specifier}\n        version: \`;
+      assert.ok(lock.includes(expected), group + ": " + name + " has a resolved lockfile entry");
     }
   }
 });
