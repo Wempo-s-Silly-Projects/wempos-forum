@@ -1,7 +1,6 @@
 # Wempo’s Forum
 <picture><source media="(prefers-color-scheme: dark)" srcset="https://www.shieldcn.dev/github/ci/Wempo-s-Silly-Projects/wempos-forum.svg?variant=secondary&amp;size=sm&amp;mode=dark"><img alt="CI" src="https://www.shieldcn.dev/github/ci/Wempo-s-Silly-Projects/wempos-forum.svg?variant=secondary&amp;size=sm&amp;mode=light"></picture>
 <picture><source media="(prefers-color-scheme: dark)" srcset="https://www.shieldcn.dev/badge/Hosting-Cloudflare_Workers-F38020.svg?logo=cloudflare&amp;variant=branded&amp;size=sm&amp;mode=dark"><img alt="Hosting · Cloudflare Workers" src="https://www.shieldcn.dev/badge/Hosting-Cloudflare_Workers-F38020.svg?logo=cloudflare&amp;variant=branded&amp;size=sm&amp;mode=light"></picture>
-[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/16994/badge)](https://www.bestpractices.dev/projects/16994)
 
 A small, friendly community forum. Come say hi at
 **<https://wempos-forum.com>**.
