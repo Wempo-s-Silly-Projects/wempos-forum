@@ -40,6 +40,9 @@ import { handlePrivateNoteRoutes } from "./api/private-notes.mjs";
 import { handleSavedSearchRoutes } from "./api/saved-searches.mjs";
 import { handleThreadSummaryRoutes } from "./api/thread-summaries.mjs";
 import { handleThreadLockRoutes } from "./api/thread-locks.mjs";
+import { handleAltchaRoutes } from "./api/altcha.mjs";
+import { handlePasskeyRoutes } from "./api/passkeys.mjs";
+import { humanCheckConfigured } from "./api/core/human-check.mjs";
 import { handlePollRoutes } from "./api/polls.mjs";
 import { handleBookmarkRoutes } from "./api/bookmarks.mjs";
 import { handleArchiveRoutes } from "./api/archive.mjs";
@@ -103,7 +106,8 @@ export {
   sniffImageMime,
   blobToUint8Array,
 } from "./api/core/images.mjs";
-export { requireTurnstile, rateLimit } from "./api/core/http.mjs";
+export { rateLimit } from "./api/core/http.mjs";
+export { requireHumanCheck } from "./api/core/human-check.mjs";
 export { createUserBan } from "./api/moderation.mjs";
 export { fanOutStatements, notificationBatchStatements, unreadCount } from "./api/notifications.mjs";
 
@@ -129,7 +133,7 @@ function notFound(request, env, url, path) {
 // dispatch context and answers only the paths it owns; `undefined` falls
 // through to the next handler or the notFound tail — the vendor's dispatch()
 // replaces the inlined handlers-for-loop, built once from the vendor import.
-const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleAnalyticsRoutes, handleVitalsRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes];
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleAnalyticsRoutes, handleVitalsRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes, handleAltchaRoutes, handlePasskeyRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
@@ -139,17 +143,18 @@ const answerApiRoute = dispatch(API_HANDLERS, notFound);
 // backend is where the "page doesn't update after an action" class of
 // misbehavior comes from; a mismatch offers the reload instead.
 // Self-hosting (v5.17.0): the same stamp carries the instance's client config
-// (Accounts origin, Turnstile sitekey) — each meta only when configured.
+// (Accounts origin; since Batch F the human-check flag) — each meta only
+// when configured.
 // Branding (v5.19.0): the owner-saved name/tagline/footer ride the same stamp,
 // each only when saved, so a forum with no settings row serves today's bytes.
 // Source link (v5.21.0, AGPL-3.0 §13): SOURCE_URL or the repo tree at
 // COMMIT_SHA rides the stamp as source-url; neither set → no meta.
 function shellMetas(env, branding) {
   const build = env.VERSION ? [env.VERSION, env.COMMIT_SHA].filter(Boolean).join("@") : "";
-  const sitekey = typeof env.TURNSTILE_SITEKEY === "string" ? env.TURNSTILE_SITEKEY.trim() : "";
+  const humanCheck = humanCheckConfigured(env) ? "altcha" : "";
   const accounts = accountsOrigin(env);
   return [
-    ["app-build", build], ["accounts-origin", accounts], ["turnstile-sitekey", sitekey],
+    ["app-build", build], ["accounts-origin", accounts], ["human-check", humanCheck],
     ["site-name", branding.name], ["site-tagline", branding.tagline], ["site-footer", branding.footer],
     ["source-url", sourceUrl(env)],
   ]

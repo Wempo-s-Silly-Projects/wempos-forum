@@ -70,6 +70,10 @@ const SEEDS = {
   dm_reports: ({ a, t }) => [`INSERT INTO dm_reports (thread_id, reporter_id, reason, created_at) VALUES (1, ?, 'r', ?)`, [a, t]],
   automod_profile_edits: ({ a, t }) => [`INSERT INTO automod_profile_edits (user_id, created_at) VALUES (?, ?)`, [a, t]],
   totp_algorithms: ({ a, t }) => [`INSERT INTO totp_algorithms (user_id, algorithm, created_at) VALUES (?, 'SHA256', ?)`, [a, t]],
+  // Batch F (migration 0081).
+  totp_used_steps: ({ a }) => [`INSERT INTO totp_used_steps (user_id, last_step) VALUES (?, 1)`, [a]],
+  passkeys: ({ a, t }) => [`INSERT INTO passkeys (user_id, credential_id, public_key, name, created_at) VALUES (?, 'cred', 'pk', 'n', ?)`, [a, t]],
+  webauthn_challenges: ({ a, t }) => [`INSERT INTO webauthn_challenges (challenge_hash, purpose, session_hash, user_id, expires_at) VALUES ('ch', 'register', 's', ?, ?)`, [a, t]],
   profile_pronouns: ({ a, t }) => [`INSERT INTO profile_pronouns (user_id, pronouns, updated_at) VALUES (?, 'she/her', ?)`, [a, t]],
   invites: ({ a, b, t }) => [`INSERT INTO invites (user_id, inviter_id, created_at) VALUES (?, ?, ?)`, [b, a, t]],
   featured_posts: ({ a, p, t }) => [`INSERT INTO featured_posts (post_id, picked_by, picked_at) VALUES (?, ?, ?)`, [p.bob, a, t]],

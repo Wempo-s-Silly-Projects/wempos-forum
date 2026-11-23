@@ -39,8 +39,9 @@ import { followerFanOutStatements } from "./follows.mjs";
 import { archivePostRowsStatement } from "./core/archive.mjs";
 import { assertNotBanned, readSession, requireUser } from "./core/auth.mjs";
 import { nowSeconds, sha256Hex } from "./core/crypto.mjs";
-import { HttpError, isMultipartRequest, json, rateLimit, readJson, requireMutationApplied, requireTurnstile, requiredText } from "./core/http.mjs";
+import { HttpError, isMultipartRequest, json, rateLimit, readJson, requireMutationApplied, requiredText } from "./core/http.mjs";
 import { normalizeBodyText } from "./core/text.mjs";
+import { requireHumanCheck } from "./core/human-check.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 
@@ -304,7 +305,7 @@ export async function handlePostCreateRoute(request, env, url, path, method) {
       await rateLimit(request, env, "image-upload", String(session.user.id));
     }
 
-    await requireTurnstile(request, env, fields, "post");
+    await requireHumanCheck(request, env, fields);
     const now = nowSeconds();
     // A fresh root starts its activity clock at creation time. When it carries
     // attachments it stays hidden until their batch is durable, so a failed
@@ -376,7 +377,7 @@ export async function handlePostCreateRoute(request, env, url, path, method) {
 // with MAX_COMPOSER_BODY_CHARS and the word filter REAPPLIED, storing the
 // masked body. last_activity_at is deliberately absent from the UPDATE — an
 // edit must never bump the feed; edited_at (migration 0005) marks the edit
-// instead. Turnstile is deliberately NOT required (owner-approved default):
+// instead. The human check is deliberately NOT required (owner-approved default):
 // the editor is already session-verified (same-origin + CSRF + session via
 // requireUser) and the content path reuses create's filter/limit gates, so a
 // token would add friction without any new trust decision. Edits are text-only

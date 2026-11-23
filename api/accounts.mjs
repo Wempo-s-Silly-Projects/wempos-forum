@@ -91,7 +91,7 @@ export async function handleAccountsRoutes(request, env, url, path, method) {
   if (path === "/api/auth/sso/redeem" && method === "POST") {
     // Login-parity ordering and teeth: the network ban fires before any
     // credential-adjacent work, the redeem rides the guest session's CSRF,
-    // and the login-class limiter tiers the endpoint. No Turnstile here —
+    // and the login-class limiter tiers the endpoint. No human check here —
     // accounts' own sign-in already carried the human check, and the code is
     // single-use.
     await assertNetworkNotBanned(request, env);

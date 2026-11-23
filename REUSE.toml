@@ -338,3 +338,50 @@ path = "public/js/vendor/model-viewer.min.js"
 precedence = "override"
 SPDX-FileCopyrightText = ["2017-2026 Google LLC", "2010-2026 Three.js Authors", "2020 Arjun Barrett (fflate)"]
 SPDX-License-Identifier = "Apache-2.0 AND BSD-3-Clause AND MIT"
+
+# Batch F (account security): browser libraries vendored byte-for-byte (no
+# added banner; sha256 pins in tests/helpers/batchf-vendor-pins.mjs). These
+# blocks come after the Prism block above, so for their paths they take
+# precedence (REUSE: the last matching annotation wins). All licences are
+# compatible with AGPL-3.0-or-later.
+
+# qrcode-generator 2.0.4 (dist/qrcode.mjs), MIT.
+[[annotations]]
+path = "public/js/vendor/qrcode-generator/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Kazuhiko Arase"
+SPDX-License-Identifier = "MIT"
+
+# @simplewebauthn/browser 14.0.0 (esm/**), MIT.
+[[annotations]]
+path = "public/js/vendor/simplewebauthn-browser/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2020 Matthew Miller"
+SPDX-License-Identifier = "MIT"
+
+# altcha-lib 2.10.0 (dist/esm/v1/index.js + helpers.js), MIT.
+[[annotations]]
+path = "public/js/vendor/altcha-lib/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Daniel Regeci"
+SPDX-License-Identifier = "MIT"
+
+# zxcvbn-ts: @zxcvbn-ts/core 4.3.0, language-common 4.2.0, language-en 4.1.2
+# (each package's dist/zxcvbn-ts.js), code MIT. Bundled dictionary data per
+# the packages' NOTICE files: English common words derived from OpenSubtitles
+# via OPUS (ODC-BY-1.0); the password list (public-domain dedication) and the
+# EFF diceware list (CC BY 4.0 per EFF's site terms).
+[[annotations]]
+path = "public/js/vendor/zxcvbn-ts/**"
+precedence = "override"
+SPDX-FileCopyrightText = ["zxcvbn-ts contributors", "Electronic Frontier Foundation", "Helsinki-NLP / OPUS"]
+SPDX-License-Identifier = "MIT AND ODC-By-1.0 AND CC-BY-4.0"
+
+# The EFF large wordlist for random passphrases (7776 words), as packaged in
+# eff-diceware-passphrase 3.0.0 (wordlist.json). EFF's site terms license its
+# original material under CC BY 4.0.
+[[annotations]]
+path = "public/js/vendor/eff-wordlist/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Electronic Frontier Foundation"
+SPDX-License-Identifier = "CC-BY-4.0"

@@ -114,7 +114,19 @@ export const SEARCH_USERS_SQL =
   // v4.4) AND against the whole group, not just the right OR arm.
   "WHERE (instr(username_key, ?) > 0 OR instr(lower(bio), ?) > 0) ORDER BY username_key LIMIT 20";
 
-export const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+// Batch F: the self-hosted proof-of-work human check (ALTCHA v1, SHA-256).
+// MAX_NUMBER bounds the client's search (~50k hashes on average — a second or
+// two on a phone); TTL bounds how long a solved challenge stays redeemable;
+// the payload cap refuses junk before any parsing.
+export const ALTCHA_MAX_NUMBER = 100_000;
+export const ALTCHA_TTL_SECONDS = 10 * 60;
+export const ALTCHA_PAYLOAD_MAX_LENGTH = 2048;
+
+// Batch F passkeys (WebAuthn): ceremony challenge lifetime, per-member cap,
+// and the display-name ceiling.
+export const PASSKEY_CHALLENGE_TTL_SECONDS = 5 * 60;
+export const PASSKEY_MAX_PER_USER = 10;
+export const PASSKEY_NAME_MAX_LENGTH = 64;
 
 // v4.37 feed page size: every listRootPosts branch (activity, suggestions,
 // id-cursor/search) shows this many roots per page. The per-page reply-count

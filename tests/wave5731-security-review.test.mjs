@@ -62,7 +62,7 @@ const POLYFILL_SOURCE = "https://cdnjs.cloudflare.com/polyfill/";
 test("M1: the HTML leg allows only the cdnjs polyfill path, not the whole CDN", () => {
   const csp = secureResponse(new Response("x")).headers.get("Content-Security-Policy");
   const scriptSrc = directives(csp).get("script-src");
-  assert.deepEqual(scriptSrc, ["'self'", "https://challenges.cloudflare.com", POLYFILL_SOURCE]);
+  assert.deepEqual(scriptSrc, ["'self'", POLYFILL_SOURCE]);
   // Exact source-list comparison (not a URL substring test): no entry may be the bare CDN origin.
   const HOST_WIDE_CDNJS = "https://cdnjs.cloudflare.com";
   assert.equal(scriptSrc.filter((source) => source === HOST_WIDE_CDNJS).length, 0, "no host-wide cdnjs source");
@@ -74,17 +74,22 @@ test("M1: the HTML leg allows only the cdnjs polyfill path, not the whole CDN", 
 test("the HTML leg differs from the vendor CSP in script-src only, and loosens nothing else", () => {
   const html = directives(secureResponse(new Response("x")).headers.get("Content-Security-Policy"));
   const vendor = directives(securityHeaders(new Headers()).get("Content-Security-Policy"));
-  // v5.76 (Batch D, embeds) deliberately adds media-src and appends to
-  // exactly these directives; tests/wave576-embeds.test.mjs pins the values.
-  const widened = new Set(["script-src", "style-src", "img-src", "connect-src", "frame-src", "media-src"]);
-  assert.deepEqual([...html.keys()].filter((name) => name !== "media-src"), [...vendor.keys()]);
+  // Batch F: the app set (Turnstile origin stripped, empty frame-src dropped)
+  // is the baseline. v5.76 embeds add media-src and frame-src (youtube-nocookie
+  // only, after a click) and only append to four directives;
+  // tests/wave576-embeds.test.mjs pins the values.
+  const added = new Set(["media-src", "frame-src"]);
+  const widened = new Set(["script-src", "style-src", "img-src", "connect-src"]);
+  assert.ok(!vendor.has("frame-src"), "no frame-src in the Turnstile-free baseline");
+  assert.deepEqual([...html.keys()].filter((name) => !added.has(name)), [...vendor.keys()]);
   for (const [name, sources] of vendor) if (!widened.has(name)) assert.deepEqual(html.get(name), sources, name);
   for (const [name, sources] of vendor) {
     if (widened.has(name)) assert.deepEqual(html.get(name).slice(0, sources.length), sources, name + " only appends");
   }
-  assert.equal(html.get("script-src").length, 3);
+  assert.equal(html.get("script-src").length, 2);
   assert.equal(html.get("style-src").length, 2);
   assert.match(html.get("style-src")[1], /^'sha256-[A-Za-z0-9+/]+=*'$/);
+  assert.deepEqual(html.get("frame-src"), ["https://www.youtube-nocookie.com"]);
   for (const name of ["default-src", "script-src", "style-src"]) {
     for (const source of html.get(name)) assert.doesNotMatch(source, /unsafe-|^\*$|^https?:$|^https?:\/\/\*|^data:$|^blob:$/, `${name} ${source}`);
   }

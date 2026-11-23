@@ -19,7 +19,7 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 // v4.0 core leaf: request/response glue — the typed error, JSON responses,
-// the security-header set, rate limiting, Turnstile verification, bounded
+// the security-header set, rate limiting, bounded
 // body reading, and field validation.
 //
 // Phase-1 Kitskey migration: the error/response/rate-limit vocabulary now
@@ -28,12 +28,11 @@
 // the framework's, not an app-owned copy). This leaf re-exports that surface
 // unchanged so every api module imports exactly the way it did — public
 // signatures and messages never moved — and keeps the app-side pieces: the
-// Turnstile wall (app secret/hostnames) and the forum's limiter binding map.
+// App CSP adjustments and the forum's limiter binding map (the human check
+// lives in human-check.mjs since Batch F).
 import { parse as parseMediaType } from "content-type";
 import secureJson from "secure-json-parse";
-import {
-  RATE_LIMIT_BINDINGS, TURNSTILE_SITEVERIFY_URL, WAVESURFER_STYLE_HASH, YOUTUBE_EMBED_ORIGIN,
-} from "../../constants.mjs";
+import { RATE_LIMIT_BINDINGS, WAVESURFER_STYLE_HASH, YOUTUBE_EMBED_ORIGIN } from "../../constants.mjs";
 import {
   HttpError,
   MAX_JSON_BYTES,
@@ -48,8 +47,35 @@ import {
 // dispatch chain, no twin); since phase 4 also the static leg (secureResponse
 // above, unconditional re-exported from the vendor).
 export { HttpError, MAX_JSON_BYTES, errorReply };
-export const securityHeaders = vendorSecurityHeaders;
-export const json = vendorJson;
+// Batch F: Turnstile is retired, so its origin leaves the policy. The vendor
+// file stays untouched (never-touch law); the app strips the origin from the
+// vendor CSP and drops the frame-src it leaves empty. Every app-built
+// response (JSON through json(), documents through the static leg) carries
+// the stripped policy.
+const RETIRED_CSP_ORIGIN = " https://challenges.cloudflare.com";
+
+function withoutRetiredOrigin(csp) {
+  return csp
+    .split(RETIRED_CSP_ORIGIN).join("")
+    .split(";")
+    .map((part) => part.trim())
+    .filter((part) => part && part !== "frame-src")
+    .join("; ");
+}
+
+export function securityHeaders(headers = new Headers()) {
+  const result = vendorSecurityHeaders(headers);
+  const csp = result.get("Content-Security-Policy");
+  if (csp) result.set("Content-Security-Policy", withoutRetiredOrigin(csp));
+  return result;
+}
+
+export function json(data, status = 200, headers = {}) {
+  const response = vendorJson(data, status, headers);
+  const csp = response.headers.get("Content-Security-Policy");
+  if (csp) response.headers.set("Content-Security-Policy", withoutRetiredOrigin(csp));
+  return response;
+}
 
 // v5.71.2 (owner Nov 22 13:35, "Override CSP"): the HTML shell loads the
 // cdnjs polyfill service as a classic script before the module graph, for
@@ -61,23 +87,23 @@ export const json = vendorJson;
 // v5.73.1 (security review M1): scoped to the polyfill path, not the whole
 // CDN — cdnjs also hosts libraries that are known CSP-bypass gadgets.
 const POLYFILL_ORIGIN = "https://cdnjs.cloudflare.com/polyfill/";
-const VENDOR_SCRIPT_SRC = "script-src 'self' https://challenges.cloudflare.com;";
-// v5.76 (Batch D, embeds): each splice names the exact vendor directive it
-// widens. frame-src gains youtube-nocookie only (the iframe exists only after
-// the reader presses play); img-src gains no thumbnail host. blob: covers
-// media hls.js feeds through MediaSource and textures <model-viewer> decodes
-// from a same-origin .glb; the style hash admits exactly WaveSurfer's static
-// shadow <style>.
+const VENDOR_SCRIPT_SRC = "script-src 'self';";
+// Splices run on the policy AFTER securityHeaders has retired Turnstile (its
+// origin is gone and the then-empty frame-src dropped). Each names the exact
+// directive it widens. v5.76 embeds: frame-src admits youtube-nocookie only
+// (the iframe exists only after the reader presses play); img-src gains no
+// thumbnail host; blob: covers hls.js MediaSource and <model-viewer> textures;
+// the style hash admits exactly WaveSurfer's static shadow <style>.
 const DOCUMENT_CSP_SPLICES = [
-  [VENDOR_SCRIPT_SRC, "script-src 'self' https://challenges.cloudflare.com " + POLYFILL_ORIGIN + ";"],
+  [VENDOR_SCRIPT_SRC, "script-src 'self' " + POLYFILL_ORIGIN + ";"],
   ["style-src 'self';", "style-src 'self' '" + WAVESURFER_STYLE_HASH + "';"],
   ["img-src 'self' data:;", "img-src 'self' data: blob:; media-src 'self' blob:;"],
-  ["connect-src 'self' https://challenges.cloudflare.com;", "connect-src 'self' https://challenges.cloudflare.com blob:;"],
-  ["frame-src https://challenges.cloudflare.com;", "frame-src https://challenges.cloudflare.com " + YOUTUBE_EMBED_ORIGIN + ";"],
+  ["connect-src 'self';", "connect-src 'self' blob:;"],
+  ["object-src 'none';", "frame-src " + YOUTUBE_EMBED_ORIGIN + "; object-src 'none';"],
 ];
 
 export function forumDocumentSecurityHeaders(headers = new Headers()) {
-  const result = vendorSecurityHeaders(headers);
+  const result = securityHeaders(headers);
   const csp = result.get("Content-Security-Policy") ?? "";
   // Fail closed: if the vendor policy ever changes shape, keep it as-is
   // rather than splicing an origin into an unknown directive.
@@ -171,53 +197,3 @@ export const secureResponse = app.secureResponse;
 // framework verbatim — re-exported so worker.mjs's static branch keeps its
 // exact call shape.
 export { unconditional, isDocumentRequest } from "../vendor/http.mjs";
-
-const TURNSTILE_TOKEN_MAX_LENGTH = 2048;
-
-// Self-hosting (v5.17.0): Turnstile is optional per instance. No
-// TURNSTILE_SECRET configured = no human check at all (the rate limits still
-// apply); a configured secret keeps the full check, failing closed on a
-// missing token or an empty TURNSTILE_HOSTNAMES list.
-export async function requireTurnstile(request, env, body, expectedAction) {
-  const secret = env.TURNSTILE_SECRET;
-  if (!secret) return;
-  const hostnames = String(env.TURNSTILE_HOSTNAMES || "")
-    .split(",")
-    .map((hostname) => hostname.trim())
-    .filter(Boolean);
-  const token = typeof body["cf-turnstile-response"] === "string" ? body["cf-turnstile-response"] : "";
-  if (hostnames.length === 0 || !token || token.length > TURNSTILE_TOKEN_MAX_LENGTH) {
-    throw new HttpError(403, "Human verification is required.");
-  }
-  let result;
-  try {
-    const response = await fetch(TURNSTILE_SITEVERIFY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      signal: AbortSignal.timeout(10_000),
-      body: new URLSearchParams({
-        secret,
-        response: token,
-        remoteip: request.headers.get("CF-Connecting-IP") || "",
-      }),
-    });
-    if (!response.ok) throw new Error("siteverify responded with " + response.status);
-    result = await response.json();
-  } catch (error) {
-    if (error instanceof HttpError) throw error;
-    console.error("Turnstile siteverify request failed:", error && error.name ? error.name : "UnknownError");
-    throw new HttpError(403, "Human verification could not be completed. Please try again.");
-  }
-  const verifiedHostname = typeof result.hostname === "string" ? result.hostname.trim().toLowerCase() : "";
-  const hostnameAllowed = hostnames.some((configured) => {
-    const expected = configured.toLowerCase();
-    if (expected.startsWith("*.")) {
-      const suffix = expected.slice(1);
-      return verifiedHostname.length > suffix.length && verifiedHostname.endsWith(suffix);
-    }
-    return verifiedHostname === expected;
-  });
-  if (!result.success || result.action !== expectedAction || !hostnameAllowed) {
-    throw new HttpError(403, "Human verification failed. Please try again.");
-  }
-}

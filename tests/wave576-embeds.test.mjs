@@ -459,7 +459,7 @@ const htmlCsp = () => secureResponse(new Response("x")).headers.get("Content-Sec
 const directive = (csp, name) => (csp.match(new RegExp(`(?:^|; )${name} ([^;]+)`)) ?? [])[1]?.split(/\s+/) ?? null;
 
 test("CSP: frame-src adds youtube-nocookie.com and nothing else", () => {
-  assert.deepEqual(directive(htmlCsp(), "frame-src"), ["https://challenges.cloudflare.com", "https://www.youtube-nocookie.com"]);
+  assert.deepEqual(directive(htmlCsp(), "frame-src"), ["https://www.youtube-nocookie.com"]);
 });
 
 test("CSP: img-src gains no YouTube thumbnail host; blob: only for locally decoded model textures", () => {
@@ -471,14 +471,14 @@ test("CSP: img-src gains no YouTube thumbnail host; blob: only for locally decod
 test("CSP: media-src is same-origin plus blob: (MSE for hls.js), connect-src adds only blob:", () => {
   const csp = htmlCsp();
   assert.deepEqual(directive(csp, "media-src"), ["'self'", "blob:"]);
-  assert.deepEqual(directive(csp, "connect-src"), ["'self'", "https://challenges.cloudflare.com", "blob:"]);
+  assert.deepEqual(directive(csp, "connect-src"), ["'self'", "blob:"]);
 });
 
 test("CSP: style-src is 'self' plus exactly the WaveSurfer shadow-style hash; script-src unchanged", () => {
   const csp = htmlCsp();
   assert.deepEqual(directive(csp, "style-src"), ["'self'", `'${wavesurferStyleHash()}'`]);
   assert.deepEqual(directive(csp, "script-src"),
-    ["'self'", "https://challenges.cloudflare.com", "https://cdnjs.cloudflare.com/polyfill/"]);
+    ["'self'", "https://cdnjs.cloudflare.com/polyfill/"]);
   assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval|worker-src|\s\*[\s;]/);
 });
 

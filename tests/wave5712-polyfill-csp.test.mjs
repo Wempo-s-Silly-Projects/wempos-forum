@@ -37,14 +37,15 @@ test("the HTML leg's CSP allows the cdnjs polyfill origin and still forbids inli
   const csp = secureResponse(new Response("x")).headers.get("Content-Security-Policy");
   const sources = scriptSrc(csp).split(/\s+/);
   // v5.73.1 (security review M1): the polyfill path only, never the whole CDN.
-  assert.deepEqual(sources, ["'self'", "https://challenges.cloudflare.com", POLYFILL_ORIGIN + "/polyfill/"]);
+  assert.deepEqual(sources, ["'self'", POLYFILL_ORIGIN + "/polyfill/"]);
   assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval|https:\/\/\*|\s\*[\s;]/);
   assert.match(csp, /object-src 'none'/);
 });
 
-test("non-HTML responses keep the vendor CSP (no cdnjs on JSON, feeds, images)", () => {
+test("non-HTML responses: no cdnjs and (Batch F) no Turnstile origin on JSON, feeds, images", () => {
   const csp = securityHeaders(new Headers()).get("Content-Security-Policy");
   assert.doesNotMatch(csp, /cdnjs/);
+  assert.doesNotMatch(csp, /challenges\.cloudflare\.com/);
 });
 
 test("index.html loads the polyfill once, before every module script, without leaking the referrer", () => {
@@ -68,7 +69,7 @@ test("index.html loads the polyfill once, before every module script, without le
   assert.deepEqual(external, polyfill, "the polyfill is the only external script in the shell");
 });
 
-test("the vendored framework file is untouched (CSP still only lists Turnstile there)", () => {
+test("the vendored framework file is untouched (its CSP still lists Turnstile; the app strips it)", () => {
   const vendor = read("api/vendor/http.mjs");
   assert.match(vendor, /script-src 'self' https:\/\/challenges\.cloudflare\.com; style-src 'self';/);
   assert.doesNotMatch(vendor, /cdnjs/);

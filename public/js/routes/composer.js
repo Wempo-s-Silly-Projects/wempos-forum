@@ -39,7 +39,7 @@ import { addGifsToComposer, removeGifFromComposer, renderGifThumbs, spareCompose
 import { arrangeGallery, readRecents, rememberRecents, writeRecents } from "../gallery-picks.js";
 import { prefersReducedMotion } from "../focus-utils.js";
 import { freezeInPlace } from "../still-gif.js";
-import { addTurnstileSlot, refreshTurnstile, takeTurnstileToken } from "../turnstile.js";
+import { addHumanCheckSlot, takeHumanCheckPayload } from "../human-check.js";
 import { COMPOSER_MAX_CHARS } from "../composer-limits.js";
 import { attachDraftAutosave, clearFormDraft, draftKey } from "../drafts.js";
 import { attachMentionPicker } from "../mention-picker.js";
@@ -54,15 +54,14 @@ import { createCapsGuard } from "../caps-guard.js";
 let activeGifComposerForm = null;
 let activePollComposerForm = null;
 
-// Every composer is Turnstile-gated now: root posts use action "post", every
-// reply composer (the detail-route root reply and reply-to-reply mini
-// composers) uses action "reply". board (v2.4.1): a category composer carries
+// Every composer carries the human check (Batch F: self-hosted ALTCHA proof
+// of work; the kind argument — "post"/"reply" — is kept for callers). board (v2.4.1): a category composer carries
 // its board value on the form's dataset; submitNewPost reads the dataset flag
 // so the payload picks the board up in the same wire format the rest of the
 // body uses. boardChoices (categories v3.1): the home composer renders a
 // category <select> instead — submitNewPost reads its value the same way.
 function createComposer(name, label, buttonLabel, postID = null,
-  turnstileAction = null, board = null, boardChoices = null) {
+  _humanCheckKind, board = null, boardChoices = null) {
   const panel = createPanel(board === "suggestions"
     ? t("composer.shareSuggestion")
     : name === "post-create" ? t("composer.startConversation") : t("common.reply"));
@@ -99,7 +98,7 @@ function createComposer(name, label, buttonLabel, postID = null,
   form.append(attachPasteAndDrop(form, bodyField, document,
     (notices) => setMessage(notices.join(" "), true)));
   form.append(createComposerAttachmentRow(name === "post-create"));
-  addTurnstileSlot(form, turnstileAction ?? (name === "post-create" ? "post" : "reply"));
+  addHumanCheckSlot(form);
   addSubmit(form, buttonLabel);
   panel.append(form);
   return panel;
@@ -241,12 +240,11 @@ async function submitNewPost(form, text) {
   const preparedFiles = await prepareImageUploads(files);
   const submission = buildComposerBody({
     body,
-    turnstileToken: takeTurnstileToken(form),
+    altcha: await takeHumanCheckPayload(form),
     files: preparedFiles,
     gifs,
     board,
   });
-  refreshTurnstile(form);
   let post;
   try {
     post = await api("/api/posts", { method: "POST", body: submission.body, idempotencyKey });
@@ -281,16 +279,14 @@ async function submitReplyForm(form, text) {
   const gifs = form.composerGifs ?? [];
   const signature = composerSubmissionSignature({ body, files, gifs, targetId: postId });
   const idempotencyKey = composerIdempotencyKey(form, signature);
-  // Same dual wire format as posts; replies are Turnstile-gated server-side
-  // with action "reply".
+  // Same dual wire format as posts; replies carry the same human check.
   const preparedFiles = await prepareImageUploads(files);
   const submission = buildComposerBody({
     body,
-    turnstileToken: takeTurnstileToken(form),
+    altcha: await takeHumanCheckPayload(form),
     files: preparedFiles,
     gifs,
   });
-  refreshTurnstile(form);
   try {
     await api("/api/posts/" + postId + "/replies", {
       method: "POST",

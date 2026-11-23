@@ -47,8 +47,9 @@ import {
 } from "./posts-write.mjs";
 import { assertNotBanned, readSession, requireUser } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
-import { HttpError, isMultipartRequest, json, rateLimit, requireTurnstile, requiredText } from "./core/http.mjs";
+import { HttpError, isMultipartRequest, json, rateLimit, requiredText } from "./core/http.mjs";
 import { normalizeBodyText } from "./core/text.mjs";
+import { requireHumanCheck } from "./core/human-check.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 import { assertSlowModeAllows, withSlowModeGuard } from "./staff-tools.mjs";
@@ -163,7 +164,7 @@ export async function handleReplyCreateRoute(request, env, url, path, method) {
     // Slow mode (v5.43): one indexed lookup on the conversation root; staff
     // are exempt. Refuses with 429 before anything is written.
     await assertSlowModeAllows(db, session.user, bumpTargetId);
-    await requireTurnstile(request, env, fields, "reply");
+    await requireHumanCheck(request, env, fields);
     const now = nowSeconds();
     const recipientId = target.author_id === null || target.author_id === undefined
       ? null

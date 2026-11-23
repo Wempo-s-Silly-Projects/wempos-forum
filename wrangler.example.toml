@@ -25,12 +25,10 @@ SITE_ORIGIN = ""
 # Your Wempo Accounts origin, e.g. "https://accounts.example.org". Every Sign
 # in / Sign out link targets it; sign-in does not work until it is set.
 ACCOUNTS_ORIGIN = ""
-# Optional Cloudflare Turnstile. Turnstile runs only when the TURNSTILE_SECRET
-# secret is set; then also set the public sitekey and the hostnames the widget
-# is allowed on (comma-separated, e.g. "forum.example.org"). Leave all three
-# unset to run without it (rate limits always apply).
-TURNSTILE_SITEKEY = ""
-TURNSTILE_HOSTNAMES = ""
+# Optional human check (self-hosted ALTCHA proof of work, no third party).
+# It runs only when the ALTCHA_HMAC_KEY secret is set
+# (`pnpm exec wrangler secret put ALTCHA_HMAC_KEY`, 32+ random bytes);
+# leave it unset to run without it (rate limits always apply). No vars needed.
 # The slug this forum sends to Wempo Accounts when it redeems a sign-in ticket.
 # Must match the site name your Accounts copy expects for this forum.
 RELAY_WORKER_NAME = "wempos-forum"

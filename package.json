@@ -24,6 +24,8 @@
     "wrangler": "latest"
   },
   "dependencies": {
+    "@simplewebauthn/server": "latest",
+    "altcha-lib": "latest",
     "content-type": "latest",
     "file-type": "latest",
     "image-dimensions": "latest",

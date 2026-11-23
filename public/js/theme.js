@@ -49,7 +49,6 @@ function readOsPreference(doc) {
 
 import { t } from "./i18n.js";
 import { createIcon } from "./icons.js";
-import { rethemeTurnstile } from "./turnstile.js";
 import { EVENTS, bus } from "./event-bus.js";
 
 // Corners (v2.5): "round" is the default; the account-settings checkbox
@@ -92,7 +91,6 @@ export function initTheme(doc, storage) {
       );
       toggle.replaceChildren(createIcon(doc, theme === "dark" ? "moon" : "sun"));
       toggle.title = theme === "dark" ? t("theme.switchToLight") : t("theme.switchToDark");
-      rethemeTurnstile();
     }
   };
 
