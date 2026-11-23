@@ -33,9 +33,19 @@ const WORKER_NAME_PATTERN = /^[a-z0-9][a-z0-9-]{0,62}$/;
 // configuredOrigin(value) -> "https://host[:port]" or "" when not a usable origin.
 export function configuredOrigin(value) {
   if (typeof value !== "string" || !value.trim()) return "";
+
   try {
     const url = new URL(value.trim());
-    return url.protocol === "https:" || url.protocol === "http:" ? url.origin : "";
+
+    if (
+      (url.protocol !== "https:" && url.protocol !== "http:") ||
+      url.username ||
+      url.password
+    ) {
+      return "";
+    }
+
+    return url.origin;
   } catch {
     return "";
   }
@@ -53,6 +63,16 @@ export function accountsOrigin(env) {
 
 // relayWorkerName(env) -> the slug Accounts binds a ticket to (owner default).
 export function relayWorkerName(env) {
-  const name = env && typeof env.RELAY_WORKER_NAME === "string" ? env.RELAY_WORKER_NAME.trim() : "";
-  return WORKER_NAME_PATTERN.test(name) ? name : DEFAULT_RELAY_WORKER_NAME;
+  const name = env && typeof env.RELAY_WORKER_NAME === "string"
+    ? env.RELAY_WORKER_NAME.trim()
+    : "";
+
+  return (
+    name.length > 0 &&
+    name.length <= 63 &&
+    /^[a-z0-9][a-z0-9-]{0,62}/.test(name) &&
+    /^[a-z0-9][a-z0-9-]{0,62}/.exec(name)[0].length === name.length
+  )
+    ? name
+    : DEFAULT_RELAY_WORKER_NAME;
 }
