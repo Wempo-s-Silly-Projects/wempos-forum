@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Lautstärke",
   "embed.player.currentTime": "Aktuelle Zeit",
   "embed.player.enterFullscreen": "Vollbild",
-  "embed.player.exitFullscreen": "Vollbild beenden"
+  "embed.player.exitFullscreen": "Vollbild beenden",
+  "turnstile.incomplete": "Bitte schließ zuerst die Bestätigung ab, dass du ein Mensch bist.",
+  "turnstile.loadFailed": "Das Widget zur Menschen-Bestätigung konnte nicht geladen werden. Lade die Seite neu und versuch es nochmal.",
+  "profile2.contrastLight": "Im hellen Design schwer lesbar (Kontrast {ratio}:1).",
+  "profile2.contrastDark": "Im dunklen Design schwer lesbar (Kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Weißer Bannertext ist auf dieser Farbe schwer lesbar (Kontrast {ratio}:1).",
+  "profile2.contrastUse": "{color} verwenden",
+  "profile2.pickerOpen": "Farbauswahl öffnen",
+  "profile2.pickerClear": "Leeren",
+  "profile2.cropTitle": "Bild zuschneiden",
+  "profile2.cropUse": "Diesen Ausschnitt verwenden",
+  "profile2.headerLabel": "Profilkopf",
+  "profile2.headerNone": "Schlicht",
+  "profile2.headerTint": "Farbton aus meinem Bild",
+  "profile2.headerDots": "Punkte",
+  "profile2.headerStripes": "Streifen",
+  "profile2.headerGrid": "Raster"
 }

@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Kelantangan",
   "embed.player.currentTime": "Masa semasa",
   "embed.player.enterFullscreen": "Skrin penuh",
-  "embed.player.exitFullscreen": "Keluar skrin penuh"
+  "embed.player.exitFullscreen": "Keluar skrin penuh",
+  "turnstile.incomplete": "Sila lengkapkan langkah pengesahan manusia dahulu.",
+  "turnstile.loadFailed": "Widget pengesahan manusia gagal dimuatkan. Segarkan halaman dan cuba lagi.",
+  "profile2.contrastLight": "Sukar dibaca pada tema cerah (kontras {ratio}:1).",
+  "profile2.contrastDark": "Sukar dibaca pada tema gelap (kontras {ratio}:1).",
+  "profile2.contrastBanner": "Teks sepanduk putih sukar dibaca pada warna ini (kontras {ratio}:1).",
+  "profile2.contrastUse": "Guna {color}",
+  "profile2.pickerOpen": "Buka pemilih warna",
+  "profile2.pickerClear": "Kosongkan",
+  "profile2.cropTitle": "Pangkas gambar anda",
+  "profile2.cropUse": "Guna potongan ini",
+  "profile2.headerLabel": "Kepala profil",
+  "profile2.headerNone": "Biasa",
+  "profile2.headerTint": "Rona daripada gambar saya",
+  "profile2.headerDots": "Titik",
+  "profile2.headerStripes": "Jalur",
+  "profile2.headerGrid": "Grid"
 }

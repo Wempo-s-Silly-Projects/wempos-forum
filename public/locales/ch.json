@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Bos",
   "embed.player.currentTime": "Ora pago",
   "embed.player.enterFullscreen": "Todu i pantaya",
-  "embed.player.exitFullscreen": "Huyong gi todu i pantaya"
+  "embed.player.exitFullscreen": "Huyong gi todu i pantaya",
+  "turnstile.incomplete": "Fa'maolek, komplita i bendisión taotao ina'fine'nina.",
+  "turnstile.loadFailed": "Ti ma'na'hålom i widget bendisión taotao. Ta'lo na'hålom i påhina ya probeha ta'lo.",
+  "profile2.contrastLight": "Makkat maitai gi i manana na theme (contrast {ratio}:1).",
+  "profile2.contrastDark": "Makkat maitai gi i homhom na theme (contrast {ratio}:1).",
+  "profile2.contrastBanner": "I apaka' na tinige' banner makkat maitai gi este na kolot (contrast {ratio}:1).",
+  "profile2.contrastUse": "Usa {color}",
+  "profile2.pickerOpen": "Baba i gumaigi kolot",
+  "profile2.pickerClear": "Na'gasgas",
+  "profile2.cropTitle": "Utot i litratu-mu",
+  "profile2.cropUse": "Usa este na utot",
+  "profile2.headerLabel": "Ulon profile",
+  "profile2.headerNone": "Simple",
+  "profile2.headerTint": "Kolot ginen i litratu-hu",
+  "profile2.headerDots": "Punto siha",
+  "profile2.headerStripes": "Raya siha",
+  "profile2.headerGrid": "Grid"
 }

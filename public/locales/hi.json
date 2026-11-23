@@ -1312,5 +1312,21 @@
   "embed.player.volume": "वॉल्यूम",
   "embed.player.currentTime": "वर्तमान समय",
   "embed.player.enterFullscreen": "पूर्ण स्क्रीन",
-  "embed.player.exitFullscreen": "पूर्ण स्क्रीन से बाहर निकलें"
+  "embed.player.exitFullscreen": "पूर्ण स्क्रीन से बाहर निकलें",
+  "turnstile.incomplete": "कृपया पहले इंसान होने की पुष्टि वाला स्टेप पूरा करें।",
+  "turnstile.loadFailed": "इंसान होने की पुष्टि वाला विजेट लोड नहीं हुआ। पेज रीफ़्रेश करके फिर कोशिश करें।",
+  "profile2.contrastLight": "हल्की थीम पर पढ़ना कठिन है (कंट्रास्ट {ratio}:1)।",
+  "profile2.contrastDark": "गहरी थीम पर पढ़ना कठिन है (कंट्रास्ट {ratio}:1)।",
+  "profile2.contrastBanner": "इस रंग पर बैनर का सफ़ेद टेक्स्ट पढ़ना कठिन है (कंट्रास्ट {ratio}:1)।",
+  "profile2.contrastUse": "{color} इस्तेमाल करें",
+  "profile2.pickerOpen": "रंग चुनने वाला खोलें",
+  "profile2.pickerClear": "साफ़ करें",
+  "profile2.cropTitle": "अपनी तस्वीर क्रॉप करें",
+  "profile2.cropUse": "यह क्रॉप इस्तेमाल करें",
+  "profile2.headerLabel": "प्रोफ़ाइल हेडर",
+  "profile2.headerNone": "सादा",
+  "profile2.headerTint": "मेरी तस्वीर से रंगत",
+  "profile2.headerDots": "बिंदु",
+  "profile2.headerStripes": "धारियाँ",
+  "profile2.headerGrid": "ग्रिड"
 }

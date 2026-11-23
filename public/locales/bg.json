@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Сила на звука",
   "embed.player.currentTime": "Текущо време",
   "embed.player.enterFullscreen": "Цял екран",
-  "embed.player.exitFullscreen": "Изход от цял екран"
+  "embed.player.exitFullscreen": "Изход от цял екран",
+  "turnstile.incomplete": "Първо завърши стъпката за проверка, че си човек.",
+  "turnstile.loadFailed": "Уиджетът за проверка, че си човек, не се зареди. Обнови страницата и опитай отново.",
+  "profile2.contrastLight": "Трудно се чете в светлата тема (контраст {ratio}:1).",
+  "profile2.contrastDark": "Трудно се чете в тъмната тема (контраст {ratio}:1).",
+  "profile2.contrastBanner": "Белият текст на банера се чете трудно върху този цвят (контраст {ratio}:1).",
+  "profile2.contrastUse": "Използвай {color}",
+  "profile2.pickerOpen": "Отвори избора на цвят",
+  "profile2.pickerClear": "Изчисти",
+  "profile2.cropTitle": "Изрежете снимката си",
+  "profile2.cropUse": "Използвай това изрязване",
+  "profile2.headerLabel": "Заглавна част на профила",
+  "profile2.headerNone": "Обикновена",
+  "profile2.headerTint": "Оттенък от снимката ми",
+  "profile2.headerDots": "Точки",
+  "profile2.headerStripes": "Райета",
+  "profile2.headerGrid": "Мрежа"
 }

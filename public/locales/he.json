@@ -1312,5 +1312,21 @@
   "embed.player.volume": "עוצמת קול",
   "embed.player.currentTime": "זמן נוכחי",
   "embed.player.enterFullscreen": "מסך מלא",
-  "embed.player.exitFullscreen": "יציאה ממסך מלא"
+  "embed.player.exitFullscreen": "יציאה ממסך מלא",
+  "turnstile.incomplete": "קודם צריך להשלים את שלב האימות האנושי.",
+  "turnstile.loadFailed": "רכיב האימות האנושי לא נטען. רעננו את הדף ונסו שוב.",
+  "profile2.contrastLight": "קשה לקריאה בערכת הנושא הבהירה (ניגודיות {ratio}:1).",
+  "profile2.contrastDark": "קשה לקריאה בערכת הנושא הכהה (ניגודיות {ratio}:1).",
+  "profile2.contrastBanner": "טקסט הבאנר הלבן קשה לקריאה על הצבע הזה (ניגודיות {ratio}:1).",
+  "profile2.contrastUse": "שימוש ב־{color}",
+  "profile2.pickerOpen": "פתיחת בוחר הצבעים",
+  "profile2.pickerClear": "ניקוי",
+  "profile2.cropTitle": "חיתוך התמונה שלך",
+  "profile2.cropUse": "שימוש בחיתוך הזה",
+  "profile2.headerLabel": "כותרת הפרופיל",
+  "profile2.headerNone": "פשוטה",
+  "profile2.headerTint": "גוון מהתמונה שלי",
+  "profile2.headerDots": "נקודות",
+  "profile2.headerStripes": "פסים",
+  "profile2.headerGrid": "רשת"
 }

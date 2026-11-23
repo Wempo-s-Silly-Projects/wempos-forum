@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Mphamvu ya mawu",
   "embed.player.currentTime": "Nthawi yapano",
   "embed.player.enterFullscreen": "Sikirini yonse",
-  "embed.player.exitFullscreen": "Tulukani pa sikirini yonse"
+  "embed.player.exitFullscreen": "Tulukani pa sikirini yonse",
+  "turnstile.incomplete": "Chonde malizani gawo lotsimikizira kuti ndinu munthu poyamba.",
+  "turnstile.loadFailed": "Chida chotsimikizira kuti ndinu munthu sichinatsegulidwe. Tsegulaninso tsambalo ndi kuyesanso.",
+  "profile2.contrastLight": "Ndizovuta kuwerenga pa mutu wowala (kusiyana {ratio}:1).",
+  "profile2.contrastDark": "Ndizovuta kuwerenga pa mutu wakuda (kusiyana {ratio}:1).",
+  "profile2.contrastBanner": "Mawu oyera a mbendera ndi ovuta kuwerenga pa mtundu uwu (kusiyana {ratio}:1).",
+  "profile2.contrastUse": "Gwiritsani {color}",
+  "profile2.pickerOpen": "Tsegulani chosankha mtundu",
+  "profile2.pickerClear": "Chotsani",
+  "profile2.cropTitle": "Dulani chithunzi chanu",
+  "profile2.cropUse": "Gwiritsani chodulidwachi",
+  "profile2.headerLabel": "Mutu wa mbiri",
+  "profile2.headerNone": "Wamba",
+  "profile2.headerTint": "Mtundu wochokera pa chithunzi changa",
+  "profile2.headerDots": "Madontho",
+  "profile2.headerStripes": "Mizere",
+  "profile2.headerGrid": "Gridi"
 }

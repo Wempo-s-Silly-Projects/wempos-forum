@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Volume",
   "embed.player.currentTime": "Huidige tijd",
   "embed.player.enterFullscreen": "Volledig scherm",
-  "embed.player.exitFullscreen": "Volledig scherm sluiten"
+  "embed.player.exitFullscreen": "Volledig scherm sluiten",
+  "turnstile.incomplete": "Rond eerst de controle af dat je een mens bent.",
+  "turnstile.loadFailed": "De mensencontrole kon niet worden geladen. Vernieuw de pagina en probeer het opnieuw.",
+  "profile2.contrastLight": "Moeilijk leesbaar in het lichte thema (contrast {ratio}:1).",
+  "profile2.contrastDark": "Moeilijk leesbaar in het donkere thema (contrast {ratio}:1).",
+  "profile2.contrastBanner": "Witte bannertekst is slecht leesbaar op deze kleur (contrast {ratio}:1).",
+  "profile2.contrastUse": "{color} gebruiken",
+  "profile2.pickerOpen": "Kleurkiezer openen",
+  "profile2.pickerClear": "Wissen",
+  "profile2.cropTitle": "Snijd je afbeelding bij",
+  "profile2.cropUse": "Deze uitsnede gebruiken",
+  "profile2.headerLabel": "Profielkop",
+  "profile2.headerNone": "Eenvoudig",
+  "profile2.headerTint": "Tint uit mijn afbeelding",
+  "profile2.headerDots": "Stippen",
+  "profile2.headerStripes": "Strepen",
+  "profile2.headerGrid": "Raster"
 }

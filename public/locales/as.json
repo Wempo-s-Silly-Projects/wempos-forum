@@ -1312,5 +1312,21 @@
   "embed.player.volume": "ভলিউম",
   "embed.player.currentTime": "বৰ্তমান সময়",
   "embed.player.enterFullscreen": "সম্পূৰ্ণ স্ক্ৰীণ",
-  "embed.player.exitFullscreen": "সম্পূৰ্ণ স্ক্ৰীণৰ পৰা ওলাওক"
+  "embed.player.exitFullscreen": "সম্পূৰ্ণ স্ক্ৰীণৰ পৰা ওলাওক",
+  "turnstile.incomplete": "অনুগ্ৰহ কৰি প্ৰথমে মানুহ-সত্যাপনৰ পদক্ষেপটো সম্পূৰ্ণ কৰক।",
+  "turnstile.loadFailed": "মানুহ-সত্যাপনৰ উইজেট লোড হোৱাত বিফল হ'ল। পৃষ্ঠাখন ৰিফ্ৰেছ কৰি পুনৰ চেষ্টা কৰক।",
+  "profile2.contrastLight": "পোহৰ থীমত পঢ়িবলৈ কঠিন (কনট্ৰাষ্ট {ratio}:1)।",
+  "profile2.contrastDark": "ক'লা থীমত পঢ়িবলৈ কঠিন (কনট্ৰাষ্ট {ratio}:1)।",
+  "profile2.contrastBanner": "এই ৰঙত বগা বেনাৰ লিখনি পঢ়িবলৈ কঠিন (কনট্ৰাষ্ট {ratio}:1)।",
+  "profile2.contrastUse": "{color} ব্যৱহাৰ কৰক",
+  "profile2.pickerOpen": "ৰং বাছনি খোলক",
+  "profile2.pickerClear": "মচক",
+  "profile2.cropTitle": "আপোনাৰ ছবি কাটক",
+  "profile2.cropUse": "এই কটা অংশ ব্যৱহাৰ কৰক",
+  "profile2.headerLabel": "প্ৰ'ফাইলৰ শিৰোনাম",
+  "profile2.headerNone": "সাধাৰণ",
+  "profile2.headerTint": "মোৰ ছবিৰ পৰা ৰং",
+  "profile2.headerDots": "বিন্দু",
+  "profile2.headerStripes": "ডোৰা",
+  "profile2.headerGrid": "গ্ৰিড"
 }

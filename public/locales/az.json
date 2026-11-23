@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Səs",
   "embed.player.currentTime": "Cari vaxt",
   "embed.player.enterFullscreen": "Tam ekran",
-  "embed.player.exitFullscreen": "Tam ekrandan çıx"
+  "embed.player.exitFullscreen": "Tam ekrandan çıx",
+  "turnstile.incomplete": "Lütfən, əvvəlcə insan yoxlaması addımını tamamla.",
+  "turnstile.loadFailed": "İnsan yoxlaması vidceti yüklənmədi. Səhifəni yenilə və yenidən cəhd et.",
+  "profile2.contrastLight": "İşıqlı temada oxumaq çətindir (kontrast {ratio}:1).",
+  "profile2.contrastDark": "Qaranlıq temada oxumaq çətindir (kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Ağ banner mətni bu rəngdə çətin oxunur (kontrast {ratio}:1).",
+  "profile2.contrastUse": "{color} istifadə et",
+  "profile2.pickerOpen": "Rəng seçicini aç",
+  "profile2.pickerClear": "Təmizlə",
+  "profile2.cropTitle": "Şəklini kəs",
+  "profile2.cropUse": "Bu kəsimi istifadə et",
+  "profile2.headerLabel": "Profil başlığı",
+  "profile2.headerNone": "Sadə",
+  "profile2.headerTint": "Şəklimdən çalar",
+  "profile2.headerDots": "Nöqtələr",
+  "profile2.headerStripes": "Zolaqlar",
+  "profile2.headerGrid": "Şəbəkə"
 }

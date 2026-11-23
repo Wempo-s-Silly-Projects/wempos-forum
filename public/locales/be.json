@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Гучнасць",
   "embed.player.currentTime": "Бягучы час",
   "embed.player.enterFullscreen": "Поўнаэкранны рэжым",
-  "embed.player.exitFullscreen": "Выйсці з поўнаэкраннага рэжыму"
+  "embed.player.exitFullscreen": "Выйсці з поўнаэкраннага рэжыму",
+  "turnstile.incomplete": "Спачатку прайдзіце праверку на чалавека.",
+  "turnstile.loadFailed": "Віджэт праверкі на чалавека не загрузіўся. Абнавіце старонку і паспрабуйце зноў.",
+  "profile2.contrastLight": "Цяжка чытаць у светлай тэме (кантраст {ratio}:1).",
+  "profile2.contrastDark": "Цяжка чытаць у цёмнай тэме (кантраст {ratio}:1).",
+  "profile2.contrastBanner": "Белы тэкст банера цяжка чытаць на гэтым колеры (кантраст {ratio}:1).",
+  "profile2.contrastUse": "Ужыць {color}",
+  "profile2.pickerOpen": "Адкрыць выбар колеру",
+  "profile2.pickerClear": "Ачысціць",
+  "profile2.cropTitle": "Абрэжце фота",
+  "profile2.cropUse": "Ужыць гэту абрэзку",
+  "profile2.headerLabel": "Шапка профілю",
+  "profile2.headerNone": "Простая",
+  "profile2.headerTint": "Адценне з майго фота",
+  "profile2.headerDots": "Кропкі",
+  "profile2.headerStripes": "Палосы",
+  "profile2.headerGrid": "Сетка"
 }

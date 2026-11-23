@@ -1312,5 +1312,21 @@
   "embed.player.volume": "ভলিউম",
   "embed.player.currentTime": "বর্তমান সময়",
   "embed.player.enterFullscreen": "পূর্ণ স্ক্রিন",
-  "embed.player.exitFullscreen": "পূর্ণ স্ক্রিন থেকে বেরোন"
+  "embed.player.exitFullscreen": "পূর্ণ স্ক্রিন থেকে বেরোন",
+  "turnstile.incomplete": "আগে মানুষ হওয়ার যাচাইয়ের ধাপটি সম্পন্ন করুন।",
+  "turnstile.loadFailed": "মানুষ হওয়ার যাচাইয়ের উইজেট লোড হয়নি। পৃষ্ঠা রিফ্রেশ করে আবার চেষ্টা করুন।",
+  "profile2.contrastLight": "হালকা থিমে পড়তে কষ্ট হয় (কনট্রাস্ট {ratio}:1)।",
+  "profile2.contrastDark": "গাঢ় থিমে পড়তে কষ্ট হয় (কনট্রাস্ট {ratio}:1)।",
+  "profile2.contrastBanner": "এই রঙে সাদা ব্যানার লেখা পড়তে কষ্ট হয় (কনট্রাস্ট {ratio}:1)।",
+  "profile2.contrastUse": "{color} ব্যবহার করুন",
+  "profile2.pickerOpen": "রং বাছাই খুলুন",
+  "profile2.pickerClear": "মুছুন",
+  "profile2.cropTitle": "আপনার ছবি ক্রপ করুন",
+  "profile2.cropUse": "এই ক্রপ ব্যবহার করুন",
+  "profile2.headerLabel": "প্রোফাইলের হেডার",
+  "profile2.headerNone": "সাধারণ",
+  "profile2.headerTint": "আমার ছবি থেকে রং",
+  "profile2.headerDots": "বিন্দু",
+  "profile2.headerStripes": "ডোরা",
+  "profile2.headerGrid": "গ্রিড"
 }

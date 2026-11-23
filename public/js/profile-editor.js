@@ -323,9 +323,40 @@ export function renderProfileEditor(main, user) {
     const cssPanel = renderProfileCssEditor(document, user);
     if (cssPanel) panel.append(cssPanel);
     panel.append(renderProfileAccentPicker(document, user.profileAccent || ""));
+    panel.append(renderProfileHeaderPicker(document, user.profileHeader || ""));
   }
   main.append(panel);
   return panel;
+}
+
+// Batch I: the header decoration select (plain, tint from my picture, or a
+// static pattern). The route owns the change handler (PUT
+// /api/me/profile-header); values mirror constants.mjs PROFILE_HEADER_STYLES.
+const PROFILE_HEADER_CHOICES = [
+  { value: "", labelKey: "profile2.headerNone" },
+  { value: "tint", labelKey: "profile2.headerTint" },
+  { value: "dots", labelKey: "profile2.headerDots" },
+  { value: "stripes", labelKey: "profile2.headerStripes" },
+  { value: "grid", labelKey: "profile2.headerGrid" },
+];
+
+export function renderProfileHeaderPicker(document, current = "") {
+  const field = document.createElement("div");
+  field.className = "profile2-header-picker";
+  const label = document.createElement("label");
+  label.htmlFor = "profile2-header-style";
+  label.textContent = t("profile2.headerLabel");
+  const select = document.createElement("select");
+  select.id = "profile2-header-style";
+  for (const choice of PROFILE_HEADER_CHOICES) {
+    const option = document.createElement("option");
+    option.value = choice.value;
+    option.textContent = t(choice.labelKey);
+    option.selected = choice.value === current;
+    select.append(option);
+  }
+  field.append(label, select);
+  return field;
 }
 
 // Profile colors (any hex, v3.0.2): the presets are display-only quick
@@ -364,12 +395,18 @@ export function renderProfileAccentPicker(document, currentAccent = "") {
     swatch.setAttribute("aria-pressed", preset.hex.toLowerCase() === current ? "true" : "false");
     field.append(swatch);
   }
-  // Any-hex pick: a native color input. app.js owns the change handler (this
-  // module stays DOM-pure); it PATCHes the hex and re-renders the route.
+  // Any-hex pick: a hex text field that Coloris (batch I, profile-colours.js)
+  // turns into a picker; typing a hex keeps working without it. The route
+  // owns the change handler (this module stays DOM-pure); it PATCHes the hex
+  // and re-renders the route.
   const colorInput = document.createElement("input");
-  colorInput.type = "color";
+  colorInput.type = "text";
   colorInput.className = "accent-color-input";
-  colorInput.value = /^#[0-9a-fA-F]{6}$/.test(String(currentAccent || "")) ? currentAccent : "#3f8a63";
+  colorInput.maxLength = 7;
+  colorInput.setAttribute("pattern", "#[0-9a-fA-F]{6}");
+  colorInput.setAttribute("autocomplete", "off");
+  colorInput.setAttribute("spellcheck", "false");
+  colorInput.value = /^#[0-9a-fA-F]{6}$/.test(String(currentAccent || "")) ? currentAccent : "";
   colorInput.setAttribute("aria-label", t("profileEditor.customColor"));
   colorInput.setAttribute("title", t("profileEditor.customColorTitle"));
   field.append(colorInput);

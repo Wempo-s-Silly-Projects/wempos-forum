@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Saon",
   "embed.player.currentTime": "Taem naoia",
   "embed.player.enterFullscreen": "Fulskrin",
-  "embed.player.exitFullscreen": "Aot long fulskrin"
+  "embed.player.exitFullscreen": "Aot long fulskrin",
+  "turnstile.incomplete": "Plis finisim jek se yu man fastaem.",
+  "turnstile.loadFailed": "Jek se yu man i no lod. Lodim pej bakegen mo traem bakegen.",
+  "profile2.contrastLight": "I hadwan blong ridim long laet theme (contrast {ratio}:1).",
+  "profile2.contrastDark": "I hadwan blong ridim long dak theme (contrast {ratio}:1).",
+  "profile2.contrastBanner": "Waet raeting blong banner i hadwan blong ridim long kala ia (contrast {ratio}:1).",
+  "profile2.contrastUse": "Yusum {color}",
+  "profile2.pickerOpen": "Openem jusum kala",
+  "profile2.pickerClear": "Klinim",
+  "profile2.cropTitle": "Katem foto blong yu",
+  "profile2.cropUse": "Yusum kat ia",
+  "profile2.headerLabel": "Hed blong profael",
+  "profile2.headerNone": "Plen nomo",
+  "profile2.headerTint": "Kala long foto blong mi",
+  "profile2.headerDots": "Dot",
+  "profile2.headerStripes": "Laen",
+  "profile2.headerGrid": "Gril"
 }

@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Lakas ng tunog",
   "embed.player.currentTime": "Kasalukuyang oras",
   "embed.player.enterFullscreen": "Buong screen",
-  "embed.player.exitFullscreen": "Lumabas sa buong screen"
+  "embed.player.exitFullscreen": "Lumabas sa buong screen",
+  "turnstile.incomplete": "Kumpletuhin muna ang hakbang ng pagpapatunay na tao ka.",
+  "turnstile.loadFailed": "Hindi na-load ang widget ng pagpapatunay na tao ka. I-refresh ang pahina at subukan ulit.",
+  "profile2.contrastLight": "Mahirap basahin sa light theme (contrast {ratio}:1).",
+  "profile2.contrastDark": "Mahirap basahin sa dark theme (contrast {ratio}:1).",
+  "profile2.contrastBanner": "Mahirap basahin ang puting teksto ng banner sa kulay na ito (contrast {ratio}:1).",
+  "profile2.contrastUse": "Gamitin ang {color}",
+  "profile2.pickerOpen": "Buksan ang pamili ng kulay",
+  "profile2.pickerClear": "Burahin",
+  "profile2.cropTitle": "I-crop ang iyong larawan",
+  "profile2.cropUse": "Gamitin ang crop na ito",
+  "profile2.headerLabel": "Header ng profile",
+  "profile2.headerNone": "Payak",
+  "profile2.headerTint": "Kulay mula sa aking larawan",
+  "profile2.headerDots": "Mga tuldok",
+  "profile2.headerStripes": "Mga guhit",
+  "profile2.headerGrid": "Grid"
 }

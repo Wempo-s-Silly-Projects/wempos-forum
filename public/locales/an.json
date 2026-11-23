@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Volumen",
   "embed.player.currentTime": "Tiempo actual",
   "embed.player.enterFullscreen": "Pantalla completa",
-  "embed.player.exitFullscreen": "Salir d'a pantalla completa"
+  "embed.player.exitFullscreen": "Salir d'a pantalla completa",
+  "turnstile.incomplete": "Completa primero o paso de verificación humana.",
+  "turnstile.loadFailed": "O widget de verificación humana no s'ha cargau. Refresca a pachina y torna-lo a prebar.",
+  "profile2.contrastLight": "Difícil de leyer en o tema claro (contraste {ratio}:1).",
+  "profile2.contrastDark": "Difícil de leyer en o tema fosco (contraste {ratio}:1).",
+  "profile2.contrastBanner": "O texto blanco d'a banda ye difícil de leyer en este color (contraste {ratio}:1).",
+  "profile2.contrastUse": "Fer servir {color}",
+  "profile2.pickerOpen": "Ubrir o selector de color",
+  "profile2.pickerClear": "Borrar",
+  "profile2.cropTitle": "Retalla a tuya imachen",
+  "profile2.cropUse": "Fer servir este retallo",
+  "profile2.headerLabel": "Capitero d'o perfil",
+  "profile2.headerNone": "Simple",
+  "profile2.headerTint": "Tinta d'a mía imachen",
+  "profile2.headerDots": "Puntos",
+  "profile2.headerStripes": "Rayas",
+  "profile2.headerGrid": "Quadricula"
 }

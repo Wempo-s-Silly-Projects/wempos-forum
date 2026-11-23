@@ -62,6 +62,10 @@ import {
   formatJoinedDate,
 } from "../profile-extras.js";
 import { badgeKeyFor, createNextBadge } from "../badge-progress.js";
+// Batch I: identicon fallback, contrast + Coloris, avatar crop, header style.
+import { avatarSource } from "../profile-identity.js";
+import { cropAvatarFile, shouldCropAvatar } from "../avatar-crop.js";
+import { applyProfileHeader } from "../profile-header.js";
 
 async function renderProfileRoute(route, context, version) {
   const profile = await api(`/api/users/${encodeURIComponent(route.username)}`);
@@ -134,12 +138,12 @@ function renderProfile(profile, session) {
     main.style.setProperty("--profile-accent", profile.profileAccent);
   }
   const heading = element("section", "profile-heading");
-  if (profile.avatarUrl) {
-    const image = element("img", "avatar profile-avatar");
-    image.src = profile.avatarUrl;
-    image.alt = t("profile.avatarOf", { name: profile.username });
-    heading.append(image);
-  }
+  // Batch I: no uploaded avatar paints the username's identicon instead.
+  const image = element("img", "avatar profile-avatar");
+  image.src = avatarSource(profile.avatarUrl, profile.username);
+  image.alt = t("profile.avatarOf", { name: profile.username });
+  heading.append(image);
+  applyProfileHeader(heading, profile);
   const nameHeading = addHeading(heading, profile.username, 1);
   nameHeading.classList.add("profile-name");
   // Pronouns (v5.23.0 F2): opt-in, next to the name; nothing when unset.
@@ -256,6 +260,18 @@ function renderProfile(profile, session) {
     // Bio (10,000 chars) plus the ten social fields; submission re-fetches the
     // profile instead of trusting the asymmetric PATCH echo.
     renderProfileEditor(main, profile);
+    // Batch I: contrast notes + the Coloris picker on the colour fields. Lazy:
+    // only the member's own editor pulls in colord and the picker.
+    import("../profile-colours.js").then(({ enhanceProfileColours }) => enhanceProfileColours(main), () => {
+      // The plain hex fields remain the designed fallback.
+    });
+    const headerStyleSelect = main.querySelector("#profile2-header-style");
+    if (headerStyleSelect) {
+      headerStyleSelect.addEventListener("change", async () => {
+        await api("/api/me/profile-header", { method: "PUT", body: { style: headerStyleSelect.value } });
+        await state.renderRoute(state.activeRoute);
+      });
+    }
     // Custom status (v5.38.0 F2): its own panel and its own route.
     const statusPanel = createPanel(t("status.label"));
     statusPanel.append(createStatusForm(document, profile.status));
@@ -364,14 +380,19 @@ async function submitProfileEditorForm(form, text) {
 const AVATAR_IMAGE_TYPES = Object.freeze(["image/jpeg", "image/png", "image/webp"]);
 
 async function submitAvatarForm(values) {
+  // Batch I: frame a square first; a cancelled crop skips the upload.
+  const picked = values.get("avatar");
+  const file = shouldCropAvatar(picked) ? await cropAvatarFile(document, picked) : picked;
+  if (!file) return;
   const upload = new FormData();
-  // Upload safety pipeline: byte-check, strip metadata, shrink toward the
-  // 1 MiB profile-picture cap. GIFs are not profile pictures.
-  upload.append("avatar", await prepareImageUpload(values.get("avatar"), {
+  // Crop first (Batch I), then the upload safety pipeline: byte-check, strip
+  // metadata, shrink toward the 1 MiB profile-picture cap. GIFs are not
+  // profile pictures.
+  upload.append("avatar", await prepareImageUpload(file, {
     accept: AVATAR_IMAGE_TYPES,
     maxSizeMB: UPLOAD_AVATAR_TARGET_MAX_MB,
     wrongType: () => t("errors.imageTypeUpload"),
-  }));
+  }), picked && picked.name ? picked.name : "avatar");
   await api("/api/me/avatar", { method: "POST", body: upload });
   await state.renderRoute({ name: "profile", username: state.currentUser.username });
   setMessage(t("profile.pictureUpdated"));

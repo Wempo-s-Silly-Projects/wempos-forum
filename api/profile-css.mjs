@@ -18,29 +18,37 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// v4.0 plan 3, Task 1: the custom-profile-CSS sandbox — the submit/serve
-// routes for profile styles live in api/profile-css.mjs, and this family is
-// the pure string pipeline they (and the profile read) share. Moved verbatim
-// out of shared.mjs (deleted in the final sweep); imports nothing (a true
-// leaf, like core/).
-//
-// Custom profile CSS (v2.5): the sandbox. Mods approve the TEXT, and at serve
-// time the raw CSS is re-scoped before it ever reaches a page:
-//   1. Every rule's selectors are prefixed with .profile-theme-scope (a
-//      per-profile container class), so nothing can escape its container.
-//   2. An @-block pass-through keeps @media/@keyframes working; @import and
-//      any other at-rule are dropped (url/resource smuggling surface).
-//   3. A blocklist strips the properties that could escape or hijack: any
-//      fixed positioning, z-index above 1, and everything the whitelist
-//      doesn't recognize as a cosmetic property (allow-list, not block-list:
-//      unknown properties are dropped — browsers ignore them anyway).
-// Residual risk is accepted-with-approval: a mod reads the CSS before
-// it goes live, and the CSP still gates every url() to same-origin.
-// The scanner FAILS CLOSED everywhere the browser's parse could diverge from
-// this one (security review): comments strip quote-aware before any
-// scanning, comments or strings left unterminated, an unclosed block, or a
-// stray brace/escape in selector text all project to "" — the approved text
-// stays put for re-review, the serve-time sheet serves nothing.
+// The custom-profile-CSS sandbox (v2.5; parser-backed since batch I). Staff
+// approve the TEXT (approved_css); at serve time that text is re-projected
+// through this module before it ever reaches a page:
+//   1. css-tree (MIT, a spec-following CSS parser) builds the syntax tree, so
+//      the sandbox sees the same tokens the browser does — escapes such as
+//      "u\72l(" or "@\69mport" are tokens, not text to pattern-match.
+//   2. The output is GENERATED from an allow-list walk of that tree, never
+//      sliced from the input: every rule's selectors are prefixed with
+//      .profile-theme-scope (the per-profile container class); only @media
+//      (recursing) and @keyframes (renamed into a profile- namespace so a
+//      member cannot redefine the site's own animations) survive; every
+//      other at-rule (@import, @font-face, @supports, @layer...) is dropped.
+//   3. Declarations pass a property allow-list (no position, z-index,
+//      behavior, -moz-binding, custom properties...), a function allow-list
+//      (no expression(), image-set(), element(), paint(), src()...), and
+//      url() survives only as a same-origin path ("/..." — never a scheme,
+//      "//host", data: or javascript:).
+//   4. Anything the parser could only keep as Raw (its error recovery) is
+//      dropped, and the finished sheet must re-parse with zero errors and no
+//      Raw node — otherwise the whole sheet serves nothing (fail closed).
+// Unterminated comments or strings still fail closed before parsing (the
+// browser's error recovery is exactly where a parse divergence would live).
+// Residual risk stays accepted-with-approval: staff read the CSS before it
+// goes live, and the CSP still gates every url() to same-origin.
+import parse from "css-tree/parser";
+import generate from "css-tree/generator";
+import walk from "css-tree/walker";
+
+const SCOPE_CLASS = "profile-theme-scope";
+const KEYFRAMES_PREFIX = "profile-";
+
 const PROFILE_CSS_PROPERTY_ALLOW = new Set([
   "color", "background", "background-color", "background-image", "background-position", "background-size", "background-repeat",
   "border", "border-color", "border-width", "border-style", "border-radius",
@@ -56,38 +64,32 @@ const PROFILE_CSS_PROPERTY_ALLOW = new Set([
   "border-left-color", "border-right-color",
 ]);
 
+// Value functions a cosmetic declaration may use. Anything else (expression,
+// image-set, -webkit-image-set, element, paint, src, cross-fade, attr, env,
+// an escaped name...) drops the declaration.
+const PROFILE_CSS_FUNCTION_ALLOW = new Set([
+  "rgb", "rgba", "hsl", "hsla", "hwb", "lab", "lch", "oklab", "oklch", "color", "color-mix",
+  "calc", "min", "max", "clamp", "var",
+  "linear-gradient", "radial-gradient", "conic-gradient",
+  "repeating-linear-gradient", "repeating-radial-gradient", "repeating-conic-gradient",
+  "translate", "translatex", "translatey", "translatez", "translate3d",
+  "rotate", "rotatex", "rotatey", "rotatez", "rotate3d",
+  "scale", "scalex", "scaley", "scalez", "scale3d",
+  "skew", "skewx", "skewy", "matrix", "matrix3d", "perspective",
+  "blur", "brightness", "contrast", "drop-shadow", "grayscale", "hue-rotate",
+  "invert", "opacity", "saturate", "sepia",
+  "fit-content", "minmax", "repeat", "cubic-bezier", "steps",
+]);
+
+const KEYFRAME_STEP = /^(?:from|to|\d{1,3}(?:\.\d+)?%)(?:,(?:from|to|\d{1,3}(?:\.\d+)?%))*$/i;
+const KEYFRAME_NAME = /^[A-Za-z_][A-Za-z0-9_-]{0,63}$/;
+const SAME_ORIGIN_PATH = /^\/(?!\/)[^\\\s]*$/;
+const FORBIDDEN_VALUE_TEXT = /(javascript:|expression\(|@import|[{}<>\\])/i;
+
 export const CUSTOM_CSS_MAX_BYTES = 20 * 1024;
 
-// A depth-tracking brace scanner: finds the block whose opening brace is at
-// `open` and returns the index just past its MATCHING close (handles nesting
-// — @media bodies contain full rule blocks). An unterminated block returns -1
-// so the caller can fail closed instead of swallowing the rest as body text.
-function blockEnd(text, openAt) {
-  let depth = 0;
-  let inString = null;
-  for (let at = openAt; at < text.length; at++) {
-    const ch = text[at];
-    if (inString) {
-      if (ch === "\\") at += 1;
-      else if (ch === inString) inString = null;
-      continue;
-    }
-    if (ch === '"' || ch === "'") inString = ch;
-    else if (ch === "{") depth += 1;
-    else if (ch === "}") {
-      depth -= 1;
-      if (depth === 0) return at;
-    }
-  }
-  return inString ? -1 : depth > 0 ? -1 : text.length;
-}
-
-// Comment stripping the browser and this scanner CANNOT disagree about
-// (review finding): the old scanner only ignored /*...*/ when they happened
-// to sit between braces, while the browser strips comments anywhere — "/*"
-// hiding inside a selector or a value let each side slice the sheet into
-// different blocks, and the browser's slice could escape the sandbox. Quotes
-// are tracked here so a comment marker inside a string never opens a
+// Comment stripping the browser and this module CANNOT disagree about:
+// quotes are tracked so a comment marker inside a string never opens a
 // comment, and any UNTERMINATED comment or string fails closed (null: the
 // sheet serves nothing) instead of guessing where the browser stops.
 function stripCssComments(text) {
@@ -122,123 +124,117 @@ function stripCssComments(text) {
   return out;
 }
 
-// The at-rule's NAME: everything before the first non-name char (space,
-// paren... — "@media(min-width:1px)" extracts cleanly).
-function atRuleName(selectorText) {
-  return selectorText.replace(/^\s+/, "").split(/[^@a-zA-Z-]/)[0].toLowerCase();
+const parseCss = (text, onError) =>
+  parse(text, { parseValue: true, parseCustomProperty: false, parseAtrulePrelude: true, onParseError: onError });
+
+const hasNodeType = (node, type) => {
+  let found = false;
+  walk(node, (inner) => {
+    if (inner.type === type) found = true;
+  });
+  return found;
+};
+
+const childrenOf = (node) => (node && node.children ? node.children.toArray() : []);
+
+function isSafeValueNode(value) {
+  if (!value || value.type !== "Value") return false;
+  let safe = true;
+  walk(value, (node) => {
+    if (node.type === "Raw") safe = false;
+    else if (node.type === "Url" && !SAME_ORIGIN_PATH.test(node.value)) safe = false;
+    else if (node.type === "Function" && !PROFILE_CSS_FUNCTION_ALLOW.has(node.name.toLowerCase())) safe = false;
+  });
+  return safe;
+}
+
+// One declaration in, its generated text (or null to drop it) out.
+function sanitizeDeclaration(node) {
+  if (node.type !== "Declaration") return null;
+  const property = node.property.toLowerCase();
+  if (!PROFILE_CSS_PROPERTY_ALLOW.has(property)) return null;
+  if (!isSafeValueNode(node.value)) return null;
+  const valueText = generate(node.value);
+  if (!valueText.trim() || FORBIDDEN_VALUE_TEXT.test(valueText)) return null;
+  return property + ":" + valueText + (node.important ? "!important" : "");
+}
+
+// Declarations only: nested rules (CSS nesting: "body & {...}") and any Raw
+// recovery inside a block are dropped.
+function sanitizeBlock(block) {
+  return childrenOf(block).map(sanitizeDeclaration).filter(Boolean).join(";");
+}
+
+function scopeSelectorList(prelude) {
+  if (!prelude || prelude.type !== "SelectorList") return [];
+  return childrenOf(prelude).flatMap((selector) => {
+    const parts = childrenOf(selector);
+    if (!parts.length || parts[0].type === "Combinator") return [];
+    if (hasNodeType(selector, "Raw") || hasNodeType(selector, "NestingSelector")) return [];
+    return ["." + SCOPE_CLASS + " " + generate(selector)];
+  });
+}
+
+function sanitizeRule(node) {
+  const selectors = scopeSelectorList(node.prelude);
+  const body = sanitizeBlock(node.block);
+  return selectors.length && body ? selectors.join(",") + "{" + body + "}" : "";
+}
+
+function sanitizeKeyframes(node) {
+  const names = childrenOf(node.prelude);
+  if (names.length !== 1 || names[0].type !== "Identifier" || !KEYFRAME_NAME.test(names[0].name)) return "";
+  const steps = childrenOf(node.block).flatMap((step) => {
+    if (step.type !== "Rule" || hasNodeType(step.prelude, "Raw")) return [];
+    const selector = generate(step.prelude);
+    if (!KEYFRAME_STEP.test(selector)) return [];
+    return [selector + "{" + sanitizeBlock(step.block) + "}"];
+  });
+  return "@keyframes " + KEYFRAMES_PREFIX + names[0].name + "{" + steps.join("") + "}";
+}
+
+function sanitizeMedia(node) {
+  if (!node.prelude || !node.block || hasNodeType(node.prelude, "Raw")) return "";
+  const condition = generate(node.prelude);
+  if (!condition.trim() || /[{};\\]/.test(condition)) return "";
+  const inner = sanitizeRuleList(node.block).join("");
+  return inner ? "@media " + condition + "{" + inner + "}" : "";
+}
+
+function sanitizeNode(node) {
+  if (node.type === "Rule") return sanitizeRule(node);
+  if (node.type !== "Atrule") return "";
+  const name = node.name.toLowerCase();
+  if (name === "media") return sanitizeMedia(node);
+  if (name === "keyframes" || name === "-webkit-keyframes") return node.block ? sanitizeKeyframes(node) : "";
+  return ""; // @import, @font-face, @supports, @layer, @namespace... dropped
+}
+
+function sanitizeRuleList(container) {
+  return childrenOf(container).map(sanitizeNode).filter(Boolean);
+}
+
+// The finished sheet must stand on its own: zero parse errors, no Raw node.
+function reparsesCleanly(css) {
+  let clean = true;
+  const ast = parseCss(css, () => {
+    clean = false;
+  });
+  return clean && !hasNodeType(ast, "Raw");
 }
 
 export function scopeProfileCss(rawCss) {
   const scanned = stripCssComments(String(rawCss ?? ""));
-  // Fail closed: an unparsable sheet (dangling comment, unterminated string)
-  // serves NOTHING — the browser's error recovery is exactly where the
-  // parse divergence lived. The approved text stays intact for re-review;
-  // only the serve-time projection comes out empty.
   if (scanned === null || !scanned.trim()) return "";
-  const sanitizedRules = [];
-  let index = 0;
-  while (index < scanned.length) {
-    const open = scanned.indexOf("{", index);
-    if (open === -1) break;
-    const close = blockEnd(scanned, open);
-    // An unclosed block means the scanner could not mirror the browser's
-    // structure — refuse the whole sheet rather than emit a partial slice.
-    if (close === -1) return "";
-    const selectorText = scanned.slice(index, open).trim();
-    // With comments gone, a stray "}" or escape in selector text means the
-    // sheet's structure is ambiguous — fail closed too (review finding).
-    if (selectorText.includes("}") || selectorText.includes("\\")) return "";
-    const bodyText = scanned.slice(open + 1, close);
-    index = close + 1;
-    if (selectorText.startsWith("@")) {
-      const atName = atRuleName(selectorText);
-      if (atName === "@media") {
-        // Media blocks recurse: scope the INNER rules, keep the condition.
-        const condition = selectorText.slice("@media".length).trim();
-        // A condition could not smuggle structure (braces) or extra
-        // declarations (semicolons) into the emitted sheet.
-        if (/[{};\\]/.test(condition)) continue;
-        sanitizedRules.push("@media" + " " + condition + "{" + scopeProfileCss(bodyText) + "}");
-      } else if (atName === "@keyframes" || atName === "@-webkit-keyframes") {
-        // Keyframes: the inner blocks are step selectors (from/to/percentage
-        // — never scoped), and each step's body passes the allow-list.
-        const inner = scopeKeyframeBody(bodyText);
-        sanitizedRules.push(selectorText + "{" + inner + "}");
-      }
-      // Everything else (@import, @font-face, @supports…) is dropped.
-      continue;
-    }
-    const scoped = selectorText
-      .split(",")
-      .map((selector) => ".profile-theme-scope " + selector.trim())
-      .join(", ");
-    const body = sanitizeDeclarationBody(bodyText);
-    if (body) sanitizedRules.push(scoped + "{" + body + "}");
+  let ast;
+  try {
+    ast = parseCss(scanned, () => {
+      // Recovery regions surface as Raw nodes, which the walk drops.
+    });
+  } catch {
+    return "";
   }
-  return sanitizedRules.join("\n");
-}
-
-// Keyframe steps: from/to/percentage selectors in, allow-listed properties
-// per step. (bodyText is a balanced region by construction — the caller
-// scanned it with blockEnd — so the plain indexOf close is safe.)
-function scopeKeyframeBody(bodyText) {
-  const steps = [];
-  let index = 0;
-  while (index < bodyText.length) {
-    const open = bodyText.indexOf("{", index);
-    if (open === -1) break;
-    const close = bodyText.indexOf("}", open);
-    if (close === -1) break;
-    const selector = bodyText.slice(index, open).trim();
-    // Step selectors are plain tokens; a stray brace or escape in one means
-    // ambiguity — drop the whole keyframes body.
-    if (selector.includes("{") || selector.includes("}") || selector.includes("\\")) break;
-    steps.push(selector + "{" + sanitizeDeclarationBody(bodyText.slice(open + 1, close)) + "}");
-    index = close + 1;
-  }
-  return steps.join("\n");
-}
-
-// Property allow-list for one declaration body; url() survives only for the
-// same-origin / static assets path (the CSP gates it further either way).
-// Verbatim values carry ONE more admission test now (review finding): a
-// value may not contain braces (they could open or close a block in the
-// emitted sheet — the old "kept verbatim" path), an unbalanced quote, or an
-// unbalanced parenthesis; any such declaration is dropped, not the sheet.
-function sanitizeDeclarationBody(body) {
-  const kept = [];
-  for (const declaration of body.split(";")) {
-    const prop = declaration.slice(0, declaration.indexOf(":") > -1 ? declaration.indexOf(":") : 0).trim().toLowerCase();
-    const value = declaration.includes(":") ? declaration.slice(declaration.indexOf(":") + 1).trim() : "";
-    if (!prop || !value) continue;
-    if (prop === "z-index") continue; // stacking hijacks never pass
-    if (!isSafeDeclarationValue(value)) continue;
-    if (value.toLowerCase().includes("position") && prop === "position" && /(fixed|sticky)/.test(value.toLowerCase())) continue;
-    if (!PROFILE_CSS_PROPERTY_ALLOW.has(prop)) continue;
-    if (/(javascript:|expression\(|@import)/i.test(value)) continue;
-    kept.push(prop + ":" + value);
-  }
-  return kept.join(";");
-}
-
-function isSafeDeclarationValue(value) {
-  if (/[{}]/.test(value)) return false;
-  let quote = null;
-  let parens = 0;
-  for (let at = 0; at < value.length; at++) {
-    const ch = value[at];
-    if (quote) {
-      // An escaped unit (\', \\) never closes the string.
-      if (ch === "\\") at += 1;
-      else if (ch === quote) quote = null;
-      continue;
-    }
-    if (ch === '"' || ch === "'") quote = ch;
-    else if (ch === "(") parens += 1;
-    else if (ch === ")") {
-      parens -= 1;
-      if (parens < 0) return false;
-    }
-  }
-  return quote === null && parens === 0;
+  const output = sanitizeRuleList(ast).join("\n");
+  if (!output) return "";
+  return reparsesCleanly(output) ? output : "";
 }

@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Гучність",
   "embed.player.currentTime": "Поточний час",
   "embed.player.enterFullscreen": "Повноекранний режим",
-  "embed.player.exitFullscreen": "Вийти з повноекранного режиму"
+  "embed.player.exitFullscreen": "Вийти з повноекранного режиму",
+  "turnstile.incomplete": "Спершу пройди перевірку, що ти людина.",
+  "turnstile.loadFailed": "Віджет перевірки людини не завантажився. Онови сторінку й спробуй ще раз.",
+  "profile2.contrastLight": "Важко читати у світлій темі (контраст {ratio}:1).",
+  "profile2.contrastDark": "Важко читати в темній темі (контраст {ratio}:1).",
+  "profile2.contrastBanner": "Білий текст банера погано читається на цьому кольорі (контраст {ratio}:1).",
+  "profile2.contrastUse": "Використати {color}",
+  "profile2.pickerOpen": "Відкрити вибір кольору",
+  "profile2.pickerClear": "Очистити",
+  "profile2.cropTitle": "Обріжте зображення",
+  "profile2.cropUse": "Використати це обрізання",
+  "profile2.headerLabel": "Шапка профілю",
+  "profile2.headerNone": "Проста",
+  "profile2.headerTint": "Відтінок із мого зображення",
+  "profile2.headerDots": "Крапки",
+  "profile2.headerStripes": "Смуги",
+  "profile2.headerGrid": "Сітка"
 }

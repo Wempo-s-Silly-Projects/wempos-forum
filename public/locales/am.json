@@ -1312,5 +1312,21 @@
   "embed.player.volume": "የድምጽ መጠን",
   "embed.player.currentTime": "የአሁኑ ሰዓት",
   "embed.player.enterFullscreen": "ሙሉ ማያ ገጽ",
-  "embed.player.exitFullscreen": "ከሙሉ ማያ ገጽ ውጣ"
+  "embed.player.exitFullscreen": "ከሙሉ ማያ ገጽ ውጣ",
+  "turnstile.incomplete": "እባክዎ መጀመሪያ የሰው ማረጋገጫ ደረጃውን ያጠናቅቁ።",
+  "turnstile.loadFailed": "የሰው ማረጋገጫ መግብሩ መጫን አልቻለም። ገጹን አድሰው እንደገና ይሞክሩ።",
+  "profile2.contrastLight": "በብሩህ ገጽታ ላይ ለማንበብ ከባድ ነው (ንፅፅር {ratio}:1)።",
+  "profile2.contrastDark": "በጨለማ ገጽታ ላይ ለማንበብ ከባድ ነው (ንፅፅር {ratio}:1)።",
+  "profile2.contrastBanner": "ነጭ የባነር ጽሑፍ በዚህ ቀለም ላይ ለማንበብ ከባድ ነው (ንፅፅር {ratio}:1)።",
+  "profile2.contrastUse": "{color} ተጠቀም",
+  "profile2.pickerOpen": "የቀለም መምረጫ ክፈት",
+  "profile2.pickerClear": "አጽዳ",
+  "profile2.cropTitle": "ፎቶዎን ይከርክሙ",
+  "profile2.cropUse": "ይህን ቁርጥ ተጠቀም",
+  "profile2.headerLabel": "የመገለጫ ራስጌ",
+  "profile2.headerNone": "ቀላል",
+  "profile2.headerTint": "ከፎቶዬ የተወሰደ ቀለም",
+  "profile2.headerDots": "ነጥቦች",
+  "profile2.headerStripes": "መስመሮች",
+  "profile2.headerGrid": "ፍርግርግ"
 }

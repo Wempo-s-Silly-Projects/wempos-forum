@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Volym",
   "embed.player.currentTime": "Aktuell tid",
   "embed.player.enterFullscreen": "Helskärm",
-  "embed.player.exitFullscreen": "Avsluta helskärm"
+  "embed.player.exitFullscreen": "Avsluta helskärm",
+  "turnstile.incomplete": "Slutför verifieringssteget för människor först.",
+  "turnstile.loadFailed": "Verifieringswidgeten för människor kunde inte laddas. Uppdatera sidan och försök igen.",
+  "profile2.contrastLight": "Svårläst i ljust tema (kontrast {ratio}:1).",
+  "profile2.contrastDark": "Svårläst i mörkt tema (kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Vit bannertext är svårläst på den här färgen (kontrast {ratio}:1).",
+  "profile2.contrastUse": "Använd {color}",
+  "profile2.pickerOpen": "Öppna färgväljaren",
+  "profile2.pickerClear": "Rensa",
+  "profile2.cropTitle": "Beskär din bild",
+  "profile2.cropUse": "Använd den här beskärningen",
+  "profile2.headerLabel": "Profilhuvud",
+  "profile2.headerNone": "Enkel",
+  "profile2.headerTint": "Nyans från min bild",
+  "profile2.headerDots": "Prickar",
+  "profile2.headerStripes": "Ränder",
+  "profile2.headerGrid": "Rutnät"
 }

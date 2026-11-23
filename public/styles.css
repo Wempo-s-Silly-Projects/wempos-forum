@@ -771,6 +771,37 @@ textarea {
 }
 .profile-banner:not(:empty):not([hidden]) { padding: 0.65rem 0.8rem; }
 .profile-banner-text { color: #fff; font-weight: 700; }
+/* Batch I: member-picked header decoration. Patterns are static, zero-image
+   gradients in the member's accent (nothing animates, so reduced motion has
+   nothing to stop); the tint is a CSSOM custom-property write from the
+   member's own avatar palette. */
+.profile-header-pattern,
+.profile-header-tinted {
+  padding: 0.75rem;
+  border-radius: 0.55rem;
+}
+.profile-header-dots {
+  background-image: radial-gradient(color-mix(in srgb, var(--profile-accent, var(--green)) 28%, transparent) 1.5px, transparent 1.6px);
+  background-size: 14px 14px;
+}
+.profile-header-stripes {
+  background-image: repeating-linear-gradient(135deg, color-mix(in srgb, var(--profile-accent, var(--green)) 16%, transparent) 0 8px, transparent 8px 18px);
+}
+.profile-header-grid {
+  background-image: linear-gradient(color-mix(in srgb, var(--profile-accent, var(--green)) 18%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--profile-accent, var(--green)) 18%, transparent) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.profile-header-tinted {
+  background-color: color-mix(in srgb, var(--profile-header-tint, transparent) 22%, var(--paper));
+}
+.profile2-contrast-note { margin: 0.3rem 0 0; color: var(--muted); font-size: 0.85rem; }
+.profile2-contrast-note[hidden] { display: none; }
+.profile2-contrast-fix { margin-inline-start: 0.4rem; }
+.profile2-header-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.75rem; }
+.profile2-crop-dialog { max-width: min(92vw, 34rem); }
+.profile2-crop-stage { max-height: 60vh; }
+.profile2-crop-stage img { display: block; max-width: 100%; }
+.profile2-crop-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem; }
 .profile-flair-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.2rem 0; }
 .profile-flair, .profile-badge {
   display: inline-flex;

@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Ampled",
   "embed.player.currentTime": "Eur bremañ",
   "embed.player.enterFullscreen": "Skramm a-bezh",
-  "embed.player.exitFullscreen": "Kuitaat ar skramm a-bezh"
+  "embed.player.exitFullscreen": "Kuitaat ar skramm a-bezh",
+  "turnstile.incomplete": "Echuit ar gwiriañ denel da gentañ mar plij.",
+  "turnstile.loadFailed": "N'eo ket bet karget ar benveg gwiriañ denel. Freskait ar bajenn ha klaskit en-dro.",
+  "profile2.contrastLight": "Diaes da lenn gant an tem sklaer (kenstok {ratio}:1).",
+  "profile2.contrastDark": "Diaes da lenn gant an tem teñval (kenstok {ratio}:1).",
+  "profile2.contrastBanner": "Diaes eo lenn testenn wenn ar banniel war al liv-mañ (kenstok {ratio}:1).",
+  "profile2.contrastUse": "Implijout {color}",
+  "profile2.pickerOpen": "Digeriñ an dibaber livioù",
+  "profile2.pickerClear": "Skarzhañ",
+  "profile2.cropTitle": "Troc'hañ ho skeudenn",
+  "profile2.cropUse": "Implijout an troc'h-mañ",
+  "profile2.headerLabel": "Talbenn ar profil",
+  "profile2.headerNone": "Eeun",
+  "profile2.headerTint": "Liv eus ma skeudenn",
+  "profile2.headerDots": "Pikoù",
+  "profile2.headerStripes": "Barrennoù",
+  "profile2.headerGrid": "Kael"
 }

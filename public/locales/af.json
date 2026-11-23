@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Volume",
   "embed.player.currentTime": "Huidige tyd",
   "embed.player.enterFullscreen": "Volskerm",
-  "embed.player.exitFullscreen": "Verlaat volskerm"
+  "embed.player.exitFullscreen": "Verlaat volskerm",
+  "turnstile.incomplete": "Voltooi asseblief eers die menslike-verifikasiestap.",
+  "turnstile.loadFailed": "Die menslike-verifikasiewidget kon nie laai nie. Verfris die bladsy en probeer weer.",
+  "profile2.contrastLight": "Moeilik leesbaar op die ligte tema (kontras {ratio}:1).",
+  "profile2.contrastDark": "Moeilik leesbaar op die donker tema (kontras {ratio}:1).",
+  "profile2.contrastBanner": "Wit baniertekst is moeilik leesbaar op hierdie kleur (kontras {ratio}:1).",
+  "profile2.contrastUse": "Gebruik {color}",
+  "profile2.pickerOpen": "Maak kleurkieser oop",
+  "profile2.pickerClear": "Maak skoon",
+  "profile2.cropTitle": "Sny jou foto by",
+  "profile2.cropUse": "Gebruik hierdie snit",
+  "profile2.headerLabel": "Profielkop",
+  "profile2.headerNone": "Eenvoudig",
+  "profile2.headerTint": "Tint uit my foto",
+  "profile2.headerDots": "Kolle",
+  "profile2.headerStripes": "Strepe",
+  "profile2.headerGrid": "Rooster"
 }

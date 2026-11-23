@@ -1312,5 +1312,21 @@
   "embed.player.volume": "볼륨",
   "embed.player.currentTime": "현재 시간",
   "embed.player.enterFullscreen": "전체 화면",
-  "embed.player.exitFullscreen": "전체 화면 종료"
+  "embed.player.exitFullscreen": "전체 화면 종료",
+  "turnstile.incomplete": "먼저 사람 확인 단계를 완료해 주세요.",
+  "turnstile.loadFailed": "사람 확인 위젯을 불러오지 못했어요. 페이지를 새로고침하고 다시 시도해 주세요.",
+  "profile2.contrastLight": "밝은 테마에서 읽기 어렵습니다(대비 {ratio}:1).",
+  "profile2.contrastDark": "어두운 테마에서 읽기 어렵습니다(대비 {ratio}:1).",
+  "profile2.contrastBanner": "이 색에서는 배너의 흰 글자를 읽기 어렵습니다(대비 {ratio}:1).",
+  "profile2.contrastUse": "{color} 사용",
+  "profile2.pickerOpen": "색상 선택기 열기",
+  "profile2.pickerClear": "지우기",
+  "profile2.cropTitle": "사진 자르기",
+  "profile2.cropUse": "이대로 자르기",
+  "profile2.headerLabel": "프로필 헤더",
+  "profile2.headerNone": "기본",
+  "profile2.headerTint": "내 사진에서 색조 가져오기",
+  "profile2.headerDots": "점",
+  "profile2.headerStripes": "줄무늬",
+  "profile2.headerGrid": "격자"
 }

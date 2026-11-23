@@ -1312,5 +1312,21 @@
   "embed.player.volume": "音量",
   "embed.player.currentTime": "当前时间",
   "embed.player.enterFullscreen": "全屏",
-  "embed.player.exitFullscreen": "退出全屏"
+  "embed.player.exitFullscreen": "退出全屏",
+  "turnstile.incomplete": "请先完成人机验证。",
+  "turnstile.loadFailed": "人机验证组件加载失败。请刷新页面后重试。",
+  "profile2.contrastLight": "在浅色主题下难以阅读（对比度 {ratio}:1）。",
+  "profile2.contrastDark": "在深色主题下难以阅读（对比度 {ratio}:1）。",
+  "profile2.contrastBanner": "横幅上的白色文字在此颜色上难以阅读（对比度 {ratio}:1）。",
+  "profile2.contrastUse": "使用 {color}",
+  "profile2.pickerOpen": "打开取色器",
+  "profile2.pickerClear": "清除",
+  "profile2.cropTitle": "裁剪你的图片",
+  "profile2.cropUse": "使用此裁剪",
+  "profile2.headerLabel": "个人资料页眉",
+  "profile2.headerNone": "简洁",
+  "profile2.headerTint": "取自我的图片的色调",
+  "profile2.headerDots": "圆点",
+  "profile2.headerStripes": "条纹",
+  "profile2.headerGrid": "网格"
 }

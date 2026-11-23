@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Bolumena",
   "embed.player.currentTime": "Uneko denbora",
   "embed.player.enterFullscreen": "Pantaila osoa",
-  "embed.player.exitFullscreen": "Irten pantaila osotik"
+  "embed.player.exitFullscreen": "Irten pantaila osotik",
+  "turnstile.incomplete": "Osatu gizaki-egiaztapenaren urratsa lehenengo.",
+  "turnstile.loadFailed": "Gizaki-egiaztapenaren trepetak ez du kargatu. Freskatu orria eta saiatu berriro.",
+  "profile2.contrastLight": "Zaila irakurtzen gai argian (kontrastea {ratio}:1).",
+  "profile2.contrastDark": "Zaila irakurtzen gai ilunean (kontrastea {ratio}:1).",
+  "profile2.contrastBanner": "Bannerraren testu zuria zaila da irakurtzen kolore honetan (kontrastea {ratio}:1).",
+  "profile2.contrastUse": "Erabili {color}",
+  "profile2.pickerOpen": "Ireki kolore-hautatzailea",
+  "profile2.pickerClear": "Garbitu",
+  "profile2.cropTitle": "Moztu zure irudia",
+  "profile2.cropUse": "Erabili moztu hau",
+  "profile2.headerLabel": "Profilaren goiburua",
+  "profile2.headerNone": "Soila",
+  "profile2.headerTint": "Nire irudiko ñabardura",
+  "profile2.headerDots": "Puntuak",
+  "profile2.headerStripes": "Marrak",
+  "profile2.headerGrid": "Sareta"
 }

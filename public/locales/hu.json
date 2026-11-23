@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Hangerő",
   "embed.player.currentTime": "Aktuális idő",
   "embed.player.enterFullscreen": "Teljes képernyő",
-  "embed.player.exitFullscreen": "Kilépés a teljes képernyőből"
+  "embed.player.exitFullscreen": "Kilépés a teljes képernyőből",
+  "turnstile.incomplete": "Kérlek, előbb végezd el az emberi ellenőrzés lépését.",
+  "turnstile.loadFailed": "Az emberi ellenőrzés modulja nem töltődött be. Frissítsd az oldalt, és próbáld újra.",
+  "profile2.contrastLight": "Világos témában nehezen olvasható (kontraszt {ratio}:1).",
+  "profile2.contrastDark": "Sötét témában nehezen olvasható (kontraszt {ratio}:1).",
+  "profile2.contrastBanner": "A fehér szalagszöveg nehezen olvasható ezen a színen (kontraszt {ratio}:1).",
+  "profile2.contrastUse": "{color} használata",
+  "profile2.pickerOpen": "Színválasztó megnyitása",
+  "profile2.pickerClear": "Törlés",
+  "profile2.cropTitle": "Vágd körül a képed",
+  "profile2.cropUse": "Ez a kivágás legyen",
+  "profile2.headerLabel": "Profilfejléc",
+  "profile2.headerNone": "Egyszerű",
+  "profile2.headerTint": "Árnyalat a képemből",
+  "profile2.headerDots": "Pöttyök",
+  "profile2.headerStripes": "Csíkok",
+  "profile2.headerGrid": "Rács"
 }

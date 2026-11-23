@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Ένταση",
   "embed.player.currentTime": "Τρέχων χρόνος",
   "embed.player.enterFullscreen": "Πλήρης οθόνη",
-  "embed.player.exitFullscreen": "Έξοδος από πλήρη οθόνη"
+  "embed.player.exitFullscreen": "Έξοδος από πλήρη οθόνη",
+  "turnstile.incomplete": "Ολοκλήρωσε πρώτα το βήμα επαλήθευσης ότι είσαι άνθρωπος.",
+  "turnstile.loadFailed": "Το widget επαλήθευσης ότι είσαι άνθρωπος απέτυχε να φορτώσει. Ανανέωσε τη σελίδα και δοκίμασε ξανά.",
+  "profile2.contrastLight": "Δύσκολο στην ανάγνωση στο φωτεινό θέμα (αντίθεση {ratio}:1).",
+  "profile2.contrastDark": "Δύσκολο στην ανάγνωση στο σκοτεινό θέμα (αντίθεση {ratio}:1).",
+  "profile2.contrastBanner": "Το λευκό κείμενο του banner διαβάζεται δύσκολα σε αυτό το χρώμα (αντίθεση {ratio}:1).",
+  "profile2.contrastUse": "Χρήση {color}",
+  "profile2.pickerOpen": "Άνοιγμα επιλογέα χρώματος",
+  "profile2.pickerClear": "Εκκαθάριση",
+  "profile2.cropTitle": "Περικοπή της εικόνας σας",
+  "profile2.cropUse": "Χρήση αυτής της περικοπής",
+  "profile2.headerLabel": "Κεφαλίδα προφίλ",
+  "profile2.headerNone": "Απλή",
+  "profile2.headerTint": "Απόχρωση από την εικόνα μου",
+  "profile2.headerDots": "Τελείες",
+  "profile2.headerStripes": "Ρίγες",
+  "profile2.headerGrid": "Πλέγμα"
 }

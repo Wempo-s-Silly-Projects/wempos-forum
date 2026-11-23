@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Yangayyi",
   "embed.player.currentTime": "Away saaku",
   "embed.player.enterFullscreen": "Inkih yable kal",
-  "embed.player.exitFullscreen": "Inkih yable kaq"
+  "embed.player.exitFullscreen": "Inkih yable kaq",
+  "turnstile.incomplete": "Naharak seehadaynih wagitta dubbis.",
+  "turnstile.loadFailed": "Seehadaynih wagittah widget culsimuh maduddumne. Safha qagitak culsis kee qagitak gabbat.",
+  "profile2.contrastLight": "Ifa xaagal yangayyi (kontiraast {ratio}:1).",
+  "profile2.contrastDark": "Dite xaagal yangayyi (kontiraast {ratio}:1).",
+  "profile2.contrastBanner": "Qado baaner maqo ah lakal yangayyi (kontiraast {ratio}:1).",
+  "profile2.contrastUse": "{color} xoqoysi",
+  "profile2.pickerOpen": "Lakal doorite fakki",
+  "profile2.pickerClear": "Tirtir",
+  "profile2.cropTitle": "Ku suurat qaxxaq",
+  "profile2.cropUse": "A qaxxaq xoqoysi",
+  "profile2.headerLabel": "Profaylih amo",
+  "profile2.headerNone": "Wanaysan",
+  "profile2.headerTint": "Ku suuratak lakal",
+  "profile2.headerDots": "Tuxxuqa",
+  "profile2.headerStripes": "Xariiqa",
+  "profile2.headerGrid": "Kaare"
 }

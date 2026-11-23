@@ -1312,5 +1312,21 @@
   "embed.player.volume": "音量",
   "embed.player.currentTime": "現在の時間",
   "embed.player.enterFullscreen": "全画面表示",
-  "embed.player.exitFullscreen": "全画面表示を終了"
+  "embed.player.exitFullscreen": "全画面表示を終了",
+  "turnstile.incomplete": "先に人間であることの確認を完了してください。",
+  "turnstile.loadFailed": "人間確認ウィジェットを読み込めませんでした。ページを再読み込みしてもう一度試してください。",
+  "profile2.contrastLight": "ライトテーマでは読みにくい色です（コントラスト {ratio}:1）。",
+  "profile2.contrastDark": "ダークテーマでは読みにくい色です（コントラスト {ratio}:1）。",
+  "profile2.contrastBanner": "この色ではバナーの白い文字が読みにくくなります（コントラスト {ratio}:1）。",
+  "profile2.contrastUse": "{color} を使う",
+  "profile2.pickerOpen": "カラーピッカーを開く",
+  "profile2.pickerClear": "クリア",
+  "profile2.cropTitle": "画像を切り抜く",
+  "profile2.cropUse": "この切り抜きを使う",
+  "profile2.headerLabel": "プロフィールのヘッダー",
+  "profile2.headerNone": "シンプル",
+  "profile2.headerTint": "自分の画像から色付け",
+  "profile2.headerDots": "ドット",
+  "profile2.headerStripes": "ストライプ",
+  "profile2.headerGrid": "グリッド"
 }

@@ -1312,5 +1312,21 @@
   "embed.player.volume": "مستوى الصوت",
   "embed.player.currentTime": "الوقت الحالي",
   "embed.player.enterFullscreen": "ملء الشاشة",
-  "embed.player.exitFullscreen": "الخروج من ملء الشاشة"
+  "embed.player.exitFullscreen": "الخروج من ملء الشاشة",
+  "turnstile.incomplete": "يُرجى إكمال خطوة التحقق البشري أولًا.",
+  "turnstile.loadFailed": "تعذّر تحميل أداة التحقق البشري. حدّث الصفحة وحاول مجددًا.",
+  "profile2.contrastLight": "صعب القراءة في السمة الفاتحة (التباين {ratio}:1).",
+  "profile2.contrastDark": "صعب القراءة في السمة الداكنة (التباين {ratio}:1).",
+  "profile2.contrastBanner": "نص اللافتة الأبيض صعب القراءة على هذا اللون (التباين {ratio}:1).",
+  "profile2.contrastUse": "استخدم {color}",
+  "profile2.pickerOpen": "افتح منتقي الألوان",
+  "profile2.pickerClear": "مسح",
+  "profile2.cropTitle": "اقتصاص صورتك",
+  "profile2.cropUse": "استخدم هذا الاقتصاص",
+  "profile2.headerLabel": "ترويسة الملف الشخصي",
+  "profile2.headerNone": "عادي",
+  "profile2.headerTint": "لون من صورتي",
+  "profile2.headerDots": "نقاط",
+  "profile2.headerStripes": "خطوط",
+  "profile2.headerGrid": "شبكة"
 }

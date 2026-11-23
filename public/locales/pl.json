@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Głośność",
   "embed.player.currentTime": "Bieżący czas",
   "embed.player.enterFullscreen": "Pełny ekran",
-  "embed.player.exitFullscreen": "Zamknij pełny ekran"
+  "embed.player.exitFullscreen": "Zamknij pełny ekran",
+  "turnstile.incomplete": "Najpierw przejdź weryfikację, że jesteś człowiekiem.",
+  "turnstile.loadFailed": "Nie udało się wczytać weryfikacji człowieka. Odśwież stronę i spróbuj ponownie.",
+  "profile2.contrastLight": "Trudne do odczytania w jasnym motywie (kontrast {ratio}:1).",
+  "profile2.contrastDark": "Trudne do odczytania w ciemnym motywie (kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Biały tekst banera jest słabo czytelny na tym kolorze (kontrast {ratio}:1).",
+  "profile2.contrastUse": "Użyj {color}",
+  "profile2.pickerOpen": "Otwórz wybór koloru",
+  "profile2.pickerClear": "Wyczyść",
+  "profile2.cropTitle": "Przytnij swój obraz",
+  "profile2.cropUse": "Użyj tego kadru",
+  "profile2.headerLabel": "Nagłówek profilu",
+  "profile2.headerNone": "Zwykły",
+  "profile2.headerTint": "Odcień z mojego obrazu",
+  "profile2.headerDots": "Kropki",
+  "profile2.headerStripes": "Paski",
+  "profile2.headerGrid": "Siatka"
 }

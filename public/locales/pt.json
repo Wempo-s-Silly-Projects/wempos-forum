@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Volume",
   "embed.player.currentTime": "Tempo atual",
   "embed.player.enterFullscreen": "Tela cheia",
-  "embed.player.exitFullscreen": "Sair da tela cheia"
+  "embed.player.exitFullscreen": "Sair da tela cheia",
+  "turnstile.incomplete": "Conclua primeiro a verificação humana.",
+  "turnstile.loadFailed": "O widget de verificação humana não carregou. Atualize a página e tente de novo.",
+  "profile2.contrastLight": "Difícil de ler no tema claro (contraste {ratio}:1).",
+  "profile2.contrastDark": "Difícil de ler no tema escuro (contraste {ratio}:1).",
+  "profile2.contrastBanner": "O texto branco do banner fica difícil de ler nesta cor (contraste {ratio}:1).",
+  "profile2.contrastUse": "Usar {color}",
+  "profile2.pickerOpen": "Abrir seletor de cor",
+  "profile2.pickerClear": "Limpar",
+  "profile2.cropTitle": "Recorte sua imagem",
+  "profile2.cropUse": "Usar este recorte",
+  "profile2.headerLabel": "Cabeçalho do perfil",
+  "profile2.headerNone": "Simples",
+  "profile2.headerTint": "Tom da minha imagem",
+  "profile2.headerDots": "Bolinhas",
+  "profile2.headerStripes": "Listras",
+  "profile2.headerGrid": "Grade"
 }

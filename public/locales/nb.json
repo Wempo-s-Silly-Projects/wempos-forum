@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Volum",
   "embed.player.currentTime": "Nåværende tid",
   "embed.player.enterFullscreen": "Fullskjerm",
-  "embed.player.exitFullscreen": "Avslutt fullskjerm"
+  "embed.player.exitFullscreen": "Avslutt fullskjerm",
+  "turnstile.incomplete": "Fullfør bekreftelsessteget for mennesker først.",
+  "turnstile.loadFailed": "Bekreftelsesmodulen for mennesker kunne ikke lastes. Oppdater siden og prøv igjen.",
+  "profile2.contrastLight": "Vanskelig å lese i lyst tema (kontrast {ratio}:1).",
+  "profile2.contrastDark": "Vanskelig å lese i mørkt tema (kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Hvit bannertekst er vanskelig å lese på denne fargen (kontrast {ratio}:1).",
+  "profile2.contrastUse": "Bruk {color}",
+  "profile2.pickerOpen": "Åpne fargevelger",
+  "profile2.pickerClear": "Tøm",
+  "profile2.cropTitle": "Beskjær bildet ditt",
+  "profile2.cropUse": "Bruk denne beskjæringen",
+  "profile2.headerLabel": "Profiltopp",
+  "profile2.headerNone": "Enkel",
+  "profile2.headerTint": "Fargetone fra bildet mitt",
+  "profile2.headerDots": "Prikker",
+  "profile2.headerStripes": "Striper",
+  "profile2.headerGrid": "Rutenett"
 }

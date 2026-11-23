@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Аз",
   "embed.player.currentTime": "ХӀинцалера хан",
   "embed.player.enterFullscreen": "Ерриг экран",
-  "embed.player.exitFullscreen": "Ерриг экранера арадала"
+  "embed.player.exitFullscreen": "Ерриг экранера арадала",
+  "turnstile.incomplete": "Хьалха адамийн таллам чекхдаккха.",
+  "turnstile.loadFailed": "Адамийн таллам виджет чуоьхуш ца кхийтира. Агӏо керлайаккха, юха хьажа.",
+  "profile2.contrastLight": "Сирла темехь деша хала ду (контраст {ratio}:1).",
+  "profile2.contrastDark": "Бода темехь деша хала ду (контраст {ratio}:1).",
+  "profile2.contrastBanner": "Хӏокху басахь баннеран кӏайн текст деша хала ду (контраст {ratio}:1).",
+  "profile2.contrastUse": "{color} лело",
+  "profile2.pickerOpen": "Бос харжар схьаделла",
+  "profile2.pickerClear": "Цӏанде",
+  "profile2.cropTitle": "Хьайн сурт хедо",
+  "profile2.cropUse": "Хӏара хадор лело",
+  "profile2.headerLabel": "Профилан корта",
+  "profile2.headerNone": "Атта",
+  "profile2.headerTint": "Сан суьртара бос",
+  "profile2.headerDots": "Тӏадамаш",
+  "profile2.headerStripes": "Сизаш",
+  "profile2.headerGrid": "Бой"
 }

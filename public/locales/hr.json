@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Glasnoća",
   "embed.player.currentTime": "Trenutačno vrijeme",
   "embed.player.enterFullscreen": "Cijeli zaslon",
-  "embed.player.exitFullscreen": "Izađi iz cijelog zaslona"
+  "embed.player.exitFullscreen": "Izađi iz cijelog zaslona",
+  "turnstile.incomplete": "Prvo dovrši korak provjere da si čovjek.",
+  "turnstile.loadFailed": "Dodatak za provjeru da si čovjek nije se učitao. Osvježi stranicu i pokušaj ponovno.",
+  "profile2.contrastLight": "Teško se čita u svijetloj temi (kontrast {ratio}:1).",
+  "profile2.contrastDark": "Teško se čita u tamnoj temi (kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Bijeli tekst bannera teško se čita na ovoj boji (kontrast {ratio}:1).",
+  "profile2.contrastUse": "Upotrijebi {color}",
+  "profile2.pickerOpen": "Otvori birač boja",
+  "profile2.pickerClear": "Očisti",
+  "profile2.cropTitle": "Obrežite svoju sliku",
+  "profile2.cropUse": "Upotrijebi ovaj izrez",
+  "profile2.headerLabel": "Zaglavlje profila",
+  "profile2.headerNone": "Obično",
+  "profile2.headerTint": "Nijansa iz moje slike",
+  "profile2.headerDots": "Točkice",
+  "profile2.headerStripes": "Pruge",
+  "profile2.headerGrid": "Mreža"
 }

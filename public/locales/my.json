@@ -1312,5 +1312,21 @@
   "embed.player.volume": "အသံအတိုးအကျယ်",
   "embed.player.currentTime": "လက်ရှိအချိန်",
   "embed.player.enterFullscreen": "မျက်နှာပြင်အပြည့်",
-  "embed.player.exitFullscreen": "မျက်နှာပြင်အပြည့်မှ ထွက်ရန်"
+  "embed.player.exitFullscreen": "မျက်နှာပြင်အပြည့်မှ ထွက်ရန်",
+  "turnstile.incomplete": "လူသားစစ်ဆေးမှုအဆင့်ကို အရင်ပြီးမြောက်ပါ။",
+  "turnstile.loadFailed": "လူသားစစ်ဆေးမှုကိရိယာ မဖွင့်နိုင်ပါ။ စာမျက်နှာကို ပြန်ဖွင့်ပြီး ထပ်စမ်းကြည့်ပါ။",
+  "profile2.contrastLight": "အလင်းအပြင်အဆင်တွင် ဖတ်ရခက်သည် (ခြားနားမှု {ratio}:1)။",
+  "profile2.contrastDark": "အမှောင်အပြင်အဆင်တွင် ဖတ်ရခက်သည် (ခြားနားမှု {ratio}:1)။",
+  "profile2.contrastBanner": "ဤအရောင်ပေါ်တွင် ဘန်နာ၏ အဖြူစာသားကို ဖတ်ရခက်သည် (ခြားနားမှု {ratio}:1)။",
+  "profile2.contrastUse": "{color} ကို သုံးပါ",
+  "profile2.pickerOpen": "အရောင်ရွေးစနစ်ကို ဖွင့်ပါ",
+  "profile2.pickerClear": "ရှင်းပါ",
+  "profile2.cropTitle": "သင့်ပုံကို ဖြတ်ပါ",
+  "profile2.cropUse": "ဤဖြတ်ပုံကို သုံးပါ",
+  "profile2.headerLabel": "ပရိုဖိုင် ခေါင်းစီး",
+  "profile2.headerNone": "ရိုးရိုး",
+  "profile2.headerTint": "ကျွန်ုပ်ပုံမှ အရောင်",
+  "profile2.headerDots": "အစက်များ",
+  "profile2.headerStripes": "အစင်းများ",
+  "profile2.headerGrid": "ဇယားကွက်"
 }

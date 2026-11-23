@@ -27,6 +27,7 @@
     "@simplewebauthn/server": "latest",
     "altcha-lib": "latest",
     "content-type": "latest",
+    "css-tree": "latest",
     "file-type": "latest",
     "image-dimensions": "latest",
     "ipaddr.js": "latest",

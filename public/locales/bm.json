@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Kumakan bonya",
   "embed.player.currentTime": "Sisan waati",
   "embed.player.enterFullscreen": "Ɛkiran bɛɛ",
-  "embed.player.exitFullscreen": "Bɔ ɛkiran bɛɛ la"
+  "embed.player.exitFullscreen": "Bɔ ɛkiran bɛɛ la",
+  "turnstile.incomplete": "I ka hinɛ ka hadamadenya lajɛli dafa fɔlɔ.",
+  "turnstile.loadFailed": "Hadamadenya lajɛli minɛn ma se ka doni. Ɲɛ lakura ka a kɛ tuguni.",
+  "profile2.contrastLight": "A kalanni ka gɛlɛn yeelen theme kan (danfara {ratio}:1).",
+  "profile2.contrastDark": "A kalanni ka gɛlɛn dibi theme kan (danfara {ratio}:1).",
+  "profile2.contrastBanner": "Banner sɛbɛn jɛman kalanni ka gɛlɛn nin ɲɛ in kan (danfara {ratio}:1).",
+  "profile2.contrastUse": "{color} labaara",
+  "profile2.pickerOpen": "Ɲɛ sugandili da wuli",
+  "profile2.pickerClear": "A jɔsi",
+  "profile2.cropTitle": "I ja tigɛ",
+  "profile2.cropUse": "Nin tigɛli labaara",
+  "profile2.headerLabel": "Profil kun",
+  "profile2.headerNone": "Gansan",
+  "profile2.headerTint": "Ɲɛ ka bɔ n ka ja la",
+  "profile2.headerDots": "Tomiw",
+  "profile2.headerStripes": "Cɛnw",
+  "profile2.headerGrid": "Jɛnsɛnni"
 }

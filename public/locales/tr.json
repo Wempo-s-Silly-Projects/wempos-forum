@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Ses düzeyi",
   "embed.player.currentTime": "Geçerli süre",
   "embed.player.enterFullscreen": "Tam ekran",
-  "embed.player.exitFullscreen": "Tam ekrandan çık"
+  "embed.player.exitFullscreen": "Tam ekrandan çık",
+  "turnstile.incomplete": "Lütfen önce insan doğrulama adımını tamamla.",
+  "turnstile.loadFailed": "İnsan doğrulama aracı yüklenemedi. Sayfayı yenileyip tekrar dene.",
+  "profile2.contrastLight": "Açık temada okunması zor (kontrast {ratio}:1).",
+  "profile2.contrastDark": "Koyu temada okunması zor (kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Beyaz afiş metni bu renkte zor okunuyor (kontrast {ratio}:1).",
+  "profile2.contrastUse": "{color} kullan",
+  "profile2.pickerOpen": "Renk seçiciyi aç",
+  "profile2.pickerClear": "Temizle",
+  "profile2.cropTitle": "Resmini kırp",
+  "profile2.cropUse": "Bu kırpmayı kullan",
+  "profile2.headerLabel": "Profil başlığı",
+  "profile2.headerNone": "Sade",
+  "profile2.headerTint": "Resmimden renk tonu",
+  "profile2.headerDots": "Noktalar",
+  "profile2.headerStripes": "Çizgiler",
+  "profile2.headerGrid": "Izgara"
 }

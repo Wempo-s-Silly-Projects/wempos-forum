@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Sauti",
   "embed.player.currentTime": "Muda wa sasa",
   "embed.player.enterFullscreen": "Skrini nzima",
-  "embed.player.exitFullscreen": "Toka kwenye skrini nzima"
+  "embed.player.exitFullscreen": "Toka kwenye skrini nzima",
+  "turnstile.incomplete": "Tafadhali kamilisha hatua ya uthibitisho wa binadamu kwanza.",
+  "turnstile.loadFailed": "Kijenzi cha uthibitisho wa binadamu kimeshindwa kupakia. Onyesha upya ukurasa na ujaribu tena.",
+  "profile2.contrastLight": "Ni vigumu kusoma kwenye mandhari angavu (utofautishaji {ratio}:1).",
+  "profile2.contrastDark": "Ni vigumu kusoma kwenye mandhari meusi (utofautishaji {ratio}:1).",
+  "profile2.contrastBanner": "Maandishi meupe ya bango ni vigumu kusoma kwenye rangi hii (utofautishaji {ratio}:1).",
+  "profile2.contrastUse": "Tumia {color}",
+  "profile2.pickerOpen": "Fungua kichagua rangi",
+  "profile2.pickerClear": "Futa",
+  "profile2.cropTitle": "Punguza picha yako",
+  "profile2.cropUse": "Tumia upunguzaji huu",
+  "profile2.headerLabel": "Kichwa cha wasifu",
+  "profile2.headerNone": "Sahili",
+  "profile2.headerTint": "Rangi kutoka kwa picha yangu",
+  "profile2.headerDots": "Nukta",
+  "profile2.headerStripes": "Mistari",
+  "profile2.headerGrid": "Gridi"
 }

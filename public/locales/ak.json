@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Nne kɛseɛ",
   "embed.player.currentTime": "Seesei berɛ",
   "embed.player.enterFullscreen": "Kɔ screen mũ so",
-  "embed.player.exitFullscreen": "Fi screen mũ so"
+  "embed.player.exitFullscreen": "Fi screen mũ so",
+  "turnstile.incomplete": "Yɛsrɛ wo, wie onipa nhwehwɛmu anammɔn no kan.",
+  "turnstile.loadFailed": "Onipa nhwehwɛmu adwinnade no amma. San bue krataafa no na san sɔ hwɛ.",
+  "profile2.contrastLight": "Ɛyɛ den sɛ wobɛkenkan wɔ hann theme no so (contrast {ratio}:1).",
+  "profile2.contrastDark": "Ɛyɛ den sɛ wobɛkenkan wɔ sum theme no so (contrast {ratio}:1).",
+  "profile2.contrastBanner": "Banner nkyerɛwee fitaa no yɛ den sɛ wobɛkenkan wɔ kɔla yi so (contrast {ratio}:1).",
+  "profile2.contrastUse": "Fa {color} di dwuma",
+  "profile2.pickerOpen": "Bue kɔla paw",
+  "profile2.pickerClear": "Popa",
+  "profile2.cropTitle": "Twa wo mfonini",
+  "profile2.cropUse": "Fa ntwa yi di dwuma",
+  "profile2.headerLabel": "Profile ti",
+  "profile2.headerNone": "Hwee nni so",
+  "profile2.headerTint": "Kɔla firi me mfonini mu",
+  "profile2.headerDots": "Nsensanee ketewa",
+  "profile2.headerStripes": "Nsensanee",
+  "profile2.headerGrid": "Nkyɛmu"
 }

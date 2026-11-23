@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Lydstyrke",
   "embed.player.currentTime": "Aktuel tid",
   "embed.player.enterFullscreen": "Fuld skærm",
-  "embed.player.exitFullscreen": "Afslut fuld skærm"
+  "embed.player.exitFullscreen": "Afslut fuld skærm",
+  "turnstile.incomplete": "Gennemfør først menneskekontrollen.",
+  "turnstile.loadFailed": "Widgetten til menneskekontrol kunne ikke indlæses. Opdatér siden, og prøv igen.",
+  "profile2.contrastLight": "Svær at læse i det lyse tema (kontrast {ratio}:1).",
+  "profile2.contrastDark": "Svær at læse i det mørke tema (kontrast {ratio}:1).",
+  "profile2.contrastBanner": "Hvid bannertekst er svær at læse på denne farve (kontrast {ratio}:1).",
+  "profile2.contrastUse": "Brug {color}",
+  "profile2.pickerOpen": "Åbn farvevælger",
+  "profile2.pickerClear": "Ryd",
+  "profile2.cropTitle": "Beskær dit billede",
+  "profile2.cropUse": "Brug denne beskæring",
+  "profile2.headerLabel": "Profiloverskrift",
+  "profile2.headerNone": "Enkel",
+  "profile2.headerTint": "Nuance fra mit billede",
+  "profile2.headerDots": "Prikker",
+  "profile2.headerStripes": "Striber",
+  "profile2.headerGrid": "Gitter"
 }

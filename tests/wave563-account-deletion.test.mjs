@@ -75,6 +75,7 @@ const SEEDS = {
   passkeys: ({ a, t }) => [`INSERT INTO passkeys (user_id, credential_id, public_key, name, created_at) VALUES (?, 'cred', 'pk', 'n', ?)`, [a, t]],
   webauthn_challenges: ({ a, t }) => [`INSERT INTO webauthn_challenges (challenge_hash, purpose, session_hash, user_id, expires_at) VALUES ('ch', 'register', 's', ?, ?)`, [a, t]],
   profile_pronouns: ({ a, t }) => [`INSERT INTO profile_pronouns (user_id, pronouns, updated_at) VALUES (?, 'she/her', ?)`, [a, t]],
+  profile_header_styles: ({ a, t }) => [`INSERT INTO profile_header_styles (user_id, header_style, updated_at) VALUES (?, 'dots', ?)`, [a, t]],
   invites: ({ a, b, t }) => [`INSERT INTO invites (user_id, inviter_id, created_at) VALUES (?, ?, ?)`, [b, a, t]],
   featured_posts: ({ a, p, t }) => [`INSERT INTO featured_posts (post_id, picked_by, picked_at) VALUES (?, ?, ?)`, [p.bob, a, t]],
   staff_pick_log: ({ a, p, t }) => [`INSERT INTO staff_pick_log (post_id, actor_id, action, created_at) VALUES (?, ?, 'pick', ?)`, [p.bob, a, t]],

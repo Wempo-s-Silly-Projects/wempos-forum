@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Гьаракь",
   "embed.player.currentTime": "Гьанжесеб заман",
   "embed.player.enterFullscreen": "Цо экран",
-  "embed.player.exitFullscreen": "Цо экраналдасан къватӀибе"
+  "embed.player.exitFullscreen": "Цо экраналдасан къватӀибе",
+  "turnstile.incomplete": "Тӏоцебе инсан вукӏин бихьизабиялъул гӏамал тӏубазабе.",
+  "turnstile.loadFailed": "Инсан вукӏин бихьизабиялъул виджет рачӏинабизе кӏвечӏо. Гьумер цӏидасан рачӏинабе ва цоги нухалъ хӏаракат бахъе.",
+  "profile2.contrastLight": "Канаб темаялда цӀализе захӀмат буго (контраст {ratio}:1).",
+  "profile2.contrastDark": "БакӀаб темаялда цӀализе захӀмат буго (контраст {ratio}:1).",
+  "profile2.contrastBanner": "Гьаб рангалда баннералъул хъахӀаб текст цӀализе захӀмат буго (контраст {ratio}:1).",
+  "profile2.contrastUse": "{color} хӀалтӀизабе",
+  "profile2.pickerOpen": "Ранг бищизе рагье",
+  "profile2.pickerClear": "БацӀцӀад гьабе",
+  "profile2.cropTitle": "Дур сурат хъвагье",
+  "profile2.cropUse": "Гьаб хъвай хӀалтӀизабе",
+  "profile2.headerLabel": "Профилалъул бетӀер",
+  "profile2.headerNone": "ГӀадатияб",
+  "profile2.headerTint": "Дир суратиса ранг",
+  "profile2.headerDots": "Точкаби",
+  "profile2.headerStripes": "ЦӀуцӀаби",
+  "profile2.headerGrid": "Сетка"
 }

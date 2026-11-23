@@ -1312,5 +1312,21 @@
   "embed.player.volume": "آواز",
   "embed.player.currentTime": "موجودہ وقت",
   "embed.player.enterFullscreen": "پوری اسکرین",
-  "embed.player.exitFullscreen": "پوری اسکرین سے باہر نکلیں"
+  "embed.player.exitFullscreen": "پوری اسکرین سے باہر نکلیں",
+  "turnstile.incomplete": "براہِ کرم پہلے انسان ہونے کی تصدیق کا مرحلہ مکمل کریں۔",
+  "turnstile.loadFailed": "انسان ہونے کی تصدیق کا ویجٹ لوڈ نہیں ہو سکا۔ صفحہ ریفریش کریں اور دوبارہ کوشش کریں۔",
+  "profile2.contrastLight": "ہلکی تھیم پر پڑھنا مشکل ہے (کنٹراسٹ {ratio}:1)۔",
+  "profile2.contrastDark": "گہری تھیم پر پڑھنا مشکل ہے (کنٹراسٹ {ratio}:1)۔",
+  "profile2.contrastBanner": "اس رنگ پر بینر کا سفید متن پڑھنا مشکل ہے (کنٹراسٹ {ratio}:1)۔",
+  "profile2.contrastUse": "{color} استعمال کریں",
+  "profile2.pickerOpen": "رنگ چننے والا کھولیں",
+  "profile2.pickerClear": "صاف کریں",
+  "profile2.cropTitle": "اپنی تصویر تراشیں",
+  "profile2.cropUse": "یہ تراش استعمال کریں",
+  "profile2.headerLabel": "پروفائل ہیڈر",
+  "profile2.headerNone": "سادہ",
+  "profile2.headerTint": "میری تصویر سے رنگت",
+  "profile2.headerDots": "نقطے",
+  "profile2.headerStripes": "دھاریاں",
+  "profile2.headerGrid": "گرڈ"
 }

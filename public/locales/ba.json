@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Тауыш",
   "embed.player.currentTime": "Хәҙерге ваҡыт",
   "embed.player.enterFullscreen": "Тулы экран",
-  "embed.player.exitFullscreen": "Тулы экрандан сығырға"
+  "embed.player.exitFullscreen": "Тулы экрандан сығырға",
+  "turnstile.incomplete": "Зинһар, башта кеше икәнлекте тикшереү аҙымын үтегеҙ.",
+  "turnstile.loadFailed": "Кеше икәнлекте тикшереү виджеты йөкләнмәне. Битте яңыртып, ҡабат тырышып ҡарағыҙ.",
+  "profile2.contrastLight": "Яҡты темала уҡыуы ауыр (контраст {ratio}:1).",
+  "profile2.contrastDark": "Ҡараңғы темала уҡыуы ауыр (контраст {ratio}:1).",
+  "profile2.contrastBanner": "Был төҫтә баннерҙың аҡ тексын уҡыуы ауыр (контраст {ratio}:1).",
+  "profile2.contrastUse": "{color} ҡулланырға",
+  "profile2.pickerOpen": "Төҫ һайлағысты асырға",
+  "profile2.pickerClear": "Таҙартырға",
+  "profile2.cropTitle": "Һүрәтеңде ҡырҡ",
+  "profile2.cropUse": "Был ҡырҡыуҙы ҡулланырға",
+  "profile2.headerLabel": "Профиль башы",
+  "profile2.headerNone": "Ябай",
+  "profile2.headerTint": "Һүрәтемдән төҫ",
+  "profile2.headerDots": "Нөктәләр",
+  "profile2.headerStripes": "Һыҙаттар",
+  "profile2.headerGrid": "Селтәр"
 }

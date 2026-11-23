@@ -1312,5 +1312,21 @@
   "embed.player.volume": "Äänenvoimakkuus",
   "embed.player.currentTime": "Nykyinen aika",
   "embed.player.enterFullscreen": "Koko näyttö",
-  "embed.player.exitFullscreen": "Poistu koko näytöstä"
+  "embed.player.exitFullscreen": "Poistu koko näytöstä",
+  "turnstile.incomplete": "Suorita ensin ihmisyyden varmistus.",
+  "turnstile.loadFailed": "Ihmisyyden varmistuswidgetin lataus epäonnistui. Päivitä sivu ja yritä uudelleen.",
+  "profile2.contrastLight": "Vaikea lukea vaaleassa teemassa (kontrasti {ratio}:1).",
+  "profile2.contrastDark": "Vaikea lukea tummassa teemassa (kontrasti {ratio}:1).",
+  "profile2.contrastBanner": "Valkoista bannerin tekstiä on vaikea lukea tällä värillä (kontrasti {ratio}:1).",
+  "profile2.contrastUse": "Käytä {color}",
+  "profile2.pickerOpen": "Avaa värivalitsin",
+  "profile2.pickerClear": "Tyhjennä",
+  "profile2.cropTitle": "Rajaa kuvasi",
+  "profile2.cropUse": "Käytä tätä rajausta",
+  "profile2.headerLabel": "Profiilin otsake",
+  "profile2.headerNone": "Pelkistetty",
+  "profile2.headerTint": "Sävy kuvastani",
+  "profile2.headerDots": "Pisteet",
+  "profile2.headerStripes": "Raidat",
+  "profile2.headerGrid": "Ruudukko"
 }
