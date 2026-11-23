@@ -10,6 +10,34 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.80.0] - 2026-11-22
+
+### Added
+
+- Account security: passkeys as an extra sign-in method, human-readable
+  recovery codes, an in-page TOTP enrolment QR, a password strength meter and
+  a passphrase suggester (both run only in your browser).
+- Self-hosted proof-of-work human check (ALTCHA) replaces Cloudflare
+  Turnstile; no third-party script or frame is loaded any more.
+- Profiles: identicon avatars when no picture is uploaded, a square crop
+  before avatar upload, contrast warnings for profile colours, and
+  member-picked header patterns.
+- Reader safety: an opt-in blur for strong language, a warning before
+  following lookalike (homograph) links, text-only link previews fetched only
+  when you click, and post language hints for screen readers.
+
+### Changed
+
+- The member CSS sandbox now parses with css-tree instead of hand-written
+  rules.
+- TOTP codes can no longer be replayed inside their time window.
+
+### Security
+
+- `challenges.cloudflare.com` is gone from the Content-Security-Policy.
+- Link previews are SSRF-guarded: private, loopback and link-local addresses
+  are refused.
+
 ## [5.79.1] - 2026-11-22
 
 ### Fixed
