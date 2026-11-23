@@ -37,11 +37,12 @@ const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 // a plain IP list, and a missing pepper (tests, unconfigured local dev)
 // falls back to a plain digest.
 //
-// v5.74.1: the hashed key is the NETWORK, not the raw address. IPv6 keys on
-// the /64 prefix (one subscriber allocation — a device rotates its interface
-// bits freely, which made exact-address bans trivial to walk out of); IPv4
-// and IPv4-mapped IPv6 key on the dotted address, byte-identical to v3.1 so
-// existing IPv4 rows keep matching. Unparseable input folds to "unknown".
+// v5.74.1: the hashed key is the NETWORK, not the raw address. IPv6 keys
+// use the /64 prefix (a deliberate network-grouping choice, not a guarantee
+// of one subscriber allocation). A device rotating its interface bits
+// therefore keeps the same key. IPv4 and IPv4-mapped IPv6 key on the dotted
+// address, byte-identical to v3.1 so existing IPv4 rows keep matching.
+// Unparseable input folds to "unknown".
 const IPV6_BAN_PREFIX_HEXTETS = 4; // 4 × 16 bits = /64
 
 function rawRequestIp(request) {
