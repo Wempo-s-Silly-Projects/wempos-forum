@@ -10,6 +10,17 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+### Added
+
+- Translate module (off by default): a `/translate` page where signed-in
+  members suggest translations for any language, with live checks that
+  match the test suite (placeholders, plural forms, length, no markup, not a
+  copy of English), and staff approve or reject them. Approved text ships
+  through `scripts/translate-export.mjs`, which the owner runs: it reads the
+  approved rows and merges them into `public/locales/*.json`. Credit is
+  opt-in, no machine translation, no third parties. New tables in
+  `migrations/0096_translate.sql`. See `docs/translating.md`.
+
 ## [5.87.0] - 2026-11-22
 
 ### Added

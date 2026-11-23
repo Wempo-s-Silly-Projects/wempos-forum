@@ -118,6 +118,9 @@ export const RATE_LIMIT_BINDINGS = Object.freeze({
   // Batch L: link previews ride the write tier per member (each miss is one
   // outbound fetch), on top of the per-IP read tier.
   "link-preview": "WRITE_RATE_LIMITER",
+  // The translate module (migration 0096): suggestions, withdrawals and
+  // reviews ride the write tier under their own per-caller scope.
+  translate: "WRITE_RATE_LIMITER",
 });
 
 // The reaction allowlist (posts since v2.0; 1:1 DM messages since v5.44):
@@ -281,6 +284,9 @@ export const EXPORT_SECTION_CAPS = Object.freeze({
   // Batch K: the caller's OWN uploaded post images (ids + mime only; the
   // client fetches the bytes into the ZIP), GIF picks excluded.
   uploads: 500,
+  // The translate module (migration 0096): the caller's OWN suggestions
+  // (locale, key, value, status, day); never anyone else's.
+  translateSuggestions: 200,
 });
 
 // v5.74 (slate 2026-11-22-d): vendored Prism highlighting of fenced code.
@@ -452,3 +458,19 @@ export const COMPOSER_AUTOGROW_MAX_PX = 480;
 export const SATURDAY_FOOLS_MODES = Object.freeze({ ON: "on", OFF: "off" });
 export const DEFAULT_SATURDAY_FOOLS = SATURDAY_FOOLS_MODES.OFF;
 export const SATURDAY_FOOLS_OFF_SETTING = "saturday_fools_off";
+
+// The translate module (migration 0096, docs/translating.md): the keys page
+// size (its pending counts bind 2 at any size), the per-member and per-key
+// pending caps, the review queue page, the review-note length (the table's
+// CHECK matches), the P2 glossary cap, and how long a rejected row is kept
+// before the review handler prunes it (at most TRANSLATE_PRUNE_BATCH rows
+// per review).
+export const TRANSLATE_PAGE_SIZE = 50;
+export const TRANSLATE_PENDING_PER_MEMBER_MAX = 200;
+export const TRANSLATE_PENDING_PER_KEY_MAX = 10;
+export const TRANSLATE_REVIEW_PAGE_SIZE = 50;
+export const TRANSLATE_NOTE_MAX_CHARS = 200;
+export const TRANSLATE_GLOSSARY_PER_LOCALE_MAX = 500;
+export const TRANSLATE_REJECTED_RETENTION_DAYS = 90;
+export const TRANSLATE_PRUNE_BATCH = 50;
+export const TRANSLATE_SEARCH_MAX_CHARS = 100;

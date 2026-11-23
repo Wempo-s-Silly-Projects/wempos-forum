@@ -86,6 +86,7 @@ import { handleTagRoutes } from "./api/tags.mjs";
 import { handleMcp } from "./api/mcp.mjs";
 import { handleLinkPreviewRoutes } from "./api/link-preview.mjs";
 import { handleModuleRoutes } from "./api/modules.mjs";
+import { handleTranslateRoutes } from "./api/translate.mjs";
 import { gateModulePath, offClientModuleIds } from "./api/core/modules.mjs";
 import { attributeEscape, withPageHead } from "./api/seo.mjs";
 import { accountsOrigin, configuredOrigin } from "./api/core/site.mjs";
@@ -138,7 +139,7 @@ function notFound(request, env, url, path) {
 // dispatch context and answers only the paths it owns; `undefined` falls
 // through to the next handler or the notFound tail — the vendor's dispatch()
 // replaces the inlined handlers-for-loop, built once from the vendor import.
-const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleSaturdayFoolsRoutes, handleAnalyticsRoutes, handleVitalsRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes, handleAltchaRoutes, handlePasskeyRoutes, handleLinkPreviewRoutes, handleModuleRoutes];
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleSaturdayFoolsRoutes, handleAnalyticsRoutes, handleVitalsRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes, handleAltchaRoutes, handlePasskeyRoutes, handleLinkPreviewRoutes, handleModuleRoutes, handleTranslateRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
@@ -179,8 +180,8 @@ async function stampedAssetResponse(assetResponse, env, request, url) {
   const type = assetResponse.headers.get("Content-Type") || "";
   if (!type.includes("text/html")) return assetResponse;
   const branding = await readStoredBranding(env);
-  const stamp = shellMetas(env, branding, await humanCheckMeta(request, env), await saturdayFoolsMeta(env),
-    await offClientModuleIds(env, request));
+  const offModules = await offClientModuleIds(env, request);
+  const stamp = shellMetas(env, branding, await humanCheckMeta(request, env), await saturdayFoolsMeta(env), offModules);
   const html = await withPageHead(await assetResponse.text(), request, env, url, branding);
   // The served bytes change length, so the original Content-Length must go —
   // a stale length would truncate the stamped document. HTML also revalidates
@@ -195,9 +196,12 @@ async function stampedAssetResponse(assetResponse, env, request, url) {
   // describes these bytes — a retained Last-Modified would advertise a lie.
   headers.delete("Last-Modified");
   headers.set("Cache-Control", "no-store");
+  // An off module's page is the honest not-found page (the client paints its
+  // 404 view): today only the translate module owns a page route.
+  const moduleOff = assetResponse.status === 200 && offModules.includes(routeForPath(url.pathname, url.search).name);
   return new Response(html.includes("</head>") ? html.replace("</head>", () => stamp + "</head>") : html, {
-    status: assetResponse.status,
-    statusText: assetResponse.statusText,
+    status: moduleOff ? 404 : assetResponse.status,
+    statusText: moduleOff ? "Not Found" : assetResponse.statusText,
     headers,
   });
 }

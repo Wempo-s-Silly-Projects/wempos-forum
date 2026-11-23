@@ -93,6 +93,9 @@ const SEEDS = {
   private_notes: ({ a, b, t }) => [`INSERT INTO private_notes (owner_id, subject_id, body, updated_at) VALUES (?, ?, 'n', ?), (?, ?, 'n', ?)`, [a, b, t, b, a, t]],
   saved_searches: ({ a, t }) => [`INSERT INTO saved_searches (owner_id, name, q, created_at) VALUES (?, 's', 'q', ?)`, [a, t]],
   thread_summaries: ({ a, p, t }) => [`INSERT INTO thread_summaries (post_id, body, updated_by, updated_at) VALUES (?, 'sum', ?, ?)`, [p.bob, a, t]],
+  // The translate module (0096): alice wrote 901 and reviewed bob's 900.
+  translate_suggestions: ({ a, b }) => [`INSERT INTO translate_suggestions (id, locale, msg_key, source_hash, value, user_id, status, reviewer_id, created_day) VALUES (900, 'fr', 'translate.nav', ?, 'Traduire', ?, 'rejected', ?, 1), (901, 'fr', 'translate.title', ?, 'Aider', ?, 'pending', NULL, 1)`, ["0".repeat(64), b, a, "0".repeat(64), a]],
+  translate_votes: ({ a }) => [`INSERT INTO translate_votes (suggestion_id, user_id) VALUES (900, ?)`, [a]],
   thread_locks: ({ a, p, t }) => [`INSERT INTO thread_locks (post_id, locked_by, locked_at) VALUES (?, ?, ?)`, [p.bob2, a, t]],
 };
 

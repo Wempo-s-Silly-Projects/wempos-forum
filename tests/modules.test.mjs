@@ -45,6 +45,8 @@ const MAPPED = {
   "automod": MODULE_ON, "analytics": MODULE_ON, "web-vitals": MODULE_ON, "human-check": MODULE_ON,
   "chat": MODULE_ON, "polls": MODULE_ON, "wall": MODULE_ON, "fun": MODULE_ON,
   "saturday-fools": MODULE_ON, "link-previews": MODULE_ON, "embeds": MODULE_ON,
+  // New modules ship off (the default-off rule); the owner turns them on.
+  "translate": MODULE_OFF,
 };
 
 const states = (env, rows = {}) => resolveModules(env, new Map(Object.entries(rows)));
@@ -85,7 +87,7 @@ test("registry: unique ids, known deps, no cycles, translated label + descriptio
   }
 });
 
-test("every mapped feature keeps today's default, and nothing else is registered yet", () => {
+test("every mapped feature keeps today's default, and every new module is registered off", () => {
   assert.deepEqual(Object.fromEntries(MODULES.map((m) => [m.id, m.default])), MAPPED);
 });
 
@@ -107,6 +109,7 @@ test("each existing switch is wired: legacy env names and owned API paths", () =
     "/api/chat": "chat", "/api/chat/12": "chat", "/api/dm/threads": "chat", "/api/dm/groups/3": "chat",
     "/api/posts/9/poll": "polls", "/api/users/4/wall": "wall", "/api/wall/7/pin": "wall",
     "/api/link-preview": "link-previews",
+    "/api/translate/progress": "translate", "/api/translate/fr/keys": "translate",
   };
   for (const [path, id] of Object.entries(owned)) assert.equal(moduleForPath(path), id, path);
   // Staff read-back of stored history stays reachable when a module is off.
@@ -125,6 +128,8 @@ test("production wrangler.toml vars resolve exactly today's behaviour", () => {
   const expected = { ...Object.fromEntries(Object.keys(MAPPED).map((id) => [id, true])) };
   // Saturday Fools is on only where SATURDAY_FOOLS = "on" (its own lane).
   expected["saturday-fools"] = vars.SATURDAY_FOOLS === "on";
+  // New modules stay off until the owner turns them on from the desk.
+  expected.translate = false;
   assert.deepEqual(enabled(vars), expected);
 });
 
@@ -132,6 +137,7 @@ test("a fresh self-hosted copy (no vars): opt-in modules stay off, the rest on",
   assert.deepEqual(enabled({}), {
     "automod": false, "analytics": false, "web-vitals": true, "human-check": true, "chat": true,
     "polls": true, "wall": true, "fun": true, "saturday-fools": false, "link-previews": true, "embeds": true,
+    "translate": false,
   });
   const reasons = states({});
   assert.equal(reasons.get("automod").reason, "env");
@@ -338,8 +344,10 @@ test("/api/site lists only the ON module ids, nothing secret", async () => {
 
 const shell = async (env) => (await worker.fetch(new Request("https://wempos-forum.com/"), env, {})).text();
 
-test("shell: no site-modules-off meta by default; an off browser module rides it", async () => {
+test("shell: only the default-off translate module rides the meta by default; off browser modules join it", async () => {
   const env = makeEnv({ HUMAN_CHECK: "off" });
+  assert.match(await shell(env), /<meta name="site-modules-off" content="translate">/);
+  storeRow(env, "translate", true);
   assert.doesNotMatch(await shell(env), /site-modules-off/);
   storeRow(env, "chat", false);
   storeRow(env, "embeds", false);

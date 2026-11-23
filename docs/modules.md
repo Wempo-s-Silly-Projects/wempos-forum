@@ -22,6 +22,7 @@ The list lives in one place: `api/core/modules.mjs`.
 | `saturday-fools` | The Saturday joke (needs `fun`) | on, once set up | `SATURDAY_FOOLS = "on"` |
 | `link-previews` | The "show link preview" button | on | `MODULE_LINK_PREVIEWS=off` |
 | `embeds` | Video, audio and 3D players for links in posts | on | `MODULE_EMBEDS=off` |
+| `translate` | The `/translate` page: members suggest translations, staff review them, the owner exports them ([docs/translating.md](translating.md)) | **off** | `MODULE_TRANSLATE=off` |
 
 "On, once set up" means the module is off until its env switch (and secret,
 if any) is in place, exactly as before modules existed.

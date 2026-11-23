@@ -53,6 +53,9 @@ const LAZY_ONLY = [
   /^\/js\/profile-editor\.js$/,
   /^\/js\/routes\/(?:admin|twofa|appeals|reports)\.js$/,
   /^\/js\/chat-widget\.js$/,
+  // The translate module's page and its validator (docs/translating.md).
+  /^\/js\/routes\/translate\.js$/,
+  /^\/js\/translate-validate\.js$/,
 ];
 const offenders = (graph) => graph.modules.map((m) => m.path).filter((path) => LAZY_ONLY.some((re) => re.test(path)));
 
@@ -87,12 +90,13 @@ test("every lazy-only module is still reachable through a dynamic import()", () 
   const lazyTargets = new Set(all.lazy.map((edge) => edge.path));
   for (const path of ["/js/chat-widget.js", "/js/fun/index.js", "/js/fun/settings.js", "/js/fun/saturday-fools.js",
     "/js/embeds/embeds.js",
-    "/js/mention-picker.js", "/js/routes/admin.js", "/js/routes/post.js"]) {
+    "/js/mention-picker.js", "/js/routes/admin.js", "/js/routes/post.js", "/js/routes/translate.js"]) {
     assert.ok(lazyTargets.has(path), path + " has a dynamic import() edge");
   }
   const reachable = new Set(all.modules.map((m) => m.path));
   for (const path of ["/js/desk/reports.js", "/js/desk/modules.js", "/js/embeds/model.js", "/js/embeds/waveform.js", "/js/profile-editor.js",
-    "/js/vendor/fuzzysort.min.js", "/js/fun/sketch.js", "/js/fun/saturday-fools/index.js"]) {
+    "/js/vendor/fuzzysort.min.js", "/js/fun/sketch.js", "/js/fun/saturday-fools/index.js",
+    "/js/translate-validate.js"]) {
     assert.ok(reachable.has(path), path + " loads with its feature");
   }
 });
