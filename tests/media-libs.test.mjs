@@ -208,3 +208,109 @@ test("exifr: lite build vendored verbatim, imported lazily, MIT in REUSE.toml", 
   assert.equal(block.match(/SPDX-License-Identifier/g).length, 1);
   assert.match(block, /SPDX-License-Identifier = "MIT"/);
 });
+
+// ------------------------------------------------------------ screenfull
+
+const { FakeNode, makeFakeDocument } = await import("./helpers/fake-dom.mjs");
+const { attachFullscreenToggle } = await import("../public/js/lightbox-fullscreen.js");
+const { openLightbox } = await import("../public/js/lightbox.js");
+
+const fakeScreenfull = ({ enabled = true, refuse = false } = {}) => {
+  const handlers = [];
+  const state = {
+    isEnabled: enabled, isFullscreen: false, element: undefined, requests: [], exits: 0,
+    on(event, handler) { if (event === "change") handlers.push(handler); },
+    async request(element) {
+      if (refuse) throw new TypeError("denied");
+      state.requests.push(element);
+      Object.assign(state, { isFullscreen: true, element });
+      handlers.forEach((handler) => handler());
+    },
+    async exit() {
+      state.exits += 1;
+      Object.assign(state, { isFullscreen: false, element: undefined });
+      handlers.forEach((handler) => handler());
+    },
+  };
+  return state;
+};
+const viewer = () => {
+  const dialog = new FakeNode("dialog");
+  const button = new FakeNode("button");
+  dialog.append(button);
+  return { dialog, button };
+};
+
+test("screenfull: the toggle puts the viewer dialog in full screen and back", async () => {
+  const { dialog, button } = viewer();
+  const library = fakeScreenfull();
+  let loads = 0;
+  attachFullscreenToggle(dialog, button, async () => { loads += 1; return library; });
+  assert.equal(loads, 0, "nothing is imported until the first press");
+  assert.equal(button.getAttribute("aria-pressed"), "false");
+  await button.fire("click");
+  assert.deepEqual(library.requests, [dialog]);
+  assert.equal(button.getAttribute("aria-pressed"), "true");
+  assert.ok(button.getAttribute("aria-label"));
+  await button.fire("click");
+  assert.equal(library.exits, 1);
+  assert.equal(button.getAttribute("aria-pressed"), "false");
+  assert.equal(loads, 1, "the module is loaded once");
+});
+
+test("screenfull: closing the viewer leaves full screen", async () => {
+  const { dialog, button } = viewer();
+  const library = fakeScreenfull();
+  attachFullscreenToggle(dialog, button, async () => library);
+  await button.fire("click");
+  dialog.dispatch("close");
+  assert.equal(library.exits, 1);
+  assert.equal(button.getAttribute("aria-pressed"), "false");
+});
+
+test("screenfull: no full-screen support (or a failed load) hides the button", async () => {
+  const unsupported = viewer();
+  attachFullscreenToggle(unsupported.dialog, unsupported.button, async () => fakeScreenfull({ enabled: false }));
+  await unsupported.button.fire("click");
+  assert.equal(unsupported.button.hidden, true);
+  const broken = viewer();
+  attachFullscreenToggle(broken.dialog, broken.button, async () => { throw new Error("offline"); });
+  await broken.button.fire("click");
+  assert.equal(broken.button.hidden, true);
+});
+
+test("screenfull: a refused request leaves the viewer windowed", async () => {
+  const { dialog, button } = viewer();
+  attachFullscreenToggle(dialog, button, async () => fakeScreenfull({ refuse: true }));
+  await button.fire("click");
+  assert.equal(button.getAttribute("aria-pressed"), "false");
+  assert.notEqual(button.hidden, true);
+});
+
+test("screenfull: the lightbox builds the toggle; the library loads lazily, verbatim, MIT", () => {
+  const strip = new FakeNode("div");
+  strip.className = "post-attachments";
+  const thumb = new FakeNode("button");
+  thumb.className = "attachment-expand";
+  const img = new FakeNode("img");
+  img.src = "/api/attachments/a?v=1";
+  thumb.append(img);
+  strip.append(thumb);
+  const dialog = new FakeNode("dialog");
+  dialog.showModal = () => { dialog.open = true; };
+  dialog.close = () => { dialog.open = false; dialog.dispatch("close"); };
+  dialog.append(new FakeNode("img"));
+  openLightbox(dialog, thumb, makeFakeDocument());
+  const toggle = dialog.querySelector(".lightbox-fullscreen");
+  assert.ok(toggle, "the viewer has a full-screen button");
+  assert.equal(toggle.getAttribute("aria-pressed"), "false");
+  const source = read("public/js/lightbox-fullscreen.js");
+  assert.match(source, /import\("\.\/vendor\/screenfull\.js"\)/);
+  assert.doesNotMatch(source, /^import .*screenfull/m);
+  assert.equal(sha256("public/js/vendor/screenfull.js"),
+    "4246711b342018b0f257f8fa6047f240a21af6218c7e79cab5c662e810bb3e01");
+  const block = reuseBlock("public/js/vendor/screenfull.js");
+  assert.ok(block, "REUSE.toml annotates screenfull");
+  assert.equal(block.match(/SPDX-License-Identifier/g).length, 1);
+  assert.match(block, /SPDX-License-Identifier = "MIT"/);
+});

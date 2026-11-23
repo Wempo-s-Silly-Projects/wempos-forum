@@ -521,3 +521,13 @@ path = "public/js/vendor/exifr/**"
 precedence = "override"
 SPDX-FileCopyrightText = "2020 Mike Kovařík, Mutiny.cz"
 SPDX-License-Identifier = "MIT"
+
+# screenfull 6.0.2 (https://github.com/sindresorhus/screenfull): its index.js
+# kept byte-for-byte (sha256 pinned by tests/media-libs.test.mjs). The image
+# viewer's full-screen toggle imports it on first press. MIT, compatible with
+# AGPL-3.0-or-later.
+[[annotations]]
+path = "public/js/vendor/screenfull.js"
+precedence = "override"
+SPDX-FileCopyrightText = "Sindre Sorhus"
+SPDX-License-Identifier = "MIT"
