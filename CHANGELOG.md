@@ -10,6 +10,22 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.81.0] - 2026-11-22
+
+### Added
+
+- Composer and chat input: a keyboard-accessible formatting toolbar
+  (Ctrl/Cmd+B, I and K), pasting rich text converts it to Markdown, and an
+  emoji picker whose search speaks your language. The picker loads only when
+  you first press its button and fetches only your language's data.
+- Mention suggestions are ranked by fuzzy matching.
+- A side-by-side preview you can resize, and text boxes that grow as you type.
+
+### Changed
+
+- Toolbar, emoji and mention inserts go through the browser's own editing, so
+  Undo (Ctrl/Cmd+Z) works on them.
+
 ## [5.80.0] - 2026-11-22
 
 ### Added
