@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Vẫn tiếp tục",
   "safety.previewShow": "Hiện bản xem trước liên kết",
   "safety.previewUnavailable": "Không có bản xem trước cho liên kết này.",
-  "safety.previewLabel": "Xem trước liên kết"
+  "safety.previewLabel": "Xem trước liên kết",
+  "fools.banner": "🃏 Trò đùa thứ Bảy: {name}",
+  "fools.20261128.name": "Thứ Bảy hò hét",
+  "fools.20261128.yell": "Hét lên!",
+  "desk.fools.title": "Trò đùa thứ Bảy",
+  "desk.fools.offLabel": "Tắt Trò đùa thứ Bảy cho mọi người",
+  "desk.fools.save": "Lưu công tắc",
+  "admin.msg.foolsSaved": "Đã lưu cài đặt Trò đùa thứ Bảy."
 }

@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "ቢሆንም ቀጥል",
   "safety.previewShow": "የአገናኝ ቅድመ እይታ አሳይ",
   "safety.previewUnavailable": "ለዚህ አገናኝ ቅድመ እይታ የለም።",
-  "safety.previewLabel": "የአገናኝ ቅድመ እይታ"
+  "safety.previewLabel": "የአገናኝ ቅድመ እይታ",
+  "fools.banner": "🃏 የቅዳሜ ቀልድ: {name}",
+  "fools.20261128.name": "የጩኸት ቅዳሜ",
+  "fools.20261128.yell": "ጩህ!",
+  "desk.fools.title": "የቅዳሜ ቀልድ",
+  "desk.fools.offLabel": "የቅዳሜ ቀልድን ለሁሉም አጥፋ",
+  "desk.fools.save": "ማብሪያውን አስቀምጥ",
+  "admin.msg.foolsSaved": "የቅዳሜ ቀልድ ቅንብር ተቀምጧል።"
 }

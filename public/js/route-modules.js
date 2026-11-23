@@ -99,7 +99,8 @@ export const FORM_OWNERS = owners({
   appeals: ["admin-appeal", "ban-appeal"],
   admin: ["admin-resolve", "admin-ban", "admin-unban", "admin-promote", "admin-demote", "admin-avatar-approve",
     "admin-avatar-reject", "admin-attachment-approve", "admin-attachment-reject", "admin-member-search",
-    "admin-hide-recent", "member-note-add", "tag-create", "filter-save", "filter-bulk-add", "branding-save"],
+    "admin-hide-recent", "member-note-add", "tag-create", "filter-save", "filter-bulk-add", "branding-save",
+    "saturday-fools-save"],
   reports: ["report"],
   twofa: ["totp-setup", "totp-confirm", "totp-disable", "totp-backups-generate"],
 });

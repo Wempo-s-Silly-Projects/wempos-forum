@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Tetap lanjutkan",
   "safety.previewShow": "Tampilkan pratinjau tautan",
   "safety.previewUnavailable": "Tidak ada pratinjau untuk tautan ini.",
-  "safety.previewLabel": "Pratinjau tautan"
+  "safety.previewLabel": "Pratinjau tautan",
+  "fools.banner": "🃏 Iseng Sabtu: {name}",
+  "fools.20261128.name": "Sabtu Teriak",
+  "fools.20261128.yell": "Teriak!",
+  "desk.fools.title": "Iseng Sabtu",
+  "desk.fools.offLabel": "Matikan Iseng Sabtu untuk semua orang",
+  "desk.fools.save": "Simpan sakelar",
+  "admin.msg.foolsSaved": "Pengaturan Iseng Sabtu disimpan."
 }

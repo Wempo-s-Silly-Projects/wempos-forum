@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Fortsätt ändå",
   "safety.previewShow": "Visa förhandsgranskning av länk",
   "safety.previewUnavailable": "Ingen förhandsgranskning för den här länken.",
-  "safety.previewLabel": "Förhandsgranskning av länk"
+  "safety.previewLabel": "Förhandsgranskning av länk",
+  "fools.banner": "🃏 Lördagsskoj: {name}",
+  "fools.20261128.name": "Vrållördag",
+  "fools.20261128.yell": "Vrål!",
+  "desk.fools.title": "Lördagsskoj",
+  "desk.fools.offLabel": "Stäng av lördagsskoj för alla",
+  "desk.fools.save": "Spara reglage",
+  "admin.msg.foolsSaved": "Inställningen för lördagsskoj har sparats."
 }

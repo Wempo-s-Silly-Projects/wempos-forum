@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Всё равно перейти",
   "safety.previewShow": "Показать предпросмотр ссылки",
   "safety.previewUnavailable": "Для этой ссылки нет предпросмотра.",
-  "safety.previewLabel": "Предпросмотр ссылки"
+  "safety.previewLabel": "Предпросмотр ссылки",
+  "fools.banner": "🃏 Субботние розыгрыши: {name}",
+  "fools.20261128.name": "Суббота крика",
+  "fools.20261128.yell": "Кричи!",
+  "desk.fools.title": "Субботние розыгрыши",
+  "desk.fools.offLabel": "Отключить субботние розыгрыши для всех",
+  "desk.fools.save": "Сохранить переключатель",
+  "admin.msg.foolsSaved": "Настройка субботних розыгрышей сохранена."
 }

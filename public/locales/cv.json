@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Ҫапах та малалла",
   "safety.previewShow": "Каҫӑ малтанхи курӑнӑвне кӑтарт",
   "safety.previewUnavailable": "Ку каҫӑн малтанхи курӑнӑвӗ ҫук.",
-  "safety.previewLabel": "Каҫӑ малтанхи курӑнӑвӗ"
+  "safety.previewLabel": "Каҫӑ малтанхи курӑнӑвӗ",
+  "fools.banner": "🃏 Шӑмат шӳтӗсем: {name}",
+  "fools.20261128.name": "Кӑшкӑру шӑматкунӗ",
+  "fools.20261128.yell": "Кӑшкӑр!",
+  "desk.fools.title": "Шӑмат шӳтӗсем",
+  "desk.fools.offLabel": "Шӑмат шӳтӗсене пурин валли сӳнтер",
+  "desk.fools.save": "Ылмаштаракана упра",
+  "admin.msg.foolsSaved": "Шӑмат шӳтӗсен ӗнерлевӗ упранчӗ."
 }

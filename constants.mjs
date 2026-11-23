@@ -444,3 +444,11 @@ export const LANG_DETECT_MIN_CHARS = 40;
 // public/js/autogrow.js mirror these (tests/batch-h-composer-input.test.mjs).
 export const RICH_PASTE_MAX_HTML_CHARS = 200000;
 export const COMPOSER_AUTOGROW_MAX_PX = 480;
+
+// Saturday Fools (owner order, Nov 22): one silly, cosmetic gag on the
+// visitor's local Saturday. Per deployment: env SATURDAY_FOOLS = "on" | "off"
+// (unset or anything else = off). The owner can also force it off site-wide
+// from the desk; that switch is the site_settings row below ("1" = off).
+export const SATURDAY_FOOLS_MODES = Object.freeze({ ON: "on", OFF: "off" });
+export const DEFAULT_SATURDAY_FOOLS = SATURDAY_FOOLS_MODES.OFF;
+export const SATURDAY_FOOLS_OFF_SETTING = "saturday_fools_off";

@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Kontinua ha' lokkue'",
   "safety.previewShow": "Na'annok i fine'nana na li'e' i link",
   "safety.previewUnavailable": "Taya' fine'nana na li'e' para este na link.",
-  "safety.previewLabel": "Fine'nana na li'e' i link"
+  "safety.previewLabel": "Fine'nana na li'e' i link",
+  "fools.banner": "🃏 Bromas Sabalu: {name}",
+  "fools.20261128.name": "Sabalun Ågang",
+  "fools.20261128.yell": "Ågang!",
+  "desk.fools.title": "Bromas Sabalu",
+  "desk.fools.offLabel": "Puno' i Bromas Sabalu para todos",
+  "desk.fools.save": "Satba i switch",
+  "admin.msg.foolsSaved": "Ma satba i setting Bromas Sabalu."
 }

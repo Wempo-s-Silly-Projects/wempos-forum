@@ -64,6 +64,14 @@ test("the static import graph of app.js holds no desk, fun, embed player, mentio
     "only the header chrome route module is on the boot path");
 });
 
+test("Saturday Fools (v5.86) is never on the static first-load graph", () => {
+  const eager = buildGraph(moduleEntries(), modulePreloads()).modules.map((m) => m.path);
+  for (const path of ["/js/fun/saturday-fools.js", "/js/fun/saturday-fools/index.js", "/js/desk/saturday-fools.js"]) {
+    assert.ok(!eager.includes(path), path + " is not eager");
+  }
+  assert.ok(LAZY_ONLY.some((re) => re.test("/js/fun/saturday-fools.js")), "covered by the fun/ lazy-only rule");
+});
+
 test("the real first load (index.html entries + modulepreload hints) stays free of them too", () => {
   const graph = buildGraph(moduleEntries(), modulePreloads());
   assert.deepEqual(offenders(graph), []);
@@ -74,16 +82,17 @@ test("the real first load (index.html entries + modulepreload hints) stays free 
 
 test("every lazy-only module is still reachable through a dynamic import()", () => {
   const routes = buildGraph().lazy.filter((edge) => edge.from === "/js/route-modules.js").map((edge) => edge.path);
-  const all = buildGraph([...moduleEntries(), ...routes, "/js/chat-widget.js", "/js/fun/index.js",
+  const all = buildGraph([...moduleEntries(), ...routes, "/js/chat-widget.js", "/js/fun/index.js", "/js/fun/saturday-fools.js",
     "/js/embeds/embeds.js", "/js/mention-picker.js"]);
   const lazyTargets = new Set(all.lazy.map((edge) => edge.path));
-  for (const path of ["/js/chat-widget.js", "/js/fun/index.js", "/js/fun/settings.js", "/js/embeds/embeds.js",
+  for (const path of ["/js/chat-widget.js", "/js/fun/index.js", "/js/fun/settings.js", "/js/fun/saturday-fools.js",
+    "/js/embeds/embeds.js",
     "/js/mention-picker.js", "/js/routes/admin.js", "/js/routes/post.js"]) {
     assert.ok(lazyTargets.has(path), path + " has a dynamic import() edge");
   }
   const reachable = new Set(all.modules.map((m) => m.path));
   for (const path of ["/js/desk/reports.js", "/js/embeds/model.js", "/js/embeds/waveform.js", "/js/profile-editor.js",
-    "/js/vendor/fuzzysort.min.js", "/js/fun/sketch.js"]) {
+    "/js/vendor/fuzzysort.min.js", "/js/fun/sketch.js", "/js/fun/saturday-fools/index.js"]) {
     assert.ok(reachable.has(path), path + " loads with its feature");
   }
 });

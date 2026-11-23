@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Endelea hata hivyo",
   "safety.previewShow": "Onyesha muhtasari wa kiungo",
   "safety.previewUnavailable": "Hakuna muhtasari wa kiungo hiki.",
-  "safety.previewLabel": "Muhtasari wa kiungo"
+  "safety.previewLabel": "Muhtasari wa kiungo",
+  "fools.banner": "🃏 Utani wa Jumamosi: {name}",
+  "fools.20261128.name": "Jumamosi ya Kelele",
+  "fools.20261128.yell": "Piga kelele!",
+  "desk.fools.title": "Utani wa Jumamosi",
+  "desk.fools.offLabel": "Zima Utani wa Jumamosi kwa kila mtu",
+  "desk.fools.save": "Hifadhi swichi",
+  "admin.msg.foolsSaved": "Mpangilio wa Utani wa Jumamosi umehifadhiwa."
 }

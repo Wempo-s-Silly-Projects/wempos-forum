@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Yine de devam et",
   "safety.previewShow": "Bağlantı önizlemesini göster",
   "safety.previewUnavailable": "Bu bağlantı için önizleme yok.",
-  "safety.previewLabel": "Bağlantı önizlemesi"
+  "safety.previewLabel": "Bağlantı önizlemesi",
+  "fools.banner": "🃏 Cumartesi Şakası: {name}",
+  "fools.20261128.name": "Bağırma Cumartesisi",
+  "fools.20261128.yell": "Bağır!",
+  "desk.fools.title": "Cumartesi Şakası",
+  "desk.fools.offLabel": "Cumartesi Şakası'nı herkes için kapat",
+  "desk.fools.save": "Anahtarı kaydet",
+  "admin.msg.foolsSaved": "Cumartesi Şakası ayarı kaydedildi."
 }

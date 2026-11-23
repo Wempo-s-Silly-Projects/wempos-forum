@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "仍然继续",
   "safety.previewShow": "显示链接预览",
   "safety.previewUnavailable": "此链接没有预览。",
-  "safety.previewLabel": "链接预览"
+  "safety.previewLabel": "链接预览",
+  "fools.banner": "🃏 周六愚人节: {name}",
+  "fools.20261128.name": "大喊星期六",
+  "fools.20261128.yell": "大喊！",
+  "desk.fools.title": "周六愚人节",
+  "desk.fools.offLabel": "为所有人关闭周六愚人节",
+  "desk.fools.save": "保存开关",
+  "admin.msg.foolsSaved": "周六愚人节设置已保存。"
 }

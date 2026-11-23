@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Усё роўна працягнуць",
   "safety.previewShow": "Паказаць папярэдні прагляд спасылкі",
   "safety.previewUnavailable": "Для гэтай спасылкі няма прагляду.",
-  "safety.previewLabel": "Папярэдні прагляд спасылкі"
+  "safety.previewLabel": "Папярэдні прагляд спасылкі",
+  "fools.banner": "🃏 Суботнія жарты: {name}",
+  "fools.20261128.name": "Субота крыку",
+  "fools.20261128.yell": "Крычы!",
+  "desk.fools.title": "Суботнія жарты",
+  "desk.fools.offLabel": "Выключыць суботнія жарты для ўсіх",
+  "desk.fools.save": "Захаваць пераключальнік",
+  "admin.msg.foolsSaved": "Налада суботніх жартаў захавана."
 }

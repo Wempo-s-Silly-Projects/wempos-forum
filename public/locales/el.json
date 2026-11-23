@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Συνέχεια παρ' όλα αυτά",
   "safety.previewShow": "Εμφάνιση προεπισκόπησης συνδέσμου",
   "safety.previewUnavailable": "Δεν υπάρχει προεπισκόπηση για αυτόν τον σύνδεσμο.",
-  "safety.previewLabel": "Προεπισκόπηση συνδέσμου"
+  "safety.previewLabel": "Προεπισκόπηση συνδέσμου",
+  "fools.banner": "🃏 Σαββατιάτικη φάρσα: {name}",
+  "fools.20261128.name": "Σάββατο των φωνών",
+  "fools.20261128.yell": "Φώναξε!",
+  "desk.fools.title": "Σαββατιάτικη φάρσα",
+  "desk.fools.offLabel": "Απενεργοποίηση της σαββατιάτικης φάρσας για όλους",
+  "desk.fools.save": "Αποθήκευση διακόπτη",
+  "admin.msg.foolsSaved": "Η ρύθμιση της σαββατιάτικης φάρσας αποθηκεύτηκε."
 }

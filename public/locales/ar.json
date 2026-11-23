@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "المتابعة على أي حال",
   "safety.previewShow": "عرض معاينة الرابط",
   "safety.previewUnavailable": "لا توجد معاينة لهذا الرابط.",
-  "safety.previewLabel": "معاينة الرابط"
+  "safety.previewLabel": "معاينة الرابط",
+  "fools.banner": "🃏 كذبة السبت: {name}",
+  "fools.20261128.name": "سبت الصراخ",
+  "fools.20261128.yell": "اصرخ!",
+  "desk.fools.title": "كذبة السبت",
+  "desk.fools.offLabel": "إيقاف كذبة السبت للجميع",
+  "desk.fools.save": "حفظ المفتاح",
+  "admin.msg.foolsSaved": "تم حفظ إعداد كذبة السبت."
 }

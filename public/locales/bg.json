@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Продължи въпреки това",
   "safety.previewShow": "Показване на преглед на връзката",
   "safety.previewUnavailable": "Няма преглед за тази връзка.",
-  "safety.previewLabel": "Преглед на връзката"
+  "safety.previewLabel": "Преглед на връзката",
+  "fools.banner": "🃏 Съботни шеги: {name}",
+  "fools.20261128.name": "Събота на крясъка",
+  "fools.20261128.yell": "Викай!",
+  "desk.fools.title": "Съботни шеги",
+  "desk.fools.offLabel": "Изключи съботните шеги за всички",
+  "desk.fools.save": "Запази превключвателя",
+  "admin.msg.foolsSaved": "Настройката за съботните шеги е запазена."
 }

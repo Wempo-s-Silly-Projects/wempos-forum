@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Иацҵатәуп",
   "safety.previewShow": "Азхьарԥш ахәаԥшра аарԥшра",
   "safety.previewUnavailable": "Ари азхьарԥш ахәаԥшра амам.",
-  "safety.previewLabel": "Азхьарԥш ахәаԥшра"
+  "safety.previewLabel": "Азхьарԥш ахәаԥшра",
+  "fools.banner": "🃏 Асабша Ацәгьалақәа: {name}",
+  "fools.20261128.name": "Ахьҭәыҵ Асабша",
+  "fools.20261128.yell": "Ахьҭәыҵ!",
+  "desk.fools.title": "Асабша Ацәгьалақәа",
+  "desk.fools.offLabel": "Асабша ацәгьалақәа зегьы рзы иаҿыхтәуп",
+  "desk.fools.save": "Аиқәырхара",
+  "admin.msg.foolsSaved": "Асабша ацәгьалақәа ахырхарҭа еиқәырхоуп."
 }

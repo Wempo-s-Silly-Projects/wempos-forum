@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "להמשיך בכל זאת",
   "safety.previewShow": "הצגת תצוגה מקדימה של הקישור",
   "safety.previewUnavailable": "אין תצוגה מקדימה לקישור הזה.",
-  "safety.previewLabel": "תצוגה מקדימה של קישור"
+  "safety.previewLabel": "תצוגה מקדימה של קישור",
+  "fools.banner": "🃏 מתיחת שבת: {name}",
+  "fools.20261128.name": "שבת הצעקות",
+  "fools.20261128.yell": "צעקו!",
+  "desk.fools.title": "מתיחת שבת",
+  "desk.fools.offLabel": "כיבוי מתיחת שבת לכולם",
+  "desk.fools.save": "שמירת המתג",
+  "admin.msg.foolsSaved": "הגדרת מתיחת שבת נשמרה."
 }

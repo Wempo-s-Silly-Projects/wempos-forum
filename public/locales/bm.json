@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Taa ɲɛ o bɛɛ n'a ta",
   "safety.previewShow": "Siri ɲɛfɛlajɛ jira",
   "safety.previewUnavailable": "Ɲɛfɛlajɛ si tɛ nin siri ye.",
-  "safety.previewLabel": "Siri ɲɛfɛlajɛ"
+  "safety.previewLabel": "Siri ɲɛfɛlajɛ",
+  "fools.banner": "🃏 Sibiri tulonw: {name}",
+  "fools.20261128.name": "Kulekan Sibiri",
+  "fools.20261128.yell": "Kule!",
+  "desk.fools.title": "Sibiri tulonw",
+  "desk.fools.offLabel": "Sibiri tulonw ban mɔgɔ bɛɛ ye",
+  "desk.fools.save": "Sɔgɔsɔgɔlan mara",
+  "admin.msg.foolsSaved": "Sibiri tulonw labɛn marala."
 }

@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Kenderc'hel memes tra",
   "safety.previewShow": "Diskouez rakwel al liamm",
   "safety.previewUnavailable": "Rakwel ebet evit al liamm-mañ.",
-  "safety.previewLabel": "Rakwel al liamm"
+  "safety.previewLabel": "Rakwel al liamm",
+  "fools.banner": "🃏 Sadorn ar Foled: {name}",
+  "fools.20261128.name": "Sadorn ar youc'hal",
+  "fools.20261128.yell": "Youc'h!",
+  "desk.fools.title": "Sadorn ar Foled",
+  "desk.fools.offLabel": "Lazhañ Sadorn ar Foled evit an holl",
+  "desk.fools.save": "Enrollañ an derc'her",
+  "admin.msg.foolsSaved": "Enrollet eo arventenn Sadorn ar Foled."
 }

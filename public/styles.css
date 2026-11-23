@@ -4794,3 +4794,28 @@ form[data-form] .form-field textarea[name="body"] {
 .driver-popover.forum-tour { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
 .driver-popover.forum-tour .driver-popover-description { color: var(--ink); }
 .newcomer-tour { justify-self: start; }
+/* Saturday Fools framework (v5.86, public/js/fun/saturday-fools.js): the
+   informational banner. Stays when a week's gag is stripped. */
+.fools-banner {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem 1rem;
+  padding: 0.4rem 1rem; border-bottom: 2px solid var(--line); color: var(--ink); background: var(--paper);
+}
+.fools-banner-close { min-height: 2.25rem; }
+/* saturday-fools:2026-11-28 start */
+/* "Yell Saturday": composer submit buttons read "Yell!" (the word comes from
+   the --fools-2026-11-28-yell custom property; the real label stays in the
+   DOM and in the accessible name). Static: no motion.
+   Gated on CSS alt text for generated content, so a browser without it
+   keeps the real visible label instead of an empty button. */
+@supports (content: "x" / "") {
+.fools-2026-11-28 form[data-form="post-create"] button[type="submit"],
+.fools-2026-11-28 form[data-form="reply"] button[type="submit"] { font-size: 0; }
+.fools-2026-11-28 form[data-form="post-create"] button[type="submit"]::after,
+.fools-2026-11-28 form[data-form="reply"] button[type="submit"]::after {
+  content: var(--fools-2026-11-28-yell, "!") / "";
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+}
+/* saturday-fools:2026-11-28 end */

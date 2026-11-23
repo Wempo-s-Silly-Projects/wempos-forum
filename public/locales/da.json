@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Fortsæt alligevel",
   "safety.previewShow": "Vis forhåndsvisning af link",
   "safety.previewUnavailable": "Ingen forhåndsvisning af dette link.",
-  "safety.previewLabel": "Forhåndsvisning af link"
+  "safety.previewLabel": "Forhåndsvisning af link",
+  "fools.banner": "🃏 Lørdagsnar: {name}",
+  "fools.20261128.name": "Råbelørdag",
+  "fools.20261128.yell": "Råb!",
+  "desk.fools.title": "Lørdagsnar",
+  "desk.fools.offLabel": "Slå lørdagsnar fra for alle",
+  "desk.fools.save": "Gem kontakt",
+  "admin.msg.foolsSaved": "Indstilling for lørdagsnar er gemt."
 }

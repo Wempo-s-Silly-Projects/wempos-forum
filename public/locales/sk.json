@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Napriek tomu pokračovať",
   "safety.previewShow": "Zobraziť náhľad odkazu",
   "safety.previewUnavailable": "Pre tento odkaz nie je náhľad.",
-  "safety.previewLabel": "Náhľad odkazu"
+  "safety.previewLabel": "Náhľad odkazu",
+  "fools.banner": "🃏 Sobotný apríl: {name}",
+  "fools.20261128.name": "Sobota kriku",
+  "fools.20261128.yell": "Kric!",
+  "desk.fools.title": "Sobotný apríl",
+  "desk.fools.offLabel": "Vypnúť sobotný apríl pre všetkých",
+  "desk.fools.save": "Uložiť prepínač",
+  "admin.msg.foolsSaved": "Nastavenie sobotného aprílu je uložené."
 }

@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "به هر حال ادامه بده",
   "safety.previewShow": "نمایش پیش‌نمایش پیوند",
   "safety.previewUnavailable": "این پیوند پیش‌نمایشی ندارد.",
-  "safety.previewLabel": "پیش‌نمایش پیوند"
+  "safety.previewLabel": "پیش‌نمایش پیوند",
+  "fools.banner": "🃏 شوخی شنبه‌ها: {name}",
+  "fools.20261128.name": "شنبهٔ فریاد",
+  "fools.20261128.yell": "فریاد بزن!",
+  "desk.fools.title": "شوخی شنبه‌ها",
+  "desk.fools.offLabel": "خاموش کردن شوخی شنبه‌ها برای همه",
+  "desk.fools.save": "ذخیرهٔ کلید",
+  "admin.msg.foolsSaved": "تنظیم شوخی شنبه‌ها ذخیره شد."
 }

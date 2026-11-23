@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Барыбер дауам итеү",
   "safety.previewShow": "Һылтанманы алдан ҡарауҙы күрһәтеү",
   "safety.previewUnavailable": "Был һылтанма өсөн алдан ҡарау юҡ.",
-  "safety.previewLabel": "Һылтанманы алдан ҡарау"
+  "safety.previewLabel": "Һылтанманы алдан ҡарау",
+  "fools.banner": "🃏 Шәмбе шаяралары: {name}",
+  "fools.20261128.name": "Ҡысҡырыу шәмбеһе",
+  "fools.20261128.yell": "Ҡысҡыр!",
+  "desk.fools.title": "Шәмбе шаяралары",
+  "desk.fools.offLabel": "Шәмбе шаяраларын бөтәһе өсөн һүндерергә",
+  "desk.fools.save": "Күсергесте һаҡларға",
+  "admin.msg.foolsSaved": "Шәмбе шаяралары көйләүе һаҡланды."
 }

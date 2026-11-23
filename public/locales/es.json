@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Continuar de todos modos",
   "safety.previewShow": "Mostrar vista previa del enlace",
   "safety.previewUnavailable": "No hay vista previa para este enlace.",
-  "safety.previewLabel": "Vista previa del enlace"
+  "safety.previewLabel": "Vista previa del enlace",
+  "fools.banner": "🃏 Inocentes del sábado: {name}",
+  "fools.20261128.name": "Sábado de gritos",
+  "fools.20261128.yell": "¡Grita!",
+  "desk.fools.title": "Inocentes del sábado",
+  "desk.fools.offLabel": "Desactivar los Inocentes del sábado para todos",
+  "desk.fools.save": "Guardar interruptor",
+  "admin.msg.foolsSaved": "Se guardó la configuración de los Inocentes del sábado."
 }

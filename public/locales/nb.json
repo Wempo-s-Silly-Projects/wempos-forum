@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "Fortsett likevel",
   "safety.previewShow": "Vis forhåndsvisning av lenke",
   "safety.previewUnavailable": "Ingen forhåndsvisning for denne lenken.",
-  "safety.previewLabel": "Forhåndsvisning av lenke"
+  "safety.previewLabel": "Forhåndsvisning av lenke",
+  "fools.banner": "🃏 Lørdagsnarr: {name}",
+  "fools.20261128.name": "Brølelørdag",
+  "fools.20261128.yell": "Brøl!",
+  "desk.fools.title": "Lørdagsnarr",
+  "desk.fools.offLabel": "Slå av lørdagsnarr for alle",
+  "desk.fools.save": "Lagre bryter",
+  "admin.msg.foolsSaved": "Innstillingen for lørdagsnarr er lagret."
 }

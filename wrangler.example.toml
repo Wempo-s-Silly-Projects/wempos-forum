@@ -48,6 +48,10 @@ SOURCE_URL = ""
 # alone never turns it on. Uncomment to opt in; docs/admin-guide.md ("AutoMod
 # API") covers what it can do and how to revoke a leaked key.
 # AUTOMOD_ENABLED = "true"
+# Saturday Fools (optional, OFF by default): one silly, purely cosmetic gag
+# on each visitor's local Saturday (docs/saturday-fools.md). Exactly "on"
+# turns it on; the owner can still force it off from the desk.
+# SATURDAY_FOOLS = "on"
 # Private analytics. When exactly "true", the forum counts page views as
 # AGGREGATE totals only: page type + UTC day + referring site host. It stores
 # no IP address, no member id, no user agent, no cookie and no per-visit row;

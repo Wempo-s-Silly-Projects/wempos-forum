@@ -1354,5 +1354,12 @@
   "safety.linkWarningContinue": "그래도 계속",
   "safety.previewShow": "링크 미리보기 표시",
   "safety.previewUnavailable": "이 링크에는 미리보기가 없습니다.",
-  "safety.previewLabel": "링크 미리보기"
+  "safety.previewLabel": "링크 미리보기",
+  "fools.banner": "🃏 토요일 장난: {name}",
+  "fools.20261128.name": "고함치는 토요일",
+  "fools.20261128.yell": "외쳐라!",
+  "desk.fools.title": "토요일 장난",
+  "desk.fools.offLabel": "모두에게 토요일 장난 끄기",
+  "desk.fools.save": "스위치 저장",
+  "admin.msg.foolsSaved": "토요일 장난 설정을 저장했어요."
 }
