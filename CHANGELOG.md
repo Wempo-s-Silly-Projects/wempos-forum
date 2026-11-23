@@ -10,6 +10,8 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.89.0] - 2026-11-23
+
 ### Added
 
 - Search module (off by default): full-text search of every post with D1's
