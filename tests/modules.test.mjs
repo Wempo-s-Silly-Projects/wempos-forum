@@ -144,6 +144,9 @@ test("a fresh self-hosted copy (no vars): opt-in modules stay off, the rest on",
     "translate": false, "search": false,
   });
   const reasons = states({});
+  // The search module needs its own SEARCH_DB binding, even when stored on.
+  assert.equal(states({}, { search: true }).get("search").reason, "setup");
+  assert.equal(states({ SEARCH_DB: {} }, { search: true }).get("search").enabled, true);
   assert.equal(reasons.get("automod").reason, "env");
   assert.equal(reasons.get("chat").reason, "default");
 });
@@ -349,7 +352,8 @@ test("/api/site lists only the ON module ids, nothing secret", async () => {
 const shell = async (env) => (await worker.fetch(new Request("https://wempos-forum.com/"), env, {})).text();
 
 test("shell: only the default-off modules ride the meta by default; off browser modules join it", async () => {
-  const env = makeEnv({ HUMAN_CHECK: "off" });
+  // SEARCH_DB present (any binding object): the search module's setup is done.
+  const env = makeEnv({ HUMAN_CHECK: "off", SEARCH_DB: {} });
   assert.match(await shell(env), /<meta name="site-modules-off" content="translate,search">/);
   storeRow(env, "translate", true);
   assert.match(await shell(env), /<meta name="site-modules-off" content="search">/);

@@ -52,6 +52,7 @@ import { normalizeBodyText } from "./core/text.mjs";
 import { requireHumanCheck } from "./core/human-check.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
+import { syncSearchPosts } from "./search-index.mjs";
 import { assertSlowModeAllows, withSlowModeGuard } from "./staff-tools.mjs";
 import { assertThreadUnlocked } from "./thread-locks.mjs";
 
@@ -243,6 +244,8 @@ export async function handleReplyCreateRoute(request, env, url, path, method) {
     } catch {
       // Ignore: notifications are a convenience, not a reply precondition.
     }
+    // Search module: detached, best-effort; never fails the reply.
+    syncSearchPosts(env, request, [replyId]);
     return json({ id: replyId }, 201);
   }
   return null;

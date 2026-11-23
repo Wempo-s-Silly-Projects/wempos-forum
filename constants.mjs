@@ -121,7 +121,7 @@ export const RATE_LIMIT_BINDINGS = Object.freeze({
   // The translate module (migration 0096): suggestions, withdrawals and
   // reviews ride the write tier under their own per-caller scope.
   translate: "WRITE_RATE_LIMITER",
-  // The search module (migration 0097): full-text reads get their own
+  // The search module (SEARCH_DB): full-text reads get their own
   // per-caller bucket on the read tier; the owner's backfill rides write.
   "full-search": "READ_RATE_LIMITER",
 });
@@ -478,12 +478,19 @@ export const TRANSLATE_REJECTED_RETENTION_DAYS = 90;
 export const TRANSLATE_PRUNE_BATCH = 50;
 export const TRANSLATE_SEARCH_MAX_CHARS = 100;
 
-// The search module (migration 0097, docs/modules.md): full-text search over
-// post bodies with D1's FTS5. The query is capped in characters and in terms
-// (each term is quoted, so the MATCH string never carries FTS5 syntax), the
-// excerpt is cut around the first hit after spoilers are masked, and the
-// owner's backfill indexes at most SEARCH_FTS_BACKFILL_BATCH posts per call
-// (each call binds 2 values).
+// The search module (docs/modules.md): full-text search over post bodies
+// with D1's FTS5, in its own SEARCH_DB database (migrations-search/). The
+// query is capped in characters and in terms (each term is quoted, so the
+// MATCH string never carries FTS5 syntax). A page reads up to
+// SEARCH_FTS_CANDIDATES ranked ids from SEARCH_DB, then keeps the ones the
+// visibility law lets the viewer see (so a page can come back short). The
+// excerpt is cut around the first hit after spoilers are masked. The owner's
+// rebuild covers SEARCH_FTS_BACKFILL_BATCH post ids per call and writes the
+// index SEARCH_FTS_INSERT_CHUNK rows per statement; write-path sync covers
+// at most SEARCH_SYNC_MAX_IDS posts per request.
+export const SEARCH_FTS_CANDIDATES = 60;
+export const SEARCH_FTS_INSERT_CHUNK = 50;
+export const SEARCH_SYNC_MAX_IDS = 100;
 export const SEARCH_FTS_QUERY_MAX_CHARS = 100;
 export const SEARCH_FTS_MAX_TERMS = 8;
 export const SEARCH_FTS_TERM_MAX_CHARS = 40;

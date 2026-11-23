@@ -79,6 +79,17 @@ database_name = "wempo-forum-data"  # CHANGE ME (then run migrations with D1_DAT
 database_id = "00000000-0000-0000-0000-000000000000"  # CHANGE ME
 migrations_dir = "migrations"
 
+# OPTIONAL: the search module's full-text index (docs/self-hosting.md §14).
+# Leave this block out and the search module simply stays off. To use it:
+#   wrangler d1 create <your-search-db-name>
+#   wrangler d1 migrations apply <your-search-db-name> --remote
+# then turn the module on in the desk and press "Build the search index".
+# [[d1_databases]]
+# binding = "SEARCH_DB"
+# database_name = "wempo-forum-search"  # CHANGE ME
+# database_id = "00000000-0000-0000-0000-000000000000"  # CHANGE ME
+# migrations_dir = "migrations-search"
+
 # Rate limits (always on). namespace_id is any number unique within your
 # Cloudflare account.
 [[ratelimits]]

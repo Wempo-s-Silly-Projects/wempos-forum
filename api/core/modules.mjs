@@ -113,13 +113,15 @@ export const MODULES = Object.freeze([
     id: "translate", labelKey: "translate.nav", descriptionKey: "translate.moduleDesc",
     default: MODULE_OFF, client: true, paths: Object.freeze(["/api/translate", "/api/translate/"]),
   }),
-  // Full-text search of post bodies (D1 FTS5, migration 0097): the /search
-  // page, its API under /api/search/ and the owner's index backfill. The
+  // Full-text search of post bodies (D1 FTS5 in its own SEARCH_DB database,
+  // migrations-search/): the /search page, its API under /api/search/ and
+  // the owner's index rebuild. Off until the SEARCH_DB binding exists. The
   // classic GET /api/search (members + threads) is not under the prefix and
   // stays on. New, so default off.
   entry({
     id: "search", labelKey: "modules.label.search", descriptionKey: "modules.desc.search",
     default: MODULE_OFF, client: true, paths: Object.freeze(["/api/search/"]),
+    setupDone: (env) => Boolean(env.SEARCH_DB),
   }),
 ]);
 

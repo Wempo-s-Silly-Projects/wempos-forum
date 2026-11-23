@@ -31,6 +31,7 @@ import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson, requireMutationApplied, requiredText } from "./core/http.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
+import { syncSearchPosts } from "./search-index.mjs";
 
 async function handleReportCreateRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
@@ -162,6 +163,7 @@ async function handleReportResolveRoute(request, env, url, path, method) {
   const now = nowSeconds();
   if (body.action === "hide_post") {
     await hidePostForOpenReport(db, reportId, session.user.id, now);
+    syncSearchPosts(env, request, [report.post_id]);
   } else {
     await dismissOpenReport(db, reportId, session.user.id, now);
   }

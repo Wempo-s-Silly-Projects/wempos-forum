@@ -295,27 +295,35 @@ static assets. How it works for members is in
 ## 14. Full-text search (optional)
 
 The `search` module adds a `/search` page that finds posts by any word in
-them, using D1's built-in full-text index (FTS5). It ships off. To use it:
+them, using D1's built-in full-text index (FTS5). It ships off, and it stays
+off until you give it its own database. The index lives there and not in
+your main database, because D1's standard `wrangler d1 export` cannot export
+a database that holds a full-text table. To use it:
 
-1. Its index comes from `migrations/0097_search.sql`, which step 4 already
-   applied. From then on every new, edited or deleted post updates the index
-   by itself.
-2. Turn it on in the desk's **Modules** page (or leave it off for good with
-   `MODULE_SEARCH = "off"` in `[vars]`).
-3. **Backfill once:** posts written before the migration are not in the index
-   yet. Signed in as the owner, open `/search` and press **Build the search
-   index**. It indexes 500 posts per request until it reaches the newest one
-   (`POST /api/search/backfill`, owner only). It skips posts that are already
-   indexed, so pressing it again is safe.
+1. Create the search database and apply its one migration:
 
-It needs no extra binding, secret, account or container. Two things to know:
+   ```sh
+   wrangler d1 create wempo-forum-search
+   wrangler d1 migrations apply wempo-forum-search --remote
+   ```
 
-- The index stores a copy of each post body, so the database grows by about
-  the size of your posts' text.
-- D1's standard `wrangler d1 export` does not support databases that contain
-  a virtual table. Use `wrangler d1 export --compatibility sqlite3_cli_only`
-  (a dump for the SQLite command line, which D1 cannot import back) or
-  Time Travel for backups.
+2. Add it to `wrangler.toml` with the binding `SEARCH_DB` and
+   `migrations_dir = "migrations-search"` (the commented block in
+   `wrangler.example.toml` shows the shape), then deploy.
+3. Turn the module on in the desk's **Modules** page (or leave it off for
+   good with `MODULE_SEARCH = "off"` in `[vars]`).
+4. **Build the index once:** signed in as the owner, open `/search` and press
+   **Build the search index**. It works through 500 posts per request
+   (`POST /api/search/backfill`, owner only) and also removes entries for
+   posts that were deleted or hidden since. Press it again any time; it is
+   safe to repeat.
+
+From then on new, edited, deleted, hidden and unhidden posts update the index
+in the background. If the search database is ever unreachable, posting keeps
+working; the next rebuild catches up. The index holds only public post text
+with spoilers masked, and every result is checked against your main database
+before anyone sees it. You can delete the search database and rebuild it at
+any time.
 
 ## Sharing your source code
 

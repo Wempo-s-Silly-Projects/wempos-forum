@@ -88,6 +88,7 @@ import { handleLinkPreviewRoutes } from "./api/link-preview.mjs";
 import { handleModuleRoutes } from "./api/modules.mjs";
 import { handleTranslateRoutes } from "./api/translate.mjs";
 import { handleFullSearchRoutes } from "./api/full-search.mjs";
+import { rememberExecutionContext } from "./api/search-index.mjs";
 import { gateModulePath, offClientModuleIds } from "./api/core/modules.mjs";
 import { attributeEscape, withPageHead } from "./api/seo.mjs";
 import { accountsOrigin, configuredOrigin } from "./api/core/site.mjs";
@@ -257,6 +258,8 @@ async function routeApi(request, env, ctx) {
 
 export default {
   async fetch(request, env, ctx) {
+    // The search module's write-path sync runs detached under waitUntil.
+    rememberExecutionContext(request, ctx);
     const url = new URL(request.url);
     // Canonical host: with SITE_ORIGIN configured, every *.workers.dev request
     // (API or page) answers a 301 there with its path and query intact. Unset

@@ -68,6 +68,7 @@ import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
 import { siteOrigin } from "./core/site.mjs";
 import { assertSlowModeAllows, withSlowModeGuard } from "./staff-tools.mjs";
 import { assertThreadUnlocked } from "./thread-locks.mjs";
+import { syncSearchPosts } from "./search-index.mjs";
 
 const SUPPORTED_PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 const DEFAULT_PROTOCOL_VERSION = "2025-06-18";
@@ -598,6 +599,7 @@ async function createRootPost(env, ctx, rawBody, rawBoard) {
   } catch (error) {
     console.error("mcp: mention fan-out failed", postId, error && error.message ? error.message : error);
   }
+  syncSearchPosts(env, ctx.request, [postId]);
   return { id: postId, url: ctx.origin + "/posts/" + postId, board };
 }
 
@@ -653,6 +655,7 @@ async function createReply(env, args, ctx) {
   await bumpThreadForReply(db, now, bumpTargetId, replyId);
   const recipientId = target.author_id === null || target.author_id === undefined ? null : Number(target.author_id);
   await replyFanOut(db, { agent, message, targetId, replyId, recipientId, bumpTargetId, now });
+  syncSearchPosts(env, ctx.request, [replyId]);
   return { id: replyId, url: ctx.origin + "/posts/" + replyId, parent_id: targetId };
 }
 

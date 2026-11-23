@@ -33,6 +33,7 @@ path = [
   "scripts/*.plist",
   "apply-remote.sh",
   "migrations/**",
+  "migrations-search/**",
   "docs/**",
   "*.md",
 ]

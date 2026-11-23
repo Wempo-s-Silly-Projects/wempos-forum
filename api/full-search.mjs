@@ -18,34 +18,45 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// The search module (default off; docs/modules.md, migration 0097): full-text
-// search of post bodies through D1's FTS5 index post_search.
+// The search module (default off; docs/modules.md): full-text search of post
+// bodies. The FTS5 index post_search lives in its own database (binding
+// SEARCH_DB, migrations-search/) so the shared forum + Accounts database
+// stays exportable; the module stays off without that binding.
 //   GET  /api/search/full?q=&sort=&cursor=   anyone (the read tier + Anubis)
-//   POST /api/search/backfill {after}        the owner: index older posts
+//   POST /api/search/backfill {after}        the owner: rebuild the index
 // The module owns the /api/search/ prefix, so while it is off both answer 404
 // before reaching here. The classic GET /api/search (members + threads) is a
-// different, always-on route and is untouched.
+// different, always-on route and is untouched. Write-path sync is in
+// api/search-index.mjs.
+//
+// Read path: SEARCH_DB returns up to SEARCH_FTS_CANDIDATES ranked ids after
+// the cursor; FORUM_DB loads those ids and keeps only what the viewer may
+// see; the page is the first FEED_PAGE_SIZE survivors in rank order. The
+// cursor continues the FTS ranking, so rows the visibility law filters out
+// can make a page short (nextCursor still says whether to ask for more).
 //
 // Safety:
 //   * The query is never handed to MATCH as typed. searchTerms() keeps only
 //     runs of letters, digits and marks, and each run becomes one quoted
 //     FTS5 string, so `"`, `*`, `:`, `^`, `-`, parentheses, NEAR, OR, AND and
 //     NOT are plain words or separators, never operators.
-//   * The visibility law is applied at read time, whatever the index holds:
-//     a signed-in non-staff viewer goes through viewablePostSql (post, parent
-//     and root public, unbanned, no block pair either way); everyone else
-//     through publicChainSql. Staff get the public face too: hidden posts are
-//     reachable only from the desk.
-//   * The excerpt is cut from the CURRENT body after spoilers are masked
-//     (maskSpoilers + maskedExcerpt); FTS5's snippet() is never used.
+//   * The visibility law is applied in FORUM_DB at read time, whatever the
+//     index holds: a signed-in non-staff viewer goes through viewablePostSql
+//     (post, parent and root public, unbanned, no block pair either way);
+//     everyone else through publicChainSql. Staff get the public face too:
+//     hidden posts are reachable only from the desk.
+//   * The index holds spoiler-masked text, so a word inside a spoiler never
+//     matches; the excerpt is cut from the CURRENT body after spoilers are
+//     masked (maskSpoilers + maskedExcerpt); FTS5's snippet() is never used.
 import {
-  SEARCH_FTS_BACKFILL_BATCH, SEARCH_FTS_EXCERPT_CHARS, SEARCH_FTS_EXCERPT_LEAD, SEARCH_FTS_MAX_TERMS,
-  SEARCH_FTS_QUERY_MAX_CHARS, SEARCH_FTS_TERM_MAX_CHARS, FEED_PAGE_SIZE,
+  SEARCH_FTS_BACKFILL_BATCH, SEARCH_FTS_CANDIDATES, SEARCH_FTS_EXCERPT_CHARS, SEARCH_FTS_EXCERPT_LEAD,
+  SEARCH_FTS_MAX_TERMS, SEARCH_FTS_QUERY_MAX_CHARS, SEARCH_FTS_TERM_MAX_CHARS, FEED_PAGE_SIZE,
 } from "../constants.mjs";
 import { readSession, requireAdmin } from "./core/auth.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
 import { VIEWABLE_POST_BINDS, publicChainSql, viewablePostSql } from "./core/visibility.mjs";
+import { indexInsertStatements } from "./search-index.mjs";
 
 export const FULL_SEARCH_PATH = "/api/search/full";
 export const FULL_SEARCH_BACKFILL_PATH = "/api/search/backfill";
@@ -108,31 +119,56 @@ export function searchExcerpt(body, terms) {
   return start > 0 ? ELLIPSIS + cut : cut;
 }
 
-// One page of matches the viewer may see. Binds: the MATCH string, the
-// viewer id VIEWABLE_POST_BINDS times (signed-in non-staff only), then the
-// cursor (1 or 3): at most 10, far under D1_MAX_BOUND_PARAMS.
-export function fullSearchQuery(terms, viewer, sort, cursor) {
-  const blockAware = Boolean(viewer && viewer.id) && !isStaff(viewer);
-  const visible = blockAware ? viewablePostSql("p.id") : publicChainSql("p");
+// SEARCH_DB: up to SEARCH_FTS_CANDIDATES ranked ids after the cursor.
+// Binds: the MATCH string, then the cursor (0, 1 or 3): at most 4.
+export function candidateQuery(terms, sort, cursor) {
   const values = [matchExpression(terms)];
-  if (blockAware) for (let i = 0; i < VIEWABLE_POST_BINDS; i++) values.push(Number(viewer.id));
   let keyset = "";
   if (cursor && sort === "new") {
-    keyset = " AND m.id < ?";
+    keyset = " WHERE m.id < ?";
     values.push(cursor.id);
   } else if (cursor) {
-    keyset = " AND (m.score > ? OR (m.score = ? AND m.id < ?))";
+    keyset = " WHERE (m.score > ? OR (m.score = ? AND m.id < ?))";
     values.push(cursor.score, cursor.score, cursor.id);
   }
   const order = sort === "new" ? "m.id DESC" : "m.score ASC, m.id DESC";
   const sql =
     "WITH m AS MATERIALIZED (SELECT rowid AS id, bm25(post_search) AS score FROM post_search " +
-    "WHERE post_search MATCH ?) " +
-    "SELECT m.id, m.score, p.parent_id, p.body, p.board, p.created_at, u.username AS author_username, " +
-    "COALESCE((SELECT pp.parent_id FROM posts pp WHERE pp.id = p.parent_id), p.parent_id, p.id) AS thread_id " +
-    "FROM m JOIN posts p ON p.id = m.id JOIN users u ON u.id = p.author_id " +
-    "WHERE " + visible + keyset + " ORDER BY " + order + " LIMIT " + (FEED_PAGE_SIZE + 1);
+    "WHERE post_search MATCH ?) SELECT m.id, m.score FROM m" + keyset +
+    " ORDER BY " + order + " LIMIT " + SEARCH_FTS_CANDIDATES;
   return { sql, values };
+}
+
+// FORUM_DB: the candidates the viewer may see. Binds: the JSON id list, then
+// the viewer id VIEWABLE_POST_BINDS times (signed-in non-staff only): at
+// most 7, far under D1_MAX_BOUND_PARAMS, at any candidate count.
+export function visibleRowsQuery(ids, viewer) {
+  const blockAware = Boolean(viewer && viewer.id) && !isStaff(viewer);
+  const visible = blockAware ? viewablePostSql("p.id") : publicChainSql("p");
+  const values = [JSON.stringify(ids)];
+  if (blockAware) for (let i = 0; i < VIEWABLE_POST_BINDS; i++) values.push(Number(viewer.id));
+  const sql =
+    "SELECT p.id, p.parent_id, p.body, p.board, p.created_at, u.username AS author_username, " +
+    "COALESCE((SELECT pp.parent_id FROM posts pp WHERE pp.id = p.parent_id), p.parent_id, p.id) AS thread_id " +
+    "FROM json_each(?) j JOIN posts p ON p.id = j.value JOIN users u ON u.id = p.author_id WHERE " + visible;
+  return { sql, values };
+}
+
+// Walk the candidates in rank order, keep the visible ones up to a page.
+// nextCursor continues after the last candidate this page consumed, whenever
+// more candidates may exist (the page filled early, or SEARCH_DB returned a
+// full candidate batch): a short page with a cursor is normal.
+export function assemblePage(candidates, visibleById, sort) {
+  const page = [];
+  let consumed = -1;
+  for (let at = 0; at < candidates.length && page.length < FEED_PAGE_SIZE; at++) {
+    consumed = at;
+    const row = visibleById.get(Number(candidates[at].id));
+    if (row) page.push({ ...row, score: candidates[at].score });
+  }
+  const more = consumed < candidates.length - 1 || candidates.length === SEARCH_FTS_CANDIDATES;
+  const last = consumed >= 0 ? candidates[consumed] : null;
+  return { page, nextCursor: more && last ? encodeCursor(last, sort) : null };
 }
 
 const shapeResult = (row, terms) => ({
@@ -167,24 +203,26 @@ async function handleFullSearch(request, env, url) {
   if (terms.length === 0) return json({ terms: [], posts: [], nextCursor: null });
   const session = await readSession(request, env);
   const viewer = session && session.user ? session.user : null;
-  const { sql, values } = fullSearchQuery(terms, viewer, sort, cursor);
-  const rows = (await env.FORUM_DB.prepare(sql).bind(...values).all()).results || [];
-  const page = rows.slice(0, FEED_PAGE_SIZE);
-  return json({
-    terms,
-    posts: page.map((row) => shapeResult(row, terms)),
-    nextCursor: rows.length > FEED_PAGE_SIZE ? encodeCursor(page[page.length - 1], sort) : null,
-  });
+  const ranked = candidateQuery(terms, sort, cursor);
+  const candidates = (await env.SEARCH_DB.prepare(ranked.sql).bind(...ranked.values).all()).results || [];
+  if (candidates.length === 0) return json({ terms, posts: [], nextCursor: null });
+  const lookup = visibleRowsQuery(candidates.map((row) => Number(row.id)), viewer);
+  const rows = (await env.FORUM_DB.prepare(lookup.sql).bind(...lookup.values).all()).results || [];
+  const { page, nextCursor } = assemblePage(candidates, new Map(rows.map((row) => [Number(row.id), row])), sort);
+  return json({ terms, posts: page.map((row) => shapeResult(row, terms)), nextCursor });
 }
 
-// The owner's backfill: indexes the next SEARCH_FTS_BACKFILL_BATCH posts with
-// an id above `after` that are not indexed yet (2 binds). Idempotent: rows
-// the triggers or an earlier pass already indexed are skipped. The client
-// repeats it with the returned `after` until `done`.
+// The owner's rebuild: for the next SEARCH_FTS_BACKFILL_BATCH post ids above
+// `after`, the index range (after, last] is cleared and refilled with the
+// spoiler-masked bodies of the posts that are publicly visible now, so ids
+// that were deleted, hidden or banned since are pruned. The last call also
+// prunes every index row above the newest post. Idempotent: run it again any
+// time. The client repeats it with the returned `after` until `done`.
 export const BACKFILL_IDS_SQL = "SELECT id FROM posts WHERE id > ? ORDER BY id LIMIT " + SEARCH_FTS_BACKFILL_BATCH;
-export const BACKFILL_INSERT_SQL =
-  "INSERT INTO post_search (rowid, body) SELECT p.id, p.body FROM posts p WHERE p.id > ? AND p.id <= ? " +
-  "AND NOT EXISTS (SELECT 1 FROM post_search s WHERE s.rowid = p.id)";
+export const BACKFILL_ROWS_SQL =
+  "SELECT p.id, p.body FROM posts p WHERE p.id > ? AND p.id <= ? AND " + publicChainSql("p");
+export const BACKFILL_CLEAR_RANGE_SQL = "DELETE FROM post_search WHERE rowid > ? AND rowid <= ?";
+export const BACKFILL_CLEAR_TAIL_SQL = "DELETE FROM post_search WHERE rowid > ?";
 
 function readAfter(body) {
   const after = body && typeof body === "object" && body.after !== undefined ? body.after : 0;
@@ -197,14 +235,20 @@ async function handleBackfill(request, env) {
   await rateLimit(request, env, "write", String(user.id));
   const after = readAfter(await readJson(request));
   const ids = (await env.FORUM_DB.prepare(BACKFILL_IDS_SQL).bind(after).all()).results || [];
-  if (ids.length === 0) return json({ indexed: 0, after, done: true });
+  if (ids.length === 0) {
+    await env.SEARCH_DB.prepare(BACKFILL_CLEAR_TAIL_SQL).bind(after).run();
+    return json({ indexed: 0, after, done: true });
+  }
   const last = Number(ids[ids.length - 1].id);
-  const result = await env.FORUM_DB.prepare(BACKFILL_INSERT_SQL).bind(after, last).run();
-  return json({
-    indexed: Number(result?.meta?.changes ?? 0),
-    after: last,
-    done: ids.length < SEARCH_FTS_BACKFILL_BATCH,
-  });
+  const done = ids.length < SEARCH_FTS_BACKFILL_BATCH;
+  const rows = (await env.FORUM_DB.prepare(BACKFILL_ROWS_SQL).bind(after, last).all()).results || [];
+  const search = env.SEARCH_DB;
+  await search.batch([
+    search.prepare(BACKFILL_CLEAR_RANGE_SQL).bind(after, last),
+    ...(done ? [search.prepare(BACKFILL_CLEAR_TAIL_SQL).bind(last)] : []),
+    ...indexInsertStatements(search, rows),
+  ]);
+  return json({ indexed: rows.length, after: last, done });
 }
 
 export async function handleFullSearchRoutes(request, env, url, path, method) {
