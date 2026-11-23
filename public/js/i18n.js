@@ -54,7 +54,8 @@ export const LOCALES = Object.freeze([
   { code: "sk", name: "Slovenčina", dir: "ltr" },
   { code: "hu", name: "Magyar", dir: "ltr" },
   { code: "hr", name: "Hrvatski", dir: "ltr" },
-  { code: "sr", name: "Srpski (latinica)", dir: "ltr" },
+  { code: "sr", name: "Српски", dir: "ltr" },
+  { code: "sr-Latn", name: "Srpski (latinica)", dir: "ltr" },
   { code: "bs", name: "Bosanski", dir: "ltr" },
   { code: "bg", name: "Български", dir: "ltr" },
   { code: "sq", name: "Shqip", dir: "ltr" },
@@ -117,6 +118,8 @@ function matchTag(tag) {
     const traditional = parts.some((part, index) => index > 0 && TRADITIONAL_CHINESE.has(`zh-${part}`));
     return traditional ? "zh-Hant" : "zh-Hans";
   }
+  // Serbian: Cyrillic (sr) by default, the Latin bundle for any -Latn tag.
+  if (parts[0] === "sr") return parts.includes("latn") ? "sr-Latn" : "sr";
   const base = LEGACY_CODES.get(parts[0]) ?? parts[0];
   return BY_CODE.get(base)?.code ?? null;
 }
