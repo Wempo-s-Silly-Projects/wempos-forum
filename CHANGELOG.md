@@ -10,6 +10,30 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.85.0] - 2026-11-22
+
+### Added
+
+- Saved posts can be searched (MiniSearch), terminal-session code blocks show
+  a prompt column, an opt-in "Keep screen awake" button sits on threads, and
+  newcomers get a short guided tour (Driver.js).
+- The image viewer has a fullscreen button.
+- Photos that still carry GPS location after resizing are refused before
+  upload, so a location never leaks by accident.
+
+### Changed
+
+- Pages load much less code up front: staff tools, fun extras, media embeds,
+  the mention picker, the profile editor and the chat widget now load only
+  when used (first load about 484 KB down to 285 KB compressed). The Worker
+  is minified.
+- No third-party script any more: the cdnjs polyfill is replaced by a small
+  self-hosted core-js build that only older browsers download, and the page's
+  Content-Security-Policy allows scripts from this site only.
+- Animated APNG/WebP detection uses is-animated and checks the whole file.
+- Cookie handling, HTML escaping, BOM stripping, feed caching and error
+  logging use small well-tested libraries instead of hand-written code.
+
 ## [5.84.3] - 2026-11-22
 
 ### Fixed
