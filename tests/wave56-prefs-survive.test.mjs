@@ -114,7 +114,9 @@ const REMOVAL = /\.removeItem\s*\(|(?:local|session)Storage\s*\.\s*clear\s*\(|st
 // v5.46: + thread-outline.js (account-scoped open state, cleared by the wipe).
 // Batch M: + fun/settings.js (per-member milestone-badge markers for the
 // opt-in confetti, cleared by the wipe; the switches themselves stay).
-const REMOVAL_FILES = ["catch-up.js", "chat-mutes.js", "chat-pins.js", "drafts.js", "fun/settings.js", "gallery-picks.js", "invite.js",
+// v5.82.1: + emoji-picker.js (the vendored picker's per-member recents,
+// cleared by the wipe — security review L1).
+const REMOVAL_FILES = ["catch-up.js", "chat-mutes.js", "chat-pins.js", "drafts.js", "emoji-picker.js", "fun/settings.js", "gallery-picks.js", "invite.js",
   "newcomer.js", "quiet-hours.js", "recent-searches.js", "share.js", "thread-outline.js"];
 
 test("storage removals appear only in the account-scoped families", () => {

@@ -25,7 +25,8 @@
 // through api(), never from a CDN. picmo's own <style> injection is switched
 // off (CSP style-src 'self'); its stylesheet is linked from /js/vendor/ once.
 // Data stays in memory (no IndexedDB copy); picmo keeps its recently-used
-// list in this browser's localStorage only. The pick goes in through
+// list in this browser's localStorage only, and the sign-out wipe clears it
+// (clearAllEmojiRecents, v5.82.1 review L1). The pick goes in through
 // field-edit.js, so Ctrl/Cmd+Z undoes it.
 import { api } from "./api.js";
 import { currentLocale, t } from "./i18n.js";
@@ -42,6 +43,26 @@ const LOCALE_ALIASES = Object.freeze({ "zh-hans": "zh", "zh-hant": "zh-hant" });
 const EMOJI_GLYPH = "🙂";
 const EMOJIS_PER_ROW = 8;
 const VISIBLE_ROWS = 5;
+
+// The key picmo's default recents provider writes (vendor/picmo.js).
+export const PICMO_RECENTS_KEY = "PicMo:recents"; // i18n-ignore
+
+const browserStorage = () => {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+};
+
+// Sign-out wipe: the recents list is per member, so it leaves with them.
+export function clearAllEmojiRecents(storage = browserStorage()) {
+  try {
+    storage?.removeItem(PICMO_RECENTS_KEY);
+  } catch {
+    // Blocked storage: nothing was kept.
+  }
+}
 
 const defaultLoadPicmo = () => import("./vendor/picmo.js");
 const picmoLoads = new Map();

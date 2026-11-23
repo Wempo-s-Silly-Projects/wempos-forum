@@ -10,6 +10,18 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.82.1] - 2026-11-22
+
+### Security
+
+- Security review of 5.73.2 to 5.82.0, written up in
+  `docs/security-review-v5.74-v5.82.md`, with new regression tests.
+
+### Fixed
+
+- Signing out now also clears the emoji picker's recently used emoji, so the
+  next person on a shared browser no longer sees them.
+
 ## [5.82.0] - 2026-11-22
 
 ### Added
