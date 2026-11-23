@@ -48,7 +48,7 @@ test("every declared runtime and development dependency has a matching pnpm lock
   for (const [group, dependencies] of groups) {
     assert.ok(Object.keys(dependencies).length > 0, group + " are declared");
     for (const [name, specifier] of Object.entries(dependencies)) {
-      const expected = \`      '\${name}':\n        specifier: \${specifier}\n        version: \`;
+      const expected = "      '" + name + "':\n        specifier: " + specifier + "\n        version: ";
       assert.ok(lock.includes(expected), group + ": " + name + " has a resolved lockfile entry");
     }
   }
