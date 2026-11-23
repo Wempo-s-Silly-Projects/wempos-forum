@@ -94,7 +94,8 @@ export function writeFunSetting(storage, key, enabled) {
   rememberFallback(storage, next, fallback);
   try {
     if (!isStorageObject(storage) || typeof storage.setItem !== "function") {
-      throw new Error("storage unavailable");
+      if (isStorageObject(storage)) fallback.blocked.add(storage);
+      return next;
     }
     storage.setItem(FUN_STORAGE_KEY, JSON.stringify(next));
   } catch {
@@ -146,8 +147,8 @@ function createSwitch(doc, storage, key, checked, onChange) {
   return label;
 }
 
-// The settings panel: heading, help line, one switch per extra and, when the
-// device asks for reduced motion, a note that moving effects stay still.
+// The settings panel: heading, one switch per extra and, when the device
+// asks for reduced motion, a note that moving effects stay still.
 // Rendering stores nothing; each change saves and calls onChange(settings).
 export function createFunExtrasPanel(doc, storage, { win = globalThis, onChange = () => {} } = {}) {
   const panel = doc.createElement("section");

@@ -272,8 +272,8 @@ test("the Fun extras panel: unsaved preferences show checked switches, save chan
   let seen = null;
   const panel = settings.createFunExtrasPanel(doc, storage, { win: fakeWin(), onChange: (value) => { seen = value; } });
   assert.match(panel.className, /\bpanel\b/);
-  assert.match(panel.querySelector("p.fun-extras-help")?.textContent ?? "", /enabled by default/i,
-    "the help text agrees with the checked-by-default switches");
+  assert.equal(panel.querySelector("p.fun-extras-help"), null,
+    "the outdated help text is not rendered");
   const boxes = panel.querySelectorAll("input.fun-extras-switch");
   assert.equal(boxes.length, settings.FUN_KEYS.length);
   for (const box of boxes) assert.equal(box.checked, true, box.dataset.funKey + " defaults on");
