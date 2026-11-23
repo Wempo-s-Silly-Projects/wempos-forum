@@ -104,7 +104,7 @@ Owner directives verbatim: "U TRIGGER EVERYTHING", "U MANAGE EVERYTHING", "NO LA
 - **Hard pins that outlive Section A** (owner safety law — keep):
   - secrets never printed or committed (owner-held keys, stdin only);
   - prod-D1 writes only under the full NAME-PRESENCE ritual, or never;
-  - Chrome and Playwright bans;
+  - proprietary-browser ban (free-software browsers only);
   - vendored worker files never touched;
   - AGPLv3;
   - the owner's budget ceiling ($1000 fleet/API spend).
