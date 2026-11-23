@@ -36,7 +36,7 @@ export const FUN_BADGE_SEEN_PREFIX = "forum-fun-badge-seen:";
 // Panel order; each key is one checkbox labelled by its "fun.<key>" string.
 export const FUN_KEYS = Object.freeze(["confetti", "motion", "heroType", "sounds", "easterEggs", "sketch"]);
 const FUN_LABEL_PREFIX = "fun.";
-export const FUN_DEFAULTS = Object.freeze(Object.fromEntries(FUN_KEYS.map((key) => [key, false])));
+export const FUN_DEFAULTS = Object.freeze(Object.fromEntries(FUN_KEYS.map((key) => [key, true])));
 
 const browserStorage = () => {
   try {
