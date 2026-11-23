@@ -94,6 +94,15 @@ export function generateTotpSecret() {
 // HMAC-based one-time password at a given counter (RFC 4226, dynamic
 // truncation). digits 8 lets the RFC 6238 test vectors be asserted verbatim.
 export async function hotpAt(keyBytes, counter, digits = TOTP_DIGITS, algorithm = TOTP_DEFAULT_ALGORITHM) {
+  if (
+  !Number.isSafeInteger(counter) ||
+  counter < 0 ||
+  !Number.isInteger(digits) ||
+  digits < 6 ||
+  digits > 8
+) {
+  throw new RangeError("invalid HOTP parameters");
+}
   const hash = TOTP_HASHES[normalizeTotpAlgorithm(algorithm)];
   const key = await crypto.subtle.importKey(
     "raw", new Uint8Array(keyBytes), { name: "HMAC", hash }, false, ["sign"],
@@ -125,17 +134,37 @@ export async function totpAt(base32Secret, time, digits = TOTP_DIGITS, algorithm
 // Batch F: returns the matched time-step counter (or null) so the caller can
 // spend it exactly once — the replay refusal lives in twofa.mjs's claim.
 export async function totpMatchStep(base32Secret, code, time, algorithm = TOTP_DEFAULT_ALGORITHM) {
-  if (typeof code !== "string" || !/^\d{6}$/.test(code)) return null;
+  if (
+    typeof code !== "string" ||
+    code.length !== TOTP_DIGITS ||
+    !/^[0-9]{6}/.test(code) ||
+    !Number.isFinite(time) ||
+    time < 0
+  ) {
+    return null;
+  }
+
   const keyBytes = base32Decode(base32Secret);
   const counter = Math.floor(time / TOTP_STEP);
+
+  if (!Number.isSafeInteger(counter)) return null;
+
   for (const drift of [-1, 0, 1]) {
-    const candidate = await hotpAt(keyBytes, counter + drift, TOTP_DIGITS, algorithm);
+    const candidate = await hotpAt(
+      keyBytes,
+      counter + drift,
+      TOTP_DIGITS,
+      algorithm,
+    );
+
     let difference = 0;
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < TOTP_DIGITS; i++) {
       difference |= candidate.charCodeAt(i) ^ code.charCodeAt(i);
     }
+
     if (difference === 0) return counter + drift;
   }
+
   return null;
 }
 
