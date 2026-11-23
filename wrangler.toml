@@ -13,10 +13,13 @@ routes = [
 [vars]
 # Self-hosting (v5.17.0): these used to be hard-coded; the owner's values keep
 # this deployment exactly as before (canonical origin + workers.dev 301,
-# Accounts sign-in). The human check (Batch F: self-hosted ALTCHA) needs no
-# var: it keys off the ALTCHA_HMAC_KEY secret, or derives a key from the
-# existing TURNSTILE_SECRET secret. See wrangler.example.toml for a fresh copy.
+# Accounts sign-in). See wrangler.example.toml for a fresh copy.
 SITE_ORIGIN = "https://wempos-forum.com"
+# Human check (v5.82.0): the code default is "anubis", but the Anubis server
+# is not connected yet, so production pins the self-hosted ALTCHA check (keyed
+# by ALTCHA_HMAC_KEY, or derived from the legacy TURNSTILE_SECRET). Switch to
+# "anubis" only once the ANUBIS binding exists (tests/anubis-gate pins this).
+HUMAN_CHECK = "altcha"
 ACCOUNTS_ORIGIN = "https://accounts.wempos-forum.com"
 RELAY_WORKER_NAME = "wempos-forum"
 # Private analytics (v5.30.0): aggregate page-type/day/referring-site counts

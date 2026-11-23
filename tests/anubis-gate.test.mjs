@@ -22,6 +22,7 @@
 // mode resolver (default anubis), each mode's behaviour (anubis: per-form
 // ALTCHA skipped, HTML navigations through the anubisGate seam; altcha:
 // Batch F unchanged; off: nothing), and the gate's exempt-path table.
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import worker from "../worker.mjs";
@@ -142,4 +143,12 @@ test("anubisGate: no ANUBIS binding passes through; a bound one is reserved (sti
   assert.equal(await anubisGate(nav("/"), bound), null);
   assert.equal(await anubisGate(nav("/api/posts"), bound), null);
   assert.equal(touched, 0);
+});
+
+test("production wrangler.toml pins ALTCHA while no ANUBIS binding exists", () => {
+  const toml = readFileSync(new URL("../wrangler.toml", import.meta.url), "utf8");
+  const topVars = toml.split(/^\[vars\]$/m)[1].split(/^\[/m)[0];
+  const pinned = (topVars.match(/^HUMAN_CHECK\s*=\s*"([^"]*)"/m) ?? [])[1];
+  const anubisBound = /^\s*(binding|name)\s*=\s*"ANUBIS"/m.test(toml);
+  if (!anubisBound) assert.equal(pinned, "altcha", "without the Anubis server, production must keep the ALTCHA check");
 });
