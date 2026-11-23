@@ -278,8 +278,15 @@ test("gitleaks allowlist is exact anchored fixture values only, on the secret, w
   const toml = read(".gitleaks.toml");
   assert.match(toml, /^useDefault = true$/m);
   assert.match(toml, /^regexTarget = "secret"$/m);
-  assert.doesNotMatch(toml, /^\s*(paths|stopwords|commits)\s*=/m);
-  const values = [...toml.matchAll(/^\s*'''(.*)'''\s*,?\s*$/gm)].map(([, value]) => value);
+  assert.doesNotMatch(toml, /^\s*(stopwords|commits)\s*=/m);
+  // v5.79 (owner-approved 2026-11-22): exactly ONE path allow-list, for the
+  // verbatim Mermaid vendor bundle — no other path, no wildcard.
+  const pathBlocks = [...toml.matchAll(/^\s*paths\s*=\s*\[([\s\S]*?)\]/gm)].map(([, body]) => body);
+  assert.ok(pathBlocks.length <= 1, "at most one paths allow-list");
+  const pathValues = pathBlocks.flatMap((body) => [...body.matchAll(/'''(.*)'''/g)].map(([, value]) => value));
+  assert.deepEqual(pathValues, pathBlocks.length ? ["^public/js/vendor/mermaid\\.min\\.js$"] : []);
+  const values = [...toml.matchAll(/^\s*'''(.*)'''\s*,?\s*$/gm)].map(([, value]) => value)
+    .filter((value) => !pathValues.includes(value));
   assert.ok(values.length >= 4);
   // Literal values only: letters, digits, dashes, and backslash-escaped + / = (base64-style
   // public keys). No wildcards, classes or quantifiers — every entry still matches one string.
