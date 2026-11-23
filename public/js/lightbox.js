@@ -20,6 +20,7 @@
 
 import { prefersReducedMotion } from "./focus-utils.js";
 import { t } from "./i18n.js";
+import { attachFullscreenToggle } from "./lightbox-fullscreen.js";
 import { GIF_MIME, stillGifToggle } from "./still-gif.js";
 
 // Image viewer (wave 2026-11-21-21 F1): the native #attachment-lightbox
@@ -35,6 +36,8 @@ import { GIF_MIME, stillGifToggle } from "./still-gif.js";
 // "fit" (viewport-capped, the default) and "actual" (natural pixels, the
 // dialog scrolls); stepping to another image or closing resets it to fit.
 // Page-view only: nothing is stored and nothing is fetched.
+// Media lane: a full-screen toggle (lightbox-fullscreen.js, screenfull loaded
+// on first press) puts the whole viewer dialog in full screen.
 
 const STRIP_SELECTOR = ".post-attachments";
 const THUMB_SELECTOR = ".attachment-expand";
@@ -78,10 +81,13 @@ function buildControls(dialog, document) {
   const next = iconlessButton(document, "lightbox-step lightbox-next", t("lightbox.next"), "›");
   const size = iconlessButton(document, "lightbox-size", t("lightbox.actualSize"), t("lightbox.actualSize"));
   size.setAttribute("aria-pressed", "false");
+  const fullscreen = iconlessButton(document, "lightbox-fullscreen", t("embed.player.enterFullscreen"),
+    t("embed.player.enterFullscreen"));
+  attachFullscreenToggle(dialog, fullscreen);
   const counter = document.createElement("p");
   counter.className = "lightbox-counter";
   counter.setAttribute("aria-live", "polite");
-  dialog.append(close, size, previous, next, counter);
+  dialog.append(close, size, fullscreen, previous, next, counter);
   return { close, size, previous, next, counter };
 }
 

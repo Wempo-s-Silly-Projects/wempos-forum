@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓، پھر Enter یا Tab: @ذکر کی کوئی تجویز چنیں",
   "shortcuts.close": "Esc: امیج ویور یا @ذکر کی تجاویز بند کریں",
   "attachments.wrongType": "\"{name}\" شامل نہیں کی گئی: صرف JPEG، PNG، WebP اور GIF تصاویر منسلک ہو سکتی ہیں۔",
+  "attachments.locationKept": "\"{name}\" شامل نہیں کی گئی: اس میں اب بھی GPS مقام کا ڈیٹا موجود ہے۔",
   "composer.pendingImages.one": "1 تصویر منسلک کرنے کے لیے تیار: {names}۔ جب تک آپ اسے منسلک کر کے پوسٹ نہ کریں کچھ اپ لوڈ نہیں ہوتا۔",
   "composer.pendingImages.other": "{count} تصاویر منسلک کرنے کے لیے تیار: {names}۔ جب تک آپ انہیں منسلک کر کے پوسٹ نہ کریں کچھ اپ لوڈ نہیں ہوتا۔",
   "composer.pendingAttach": "منسلک کریں",

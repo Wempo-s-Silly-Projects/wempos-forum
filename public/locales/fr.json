@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, puis Entrée ou Tab : choisissez une suggestion de @mention",
   "shortcuts.close": "Échap : ferme la visionneuse ou les suggestions de @mention",
   "attachments.wrongType": "« {name} » n’a pas été ajouté : seules les images JPEG, PNG, WebP et GIF peuvent être jointes.",
+  "attachments.locationKept": "« {name} » n’a pas été ajouté : il contient encore des données de localisation GPS.",
   "composer.pendingImages.one": "1 image prête à joindre : {names}. Rien n’est envoyé tant que vous ne la joignez pas et ne publiez pas.",
   "composer.pendingImages.other": "{count} images prêtes à joindre : {names}. Rien n’est envoyé tant que vous ne les joignez pas et ne publiez pas.",
   "composer.pendingAttach": "Joindre",

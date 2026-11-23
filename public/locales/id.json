@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, lalu Enter atau Tab: pilih saran @mention",
   "shortcuts.close": "Esc: tutup penampil gambar atau saran @mention",
   "attachments.wrongType": "\"{name}\" tidak ditambahkan: hanya gambar JPEG, PNG, WebP, dan GIF yang bisa dilampirkan.",
+  "attachments.locationKept": "\"{name}\" tidak ditambahkan: file ini masih memuat data lokasi GPS.",
   "composer.pendingImages.one": "1 gambar siap dilampirkan: {names}. Tidak ada yang diunggah sampai kamu melampirkannya dan memposting.",
   "composer.pendingImages.other": "{count} gambar siap dilampirkan: {names}. Tidak ada yang diunggah sampai kamu melampirkannya dan memposting.",
   "composer.pendingAttach": "Lampirkan",

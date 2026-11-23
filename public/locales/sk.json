@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, potom Enter alebo Tab: výber návrhu @zmienky",
   "shortcuts.close": "Esc: zavrie prehliadač obrázkov alebo návrhy @zmienok",
   "attachments.wrongType": "„{name}“ nebol pridaný: pripojiť sa dajú len obrázky JPEG, PNG, WebP a GIF.",
+  "attachments.locationKept": "„{name}“ nebol pridaný: stále obsahuje údaje o polohe GPS.",
   "composer.pendingImages.one": "1 obrázok pripravený na pripojenie: {names}. Nič sa nenahrá, kým ho nepripojíš a neodošleš.",
   "composer.pendingImages.other": "Obrázkov pripravených na pripojenie: {count}: {names}. Nič sa nenahrá, kým ich nepripojíš a neodošleš.",
   "composer.pendingAttach": "Pripojiť",

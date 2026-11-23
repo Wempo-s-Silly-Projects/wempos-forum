@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, потым Enter або Tab: выбраць падказку @згадкі",
   "shortcuts.close": "Esc: закрыць праглядальнік выяў або падказкі @згадак",
   "attachments.wrongType": "«{name}» не дададзены: можна далучаць толькі выявы JPEG, PNG, WebP і GIF.",
+  "attachments.locationKept": "«{name}» не дададзены: ён усё яшчэ змяшчае даныя GPS-месцазнаходжання.",
   "composer.pendingImages.one": "1 выява гатовая да далучэння: {names}. Нічога не загружаецца, пакуль вы не далучыце яе і не апублікуеце.",
   "composer.pendingImages.other": "Выяў гатова да далучэння: {count} — {names}. Нічога не загружаецца, пакуль вы не далучыце іх і не апублікуеце.",
   "composer.pendingAttach": "Далучыць",

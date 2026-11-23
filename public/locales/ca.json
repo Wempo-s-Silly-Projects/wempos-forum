@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, i després Enter o Tab: tria un suggeriment d'@menció",
   "shortcuts.close": "Esc: tanca el visor d'imatges o els suggeriments d'@menció",
   "attachments.wrongType": "\"{name}\" no s'ha afegit: només es poden adjuntar imatges JPEG, PNG, WebP i GIF.",
+  "attachments.locationKept": "\"{name}\" no s'ha afegit: encara conté dades d'ubicació GPS.",
   "composer.pendingImages.one": "1 imatge a punt per adjuntar: {names}. No es puja res fins que l'adjuntis i publiquis.",
   "composer.pendingImages.other": "{count} imatges a punt per adjuntar: {names}. No es puja res fins que les adjuntis i publiquis.",
   "composer.pendingAttach": "Adjunta",

@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, sitten Enter tai Tab: valitse @maininta-ehdotus",
   "shortcuts.close": "Esc: sulje kuvankatselin tai @maininta-ehdotukset",
   "attachments.wrongType": "\"{name}\" jäi lisäämättä: vain JPEG-, PNG-, WebP- ja GIF-kuvia voi liittää.",
+  "attachments.locationKept": "\"{name}\" jäi lisäämättä: se sisältää yhä GPS-sijaintitietoja.",
   "composer.pendingImages.one": "1 kuva valmiina liitettäväksi: {names}. Mitään ei ladata, ennen kuin liität sen ja julkaiset.",
   "composer.pendingImages.other": "{count} kuvaa valmiina liitettäväksi: {names}. Mitään ei ladata, ennen kuin liität ne ja julkaiset.",
   "composer.pendingAttach": "Liitä",

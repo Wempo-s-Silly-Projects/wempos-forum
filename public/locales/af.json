@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, dan Enter of Tab: kies 'n @vermelding-voorstel",
   "shortcuts.close": "Esc: maak die prentkyker of die @vermelding-voorstelle toe",
   "attachments.wrongType": "“{name}” is nie bygevoeg nie: net JPEG-, PNG-, WebP- en GIF-prente kan aangeheg word.",
+  "attachments.locationKept": "“{name}” is nie bygevoeg nie: dit bevat steeds GPS-liggingsdata.",
   "composer.pendingImages.one": "1 prent gereed om aan te heg: {names}. Niks word opgelaai totdat jy dit aanheg en plaas nie.",
   "composer.pendingImages.other": "{count} prente gereed om aan te heg: {names}. Niks word opgelaai totdat jy hulle aanheg en plaas nie.",
   "composer.pendingAttach": "Heg aan",

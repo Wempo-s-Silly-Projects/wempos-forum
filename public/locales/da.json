@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, derefter Enter eller Tab: vælg et @omtale-forslag",
   "shortcuts.close": "Esc: luk billedvisningen eller @omtale-forslagene",
   "attachments.wrongType": "\"{name}\" blev ikke tilføjet: kun JPEG-, PNG-, WebP- og GIF-billeder kan vedhæftes.",
+  "attachments.locationKept": "\"{name}\" blev ikke tilføjet: det indeholder stadig GPS-placeringsdata.",
   "composer.pendingImages.one": "1 billede klar til at blive vedhæftet: {names}. Intet uploades, før du vedhæfter det og sender.",
   "composer.pendingImages.other": "{count} billeder klar til at blive vedhæftet: {names}. Intet uploades, før du vedhæfter dem og sender.",
   "composer.pendingAttach": "Vedhæft",

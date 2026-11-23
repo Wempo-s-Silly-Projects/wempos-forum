@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓ y luego Intro o Tab: elige una sugerencia de @mención",
   "shortcuts.close": "Esc: cierra el visor de imágenes o las sugerencias de @mención",
   "attachments.wrongType": "No se añadió «{name}»: solo se pueden adjuntar imágenes JPEG, PNG, WebP y GIF.",
+  "attachments.locationKept": "No se añadió «{name}»: todavía contiene datos de ubicación GPS.",
   "composer.pendingImages.one": "1 imagen lista para adjuntar: {names}. No se sube nada hasta que la adjuntes y publiques.",
   "composer.pendingImages.other": "{count} imágenes listas para adjuntar: {names}. No se sube nada hasta que las adjuntes y publiques.",
   "composer.pendingAttach": "Adjuntar",

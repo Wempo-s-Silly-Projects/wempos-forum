@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, цул тӏаьхьа Enter я Tab: @хьахар хьехам харжа",
   "shortcuts.close": "Esc: сурт хьажаран гӏирс я @хьахарийн хьехамаш дӏакъовла",
   "attachments.wrongType": "«{name}» тоьхна дац: JPEG, PNG, WebP а GIF а сурташ бен тоха йиш яц.",
+  "attachments.locationKept": "«{name}» тоьхна дац: цу чохь хӀинца а GPS меттиган хаамаш бу.",
   "composer.pendingImages.one": "1 сурт тоха кечам бу: {names}. Хьо тоха а арахийца а кхаччалца хӏумма а ца чуоьху.",
   "composer.pendingImages.other": "{count} сурт тоха кечам бу: {names}. Хьо тоха а арахийца а кхаччалца хӏумма а ца чуоьху.",
   "composer.pendingAttach": "Тоха",

@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, majd Enter vagy Tab: @megemlítés-javaslat kiválasztása",
   "shortcuts.close": "Esc: a képnézegető vagy az @megemlítés-javaslatok bezárása",
   "attachments.wrongType": "„{name}” nem lett hozzáadva: csak JPEG, PNG, WebP és GIF képek csatolhatók.",
+  "attachments.locationKept": "„{name}” nem lett hozzáadva: még mindig GPS-helyadatokat tartalmaz.",
   "composer.pendingImages.one": "1 kép csatolásra kész: {names}. Semmi sem töltődik fel, amíg nem csatolod és nem teszed közzé.",
   "composer.pendingImages.other": "{count} kép csatolásra kész: {names}. Semmi sem töltődik fel, amíg nem csatolod és nem teszed közzé őket.",
   "composer.pendingAttach": "Csatolás",

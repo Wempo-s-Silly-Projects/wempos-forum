@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, তারপর Enter বা Tab: একটি @উল্লেখ-এর পরামর্শ বেছে নিন",
   "shortcuts.close": "Esc: ছবির ভিউয়ার বা @উল্লেখ-এর পরামর্শ বন্ধ করুন",
   "attachments.wrongType": "\"{name}\" যোগ করা হয়নি: শুধু JPEG, PNG, WebP ও GIF ছবি জোড়া যায়।",
+  "attachments.locationKept": "\"{name}\" যোগ করা হয়নি: এতে এখনও GPS অবস্থানের তথ্য আছে।",
   "composer.pendingImages.one": "ছবি জোড়ার জন্য তৈরি: {names}। জুড়ে পোস্ট না করা পর্যন্ত কিছুই আপলোড হবে না।",
   "composer.pendingImages.other": "{count}টি ছবি জোড়ার জন্য তৈরি: {names}। জুড়ে পোস্ট না করা পর্যন্ত কিছুই আপলোড হবে না।",
   "composer.pendingAttach": "জুড়ুন",

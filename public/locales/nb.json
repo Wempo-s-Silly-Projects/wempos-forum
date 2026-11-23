@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, deretter Enter eller Tab: velg et @omtale-forslag",
   "shortcuts.close": "Esc: lukk bildeviseren eller @omtale-forslagene",
   "attachments.wrongType": "\"{name}\" ble ikke lagt til: bare bilder i JPEG, PNG, WebP og GIF kan legges ved.",
+  "attachments.locationKept": "\"{name}\" ble ikke lagt til: den inneholder fortsatt GPS-posisjonsdata.",
   "composer.pendingImages.one": "1 bilde klart til å legges ved: {names}. Ingenting lastes opp før du legger det ved og publiserer.",
   "composer.pendingImages.other": "{count} bilder klare til å legges ved: {names}. Ingenting lastes opp før du legger dem ved og publiserer.",
   "composer.pendingAttach": "Legg ved",

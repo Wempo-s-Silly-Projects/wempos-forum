@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, rồi Enter hoặc Tab: chọn một gợi ý @nhắc tên",
   "shortcuts.close": "Esc: đóng trình xem ảnh hoặc các gợi ý @nhắc tên",
   "attachments.wrongType": "Chưa thêm \"{name}\": chỉ có thể đính kèm ảnh JPEG, PNG, WebP và GIF.",
+  "attachments.locationKept": "Chưa thêm \"{name}\": ảnh vẫn chứa dữ liệu vị trí GPS.",
   "composer.pendingImages.one": "1 ảnh sẵn sàng đính kèm: {names}. Không có gì được tải lên cho đến khi bạn đính kèm và đăng.",
   "composer.pendingImages.other": "{count} ảnh sẵn sàng đính kèm: {names}. Không có gì được tải lên cho đến khi bạn đính kèm và đăng.",
   "composer.pendingAttach": "Đính kèm",

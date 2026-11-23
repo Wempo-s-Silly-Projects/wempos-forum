@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, ապա Enter կամ Tab. ընտրել @հիշատակման առաջարկ",
   "shortcuts.close": "Esc. փակել պատկերադիտիչը կամ @հիշատակման առաջարկները",
   "attachments.wrongType": "«{name}»-ը չավելացվեց. կարելի է կցել միայն JPEG, PNG, WebP և GIF պատկերներ։",
+  "attachments.locationKept": "«{name}»-ը չավելացվեց. այն դեռ պարունակում է GPS տեղադրության տվյալներ։",
   "composer.pendingImages.one": "1 պատկեր պատրաստ է կցման՝ {names}։ Ոչինչ չի վերբեռնվում, մինչև այն չկցեք և չհրապարակեք։",
   "composer.pendingImages.other": "{count} պատկեր պատրաստ է կցման՝ {names}։ Ոչինչ չի վերբեռնվում, մինչև դրանք չկցեք և չհրապարակեք։",
   "composer.pendingAttach": "Կցել",

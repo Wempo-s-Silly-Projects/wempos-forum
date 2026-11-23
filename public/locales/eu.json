@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, eta gero Enter edo Tab: aukeratu @aipamen-iradokizun bat",
   "shortcuts.close": "Esc: itxi irudi-ikustailea edo @aipamen-iradokizunak",
   "attachments.wrongType": "\"{name}\" ez da gehitu: JPEG, PNG, WebP eta GIF irudiak bakarrik erants daitezke.",
+  "attachments.locationKept": "\"{name}\" ez da gehitu: oraindik GPS kokapen-datuak ditu.",
   "composer.pendingImages.one": "Irudi 1 eransteko prest: {names}. Ez da ezer igotzen erantsi eta argitaratu arte.",
   "composer.pendingImages.other": "{count} irudi eransteko prest: {names}. Ez da ezer igotzen erantsi eta argitaratu arte.",
   "composer.pendingAttach": "Erantsi",

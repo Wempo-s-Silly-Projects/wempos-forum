@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, despues Enter pat Tab: pili un sugestion @mensiona",
   "shortcuts.close": "Esc: serra i bista litråtu pat i sugestion @mensiona",
   "attachments.wrongType": "\"{name}\" ti ma'na'hålom: JPEG, PNG, WebP yan GIF ha' siña ma'apega.",
+  "attachments.locationKept": "\"{name}\" ti ma'na'hålom: guaha ha' infotmasion lugåt GPS gi sanhalom-ña.",
   "composer.pendingImages.one": "1 litråtu listu para ma'apega: {names}. Taya' ma'upload asta un apega yan pupblika.",
   "composer.pendingImages.other": "{count} litråtu siha listu para ma'apega: {names}. Taya' ma'upload asta un apega yan pupblika.",
   "composer.pendingAttach": "Apega",

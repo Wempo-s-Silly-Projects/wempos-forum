@@ -68,6 +68,14 @@ const png = (width, height, { animated = false } = {}) => concat(
   pngChunk("IDAT", Uint8Array.from([0])),
   pngChunk("IEND", new Uint8Array(0)),
 );
+// A real APNG (acTL, fcTL+IDAT, fcTL+fdAT): what is-animated recognises.
+const apng = (width, height) => concat(
+  Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+  pngChunk("IHDR", concat(u32be(width), u32be(height), Uint8Array.from([8, 6, 0, 0, 0]))),
+  pngChunk("acTL", concat(u32be(2), u32be(0))), pngChunk("fcTL", new Uint8Array(26)),
+  pngChunk("IDAT", Uint8Array.from([0])), pngChunk("fcTL", new Uint8Array(26)),
+  pngChunk("fdAT", new Uint8Array(5)), pngChunk("IEND", new Uint8Array(0)),
+);
 const jpegSegment = (marker, data) => concat(Uint8Array.from([0xff, marker]), u16be(data.length + 2), data);
 const GPS_APP1 = jpegSegment(0xe1, concat(ascii("Exif\0\0MM\0*"), ascii("GPSLatitude 51.5007N GPSLongitude 0.1246W")));
 const jpeg = (width, height, { exif = false } = {}) => concat(
@@ -189,11 +197,11 @@ test("client: sniffUploadType matrix (bytes decide, never the name or claimed ty
   for (const bytes of [EXE, HTML, SVG, PDF, new Uint8Array(0)]) assert.equal(sniffUploadType(bytes), null);
 });
 
-test("client: animated PNG/WebP are detected so they skip the canvas", () => {
-  assert.equal(isAnimatedImage(png(2, 2, { animated: true }), "image/png"), true);
-  assert.equal(isAnimatedImage(png(2, 2), "image/png"), false);
-  assert.equal(isAnimatedImage(webp(2, 2, { animated: true }), "image/webp"), true);
-  assert.equal(isAnimatedImage(webp(2, 2), "image/webp"), false);
+test("client: animated PNG/WebP are detected so they skip the canvas", async () => {
+  assert.equal(await isAnimatedImage(apng(2, 2), "image/png"), true);
+  assert.equal(await isAnimatedImage(png(2, 2), "image/png"), false);
+  assert.equal(await isAnimatedImage(webp(2, 2, { animated: true }), "image/webp"), true);
+  assert.equal(await isAnimatedImage(webp(2, 2), "image/webp"), false);
 });
 
 const neverCompress = () => { throw new Error("compressor must not run"); };
@@ -203,7 +211,7 @@ const wrongType = (name) => (error) => error.message === t("attachments.wrongTyp
 test("client: a GIF passes through byte-identical (same File, no re-encode)", async () => {
   const original = file(gif(5, 5), "party.gif", "image/gif");
   assert.equal(await prepareImageUpload(original, { compress: neverCompress }), original);
-  const animated = file(png(5, 5, { animated: true }), "anim.png", "image/png");
+  const animated = file(apng(5, 5), "anim.png", "image/png");
   assert.equal(await prepareImageUpload(animated, { compress: neverCompress }), animated);
 });
 

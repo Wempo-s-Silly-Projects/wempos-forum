@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, унтан Enter е Tab: @асӑну сӗнӗвне суйла",
   "shortcuts.close": "Esc: ӳкерчӗк пӑхакана е @асӑну сӗнӗвӗсене хуп",
   "attachments.wrongType": "«{name}» хушман: JPEG, PNG, WebP тата GIF ӳкерчӗксене ҫеҫ хушма пулать.",
+  "attachments.locationKept": "«{name}» хушман: унра халӗ те GPS вырӑн даннӑйӗсем пур.",
   "composer.pendingImages.one": "1 ӳкерчӗк хушма хатӗр: {names}. Хушса пичетленӗ чухне ҫеҫ нимех те тиенмест.",
   "composer.pendingImages.other": "{count} ӳкерчӗк хушма хатӗр: {names}. Хушса пичетленӗ чухне ҫеҫ нимех те тиенмест.",
   "composer.pendingAttach": "Хуш",

@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, फिर Enter या Tab: कोई @मेंशन सुझाव चुनें",
   "shortcuts.close": "Esc: इमेज व्यूअर या @मेंशन सुझाव बंद करें",
   "attachments.wrongType": "\"{name}\" नहीं जोड़ी गई: केवल JPEG, PNG, WebP और GIF छवियाँ जोड़ी जा सकती हैं।",
+  "attachments.locationKept": "\"{name}\" नहीं जोड़ी गई: इसमें अब भी GPS स्थान डेटा है।",
   "composer.pendingImages.one": "1 छवि जोड़ने के लिए तैयार: {names}. जब तक आप उसे जोड़कर पोस्ट नहीं करते, कुछ भी अपलोड नहीं होता।",
   "composer.pendingImages.other": "{count} छवियाँ जोड़ने के लिए तैयार: {names}. जब तक आप उन्हें जोड़कर पोस्ट नहीं करते, कुछ भी अपलोड नहीं होता।",
   "composer.pendingAttach": "जोड़ें",

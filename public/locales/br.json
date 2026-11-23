@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, ha neuze Enter pe Tab: dibab ur c'hinnig @meneg",
   "shortcuts.close": "Esc: serriñ gweler ar skeudennoù pe ar c'hinnigoù @meneg",
   "attachments.wrongType": "“{name}” n'eo ket bet ouzhpennet: skeudennoù JPEG, PNG, WebP ha GIF hepken a c'haller stagañ.",
+  "attachments.locationKept": "“{name}” n'eo ket bet ouzhpennet: roadennoù lec'hiañ GPS a zo c'hoazh ennañ.",
   "composer.pendingImages.one": "1 skeudenn prest da stagañ: {names}. Netra n'a da gaserezh betek ma vo stag hag embannet.",
   "composer.pendingImages.other": "{count} skeudenn prest da stagañ: {names}. Netra n'a da gaserezh betek ma vint stag hag embannet.",
   "composer.pendingAttach": "Stagañ",

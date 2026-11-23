@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, потім Enter або Tab: вибрати підказку @згадки",
   "shortcuts.close": "Esc: закрити переглядач зображень або підказки @згадок",
   "attachments.wrongType": "«{name}» не додано: можна прикріплювати лише зображення JPEG, PNG, WebP і GIF.",
+  "attachments.locationKept": "«{name}» не додано: він досі містить дані про розташування GPS.",
   "composer.pendingImages.one": "1 зображення готове до прикріплення: {names}. Нічого не завантажиться, доки ви не прикріпите його й не опублікуєте.",
   "composer.pendingImages.other": "Зображень готово до прикріплення: {count} ({names}). Нічого не завантажиться, доки ви не прикріпите їх і не опублікуєте.",
   "composer.pendingAttach": "Прикріпити",

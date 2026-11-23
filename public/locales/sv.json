@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, sedan Enter eller Tab: välj ett @omnämnande-förslag",
   "shortcuts.close": "Esc: stäng bildvisaren eller @omnämnande-förslagen",
   "attachments.wrongType": "\"{name}\" lades inte till: bara bilder i JPEG, PNG, WebP och GIF kan bifogas.",
+  "attachments.locationKept": "\"{name}\" lades inte till: den innehåller fortfarande GPS-platsdata.",
   "composer.pendingImages.one": "1 bild redo att bifogas: {names}. Inget laddas upp förrän du bifogar den och publicerar.",
   "composer.pendingImages.other": "{count} bilder redo att bifogas: {names}. Inget laddas upp förrän du bifogar dem och publicerar.",
   "composer.pendingAttach": "Bifoga",

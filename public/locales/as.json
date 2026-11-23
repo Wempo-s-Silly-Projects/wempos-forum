@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, তাৰ পিছত Enter বা Tab: এটা @উল্লেখৰ পৰামৰ্শ বাছক",
   "shortcuts.close": "Esc: ছবি দৰ্শক বা @উল্লেখৰ পৰামৰ্শ বন্ধ কৰক",
   "attachments.wrongType": "\"{name}\" যোগ কৰা নহ'ল: কেৱল JPEG, PNG, WebP আৰু GIF ছবিহে সংলগ্ন কৰিব পাৰি।",
+  "attachments.locationKept": "\"{name}\" যোগ কৰা নহ'ল: ইয়াত এতিয়াও GPS অৱস্থানৰ তথ্য আছে।",
   "composer.pendingImages.one": "সংলগ্ন কৰিবলৈ ১খন ছবি সাজু: {names}। আপুনি সংলগ্ন কৰি পোষ্ট নকৰালৈকে একো আপল'ড নহয়।",
   "composer.pendingImages.other": "সংলগ্ন কৰিবলৈ {count}খন ছবি সাজু: {names}। আপুনি সংলগ্ন কৰি পোষ্ট নকৰালৈকে একো আপল'ড নহয়।",
   "composer.pendingAttach": "সংলগ্ন কৰক",

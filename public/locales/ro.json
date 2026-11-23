@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, apoi Enter sau Tab: alege o sugestie de @mențiune",
   "shortcuts.close": "Esc: închide vizualizatorul de imagini sau sugestiile de @mențiune",
   "attachments.wrongType": "„{name}” nu a fost adăugat: se pot atașa doar imagini JPEG, PNG, WebP și GIF.",
+  "attachments.locationKept": "„{name}” nu a fost adăugat: încă conține date de localizare GPS.",
   "composer.pendingImages.one": "1 imagine gata de atașat: {names}. Nu se încarcă nimic până nu o atașezi și nu postezi.",
   "composer.pendingImages.other": "Imagini gata de atașat ({count}): {names}. Nu se încarcă nimic până nu le atașezi și nu postezi.",
   "composer.pendingAttach": "Atașează",

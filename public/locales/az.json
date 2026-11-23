@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, sonra Enter və ya Tab: @qeyd təklifini seç",
   "shortcuts.close": "Esc: şəkil baxıcısını və ya @qeyd təkliflərini bağla",
   "attachments.wrongType": "\"{name}\" əlavə olunmadı: yalnız JPEG, PNG, WebP və GIF şəkilləri qoşmaq olar.",
+  "attachments.locationKept": "\"{name}\" əlavə olunmadı: o hələ də GPS məkan məlumatı daşıyır.",
   "composer.pendingImages.one": "1 şəkil qoşulmağa hazırdır: {names}. Qoşub paylaşana qədər heç nə yüklənmir.",
   "composer.pendingImages.other": "{count} şəkil qoşulmağa hazırdır: {names}. Qoşub paylaşana qədər heç nə yüklənmir.",
   "composer.pendingAttach": "Qoş",

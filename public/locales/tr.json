@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, ardından Enter veya Tab: bir @bahsetme önerisi seç",
   "shortcuts.close": "Esc: görsel görüntüleyiciyi veya @bahsetme önerilerini kapatır",
   "attachments.wrongType": "\"{name}\" eklenmedi: yalnızca JPEG, PNG, WebP ve GIF görselleri eklenebilir.",
+  "attachments.locationKept": "\"{name}\" eklenmedi: hâlâ GPS konum verisi içeriyor.",
   "composer.pendingImages.one": "Eklenmeye hazır 1 görsel: {names}. Ekleyip gönderene kadar hiçbir şey yüklenmez.",
   "composer.pendingImages.other": "Eklenmeye hazır {count} görsel: {names}. Ekleyip gönderene kadar hiçbir şey yüklenmez.",
   "composer.pendingAttach": "Ekle",

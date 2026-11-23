@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, o kɔ Enter walima Tab: @tɔgɔfɔli hakilina dɔ sugandi",
   "shortcuts.close": "Esc: ja filɛlan walima @tɔgɔfɔli hakilinaw datugu",
   "attachments.wrongType": "\"{name}\" ma fara a kan: JPEG, PNG, WebP ani GIF jaw dɔrɔn de bɛ se ka fara a kan.",
+  "attachments.locationKept": "\"{name}\" ma fara a kan: GPS yɔrɔ kunnafoniw bɛ a kɔnɔ hali bi.",
   "composer.pendingImages.one": "Ja 1 labɛnnen don ka fara a kan: {names}. Foyi tɛ doni fo i k'a fara a kan ka a bila.",
   "composer.pendingImages.other": "Jaw {count} labɛnnen don ka fara a kan: {names}. Foyi tɛ doni fo i k'u fara a kan ka u bila.",
   "composer.pendingAttach": "A fara a kan",

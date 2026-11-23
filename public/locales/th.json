@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓ แล้วกด Enter หรือ Tab: เลือกคำแนะนำ @กล่าวถึง",
   "shortcuts.close": "Esc: ปิดตัวดูรูปหรือคำแนะนำ @กล่าวถึง",
   "attachments.wrongType": "ไม่ได้เพิ่ม \"{name}\": แนบได้เฉพาะรูปภาพ JPEG, PNG, WebP และ GIF",
+  "attachments.locationKept": "ไม่ได้เพิ่ม \"{name}\": ยังมีข้อมูลตำแหน่ง GPS อยู่",
   "composer.pendingImages.one": "มีรูปภาพ 1 รูปพร้อมแนบ: {names} จะไม่มีการอัปโหลดจนกว่าคุณจะแนบและโพสต์",
   "composer.pendingImages.other": "มีรูปภาพ {count} รูปพร้อมแนบ: {names} จะไม่มีการอัปโหลดจนกว่าคุณจะแนบและโพสต์",
   "composer.pendingAttach": "แนบ",

@@ -28,7 +28,7 @@ import { t } from "./i18n.js";
 //    browser-image-compression, which drops EXIF/GPS metadata and shrinks the
 //    longest side to UPLOAD_MAX_LONG_SIDE (never upscaling);
 // 3. GIFs and animated PNG/WebP are sent byte-identical — a canvas would
-//    flatten the animation.
+//    flatten the animation (is-animated decides, see below).
 // The compressor runs on the main thread (useWebWorker: false): its worker
 // mode loads the library from a CDN, which would be a third-party request.
 // It is imported lazily, same-origin, only when a photo is actually sent.
@@ -39,7 +39,7 @@ export const UPLOAD_TARGET_MAX_MB = 2;
 export const UPLOAD_AVATAR_TARGET_MAX_MB = 1;
 
 export const UPLOAD_IMAGE_TYPES = Object.freeze(["image/jpeg", "image/png", "image/webp", "image/gif"]);
-// Enough to find an APNG acTL chunk behind a large colour profile.
+// The type sniff reads only the first bytes.
 const HEADER_BYTES = 64 * 1024;
 const MIN_SNIFF_BYTES = 12;
 const JPEG_QUALITY = 0.85;
@@ -62,29 +62,21 @@ export function sniffUploadType(bytes) {
   return null;
 }
 
-// PNG: an acTL chunk before the first IDAT marks an APNG. A header that runs
-// out before IDAT cannot be proven still, so it counts as animated (sent
-// untouched; the Worker still strips its metadata).
-function isAnimatedPng(bytes) {
-  let offset = 8;
-  while (offset + 8 <= bytes.length) {
-    const length = new DataView(bytes.buffer, bytes.byteOffset + offset, 4).getUint32(0);
-    const type = ascii(bytes, offset + 4, 4);
-    if (type === "acTL") return true;
-    if (type === "IDAT") return false;
-    offset += 12 + length;
-  }
-  return true;
-}
+// Animation is decided by the vendored is-animated (imported lazily, only
+// when a PNG or WebP is actually sent). It reads the WHOLE file, so an APNG
+// whose second frame lies past any header window is still found. Every GIF
+// counts as animated: a canvas cannot write GIF, so a GIF is never re-encoded.
+// The library takes an ArrayBuffer (a Uint8Array would hit its Node Buffer
+// branch), so the bytes are copied into one of their own.
+const loadIsAnimated = async (buffer) => {
+  const { default: isAnimated } = await import("./vendor/is-animated/index.mjs");
+  return isAnimated(buffer);
+};
 
-// WebP: the VP8X extended header's animation flag (bit 1 of its first byte).
-const isAnimatedWebp = (bytes) => ascii(bytes, 12, 4) === "VP8X" && (bytes[20] & 0x02) !== 0;
-
-export function isAnimatedImage(bytes, mime) {
+export async function isAnimatedImage(bytes, mime, detect = loadIsAnimated) {
   if (mime === "image/gif") return true;
-  if (mime === "image/png") return isAnimatedPng(bytes);
-  if (mime === "image/webp") return isAnimatedWebp(bytes);
-  return false;
+  if (mime !== "image/png" && mime !== "image/webp") return false;
+  return Boolean(await detect(bytes.slice().buffer));
 }
 
 const readHeader = async (blob) => new Uint8Array(await blob.slice(0, HEADER_BYTES).arrayBuffer());
@@ -95,22 +87,54 @@ const loadCompressor = async (file, options) => {
 };
 
 const wrongTypeMessage = (name) => t("attachments.wrongType", { name });
+const locationKeptMessage = (name) => t("attachments.locationKept", { name });
+
+// GPS guard (exifr, lite build: JPEG/HEIC EXIF). The canvas re-encode above
+// is what strips EXIF; when it cannot run, a JPEG would leave the browser
+// with its metadata intact. Before that original is sent, the vendored exifr
+// (imported lazily, only on this fallback path) looks for GPS coordinates,
+// and a photo that still holds them is refused rather than uploaded: the
+// location never leaves the device. A parse failure (no EXIF, a format the
+// lite build does not read) is "no location found"; the Worker still strips
+// every metadata segment it receives.
+const loadLocator = async (buffer) => {
+  const { gps } = await import("./vendor/exifr/lite.esm.mjs");
+  return gps(buffer);
+};
+
+export async function carriesLocation(bytes, locate = loadLocator) {
+  try {
+    const found = await locate(bytes.slice().buffer);
+    return Number.isFinite(found?.latitude) && Number.isFinite(found?.longitude);
+  } catch {
+    return false;
+  }
+}
 
 // Returns the File to upload: the original (GIF, animated, or when the canvas
 // path fails or yields something unusable) or the re-encoded, metadata-free
 // copy under the original name. Throws an Error carrying a translated
-// wrong-type message when the bytes are not an accepted image.
+// wrong-type message when the bytes are not an accepted image, or a
+// location-kept message when an un-re-encoded JPEG still holds GPS data.
 export async function prepareImageUpload(file, options = {}) {
   const {
     compress = loadCompressor,
     accept = UPLOAD_IMAGE_TYPES,
     maxSizeMB = UPLOAD_TARGET_MAX_MB,
     wrongType = wrongTypeMessage,
+    detectAnimation = loadIsAnimated,
+    locate = loadLocator,
   } = options;
   const header = await readHeader(file);
   const mime = sniffUploadType(header);
   if (!mime || !accept.includes(mime)) throw new Error(wrongType(file.name));
-  if (isAnimatedImage(header, mime)) return file;
+  const sendOriginal = async () => {
+    if (mime === "image/jpeg" && await carriesLocation(new Uint8Array(await file.arrayBuffer()), locate)) {
+      throw new Error(locationKeptMessage(file.name));
+    }
+    return file;
+  };
+  if (await isAnimatedImage(new Uint8Array(await file.arrayBuffer()), mime, detectAnimation)) return file;
   let output;
   try {
     output = await compress(file, {
@@ -123,13 +147,14 @@ export async function prepareImageUpload(file, options = {}) {
       fileType: mime,
     });
   } catch {
-    // No canvas, an undecodable image, or a browser quirk: send the original.
-    // The Worker strips its metadata and refuses it if it is not an image.
-    return file;
+    // No canvas, an undecodable image, or a browser quirk: send the original
+    // (unless it still holds GPS). The Worker strips its metadata and refuses
+    // it if it is not an image.
+    return sendOriginal();
   }
-  if (!(output instanceof Blob)) return file;
+  if (!(output instanceof Blob)) return sendOriginal();
   const outputMime = sniffUploadType(await readHeader(output));
-  if (!outputMime || !accept.includes(outputMime)) return file;
+  if (!outputMime || !accept.includes(outputMime)) return sendOriginal();
   return new File([output], file.name, { type: outputMime, lastModified: file.lastModified });
 }
 

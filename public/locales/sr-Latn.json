@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, pa Enter ili Tab: izaberi predlog za @pominjanje",
   "shortcuts.close": "Esc: zatvori preglednik slika ili predloge za @pominjanje",
   "attachments.wrongType": "\"{name}\" nije dodat: mogu se priložiti samo JPEG, PNG, WebP i GIF slike.",
+  "attachments.locationKept": "\"{name}\" nije dodat: i dalje sadrži GPS podatke o lokaciji.",
   "composer.pendingImages.one": "Slika je spremna za prilaganje: {names}. Ništa se ne otprema dok je ne priložiš i objaviš.",
   "composer.pendingImages.other": "Slike spremne za prilaganje: {count} ({names}). Ništa se ne otprema dok ih ne priložiš i objaviš.",
   "composer.pendingAttach": "Priloži",

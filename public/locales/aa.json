@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, tokkel Enter hinnay Tab: @migaq kassi doorit",
   "shortcuts.close": "Esc: suurat ablih hinnay @migaq kassi dum",
   "attachments.wrongType": "\"{name}\" ma osisimin: JPEG, PNG, WebP kee GIF suurat yekke osisimtam dudda.",
+  "attachments.locationKept": "\"{name}\" ma osisimin: GPS bagul xagana ixxima addal tan.",
   "composer.pendingImages.one": "1 suurat osisoh massoyte: {names}. Atu osistaah kitbattam fan tu ma ruubimta.",
   "composer.pendingImages.other": "{count} suurat osisoh massoyte: {names}. Atu osistaah kitbattam fan tu ma ruubimta.",
   "composer.pendingAttach": "Osis",

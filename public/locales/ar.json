@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓ ثم Enter أو Tab: اختر اقتراح @إشارة",
   "shortcuts.close": "Esc: أغلق عارض الصور أو اقتراحات @الإشارة",
   "attachments.wrongType": "لم تتم إضافة «{name}»: يمكن إرفاق صور JPEG وPNG وWebP وGIF فقط.",
+  "attachments.locationKept": "لم تتم إضافة «{name}»: لا يزال يحتوي على بيانات موقع GPS.",
   "composer.pendingImages.one": "صورة واحدة جاهزة للإرفاق: {names}. لا يُرفع شيء حتى ترفقها وتنشر.",
   "composer.pendingImages.other": "{count} صور جاهزة للإرفاق: {names}. لا يُرفع شيء حتى ترفقها وتنشر.",
   "composer.pendingAttach": "إرفاق",

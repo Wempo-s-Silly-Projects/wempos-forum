@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓, potem Enter lub Tab: wybierz podpowiedź @wzmianki",
   "shortcuts.close": "Esc: zamyka przeglądarkę obrazów lub podpowiedzi @wzmianek",
   "attachments.wrongType": "Nie dodano „{name}”: można załączać tylko obrazy JPEG, PNG, WebP i GIF.",
+  "attachments.locationKept": "Nie dodano „{name}”: nadal zawiera dane lokalizacji GPS.",
   "composer.pendingImages.one": "1 obraz gotowy do załączenia: {names}. Nic nie zostanie wysłane, dopóki go nie załączysz i nie opublikujesz.",
   "composer.pendingImages.other": "Obrazy gotowe do załączenia ({count}): {names}. Nic nie zostanie wysłane, dopóki ich nie załączysz i nie opublikujesz.",
   "composer.pendingAttach": "Załącz",

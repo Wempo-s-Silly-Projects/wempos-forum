@@ -1020,6 +1020,7 @@
   "shortcuts.mentions": "↑ / ↓، بعد Enter یا Tab: انتخاب یک پیشنهاد @اشاره",
   "shortcuts.close": "Esc: بستن نمایشگر تصویر یا پیشنهادهای @اشاره",
   "attachments.wrongType": "«{name}» اضافه نشد: فقط تصاویر JPEG، PNG، WebP و GIF قابل پیوست هستند.",
+  "attachments.locationKept": "«{name}» اضافه نشد: هنوز داده‌های مکان GPS را در خود دارد.",
   "composer.pendingImages.one": "تصویر آماده پیوست: {names}. تا وقتی پیوستش نکنید و پست نکنید چیزی بارگذاری نمی‌شود.",
   "composer.pendingImages.other": "{count} تصویر آماده پیوست: {names}. تا وقتی پیوستشان نکنید و پست نکنید چیزی بارگذاری نمی‌شود.",
   "composer.pendingAttach": "پیوست",
