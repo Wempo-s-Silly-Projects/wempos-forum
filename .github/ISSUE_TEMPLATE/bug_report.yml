@@ -58,7 +58,7 @@ body:
       description: Give the output of the Developer Console.
       placeholder: "Dev Console Output Here"
     validations:
-      required: true
+      required: false
 
   - type: checkboxes
     id: extensions
