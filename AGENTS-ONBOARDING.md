@@ -25,7 +25,7 @@ For the bigger picture read [docs/architecture.md](docs/architecture.md).
 | `api/vendor/` | `db.mjs`, `http.mjs` — **never touch** (see AGENTS.md). |
 | `public/index.html` | The single page shell. |
 | `public/js/` | Browser code. `app.js` boots, `router.js` maps paths to views, `routes/` holds the page views, `desk/` the moderation desk, `api.js` the fetch wrapper, `i18n.js` translations, plus one small module per feature. |
-| `public/locales/*.json` | 41 translation tables; `en.json` is the source. |
+| `public/locales/*.json` | 65 translation tables; `en.json` is the source. |
 | `public/styles.css`, `public/responsive.css` | All styling. |
 | `migrations/` | Numbered D1 migrations, applied in order. Never edit one that has shipped; add a new one. |
 | `tests/` | `node --test` suite, one file per feature or wave. Helpers live in `tests/helpers/`. |
