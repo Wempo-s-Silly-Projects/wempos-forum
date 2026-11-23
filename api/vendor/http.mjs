@@ -212,8 +212,17 @@ export function makeHttp({
   }
 
   async function readJson(request, bytesOverride = maxJsonBytes) {
-    const contentType = (request.headers.get("Content-Type") || "").toLowerCase();
-    if (!contentType.startsWith("application/json")) {
+    const contentType = request.headers.get("Content-Type") || "";
+    const [mediaType, ...parameters] = contentType.split(";");
+    const isJson = mediaType.trim().toLowerCase() === "application/json";
+    const hasValidParameters = parameters.every((parameter) => {
+      const match = /^\\s*([!#$%&'*+.^_`|~0-9a-z-]+)\\s*=\\s*(?:"([^"]*)"|([^;\\s]+))\\s*$/i.exec(parameter);
+      if (!match) return false;
+      if (match[1].toLowerCase() !== "charset") return true;
+      const charset = (match[2] ?? match[3]).toLowerCase();
+      return charset === "utf-8" || charset === "utf8";
+    });
+    if (!isJson || !hasValidParameters) {
       throw new HttpError(415, "Send this form as JSON.");
     }
     const bytes = await readLimitedBody(request, bytesOverride);
