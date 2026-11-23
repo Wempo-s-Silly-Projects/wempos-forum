@@ -26,17 +26,18 @@
 // its own toggle is on (loader.js).
 import { t } from "../i18n.js";
 import { prefersReducedMotion } from "../focus-utils.js";
+import {
+  FUN_DEFAULTS, FUN_FALLBACK_STATE, FUN_KEYS, fallbackFor, isStorageObject, rememberFallback,
+} from "../fun-state.js";
 
-export { prefersReducedMotion };
+export { FUN_DEFAULTS, FUN_KEYS, prefersReducedMotion };
 
 export const FUN_STORAGE_KEY = "forum-fun-extras";
 // The last milestone badge a member was seen holding on this device, so the
 // confetti burst plays once per unlock (confetti.js). One key per member id.
 export const FUN_BADGE_SEEN_PREFIX = "forum-fun-badge-seen:";
 // Panel order; each key is one checkbox labelled by its "fun.<key>" string.
-export const FUN_KEYS = Object.freeze(["confetti", "motion", "heroType", "sounds", "easterEggs", "sketch"]);
 const FUN_LABEL_PREFIX = "fun.";
-export const FUN_DEFAULTS = Object.freeze(Object.fromEntries(FUN_KEYS.map((key) => [key, true])));
 
 const browserStorage = () => {
   try {
@@ -46,43 +47,23 @@ const browserStorage = () => {
   }
 };
 
-const FALLBACK_KEY = Symbol.for("wempos.forum.fun-settings-fallback");
-const fallbackState = () => {
-  const state = globalThis[FALLBACK_KEY] ??= {
-    settings: { ...FUN_DEFAULTS },
-    byStorage: new WeakMap(),
-    blocked: new WeakSet(),
-  };
-  return state;
-};
-const isStorageObject = (storage) => storage !== null
-  && (typeof storage === "object" || typeof storage === "function");
-const fallbackFor = (storage, fallback) => isStorageObject(storage)
-  ? fallback.byStorage.get(storage) ?? FUN_DEFAULTS
-  : fallback.settings;
-const rememberFallback = (storage, settings, fallback) => {
-  if (isStorageObject(storage)) fallback.byStorage.set(storage, { ...settings });
-  else fallback.settings = { ...settings };
-};
-
 const normalise = (value) =>
   Object.freeze(Object.fromEntries(FUN_KEYS.map((key) => [key, value?.[key] === true])));
 
 export function readFunSettings(storage = browserStorage()) {
-  const fallback = fallbackState();
-  if (!isStorageObject(storage)) return normalise(fallback.settings);
-  if (fallback.blocked.has(storage)) return normalise(fallbackFor(storage, fallback));
+  if (!isStorageObject(storage)) return normalise(FUN_FALLBACK_STATE.settings);
+  if (FUN_FALLBACK_STATE.blocked.has(storage)) return normalise(fallbackFor(storage));
   try {
     const raw = storage.getItem(FUN_STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : null;
     const result = parsed && typeof parsed === "object" && !Array.isArray(parsed)
       ? normalise(parsed)
       : FUN_DEFAULTS;
-    rememberFallback(storage, result, fallback);
+    rememberFallback(storage, result);
     return result;
   } catch {
-    fallback.blocked.add(storage);
-    return normalise(fallbackFor(storage, fallback));
+    FUN_FALLBACK_STATE.blocked.add(storage);
+    return normalise(fallbackFor(storage));
   }
 }
 
@@ -90,16 +71,15 @@ export function readFunSettings(storage = browserStorage()) {
 // previous object is never mutated. Blocked storage keeps it page-local.
 export function writeFunSetting(storage, key, enabled) {
   const next = normalise({ ...readFunSettings(storage), [key]: enabled === true });
-  const fallback = fallbackState();
-  rememberFallback(storage, next, fallback);
+  rememberFallback(storage, next);
   try {
     if (!isStorageObject(storage) || typeof storage.setItem !== "function") {
-      if (isStorageObject(storage)) fallback.blocked.add(storage);
+      if (isStorageObject(storage)) FUN_FALLBACK_STATE.blocked.add(storage);
       return next;
     }
     storage.setItem(FUN_STORAGE_KEY, JSON.stringify(next));
   } catch {
-    if (isStorageObject(storage)) fallback.blocked.add(storage);
+    if (isStorageObject(storage)) FUN_FALLBACK_STATE.blocked.add(storage);
   }
   return next;
 }

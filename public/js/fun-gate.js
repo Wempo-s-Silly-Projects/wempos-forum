@@ -26,31 +26,13 @@
 // before: the unread watcher is seeded with the last count and the easter
 // egg listener is installed.
 import { siteModuleOn } from "./site-modules.js";
+import {
+  FUN_DEFAULTS, FUN_FALLBACK_STATE, FUN_KEYS, fallbackFor, isStorageObject, rememberFallback,
+} from "./fun-state.js";
 
 // Mirrors fun/settings.js FUN_STORAGE_KEY (pinned equal by
 // tests/lazy-load-graph.test.mjs).
 export const FUN_GATE_STORAGE_KEY = "forum-fun-extras";
-const FUN_GATE_KEYS = ["confetti", "motion", "heroType", "sounds", "easterEggs", "sketch"];
-const FUN_GATE_DEFAULTS = Object.freeze(Object.fromEntries(FUN_GATE_KEYS.map((key) => [key, true])));
-const FALLBACK_KEY = Symbol.for("wempos.forum.fun-settings-fallback");
-const fallbackState = () => {
-  const state = globalThis[FALLBACK_KEY] ??= {
-    settings: { ...FUN_GATE_DEFAULTS },
-    byStorage: new WeakMap(),
-    blocked: new WeakSet(),
-  };
-  return state;
-};
-const isStorageObject = (storage) => storage !== null
-  && (typeof storage === "object" || typeof storage === "function");
-const fallbackFor = (storage, fallback) => isStorageObject(storage)
-  ? fallback.byStorage.get(storage) ?? FUN_GATE_DEFAULTS
-  : fallback.settings;
-const rememberFallback = (storage, settings, fallback) => {
-  if (isStorageObject(storage)) fallback.byStorage.set(storage, { ...settings });
-  else fallback.settings = { ...settings };
-};
-
 const browserStorage = () => {
   try {
     return globalThis.localStorage ?? null;
@@ -60,20 +42,19 @@ const browserStorage = () => {
 };
 
 function storedSwitches(storage) {
-  const fallback = fallbackState();
-  if (!isStorageObject(storage)) return fallback.settings;
-  if (fallback.blocked.has(storage)) return fallbackFor(storage, fallback);
+  if (!isStorageObject(storage)) return FUN_FALLBACK_STATE.settings;
+  if (FUN_FALLBACK_STATE.blocked.has(storage)) return fallbackFor(storage);
   try {
     const raw = storage.getItem(FUN_GATE_STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : null;
     const settings = parsed && typeof parsed === "object" && !Array.isArray(parsed)
-      ? Object.fromEntries(FUN_GATE_KEYS.map((key) => [key, parsed[key] === true]))
-      : FUN_GATE_DEFAULTS;
-    rememberFallback(storage, settings, fallback);
+      ? Object.fromEntries(FUN_KEYS.map((key) => [key, parsed[key] === true]))
+      : FUN_DEFAULTS;
+    rememberFallback(storage, settings);
     return settings;
   } catch {
-    fallback.blocked.add(storage);
-    return fallbackFor(storage, fallback);
+    FUN_FALLBACK_STATE.blocked.add(storage);
+    return fallbackFor(storage);
   }
 }
 
