@@ -460,7 +460,7 @@ test("REUSE.toml annotates web-vitals as Apache-2.0 (Google LLC), after the vend
 test("CSP is unchanged and the loader builds a same-origin script element", () => {
   const csp = secureResponse(new Response("x")).headers.get("Content-Security-Policy");
   const scriptSrc = (csp.match(/script-src ([^;]+);/) ?? [])[1].split(/\s+/);
-  assert.deepEqual(scriptSrc, ["'self'", "https://challenges.cloudflare.com", "https://cdnjs.cloudflare.com/polyfill/"]);
+  assert.deepEqual(scriptSrc, ["'self'", "https://cdnjs.cloudflare.com/polyfill/"]);
   assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval/);
   assert.match(read("public/js/vitals.js"), /createElement\("script"\)/);
   assert.equal(WEB_VITALS_SRC, "/js/vendor/web-vitals.iife.js");

@@ -123,7 +123,7 @@ test("CSP unchanged: script-src pinned, no unsafe-eval/inline, fonts ride defaul
     assert.doesNotMatch(csp, /font-src/, "no font-src: default-src 'self' covers the KaTeX fonts");
   }
   const html = secureResponse(new Response("x")).headers.get("Content-Security-Policy");
-  assert.match(html, /script-src 'self' https:\/\/challenges\.cloudflare\.com https:\/\/cdnjs\.cloudflare\.com\/polyfill\/;/);
+  assert.match(html, /script-src 'self' https:\/\/cdnjs\.cloudflare\.com\/polyfill\/;/);
 });
 
 test("no vendored renderer needs eval: no eval( or new Function anywhere in them", () => {

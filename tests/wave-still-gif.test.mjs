@@ -99,7 +99,7 @@ test("reduced motion: the post GIF has a play/pause toggle labelled with the cha
   assert.equal(toggle.getAttribute("aria-label"), t("chat.gifAlt"));
   toggle.dispatch("click");
   assert.equal(toggle.getAttribute("aria-pressed"), "false", "a click before the frame is captured does nothing");
-  const img = card.querySelector("img");
+  const img = card.querySelector("button.attachment-expand").querySelector("img");
   loadImage(img);
   const canvas = card.querySelector("canvas");
   toggle.dispatch("click");
@@ -115,7 +115,7 @@ test("reduced motion: the post GIF has a play/pause toggle labelled with the cha
 test("reduced motion: non-GIF attachments are untouched", () => {
   setReducedMotion(true);
   const card = postWith([PNG_ROW]);
-  const img = card.querySelector("img");
+  const img = card.querySelector("button.attachment-expand").querySelector("img");
   assert.equal(img.classList.contains("still-gif-loading"), false);
   loadImage(img);
   assert.equal(card.querySelector("canvas"), null);
@@ -126,7 +126,7 @@ test("no reduced motion: a post GIF attachment stays the animated image, unchang
   for (const setup of [() => setReducedMotion(false), () => delete globalThis.matchMedia]) {
     setup();
     const card = postWith([GIF_ROW]);
-    const img = card.querySelector("img");
+    const img = card.querySelector("button.attachment-expand").querySelector("img");
     assert.equal(img.className, "post-attachment");
     loadImage(img);
     assert.equal(card.querySelector("canvas"), null);
