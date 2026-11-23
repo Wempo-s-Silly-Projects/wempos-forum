@@ -31,6 +31,8 @@ import {
 } from "./dm-extras.js";
 import { buildAvatar, conversationKey, el, kindOf, sameConversation, ui } from "./chat-widget-state.js";
 import { buildGifPicker, gifToken, messageBodyNode } from "./chat-widget-gifs.js";
+import { createEmojiButton } from "./emoji-picker.js";
+import { attachAutogrow } from "./autogrow.js";
 import { dropGroup, paintBadge, paintThreadList, refreshUnread } from "./chat-widget-threads.js";
 import { relativeTime } from "./chat-widget.js";
 import { buildNewDivider, newMarkerFor } from "./chat-new-divider.js";
@@ -342,7 +344,10 @@ export const paintConversation = () => {
   ui.sendButton.addEventListener("click", sendMessage);
   if (!ui.dmGifPicker) ui.dmGifPicker = buildGifPicker((gifId) => sendDmBody(gifToken(gifId)));
   const imageButton = buildImageButton(sendDmImage);
-  composer.append(ui.dmGifPicker.grid, ui.composerEl, imageButton, ui.dmGifPicker.toggle, ui.sendButton);
+  // Batch H: the message box grows with its text; emoji picker opens above it.
+  attachAutogrow(ui.composerEl);
+  const emojiButton = createEmojiButton(ui.composerEl, document, { host: composer });
+  composer.append(ui.dmGifPicker.grid, ui.composerEl, imageButton, emojiButton, ui.dmGifPicker.toggle, ui.sendButton);
   ui.conversationEl.append(composer);
   ui.conversationEl.hidden = false;
   if (ui.listSideEl) ui.listSideEl.hidden = true;

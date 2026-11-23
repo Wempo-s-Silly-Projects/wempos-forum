@@ -361,3 +361,11 @@ export const LINK_PREVIEW_DOH_ENDPOINT = "https://cloudflare-dns.com/dns-query";
 // The client's language hint (public/js/lang-detect.js mirrors it): a post
 // body shorter than this many letters gets no lang attribute.
 export const LANG_DETECT_MIN_CHARS = 40;
+
+// Batch H (composer input): an HTML clipboard flavour longer than this many
+// characters is pasted as plain text instead of converted to Markdown, and the
+// JS autogrow fallback (only where CSS field-sizing is unsupported) stops
+// growing a textarea at this height. public/js/rich-paste.js and
+// public/js/autogrow.js mirror these (tests/batch-h-composer-input.test.mjs).
+export const RICH_PASTE_MAX_HTML_CHARS = 200000;
+export const COMPOSER_AUTOGROW_MAX_PX = 480;

@@ -453,3 +453,51 @@ path = "public/js/vendor/franc-min/**"
 precedence = "override"
 SPDX-FileCopyrightText = "Titus Wormer"
 SPDX-License-Identifier = "MIT"
+
+# Batch H (composer and chat input): browser libraries kept byte-for-byte
+# under public/js/vendor/ with no added banner, each MIT-licensed (compatible
+# with AGPL-3.0-or-later; text in LICENSES/MIT.txt). These blocks come after
+# the public/js/vendor/** glob above, so they take precedence for their
+# files. sha256 pins live in tests/batch-h-composer-input.test.mjs.
+# text-field-edit 4.1.1 (index.js): undo-preserving field edits.
+[[annotations]]
+path = "public/js/vendor/text-field-edit.js"
+precedence = "override"
+SPDX-FileCopyrightText = "Federico Brigante"
+SPDX-License-Identifier = "MIT"
+
+# turndown 7.2.5 (lib/turndown.browser.es.js): HTML to Markdown on paste.
+[[annotations]]
+path = "public/js/vendor/turndown.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2017 Dom Christie"
+SPDX-License-Identifier = "MIT"
+
+# picmo 5.8.5 (dist/index.js, dist/index.css): the native-emoji picker.
+[[annotations]]
+path = ["public/js/vendor/picmo.js", "public/js/vendor/picmo.css"]
+precedence = "override"
+SPDX-FileCopyrightText = "2019 Joe Attardi"
+SPDX-License-Identifier = "MIT"
+
+# fuzzysort 4.0.2 (fuzzysort.min.js): @mention ranking.
+[[annotations]]
+path = "public/js/vendor/fuzzysort.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2018 Stephen Kamenar"
+SPDX-License-Identifier = "MIT"
+
+# split.js 1.6.5 (dist/split.es.js): the side-by-side composer preview.
+[[annotations]]
+path = "public/js/vendor/split.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2020 Nathan Cahill"
+SPDX-License-Identifier = "MIT"
+
+# emojibase-data 18.0.0 (<locale>/data.json + messages.json for the locales
+# the forum also speaks): the emoji picker's localized data and search.
+[[annotations]]
+path = "public/js/vendor/emojibase/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2017-2019 Miles Johnson"
+SPDX-License-Identifier = "MIT"
