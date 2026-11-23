@@ -130,11 +130,16 @@ on a machine you control; the Worker reaches it over HTTPS.
 2. **Environment.** Run Anubis with:
    - `TARGET=" "` (a single space: subrequest mode, no upstream);
    - `POLICY_FNAME` pointing at the policy file above;
-   - `CUSTOM_REAL_IP_HEADER=X-Wempo-Client-Ip`. Cloudflare rewrites
-     `X-Forwarded-For`, so the Worker sends the visitor's address (from
-     `CF-Connecting-IP`) in this header and always overwrites any value a
-     visitor sends. Rules that allow known good crawlers by address (the
-     Internet Archive, for one) depend on it;
+   - `CUSTOM_REAL_IP_HEADER=Cf-Connecting-Ip`. Without a real-IP header
+     Anubis refuses every check ("X-Real-IP header is not set"). Cloudflare
+     strips `X-Real-IP` and rewrites `X-Forwarded-For` on the Worker's
+     subrequest, and in practice Anubis receives the shared Workers address
+     (`2a06:98c0:3600::103`) rather than the visitor's, so Anubis's own
+     IP-based allow rules cannot match. The Worker therefore decides good
+     crawlers itself: a request skips the check only when its User-Agent
+     claims a known crawler AND Cloudflare's `request.cf.asn` is that
+     crawler's network (Internet Archive AS7941, Google AS15169, Bing AS8075,
+     Apple AS714 — `ANUBIS_TRUSTED_CRAWLERS` in `constants.mjs`);
    - a fixed `ED25519_PRIVATE_KEY_HEX`, so the signing key survives restarts.
      Keep the default `-jwt-restriction-header X-Real-IP`: a pass cookie is
      then only good from the address that earned it.

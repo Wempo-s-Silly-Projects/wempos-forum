@@ -38,7 +38,7 @@ import worker from "../worker.mjs";
 import { equalConstantTime } from "../api/core/crypto.mjs";
 import { scopeProfileCss } from "../api/profile-css.mjs";
 import { json, secureResponse, securityHeaders } from "../api/core/http.mjs";
-import { anubisGate, anubisGateApplies } from "../api/core/anubis-gate.mjs";
+import { anubisGate, anubisGateApplies, isTrustedCrawler } from "../api/core/anubis-gate.mjs";
 import { humanCheckMode } from "../api/core/human-check.mjs";
 import { clearAllEmojiRecents, PICMO_RECENTS_KEY } from "../public/js/emoji-picker.js";
 
@@ -144,7 +144,13 @@ test("service worker: never answers /api/ or navigations from cache; refuses HTM
 test("anubisGate: no client header bypasses the seam; only allowlisted headers are read", async () => {
   const src = read("api/core/anubis-gate.mjs");
   const headerReads = new Set([...src.matchAll(/headers\.get\("([^"]+)"\)/g)].map(([, name]) => name));
-  assert.deepEqual([...headerReads].sort(), ["Accept", "CF-Connecting-IP", "Content-Length", "Cookie", "Location"]);
+  // v5.84.3: User-Agent is read for the good-crawler pass, but a UA alone can
+  // never skip the check — Cloudflare's request.cf.asn must match too.
+  assert.deepEqual([...headerReads].sort(), ["Accept", "CF-Connecting-IP", "Content-Length", "Cookie", "Location", "User-Agent"]);
+  const forgedCrawler = new Request("https://wempos-forum.com/c/general", { headers: { "User-Agent": "Googlebot/2.1 archive.org_bot" } });
+  assert.equal(isTrustedCrawler(forgedCrawler), false, "a crawler UA without Cloudflare's network data is not trusted");
+  Object.defineProperty(forgedCrawler, "cf", { value: { asn: 13335 } });
+  assert.equal(isTrustedCrawler(forgedCrawler), false, "a crawler UA from the wrong network is not trusted");
   assert.doesNotMatch(src, /headers\.get\(ANUBIS_CLIENT_IP_HEADER\)/);
   const request = new Request("https://wempos-forum.com/c/general", {
     headers: { Accept: "text/html", "X-Anubis-Pass": "1", Cookie: "within.website-x-cmd-anubis-auth=forged" },
