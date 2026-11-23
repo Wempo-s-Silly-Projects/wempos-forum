@@ -119,6 +119,58 @@ export const MODULES = Object.freeze([
   }),
 ]);
 
+function validateModuleRegistry(modules) {
+  const ids = new Set();
+
+  for (const module of modules) {
+    if (
+      typeof module.id !== "string" ||
+      !/^[a-z][a-z0-9-]*$/.test(module.id)
+    ) {
+      throw new Error("Invalid module ID: " + String(module.id));
+    }
+
+    if (ids.has(module.id)) {
+      throw new Error("Duplicate module ID: " + module.id);
+    }
+
+    ids.add(module.id);
+
+    if (![MODULE_ON, MODULE_OFF].includes(module.default)) {
+      throw new Error("Invalid default for module: " + module.id);
+    }
+
+    if (!Array.isArray(module.deps) || !Array.isArray(module.paths)) {
+      throw new Error("Invalid dependency or path list: " + module.id);
+    }
+
+    if (typeof module.readOnly !== "boolean" || typeof module.client !== "boolean") {
+      throw new Error("Invalid module flags: " + module.id);
+    }
+
+    for (const path of module.paths) {
+      if (
+        typeof path !== "string" &&
+        !(path instanceof RegExp)
+      ) {
+        throw new Error("Invalid path pattern for module: " + module.id);
+      }
+    }
+  }
+
+  for (const module of modules) {
+    for (const dep of module.deps) {
+      if (!ids.has(dep)) {
+        throw new Error(
+          `Module "${module.id}" depends on unknown module "${dep}".`,
+        );
+      }
+    }
+  }
+}
+
+validateModuleRegistry(MODULES);
+
 const BY_ID = new Map(MODULES.map((module) => [module.id, module]));
 
 export const moduleById = (id) => BY_ID.get(id) ?? null;
@@ -156,20 +208,61 @@ function ownState(module, env, rows) {
 }
 
 // resolveModules(env, rows: Map<id, boolean>) -> Map<id, { enabled, reason, stored }>
+
 export function resolveModules(env, rows = new Map()) {
   const safeEnv = env || {};
   const resolved = new Map();
+  const resolving = new Set();
+
   const resolve = (module) => {
+    if (!module) {
+      throw new Error("Module registry contains an unknown dependency.");
+    }
+
     if (resolved.has(module.id)) return resolved.get(module.id);
+
+    if (resolving.has(module.id)) {
+      throw new Error("Circular module dependency involving: " + module.id);
+    }
+
+    resolving.add(module.id);
+
     const own = ownState(module, safeEnv, rows);
-    const depOff = own.enabled && module.deps.some((dep) => !resolve(BY_ID.get(dep)).enabled);
-    const state = depOff ? { ...own, enabled: false, reason: MODULE_REASONS.DEP } : own;
+
+    let depOff = false;
+
+    if (own.enabled) {
+      for (const dep of module.deps) {
+        const dependency = BY_ID.get(dep);
+
+        if (!dependency) {
+          throw new Error(
+            `Module "${module.id}" has unknown dependency "${dep}".`,
+          );
+        }
+
+        if (!resolve(dependency).enabled) {
+          depOff = true;
+          break;
+        }
+      }
+    }
+
+    resolving.delete(module.id);
+
+    const state = depOff
+      ? { ...own, enabled: false, reason: MODULE_REASONS.DEP }
+      : own;
+
     resolved.set(module.id, state);
     return state;
   };
+
   for (const module of MODULES) resolve(module);
+
   return resolved;
 }
+
 
 // The owner's rows from D1. A failed read (or a database still without
 // migration 0095) logs and falls back to the registry defaults: today's
@@ -214,10 +307,18 @@ export async function moduleGate(env, id, request = null) {
   if (!(await isModuleOn(env, id, request))) throw new HttpError(404, "Not found.");
 }
 
+
 const pathMatches = (pattern, path) => {
-  if (pattern instanceof RegExp) return pattern.test(path);
-  return pattern.endsWith("/") ? path.startsWith(pattern) : path === pattern;
+  if (pattern instanceof RegExp) {
+    pattern.lastIndex = 0;
+    return pattern.test(path);
+  }
+
+  return pattern.endsWith("/")
+    ? path.startsWith(pattern)
+    : path === pattern;
 };
+
 
 export const moduleForPath = (path) =>
   MODULES.find((module) => module.paths.some((pattern) => pathMatches(pattern, path)))?.id ?? null;
