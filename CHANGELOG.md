@@ -10,6 +10,11 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.79.1] - 2026-11-22
+
+### Fixed
+- The offline page (`/offline.html`) was answered as a 404 by the worker's not-found handling, so the new service worker could not cache it and offline support never activated. Real standalone pages are now served as themselves.
+
 ## [5.79.0] - 2026-11-22
 
 ### Added
