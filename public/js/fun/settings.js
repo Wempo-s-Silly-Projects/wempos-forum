@@ -155,10 +155,7 @@ export function createFunExtrasPanel(doc, storage, { win = globalThis, onChange 
   panel.className = "panel fun-extras-panel";
   const heading = doc.createElement("h2");
   heading.textContent = t("fun.title");
-  const help = doc.createElement("p");
-  help.className = "muted fun-extras-help";
-  help.textContent = t("fun.help");
-  panel.append(heading, help);
+  panel.append(heading);
   const current = readFunSettings(storage);
   for (const key of FUN_KEYS) panel.append(createSwitch(doc, storage, key, current[key], onChange));
   if (prefersReducedMotion(win)) {
