@@ -92,6 +92,7 @@ code. Database migrations are a separate step. The full steps are in
 - [Architecture overview](docs/architecture.md)
 - [Public API](docs/api.md) — read endpoints, the MCP tool server, discovery
 - [Running your own Wempo's Forum](docs/self-hosting.md) — host your own copy
+- [Translating the forum](docs/translating.md) — help translate it into your language
 - [Release checklist](docs/release-checklist.md) and the
   [versioning policy](CONTRIBUTING.md#versioning)
 - [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) ·
