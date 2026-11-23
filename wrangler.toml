@@ -20,7 +20,7 @@ SITE_ORIGIN = "https://wempos-forum.com"
 # by ALTCHA_HMAC_KEY, or derived from the legacy TURNSTILE_SECRET). Switch to
 # "anubis" only with ANUBIS_URL + ANUBIS_PUBLIC_KEY_HEX here and the
 # ANUBIS_ACCESS_CLIENT_ID/_SECRET secrets set (tests/anubis-gate pins this).
-HUMAN_CHECK = "altcha"
+HUMAN_CHECK = "anubis"
 ANUBIS_URL = "https://anubis-origin.wempos-forum.com"
 ANUBIS_PUBLIC_KEY_HEX = "6fdd436780f8e859a350e8a049bf4ca9bb090ee1f2c8a436fb3df644dd93bc8c"
 ACCOUNTS_ORIGIN = "https://accounts.wempos-forum.com"
@@ -31,7 +31,7 @@ ANALYTICS_ENABLED = "true"
 # AutoMod (v5.18.0 API): "true" opens /api/automod/* to the runner that
 # holds the AUTOMOD_KEY secret. Owner switched it on 2026-11-21.
 AUTOMOD_ENABLED = "true"
-VERSION = "5.84.0"
+VERSION = "5.84.1"
 
 [assets]
 directory = "./public"

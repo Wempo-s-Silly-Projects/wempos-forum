@@ -10,6 +10,15 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.84.1] - 2026-11-22
+
+### Changed
+
+- This site now runs Anubis as its human check (owner decision). Browsers
+  solve a short proof-of-work challenge once; AI scrapers are refused; the
+  Internet Archive and search engines are let through. If Anubis cannot be
+  reached, the site falls back to the self-hosted ALTCHA check.
+
 ## [5.84.0] - 2026-11-22
 
 ### Added
