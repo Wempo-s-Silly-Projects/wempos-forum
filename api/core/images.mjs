@@ -241,35 +241,74 @@ function sanitizeGif(bytes) {
 // are dropped; frame/animation chunks (VP8, VP8L, VP8X, ANIM/ANMF, ALPH)
 // survive; at least one frame chunk must be present, and bytes past the RIFF
 // end are truncated.
+
 function sanitizeWebp(bytes) {
   const riffSize = bytes[4] + bytes[5] * 2 ** 8 + bytes[6] * 2 ** 16 + bytes[7] * 2 ** 24;
   const riffEnd = 8 + riffSize;
   if (riffSize < 4 || riffEnd > bytes.length) return null;
+
   const keep = [[0, 12]];
   let offset = 12;
   let sawFrame = false;
+  let vp8xOffset = -1;
+  let removedExif = false;
+  let removedXmp = false;
+
   while (offset + 8 <= riffEnd) {
-    const tag = String.fromCharCode(bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]);
+    const tag = String.fromCharCode(
+      bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3],
+    );
     const size = bytes[offset + 4] + bytes[offset + 5] * 2 ** 8 +
       bytes[offset + 6] * 2 ** 16 + bytes[offset + 7] * 2 ** 24;
-    const total = 8 + size + (size % 2); // RIFF chunks are padded to even sizes
+    const total = 8 + size + (size % 2);
+
     if (offset + total > riffEnd) return null;
-    if (tag === "VP8 " || tag === "VP8L" || tag === "VP8X") sawFrame = true;
-    if (tag !== "EXIF" && tag !== "XMP ") keep.push([offset, offset + total]);
+
+    if (tag === "VP8X") {
+      if (vp8xOffset !== -1 || size !== 10 || offset + total > riffEnd) return null;
+      vp8xOffset = offset;
+    }
+
+    if (tag === "VP8 " || tag === "VP8L" || tag === "ANMF") {
+      sawFrame = true;
+    }
+
+    if (tag === "EXIF") removedExif = true;
+    if (tag === "XMP ") removedXmp = true;
+
+    if (tag !== "EXIF" && tag !== "XMP ") {
+      keep.push([offset, offset + total]);
+    }
+
     offset += total;
   }
+
   if (offset !== riffEnd || !sawFrame) return null;
+
   const output = assembleSanitized(bytes, keep);
-  if (output === bytes) return output;
-  // Bytes were dropped: rewrite the RIFF size field to match, or the
-  // container would claim more data than it holds.
-  const newSize = output.length - 8;
-  output[4] = newSize & 255;
-  output[5] = (newSize >>> 8) & 255;
-  output[6] = (newSize >>> 16) & 255;
-  output[7] = (newSize >>> 24) & 255;
+
+  if (output !== bytes) {
+    const newSize = output.length - 8;
+    output[4] = newSize & 255;
+    output[5] = (newSize >>> 8) & 255;
+    output[6] = (newSize >>> 16) & 255;
+    output[7] = (newSize >>> 24) & 255;
+
+    if (vp8xOffset !== -1) {
+      const outputVp8xOffset = vp8xOffset - keep
+        .filter(([start]) => start < vp8xOffset)
+        .reduce((sum, [start, end]) => sum + (end - start), 0) +
+        12;
+
+      const flagsOffset = outputVp8xOffset + 8;
+      if (removedExif) output[flagsOffset] &= ~0x08;
+      if (removedXmp) output[flagsOffset] &= ~0x04;
+    }
+  }
+
   return output;
 }
+
 
 export function sanitizeImage(bytes) {
   const mime = sniffImageMime(bytes);
