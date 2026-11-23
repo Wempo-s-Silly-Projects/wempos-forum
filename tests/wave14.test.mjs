@@ -167,7 +167,7 @@ test("gallery: showcase roots with an approved image, newest first, first image 
   seedImage(reply);
   const body = await gallery(null);
   assert.deepEqual(body.items.map((item) => item.id), [b, a]);
-  assert.deepEqual(body.items[0].image, { id: coverB, version: "v1" });
+  assert.deepEqual(body.items[0].image, { id: coverB, version: "v1", mime: "image/png" });
   assert.equal(body.items[1].image.id, coverA);
   assert.equal(body.items[1].authorName, "author");
   assert.deepEqual(Object.keys(body.items[0]).sort(), ["authorName", "body", "createdAt", "id", "image"]);

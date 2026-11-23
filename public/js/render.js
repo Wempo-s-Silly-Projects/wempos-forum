@@ -85,6 +85,8 @@ const renderAttachments = (post, document, article) => {
     image.src = attachmentUrl(attachment);
     image.alt = "";
     image.loading = "lazy";
+    // The lightbox reads the mime to freeze GIFs under reduced motion.
+    image.dataset.mime = String(attachment.mime ?? "");
     // Header dimensions (migration 0080) reserve the image's box before the
     // bytes arrive, so the page does not jump; CSS still caps the rendering.
     if (Number.isSafeInteger(attachment.width) && Number.isSafeInteger(attachment.height)) {
