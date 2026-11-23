@@ -1,3 +1,4 @@
+
 // Copyright 2026 ItsWempo
 //
 // This file is part of Wempo's Forum.
@@ -12,9 +13,8 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 //
-// You should have received a copy of the
-// GNU Affero General Public License along with this program.  If not,
-// see <https://www.gnu.org/licenses/>.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
@@ -30,6 +30,15 @@ import { blobToUint8Array, createAvatarVersion, imageResponse, inspectImageUploa
 
 export const MAX_AVATAR_BYTES = 1024 * 1024;
 export const MAX_AVATAR_REQUEST_BYTES = MAX_AVATAR_BYTES + 64 * 1024;
+
+// createAvatarVersion() encodes 12 random bytes as unpadded base64url.
+const AVATAR_VERSION_PATTERN = /^[A-Za-z0-9_-]{16}$/;
+
+function isAvatarVersion(value) {
+  return typeof value === "string" &&
+    AVATAR_VERSION_PATTERN.test(value) &&
+    value.length === 16;
+}
 
 // Avatar serving (moved here from the session group — registered on the
 // profiles route group, since avatars belong to profiles). Approved avatars
@@ -55,7 +64,7 @@ async function handleAvatarReadRoute(request, env, url, path, method) {
       const session = await readSession(request, env);
       const viewer = session && session.user;
       const isStaff = viewer && (viewer.role === "owner" || viewer.role === "admin");
-      if (viewer && (viewer.id === userId || isStaff)) {
+      if (viewer && (Number(viewer.id) === userId || isStaff)) {
         const response = imageResponse(blobToUint8Array(row.pending_avatar_data), row.pending_avatar_mime, "no-store");
         if (response) return response;
       }
@@ -116,7 +125,7 @@ async function handleAvatarUploadRoute(request, env, url, path, method) {
         "pending_avatar_updated_at = ?, pending_avatar_version = ?, avatar_status = 'pending' " +
         "WHERE id = ? AND NOT EXISTS (" +
         "SELECT 1 FROM bans WHERE user_id = ? AND revoked_at IS NULL " +
-        "AND (expires_at IS NULL OR expires_at > ?))",
+        "AND (expires_at IS NULL OR expires_at > ?)",
     ).bind(mime, clean, updatedAt, avatarVersion, session.user.id, session.user.id, nowSeconds()).run();
     requireMutationApplied(result);
     return json({
@@ -136,15 +145,15 @@ async function handleAvatarQueueRoute(request, env, url, path, method) {
       "SELECT id, username, pending_avatar_updated_at, pending_avatar_version " +
         "FROM users WHERE avatar_status = 'pending' " +
         "ORDER BY pending_avatar_updated_at ASC LIMIT 100",
-    ).bind().all();
+    ).all();
     return json({
       avatars: (result.results || []).map((row) => ({
         userId: Number(row.id),
         username: row.username,
         avatarUrl: "/api/avatars/" + row.id + "?v=" + row.pending_avatar_version,
-        // CAS token (review finding): approves must match the exact version
-        // queued — a replacement upload while the desk page sat open can no
-        // longer slip the OLD review onto the NEW upload.
+        // Both approval and rejection must match this exact upload version.
+        // A replacement upload while the desk page is open invalidates the
+        // old queue action instead of applying it to the replacement.
         pendingVersion: row.pending_avatar_version,
         uploadedAt: new Date(Number(row.pending_avatar_updated_at) * 1000).toISOString(),
       })),
@@ -153,18 +162,16 @@ async function handleAvatarQueueRoute(request, env, url, path, method) {
   return null;
 }
 
-export async function resolveAvatarPending(db, userId, approve, pendingVersion = null) {
+export async function resolveAvatarPending(db, userId, approve, pendingVersion) {
+  if (!isAvatarVersion(pendingVersion)) {
+    throw new HttpError(400, "A valid reviewed avatar version is required.");
+  }
+
   if (approve) {
     // Copy the pending set into the approved set and clear pending in one
     // statement — SQLite evaluates every RHS against the pre-update row, so
-    // the mirror-set CHECKs hold. The avatar_status guard makes the update
-    // idempotency-safe: 0 changes means nothing was awaiting review.
-    // pendingVersion (review finding): the desk's queue read supplies the
-    // version it reviewed; an approve only lands when the member has not
-    // replaced the pending upload since (each upload bumps
-    // pending_avatar_version). A stale desk page 409s instead of approving
-    // whatever the member swapped in.
-    const requiresVersion = pendingVersion !== null && pendingVersion !== undefined;
+    // the mirror-set CHECKs hold. Both the status and version guards ensure
+    // this action applies only to the exact upload the moderator reviewed.
     const result = await db.prepare(
       "UPDATE users SET " +
         "avatar_mime = pending_avatar_mime, avatar_data = pending_avatar_data, " +
@@ -172,29 +179,32 @@ export async function resolveAvatarPending(db, userId, approve, pendingVersion =
         "pending_avatar_mime = NULL, pending_avatar_data = NULL, " +
         "pending_avatar_updated_at = NULL, pending_avatar_version = NULL, " +
         "avatar_status = 'approved' " +
-        "WHERE id = ? AND avatar_status = 'pending'" +
-        (requiresVersion ? " AND pending_avatar_version = ?" : ""),
-    ).bind(...(requiresVersion ? [userId, pendingVersion] : [userId])).run();
+        "WHERE id = ? AND avatar_status = 'pending' AND pending_avatar_version = ?",
+    ).bind(userId, pendingVersion).run();
+
     if (Number(result.meta?.changes) !== 1) {
-      throw new HttpError(409, requiresVersion
-        ? "That avatar changed since it was reviewed — reload the desk and review the current upload."
-        : "That avatar is not awaiting review.");
+      throw new HttpError(409,
+        "That avatar changed since it was reviewed — reload the desk and review the current upload.");
     }
     return;
   }
-  // Reject: clear the pending set. An already-approved avatar reappears for
-  // public serving; a first-upload has nothing left, so status returns to
-  // the never-uploaded NULL. One statement with a CASE (documented choice
-  // over a two-statement batch) keeps the guard and the transition atomic.
+
+  // Reject: clear only the exact pending upload that was reviewed. If the
+  // member replaced it after the queue was loaded, the version guard leaves
+  // the replacement untouched and the moderator must reload the queue.
+  // An already-approved avatar reappears publicly; a first-upload has
+  // nothing left, so status returns to the never-uploaded NULL.
   const result = await db.prepare(
     "UPDATE users SET " +
       "pending_avatar_mime = NULL, pending_avatar_data = NULL, " +
       "pending_avatar_updated_at = NULL, pending_avatar_version = NULL, " +
       "avatar_status = CASE WHEN avatar_mime IS NOT NULL THEN 'approved' ELSE NULL END " +
-      "WHERE id = ? AND avatar_status = 'pending'",
-  ).bind(userId).run();
+      "WHERE id = ? AND avatar_status = 'pending' AND pending_avatar_version = ?",
+  ).bind(userId, pendingVersion).run();
+
   if (Number(result.meta?.changes) !== 1) {
-    throw new HttpError(409, "That avatar is not awaiting review.");
+    throw new HttpError(409,
+      "That avatar changed since it was reviewed — reload the desk and review the current upload.");
   }
 }
 
@@ -208,26 +218,24 @@ async function handleAvatarModerationRoute(request, env, url, path, method) {
   if (!Number.isSafeInteger(userId) || userId < 1) {
     throw new HttpError(404, "Member not found.");
   }
+
+  const body = await readJson(request);
+  if (!isAvatarVersion(body?.pendingVersion)) {
+    throw new HttpError(400, "A valid reviewed avatar version is required.");
+  }
+
   const db = env.FORUM_DB;
   const target = await db.prepare(
     "SELECT id FROM users WHERE id = ? LIMIT 1",
   ).bind(userId).first();
   if (!target) throw new HttpError(404, "Member not found.");
 
-  // Approves carry the desk's reviewed-version token (the queue payload's
-  // pendingVersion, round-tripped by the client); rejects don't need it —
-  // clearing the pending set is safe under any replacement timing.
-  let pendingVersion = null;
-  let body;
-  try {
-    body = await readJson(request);
-  } catch {
-    body = {};
-  }
-  if (match[2] === "approve" && typeof body.pendingVersion === "string" && body.pendingVersion) {
-    pendingVersion = body.pendingVersion;
-  }
-  await resolveAvatarPending(db, userId, match[2] === "approve", pendingVersion);
+  await resolveAvatarPending(
+    db,
+    userId,
+    match[2] === "approve",
+    body.pendingVersion,
+  );
   return json({ ok: true });
 }
 
