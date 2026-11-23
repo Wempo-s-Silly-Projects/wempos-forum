@@ -358,9 +358,10 @@ test("confetti: first sighting only remembers the badge; an upgrade bursts once;
 test("confetti off: nothing loads and nothing is remembered", async () => {
   const recorder = recordingLoader();
   const storage = allOff();
+  const before = storage.dump();
   assert.equal(await confetti.celebrateMilestone(badgeRoot(25), env({ storage, load: recorder.load })), "off");
   assert.deepEqual(recorder.calls, []);
-  assert.deepEqual(storage.dump(), {});
+  assert.deepEqual(storage.dump(), before);
 });
 
 // ---------------------------------------------------------------- Lottie + tilt
