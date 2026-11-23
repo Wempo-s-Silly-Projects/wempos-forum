@@ -146,6 +146,13 @@ The test suite fails if a visible string isn't translated or a key is missing.
 Spotted a translation that sounds off? A pull request fixing it is very
 welcome, or post it in the forum's Suggestions board.
 
+### Translating
+
+Volunteer translators can work on Hosted Weblate (once the project is live)
+or send a pull request that edits `public/locales/*.json`. See
+[docs/translating.md](docs/translating.md) for the file rules, the style
+guide and the list of locales that need a native speaker most.
+
 ## Commit messages
 
 Use this format:
