@@ -151,7 +151,18 @@ export const ANUBIS_CLIENT_IP_HEADER = "X-Wempo-Client-Ip";
 export const ANUBIS_PASS_ACTION = "CHALLENGE";
 // "<cookie-prefix>-auth" plus the optional dynamic "-<8 hex>" suffix.
 export const ANUBIS_AUTH_COOKIE_PATTERN = /^[\w.-]+-auth(?:-[0-9a-f]{8})?$/;
+// Every cookie Anubis sets: "<prefix>-auth", "-cookie-verification" and
+// "-original-referer", each with the optional suffix. Only these cross the
+// proxy in either direction (never forum session or Cloudflare cookies).
+export const ANUBIS_COOKIE_PATTERN = /^[\w.-]+-(?:auth|cookie-verification|original-referer)(?:-[0-9a-f]{8})?$/;
 export const ANUBIS_COOKIE_MAX_LENGTH = 4096;
+// The largest request body the proxy forwards (Anubis's pass form is tiny).
+export const ANUBIS_PROXY_MAX_BODY_BYTES = 64 * 1024;
+// /api GETs that never ask Anubis: the build stamp, the ALTCHA fallback, the
+// shell's own session bootstrap and setup probe, and the machine endpoints
+// with their own auth (AutoMod runner key, Accounts relay token).
+export const ANUBIS_API_EXEMPT_EXACT = Object.freeze(["/api/version", "/api/altcha/challenge", "/api/session", "/api/setup/status"]);
+export const ANUBIS_API_EXEMPT_PREFIXES = Object.freeze(["/api/automod/", "/api/relay/"]);
 export const ANUBIS_COOKIE_MAX_CANDIDATES = 4;
 // The cookie Cloudflare Access sets on its own origin; never passed on.
 export const ACCESS_COOKIE_NAME = "CF_Authorization";

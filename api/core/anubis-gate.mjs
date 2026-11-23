@@ -29,10 +29,13 @@
 // served and its shell meta says "altcha" (the visitor holds no pass cookie).
 // Nothing here logs or returns the Access secrets.
 import {
-  ACCESS_COOKIE_NAME, ANUBIS_CHECK_PATH, ANUBIS_CHECK_TIMEOUT_MS, ANUBIS_CLIENT_IP_HEADER, ANUBIS_PAGE_CSP,
+  ANUBIS_API_EXEMPT_EXACT, ANUBIS_API_EXEMPT_PREFIXES, ANUBIS_CHECK_PATH, ANUBIS_CHECK_TIMEOUT_MS,
+  ANUBIS_CLIENT_IP_HEADER, ANUBIS_COOKIE_PATTERN, ANUBIS_PAGE_CSP, ANUBIS_PROXY_MAX_BODY_BYTES,
   ANUBIS_PROXY_TIMEOUT_MS, ANUBIS_RESERVED_PREFIX, STATIC_HTML_PAGES,
 } from "../../constants.mjs";
-import { anubisConfig } from "./anubis-pass.mjs";
+import { agentFromRequest } from "./agent-auth.mjs";
+import { anubisConfig, hasAnubisPass } from "./anubis-pass.mjs";
+import { readSession } from "./auth.mjs";
 import { siteOrigin } from "./site.mjs";
 
 // Never gated: the JSON API, agent and discovery surfaces, feeds, the
@@ -43,7 +46,9 @@ const EXEMPT_EXACT = new Set([
   ...STATIC_HTML_PAGES, ...STATIC_HTML_PAGES.map((page) => page.replace(/\.html$/, "")),
 ]);
 const BOARD_FEED = /^\/c\/[^/]+\/feed\.xml$/;
-// A last path segment with one of these extensions is a file, never a page.
+// A top-level file (/styles.css, /sw.js, /favicon.ico...) with one of these
+// extensions is a static asset; deeper paths are exempt only under the
+// static prefixes above (review L4: /c/x/y.json is a page route).
 const STATIC_EXTENSION = /\.(?:css|m?js|json|map|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|webmanifest|wasm|txt|xml)$/i;
 const GATED_METHODS = new Set(["GET", "HEAD"]);
 
@@ -53,8 +58,8 @@ export function isAnubisExemptPath(pathname) {
   if (typeof pathname !== "string" || !pathname.startsWith("/")) return true;
   if (EXEMPT_EXACT.has(pathname) || BOARD_FEED.test(pathname)) return true;
   if (EXEMPT_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return true;
-  const lastSegment = pathname.slice(pathname.lastIndexOf("/") + 1);
-  return STATIC_EXTENSION.test(lastSegment);
+  const topLevelFile = pathname.lastIndexOf("/") === 0;
+  return topLevelFile && STATIC_EXTENSION.test(pathname.slice(1));
 }
 
 // anubisGateApplies(request) -> true for a GET/HEAD that asks for an HTML
@@ -74,12 +79,24 @@ const ACCESS_HOST_SUFFIX = ".cloudflareaccess.com";
 // Every Anubis page (deny included) links its own /.within.website/ assets;
 // a 401/403 without that marker came from Cloudflare Access, not Anubis.
 const ANUBIS_BODY_MARKER = ANUBIS_RESERVED_PREFIX;
-const ACCESS_COOKIE_PREFIX = ACCESS_COOKIE_NAME + "=";
 const ANUBIS_DOWN = "The human check is temporarily unavailable. Please try again shortly.";
+// Characters no honest redirect target carries (backslash tricks, spaces,
+// controls): a Location containing any of them is refused outright.
+const DEL_CHAR_CODE = 0x7f;
+const FIRST_PRINTABLE_CHAR_CODE = 0x20;
+const UNSAFE_LOCATION = {
+  test: (value) => [...value].some((char) => {
+    const code = char.charCodeAt(0);
+    return char === "\\" || /\s/.test(char) || code < FIRST_PRINTABLE_CHAR_CODE || code === DEL_CHAR_CODE;
+  }),
+};
 
-function withoutAccessCookie(cookieHeader) {
-  return (cookieHeader || "").split(";").map((pair) => pair.trim())
-    .filter((pair) => pair && !pair.startsWith(ACCESS_COOKIE_PREFIX)).join("; ");
+const isAnubisCookie = (pair) => ANUBIS_COOKIE_PATTERN.test(pair.slice(0, Math.max(pair.indexOf("="), 0)).trim());
+
+// Only Anubis's own cookies go to Anubis (review M3): never the forum
+// session, Cloudflare Access or any other cookie.
+function anubisCookiesOnly(cookieHeader) {
+  return (cookieHeader || "").split(";").map((pair) => pair.trim()).filter((pair) => pair && isAnubisCookie(pair)).join("; ");
 }
 
 // The request headers Anubis sees: an allowlist, so client-sent
@@ -92,7 +109,7 @@ function upstreamHeaders(request, config, extra = []) {
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
-  const cookie = withoutAccessCookie(request.headers.get("Cookie"));
+  const cookie = anubisCookiesOnly(request.headers.get("Cookie"));
   if (cookie) headers.set("Cookie", cookie);
   const clientIp = request.headers.get("CF-Connecting-IP");
   if (clientIp) headers.set(ANUBIS_CLIENT_IP_HEADER, clientIp);
@@ -105,10 +122,12 @@ function upstreamHeaders(request, config, extra = []) {
   return headers;
 }
 
-// Upstream Set-Cookie lines minus Cloudflare Access's own cookie.
+// Upstream Set-Cookie lines for Anubis's own cookies only (review L1): the
+// tunnel zone's __cf_bm/__cflb, Access's CF_Authorization and anything else
+// stay behind.
 function passedSetCookies(upstream) {
   const lines = typeof upstream.headers.getSetCookie === "function" ? upstream.headers.getSetCookie() : [];
-  return lines.filter((line) => !line.trim().startsWith(ACCESS_COOKIE_PREFIX));
+  return lines.filter((line) => isAnubisCookie(line.trim()));
 }
 
 // Anubis's own headers (allowlisted, so the tunnel zone's Report-To, NEL,
@@ -173,25 +192,30 @@ async function judge(upstream, request, env) {
   return failOpen("status " + upstream.status);
 }
 
+// askAnubis(request, config) -> Anubis's forward-auth verdict Response for
+// this request, or null when it could not be reached in time.
+async function askAnubis(request, config) {
+  const url = new URL(request.url);
+  const headers = upstreamHeaders(request, config);
+  headers.set("X-Forwarded-Uri", url.pathname + url.search);
+  headers.set("X-Forwarded-Method", String(request.method).toUpperCase());
+  try {
+    return await fetch(config.origin + ANUBIS_CHECK_PATH, {
+      method: "GET", headers, redirect: "manual", signal: AbortSignal.timeout(ANUBIS_CHECK_TIMEOUT_MS),
+    });
+  } catch (error) {
+    return failOpen(error && error.name ? error.name : "network error");
+  }
+}
+
 // anubisGate(request, env) -> a Response that replaces the page (Anubis's
 // deny or a redirect to its challenge), or null to serve the page.
 export async function anubisGate(request, env) {
   if (!anubisGateApplies(request)) return null;
   const config = anubisConfig(env);
   if (!config) return null;
-  const url = new URL(request.url);
-  const headers = upstreamHeaders(request, config);
-  headers.set("X-Forwarded-Uri", url.pathname + url.search);
-  headers.set("X-Forwarded-Method", String(request.method).toUpperCase());
-  let upstream;
-  try {
-    upstream = await fetch(config.origin + ANUBIS_CHECK_PATH, {
-      method: "GET", headers, redirect: "manual", signal: AbortSignal.timeout(ANUBIS_CHECK_TIMEOUT_MS),
-    });
-  } catch (error) {
-    return failOpen(error && error.name ? error.name : "network error");
-  }
-  return judge(upstream, request, env);
+  const upstream = await askAnubis(request, config);
+  return upstream ? judge(upstream, request, env) : null;
 }
 
 function unavailable(status, message) {
@@ -201,19 +225,94 @@ function unavailable(status, message) {
   });
 }
 
-// Redirects from the proxy stay on our origin: relative and same-origin pass,
-// Anubis's own origin is rewritten to ours, an Access login means Anubis is
-// unreachable, anything else is refused.
+// anubisApiGateApplies(request) -> true for a GET/HEAD under /api/ that is
+// not one of the exempt bootstrap or machine endpoints. Writes are guarded by
+// requireHumanCheck instead.
+export function anubisApiGateApplies(request) {
+  if (!GATED_METHODS.has(String(request.method).toUpperCase())) return false;
+  const { pathname } = new URL(request.url);
+  if (!pathname.startsWith("/api/") || ANUBIS_API_EXEMPT_EXACT.includes(pathname)) return false;
+  return !ANUBIS_API_EXEMPT_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+// A signed-in member (a session row with a user) or a configured agent
+// token. Both lookups are read-only SELECTs; a lookup failure counts as no.
+async function signedIn(request, env) {
+  try {
+    const session = await readSession(request, env);
+    if (session && session.user) return true;
+    return Boolean(await agentFromRequest(request, env));
+  } catch {
+    return false;
+  }
+}
+
+// anubisApiGate(request, env) -> a JSON refusal for an unauthenticated /api
+// read Anubis does not pass (review M2: "no bots at all"), or null to answer.
+// A pass cookie or a signed-in caller skips the check; Anubis unreachable
+// fails open, as pages do. A challenge is a 401 (JSON clients never follow
+// a redirect); the shell reloads into the page gate.
+export async function anubisApiGate(request, env) {
+  if (!anubisApiGateApplies(request)) return null;
+  const config = anubisConfig(env);
+  if (!config) return null;
+  if (await hasAnubisPass(request, env)) return null;
+  if (await signedIn(request, env)) return null;
+  const upstream = await askAnubis(request, config);
+  if (!upstream || upstream.status === 200) return null;
+  if (await isAccessRefusal(upstream)) return failOpen("access " + upstream.status);
+  if (upstream.status === 403) return unavailable(403, "Access denied.");
+  if (REDIRECT_STATUSES.has(upstream.status)) return unavailable(401, "human check required");
+  return failOpen("status " + upstream.status);
+}
+
+// Redirects from the proxy stay on our origin (review M1): the Location is
+// refused outright if it holds a backslash, whitespace or a control
+// character, then resolved against OUR origin; it must land on our origin
+// (Anubis's own origin is rewritten to ours). An Access login means Anubis
+// is unreachable; anything else is refused.
 function proxiedLocation(location, config, request, env) {
-  if (!location) return { error: 502 };
+  if (!location || UNSAFE_LOCATION.test(location)) return { error: 502 };
   const site = siteOrigin(env, request);
-  if (location.startsWith("/") && !location.startsWith("//")) return { location };
-  const target = parsedUrl(location);
-  if (!target) return { error: 502 };
+  let target;
+  try {
+    target = new URL(location, site + "/");
+  } catch {
+    return { error: 502 };
+  }
   if (target.hostname.endsWith(ACCESS_HOST_SUFFIX)) return { error: 503 };
-  if (target.origin === site) return { location: target.href };
-  if (target.origin === config.origin) return { location: site + target.pathname + target.search + target.hash };
-  return { error: 502 };
+  if (target.origin !== site && target.origin !== config.origin) return { error: 502 };
+  if (target.username || target.password) return { error: 502 };
+  return { location: site + target.pathname + target.search };
+}
+
+// The request body, at most ANUBIS_PROXY_MAX_BODY_BYTES (review L2): a larger
+// declared Content-Length is refused before reading, and a body without one
+// is read chunk by chunk and abandoned past the cap. null = too large.
+async function cappedBody(request) {
+  const declared = Number(request.headers.get("Content-Length"));
+  if (Number.isFinite(declared) && declared > ANUBIS_PROXY_MAX_BODY_BYTES) return null;
+  if (!request.body) return new Uint8Array(0);
+  const reader = request.body.getReader();
+  const chunks = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > ANUBIS_PROXY_MAX_BODY_BYTES) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  const body = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return body;
 }
 
 // anubisProxy(request, env) -> Anubis's answer for a /.within.website/**
@@ -225,12 +324,14 @@ export async function anubisProxy(request, env) {
   if (!config) return null;
   const method = String(request.method).toUpperCase();
   if (!PROXY_METHODS.has(method)) return unavailable(405, "Method not allowed.");
+  const body = method === "POST" ? await cappedBody(request) : undefined;
+  if (body === null) return unavailable(413, "Request body too large.");
   let upstream;
   try {
     upstream = await fetch(config.origin + url.pathname + url.search, {
       method,
       headers: upstreamHeaders(request, config, ["Content-Type", "Referer"]),
-      body: method === "POST" ? await request.arrayBuffer() : undefined,
+      body,
       redirect: "manual",
       signal: AbortSignal.timeout(ANUBIS_PROXY_TIMEOUT_MS),
     });

@@ -43,7 +43,7 @@ import { handleThreadLockRoutes } from "./api/thread-locks.mjs";
 import { handleAltchaRoutes } from "./api/altcha.mjs";
 import { handlePasskeyRoutes } from "./api/passkeys.mjs";
 import { humanCheckMeta, humanCheckMode } from "./api/core/human-check.mjs";
-import { anubisGate, anubisProxy } from "./api/core/anubis-gate.mjs";
+import { anubisApiGate, anubisGate, anubisProxy } from "./api/core/anubis-gate.mjs";
 import { handlePollRoutes } from "./api/polls.mjs";
 import { handleBookmarkRoutes } from "./api/bookmarks.mjs";
 import { handleArchiveRoutes } from "./api/archive.mjs";
@@ -252,6 +252,11 @@ export default {
     }
     if (url.pathname.startsWith("/api/")) {
       try {
+        // HUMAN_CHECK=anubis: unauthenticated API reads pass Anubis too.
+        if (humanCheckMode(env) === HUMAN_CHECK_MODES.ANUBIS) {
+          const refused = await anubisApiGate(request, env);
+          if (refused) return refused;
+        }
         return await routeApi(request, env, ctx);
       } catch (error) {
         // The vendor's errorReply classifies; codedErrorReply (wave

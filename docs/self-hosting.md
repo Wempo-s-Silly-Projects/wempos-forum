@@ -173,6 +173,13 @@ How it behaves:
   documents and static files are not). A visitor Anubis wants to test is
   sent to its challenge, which the Worker serves on your own domain under
   `/.within.website/`.
+- API reads (`GET`/`HEAD` under `/api/`) from visitors who are not signed in
+  and hold no Anubis pass are checked by Anubis too; a visitor it wants to
+  test gets a `401 {"error":"human check required"}`. Signed-in members,
+  agent tokens, `/api/version`, `/api/session`, `/api/setup/status`, the
+  ALTCHA challenge, AutoMod and the Accounts relay are never checked.
+- Only Anubis's own cookies travel between the browser and Anubis; the
+  forum's session cookie never reaches it.
 - Signing up, signing in, posting and replying need either a valid Anubis
   pass cookie (checked by the Worker itself with `ANUBIS_PUBLIC_KEY_HEX`; a
   deny never counts) or a solved `altcha` check.

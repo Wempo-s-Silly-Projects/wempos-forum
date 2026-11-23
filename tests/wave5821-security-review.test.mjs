@@ -144,7 +144,7 @@ test("service worker: never answers /api/ or navigations from cache; refuses HTM
 test("anubisGate: no client header bypasses the seam; only allowlisted headers are read", async () => {
   const src = read("api/core/anubis-gate.mjs");
   const headerReads = new Set([...src.matchAll(/headers\.get\("([^"]+)"\)/g)].map(([, name]) => name));
-  assert.deepEqual([...headerReads].sort(), ["Accept", "CF-Connecting-IP", "Cookie", "Location"]);
+  assert.deepEqual([...headerReads].sort(), ["Accept", "CF-Connecting-IP", "Content-Length", "Cookie", "Location"]);
   assert.doesNotMatch(src, /headers\.get\(ANUBIS_CLIENT_IP_HEADER\)/);
   const request = new Request("https://wempos-forum.com/c/general", {
     headers: { Accept: "text/html", "X-Anubis-Pass": "1", Cookie: "within.website-x-cmd-anubis-auth=forged" },
