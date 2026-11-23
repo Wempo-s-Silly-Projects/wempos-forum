@@ -96,14 +96,41 @@ async function derivePassword(password, saltHex, pepper) {
   return hex(new Uint8Array(bits));
 }
 
+
 export async function hashPassword(password, pepper) {
-  const saltHex = hex(crypto.getRandomValues(new Uint8Array(16)));
-  return { salt: saltHex, hash: await derivePassword(password, saltHex, pepper) };
+  if (!isValidPassword(password)) {
+    throw new HttpError(400, "Password must be between 12 and 128 characters.");
+  }
+
+  const saltHex = hex(crypto.getRandomValues(new Uint8Array(SALT_BYTES)));
+
+  return {
+    salt: saltHex,
+    hash: await derivePassword(password, saltHex, pepper),
+  };
 }
 
+
+
 export async function verifyPassword(password, salt, expectedHash, pepper) {
-  // Malformed stored values (and non-hex junk) answer invalid instead of
-  // throwing — the login route's 401 copy is the correct UX for a bad row.
-  if (!isValidSaltHex(salt) || !isValidHashHex(expectedHash)) return false;
-  return equalConstantTime(await derivePassword(password, salt, pepper), expectedHash);
+  if (
+    typeof password !== "string" ||
+    !isValidSaltHex(salt) ||
+    !isValidHashHex(expectedHash)
+  ) {
+    return false;
+  }
+
+  if (!isValidPasswordPepper(pepper)) {
+    throw new HttpError(
+      503,
+      "Password security is not configured. Set PASSWORD_PEPPER using Wrangler.",
+    );
+  }
+
+  return equalConstantTime(
+    await derivePassword(password, salt, pepper),
+    expectedHash,
+  );
 }
+
