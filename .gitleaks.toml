@@ -23,3 +23,12 @@ regexes = [
   # added then removed it in Nov 2026 — still present in history).
   '''^a7DvNBy\+d6CecJsDmHc5CA$''',
 ]
+
+# Owner-approved 2026-11-22 18:24: the vendored, unmodified Mermaid release
+# (sha256-pinned by tests/batch-c-rendering.test.mjs) trips generic-api-key on
+# minified identifiers such as `m.keyCount,…`. Exactly one file, nothing else.
+[[allowlists]]
+description = "Verbatim Mermaid vendor bundle (minified identifiers, not credentials)"
+paths = [
+  '''^public/js/vendor/mermaid\.min\.js$''',
+]
