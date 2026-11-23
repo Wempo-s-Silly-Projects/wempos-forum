@@ -10,6 +10,24 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.82.0] - 2026-11-22
+
+### Added
+
+- A human-check mode switch for self-hosters: `HUMAN_CHECK` = `anubis`
+  (the default), `altcha` or `off`. Anubis, a whole-site proof-of-work gate,
+  becomes the default once its server is connected; ALTCHA stays as the
+  lighter per-form option.
+
+### Changed
+
+- This site keeps the ALTCHA check for now (`HUMAN_CHECK = "altcha"`); a test
+  stops production from ever running in Anubis mode without the Anubis
+  server behind it.
+- `.dev.vars.example` and the self-hosting guide describe the new modes; the
+  retired Turnstile settings are gone (a legacy `TURNSTILE_SECRET` still
+  derives the ALTCHA key).
+
 ## [5.81.0] - 2026-11-22
 
 ### Added
