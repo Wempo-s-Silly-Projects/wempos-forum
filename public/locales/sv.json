@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Ha kul och träffa nya människor!",
   "theme.switchToDark": "Byt till mörkt tema",
   "theme.switchToLight": "Byt till ljust tema",
-  "security.humanCheckFailed": "Verifieringswidgeten för människor kunde inte laddas. Uppdatera sidan och försök igen.",
+  "security.humanCheckFailed": "Människoverifieringen misslyckades. Uppdatera sidan och försök igen.",
   "security.humanCheckIncomplete": "Slutför verifieringssteget för människor först.",
   "security.passkeyAdd": "Lägg till en nyckel",
   "security.passkeyAdded": "Nyckeln har lagts till.",

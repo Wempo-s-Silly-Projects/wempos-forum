@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}：楽しんで、新しい人と出会おう！",
   "theme.switchToDark": "ダークテーマに切り替え",
   "theme.switchToLight": "ライトテーマに切り替え",
-  "security.humanCheckFailed": "人間確認ウィジェットを読み込めませんでした。ページを再読み込みしてもう一度試してください。",
+  "security.humanCheckFailed": "人間確認に失敗しました。ページを再読み込みしてもう一度試してください。",
   "security.humanCheckIncomplete": "先に人間であることの確認を完了してください。",
   "security.passkeyAdd": "パスキーを追加",
   "security.passkeyAdded": "パスキーを追加しました。",

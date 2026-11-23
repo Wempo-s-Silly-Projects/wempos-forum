@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: ¡diviértete y conoce gente nueva!",
   "theme.switchToDark": "Cambiar al tema oscuro",
   "theme.switchToLight": "Cambiar al tema claro",
-  "security.humanCheckFailed": "El widget de verificación humana no cargó. Actualiza la página e inténtalo de nuevo.",
+  "security.humanCheckFailed": "La verificación humana falló. Actualiza la página e inténtalo de nuevo.",
   "security.humanCheckIncomplete": "Primero completa la verificación humana.",
   "security.passkeyAdd": "Añadir una llave de acceso",
   "security.passkeyAdded": "Llave de acceso añadida.",

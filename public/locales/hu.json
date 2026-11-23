@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Szórakozz jól, és ismerj meg új embereket!",
   "theme.switchToDark": "Váltás sötét témára",
   "theme.switchToLight": "Váltás világos témára",
-  "security.humanCheckFailed": "Az emberi ellenőrzés modulja nem töltődött be. Frissítsd az oldalt, és próbáld újra.",
+  "security.humanCheckFailed": "Az emberi ellenőrzés sikertelen volt. Frissítsd az oldalt, és próbáld újra.",
   "security.humanCheckIncomplete": "Kérlek, előbb végezd el az emberi ellenőrzés lépését.",
   "security.passkeyAdd": "Azonosítókulcs hozzáadása",
   "security.passkeyAdded": "Azonosítókulcs hozzáadva.",

@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: розважайся та знайомся з новими людьми!",
   "theme.switchToDark": "Увімкнути темну тему",
   "theme.switchToLight": "Увімкнути світлу тему",
-  "security.humanCheckFailed": "Віджет перевірки людини не завантажився. Онови сторінку й спробуй ще раз.",
+  "security.humanCheckFailed": "Перевірку людини не пройдено. Онови сторінку й спробуй ще раз.",
   "security.humanCheckIncomplete": "Спершу пройди перевірку, що ти людина.",
   "security.passkeyAdd": "Додати ключ доступу",
   "security.passkeyAdded": "Ключ доступу додано.",

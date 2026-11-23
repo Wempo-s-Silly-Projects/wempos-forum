@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}：玩得开心，结识新朋友！",
   "theme.switchToDark": "切换到深色主题",
   "theme.switchToLight": "切换到浅色主题",
-  "security.humanCheckFailed": "人机验证组件加载失败。请刷新页面后重试。",
+  "security.humanCheckFailed": "人机验证失败。请刷新页面后重试。",
   "security.humanCheckIncomplete": "请先完成人机验证。",
   "security.passkeyAdd": "添加通行密钥",
   "security.passkeyAdded": "已添加通行密钥。",

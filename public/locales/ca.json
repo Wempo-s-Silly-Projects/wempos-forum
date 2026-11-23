@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Passa-ho bé i coneix gent nova!",
   "theme.switchToDark": "Canvia al tema fosc",
   "theme.switchToLight": "Canvia al tema clar",
-  "security.humanCheckFailed": "No s'ha pogut carregar el giny de verificació humana. Actualitza la pàgina i torna-ho a provar.",
+  "security.humanCheckFailed": "La verificació humana ha fallat. Actualitza la pàgina i torna-ho a provar.",
   "security.humanCheckIncomplete": "Completa primer el pas de verificació humana.",
   "security.passkeyAdd": "Afegeix una clau d'accés",
   "security.passkeyAdded": "Clau d'accés afegida.",

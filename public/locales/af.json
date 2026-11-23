@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Geniet dit en ontmoet nuwe mense!",
   "theme.switchToDark": "Skakel oor na donker tema",
   "theme.switchToLight": "Skakel oor na ligte tema",
-  "security.humanCheckFailed": "Die menslike-verifikasiewidget kon nie laai nie. Verfris die bladsy en probeer weer.",
+  "security.humanCheckFailed": "Die menslike-verifikasie het misluk. Verfris die bladsy en probeer weer.",
   "security.humanCheckIncomplete": "Voltooi asseblief eers die menslike-verifikasiestap.",
   "security.passkeyAdd": "Voeg 'n toegangsleutel by",
   "security.passkeyAdded": "Toegangsleutel bygevoeg.",

@@ -28,6 +28,7 @@ export const DEFAULT_LOCALE = "en";
 export const STORAGE_KEY = "wempo-locale";
 const PLURAL_ONE = "one";
 const PLURAL_OTHER = "other";
+const EXTRA_PLURALS = new Set(["few", "many"]);
 
 // Native names so a member can find their language whatever is showing now.
 export const LOCALES = Object.freeze([
@@ -188,9 +189,19 @@ function pluralRulesFor(locale) {
   return new Intl.PluralRules(DEFAULT_LOCALE);
 }
 
+// key.one / key.other come in pairs in every locale. A locale may also carry
+// key.few / key.many (Slavic counts); those are read from the active table
+// only, never from the English fallback, and a missing one falls to key.other.
+function pluralTemplate(category, key, messages, lookup) {
+  if (EXTRA_PLURALS.has(category) && typeof messages[`${key}.${category}`] === "string") {
+    return messages[`${key}.${category}`];
+  }
+  const form = category === PLURAL_ONE ? PLURAL_ONE : PLURAL_OTHER;
+  return lookup(`${key}.${form}`) ?? lookup(`${key}.${PLURAL_OTHER}`) ?? key;
+}
+
 // Pure translator: messages for the active locale, English as the fallback.
-// Plural keys come in pairs (key.one / key.other) in every locale, so the key
-// sets stay identical; Intl.PluralRules picks the pair member.
+// Intl.PluralRules picks the plural form (see pluralTemplate).
 export function createTranslator(locale, messages = {}, fallback = {}, brand = {}) {
   const siteName = typeof brand.siteName === "string" && brand.siteName ? brand.siteName : DEFAULT_SITE_NAME;
   const overrides = brandOverrides(siteName, brand);
@@ -204,8 +215,8 @@ export function createTranslator(locale, messages = {}, fallback = {}, brand = {
     ? overrides[key]
     : interpolate(lookup(key) ?? key, { siteName, ...vars }));
   const tn = (key, count, vars = {}) => {
-    const form = rules.select(Number(count)) === PLURAL_ONE ? PLURAL_ONE : PLURAL_OTHER;
-    const template = lookup(`${key}.${form}`) ?? lookup(`${key}.${PLURAL_OTHER}`) ?? key;
+    const category = rules.select(Number(count));
+    const template = pluralTemplate(category, key, messages, lookup);
     return interpolate(template, { siteName, ...vars, count });
   };
   return { locale, t, tn };

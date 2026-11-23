@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: আনন্দ কৰক আৰু নতুন মানুহক লগ পাওক!",
   "theme.switchToDark": "আন্ধাৰ থীমলৈ সলনি কৰক",
   "theme.switchToLight": "পোহৰ থীমলৈ সলনি কৰক",
-  "security.humanCheckFailed": "মানুহ-সত্যাপনৰ উইজেট লোড হোৱাত বিফল হ'ল। পৃষ্ঠাখন ৰিফ্ৰেছ কৰি পুনৰ চেষ্টা কৰক।",
+  "security.humanCheckFailed": "মানুহ-সত্যাপন বিফল হ'ল। পৃষ্ঠাখন ৰিফ্ৰেছ কৰি পুনৰ চেষ্টা কৰক।",
   "security.humanCheckIncomplete": "অনুগ্ৰহ কৰি প্ৰথমে মানুহ-সত্যাপনৰ পদক্ষেপটো সম্পূৰ্ণ কৰক।",
   "security.passkeyAdd": "পাছকী যোগ কৰক",
   "security.passkeyAdded": "পাছকী যোগ কৰা হ'ল।",

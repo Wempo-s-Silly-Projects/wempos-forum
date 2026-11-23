@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: মজা করুন আর নতুন মানুষদের সাথে পরিচিত হোন!",
   "theme.switchToDark": "ডার্ক থিমে যান",
   "theme.switchToLight": "লাইট থিমে যান",
-  "security.humanCheckFailed": "মানুষ হওয়ার যাচাইয়ের উইজেট লোড হয়নি। পৃষ্ঠা রিফ্রেশ করে আবার চেষ্টা করুন।",
+  "security.humanCheckFailed": "মানুষ হওয়ার যাচাই ব্যর্থ হয়েছে। পৃষ্ঠা রিফ্রেশ করে আবার চেষ্টা করুন।",
   "security.humanCheckIncomplete": "আগে মানুষ হওয়ার যাচাইয়ের ধাপটি সম্পন্ন করুন।",
   "security.passkeyAdd": "পাসকি যোগ করুন",
   "security.passkeyAdded": "পাসকি যোগ হয়েছে।",

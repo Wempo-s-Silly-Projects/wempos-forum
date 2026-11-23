@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}፦ ይዝናኑ እና አዳዲስ ሰዎችን ይተዋወቁ!",
   "theme.switchToDark": "ወደ ጨለማ ገጽታ ቀይር",
   "theme.switchToLight": "ወደ ብርሃን ገጽታ ቀይር",
-  "security.humanCheckFailed": "የሰው ማረጋገጫ መግብሩ መጫን አልቻለም። ገጹን አድሰው እንደገና ይሞክሩ።",
+  "security.humanCheckFailed": "የሰው ማረጋገጫው አልተሳካም። ገጹን አድሰው እንደገና ይሞክሩ።",
   "security.humanCheckIncomplete": "እባክዎ መጀመሪያ የሰው ማረጋገጫ ደረጃውን ያጠናቅቁ።",
   "security.passkeyAdd": "የመግቢያ ቁልፍ አክል",
   "security.passkeyAdded": "የመግቢያ ቁልፍ ታክሏል።",

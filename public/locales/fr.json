@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName} : amuse-toi et rencontre de nouvelles personnes !",
   "theme.switchToDark": "Passer au thème sombre",
   "theme.switchToLight": "Passer au thème clair",
-  "security.humanCheckFailed": "Le module de vérification anti-robot n’a pas chargé. Actualise la page et réessaie.",
+  "security.humanCheckFailed": "La vérification anti-robot a échoué. Actualise la page et réessaie.",
   "security.humanCheckIncomplete": "Termine d’abord la vérification anti-robot.",
   "security.passkeyAdd": "Ajouter une clé d'accès",
   "security.passkeyAdded": "Clé d'accès ajoutée.",

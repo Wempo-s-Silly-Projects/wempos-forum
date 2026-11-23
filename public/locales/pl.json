@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: baw się dobrze i poznawaj nowych ludzi!",
   "theme.switchToDark": "Przełącz na ciemny motyw",
   "theme.switchToLight": "Przełącz na jasny motyw",
-  "security.humanCheckFailed": "Nie udało się wczytać weryfikacji człowieka. Odśwież stronę i spróbuj ponownie.",
+  "security.humanCheckFailed": "Weryfikacja człowieka nie powiodła się. Odśwież stronę i spróbuj ponownie.",
   "security.humanCheckIncomplete": "Najpierw przejdź weryfikację, że jesteś człowiekiem.",
   "security.passkeyAdd": "Dodaj klucz dostępu",
   "security.passkeyAdded": "Dodano klucz dostępu.",

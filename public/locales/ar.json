@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: استمتع وتعرّف على أشخاص جدد!",
   "theme.switchToDark": "التبديل إلى المظهر الداكن",
   "theme.switchToLight": "التبديل إلى المظهر الفاتح",
-  "security.humanCheckFailed": "تعذّر تحميل أداة التحقق البشري. حدّث الصفحة وحاول مجددًا.",
+  "security.humanCheckFailed": "فشل التحقق البشري. حدّث الصفحة وحاول مجددًا.",
   "security.humanCheckIncomplete": "يُرجى إكمال خطوة التحقق البشري أولًا.",
   "security.passkeyAdd": "إضافة مفتاح مرور",
   "security.passkeyAdded": "أُضيف مفتاح المرور.",

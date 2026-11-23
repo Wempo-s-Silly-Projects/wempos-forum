@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}：玩得開心，認識新朋友！",
   "theme.switchToDark": "切換到深色主題",
   "theme.switchToLight": "切換到淺色主題",
-  "security.humanCheckFailed": "真人驗證元件載入失敗。請重新整理頁面後再試一次。",
+  "security.humanCheckFailed": "真人驗證失敗。請重新整理頁面後再試一次。",
   "security.humanCheckIncomplete": "請先完成真人驗證。",
   "security.passkeyAdd": "新增通行金鑰",
   "security.passkeyAdded": "已新增通行金鑰。",

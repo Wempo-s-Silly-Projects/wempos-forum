@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Berseronoklah dan kenali orang baharu!",
   "theme.switchToDark": "Tukar ke tema gelap",
   "theme.switchToLight": "Tukar ke tema cerah",
-  "security.humanCheckFailed": "Widget pengesahan manusia gagal dimuatkan. Segarkan halaman dan cuba lagi.",
+  "security.humanCheckFailed": "Pengesahan manusia gagal. Segarkan halaman dan cuba lagi.",
   "security.humanCheckIncomplete": "Sila lengkapkan langkah pengesahan manusia dahulu.",
   "security.passkeyAdd": "Tambah kunci laluan",
   "security.passkeyAdded": "Kunci laluan ditambah.",

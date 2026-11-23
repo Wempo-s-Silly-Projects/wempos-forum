@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: สนุกและทำความรู้จักเพื่อนใหม่กัน!",
   "theme.switchToDark": "เปลี่ยนเป็นธีมมืด",
   "theme.switchToLight": "เปลี่ยนเป็นธีมสว่าง",
-  "security.humanCheckFailed": "โหลดวิดเจ็ตยืนยันว่าเป็นมนุษย์ไม่สำเร็จ รีเฟรชหน้าแล้วลองใหม่",
+  "security.humanCheckFailed": "การยืนยันว่าเป็นมนุษย์ไม่สำเร็จ รีเฟรชหน้าแล้วลองใหม่",
   "security.humanCheckIncomplete": "โปรดทำขั้นตอนยืนยันว่าเป็นมนุษย์ให้เสร็จก่อน",
   "security.passkeyAdd": "เพิ่มพาสคีย์",
   "security.passkeyAdded": "เพิ่มพาสคีย์แล้ว",

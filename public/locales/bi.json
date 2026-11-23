@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Gat gudtaem mo mitim niufala fren!",
   "theme.switchToDark": "Janj i go long dak tim",
   "theme.switchToLight": "Janj i go long laet tim",
-  "security.humanCheckFailed": "Jek se yu man i no lod. Lodim pej bakegen mo traem bakegen.",
+  "security.humanCheckFailed": "Jek se yu man i fel. Lodim pej bakegen mo traem bakegen.",
   "security.humanCheckIncomplete": "Plis finisim jek se yu man fastaem.",
   "security.passkeyAdd": "Putum wan paski",
   "security.passkeyAdded": "Paski i stap nao.",

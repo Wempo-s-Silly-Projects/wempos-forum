@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Zabavi se i upoznaj nove ljude!",
   "theme.switchToDark": "Pređi na tamnu temu",
   "theme.switchToLight": "Pređi na svetlu temu",
-  "security.humanCheckFailed": "Dodatak za proveru da si čovek nije se učitao. Osveži stranicu i pokušaj ponovo.",
+  "security.humanCheckFailed": "Provera da si čovek nije uspela. Osveži stranicu i pokušaj ponovo.",
   "security.humanCheckIncomplete": "Prvo završi korak provere da si čovek.",
   "security.passkeyAdd": "Додај приступни кључ",
   "security.passkeyAdded": "Приступни кључ је додат.",

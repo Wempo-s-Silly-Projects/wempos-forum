@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Diviertete y conoix chent nueva!",
   "theme.switchToDark": "Cambiar a o tema fosco",
   "theme.switchToLight": "Cambiar a o tema claro",
-  "security.humanCheckFailed": "O widget de verificación humana no s'ha cargau. Refresca a pachina y torna-lo a prebar.",
+  "security.humanCheckFailed": "A verificación humana ha fallau. Refresca a pachina y torna-lo a prebar.",
   "security.humanCheckIncomplete": "Completa primero o paso de verificación humana.",
   "security.passkeyAdd": "Adhibir una clau d'acceso",
   "security.passkeyAdded": "Clau d'acceso adhibida.",

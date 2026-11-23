@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: תיהנו ותכירו אנשים חדשים!",
   "theme.switchToDark": "מעבר לערכת נושא כהה",
   "theme.switchToLight": "מעבר לערכת נושא בהירה",
-  "security.humanCheckFailed": "רכיב האימות האנושי לא נטען. רעננו את הדף ונסו שוב.",
+  "security.humanCheckFailed": "האימות האנושי נכשל. רעננו את הדף ונסו שוב.",
   "security.humanCheckIncomplete": "קודם צריך להשלים את שלב האימות האנושי.",
   "security.passkeyAdd": "הוספת מפתח גישה",
   "security.passkeyAdded": "מפתח הגישה נוסף.",

@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Furahia na ukutane na watu wapya!",
   "theme.switchToDark": "Badilisha kuwa mandhari meusi",
   "theme.switchToLight": "Badilisha kuwa mandhari meupe",
-  "security.humanCheckFailed": "Kijenzi cha uthibitisho wa binadamu kimeshindwa kupakia. Onyesha upya ukurasa na ujaribu tena.",
+  "security.humanCheckFailed": "Uthibitisho wa binadamu umeshindwa. Onyesha upya ukurasa na ujaribu tena.",
   "security.humanCheckIncomplete": "Tafadhali kamilisha hatua ya uthibitisho wa binadamu kwanza.",
   "security.passkeyAdd": "Ongeza ufunguo wa siri",
   "security.passkeyAdded": "Ufunguo wa siri umeongezwa.",

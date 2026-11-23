@@ -106,6 +106,26 @@ test("tn on the two-form tables: only PluralRules 'one' takes key.one, few/many/
   }
 });
 
+test("tn honours key.few / key.many when the table has them, else falls back to key.other", () => {
+  const table = {
+    "x.n.one": "one {count}", "x.n.few": "few {count}", "x.n.many": "many {count}", "x.n.other": "other {count}",
+  };
+  const pick = (code, n, messages = table) => createTranslator(code, messages, {}).tn("x.n", n);
+  assert.equal(pick("be", 1), "one 1");
+  assert.equal(pick("be", 3), "few 3");
+  assert.equal(pick("be", 22), "few 22");
+  assert.equal(pick("be", 5), "many 5");
+  assert.equal(pick("be", 11), "many 11");
+  assert.equal(pick("be", 1.5), "other 1.5");
+  assert.equal(pick("bs", 3), "few 3");
+  assert.equal(pick("bs", 5), "other 5");
+  const noMany = { "x.n.one": "one {count}", "x.n.few": "few {count}", "x.n.other": "other {count}" };
+  assert.equal(pick("be", 5, noMany), "other 5");
+  assert.equal(pick("be", 4, noMany), "few 4");
+  assert.equal(createTranslator("be", noMany, { "x.n.many": "en many {count}" }).tn("x.n", 5), "other 5",
+    "a few/many form is taken only from the active locale, never from the English fallback");
+});
+
 test("RTL: ar, he, fa and ur switch the document to dir=rtl, every other locale stays ltr", () => {
   assert.deepEqual(LOCALES.filter((locale) => locale.dir === "rtl").map((locale) => locale.code), RTL_CODES);
   for (const { code } of LOCALES) {

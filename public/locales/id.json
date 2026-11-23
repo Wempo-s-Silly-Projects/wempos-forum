@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Bersenang-senang dan kenalan dengan orang baru!",
   "theme.switchToDark": "Ganti ke tema gelap",
   "theme.switchToLight": "Ganti ke tema terang",
-  "security.humanCheckFailed": "Widget verifikasi manusia gagal dimuat. Muat ulang halaman dan coba lagi.",
+  "security.humanCheckFailed": "Verifikasi manusia gagal. Muat ulang halaman dan coba lagi.",
   "security.humanCheckIncomplete": "Selesaikan dulu langkah verifikasi manusia.",
   "security.passkeyAdd": "Tambahkan kunci sandi",
   "security.passkeyAdded": "Kunci sandi ditambahkan.",

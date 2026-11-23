@@ -872,7 +872,7 @@
   "shell.tagline": "{siteName}: Забавлявай се и се запознай с нови хора!",
   "theme.switchToDark": "Премини към тъмна тема",
   "theme.switchToLight": "Премини към светла тема",
-  "security.humanCheckFailed": "Уиджетът за проверка, че си човек, не се зареди. Обнови страницата и опитай отново.",
+  "security.humanCheckFailed": "Проверката, че си човек, не успя. Обнови страницата и опитай отново.",
   "security.humanCheckIncomplete": "Първо завърши стъпката за проверка, че си човек.",
   "security.passkeyAdd": "Добави ключ за достъп",
   "security.passkeyAdded": "Ключът за достъп е добавен.",
