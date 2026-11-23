@@ -80,6 +80,7 @@ import { createInvitePanel } from "../invite.js";
 import { createFeedViews, feedViewEmptyText, feedViewQuery } from "../feed-views.js";
 import { numberSuggestionCards } from "../suggestion-rank.js";
 import { createFeedEnd, reachedFeedEnd } from "../feed-end.js";
+import { createSavedSearch } from "../saved-search.js";
 import {
   createRemoveSavedBoard,
   createSavedBoardFilter,
@@ -617,6 +618,8 @@ async function renderBookmarksRoute(route, context, version) {
   main.append(createFolderFilter(document, folders, null));
   main.append(createSavedBoardFilter(document, board));
   if (board && data.bookmarks.length) main.append(createRemoveSavedBoard(document, board));
+  // L2 wave: full-text search over the saved cards on the page (MiniSearch).
+  if (data.bookmarks.length) main.append(createSavedSearch(document, main));
   appendPostList(main, data.bookmarks, document, context.session.user,
     savedEmptyText(board));
   decorateSaved(null);

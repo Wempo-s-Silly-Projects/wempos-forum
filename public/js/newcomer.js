@@ -20,6 +20,7 @@
 
 import { t } from "./i18n.js";
 import { jumpToNode } from "./focus-utils.js";
+import { createTourButton } from "./newcomer-tour.js";
 // Newcomer cards (wave 2026-11-21-20): a one-time welcome card for accounts
 // made in the last 7 days (three starter links and a nudge to say hi), then a
 // short "new tricks" tips card for everyone signed in. One card shows at a
@@ -132,6 +133,8 @@ function welcomeBody(document, user) {
       ...(invitedBy ? [textNode(document, "p", "newcomer-invited", t("invite.invitedBy", { name: invitedBy }))] : []),
       textNode(document, "p", "newcomer-copy", t("newcomer.welcomeBody")),
       list,
+      // L2 wave: the one guided tour lives here (newcomer-tour.js, Driver.js).
+      createTourButton(document),
       textNode(document, "p", "newcomer-nudge", t("newcomer.sayHi")),
     ],
     dismissLabel: t("newcomer.hideWelcome"),

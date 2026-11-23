@@ -37,7 +37,7 @@ const GROUP_LABEL_KEYS = Object.freeze({
   post: "threadActions.thisPost",
 });
 const CHIP_CLASSES = Object.freeze(["view-count", "reply-count"]);
-const READING_CLASSES = Object.freeze(["read-aloud", "reveal-spoilers", "save-thread-text"]);
+const READING_CLASSES = Object.freeze(["read-aloud", "reveal-spoilers", "save-thread-text", "keep-awake"]);
 const FOLLOWING_CLASSES = Object.freeze(["subscribe-toggle", "thread-mute-toggle", "bookmark-toggle"]);
 const STAFF_ACTIONS = Object.freeze(new Set([
   "thread-pin", "thread-unpin", "thread-lock", "thread-unlock", "staff-pick", "staff-unpick", "suggestion-status",

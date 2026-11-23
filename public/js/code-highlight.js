@@ -24,6 +24,7 @@
 // The CSP is untouched: both scripts are 'self' and built with createElement.
 // Blocks Prism never sees (no or unsafe language, over the size cap, Prism
 // failed to load) stay exactly the plain text they were before.
+import { needsCommandLine } from "./command-line.js";
 
 // Mirrors constants.mjs (pinned equal by tests/wave574-prism.test.mjs).
 export const CODE_LINE_NUMBERS_MIN_LINES = 5;
@@ -35,6 +36,9 @@ export const PRISM_SRC = "/js/vendor/prism.js";
 // block whose language Prism lacks is never handed to it: the autoloader
 // plugin would otherwise ask the missing components folder for it and
 // get a 404. Such a block simply stays plain text.
+// Terminal sessions (command-line.js): Prism's command-line plugin, from the
+// same 1.30.0 release, fetched after Prism and only for a command-line block.
+export const PRISM_COMMAND_LINE_SRC = "/js/vendor/prism-command-line.min.js";
 
 const LANGUAGE_NONE = "none";
 // The fence info string, whole: one ASCII word (letters, digits, "_", "-").
@@ -102,6 +106,12 @@ export function createCodeHighlighter(document, getPrism = () => globalThis.Pris
       .then(() => appendScript(document, PRISM_SRC));
     return loading;
   };
+  // A plugin that fails to load still lets the session paint as plain bash.
+  let commandLine = null;
+  const loadCommandLine = () => {
+    commandLine ??= load().then(() => appendScript(document, PRISM_COMMAND_LINE_SRC).catch(() => {}));
+    return commandLine;
+  };
   const paint = (codes) => {
     const prism = getPrism();
     if (!prism || typeof prism.highlightElement !== "function") return;
@@ -111,7 +121,7 @@ export function createCodeHighlighter(document, getPrism = () => globalThis.Pris
     highlight(codes) {
       const list = Array.from(codes ?? []);
       if (!list.length || typeof document?.head?.append !== "function") return;
-      load().then(() => paint(list), () => {
+      (needsCommandLine(list) ? loadCommandLine() : load()).then(() => paint(list), () => {
         // Plain text is the designed fallback; nothing to undo.
       });
     },

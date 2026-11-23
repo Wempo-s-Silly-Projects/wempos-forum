@@ -544,3 +544,27 @@ path = "public/js/vendor/screenfull.js"
 precedence = "override"
 SPDX-FileCopyrightText = "Sindre Sorhus"
 SPDX-License-Identifier = "MIT"
+
+# L2 library wave, each kept byte-for-byte from its published package and
+# pinned by sha256 in tests/wave-l2-libs.test.mjs (prism-command-line.min.js
+# is Prism 1.30.0's own plugin and rides the Prism wildcard block above).
+# MiniSearch 7.2.0 (dist/es/index.js): search of the saved posts on the page.
+[[annotations]]
+path = "public/js/vendor/minisearch.js"
+precedence = "override"
+SPDX-FileCopyrightText = "2022 Luca Ongaro"
+SPDX-License-Identifier = "MIT"
+
+# NoSleep.js 0.12.0 (dist/NoSleep.min.js): the thread's "Keep screen awake".
+[[annotations]]
+path = "public/js/vendor/NoSleep.min.js"
+precedence = "override"
+SPDX-FileCopyrightText = "Rich Tibbett"
+SPDX-License-Identifier = "MIT"
+
+# Driver.js 1.14.0 (dist/driver.js.iife.js + dist/driver.css): the newcomer tour.
+[[annotations]]
+path = ["public/js/vendor/driver.js.iife.js", "public/js/vendor/driver.css"]
+precedence = "override"
+SPDX-FileCopyrightText = "Kamran Ahmed"
+SPDX-License-Identifier = "MIT"
