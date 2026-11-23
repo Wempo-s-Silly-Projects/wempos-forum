@@ -304,3 +304,9 @@ export const YOUTUBE_EMBED_ORIGIN = "https://www.youtube-nocookie.com";
 // public/js/vendor/wavesurfer.esm.js by the test, so a library swap that
 // changes the style fails loudly instead of silently unstyling the waveform.
 export const WAVESURFER_STYLE_HASH = "sha256-/wNXXQM7c2ofBcjrAABoSS5Ibbo1K6dLnomtT2ZNGIA=";
+
+// v5.79.1: real standalone HTML files under public/ (not the app shell). The
+// worker's honest-404 pass lets these through as themselves instead of judging
+// them as SPA-fallback paths; tests/wave52-honest-404.test.mjs walks public/
+// so an unlisted page fails CI. The offline page is pre-cached by public/sw.js.
+export const STATIC_HTML_PAGES = Object.freeze(["/offline.html"]);

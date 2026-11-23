@@ -157,3 +157,19 @@ test("the client not-found view paints a large aria-hidden 404 above the h1", ()
   const css = readFileSync(new URL("../public/styles.css", import.meta.url), "utf8");
   assert.match(css, /\.not-found-code\s*\{/);
 });
+
+// v5.79.1: a real standalone HTML file (the service worker's offline page) is a
+// real asset, not the SPA fallback — it must be served 200 as itself. Before
+// this, honestAssetResponse re-judged every 200 text/html answer through the
+// client router and turned /offline.html into a 404, so the service worker
+// could never pre-cache it.
+test("every standalone public/*.html file (other than the shell) is served 200 as itself", async () => {
+  const pages = readdirSync(PUBLIC_DIR).filter((name) => name.endsWith(".html") && name !== "index.html");
+  assert.ok(pages.includes("offline.html"), "the offline page exists");
+  for (const name of pages) {
+    const response = await get("/" + name);
+    assert.equal(response.status, 200, name);
+    const body = await response.text();
+    assert.notEqual(body, SHELL, name + " is served as itself, not the app shell");
+  }
+});

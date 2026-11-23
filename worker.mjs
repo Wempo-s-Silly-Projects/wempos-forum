@@ -23,6 +23,7 @@
 // validates every Worker export as a function or ExportedHandler, so besides
 // the default fetch only `export { ... } from` re-exports appear here.
 import { HttpError, json, secureResponse, unconditional } from "./api/core/http.mjs";
+import { STATIC_HTML_PAGES } from "./constants.mjs";
 // Phase-2 Kitskey migration: the ONE error classifier and the dispatch chain
 // come from the vendored framework (core re-exports both; the byte-pin keeps
 // them identical). worker.mjs stops carrying its second copy of the mapping.
@@ -199,6 +200,11 @@ const PLAIN_404_CACHE = "public, max-age=60";
 function honestAssetResponse(assetResponse, url) {
   const type = assetResponse.headers.get("Content-Type") || "";
   if (assetResponse.status !== 200 || !type.includes("text/html")) return assetResponse;
+  // A real standalone page (e.g. the service worker's offline page), served at
+  // its .html path or the extensionless one the assets binding also answers.
+  if (STATIC_HTML_PAGES.some((page) => url.pathname === page || url.pathname === page.replace(/\.html$/, ""))) {
+    return assetResponse;
+  }
   if (PLAIN_404_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) {
     return new Response("Not found.\n", {
       status: 404,
