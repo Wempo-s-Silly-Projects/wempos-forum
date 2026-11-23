@@ -32,8 +32,8 @@ import { join } from "node:path";
 import vm from "node:vm";
 import * as constants from "../constants.mjs";
 import {
-  CODE_HIGHLIGHT_MAX_CHARS, CODE_LINE_NUMBERS_MIN_LINES, PRISM_AUTOLOADER_PATH, PRISM_CONFIG_SRC, PRISM_SRC,
-  codeBlockPlan, codeLanguageClass, createCodeHighlighter,
+  CODE_HIGHLIGHT_MAX_CHARS, CODE_LINE_NUMBERS_MIN_LINES, PRISM_CONFIG_SRC, PRISM_SRC,
+  codeBlockPlan, codeLanguageClass, createCodeHighlighter, prismKnowsLanguage,
 } from "../public/js/code-highlight.js";
 import { createCopyCodeButton } from "../public/js/copy-code.js";
 import { renderBodyBlocks } from "../public/js/render.js";
@@ -143,7 +143,8 @@ test("loader: manual-mode config first, then the same-origin vendor script once,
   await fire(0, "load");
   assert.equal(appended.length, 2);
   assert.equal(appended[1].getAttribute("src"), PRISM_SRC);
-  assert.equal(appended[1].getAttribute("data-autoloader-path"), PRISM_AUTOLOADER_PATH);
+  // v5.84: no components/ folder ships, so no autoloader path is advertised.
+  assert.equal(appended[1].getAttribute("data-autoloader-path"), null);
   await fire(1, "load");
   assert.deepEqual(highlighted, [a, b]);
   const c = document.createElement("code");
@@ -158,7 +159,53 @@ test("loader: manual-mode config first, then the same-origin vendor script once,
   }
   assert.equal(PRISM_CONFIG_SRC, "/js/prism-config.js");
   assert.equal(PRISM_SRC, "/js/vendor/prism.js");
-  assert.equal(PRISM_AUTOLOADER_PATH, "/js/vendor/components/");
+  assert.doesNotMatch(read("public/js/code-highlight.js"), /\/js\/vendor\/components\//, "no dead autoloader folder");
+});
+
+test("a block whose language Prism lacks is never handed to it (the autoloader never fetches)", () => {
+  const document = makeFakeDocument();
+  const languageBlock = (name) => {
+    const code = document.createElement("code");
+    code.className = "language-" + name;
+    return code;
+  };
+  const known = languageBlock("js");
+  const unknown = languageBlock("madeup");
+  const diff = languageBlock("diff-js");
+  const diffUnknown = languageBlock("diff-madeup");
+  const prism = { languages: { js: {}, diff: {} } };
+  assert.equal(prismKnowsLanguage(prism, known), true);
+  assert.equal(prismKnowsLanguage(prism, unknown), false);
+  assert.equal(prismKnowsLanguage(prism, diff), true);
+  assert.equal(prismKnowsLanguage(prism, diffUnknown), false);
+  assert.equal(prismKnowsLanguage({}, unknown), true, "no language table: Prism decides, as before");
+  const pre = document.createElement("pre");
+  pre.className = "language-madeup";
+  const nested = document.createElement("code");
+  pre.append(nested);
+  assert.equal(prismKnowsLanguage(prism, nested), false, "the <pre>'s class counts too");
+});
+
+test("the highlighter skips a block Prism has no grammar for and paints the rest", async () => {
+  const appended = [];
+  const head = new FakeNode("head");
+  head.append = (...nodes) => { appended.push(...nodes); };
+  const document = makeFakeDocument({ head });
+  const highlighted = [];
+  const prism = { languages: { js: {} }, highlightElement: (code) => highlighted.push(code) };
+  let ready = false;
+  const highlighter = createCodeHighlighter(document, () => (ready ? prism : undefined));
+  const known = document.createElement("code");
+  known.className = "language-js";
+  const unknown = document.createElement("code");
+  unknown.className = "language-madeup";
+  highlighter.highlight([known, unknown]);
+  for (const listener of appended[0].listeners.load ?? []) listener({});
+  await tick();
+  ready = true;
+  for (const listener of appended[1].listeners.load ?? []) listener({});
+  await tick();
+  assert.deepEqual(highlighted, [known], "the unknown block stays plain text");
 });
 
 test("a failed load leaves blocks plain and is not retried", async () => {

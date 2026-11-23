@@ -51,7 +51,7 @@ import {
 import { renderProfileWall } from "../wall.js";
 import { createFollowButton, loadFollowState } from "../follows.js";
 import { createPrivateNoteBox, loadPrivateNote } from "../private-note.js";
-import { openChatThread } from "../chat-widget.js";
+import { loadChatWidget } from "../chat-widget-loader.js";
 import { currentLocale, t, tn } from "../i18n.js";
 import {
   createPinnedThread,
@@ -491,6 +491,8 @@ async function openProfileChat(button) {
   const thread = await api("/api/dm/threads", { method: "POST", body });
   const threadId = thread?.id;
   if (threadId == null) throw new Error(t("profile.chatFailed"));
+  // v5.84: the widget may not have loaded yet (it waits for idle).
+  const { openChatThread } = await loadChatWidget();
   await openChatThread(threadId);
 }
 

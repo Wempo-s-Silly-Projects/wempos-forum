@@ -31,9 +31,10 @@ export const CODE_HIGHLIGHT_MAX_CHARS = 20000;
 
 export const PRISM_CONFIG_SRC = "/js/prism-config.js";
 export const PRISM_SRC = "/js/vendor/prism.js";
-// Every language is bundled, so the autoloader only ever asks this
-// same-origin folder for names the build lacks (and gets a 404).
-export const PRISM_AUTOLOADER_PATH = "/js/vendor/components/";
+// Every language is bundled and no components/ folder ships (v5.84), so a
+// block whose language Prism lacks is never handed to it: the autoloader
+// plugin would otherwise ask the missing components folder for it and
+// get a 404. Such a block simply stays plain text.
 
 const LANGUAGE_NONE = "none";
 // The fence info string, whole: one ASCII word (letters, digits, "_", "-").
@@ -68,6 +69,27 @@ function appendScript(document, src, attributes = {}) {
   });
 }
 
+// The language-<name> on the block (or its <pre>), or "".
+function blockLanguage(code) {
+  for (const node of [code, code?.parentNode]) {
+    const match = /(?:^|\s)language-([\w-]+)/.exec(String(node?.className ?? ""));
+    if (match) return match[1].toLowerCase();
+  }
+  return "";
+}
+
+// False only when Prism's language table is known and lacks the block's
+// language (diff-<name> needs both "diff" and <name>), so the autoloader is
+// never asked for a file that does not exist.
+export function prismKnowsLanguage(prism, code) {
+  const languages = prism?.languages;
+  if (!languages || typeof languages !== "object") return true;
+  const name = blockLanguage(code);
+  if (!name || name === LANGUAGE_NONE) return true;
+  const needed = name.startsWith("diff-") ? ["diff", name.slice("diff-".length)] : [name];
+  return needed.every((language) => Boolean(languages[language]));
+}
+
 // A highlighter bound to one document. The config script must run before the
 // vendor file reads window.Prism, so the second tag is only added after the
 // first has loaded. The load promise is kept, success or failure: Prism is
@@ -77,13 +99,13 @@ export function createCodeHighlighter(document, getPrism = () => globalThis.Pris
   let loading = null;
   const load = () => {
     loading ??= appendScript(document, PRISM_CONFIG_SRC)
-      .then(() => appendScript(document, PRISM_SRC, { "data-autoloader-path": PRISM_AUTOLOADER_PATH }));
+      .then(() => appendScript(document, PRISM_SRC));
     return loading;
   };
   const paint = (codes) => {
     const prism = getPrism();
     if (!prism || typeof prism.highlightElement !== "function") return;
-    for (const code of codes) prism.highlightElement(code);
+    for (const code of codes) if (prismKnowsLanguage(prism, code)) prism.highlightElement(code);
   };
   return {
     highlight(codes) {

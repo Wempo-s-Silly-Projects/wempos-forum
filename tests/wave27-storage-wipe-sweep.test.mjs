@@ -75,10 +75,16 @@ test("the IndexedDB rule catches idb-keyval importers, and drafts.js is one", ()
 
 const NAV = sources.get("routes/account-nav.js");
 const wipeBody = NAV.match(/function wipeAccountLocalData\(\)\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
-// name -> module path (relative to public/js) for every clearAll import.
-const wipeImports = new Map([...NAV.matchAll(/import\s*\{([^}]*)\}\s*from\s*"\.\.\/([^"]+)"/g)]
-  .flatMap(([, names, from]) => names.split(",").map((name) => name.trim())
-    .filter((name) => name.startsWith("clearAll")).map((name) => [name, from])));
+// name -> module path (relative to public/js) for every clearAll import. v5.84:
+// a module kept off the boot path (fun/settings.js) is imported on demand as
+// import("../x.js").then(({ clearAllX }) => …), which counts the same.
+const STATIC_WIPE_IMPORT = /import\s*\{([^}]*)\}\s*from\s*"\.\.\/([^"]+)"/g;
+const LAZY_WIPE_IMPORT = /import\(\s*"\.\.\/([^"]+)"\s*\)\.then\(\(\s*\{([^}]*)\}\s*\)/g;
+const wipeImports = new Map([
+  ...[...NAV.matchAll(STATIC_WIPE_IMPORT)].map(([, names, from]) => [names, from]),
+  ...[...NAV.matchAll(LAZY_WIPE_IMPORT)].map(([, from, names]) => [names, from]),
+].flatMap(([names, from]) => names.split(",").map((name) => name.trim())
+  .filter((name) => name.startsWith("clearAll")).map((name) => [name, from])));
 const calledInWipe = (name) => new RegExp("\\b" + name + "\\(\\)").test(wipeBody);
 
 test("the write pattern catches every storage write shape and skips reads", () => {
