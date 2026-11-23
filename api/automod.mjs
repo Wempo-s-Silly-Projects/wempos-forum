@@ -1,3 +1,4 @@
+
 // Copyright 2026 ItsWempo
 //
 // This file is part of Wempo's Forum.
@@ -12,9 +13,8 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 //
-// You should have received a copy of the
-// GNU Affero General Public License along with this program.  If not,
-// see <https://www.gnu.org/licenses/>.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
@@ -127,7 +127,8 @@ const SOURCES = [
   {
     key: "d",
     sql: "SELECT r.id, r.thread_id, r.reason, r.created_at, u.id AS author_id, u.username, u.role " +
-      "FROM dm_reports r JOIN users u ON u.id = r.reporter_id WHERE r.id > ? ORDER BY r.id LIMIT ?",
+      "FROM dm_reports r JOIN users u ON u.id = r.reporter_id " +
+      `WHERE r.id > ? AND ${NOT_STAFF_SQL} ORDER BY r.id LIMIT ?`,
     shape: (row) => ({ type: "dm", id: Number(row.id), threadId: Number(row.thread_id), reason: row.reason, messages: [] }),
   },
 ];
@@ -142,14 +143,24 @@ function parseQueueParams(url) {
   const rawLimit = url.searchParams.get("limit");
   let limit = AUTOMOD_QUEUE_MAX;
   if (rawLimit !== null) {
-    if (!LIMIT.test(rawLimit) || Number(rawLimit) < 1) throw new HttpError(400, "That limit is invalid.");
+    const match = LIMIT.exec(rawLimit);
+    if (!match || match[0].length !== rawLimit.length || Number(rawLimit) < 1) {
+      throw new HttpError(400, "That limit is invalid.");
+    }
     limit = Math.min(Number(rawLimit), AUTOMOD_QUEUE_MAX);
   }
+
   const rawAfter = url.searchParams.get("after");
   if (rawAfter === null || rawAfter === "") return { limit, cursor: null };
-  const match = rawAfter.match(CURSOR);
-  if (!match) throw new HttpError(400, "That queue cursor is invalid.");
-  const cursor = Object.fromEntries(SOURCES.map(({ key }, index) => [key, Number(match[index + 1])]));
+
+  const match = CURSOR.exec(rawAfter);
+  if (!match || match[0].length !== rawAfter.length) {
+    throw new HttpError(400, "That queue cursor is invalid.");
+  }
+
+  const cursor = Object.fromEntries(
+    SOURCES.map(({ key }, index) => [key, Number(match[index + 1])]),
+  );
   return { limit, cursor };
 }
 
@@ -159,19 +170,29 @@ function mergeSources(lists, limit, cursor) {
   const heads = lists.map(() => 0);
   const next = { ...cursor };
   const picked = [];
+
   while (picked.length < limit) {
     let best = -1;
     lists.forEach((rows, index) => {
       if (heads[index] >= rows.length) return;
-      if (best === -1 || Number(rows[heads[index]].created_at) < Number(lists[best][heads[best]].created_at)) best = index;
+      if (
+        best === -1 ||
+        Number(rows[heads[index]].created_at) <
+          Number(lists[best][heads[best]].created_at)
+      ) {
+        best = index;
+      }
     });
+
     if (best === -1) break;
+
     const source = SOURCES[best];
     const row = lists[best][heads[best]];
     heads[best] += 1;
     next[source.key] = source.seq ? source.seq(row) : Number(row.id);
     picked.push({ ...source.shape(row), author: author(row), createdAt: iso(row.created_at) });
   }
+
   return { picked, next };
 }
 
@@ -179,6 +200,7 @@ async function attachDmContext(db, items) {
   const dmItems = items.filter((item) => item.type === "dm");
   const threadIds = [...new Set(dmItems.map((item) => item.threadId))];
   if (!threadIds.length) return items;
+
   const rows = (await db.prepare(
     "SELECT * FROM (SELECT m.id, m.thread_id, m.body, m.created_at, u.id AS author_id, u.username, u.role, " +
       "ROW_NUMBER() OVER (PARTITION BY m.thread_id ORDER BY m.id DESC) AS rn " +
@@ -186,10 +208,14 @@ async function attachDmContext(db, items) {
       `WHERE m.thread_id IN (${threadIds.map(() => "?").join(", ")})) ` +
       `WHERE rn <= ${AUTOMOD_DM_CONTEXT} ORDER BY thread_id, id`,
   ).bind(...threadIds).all()).results || [];
+
   return items.map((item) => (item.type !== "dm" ? item : {
     ...item,
     messages: rows.filter((row) => Number(row.thread_id) === item.threadId).map((row) => ({
-      id: Number(row.id), body: row.body, author: author(row), createdAt: iso(row.created_at),
+      id: Number(row.id),
+      body: row.body,
+      author: author(row),
+      createdAt: iso(row.created_at),
     })),
   }));
 }
@@ -198,13 +224,26 @@ async function handleQueue(request, env, url) {
   await rateLimit(request, env, "read", "automod");
   const db = env.FORUM_DB;
   const { limit, cursor } = parseQueueParams(url);
+
   if (!cursor) {
+    // First poll establishes the live-stream baseline. Historical records
+    // are intentionally not replayed.
     const tail = await db.prepare(TAIL_SQL).first();
-    const start = Object.fromEntries(SOURCES.map(({ key }) => [key, Number(tail?.[key]) || 0]));
+    const start = Object.fromEntries(
+      SOURCES.map(({ key }) => [key, Number(tail?.[key]) || 0]),
+    );
     return json({ items: [], cursor: formatCursor(start) });
   }
-  const results = await db.batch(SOURCES.map(({ key, sql }) => db.prepare(sql).bind(cursor[key], limit)));
-  const { picked, next } = mergeSources(results.map((result) => result.results || []), limit, cursor);
+
+  const results = await db.batch(
+    SOURCES.map(({ key, sql }) => db.prepare(sql).bind(cursor[key], limit)),
+  );
+  const { picked, next } = mergeSources(
+    results.map((result) => result.results || []),
+    limit,
+    cursor,
+  );
+
   return json({ items: await attachDmContext(db, picked), cursor: formatCursor(next) });
 }
 
@@ -222,15 +261,26 @@ function readAction(body) {
   const rawType = typeof body?.type === "string" ? body.type : "";
   if (!TARGET_TYPES.has(rawType)) throw new HttpError(400, "Choose a valid target type.");
   if (!ACTIONS.has(body.action)) throw new HttpError(400, "Choose hide, ban or report.");
+
   const id = body.id;
-  if (!Number.isSafeInteger(id) || id < 1) throw new HttpError(400, "That target id is invalid.");
+  if (!Number.isSafeInteger(id) || id < 1) {
+    throw new HttpError(400, "That target id is invalid.");
+  }
+
   const reason = requiredText(body.reason, "reason", AUTOMOD_REASON_MAX);
-  return { type: rawType === "reply" ? "post" : rawType, id, action: body.action, reason };
+  return {
+    type: rawType === "reply" ? "post" : rawType,
+    id,
+    action: body.action,
+    reason,
+  };
 }
 
 function readBanHours(raw) {
   const hours = typeof raw === "number" ? raw : NaN;
-  if (!Number.isFinite(hours) || hours < 1) throw new HttpError(400, "Ban hours must be a positive number.");
+  if (!Number.isFinite(hours) || hours < 1) {
+    throw new HttpError(400, "Ban hours must be a positive number.");
+  }
   // Clamp, never refuse: an over-long request still gets the capped ban.
   return Math.min(Math.floor(hours), AUTOMOD_MAX_BAN_HOURS);
 }
@@ -239,31 +289,70 @@ function logStatement(db, entry) {
   return db.prepare(
     "INSERT INTO automod_actions (actor, action, target_type, target_id, target_user_id, reason, ban_id, ban_hours, created_at) " +
       "VALUES ('AutoMod', ?, ?, ?, ?, ?, ?, ?, ?)",
-  ).bind(entry.action, entry.type, entry.id, entry.userId, entry.reason, entry.banId ?? null, entry.banHours ?? null, nowSeconds());
+  ).bind(
+    entry.action,
+    entry.type,
+    entry.id,
+    entry.userId,
+    entry.reason,
+    entry.banId ?? null,
+    entry.banHours ?? null,
+    nowSeconds(),
+  );
 }
 
 async function runHide(db, target, request) {
-  if (request.type !== "post") throw new HttpError(400, "Only posts and replies can be hidden.");
-  const hidden = await hidePostsBatch(db, [request.id], Number(target.user_id), null);
+  if (request.type !== "post") {
+    throw new HttpError(400, "Only posts and replies can be hidden.");
+  }
+
+  const hidden = await hidePostsBatch(
+    db,
+    [request.id],
+    Number(target.user_id),
+    null,
+  );
+
   if (!hidden) return { already: true };
-  await logStatement(db, { ...request, userId: Number(target.user_id) }).run();
+
+  await logStatement(db, {
+    ...request,
+    userId: Number(target.user_id),
+  }).run();
+
   return {};
 }
 
 async function runBan(db, env, target, request, rawHours) {
   const banHours = readBanHours(rawHours);
   const userId = Number(target.user_id);
-  const reason = applyWordFilter(AUTOMOD_BAN_PREFIX + request.reason, filterWords(env));
+  const reason = applyWordFilter(
+    AUTOMOD_BAN_PREFIX + request.reason,
+    filterWords(env),
+  );
+
   let banId;
   try {
     banId = await applyUserBan(db, {
-      targetId: userId, modId: null, reason, expiresAt: nowSeconds() + banHours * SECONDS_PER_HOUR,
+      targetId: userId,
+      modId: null,
+      reason,
+      expiresAt: nowSeconds() + banHours * SECONDS_PER_HOUR,
     });
   } catch (error) {
-    if (error instanceof HttpError && error.status === 409) return { already: true, banHours };
+    if (error instanceof HttpError && error.status === 409) {
+      return { already: true, banHours };
+    }
     throw error;
   }
-  await logStatement(db, { ...request, userId, banId, banHours }).run();
+
+  await logStatement(db, {
+    ...request,
+    userId,
+    banId,
+    banHours,
+  }).run();
+
   return { banHours };
 }
 
@@ -272,7 +361,16 @@ async function runReport(db, target, request) {
     "INSERT INTO automod_actions (actor, action, target_type, target_id, target_user_id, reason, created_at) " +
       "SELECT 'AutoMod', 'report', ?, ?, ?, ?, ? WHERE NOT EXISTS (" +
       "SELECT 1 FROM automod_actions WHERE action = 'report' AND target_type = ? AND target_id = ?)",
-  ).bind(request.type, request.id, Number(target.user_id), request.reason, nowSeconds(), request.type, request.id).run();
+  ).bind(
+    request.type,
+    request.id,
+    Number(target.user_id),
+    request.reason,
+    nowSeconds(),
+    request.type,
+    request.id,
+  ).run();
+
   return Number(result.meta?.changes) === 1 ? {} : { already: true };
 }
 
@@ -281,20 +379,39 @@ async function handleAction(request, env) {
   const body = await readJson(request);
   const parsed = readAction(body);
   const db = env.FORUM_DB;
-  const target = await db.prepare(TARGET_SQL[parsed.type]).bind(parsed.id).first();
+
+  const target = await db.prepare(TARGET_SQL[parsed.type])
+    .bind(parsed.id)
+    .first();
+
   if (!target) throw new HttpError(404, "Target not found.");
-  if (isStaffRole(target.role)) throw new HttpError(403, "AutoMod never acts on staff.");
+  if (isStaffRole(target.role)) {
+    throw new HttpError(403, "AutoMod never acts on staff.");
+  }
+
   let outcome;
-  if (parsed.action === "hide") outcome = await runHide(db, target, parsed);
-  else if (parsed.action === "ban") outcome = await runBan(db, env, target, parsed, body.ban_hours);
-  else outcome = await runReport(db, target, parsed);
-  return json({ ok: true, action: parsed.action, type: parsed.type, id: parsed.id, ...outcome });
+  if (parsed.action === "hide") {
+    outcome = await runHide(db, target, parsed);
+  } else if (parsed.action === "ban") {
+    outcome = await runBan(db, env, target, parsed, body.ban_hours);
+  } else {
+    outcome = await runReport(db, target, parsed);
+  }
+
+  return json({
+    ok: true,
+    action: parsed.action,
+    type: parsed.type,
+    id: parsed.id,
+    ...outcome,
+  });
 }
 
 // The desk's AutoMod log (staff): newest first, with whether each hide is
 // still in force and whether the target still has an active ban.
 async function handleAdminLog(request, env) {
   await requireStaff(request, env, false);
+
   const rows = (await env.FORUM_DB.prepare(
     "SELECT a.id, a.actor, a.action, a.target_type, a.target_id, a.target_user_id, a.reason, a.ban_hours, a.created_at, " +
       "u.username, " +
@@ -304,6 +421,7 @@ async function handleAdminLog(request, env) {
       "FROM automod_actions a LEFT JOIN users u ON u.id = a.target_user_id " +
       `ORDER BY a.id DESC LIMIT ${ADMIN_LOG_LIMIT}`,
   ).all()).results || [];
+
   return json({
     actions: rows.map((row) => ({
       id: Number(row.id),
@@ -311,7 +429,9 @@ async function handleAdminLog(request, env) {
       action: row.action,
       type: row.target_type,
       targetId: Number(row.target_id),
-      target: row.target_user_id === null ? null : { id: Number(row.target_user_id), username: row.username },
+      target: row.target_user_id === null
+        ? null
+        : { id: Number(row.target_user_id), username: row.username },
       reason: row.reason,
       banHours: row.ban_hours === null ? null : Number(row.ban_hours),
       stillHidden: Number(row.still_hidden) === 1,
@@ -325,16 +445,32 @@ async function handleAdminLog(request, env) {
 // AutoMod is switched on (no collection while it is off).
 export async function recordProfileEdit(env, userId) {
   if (!automodEnabled(env)) return;
-  await env.FORUM_DB.prepare("INSERT INTO automod_profile_edits (user_id, created_at) VALUES (?, ?)")
-    .bind(userId, nowSeconds()).run();
+
+  await env.FORUM_DB.prepare(
+    "INSERT INTO automod_profile_edits (user_id, created_at) VALUES (?, ?)",
+  ).bind(userId, nowSeconds()).run();
 }
 
 export async function handleAutoModRoutes(request, env, url, path, method) {
-  if (path === "/api/admin/automod" && method === "GET") return handleAdminLog(request, env);
-  if (path !== "/api/automod" && !path.startsWith("/api/automod/")) return null;
+  if (path === "/api/admin/automod" && method === "GET") {
+    return handleAdminLog(request, env);
+  }
+
+  if (path !== "/api/automod" && !path.startsWith("/api/automod/")) {
+    return null;
+  }
+
   if (!automodEnabled(env)) throw new HttpError(404, "Not found.");
+
   await requireAutoModKey(request, env);
-  if (path === "/api/automod/queue" && method === "GET") return handleQueue(request, env, url);
-  if (path === "/api/automod/action" && method === "POST") return handleAction(request, env);
+
+  if (path === "/api/automod/queue" && method === "GET") {
+    return handleQueue(request, env, url);
+  }
+
+  if (path === "/api/automod/action" && method === "POST") {
+    return handleAction(request, env);
+  }
+
   throw new HttpError(404, "Not found.");
 }
