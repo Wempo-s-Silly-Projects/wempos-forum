@@ -72,9 +72,14 @@ export const POST_SELECT =
 // the same request that counts a view also reports the new total.
 export const VIEW_INCREMENT_SQL =
   "UPDATE posts SET view_count = view_count + 1 WHERE id = ? RETURNING view_count";
+function matchesEntireString(pattern, value) {
+  if (typeof value !== "string") return false;
 
+  const match = pattern.exec(value);
+  return match !== null && match[0].length === value.length;
+}
 export function isValidUsername(value) {
-  return typeof value === "string" && /^[A-Za-z0-9_]{3,24}$/.test(value);
+  return matchesEntireString(/^[A-Za-z0-9_]{3,24}/, value);
 }
 
 // Platform keys accepted by PATCH /api/me `socials`, each with the users table
@@ -114,7 +119,11 @@ export const SOCIAL_PLATFORMS = [
   { key: "venmo", column: "social_venmo", regex: /^[A-Za-z0-9_-]{5,30}$/ },
   { key: "polytoria", column: "polytoria_username", regex: /^[A-Za-z0-9_]{1,24}$/ },
 ];
-
+export function isValidSocialHandle(key, value) {
+  const platform = SOCIAL_PLATFORMS.find((item) => item.key === key);
+  return platform !== undefined &&
+    matchesEntireString(platform.regex, value);
+}
 // One input normalization before validation: a pasted cashtag keeps its
 // leading "$"; exactly one is dropped (the stored value is the bare tag).
 export function normalizeSocialHandle(key, value) {
@@ -165,7 +174,7 @@ export async function userById(env, id) {
 const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
 
 export function isValidHexColor(value) {
-  return typeof value === "string" && HEX_COLOR_PATTERN.test(value);
+  return matchesEntireString(/^#[0-9a-fA-F]{6}/, value);
 }
 
 export const PROFILE_BANNER_COLORS = {
