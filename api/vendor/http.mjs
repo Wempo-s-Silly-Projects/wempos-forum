@@ -216,7 +216,7 @@ export function makeHttp({
     const [mediaType, ...parameters] = contentType.split(";");
     const isJson = mediaType.trim().toLowerCase() === "application/json";
     const hasValidParameters = parameters.every((parameter) => {
-      const match = /^\\s*([!#$%&'*+.^_`|~0-9a-z-]+)\\s*=\\s*(?:"([^"]*)"|([^;\\s]+))\\s*$/i.exec(parameter);
+      const match = /^\s*([!#$%&'*+.^_`|~0-9a-z-]+)\s*=\s*(?:"([^"]*)"|([^;\s]+))\s*$/i.exec(parameter);
       if (!match) return false;
       if (match[1].toLowerCase() !== "charset") return true;
       const charset = (match[2] ?? match[3]).toLowerCase();
