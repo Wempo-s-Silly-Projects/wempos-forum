@@ -10,6 +10,26 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.95.0] - 2026-11-24
+
+### Changed
+
+- Calmer post cards: Like, Reply and Quote stay in sight as icons, and the
+  rest (copy link, read aloud, quote card, save, follow, mute, report, edit
+  and delete) moves into one "More" (⋯) menu on each post in the feed and
+  in replies. The menu works from the keyboard (Enter, Space or the arrow
+  keys open it, Escape closes it and puts you back on the button) and opens
+  over the page, so nothing jumps. Nothing was removed. The thread page's
+  first post keeps its grouped More menu.
+- The composer's formatting toolbar and its attach, Gallery and Poll
+  buttons show icons instead of words; every icon has a name for screen
+  readers and a tooltip. Attach images stays: Gallery is the shared,
+  reviewed library, not a private upload for one post.
+- Pin and Lock are now pin and lock icons, locked threads show a lock
+  next to the pin, and the TL;DR box is more compact.
+- The icons are Lucide (ISC), stored on the forum itself with their
+  licence; nothing loads from another site.
+
 ## [5.94.0] - 2026-11-23
 
 ### Added
