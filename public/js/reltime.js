@@ -96,3 +96,30 @@ export function formatRelative(input, { now = Date.now(), locale = DEFAULT_LOCAL
   if (days < DAYS_PER_WEEK) return format.format(-days, "day");
   return format.format(-Math.round(days / DAYS_PER_WEEK), "week");
 }
+
+// Post, reply-preview and edit-history stamps (v5.96.0 C2): long relative
+// wording ("2 hours ago") for a week, then a short date; never seconds. A
+// time ahead of `now` (clock skew) reads as now; "" for a date that does not
+// parse. The full date + time rides formatFullTime for the title attribute.
+export function formatPostTime(input, { now = Date.now(), locale = DEFAULT_LOCALE } = {}) {
+  const then = new Date(input).getTime();
+  if (!Number.isFinite(then)) return "";
+  const tag = safeLocale(locale);
+  const minutes = Math.floor(Math.max(0, now - then) / MS_PER_SECOND / SECONDS_PER_MINUTE);
+  const days = Math.floor(minutes / (MINUTES_PER_HOUR * HOURS_PER_DAY));
+  if (days >= DAYS_PER_WEEK || typeof Intl.RelativeTimeFormat !== "function") {
+    return new Date(then).toLocaleDateString(tag, { dateStyle: "medium" });
+  }
+  const format = new Intl.RelativeTimeFormat(tag, { numeric: "auto" });
+  if (minutes < 1) return format.format(0, "second");
+  if (minutes < MINUTES_PER_HOUR) return format.format(-minutes, "minute");
+  const hours = Math.floor(minutes / MINUTES_PER_HOUR);
+  if (hours < HOURS_PER_DAY) return format.format(-hours, "hour");
+  return format.format(-days, "day");
+}
+
+export function formatFullTime(input, locale = DEFAULT_LOCALE) {
+  const then = new Date(input).getTime();
+  if (!Number.isFinite(then)) return "";
+  return new Date(then).toLocaleString(safeLocale(locale), { dateStyle: "long", timeStyle: "short" });
+}

@@ -58,7 +58,7 @@ language menu.
 | General | Everyday chatter about whatever's on your mind |
 | Game development | Devlogs, works in progress, and hangout builds |
 | Showcase | Show off what you made. Opens with an image gallery of its threads |
-| Bugs & Troubleshooting & Help | Something broke or you're stuck? Ask here |
+| Help & Bugs | Something broke or you're stuck? Ask here |
 | Suggestions | Ideas for the forum, ranked by votes (likes minus dislikes) with #1, #2... numbers. Admins can mark them resolved or declined |
 | Updates | Site news from the admins. Everyone can read and reply; only admins can post |
 
@@ -376,4 +376,4 @@ day, so it can cap how many answers it gives.
 
 ## Need help?
 
-Post in **Bugs & Troubleshooting & Help**, or drop an idea in **Suggestions**.
+Post in **Help & Bugs**, or drop an idea in **Suggestions**.

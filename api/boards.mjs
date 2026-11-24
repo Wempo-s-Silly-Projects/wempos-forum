@@ -53,7 +53,7 @@ export const BOARD_HEADS = Object.freeze({
     blurb: "Devlogs, works in progress, and hangout builds — see what everyone is working on.",
   },
   showcase: { label: "Showcase", blurb: "Show off what you made — games, art, sites, anything." },
-  help: { label: "Bugs & Troubleshooting & Help", blurb: "Something broke or you're stuck? Ask here." },
+  help: { label: "Help & Bugs", blurb: "Something broke or you're stuck? Ask here." },
   suggestions: {
     label: "Suggestions",
     blurb: "Ideas for the forum — sorted by likes, and admins can mark them resolved or declined.",

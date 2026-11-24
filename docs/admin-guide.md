@@ -166,7 +166,7 @@ Hiding is the forum's main tool, and it's always reversible:
 
 ## When something's wrong
 
-- A bug in the forum: post in **Bugs & Troubleshooting & Help**, or open an
+- A bug in the forum: post in **Help & Bugs**, or open an
   issue on GitHub.
 - A security problem: follow [SECURITY.md](../SECURITY.md) — never post it
   publicly.
