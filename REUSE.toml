@@ -28,6 +28,7 @@ path = [
   ".bestpractices.json",
   ".semgrepignore",
   ".github/**",
+  ".claude/**",
   "config/**",
   "scripts/*.sh",
   "scripts/*.plist",

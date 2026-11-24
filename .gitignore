@@ -12,7 +12,12 @@ coverage/
 
 *.swp
 *.kate-swp
-.claude/
+# Claude Code: the project's skills, commands and hookify guard rules are
+# shared so contributors who use Claude get the same tooling; personal and
+# machine state stays out.
+.claude/settings.local.json
+.claude/worktrees/
+.claude/.cc-writes
 .superpowers/
 
 # Fleet ops state (taskboard, tick/cost logs, alerts): local only
