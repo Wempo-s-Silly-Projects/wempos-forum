@@ -10,6 +10,50 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.96.0] - 2026-11-24
+
+### Added
+
+- First-week welcome cards on the home page. New members see one short card
+  a day on days 0, 1, 3, 5 and 8 (a welcome that links the pinned "Start
+  here" thread, "Say hi?", "Make your profile yours", "Stuck on a build?"
+  and "Things you might like"), each only while it still fits: a first post
+  ends the "say hi" and "stuck" cards, and the profile card goes once you
+  add an avatar, colour or flair. Never more than one card a day, never
+  next to the tips card. Turn them off in Settings → Notifications. The
+  forum stores nothing new: the cards decide from your join date, post
+  count and profile, and dismissals stay in this browser.
+- Thread pages now carry the thread's title and opening text in the page
+  itself (not only in the page title), so search engines and readers
+  without JavaScript can see what the thread is about. Hidden threads,
+  threads by banned members and threads across a block are left out, as
+  before.
+
+### Changed
+
+- Author names are always shown in the normal text colour, with your
+  profile colour as an underline (and as the border of your flair), so
+  every colour choice stays readable in both themes.
+- Post, reply and edit-history times read "2 hours ago" for the first week,
+  then a short date; hover for the full date and time.
+- The help board is now called "Help & Bugs" (its address stays /c/help).
+- Board pages use the board's name and description as their page title and
+  summary, and short threads get a "a discussion in <board>" summary.
+- The sitemap dates the home page and boards by their latest public
+  activity, and no longer lists member profiles. Profiles work as before.
+- New home page description.
+
+### Fixed
+
+- Image attachments with no stored size no longer collapse into a tiny
+  button; they load right away behind a placeholder.
+- The edit "history" button is easier to hit (at least 24px tall).
+- "Who's Online" no longer reads as "Who's Online0" to screen readers.
+- The chat button in the corner can no longer cover a focused control at
+  the bottom of the screen.
+- Save, follow, mute and read aloud in a post's More menu are announced as
+  checkable menu items with their on/off state.
+
 ## [5.95.1] - 2026-11-24
 
 ### Security
