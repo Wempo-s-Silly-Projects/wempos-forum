@@ -430,6 +430,20 @@ SPDX-FileCopyrightText = "2015-present Chen Fengyuan"
 SPDX-License-Identifier = "MIT"
 
 [[annotations]]
+path = "public/icons/lucide/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2026 Lucide Icons and Contributors"
+SPDX-License-Identifier = "ISC"
+
+# Lucide icons derived from Feather (the upstream LICENSE lists them): the
+# Feather MIT notice rides along with Lucide's ISC.
+[[annotations]]
+path = ["public/icons/lucide/ellipsis.svg", "public/icons/lucide/lock.svg", "public/icons/lucide/link.svg", "public/icons/lucide/code.svg", "public/icons/lucide/italic.svg"]
+precedence = "override"
+SPDX-FileCopyrightText = ["2026 Lucide Icons and Contributors", "2013-present Cole Bemis"]
+SPDX-License-Identifier = "ISC AND MIT"
+
+[[annotations]]
 path = "public/js/vendor/vibrant.min.js"
 precedence = "override"
 SPDX-FileCopyrightText = ["2015 Jari Zwarts", "2015 AKFish"]

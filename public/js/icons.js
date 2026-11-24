@@ -114,6 +114,24 @@ export function createIcon(document, name) {
   return svg;
 }
 
+// Vendored icons (v5.95): Lucide SVGs kept verbatim under /icons/lucide/
+// (ISC; LICENSE beside them, REUSE.toml annotates the folder). The span is
+// painted by a CSS mask of the same-origin file (styles.css .vicon-<name>),
+// so it takes currentColor in every theme: no fetch, no markup parsing.
+export const VENDOR_ICON_NAMES = Object.freeze([
+  "ellipsis", "reply", "quote", "pin", "pin-off", "lock", "lock-open",
+  "letter-b", "italic", "strikethrough", "code", "eye-off", "link", "text-quote", "list", "heading-1", "square-code",
+  "paperclip", "images", "chart-column", "message-square-quote", "bell-off",
+]);
+
+export function vendorIcon(document, name) {
+  if (!VENDOR_ICON_NAMES.includes(name)) throw new Error("No such icon: " + name); // i18n-ignore
+  const icon = document.createElement("span");
+  icon.className = "vicon vicon-" + name;
+  icon.setAttribute("aria-hidden", "true");
+  return icon;
+}
+
 // An icon-only button inheriting the quiet-button look. The actionable label
 // lives in aria-label (from iconAria or the caller), never as visible text.
 export function iconButton(document, name, { className, ariaLabel, dataset, tagName } = {}) {

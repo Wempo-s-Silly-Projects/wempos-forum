@@ -25,19 +25,20 @@
 // applyFormat carries a plan out through field-edit.js (native undo).
 import { replaceFieldRange } from "./field-edit.js";
 
+// icon: the vendored Lucide icon the toolbar shows (v5.95);
 // glyph: a language-neutral marker shape (the same shapes Formatting help
 // shows); labelKey: the existing format.* string that names the action.
 export const FORMAT_KINDS = Object.freeze([
-  { kind: "bold", glyph: "**", labelKey: "format.bold", wrap: "**", key: "b" },
-  { kind: "italic", glyph: "*", labelKey: "format.italic", wrap: "*", key: "i" },
-  { kind: "strike", glyph: "~~", labelKey: "format.strike", wrap: "~~" },
-  { kind: "code", glyph: "`", labelKey: "format.code", wrap: "`" },
-  { kind: "spoiler", glyph: "||", labelKey: "format.spoiler", wrap: "||" },
-  { kind: "link", glyph: "[ ]( )", labelKey: "format.link", key: "k" },
-  { kind: "quote", glyph: ">", labelKey: "format.quote", prefix: "> " },
-  { kind: "list", glyph: "-", labelKey: "format.list", prefix: "- " },
-  { kind: "heading", glyph: "#", labelKey: "format.heading", prefix: "# " },
-  { kind: "codeBlock", glyph: "```", labelKey: "format.codeBlock" },
+  { kind: "bold", icon: "letter-b", glyph: "**", labelKey: "format.bold", wrap: "**", key: "b" },
+  { kind: "italic", icon: "italic", glyph: "*", labelKey: "format.italic", wrap: "*", key: "i" },
+  { kind: "strike", icon: "strikethrough", glyph: "~~", labelKey: "format.strike", wrap: "~~" },
+  { kind: "code", icon: "code", glyph: "`", labelKey: "format.code", wrap: "`" },
+  { kind: "spoiler", icon: "eye-off", glyph: "||", labelKey: "format.spoiler", wrap: "||" },
+  { kind: "link", icon: "link", glyph: "[ ]( )", labelKey: "format.link", key: "k" },
+  { kind: "quote", icon: "text-quote", glyph: ">", labelKey: "format.quote", prefix: "> " },
+  { kind: "list", icon: "list", glyph: "-", labelKey: "format.list", prefix: "- " },
+  { kind: "heading", icon: "heading-1", glyph: "#", labelKey: "format.heading", prefix: "# " },
+  { kind: "codeBlock", icon: "square-code", glyph: "```", labelKey: "format.codeBlock" },
 ]);
 
 const LINK_URL_SLOT = "https://";
