@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Відео-, аудіо- та 3D-плеєри в дописах.",
   "modules.label.search": "Повнотекстовий пошук",
   "modules.desc.search": "Шукайте слова всередині кожного допису.",
+  "modules.label.wemposclaude": "Бот-помічник WemposClaude",
+  "modules.desc.wemposclaude": "Відповідає, коли його позначають. Текст із позначкою надсилається в Cloudflare Workers AI.",
   "admin.section.allReports": "Скарги",
   "admin.lede.allReports": "На що поскаржилися учасники — дописи, профілі й розмови.",
   "admin.section.chatDmLog": "Журнал чату й особистих",

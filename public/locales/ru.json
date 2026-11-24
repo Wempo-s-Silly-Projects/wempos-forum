@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Видео-, аудио- и 3D-плееры в сообщениях.",
   "modules.label.search": "Полнотекстовый поиск",
   "modules.desc.search": "Ищите слова внутри каждого сообщения.",
+  "modules.label.wemposclaude": "Бот-помощник WemposClaude",
+  "modules.desc.wemposclaude": "Отвечает, когда его отмечают. Текст с отметкой отправляется в Cloudflare Workers AI.",
   "admin.section.allReports": "Жалобы",
   "admin.lede.allReports": "На что пожаловались участники — посты, профили и переписки.",
   "admin.section.chatDmLog": "Журнал чата и ЛС",

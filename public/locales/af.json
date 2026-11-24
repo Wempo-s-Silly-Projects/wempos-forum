@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Video-, oudio- en 3D-spelers in plasings.",
   "modules.label.search": "Volteks-soektog",
   "modules.desc.search": "Soek die woorde in elke plasing.",
+  "modules.label.wemposclaude": "WemposClaude-hulpbot",
+  "modules.desc.wemposclaude": "Antwoord wanneer dit gemerk word. Gemerkte teks gaan na Cloudflare Workers AI.",
   "admin.section.allReports": "Verslae",
   "admin.lede.allReports": "Wat lede gerapporteer het — plasings, profiele en gesprekke.",
   "admin.section.chatDmLog": "Klets- en privaatboodskaplog",

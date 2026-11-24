@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Mihrafih viidiyo, sagal kee 3D yaybulle.",
   "modules.label.search": "Inkih qangaxa geyto",
   "modules.desc.search": "Inkih maxcoocal addal tan qangaxa geyto.",
+  "modules.label.wemposclaude": "WemposClaude caalat bot",
+  "modules.desc.wemposclaude": "Tagisime waqdi kaa celsa. Tagisime qangaxa Cloudflare Workers AI fan gexa.",
   "admin.section.allReports": "Cabsi",
   "admin.lede.allReports": "Wakkaytit cabseh tan — kitbatih, profaylih kee yab.",
   "admin.section.chatDmLog": "Yab kee sirrih farmoh yab",

@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Reproductors de vídeo, àudio i 3D a les publicacions.",
   "modules.label.search": "Cerca de text complet",
   "modules.desc.search": "Cerca les paraules dins de cada publicació.",
+  "modules.label.wemposclaude": "Bot d'ajuda WemposClaude",
+  "modules.desc.wemposclaude": "Respon quan se l'esmenta. El text esmentat s'envia a Cloudflare Workers AI.",
   "admin.section.allReports": "Denúncies",
   "admin.lede.allReports": "El que han denunciat els membres: publicacions, perfils i converses.",
   "admin.section.chatDmLog": "Registre del xat i dels missatges directes",

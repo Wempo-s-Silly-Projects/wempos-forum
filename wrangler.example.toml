@@ -96,6 +96,15 @@ migrations_dir = "migrations"
 # database_id = "00000000-0000-0000-0000-000000000000"  # CHANGE ME
 # migrations_dir = "migrations-search"
 
+# OPTIONAL: Workers AI for the wemposclaude module (docs/modules.md), the
+# helper bot that answers when a member tags it. The module ships off and
+# stays off without this binding; once it is here, turn the module on in the
+# desk. It runs on the free daily allocation only (10,000 Neurons/day,
+# https://developers.cloudflare.com/workers-ai/platform/pricing/, read
+# 2026-11-23); the caps in constants.mjs keep it well under that.
+[ai]
+binding = "AI"
+
 # Rate limits (always on). namespace_id is any number unique within your
 # Cloudflare account.
 [[ratelimits]]

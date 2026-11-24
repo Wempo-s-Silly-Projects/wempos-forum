@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Gönderilerde video, ses ve 3D oynatıcılar.",
   "modules.label.search": "Tam metin arama",
   "modules.desc.search": "Her gönderinin içindeki kelimeleri arayın.",
+  "modules.label.wemposclaude": "WemposClaude yardımcı botu",
+  "modules.desc.wemposclaude": "Etiketlendiğinde yanıt verir. Etiketli metin Cloudflare Workers AI'ye gider.",
   "admin.section.allReports": "Şikâyetler",
   "admin.lede.allReports": "Üyelerin şikâyet ettikleri — gönderiler, profiller ve sohbetler.",
   "admin.section.chatDmLog": "Sohbet ve özel mesaj kaydı",

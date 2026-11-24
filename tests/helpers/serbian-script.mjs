@@ -41,7 +41,7 @@ export const LATIN_WORDS = Object.freeze(new Set([
   "MiB", "PNG", "Polytoria", "QR", "SHA", "Tab", "URI", "URL", "ZIP", "glob",
 ]));
 // Multi-word names and code snippets kept verbatim.
-const LATIN_PHRASES = ["Do Not Track", "Global Privacy Control", "body { font-family: serif; }", "a–z"];
+const LATIN_PHRASES = ["Do Not Track", "Global Privacy Control", "Cloudflare Workers AI", "body { font-family: serif; }", "a–z"];
 // Single-letter key names, only on the keyboard-shortcut strings.
 const SHORTCUT_KEY = /^(shortcuts|ux\.keys)/;
 const SHORTCUT_LETTERS = new Set(["C", "G", "H", "J", "K"]);

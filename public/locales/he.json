@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "נגני וידאו, שמע ותלת־ממד בפוסטים.",
   "modules.label.search": "חיפוש בטקסט מלא",
   "modules.desc.search": "חיפוש המילים בתוך כל פוסט.",
+  "modules.label.wemposclaude": "בוט העזרה WemposClaude",
+  "modules.desc.wemposclaude": "עונה כשמתייגים אותו. הטקסט המתויג נשלח אל Cloudflare Workers AI.",
   "admin.section.allReports": "דיווחים",
   "admin.lede.allReports": "מה שחברים דיווחו — פוסטים, פרופילים ושיחות.",
   "admin.section.chatDmLog": "יומן צ׳אט והודעות פרטיות",

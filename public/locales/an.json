@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Reproductors de video, audio y 3D en publicacions.",
   "modules.label.search": "Busqueda de texto completo",
   "modules.desc.search": "Busca as parolas adintro de cada mensache.",
+  "modules.label.wemposclaude": "Bot d'aduya WemposClaude",
+  "modules.desc.wemposclaude": "Responde quan se le menciona. O texto mencionau va ta Cloudflare Workers AI.",
   "admin.section.allReports": "Denuncias",
   "admin.lede.allReports": "Lo que han denunciau os miembros — publicacions, perfils y conversas.",
   "admin.section.chatDmLog": "Rechistro de chat y mensaches privaus",

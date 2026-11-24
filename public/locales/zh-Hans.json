@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "帖子中的视频、音频和 3D 播放器。",
   "modules.label.search": "全文搜索",
   "modules.desc.search": "搜索每个帖子中的文字。",
+  "modules.label.wemposclaude": "WemposClaude 助手机器人",
+  "modules.desc.wemposclaude": "被提及时回复。提及它的文字会发送到 Cloudflare Workers AI。",
   "admin.section.allReports": "举报",
   "admin.lede.allReports": "成员举报的内容——帖子、个人资料和对话。",
   "admin.section.chatDmLog": "聊天与私信记录",

@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "게시물 안의 동영상, 오디오, 3D 플레이어.",
   "modules.label.search": "전체 텍스트 검색",
   "modules.desc.search": "모든 게시물 안의 단어를 검색합니다.",
+  "modules.label.wemposclaude": "WemposClaude 도우미 봇",
+  "modules.desc.wemposclaude": "태그하면 답합니다. 태그한 글은 Cloudflare Workers AI로 전송됩니다.",
   "admin.section.allReports": "신고",
   "admin.lede.allReports": "회원이 신고한 내용 — 게시물, 프로필, 대화.",
   "admin.section.chatDmLog": "채팅 및 DM 기록",

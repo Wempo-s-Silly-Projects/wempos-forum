@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Trình phát video, âm thanh và 3D trong bài viết.",
   "modules.label.search": "Tìm kiếm toàn văn",
   "modules.desc.search": "Tìm các từ bên trong mọi bài viết.",
+  "modules.label.wemposclaude": "Bot trợ giúp WemposClaude",
+  "modules.desc.wemposclaude": "Trả lời khi được gắn thẻ. Văn bản gắn thẻ được gửi tới Cloudflare Workers AI.",
   "admin.section.allReports": "Báo cáo",
   "admin.lede.allReports": "Những gì thành viên đã báo cáo — bài viết, hồ sơ và cuộc trò chuyện.",
   "admin.section.chatDmLog": "Nhật ký chat và DM",

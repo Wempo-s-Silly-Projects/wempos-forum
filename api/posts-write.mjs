@@ -45,6 +45,7 @@ import { requireHumanCheck } from "./core/human-check.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 import { syncSearchPosts } from "./search-index.mjs";
+import { scheduleWemposClaude } from "./wemposclaude.mjs";
 
 // Vision first-pass (v3.1): every freshly PENDING direct upload is background-
 // Composer body cap (owner-set): root post AND reply bodies accept at most
@@ -368,6 +369,8 @@ export async function handlePostCreateRoute(request, env, url, path, method) {
     }
     // Search module: detached, best-effort; never fails the post.
     syncSearchPosts(env, request, [postId]);
+    // wemposclaude module: a tag answers detached, after the write.
+    scheduleWemposClaude(env, request, { kind: "post", id: postId, body: message });
     return json({ id: postId }, 201);
   }
   return null;

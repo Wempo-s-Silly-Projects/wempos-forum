@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "পোষ্টত ভিডিঅ', অডিঅ' আৰু 3D প্লেয়াৰ।",
   "modules.label.search": "সম্পূৰ্ণ পাঠ সন্ধান",
   "modules.desc.search": "প্ৰতিটো পোষ্টৰ ভিতৰৰ শব্দ সন্ধান কৰক।",
+  "modules.label.wemposclaude": "WemposClaude সহায়ক বট",
+  "modules.desc.wemposclaude": "উল্লেখ কৰিলে উত্তৰ দিয়ে। উল্লেখ থকা পাঠ Cloudflare Workers AI লৈ যায়।",
   "admin.section.allReports": "অভিযোগ",
   "admin.lede.allReports": "সদস্যসকলে অভিযোগ কৰা বিষয় — পোষ্ট, প্ৰফাইল আৰু কথোপকথন।",
   "admin.section.chatDmLog": "চেট আৰু ব্যক্তিগত বাৰ্তাৰ লগ",

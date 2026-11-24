@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Хаамашкахь видео, аудио, 3D.",
   "modules.label.search": "Йоза буьззина лахар",
   "modules.desc.search": "Хӏора постехь долу дешнаш лаха.",
+  "modules.label.wemposclaude": "WemposClaude гӀоьнан бот",
+  "modules.desc.wemposclaude": "Цуьнан цӀе яьккхича жоп ло. И текст Cloudflare Workers AI-не дуьгу.",
   "admin.section.allReports": "Хаамаш",
   "admin.lede.allReports": "Декъашхоша хаам бина — посташ, профилаш а, къамелаш а.",
   "admin.section.chatDmLog": "Чатан а, ДМ тептар",

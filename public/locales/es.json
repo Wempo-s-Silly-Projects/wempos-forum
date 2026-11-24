@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Reproductores de vídeo, audio y 3D en las publicaciones.",
   "modules.label.search": "Búsqueda de texto completo",
   "modules.desc.search": "Busca las palabras dentro de cada publicación.",
+  "modules.label.wemposclaude": "Bot de ayuda WemposClaude",
+  "modules.desc.wemposclaude": "Responde cuando lo mencionan. El texto con la mención va a Cloudflare Workers AI.",
   "admin.section.allReports": "Reportes",
   "admin.lede.allReports": "Lo que han reportado los miembros: publicaciones, perfiles y conversaciones.",
   "admin.section.chatDmLog": "Registro de chat y MD",

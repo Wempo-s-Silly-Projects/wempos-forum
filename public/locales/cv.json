@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Ҫырусенчи видео, аудио тата 3D плеерсем.",
   "modules.label.search": "Тулли текст тӑрӑх шырав",
   "modules.desc.search": "Кашни ҫырӑвӑн ӑшӗнчи сӑмахсене шырӑр.",
+  "modules.label.wemposclaude": "WemposClaude пулӑшуҫӑ бот",
+  "modules.desc.wemposclaude": "Ӑна палӑртсан хуравлать. Палӑртнӑ текст Cloudflare Workers AI патне каять.",
   "admin.section.allReports": "Ҫырнисем",
   "admin.lede.allReports": "Хутшӑнакансем мӗн ҫинчен ҫырнӑ — постсем, профильсем тата калаҫусем.",
   "admin.section.chatDmLog": "Чат тата ЛС ҫырӑвӗ",

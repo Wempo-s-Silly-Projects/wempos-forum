@@ -41,6 +41,7 @@ import { chatMentionLabel, unreadCount } from "./notifications.mjs";
 import { activeBanSql, listViewerGroups, parseGroupCursor, readDmMessageBody, viewerGroupUnread } from "./dm-groups.mjs";
 import { DM_THREAD_LIST_LIMIT } from "../constants.mjs";
 import { dmReactionsForPage } from "./dm-reactions.mjs";
+import { scheduleWemposClaude } from "./wemposclaude.mjs";
 
 // Lobby stream (old-ui-return lane): the retired public "Let's chat" surface
 // that rode migration 0032's chat_messages table comes back with the old UI —
@@ -585,6 +586,8 @@ async function handleLobbyChatCreateRoute(request, env, url, path, method) {
   await rateLimit(request, env, "write");
   const body = await readJson(request);
   const row = await insertLobbyMessage(env, session.user, body.body);
+  // wemposclaude module: a tag answers detached, after the write.
+  if (row) scheduleWemposClaude(env, request, { kind: "chat", id: Number(row.id), body: row.body });
   return json({ message: publicChatMessage(row) }, 201);
 }
 

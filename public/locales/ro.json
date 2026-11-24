@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Playere video, audio și 3D în postări.",
   "modules.label.search": "Căutare în tot textul",
   "modules.desc.search": "Caută cuvintele din interiorul fiecărei postări.",
+  "modules.label.wemposclaude": "Botul de ajutor WemposClaude",
+  "modules.desc.wemposclaude": "Răspunde când este etichetat. Textul care îl etichetează merge la Cloudflare Workers AI.",
   "admin.section.allReports": "Raportări",
   "admin.lede.allReports": "Ce au raportat membrii — postări, profiluri și conversații.",
   "admin.section.chatDmLog": "Jurnal chat și mesaje private",

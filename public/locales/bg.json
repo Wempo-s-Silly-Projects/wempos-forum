@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Видео, аудио и 3D плейъри в публикациите.",
   "modules.label.search": "Пълнотекстово търсене",
   "modules.desc.search": "Търсете думите във всяка публикация.",
+  "modules.label.wemposclaude": "Бот помощник WemposClaude",
+  "modules.desc.wemposclaude": "Отговаря, когато бъде отбелязан. Текстът с отбелязване отива към Cloudflare Workers AI.",
   "admin.section.allReports": "Доклади",
   "admin.lede.allReports": "Какво са докладвали членовете — публикации, профили и разговори.",
   "admin.section.chatDmLog": "Дневник на чата и личните съобщения",

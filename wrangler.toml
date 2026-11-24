@@ -45,7 +45,7 @@ AUTOMOD_ENABLED = "true"
 # (docs/saturday-fools.md). "on" | "off"; the code default is "off". The owner
 # can also force it off site-wide from the desk (Branding section).
 SATURDAY_FOOLS = "on"
-VERSION = "5.93.0"
+VERSION = "5.94.0"
 
 [assets]
 directory = "./public"
@@ -73,6 +73,14 @@ binding = "SEARCH_DB"
 database_name = "wempo-forum-search"
 database_id = "ecf80a34-60c5-4151-94c5-b6490cdd7de2"
 migrations_dir = "migrations-search"
+
+# Workers AI (the wemposclaude module, docs/modules.md): the WemposClaude bot
+# answers on demand when tagged. Free allocation only: 10,000 Neurons/day,
+# reset 00:00 UTC (https://developers.cloudflare.com/workers-ai/platform/pricing/,
+# read 2026-11-23); the daily caps in constants.mjs stay far below it. The
+# module ships off; the owner turns it on in the desk.
+[ai]
+binding = "AI"
 
 # R2 media store (MIGRATION PATH — enable when the account has R2; see
 # docs/r2-migration.md before uncommenting). Bucket names are global per

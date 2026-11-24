@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Odtwarzacze wideo, audio i 3D w postach.",
   "modules.label.search": "Wyszukiwanie pełnotekstowe",
   "modules.desc.search": "Szukaj słów wewnątrz każdego wpisu.",
+  "modules.label.wemposclaude": "Bot pomocnik WemposClaude",
+  "modules.desc.wemposclaude": "Odpowiada, gdy go oznaczysz. Tekst z oznaczeniem trafia do Cloudflare Workers AI.",
   "admin.section.allReports": "Zgłoszenia",
   "admin.lede.allReports": "Co zgłosili członkowie — posty, profile i rozmowy.",
   "admin.section.chatDmLog": "Log czatu i wiadomości prywatnych",

@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "पोस्ट में वीडियो, ऑडियो और 3D प्लेयर।",
   "modules.label.search": "पूर्ण-पाठ खोज",
   "modules.desc.search": "हर पोस्ट के अंदर के शब्द खोजें।",
+  "modules.label.wemposclaude": "WemposClaude सहायक बॉट",
+  "modules.desc.wemposclaude": "टैग करने पर जवाब देता है। टैग किया गया टेक्स्ट Cloudflare Workers AI को जाता है।",
   "admin.section.allReports": "रिपोर्ट",
   "admin.lede.allReports": "सदस्यों ने क्या रिपोर्ट किया — पोस्ट, प्रोफ़ाइल और बातचीत।",
   "admin.section.chatDmLog": "चैट और DM लॉग",

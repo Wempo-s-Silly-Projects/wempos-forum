@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Video, nnyigyei ne 3D agodi wɔ nkrataa mu.",
   "modules.label.search": "Nsɛm nyinaa mu hwehwɛ",
   "modules.desc.search": "Hwehwɛ nsɛmfua a ɛwɔ nkrataa biara mu.",
+  "modules.label.wemposclaude": "WemposClaude boafo bot",
+  "modules.desc.wemposclaude": "Ɛma mmuae bere a wɔde ne din to so. Nsɛm no kɔ Cloudflare Workers AI.",
   "admin.section.allReports": "Amanneɛbɔ",
   "admin.lede.allReports": "Deɛ akuomufoɔ bɔɔ amanneɛ — nkyerɛwee, profaele ne nkɔmmɔbɔ.",
   "admin.section.chatDmLog": "Nkɔmmɔ ne nkra kokoam nkrataa",

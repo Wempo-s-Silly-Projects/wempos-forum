@@ -97,6 +97,8 @@ const SEEDS = {
   translate_suggestions: ({ a, b }) => [`INSERT INTO translate_suggestions (id, locale, msg_key, source_hash, value, user_id, status, reviewer_id, created_day) VALUES (900, 'fr', 'translate.nav', ?, 'Traduire', ?, 'rejected', ?, 1), (901, 'fr', 'translate.title', ?, 'Aider', ?, 'pending', NULL, 1)`, ["0".repeat(64), b, a, "0".repeat(64), a]],
   translate_votes: ({ a }) => [`INSERT INTO translate_votes (suggestion_id, user_id) VALUES (900, ?)`, [a]],
   thread_locks: ({ a, p, t }) => [`INSERT INTO thread_locks (post_id, locked_by, locked_at) VALUES (?, ?, ?)`, [p.bob2, a, t]],
+  // The wemposclaude module (0097): alice tagged the bot on bob's root.
+  wemposclaude_replies: ({ a, p }) => [`INSERT INTO wemposclaude_replies (source_kind, source_id, requester_id, day) VALUES ('post', ?, ?, 1)`, [p.bob, a]],
 };
 
 function usersFkColumns(sqlite) {

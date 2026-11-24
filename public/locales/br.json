@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Lennerien video, son ha 3D er c'hemennadennoù.",
   "modules.label.search": "Klask en testenn a-bezh",
   "modules.desc.search": "Klask ar gerioù e pep kemennadenn.",
+  "modules.label.wemposclaude": "Bot skoazell WemposClaude",
+  "modules.desc.wemposclaude": "Respont a ra pa vez merket. An destenn merket a ya da Cloudflare Workers AI.",
   "admin.section.allReports": "Danevelloù",
   "admin.lede.allReports": "Ar pezh o deus danevellet an izili — kemennadennoù, profiloù ha kaozeadennoù.",
   "admin.section.chatDmLog": "Marilh ar saloñs hag ar c'hemennadennoù prevez",

@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Luajtës video, audio dhe 3D në postime.",
   "modules.label.search": "Kërkim në tekst të plotë",
   "modules.desc.search": "Kërko fjalët brenda çdo postimi.",
+  "modules.label.wemposclaude": "Boti ndihmës WemposClaude",
+  "modules.desc.wemposclaude": "Përgjigjet kur e etiketoni. Teksti i etiketuar shkon te Cloudflare Workers AI.",
   "admin.section.allReports": "Raportime",
   "admin.lede.allReports": "Çfarë kanë raportuar anëtarët — postime, profile dhe biseda.",
   "admin.section.chatDmLog": "Regjistri i bisedës dhe i mesazheve private",

@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Pemutar video, audio, dan 3D di postingan.",
   "modules.label.search": "Pencarian teks lengkap",
   "modules.desc.search": "Cari kata-kata di dalam setiap postingan.",
+  "modules.label.wemposclaude": "Bot pembantu WemposClaude",
+  "modules.desc.wemposclaude": "Menjawab saat ditandai. Teks yang menandainya dikirim ke Cloudflare Workers AI.",
   "admin.section.allReports": "Laporan",
   "admin.lede.allReports": "Yang dilaporkan anggota — postingan, profil, dan percakapan.",
   "admin.section.chatDmLog": "Log chat & DM",

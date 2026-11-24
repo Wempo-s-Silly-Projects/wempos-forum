@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Lecteurs vidéo, audio et 3D dans les messages.",
   "modules.label.search": "Recherche en texte intégral",
   "modules.desc.search": "Cherche les mots à l’intérieur de chaque message.",
+  "modules.label.wemposclaude": "Bot d'aide WemposClaude",
+  "modules.desc.wemposclaude": "Répond quand on le mentionne. Le texte qui le mentionne est envoyé à Cloudflare Workers AI.",
   "admin.section.allReports": "Signalements",
   "admin.lede.allReports": "Ce que les membres ont signalé : posts, profils et conversations.",
   "admin.section.chatDmLog": "Journal du chat et des MP",
