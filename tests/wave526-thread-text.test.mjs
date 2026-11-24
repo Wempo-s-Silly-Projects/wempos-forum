@@ -244,7 +244,7 @@ test("the thread page puts Save as text in the root card's actions", () => {
 
 test("Save as text strings exist in en and every locale", () => {
   const files = readdirSync(new URL("../public/locales/", import.meta.url)).filter((name) => name.endsWith(".json"));
-  assert.equal(files.length, 66);
+  assert.equal(files.length, 74);
   for (const file of files) {
     const table = JSON.parse(read("public/locales/" + file));
     for (const key of ["post.saveAsText", "post.saveAsTextLabel"]) {
