@@ -42,6 +42,27 @@ export const STAFF_ONLY_BOARDS = Object.freeze([UPDATES_BOARD, POLLS_BOARD]);
 export const isStaffOnlyBoard = (board) => STAFF_ONLY_BOARDS.includes(board);
 export const GENERAL_BOARD_DEFAULT = "general";
 
+// Board heads (v5.96.0): the English display label and description the
+// server writes into /c/<board> titles and thread descriptions (the client
+// translates its own from public/locales). Pinned to en.json's
+// boards.*Label / boards.*Blurb by tests/wave596-search.test.mjs.
+export const BOARD_HEADS = Object.freeze({
+  general: { label: "General", blurb: "Everyday chatter — talk about whatever's on your mind." },
+  "game-dev": {
+    label: "Game development",
+    blurb: "Devlogs, works in progress, and hangout builds — see what everyone is working on.",
+  },
+  showcase: { label: "Showcase", blurb: "Show off what you made — games, art, sites, anything." },
+  help: { label: "Bugs & Troubleshooting & Help", blurb: "Something broke or you're stuck? Ask here." },
+  suggestions: {
+    label: "Suggestions",
+    blurb: "Ideas for the forum — sorted by likes, and admins can mark them resolved or declined.",
+  },
+  updates: { label: "Updates", blurb: "Site news from the admins. Everyone can read and reply; only admins can post." },
+  polls: { label: "Polls", blurb: "Polls that drive decisions for changes to the forum!" },
+});
+export const boardHead = (board) => BOARD_HEADS[board] || BOARD_HEADS[GENERAL_BOARD_DEFAULT];
+
 export function boardField(value) {
   if (value === undefined || value === null || value === "") return GENERAL_BOARD_DEFAULT;
   if (BOARD_VALUES.includes(value)) return value;

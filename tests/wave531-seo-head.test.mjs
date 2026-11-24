@@ -111,8 +111,9 @@ test("saved branding names the site in title, og:site_name and JSON-LD", async (
 
 test("category: board title + description, canonical on /c/<board> (also for /suggestions)", async () => {
   const p = await fetchPage(seoEnv(), "/c/game-dev?view=new");
-  assert.equal(one(p.titles, "title"), "game-dev — Wempo's Forum");
-  assert.match(p.names.description[0], /game-dev/);
+  // v5.96.0 B3: the board's display label and its own description.
+  assert.equal(one(p.titles, "title"), "Game development — Wempo's Forum");
+  assert.match(p.names.description[0], /^Devlogs, works in progress/);
   assert.equal(p.canon[0], SITE + "/c/game-dev");
   assert.equal(p.props["og:url"][0], p.canon[0]);
   const s = await fetchPage(seoEnv(), "/suggestions");
@@ -268,7 +269,8 @@ test("attribute values are escaped: quotes, <, > and & never open markup", async
   assert.ok(!head.includes("<b>"), "no injected tag in the head");
   assert.ok(head.includes("&quot;&gt;&lt;img"), "attribute-escaped form present");
   assert.ok(head.includes("Tom &amp; Jerry"), "ampersand escaped");
-  assert.equal(p.names.description[0], nasty);
+  // v5.96.0 B2: a body that is only its title gets the fallback sentence.
+  assert.equal(p.names.description[0], nasty + " — a discussion in General on Wempo's Forum");
   assert.equal(p.titles[0], nasty + " — Wempo's Forum");
 });
 

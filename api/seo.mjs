@@ -42,12 +42,21 @@ import { siteOrigin } from "./core/site.mjs";
 import { maskSpoilers, maskedExcerpt } from "./core/spoilers.mjs";
 import { ACTIVE_BAN_SQL, canViewPost } from "./core/visibility.mjs";
 import { BRANDING_DEFAULTS } from "./branding.mjs";
+import { boardHead } from "./boards.mjs";
 import { POST_ROW_SQL, publicReplyCountSql, titleOf } from "./discovery.mjs";
 import { feedPath } from "./feeds.mjs";
 import { findTagBySlug } from "./tags.mjs";
 import { routeForPath } from "../public/js/router.js";
 
 const DESCRIPTION_MAX = 150;
+// v5.96.0 B1/B2: the opening text served in the page body, and the shortest
+// excerpt that still describes a thread on its own.
+const SERVER_EXCERPT_MAX = 300;
+const DESCRIPTION_MIN = 40;
+// v5.96.0 B5: the home description when the shell carries none, on the
+// default branding (a self-hosted forum keeps "<name>: <tagline>").
+export const DEFAULT_HOME_DESCRIPTION =
+  "A friendly forum for the Polytoria community and friends. Post topics, chat with members and meet new people.";
 const OG_IMAGE_PATH = "/og-image.png";
 const SCHEMA_CONTEXT = "https://schema.org";
 
@@ -98,7 +107,16 @@ export function ogImageUrl(env, origin) {
 }
 
 const isoDate = (seconds) => new Date(Number(seconds) * 1000).toISOString();
-const flatExcerpt = (body) => maskedExcerpt(maskSpoilers(String(body)).replace(/\s+/g, " ").trim(), DESCRIPTION_MAX);
+const flatExcerpt = (body, max = DESCRIPTION_MAX) =>
+  maskedExcerpt(maskSpoilers(String(body)).replace(/\s+/g, " ").trim(), max);
+
+// B2: a body too short to describe itself (or only its title) gets a
+// sentence naming the thread, its board and the site instead.
+function threadDescription(row, headline, site) {
+  const excerpt = flatExcerpt(row.body);
+  if (excerpt.length >= DESCRIPTION_MIN && excerpt !== headline) return excerpt;
+  return `${headline} — a discussion in ${boardHead(row.board).label} on ${site.name}`;
+}
 
 // The viewer for the block check only: staff are treated as members so the
 // head is always the public face (canViewPost's staff bypass never applies).
@@ -125,7 +143,7 @@ async function threadHead(request, env, id, origin, site) {
   if (!visible) return null;
   const url = origin + "/posts/" + row.id;
   const headline = titleOf(row);
-  const description = flatExcerpt(row.body);
+  const description = threadDescription(row, headline, site);
   const posting = {
     "@context": SCHEMA_CONTEXT,
     "@type": "DiscussionForumPosting",
@@ -141,7 +159,10 @@ async function threadHead(request, env, id, origin, site) {
       userInteractionCount: Number((counted && counted.reply_count) || 0),
     },
   };
-  return { title: `${headline} — ${site.name}`, description, canonical: url, type: "article", ld: [posting] };
+  // B1: the title + opening text for the page body ride only this (gated)
+  // return, so a thread canViewPost refuses never reaches the HTML.
+  const thread = { title: headline, excerpt: flatExcerpt(row.body, SERVER_EXCERPT_MAX) };
+  return { title: `${headline} — ${site.name}`, description, canonical: url, type: "article", ld: [posting], thread };
 }
 
 async function profileHead(env, viewer, username, origin, site) {
@@ -196,8 +217,8 @@ async function pageHead(request, env, url, site, origin) {
   if (route.name === "category") {
     return {
       ...generic,
-      title: `${route.board} — ${site.name}`,
-      description: `Recent topics in the ${route.board} board on ${site.name}.`,
+      title: `${boardHead(route.board).label} — ${site.name}`,
+      description: boardHead(route.board).blurb,
       canonical: origin + "/c/" + route.board,
       board: route.board,
     };
@@ -255,6 +276,14 @@ function renderHead(head, site, image) {
 
 const SHELL_TITLE = /<title>[\s\S]*?<\/title>/i;
 const SHELL_DESCRIPTION = /<meta name="description" content="([^"]*)">/i;
+// B1: on a visible thread, the shell's hidden tagline <h1> gives way to the
+// thread's own title and opening text (escaped; the SPA replaces <main>).
+const SHELL_TAGLINE = /<h1 class="visually-hidden" data-i18n="shell\.tagline">[\s\S]*?<\/h1>/;
+
+function threadBody(thread) {
+  return `<h1 class="server-thread-title">${attributeEscape(thread.title)}</h1>` +
+    `<p class="server-thread-excerpt">${attributeEscape(thread.excerpt)}</p>`;
+}
 
 // withPageHead(html, request, env, url, storedBranding) -> the shell with its
 // static title + description swapped for this page's head (before </head>).
@@ -269,7 +298,8 @@ export async function withPageHead(html, request, env, url, brandingOrPromise) {
   const site = {
     name,
     title: `${name}: ${tagline}`,
-    description: shellDescription ? attributeUnescape(shellDescription[1]) : `${name}: ${tagline}`,
+    description: shellDescription ? attributeUnescape(shellDescription[1])
+      : name === BRANDING_DEFAULTS.name ? DEFAULT_HOME_DESCRIPTION : `${name}: ${tagline}`,
   };
   const origin = siteOrigin(env, request);
   const image = ogImageUrl(env, origin);
@@ -279,5 +309,6 @@ export async function withPageHead(html, request, env, url, brandingOrPromise) {
   const tags = renderHead({ ...head, feeds, ld: [...siteBlocks(site, origin, image), ...head.ld] }, site, image);
   // Function replacement: a string one would expand $' $` $& $$ in member
   // text and splice the rest of the shell into an attribute (v5.33 M1).
-  return html.replace(SHELL_TITLE, "").replace(SHELL_DESCRIPTION, "").replace("</head>", () => tags + "</head>");
+  const withHead = html.replace(SHELL_TITLE, "").replace(SHELL_DESCRIPTION, "").replace("</head>", () => tags + "</head>");
+  return head.thread ? withHead.replace(SHELL_TAGLINE, () => threadBody(head.thread)) : withHead;
 }
