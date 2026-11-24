@@ -609,7 +609,7 @@
   "newcomer.allSet": "準備完了。楽しんでね！",
   "newcomer.onboardWelcomeTitle": "ようこそ！ゆっくりしていってね :3",
   "newcomer.onboardStartHere": "まずはここから：ようこそスレッド",
-  "newcomer.onboardOffHint": "最初の1週間、ちょっとしたヒントをお届けします。設定 → 通知 からオフにできます。",
+  "newcomer.onboardOffHint": "最初の1週間、ちょっとしたヒントをお届けします。{settings} → {notifications} からオフにできます。",
   "newcomer.onboardSayHiTitle": "あいさつしてみる？",
   "newcomer.onboardSayHiBody": "ひとことあいさつするのがいちばん簡単な始め方。遊んでいるものや作っているものを教えてね！",
   "newcomer.onboardProfileTitle": "プロフィールを自分らしく",

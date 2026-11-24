@@ -609,7 +609,7 @@
   "newcomer.allSet": "Klaar. Veel plezier!",
   "newcomer.onboardWelcomeTitle": "Welkom! Schuif lekker aan :3",
   "newcomer.onboardStartHere": "Begin hier: het welkomstdraadje",
-  "newcomer.onboardOffHint": "In je eerste week komen we langs met een paar tips. Je zet ze uit via Instellingen → Meldingen.",
+  "newcomer.onboardOffHint": "In je eerste week komen we langs met een paar tips. Je zet ze uit via {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Even hallo zeggen?",
   "newcomer.onboardSayHiBody": "Een snel hallo is de makkelijkste start. Vertel wat je speelt of bouwt!",
   "newcomer.onboardProfileTitle": "Maak je profiel eigen",

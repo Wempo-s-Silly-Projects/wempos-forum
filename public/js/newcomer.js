@@ -222,7 +222,6 @@ function welcomeBody(document, user) {
       // L2 wave: the one guided tour lives here (newcomer-tour.js, Driver.js).
       createTourButton(document),
       textNode(document, "p", "newcomer-nudge", t("newcomer.sayHi")),
-      textNode(document, "p", "newcomer-off-hint muted", t("newcomer.onboardOffHint")),
     ],
     dismissLabel: t("newcomer.hideWelcome"),
   };
@@ -286,8 +285,17 @@ function tipsBody(document) {
 }
 
 // One card: a labelled region with its heading, body and a "Got it" button.
-export function createNewcomerCard(document, cardId, user, onDismiss, { modulesOff = new Set() } = {}) {
+// The first onboarding card a member sees (whichever day that is) says how
+// to turn the cards off; it names the real Settings and Notifications labels.
+const offHint = (document) => textNode(document, "p", "newcomer-off-hint muted", t("newcomer.onboardOffHint", {
+  settings: t("common.settings"), notifications: t("settingsGroups.notifications"),
+}));
+const isOnboardingCard = (cardId) => ONBOARDING_CARDS.some((card) => card.id === cardId);
+const sawOnboarding = (dismissed) => ONBOARDING_CARDS.some((card) => card.id in dismissed);
+
+export function createNewcomerCard(document, cardId, user, onDismiss, { modulesOff = new Set(), dismissed = {} } = {}) {
   const spec = cardSpec(document, cardId, user, modulesOff);
+  const hint = isOnboardingCard(cardId) && !sawOnboarding(dismissed) ? [offHint(document)] : [];
   const card = document.createElement("section");
   card.className = "newcomer-card";
   card.dataset.card = cardId;
@@ -299,7 +307,7 @@ export function createNewcomerCard(document, cardId, user, onDismiss, { modulesO
   dismiss.type = "button";
   dismiss.setAttribute("aria-label", spec.dismissLabel);
   dismiss.addEventListener("click", () => onDismiss(cardId));
-  card.append(heading, ...spec.nodes, dismiss);
+  card.append(heading, ...spec.nodes, ...hint, dismiss);
   return card;
 }
 
@@ -310,21 +318,23 @@ export function renderNewcomerCards(document, slot, user, {
   storage = browserStorage(), now = Date.now(), modulesOff = offSiteModules(document),
 } = {}) {
   if (!slot || !user) return;
-  const mount = (cardId, moveFocus) => {
+  const mount = (cardId, moveFocus, dismissed) => {
     const card = createNewcomerCard(document, cardId, user, (dismissedId) => {
-      const next = pendingCards(user, dismissCard(storage, user.id, dismissedId, now), now);
+      const nowDismissed = dismissCard(storage, user.id, dismissedId, now);
+      const next = pendingCards(user, nowDismissed, now);
       if (next.length) {
-        mount(next[0], true);
+        mount(next[0], true, nowDismissed);
         return;
       }
       const done = textNode(document, "p", "newcomer-done", t("newcomer.allSet"));
       done.setAttribute("role", "status");
       slot.replaceChildren(done);
       jumpToNode(done, { block: "nearest" });
-    }, { modulesOff });
+    }, { modulesOff, dismissed });
     slot.replaceChildren(card);
     if (moveFocus) jumpToNode(card.querySelector(".newcomer-title"), { block: "nearest" });
   };
-  const first = pendingCards(user, readDismissed(storage, user.id), now)[0];
-  if (first) mount(first, false);
+  const dismissed = readDismissed(storage, user.id);
+  const first = pendingCards(user, dismissed, now)[0];
+  if (first) mount(first, false, dismissed);
 }

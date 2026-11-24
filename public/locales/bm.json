@@ -609,7 +609,7 @@
   "newcomer.allSet": "A bɛɛ labɛnnen don. I ɲɛnajɛ!",
   "newcomer.onboardWelcomeTitle": "I bisimila! Sigilan ta :3",
   "newcomer.onboardStartHere": "A daminɛ yan: bisimila baro",
-  "newcomer.onboardOffHint": "I ka dɔgɔkun fɔlɔ kɔnɔ, an bɛna ladili dɔw di i ma. I bɛ se k'u bɔ Labɛnw → Kunnafoniw kɔnɔ.",
+  "newcomer.onboardOffHint": "I ka dɔgɔkun fɔlɔ kɔnɔ, an bɛna ladili dɔw di i ma. I bɛ se k'u bɔ {settings} → {notifications} kɔnɔ.",
   "newcomer.onboardSayHiTitle": "I bɛ foli kɛ wa?",
   "newcomer.onboardSayHiBody": "Foli surun ye daminɛ sira nɔgɔman ye. A fɔ bɛɛ ye i bɛ min tulon kɛ walima ka min dilan!",
   "newcomer.onboardProfileTitle": "I ka porofili kɛ i ta ye",

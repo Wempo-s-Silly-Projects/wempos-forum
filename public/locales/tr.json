@@ -609,7 +609,7 @@
   "newcomer.allSet": "Her şey hazır. İyi eğlenceler!",
   "newcomer.onboardWelcomeTitle": "Hoş geldin! Bir sandalye çek :3",
   "newcomer.onboardStartHere": "Buradan başla: hoş geldin konusu",
-  "newcomer.onboardOffHint": "İlk haftanda birkaç ipucuyla uğrayacağız. Bunları Ayarlar → Bildirimler bölümünden kapatabilirsin.",
+  "newcomer.onboardOffHint": "İlk haftanda birkaç ipucuyla uğrayacağız. Bunları {settings} → {notifications} bölümünden kapatabilirsin.",
   "newcomer.onboardSayHiTitle": "Merhaba der misin?",
   "newcomer.onboardSayHiBody": "Kısa bir merhaba en kolay başlangıçtır. Ne oynadığını ya da ne inşa ettiğini anlat!",
   "newcomer.onboardProfileTitle": "Profilini kendine göre yap",

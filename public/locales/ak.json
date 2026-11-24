@@ -609,7 +609,7 @@
   "newcomer.allSet": "Biribiara asiesie. Gye w'ani!",
   "newcomer.onboardWelcomeTitle": "Akwaaba! Twe akonnwa bra :3",
   "newcomer.onboardStartHere": "Hyɛ ase wɔ ha: akwaaba nkɔmmɔ",
-  "newcomer.onboardOffHint": "Wo nnawɔtwe a edi kan no mu yɛbɛba ne afotu kakra. Wubetumi adum wɔn wɔ Nhyehyɛe → Nkaebɔ mu.",
+  "newcomer.onboardOffHint": "Wo nnawɔtwe a edi kan no mu yɛbɛba ne afotu kakra. Wubetumi adum wɔn wɔ {settings} → {notifications} mu.",
   "newcomer.onboardSayHiTitle": "Wobɛkyia?",
   "newcomer.onboardSayHiBody": "Nkyia tiawa ne ɔkwan a ɛyɛ mmerɛw sen biara a wode bɛhyɛ ase. Ka nea woredi agoru anaa woresi kyerɛ obiara!",
   "newcomer.onboardProfileTitle": "Ma wo profaele nyɛ wo de",

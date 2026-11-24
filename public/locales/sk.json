@@ -609,7 +609,7 @@
   "newcomer.allSet": "Hotovo. Užite si to tam vonku!",
   "newcomer.onboardWelcomeTitle": "Vitaj! Prisadni si :3",
   "newcomer.onboardStartHere": "Začni tu: uvítacie vlákno",
-  "newcomer.onboardOffHint": "V prvom týždni sa ozveme s pár tipmi. Vypnúť ich môžeš v Nastaveniach → Upozornenia.",
+  "newcomer.onboardOffHint": "V prvom týždni sa ozveme s pár tipmi. Vypnúť ich môžeš v {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Pozdravíš?",
   "newcomer.onboardSayHiBody": "Rýchle ahoj je najľahší začiatok. Napíš, čo hráš alebo staviaš!",
   "newcomer.onboardProfileTitle": "Sprav si profil po svojom",

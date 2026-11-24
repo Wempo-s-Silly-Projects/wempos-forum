@@ -609,7 +609,7 @@
   "newcomer.allSet": "အားလုံးအဆင်သင့်ပါ။ ပျော်ရွှင်ပါစေ!",
   "newcomer.onboardWelcomeTitle": "ကြိုဆိုပါတယ်! ထိုင်ခုံဆွဲပြီး ထိုင်ပါ :3",
   "newcomer.onboardStartHere": "ဒီမှာ စတင်ပါ- ကြိုဆိုရေး စာတွဲ",
-  "newcomer.onboardOffHint": "ပထမအပတ်မှာ အကြံပြုချက်အချို့နဲ့ လာလည်ပါမယ်။ ဆက်တင်များ → အသိပေးချက်များ မှာ ပိတ်နိုင်ပါတယ်။",
+  "newcomer.onboardOffHint": "ပထမအပတ်မှာ အကြံပြုချက်အချို့နဲ့ လာလည်ပါမယ်။ {settings} → {notifications} မှာ ပိတ်နိုင်ပါတယ်။",
   "newcomer.onboardSayHiTitle": "နှုတ်ဆက်မလား?",
   "newcomer.onboardSayHiBody": "တိုတိုလေး နှုတ်ဆက်တာက အလွယ်ဆုံး စတင်နည်းပါ။ ဘာကစားနေလဲ၊ ဘာတည်ဆောက်နေလဲ ပြောပြပါ!",
   "newcomer.onboardProfileTitle": "ပရိုဖိုင်ကို ကိုယ်ပိုင်ဖြစ်အောင်လုပ်ပါ",

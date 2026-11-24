@@ -609,7 +609,7 @@
   "newcomer.allSet": "Всичко е готово. Забавлявай се!",
   "newcomer.onboardWelcomeTitle": "Добре дошъл! Придърпай си стол :3",
   "newcomer.onboardStartHere": "Започни оттук: темата за добре дошли",
-  "newcomer.onboardOffHint": "През първата седмица ще наминем с няколко съвета. Можеш да ги изключиш от Настройки → Известия.",
+  "newcomer.onboardOffHint": "През първата седмица ще наминем с няколко съвета. Можеш да ги изключиш от {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Ще поздравиш ли?",
   "newcomer.onboardSayHiBody": "Едно бързо здрасти е най-лесното начало. Разкажи какво играеш или строиш!",
   "newcomer.onboardProfileTitle": "Направи профила си свой",

@@ -609,7 +609,7 @@
   "newcomer.allSet": "Sve je spremno. Ugodna zabava!",
   "newcomer.onboardWelcomeTitle": "Dobro došao! Privuci stolicu :3",
   "newcomer.onboardStartHere": "Počni ovdje: nit dobrodošlice",
-  "newcomer.onboardOffHint": "U prvom tjednu svratit ćemo s nekoliko savjeta. Možeš ih isključiti u Postavke → Obavijesti.",
+  "newcomer.onboardOffHint": "U prvom tjednu svratit ćemo s nekoliko savjeta. Možeš ih isključiti u {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Pozdraviš?",
   "newcomer.onboardSayHiBody": "Brzi pozdrav je najlakši početak. Reci svima što igraš ili gradiš!",
   "newcomer.onboardProfileTitle": "Uredi profil po svom",

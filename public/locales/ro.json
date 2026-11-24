@@ -609,7 +609,7 @@
   "newcomer.allSet": "Totul e gata. Distracție plăcută!",
   "newcomer.onboardWelcomeTitle": "Bine ai venit! Trage-ți un scaun :3",
   "newcomer.onboardStartHere": "Începe aici: firul de bun venit",
-  "newcomer.onboardOffHint": "În prima săptămână trecem cu câteva sfaturi. Le poți dezactiva din Setări → Notificări.",
+  "newcomer.onboardOffHint": "În prima săptămână trecem cu câteva sfaturi. Le poți dezactiva din {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Saluți?",
   "newcomer.onboardSayHiBody": "Un salut rapid e cel mai simplu început. Spune-ne ce joci sau ce construiești!",
   "newcomer.onboardProfileTitle": "Fă-ți profilul al tău",

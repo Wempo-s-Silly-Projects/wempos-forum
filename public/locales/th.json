@@ -609,7 +609,7 @@
   "newcomer.allSet": "เรียบร้อย ขอให้สนุกนะ!",
   "newcomer.onboardWelcomeTitle": "ยินดีต้อนรับ! ลากเก้าอี้มานั่งเลย :3",
   "newcomer.onboardStartHere": "เริ่มที่นี่: กระทู้ต้อนรับ",
-  "newcomer.onboardOffHint": "ในสัปดาห์แรกเราจะแวะมาพร้อมเคล็ดลับเล็กน้อย ปิดได้ที่ การตั้งค่า → การแจ้งเตือน",
+  "newcomer.onboardOffHint": "ในสัปดาห์แรกเราจะแวะมาพร้อมเคล็ดลับเล็กน้อย ปิดได้ที่ {settings} → {notifications}",
   "newcomer.onboardSayHiTitle": "ทักทายหน่อยไหม?",
   "newcomer.onboardSayHiBody": "ทักทายสั้น ๆ คือวิธีเริ่มต้นที่ง่ายที่สุด บอกทุกคนว่าคุณกำลังเล่นหรือสร้างอะไรอยู่!",
   "newcomer.onboardProfileTitle": "ทำโปรไฟล์ให้เป็นของคุณ",

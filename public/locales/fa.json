@@ -609,7 +609,7 @@
   "newcomer.allSet": "همه‌چیز آماده است. خوش بگذرد!",
   "newcomer.onboardWelcomeTitle": "خوش آمدی! یک صندلی بردار :3",
   "newcomer.onboardStartHere": "از اینجا شروع کن: رشتهٔ خوشامد",
-  "newcomer.onboardOffHint": "در هفتهٔ اول با چند نکته سر می‌زنیم. می‌توانی آن‌ها را در تنظیمات ← اعلان‌ها خاموش کنی.",
+  "newcomer.onboardOffHint": "در هفتهٔ اول با چند نکته سر می‌زنیم. می‌توانی آن‌ها را در {settings} ← {notifications} خاموش کنی.",
   "newcomer.onboardSayHiTitle": "سلام می‌کنی؟",
   "newcomer.onboardSayHiBody": "یک سلام کوتاه ساده‌ترین شروع است. بگو چه بازی می‌کنی یا چه می‌سازی!",
   "newcomer.onboardProfileTitle": "نمایه‌ات را مال خودت کن",

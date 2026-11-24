@@ -609,7 +609,7 @@
   "newcomer.allSet": "Хатӗр. Лайӑх вӑхӑт ирттер!",
   "newcomer.onboardWelcomeTitle": "Ырӑ сунатпӑр! Пукан илсе лар :3",
   "newcomer.onboardStartHere": "Кунтан пуҫла: саламлав теми",
-  "newcomer.onboardOffHint": "Пӗрремӗш эрнере хӑш-пӗр канашпа кӗрсе тухӑпӑр. Вӗсене Ӗнерлевсем → Пӗлтерӳсем пайӗнче сӳнтерме пулать.",
+  "newcomer.onboardOffHint": "Пӗрремӗш эрнере хӑш-пӗр канашпа кӗрсе тухӑпӑр. Вӗсене {settings} → {notifications} пайӗнче сӳнтерме пулать.",
   "newcomer.onboardSayHiTitle": "Саламлӑн-и?",
   "newcomer.onboardSayHiBody": "Кӗске салам — пуҫламалли чи ҫӑмӑл ҫул. Мӗн выляни е мӗн тунине пурне те каласа пар!",
   "newcomer.onboardProfileTitle": "Профилӗнтан хӑвӑнни ту",

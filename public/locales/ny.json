@@ -609,7 +609,7 @@
   "newcomer.allSet": "Zonse zili bwino. Sangalalani!",
   "newcomer.onboardWelcomeTitle": "Takulandirani! Kokani mpando :3",
   "newcomer.onboardStartHere": "Yambani apa: ulusi wolandira",
-  "newcomer.onboardOffHint": "Sabata yanu yoyamba tidzabwera ndi malangizo angapo. Mutha kuwazimitsa mu Zokonda → Zidziwitso.",
+  "newcomer.onboardOffHint": "Sabata yanu yoyamba tidzabwera ndi malangizo angapo. Mutha kuwazimitsa mu {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Mupereka moni?",
   "newcomer.onboardSayHiBody": "Moni yachidule ndiyo njira yosavuta yoyambira. Uzani aliyense zomwe mukusewera kapena kumanga!",
   "newcomer.onboardProfileTitle": "Pangani mbiri yanu kukhala yanu",

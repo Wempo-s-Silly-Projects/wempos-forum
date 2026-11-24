@@ -609,7 +609,7 @@
   "newcomer.allSet": "كل شيء جاهز. استمتع بوقتك!",
   "newcomer.onboardWelcomeTitle": "أهلًا بك! تفضّل بالجلوس :3",
   "newcomer.onboardStartHere": "ابدأ من هنا: موضوع الترحيب",
-  "newcomer.onboardOffHint": "سنمرّ عليك ببعض النصائح خلال أسبوعك الأول. يمكنك إيقافها من الإعدادات ← الإشعارات.",
+  "newcomer.onboardOffHint": "سنمرّ عليك ببعض النصائح خلال أسبوعك الأول. يمكنك إيقافها من {settings} ← {notifications}.",
   "newcomer.onboardSayHiTitle": "ستلقي التحية؟",
   "newcomer.onboardSayHiBody": "تحية سريعة هي أسهل بداية. أخبر الجميع بما تلعبه أو تبنيه!",
   "newcomer.onboardProfileTitle": "اجعل ملفك الشخصي يشبهك",

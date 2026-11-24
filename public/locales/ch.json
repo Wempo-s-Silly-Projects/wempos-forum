@@ -609,7 +609,7 @@
   "newcomer.allSet": "Listu. Fanmagof!",
   "newcomer.onboardWelcomeTitle": "Bien benidu! Chule un siya ya fatachung :3",
   "newcomer.onboardStartHere": "Tutuhon guini: i hilu' para bienbenidu",
-  "newcomer.onboardOffHint": "Gi fine'nana na simanå-mu, para ta fanmåtto yan palo' konsehu. Siña un nå'mafnas gi Ayuste → Nutisia.",
+  "newcomer.onboardOffHint": "Gi fine'nana na simanå-mu, para ta fanmåtto yan palo' konsehu. Siña un nå'mafnas gi {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Para un saluda?",
   "newcomer.onboardSayHiBody": "I didide' na saluda i mas libianu na chalan para un tutuhon. Sångan todu håfa un huegagayi pat un fåfa'tinasi!",
   "newcomer.onboardProfileTitle": "Fa'tinas i perfit-mu para hågu",

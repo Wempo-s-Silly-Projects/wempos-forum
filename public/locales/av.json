@@ -609,7 +609,7 @@
   "newcomer.allSet": "Кинабго хӏадур буго. Рохалида вукӏа!",
   "newcomer.onboardWelcomeTitle": "Ракӏалдаса ракӏарай! Кресло бачун лъе :3",
   "newcomer.onboardStartHere": "Гьаниса байбихье: салам кьеялъул тема",
-  "newcomer.onboardOffHint": "Тӏоцебесеб анкьида нилъ цо-цо насихӏатаздаги вачӏина. Гьел тӏамизе бегьула Тадбиралъ → Лъазабиял.",
+  "newcomer.onboardOffHint": "Тӏоцебесеб анкьида нилъ цо-цо насихӏатаздаги вачӏина. Гьел тӏамизе бегьула {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Салам кьелищ?",
   "newcomer.onboardSayHiBody": "Къокъаб салам — байбихьизе бищунго гьайбатаб нух. Щиб хӏай гьабулеб яги бараб бицине!",
   "newcomer.onboardProfileTitle": "Профиль дурабго гьабе",

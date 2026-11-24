@@ -609,7 +609,7 @@
   "newcomer.allSet": "Minden kész. Érezd jól magad odakint!",
   "newcomer.onboardWelcomeTitle": "Üdv! Húzz ide egy széket :3",
   "newcomer.onboardStartHere": "Itt kezdd: az üdvözlő szál",
-  "newcomer.onboardOffHint": "Az első heted során benézünk pár tippel. Kikapcsolhatod őket a Beállítások → Értesítések alatt.",
+  "newcomer.onboardOffHint": "Az első heted során benézünk pár tippel. Kikapcsolhatod őket a {settings} → {notifications} alatt.",
   "newcomer.onboardSayHiTitle": "Köszönsz?",
   "newcomer.onboardSayHiBody": "Egy gyors szia a legkönnyebb kezdés. Meséld el, mivel játszol vagy mit építesz!",
   "newcomer.onboardProfileTitle": "Tedd a sajátoddá a profilod",

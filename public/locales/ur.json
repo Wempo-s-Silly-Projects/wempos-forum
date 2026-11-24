@@ -609,7 +609,7 @@
   "newcomer.allSet": "سب تیار ہے۔ مزے کریں!",
   "newcomer.onboardWelcomeTitle": "خوش آمدید! کرسی سنبھالیں :3",
   "newcomer.onboardStartHere": "یہاں سے شروع کریں: خوش آمدید والا تھریڈ",
-  "newcomer.onboardOffHint": "پہلے ہفتے ہم چند مشوروں کے ساتھ آئیں گے۔ آپ انہیں ترتیبات ← اطلاعات میں بند کر سکتے ہیں۔",
+  "newcomer.onboardOffHint": "پہلے ہفتے ہم چند مشوروں کے ساتھ آئیں گے۔ آپ انہیں {settings} ← {notifications} میں بند کر سکتے ہیں۔",
   "newcomer.onboardSayHiTitle": "سلام کریں؟",
   "newcomer.onboardSayHiBody": "ایک مختصر سلام شروع کرنے کا سب سے آسان طریقہ ہے۔ سب کو بتائیں آپ کیا کھیل یا بنا رہے ہیں!",
   "newcomer.onboardProfileTitle": "پروفائل کو اپنا بنائیں",

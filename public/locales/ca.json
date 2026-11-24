@@ -609,7 +609,7 @@
   "newcomer.allSet": "Tot a punt. Passa-ho bé!",
   "newcomer.onboardWelcomeTitle": "Benvingut! Seu i posa't còmode :3",
   "newcomer.onboardStartHere": "Comença aquí: el fil de benvinguda",
-  "newcomer.onboardOffHint": "Durant la primera setmana passarem amb uns quants consells. Els pots desactivar a Configuració → Notificacions.",
+  "newcomer.onboardOffHint": "Durant la primera setmana passarem amb uns quants consells. Els pots desactivar a {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Saludes?",
   "newcomer.onboardSayHiBody": "Un hola ràpid és la manera més fàcil de començar. Explica a què jugues o què construeixes!",
   "newcomer.onboardProfileTitle": "Fes teu el perfil",

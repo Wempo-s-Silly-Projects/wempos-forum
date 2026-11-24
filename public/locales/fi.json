@@ -609,7 +609,7 @@
   "newcomer.allSet": "Kaikki valmista. Pidä hauskaa siellä!",
   "newcomer.onboardWelcomeTitle": "Tervetuloa! Ota tuoli :3",
   "newcomer.onboardStartHere": "Aloita tästä: tervetuloketju",
-  "newcomer.onboardOffHint": "Pistäydymme ensimmäisellä viikollasi muutaman vinkin kanssa. Voit poistaa ne käytöstä kohdassa Asetukset → Ilmoitukset.",
+  "newcomer.onboardOffHint": "Pistäydymme ensimmäisellä viikollasi muutaman vinkin kanssa. Voit poistaa ne käytöstä kohdassa {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Sanotko moi?",
   "newcomer.onboardSayHiBody": "Nopea moikkaus on helpoin tapa aloittaa. Kerro, mitä pelaat tai rakennat!",
   "newcomer.onboardProfileTitle": "Tee profiilista omasi",

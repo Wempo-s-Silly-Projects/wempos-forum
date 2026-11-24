@@ -609,7 +609,7 @@
   "newcomer.allSet": "Όλα έτοιμα. Καλή διασκέδαση εκεί έξω!",
   "newcomer.onboardWelcomeTitle": "Καλώς ήρθες! Τράβα μια καρέκλα :3",
   "newcomer.onboardStartHere": "Ξεκίνα από εδώ: το νήμα καλωσορίσματος",
-  "newcomer.onboardOffHint": "Την πρώτη σου εβδομάδα θα περάσουμε με μερικές συμβουλές. Μπορείς να τις απενεργοποιήσεις στις Ρυθμίσεις → Ειδοποιήσεις.",
+  "newcomer.onboardOffHint": "Την πρώτη σου εβδομάδα θα περάσουμε με μερικές συμβουλές. Μπορείς να τις απενεργοποιήσεις στις {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Θα πεις ένα γεια;",
   "newcomer.onboardSayHiBody": "Ένα γρήγορο γεια είναι ο πιο εύκολος τρόπος να ξεκινήσεις. Πες μας τι παίζεις ή τι φτιάχνεις!",
   "newcomer.onboardProfileTitle": "Κάνε το προφίλ δικό σου",

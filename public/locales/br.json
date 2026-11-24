@@ -609,7 +609,7 @@
   "newcomer.allSet": "Pep tra a zo mat. Plijadur d'ac'h!",
   "newcomer.onboardWelcomeTitle": "Degemer mat! Kemer ur gador :3",
   "newcomer.onboardStartHere": "Kregiñ amañ: neudennad degemer",
-  "newcomer.onboardOffHint": "E-pad ho sizhun gentañ e tremenimp gant un nebeud tunioù. Gallout a rit o lazhañ e Arventennoù → Kemennoù.",
+  "newcomer.onboardOffHint": "E-pad ho sizhun gentañ e tremenimp gant un nebeud tunioù. Gallout a rit o lazhañ e {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Lavarout demat?",
   "newcomer.onboardSayHiBody": "Un demat buan eo an doare aesañ da gregiñ. Lavarit d'an holl petra a c'hoarit pe a sevel!",
   "newcomer.onboardProfileTitle": "Grit ho profil deoc'h",

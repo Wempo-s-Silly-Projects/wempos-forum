@@ -609,7 +609,7 @@
   "newcomer.allSet": "Tot listo. Pasa-lo bien!",
   "newcomer.onboardWelcomeTitle": "Bienplegau! Pilla una cadiera :3",
   "newcomer.onboardStartHere": "Prencipia aquí: o filo de bienvenida",
-  "newcomer.onboardOffHint": "Te daremos qualques consellos en a tuya primera semana. Los puetz desactivar en Achustes → Notificacions.",
+  "newcomer.onboardOffHint": "Te daremos qualques consellos en a tuya primera semana. Los puetz desactivar en {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Saludas?",
   "newcomer.onboardSayHiBody": "Un saludo rapido ye la manera mas fácil de prencipiar. Conta-nos a qué chugas u qué construyes!",
   "newcomer.onboardProfileTitle": "Fe tuyo o tuyo perfil",

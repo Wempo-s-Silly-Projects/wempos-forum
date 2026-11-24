@@ -609,7 +609,7 @@
   "newcomer.allSet": "সব ঠিক। ভালো কাটুক!",
   "newcomer.onboardWelcomeTitle": "স্বাগতম! একটা চেয়ার টেনে বসো :3",
   "newcomer.onboardStartHere": "এখান থেকে শুরু করো: স্বাগত থ্রেড",
-  "newcomer.onboardOffHint": "প্রথম সপ্তাহে আমরা কয়েকটা টিপস নিয়ে আসব। সেটিংস → বিজ্ঞপ্তি থেকে এগুলো বন্ধ করতে পারো।",
+  "newcomer.onboardOffHint": "প্রথম সপ্তাহে আমরা কয়েকটা টিপস নিয়ে আসব। {settings} → {notifications} থেকে এগুলো বন্ধ করতে পারো।",
   "newcomer.onboardSayHiTitle": "হাই বলবে?",
   "newcomer.onboardSayHiBody": "ছোট্ট একটা হাই শুরু করার সবচেয়ে সহজ উপায়। সবাইকে বলো তুমি কী খেলছ বা বানাচ্ছ!",
   "newcomer.onboardProfileTitle": "প্রোফাইলটা নিজের করে নাও",

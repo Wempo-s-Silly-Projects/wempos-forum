@@ -609,7 +609,7 @@
   "newcomer.allSet": "সকলো সাজু। আনন্দ কৰক!",
   "newcomer.onboardWelcomeTitle": "স্বাগতম! এখন চকী লৈ বহক :3",
   "newcomer.onboardStartHere": "ইয়াৰ পৰা আৰম্ভ কৰক: আদৰণিৰ থ্ৰেড",
-  "newcomer.onboardOffHint": "প্ৰথম সপ্তাহত আমি কেইটামান পৰামৰ্শ লৈ আহিম। ছেটিংছ → জাননী-ত এইবোৰ বন্ধ কৰিব পাৰে।",
+  "newcomer.onboardOffHint": "প্ৰথম সপ্তাহত আমি কেইটামান পৰামৰ্শ লৈ আহিম। {settings} → {notifications}ত এইবোৰ বন্ধ কৰিব পাৰে।",
   "newcomer.onboardSayHiTitle": "নমস্কাৰ জনাব নেকি?",
   "newcomer.onboardSayHiBody": "এটা সৰু নমস্কাৰেই আৰম্ভণিৰ আটাইতকৈ সহজ উপায়। আপুনি কি খেলিছে বা সাজিছে সকলোকে কওক!",
   "newcomer.onboardProfileTitle": "প্ৰ'ফাইলটো নিজৰ কৰক",

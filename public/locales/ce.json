@@ -609,7 +609,7 @@
   "newcomer.allSet": "Дерриг кечам бу. Хазахетта!",
   "newcomer.onboardWelcomeTitle": "Марша догӏийла! Гӏант тӏе хаа :3",
   "newcomer.onboardStartHere": "Кхузара доладе: марша догӏийларан тема",
-  "newcomer.onboardOffHint": "Хьалхарчу кӏиранах цхьа масех хьехам балош гӏур ду тхо. Уьш дӏаяйа мегар ду Нисдарш → Хаамаш чохь.",
+  "newcomer.onboardOffHint": "Хьалхарчу кӏиранах цхьа масех хьехам балош гӏур ду тхо. Уьш дӏаяйа мегар ду {settings} → {notifications} чохь.",
   "newcomer.onboardSayHiTitle": "Маршалла хаттар дуй?",
   "newcomer.onboardSayHiBody": "Йоцца маршалла — доладала уггаре атта некъ бу. Хьо хӏун ловзуш ву я хӏун дуьйлуш ву дийца!",
   "newcomer.onboardProfileTitle": "Профиль шайна гӏеххьа йе",

@@ -609,7 +609,7 @@
   "newcomer.allSet": "Allt klart. Ha det kul där ute!",
   "newcomer.onboardWelcomeTitle": "Välkommen! Dra fram en stol :3",
   "newcomer.onboardStartHere": "Börja här: välkomsttråden",
-  "newcomer.onboardOffHint": "Vi tittar in med några tips under din första vecka. Du kan stänga av dem under Inställningar → Aviseringar.",
+  "newcomer.onboardOffHint": "Vi tittar in med några tips under din första vecka. Du kan stänga av dem under {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Säg hej?",
   "newcomer.onboardSayHiBody": "Ett snabbt hej är det enklaste sättet att börja. Berätta vad du spelar eller bygger!",
   "newcomer.onboardProfileTitle": "Gör profilen till din",

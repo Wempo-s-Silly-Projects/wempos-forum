@@ -609,7 +609,7 @@
   "newcomer.allSet": "Tudo pronto. Divirta-se!",
   "newcomer.onboardWelcomeTitle": "Bem-vindo! Puxa uma cadeira :3",
   "newcomer.onboardStartHere": "Comece aqui: o tópico de boas-vindas",
-  "newcomer.onboardOffHint": "Vamos aparecer com algumas dicas na sua primeira semana. Você pode desligá-las em Configurações → Notificações.",
+  "newcomer.onboardOffHint": "Vamos aparecer com algumas dicas na sua primeira semana. Você pode desligá-las em {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Diz oi?",
   "newcomer.onboardSayHiBody": "Um oi rápido é o jeito mais fácil de começar. Conte o que você está jogando ou construindo!",
   "newcomer.onboardProfileTitle": "Deixe o perfil com a sua cara",

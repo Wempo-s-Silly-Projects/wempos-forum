@@ -609,7 +609,7 @@
   "newcomer.allSet": "준비 끝. 즐거운 시간 보내요!",
   "newcomer.onboardWelcomeTitle": "환영해요! 의자 하나 끌어다 앉으세요 :3",
   "newcomer.onboardStartHere": "여기서 시작하세요: 환영 스레드",
-  "newcomer.onboardOffHint": "첫 주 동안 몇 가지 팁을 들고 찾아갈게요. 설정 → 알림에서 끌 수 있어요.",
+  "newcomer.onboardOffHint": "첫 주 동안 몇 가지 팁을 들고 찾아갈게요. {settings} → {notifications}에서 끌 수 있어요.",
   "newcomer.onboardSayHiTitle": "인사해 볼래요?",
   "newcomer.onboardSayHiBody": "짧은 인사가 가장 쉬운 시작이에요. 무엇을 플레이하거나 만들고 있는지 알려 주세요!",
   "newcomer.onboardProfileTitle": "프로필을 나답게",

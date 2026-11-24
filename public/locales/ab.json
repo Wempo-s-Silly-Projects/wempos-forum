@@ -609,7 +609,7 @@
   "newcomer.allSet": "Зегьы хиоуп. Шәгәы иаахәала!",
   "newcomer.onboardWelcomeTitle": "Бзиала шәаабеит! Аҟәардә аашәга :3",
   "newcomer.onboardStartHere": "Абраантә ишәыҵаркуа: адныҳәалара атема",
-  "newcomer.onboardOffHint": "Актәи амчыбжь азы ацҳамҭақәак аашәаагоит. Урҭ ахыхра ауеит Архиарақәа → Адырраҭарақәа рҟны.",
+  "newcomer.onboardOffHint": "Актәи амчыбжь азы ацҳамҭақәак аашәаагоит. Урҭ ахыхра ауеит {settings} → {notifications} рҟны.",
   "newcomer.onboardSayHiTitle": "Шәыдныҳәалома?",
   "newcomer.onboardSayHiBody": "Ихааны аныҳәара — иара убас ишәыҵаркуа ирмариоу амҩа ауп. Иаашәҳәа ишәыхәмарыз мамзаргьы ишәыргылоз!",
   "newcomer.onboardProfileTitle": "Шәпрофиль шәара ишәтәу ҟашәҵа",

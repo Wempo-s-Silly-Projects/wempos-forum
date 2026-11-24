@@ -609,7 +609,7 @@
   "newcomer.allSet": "Inkih massoyte. Ayyufuk tanito!",
   "newcomer.onboardWelcomeTitle": "Nagaynal amaat! Kursi bey :3",
   "newcomer.onboardStartHere": "Kah qimbis: nagay xiinisso baro",
-  "newcomer.onboardOffHint": "Ku awal ayyaamih ixxigaana kassisak tet amaatenno. Usun Ayyaamah → Kassiisa addal tibbixe.",
+  "newcomer.onboardOffHint": "Ku awal ayyaamih ixxigaana kassisak tet amaatenno. Usun {settings} → {notifications} addal tibbixe.",
   "newcomer.onboardSayHiTitle": "Salaam taaxige?",
   "newcomer.onboardSayHiBody": "Salaam dagoh qimbisso faxximta gita kinni. Inkih tamaatim ken warseeh!",
   "newcomer.onboardProfileTitle": "Ku profayl ku tikki abe",

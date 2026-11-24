@@ -609,7 +609,7 @@
   "newcomer.allSet": "Dena prest. Ondo pasa!",
   "newcomer.onboardWelcomeTitle": "Ongi etorri! Hartu aulki bat :3",
   "newcomer.onboardStartHere": "Hasi hemen: ongietorri haria",
-  "newcomer.onboardOffHint": "Lehen astean aholku batzuekin agertuko gara. Ezarpenak → Jakinarazpenak atalean desaktiba ditzakezu.",
+  "newcomer.onboardOffHint": "Lehen astean aholku batzuekin agertuko gara. {settings} → {notifications} atalean desaktiba ditzakezu.",
   "newcomer.onboardSayHiTitle": "Kaixo esango duzu?",
   "newcomer.onboardSayHiBody": "Kaixo azkar bat da hasteko modurik errazena. Kontatu zertan jolasten edo zer eraikitzen ari zaren!",
   "newcomer.onboardProfileTitle": "Egin profila zurea",

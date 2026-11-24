@@ -609,7 +609,7 @@
   "newcomer.allSet": "Handa ka na. Mag-enjoy ka diyan!",
   "newcomer.onboardWelcomeTitle": "Maligayang pagdating! Umupo ka muna :3",
   "newcomer.onboardStartHere": "Magsimula rito: ang thread ng pagbati",
-  "newcomer.onboardOffHint": "Sa unang linggo mo, dadaan kami na may ilang tip. Puwede mo silang patayin sa Mga Setting → Mga Abiso.",
+  "newcomer.onboardOffHint": "Sa unang linggo mo, dadaan kami na may ilang tip. Puwede mo silang patayin sa {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Babati ka?",
   "newcomer.onboardSayHiBody": "Ang mabilis na hello ang pinakamadaling simula. Ikuwento kung ano ang nilalaro o binubuo mo!",
   "newcomer.onboardProfileTitle": "Gawing iyo ang profile mo",

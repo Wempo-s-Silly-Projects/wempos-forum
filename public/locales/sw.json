@@ -609,7 +609,7 @@
   "newcomer.allSet": "Tayari. Furahia huko nje!",
   "newcomer.onboardWelcomeTitle": "Karibu! Vuta kiti uketi :3",
   "newcomer.onboardStartHere": "Anza hapa: uzi wa makaribisho",
-  "newcomer.onboardOffHint": "Katika wiki yako ya kwanza tutapita na vidokezo vichache. Unaweza kuvizima kwenye Mipangilio → Arifa.",
+  "newcomer.onboardOffHint": "Katika wiki yako ya kwanza tutapita na vidokezo vichache. Unaweza kuvizima kwenye {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Utasalimia?",
   "newcomer.onboardSayHiBody": "Salamu fupi ndiyo njia rahisi ya kuanza. Waambie wote unachocheza au unachojenga!",
   "newcomer.onboardProfileTitle": "Fanya wasifu wako kuwa wako",

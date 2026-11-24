@@ -609,7 +609,7 @@
   "newcomer.allSet": "Gjithçka gati. Argëtohu!",
   "newcomer.onboardWelcomeTitle": "Mirë se erdhe! Merr një karrige :3",
   "newcomer.onboardStartHere": "Fillo këtu: tema e mirëseardhjes",
-  "newcomer.onboardOffHint": "Javën e parë do të kalojmë me disa këshilla. Mund t'i çaktivizosh te Cilësimet → Njoftimet.",
+  "newcomer.onboardOffHint": "Javën e parë do të kalojmë me disa këshilla. Mund t'i çaktivizosh te {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Thua përshëndetje?",
   "newcomer.onboardSayHiBody": "Një përshëndetje e shpejtë është mënyra më e lehtë për të nisur. Na trego çfarë luan ose ndërton!",
   "newcomer.onboardProfileTitle": "Bëje profilin tëndin",

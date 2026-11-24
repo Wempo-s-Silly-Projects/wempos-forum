@@ -609,7 +609,7 @@
   "newcomer.allSet": "I redi. Gat gudtaem!",
   "newcomer.onboardWelcomeTitle": "Welkam! Pulum wan jea i kam :3",
   "newcomer.onboardStartHere": "Stat long ples ia: welkam toktok",
-  "newcomer.onboardOffHint": "Long faswan wik bambae mifala i kam wetem sam smol advaes. Yu save sarem olgeta long Setting → Notis.",
+  "newcomer.onboardOffHint": "Long faswan wik bambae mifala i kam wetem sam smol advaes. Yu save sarem olgeta long {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Talem halo?",
   "newcomer.onboardSayHiBody": "Wan kwik halo i isi wei blong stat. Talem long evriwan wanem yu stap plei o wokem!",
   "newcomer.onboardProfileTitle": "Mekem profael blong yu i blong yu",

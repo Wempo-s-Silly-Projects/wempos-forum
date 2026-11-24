@@ -609,7 +609,7 @@
   "newcomer.allSet": "Taqi wakicht'atawa. Kusisipxam!",
   "newcomer.onboardWelcomeTitle": "Aski jutawi! Mä tʼiyar katuntam :3",
   "newcomer.onboardStartHere": "Akat qallta: aski jutäwi aruskipäwi",
-  "newcomer.onboardOffHint": "Nayrïr semanan mä qhawqha iwxt apanïñäni. Uka Wakichäwinaka → Yatiyawinakan jiwtʼayasma.",
+  "newcomer.onboardOffHint": "Nayrïr semanan mä qhawqha iwxt apanïñäni. Uka {settings} → {notifications} jiwtʼayasma.",
   "newcomer.onboardSayHiTitle": "Napaykätati?",
   "newcomer.onboardSayHiBody": "Mä jiskʼa napaykuwiw qalltañatakix jasa thakhixa. Kuns anatasta jan ukax luraskta uk taqinir yatiyam!",
   "newcomer.onboardProfileTitle": "Perfil jumankir tukuyam",

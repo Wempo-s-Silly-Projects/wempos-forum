@@ -609,7 +609,7 @@
   "newcomer.allSet": "எல்லாம் தயார். மகிழ்ந்திருங்கள்!",
   "newcomer.onboardWelcomeTitle": "வரவேற்கிறோம்! ஒரு நாற்காலியை இழுத்துக்கொள் :3",
   "newcomer.onboardStartHere": "இங்கே தொடங்கு: வரவேற்பு இழை",
-  "newcomer.onboardOffHint": "முதல் வாரத்தில் சில குறிப்புகளுடன் வருவோம். அமைப்புகள் → அறிவிப்புகள் பகுதியில் அவற்றை நிறுத்தலாம்.",
+  "newcomer.onboardOffHint": "முதல் வாரத்தில் சில குறிப்புகளுடன் வருவோம். {settings} → {notifications} பகுதியில் அவற்றை நிறுத்தலாம்.",
   "newcomer.onboardSayHiTitle": "வணக்கம் சொல்லலாமா?",
   "newcomer.onboardSayHiBody": "ஒரு சிறிய வணக்கமே எளிதான தொடக்கம். நீ என்ன விளையாடுகிறாய் அல்லது உருவாக்குகிறாய் என்று சொல்!",
   "newcomer.onboardProfileTitle": "சுயவிவரத்தை உனதாக்கு",

@@ -609,7 +609,7 @@
   "newcomer.allSet": "Барыһы ла әҙер. Күңелле ваҡыт үткәрегеҙ!",
   "newcomer.onboardWelcomeTitle": "Рәхим итегеҙ! Ултырғыс алып ултырығыҙ :3",
   "newcomer.onboardStartHere": "Ошонан башлағыҙ: сәләмләү темаһы",
-  "newcomer.onboardOffHint": "Беренсе аҙнала бер нисә кәңәш менән инеп сығырбыҙ. Уларҙы Көйләүҙәр → Белдереүҙәр бүлегендә һүндерә алаһығыҙ.",
+  "newcomer.onboardOffHint": "Беренсе аҙнала бер нисә кәңәш менән инеп сығырбыҙ. Уларҙы {settings} → {notifications} бүлегендә һүндерә алаһығыҙ.",
   "newcomer.onboardSayHiTitle": "Сәләм бирәһегеҙме?",
   "newcomer.onboardSayHiBody": "Ҡыҫҡа сәләм — башлауҙың иң еңел юлы. Нимә уйнағанығыҙҙы йәки төҙөгәнегеҙҙе һөйләгеҙ!",
   "newcomer.onboardProfileTitle": "Профилегеҙҙе үҙегеҙсә яһағыҙ",

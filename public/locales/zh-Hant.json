@@ -609,7 +609,7 @@
   "newcomer.allSet": "都好啦，玩得開心！",
   "newcomer.onboardWelcomeTitle": "歡迎！拉張椅子坐下吧 :3",
   "newcomer.onboardStartHere": "從這裡開始：歡迎文",
-  "newcomer.onboardOffHint": "第一週我們會帶著幾則小提示來看看你。你可以在 設定 → 通知 中關閉它們。",
+  "newcomer.onboardOffHint": "第一週我們會帶著幾則小提示來看看你。你可以在 {settings} → {notifications} 中關閉它們。",
   "newcomer.onboardSayHiTitle": "打個招呼？",
   "newcomer.onboardSayHiBody": "簡單打個招呼是最容易的開始。告訴大家你在玩什麼或在做什麼！",
   "newcomer.onboardProfileTitle": "打造你的個人檔案",

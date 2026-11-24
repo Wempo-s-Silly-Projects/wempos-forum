@@ -26,7 +26,7 @@
 // stored is the per-account dismiss map that sign-out wipes.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import {
   ONBOARDING_OFF, TIPS_CARD, WELCOME_CARD, createOnboardingPanel, newcomerKey, pendingCards,
   readDismissed, renderNewcomerCards, setOnboardingEnabled,
@@ -122,7 +122,33 @@ test("render: each later card links where it says, and day 8 skips modules that 
   const off = hrefs(8, { modulesOff: new Set(["polls", "chat"]) });
   assert.deepEqual(off.links, []);
   assert.equal(off.card.querySelector(".newcomer-chat"), null);
-  for (const day of [1, 3, 5, 8]) assert.equal(hrefs(day).card.querySelector(".newcomer-off-hint"), null);
+});
+
+test("render: the off hint rides the first onboarding card a member sees, on whatever day, and names the real labels", () => {
+  const document = makeFakeDocument();
+  const cardFor = (day, dismissed = {}) => {
+    const storage = memoryStorage();
+    storage.setItem(newcomerKey(4), JSON.stringify(dismissed));
+    const slot = new FakeNode("div");
+    renderNewcomerCards(document, slot, member(day, QUIET), { storage, now: NOW });
+    return slot.firstElementChild;
+  };
+  for (const day of [1, 3, 5, 8]) assert.ok(cardFor(day).querySelector(".newcomer-off-hint"), "first card on day " + day);
+  const seen = cardFor(3, { [WELCOME_CARD]: NOW - 3 * DAY_MS });
+  assert.equal(seen.querySelector(".newcomer-off-hint"), null, "not again once an onboarding card was seen");
+  const tips = cardFor(30);
+  assert.equal(tips.querySelector(".newcomer-off-hint"), null, "never on the tips card");
+  const hint = cardFor(0).querySelector(".newcomer-off-hint").textContent;
+  assert.ok(!hint.includes("{"), "placeholders filled: " + hint);
+});
+
+test("every locale's off hint uses that locale's own Settings and Notifications labels", () => {
+  const dir = new URL("../public/locales/", import.meta.url);
+  for (const file of readdirSync(dir)) {
+    const table = JSON.parse(read("public/locales/" + file));
+    assert.match(table["newcomer.onboardOffHint"], /\{settings\} [→←] \{notifications\}/, file);
+    assert.ok(table["common.settings"] && table["settingsGroups.notifications"], file);
+  }
 });
 
 test("Settings -> Notifications toggle: on by default, stored only in the account-scoped dismiss map", () => {

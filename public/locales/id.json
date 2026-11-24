@@ -609,7 +609,7 @@
   "newcomer.allSet": "Beres. Selamat bersenang-senang!",
   "newcomer.onboardWelcomeTitle": "Selamat datang! Ambil kursi :3",
   "newcomer.onboardStartHere": "Mulai di sini: utas sambutan",
-  "newcomer.onboardOffHint": "Di minggu pertama kami akan mampir dengan beberapa tips. Kamu bisa mematikannya di Pengaturan → Notifikasi.",
+  "newcomer.onboardOffHint": "Di minggu pertama kami akan mampir dengan beberapa tips. Kamu bisa mematikannya di {settings} → {notifications}.",
   "newcomer.onboardSayHiTitle": "Mau menyapa?",
   "newcomer.onboardSayHiBody": "Sapaan singkat adalah cara termudah untuk mulai. Ceritakan apa yang kamu mainkan atau bangun!",
   "newcomer.onboardProfileTitle": "Jadikan profilmu milikmu",

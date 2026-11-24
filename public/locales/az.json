@@ -609,7 +609,7 @@
   "newcomer.allSet": "Hər şey hazırdır. Əylən!",
   "newcomer.onboardWelcomeTitle": "Xoş gəldin! Bir stul çək :3",
   "newcomer.onboardStartHere": "Buradan başla: xoş gəldin mövzusu",
-  "newcomer.onboardOffHint": "İlk həftəndə bir neçə məsləhətlə baş çəkəcəyik. Onları Ayarlar → Bildirişlər bölməsində söndürə bilərsən.",
+  "newcomer.onboardOffHint": "İlk həftəndə bir neçə məsləhətlə baş çəkəcəyik. Onları {settings} → {notifications} bölməsində söndürə bilərsən.",
   "newcomer.onboardSayHiTitle": "Salam verərsən?",
   "newcomer.onboardSayHiBody": "Qısa bir salam ən asan başlanğıcdır. Nə oynadığını və ya nə tikdiyini danış!",
   "newcomer.onboardProfileTitle": "Profilini özününkü et",

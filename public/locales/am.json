@@ -609,7 +609,7 @@
   "newcomer.allSet": "ሁሉም ዝግጁ ነው። ይዝናኑ!",
   "newcomer.onboardWelcomeTitle": "እንኳን ደህና መጡ! ወንበር ይሳቡ :3",
   "newcomer.onboardStartHere": "ከዚህ ይጀምሩ፦ የእንኳን ደህና መጡ ክር",
-  "newcomer.onboardOffHint": "በመጀመሪያው ሳምንት በጥቂት ምክሮች እንመጣለን። በቅንብሮች → ማሳወቂያዎች ውስጥ ማጥፋት ይችላሉ።",
+  "newcomer.onboardOffHint": "በመጀመሪያው ሳምንት በጥቂት ምክሮች እንመጣለን። {settings} → {notifications} ውስጥ ማጥፋት ይችላሉ።",
   "newcomer.onboardSayHiTitle": "ሰላም ይላሉ?",
   "newcomer.onboardSayHiBody": "አጭር ሰላምታ ለመጀመር ቀላሉ መንገድ ነው። ምን እንደሚጫወቱ ወይም እንደሚገነቡ ለሁሉም ይንገሩ!",
   "newcomer.onboardProfileTitle": "መገለጫዎን የእርስዎ ያድርጉት",

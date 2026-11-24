@@ -609,7 +609,7 @@
   "newcomer.allSet": "सब तैयार। मज़े करो!",
   "newcomer.onboardWelcomeTitle": "स्वागत है! एक कुर्सी खींच लो :3",
   "newcomer.onboardStartHere": "यहाँ से शुरू करें: स्वागत वाला थ्रेड",
-  "newcomer.onboardOffHint": "पहले हफ़्ते हम कुछ सुझावों के साथ आते रहेंगे। इन्हें सेटिंग्स → सूचनाएँ में बंद कर सकते हैं।",
+  "newcomer.onboardOffHint": "पहले हफ़्ते हम कुछ सुझावों के साथ आते रहेंगे। इन्हें {settings} → {notifications} में बंद कर सकते हैं।",
   "newcomer.onboardSayHiTitle": "नमस्ते कहें?",
   "newcomer.onboardSayHiBody": "एक छोटा-सा नमस्ते शुरुआत का सबसे आसान तरीका है। सबको बताओ तुम क्या खेल या बना रहे हो!",
   "newcomer.onboardProfileTitle": "प्रोफ़ाइल को अपना बनाओ",

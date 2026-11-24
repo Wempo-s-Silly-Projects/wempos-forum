@@ -609,7 +609,7 @@
   "newcomer.allSet": "Ամեն ինչ պատրաստ է։ Զվարճացեք։",
   "newcomer.onboardWelcomeTitle": "Բարի գալուստ։ Աթոռ վերցրու :3",
   "newcomer.onboardStartHere": "Սկսիր այստեղից՝ ողջույնի թեման",
-  "newcomer.onboardOffHint": "Առաջին շաբաթվա ընթացքում կանցնենք մի քանի խորհուրդով։ Կարող ես անջատել դրանք Կարգավորումներ → Ծանուցումներ բաժնում։",
+  "newcomer.onboardOffHint": "Առաջին շաբաթվա ընթացքում կանցնենք մի քանի խորհուրդով։ Կարող ես անջատել դրանք {settings} → {notifications} բաժնում։",
   "newcomer.onboardSayHiTitle": "Կբարևե՞ս",
   "newcomer.onboardSayHiBody": "Արագ բարևը ամենահեշտ սկիզբն է։ Պատմիր՝ ինչ ես խաղում կամ կառուցում։",
   "newcomer.onboardProfileTitle": "Դարձրու պրոֆիլդ քոնը",
