@@ -148,7 +148,8 @@ async function threadHead(request, env, id, origin, site) {
     "@context": SCHEMA_CONTEXT,
     "@type": "DiscussionForumPosting",
     headline,
-    text: description,
+    // The posting's text is the post's own words, never the B2 fallback.
+    text: flatExcerpt(row.body),
     url,
     author: { "@type": "Person", name: row.author_username, url: origin + "/users/" + encodeURIComponent(row.author_username) },
     datePublished: isoDate(row.created_at),

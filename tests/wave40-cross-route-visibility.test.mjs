@@ -247,4 +247,8 @@ test("server HTML thread text: hidden, banned-author and block-paired threads le
   for (const needle of ["BLOCKERTXT", "BLOCKERBODYTXT"]) assert.ok(!blockedView.includes(needle), needle + " leaked to blocked");
   const blockerView = await html("/posts/" + blockerRoot, forgeSession(db, blocker));
   assert.ok(blockerView.includes("BLOCKERBODYTXT"), "the author's own thread still renders");
+  // A self-hosted name/tagline (branding stamp) still leaves the marker live.
+  db.prepare("INSERT INTO site_settings (key, value, updated_at) VALUES ('site_name', 'Cat Club', 1), ('site_tagline', 'Meow', 1)").run();
+  const branded = await html("/posts/" + visible);
+  assert.match(branded, /<h1 class="server-thread-title">SSRTITLEOK/, "injection survives custom branding");
 });

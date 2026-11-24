@@ -101,7 +101,9 @@ test("A2: the attachment button has a minimum box and a placeholder until the im
   const body = ruleBody(CSS, ".attachment-expand") ?? "";
   assert.match(body, /min-width:\s*3rem/);
   assert.match(body, /min-height:\s*3rem/);
-  assert.match(CSS, /\.attachment-expand\.attachment-loading\s*\{[^}]*background/);
+  const placeholder = CSS.match(/\.attachment-expand\.attachment-loading\s*\{([^}]*)\}/)?.[1] ?? "";
+  assert.match(placeholder, /background/);
+  assert.doesNotMatch(placeholder, /(?:^|[\s;])(?:border(?!-radius)|padding|margin)(?:-[a-z]+)?\s*:/, "no box change, so no layout shift on load");
 });
 
 test("A2: a dimensionless image loads eagerly (a 0x0 lazy image never intersects) and drops the placeholder on load", () => {

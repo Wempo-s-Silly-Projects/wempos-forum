@@ -1217,7 +1217,10 @@ dialog h2 {
 /* Placeholder until the image loads (render.js drops the class on load or
    error). */
 .attachment-expand.attachment-loading {
-  border: 1.5px dashed var(--line);
+  /* Outline + background only: nothing that changes the box, so clearing
+     the placeholder on load never shifts the layout. */
+  outline: 1.5px dashed var(--line);
+  outline-offset: -1.5px;
   border-radius: 0.5rem;
   background: var(--field);
 }
@@ -3959,7 +3962,8 @@ mark.search-hit {
   font-size: 0.85rem;
   white-space: nowrap;
 }
-.read-aloud-button[aria-pressed="true"] { color: var(--green-ink); }
+.read-aloud-button[aria-pressed="true"],
+.read-aloud-button[aria-checked="true"] { color: var(--green-ink); }
 /* v4.13 J/K post navigation hint. */
 .post-keys-hint { margin: 0 0 0.5rem; color: var(--muted); font-size: 0.8rem; }
 .shortcut-sheet { margin: 0 0 0.75rem; color: var(--muted); font-size: 0.8rem; }

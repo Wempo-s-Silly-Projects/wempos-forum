@@ -46,6 +46,8 @@ test("B2: a short body falls back to '<title> — a discussion in <board> on <si
   const tiny = seedPost(env.__sqlite, { authorId: author, body: "Need help", board: "help" });
   const html = await (await call(env, "/posts/" + tiny)).text();
   assert.equal(descriptionOf(html), `Need help — a discussion in ${BOARD_HEADS.help.label} on Wempo's Forum`);
+  const ld = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  assert.equal(ld.find((block) => block["@type"] === "DiscussionForumPosting").text, "Need help", "JSON-LD keeps the post's own text");
   const long = seedPost(env.__sqlite, { authorId: author, body: "A long enough title\nwith plenty of words in the body to describe it well" });
   assert.ok(descriptionOf(await (await call(env, "/posts/" + long)).text()).startsWith("A long enough title with plenty"));
 });
