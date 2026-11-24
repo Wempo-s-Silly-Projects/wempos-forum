@@ -366,6 +366,14 @@ forum itself, never to anyone else, and are kept only as daily totals per
 kind of page for 90 days, with no IP address, account, cookie or browser
 details. **Do Not Track** or **Global Privacy Control** turns this off too.
 
+If the forum runs the **WemposClaude** helper bot (an optional module that
+is off unless the owner turns it on), tagging `@WemposClaude` in a post, a
+reply or a lobby message sends that text (with spoilers hidden, cut to 1,500
+characters) and your username to Cloudflare Workers AI, the same provider
+that already hosts the forum, so the bot can answer. Nothing is sent when you
+don't tag it. The forum only notes which post was answered, who asked and the
+day, so it can cap how many answers it gives.
+
 ## Need help?
 
 Post in **Bugs & Troubleshooting & Help**, or drop an idea in **Suggestions**.

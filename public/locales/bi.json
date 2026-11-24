@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Ol pleya blong video, saon mo 3D long ol post.",
   "modules.label.search": "Sarej long evri toktok",
   "modules.desc.search": "Sarej ol wod insaed long evri pos.",
+  "modules.label.wemposclaude": "WemposClaude bot blong helpem",
+  "modules.desc.wemposclaude": "Hem i ansa taem yu tagem hem. Toktok ia i go long Cloudflare Workers AI.",
   "admin.section.allReports": "Ripot",
   "admin.lede.allReports": "Wanem ol memba oli ripotem — pos, profael mo toktok.",
   "admin.section.chatDmLog": "Rekod blong jat mo DM",

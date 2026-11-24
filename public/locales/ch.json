@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Bidio, son yan 3D na player gi i post.",
   "modules.label.search": "Guåha gi todu i tinige'",
   "modules.desc.search": "Aliga' i fino' gi halom kada mensåhi.",
+  "modules.label.wemposclaude": "WemposClaude bot ayudante",
+  "modules.desc.wemposclaude": "Manoppe yanggen ma tag gue'. I tinige' ni ma tag mamaila' guatu gi Cloudflare Workers AI.",
   "admin.section.allReports": "Rimiti siha",
   "admin.lede.allReports": "Håfa i membro siha ma rimiti — mensåhi, profile yan kombetsasion.",
   "admin.section.chatDmLog": "Chat yan DM log",

@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "投稿内の動画・音声・3D プレーヤー。",
   "modules.label.search": "全文検索",
   "modules.desc.search": "すべての投稿の中の言葉を検索します。",
+  "modules.label.wemposclaude": "WemposClaude ヘルパーボット",
+  "modules.desc.wemposclaude": "タグ付けされると返信します。タグを含む文章は Cloudflare Workers AI に送られます。",
   "admin.section.allReports": "通報",
   "admin.lede.allReports": "メンバーが通報したもの — 投稿、プロフィール、会話。",
   "admin.section.chatDmLog": "チャットと DM のログ",

@@ -117,6 +117,14 @@ export const MODULES = Object.freeze([
     default: MODULE_OFF, client: true, paths: Object.freeze(["/api/search/"]),
     setupDone: (env) => Boolean(env.SEARCH_DB),
   }),
+  // The bot answers on demand when tagged (api/wemposclaude.mjs), through
+  // Workers AI on the free daily allocation. Off until the AI binding exists
+  // (self-hosters without it get nothing); new, so default off. No routes:
+  // the trigger rides the post, reply and lobby writes.
+  entry({
+    id: "wemposclaude", labelKey: "modules.label.wemposclaude", descriptionKey: "modules.desc.wemposclaude",
+    default: MODULE_OFF, setupDone: (env) => typeof env.AI?.run === "function",
+  }),
 ]);
 
 const BY_ID = new Map(MODULES.map((module) => [module.id, module]));

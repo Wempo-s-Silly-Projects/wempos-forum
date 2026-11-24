@@ -53,6 +53,7 @@ import { requireHumanCheck } from "./core/human-check.mjs";
 import { postById } from "./core/shapers.mjs";
 import { canViewPost } from "./core/visibility.mjs";
 import { syncSearchPosts } from "./search-index.mjs";
+import { scheduleWemposClaude } from "./wemposclaude.mjs";
 import { assertSlowModeAllows, withSlowModeGuard } from "./staff-tools.mjs";
 import { assertThreadUnlocked } from "./thread-locks.mjs";
 
@@ -246,6 +247,8 @@ export async function handleReplyCreateRoute(request, env, url, path, method) {
     }
     // Search module: detached, best-effort; never fails the reply.
     syncSearchPosts(env, request, [replyId]);
+    // wemposclaude module: a tag answers detached, after the write.
+    scheduleWemposClaude(env, request, { kind: "post", id: replyId, body: message });
     return json({ id: replyId }, 201);
   }
   return null;

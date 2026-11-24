@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "پخش‌کننده‌های ویدیو، صدا و سه‌بعدی در پست‌ها.",
   "modules.label.search": "جستجوی متن کامل",
   "modules.desc.search": "واژه‌های درون هر پست را جستجو کنید.",
+  "modules.label.wemposclaude": "ربات دستیار WemposClaude",
+  "modules.desc.wemposclaude": "وقتی به آن اشاره شود پاسخ می‌دهد. متن دارای اشاره به Cloudflare Workers AI فرستاده می‌شود.",
   "admin.section.allReports": "گزارش‌ها",
   "admin.lede.allReports": "آنچه اعضا گزارش کرده‌اند — پست‌ها، نمایه‌ها و گفتگوها.",
   "admin.section.chatDmLog": "گزارش گپ و پیام‌های مستقیم",

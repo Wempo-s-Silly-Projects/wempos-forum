@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "ပို့စ်များထဲရှိ ဗီဒီယို၊ အသံနှင့် 3D ဖွင့်စက်များ။",
   "modules.label.search": "စာသားအပြည့်အစုံ ရှာဖွေမှု",
   "modules.desc.search": "ပို့စ်တိုင်းအတွင်းရှိ စကားလုံးများကို ရှာပါ။",
+  "modules.label.wemposclaude": "WemposClaude အကူ ဘော့",
+  "modules.desc.wemposclaude": "တဂ်လုပ်သောအခါ ဖြေပေးသည်။ တဂ်ပါသော စာသားကို Cloudflare Workers AI သို့ ပို့သည်။",
   "admin.section.allReports": "တိုင်ကြားမှုများ",
   "admin.lede.allReports": "အဖွဲ့ဝင်များ တိုင်ကြားထားသည်များ — ပို့စ်များ၊ ပရိုဖိုင်များနှင့် စကားဝိုင်းများ။",
   "admin.section.chatDmLog": "ချတ်နှင့် ကိုယ်ရေးစာမှတ်တမ်း",

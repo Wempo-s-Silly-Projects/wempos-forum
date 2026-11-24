@@ -121,6 +121,9 @@ export const RATE_LIMIT_BINDINGS = Object.freeze({
   // The search module (SEARCH_DB): full-text reads get their own
   // per-caller bucket on the read tier; the owner's backfill rides write.
   "full-search": "READ_RATE_LIMITER",
+  // The wemposclaude module: a per-member burst bucket on the write tier
+  // for tags that would wake the bot (the daily caps live in D1).
+  wemposclaude: "WRITE_RATE_LIMITER",
 });
 
 // The reaction allowlist (posts since v2.0; 1:1 DM messages since v5.44):
@@ -475,3 +478,27 @@ export const SEARCH_FTS_TERM_MAX_CHARS = 40;
 export const SEARCH_FTS_EXCERPT_CHARS = 200;
 export const SEARCH_FTS_EXCERPT_LEAD = 40;
 export const SEARCH_FTS_BACKFILL_BATCH = 500;
+
+// The wemposclaude module (docs/modules.md): the bot answers when tagged,
+// through Cloudflare Workers AI (binding AI). It must stay inside the free
+// allocation: 10,000 Neurons per day, reset 00:00 UTC
+// (https://developers.cloudflare.com/workers-ai/platform/pricing/, read
+// 2026-11-23). The model is IBM Granite 4.0 H Micro, a current
+// instruction-tuned text model and the cheapest on that page: 1,542 Neurons
+// per M input tokens, 10,158 per M output tokens
+// (https://developers.cloudflare.com/workers-ai/models/granite-4.0-h-micro/,
+// read 2026-11-23). Worst case per call: ~2,000 input tokens (prompt +
+// WEMPOSCLAUDE_MAX_INPUT_CHARS, even at one token per character) = 3.1
+// Neurons, plus WEMPOSCLAUDE_MAX_TOKENS output = 2.0 Neurons; budgeted at 6.
+// The global cap x 6 = 1,800 Neurons a day, under a fifth of the allocation.
+// Caps count UTC days, the same clock as the allocation. No paid fallback.
+export const WEMPOSCLAUDE_USERNAME = "WemposClaude";
+export const WEMPOSCLAUDE_MODEL = "@cf/ibm-granite/granite-4.0-h-micro";
+export const WEMPOSCLAUDE_FREE_NEURONS_PER_DAY = 10000;
+export const WEMPOSCLAUDE_WORST_CASE_NEURONS_PER_CALL = 6;
+export const WEMPOSCLAUDE_MAX_TOKENS = 200;
+export const WEMPOSCLAUDE_TEMPERATURE = 0.4;
+export const WEMPOSCLAUDE_MAX_INPUT_CHARS = 1500;
+export const WEMPOSCLAUDE_MAX_REPLY_CHARS = 1000;
+export const WEMPOSCLAUDE_DAILY_GLOBAL_CAP = 300;
+export const WEMPOSCLAUDE_DAILY_MEMBER_CAP = 10;

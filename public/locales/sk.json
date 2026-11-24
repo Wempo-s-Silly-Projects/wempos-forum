@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Prehrávače videa, zvuku a 3D v príspevkoch.",
   "modules.label.search": "Fulltextové vyhľadávanie",
   "modules.desc.search": "Hľadajte slová vnútri každého príspevku.",
+  "modules.label.wemposclaude": "Pomocný bot WemposClaude",
+  "modules.desc.wemposclaude": "Odpovie, keď ho označíte. Označený text ide do Cloudflare Workers AI.",
   "admin.section.allReports": "Nahlásenia",
   "admin.lede.allReports": "Čo členovia nahlásili — príspevky, profily a konverzácie.",
   "admin.section.chatDmLog": "Záznam chatu a súkromných správ",

@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "貼文中的影片、音訊和 3D 播放器。",
   "modules.label.search": "全文搜尋",
   "modules.desc.search": "搜尋每篇貼文中的文字。",
+  "modules.label.wemposclaude": "WemposClaude 助手機器人",
+  "modules.desc.wemposclaude": "被提及時回覆。提及它的文字會傳送到 Cloudflare Workers AI。",
   "admin.section.allReports": "檢舉",
   "admin.lede.allReports": "成員檢舉的內容——貼文、個人檔案和對話。",
   "admin.section.chatDmLog": "聊天與私訊紀錄",

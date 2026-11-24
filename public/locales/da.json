@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Video-, lyd- og 3D-afspillere i indlæg.",
   "modules.label.search": "Fuldtekstsøgning",
   "modules.desc.search": "Søg efter ordene i hvert indlæg.",
+  "modules.label.wemposclaude": "WemposClaude-hjælpebot",
+  "modules.desc.wemposclaude": "Svarer, når den bliver tagget. Tagget tekst sendes til Cloudflare Workers AI.",
   "admin.section.allReports": "Anmeldelser",
   "admin.lede.allReports": "Det, medlemmerne har anmeldt — indlæg, profiler og samtaler.",
   "admin.section.chatDmLog": "Chat- og DM-log",

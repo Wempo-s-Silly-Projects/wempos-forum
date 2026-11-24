@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "เครื่องเล่นวิดีโอ เสียง และ 3D ในโพสต์",
   "modules.label.search": "ค้นหาแบบเต็มข้อความ",
   "modules.desc.search": "ค้นหาคำในทุกโพสต์",
+  "modules.label.wemposclaude": "บอตผู้ช่วย WemposClaude",
+  "modules.desc.wemposclaude": "ตอบเมื่อถูกแท็ก ข้อความที่แท็กจะถูกส่งไปยัง Cloudflare Workers AI",
   "admin.section.allReports": "รายงาน",
   "admin.lede.allReports": "สิ่งที่สมาชิกรายงาน — โพสต์ โปรไฟล์ และบทสนทนา",
   "admin.section.chatDmLog": "บันทึกแชทและ DM",

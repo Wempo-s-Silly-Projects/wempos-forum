@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Qillqatanakan video, ist'añataki, 3D.",
   "modules.label.search": "Taqpach qillqat thaqhaña",
   "modules.desc.search": "Sapa qillqatan arunakap thaqhaña.",
+  "modules.label.wemposclaude": "WemposClaude yanapiri bot",
+  "modules.desc.wemposclaude": "Sutip qillqt'atanxa jaysi. Uka qillqatax Cloudflare Workers AI ukar saraski.",
   "admin.section.allReports": "Qhanancht'awinaka",
   "admin.lede.allReports": "Kunanaktï jaqinakax qhanancht'apxi — qillqatanaka, perfilanaka, aruskipawinaka.",
   "admin.section.chatDmLog": "Aruskipt'aw ukat sapa yatiyaw qillqata",

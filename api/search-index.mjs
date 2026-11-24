@@ -44,6 +44,12 @@ export function rememberExecutionContext(request, ctx) {
   if (request && typeof request === "object" && ctx) executionContexts.set(request, ctx);
 }
 
+// The ExecutionContext registered for this request (or null). Other detached,
+// best-effort work (the wemposclaude module) hands its task to the same one.
+export function executionContextFor(request) {
+  return request && typeof request === "object" ? executionContexts.get(request) ?? null : null;
+}
+
 // The publicly visible posts among a JSON list of ids (1 bind).
 export const INDEXABLE_BY_IDS_SQL =
   "SELECT p.id, p.body FROM json_each(?) j JOIN posts p ON p.id = j.value WHERE " + publicChainSql("p");

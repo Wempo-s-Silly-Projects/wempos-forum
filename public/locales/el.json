@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Πρόγραμμα αναπαραγωγής βίντεο, ήχου και 3D στις δημοσιεύσεις.",
   "modules.label.search": "Αναζήτηση πλήρους κειμένου",
   "modules.desc.search": "Αναζητήστε τις λέξεις μέσα σε κάθε ανάρτηση.",
+  "modules.label.wemposclaude": "Βοηθητικό bot WemposClaude",
+  "modules.desc.wemposclaude": "Απαντά όταν το αναφέρετε. Το κείμενο με την αναφορά στέλνεται στο Cloudflare Workers AI.",
   "admin.section.allReports": "Αναφορές",
   "admin.lede.allReports": "Τι ανέφεραν τα μέλη — αναρτήσεις, προφίλ και συνομιλίες.",
   "admin.section.chatDmLog": "Ιστορικό chat και προσωπικών μηνυμάτων",

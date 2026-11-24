@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Yazılarda video, audio və 3D pleyerlər.",
   "modules.label.search": "Tam mətn axtarışı",
   "modules.desc.search": "Hər yazının içindəki sözləri axtarın.",
+  "modules.label.wemposclaude": "WemposClaude köməkçi botu",
+  "modules.desc.wemposclaude": "Etiketlənəndə cavab verir. Etiketli mətn Cloudflare Workers AI-ya göndərilir.",
   "admin.section.allReports": "Şikayətlər",
   "admin.lede.allReports": "Üzvlərin şikayət etdikləri — yazılar, profillər və söhbətlər.",
   "admin.section.chatDmLog": "Çat və şəxsi mesaj jurnalı",

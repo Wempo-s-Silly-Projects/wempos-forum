@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Video-, audio- en 3D-spelers in berichten.",
   "modules.label.search": "Volledige tekst doorzoeken",
   "modules.desc.search": "Zoek naar de woorden in elk bericht.",
+  "modules.label.wemposclaude": "WemposClaude-hulpbot",
+  "modules.desc.wemposclaude": "Antwoordt als je hem tagt. Getagde tekst gaat naar Cloudflare Workers AI.",
   "admin.section.allReports": "Meldingen",
   "admin.lede.allReports": "Wat leden hebben gemeld — berichten, profielen en gesprekken.",
   "admin.section.chatDmLog": "Chat- en DM-log",

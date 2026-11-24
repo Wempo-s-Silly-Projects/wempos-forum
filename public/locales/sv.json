@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Video-, ljud- och 3D-spelare i inlägg.",
   "modules.label.search": "Fritextsökning",
   "modules.desc.search": "Sök efter orden i varje inlägg.",
+  "modules.label.wemposclaude": "WemposClaude-hjälpbot",
+  "modules.desc.wemposclaude": "Svarar när den taggas. Taggad text skickas till Cloudflare Workers AI.",
   "admin.section.allReports": "Anmälningar",
   "admin.lede.allReports": "Det medlemmar har anmält — inlägg, profiler och samtal.",
   "admin.section.chatDmLog": "Chatt- och DM-logg",

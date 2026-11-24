@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Zosewerera kanema, mawu ndi 3D m'zolemba.",
   "modules.label.search": "Kusaka m'mawu onse",
   "modules.desc.search": "Sakani mawu omwe ali mkati mwa uthenga uliwonse.",
+  "modules.label.wemposclaude": "WemposClaude bot yothandiza",
+  "modules.desc.wemposclaude": "Imayankha mukaitchula. Mawu otchulidwawo amapita ku Cloudflare Workers AI.",
   "admin.section.allReports": "Madandaulo",
   "admin.lede.allReports": "Zomwe mamembala adandaula — mapositi, mbiri za anthu ndi macheza.",
   "admin.section.chatDmLog": "Mbiri ya macheza ndi mauthenga achinsinsi",

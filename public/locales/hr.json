@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Video, audio i 3D playeri u objavama.",
   "modules.label.search": "Pretraživanje cijelog teksta",
   "modules.desc.search": "Pretražite riječi unutar svake objave.",
+  "modules.label.wemposclaude": "WemposClaude pomoćni bot",
+  "modules.desc.wemposclaude": "Odgovara kad ga označite. Označeni tekst šalje se u Cloudflare Workers AI.",
   "admin.section.allReports": "Prijave",
   "admin.lede.allReports": "Što su članovi prijavili — objave, profili i razgovori.",
   "admin.section.chatDmLog": "Zapisnik chata i privatnih poruka",

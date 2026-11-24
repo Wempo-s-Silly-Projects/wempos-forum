@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Bideo, audio eta 3D erreproduzigailuak argitalpenetan.",
   "modules.label.search": "Testu osoko bilaketa",
   "modules.desc.search": "Bilatu argitalpen bakoitzaren barruko hitzak.",
+  "modules.label.wemposclaude": "WemposClaude laguntza-bota",
+  "modules.desc.wemposclaude": "Aipatzen dutenean erantzuten du. Aipamena duen testua Cloudflare Workers AI-ra doa.",
   "admin.section.allReports": "Salaketak",
   "admin.lede.allReports": "Kideek salatu dutena: bidalketak, profilak eta elkarrizketak.",
   "admin.section.chatDmLog": "Txat eta mezu zuzenen erregistroa",

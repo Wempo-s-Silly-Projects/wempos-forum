@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "পোস্টে ভিডিও, অডিও ও 3D প্লেয়ার।",
   "modules.label.search": "সম্পূর্ণ লেখা অনুসন্ধান",
   "modules.desc.search": "প্রতিটি পোস্টের ভেতরের শব্দ খুঁজুন।",
+  "modules.label.wemposclaude": "WemposClaude সহায়ক বট",
+  "modules.desc.wemposclaude": "ট্যাগ করলে উত্তর দেয়। ট্যাগ করা লেখা Cloudflare Workers AI-তে যায়।",
   "admin.section.allReports": "রিপোর্ট",
   "admin.lede.allReports": "সদস্যরা যা রিপোর্ট করেছেন — পোস্ট, প্রোফাইল ও কথোপকথন।",
   "admin.section.chatDmLog": "চ্যাট ও DM লগ",

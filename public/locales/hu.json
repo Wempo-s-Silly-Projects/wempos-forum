@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Videó-, hang- és 3D-lejátszók a bejegyzésekben.",
   "modules.label.search": "Teljes szöveges keresés",
   "modules.desc.search": "Keresés a szavakra minden bejegyzésen belül.",
+  "modules.label.wemposclaude": "WemposClaude segítő bot",
+  "modules.desc.wemposclaude": "Válaszol, ha megjelölik. A megjelölő szöveg a Cloudflare Workers AI-hoz kerül.",
   "admin.section.allReports": "Jelentések",
   "admin.lede.allReports": "Amit a tagok jelentettek — bejegyzések, profilok és beszélgetések.",
   "admin.section.chatDmLog": "Csevegés- és privátüzenet-napló",

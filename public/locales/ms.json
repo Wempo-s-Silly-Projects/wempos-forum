@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Pemain video, audio dan 3D dalam siaran.",
   "modules.label.search": "Carian teks penuh",
   "modules.desc.search": "Cari perkataan di dalam setiap siaran.",
+  "modules.label.wemposclaude": "Bot pembantu WemposClaude",
+  "modules.desc.wemposclaude": "Menjawab apabila ditag. Teks yang ditag dihantar ke Cloudflare Workers AI.",
   "admin.section.allReports": "Laporan",
   "admin.lede.allReports": "Apa yang dilaporkan ahli — siaran, profil dan perbualan.",
   "admin.section.chatDmLog": "Log sembang & DM",

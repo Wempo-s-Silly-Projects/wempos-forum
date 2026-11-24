@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Video-, ääni- ja 3D-soittimet viesteissä.",
   "modules.label.search": "Kokotekstihaku",
   "modules.desc.search": "Hae sanoja jokaisen viestin sisältä.",
+  "modules.label.wemposclaude": "WemposClaude-apubotti",
+  "modules.desc.wemposclaude": "Vastaa, kun se mainitaan. Maininnan sisältävä teksti lähetetään Cloudflare Workers AI:lle.",
   "admin.section.allReports": "Ilmoitukset",
   "admin.lede.allReports": "Mistä jäsenet ovat ilmoittaneet — viestit, profiilit ja keskustelut.",
   "admin.section.chatDmLog": "Chat- ja yksityisviestiloki",

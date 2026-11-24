@@ -46,7 +46,7 @@ const MAPPED = {
   "chat": MODULE_ON, "polls": MODULE_ON, "wall": MODULE_ON, "fun": MODULE_ON,
   "saturday-fools": MODULE_ON, "link-previews": MODULE_ON, "embeds": MODULE_ON,
   // New modules ship off (the default-off rule); the owner turns them on.
-  "search": MODULE_OFF,
+  "search": MODULE_OFF, "wemposclaude": MODULE_OFF,
 };
 
 const states = (env, rows = {}) => resolveModules(env, new Map(Object.entries(rows)));
@@ -132,6 +132,7 @@ test("production wrangler.toml vars resolve exactly today's behaviour", () => {
   expected["saturday-fools"] = vars.SATURDAY_FOOLS === "on";
   // New modules stay off until the owner turns them on from the desk.
   expected.search = false;
+  expected.wemposclaude = false;
   assert.deepEqual(enabled(vars), expected);
 });
 
@@ -139,7 +140,7 @@ test("a fresh self-hosted copy (no vars): opt-in modules stay off, the rest on",
   assert.deepEqual(enabled({}), {
     "automod": false, "analytics": false, "web-vitals": true, "human-check": true, "chat": true,
     "polls": true, "wall": true, "fun": true, "saturday-fools": false, "link-previews": true, "embeds": true,
-    "search": false,
+    "search": false, "wemposclaude": false,
   });
   const reasons = states({});
   // The search module needs its own SEARCH_DB binding, even when stored on.

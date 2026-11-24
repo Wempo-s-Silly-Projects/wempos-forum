@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "இடுகைகளில் வீடியோ, ஒலி, 3D இயக்கிகள்.",
   "modules.label.search": "முழு உரைத் தேடல்",
   "modules.desc.search": "ஒவ்வொரு இடுகையின் உள்ளே உள்ள சொற்களைத் தேடுங்கள்.",
+  "modules.label.wemposclaude": "WemposClaude உதவி பாட்",
+  "modules.desc.wemposclaude": "குறிப்பிட்டால் பதில் தரும். குறிப்பிட்ட உரை Cloudflare Workers AI-க்கு அனுப்பப்படும்.",
   "admin.section.allReports": "புகார்கள்",
   "admin.lede.allReports": "உறுப்பினர்கள் புகாரளித்தவை — இடுகைகள், சுயவிவரங்கள் மற்றும் உரையாடல்கள்.",
   "admin.section.chatDmLog": "அரட்டை மற்றும் DM பதிவு",

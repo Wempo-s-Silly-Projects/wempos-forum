@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "በልጥፎች ውስጥ የቪዲዮ፣ ድምፅ እና 3D ማጫወቻዎች።",
   "modules.label.search": "ሙሉ ጽሑፍ ፍለጋ",
   "modules.desc.search": "በእያንዳንዱ ልጥፍ ውስጥ ያሉትን ቃላት ይፈልጉ።",
+  "modules.label.wemposclaude": "WemposClaude ረዳት ቦት",
+  "modules.desc.wemposclaude": "ሲጠቀስ ይመልሳል። የተጠቀሰው ጽሑፍ ወደ Cloudflare Workers AI ይላካል።",
   "admin.section.allReports": "ሪፖርቶች",
   "admin.lede.allReports": "አባላት ሪፖርት ያደረጉት — ልጥፎች፣ መገለጫዎች እና ውይይቶች።",
   "admin.section.chatDmLog": "የቻት እና የግል መልዕክት መዝገብ",

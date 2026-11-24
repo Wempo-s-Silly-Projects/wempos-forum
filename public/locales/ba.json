@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Яҙмаларҙа видео, аудио һәм 3D плеерҙар.",
   "modules.label.search": "Тулы текст буйынса эҙләү",
   "modules.desc.search": "Һәр яҙма эсендәге һүҙҙәрҙе эҙләү.",
+  "modules.label.wemposclaude": "WemposClaude ярҙамсы боты",
+  "modules.desc.wemposclaude": "Билдәләгәндә яуап бирә. Билдәләнгән текст Cloudflare Workers AI-ға ебәрелә.",
   "admin.section.allReports": "Шикәйәттәр",
   "admin.lede.allReports": "Ҡатнашыусылар шикәйәт иткәндәр — яҙмалар, профилдәр һәм әңгәмәләр.",
   "admin.section.chatDmLog": "Чат һәм шәхси хәбәрҙәр журналы",

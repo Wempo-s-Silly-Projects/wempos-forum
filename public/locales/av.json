@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Хъвай-хъвагӀиялда видео, гьаракь ва 3D.",
   "modules.label.search": "Текст цӏакъго балагьи",
   "modules.desc.search": "Щибаб хъвавуралъуль раъалал рагӏаби ралагьизе.",
+  "modules.label.wemposclaude": "WemposClaude кумек бот",
+  "modules.desc.wemposclaude": "ЦӀар бахъараб мехалъ жаваб кьола. Текст Cloudflare Workers AI-йде ине.",
   "admin.section.allReports": "Шикаятал",
   "admin.lede.allReports": "ГӀахьалчагӀаз шикаят гьабураб — постал, профильал ва гара-чӀвари.",
   "admin.section.chatDmLog": "Чаталъул ва хасал кагъатазул журнал",

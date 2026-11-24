@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Ақәыӷәӷәарақәа рҿы авидео, абжьы, 3D.",
   "modules.label.search": "Атекст зегьы рыла аԥшаара",
   "modules.desc.search": "Анҵамҭа зегьы рҿы ажәақәа рыԥшаара.",
+  "modules.label.wemposclaude": "WemposClaude ацхыраара-бот",
+  "modules.desc.wemposclaude": "Иахьагәаҭаз аҭак ақәнаҵоит. Атекст Cloudflare Workers AI ахь ицоит.",
   "admin.section.allReports": "Агәырҩақәа",
   "admin.lede.allReports": "Алахәылацәа ирыгәырҩаз — аҭыжьымҭақәа, апрофильқәа, аицәажәарақәа.",
   "admin.section.chatDmLog": "Ачати ахатәы ацҳамҭақәеи ржурнал",

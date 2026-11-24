@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Տեսա-, աուդիո և 3D նվագարկիչներ գրառումներում։",
   "modules.label.search": "Ամբողջական տեքստային որոնում",
   "modules.desc.search": "Որոնեք բառերը յուրաքանչյուր գրառման ներսում։",
+  "modules.label.wemposclaude": "WemposClaude օգնական բոտ",
+  "modules.desc.wemposclaude": "Պատասխանում է, երբ նշում են։ Նշված տեքստը գնում է Cloudflare Workers AI։",
   "admin.section.allReports": "Բողոքներ",
   "admin.lede.allReports": "Ինչի մասին են բողոքել անդամները՝ գրառումներ, պրոֆիլներ և զրույցներ։",
   "admin.section.chatDmLog": "Չաթի և անձնական նամակների մատյան",

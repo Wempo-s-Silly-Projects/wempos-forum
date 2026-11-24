@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "مشغلات فيديو وصوت وثلاثية الأبعاد في المنشورات.",
   "modules.label.search": "البحث في النص الكامل",
   "modules.desc.search": "ابحث عن الكلمات داخل كل منشور.",
+  "modules.label.wemposclaude": "روبوت المساعدة WemposClaude",
+  "modules.desc.wemposclaude": "يجيب عند الإشارة إليه. يُرسَل النص المُشار فيه إلى Cloudflare Workers AI.",
   "admin.section.allReports": "البلاغات",
   "admin.lede.allReports": "ما أبلغ عنه الأعضاء — منشورات وملفات شخصية ومحادثات.",
   "admin.section.chatDmLog": "سجل الدردشة والرسائل الخاصة",

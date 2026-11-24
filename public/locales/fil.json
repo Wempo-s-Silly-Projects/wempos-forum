@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Mga player ng video, audio at 3D sa mga post.",
   "modules.label.search": "Paghahanap sa buong teksto",
   "modules.desc.search": "Hanapin ang mga salita sa loob ng bawat post.",
+  "modules.label.wemposclaude": "WemposClaude na helper bot",
+  "modules.desc.wemposclaude": "Sumasagot kapag na-tag. Ipinapadala ang na-tag na teksto sa Cloudflare Workers AI.",
   "admin.section.allReports": "Mga report",
   "admin.lede.allReports": "Ang ini-report ng mga miyembro — mga post, profile at usapan.",
   "admin.section.chatDmLog": "Log ng chat at DM",

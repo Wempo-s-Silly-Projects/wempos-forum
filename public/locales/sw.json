@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Vicheza video, sauti na 3D katika machapisho.",
   "modules.label.search": "Utafutaji wa maandishi kamili",
   "modules.desc.search": "Tafuta maneno yaliyo ndani ya kila chapisho.",
+  "modules.label.wemposclaude": "Boti msaidizi WemposClaude",
+  "modules.desc.wemposclaude": "Hujibu unapoitaja. Maandishi yanayoitaja hutumwa kwa Cloudflare Workers AI.",
   "admin.section.allReports": "Ripoti",
   "admin.lede.allReports": "Walichoripoti wanachama — machapisho, wasifu na mazungumzo.",
   "admin.section.chatDmLog": "Kumbukumbu ya mazungumzo na jumbe za moja kwa moja",

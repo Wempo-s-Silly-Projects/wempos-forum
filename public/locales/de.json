@@ -1388,6 +1388,8 @@
   "modules.desc.embeds": "Video-, Audio- und 3D-Player in Beiträgen.",
   "modules.label.search": "Volltextsuche",
   "modules.desc.search": "Sucht nach Wörtern in jedem Beitrag.",
+  "modules.label.wemposclaude": "WemposClaude-Hilfsbot",
+  "modules.desc.wemposclaude": "Antwortet, wenn er markiert wird. Markierter Text geht an Cloudflare Workers AI.",
   "admin.section.allReports": "Meldungen",
   "admin.lede.allReports": "Was Mitglieder gemeldet haben – Beiträge, Profile und Unterhaltungen.",
   "admin.section.chatDmLog": "Chat- und DM-Verlauf",
