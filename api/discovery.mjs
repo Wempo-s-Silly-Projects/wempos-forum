@@ -99,9 +99,13 @@ const SITEMAP_POSTS_SQL =
   "SELECT p.id, MAX(p.created_at, COALESCE(p.edited_at, 0)) AS lastmod FROM posts p " +
   "WHERE " + PUBLIC_ROOT_WHERE + " ORDER BY p.id DESC LIMIT ?";
 
-const SITEMAP_USERS_SQL =
-  "SELECT u.username FROM users u WHERE EXISTS (SELECT 1 FROM posts p " +
-  "WHERE p.author_id = u.id AND " + PUBLIC_ROOT_WHERE + ") ORDER BY u.id ASC LIMIT ?";
+// v5.96.0 B4: each board's latest public activity (the same public-root
+// created/edited time the thread entries use, so a hidden or banned post
+// never moves a date). Member profiles are no longer listed (privacy: the
+// sitemap does not advertise members to crawlers).
+const SITEMAP_BOARD_LASTMOD_SQL =
+  "SELECT p.board, MAX(MAX(p.created_at, COALESCE(p.edited_at, 0))) AS lastmod FROM posts p " +
+  "WHERE " + PUBLIC_ROOT_WHERE + " GROUP BY p.board";
 
 // Exported (v5.34): the RSS feeds (api/feeds.mjs) page the same SQL.
 export function feedSql(withBoard) {
@@ -321,17 +325,20 @@ function urlEntry(loc, lastmod) {
 }
 
 export async function buildSitemap(env, origin) {
-  const fixed = [origin + "/", origin + "/week", ...BOARD_VALUES.map((slug) => origin + "/c/" + slug)];
-  const postBudget = SITEMAP_URL_CAP - fixed.length;
-  const posts = (await env.FORUM_DB.prepare(SITEMAP_POSTS_SQL).bind(postBudget).all()).results || [];
-  const userBudget = postBudget - posts.length;
-  const users = userBudget > 0
-    ? (await env.FORUM_DB.prepare(SITEMAP_USERS_SQL).bind(userBudget).all()).results || []
-    : [];
+  const fixedCount = 2 + BOARD_VALUES.length;
+  const [boardRows, postRows] = await Promise.all([
+    env.FORUM_DB.prepare(SITEMAP_BOARD_LASTMOD_SQL).all(),
+    env.FORUM_DB.prepare(SITEMAP_POSTS_SQL).bind(SITEMAP_URL_CAP - fixedCount).all(),
+  ]);
+  const boardLastmod = new Map((boardRows.results || []).map((row) => [row.board, Number(row.lastmod) || 0]));
+  const siteLastmod = Math.max(0, ...boardLastmod.values());
+  const dated = (seconds) => (seconds ? isoDate(seconds) : null);
+  const posts = postRows.results || [];
   const entries = [
-    ...fixed.map((loc) => urlEntry(loc)),
+    urlEntry(origin + "/", dated(siteLastmod)),
+    urlEntry(origin + "/week"),
+    ...BOARD_VALUES.map((slug) => urlEntry(origin + "/c/" + slug, dated(boardLastmod.get(slug)))),
     ...posts.map((row) => urlEntry(origin + "/posts/" + row.id, row.lastmod ? isoDate(row.lastmod) : null)),
-    ...users.map((row) => urlEntry(origin + "/users/" + encodeURIComponent(row.username))),
   ];
   return '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + entries.join("\n") + "\n</urlset>\n";
@@ -388,7 +395,7 @@ Public, unauthenticated read surfaces:
 - \`GET /api/version\` — deployed version
 - \`/mcp\` — MCP endpoint (streamable HTTP; public read tools: ${MCP_TOOL_NAMES.join(", ")})
 - \`Accept: text/markdown\` on \`/\`, \`/c/<board>\`, \`/posts/<id>\` — markdown renderings
-- \`GET /sitemap.xml\` — every public thread, board, and author page
+- \`GET /sitemap.xml\` — every public thread and board
 - \`GET /openapi.json\` — OpenAPI description of the read endpoints above
 
 Hidden posts and content by banned members are never served on any of these.

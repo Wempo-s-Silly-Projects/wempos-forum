@@ -44,7 +44,8 @@
 //     by construction, so they are swept as a guest only.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makeEnv } from "./helpers/d1.mjs";
+import { readFileSync } from "node:fs";
+import { makeAssets, makeEnv } from "./helpers/d1.mjs";
 import { call, forgeSession, now, seedBan, seedPost, seedUser, sha256 } from "./helpers/seed.mjs";
 
 const TOKENS = { viewer: "sweep-viewer-token-0123456789abcdefghijk", zzblocker: "sweep-blocker-token-0123456789abcdefghi",
@@ -209,4 +210,45 @@ test("cross-route sweep: the seed is live (positive controls) and staff keep the
   assert.ok((await fetchText(w.env, "/api/posts/" + w.hiddenRoot, { session: boss })).includes("HIDDENROOTTXT"));
   assert.ok((await fetchText(w.env, "/api/posts/" + w.publicRoot, { session: boss })).includes("BANNEDTXT reply"));
   assert.ok((await fetchText(w.env, "/api/chat", { session: boss })).includes("BLOCKEDTXT lobby"));
+});
+
+// v5.96.0 B1: thread pages carry the title + opening text in the served HTML
+// (an <h1> and a paragraph inside <main>), behind the same canViewPost gate as
+// the head. Served on the real shell, so the injection marker is live.
+test("server HTML thread text: hidden, banned-author and block-paired threads leak nothing; a visible one shows", async () => {
+  const shell = readFileSync(new URL("../public/index.html", import.meta.url), "utf8");
+  assert.match(shell, /<h1 class="visually-hidden" data-i18n="shell\.tagline">/, "injection marker present in the shell");
+  const env = makeEnv({ ASSETS: makeAssets(() => new Response(shell, { headers: { "Content-Type": "text/html; charset=utf-8" } })) });
+  const db = env.__sqlite;
+  const alice = await seedUser(db, { username: "alice" });
+  const banned = await seedUser(db, { username: "zzbanned" });
+  const blocker = await seedUser(db, { username: "zzblocker" });
+  const blocked = await seedUser(db, { username: "zzblocked" });
+  const visible = seedPost(db, { authorId: alice, body: "SSRTITLEOK <b>bold</b>\nOpening ||SSRSPOILER|| words OKBODYTXT" });
+  const hidden = seedPost(db, { authorId: alice, body: "HIDDENROOTTXT title\nHIDDENBODYTXT", visibility: "hidden" });
+  const bannedRoot = seedPost(db, { authorId: banned, body: "BANNEDTXT title\nBANNEDBODYTXT" });
+  const blockerRoot = seedPost(db, { authorId: blocker, body: "BLOCKERTXT title\nBLOCKERBODYTXT" });
+  seedBan(db, banned);
+  db.prepare("INSERT INTO blocks (blocker_id, blocked_id, created_at) VALUES (?, ?, ?)").run(blocker, blocked, now());
+  const html = async (path, session) => (await call(env, path, session ? { session } : {})).text();
+
+  const shown = await html("/posts/" + visible);
+  const main = shown.slice(shown.indexOf("<main"), shown.indexOf("</main>"));
+  assert.match(main, /<h1[^>]*>SSRTITLEOK &lt;b&gt;bold&lt;\/b&gt;<\/h1>/, "title escaped in an <h1>");
+  assert.ok(main.includes("OKBODYTXT"), "opening text present");
+  assert.ok(!shown.includes("SSRSPOILER"), "spoiler masked");
+  assert.equal((shown.match(/<h1\b/g) || []).length, 1, "exactly one <h1>");
+
+  for (const [id, needles] of [[hidden, ["HIDDENROOTTXT", "HIDDENBODYTXT"]], [bannedRoot, ["BANNEDTXT", "BANNEDBODYTXT"]]]) {
+    const text = await html("/posts/" + id);
+    for (const needle of needles) assert.ok(!text.includes(needle), needle + " leaked");
+  }
+  const blockedView = await html("/posts/" + blockerRoot, forgeSession(db, blocked));
+  for (const needle of ["BLOCKERTXT", "BLOCKERBODYTXT"]) assert.ok(!blockedView.includes(needle), needle + " leaked to blocked");
+  const blockerView = await html("/posts/" + blockerRoot, forgeSession(db, blocker));
+  assert.ok(blockerView.includes("BLOCKERBODYTXT"), "the author's own thread still renders");
+  // A self-hosted name/tagline (branding stamp) still leaves the marker live.
+  db.prepare("INSERT INTO site_settings (key, value, updated_at) VALUES ('site_name', 'Cat Club', 1), ('site_tagline', 'Meow', 1)").run();
+  const branded = await html("/posts/" + visible);
+  assert.match(branded, /<h1 class="server-thread-title">SSRTITLEOK/, "injection survives custom branding");
 });

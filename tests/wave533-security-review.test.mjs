@@ -63,8 +63,13 @@ test("M1: $-patterns in a thread's first line stay literal in the head", async (
   const title = head.match(/<title>([^<]*)<\/title>/);
   assert.ok(title, "one title");
   assert.equal(decode(title[1]), DOLLARS + " — Wempo's Forum");
-  assert.equal(metaContent(head, "name", "description"), DOLLARS);
+  // v5.96.0 B2: a title-only body gets the fallback sentence, still literal.
+  assert.equal(metaContent(head, "name", "description"), DOLLARS + " — a discussion in General on Wempo's Forum");
   assert.equal(metaContent(head, "property", "og:title"), DOLLARS + " — Wempo's Forum");
+  // v5.96.0 B1: the body <h1> uses a function replacer too.
+  const h1 = html.match(/<h1 class="server-thread-title">([^<]*)<\/h1>/);
+  assert.ok(h1, "server thread title present");
+  assert.equal(decode(h1[1]), DOLLARS);
   const ld = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
   assert.equal(ld.find((block) => block["@type"] === "DiscussionForumPosting").headline, DOLLARS);
 });

@@ -101,13 +101,16 @@ test("isNewAccount: under 7 days is new; older, missing or garbage dates are not
   assert.equal(isNewAccount("not a date", NOW), false);
 });
 
+// v5.96.0 Part D: the welcome is the day-0 onboarding card and only one card
+// shows at a time (one a day in the first week; wave596-onboarding.test.mjs).
 test("pendingCards: welcome first for new accounts, tips for everyone, none for guests", () => {
-  const fresh = { id: 1, joinedAt: daysAgo(1) };
+  const fresh = { id: 1, joinedAt: daysAgo(0.2) };
   const old = { id: 2, joinedAt: daysAgo(90) };
-  assert.deepEqual(pendingCards(fresh, {}, NOW), [WELCOME_CARD, TIPS_CARD]);
+  assert.deepEqual(pendingCards(fresh, {}, NOW), [WELCOME_CARD]);
   assert.deepEqual(pendingCards(old, {}, NOW), [TIPS_CARD]);
   assert.deepEqual(pendingCards(fresh, { [WELCOME_CARD]: 1 }, NOW), [TIPS_CARD]);
   assert.deepEqual(pendingCards(fresh, { [WELCOME_CARD]: 1, [TIPS_CARD]: 1 }, NOW), []);
+  assert.deepEqual(pendingCards({ id: 1, joinedAt: daysAgo(1) }, {}, NOW), [TIPS_CARD], "day 1 without facts: no guess");
   assert.deepEqual(pendingCards(null, {}, NOW), []);
   assert.deepEqual(pendingCards({ joinedAt: daysAgo(1) }, {}, NOW), []);
 });
@@ -116,7 +119,7 @@ test("render: one labelled card at a time; dismiss swaps in the next and moves f
   const document = makeFakeDocument();
   const slot = new FakeNode("div");
   const storage = memoryStorage();
-  const user = { id: 5, username: "Newbie", joinedAt: daysAgo(2) };
+  const user = { id: 5, username: "Newbie", joinedAt: daysAgo(0.2) };
   renderNewcomerCards(document, slot, user, { storage, now: NOW });
 
   const welcome = slot.firstElementChild;
@@ -132,23 +135,28 @@ test("render: one labelled card at a time; dismiss swaps in the next and moves f
   assert.ok(dismiss.getAttribute("aria-label"));
   assert.equal(heading.ownerFocused, undefined, "first paint never steals focus");
 
+  // v5.96.0: one card a day in the first week, so the welcome's dismiss ends
+  // the day; the tips card comes the next day and still swaps in focus-safe.
   await dismiss.fire("click");
-  const tips = slot.firstElementChild;
-  assert.equal(slot.children.length, 1);
+  assert.deepEqual(Object.keys(readDismissed(storage, 5)), [WELCOME_CARD]);
+  assert.equal(slot.firstElementChild.className, "newcomer-done");
+  const tomorrow = NOW + DAY_MS;
+  const tipsSlot = new FakeNode("div");
+  renderNewcomerCards(document, tipsSlot, user, { storage, now: tomorrow });
+  const tips = tipsSlot.firstElementChild;
+  assert.equal(tipsSlot.children.length, 1);
   assert.equal(tips.dataset.card, TIPS_CARD);
   assert.equal(tips.querySelector(".newcomer-tips").children.length, 4);
-  assert.equal(tips.querySelector(".newcomer-title").ownerFocused, true);
-  assert.deepEqual(Object.keys(readDismissed(storage, 5)), [WELCOME_CARD]);
 
   await tips.querySelector(".newcomer-dismiss").fire("click");
-  const done = slot.firstElementChild;
+  const done = tipsSlot.firstElementChild;
   assert.equal(done.className, "newcomer-done");
   assert.equal(done.getAttribute("role"), "status");
   assert.equal(done.ownerFocused, true);
   assert.deepEqual(Object.keys(storage.dump()), [newcomerKey(5)]);
 
   const again = new FakeNode("div");
-  renderNewcomerCards(document, again, user, { storage, now: NOW });
+  renderNewcomerCards(document, again, user, { storage, now: tomorrow });
   assert.equal(again.children.length, 0);
 });
 
@@ -185,7 +193,7 @@ test("GET /api/session carries the member's own joinedAt (additive, ISO)", async
 
 test("static pins: home mounts the cards for members; sign-out wipes the dismissals", () => {
   const feed = read("public/js/routes/feed.js");
-  assert.match(feed, /import \{ renderNewcomerCards \} from "\.\.\/newcomer\.js";/);
+  assert.match(feed, /import \{ createOnboardingPanel, renderNewcomerCards \} from "\.\.\/newcomer\.js";/);
   assert.match(feed, /renderNewcomerCards\(document, newcomerSlot, session\.user\)/);
   const nav = read("public/js/routes/account-nav.js");
   assert.match(nav, /clearAllDrafts\(\);\s*clearAllCatchUp\(\);[\s\S]*clearAllNewcomer\(\);[\s\S]*wempoAccountsSignOutUrl/);

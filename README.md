@@ -22,7 +22,7 @@ sign in there and you land back on the forum already signed in.
 ## A quick tour
 
 - **Boards and threads.** General, Game development, Showcase,
-  Bugs & Troubleshooting & Help, Suggestions, and Updates (news from the
+  Help & Bugs, Suggestions, and Updates (news from the
   admins). Start a thread, reply, quote, react, attach a poll (with an
   optional closing time), add tags and a short TL;DR, and share a thread or
   follow it by RSS.
@@ -104,7 +104,7 @@ code. Database migrations are a separate step. The full steps are in
 
 Found a bug or have an idea? Open an issue at
 <https://github.com/Wempo-s-Silly-Projects/wempos-forum/issues/new/choose>,
-or post on the forum's **Bugs & Troubleshooting & Help** or **Suggestions**
+or post on the forum's **Help & Bugs** or **Suggestions**
 boards. Security problems go privately instead — see [SECURITY.md](SECURITY.md).
 
 ## License

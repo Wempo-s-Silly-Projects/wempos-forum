@@ -108,9 +108,8 @@ test("/sitemap.xml lists only public roots by unbanned authors, and is well-form
   for (const key of ["hiddenRoot", "bannedRoot", "replyUnderHidden", "publicReply", "hiddenReply", "bannedReply"]) {
     assert.ok(!has(ids[key]), key + " must not be in the sitemap");
   }
-  assert.ok(locSet.has("https://wempos-forum.com/users/Alice"));
-  assert.ok(locSet.has("https://wempos-forum.com/users/Expired"));
-  assert.ok(!locSet.has("https://wempos-forum.com/users/Banned"));
+  // v5.96.0 B4: member profiles are no longer listed at all (privacy).
+  assert.ok(!locs.some((loc) => loc.includes("/users/")), "no member profile URLs");
   assert.ok(locSet.has("https://wempos-forum.com/"));
 });
 

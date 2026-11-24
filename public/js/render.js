@@ -30,6 +30,7 @@ import { collapseWhitespace } from "./quotes.js";
 import { renderPollBlock } from "./polls.js";
 import { isBotUsername } from "./bots.js";
 import { t, tn, currentLocale } from "./i18n.js";
+import { formatFullTime, formatPostTime } from "./reltime.js";
 import { createCopyLinkButton } from "./copy-link.js";
 import { createCopyCodeButton } from "./copy-code.js";
 import { codeBlockPlan, highlightCodeBlocks } from "./code-highlight.js";
@@ -96,16 +97,22 @@ const renderAttachments = (post, document, article) => {
     const image = createElement(document, "img", "post-attachment");
     image.src = attachmentUrl(attachment);
     image.alt = "";
-    image.loading = "lazy";
     // The lightbox reads the mime to freeze GIFs under reduced motion.
     image.dataset.mime = String(attachment.mime ?? "");
     // Header dimensions (migration 0080) reserve the image's box before the
     // bytes arrive, so the page does not jump; CSS still caps the rendering.
-    if (Number.isSafeInteger(attachment.width) && Number.isSafeInteger(attachment.height)) {
+    // Rows from before 0080 carry none: a lazy img with no size is 0x0 and
+    // may never be fetched (v5.96.0, the 4x4 button), so those load eagerly.
+    const sized = Number.isSafeInteger(attachment.width) && Number.isSafeInteger(attachment.height);
+    if (sized) {
       image.width = attachment.width;
       image.height = attachment.height;
     }
-    const expand = createElement(document, "button", "attachment-expand");
+    image.loading = sized ? "lazy" : "eager";
+    const expand = createElement(document, "button", "attachment-expand attachment-loading");
+    const loaded = () => expand.classList.remove("attachment-loading");
+    image.addEventListener("load", loaded, { once: true });
+    image.addEventListener("error", loaded, { once: true });
     expand.type = "button";
     expand.dataset.action = "expand-attachment";
     // Position-aware labels: identical labels on every image of a multi-image
@@ -291,12 +298,20 @@ const renderLatestReplies = (post, document, article) => {
     row.append(createElement(document, "span", "preview-snippet", collapseWhitespace(maskSpoilers(reply.snippet))));
     const when = createElement(document, "time", "preview-time");
     when.dateTime = reply.createdAt;
-    when.textContent = new Date(reply.createdAt).toLocaleString(currentLocale());
+    stampTime(when, reply.createdAt);
     row.append(when);
     container.append(row);
   }
   article.append(container);
 };
+
+// Relative stamps (v5.96.0 C2): "2 hours ago" (a short date after a week)
+// as the text, the full date + time (no seconds) as the title; the caller
+// keeps the machine-readable <time datetime>.
+function stampTime(node, iso) {
+  node.textContent = formatPostTime(iso, { locale: currentLocale() });
+  node.setAttribute("title", formatFullTime(iso, currentLocale()));
+}
 
 export const createPostCard = (post, document, currentUser = null) => {
   const article = createElement(document, "article", "post-card");
@@ -361,7 +376,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // lastActivityAt (bump activity, spec §4) is exposed machine-readably; the
   // visible label intentionally stays the creation time.
   time.dateTime = post.lastActivityAt ?? post.createdAt;
-  time.textContent = new Date(post.createdAt).toLocaleString(currentLocale());
+  stampTime(time, post.createdAt);
   // Save as text (wave 5.26 F1) reads the creation time from here.
   time.dataset.createdAt = String(post.createdAt ?? "");
   header.append(author, time);
@@ -475,6 +490,9 @@ export const createPostCard = (post, document, currentUser = null) => {
     bookmarkButton.type = "button";
     bookmarkButton.dataset.action = "toggle-bookmark";
     bookmarkButton.dataset.postId = String(post.id);
+    // The action reads the state from data (the More menu swaps aria-pressed
+    // for aria-checked, v5.96.0).
+    bookmarkButton.dataset.bookmarked = post.viewerBookmarked ? "1" : "0";
     bookmarkButton.setAttribute("aria-pressed", String(Boolean(post.viewerBookmarked)));
     const bookmarkLabel = post.viewerBookmarked ? t("render.unsavePost") : t("render.savePost");
     bookmarkButton.setAttribute("aria-label", bookmarkLabel);
@@ -851,7 +869,7 @@ export function renderEditHistoryPanel(document, edits, currentBody) {
     } else {
       time = createElement(document, "time", "edit-history-time");
       time.dateTime = edit.editedAt;
-      time.textContent = new Date(edit.editedAt).toLocaleString(currentLocale());
+      stampTime(time, edit.editedAt);
     }
     const older = versions[index + 1];
     const diffed = older && budget > 0

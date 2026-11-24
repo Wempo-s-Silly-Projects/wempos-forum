@@ -75,7 +75,7 @@ import {
 } from "../settings-groups.js";
 import { createQotdBanner, createShowcaseGallery } from "../traditions.js";
 import { createNewestMembers, createWeekLink } from "../week.js";
-import { renderNewcomerCards } from "../newcomer.js";
+import { createOnboardingPanel, renderNewcomerCards } from "../newcomer.js";
 import { createInvitePanel } from "../invite.js";
 import { createFeedViews, feedViewEmptyText, feedViewQuery } from "../feed-views.js";
 import { numberSuggestionCards } from "../suggestion-rank.js";
@@ -218,6 +218,9 @@ function renderAccountSettings(session, createFunExtrasPanel = null) {
   // Notification preferences (v5.40.0): one checkbox per kind, saved on the
   // server (it skips muted kinds when notifications are created).
   renderNotificationPrefs(account);
+  // Welcome tips (v5.96.0 Part D): the first-week onboarding cards' switch,
+  // kept in this browser's per-account dismiss map.
+  account.append(createOnboardingPanel(document, session.user));
 
   const passwordPanel = createPanel(t("feed.changePasswordTitle"), t("feed.changePasswordNote"));
   passwordPanel.append(createForm(document, "password", [
@@ -684,7 +687,7 @@ export const ACTIONS = {
   "toggle-bookmark": async (button) => {
     // Bookmarks (C4): both directions are idempotent server-side; the
     // route re-render refetches the payload's fresh state.
-    const bookmarked = String(button.getAttribute("aria-pressed")) === "true";
+    const bookmarked = button.dataset.bookmarked === "1";
     await api("/api/posts/" + button.dataset.postId + "/bookmark", {
       method: bookmarked ? "DELETE" : "PUT",
     });

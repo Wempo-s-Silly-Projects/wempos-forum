@@ -88,8 +88,14 @@ export function stopReadAloud(synth = globalThis.speechSynthesis) {
   }
 }
 
+// Inside the per-post More menu (post-more.js) the toggle is a
+// menuitemcheckbox, whose state is aria-checked; elsewhere it is aria-pressed.
+const stateAttribute = (button) =>
+  (button.getAttribute("role") === "menuitemcheckbox" ? "aria-checked" : "aria-pressed");
+const isPressed = (button) => button.getAttribute(stateAttribute(button)) === "true";
+
 function setPressed(button, pressed) {
-  button.setAttribute("aria-pressed", String(pressed));
+  button.setAttribute(stateAttribute(button), String(pressed));
   button.setAttribute("aria-label", pressed ? t("render.stopReading") : t("render.readAloud"));
   button.setAttribute("title", pressed ? t("render.stopReading") : t("render.readAloud"));
 }
@@ -118,7 +124,7 @@ export function createReadAloud(document, getText, {
   const reset = () => setPressed(button, false);
   button.addEventListener("click", async (event) => {
     event.preventDefault();
-    if (button.getAttribute("aria-pressed") === "true") {
+    if (isPressed(button)) {
       stopReadAloud(synth);
       return;
     }

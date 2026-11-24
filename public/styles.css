@@ -197,6 +197,9 @@
 html {
   min-width: 320px;
   scroll-behavior: smooth;
+  /* Focus not obscured (WCAG 2.4.11, v5.96.0): the fixed 52px chat launcher
+     (16px off the bottom edge) must never hide a focused control. */
+  scroll-padding-bottom: calc(52px + 1.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 body {
@@ -508,22 +511,28 @@ a:hover {
   text-decoration: none;
 }
 
-/* Flair + name color on cards (v3.0.1): the card scopes --profile-accent so
-   an author's accent class (on the article) colors their name and flair;
-   authors without an accent keep the default green. */
+/* Flair + name accent on cards (v3.0.1; contrast fix v5.96.0): the card
+   scopes --profile-accent, but the accent never colours text, since several
+   presets fall under 4.5:1 on paper. Names stay ink with a 2px accent
+   underline; the flair keeps ink text inside an accent border. Authors
+   without an accent keep the default green. */
 .post-card {
   --profile-accent: var(--green);
 }
 .post-card .author-name {
-  color: var(--profile-accent);
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--profile-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
 }
 .post-flair {
   display: inline-flex;
   align-items: center;
   padding: 0.05rem 0.4rem;
-  border: 1px solid var(--line);
+  border: 1px solid var(--profile-accent);
   border-radius: 999px;
-  color: var(--profile-accent);
+  color: var(--ink);
   font-size: 0.72rem;
   font-weight: 700;
 }
@@ -807,9 +816,9 @@ textarea {
   display: inline-flex;
   align-items: center;
   padding: 0.15rem 0.45rem;
-  border: 1px solid var(--line);
+  border: 1px solid var(--profile-accent, var(--line));
   border-radius: 999px;
-  color: var(--profile-accent);
+  color: var(--ink);
   font-size: 0.8rem;
   font-weight: 700;
 }
@@ -1194,12 +1203,26 @@ dialog h2 {
    backdrop rule for free. */
 .attachment-expand {
   display: block;
-  min-width: 0;
+  /* v5.96.0: a fixed 3rem floor (not the image's min-content, so the
+     containment model above still holds) keeps the button a real target
+     before its image arrives; it used to collapse to the img's 4px border. */
+  min-width: 3rem;
+  min-height: 3rem;
   max-width: 100%;
   padding: 0;
   border: none;
   background: none;
   cursor: zoom-in;
+}
+/* Placeholder until the image loads (render.js drops the class on load or
+   error). */
+.attachment-expand.attachment-loading {
+  /* Outline + background only: nothing that changes the box, so clearing
+     the placeholder on load never shifts the layout. */
+  outline: 1.5px dashed var(--line);
+  outline-offset: -1.5px;
+  border-radius: 0.5rem;
+  background: var(--field);
 }
 
 .attachment-lightbox {
@@ -1460,7 +1483,11 @@ dialog h2 {
 }
 .profile-section .author-name,
 .profile-section .profile-name {
-  color: var(--profile-accent);
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--profile-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
 }
 .profile-section > .paper-card,
 .profile-section > * > .paper-card {
@@ -1597,7 +1624,9 @@ dialog h2 {
   background: none;
   color: var(--muted);
   font-size: 0.78rem;
-  padding: 0;
+  padding: 0 0.15rem;
+  /* Target size (WCAG 2.5.8, v5.96.0): at least 24px tall, same look. */
+  min-height: 24px;
   cursor: pointer;
   text-decoration: underline;
 }
@@ -3933,7 +3962,8 @@ mark.search-hit {
   font-size: 0.85rem;
   white-space: nowrap;
 }
-.read-aloud-button[aria-pressed="true"] { color: var(--green-ink); }
+.read-aloud-button[aria-pressed="true"],
+.read-aloud-button[aria-checked="true"] { color: var(--green-ink); }
 /* v4.13 J/K post navigation hint. */
 .post-keys-hint { margin: 0 0 0.5rem; color: var(--muted); font-size: 0.8rem; }
 .shortcut-sheet { margin: 0 0 0.75rem; color: var(--muted); font-size: 0.8rem; }

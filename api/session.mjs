@@ -34,6 +34,37 @@ import { ROLE_ADMIN_DB, ROLE_OWNER_DB } from "./core/roles.mjs";
 import { isValidUsername, publicUser, SOCIAL_SELECT_COLUMNS, userByUsernameKey } from "./core/shapers.mjs";
 import { issueTotpChallenge } from "./twofa.mjs";
 import { invitedBy } from "./invites.mjs";
+import { blockFilterSql } from "./core/blocks.mjs";
+import { ACTIVE_BAN_SQL } from "./core/visibility.mjs";
+
+// Onboarding cards (v5.96.0 Part D): for an account's first 9 days (days
+// 0..8) the session carries the few facts the home page's cards decide from:
+// the member's own post count, whether their profile is still the default
+// (no avatar, accent or flair), and the pinned Start-here thread in General
+// (a public root by an unbanned author, never across a block pair, whose
+// first line says "start here"). Nothing new is stored.
+const ONBOARDING_WINDOW_SECONDS = 9 * 24 * 60 * 60;
+const ONBOARDING_SQL =
+  "SELECT u.avatar_mime, u.profile_accent, u.flair, " +
+  "(SELECT COUNT(*) FROM posts mine WHERE mine.author_id = u.id) AS post_count, " +
+  "(SELECT p.id FROM posts p WHERE p.parent_id IS NULL AND p.board = 'general' AND p.visibility = 'public' " +
+  "AND p.pinned_at IS NOT NULL " +
+  "AND lower(substr(p.body, 1, instr(p.body || char(10), char(10)))) LIKE '%start here%' " +
+  "AND NOT " + ACTIVE_BAN_SQL("p.author_id") + blockFilterSql("p.author_id") +
+  " ORDER BY p.pinned_at DESC, p.id DESC LIMIT 1) AS start_here_id " +
+  "FROM users u WHERE u.id = ? LIMIT 1";
+
+async function onboardingFacts(env, user) {
+  const joined = Date.parse(user.joinedAt ?? "");
+  if (!Number.isFinite(joined) || nowSeconds() - joined / 1000 >= ONBOARDING_WINDOW_SECONDS) return undefined;
+  const row = await env.FORUM_DB.prepare(ONBOARDING_SQL).bind(user.id, user.id, user.id).first();
+  if (!row) return undefined;
+  return {
+    postCount: Number(row.post_count) || 0,
+    profileDefault: !row.avatar_mime && !row.profile_accent && !row.flair,
+    startHereId: row.start_here_id === null || row.start_here_id === undefined ? null : Number(row.start_here_id),
+  };
+}
 
 const DUMMY_SALT = "00000000000000000000000000000000";
 const DUMMY_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
@@ -119,7 +150,11 @@ async function handleSessionRoute(request, env, url, path, method) {
       // Invite links (v5.34): the welcome card's "Invited by @user" line —
       // null unless the inviter is still unbanned and not block-paired.
       return json({
-        user: { ...existing.user, invitedBy: await invitedBy(env, existing.user.id) },
+        user: {
+          ...existing.user,
+          invitedBy: await invitedBy(env, existing.user.id),
+          onboarding: await onboardingFacts(env, existing.user),
+        },
         csrfToken: existing.csrfToken,
         unreadNotifications: await unreadCount(env, existing.user.id, existing.user.role),
       }, 200, existing.migrateCookies ? migrateHeaders() : undefined);
