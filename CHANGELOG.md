@@ -10,6 +10,23 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.94.0] - 2026-11-23
+
+### Added
+
+- WemposClaude, built into the forum (module `wemposclaude`, off by
+  default; turn it on in the desk under Modules). Tag the bot in a post,
+  reply or Lobby message and it answers once, through Cloudflare Workers AI
+  on the free daily allowance: a global and a per-member daily cap keep it
+  below the free tier, and a capped day simply waits until tomorrow. Nothing
+  checks in the background and nothing runs on anyone's computer. The bot
+  only answers posts it may see (no hidden posts, banned authors or blocked
+  pairs, in either direction), never answers itself, treats the tagged text
+  as untrusted data, masks spoilers before sending it, and its reply goes
+  through the word filter and the normal length caps. A failed or skipped
+  answer never affects the member's own post. Migration `0097` adds the
+  `wemposclaude_replies` table (one answer per post or message).
+
 ## [5.93.0] - 2026-11-23
 
 ### Changed
