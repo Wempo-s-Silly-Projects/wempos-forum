@@ -51,6 +51,7 @@ import { createDraftNotice } from "../draft-notice.js";
 import { attachPollHelpers, duplicatePollSlots, refreshPollHelpers } from "../poll-preview.js";
 import { createCapsGuard } from "../caps-guard.js";
 import { createComposerToolbar } from "../composer-toolbar.js";
+import { vendorIcon } from "../icons.js";
 import { attachRichPaste } from "../rich-paste.js";
 import { attachAutogrow } from "../autogrow.js";
 
@@ -120,6 +121,15 @@ function createComposer(name, label, buttonLabel, postID = null,
 // FormData knows nothing about; submit handlers fold them into the payload.
 // Uploads land in the moderation-pending state, so the note mirrors the
 // avatar uploader's review-first wording.
+function iconAction(icon, label) {
+  const button = element("button", "button button-quiet icon-button");
+  button.type = "button";
+  button.setAttribute("aria-label", label);
+  button.title = label;
+  button.append(vendorIcon(document, icon));
+  return button;
+}
+
 function createComposerAttachmentRow(withPollButton = false) {
   const input = document.createElement("input");
   input.type = "file";
@@ -129,21 +139,21 @@ function createComposerAttachmentRow(withPollButton = false) {
   input.setAttribute("aria-hidden", "true");
   input.tabIndex = -1;
   input.dataset.composerInput = "images";
-  const attach = element("button", "button button-quiet", t("composer.attachImages"));
-  attach.type = "button";
+  // v5.95: the row is icons with names + tooltips. Attach images stays:
+  // Gallery is the shared, staff-approved library (one file, public), not a
+  // private per-post upload of several files, so it cannot replace it.
+  const attach = iconAction("paperclip", t("composer.attachImagesLabel"));
   attach.dataset.action = "composer-attach";
   // GIF picker (v2.5): the library dialog — approved community GIFs attach
   // by reference (no re-upload bytes; the marketplace's dedup covers them).
-  const gifButton = element("button", "button button-quiet", t("composer.gallery"));
-  gifButton.type = "button";
+  const gifButton = iconAction("images", t("composer.gallery"));
   gifButton.dataset.action = "open-gif-picker";
   // Polls (C3): the Poll button — root composers only. The dialog stashes a
   // { question, options } draft on the form (composerPoll) and the create
   // submit posts it to /api/posts/:id/poll once the thread exists.
   const pollBits = [];
   if (withPollButton) {
-    const pollButton = element("button", "button button-quiet", t("composer.poll"));
-    pollButton.type = "button";
+    const pollButton = iconAction("chart-column", t("composer.pollLabel"));
     pollButton.dataset.action = "open-poll-dialog";
     pollBits.push(pollButton);
   }

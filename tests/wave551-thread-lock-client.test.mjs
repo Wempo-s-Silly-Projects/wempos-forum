@@ -106,10 +106,11 @@ test("staff menu: root cards offer Lock or Unlock by the payload; members and re
   const open = lockButton(createPostCard(rootPost(), doc, STAFF));
   assert.equal(open.dataset.action, "thread-lock");
   assert.equal(open.dataset.postId, "12");
-  assert.equal(open.textContent, t("threadLock.lock"));
+  // v5.95: Lock/Unlock are icon buttons; the exact name moved to aria-label.
+  assert.equal(open.getAttribute("aria-label"), t("threadLock.lock"));
   const locked = lockButton(createPostCard(rootPost({ locked: true }), doc, ADMIN));
   assert.equal(locked.dataset.action, "thread-unlock");
-  assert.equal(locked.textContent, t("threadLock.unlock"));
+  assert.equal(locked.getAttribute("aria-label"), t("threadLock.unlock"));
   assert.equal(lockButton(createPostCard(rootPost({ locked: true }), doc, MEMBER)), undefined);
   assert.equal(lockButton(createPostCard(rootPost({ locked: true }), doc, null)), undefined);
   assert.equal(lockButton(createPostCard(rootPost({ parent: { id: 1, body: "x" } }), doc, STAFF)), undefined);

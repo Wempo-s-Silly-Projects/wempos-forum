@@ -4353,9 +4353,13 @@ mark.search-hit {
 .saved-search-item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 4px 0; }
 .saved-search-query { overflow-wrap: anywhere; }
 
-/* Thread TL;DR (v5.50.0): the author's summary above the replies. */
-.thread-tldr-title { margin: 0 0 4px; font-size: 1rem; }
-.thread-tldr-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+/* Thread TL;DR (v5.50.0): the author's summary above the replies. v5.95
+   (owner plan item 6): compact, the label runs inline with the summary. */
+.thread-tldr { padding: 0.5rem 0.75rem; margin-block: 0.5rem; }
+.thread-tldr-title { display: inline; margin: 0; margin-inline-end: 0.4rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.thread-tldr-body { display: inline; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.thread-tldr-body[hidden] { display: none; }
+.thread-tldr-hint { margin: 0.4rem 0 0; font-size: 0.8rem; }
 .thread-tldr-input { display: block; width: 100%; box-sizing: border-box; resize: vertical; font: inherit; margin-top: 8px; }
 .thread-tldr-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .thread-tldr-status:empty { display: none; }
@@ -4819,3 +4823,74 @@ form[data-form] .form-field textarea[name="body"] {
 }
 }
 /* saturday-fools:2026-11-28 end */
+
+/* Vendored icons (v5.95): Lucide SVGs kept verbatim in /icons/lucide/ and
+   painted as a mask over currentColor, so they follow every theme and the
+   button's hover ink. forced-color-adjust keeps them visible in forced
+   colours (the paint is the text colour, not a background). */
+.vicon {
+  display: inline-block;
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  forced-color-adjust: none;
+}
+.vicon-ellipsis { -webkit-mask-image: url("/icons/lucide/ellipsis.svg"); mask-image: url("/icons/lucide/ellipsis.svg"); }
+.vicon-reply { -webkit-mask-image: url("/icons/lucide/reply.svg"); mask-image: url("/icons/lucide/reply.svg"); }
+.vicon-quote { -webkit-mask-image: url("/icons/lucide/quote.svg"); mask-image: url("/icons/lucide/quote.svg"); }
+.vicon-pin { -webkit-mask-image: url("/icons/lucide/pin.svg"); mask-image: url("/icons/lucide/pin.svg"); }
+.vicon-pin-off { -webkit-mask-image: url("/icons/lucide/pin-off.svg"); mask-image: url("/icons/lucide/pin-off.svg"); }
+.vicon-lock { -webkit-mask-image: url("/icons/lucide/lock.svg"); mask-image: url("/icons/lucide/lock.svg"); }
+.vicon-lock-open { -webkit-mask-image: url("/icons/lucide/lock-open.svg"); mask-image: url("/icons/lucide/lock-open.svg"); }
+.vicon-letter-b { -webkit-mask-image: url("/icons/lucide/letter-b.svg"); mask-image: url("/icons/lucide/letter-b.svg"); }
+.vicon-italic { -webkit-mask-image: url("/icons/lucide/italic.svg"); mask-image: url("/icons/lucide/italic.svg"); }
+.vicon-strikethrough { -webkit-mask-image: url("/icons/lucide/strikethrough.svg"); mask-image: url("/icons/lucide/strikethrough.svg"); }
+.vicon-code { -webkit-mask-image: url("/icons/lucide/code.svg"); mask-image: url("/icons/lucide/code.svg"); }
+.vicon-eye-off { -webkit-mask-image: url("/icons/lucide/eye-off.svg"); mask-image: url("/icons/lucide/eye-off.svg"); }
+.vicon-link { -webkit-mask-image: url("/icons/lucide/link.svg"); mask-image: url("/icons/lucide/link.svg"); }
+.vicon-text-quote { -webkit-mask-image: url("/icons/lucide/text-quote.svg"); mask-image: url("/icons/lucide/text-quote.svg"); }
+.vicon-list { -webkit-mask-image: url("/icons/lucide/list.svg"); mask-image: url("/icons/lucide/list.svg"); }
+.vicon-heading-1 { -webkit-mask-image: url("/icons/lucide/heading-1.svg"); mask-image: url("/icons/lucide/heading-1.svg"); }
+.vicon-square-code { -webkit-mask-image: url("/icons/lucide/square-code.svg"); mask-image: url("/icons/lucide/square-code.svg"); }
+.vicon-paperclip { -webkit-mask-image: url("/icons/lucide/paperclip.svg"); mask-image: url("/icons/lucide/paperclip.svg"); }
+.vicon-images { -webkit-mask-image: url("/icons/lucide/images.svg"); mask-image: url("/icons/lucide/images.svg"); }
+.vicon-chart-column { -webkit-mask-image: url("/icons/lucide/chart-column.svg"); mask-image: url("/icons/lucide/chart-column.svg"); }
+.vicon-message-square-quote { -webkit-mask-image: url("/icons/lucide/message-square-quote.svg"); mask-image: url("/icons/lucide/message-square-quote.svg"); }
+.vicon-bell-off { -webkit-mask-image: url("/icons/lucide/bell-off.svg"); mask-image: url("/icons/lucide/bell-off.svg"); }
+.composer-tool .vicon { width: 1.05rem; height: 1.05rem; vertical-align: middle; }
+.post-locked { color: var(--muted); display: inline-flex; align-items: center; }
+
+/* Per-post More menu (v5.95): a WAI-ARIA menu button at the end of the
+   action row. The menu drops over the page (absolute), so opening it never
+   moves the row; rows are 44px targets with an icon and their name (attr()
+   follows a toggled label live). */
+.post-more { position: relative; display: inline-flex; align-items: center; gap: 0.35rem; }
+.post-more-menu {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  inset-inline-end: 0;
+  z-index: 20;
+  display: grid;
+  gap: 0.15rem;
+  min-width: 13rem;
+  max-width: min(20rem, calc(100vw - 2rem));
+  padding: 0.4rem;
+  border: 2px solid var(--muted);
+  border-radius: 0.5rem;
+  background: var(--paper);
+  box-shadow: 3px 4px 0 var(--paper-shadow);
+}
+.post-more-menu[hidden] { display: none; }
+.post-more-menu > [role="none"] { display: contents; }
+.post-more-menu [role^="menuitem"] { display: flex; align-items: center; justify-content: flex-start; gap: 0.55rem; width: 100%; height: auto; min-height: 2.75rem; padding: 0 0.75rem; text-align: start; white-space: nowrap; }
+.post-more-menu [role^="menuitem"]:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+.post-more-menu .icon-button::after { content: attr(aria-label); }
+.post-more-menu svg { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+.post-more-toggle[aria-expanded="true"] { border-color: var(--focus); }

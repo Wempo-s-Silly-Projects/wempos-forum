@@ -21,7 +21,8 @@
 import { attachmentUrl } from "./attachments.js";
 import { prefersReducedMotion } from "./focus-utils.js";
 import { GIF_MIME, stillGifToggle } from "./still-gif.js";
-import { createIcon } from "./icons.js";
+import { createIcon, vendorIcon } from "./icons.js";
+import { organizePostActions } from "./post-more.js";
 import { maskSpoilers, parseBlocks, parseInline } from "./markdown.js";
 import { createTextarea } from "./forms.js";
 import { COMPOSER_MAX_CHARS } from "./composer-limits.js";
@@ -50,6 +51,16 @@ const createElement = (document, tagName, className, text) => {
   if (className) element.className = className;
   if (text !== undefined) element.textContent = text;
   return element;
+};
+
+// v5.95: an icon-only card control, named by aria-label, its name as tooltip.
+const iconControl = (document, icon, label) => {
+  const button = createElement(document, "button", "button button-quiet icon-button");
+  button.type = "button";
+  button.setAttribute("aria-label", label);
+  button.title = label;
+  button.append(vendorIcon(document, icon));
+  return button;
 };
 
 // Pure, DOM-free. publicLevel: 0 = root post, 1 = level-1 reply, 2 = level-2
@@ -372,9 +383,18 @@ export const createPostCard = (post, document, currentUser = null) => {
   // Root cards only — a reply row never carries its own pin.
   if (post.pinnedAt && !post.parent) {
     const chip = createElement(document, "span", "post-pinned icon-inline");
-    chip.append(createIcon(document, "pin"));
+    chip.append(vendorIcon(document, "pin"));
     chip.append(createElement(document, "span", "visually-hidden", t("render.pinned")));
     header.append(chip);
+  }
+  // Thread lock (v5.95): a lock chip beside the pin, roots only, off the
+  // payload's `locked`; the note's wording is its name and tooltip.
+  if (post.locked === true && !post.parent) {
+    const lockChip = createElement(document, "span", "post-locked icon-inline");
+    lockChip.title = t("threadLock.note");
+    lockChip.append(vendorIcon(document, "lock"));
+    lockChip.append(createElement(document, "span", "visually-hidden", t("threadLock.note")));
+    header.append(lockChip);
   }
   // Suggestion status (v3.1): resolved/declined chip on suggestions-board
   // roots — data-driven off the payload, so every other category and every
@@ -578,8 +598,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // on explicitly level-1 rows only (publicLevel 2 and undefined publicLevel
   // never show it; replying to level-2 targets is server-forbidden).
   if (replyAffordances(post, currentUser).canReply) {
-    const replyButton = createElement(document, "button", "button button-quiet", t("common.reply"));
-    replyButton.type = "button";
+    const replyButton = iconControl(document, "reply", t("common.reply"));
     replyButton.dataset.action = "reply-to";
     replyButton.dataset.postId = String(post.id);
     actions.append(replyButton);
@@ -592,8 +611,7 @@ export const createPostCard = (post, document, currentUser = null) => {
   // prefill limit happens in quotes.js at prefill time. Cards by a removed
   // account have nothing to attribute the quote to and skip the button.
   if (post.author && post.parent) {
-    const quoteButton = createElement(document, "button", "button button-quiet", t("render.quote"));
-    quoteButton.type = "button";
+    const quoteButton = iconControl(document, "quote", t("render.quote"));
     quoteButton.dataset.action = "quote";
     quoteButton.title = t("render.quoteTitle");
     quoteButton.dataset.postId = String(post.id);
@@ -623,18 +641,16 @@ export const createPostCard = (post, document, currentUser = null) => {
   if (currentUser && !post.parent &&
       (currentUser.role === "owner" || currentUser.role === "admin")) {
     const isPinned = Boolean(post.pinnedAt);
-    const pinButton = createElement(document, "button", "button button-quiet",
+    const pinButton = iconControl(document, isPinned ? "pin-off" : "pin",
       isPinned ? t("render.unpin") : t("render.pin"));
-    pinButton.type = "button";
     pinButton.dataset.action = isPinned ? "thread-unpin" : "thread-pin";
     pinButton.dataset.postId = String(post.id);
     actions.append(pinButton);
     // Thread lock (v5.51): the payload's `locked` picks Lock or Unlock; the
     // server gates the same roles and roots only.
     const isLocked = post.locked === true;
-    const lockButton = createElement(document, "button", "button button-quiet",
+    const lockButton = iconControl(document, isLocked ? "lock-open" : "lock",
       isLocked ? t("threadLock.unlock") : t("threadLock.lock"));
-    lockButton.type = "button";
     lockButton.dataset.action = isLocked ? "thread-unlock" : "thread-lock";
     lockButton.dataset.postId = String(post.id);
     actions.append(lockButton);
@@ -672,6 +688,11 @@ export const createPostCard = (post, document, currentUser = null) => {
   return article;
 }
 
+const cardWithMenu = (card, document) => {
+  organizePostActions(document, card);
+  return card;
+};
+
 // emptyText (v2.4.1): the suggestions route passes its own message ("No
 // suggestions yet — be the first!"); every existing caller omits it and keeps
 // the general feed's copy byte-identical.
@@ -682,7 +703,8 @@ export function appendPostList(container, posts, document, currentUser = null,
     return;
   }
   const list = createElement(document, "div", "post-list");
-  for (const post of posts) list.append(createPostCard(post, document, currentUser));
+  // v5.95: each card's secondary controls fold into its ⋯ menu.
+  for (const post of posts) list.append(cardWithMenu(createPostCard(post, document, currentUser), document));
   container.append(list);
 }
 
@@ -698,7 +720,7 @@ export const createSubReplyContainer = (postId, replies, document, currentUser =
     container.append(createElement(document, "p", "empty-state", t("render.noReplies")));
     return container;
   }
-  for (const reply of replies) container.append(createPostCard(reply, document, currentUser));
+  for (const reply of replies) container.append(cardWithMenu(createPostCard(reply, document, currentUser), document));
   return container;
 };
 

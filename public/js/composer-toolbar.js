@@ -22,13 +22,14 @@
 // of EasyMDE, which would swap the textarea for its own editor and break the
 // live preview, drafts and the mention picker). It is a WAI-ARIA toolbar: one
 // Tab stop, arrow keys / Home / End move between buttons. Each button is
-// named by the existing format.* string and shows the marker it inserts.
+// named by the existing format.* string and shows a vendored icon (v5.95).
 // Ctrl/Cmd+B, I and K format from the textarea itself. Every edit goes
 // through field-edit.js, so Ctrl/Cmd+Z undoes it.
 import { t } from "./i18n.js";
 import { FORMAT_KINDS, applyFormat } from "./composer-format.js";
 import { createEmojiButton } from "./emoji-picker.js";
 import { isImeComposing } from "./focus-utils.js";
+import { vendorIcon } from "./icons.js";
 
 const SHORTCUTS = new Map(FORMAT_KINDS.filter((entry) => entry.key).map((entry) => [entry.key, entry.kind]));
 
@@ -60,7 +61,8 @@ function formatButton(document, entry, field) {
   button.type = "button";
   button.className = "composer-tool";
   button.dataset.format = entry.kind;
-  button.textContent = entry.glyph;
+  // v5.95: an icon in place of the marker glyph; the name stays in aria-label.
+  button.append(vendorIcon(document, entry.icon));
   button.setAttribute("aria-label", t(entry.labelKey));
   button.title = t(entry.labelKey);
   if (entry.key) button.setAttribute("aria-keyshortcuts", "Control+" + entry.key.toUpperCase() + " Meta+" + entry.key.toUpperCase());

@@ -64,6 +64,7 @@ import { createTagChips, createTagEditor, postTagsPath } from "../tags.js";
 import { createThreadOutline } from "../thread-outline.js";
 import { createThreadSummary, loadThreadSummary } from "../thread-summary.js";
 import { organizeThreadActions, placeInThreadHeader } from "../thread-actions.js";
+import { organizePostActions } from "../post-more.js";
 
 async function renderPostRoute(route, context, version) {
   const post = await api(`/api/posts/${route.id}`);
@@ -129,6 +130,8 @@ async function renderPostRoute(route, context, version) {
   });
   // A viewer who cannot edit tags never gets a picker: organize now.
   if (!post.parent && !wantsTagEditor) organizeActions(null);
+  // v5.95: a reply's own page has no grouped More; it gets the card's ⋯ menu.
+  if (post.parent) organizePostActions(document, rootCard);
   // Thread at a glance (wave 2026-11-21): from the posts already loaded.
   if (post.replies.length) {
     main.append(createThreadGlance(document, summarizeThread(post, post.replies), main));
@@ -147,6 +150,7 @@ async function renderPostRoute(route, context, version) {
     for (const reply of post.replies) {
       const card = createPostCard(reply, document, context.session.user);
       anchorReplyCard(document, card, post.id);
+      organizePostActions(document, card);
       replyList.append(card);
     }
     // Thread lock (v5.51): members get no per-card Reply/Quote controls.
@@ -350,6 +354,7 @@ async function loadOlderReplies(button) {
   for (const reply of older.replies) {
     const card = createPostCard(reply, document, state.currentUser);
     anchorReplyCard(document, card, postId);
+    organizePostActions(document, card);
     fragment.append(card);
   }
   replyList.prepend(fragment);
