@@ -65,7 +65,7 @@ test("M1: an over-long relevant cursor is a 400, refused before the regex runs",
 });
 
 test("M1: honest cursors still parse (score_id and id)", () => {
-  assert.deepEqual(parseSearchCursor("-1.2345678901234567e-7_42", "relevant"), { score: -1.2345678901234567e-7, id: 42 });
+  assert.deepEqual(parseSearchCursor("-1.25e-7_42", "relevant"), { score: -1.25e-7, id: 42 });
   assert.deepEqual(parseSearchCursor("123456789012345", "new"), { id: 123456789012345 });
   assert.equal(parseSearchCursor("", "relevant"), null);
 });

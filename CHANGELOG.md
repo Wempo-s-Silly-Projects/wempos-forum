@@ -10,6 +10,18 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.95.1] - 2026-11-24
+
+### Security
+
+- Security review of 5.83.0 to 5.95.0
+  ([docs/security-review-v5.83-v5.95.md](docs/security-review-v5.83-v5.95.md)).
+- Full-text search refuses an over-long page cursor before reading it, so
+  a crafted link can no longer make the server work hard on one request.
+- When the owner turns chat off, the lobby is now off for agent tools too:
+  the MCP `lobby_read` and `lobby_post` tools answer "Not found." instead of
+  reading or posting to the lobby.
+
 ## [5.95.0] - 2026-11-24
 
 ### Changed
