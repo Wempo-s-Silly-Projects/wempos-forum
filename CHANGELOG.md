@@ -10,6 +10,40 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+## [5.93.0] - 2026-11-23
+
+### Changed
+
+- Fun extras (confetti, sounds, easter eggs, sketch and the rest) are on by
+  default. Each one can still be turned off under Settings → Fun extras; a
+  turned-off extra loads nothing and stores nothing. When the browser blocks
+  storage, the forum falls back to the defaults without writing anything.
+- Package metadata is ready for publishing the forum as a package:
+  `package.json` is no longer marked private, and `core-js-compat` stays
+  pinned to an exact version (a new test checks the package metadata).
+
+### Fixed
+
+- GitHub web edits on `main` to 22 files under `api/` (core helpers,
+  `api/vendor/db.mjs` and `api/vendor/http.mjs`, appeals, automod, avatars,
+  bans, boards, bookmarks and branding) broke behaviour the test suite
+  protects: private DM images, hidden/banned/blocked content in the question
+  of the day, gallery and feeds, spoiler masking in the agent tools,
+  two-factor code checks and the AGPL headers. Those files are back to their
+  5.92.0 versions; none of the broken changes were ever live. The lockfile
+  is in sync again, so CI runs the full suite.
+
+## [5.92.0] - 2026-11-23
+
+### Changed
+
+- A tidier staff desk with fewer tabs and the same tools: post, profile and
+  DM reports are one **Reports** tab with a type filter; the Lobby and DM
+  logs are one **Chat & DM log** tab (DMs load only when picked); images,
+  avatars and GIFs waiting for review are one **Media** tab; **Visits** is
+  part of the **Site health** page. Old desk links open the new places, and
+  the overview tiles count everything in their tab. No API route changed.
+
 ## [5.91.0] - 2026-11-23
 
 ### Changed
