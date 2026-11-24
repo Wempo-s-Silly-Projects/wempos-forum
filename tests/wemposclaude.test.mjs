@@ -84,7 +84,6 @@ async function settled(env, path, options) {
 const botPosts = (db, botId) => db.prepare("SELECT id, parent_id, body FROM posts WHERE author_id = ? ORDER BY id").all(botId);
 const botChats = (db, botId) => db.prepare("SELECT id, body FROM chat_messages WHERE user_id = ? ORDER BY id").all(botId);
 const tag = "@" + WEMPOSCLAUDE_USERNAME;
-const trigger = (request, kind, id) => runWemposClaude(request.env, makeRequest("/api/posts"), { kind, id });
 
 // ------------------------------------------------------------------ registry
 
