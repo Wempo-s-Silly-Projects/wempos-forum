@@ -2,8 +2,8 @@
 
 Moved out of [AGENTS.md](AGENTS.md) on 2026-11-22 (owner order) so the rules file stays short. AGENTS.md remains the source of law; this file is the seat index.
 
-Seats are spawned per task and dissolved afterwards; nothing idles. Seat
-charters aren't committed (`.claude/` is git-ignored), so when you field a
+Seats are spawned per task and dissolved afterwards; nothing idles. There are
+no committed seat agents (no `.claude/agents/` folder), so when you field a
 seat, put its charter and the Section Q laws in the brief.
 
 Routing: generic lanes go to `ecc:*` agents; fleet governance (taskboard,

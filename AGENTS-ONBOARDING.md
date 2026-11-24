@@ -27,7 +27,7 @@ For the bigger picture read [docs/architecture.md](docs/architecture.md).
 | `public/js/` | Browser code. `app.js` boots, `router.js` maps paths to views, `routes/` holds the page views, `desk/` the moderation desk, `api.js` the fetch wrapper, `i18n.js` translations, plus one small module per feature. |
 | `public/locales/*.json` | 65 translation tables; `en.json` is the source. |
 | `public/styles.css`, `public/responsive.css` | All styling. |
-| `migrations/` | Numbered D1 migrations, applied in order. Never edit one that has shipped; add a new one. |
+| `migrations/` | Numbered D1 migrations, applied in order. Never edit one that has shipped; add a new one, numbered one above the highest file here. |
 | `tests/` | `node --test` suite, one file per feature or wave. Helpers live in `tests/helpers/`. |
 | `docs/` | Human docs. `docs/drafts/` holds feature slates. `docs/sql/` holds one-off repair scripts (not migrations). |
 | `scripts/` | Small maintenance scripts (e.g. `import-graph.mjs`). |
@@ -36,8 +36,9 @@ For the bigger picture read [docs/architecture.md](docs/architecture.md).
 ## Code conventions
 
 - **Vanilla ES modules, no bundler, no build step.** The files in `public/js/`
-  are exactly what the browser runs. No framework, no npm runtime
-  dependencies (the only dev dependency is `wrangler`).
+  are exactly what the browser runs. No framework and no client-side
+  packages. The Worker uses a few small server-side packages (see
+  `package.json`); dev tools are `wrangler`, ESLint and `fast-check`.
 - **One network path on the client.** Every request goes through the `api()`
   wrapper in `public/js/api.js` (it uses `fetch`, adds the CSRF token, and maps
   error codes to translated messages). Don't call `fetch` directly and don't
@@ -70,6 +71,7 @@ For the bigger picture read [docs/architecture.md](docs/architecture.md).
 export PATH="$HOME/Library/pnpm/bin:$PATH"   # if pnpm isn't on PATH
 pnpm install
 pnpm test                                    # runs node --test
+pnpm lint                                    # ESLint (CI runs it too)
 node --test tests/chat.test.mjs              # one file
 ```
 
@@ -94,9 +96,8 @@ Running locally: `pnpm run db:migrate:local`, then `pnpm run dev`
 
 ## Project skills
 
-Project skills live in `.claude/skills/wempos-forum-*` (git-ignored, so they
-exist on the maintainer's machine, not in a fresh clone). Invoke the one that
-matches your task:
+Project skills live in `.claude/skills/wempos-forum-*` and ship with the repo,
+so every clone has them. Invoke the one that matches your task:
 
 | Skill | Use it when |
 |---|---|
@@ -115,7 +116,7 @@ matches your task:
 
 ## Before you finish
 
-1. `pnpm test` is green.
+1. `pnpm test` and `pnpm lint` are green.
 2. Your diff touches only the paths your task named.
 3. New files carry the license header; new strings exist in every locale.
 4. You haven't pushed, merged or deployed unless your task said to.
