@@ -64,6 +64,10 @@ export const FULL_SEARCH_SORTS = Object.freeze(["relevant", "new"]);
 
 const TERM_RUN = /[\p{L}\p{N}\p{M}]+/gu;
 const ID_CURSOR = /^[1-9][0-9]{0,14}$/;
+// v5.95.1 (security review M1): a cursor longer than any honest one (a
+// double's String() is at most ~24 chars, "_", a 15-digit id) is refused
+// before the score regex, which backtracks quadratically on long digit runs.
+const CURSOR_MAX_CHARS = 64;
 const SCORE_CURSOR = /^(-?(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:e[+-]?[0-9]+)?)_([1-9][0-9]{0,14})$/;
 const ELLIPSIS = "…";
 const LOW_SURROGATE_MIN = 0xdc00;
@@ -88,6 +92,7 @@ export const matchExpression = (terms) => terms.map((term) => `"${term}"`).join(
 export function parseSearchCursor(raw, sort) {
   if (raw === null || raw === undefined || raw === "") return null;
   const text = String(raw);
+  if (text.length > CURSOR_MAX_CHARS) throw new HttpError(400, "That page cursor is invalid.");
   if (sort === "new") {
     if (!ID_CURSOR.test(text)) throw new HttpError(400, "That page cursor is invalid.");
     return { id: Number(text) };
