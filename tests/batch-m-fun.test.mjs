@@ -19,7 +19,7 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Batch M: Fun extras. Pins the vendored libraries byte for byte and their
-// REUSE licensing, the one settings panel (every toggle ON by default), and
+// REUSE licensing, the one settings panel (every toggle ON without saved preferences), and
 // for each effect: nothing loads while its toggle is off, reduced motion
 // keeps everything still, nothing reaches the network (or the camera) before
 // an explicit action, and every library comes only from /js/vendor/.
@@ -74,6 +74,9 @@ const fakeWin = ({ reduced = false, fine = true } = {}) => ({
 const allOn = () => memoryStorage({
   [settings.FUN_STORAGE_KEY]: JSON.stringify(Object.fromEntries(settings.FUN_KEYS.map((key) => [key, true]))),
 });
+const allOff = () => memoryStorage({
+  [settings.FUN_STORAGE_KEY]: JSON.stringify(Object.fromEntries(settings.FUN_KEYS.map((key) => [key, false]))),
+});
 const onlyOn = (key) => memoryStorage({ [settings.FUN_STORAGE_KEY]: JSON.stringify({ [key]: true }) });
 
 // A loader that records every library request and hands back stubs.
@@ -104,7 +107,7 @@ const makeDoc = () => {
 const env = (overrides = {}) => ({
   doc: makeDoc(),
   win: fakeWin(),
-  storage: memoryStorage(),
+  storage: allOff(),
   load: recordingLoader().load,
   importModule: async () => { throw new Error("no module expected"); },
   userId: 7,
@@ -228,39 +231,57 @@ test("the vendor loader adds one same-origin classic script per library, once, a
 
 // ---------------------------------------------------------------- settings
 
-test("every fun extra is ON by default, and blocked or broken storage reads as all on", () => {
+test("every fun extra defaults ON when no preferences are stored, including blocked or invalid storage", () => {
   assert.deepEqual(settings.FUN_KEYS, ["confetti", "motion", "heroType", "sounds", "easterEggs", "sketch"]);
   for (const storage of [memoryStorage(), blockedStorage, null, memoryStorage({ [settings.FUN_STORAGE_KEY]: "{oops" }),
     memoryStorage({ [settings.FUN_STORAGE_KEY]: "[true]" })]) {
-    assert.ok(Object.values(settings.readFunSettings(storage)).every((value) => value === false));
+    assert.deepEqual(settings.readFunSettings(storage), settings.FUN_DEFAULTS);
+    assert.ok(Object.values(settings.readFunSettings(storage)).every((value) => value === true));
   }
   assert.equal(settings.isFunOn("confetti", memoryStorage({ [settings.FUN_STORAGE_KEY]: '{"confetti":"yes"}' })), false);
 });
 
-test("writeFunSetting stores one key without mutating the previous settings object", () => {
+test("stored fun preferences are normalized to known boolean keys and respected", () => {
+  const storage = memoryStorage({ [settings.FUN_STORAGE_KEY]: JSON.stringify({ confetti: false, motion: true, sounds: false, unknown: true }) });
+  assert.deepEqual(settings.readFunSettings(storage), {
+    confetti: false, motion: true, heroType: false, sounds: false, easterEggs: false, sketch: false,
+  });
+  assert.equal(settings.isFunOn("motion", storage), true);
+  assert.equal(settings.isFunOn("confetti", storage), false);
+});
+
+test("writeFunSetting stores one key without mutating the previous settings object", async () => {
   const storage = memoryStorage();
   const before = settings.readFunSettings(storage);
   const after = settings.writeFunSetting(storage, "sounds", true);
-  assert.equal(before.sounds, false);
+  assert.equal(before.sounds, true);
   assert.equal(after.sounds, true);
   assert.equal(settings.readFunSettings(storage).sounds, true);
-  assert.doesNotThrow(() => settings.writeFunSetting(blockedStorage, "sounds", true));
+  const blocked = settings.writeFunSetting(blockedStorage, "sounds", false);
+  assert.equal(blocked.sounds, false);
+  assert.equal(settings.readFunSettings(blockedStorage).sounds, false,
+    "an opt-out survives failed reads and writes for the rest of this page");
+  const gate = await import("../public/js/fun-gate.js");
+  assert.equal(gate.funSwitchOn("sounds", blockedStorage), false,
+    "the lazy-load gate sees the same page-local opt-out as the settings panel");
 });
 
-test("the Fun extras panel: one unchecked switch per extra, saved on change, reduced-motion note", () => {
+test("the Fun extras panel: unsaved preferences show checked switches, save changes, and show the reduced-motion note", () => {
   const storage = memoryStorage();
   const doc = makeFakeDocument();
   let seen = null;
   const panel = settings.createFunExtrasPanel(doc, storage, { win: fakeWin(), onChange: (value) => { seen = value; } });
   assert.match(panel.className, /\bpanel\b/);
+  assert.equal(panel.querySelector("p.fun-extras-help"), null,
+    "the outdated help text is not rendered");
   const boxes = panel.querySelectorAll("input.fun-extras-switch");
   assert.equal(boxes.length, settings.FUN_KEYS.length);
-  for (const box of boxes) assert.equal(box.checked, false, box.dataset.funKey + " starts on");
+  for (const box of boxes) assert.equal(box.checked, true, box.dataset.funKey + " defaults on");
   assert.deepEqual(storage.dump(), {}, "rendering stores nothing");
-  boxes[0].checked = true;
+  boxes[0].checked = false;
   boxes[0].dispatch("change", {});
-  assert.equal(seen.confetti, true);
-  assert.equal(settings.isFunOn("confetti", storage), true);
+  assert.equal(seen.confetti, false);
+  assert.equal(settings.isFunOn("confetti", storage), false);
   assert.equal(panel.querySelector(".fun-extras-reduced"), null);
   const still = settings.createFunExtrasPanel(doc, storage, { win: fakeWin({ reduced: true }) });
   assert.ok(still.querySelector(".fun-extras-reduced"));
@@ -287,7 +308,8 @@ test("clearAllFunExtras wipes every badge-seen marker (account data) but keeps t
 
 test("with every extra off, a full enhance pass loads nothing and touches no storage", async () => {
   const recorder = recordingLoader();
-  const storage = memoryStorage();
+  const storage = allOff();
+  const before = storage.dump();
   const root = badgeRoot(25);
   const intro = new FakeNode("section");
   intro.className = "personal-intro";
@@ -300,7 +322,7 @@ test("with every extra off, a full enhance pass loads nothing and touches no sto
   const doc = makeDoc();
   await fun.enhanceFunView(root, env({ doc, storage, load: recorder.load }));
   assert.deepEqual(recorder.calls, []);
-  assert.deepEqual(storage.dump(), {});
+  assert.deepEqual(storage.dump(), before, "the enhance pass does not touch preferences");
   assert.equal(h1.textContent, "Hello");
   assert.equal(doc.head.children.length, 0, "not even the extras' stylesheet is linked");
 });
@@ -343,10 +365,11 @@ test("confetti: first sighting only remembers the badge; an upgrade bursts once;
 
 test("confetti off: nothing loads and nothing is remembered", async () => {
   const recorder = recordingLoader();
-  const storage = memoryStorage();
+  const storage = allOff();
+  const before = storage.dump();
   assert.equal(await confetti.celebrateMilestone(badgeRoot(25), env({ storage, load: recorder.load })), "off");
   assert.deepEqual(recorder.calls, []);
-  assert.deepEqual(storage.dump(), {});
+  assert.deepEqual(storage.dump(), before);
 });
 
 // ---------------------------------------------------------------- Lottie + tilt
@@ -455,11 +478,11 @@ test("hero: TypeIt types the home headline then Splitting splits it; reduced mot
 
 // ---------------------------------------------------------------- sounds
 
-test("sounds: on by default; on, a rise in unread plays one synthesised chime; quiet hours and repeats stay silent", async () => {
+test("sounds: an explicitly disabled toggle stays silent; enabling it plays one synthesised chime", async () => {
   const played = [];
   const zzfxModule = { zzfx: (...parameters) => played.push(parameters) };
   const importModule = async (src) => { assert.equal(src, loader.ZZFX_MODULE); return zzfxModule; };
-  assert.equal(await sounds.chimeForUnread(0, 3, env({ importModule })), false, "off by default");
+  assert.equal(await sounds.chimeForUnread(0, 3, env({ storage: allOff(), importModule })), false, "explicitly disabled");
   const storage = onlyOn("sounds");
   let clock = 10_000;
   const base = { storage, importModule, now: () => clock };
@@ -502,7 +525,7 @@ test("easter eggs: no listener while off; the Konami code starts the toy only wh
   assert.equal(doc.listenerCount("keydown"), 0, "removable");
 
   const started = [];
-  const uninstall = eggs.installEasterEggs(env({ doc, storage: memoryStorage(), start: () => started.push("party") }));
+  const uninstall = eggs.installEasterEggs(env({ doc, storage: allOff(), start: () => started.push("party") }));
   konami(doc);
   assert.deepEqual(started, [], "toggle off: the code does nothing");
   uninstall();

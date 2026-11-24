@@ -18,25 +18,26 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// Fun extras (Batch M): one settings panel of playful, opt-in effects. Every
-// toggle is ON until the member turns it on, lives only in this browser
-// (localStorage, try/catch everywhere: blocked storage reads as all off) and
+// Fun extras (Batch M): one settings panel of playful effects. Every toggle
+// defaults ON until the member turns it off, lives only in this browser
+// (localStorage, with a page-local fallback when storage is blocked) and
 // leaves with the member on sign-out (clearAllFunExtras). Nothing here
 // touches the network; each effect lazy-loads its vendored library only once
 // its own toggle is on (loader.js).
 import { t } from "../i18n.js";
 import { prefersReducedMotion } from "../focus-utils.js";
+import {
+  FUN_DEFAULTS, FUN_FALLBACK_STATE, FUN_KEYS, fallbackFor, isStorageObject, rememberFallback,
+} from "../fun-state.js";
 
-export { prefersReducedMotion };
+export { FUN_DEFAULTS, FUN_KEYS, prefersReducedMotion };
 
 export const FUN_STORAGE_KEY = "forum-fun-extras";
 // The last milestone badge a member was seen holding on this device, so the
 // confetti burst plays once per unlock (confetti.js). One key per member id.
 export const FUN_BADGE_SEEN_PREFIX = "forum-fun-badge-seen:";
 // Panel order; each key is one checkbox labelled by its "fun.<key>" string.
-export const FUN_KEYS = Object.freeze(["confetti", "motion", "heroType", "sounds", "easterEggs", "sketch"]);
 const FUN_LABEL_PREFIX = "fun.";
-export const FUN_DEFAULTS = Object.freeze(Object.fromEntries(FUN_KEYS.map((key) => [key, true])));
 
 const browserStorage = () => {
   try {
@@ -50,24 +51,35 @@ const normalise = (value) =>
   Object.freeze(Object.fromEntries(FUN_KEYS.map((key) => [key, value?.[key] === true])));
 
 export function readFunSettings(storage = browserStorage()) {
+  if (!isStorageObject(storage)) return normalise(FUN_FALLBACK_STATE.settings);
+  if (FUN_FALLBACK_STATE.blocked.has(storage)) return normalise(fallbackFor(storage));
   try {
-    const raw = storage?.getItem(FUN_STORAGE_KEY);
-    if (!raw) return FUN_DEFAULTS;
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? normalise(parsed) : FUN_DEFAULTS;
+    const raw = storage.getItem(FUN_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    const result = parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? normalise(parsed)
+      : FUN_DEFAULTS;
+    rememberFallback(storage, result);
+    return result;
   } catch {
-    return FUN_DEFAULTS;
+    FUN_FALLBACK_STATE.blocked.add(storage);
+    return normalise(fallbackFor(storage));
   }
 }
 
 // Returns a new settings object with one key changed and stores it; the
-// previous object is never mutated. Blocked storage keeps it page-only.
+// previous object is never mutated. Blocked storage keeps it page-local.
 export function writeFunSetting(storage, key, enabled) {
   const next = normalise({ ...readFunSettings(storage), [key]: enabled === true });
+  rememberFallback(storage, next);
   try {
-    storage?.setItem(FUN_STORAGE_KEY, JSON.stringify(next));
+    if (!isStorageObject(storage) || typeof storage.setItem !== "function") {
+      if (isStorageObject(storage)) FUN_FALLBACK_STATE.blocked.add(storage);
+      return next;
+    }
+    storage.setItem(FUN_STORAGE_KEY, JSON.stringify(next));
   } catch {
-    // Blocked storage: nothing persists.
+    if (isStorageObject(storage)) FUN_FALLBACK_STATE.blocked.add(storage);
   }
   return next;
 }
@@ -115,18 +127,15 @@ function createSwitch(doc, storage, key, checked, onChange) {
   return label;
 }
 
-// The settings panel: heading, help line, one switch per extra and, when the
-// device asks for reduced motion, a note that moving effects stay still.
+// The settings panel: heading, one switch per extra and, when the device
+// asks for reduced motion, a note that moving effects stay still.
 // Rendering stores nothing; each change saves and calls onChange(settings).
 export function createFunExtrasPanel(doc, storage, { win = globalThis, onChange = () => {} } = {}) {
   const panel = doc.createElement("section");
   panel.className = "panel fun-extras-panel";
   const heading = doc.createElement("h2");
   heading.textContent = t("fun.title");
-  const help = doc.createElement("p");
-  help.className = "muted";
-  help.textContent = t("fun.help");
-  panel.append(heading, help);
+  panel.append(heading);
   const current = readFunSettings(storage);
   for (const key of FUN_KEYS) panel.append(createSwitch(doc, storage, key, current[key], onChange));
   if (prefersReducedMotion(win)) {

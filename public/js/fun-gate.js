@@ -18,19 +18,21 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// Fun extras gate (v5.84 load order). The fun/ modules used to load on every
-// page even though every switch is off by default. This small module keeps
+// Fun extras gate (v5.84 load order). The fun/ modules load only when the
+// effective settings enable an extra. This small module keeps
 // the three hooks app.js calls (same names as fun/index.js) and imports
 // fun/index.js only once a switch is on, the settings panel is opened, or
 // another tab turns one on. Once loaded, everything behaves exactly as
 // before: the unread watcher is seeded with the last count and the easter
 // egg listener is installed.
 import { siteModuleOn } from "./site-modules.js";
+import {
+  FUN_DEFAULTS, FUN_FALLBACK_STATE, FUN_KEYS, fallbackFor, isStorageObject, rememberFallback,
+} from "./fun-state.js";
 
 // Mirrors fun/settings.js FUN_STORAGE_KEY (pinned equal by
 // tests/lazy-load-graph.test.mjs).
 export const FUN_GATE_STORAGE_KEY = "forum-fun-extras";
-
 const browserStorage = () => {
   try {
     return globalThis.localStorage ?? null;
@@ -40,15 +42,23 @@ const browserStorage = () => {
 };
 
 function storedSwitches(storage) {
+  if (!isStorageObject(storage)) return FUN_FALLBACK_STATE.settings;
+  if (FUN_FALLBACK_STATE.blocked.has(storage)) return fallbackFor(storage);
   try {
-    const parsed = JSON.parse(storage?.getItem(FUN_GATE_STORAGE_KEY) ?? "null");
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    const raw = storage.getItem(FUN_GATE_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    const settings = parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? Object.fromEntries(FUN_KEYS.map((key) => [key, parsed[key] === true]))
+      : FUN_DEFAULTS;
+    rememberFallback(storage, settings);
+    return settings;
   } catch {
-    return {};
+    FUN_FALLBACK_STATE.blocked.add(storage);
+    return fallbackFor(storage);
   }
 }
 
-// True when this one switch is on (blocked storage reads as off).
+// True when this one switch is on.
 export function funSwitchOn(key, storage = browserStorage()) {
   return storedSwitches(storage)[key] === true;
 }

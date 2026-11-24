@@ -32,7 +32,7 @@ import {
   ACTION_OWNERS, FORM_OWNERS, ROUTE_MODULE_LOADERS, ROUTE_OWNERS, lazyHandler, loadRouteModule,
 } from "../public/js/route-modules.js";
 import * as funGate from "../public/js/fun-gate.js";
-import { FUN_STORAGE_KEY } from "../public/js/fun/settings.js";
+import { FUN_STORAGE_KEY, FUN_KEYS } from "../public/js/fun/settings.js";
 import {
   CHAT_WIDGET_FALLBACK_DELAY_MS, CHAT_WIDGET_IDLE_TIMEOUT_MS, loadChatWidget, scheduleChatWidget,
 } from "../public/js/chat-widget-loader.js";
@@ -197,17 +197,20 @@ const memoryStorage = (value) => ({ getItem: () => (value === undefined ? null :
 
 test("fun gate: the storage key mirrors fun/settings.js; switches read safely", () => {
   assert.equal(funGate.FUN_GATE_STORAGE_KEY, FUN_STORAGE_KEY);
-  assert.equal(funGate.anyFunOn(memoryStorage()), false);
+  assert.equal(funGate.anyFunOn(memoryStorage()), true, "no saved preferences use the all-on defaults");
   assert.equal(funGate.anyFunOn(memoryStorage({ confetti: false })), false);
   assert.equal(funGate.anyFunOn(memoryStorage({ sketch: true })), true);
   assert.equal(funGate.funSwitchOn("sketch", memoryStorage({ sketch: true })), true);
   assert.equal(funGate.funSwitchOn("sounds", memoryStorage({ sketch: true })), false);
-  assert.equal(funGate.anyFunOn({ getItem: () => { throw new Error("blocked"); } }), false);
-  assert.equal(funGate.anyFunOn({ getItem: () => "[true]" }), false);
+  const blocked = { getItem: () => { throw new Error("blocked"); } };
+  assert.equal(funGate.anyFunOn(blocked), true);
+  assert.equal(funGate.funSwitchOn("confetti", blocked), true, "blocked storage starts from the all-on defaults");
+  assert.equal(funGate.anyFunOn({ getItem: () => "[true]" }), true, "invalid storage uses defaults");
+  assert.equal(funGate.anyFunOn(memoryStorage({})), false, "a valid saved object with no enabled keys is all off");
 });
 
 test("fun gate: all off loads nothing; on load the watcher is seeded and the eggs installed", async () => {
-  const off = memoryStorage();
+  const off = memoryStorage(Object.fromEntries(FUN_KEYS.map((key) => [key, false])));
   assert.equal(await funGate.enhanceFunView(new FakeNode("main"), off), undefined);
   funGate.noteUnreadCount(3, off);
   const calls = [];
