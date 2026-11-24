@@ -34,6 +34,25 @@ pnpm test                    # the test suite
 If you need local secrets, put them in a `.dev.vars` file. It's git-ignored —
 never commit it, or any `.env` file. This repository is public.
 
+### Using an AI coding agent (optional)
+
+The rules for AI coding agents are in [AGENTS.md](AGENTS.md); Claude Code,
+Gemini CLI, Codex, Cursor, Copilot and other tools that read `AGENTS.md`,
+`CLAUDE.md` or `GEMINI.md` pick them up automatically. The project's Claude
+Code skills, commands and guard rules ship in `.claude/`.
+
+To work with the same Claude Code setup the maintainer uses (instructions,
+the GLM-Flash output style, coding rules and plugin list), install
+[claude-setup](https://github.com/Wempo-s-Silly-Projects/claude-setup) into
+`~/.claude`. Its installer backs up your existing files first:
+
+```sh
+git clone https://github.com/Wempo-s-Silly-Projects/claude-setup ~/claude-setup
+bash ~/claude-setup/install.sh
+```
+
+Then add the plugins listed in its `PLUGINS.md`.
+
 ## Making a change
 
 1. Fork the repo (or create a branch if you have access). Branch off `main`

@@ -6,6 +6,14 @@ This file is for AI agents working in this repo. Humans: read
 Also read AGENTS-ONBOARDING.md — it covers the repo layout, conventions and
 how to test. This file covers the rules.
 
+Recommended Claude Code setup for this repo (instructions, the GLM-Flash
+output style, coding rules, plugin list):
+[claude-setup](https://github.com/Wempo-s-Silly-Projects/claude-setup).
+Install it into `~/.claude` with
+`git clone https://github.com/Wempo-s-Silly-Projects/claude-setup ~/claude-setup && bash ~/claude-setup/install.sh`
+(it backs up existing files first). Project skills, commands and guard rules
+are already in `.claude/`.
+
 Every teammate and subagent inherits the anti-waste protocol below. Echo it
 verbatim into any brief you hand to another agent.
 
