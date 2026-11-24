@@ -10,7 +10,6 @@ metadata:
 
 ## Commits
 - Conventional prefixes (`feat:`, `fix:`, `test:`, `chore:`, `docs:`, `ci:`) are the norm now (236 of the last 400 subjects; older history is free-form prose). Releases: `chore: release vX.Y.Z` bumping `package.json` + `wrangler.toml` VERSION.
-- Commits written with Claude end with `Co-Authored-By: Claude Code <noreply@anthropic.com>`.
 - The owner also edits `main` in the GitHub web UI — always fetch and diff `HEAD..origin/main` before pushing (wempos-forum-owner-web-edits).
 
 ## Architecture
@@ -34,7 +33,7 @@ metadata:
 - **Feed page size**: every feed variant pages by `FEED_PAGE_SIZE` (20), no caller-supplied limit; binds stay < `D1_MAX_BOUND_PARAMS` (100) — worst today is the reply-count rollup at `2*FEED_PAGE_SIZE+11` = 51 (`tests/wave32-feed-page-size.test.mjs`). Chunk IN-lists before raising the page size.
 - **Feed cursors**: anchored, length-bounded regexes in `api/vendor/db.mjs` (re-exported by `api/core/cursors.mjs`); `mine`/`unanswered` params `/^[01]$/` (the Unanswered client view was removed in v5.0.0; the server param remains). Keep `tests/wave35-feed-cursor-fuzz.test.mjs` green (200/400 only, < 100 binds, no hidden/banned/blocked root).
 - **Client checks are advisory; the server enforces** (byte ceiling, 10 MiB/file, magic-byte sniff, metadata strip, 3-attachment cap via `assertAttachmentRoom` in `api/attachments.mjs`).
-- **Migrations**: CREATE-only, next free number (0060+), remote only via wempos-forum-ritual.
+- **Migrations**: CREATE-only, next number = one above the highest number in `migrations/` AND in the remote `d1_migrations` ledger names; never reuse a ledger name (see wempos-forum-ritual); remote only via the ritual.
 
 ## Testing
 - `pnpm test` = `node --test` over `tests/*.test.mjs` with the real-SQLite D1 adapter (wempos-forum-test-harness). Prefer behavioral tests through `worker.fetch`; static source pins for client modules.

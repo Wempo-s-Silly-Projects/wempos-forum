@@ -18,14 +18,14 @@ Lead-side mechanics that wempos-forum-feature-wave assumes.
 ## Branches and shared files
 - One wave = one branch `wave-<date>-<n>` in its own worktree; merge to main with a `Merge wave-…` commit after the gate.
 - Two lanes on one tree: the committing lane commits ONLY its own hunks; the co-lane runs `git diff` against HEAD first and never `git add -A` the disk state.
-- Migration numbers: the lead assigns them. First claimed wins, the second renumbers; never reuse a name in the remote ledger (next is 0060+, see wempos-forum-ritual).
+- Migration numbers: the lead assigns them. First claimed wins, the second renumbers; next = one above the highest number in `migrations/` AND in the remote `d1_migrations` ledger names; never reuse a ledger name (see wempos-forum-ritual).
 
 ## Verify + push
 - Every pushed tip must be suite-green: `pnpm test` at the committed SHA in an isolated detached worktree, plus `pnpm exec wrangler deploy --dry-run`, BEFORE push. Fetch `origin/main` first (wempos-forum-owner-web-edits).
 - Migrations that the code needs: apply remote via the ritual BEFORE the deploy.
 
 ## Deploy + probes
-- Batch: deploy a merged main tip, not every commit. `pnpm run deploy` LAST, from a checkout at the pushed main tip (the push's bare Workers Builds deploy leaves `commit:""`).
+- Batch: deploy a merged main tip, not every commit. `pnpm run deploy` LAST, from a checkout at the gated SHA after `release` is fast-forwarded (a push to `main` deploys nothing; Workers Builds watches `release` only (AGENTS.md branch model)).
 - Probe set (every deploy report carries all of these):
   - `curl -s https://wempos-forum.com/api/version` → `{"version":"<X.Y.Z>","commit":"<short SHA>"}` equal to the pushed tip (empty/mismatch = rerun `pnpm run deploy`);
   - `/locales/en.json` → 200 `application/json`;

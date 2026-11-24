@@ -26,7 +26,8 @@ Hard caps (override any YES):
 - `.claude/agents/` is EMPTY: seats are generic/`ecc:*` agents with the seat
   charter (AGENTS.md index line) pasted into the brief.
 - Never spawn past the seats the lane needs; re-verify (suite, probes) is the
-  lead's job, not a new spawn. Budget ceiling $1000 — no idle bulk spawns.
+  lead's job, not a new spawn. No idle bulk spawns; max 2 heavy agents and one
+  test suite at a time on this Mac.
 - If you delegate, you collect: never end a turn "waiting" on children.
 - If the answer is YES purely from enthusiasm, answer NO — the question is a
   routing check, not a growth engine.
