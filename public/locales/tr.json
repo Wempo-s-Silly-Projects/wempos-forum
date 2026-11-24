@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Bildirimlerini görmek için giriş yap.",
   "notificationsPage.title": "Bildirimler",
   "online.heading": "Kimler Çevrimiçi",
+  "online.headingWithCount": "Kimler Çevrimiçi, {count} çevrimiçi",
   "online.more": "+{count} kişi daha",
   "online.note": "Son 5 dakikada aktif",
   "online.staff": "Ekip · {count}",

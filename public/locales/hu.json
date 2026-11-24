@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Jelentkezz be, hogy lásd az értesítéseidet.",
   "notificationsPage.title": "Értesítések",
   "online.heading": "Ki van online",
+  "online.headingWithCount": "Ki van online, {count} online",
   "online.more": "+{count} további",
   "online.note": "Aktív az elmúlt 5 percben",
   "online.staff": "Stáb · {count}",

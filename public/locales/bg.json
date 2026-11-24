@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Влез, за да видиш известията си.",
   "notificationsPage.title": "Известия",
   "online.heading": "Кой е онлайн",
+  "online.headingWithCount": "Кой е онлайн, {count} онлайн",
   "online.more": "+{count} още",
   "online.note": "Активни през последните 5 минути",
   "online.staff": "Екип · {count}",

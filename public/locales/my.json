@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "သင့်အသိပေးချက်များကို ကြည့်ရန် ဝင်ရောက်ပါ။",
   "notificationsPage.title": "အသိပေးချက်များ",
   "online.heading": "အွန်လိုင်းရှိသူများ",
+  "online.headingWithCount": "အွန်လိုင်းရှိသူများ၊ {count} ဦး အွန်လိုင်း",
   "online.more": "+ {count} ဦးထပ်",
   "online.note": "ပြီးခဲ့သော ၅ မိနစ်အတွင်း လှုပ်ရှားသူများ",
   "online.staff": "ဝန်ထမ်းများ · {count}",

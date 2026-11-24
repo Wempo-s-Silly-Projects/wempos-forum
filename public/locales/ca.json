@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Inicia la sessió per veure les teves notificacions.",
   "notificationsPage.title": "Notificacions",
   "online.heading": "Qui és en línia",
+  "online.headingWithCount": "Qui és en línia, {count} en línia",
   "online.more": "+{count} més",
   "online.note": "Actius en els darrers 5 minuts",
   "online.staff": "Equip · {count}",

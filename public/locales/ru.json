@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Войди, чтобы увидеть свои уведомления.",
   "notificationsPage.title": "Уведомления",
   "online.heading": "Кто в сети",
+  "online.headingWithCount": "Кто в сети, {count} в сети",
   "online.more": "+{count} ещё",
   "online.note": "Активны за последние 5 минут",
   "online.staff": "Команда · {count}",

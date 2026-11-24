@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Մուտք գործեք՝ ձեր ծանուցումները տեսնելու համար։",
   "notificationsPage.title": "Ծանուցումներ",
   "online.heading": "Ով է առցանց",
+  "online.headingWithCount": "Ով է առցանց, {count} առցանց",
   "online.more": "+{count} ևս",
   "online.note": "Ակտիվ վերջին 5 րոպեում",
   "online.staff": "Անձնակազմ · {count}",

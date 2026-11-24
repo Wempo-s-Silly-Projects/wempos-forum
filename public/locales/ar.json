@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "سجّل الدخول لرؤية إشعاراتك.",
   "notificationsPage.title": "الإشعارات",
   "online.heading": "المتصلون الآن",
+  "online.headingWithCount": "المتصلون الآن، {count} متصل",
   "online.more": "+{count} آخرين",
   "online.note": "نشطون خلال آخر 5 دقائق",
   "online.staff": "الطاقم · {count}",

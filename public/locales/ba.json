@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Белдереүҙәрегеҙҙе күреү өсөн инегеҙ.",
   "notificationsPage.title": "Белдереүҙәр",
   "online.heading": "Кем селтәрҙә",
+  "online.headingWithCount": "Кем селтәрҙә, {count} селтәрҙә",
   "online.more": "тағы +{count}",
   "online.note": "Һуңғы 5 минутта әүҙем",
   "online.staff": "Хеҙмәткәрҙәр · {count}",

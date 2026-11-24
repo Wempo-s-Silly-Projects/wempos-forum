@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "اپنی اطلاعات دیکھنے کے لیے سائن اِن کریں۔",
   "notificationsPage.title": "اطلاعات",
   "online.heading": "کون آن لائن ہے",
+  "online.headingWithCount": "کون آن لائن ہے، {count} آن لائن",
   "online.more": "+{count} اور",
   "online.note": "پچھلے 5 منٹ میں فعال",
   "online.staff": "عملہ · {count}",

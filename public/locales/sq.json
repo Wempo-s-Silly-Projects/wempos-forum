@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Hyr për të parë njoftimet e tua.",
   "notificationsPage.title": "Njoftimet",
   "online.heading": "Kush është në linjë",
+  "online.headingWithCount": "Kush është në linjë, {count} në linjë",
   "online.more": "+{count} të tjerë",
   "online.note": "Aktivë në 5 minutat e fundit",
   "online.staff": "Stafi · {count}",

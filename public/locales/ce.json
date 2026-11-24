@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Хьан хаамаш гайта чугӏо.",
   "notificationsPage.title": "Хаамаш",
   "online.heading": "Онлайн болу нах",
+  "online.headingWithCount": "Онлайн болу нах, {count} онлайн",
   "online.more": "+{count} кхин",
   "online.note": "Тӏаьххьара 5 минотехь болх беш",
   "online.staff": "Белхалой · {count}",

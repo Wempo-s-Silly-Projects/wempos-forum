@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Увайдзіце, каб убачыць свае апавяшчэнні.",
   "notificationsPage.title": "Апавяшчэнні",
   "online.heading": "Хто ў сетцы",
+  "online.headingWithCount": "Хто ў сетцы, {count} у сетцы",
   "online.more": "+{count} яшчэ",
   "online.note": "Актыўныя за апошнія 5 хвілін",
   "online.staff": "Каманда · {count}",

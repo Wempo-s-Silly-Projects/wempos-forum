@@ -684,7 +684,7 @@ export const ACTIONS = {
   "toggle-bookmark": async (button) => {
     // Bookmarks (C4): both directions are idempotent server-side; the
     // route re-render refetches the payload's fresh state.
-    const bookmarked = String(button.getAttribute("aria-pressed")) === "true";
+    const bookmarked = button.dataset.bookmarked === "1";
     await api("/api/posts/" + button.dataset.postId + "/bookmark", {
       method: bookmarked ? "DELETE" : "PUT",
     });

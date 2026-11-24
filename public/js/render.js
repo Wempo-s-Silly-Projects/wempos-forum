@@ -96,16 +96,22 @@ const renderAttachments = (post, document, article) => {
     const image = createElement(document, "img", "post-attachment");
     image.src = attachmentUrl(attachment);
     image.alt = "";
-    image.loading = "lazy";
     // The lightbox reads the mime to freeze GIFs under reduced motion.
     image.dataset.mime = String(attachment.mime ?? "");
     // Header dimensions (migration 0080) reserve the image's box before the
     // bytes arrive, so the page does not jump; CSS still caps the rendering.
-    if (Number.isSafeInteger(attachment.width) && Number.isSafeInteger(attachment.height)) {
+    // Rows from before 0080 carry none: a lazy img with no size is 0x0 and
+    // may never be fetched (v5.96.0, the 4x4 button), so those load eagerly.
+    const sized = Number.isSafeInteger(attachment.width) && Number.isSafeInteger(attachment.height);
+    if (sized) {
       image.width = attachment.width;
       image.height = attachment.height;
     }
-    const expand = createElement(document, "button", "attachment-expand");
+    image.loading = sized ? "lazy" : "eager";
+    const expand = createElement(document, "button", "attachment-expand attachment-loading");
+    const loaded = () => expand.classList.remove("attachment-loading");
+    image.addEventListener("load", loaded, { once: true });
+    image.addEventListener("error", loaded, { once: true });
     expand.type = "button";
     expand.dataset.action = "expand-attachment";
     // Position-aware labels: identical labels on every image of a multi-image
@@ -475,6 +481,9 @@ export const createPostCard = (post, document, currentUser = null) => {
     bookmarkButton.type = "button";
     bookmarkButton.dataset.action = "toggle-bookmark";
     bookmarkButton.dataset.postId = String(post.id);
+    // The action reads the state from data (the More menu swaps aria-pressed
+    // for aria-checked, v5.96.0).
+    bookmarkButton.dataset.bookmarked = post.viewerBookmarked ? "1" : "0";
     bookmarkButton.setAttribute("aria-pressed", String(Boolean(post.viewerBookmarked)));
     const bookmarkLabel = post.viewerBookmarked ? t("render.unsavePost") : t("render.savePost");
     bookmarkButton.setAttribute("aria-label", bookmarkLabel);

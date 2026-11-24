@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Saen in blong luk notis blong yu.",
   "notificationsPage.title": "Notis",
   "online.heading": "Hu i stap onlaen",
+  "online.headingWithCount": "Hu i stap onlaen, {count} oli stap onlaen",
   "online.more": "+{count} moa",
   "online.note": "I stap wok long las 5 minit",
   "online.staff": "Stafe · {count}",

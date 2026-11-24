@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Hyɛ mu na hu wo nkaebɔ.",
   "notificationsPage.title": "Nkaebɔ",
   "online.heading": "Hena na ɔwɔ intanɛt so",
+  "online.headingWithCount": "Hena na ɔwɔ intanɛt so, {count} wɔ intanɛt so",
   "online.more": "+{count} bio",
   "online.note": "Wɔayɛ adwuma wɔ simma 5 a atwam no mu",
   "online.staff": "Adwumayɛfo · {count}",

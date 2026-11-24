@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Hasi saioa zure jakinarazpenak ikusteko.",
   "notificationsPage.title": "Jakinarazpenak",
   "online.heading": "Nor dago konektatuta",
+  "online.headingWithCount": "Nor dago konektatuta, {count} konektatuta",
   "online.more": "+{count} gehiago",
   "online.note": "Azken 5 minutuetan aktibo",
   "online.staff": "Taldea · {count}",

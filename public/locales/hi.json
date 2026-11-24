@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "अपने नोटिफ़िकेशन देखने के लिए साइन इन करें।",
   "notificationsPage.title": "नोटिफ़िकेशन",
   "online.heading": "कौन ऑनलाइन है",
+  "online.headingWithCount": "कौन ऑनलाइन है, {count} ऑनलाइन",
   "online.more": "+{count} और",
   "online.note": "पिछले 5 मिनट में एक्टिव",
   "online.staff": "स्टाफ़ · {count}",

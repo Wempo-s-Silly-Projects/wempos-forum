@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Пӗлтерӳсене курас тесен кӗр.",
   "notificationsPage.title": "Пӗлтерӳсем",
   "online.heading": "Кам онлайн",
+  "online.headingWithCount": "Кам онлайн, {count} онлайн",
   "online.more": "+{count} тата",
   "online.note": "Юлашки 5 минутра ӗҫленӗ",
   "online.staff": "Ӗҫченсем · {count}",

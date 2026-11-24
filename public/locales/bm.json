@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Don walasa k'i ka kunnafoniw ye.",
   "notificationsPage.title": "Kunnafoniw",
   "online.heading": "Mɔgɔ minnu bɛ yen",
+  "online.headingWithCount": "Mɔgɔ minnu bɛ yen, {count} bɛ yen",
   "online.more": "+{count} wɛrɛ",
   "online.note": "Minnu bɛ sen na miniti 5 laban kɔnɔ",
   "online.staff": "Baarakɛlaw · {count}",

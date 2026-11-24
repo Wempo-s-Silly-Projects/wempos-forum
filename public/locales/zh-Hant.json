@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "登入後即可查看你的通知。",
   "notificationsPage.title": "通知",
   "online.heading": "誰在線上",
+  "online.headingWithCount": "誰在線上，{count} 人在線上",
   "online.more": "還有 {count} 人",
   "online.note": "最近 5 分鐘內活躍",
   "online.staff": "管理團隊 · {count}",

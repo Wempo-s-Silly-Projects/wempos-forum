@@ -32,7 +32,9 @@ export const MOVED_ACTION_LABEL = "threadActions.more";
 const MOVED_CLASSES = Object.freeze(["copy-link-wrap", "read-aloud", "quote-card-action", "bookmark-toggle",
   "subscribe-toggle", "thread-mute-toggle"]);
 const MOVED_ACTIONS = Object.freeze(new Set(["report", "edit-post", "delete-post"]));
-const CHECKBOX_CLASSES = Object.freeze(["bookmark-toggle", "subscribe-toggle", "thread-mute-toggle"]);
+// Toggles become menuitemcheckbox; inside role=menu their state is
+// aria-checked alone (v5.96.0: aria-pressed is not valid on menu items).
+const CHECKBOX_CLASSES = Object.freeze(["bookmark-toggle", "subscribe-toggle", "thread-mute-toggle", "read-aloud"]);
 // Worded controls get an icon so every row of the menu reads the same way.
 const ADDED_ICONS = Object.freeze({ "quote-card-action": "message-square-quote", "thread-mute-toggle": "bell-off" });
 
@@ -70,7 +72,10 @@ function addItem(document, wrap, menu, node) {
   }
   const checkbox = hasClass(node, CHECKBOX_CLASSES);
   button.setAttribute("role", checkbox ? "menuitemcheckbox" : "menuitem");
-  if (checkbox) button.setAttribute("aria-checked", String(button.getAttribute("aria-pressed") === "true"));
+  if (checkbox) {
+    button.setAttribute("aria-checked", String(button.getAttribute("aria-pressed") === "true"));
+    button.removeAttribute("aria-pressed");
+  }
   button.tabIndex = -1;
   const added = Object.entries(ADDED_ICONS).find(([name]) => hasClass(node, [name]));
   if (added) button.replaceChildren(vendorIcon(document, added[1]), document.createTextNode(button.textContent));

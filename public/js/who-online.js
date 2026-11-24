@@ -68,6 +68,9 @@ const paintRoster = (online) => {
   // Wave 36: grouped by role (Staff, Members) with a count on each heading.
   paintRosterGroups(document, listEl, online, ROSTER_NAME_MAX, profileHref);
   countEl.textContent = String(online.length);
+  // v5.96.0 (a11y): the visible "Who's Online" + count badge read as one
+  // run-on word ("Who's Online0"); the heading's name carries both instead.
+  countEl.parentNode?.setAttribute("aria-label", t("online.headingWithCount", { count: online.length }));
   card.hidden = false;
 };
 
@@ -88,6 +91,7 @@ const mount = () => {
   card.hidden = true;
   const heading = el("h2", "who-online-heading", t("online.heading"));
   countEl = el("span", "who-online-count", "");
+  countEl.setAttribute("aria-hidden", "true");
   heading.append(countEl);
   listEl = el("div", "who-online-list");
   card.append(heading, el("p", "who-online-note", t("online.note")), listEl);

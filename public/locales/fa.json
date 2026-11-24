@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "برای دیدن اعلان‌هایتان وارد شوید.",
   "notificationsPage.title": "اعلان‌ها",
   "online.heading": "آنلاین‌ها",
+  "online.headingWithCount": "آنلاین‌ها، {count} نفر آنلاین",
   "online.more": "+{count} نفر دیگر",
   "online.note": "فعال در ۵ دقیقهٔ گذشته",
   "online.staff": "کادر · {count}",

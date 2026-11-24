@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Пријави се да видиш своја обавештења.",
   "notificationsPage.title": "Обавештења",
   "online.heading": "Ко је на мрежи",
+  "online.headingWithCount": "Ко је на мрежи, {count} на мрежи",
   "online.more": "+{count} још",
   "online.note": "Активни у последњих 5 минута",
   "online.staff": "Особље · {count}",

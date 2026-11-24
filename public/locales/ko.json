@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "알림을 보려면 로그인하세요.",
   "notificationsPage.title": "알림",
   "online.heading": "지금 접속 중",
+  "online.headingWithCount": "지금 접속 중, {count}명 접속 중",
   "online.more": "+{count}명 더",
   "online.note": "최근 5분 안에 활동함",
   "online.staff": "운영진 · {count}",

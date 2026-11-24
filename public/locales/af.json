@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Meld aan om jou kennisgewings te sien.",
   "notificationsPage.title": "Kennisgewings",
   "online.heading": "Wie's aanlyn",
+  "online.headingWithCount": "Wie's aanlyn, {count} aanlyn",
   "online.more": "+{count} meer",
   "online.note": "Aktief in die afgelope 5 minute",
   "online.staff": "Personeel · {count}",

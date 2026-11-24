@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Dentra ta veyer as tuyas notificacions.",
   "notificationsPage.title": "Notificacions",
   "online.heading": "Qui ye connectau",
+  "online.headingWithCount": "Qui ye connectau, {count} connectaus",
   "online.more": "+{count} mas",
   "online.note": "Activos en os zaguers 5 minutos",
   "online.staff": "Equipo · {count}",

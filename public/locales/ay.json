@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Yatiyawinakam uñjañatakix mantam.",
   "notificationsPage.title": "Yatiyawinaka",
   "online.heading": "Khitinakas ukanki",
+  "online.headingWithCount": "Khitinakas ukanki, {count} ukanki",
   "online.more": "+{count} juk'ampi",
   "online.note": "Qhipa 5 minutonakan sartata",
   "online.staff": "Irnaqirinaka · {count}",

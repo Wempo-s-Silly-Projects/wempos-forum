@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "ማሳወቂያዎችዎን ለማየት ይግቡ።",
   "notificationsPage.title": "ማሳወቂያዎች",
   "online.heading": "መስመር ላይ ያሉ",
+  "online.headingWithCount": "መስመር ላይ ያሉ፣ {count} መስመር ላይ",
   "online.more": "+{count} ተጨማሪ",
   "online.note": "ባለፉት 5 ደቂቃዎች ውስጥ ንቁ",
   "online.staff": "ሠራተኞች · {count}",

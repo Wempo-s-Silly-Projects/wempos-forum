@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Mag-sign in para makita ang mga abiso mo.",
   "notificationsPage.title": "Mga abiso",
   "online.heading": "Sino ang Online",
+  "online.headingWithCount": "Sino ang Online, {count} ang online",
   "online.more": "+{count} pa",
   "online.note": "Aktibo sa nakaraang 5 minuto",
   "online.staff": "Mga staff · {count}",

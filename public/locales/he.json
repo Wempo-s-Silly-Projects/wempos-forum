@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "התחברו כדי לראות את ההתראות שלכם.",
   "notificationsPage.title": "התראות",
   "online.heading": "מי מחובר",
+  "online.headingWithCount": "מי מחובר, {count} מחוברים",
   "online.more": "+{count} נוספים",
   "online.note": "פעילים ב־5 הדקות האחרונות",
   "online.staff": "צוות · {count}",

@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Log in om je notificaties te zien.",
   "notificationsPage.title": "Notificaties",
   "online.heading": "Wie is er online",
+  "online.headingWithCount": "Wie is er online, {count} online",
   "online.more": "+{count} meer",
   "online.note": "Actief in de afgelopen 5 minuten",
   "online.staff": "Team · {count}",

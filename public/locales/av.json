@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Дур лъазабиял рихьизе жаниве лъугьа.",
   "notificationsPage.title": "Лъазабиял",
   "online.heading": "Щив онлайн вугев",
+  "online.headingWithCount": "Щив онлайн вугев, {count} онлайн",
   "online.more": "+{count} цоги",
   "online.note": "Ахирисел 5 минуталъ хӏаракатчилал",
   "online.staff": "Персонал · {count}",

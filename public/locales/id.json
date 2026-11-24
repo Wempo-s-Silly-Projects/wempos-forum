@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Masuk untuk melihat notifikasimu.",
   "notificationsPage.title": "Notifikasi",
   "online.heading": "Siapa yang Online",
+  "online.headingWithCount": "Siapa yang Online, {count} online",
   "online.more": "+{count} lagi",
   "online.note": "Aktif dalam 5 menit terakhir",
   "online.staff": "Staf · {count}",

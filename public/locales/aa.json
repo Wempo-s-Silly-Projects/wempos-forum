@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Ku kassiisa ableh cul.",
   "notificationsPage.title": "Kassiisa",
   "online.heading": "Internetih addal Tan Mara",
+  "online.headingWithCount": "Internetih addal Tan Mara, {count} internetih addal",
   "online.more": "+{count} kaxxa",
   "online.note": "Ellecaboh 5 daqiiqah addal taamah tan",
   "online.staff": "Taamitte · {count}",

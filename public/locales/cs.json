@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Přihlas se a uvidíš svá upozornění.",
   "notificationsPage.title": "Upozornění",
   "online.heading": "Kdo je online",
+  "online.headingWithCount": "Kdo je online, {count} online",
   "online.more": "+{count} dalších",
   "online.note": "Aktivní za posledních 5 minut",
   "online.staff": "Tým · {count}",

@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Logga in för att se dina aviseringar.",
   "notificationsPage.title": "Aviseringar",
   "online.heading": "Vem är online",
+  "online.headingWithCount": "Vem är online, {count} online",
   "online.more": "+{count} till",
   "online.note": "Aktiva de senaste 5 minuterna",
   "online.staff": "Personal · {count}",

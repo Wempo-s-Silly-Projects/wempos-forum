@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Đăng nhập để xem thông báo của bạn.",
   "notificationsPage.title": "Thông báo",
   "online.heading": "Ai đang online",
+  "online.headingWithCount": "Ai đang online, {count} người online",
   "online.more": "+{count} người nữa",
   "online.note": "Hoạt động trong 5 phút qua",
   "online.staff": "Quản trị · {count}",

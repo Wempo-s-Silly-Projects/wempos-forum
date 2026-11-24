@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Kevreit evit gwelet ho kemennoù.",
   "notificationsPage.title": "Kemennoù",
   "online.heading": "Piv a zo enlinenn",
+  "online.headingWithCount": "Piv a zo enlinenn, {count} enlinenn",
   "online.more": "+{count} all",
   "online.note": "Oberiant e-pad ar 5 munutenn diwezhañ",
   "online.staff": "Kefridi · {count}",

@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Bildirişlərini görmək üçün daxil ol.",
   "notificationsPage.title": "Bildirişlər",
   "online.heading": "Kim onlayndır",
+  "online.headingWithCount": "Kim onlayndır, {count} onlayn",
   "online.more": "+{count} daha",
   "online.note": "Son 5 dəqiqədə aktiv",
   "online.staff": "Heyət · {count}",

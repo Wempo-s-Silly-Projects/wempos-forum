@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Hålom para un li'e i nutisia-mu.",
   "notificationsPage.title": "Nutisia",
   "online.heading": "Hayi Gaige",
+  "online.headingWithCount": "Hayi Gaige, {count} gaige",
   "online.more": "+{count} mås",
   "online.note": "Aktibu gi ùltimu 5 minute",
   "online.staff": "Atministradot · {count}",

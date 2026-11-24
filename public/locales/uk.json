@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Увійди, щоб побачити свої сповіщення.",
   "notificationsPage.title": "Сповіщення",
   "online.heading": "Хто онлайн",
+  "online.headingWithCount": "Хто онлайн, {count} онлайн",
   "online.more": "+{count} ще",
   "online.note": "Активні за останні 5 хвилин",
   "online.staff": "Команда · {count}",

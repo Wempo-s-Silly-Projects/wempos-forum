@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "ลงชื่อเข้าใช้เพื่อดูการแจ้งเตือนของคุณ",
   "notificationsPage.title": "การแจ้งเตือน",
   "online.heading": "ใครออนไลน์อยู่",
+  "online.headingWithCount": "ใครออนไลน์อยู่, ออนไลน์ {count} คน",
   "online.more": "+อีก {count}",
   "online.note": "ใช้งานใน 5 นาทีที่ผ่านมา",
   "online.staff": "ทีมงาน · {count}",

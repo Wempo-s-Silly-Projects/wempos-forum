@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "আপোনাৰ জাননী চাবলৈ চাইন ইন কৰক।",
   "notificationsPage.title": "জাননী",
   "online.heading": "কোন অনলাইন",
+  "online.headingWithCount": "কোন অনলাইন, {count} জন অনলাইন",
   "online.more": "+{count}জন অধিক",
   "online.note": "যোৱা ৫ মিনিটত সক্ৰিয়",
   "online.staff": "কৰ্মী · {count}",

@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Kirjaudu sisään nähdäksesi ilmoituksesi.",
   "notificationsPage.title": "Ilmoitukset",
   "online.heading": "Kuka on paikalla",
+  "online.headingWithCount": "Kuka on paikalla, {count} paikalla",
   "online.more": "+{count} lisää",
   "online.note": "Aktiivinen viimeisen 5 minuutin aikana",
   "online.staff": "Ylläpito · {count}",

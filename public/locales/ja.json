@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "通知を見るにはログインしてください。",
   "notificationsPage.title": "通知",
   "online.heading": "オンライン中",
+  "online.headingWithCount": "オンライン中、{count} 人がオンライン",
   "online.more": "ほか {count} 人",
   "online.note": "過去5分以内にアクティブ",
   "online.staff": "スタッフ · {count}",

@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Шәадырраҭарақәа рбаразы шәыҩнала.",
   "notificationsPage.title": "Адырраҭарақәа",
   "online.heading": "Онлаин иҟоу",
+  "online.headingWithCount": "Онлаин иҟоу, {count} онлаин",
   "online.more": "+{count} еиҳа",
   "online.note": "Аҵыхәтәантәи 5 минут рыла иактиву",
   "online.staff": "Аперсонал · {count}",

@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Log masuk untuk melihat pemberitahuan anda.",
   "notificationsPage.title": "Pemberitahuan",
   "online.heading": "Siapa Dalam Talian",
+  "online.headingWithCount": "Siapa Dalam Talian, {count} dalam talian",
   "online.more": "+{count} lagi",
   "online.note": "Aktif dalam 5 minit yang lalu",
   "online.staff": "Kakitangan · {count}",

@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Log ind for at se dine notifikationer.",
   "notificationsPage.title": "Notifikationer",
   "online.heading": "Hvem er online",
+  "online.headingWithCount": "Hvem er online, {count} online",
   "online.more": "+{count} flere",
   "online.note": "Aktive inden for de seneste 5 minutter",
   "online.staff": "Stab · {count}",

@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Ingia ili kuona arifa zako.",
   "notificationsPage.title": "Arifa",
   "online.heading": "Walio Mtandaoni",
+  "online.headingWithCount": "Walio Mtandaoni, {count} mtandaoni",
   "online.more": "+{count} zaidi",
   "online.note": "Waliokuwa hai ndani ya dakika 5 zilizopita",
   "online.staff": "Wafanyakazi · {count}",

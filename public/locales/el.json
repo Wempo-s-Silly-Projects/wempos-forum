@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Συνδέσου για να δεις τις ειδοποιήσεις σου.",
   "notificationsPage.title": "Ειδοποιήσεις",
   "online.heading": "Ποιος είναι online",
+  "online.headingWithCount": "Ποιος είναι online, {count} online",
   "online.more": "+{count} ακόμη",
   "online.note": "Ενεργοί τα τελευταία 5 λεπτά",
   "online.staff": "Ομάδα · {count}",

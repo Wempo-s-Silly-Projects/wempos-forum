@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Logg inn for å se varslene dine.",
   "notificationsPage.title": "Varsler",
   "online.heading": "Hvem er pålogget",
+  "online.headingWithCount": "Hvem er pålogget, {count} pålogget",
   "online.more": "+{count} til",
   "online.note": "Aktive de siste 5 minuttene",
   "online.staff": "Stab · {count}",

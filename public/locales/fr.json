@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Connecte-toi pour voir tes notifications.",
   "notificationsPage.title": "Notifications",
   "online.heading": "Qui est en ligne",
+  "online.headingWithCount": "Qui est en ligne, {count} en ligne",
   "online.more": "+{count} autres",
   "online.note": "Actifs ces 5 dernières minutes",
   "online.staff": "Équipe · {count}",

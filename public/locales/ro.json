@@ -611,6 +611,7 @@
   "notificationsPage.signInPrompt": "Conectează-te ca să-ți vezi notificările.",
   "notificationsPage.title": "Notificări",
   "online.heading": "Cine e online",
+  "online.headingWithCount": "Cine e online, {count} online",
   "online.more": "încă +{count}",
   "online.note": "Activi în ultimele 5 minute",
   "online.staff": "Echipă · {count}",
