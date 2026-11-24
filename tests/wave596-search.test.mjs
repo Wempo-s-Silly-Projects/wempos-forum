@@ -29,6 +29,9 @@ import { makeAssets, makeEnv } from "./helpers/d1.mjs";
 import { call, seedBan, seedPost, seedUser } from "./helpers/seed.mjs";
 import { BOARD_HEADS, BOARD_VALUES } from "../api/boards.mjs";
 
+// Escape every regex metacharacter (CodeQL js/incomplete-sanitization).
+const escapeRegExp = (text) => String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const SHELL = readFileSync(new URL("../public/index.html", import.meta.url), "utf8");
 const EN = JSON.parse(readFileSync(new URL("../public/locales/en.json", import.meta.url), "utf8"));
 const HOME_DESCRIPTION = "A friendly forum for the Polytoria community and friends. Post topics, chat with members and meet new people.";
@@ -81,7 +84,7 @@ test("B4: the sitemap dates home and boards by public activity and lists no memb
   db.prepare("UPDATE posts SET created_at = 1800000000 WHERE id IN (?, ?)").run(hidden, bannedPost);
   seedBan(db, banned);
   const xml = await (await call(env, "/sitemap.xml")).text();
-  const entry = (loc) => xml.match(new RegExp("<url><loc>" + loc.replace(/[.?]/g, "\\$&") + "</loc>(?:<lastmod>([^<]+)</lastmod>)?</url>"));
+  const entry = (loc) => xml.match(new RegExp("<url><loc>" + escapeRegExp(loc) + "</loc>(?:<lastmod>([^<]+)</lastmod>)?</url>"));
   assert.equal(entry("https://wempos-forum.com/")?.[1], new Date(1700000500 * 1000).toISOString());
   assert.equal(entry("https://wempos-forum.com/c/general")?.[1], new Date(1700000000 * 1000).toISOString());
   assert.equal(entry("https://wempos-forum.com/c/showcase")?.[1], new Date(1700000500 * 1000).toISOString());
@@ -93,7 +96,7 @@ test("B4: the sitemap dates home and boards by public activity and lists no memb
 });
 
 test("B5: the home meta description is the new copy, in the shell and as the server default", async () => {
-  assert.match(SHELL, new RegExp(`<meta name="description" content="${HOME_DESCRIPTION.replace(/[.]/g, "\\.")}">`));
+  assert.match(SHELL, new RegExp(`<meta name="description" content="${escapeRegExp(HOME_DESCRIPTION)}">`));
   const html = await (await call(shellEnv(), "/")).text();
   assert.equal(descriptionOf(html), HOME_DESCRIPTION);
   const bare = makeEnv({ ASSETS: makeAssets(() => new Response("<!doctype html><html><head><title>t</title></head><body></body></html>",
