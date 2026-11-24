@@ -85,20 +85,12 @@ function matchEntry(entries, digest) {
 // Numeric → lookup by id (preferred); otherwise the legacy username form.
 function loadMappedUser(env, value) {
   const asText = String(value);
-
-  if (/^[0-9]+$/.test(asText)) {
-    const id = Number(asText);
-    if (!Number.isSafeInteger(id) || id <= 0) return null;
-
-    return env.FORUM_DB.prepare(AGENT_USER_BY_ID_SQL)
-      .bind(id)
-      .first();
+  if (NUMERIC_ID_PATTERN.test(asText) && Number.isSafeInteger(Number(asText))) {
+    return env.FORUM_DB.prepare(AGENT_USER_BY_ID_SQL).bind(Number(asText)).first();
   }
-
-  return env.FORUM_DB.prepare(AGENT_USER_BY_NAME_SQL)
-    .bind(asText.toLowerCase())
-    .first();
+  return env.FORUM_DB.prepare(AGENT_USER_BY_NAME_SQL).bind(asText.toLowerCase()).first();
 }
+
 function shapeSessionUser(row) {
   return {
     id: Number(row.id),

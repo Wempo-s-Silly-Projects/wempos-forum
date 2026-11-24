@@ -172,10 +172,8 @@ async function itemRoute(request, env, method, folderId, rawPostId) {
 function cursorFrom(url) {
   const raw = url.searchParams.get("before");
   if (raw === null) return null;
-  const match = /^([0-9]{1,10})_([0-9]{1,10})/.exec(raw);
-  if (!match || match[0].length !== raw.length) {
-  throw new HttpError(400, "That page cursor is invalid.");
-}
+  const match = /^([0-9]{1,10})_([0-9]{1,10})$/.exec(raw);
+  if (!match) throw new HttpError(400, "That page cursor is invalid.");
   return { seconds: Number(match[1]), id: Number(match[2]) };
 }
 

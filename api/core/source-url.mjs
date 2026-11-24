@@ -27,7 +27,7 @@
 // back to the repository URL. Nothing but https:// ever becomes the href.
 
 export const DEFAULT_SOURCE_REPO = "https://github.com/Wempo-s-Silly-Projects/wempos-forum";
-const COMMIT_SHA_PATTERN = /^[0-9a-f]{7,40}/i;
+const COMMIT_SHA_PATTERN = /^[0-9a-f]{7,40}$/i;
 
 // A trimmed, absolute https:// URL without embedded credentials, normalized
 // by the URL parser (so markup characters come back percent-encoded); "" for
@@ -46,14 +46,6 @@ export function httpsUrlOrEmpty(raw) {
 export function sourceUrl(env) {
   const configured = httpsUrlOrEmpty(env?.SOURCE_URL);
   if (configured) return configured;
-
-  const commit = typeof env?.COMMIT_SHA === "string"
-    ? env.COMMIT_SHA.trim()
-    : "";
-
-  const match = COMMIT_SHA_PATTERN.exec(commit);
-
-  return match && match[0].length === commit.length
-    ? `${DEFAULT_SOURCE_REPO}/tree/${commit}`
-    : "";
+  const commit = typeof env?.COMMIT_SHA === "string" ? env.COMMIT_SHA.trim() : "";
+  return COMMIT_SHA_PATTERN.test(commit) ? `${DEFAULT_SOURCE_REPO}/tree/${commit}` : "";
 }

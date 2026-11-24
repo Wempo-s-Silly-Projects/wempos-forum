@@ -1,4 +1,3 @@
-
 // Copyright 2026 ItsWempo
 //
 // This file is part of Wempo's Forum.
@@ -115,8 +114,7 @@ async function handleBookmarkListRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   if (path === "/api/me/bookmarks" && method === "GET") {
     const user = (await requireSignedInRead(request, env)).user;
-
-    // Pagination: a `before` cursor walks the list's OWN sort key
+    // Pagination (fix round 1): a `before` cursor walks the list's OWN sort key
     // — (bookmarked_at, post id) — in the composite seconds_id format the
     // activity feed established (both keys DESC, strictly exclusive). The
     // cursor's seconds half is the BOOKMARK stamp, so the response's nextBefore
@@ -126,77 +124,48 @@ async function handleBookmarkListRoute(request, env, url, path, method) {
     const beforeRaw = url.searchParams.get("before");
     let before = null;
     if (beforeRaw !== null) {
-      const cursorMatch = /^([0-9]{1,10})_([0-9]{1,10})/.exec(beforeRaw);
-      if (!cursorMatch || cursorMatch[0].length !== beforeRaw.length) {
-        throw new HttpError(400, "That page cursor is invalid.");
-      }
-      before = {
-        seconds: Number(cursorMatch[1]),
-        id: Number(cursorMatch[2]),
-      };
+      const cursorMatch = /^([0-9]{1,10})_([0-9]{1,10})$/.exec(beforeRaw);
+      if (!cursorMatch) throw new HttpError(400, "That page cursor is invalid.");
+      before = { seconds: Number(cursorMatch[1]), id: Number(cursorMatch[2]) };
     }
-
     const board = boardParam(url, false);
-
     // Blocks (v4.4): a saved post whose author is now block-paired with the
     // viewer drops from the list (both directions). Staff keep their saved
     // rows. Board filter + visible ancestors: wave 36 (visibleSavedFilter).
     const filter = visibleSavedFilter(user, board);
     let sql = POST_SELECT + "JOIN bookmarks b ON b.post_id = p.id WHERE b.user_id = ?" + filter.sql;
     const values = [user.id, user.id, ...filter.values];
-
     if (before) {
       sql += "AND (b.created_at < ? OR (b.created_at = ? AND p.id < ?)) ";
       values.push(before.seconds, before.seconds, before.id);
     }
-
     sql += "ORDER BY b.created_at DESC, p.id DESC LIMIT " + (SAVED_PAGE_SIZE + 1);
-
     const result = await db.prepare(sql).bind(...values).all();
     const rows = result.results || [];
     const hasMore = rows.length > SAVED_PAGE_SIZE;
     const shown = rows.slice(0, SAVED_PAGE_SIZE);
-
     let nextBefore = null;
     if (hasMore && shown.length) {
       const boundaryId = Number(shown[shown.length - 1].id);
       const stamp = await db.prepare(
         "SELECT created_at FROM bookmarks WHERE user_id = ? AND post_id = ? LIMIT 1",
       ).bind(user.id, boundaryId).first();
-
-      nextBefore = stamp
-        ? Number(stamp.created_at) + "_" + boundaryId
-        : null;
+      nextBefore = stamp ? Number(stamp.created_at) + "_" + boundaryId : null;
     }
-
     const posts = shown.map((row) => ({
       ...publicPost(row, undefined),
       viewerBookmarked: true,
     }));
-
     const attachments = await attachmentRowsForView(
-      db,
-      posts.map((post) => post.id),
-      user,
+      db, posts.map((post) => post.id), user,
     );
-
     return json({
-      bookmarks: posts.map((post) => ({
-        ...post,
-        attachments: attachments.get(post.id) || [],
-      })),
+      bookmarks: posts.map((post) => ({ ...post, attachments: attachments.get(post.id) || [] })),
       nextBefore,
     });
   }
-
-  if (path === "/api/me/bookmarks" && method === "DELETE") {
-    return removeSavedBoard(request, env, url);
-  }
-
-  if (path === "/api/me/bookmarks") {
-    throw new HttpError(405, "That method is not supported.");
-  }
-
+  if (path === "/api/me/bookmarks" && method === "DELETE") return removeSavedBoard(request, env, url);
+  if (path === "/api/me/bookmarks") throw new HttpError(405, "That method is not supported.");
   return null;
 }
 
@@ -208,49 +177,33 @@ async function removeSavedBoard(request, env, url) {
   const session = await requireUser(request, env);
   await assertNotBanned(env, session.user.id);
   await rateLimit(request, env, "write", String(session.user.id));
-
   const board = boardParam(url, true);
   const filter = visibleSavedFilter(session.user, board);
-
   const result = await env.FORUM_DB.prepare(
     "DELETE FROM bookmarks WHERE user_id = ? AND post_id IN (" +
       "SELECT b.post_id FROM bookmarks b JOIN posts p ON p.id = b.post_id WHERE b.user_id = ?" +
       filter.sql + "LIMIT " + SAVED_BOARD_REMOVE_CAP + ")",
   ).bind(session.user.id, session.user.id, ...filter.values).run();
-
-  return json({
-    ok: true,
-    removed: Number(result.meta?.changes || 0),
-  });
+  return json({ ok: true, removed: Number(result.meta?.changes || 0) });
 }
 
 async function handleBookmarkToggleRoute(request, env, url, path, method) {
   const db = env.FORUM_DB;
   const match = path.match(/^\/api\/posts\/([0-9]+)\/bookmark$/);
   if (!match) return null;
-
   // The method gate runs before any session work so a stray PATCH is a 405
   // with zero database reads (mirrors the reaction DELETE route's gate).
   if (method !== "PUT" && method !== "DELETE") {
     throw new HttpError(405, "That method is not supported.");
   }
-
   const session = await requireUser(request, env);
   await assertNotBanned(env, session.user.id);
   await rateLimit(request, env, "write", String(session.user.id));
-
   const postId = Number(match[1]);
-  if (!Number.isSafeInteger(postId) || postId < 1) {
-    throw new HttpError(404, "Post not found.");
-  }
-
+  if (!Number.isSafeInteger(postId) || postId < 1) throw new HttpError(404, "Post not found.");
   const post = await postById(env, postId, session.user.id);
-  if (!(await canViewPost(env, post, session.user))) {
-    throw new HttpError(404, "Post not found.");
-  }
-
+  if (!(await canViewPost(env, post, session.user))) throw new HttpError(404, "Post not found.");
   const now = nowSeconds();
-
   if (method === "PUT") {
     // Idempotent by construction: an existing (member, post) row changes 0 rows
     // and still answers the wanted state.
@@ -258,30 +211,19 @@ async function handleBookmarkToggleRoute(request, env, url, path, method) {
       "INSERT INTO bookmarks (user_id, post_id, created_at) " +
         "SELECT ?, ?, ? WHERE NOT EXISTS (" +
         "SELECT 1 FROM bookmarks WHERE user_id = ? AND post_id = ? LIMIT 1)",
-    ).bind(
-      session.user.id,
-      postId,
-      now,
-      session.user.id,
-      postId,
-    ).run();
-
+    ).bind(session.user.id, postId, now, session.user.id, postId).run();
     return json({ ok: true, bookmarked: true });
   }
-
   await db.prepare(
     "DELETE FROM bookmarks WHERE user_id = ? AND post_id = ?",
   ).bind(session.user.id, postId).run();
-
   return json({ ok: true, bookmarked: false });
 }
 
 export async function handleBookmarkRoutes(request, env, url, path, method) {
   const listed = await handleBookmarkListRoute(request, env, url, path, method);
   if (listed) return listed;
-
   const toggled = await handleBookmarkToggleRoute(request, env, url, path, method);
   if (toggled) return toggled;
-
   return null;
 }

@@ -1,4 +1,3 @@
-
 // Copyright 2026 ItsWempo
 //
 // This file is part of Wempo's Forum.
@@ -31,53 +30,29 @@ import { ACTIVE_BAN_SQL } from "./core/visibility.mjs";
 // category (everyone reads and replies; only admins/owners may start
 // topics). The whitelist lives here because SQLite cannot gain a CHECK via
 // ALTER TABLE ADD COLUMN — the handler layer is the gate.
-export const BOARD_VALUES = Object.freeze([
-  "general",
-  "suggestions",
-  "game-dev",
-  "showcase",
-  "help",
-  "updates",
-  "polls",
-]);
-
+export const BOARD_VALUES = ["general", "suggestions", "game-dev", "showcase", "help", "updates", "polls"];
 export const SUGGESTIONS_BOARD = "suggestions";
 export const UPDATES_BOARD = "updates";
 export const POLLS_BOARD = "polls";
-
 // Staff-only boards (v5.15): everyone reads and replies, only the owner and
 // admins start topics. One list, checked by every topic-creating path
 // (posts-write.mjs and the MCP create_post tool), so a new staff-only board
 // can never be gated in one place and open in another.
-export const STAFF_ONLY_BOARDS = Object.freeze([
-  UPDATES_BOARD,
-  POLLS_BOARD,
-]);
-
-export const isStaffOnlyBoard = (board) =>
-  STAFF_ONLY_BOARDS.includes(board);
-
+export const STAFF_ONLY_BOARDS = Object.freeze([UPDATES_BOARD, POLLS_BOARD]);
+export const isStaffOnlyBoard = (board) => STAFF_ONLY_BOARDS.includes(board);
 export const GENERAL_BOARD_DEFAULT = "general";
 
 export function boardField(value) {
-  if (value === undefined || value === null || value === "") {
-    return GENERAL_BOARD_DEFAULT;
-  }
-
-  if (typeof value !== "string" || !BOARD_VALUES.includes(value)) {
-    throw new HttpError(400, "That board is not available.");
-  }
-
-  return value;
+  if (value === undefined || value === null || value === "") return GENERAL_BOARD_DEFAULT;
+  if (BOARD_VALUES.includes(value)) return value;
+  throw new HttpError(400, "That board is not available.");
 }
 
-// Net reaction score for the Suggestions feed: likes minus dislikes,
-// computed from the reactions rows themselves (reactions.value
-// CHECK-constrains to 'like'/'dislike'; one row per post+user, so the score
-// is the net of both directions — dislikes count against). A zero-score
-// thread is a real page row: COALESCE keeps every thread visible even with
-// no reactions at all.
-//
+// Net reaction score for the Suggestions feed: likes minus dislikes, computed
+// from the reactions rows themselves (reactions.value CHECK-constrains to
+// 'like'/'dislike'; one row per post+user, so the score is the net of both
+// directions — dislikes count against). A zero-score thread is a real page
+// row: COALESCE keeps every thread visible even with no reactions at all.
 // (v4.0 ledger — plan resolved this constant's home to boards.mjs at Task 2
 // implementation: it is the "p" table alias contract of the Suggestions
 // feed's ORDER BY, pure board semantics.)
@@ -85,6 +60,4 @@ export const SUGGESTION_SCORE_SQL =
   "(SELECT COALESCE(SUM(CASE r.value WHEN 'like' THEN 1 ELSE -1 END), 0) " +
   // Wave 40: banned reactors drop out, matching POST_SELECT's like/dislike
   // counts (the score cursor is encoded from those).
-  "FROM reactions r WHERE r.post_id = p.id AND NOT " +
-  ACTIVE_BAN_SQL("r.user_id") +
-  ")";
+  "FROM reactions r WHERE r.post_id = p.id AND NOT " + ACTIVE_BAN_SQL("r.user_id") + ")";

@@ -35,10 +35,6 @@ export function hex(bytes) {
 }
 
 export function fromHex(value) {
-  if (typeof value !== "string" || value.length % 2 !== 0 || !/^[0-9a-f]*$/i.test(value)) {
-    throw new TypeError("A valid even-length hexadecimal string is required.");
-  }
-
   const bytes = new Uint8Array(value.length / 2);
   for (let i = 0; i < bytes.length; i++) {
     bytes[i] = Number.parseInt(value.slice(i * 2, i * 2 + 2), 16);
@@ -53,10 +49,6 @@ function base64Url(bytes) {
 }
 
 export function randomToken(size = 32) {
-  if (!Number.isSafeInteger(size) || size < 1 || size > 65536) {
-    throw new RangeError("Token size must be an integer between 1 and 65536 bytes.");
-  }
-
   return base64Url(crypto.getRandomValues(new Uint8Array(size)));
 }
 

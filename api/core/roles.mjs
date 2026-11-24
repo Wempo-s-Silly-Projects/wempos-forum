@@ -30,16 +30,7 @@
 export const ROLE_OWNER_DB = "admin";
 export const ROLE_ADMIN_DB = "moderator";
 export const ROLE_MEMBER_DB = "member";
-const PUBLIC_ROLE_BY_STORED = Object.freeze({
-  member: "member",
-  moderator: "admin",
-  admin: "owner",
-});
-
+const PUBLIC_ROLE_BY_STORED = { member: "member", moderator: "admin", admin: "owner" };
 export function publicRole(value) {
-  if (typeof value !== "string") return value;
-
-  return Object.hasOwn(PUBLIC_ROLE_BY_STORED, value)
-    ? PUBLIC_ROLE_BY_STORED[value]
-    : value;
+  return PUBLIC_ROLE_BY_STORED[value] || value;
 }

@@ -111,7 +111,6 @@ function jsonObject(bytes) {
 const isNumericDate = (value) => typeof value === "number" && Number.isFinite(value);
 
 async function claimsAccepted(claims, clientIp, nowSec) {
-  if (typeof clientIp !== "string" || clientIp === "") return false;
   if (!isNumericDate(claims.exp) || !(nowSec < claims.exp)) return false;
   if (claims.nbf !== undefined && (!isNumericDate(claims.nbf) || nowSec < claims.nbf)) return false;
   if (typeof claims.policyRule !== "string" || !claims.policyRule) return false;
