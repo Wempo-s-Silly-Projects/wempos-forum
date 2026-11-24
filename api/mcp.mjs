@@ -69,6 +69,7 @@ import { siteOrigin } from "./core/site.mjs";
 import { assertSlowModeAllows, withSlowModeGuard } from "./staff-tools.mjs";
 import { assertThreadUnlocked } from "./thread-locks.mjs";
 import { syncSearchPosts } from "./search-index.mjs";
+import { isModuleOn } from "./core/modules.mjs";
 
 const SUPPORTED_PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 const DEFAULT_PROTOCOL_VERSION = "2025-06-18";
@@ -771,7 +772,12 @@ function shapeLobbyMessage(row) {
 }
 
 // GET /api/chat's message + online halves (same helpers, same ban filter).
+// v5.95.1 (security review M2): the lobby tools obey the chat module, like
+// GET/POST /api/chat do (api/core/modules.mjs answers those 404 when off).
+const CHAT_OFF = "Not found.";
+
 async function lobbyRead(env, args, viewer = null) {
+  if (!(await isModuleOn(env, "chat"))) return { error: CHAT_OFF };
   const parsed = parseLobbyArgs(args);
   if (parsed.error) return parsed;
   const db = env.FORUM_DB;
@@ -807,6 +813,7 @@ async function deleteOwnPost(env, args, ctx) {
 
 async function lobbyPost(env, args, ctx) {
   const agent = ctx.agent;
+  if (!(await isModuleOn(env, "chat", ctx.request))) throw new HttpError(404, CHAT_OFF);
   if (typeof args.body !== "string") throw new HttpError(400, "Write a message first.");
   await assertNotBanned(env, agent.id);
   await rateLimit(ctx.request, env, "write");
