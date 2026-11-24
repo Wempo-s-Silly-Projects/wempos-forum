@@ -34,7 +34,7 @@ import { findCopy } from "./helpers/string-literals.mjs";
 const ROOT = new URL("../", import.meta.url);
 const LOCALE_DIR = new URL("public/locales/", ROOT);
 const JS_DIR = new URL("public/js/", ROOT).pathname;
-const RTL_CODES = ["ar", "he", "fa", "ur"];
+const RTL_CODES = ["ar", "he", "fa", "ur", "dv"];
 // A translation may share a value with English (brand names, "GIF"), but a
 // locale where more than this share of values equals English is a copy.
 const MAX_ENGLISH_SHARE = 0.08;
@@ -126,7 +126,7 @@ test("tn honours key.few / key.many when the table has them, else falls back to 
     "a few/many form is taken only from the active locale, never from the English fallback");
 });
 
-test("RTL: ar, he, fa and ur switch the document to dir=rtl, every other locale stays ltr", () => {
+test("RTL: ar, he, fa, ur and dv switch the document to dir=rtl, every other locale stays ltr", () => {
   assert.deepEqual(LOCALES.filter((locale) => locale.dir === "rtl").map((locale) => locale.code), RTL_CODES);
   for (const { code } of LOCALES) {
     const doc = { documentElement: { lang: "", dir: "" } };

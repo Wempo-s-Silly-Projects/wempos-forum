@@ -53,8 +53,8 @@ const en = readLocale(DEFAULT_LOCALE);
 const enKeys = Object.keys(en);
 const sample = { "x.n.one": "one {count}", "x.n.other": "other {count}" };
 
-test("the picker lists 66 languages, each new one by its endonym, left to right", () => {
-  assert.equal(LOCALES.length, 66);
+test("the picker lists 74 languages, each new one by its endonym, left to right", () => {
+  assert.equal(LOCALES.length, 74);
   for (const { code, name } of NEW_LOCALES) {
     const entry = LOCALES.find((locale) => locale.code === code);
     assert.ok(entry, `${code} missing from LOCALES`);
