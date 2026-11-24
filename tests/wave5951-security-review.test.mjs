@@ -194,7 +194,7 @@ test("wemposclaude: the prompt holds masked, quoted member text and no angle bra
   assert.equal(system.role, "system");
   assert.doesNotMatch(user.content, /the secret/);
   assert.equal((user.content.match(/<\/member_message>/g) ?? []).length, 1, "member text cannot close the quote");
-  assert.doesNotMatch(user.content, /<b>|<script>/);
+  assert.doesNotMatch(user.content, /<b>|<script>/i);
   assert.doesNotMatch(system.content + user.content, /ANUBIS|PEPPER|TOKEN|SECRET/);
 });
 
