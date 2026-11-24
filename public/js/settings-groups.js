@@ -39,7 +39,7 @@ export const SETTINGS_GROUPS = Object.freeze([
   Object.freeze({
     key: "notifications",
     titleKey: "settingsGroups.notifications",
-    panelTitleKeys: Object.freeze(["quietHours.title", "notifPrefs.title"]),
+    panelTitleKeys: Object.freeze(["quietHours.title", "notifPrefs.title", "newcomer.onboardSettingTitle"]),
   }),
   Object.freeze({
     key: "people",
