@@ -31,10 +31,10 @@ SITE_ORIGIN = ""
 # Your Wempo Accounts origin, e.g. "https://accounts.example.org". Every Sign
 # in / Sign out link targets it; sign-in does not work until it is set.
 ACCOUNTS_ORIGIN = ""
-# Optional human check (self-hosted ALTCHA proof of work, no third party).
-# It runs only when the ALTCHA_HMAC_KEY secret is set
-# (`pnpm exec wrangler secret put ALTCHA_HMAC_KEY`, 32+ random bytes);
-# leave it unset to run without it (rate limits always apply). No vars needed.
+# Optional human verification (self-hosted ALTCHA proof of work).
+# Disabled by default. It runs only when the ALTCHA_HMAC_KEY secret is set
+# (`pnpm exec wrangler secret put ALTCHA_HMAC_KEY`, 32+ random bytes).
+# No third-party verification service is required.
 # The slug this forum sends to Wempo Accounts when it redeems a sign-in ticket.
 # Must match the site name your Accounts copy expects for this forum.
 RELAY_WORKER_NAME = "wempos-forum"
@@ -77,8 +77,9 @@ not_found_handling = "single-page-application"
 run_worker_first = true
 
 # Create it first:  pnpm exec wrangler d1 create <database-name>
-# then paste the printed database_id here. Wempo Accounts uses this SAME
-# database (one shared D1 for the pair).
+# then paste the printed database_id here. Wempo Accounts must be configured
+# to use this same D1 database. Both Workers must have access to the database
+# and use compatible migrations.
 [[d1_databases]]
 binding = "FORUM_DB"
 database_name = "wempo-forum-data"  # CHANGE ME (then run migrations with D1_DATABASE=<name>)
@@ -98,15 +99,16 @@ migrations_dir = "migrations"
 
 # OPTIONAL: Workers AI for the wemposclaude module (docs/modules.md), the
 # helper bot that answers when a member tags it. The module ships off and
-# stays off without this binding; once it is here, turn the module on in the
-# desk. It runs on the free daily allocation only (10,000 Neurons/day,
-# https://developers.cloudflare.com/workers-ai/platform/pricing/, read
-# 2026-11-23); the caps in constants.mjs keep it well under that.
+# stays off without this binding; once it is configured, turn the module on
+# in the desk. Workers AI usage is subject to Cloudflare's current pricing,
+# account limits and availability:
+# https://developers.cloudflare.com/workers-ai/platform/pricing/
 [ai]
 binding = "AI"
 
-# Rate limits (always on). namespace_id is any number unique within your
-# Cloudflare account.
+# Rate limits (always on). Each namespace_id must be unique within your
+# Cloudflare account. Keep these IDs stable after deployment: changing them
+# creates new rate-limit namespaces and resets their accumulated counters.
 [[ratelimits]]
 name = "READ_RATE_LIMITER"
 namespace_id = "614202610141001"
@@ -185,22 +187,24 @@ limit = 30
 period = 60
 
 [[ratelimits]]
-name = "TOTP_RATE_LIMITER"
-namespace_id = "614202610141013"
-[ratelimits.simple]
-limit = 10
-period = 60
-[[ratelimits]]
 name = "IMAGE_UPLOAD_RATE_LIMITER"
 namespace_id = "614202610141012"
 [ratelimits.simple]
 limit = 5
 period = 60
 
+[[ratelimits]]
+name = "TOTP_RATE_LIMITER"
+namespace_id = "614202610141013"
+[ratelimits.simple]
+limit = 10
+period = 60
+
 # Wempo Accounts sign-in handshake: POST /api/auth/sso/redeem trades the
 # Accounts one-time ?wt= code for a forum session over this service binding.
-# Deploy Wempo Accounts first (same Cloudflare account, same D1), then set
-# `service` to its worker name.
+# Deploy Wempo Accounts first in the same Cloudflare account, configure both
+# Workers to use the same D1 database, then set `service` to the exact
+# deployed Accounts Worker name.
 [[services]]
 binding = "ACCOUNTS_WORKER"
 service = "accounts"  # CHANGE ME to your Wempo Accounts worker name
