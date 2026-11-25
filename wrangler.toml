@@ -13,10 +13,12 @@ routes = [
   { pattern = "wempos-forum.com", custom_domain = true },
 ]
 
-# Smart Placement (perf): a page or API read makes several D1 round trips, so
-# Cloudflare may run the worker near the database instead of the visitor when
-# that is measurably faster. It only moves when it helps; the env.preview
-# block inherits it. Docs: developers.cloudflare.com/workers/configuration/placement/
+# Smart Placement: Cloudflare can move Worker execution closer to backend
+# services when doing so improves measured request performance. This is an
+# optimisation, not a guarantee of database-local execution. Consider the
+# latency impact on static asset requests because run_worker_first routes
+# requests through the Worker.
+# Docs: developers.cloudflare.com/workers/configuration/placement/
 [placement]
 mode = "smart"
 
@@ -25,26 +27,31 @@ mode = "smart"
 # this deployment exactly as before (canonical origin + workers.dev 301,
 # Accounts sign-in). See wrangler.example.toml for a fresh copy.
 SITE_ORIGIN = "https://wempos-forum.com"
-# Human check (v5.82.0): the code default is "anubis", but the Anubis server
-# is not connected yet, so production pins the self-hosted ALTCHA check (keyed
-# by ALTCHA_HMAC_KEY, or derived from the legacy TURNSTILE_SECRET). Switch to
-# "anubis" only with ANUBIS_URL + ANUBIS_PUBLIC_KEY_HEX here and the
-# ANUBIS_ACCESS_CLIENT_ID/_SECRET secrets set (tests/anubis-gate pins this).
+
+# Human check (v5.82.0): production uses the self-hosted Anubis verification
+# service. Its origin and public key are configured below; the
+# ANUBIS_ACCESS_CLIENT_ID and ANUBIS_ACCESS_CLIENT_SECRET values are secrets.
+# Keep HUMAN_CHECK aligned with the verification service actually enabled.
 HUMAN_CHECK = "anubis"
 ANUBIS_URL = "https://anubis-origin.wempos-forum.com"
 ANUBIS_PUBLIC_KEY_HEX = "6fdd436780f8e859a350e8a049bf4ca9bb090ee1f2c8a436fb3df644dd93bc8c"
+
 ACCOUNTS_ORIGIN = "https://accounts.wempos-forum.com"
 RELAY_WORKER_NAME = "wempos-forum"
+
 # Private analytics (v5.30.0): aggregate page-type/day/referring-site counts
 # only (no IP, no member id, no user agent, no cookie). "true" = on.
 ANALYTICS_ENABLED = "true"
+
 # AutoMod (v5.18.0 API): "true" opens /api/automod/* to the runner that
 # holds the AUTOMOD_KEY secret. Owner switched it on 2026-11-21.
 AUTOMOD_ENABLED = "true"
+
 # Saturday Fools (v5.86): one cosmetic gag on the visitor's local Saturday
 # (docs/saturday-fools.md). "on" | "off"; the code default is "off". The owner
 # can also force it off site-wide from the desk (Branding section).
 SATURDAY_FOOLS = "on"
+
 VERSION = "5.97.0"
 
 [assets]
@@ -84,12 +91,11 @@ binding = "AI"
 
 # R2 media store (MIGRATION PATH — enable when the account has R2; see
 # docs/r2-migration.md before uncommenting). Bucket names are global per
-# account; create it first:  wrangler r2 bucket create wempo-forum-media
+# account; create it first: wrangler r2 bucket create wempo-forum-media
 #
 # [[r2_buckets]]
 # binding = "MEDIA"
 # bucket_name = "wempo-forum-media"
-
 
 [[ratelimits]]
 name = "READ_RATE_LIMITER"
@@ -174,6 +180,7 @@ namespace_id = "614202610141013"
 [ratelimits.simple]
 limit = 10
 period = 60
+
 [[ratelimits]]
 name = "IMAGE_UPLOAD_RATE_LIMITER"
 namespace_id = "614202610141012"
@@ -182,12 +189,16 @@ limit = 5
 period = 60
 
 # Wempo Accounts sign-in handshake: POST /api/auth/sso/redeem trades the Accounts
-# one-time ?wt= code for a forum session over this binding. 
+# one-time ?wt= code for a forum session over this binding.
 [[services]]
 binding = "ACCOUNTS_WORKER"
 service = "accounts"
 
-# Named preview environment: never inherit the production D1 or rate-limit bindings.
+# Named preview environment: uses its own D1 database and rate-limit
+# namespaces. It deliberately does not declare production's SEARCH_DB,
+# Workers AI, Accounts service binding, or production feature flags.
+# Add preview-specific bindings only when the feature is deliberately
+# enabled and its dependencies are appropriately isolated.
 [env.preview.vars]
 ACCOUNTS_ORIGIN = "https://accounts.wempos-forum.com"
 VERSION = "4.4.0-preview"
