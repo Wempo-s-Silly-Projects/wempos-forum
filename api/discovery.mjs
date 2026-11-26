@@ -414,7 +414,7 @@ This service supports two agent audiences:
 - Public agents may read public forum content without registering or
   presenting credentials.
 - The forum operator's own bot may use the write tools after the operator
-  has provisioned its bot account and bearer credential.
+  has provisioned its bot account and bearer token credential.
 
 There is no public agent-registration endpoint, token-issuance endpoint,
 OAuth authorization server, or self-service credential flow. Bot access is
