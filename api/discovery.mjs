@@ -29,6 +29,7 @@
 //   GET /openapi.json                      OpenAPI 3.1 for the public reads
 //   GET /auth.md                           how auth actually works (no OAuth)
 //   GET /.well-known/mcp/server-card.json  the /mcp endpoint's card
+//   GET /.well-known/agent-skills/index.json + published SKILL.md artifact
 //   Accept: text/markdown on /, /c/<slug>, /posts/<id>  markdown renderings
 //
 // Visibility law: a post is public only when visibility = 'public' AND its
