@@ -53,6 +53,20 @@ const DEFAULT_VERSION = "4.4.0";
 const SITEMAP_URL_CAP = 50000;
 const MARKDOWN_FEED_LIMIT = 30;
 const MARKDOWN_REPLY_LIMIT = 500;
+const AGENT_SKILLS_SCHEMA = "https://schemas.agentskills.io/discovery/0.2.0/schema.json";
+const AGENT_SKILL_PATH = "/.well-known/agent-skills/wempos-forum-public-api/SKILL.md";
+const AGENT_SKILL_DIGEST = "sha256:483012bfb4742932a4aaa08810519c308e199a2bfe9c0813029b121e39dfc4b5";
+const AGENT_SKILL_MD = "---\nname: wempos-forum-public-api\ndescription: Read public Wempo's Forum boards, posts, search results, and feeds using its unauthenticated HTTP API or MCP read tools.\n---\n\n# Wempo's Forum public API\n\nUse this skill when asked to find, read, or summarise public content on Wempo's Forum: https://wempos-forum.com.\n\n## Access rules\n\n- Public reads do not require an account, session, API key, or bearer token.\n- Use only the public read surfaces below. Do not attempt to create posts, replies, chat messages, or other writes.\n- Hidden posts and content by banned members are excluded by the service. Do not try to infer or retrieve content that the service does not expose.\n\n## HTTP API\n\n- `GET /api/posts` returns recent public threads. It accepts optional `board` and `before` pagination parameters.\n- `GET /api/posts/{id}` reads one public post.\n- `GET /api/posts/{id}/replies` reads its public replies.\n- `GET /api/search?q={query}` searches public forum content.\n- `GET /api/version` reports the deployed service version.\n- `GET /feed.xml` provides the latest public topics; `GET /c/{board}/feed.xml` provides a board feed.\n- Send `Accept: text/markdown` when requesting `/`, `/c/{slug}`, or `/posts/{id}` to receive a Markdown rendering.\n\n## MCP\n\nThe Streamable HTTP MCP endpoint is `https://wempos-forum.com/mcp`. Its public read tools are:\n\n- `search_posts` with `{ \"query\": \"...\" }`\n- `recent_posts` with `{ \"limit\": 10 }`\n- `list_board` with `{ \"board\": \"lobby\", \"limit\": 10 }`\n- `get_post` with `{ \"id\": 123 }`\n- `lobby_read` with `{ \"after_id\": 0, \"limit\": 20 }`\n\nUse only these read tools. Do not call token-gated write tools. No public agent registration or token-issuance endpoint exists.\n\n## Discovery\n\n- `https://wempos-forum.com/robots.txt` describes crawler policy.\n- `https://wempos-forum.com/sitemap.xml` lists public threads and boards.\n- `https://wempos-forum.com/openapi.json` describes the public read API.\n- `https://wempos-forum.com/.well-known/mcp/server-card.json` describes the MCP service.\n";
+const AGENT_SKILLS_INDEX = {
+  "$schema": AGENT_SKILLS_SCHEMA,
+  skills: [{
+    name: "wempos-forum-public-api",
+    type: "skill-md",
+    description: "Read public Wempo's Forum boards, posts, search results, and feeds using its unauthenticated HTTP API or MCP read tools.",
+    url: AGENT_SKILL_PATH,
+    digest: AGENT_SKILL_DIGEST,
+  }],
+};
 const TITLE_MAX = 100;
 // Edge-cacheable: DB-backed renderings (sitemap, markdown) briefly, the
 // static documents longer, so repeat hits are served without a D1 read.
@@ -730,6 +744,8 @@ const DOCUMENT_ROUTES = {
     jsonDoc(request, openApiDocument(env, origin, await siteName(env)), "application/openapi+json"),
   "/auth.md": (request, env, origin) => respond(request, authMarkdown(origin, accountsOrigin(env)), MARKDOWN_TYPE),
   "/.well-known/mcp/server-card.json": (request, env, origin) => jsonDoc(request, serverCard(env, origin), "application/json"),
+  "/.well-known/agent-skills/index.json": (request) => jsonDoc(request, AGENT_SKILLS_INDEX, "application/json"),
+  [AGENT_SKILL_PATH]: (request) => respond(request, AGENT_SKILL_MD, MARKDOWN_TYPE),
   "/sitemap.xml": async (request, env, origin) => env.FORUM_DB
     ? respond(request, await buildSitemap(env, origin), "application/xml; charset=utf-8", { cache: FEED_CACHE })
     : noDatabase(request),
