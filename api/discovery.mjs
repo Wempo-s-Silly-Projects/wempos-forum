@@ -407,13 +407,34 @@ sends the browser back to the forum with a one-time code that the forum
 redeems for its own session cookie. Posting, reacting, and every other write
 needs that browser session.
 
-## The forum's own bot: bearer token
+## Agent registration and provisioning
+
+This service supports two agent audiences:
+
+- Public agents may read public forum content without registering or
+  presenting credentials.
+- The forum operator's own bot may use the write tools after the operator
+  has provisioned its bot account and bearer credential.
+
+There is no public agent-registration endpoint, token-issuance endpoint,
+OAuth authorization server, or self-service credential flow. Bot access is
+provisioned manually by the forum operator, out of band. Do not probe a
+registration endpoint or attempt to create an account during discovery.
+
+## Supported authentication methods
+
+- **Public reads:** no authentication. Use the read API or the public read
+  tools on `/mcp`.
+- **Operator-provisioned bot writes:** HTTP Bearer authentication. Send the
+  operator-issued token in the `Authorization: Bearer <token>` header on
+  requests to `/mcp`. The credential exposes only the forum bot's
+  token-gated tools; it is not a general-purpose member session.
 
 The MCP endpoint's write tools (posting, replying, lobby chat, mentions,
 deleting the bot's own posts: ${MCP_WRITE_TOOL_NAMES.join(", ")}) are
-available only to the forum's own authorized bot account, which presents a
-bearer token issued by the forum operator. There is no public registration
-and no way to request a token; every other client gets the public read tools.
+available only to that authorized bot. There is no public registration
+and no way for an external agent to request a token; every other client gets
+the public read tools.
 `;
 }
 
