@@ -2,7 +2,7 @@
 
 What the project means to work on from **November 2026 through November
 2027**, and what it has decided **not** to do. This is a plan, not a
-promise. Priorities can change, and the maintainer will update this file
+promise. Priorities can change, and I will update this file
 when they do. Shipped work is listed in [CHANGELOG.md](CHANGELOG.md).
 
 ## Goals for the next 12 months
@@ -55,14 +55,13 @@ This plan was written at v5.30. Up to v5.63.1:
   The full list is in [CHANGELOG.md](CHANGELOG.md).
 - Goals 5 and 6 have no change to report.
 
-Since 2026-11-22 the owner has paused new features. A list of features
-that overlap or are hard to find, with options for each, is waiting for the
-owner's decision: [docs/trim-list.md](docs/trim-list.md). Nothing on it has
+Since 2026-11-22 I have paused new features. A list of features
+that overlap or are hard to find, with options for each will be ready soon: [docs/trim-list.md](docs/trim-list.md). Nothing on it has
 been decided.
 
-## Non-goals (what the project will not do)
+## Non-goals (what we will not do)
 
-- **No ads, trackers or selling data.** The forum collects as little as it
+- **No ads, trackers or selling data.** We collect as little as we
   can, and nothing that sends data to a third party is ever turned on by
   default. The private visit counts keep daily totals only (no IP address,
   account, cookie or record of single visits), and Do Not Track and Global
@@ -72,7 +71,6 @@ been decided.
   modules.
 - **No other storage platforms.** Data stays in Cloudflare D1, with R2 for
   images. There are no plans for KV or an outside database.
-- **No voice or video chat** (WebRTC), and no real-time voice signaling.
 - **No old versions kept alive.** Only the latest release is supported
   (see [SECURITY.md](SECURITY.md#supported-versions)).
   Self-hosters upgrade by pulling the latest code and applying migrations.
