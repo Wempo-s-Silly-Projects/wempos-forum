@@ -61,7 +61,7 @@ been decided.
 
 ## Non-goals (what we will not do)
 
-- **No ads, trackers or selling data.** We collect as little as we
+- **No ads, trackers or selling data.** I collect as little as I
   can, and nothing that sends data to a third party is ever turned on by
   default. The private visit counts keep daily totals only (no IP address,
   account, cookie or record of single visits), and Do Not Track and Global
