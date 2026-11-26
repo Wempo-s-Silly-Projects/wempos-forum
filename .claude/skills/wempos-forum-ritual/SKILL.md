@@ -12,7 +12,7 @@ Who: the fleet LEAD only, under standing push/deploy/remote-D1 authority (owner,
 
 ## Ledger state (2026-11-21, v5.0.0)
 - Repo `migrations/` = 0001…0044 + `0059_forum_perf_indexes.sql`; 0044 (`dm_groups_images`) and 0059 are applied remote.
-- The remote `d1_migrations` ledger also holds GooberCord-era names up to 0058 that have no file here. wrangler matches by full filename, so a new file must never reuse a ledger name; take the next number after the top (0060+).
+- The remote `d1_migrations` ledger also holds GooberCord-era names up to 0058 that have no file here. wrangler matches by full filename, so a new file must never reuse a ledger name; the next number is one above the highest of the files in `migrations/` and the ledger names (check both before every new migration).
 - `gc_channels` is still a real table in the shared D1: it stays the row-survival baseline.
 
 ## Steps (in order, no skips)

@@ -8,7 +8,7 @@ metadata:
 
 # Handling owner web edits
 
-The owner often commits straight to `main` on GitHub ("Update X.mjs", "Delete tests directory", "yo"). Every push also fires a bare Workers Builds deploy (`commit:""`), so a broken web edit can reach prod without anyone running it.
+The owner often commits straight to `main` on GitHub ("Update X.mjs", "Delete tests directory", "yo"). Since Nov 23 a push to `main` deploys nothing; Workers Builds watches `release` only (AGENTS.md branch model), so a web edit reaches prod only when `release` is fast-forwarded to it; until then it silently breaks `main` for everyone who pulls.
 
 ## Before you push or deploy
 1. `git fetch origin && git log --oneline HEAD..origin/main`: read every new commit and `git diff --stat` it.

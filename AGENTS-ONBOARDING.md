@@ -63,7 +63,7 @@ For the bigger picture read [docs/architecture.md](docs/architecture.md).
   the client translates have a code in `api/core/error-codes.mjs`.
 - **License header** on every new `.js`/`.mjs`/`.css` file (see AGENTS.md).
 - **Commits**: `type: description` (feat, fix, refactor, docs, test, chore,
-  perf, ci), ending with the Claude Code co-author line.
+  perf, ci), with no attribution trailer.
 
 ## Testing
 

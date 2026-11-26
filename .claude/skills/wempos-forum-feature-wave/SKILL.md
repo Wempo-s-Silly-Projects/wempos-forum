@@ -22,5 +22,5 @@ The standing chain for feature work. Worked examples: `docs/drafts/feature-slate
    - Caps/limits from root `constants.mjs` (never re-declared); new storage keys account-scoped + wiped.
    - Migrations CREATE-only with a fresh number not in the remote ledger (see wempos-forum-ritual).
 7. **Suite** — `pnpm test` green bound to the SHA in an isolated detached worktree (`git worktree add --detach <scratch>/verify <sha>`); never gate a git chain behind `| grep`.
-8. **Commit** — conventional subject naming the behavior; bump `package.json` + `wrangler.toml` VERSION; ends `Co-Authored-By: Claude Code <noreply@anthropic.com>`.
+8. **Commit** — conventional subject naming the behavior; bump `package.json` + `wrangler.toml` VERSION; no attribution trailer.
 9. **Ship** — ship-review verdict, then `pnpm run deploy` ONLY (never bare `pnpx wrangler deploy`) and the deploy probes in wempos-forum-wave-lead.

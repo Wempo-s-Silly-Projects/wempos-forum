@@ -595,7 +595,7 @@ test("strings: the module's label, description and page strings exist in every l
   const en = JSON.parse(read("public/locales/en.json"));
   const dir = new URL("public/locales/", ROOT);
   const files = readdirSync(dir).filter((name) => name.endsWith(".json"));
-  assert.equal(files.length, 66);
+  assert.equal(files.length, 74);
   for (const file of files) {
     const table = JSON.parse(readFileSync(new URL(file, dir), "utf8"));
     for (const key of keys) assert.ok(typeof table[key] === "string" && table[key].trim(), `${file} ${key}`);

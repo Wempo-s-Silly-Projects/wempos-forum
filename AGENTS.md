@@ -102,8 +102,8 @@ verbatim into any brief you hand to another agent.
 ### Claims and commits
 
 - Every parity claim carries a source URL + date.
-- End every commit message with:
-  `Co-Authored-By: Claude Code <noreply@anthropic.com>`
+- No attribution trailer on commits or PRs (owner-approved 2026-11-24; the
+  Claude Code harness now forbids attribution lines).
 
 ## Autonomous operation (Section A — owner order, 21:04 EST Nov 17)
 
@@ -118,13 +118,14 @@ Owner directives verbatim: "U TRIGGER EVERYTHING", "U MANAGE EVERYTHING", "NO LA
 - The agent team is a Team Lead plus teammate sessions, peer-to-peer messaging,
   and the shared `.team/taskboard.json` (git-ignored) that agents claim and
   update. The four Section Q laws ride every brief.
+- Machine limit (8 GB Mac): at most 2 heavy agents and one test suite at a
+  time; swap thrash freezes the machine.
 - **Hard pins that outlive Section A** (owner safety law — keep):
   - secrets never printed or committed (owner-held keys, stdin only);
   - prod-D1 writes only under the full NAME-PRESENCE ritual, or never;
   - proprietary-browser ban (free-software browsers only);
   - vendored worker files never touched;
-  - AGPLv3;
-  - the owner's budget ceiling ($1000 fleet/API spend).
+  - AGPLv3.
 - "NO LAWS" means zero ceremony between steps. It is NOT a license past the
   hard pins. Work autonomously, report faithfully, never fake green.
 
