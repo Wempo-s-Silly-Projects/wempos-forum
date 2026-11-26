@@ -49,7 +49,7 @@ test("the REUSE workflow is read-only, SHA-pinned and runs on main pushes and PR
   const yml = read(".github/workflows/reuse.yml");
   assert.match(yml, /permissions:\s*\n\s+contents: read/);
   assert.match(yml, /uses: fsfe\/reuse-action@[0-9a-f]{40} # v\d/);
-  assert.match(yml, /uses: actions\/checkout@[0-9a-f]{40} # v\d/);
+  assert.match(yml, /uses: (?:actions|useblacksmith)\/checkout@[0-9a-f]{40} # v\d/);
   assert.match(yml, /push:\s*\n\s+branches: \[main\]/);
   assert.match(yml, /pull_request:/);
 });

@@ -16,9 +16,9 @@ env:
 
 jobs:
   gitleaks:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2604
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: useblacksmith/checkout@75c49b6ed30ce59336e9252425796cfcfac155f8 # v1.8.3
         with:
           fetch-depth: 0 # full history: every commit is scanned
       - name: Install gitleaks (pinned release, checksum-verified)
