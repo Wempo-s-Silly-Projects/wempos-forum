@@ -163,7 +163,7 @@ test("auth.md and the server card describe public reads + bot-only bearer writes
   assert.match(auth, /no public agent-registration endpoint/i);
   assert.match(auth, /provisioned manually by the forum operator/i);
   assert.match(auth, /Authorization: Bearer <token>/);
-  assert.match(auth, /public reads:\\*\\* no authentication/i);
+  assert.match(auth, /public reads:\*\* no authentication/i);
   const card = await (await call(makeEnv(), "/.well-known/mcp/server-card.json")).json();
   assert.doesNotMatch(card.description, /read-only/i);
   assert.match(card.description, /bearer token/);
