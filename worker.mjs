@@ -255,6 +255,11 @@ const MAINTENANCE_API_EXEMPT = new Set([
   "/api/admin/maintenance",
   "/api/admin/client-errors",
   "/api/client-errors",
+  "/api/auth/login",
+  "/api/auth/totp",
+  "/api/auth/passkey/options",
+  "/api/auth/passkey",
+  "/api/auth/sso/redeem",
   "/api/vitals",
   "/api/version",
 ]);
