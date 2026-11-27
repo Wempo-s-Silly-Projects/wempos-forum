@@ -304,6 +304,29 @@ const MAINTENANCE_ASSETS = new Set(["/maintenance.css", "/maintenance.js"]);
 async function maintenanceResponse(request, env) {
   const url = new URL(request.url);
   const isAsset = MAINTENANCE_ASSETS.has(url.pathname);
+
+  // Keep machine clients machine-readable while the browser receives the
+  // static maintenance document. MCP uses a JSON-RPC error envelope; ordinary
+  // API routes use the forum's standard JSON error shape.
+  if (!isAsset && url.pathname.startsWith("/api/")) {
+    return json(
+      { error: "The forum is temporarily unavailable for maintenance.", code: "maintenance_mode" },
+      503,
+      { "Retry-After": "300" },
+    );
+  }
+  if (!isAsset && url.pathname === "/mcp") {
+    return json(
+      {
+        jsonrpc: "2.0",
+        error: { code: -32000, message: "The forum is temporarily unavailable for maintenance." },
+        id: null,
+      },
+      503,
+      { "Retry-After": "300" },
+    );
+  }
+
   const path = isAsset ? url.pathname : "/maintenance.html";
   let asset;
   try {
