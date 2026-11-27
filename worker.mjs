@@ -255,18 +255,39 @@ const MAINTENANCE_API_EXEMPT = new Set([
   "/api/admin/maintenance",
   "/api/admin/client-errors",
   "/api/client-errors",
+  "/api/vitals",
+  "/api/version",
+]);
+
+const MAINTENANCE_AUTH_EXEMPT = new Set([
   "/api/auth/login",
   "/api/auth/totp",
   "/api/auth/passkey/options",
   "/api/auth/passkey",
   "/api/auth/sso/redeem",
-  "/api/vitals",
-  "/api/version",
+  "/api/relay/password-verify",
 ]);
 
 async function maintenanceApiResponse(request, env, path) {
   if (MAINTENANCE_API_EXEMPT.has(path) || !(await maintenanceEnabled(env))) return null;
   // Owner and admins retain access to the API while maintenance is active.
+  let session = null;
+  try { session = await readSession(request, env); } catch { /* fail closed for this request */ }
+  if (["owner", "admin"].includes(session?.user?.role)) return null;
+  if (MAINTENANCE_AUTH_EXEMPT.has(path) || (path === "/api/session" && !session?.user)) return null;
+  return json(
+    { error: "The forum is temporarily unavailable for maintenance.", code: "maintenance_mode" },
+    503,
+    { "Cache-Control": "no-store", "Retry-After": "60" },
+  );
+}
+
+
+
+async function maintenancePublicResponse(request, env, path) {
+  const isAgentSurface = path === "/mcp" || path === "/feed.xml" || path === "/llms.txt" ||
+    /^\/c\/[a-z0-9-]+\/feed\.xml$/.test(path);
+  if (!isAgentSurface || !(await maintenanceEnabled(env))) return null;
   let session = null;
   try { session = await readSession(request, env); } catch { /* fail closed for this request */ }
   if (["owner", "admin"].includes(session?.user?.role)) return null;
@@ -328,6 +349,10 @@ export default {
         return codedErrorReply(error, "Forum request failed:");
       }
     }
+    // Public agent read surfaces stop during maintenance; owner/admin sessions
+    // retain operational access, while normal visitors receive a clear 503.
+    const maintenanceSurface = await maintenancePublicResponse(request, env, url.pathname);
+    if (maintenanceSurface) return maintenanceSurface;
     // Agent surfaces (MCP + discovery documents + markdown negotiation) answer
     // BEFORE the assets fallback — the SPA's not_found_handling would serve
     // index.html for every one of these paths otherwise.
