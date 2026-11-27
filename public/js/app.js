@@ -577,7 +577,6 @@ async function boot() {
     // Anonymous Core Web Vitals for the desk's Site health page: skipped
     // under GPC / DNT, loaded only once the page is idle (public/js/vitals.js).
     startVitals();
-    installClientErrorReporting();
     // Wave 5.36: recent-search chips under the header search box (local only).
     const searchInput = document.querySelector("#search-query");
     if (searchInput) {
@@ -600,6 +599,8 @@ async function boot() {
   }
 }
 
+// Install before asynchronous startup so early boot failures are observable.
+installClientErrorReporting();
 boot();
 startFunExtras();
 
