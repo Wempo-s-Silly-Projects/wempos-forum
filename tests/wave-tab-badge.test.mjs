@@ -41,7 +41,12 @@ function htmlFiles(dir) {
 }
 
 test("every public page with a <head> links the SVG favicon and the PNG fallback", () => {
-  const pages = htmlFiles(PUBLIC).filter((file) => /<head[\s>]/i.test(readFileSync(file, "utf8")));
+  // maintenance.html is served only by the worker's maintenance gate, which
+  // answers every path but maintenance.css/.js with the 503 page itself, so
+  // icon links there could never load.
+  const pages = htmlFiles(PUBLIC)
+    .filter((file) => !file.endsWith("/maintenance.html"))
+    .filter((file) => /<head[\s>]/i.test(readFileSync(file, "utf8")));
   assert.ok(pages.length > 0, "at least one page has a <head>");
   for (const file of pages) {
     const html = readFileSync(file, "utf8");

@@ -185,6 +185,9 @@ const NOT_A_SPOILER_SURFACE = new Map([
   ["public/js/mention-picker.js:start", "composer caret arithmetic, not a preview"],
   ["public/js/profile-extras.js:THREAD_EXCERPT_MAX", "masked one line above (maskSpoilers before the cut)"],
   ["public/js/quotes.js:limit", "input arrives pre-masked (render.js quoteSnippet)"],
+  ["api/client-errors.mjs:2000", "client error report stack clamp (staff-only diagnostics, not a preview)"],
+  ["api/client-errors.mjs:1200", "client error fingerprint input (hashed, never rendered)"],
+  ["public/js/app.js:500", "client error report message clamp (staff-only diagnostics, not a preview)"],
 ]);
 
 const EXCERPT_LINE = /\b(?:body|snippet|preview|excerpt|reply_body|message|text|firstLine|flat)\b[^\n;]*\.slice\(0,\s*([A-Z_0-9]+)/i;

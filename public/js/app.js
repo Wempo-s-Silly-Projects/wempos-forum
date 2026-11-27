@@ -21,6 +21,7 @@
 import { api, setCsrfToken } from "./api.js";
 import { i18nReady, t } from "./i18n.js";
 import { reloadIfStaleBuild } from "./build-guard.js";
+import { prepareRouteModule } from "./route-preparation.js";
 import { addText } from "./forms.js";
 import { renderBannedScreen } from "./banned.js";
 import { boardLabel } from "./boards.js";
@@ -298,13 +299,13 @@ async function renderRoute(route) {
   // old module already in its module map with a newer route module and fail
   // named-export linking (for example, vendorIcon).
   const owner = ROUTE_OWNERS[route.name] ?? null;
-  const context = await prepareRouteContext(version);
-  if (!context) return;
-  // Keep lazy modules behind the build check above. The version probe runs
-  // alongside the session/setup reads, so this adds no extra round trip.
-  const routeModule = owner ? loadRouteModule(owner) : null;
-  routeModule?.catch(() => {});
-  const view = routeModule ? await routeModule : null;
+  const prepared = await prepareRouteModule({
+    version,
+    prepareContext: prepareRouteContext,
+    loadModule: () => owner ? loadRouteModule(owner) : null,
+  });
+  if (!prepared) return;
+  const { context, view } = prepared;
   if (version !== state.renderVersion) return;
   setRouteTitle(route);
   applyTabUnread(document, state.unreadNotifications, pageStorage());

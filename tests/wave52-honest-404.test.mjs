@@ -168,7 +168,10 @@ test("the client not-found view paints a large aria-hidden 404 above the h1", ()
 // client router and turned /offline.html into a 404, so the service worker
 // could never pre-cache it.
 test("every standalone public/*.html file (other than the shell) is served 200 as itself", async () => {
-  const pages = readdirSync(PUBLIC_DIR).filter((name) => name.endsWith(".html") && name !== "index.html");
+  // maintenance.html is not a standalone page: worker.mjs maintenanceResponse
+  // reads it straight from ASSETS and serves it as the 503 during maintenance.
+  const pages = readdirSync(PUBLIC_DIR)
+    .filter((name) => name.endsWith(".html") && name !== "index.html" && name !== "maintenance.html");
   assert.ok(pages.includes("offline.html"), "the offline page exists");
   for (const name of pages) {
     const response = await get("/" + name);

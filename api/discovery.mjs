@@ -439,7 +439,7 @@ registration endpoint or attempt to create an account during discovery.
 ## Supported authentication methods
 
 - **Public reads:** no authentication. Use the read API or the public read
-  tools on `/mcp`.
+  tools on \`/mcp\`.
 - **Operator-provisioned bot writes:** HTTP Bearer authentication. Send the
   operator-issued token in the \`Authorization: Bearer <token>\` header on
   requests to \`/mcp\`. The credential exposes only the forum bot's
