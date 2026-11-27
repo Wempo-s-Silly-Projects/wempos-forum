@@ -7,7 +7,7 @@ Use GitHub's Private Vulnerability Reporting or email me @ itswempo@wempos-forum
 To use private reporting, open
 <https://github.com/Wempo-s-Silly-Projects/wempos-forum/security/advisories/new>
 (or go to the repository's **Security** tab and press **Report a
-vulnerability**). Only the maintainers can see what you send.
+vulnerability**). Only I can see what you send.
 
 **Please don't open a public issue, pull request, or forum post for a security
 bug.** Report it privately first so it can be fixed before anyone else learns
@@ -31,37 +31,37 @@ If you're unsure whether something is a vulnerability, report it anyway.
 
 ### What happens next
 
-The maintainers will look at your report, may ask follow-up questions, and
-will let you know when a fix is released. This is a small hobby project, so
-there's no bug bounty, but the help is truly appreciated, and we're happy to
+I will look at your report, may ask follow-up questions, and
+will let you know when a fix is released. This is a small project, so
+there's no bug bounty, but the help is truly appreciated, and I’m happy to
 credit you in the advisory if you'd like.
 
 ## How we respond to a report
 
-The maintainer (see [GOVERNANCE.md](GOVERNANCE.md)) handles every report
+I (see [GOVERNANCE.md](GOVERNANCE.md)) handle every report
 like this:
 
-1. **Acknowledge.** We confirm we got your report, normally within 14 days,
+1. **Acknowledge.** I confirm I got your report, normally within 14 days,
    usually much sooner.
-2. **Triage.** We reproduce the problem and rate how severe it is (critical,
+2. **Triage.** I reproduce the problem and rate how severe it is (critical,
    high, medium, low) from its real impact on members' accounts and data.
    Severity considers confidentiality, integrity, availability, the number
    of affected users or systems, and how realistically the issue could be
-   exploited. If it isn't a vulnerability, we explain why.
-3. **Fix privately.** We prepare the fix in a private GitHub security
+   exploited. If it isn't a vulnerability, I explain why.
+3. **Fix privately.** I prepare the fix in a private GitHub security
    advisory or a private branch, with a test that fails without the fix.
    All the normal checks still run.
-4. **Release.** We ship the fix as a new signed release and deploy it to
+4. **Release.** I ship the fix as a new signed release and deploy it to
    <https://wempos-forum.com>. Critical problems are prioritised and fixed
-   as fast as reasonably possible (usually within days). Our target is to
+   as fast as reasonably possible (usually within days). My target is to
    fix medium- and high-severity vulnerabilities within 60 days. If that
-   target cannot be met, we will explain why, communicate any available
+   target cannot be met, I will explain why, communicate any available
    mitigations, and provide an updated timeline.
-5. **Disclose and credit.** We publish a GitHub security advisory (asking
+5. **Disclose and credit.** I publish a GitHub security advisory (asking
    for a CVE when it's warranted) and describe the fix in
-   [CHANGELOG.md](CHANGELOG.md). We credit the reporter by name or handle
+   [CHANGELOG.md](CHANGELOG.md). I credit the reporter by name or handle
    unless they ask to stay anonymous.
-6. **Learn.** We look for the same mistake elsewhere in the code, and update
+6. **Learn.** I look for the same mistake elsewhere in the code, and update
    the [assurance case](docs/assurance-case.md) if the design has to change.
 
 A CVE is an identifier for a publicly documented vulnerability. Requesting
@@ -80,17 +80,17 @@ sharing relevant information with people or service providers whose
 involvement is necessary to resolve the vulnerability, or where disclosure
 is required by law.
 
-We aim to avoid unnecessarily exposing reporters, affected members, or
+I aim to avoid unnecessarily exposing reporters, affected members, or
 sensitive technical details.
 
 ## Coordinated Disclosure
 
-Please coordinate public disclosure with the maintainer.
+Please coordinate public disclosure with me.
 
-We will work with the reporter towards a reasonable disclosure date after
+I will work with the reporter towards a reasonable disclosure date after
 a fix is available. Earlier disclosure may be agreed upon when appropriate.
 
-We ask reporters to avoid publicly disclosing vulnerability details before
+I ask reporters to avoid publicly disclosing vulnerability details before
 a fix or an agreed disclosure date, so affected members have a reasonable
 opportunity to receive protection.
 
@@ -98,7 +98,7 @@ opportunity to receive protection.
 
 Every release since v4.5.0 is a GPG-signed Git tag `vMAJOR.MINOR.PATCH`, with a matching
 [GitHub Release](https://github.com/Wempo-s-Silly-Projects/wempos-forum/releases).
-The signing key is the maintainer's Ed25519 key, with fingerprint
+The signing key is my Ed25519 key, with fingerprint
 `1A72 F3E3 5BD7 E5D0 14B7 B855 5A74 55E7 1384 675E`. The public key is
 published by GitHub at <https://github.com/ItsWempo.gpg>. To check a release:
 
@@ -109,11 +109,11 @@ git tag -v v5.30.0   # look for "Good signature" and the fingerprint above
 ```
 
 **Important:** A valid signature alone does not prove that a signing key
-belongs to the maintainer. Independently verify the fingerprint through a
+belongs to me. Independently verify the fingerprint through a
 trusted channel before trusting the key. Do not rely solely on the key
 downloaded from the same location you are using to verify it.
 
-Tags are signed on the maintainer's own machine. GitHub and the hosting
+Tags are signed on my own machine. GitHub and the hosting
 platform hold only the public key.
 
 ## Supported Versions

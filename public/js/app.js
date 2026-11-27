@@ -20,6 +20,7 @@
 
 import { api, setCsrfToken } from "./api.js";
 import { i18nReady, t } from "./i18n.js";
+import { reloadIfStaleBuild } from "./build-guard.js";
 import { addText } from "./forms.js";
 import { renderBannedScreen } from "./banned.js";
 import { boardLabel } from "./boards.js";
@@ -116,11 +117,16 @@ const routeProgress = createRouteProgress();
 import { enhanceFunView, noteUnreadCount, startFunExtras } from "./fun-gate.js";
 
 async function prepareRouteContext(version) {
-  const [sessionReply, setup] = await Promise.all([
+  const [sessionReply, setup, staleBuild] = await Promise.all([
     api("/api/session"),
     api("/api/setup/status"),
+    reloadIfStaleBuild({
+      api,
+      servedBuild: document.querySelector('meta[name="app-build"]')?.content || "",
+      reload: () => location.reload(),
+    }),
   ]);
-  if (version !== state.renderVersion) return null;
+  if (version !== state.renderVersion || staleBuild) return null;
   let session = sessionReply;
   // The invite claim below is a mutating POST, so the session's CSRF token
   // is stored first (v5.37 L1: set after it, the first load back from
@@ -233,14 +239,17 @@ async function renderRoute(route) {
   main.replaceChildren();
   setMessage();
 
-  // v5.84: the route's module downloads alongside the session probe. Its
-  // failure surfaces when it is awaited below (the router's error screen);
-  // the catch here only keeps a superseded route's failure quiet.
+  // A deploy can happen while this tab is open. Check its build stamp
+  // before importing a lazy route module: otherwise WebKit can combine an
+  // old module already in its module map with a newer route module and fail
+  // named-export linking (for example, vendorIcon).
   const owner = ROUTE_OWNERS[route.name] ?? null;
-  const routeModule = owner ? loadRouteModule(owner) : null;
-  routeModule?.catch(() => {});
   const context = await prepareRouteContext(version);
   if (!context) return;
+  // Keep lazy modules behind the build check above. The version probe runs
+  // alongside the session/setup reads, so this adds no extra round trip.
+  const routeModule = owner ? loadRouteModule(owner) : null;
+  routeModule?.catch(() => {});
   const view = routeModule ? await routeModule : null;
   if (version !== state.renderVersion) return;
   setRouteTitle(route);

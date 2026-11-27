@@ -20,6 +20,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { makeAssets, makeEnv } from "./helpers/d1.mjs";
 import { call, seedPost, seedUser } from "./helpers/seed.mjs";
 
@@ -73,6 +74,30 @@ test("/.well-known/mcp/server-card.json carries serverInfo and the transport end
   assert.equal(card.serverInfo.name, "wempos-forum");
   assert.equal(card.serverInfo.version, "9.9.9-test");
   assert.equal(card.transport.endpoint, "https://wempos-forum.com/mcp");
+});
+
+test("Agent Skills discovery index publishes a verifiable public API skill", async () => {
+  const env = makeEnv();
+  const response = await call(env, "/.well-known/agent-skills/index.json");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("Content-Type"), /^application\/json/);
+  const index = await response.json();
+  assert.equal(index.$schema, "https://schemas.agentskills.io/discovery/0.2.0/schema.json");
+  assert.equal(index.skills.length, 1);
+  const skill = index.skills[0];
+  assert.deepEqual(Object.keys(skill).sort(), ["description", "digest", "name", "type", "url"]);
+  assert.equal(skill.name, "wempos-forum-public-api");
+  assert.equal(skill.type, "skill-md");
+  assert.match(skill.digest, /^sha256:[a-f0-9]{64}$/);
+  assert.match(skill.description, /public Wempo's Forum/);
+
+  const artifact = await call(env, skill.url);
+  assert.equal(artifact.status, 200);
+  assert.match(artifact.headers.get("Content-Type"), /^text\/markdown/);
+  const body = await artifact.text();
+  assert.match(body, /^---\nname: wempos-forum-public-api\n/m);
+  const digest = createHash("sha256").update(body, "utf8").digest("hex");
+  assert.equal(skill.digest, "sha256:" + digest);
 });
 
 test("the homepage HTML carries the discovery Link header, Vary: Accept, and the build stamp", async () => {
@@ -160,6 +185,10 @@ test("auth.md and the server card describe public reads + bot-only bearer writes
   assert.doesNotMatch(auth, /no token-based write access/);
   assert.match(auth, /bearer token/);
   assert.match(auth, /no public registration/);
+  assert.match(auth, /no public agent-registration endpoint/i);
+  assert.match(auth, /provisioned manually by the forum operator/i);
+  assert.match(auth, /Authorization: Bearer <token>/);
+  assert.match(auth, /public reads:\*\* no authentication/i);
   const card = await (await call(makeEnv(), "/.well-known/mcp/server-card.json")).json();
   assert.doesNotMatch(card.description, /read-only/i);
   assert.match(card.description, /bearer token/);
