@@ -136,6 +136,10 @@ test("navigations go to the network, are never cached, and fall back to the offl
   assert.equal(await offline.text(), "cached /offline.html");
 });
 
+// A browser hands the worker a real Request, which networkFirstScript clones
+// with new Request(request, init); the plain-object get() cannot be cloned.
+const script = (path) => new Request(new URL(path, ORIGIN));
+
 test("JavaScript modules revalidate online to prevent mixed-build exports; other assets remain cache-first", async () => {
   let fetched = 0;
   const worker = loadWorker({
@@ -147,9 +151,9 @@ test("JavaScript modules revalidate online to prevent mixed-build exports; other
       return new Response("asset " + url, { headers: { "Content-Type": "text/javascript" } });
     },
   });
-  const first = await worker.fire("fetch", get("/js/app.js"));
+  const first = await worker.fire("fetch", script("/js/app.js"));
   assert.equal(await first.text(), `asset ${ORIGIN}/js/app.js`);
-  const second = await worker.fire("fetch", get("/js/app.js"));
+  const second = await worker.fire("fetch", script("/js/app.js"));
   assert.equal(await second.text(), `asset ${ORIGIN}/js/app.js`);
   assert.equal(fetched, 2, "JavaScript is revalidated with the network on every request");
   await worker.fire("fetch", get("/styles.css"));

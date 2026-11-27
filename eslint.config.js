@@ -46,6 +46,11 @@ export default [
     languageOptions: { sourceType: 'script', globals: { ...globals.serviceworker } },
   },
   {
+    // The maintenance page's classic script (public/maintenance.html).
+    files: ['public/maintenance.js'],
+    languageOptions: { sourceType: 'script', globals: { ...globals.browser } },
+  },
+  {
     files: ['worker.mjs', 'constants.mjs', 'api/**/*.{js,mjs}'],
     languageOptions: { globals: { ...globals.serviceworker, ...globals.es2021 } },
   },
