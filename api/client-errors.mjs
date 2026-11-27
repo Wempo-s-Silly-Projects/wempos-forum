@@ -113,10 +113,13 @@ async function receiveClientError(request, env) {
 // window is enforced even when the forum receives no new browser errors.
 export async function pruneClientErrors(env) {
   if (!env?.FORUM_DB) return;
-  await env.FORUM_DB.prepare(
-    "DELETE FROM client_errors_daily WHERE rowid IN " +
-    "(SELECT rowid FROM client_errors_daily WHERE day < ? LIMIT ?)",
-  ).bind(utcDay(RETENTION_DAYS - 1), RETENTION_DELETE_LIMIT).run();
+  while (true) {
+    const result = await env.FORUM_DB.prepare(
+      "DELETE FROM client_errors_daily WHERE rowid IN " +
+      "(SELECT rowid FROM client_errors_daily WHERE day < ? LIMIT ?)",
+    ).bind(utcDay(RETENTION_DAYS - 1), RETENTION_DELETE_LIMIT).run();
+    if (Number(result.meta?.changes) < RETENTION_DELETE_LIMIT) break;
+  }
 }
 
 async function readClientErrors(request, env) {
