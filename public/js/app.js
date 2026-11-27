@@ -224,9 +224,9 @@ function boundedClientErrorPayload(fields) {
   return JSON.stringify({ ...fields, stack: stack.slice(0, low).join("") });
 }
 
-function reportClientError(kind, error) {
+function reportClientError(kind, error, routeName = null) {
   if (navigator.globalPrivacyControl === true || navigator.doNotTrack === "1") return;
-  const route = state.activeRoute?.name;
+  const route = routeName ?? state.activeRoute?.name;
   const safeRoute = typeof route === "string" && route !== "not-found" ? route : "home";
   const message = typeof error === "string" ? error :
     typeof error?.message === "string" ? error.message : "Unknown client exception";
@@ -581,7 +581,7 @@ async function boot() {
       // a newer route's start simply carries the same bar on.
       routeProgress.start();
       renderRoute(route).finally(() => routeProgress.done()).catch((error) => {
-        reportClientError("route-render", error);
+        reportClientError("route-render", error, route.name);
         setMessage(error.message, true);
         main.replaceChildren();
         addHeading(main, t("app.errorHeading"), 1);
