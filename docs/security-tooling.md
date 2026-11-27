@@ -25,7 +25,20 @@ its own workflow file and is described in `CONTRIBUTING.md`.
 - **Checks:** quoting, word-splitting and portability bugs in every tracked
   `*.sh` file and every tracked executable with a shell shebang.
 - **Runs:** on every push to `main` and every pull request (`shellcheck.yml`).
-- **Locally:** `shellcheck apply-remote.sh scripts/*.sh`
+- **Locally:** use the same tracked-file selection as CI:
+  \`\`\`bash
+  mapfile -t scripts < <(
+    {
+      git ls-files -z -- '*.sh' | tr '\0' '\n'
+      git ls-files -s | awk '$1 == "100755" { print $4 }' | while IFS= read -r f; do
+        head -n 1 -- "$f" | grep -Eq '^#!.*/(env )?(ba|da|k)?sh( |$)' && printf '%s\n' "$f"
+      done
+    } | grep -Ev '^(api/vendor|public/js/vendor|node_modules)/' | sort -u
+  )
+  if [ "\${#scripts[@]}" -gt 0 ]; then shellcheck -- "\${scripts[@]}"; fi
+  \`\`\`
+  This includes tracked \`*.sh\` files and extensionless tracked executables
+  with POSIX-shell shebangs, while excluding vendored code.
 - A real false positive gets a narrow `# shellcheck disable=SCxxxx  # reason`
   on the line above it, never a file-wide disable.
 

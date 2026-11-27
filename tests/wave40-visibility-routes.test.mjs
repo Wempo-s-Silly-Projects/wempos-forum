@@ -19,7 +19,7 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 // Wave 2026-11-21-40 F1 — per-route fixes from the whole-repo visibility
-// audit (docs/drafts/feature-slate-2026-11-21-40.md). Each test is RED on
+// audit (docs/archive/drafts/feature-slate-2026-11-21-40.md). Each test is RED on
 // v4.44.0 and names the route it pins; removing the new clause fails it.
 import { test } from "node:test";
 import assert from "node:assert/strict";

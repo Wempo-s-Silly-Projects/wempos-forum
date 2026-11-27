@@ -18,7 +18,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// v5.73.1 security review of v5.71.0-v5.73.0 (docs/security-review-v5.71-v5.73.md).
+// v5.73.1 security review of v5.71.0-v5.73.0 (docs/security-reviews/security-review-v5.71-v5.73.md).
 // M1 (fixed): the HTML leg's script-src allowed every script on
 // https://cdnjs.cloudflare.com, a public CDN that hosts CSP-bypass gadgets
 // (old AngularJS and friends); it is now scoped to the polyfill path. The

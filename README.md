@@ -41,7 +41,7 @@ my little small forum you can self host :3 **<https://wempos-forum.com>**.
 - **Community traditions.** Question of the Day threads from me, a
   This week page, a staff pick in the Showcase, an all-time leaderboard, and
   invite links for friends.
-- **Your language.** The whole UI comes in 73 languages, including
+- **Your language.** The whole UI comes in 74 languages, including
   five right-to-left ones (Arabic, Hebrew, Persian, Urdu and Dhivehi).
 - **Your data, your call.** 2FA, blocking, reporting, and a "Download my
   data" button. Visits are counted as private daily totals only, and DNT and GPC are respected. See
@@ -54,11 +54,17 @@ everything.
 
 ```sh
 pnpm install
-pnpm run db:migrate:local
-pnpm run dev
+pnpm setup:local
+pnpm dev
 ```
 
-Local secrets go in a `.dev.vars` file. It's git-ignored, please keep it that way.
+`pnpm setup:local` writes a `.dev.vars` file with random local-only secrets
+(only if it doesn't exist yet) and migrates the local databases. Then open
+http://localhost:8787/setup and create the owner account; it asks for the
+`SETUP_SECRET` value from `.dev.vars`. That file is git-ignored, please keep
+it that way. If you enable optional full-text search on a local forum that already has posts,
+sign in as the owner, open `/search`, and choose **Build the search index** once.
+A newly created search database starts empty; this rebuild imports existing posts.
 
 ## Running the tests
 

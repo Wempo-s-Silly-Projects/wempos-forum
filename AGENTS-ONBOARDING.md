@@ -29,8 +29,8 @@ For the bigger picture read [docs/architecture.md](docs/architecture.md).
 | `public/styles.css`, `public/responsive.css` | All styling. |
 | `migrations/` | Numbered D1 migrations, applied in order. Never edit one that has shipped; add a new one, numbered one above the highest file here. |
 | `tests/` | `node --test` suite, one file per feature or wave. Helpers live in `tests/helpers/`. |
-| `docs/` | Human docs. `docs/drafts/` holds feature slates. `docs/sql/` holds one-off repair scripts (not migrations). |
-| `scripts/` | Small maintenance scripts (e.g. `import-graph.mjs`). |
+| `docs/` | Human docs. `docs/archive/drafts/` holds feature slates. `docs/sql/` holds one-off repair scripts (not migrations). |
+| `scripts/` | Small maintenance scripts: `setup-local.mjs` (`pnpm setup:local`), `i18n-key.mjs` (`pnpm i18n:add` / `i18n:remove`), `import-graph.mjs`. |
 | `wrangler.toml` | Bindings: D1, rate limiters, assets, the `preview` environment. |
 
 ## Code conventions
@@ -70,8 +70,10 @@ For the bigger picture read [docs/architecture.md](docs/architecture.md).
 ```sh
 export PATH="$HOME/Library/pnpm/bin:$PATH"   # if pnpm isn't on PATH
 pnpm install
+pnpm check                                   # lint + the whole suite (what CI runs)
 pnpm test                                    # runs node --test
 pnpm lint                                    # ESLint (CI runs it too)
+pnpm test:watch                              # re-run tests on save
 node --test tests/chat.test.mjs              # one file
 ```
 
@@ -91,8 +93,41 @@ Helpers in `tests/helpers/`:
 Write the failing test first, then the fix. The `wempos-forum-test-harness`
 skill explains the helpers in more depth.
 
-Running locally: `pnpm run db:migrate:local`, then `pnpm run dev`
-(`wrangler dev`). Local secrets go in `.dev.vars` (git-ignored, never commit).
+## Running locally
+
+```sh
+pnpm setup:local   # once: writes .dev.vars (if missing) + migrates both local DBs
+pnpm dev           # http://localhost:8787, fully local, no Cloudflare login
+```
+
+- `pnpm setup:local` writes `.dev.vars` with random `PASSWORD_PEPPER`,
+  `SETUP_SECRET` and `RELAY_TOKEN` plus `HUMAN_CHECK=off`, only when the file
+  is missing (it never overwrites and never prints a value), then runs
+  `pnpm run db:migrate:local`. Don't call it `pnpm setup`: that is a built-in
+  pnpm command.
+- `pnpm run db:migrate:local` applies `migrations/` to `wempo-forum-data` and
+  `migrations-search/` to the `SEARCH_DB` database, both local
+  (`scripts/migrate-local.mjs`; search is skipped when `wrangler.toml` has no
+  `SEARCH_DB` binding). Rerun it after pulling new migrations.
+- `pnpm dev` is `wrangler dev --local --infer-origin-from-routes=false`. The
+  Workers AI binding is remote-only, so it is unavailable locally; everything
+  else (D1, rate limiters, assets) runs on your machine.
+- Sign-in normally goes through Wempo Accounts, which isn't running locally.
+  Open <http://localhost:8787/setup> once and create the owner account with
+  the `SETUP_SECRET` from `.dev.vars`; that signs you in.
+
+### Translation keys
+
+```sh
+pnpm i18n:add <key> "<English text>" [--after <existing.key>] [--translations <file.json>]
+pnpm i18n:remove <key>
+```
+
+Both edit every `public/locales/*.json` at once, keeping each file's
+indentation and key order. `--translations` takes a JSON object of
+`{ "<locale>": "<text>" }`; locales it leaves out get the English text, and
+`tests/i18n.test.mjs` fails once more than 8% of a file's values equal
+English, so translate them.
 
 ## Project skills
 
@@ -116,7 +151,7 @@ so every clone has them. Invoke the one that matches your task:
 
 ## Before you finish
 
-1. `pnpm test` and `pnpm lint` are green.
+1. `pnpm check` (`pnpm lint` + `pnpm test`) is green.
 2. Your diff touches only the paths your task named.
 3. New files carry the license header; new strings exist in every locale.
 4. You haven't pushed, merged or deployed unless your task said to.

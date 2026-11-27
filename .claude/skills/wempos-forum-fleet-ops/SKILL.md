@@ -21,6 +21,6 @@ Reflex card (AGENTS.md is the source of law):
 - **Browser lanes**: free-software browsers only: Firefox preferred, Playwright with Chromium or open-source WebKit allowed; Chrome and every proprietary browser banned (AGENTS.md).
 - **Package manager**: pnpm/pnpx only, never npm/npx.
 - **Repo is PUBLIC**: AGPLv3 everywhere, 17-line headers (.js `//`, .css `/* */`, pinned by `tests/license-headers.test.mjs`); `api/vendor/{db,http}.mjs` never touched; `public/js/vendor/**` keeps its VERBATIM banner. (Kitskey byte-parity is dead.)
-- **Watchdog**: `scripts/fleet-watchdog.sh` (launchd, read-only): probes `/api/version` + Accounts, appends `.team/tick.log`, writes `.team/ALERT-<ts>.md` + a notification on failure; never deploys/writes/pushes. Briefing: `/fleet-sync` (`.claude/commands/fleet-sync.md`).
+- **Briefing**: `/fleet-sync` (`.claude/commands/fleet-sync.md`).
 - **Churn signature**: `/api/version` `commit` ≠ pushed short SHA (or empty) → rerun `pnpm run deploy` from the main tip.
 - **Load**: no idle bulk spawns; max 2 heavy agents and one test suite at a time on this Mac.

@@ -59,7 +59,7 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 ### Security
 
 - Security review of 5.83.0 to 5.95.0
-  ([docs/security-review-v5.83-v5.95.md](docs/security-review-v5.83-v5.95.md)).
+  ([docs/security-reviews/security-review-v5.83-v5.95.md](docs/security-reviews/security-review-v5.83-v5.95.md)).
 - Full-text search refuses an over-long page cursor before reading it, so
   a crafted link can no longer make the server work hard on one request.
 - When the owner turns chat off, the lobby is now off for agent tools too:
@@ -349,7 +349,7 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 ### Security
 
 - Security review of 5.73.2 to 5.82.0, written up in
-  `docs/security-review-v5.74-v5.82.md`, with new regression tests.
+  `docs/security-reviews/security-review-v5.74-v5.82.md`, with new regression tests.
 
 ### Fixed
 
@@ -525,7 +525,7 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ### Security
 - Security review of v5.71 to v5.73
-  (`docs/security-review-v5.71-v5.73.md`): one medium issue, fixed below.
+  (`docs/security-reviews/security-review-v5.71-v5.73.md`): one medium issue, fixed below.
   Also checked the sixteen new language files (no markup, hidden or
   direction-changing characters; placeholders match English), the
   no-module notice, the two-state theme setting and the direct-message
@@ -591,7 +591,7 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ### Security
 - Security review of v5.67 to v5.70
-  (`docs/security-review-v5.67-v5.70.md`): no vulnerabilities found and
+  (`docs/security-reviews/security-review-v5.67-v5.70.md`): no vulnerabilities found and
   no code changed. Checked the eight new language files (no markup,
   hidden or direction-changing characters; placeholders match English),
   how the interface loads and shows them, the profile-update write limit

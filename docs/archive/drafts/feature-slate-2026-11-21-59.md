@@ -2,7 +2,7 @@
 
 Area: direct messages / group chats, the search page, profile walls. All three
 are client-only: no server change, no migration, no new storage key, no new
-network call. Checked against every `docs/drafts/feature-slate-*.md` — none of
+network call. Checked against every `docs/archive/drafts/feature-slate-*.md` — none of
 these shipped before (closest: v4.21 search highlighting, v4.32 "Unread only"
 on the chat list, v4.0/v4.17 wall rendering).
 

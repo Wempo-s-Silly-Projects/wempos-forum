@@ -66,7 +66,9 @@ D1_DATABASE=my-forum-data pnpm run db:migrate:remote
 ```
 
 `D1_DATABASE` is the `database_name` from step 2. (For a local test copy, use
-`pnpm run db:migrate:local` the same way.)
+`pnpm run db:migrate:local` the same way; when `wrangler.toml` binds
+`SEARCH_DB` it also migrates the local search database, or the one named by
+`D1_SEARCH_DATABASE`.)
 
 ## 5. Set the secrets
 
@@ -300,6 +302,11 @@ a database that holds a full-text table. To use it:
    (`POST /api/search/backfill`, owner only) and also removes entries for
    posts that were deleted or hidden since. Press it again any time; it is
    safe to repeat.
+
+   Local development uses the same separate search database. If you create a
+   new local search database while your local forum database already contains
+   posts, run this owner-only rebuild once after signing in; setup migrates
+   schemas but does not copy existing posts into the derived search index.
 
 From then on new, edited, deleted, hidden and unhidden posts update the index
 in the background. If the search database is ever unreachable, posting keeps

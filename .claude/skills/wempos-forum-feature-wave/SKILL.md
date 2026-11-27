@@ -8,9 +8,9 @@ metadata:
 
 # Wempo's Forum Feature Wave
 
-The standing chain for feature work. Worked examples: `docs/drafts/feature-slate-2026-11-21-*.md`. Never skip a phase:
+The standing chain for feature work. Worked examples: `docs/archive/drafts/feature-slate-2026-11-21-*.md`. Never skip a phase:
 
-1. **Slate** — `docs/drafts/feature-slate-<date>-<n>.md` first: each feature's identity, routes, visibility law, strings, tests. No code yet.
+1. **Slate** — `docs/archive/drafts/feature-slate-<date>-<n>.md` first: each feature's identity, routes, visibility law, strings, tests. No code yet.
 2. **Board** — one `.team/taskboard.json` row per wave/feature.
 3. **Brief** — Section Q echoed verbatim + the 5-line report contract (STATUS/EVIDENCE/BLOCKERS/NEXT_ACTIONS/OWNER_GATED; there is no template file — paste it).
 4. **Who commits (reality, both stated honestly)** — the wave's ONE lead seat builds on its own branch `wave-<date>-<n>` in an isolated worktree, writes RED tests first, and commits there. Parallel helper seats spec/test only and do NOT commit. The fleet lead merges to main, pushes and deploys under standing authority (Section A + owner's "go as high as possible"); an owner interruption stops it.

@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2026 ItsWempo
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# Editor defaults matching the files already in the repo (https://editorconfig.org).
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+[*.md]
+trim_trailing_whitespace = false
+
+[{api/vendor/**,public/js/vendor/**}]
+# Vendored byte-for-byte: never let an editor rewrite them.
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+indent_style = unset
+indent_size = unset
+trim_trailing_whitespace = unset
