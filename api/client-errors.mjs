@@ -12,8 +12,9 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 //
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
@@ -46,6 +47,13 @@ async function readBody(request) {
   }
 }
 
+function stripControlCharacters(value) {
+  return Array.from(value, (character) => {
+    const code = character.codePointAt(0);
+    return code <= 0x1f || code === 0x7f ? " " : character;
+  }).join("");
+}
+
 export function validateClientError(body) {
   if (!plainObject(body) ||
       Object.keys(body).sort().join(",") !== "build,kind,message,route,stack") return null;
@@ -57,8 +65,8 @@ export function validateClientError(body) {
   return {
     route: body.route,
     kind: body.kind,
-    message: body.message.replace(/[\u0000-\u001f\u007f]/g, " ").trim(),
-    stack: body.stack.replace(/[\u0000-\u001f\u007f]/g, " ").slice(0, 2000),
+    message: stripControlCharacters(body.message).trim(),
+    stack: stripControlCharacters(body.stack).slice(0, 2000),
   };
 }
 
