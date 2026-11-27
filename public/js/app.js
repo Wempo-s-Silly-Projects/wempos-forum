@@ -211,6 +211,7 @@ function renderNotFoundRoute() {
 // server fingerprints the payload and retains only daily aggregates.
 let clientErrorReportingInstalled = false;
 function reportClientError(kind, error) {
+  if (navigator.globalPrivacyControl === true || navigator.doNotTrack === "1") return;
   const route = state.activeRoute?.name;
   const safeRoute = typeof route === "string" && route !== "not-found" ? route : "home";
   const message = typeof error === "string" ? error :
@@ -589,6 +590,7 @@ async function boot() {
     initHeaderHeadroom(document);
     initTooltips(document);
   } catch (error) {
+    reportClientError("route-render", error);
     console.error("Forum startup failed:", error);
     main.replaceChildren();
     addHeading(main, t("app.startupHeading"), 1);
