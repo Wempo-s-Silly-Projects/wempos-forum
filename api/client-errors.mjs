@@ -101,6 +101,16 @@ async function receiveClientError(request, env) {
   return noContent();
 }
 
+// Scheduled independently of incoming reports, so the 90-day retention
+// window is enforced even when the forum receives no new browser errors.
+export async function pruneClientErrors(env) {
+  if (!env?.FORUM_DB) return;
+  await env.FORUM_DB.prepare(
+    "DELETE FROM client_errors_daily WHERE rowid IN " +
+    "(SELECT rowid FROM client_errors_daily WHERE day < ? LIMIT ?)",
+  ).bind(utcDay(RETENTION_DAYS - 1), RETENTION_DELETE_LIMIT).run();
+}
+
 async function readClientErrors(request, env) {
   await requireStaff(request, env, false);
   await rateLimit(request, env, "read");
