@@ -207,6 +207,45 @@ function renderNotFoundRoute() {
   main.append(buildNotFoundLinks(document, t, location.pathname));
 }
 
+// Anonymous client exceptions are sent to the same-origin Worker. The
+// server fingerprints the payload and retains only daily aggregates.
+let clientErrorReportingInstalled = false;
+function reportClientError(kind, error) {
+  const route = state.activeRoute?.name;
+  const safeRoute = typeof route === "string" && route !== "not-found" ? route : "home";
+  const message = typeof error === "string" ? error :
+    typeof error?.message === "string" ? error.message : "Unknown client exception";
+  const payload = JSON.stringify({
+    route: safeRoute,
+    kind,
+    message: message.slice(0, 500),
+    stack: typeof error?.stack === "string" ? error.stack.slice(0, 2000) : "",
+    build: document.querySelector('meta[name="app-build"]')?.content || "",
+  });
+  try {
+    const body = new Blob([payload], { type: "application/json" });
+    if (typeof navigator.sendBeacon === "function" && navigator.sendBeacon("/api/client-errors", body)) return;
+  } catch { /* fall through to the keepalive request */ }
+  fetch("/api/client-errors", {
+    method: "POST",
+    body: payload,
+    keepalive: true,
+    credentials: "omit",
+    headers: { "Content-Type": "application/json" },
+  }).catch(() => {});
+}
+
+function installClientErrorReporting() {
+  if (clientErrorReportingInstalled) return;
+  clientErrorReportingInstalled = true;
+  window.addEventListener("error", (event) => {
+    reportClientError("window-error", event.error || event.message || "Window error");
+  });
+  window.addEventListener("unhandledrejection", (event) => {
+    reportClientError("unhandled-rejection", event.reason);
+  });
+}
+
 async function renderRoute(route) {
   // An off module's page is the not-found page; its module never loads.
   const pageModule = routeModuleId(route.name);
@@ -527,6 +566,7 @@ async function boot() {
       // a newer route's start simply carries the same bar on.
       routeProgress.start();
       renderRoute(route).finally(() => routeProgress.done()).catch((error) => {
+        reportClientError("route-render", error);
         setMessage(error.message, true);
         main.replaceChildren();
         addHeading(main, t("app.errorHeading"), 1);
@@ -536,6 +576,7 @@ async function boot() {
     // Anonymous Core Web Vitals for the desk's Site health page: skipped
     // under GPC / DNT, loaded only once the page is idle (public/js/vitals.js).
     startVitals();
+    installClientErrorReporting();
     // Wave 5.36: recent-search chips under the header search box (local only).
     const searchInput = document.querySelector("#search-query");
     if (searchInput) {
