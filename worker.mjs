@@ -22,7 +22,7 @@
 // api/; worker.mjs re-exports the functions that tests import. workerd
 // validates every Worker export as a function or ExportedHandler, so besides
 // the default fetch only `export { ... } from` re-exports appear here.
-import { HttpError, json, secureResponse, unconditional } from "./api/core/http.mjs";
+import { HttpError, json, secureResponse, securityHeaders, unconditional } from "./api/core/http.mjs";
 import { HUMAN_CHECK_MODES, STATIC_HTML_PAGES } from "./constants.mjs";
 // Phase-2 Kitskey migration: the ONE error classifier and the dispatch chain
 // come from the vendored framework (core re-exports both; the byte-pin keeps
@@ -274,6 +274,12 @@ async function applicationHealthCheck(env) {
     const db = await env.FORUM_DB.prepare("SELECT 1 AS ok").first();
     if (Number(db?.ok) !== 1) return false;
 
+    // Check required application tables and columns, not merely D1
+    // connectivity. ensureFilterWords intentionally tolerates a missing
+    // setting row/table, so the monitor probes the schema directly.
+    await env.FORUM_DB.prepare("SELECT key, value FROM site_settings LIMIT 1").first();
+    await env.FORUM_DB.prepare("SELECT id FROM users LIMIT 1").first();
+
     const checkAsset = async (path, expectedType) => {
       const response = await env.ASSETS.fetch(new Request(new URL(path, "https://health.internal")));
       const type = (response.headers.get("Content-Type") || "").toLowerCase();
@@ -308,7 +314,9 @@ async function maintenanceResponse(request, env) {
     // The fallback below still gives visitors a useful message if assets fail.
   }
 
-  const headers = new Headers(asset?.headers);
+  // Reuse the shared response policy so maintenance pages retain HSTS and
+  // every other baseline security header applied to ordinary responses.
+  const headers = securityHeaders(new Headers(asset?.headers));
   headers.set("Cache-Control", "no-store");
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -345,8 +353,8 @@ export default {
     if (canonicalOrigin && url.hostname.endsWith(".workers.dev") && url.origin !== canonicalOrigin) {
       return Response.redirect(`${canonicalOrigin}${url.pathname}${url.search}`, 301);
     }
-    // A manual override always wins; automatic mode is driven by the R2
-    // health state written by the scheduled monitor.
+    // A manual override always wins; automatic mode is driven by the
+    // concurrency-safe state row in the forum D1 database.
     if (env.MAINTENANCE_MODE === "on" || env.MAINTENANCE_MODE === "true" || await isAutoMaintenanceActive(env)) {
       return maintenanceResponse(request, env);
     }
