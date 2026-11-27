@@ -208,3 +208,13 @@ period = 60
 [[services]]
 binding = "ACCOUNTS_WORKER"
 service = "accounts"  # CHANGE ME to your Wempo Accounts worker name
+
+
+# OPTIONAL: automatic maintenance mode. Its state is stored in the forum's
+# D1 database by migration 0077; no additional storage binding is required.
+# Uncomment to check application readiness once per minute.
+# [triggers]
+# crons = ["* * * * *"]
+#
+# Manual override: set MAINTENANCE_MODE = "on" in Worker variables to force
+# the maintenance page. Unset it or set it to "off" to return to auto mode.
