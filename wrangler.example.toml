@@ -69,6 +69,10 @@ ANALYTICS_ENABLED = "false"
 # version you deploy (package.json "version").
 VERSION = "5.64.0"
 
+[triggers]
+# Daily client-error aggregate retention cleanup (UTC).
+crons = ["17 3 * * *"]
+
 [assets]
 directory = "./public"
 binding = "ASSETS"
