@@ -72,6 +72,9 @@ import { handleBrandingRoutes, readStoredBranding } from "./api/branding.mjs";
 import { handleSaturdayFoolsRoutes, saturdayFoolsMeta } from "./api/saturday-fools.mjs";
 import { handleAnalyticsRoutes, scheduleCount } from "./api/analytics.mjs";
 import { handleVitalsRoutes } from "./api/vitals.mjs";
+import { handleClientErrorRoutes, pruneClientErrors } from "./api/client-errors.mjs";
+import { handleMaintenanceRoutes, maintenanceEnabled } from "./api/maintenance.mjs";
+import { readSession } from "./api/core/auth.mjs";
 import { handleDiscovery, withDiscoveryHeaders } from "./api/discovery.mjs";
 import { handleFeeds } from "./api/feeds.mjs";
 import { handleInviteRoutes } from "./api/invites.mjs";
@@ -141,7 +144,7 @@ function notFound(request, env, url, path) {
 // dispatch context and answers only the paths it owns; `undefined` falls
 // through to the next handler or the notFound tail — the vendor's dispatch()
 // replaces the inlined handlers-for-loop, built once from the vendor import.
-const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleSaturdayFoolsRoutes, handleAnalyticsRoutes, handleVitalsRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes, handleAltchaRoutes, handlePasskeyRoutes, handleLinkPreviewRoutes, handleModuleRoutes, handleFullSearchRoutes];
+const API_HANDLERS = [handleAuthRoutes, handlePostRoutes, handleProfileRoutes, handleModerationRoutes, handleNotificationsRoutes, handleSubscriptionsRoutes, handleThreadMuteRoutes, handlePollRoutes, handleBookmarkRoutes, handleAttachmentRoutes, handleArchiveRoutes, handleGifRoutes, handleLeaderboardRoutes, handleRulesRoutes, handleAppealRoutes, handleWallRoutes, handleModLogRoutes, handleBlockRoutes, handleTotpRoutes, handleAccountSecurityRoutes, handleAccountsRoutes, handleFilterAdminRoutes, handleRelayRoutes, handleChatRoutes, handleDmGroupRoutes, handleConversationSearchRoutes, handleDmImageRoutes, handleTraditionRoutes, handleExportRoutes, handleAutoModRoutes, handleDmReportRoutes, handleBrandingRoutes, handleSaturdayFoolsRoutes, handleAnalyticsRoutes, handleVitalsRoutes, handleClientErrorRoutes, handleMaintenanceRoutes, handleInviteRoutes, handleWeekRoutes, handleNewcomerRoutes, handleStaffPickRoutes, handleBookmarkFolderRoutes, handleFollowRoutes, handleStaffToolRoutes, handleDmReactionRoutes, handleTagRoutes, handlePrivateNoteRoutes, handleSavedSearchRoutes, handleThreadSummaryRoutes, handleThreadLockRoutes, handleAltchaRoutes, handlePasskeyRoutes, handleLinkPreviewRoutes, handleModuleRoutes, handleFullSearchRoutes];
 const answerApiRoute = dispatch(API_HANDLERS, notFound);
 
 // Stale-build stamp (v4.3.1): every HTML document the worker serves carries
@@ -249,6 +252,54 @@ function honestAssetResponse(assetResponse, url) {
 // ctx carries waitUntil (v3.1): background work rides it where a route needs
 // one; the response returns without waiting. Callers without a ctx (tests)
 // simply never schedule background checks.
+const MAINTENANCE_API_EXEMPT = new Set([
+  "/api/admin/maintenance",
+  "/api/admin/client-errors",
+  "/api/client-errors",
+  "/api/vitals",
+  "/api/version",
+]);
+
+const MAINTENANCE_AUTH_EXEMPT = new Set([
+  "/api/auth/login",
+  "/api/auth/totp",
+  "/api/auth/passkey/options",
+  "/api/auth/passkey",
+  "/api/auth/sso/redeem",
+  "/api/relay/password-verify",
+  "/api/altcha/challenge",
+]);
+
+async function maintenanceApiResponse(request, env, path) {
+  if (MAINTENANCE_API_EXEMPT.has(path) || !(await maintenanceEnabled(env))) return null;
+  // Owner and admins retain access to the API while maintenance is active.
+  let session = null;
+  try { session = await readSession(request, env); } catch { /* fail closed for this request */ }
+  if (["owner", "admin"].includes(session?.user?.role)) return null;
+  if (MAINTENANCE_AUTH_EXEMPT.has(path) || (path === "/api/session" && !session?.user)) return null;
+  return json(
+    { error: "The forum is temporarily unavailable for maintenance.", code: "maintenance_mode" },
+    503,
+    { "Cache-Control": "no-store", "Retry-After": "60" },
+  );
+}
+
+
+
+async function maintenancePublicResponse(request, env, path) {
+  const isAgentSurface = path === "/mcp" || path === "/feed.xml" || path === "/llms.txt" ||
+    /^\/c\/[a-z0-9-]+\/feed\.xml$/.test(path);
+  if (!isAgentSurface || !(await maintenanceEnabled(env))) return null;
+  let session = null;
+  try { session = await readSession(request, env); } catch { /* fail closed for this request */ }
+  if (["owner", "admin"].includes(session?.user?.role)) return null;
+  return json(
+    { error: "The forum is temporarily unavailable for maintenance.", code: "maintenance_mode" },
+    503,
+    { "Cache-Control": "no-store", "Retry-After": "60" },
+  );
+}
+
 async function routeApi(request, env, ctx) {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -364,6 +415,19 @@ async function maintenanceResponse(request, env) {
 }
 
 export default {
+  async scheduled(_controller, env) {
+    try {
+      await pruneClientErrors(env);
+    } catch (error) {
+      console.error("Scheduled client-error retention cleanup failed:", error);
+    }
+    try {
+      const healthy = await applicationHealthCheck(env);
+      await recordMaintenanceHealth(env, healthy);
+    } catch (error) {
+      console.error("Automatic maintenance monitor could not update state:", error instanceof Error ? error.name : "unknown");
+    }
+  },
   async fetch(request, env, ctx) {
     // The search module's write-path sync runs detached under waitUntil.
     rememberExecutionContext(request, ctx);
@@ -383,6 +447,8 @@ export default {
     }
     if (url.pathname.startsWith("/api/")) {
       try {
+        const maintenance = await maintenanceApiResponse(request, env, url.pathname);
+        if (maintenance) return maintenance;
         // HUMAN_CHECK=anubis: unauthenticated API reads pass Anubis too.
         if (humanCheckMode(env) === HUMAN_CHECK_MODES.ANUBIS) {
           const refused = await anubisApiGate(request, env);
@@ -395,6 +461,10 @@ export default {
         return codedErrorReply(error, "Forum request failed:");
       }
     }
+    // Public agent read surfaces stop during maintenance; owner/admin sessions
+    // retain operational access, while normal visitors receive a clear 503.
+    const maintenanceSurface = await maintenancePublicResponse(request, env, url.pathname);
+    if (maintenanceSurface) return maintenanceSurface;
     // Agent surfaces (MCP + discovery documents + markdown negotiation) answer
     // BEFORE the assets fallback — the SPA's not_found_handling would serve
     // index.html for every one of these paths otherwise.
@@ -440,12 +510,5 @@ export default {
       return json({ error: "The requested page could not be loaded." }, 500);
     }
   },
-  async scheduled(_controller, env) {
-    try {
-      const healthy = await applicationHealthCheck(env);
-      await recordMaintenanceHealth(env, healthy);
-    } catch (error) {
-      console.error("Automatic maintenance monitor could not update state:", error instanceof Error ? error.name : "unknown");
-    }
-  },
+
 };

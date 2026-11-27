@@ -207,6 +207,60 @@ function renderNotFoundRoute() {
   main.append(buildNotFoundLinks(document, t, location.pathname));
 }
 
+// Anonymous client exceptions are sent to the same-origin Worker. The
+// server fingerprints the payload and retains only daily aggregates.
+let clientErrorReportingInstalled = false;
+function boundedClientErrorPayload(fields) {
+  const encoder = new TextEncoder();
+  const stack = Array.from(fields.stack);
+  let low = 0;
+  let high = stack.length;
+  while (low < high) {
+    const middle = Math.ceil((low + high) / 2);
+    const candidate = JSON.stringify({ ...fields, stack: stack.slice(0, middle).join("") });
+    if (encoder.encode(candidate).byteLength <= 4000) low = middle;
+    else high = middle - 1;
+  }
+  return JSON.stringify({ ...fields, stack: stack.slice(0, low).join("") });
+}
+
+function reportClientError(kind, error, routeName = null) {
+  if (navigator.globalPrivacyControl === true || navigator.doNotTrack === "1") return;
+  const route = routeName ?? state.activeRoute?.name;
+  const safeRoute = typeof route === "string" && route !== "not-found" ? route : "home";
+  const message = typeof error === "string" ? error :
+    typeof error?.message === "string" ? error.message : "Unknown client exception";
+  const payload = boundedClientErrorPayload({
+    route: safeRoute,
+    kind,
+    message: message.slice(0, 500),
+    stack: typeof error?.stack === "string" ? error.stack.slice(0, 2000) : "",
+    build: document.querySelector('meta[name="app-build"]')?.content || "",
+  });
+  try {
+    const body = new Blob([payload], { type: "application/json" });
+    if (typeof navigator.sendBeacon === "function" && navigator.sendBeacon("/api/client-errors", body)) return;
+  } catch { /* fall through to the keepalive request */ }
+  fetch("/api/client-errors", {
+    method: "POST",
+    body: payload,
+    keepalive: true,
+    credentials: "omit",
+    headers: { "Content-Type": "application/json" },
+  }).catch(() => {});
+}
+
+function installClientErrorReporting() {
+  if (clientErrorReportingInstalled) return;
+  clientErrorReportingInstalled = true;
+  window.addEventListener("error", (event) => {
+    reportClientError("window-error", event.error || event.message || "Window error");
+  });
+  window.addEventListener("unhandledrejection", (event) => {
+    reportClientError("unhandled-rejection", event.reason);
+  });
+}
+
 async function renderRoute(route) {
   // An off module's page is the not-found page; its module never loads.
   const pageModule = routeModuleId(route.name);
@@ -527,6 +581,7 @@ async function boot() {
       // a newer route's start simply carries the same bar on.
       routeProgress.start();
       renderRoute(route).finally(() => routeProgress.done()).catch((error) => {
+        reportClientError("route-render", error, route.name);
         setMessage(error.message, true);
         main.replaceChildren();
         addHeading(main, t("app.errorHeading"), 1);
@@ -548,6 +603,7 @@ async function boot() {
     initHeaderHeadroom(document);
     initTooltips(document);
   } catch (error) {
+    reportClientError("route-render", error);
     console.error("Forum startup failed:", error);
     main.replaceChildren();
     addHeading(main, t("app.startupHeading"), 1);
@@ -557,6 +613,8 @@ async function boot() {
   }
 }
 
+// Install before asynchronous startup so early boot failures are observable.
+installClientErrorReporting();
 boot();
 startFunExtras();
 

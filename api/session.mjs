@@ -25,6 +25,7 @@ import { unreadCount } from "./notifications.mjs";
 import { applyWordFilter, containsFilteredWord, normalizeUsernameForFilter } from "./filter.mjs";
 import { filterWords } from "./filterstore.mjs";
 import { createSession, assertNetworkNotBanned, readSession, requireCsrf, requireUser } from "./core/auth.mjs";
+import { assertMaintenanceLoginAllowed } from "./core/maintenance-state.mjs";
 import { sessionCookie } from "./core/cookies.mjs";
 import { equalConstantTime, nowSeconds, sha256Hex } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson, securityHeaders } from "./core/http.mjs";
@@ -291,6 +292,7 @@ async function handleLoginRoute(request, env, url, path, method) {
           : Number(activeBan.expires_at),
       });
     }
+    await assertMaintenanceLoginAllowed(env, Number(user.id));
     // Two-factor (v4.0.1) sits between the ban check and the session mint:
     // members with 2FA on get a short-lived single-use challenge
     // instead (the plaintext rides this response, only its SHA-256 is

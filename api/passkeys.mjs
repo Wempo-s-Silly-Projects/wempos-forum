@@ -45,6 +45,7 @@ import { assertNetworkNotBanned, createSession, requireCsrf, requireSignedInRead
 import { nowSeconds, sha256Hex } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { verifyPassword } from "./core/passwords.mjs";
+import { assertMaintenanceLoginAllowed } from "./core/maintenance-state.mjs";
 import { publicUser, userByUsernameKey } from "./core/shapers.mjs";
 import { siteName } from "./branding.mjs";
 
@@ -253,6 +254,7 @@ async function signInVerify(request, env, url) {
     .bind(Number(verification.authenticationInfo.newCounter) || 0, nowSeconds(), passkey.id).run();
   const user = await userByUsernameKey(env, passkey.username_key);
   if (!user) throw new HttpError(401, UNRECOGNISED);
+  await assertMaintenanceLoginAllowed(env, userId);
   // requireUnbanned: createSession refuses a banned member atomically.
   const session = await createSession(request, env, userId, guest.tokenHash, true);
   if (!session) throw new HttpError(403, "This account is currently banned.");

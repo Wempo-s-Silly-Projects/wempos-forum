@@ -36,6 +36,7 @@ import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { verifyPassword } from "./core/passwords.mjs";
 import { publicUser, userByUsernameKey } from "./core/shapers.mjs";
 import { generateTotpSecret, normalizeTotpAlgorithm, otpauthUri, totpMatchStep, verifyTotpCode } from "./core/totp.mjs";
+import { assertMaintenanceLoginAllowed } from "./core/maintenance-state.mjs";
 import { siteName } from "./branding.mjs";
 
 // Backup codes (v4.8.1): the Discord-style single-use sign-in codes used
@@ -324,6 +325,7 @@ async function handleTotpRoutes(request, env, url, path, method) {
     if (!user) {
       throw new HttpError(401, "This verification request has expired. Sign in again.");
     }
+    await assertMaintenanceLoginAllowed(env, userId);
     if (!(await verifyCodeAnswer(db, userId, keyRow.totp_secret, code, keyRow.algorithm))) {
       throw new HttpError(401, "That code is not correct.");
     }
