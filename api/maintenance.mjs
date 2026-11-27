@@ -23,29 +23,14 @@
 import { requireAdmin } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
+import { maintenanceEnabled, setMaintenanceCache } from "./core/maintenance-state.mjs";
 
 export const MAINTENANCE_SETTING = "maintenance_mode";
-const CACHE_MS = 2000;
-let cachedState = false;
-let cachedAt = 0;
 
-export async function maintenanceEnabled(env) {
-  const now = Date.now();
-  if (now - cachedAt < CACHE_MS) return cachedState;
-  try {
-    const row = await env.FORUM_DB.prepare(
-      "SELECT value FROM site_settings WHERE key = ? LIMIT 1",
-    ).bind(MAINTENANCE_SETTING).first();
-    cachedState = String(row?.value ?? "") === "1";
-    cachedAt = now;
-    return cachedState;
-  } catch (error) {
-    console.error("Could not read maintenance state; leaving the forum available:", error);
-    cachedState = false;
-    cachedAt = now;
-    return false;
-  }
-}
+// D1 writes and their cache updates must commit in the same order. A promise
+// tail serializes writes within this isolate; D1 remains the cross-isolate
+// source of truth and the shared reader refreshes its short-lived cache.
+let maintenanceWriteQueue = Promise.resolve();
 
 async function readMaintenanceState(request, env) {
   await requireAdmin(request, env, false);
@@ -60,13 +45,17 @@ async function saveMaintenanceState(request, env) {
   if (!body || typeof body.enabled !== "boolean" || Object.keys(body).join() !== "enabled") {
     throw new HttpError(400, "Send enabled as true or false.");
   }
-  await env.FORUM_DB.prepare(
-    "INSERT INTO site_settings (key, value, updated_at) VALUES (?, ?, ?) " +
-    "ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
-  ).bind(MAINTENANCE_SETTING, body.enabled ? "1" : "0", nowSeconds()).run();
-  cachedState = body.enabled;
-  cachedAt = Date.now();
-  return json({ saved: true, enabled: body.enabled }, 200, { "Cache-Control": "no-store" });
+  const write = async () => {
+    await env.FORUM_DB.prepare(
+      "INSERT INTO site_settings (key, value, updated_at) VALUES (?, ?, ?) " +
+      "ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
+    ).bind(MAINTENANCE_SETTING, body.enabled ? "1" : "0", nowSeconds()).run();
+    setMaintenanceCache(body.enabled);
+    return json({ saved: true, enabled: body.enabled }, 200, { "Cache-Control": "no-store" });
+  };
+  const pending = maintenanceWriteQueue.then(write, write);
+  maintenanceWriteQueue = pending.then(() => undefined, () => undefined);
+  return pending;
 }
 
 export async function handleMaintenanceRoutes(request, env, url, path, method) {
