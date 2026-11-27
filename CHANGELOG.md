@@ -10,6 +10,33 @@ The live version is shown at <https://wempos-forum.com/api/version>.
 
 ## [Unreleased]
 
+### Added
+
+- A **Tags** page (`/tags`, in **Browse**) lists every tag on the forum; each
+  opens its tag page.
+
+### Changed
+
+- Threads have one toolbar above the replies: **Jump to** (latest reply, my
+  reply, the author's next reply, the first post, then the reply list on
+  long threads), **Fold all replies** and **Filter replies**. The separate
+  jump buttons above and below the replies are gone.
+- The home page shows one **This week** card (the link to This week, today's
+  question and the newest members) instead of three boxes.
+- Settings: the Reading comfort controls joined **Appearance**, and **Reset
+  appearance** now resets every display choice (line spacing, underlined
+  links, easy reading and contrast too). The unread count in the tab title
+  moved to **Quiet hours** under Notifications.
+- **Saved posts** has one filter row for folders and boards.
+- "Save as text" is now **Download as text**, and the Archive is now called
+  **Deleted posts** (its address stays `/archive`).
+- The feed tabs no longer repeat **My posts**; the header, the phone bar and
+  `/mine` still open it.
+
+### Removed
+
+- The rough read-time estimate on threads (the reading progress bar stays).
+
 ## [5.96.0] - 2026-11-24
 
 ### Added

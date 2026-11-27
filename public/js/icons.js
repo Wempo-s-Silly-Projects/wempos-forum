@@ -80,6 +80,8 @@ const ICON_PATHS = {
   home: ["M3 10.5L12 3l9 7.5", "M5 9.5V21h14V9.5"],
   calendar: ["M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z", "M16 2v4", "M8 2v4", "M3 10h18"],
   dots: ["M5 12h.01", "M12 12h.01", "M19 12h.01"],
+  // The Browse menu's Tags (the /tags index).
+  tag: ["M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z", "M7.5 7.5h.01"],
 };
 
 const iconAria = (name) => ({

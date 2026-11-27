@@ -48,18 +48,18 @@ const { renderAccountNavigation } = await import("../public/js/routes/account-na
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const doc = makeFakeDocument();
 
-// The 15 panels in the order renderAccountSettings builds them (backup codes
+// The 14 panels in the order renderAccountSettings builds them (backup codes
 // only render while two-factor is on). Without a loaded locale t() returns the
 // key, so each heading reads as its title key.
 const PANEL_TITLES = [
-  "feed.appearanceTitle", "readingComfort.title", "quietHours.title", "notifPrefs.title",
+  "feed.appearanceTitle", "quietHours.title", "notifPrefs.title",
   "newcomer.onboardSettingTitle", "feed.changePasswordTitle", "twofa.title", "twofa.backupTitle", "account.sessionsTitle",
   "blocks.title", "follow.title", "feed.presenceTitle", "settings.dataTitle",
   "invite.title", "feed.deleteAccountTitle",
 ];
 
 const EXPECTED_GROUPS = {
-  "settingsGroups.appearance": ["feed.appearanceTitle", "readingComfort.title"],
+  "settingsGroups.appearance": ["feed.appearanceTitle"],
   "settingsGroups.notifications": ["quietHours.title", "notifPrefs.title", "newcomer.onboardSettingTitle"],
   "settingsGroups.people": ["blocks.title", "follow.title", "feed.presenceTitle"],
   "settingsGroups.account": [
@@ -97,7 +97,7 @@ test("/?settings is the settings view on the home page; a search or plain / keep
   assert.deepEqual(routeForPath("/", ""), { name: "home" });
 });
 
-test("the 15 settings panels land in 4 labelled groups, in a fixed order", () => {
+test("the 14 settings panels land in 4 labelled groups, in a fixed order", () => {
   const { root, groups } = hubFixture();
   assert.equal(groups.length, 4);
   assert.deepEqual(SETTINGS_GROUPS.map((group) => group.titleKey), Object.keys(EXPECTED_GROUPS));
@@ -111,7 +111,7 @@ test("the 15 settings panels land in 4 labelled groups, in a fixed order", () =>
     assert.deepEqual(panelTitlesIn(group), EXPECTED_GROUPS[groupHeadingText(group)]);
   }
   const placed = groups.flatMap(panelTitlesIn);
-  assert.equal(placed.length, 15);
+  assert.equal(placed.length, 14);
   assert.deepEqual([...placed].sort(), [...PANEL_TITLES].sort(), "every panel placed exactly once");
 });
 

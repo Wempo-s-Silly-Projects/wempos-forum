@@ -155,25 +155,33 @@ async function renderPostRoute(route, context, version) {
     }
     // Thread lock (v5.51): members get no per-card Reply/Quote controls.
     if (lockedForViewer) stripReplyControls(replyList);
-    // Jump to the latest reply (wave 2026-11-21-9 F3): long threads only.
-    const latestJump = createLatestReplyJump(document, replyList, post.replies.length);
-    if (latestJump) main.append(latestJump);
-    // Jump to my reply (wave 2026-11-21-15 F2): only when the viewer replied.
-    const myJump = createMyReplyJump(document, replyList, post.replies, context.session.user?.id);
-    if (myJump) main.append(myJump);
-    // Next reply from the author (wave 2026-11-21-25 F3): starter replies only.
+    // One "Jump to" control (trim list #1): the latest reply (wave
+    // 2026-11-21-9 F3), my reply (wave 2026-11-21-15 F2), the author's next
+    // reply (wave 2026-11-21-25 F3) and the first post (wave 2026-11-21-12
+    // F3) ride the outline's quick row; each is null when it does not apply.
     const starterId = threadStarterId(post);
-    const authorJump = createNextAuthorReplyJump(document, replyList, post.replies, starterId);
-    if (authorJump) main.append(authorJump);
-    // Fold all replies (wave 2026-11-21-22 F2): long threads only.
+    const quickJumps = [
+      createLatestReplyJump(document, replyList, post.replies.length),
+      createMyReplyJump(document, replyList, post.replies, context.session.user?.id),
+      createNextAuthorReplyJump(document, replyList, post.replies, starterId),
+      createFirstPostJump(document, rootCard, post.replies.length),
+    ];
+    // Thread outline (v5.46.0): the reply list on long threads, from the
+    // cards just built, under the quick jumps.
+    const outline = createThreadOutline(document, post.replies, replyList, {
+      accountId: state.currentUser?.id, quickJumps,
+    });
+    // One toolbar (trim list #14): Jump to, Fold all (wave 2026-11-21-22 F2;
+    // long threads only) and the reply filter (wave 5.5 F2; page view only,
+    // nothing stored or sent).
     const foldAll = createFoldAllToggle(document, replyList, knownReplyTotal(post));
-    if (foldAll) main.append(foldAll);
-    // Filter replies (wave 5.5 F2): page view only, nothing stored or sent.
     const replyFilter = createReplyFilter(document, replyList, knownReplyTotal(post));
-    if (replyFilter) main.append(replyFilter);
-    // Thread outline (v5.46.0): long threads only, from the cards just built.
-    const outline = createThreadOutline(document, post.replies, replyList, { accountId: state.currentUser?.id });
-    if (outline) main.append(outline);
+    const tools = [outline, foldAll, replyFilter].filter(Boolean);
+    if (tools.length) {
+      const toolbar = element("div", "thread-tools");
+      toolbar.append(...tools);
+      main.append(toolbar);
+    }
     main.append(replyList);
     // Thread-author chip (wave 2026-11-21-7 F2): the starter's own replies.
     if (starterId) replyList.dataset.starterId = String(starterId);
@@ -194,9 +202,6 @@ async function renderPostRoute(route, context, version) {
     olderReplies.dataset.before = String(post.repliesNextBefore);
     main.append(olderReplies);
   }
-  // Back to the first post (wave 2026-11-21-12 F3): long threads only.
-  const firstJump = createFirstPostJump(document, rootCard, post.replies.length);
-  if (firstJump) main.append(firstJump);
   if (canReplyToThread(post, context.session.user)) {
     main.append(createComposer("reply", t("post.replyPlaceholder"), t("common.reply"), post.id));
   }

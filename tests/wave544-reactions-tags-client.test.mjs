@@ -25,7 +25,7 @@
 // and nothing touches device storage.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { makeFakeDocument, findByClass, countByClass } from "./helpers/fake-dom.mjs";
 import { bestOf } from "./helpers/timing.mjs";
 import { routeForPath } from "../public/js/router.js";
@@ -35,6 +35,7 @@ import {
   TAG_TOTAL_MAX as CLIENT_TOTAL_MAX,
   createTagChips,
   createTagEditor,
+  createTagIndex,
   createTagManager,
   createTagPage,
   postTagsPath,
@@ -74,6 +75,31 @@ test("router: /tag/<slug> routes to the tag page; malformed slugs are 404", () =
   assert.deepEqual(routeForPath("/tag/help-me", ""), { name: "tag", slug: "help-me" });
   for (const path of ["/tag/", "/tag/A", "/tag/a", "/tag/x_y", "/tag/news/more", "/tag/" + "x".repeat(25)]) {
     assert.equal(routeForPath(path, "").name, "not-found", path);
+  }
+});
+
+test("tag index: /tags routes to the index; every tag is a chip, none is the empty state", () => {
+  assert.deepEqual(routeForPath("/tags", ""), { name: "tags" });
+  assert.equal(routeForPath("/tags/", "").name, "not-found");
+  const page = createTagIndex(doc, TAGS);
+  assert.equal(page.className, "tag-index");
+  assert.deepEqual([...page.querySelectorAll("a")].map((link) => link.href), ["/tag/news", "/tag/help-me"]);
+  const empty = createTagIndex(doc, []);
+  assert.equal(findByClass(empty, "empty-state").textContent, t("tags.none"));
+  assert.equal(createTagIndex(doc, undefined).querySelectorAll("a").length, 0);
+  // Wiring: the pages module renders it from GET /api/tags; Browse links it.
+  const pages = read("public/js/routes/pages.js");
+  assert.match(pages, /async function renderTagsRoute\(context, version\) \{\n\s*const data = await api\("\/api\/tags"\);/);
+  assert.match(read("public/js/route-modules.js"), /tags: "pages",/);
+  assert.match(read("public/js/app.js"), /tags: \(\) => renderTagsRoute\(context, version\),/);
+  assert.match(read("public/js/nav-items.js"), /id: "tags", href: "\/tags", icon: "tag", labelKey: "nav\.tags"/);
+});
+
+test("tag index strings reuse each locale's own Tags label", () => {
+  const dir = new URL("../public/locales/", import.meta.url);
+  for (const name of readdirSync(dir).filter((file) => file.endsWith(".json"))) {
+    const messages = JSON.parse(readFileSync(new URL(name, dir), "utf8"));
+    for (const key of ["nav.tags", "app.pageTags"]) assert.equal(messages[key], messages["admin.section.tags"], name + " " + key);
   }
 });
 

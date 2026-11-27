@@ -313,12 +313,13 @@ test("CSS: line spacing and underline rules, and a high-contrast override for li
   assert.match(css, /:root\.high-contrast :where\(a, button, input, textarea, select, summary\):focus-visible/);
 });
 
-test("wiring: a Reading comfort panel right after Appearance; no innerHTML in the new modules", () => {
+test("wiring: the reading-comfort controls sit in the Appearance panel (trim list #10); no innerHTML", () => {
   const feed = read("public/js/routes/feed.js");
   assert.match(feed, /createLineSpacingPicker\(document, storage\)/);
   assert.match(feed, /createLinkUnderlineToggle\(document, storage\)/);
   assert.match(feed, /createContrastPicker\(document, storage, window\)/);
-  assert.match(feed, /account\.append\(appearance\);\s*\n[\s\S]{0,1200}account\.append\(readingComfort\);/);
+  assert.match(feed, /appearance\.append\(createLineSpacingPicker\(document, storage\)\);/);
+  assert.doesNotMatch(feed, /readingComfort\.title|account\.append\(readingComfort\)/, "no second display panel");
   for (const path of ["public/js/reading-comfort.js", "public/js/high-contrast.js", "public/js/theme-preload.js"]) {
     assert.doesNotMatch(read(path), /innerHTML|outerHTML|insertAdjacentHTML|document\.write/, path);
   }

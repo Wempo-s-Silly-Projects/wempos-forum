@@ -255,3 +255,42 @@ test("the toggle action PUTs or DELETEs /api/posts/:id/mute through api() and re
   assert.match(handler, /state\.renderRoute\(state\.activeRoute\)/);
   assert.match(handler, /t\("feed\.threadUnmuted"\) : t\("feed\.threadMuted"\)/);
 });
+
+// ---- trim list #1: the jump buttons ride the outline's quick row ------------------
+
+test("quick jumps: a short thread gets a Jump to with just them; both parts share the toggle", () => {
+  const doc = makeFakeDocument();
+  const few = replies(3);
+  const jump = (name) => Object.assign(doc.createElement("button"), { className: name });
+  assert.equal(createThreadOutline(doc, few, replyListFor(doc, few), { now: NOW, quickJumps: [null] }), null,
+    "nulls (jumps that do not apply) count as none");
+  const short = createThreadOutline(doc, few, replyListFor(doc, few), { now: NOW, quickJumps: [jump("a"), null] });
+  const quick = short.querySelector("div.thread-outline-quick");
+  assert.equal(quick.children.length, 1);
+  assert.equal(short.querySelector("ol.thread-outline-list"), null, "no reply list below eight replies");
+  const toggle = short.querySelector("button.thread-outline-toggle");
+  assert.equal(toggle.getAttribute("aria-controls"), quick.id);
+  assert.ok(quick.hasAttribute("hidden"));
+  const many = replies(9);
+  const long = createThreadOutline(doc, many, replyListFor(doc, many), { now: NOW, quickJumps: [jump("a"), jump("b")] });
+  const parts = [long.querySelector("div.thread-outline-quick"), long.querySelector("ol.thread-outline-list")];
+  assert.equal(long.children[1], parts[0], "quick jumps sit above the list");
+  const longToggle = long.querySelector("button.thread-outline-toggle");
+  assert.equal(longToggle.getAttribute("aria-controls"), parts.map((part) => part.id).join(" "));
+  longToggle.dispatch("click", { preventDefault() {} });
+  assert.ok(parts.every((part) => !part.hasAttribute("hidden")));
+  longToggle.dispatch("click", { preventDefault() {} });
+  assert.ok(parts.every((part) => part.hasAttribute("hidden")));
+});
+
+test("post.js: the four jumps feed the outline; Jump to, Fold all and the filter share one toolbar", () => {
+  const post = read("public/js/routes/post.js");
+  assert.match(post, /const quickJumps = \[\n\s*createLatestReplyJump\(/);
+  assert.match(post, /accountId: state\.currentUser\?\.id, quickJumps,/);
+  assert.match(post, /const tools = \[outline, foldAll, replyFilter\]\.filter\(Boolean\);/);
+  assert.match(post, /element\("div", "thread-tools"\)/);
+  assert.doesNotMatch(post, /main\.append\((latestJump|myJump|authorJump|firstJump)\)/, "no loose jump buttons");
+  const css = read("public/styles.css");
+  assert.match(css, /\.thread-tools \{/);
+  assert.match(css, /\.thread-outline-quick\[hidden\]/);
+});

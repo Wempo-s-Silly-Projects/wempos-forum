@@ -118,14 +118,15 @@ test("toggle survives blocked storage: the choice still applies to this page vie
   assert.equal(doc.title, "(2) " + SITE);
 });
 
-test("wiring: session count into state, applied after the route title, on bell updates, in Appearance", () => {
+test("wiring: session count into state, applied after the route title, on bell updates, beside quiet hours", () => {
   const app = read("public/js/app.js");
   assert.match(app, /state\.unreadNotifications = session\.user \? normaliseTabCount\(session\.unreadNotifications\) : 0;/);
   assert.match(app, /setRouteTitle\(route\);\n\s*applyTabUnread\(document, state\.unreadNotifications, pageStorage\(\)\);/);
   assert.match(read("public/js/state.js"), /unreadNotifications: 0,/);
   assert.match(read("public/js/notifications.js"), /applyTabUnread\(document, count, pageStorage\(\)\)/);
+  // Trim list #8: the toggle rides the quiet-hours panel (Notifications group).
   assert.match(read("public/js/routes/feed.js"),
-    /createTabUnreadToggle\(document, storage, \(\) => state\.unreadNotifications\)/);
+    /quietHours\.append\(createQuietHoursControls\(document, storage, \{[\s\S]{0,200}\}\), createTabUnreadToggle\(document, storage, \(\) => state\.unreadNotifications\)\);/);
   assert.match(read("public/styles.css"), /\.tab-unread-pref,/);
   assert.match(read("public/index.html"), /<link rel="modulepreload" href="\/js\/tab-unread\.js">/);
 });

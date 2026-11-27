@@ -80,7 +80,7 @@ const headerDestinations = () => new Set(["/", ...destinations(accountActions)])
 const browseWrap = (root) => root.querySelector(".nav-browse");
 const toggleOf = (wrap) => wrap.querySelector(".nav-menu-toggle");
 const panelOf = (wrap) => wrap.querySelector(".nav-menu-panel");
-const BROWSE_HREFS = ["/suggestions", "/archive", "/leaderboard", "/rules", "/week"];
+const BROWSE_HREFS = ["/suggestions", "/archive", "/leaderboard", "/rules", "/week", "/tags"];
 
 // ----------------------------------------------------------- the header
 
@@ -100,7 +100,7 @@ test("header: at most seven top-level items for guests, members and staff", () =
     ["nav-browse", "button-secondary", "language-picker"]);
 });
 
-test("Browse groups Suggestions, Archive, Leaderboard, Rules and This week behind one menu button", () => {
+test("Browse groups Suggestions, Deleted posts, Leaderboard, Rules, This week and Tags behind one menu button", () => {
   for (const [label, user] of ROLES) {
     render(user);
     const wrap = browseWrap(accountActions);

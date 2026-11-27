@@ -1,6 +1,8 @@
 # Trim list (proposal for the owner)
 
-**Status: PROPOSAL. Nothing here is decided and nothing has been removed.**
+**Status: DECIDED and applied (after v5.97).** Each row went its "lean" way;
+the Decision column in the summary records what was done. Nothing members
+relied on was removed and no table was dropped.
 Written for v5.59 (ORGANIZE #4, owner order 2026-11-22, feature freeze). It
 lists every feature that overlaps another, has no clear entry point, or
 duplicates a capability, so the owner can choose what to keep, merge, hide or
@@ -29,30 +31,30 @@ tree (commit f24fff5).
 
 ## Summary
 
-| # | Candidate | Kind | Usage signal | Options | Lean |
-|---|---|---|---|---|---|
-| 1 | Thread jump controls (4 buttons + glance jump + outline + J/K) | overlap | none (browser-only) | keep / merge into one "Jump to" / remove buttons | merge into "Jump to" |
-| 2 | Glance read time vs reading progress bar | overlap | none | keep / drop read time / drop bar | drop the read time line |
-| 3 | Three "keep up" models: Follow, Subscribe, Saved boards | overlap (naming) | rows: `follows`, `thread_subscriptions` | keep / rename + explain / merge | keep, rename and explain |
-| 4 | "Save post" vs "Save as text" | name clash | rows: `bookmarks`; none for text | keep / rename one / hide text in More | rename "Save as text" → "Download as text" |
-| 5 | Bookmark folders vs saved-by-board chips | overlap | rows: `bookmark_folders` vs none | keep / merge into one filter row / remove one | merge into one filter row |
-| 6 | Copy link (card) vs Share menu Copy link | duplicate | none | keep v5.58 state / remove card copy | remove card copy where Share exists |
-| 7 | "Open post" self-link on the thread page | duplicate | none | keep hidden / remove | remove (already hidden) |
-| 8 | Notification controls in six places | overlap | rows: muted kinds, `thread_mutes` | keep / group in one panel | group in one settings panel |
-| 9 | Recent searches vs saved searches | overlap | rows: `saved_searches`; recent is browser-only | keep / merge / remove recent | keep both, explain |
-| 10 | Text size, reading comfort, high contrast, corners, reset | overlap (settings sprawl) | none (browser-only) | keep / merge into one "Display" panel | merge into one panel |
-| 11 | Home discovery stack (highlights, QOTD, newest members, showcase, This week, leaderboard) | overlap | none | keep / fold into This week / hide some | fold home boxes into one "This week" card |
-| 12 | Four places to write (threads, profile wall, chat lobby, DMs) | overlap | rows: `posts`, `wall_posts`, `chat_messages`, `dm_messages` | keep / remove wall / remove lobby | keep (different audiences) |
-| 13 | Summaries: TL;DR, glance, Save as text | overlap | rows: `thread_summaries` | keep / drop glance | keep TL;DR, see #1/#2 for glance |
-| 14 | Folding: fold all, fold one, long-post fold, reply filter | overlap | none | keep / merge fold all into filter row | keep, group in one toolbar |
-| 15 | Quote vs Quote selection | overlap | none | keep / merge into one button | already one button; keep |
-| 16 | My posts in four places (header, phone bar, feed tab, `/mine`) | duplicate | none | keep / drop the feed tab | drop the feed tab |
-| 17 | Notifications bell vs phone-bar Alerts, tab unread count | duplicate | none | keep / drop tab unread | keep (opt-in, per device) |
-| 18 | Agent surfaces: MCP, WebMCP, RSS, llms.txt, discovery | overlap | none | keep / drop WebMCP | keep; consider dropping WebMCP |
-| 19 | Server `unanswered=1` filter with no client view | orphan | none | keep / remove param | keep for old links, or remove |
-| 20 | Archive page vs Newest view + load older | overlap (naming) | rows: `post_archive` | keep / rename | rename to make its purpose plain |
-| 21 | Private notes on profiles | orphan-ish | rows: `private_notes` | keep / move to More | keep |
-| 22 | Who's Online card vs chat widget | overlap | rows: `presence` | keep / merge into chat | keep |
+| # | Candidate | Kind | Usage signal | Options | Lean | Decision |
+|---|---|---|---|---|---|---|
+| 1 | Thread jump controls (4 buttons + glance jump + outline + J/K) | overlap | none (browser-only) | keep / merge into one "Jump to" / remove buttons | merge into "Jump to" | Done: one **Jump to** (quick jumps + outline); J/K kept |
+| 2 | Glance read time vs reading progress bar | overlap | none | keep / drop read time / drop bar | drop the read time line | Done: read time dropped |
+| 3 | Three "keep up" models: Follow, Subscribe, Saved boards | overlap (naming) | rows: `follows`, `thread_subscriptions` | keep / rename + explain / merge | keep, rename and explain | Keep |
+| 4 | "Save post" vs "Save as text" | name clash | rows: `bookmarks`; none for text | keep / rename one / hide text in More | rename "Save as text" → "Download as text" | Done: renamed **Download as text** |
+| 5 | Bookmark folders vs saved-by-board chips | overlap | rows: `bookmark_folders` vs none | keep / merge into one filter row / remove one | merge into one filter row | Done: one filter row |
+| 6 | Copy link (card) vs Share menu Copy link | duplicate | none | keep v5.58 state / remove card copy | remove card copy where Share exists | Done in v5.58 |
+| 7 | "Open post" self-link on the thread page | duplicate | none | keep hidden / remove | remove (already hidden) | Skipped: live code that hides the self-link, low value |
+| 8 | Notification controls in six places | overlap | rows: muted kinds, `thread_mutes` | keep / group in one panel | group in one settings panel | Done: tab unread moved beside quiet hours (Notifications) |
+| 9 | Recent searches vs saved searches | overlap | rows: `saved_searches`; recent is browser-only | keep / merge / remove recent | keep both, explain | Keep |
+| 10 | Text size, reading comfort, high contrast, corners, reset | overlap (settings sprawl) | none (browser-only) | keep / merge into one "Display" panel | merge into one panel | Done: one Appearance panel, reset covers every display choice |
+| 11 | Home discovery stack (highlights, QOTD, newest members, showcase, This week, leaderboard) | overlap | none | keep / fold into This week / hide some | fold home boxes into one "This week" card | Done: one **This week** card on home |
+| 12 | Four places to write (threads, profile wall, chat lobby, DMs) | overlap | rows: `posts`, `wall_posts`, `chat_messages`, `dm_messages` | keep / remove wall / remove lobby | keep (different audiences) | Keep |
+| 13 | Summaries: TL;DR, glance, Save as text | overlap | rows: `thread_summaries` | keep / drop glance | keep TL;DR, see #1/#2 for glance | Keep |
+| 14 | Folding: fold all, fold one, long-post fold, reply filter | overlap | none | keep / merge fold all into filter row | keep, group in one toolbar | Done: one toolbar (Jump to, Fold all, filter) |
+| 15 | Quote vs Quote selection | overlap | none | keep / merge into one button | already one button; keep | Keep |
+| 16 | My posts in four places (header, phone bar, feed tab, `/mine`) | duplicate | none | keep / drop the feed tab | drop the feed tab | Done: feed tab dropped; `/mine` works |
+| 17 | Notifications bell vs phone-bar Alerts, tab unread count | duplicate | none | keep / drop tab unread | keep (opt-in, per device) | Keep |
+| 18 | Agent surfaces: MCP, WebMCP, RSS, llms.txt, discovery | overlap | none | keep / drop WebMCP | keep; consider dropping WebMCP | Keep |
+| 19 | Server `unanswered=1` filter with no client view | orphan | none | keep / remove param | keep for old links, or remove | Keep |
+| 20 | Archive page vs Newest view + load older | overlap (naming) | rows: `post_archive` | keep / rename | rename to make its purpose plain | Done: renamed **Deleted posts** (`/archive` unchanged) |
+| 21 | Private notes on profiles | orphan-ish | rows: `private_notes` | keep / move to More | keep | Keep |
+| 22 | Who's Online card vs chat widget | overlap | rows: `presence` | keep / merge into chat | keep | Keep |
 
 Total: **22 candidates**. Gaps the owner asked to see are listed at the end.
 
@@ -347,11 +349,12 @@ add something, so both wait for the owner (feature freeze).
 
 1. **No tag index page.** Tag pages (`/tag/<slug>`) are reachable only from
   tag chips on threads (feature map §6.4). Adding an index is a new page.
-2. **Phones have no language picker.** The header's picker
+  **Done:** `/tags`, in Browse, lists every tag.
+2. **Phones have no language picker.** **Done in v5.60.** The header's picker
   (`routes/account-nav.js`) is not in the phone bar or its More menu, so a
   phone reader cannot change the language from the bar.
 
 ## What happens next
 
-The owner marks each row keep / merge / hide / remove. Any removal is its own
-wave with RED-first tests, and no table is dropped (data stays; no migration).
+Decided: the owner took every row's lean (see the Decision column). No table
+was dropped (data stays; no migration).

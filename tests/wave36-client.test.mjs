@@ -77,6 +77,9 @@ test("saved boards: chips link every board with the active one marked", () => {
   assert.ok(chips.every((chip) => chip.getAttribute("data-app-link") === ""));
   const all = createSavedBoardFilter(document, undefined);
   assert.equal(all.children[0].getAttribute("aria-current"), "page");
+  const shared = createSavedBoardFilter(document, "help", { withAll: false });
+  assert.equal(shared.children.length, BOARDS.length, "no All boards chip in the shared row");
+  assert.ok([...shared.children].every((chip) => chip.href !== "/bookmarks"));
 });
 
 test("saved boards: remove button + empty text name the board", () => {
@@ -111,7 +114,8 @@ test("saved boards: removal asks first; no / bad board sends nothing", async () 
 
 test("saved boards: feed.js wires chips, the remove action and board-aware paging", () => {
   const feed = read("public/js/routes/feed.js");
-  assert.match(feed, /createSavedBoardFilter\(document, board\)/);
+  // Trim list #5: one filter row with the folder chips, no second "All".
+  assert.match(feed, /createSavedBoardFilter\(document, board, \{ withAll: false \}\)/);
   assert.match(feed, /"remove-saved-board": async/);
   assert.match(feed, /savedListPath\(board, button\.dataset\.before\)/);
   assert.match(read("public/js/app.js"), /renderBookmarksRoute\(route, context, version\)/);

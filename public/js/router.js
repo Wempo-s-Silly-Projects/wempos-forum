@@ -55,7 +55,7 @@ export const searchFilters = (params) => {
 // as its allow-list: a page TYPE, never a path, id or slug.
 export const ROUTE_NAMES = Object.freeze([
   "setup", "home", "admin", "notifications", "bookmarks", "category", "archive", "mine", "leaderboard",
-  "rules", "week", "join", "tag", "post", "profile", "search", "settings", "full-search",
+  "rules", "week", "join", "tags", "tag", "post", "profile", "search", "settings", "full-search",
   "not-found",
 ]);
 
@@ -132,6 +132,8 @@ export const routeForPath = (pathname, search = "") => {
       ? withFeedView({ name: "category", board: category[1] }, search)
       : { name: "not-found" };
   }
+  // The tag index: every tag on the forum, linking to its /tag/<slug> page.
+  if (pathname === "/tags") return { name: "tags" };
   // Thread tags (v5.44): /tag/<slug>; the slug shape is the server's
   // ([a-z0-9-]{2,24}), anything else is a 404 like any unknown path.
   const tag = pathname.match(/^\/tag\/([a-z0-9-]{2,24})$/);

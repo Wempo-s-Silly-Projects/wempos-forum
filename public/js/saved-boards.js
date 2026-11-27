@@ -38,11 +38,13 @@ export function savedListPath(board, before) {
   return "/api/me/bookmarks" + (params.length ? "?" + params.join("&") : "");
 }
 
-export function createSavedBoardFilter(document, activeBoard) {
+// withAll: false drops the "All boards" chip when the row shares a line with
+// the folder chips, whose "All saved" already leads back to the whole list.
+export function createSavedBoardFilter(document, activeBoard, { withAll = true } = {}) {
   const nav = document.createElement("nav");
   nav.className = "feed-views saved-boards";
   nav.setAttribute("aria-label", t("saved.filterLabel"));
-  const spec = [[undefined, t("saved.allBoards")], ...BOARDS.map((board) => [board.slug, board.label])];
+  const spec = [...(withAll ? [[undefined, t("saved.allBoards")]] : []), ...BOARDS.map((board) => [board.slug, board.label])];
   for (const [slug, label] of spec) {
     const chip = document.createElement("a");
     chip.className = "feed-view";

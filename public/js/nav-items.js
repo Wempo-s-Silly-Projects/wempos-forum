@@ -52,6 +52,8 @@ export const NAV_ITEMS = Object.freeze([
     audience: "all", header: "browse", mobile: "more" }),
   item({ id: "week", href: "/week", icon: "calendar", labelKey: "week.title",
     audience: "all", header: "browse", mobile: "more" }),
+  item({ id: "tags", href: "/tags", icon: "tag", labelKey: "nav.tags",
+    audience: "all", header: "browse", mobile: "more" }),
   item({ id: "saved", href: "/bookmarks", icon: "bookmarks", labelKey: "nav.savedPosts",
     audience: "member", header: "direct", mobile: "more" }),
   item({ id: "mine", href: "/mine", icon: "list", labelKey: "feed.myPosts", mobileLabelKey: "shell.myPosts",

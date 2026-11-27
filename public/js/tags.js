@@ -146,6 +146,16 @@ export function createLoadMoreTag(document, slug, before) {
   return button;
 }
 
+// The /tags index: every tag as a chip linking to its page, or the empty
+// state. Tags are staff-made public labels (GET /api/tags), so the index
+// shows nothing a guest could not already reach from a thread.
+export function createTagIndex(document, tags) {
+  const page = make(document, "div", "tag-index");
+  const chips = createTagChips(document, tags);
+  page.append(chips ?? make(document, "p", "empty-state", t("tags.none")));
+  return page;
+}
+
 export function createTagPage(document, data) {
   const page = make(document, "div", "tag-page");
   const threads = Array.isArray(data?.threads) ? data.threads : [];

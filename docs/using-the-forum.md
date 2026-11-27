@@ -39,7 +39,8 @@ does not); left unticked it works with every app.
 The header at the top of every page has:
 
 - the forum's name, which takes you home,
-- **Browse**: Suggestions, Archive, Leaderboard, Rules and This week,
+- **Browse**: Suggestions, Deleted posts, Leaderboard, Rules, This week and
+  Tags,
 - **Saved posts**, **My posts**, **Account settings** and the notification
   bell (when you're signed in),
 - **Account**: your profile, the keyboard shortcuts list and **Sign out**
@@ -111,7 +112,7 @@ page always shows the whole thing.
 The first post of a thread keeps four buttons: **Like**, **Dislike**,
 **Share** and **More**. **More** holds everything else, in groups:
 
-- **Reading**: Read aloud, Show spoilers, Save as text.
+- **Reading**: Read aloud, Show spoilers, Download as text.
 - **Following**: Subscribe, Mute thread, Save post.
 - **Sharing**: Copy link, and a link to the post.
 - **This post**: Edit, Delete, Report and Edit tags (when they apply to you).
@@ -123,19 +124,22 @@ Other things you'll find on a thread:
 
 - **Tags** and the **TL;DR** sit with the first post. Each tag opens its own
   page, `/tag/<name>`, listing the threads with that tag, newest first.
+  **Tags** in **Browse** (`/tags`) lists every tag on the forum.
 - Replies you haven't seen yet get a **New** mark, with a button to jump to
   where you left off.
-- A small strip above the replies shows how many people are talking, a rough
-  read time, and a link to the most-liked reply.
-- Long threads have **Jump to latest reply**, **Back to the first post**,
-  **Jump to my reply** and **Next reply from the author** buttons. Threads
-  with 8 or more replies also get a **Jump to** list of every reply, with its
-  author and how long ago it was posted. Whether that list is open is
-  remembered in this browser until you sign out.
+- A small strip above the replies shows how many people are talking and a
+  link to the most-liked reply.
+- One toolbar sits above the replies. **Jump to** opens **Jump to latest
+  reply**, **Jump to my reply**, **Next reply from the author** and **Back to
+  the first post** (each when it applies); threads with 8 or more replies
+  also list every reply there, with its author and how long ago it was
+  posted. Whether Jump to is open is remembered in this browser until you
+  sign out. **Fold all replies** and **Filter replies** sit beside it.
 - Replies from the thread's starter carry an **Author** chip; your own posts
   carry a **You** chip. Members who joined in the last 7 days carry a
   **New 👋** chip.
-- **Fold** a reply (or **Fold all replies**) to shrink it to its author line.
+- **Fold** a reply (or **Fold all replies**, in the toolbar) to shrink it to
+  its author line.
 - **Filter replies**: on threads with three or more replies, type a word to
   show only the replies that mention it.
 - **Show spoilers** uncovers every spoiler in a post at once.
@@ -168,8 +172,9 @@ image viewer's arrow keys, and Esc.
 ## Reactions, saving and following
 
 - **React** to posts with a like or dislike.
-- **Save** posts to come back to later. Your **Saved posts** page can be
-  narrowed to one board, and you can clear one board's saved posts in one go.
+- **Save** posts to come back to later. Your **Saved posts** page has one
+  filter row: **All saved**, your folders, **New folder**, then one chip per
+  board. You can clear one board's saved posts in one go.
 - **Folders**: sort saved posts into up to 20 private folders. Use **Add to
   folder** on a saved post, or open a folder to rename it, delete it or take
   posts out. Deleting a folder keeps its posts saved. Only you see your
@@ -264,16 +269,17 @@ avatars and profile CSS are reviewed by the mods before they show publicly.
 ## Community traditions
 
 - **Question of the Day**: the owner posts a thread starting with "QOTD". It
-  gets a QOTD chip, and the home feed shows a **Today's question** banner, with
-  a **You answered** chip once you've replied.
+  gets a QOTD chip, and the home page's **This week** card shows it as
+  **Today's question**, with a **You answered** chip once you've replied.
 - **This week** (`/week`, in **Browse**): the staff pick, the busiest threads
   and the newest Showcase builds of the last 7 days.
 - **Staff pick**: staff can choose one Showcase thread as the **Staff pick ⭐**.
   It sits at the top of the Showcase gallery and on This week.
-- **Newest members**: the home page lists the five newest members, so you can
-  say hi.
+- **Newest members**: the home page's **This week** card lists the five
+  newest members, so you can say hi.
 - **Leaderboard**: the top ten contributors of all time.
-- **Archive**: a public record of deleted posts and accounts.
+- **Deleted posts** (`/archive`): a public record of deleted posts and
+  accounts.
 - **Rules**: the house rules. Please read them!
 
 ## Settings
@@ -284,15 +290,15 @@ section** list, and four groups:
 
 - **Appearance & reading** (saved in this browser only):
   - **Appearance**: light or dark theme, text size (Default, Large, Larger),
-    square corners, and an optional unread count in the browser tab title.
-    **Reset appearance** puts these back to the defaults (your theme and
-    language are left alone).
-  - **Reading comfort**: line spacing, always-underlined links, high
-    contrast (Auto, On, Off) and **Easy-reading spacing**, which adds space
-    between letters, words, lines and paragraphs.
+    square corners, line spacing, always-underlined links, **Easy-reading
+    spacing** (more space between letters, words, lines and paragraphs),
+    high contrast (Auto, On, Off) and hiding strong language. **Reset
+    appearance** puts every display choice back to the default (your theme,
+    language and the strong-language choice are left alone).
 - **Notifications**:
   - **Quiet hours**: between two hours you pick, the unread count in the tab
-    title is hidden on this device. Off until you turn it on.
+    title is hidden on this device. Off until you turn it on. The optional
+    unread count in the browser tab title is switched on here too.
   - **Notification types**: one checkbox for each kind of notification
     (replies to your posts, replies in threads you subscribed to, mentions in
     posts, mentions in chat, new threads from members you follow, friends who

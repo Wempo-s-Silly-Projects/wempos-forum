@@ -105,6 +105,10 @@ export function ensureFoldAllToggle(document, replyList) {
   const existing = replyList.parentNode.querySelector?.(".fold-all-replies");
   if (existing) return existing;
   const toggle = createFoldAllToggle(document, replyList, topLevelCards(replyList).length);
-  if (toggle) replyList.parentNode.insertBefore(toggle, replyList);
+  if (!toggle) return null;
+  // Trim list #14: the thread toolbar holds Jump to, Fold all and the filter.
+  const toolbar = replyList.parentNode.querySelector?.(".thread-tools");
+  if (toolbar) toolbar.insertBefore(toggle, toolbar.querySelector?.(".reply-filter") ?? null);
+  else replyList.parentNode.insertBefore(toggle, replyList);
   return toggle;
 }
