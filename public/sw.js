@@ -61,6 +61,24 @@ async function cacheFirst(request) {
   return response;
 }
 
+// ES modules must stay in one deploy's graph. Their URLs are intentionally
+// stable, so cache-first can combine an old dependency with a new importer
+// after a deploy (for example, render.js importing vendorIcon from icons.js).
+// Revalidate every script with the network; retain a last-known-good copy only
+// as an offline fallback.
+async function networkFirstScript(request) {
+  const cache = await caches.open(CACHE_NAME);
+  try {
+    const response = await fetch(new Request(request, { cache: "no-cache" }));
+    if (isStorable(response)) await cache.put(request, response.clone());
+    return response;
+  } catch (error) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    throw error;
+  }
+}
+
 async function networkOrOffline(request) {
   try {
     return await fetch(request);
@@ -90,6 +108,10 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
   if (request.mode === "navigate") {
     event.respondWith(networkOrOffline(request));
+    return;
+  }
+  if (url.pathname.startsWith("/js/")) {
+    event.respondWith(networkFirstScript(request));
     return;
   }
   if (isStaticAsset(url)) event.respondWith(cacheFirst(request));
