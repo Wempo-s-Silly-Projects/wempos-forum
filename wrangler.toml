@@ -54,6 +54,10 @@ SATURDAY_FOOLS = "on"
 
 VERSION = "5.97.0"
 
+[triggers]
+# Enforce client-error aggregate retention even when no reports arrive.
+crons = ["17 3 * * *"]
+
 [assets]
 enabled = true
 directory = "./public"
