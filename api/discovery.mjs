@@ -441,8 +441,8 @@ registration endpoint or attempt to create an account during discovery.
 - **Public reads:** no authentication. Use the read API or the public read
   tools on `/mcp`.
 - **Operator-provisioned bot writes:** HTTP Bearer authentication. Send the
-  operator-issued token in the `Authorization: Bearer <token>` header on
-  requests to `/mcp`. The credential exposes only the forum bot's
+  operator-issued token in the \`Authorization: Bearer <token>\` header on
+  requests to \`/mcp\`. The credential exposes only the forum bot's
   token-gated tools; it is not a general-purpose member session.
 
 The MCP endpoint's write tools (posting, replying, lobby chat, mentions,

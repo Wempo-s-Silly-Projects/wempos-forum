@@ -136,7 +136,7 @@ test("navigations go to the network, are never cached, and fall back to the offl
   assert.equal(await offline.text(), "cached /offline.html");
 });
 
-test("static assets are cached once and served from cache; no-store or HTML answers are not kept", async () => {
+test("JavaScript modules revalidate online to prevent mixed-build exports; other assets remain cache-first", async () => {
   let fetched = 0;
   const worker = loadWorker({
     fetchImpl: async (request) => {
@@ -151,11 +151,14 @@ test("static assets are cached once and served from cache; no-store or HTML answ
   assert.equal(await first.text(), `asset ${ORIGIN}/js/app.js`);
   const second = await worker.fire("fetch", get("/js/app.js"));
   assert.equal(await second.text(), `asset ${ORIGIN}/js/app.js`);
-  assert.equal(fetched, 1, "the second load comes from the cache");
+  assert.equal(fetched, 2, "JavaScript is revalidated with the network on every request");
+  await worker.fire("fetch", get("/styles.css"));
+  await worker.fire("fetch", get("/styles.css"));
+  assert.equal(fetched, 3, "non-script assets remain cache-first");
   await worker.fire("fetch", get("/locales/fr.json"));
   await worker.fire("fetch", get("/icons/odd.svg"));
   const store = worker.caches.stores.get("forum-static-" + BUILD);
-  assert.deepEqual([...store.keys()], [`${ORIGIN}/js/app.js`]);
+  assert.deepEqual([...store.keys()], [`${ORIGIN}/js/app.js`, `${ORIGIN}/styles.css`]);
 });
 
 test("registration waits for a build stamp and versions the worker URL with it", async () => {
