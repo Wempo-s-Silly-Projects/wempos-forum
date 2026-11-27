@@ -22,7 +22,7 @@
 // api/; worker.mjs re-exports the functions that tests import. workerd
 // validates every Worker export as a function or ExportedHandler, so besides
 // the default fetch only `export { ... } from` re-exports appear here.
-import { HttpError, json, secureResponse, unconditional } from "./api/core/http.mjs";
+import { HttpError, json, secureResponse, securityHeaders, unconditional } from "./api/core/http.mjs";
 import { HUMAN_CHECK_MODES, STATIC_HTML_PAGES } from "./constants.mjs";
 // Phase-2 Kitskey migration: the ONE error classifier and the dispatch chain
 // come from the vendored framework (core re-exports both; the byte-pin keeps
@@ -95,6 +95,7 @@ import { gateModulePath, offClientModuleIds } from "./api/core/modules.mjs";
 import { attributeEscape, withPageHead } from "./api/seo.mjs";
 import { accountsOrigin, configuredOrigin } from "./api/core/site.mjs";
 import { sourceUrl } from "./api/core/source-url.mjs";
+import { isAutoMaintenanceActive, recordMaintenanceHealth } from "./api/core/maintenance.mjs";
 // The client router is the single source of truth for page routes (v5.2): a
 // path it can't match answers the shell with an honest 404.
 import { routeForPath, routeModuleId } from "./public/js/router.js";
@@ -314,6 +315,105 @@ async function routeApi(request, env, ctx) {
   return answerApiRoute(request, env, url, path, method, ctx);
 }
 
+// Automatic maintenance: the scheduled probe checks the database, the public
+// shell, the browser entry module and the real API version route. Three
+// consecutive failures switch visitors to the static 503 page; three
+// consecutive successful probes restore normal routing.
+async function applicationHealthCheck(env) {
+  if (!env.FORUM_DB || !env.ASSETS) return false;
+  try {
+    const db = await env.FORUM_DB.prepare("SELECT 1 AS ok").first();
+    if (Number(db?.ok) !== 1) return false;
+
+    // Check required application tables and columns, not merely D1
+    // connectivity. ensureFilterWords intentionally tolerates a missing
+    // setting row/table, so the monitor probes the schema directly.
+    await env.FORUM_DB.prepare("SELECT key, value FROM site_settings LIMIT 1").first();
+    await env.FORUM_DB.prepare("SELECT id FROM users LIMIT 1").first();
+
+    const checkAsset = async (path, expectedType) => {
+      const response = await env.ASSETS.fetch(new Request(new URL(path, "https://health.internal")));
+      const type = (response.headers.get("Content-Type") || "").toLowerCase();
+      await response.body?.cancel();
+      return response.status === 200 && type.includes(expectedType);
+    };
+    if (!(await checkAsset("/", "text/html"))) return false;
+    if (!(await checkAsset("/js/app.js", "javascript"))) return false;
+
+    const version = await routeApi(new Request("https://health.internal/api/version"), env, undefined);
+    const ready = version?.status === 200;
+    await version?.body?.cancel();
+    return ready;
+  } catch (error) {
+    console.error("Automatic maintenance health check failed:", error instanceof Error ? error.name : "unknown");
+    return false;
+  }
+}
+
+const MAINTENANCE_ASSETS = new Set(["/maintenance.css", "/maintenance.js"]);
+
+async function maintenanceResponse(request, env) {
+  const url = new URL(request.url);
+  const isAsset = MAINTENANCE_ASSETS.has(url.pathname);
+
+  // Keep machine clients machine-readable while the browser receives the
+  // static maintenance document. MCP uses a JSON-RPC error envelope; ordinary
+  // API routes use the forum's standard JSON error shape.
+  if (!isAsset && url.pathname.startsWith("/api/")) {
+    return json(
+      { error: "The forum is temporarily unavailable for maintenance.", code: "maintenance_mode" },
+      503,
+      { "Retry-After": "300" },
+    );
+  }
+  if (!isAsset && url.pathname === "/mcp") {
+    return json(
+      {
+        jsonrpc: "2.0",
+        error: { code: -32000, message: "The forum is temporarily unavailable for maintenance." },
+        id: null,
+      },
+      503,
+      { "Retry-After": "300" },
+    );
+  }
+
+  const path = isAsset ? url.pathname : "/maintenance.html";
+  let asset;
+  try {
+    if (env.ASSETS) {
+      asset = await env.ASSETS.fetch(new Request(new URL(path, url), { method: "GET" }));
+    }
+  } catch {
+    // The fallback below still gives visitors a useful message if assets fail.
+  }
+
+  // Reuse the shared response policy so maintenance pages retain HSTS and
+  // every other baseline security header applied to ordinary responses.
+  const headers = securityHeaders(new Headers(asset?.headers));
+  headers.set("Cache-Control", "no-store");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("X-Robots-Tag", "noindex, nofollow");
+  headers.set(
+    "Content-Security-Policy",
+    "default-src 'none'; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+  );
+  if (!isAsset) headers.set("Retry-After", "300");
+
+  const body = asset?.ok
+    ? asset.body
+    : "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Maintenance · Wempo's Forum</title><main><h1>We're down for maintenance</h1><p>Wempo's Forum is temporarily unavailable. Please try again soon.</p><p><a href=\"/\">Try again</a></p></main></html>";
+  if (!asset?.ok) headers.set("Content-Type", "text/html; charset=utf-8");
+
+  return new Response(request.method === "HEAD" ? null : body, {
+    status: isAsset && asset?.ok ? asset.status : 503,
+    statusText: isAsset && asset?.ok ? asset.statusText : "Service Unavailable",
+    headers,
+  });
+}
+
 export default {
   async scheduled(controller, env) {
     try {
@@ -333,6 +433,11 @@ export default {
     const canonicalOrigin = configuredOrigin(env && env.SITE_ORIGIN);
     if (canonicalOrigin && url.hostname.endsWith(".workers.dev") && url.origin !== canonicalOrigin) {
       return Response.redirect(`${canonicalOrigin}${url.pathname}${url.search}`, 301);
+    }
+    // A manual override always wins; automatic mode is driven by the
+    // concurrency-safe state row in the forum D1 database.
+    if (env.MAINTENANCE_MODE === "on" || env.MAINTENANCE_MODE === "true" || await isAutoMaintenanceActive(env)) {
+      return maintenanceResponse(request, env);
     }
     if (url.pathname.startsWith("/api/")) {
       try {
@@ -397,6 +502,14 @@ export default {
     } catch (error) {
       console.error("Static asset request failed:", error);
       return json({ error: "The requested page could not be loaded." }, 500);
+    }
+  },
+  async scheduled(_controller, env) {
+    try {
+      const healthy = await applicationHealthCheck(env);
+      await recordMaintenanceHealth(env, healthy);
+    } catch (error) {
+      console.error("Automatic maintenance monitor could not update state:", error instanceof Error ? error.name : "unknown");
     }
   },
 };

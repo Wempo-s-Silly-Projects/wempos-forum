@@ -1,0 +1,109 @@
+/*
+ * Copyright 2026 ItsWempo
+ *
+ * This file is part of Wempo's Forum.
+ *
+ * Wempo's Forum is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* SPDX-FileCopyrightText: 2026 ItsWempo */
+
+:root {
+  color-scheme: light dark;
+  font-family: "Trebuchet MS", "Segoe UI", "Noto Sans Ethiopic", "Kefa", "Nyala", "Ebrima", sans-serif;
+  color: #24364a;
+  background: #f7efdc;
+  font-synthesis: none;
+  --paper: #fffaf0;
+  --paper-shadow: #e5d7bc;
+  --ink: #24364a;
+  --muted: #52606f;
+  --line: #cbbd9f;
+  --green: #397357;
+  --red: #a33d3d;
+  --desk: #f7efdc;
+  --desk-dot: #cfbf9c;
+  --link: #245f49;
+  --focus: #0758c9;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    color: #e8e4d8;
+    background: #131b27;
+    --paper: #1d2836;
+    --paper-shadow: #0c1219;
+    --ink: #e8e4d8;
+    --muted: #a4aeba;
+    --line: #3d4d61;
+    --green: #378255;
+    --red: #ff8f8f;
+    --desk: #131b27;
+    --desk-dot: #26344a;
+    --link: #7fd0a2;
+    --focus: #8ab6ff;
+  }
+}
+* { box-sizing: border-box; }
+html { min-width: 320px; min-height: 100%; }
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  color: var(--ink);
+  background-color: var(--desk);
+  background-image: radial-gradient(var(--desk-dot) 0.6px, transparent 0.6px);
+  background-size: 12px 12px;
+  line-height: 1.6;
+}
+a {
+  color: var(--link);
+  text-underline-offset: 0.2em;
+  overflow-wrap: anywhere;
+}
+a:hover { text-decoration-thickness: 2px; }
+:where(a, button):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.panel {
+  width: min(100%, 42rem);
+  margin: 1rem auto;
+  padding: clamp(1.2rem, 5vw, 2rem);
+  border: 2px solid var(--line);
+  border-radius: 0.65rem 1rem 0.6rem 0.9rem;
+  background: var(--paper);
+  box-shadow: 3px 4px 0 var(--paper-shadow);
+}
+.offline-page h1 {
+  margin: 0;
+  color: var(--red);
+  font-family: "Comic Sans MS", "Chalkboard SE", "Trebuchet MS", cursive;
+  font-size: clamp(1.8rem, 6vw, 2.5rem);
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+.offline-page p {
+  margin: 0.85rem 0 0;
+  color: var(--muted);
+}
+.offline-page p:last-child { margin-top: 1.2rem; }
+.offline-page a { font-weight: 700; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}

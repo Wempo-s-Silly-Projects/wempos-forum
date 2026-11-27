@@ -327,3 +327,8 @@ persist = true
 
 [observability.issue_detection]
 enabled = true
+
+# Check application readiness once per minute. Three consecutive failed
+# probes activate the maintenance page; three successful probes recover.
+[triggers]
+crons = ["* * * * *"]
