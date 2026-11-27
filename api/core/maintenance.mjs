@@ -30,6 +30,7 @@ const READ_STATE_SQL = `
 let cachedDatabase = null;
 let cachedState = null;
 let cachedUntil = 0;
+let cacheGeneration = 0;
 
 function emptyState() {
   return {
@@ -70,11 +71,16 @@ export async function isAutoMaintenanceActive(env) {
     return cachedState.active;
   }
 
+  const generation = cacheGeneration;
   try {
     const state = await readState(database);
-    cachedDatabase = database;
-    cachedState = state;
-    cachedUntil = now + CACHE_TTL_MS;
+    // A scheduled update may have completed while this read was in flight.
+    // Do not let that older read repopulate the cache after invalidation.
+    if (generation === cacheGeneration) {
+      cachedDatabase = database;
+      cachedState = state;
+      cachedUntil = now + CACHE_TTL_MS;
+    }
     return state.active;
   } catch {
     // The monitor's own D1 state must not take the forum offline. The manual
@@ -145,9 +151,9 @@ export async function recordMaintenanceHealth(env, healthy, now = Date.now()) {
     RECOVERY_THRESHOLD,
   ).run();
 
-  const state = await readState(database);
-  cachedDatabase = database;
-  cachedState = state;
-  cachedUntil = now + CACHE_TTL_MS;
-  return state;
+  cacheGeneration += 1;
+  cachedDatabase = null;
+  cachedState = null;
+  cachedUntil = 0;
+  return readState(database);
 }
