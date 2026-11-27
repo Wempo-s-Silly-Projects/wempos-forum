@@ -72,7 +72,7 @@ import { handleBrandingRoutes, readStoredBranding } from "./api/branding.mjs";
 import { handleSaturdayFoolsRoutes, saturdayFoolsMeta } from "./api/saturday-fools.mjs";
 import { handleAnalyticsRoutes, scheduleCount } from "./api/analytics.mjs";
 import { handleVitalsRoutes } from "./api/vitals.mjs";
-import { handleClientErrorRoutes } from "./api/client-errors.mjs";
+import { handleClientErrorRoutes, pruneClientErrors } from "./api/client-errors.mjs";
 import { handleMaintenanceRoutes, maintenanceEnabled } from "./api/maintenance.mjs";
 import { readSession } from "./api/core/auth.mjs";
 import { handleDiscovery, withDiscoveryHeaders } from "./api/discovery.mjs";
@@ -288,6 +288,13 @@ async function routeApi(request, env, ctx) {
 }
 
 export default {
+  async scheduled(controller, env) {
+    try {
+      await pruneClientErrors(env);
+    } catch (error) {
+      console.error("Scheduled client-error retention cleanup failed:", error);
+    }
+  },
   async fetch(request, env, ctx) {
     // The search module's write-path sync runs detached under waitUntil.
     rememberExecutionContext(request, ctx);
