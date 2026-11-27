@@ -266,6 +266,7 @@ const MAINTENANCE_AUTH_EXEMPT = new Set([
   "/api/auth/passkey",
   "/api/auth/sso/redeem",
   "/api/relay/password-verify",
+  "/api/altcha/challenge",
 ]);
 
 async function maintenanceApiResponse(request, env, path) {
