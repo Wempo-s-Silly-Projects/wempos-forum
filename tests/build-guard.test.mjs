@@ -22,6 +22,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { reloadIfStaleBuild } from "../public/js/build-guard.js";
+import { prepareRouteModule } from "../public/js/route-preparation.js";
 
 test("matching build stamps do not reload", async () => {
   let reloads = 0;
@@ -34,31 +35,45 @@ test("matching build stamps do not reload", async () => {
   assert.equal(reloads, 0);
 });
 
-test("a changed build reloads the document before lazy route modules load", async () => {
+test("a changed build reloads before importing the lazy route module", async () => {
   let reloads = 0;
-  const requests = [];
-  const stale = await reloadIfStaleBuild({
-    api: async (path) => {
-      requests.push(path);
-      return { version: "5.98.0", commit: "def5678" };
+  let imports = 0;
+  const prepared = await prepareRouteModule({
+    version: 7,
+    prepareContext: async (version) => {
+      assert.equal(version, 7);
+      const stale = await reloadIfStaleBuild({
+        api: async (path) => {
+          assert.equal(path, "/api/version");
+          return { version: "5.98.0", commit: "def5678" };
+        },
+        servedBuild: "5.97.0@abc1234",
+        reload: () => { reloads += 1; },
+      });
+      return stale ? null : { ready: true };
     },
-    servedBuild: "5.97.0@abc1234",
-    reload: () => { reloads += 1; },
+    loadModule: () => {
+      imports += 1;
+      return Promise.resolve({ loaded: true });
+    },
   });
-  assert.equal(stale, true);
-  assert.deepEqual(requests, ["/api/version"]);
+  assert.equal(prepared, null);
   assert.equal(reloads, 1);
+  assert.equal(imports, 0, "a stale build must not import a lazy route module");
+});
 
-  const app = readFileSync(new URL("../public/js/app.js", import.meta.url), "utf8");
-  const context = app.slice(app.indexOf("async function prepareRouteContext"), app.indexOf("function setRouteTitle"));
-  assert.ok(context.includes("reloadIfStaleBuild"), "the route context checks the served build");
-  assert.match(context, /\|\| staleBuild\) return null;/, "a stale build ends the render");
-  const route = app.slice(app.indexOf("async function renderRoute"), app.indexOf("function readForm"));
-  const check = route.indexOf("await prepareRouteContext(version)");
-  assert.ok(check >= 0, "route rendering prepares the route context");
-  assert.ok(check < route.indexOf("if (!context) return;"), "a null context stops the render");
-  assert.ok(route.indexOf("if (!context) return;") < route.indexOf("loadRouteModule(owner)"),
-    "the stale-build check runs before importing a lazy route module");
+test("a current route context loads its lazy module", async () => {
+  let imports = 0;
+  const prepared = await prepareRouteModule({
+    version: 8,
+    prepareContext: async () => ({ ready: true }),
+    loadModule: () => {
+      imports += 1;
+      return Promise.resolve({ loaded: true });
+    },
+  });
+  assert.deepEqual(prepared, { context: { ready: true }, view: { loaded: true } });
+  assert.equal(imports, 1);
 });
 
 test("a failed version probe does not block navigation", async () => {
