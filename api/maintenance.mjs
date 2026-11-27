@@ -24,6 +24,7 @@ import { requireAdmin } from "./core/auth.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { maintenanceEnabled, setMaintenanceCache } from "./core/maintenance-state.mjs";
+export { maintenanceEnabled };
 
 export const MAINTENANCE_SETTING = "maintenance_mode";
 
