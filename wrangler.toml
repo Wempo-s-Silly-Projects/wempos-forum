@@ -55,6 +55,7 @@ SATURDAY_FOOLS = "on"
 VERSION = "5.97.0"
 
 [assets]
+enabled = true
 directory = "./public"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
@@ -309,3 +310,28 @@ namespace_id = "614202610142013"
 [env.preview.ratelimits.simple]
 limit = 10
 period = 60
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 1
+persist = true
+
+[observability.issue_detection]
+enabled = true
+
+
+# Automatic maintenance: a small, dedicated R2 object stores only the
+# health-check streak and transition timestamps. No member or forum content.
+[[r2_buckets]]
+binding = "MAINTENANCE_STATE"
+bucket_name = "wempos-forum-health"
+
+# Check application readiness once per minute. Three consecutive failed
+# probes activate the maintenance page; three successful probes recover.
+[triggers]
+crons = ["* * * * *"]

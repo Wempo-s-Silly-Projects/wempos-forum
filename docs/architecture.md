@@ -28,6 +28,17 @@ Wempo Accounts (separate worker, same database) ───┘
 - **No framework, no bundler, no build step**, on either side. Both the
   server and the browser run plain ES modules exactly as they're written.
 
+## Automatic maintenance
+
+The Worker runs a scheduled readiness probe once per minute. Three
+consecutive failures (D1, the HTML shell, the app entry module or
+`/api/version`) switch requests to the static maintenance page; three
+consecutive successful probes restore normal routing. The streak and
+transition timestamps live in a dedicated R2 bucket. An owner can force the
+page with the `MAINTENANCE_MODE=on` Worker variable; unset it or set it to
+`off` to return to automatic control. See
+[automatic-maintenance.md](automatic-maintenance.md).
+
 ## Server: `worker.mjs` and `api/`
 
 `worker.mjs` is the entry point. For each request it applies rate limits
