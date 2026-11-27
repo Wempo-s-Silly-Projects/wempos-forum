@@ -28,6 +28,7 @@
 // limiter tier. The code never touches credential internals, and the pepper
 // and TOTP primitives stay exactly as they were.
 import { assertNetworkNotBanned, createSession, requireCsrf } from "./core/auth.mjs";
+import { assertMaintenanceLoginAllowed } from "./core/maintenance-state.mjs";
 import { nowSeconds } from "./core/crypto.mjs";
 import { HttpError, json, rateLimit, readJson } from "./core/http.mjs";
 import { publicUser, userById } from "./core/shapers.mjs";
@@ -111,6 +112,7 @@ export async function handleAccountsRoutes(request, env, url, path, method) {
     // signed in): the relay echo of username/role is never trusted.
     const user = await userById(env, redeemed.userId);
     if (!user) throw new HttpError(401, SSO_REFUSED);
+    await assertMaintenanceLoginAllowed(env, Number(user.id));
 
     // The ban gate, verbatim from the login route — the payload (reason +
     // expiresAt) is only readable after the relay proved the visitor signed
