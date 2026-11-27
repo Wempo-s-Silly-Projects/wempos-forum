@@ -172,9 +172,19 @@ for (const { code } of LOCALES.filter((locale) => locale.code !== DEFAULT_LOCALE
   });
 }
 
+// Literals that never reach the page, with the reason.
+// Exempt only the two exact diagnostic-payload occurrences. A later reuse
+// of either phrase in painted UI copy must still be caught by this sweep.
+const NOT_PAINTED = new Map([
+  ["app.js:233 \"Unknown client exception\"", "client error report payload (staff-only diagnostics)"],
+  ["app.js:258 \"Window error\"", "client error report payload (staff-only diagnostics)"],
+]);
+
 test("no-copy sweep: no painted English literals left in public/js", () => {
   const leftovers = clientFiles().flatMap((file) =>
-    findCopy(readFileSync(file, "utf8")).map((hit) => `${file.slice(JS_DIR.length)}:${hit.line} ${JSON.stringify(hit.text)}`));
+    findCopy(readFileSync(file, "utf8"))
+      .filter((hit) => !NOT_PAINTED.has(`${file.slice(JS_DIR.length)}:${hit.line} ${JSON.stringify(hit.text)}`))
+      .map((hit) => `${file.slice(JS_DIR.length)}:${hit.line} ${JSON.stringify(hit.text)}`));
   assert.deepEqual(leftovers, []);
 });
 

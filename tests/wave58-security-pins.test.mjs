@@ -18,7 +18,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// Wave 5.8: security review of v5.4.0..v5.7.0 (docs/drafts/security-review-5.8.md).
+// Wave 5.8: security review of v5.4.0..v5.7.0 (docs/archive/drafts/security-review-5.8.md).
 // One fix (caps guard lowered an upper-case-scheme link it promised to keep)
 // plus regression pins on the riskiest client surfaces the range added.
 import { test } from "node:test";

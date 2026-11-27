@@ -188,6 +188,9 @@ const NOT_A_SPOILER_SURFACE = new Map([
   ["api/client-errors.mjs:2000", "client error stack clamp (diagnostics, not a post body)"],
   ["api/client-errors.mjs:1200", "client error message/stack fingerprint (diagnostics, not a post body)"],
   ["public/js/app.js:500", "client error report message clamp (diagnostics, not a post body)"],
+  ["api/client-errors.mjs:2000", "client error report stack clamp (staff-only diagnostics, not a preview)"],
+  ["api/client-errors.mjs:1200", "client error fingerprint input (hashed, never rendered)"],
+  ["public/js/app.js:500", "client error report message clamp (staff-only diagnostics, not a preview)"],
 ]);
 
 const EXCERPT_LINE = /\b(?:body|snippet|preview|excerpt|reply_body|message|text|firstLine|flat)\b[^\n;]*\.slice\(0,\s*([A-Z_0-9]+)/i;

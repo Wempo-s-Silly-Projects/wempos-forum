@@ -47,6 +47,7 @@ export default [
   },
   {
     // The maintenance page's classic script runs in the browser.
+    // The maintenance page's classic script (public/maintenance.html).
     files: ['public/maintenance.js'],
     languageOptions: { sourceType: 'script', globals: { ...globals.browser } },
   },

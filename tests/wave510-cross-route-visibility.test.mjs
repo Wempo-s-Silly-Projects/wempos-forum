@@ -18,7 +18,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// Wave 5.10 — the whole-repo visibility re-audit (docs/drafts/visibility-
+// Wave 5.10 — the whole-repo visibility re-audit (docs/archive/drafts/visibility-
 // audit-5.10.md). Extends the wave-40 sweep (kept as-is) with the standard
 // fixture cast — public root, hidden root, reply under hidden, banned author,
 // EXPIRED-ban author (must stay visible), block pair both directions, staff,

@@ -26,13 +26,30 @@ npm.
 git clone https://github.com/Wempo-s-Silly-Projects/wempos-forum
 cd wempos-forum
 pnpm install
-pnpm run db:migrate:local    # local database with every migration applied
-pnpm run dev                 # the forum on your machine (wrangler dev)
-pnpm test                    # the test suite
+pnpm setup:local    # once: local secrets in .dev.vars + both local databases
+pnpm dev            # the forum at http://localhost:8787, no Cloudflare login
+pnpm check          # lint + the test suite, the same checks CI runs
 ```
 
-If you need local secrets, put them in a `.dev.vars` file. It's git-ignored —
-never commit it, or any `.env` file. This repository is public.
+`pnpm setup:local` creates `.dev.vars` with random local-only secrets and
+`HUMAN_CHECK=off`, but only if the file doesn't exist yet: it never
+overwrites yours and never prints the values. Then it applies every
+migration to both local databases. Rerun `pnpm run db:migrate:local` after
+pulling new migrations. `.dev.vars` is git-ignored: never commit it, or any
+`.env` file. This repository is public.
+
+Sign-in normally goes through Wempo Accounts, which doesn't run locally.
+Open <http://localhost:8787/setup> once and create the owner account with
+the `SETUP_SECRET` from `.dev.vars`; that signs you in. AI features (the
+Workers AI binding) are unavailable locally.
+
+Other handy commands:
+
+| Command | What it does |
+|---|---|
+| `pnpm test:watch` | Re-runs the tests when you save a file |
+| `pnpm i18n:add <key> "<English>"` | Adds a translation key to every locale file (see [Translations](#translations)) |
+| `pnpm i18n:remove <key>` | Removes a translation key from every locale file |
 
 ### Using an AI coding agent (optional)
 
@@ -60,7 +77,7 @@ Then add the plugins listed in its `PLUGINS.md`.
 2. Make your change. Keep it focused: one fix or feature per pull request.
 3. Add or update tests. Bug fixes should come with a test that fails without
    the fix.
-4. Run `pnpm test` and make sure everything passes. CI also runs Semgrep
+4. Run `pnpm check` (lint + tests) and make sure everything passes. CI also runs Semgrep
    (`.github/workflows/semgrep.yml`), a security scan that fails on findings.
 5. Open a pull request against `main`. Say what changed and why, and how you
    tested it. Screenshots help for anything visual.
@@ -157,6 +174,9 @@ people see:
 
 1. Add the string to `public/locales/en.json` with a clear key.
 2. Add the same key to **every** other file in `public/locales/`.
+   `pnpm i18n:add <key> "<English text>"` does both at once (add
+   `--translations <file.json>` with `{ "<locale>": "<text>" }` to fill in
+   the translations too); `pnpm i18n:remove <key>` undoes it.
 3. In code, show it with `t("your.key")` (or `tn("your.key", count)` for
    plurals) from `public/js/i18n.js`. Don't hard-code English text.
 

@@ -72,7 +72,7 @@ test("REUSE.toml annotates every vendored profile library as MIT with its upstre
 
 test("css-tree is a Worker dependency and the CSP is unchanged by this batch", () => {
   const pkg = JSON.parse(read("package.json"));
-  assert.equal(pkg.dependencies["css-tree"], "latest");
+  assert.match(pkg.dependencies["css-tree"], /^\^\d+\.\d+\.\d+$/);
   const vendorHttp = read("api/vendor/http.mjs");
   assert.match(vendorHttp, /style-src 'self';/);
   assert.match(vendorHttp, /img-src 'self' data:;/);

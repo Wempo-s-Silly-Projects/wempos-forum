@@ -18,7 +18,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// Wave 5.16 security review of v5.12.0..v5.15.0 (docs/drafts/security-review-5.16.md).
+// Wave 5.16 security review of v5.12.0..v5.15.0 (docs/archive/drafts/security-review-5.16.md).
 // S1: a close that lands between a vote's (or a take-back's) poll read and its
 // write must still win — the write itself re-checks that voting is open.
 // Pins: a reply never carries a closable poll; a post edit can never move a
