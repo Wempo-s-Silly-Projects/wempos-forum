@@ -55,8 +55,8 @@ SATURDAY_FOOLS = "on"
 VERSION = "5.97.0"
 
 [triggers]
-# Enforce client-error aggregate retention even when no reports arrive.
-crons = ["17 3 * * *"]
+# Readiness monitor every minute; client-error retention cleanup daily.
+crons = ["* * * * *", "17 3 * * *"]
 
 [assets]
 enabled = true
@@ -330,5 +330,4 @@ enabled = true
 
 # Check application readiness once per minute. Three consecutive failed
 # probes activate the maintenance page; three successful probes recover.
-[triggers]
-crons = ["* * * * *"]
+
