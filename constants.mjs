@@ -408,7 +408,7 @@ export const WAVESURFER_STYLE_HASH = "sha256-/wNXXQM7c2ofBcjrAABoSS5Ibbo1K6dLnom
 // worker's honest-404 pass lets these through as themselves instead of judging
 // them as SPA-fallback paths; tests/wave52-honest-404.test.mjs walks public/
 // so an unlisted page fails CI. The offline page is pre-cached by public/sw.js.
-export const STATIC_HTML_PAGES = Object.freeze(["/offline.html"]);
+export const STATIC_HTML_PAGES = Object.freeze(["/offline.html", "/maintenance.html"]);
 
 // Batch I (profiles and identity). The client mirrors each of these (it
 // cannot import this file); tests/profile2-identity.test.mjs pins them equal.

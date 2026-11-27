@@ -12,8 +12,9 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 //
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// You should have received a copy of the
+// GNU Affero General Public License along with this program.  If not,
+// see <https://www.gnu.org/licenses/>.
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
@@ -49,9 +50,13 @@ test("a changed build reloads the document before lazy route modules load", asyn
   assert.equal(reloads, 1);
 
   const app = readFileSync(new URL("../public/js/app.js", import.meta.url), "utf8");
+  // The probe lives in prepareRouteContext (run alongside the session/setup
+  // reads); renderRoute must await that context before any lazy import.
+  const context = app.slice(app.indexOf("async function prepareRouteContext"), app.indexOf("async function renderRoute"));
+  assert.ok(context.indexOf("reloadIfStaleBuild") >= 0, "the route context checks the served build");
   const route = app.slice(app.indexOf("async function renderRoute"), app.indexOf("function readForm"));
-  assert.ok(route.indexOf("reloadIfStaleBuild") >= 0, "route rendering checks the served build");
-  assert.ok(route.indexOf("reloadIfStaleBuild") < route.indexOf("loadRouteModule(owner)"),
+  assert.ok(route.indexOf("prepareRouteContext(") >= 0, "route rendering checks the served build");
+  assert.ok(route.indexOf("prepareRouteContext(") < route.indexOf("loadRouteModule(owner)"),
     "the stale-build check runs before importing a lazy route module");
 });
 
