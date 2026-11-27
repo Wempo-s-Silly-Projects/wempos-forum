@@ -198,8 +198,6 @@ export const ANUBIS_PROXY_MAX_BODY_BYTES = 64 * 1024;
 // with their own auth (AutoMod runner key, Accounts relay token).
 export const ANUBIS_API_EXEMPT_EXACT = Object.freeze([
   "/api/version", "/api/altcha/challenge", "/api/session", "/api/setup/status",
-  // Anonymous error beacons are intentionally not challenged by Anubis.
-  "/api/client-errors",
 ]);
 export const ANUBIS_API_EXEMPT_PREFIXES = Object.freeze(["/api/automod/", "/api/relay/"]);
 export const ANUBIS_COOKIE_MAX_CANDIDATES = 4;
