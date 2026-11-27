@@ -18,7 +18,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// v5.95.1 security review of v5.83.0-v5.95.0 (docs/security-review-v5.83-v5.95.md).
+// v5.95.1 security review of v5.83.0-v5.95.0 (docs/security-reviews/security-review-v5.83-v5.95.md).
 // M1 (fixed): the full-search "relevant" cursor regex backtracked
 // quadratically on a long digit run (16 KB URL ~ 100 ms CPU per anonymous
 // request); the cursor is now length-capped before any regex runs.

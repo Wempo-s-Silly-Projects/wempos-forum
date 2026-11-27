@@ -310,8 +310,8 @@ test("the client loads the compressor lazily from the same origin (no CDN, no wo
   assert.deepEqual(hosts.filter((host) => host !== "www.gnu.org"), []);
 });
 
-test("worker libraries are AGPL-compatible dependencies pinned to latest", () => {
+test("worker libraries are AGPL-compatible dependencies pinned to a caret range", () => {
   const pkg = JSON.parse(read("package.json"));
-  assert.equal(pkg.dependencies["file-type"], "latest");
-  assert.equal(pkg.dependencies["image-dimensions"], "latest");
+  assert.match(pkg.dependencies["file-type"], /^\^\d+\.\d+\.\d+$/);
+  assert.match(pkg.dependencies["image-dimensions"], /^\^\d+\.\d+\.\d+$/);
 });

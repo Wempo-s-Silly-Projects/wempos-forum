@@ -18,7 +18,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// v5.70.1 security review of v5.67-v5.70 (docs/security-review-v5.67-v5.70.md):
+// v5.70.1 security review of v5.67-v5.70 (docs/security-reviews/security-review-v5.67-v5.70.md):
 // regression pins for the eight new locale bundles (af sq az eu ab aa am ak),
 // the plural-rules fallback, the locale loader and picker, the PATCH /api/me
 // write limit order, the shared sign-up social column list and the v5.70

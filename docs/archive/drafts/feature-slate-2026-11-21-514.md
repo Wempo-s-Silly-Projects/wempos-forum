@@ -1,7 +1,7 @@
 # Feature slate 2026-11-21-514 (wave 5.14, v5.14.0)
 
 Area: account security UX + the image viewer. Checked against every
-`docs/drafts/feature-slate-*.md`: earlier 2FA work was setup/disable (v4.0.1)
+`docs/archive/drafts/feature-slate-*.md`: earlier 2FA work was setup/disable (v4.0.1)
 and backup-code generation (v4.8.1); earlier viewer work was step-through,
 counter, focus hand-off and imageless-thumb skip (waves 21/22/24). Nothing
 below repeats them. No migration.

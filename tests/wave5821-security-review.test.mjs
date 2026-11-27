@@ -18,7 +18,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// v5.82.1 security review of v5.73.2-v5.82.0 (docs/security-review-v5.74-v5.82.md).
+// v5.82.1 security review of v5.73.2-v5.82.0 (docs/security-reviews/security-review-v5.74-v5.82.md).
 // L1 (fixed): the vendored emoji picker (picmo) kept the member's recently
 // used emoji under the unscoped localStorage key "PicMo:recents", written
 // from vendor code the storage-wipe sweep never scans, so it survived

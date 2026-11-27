@@ -1,7 +1,7 @@
 # Feature slate 2026-11-21-513 (wave 5.13, v5.13.0)
 
 Area: polls + the staff moderation desk. Checked against every
-`docs/drafts/feature-slate-*.md`: earlier poll work was the poll dialog's
+`docs/archive/drafts/feature-slate-*.md`: earlier poll work was the poll dialog's
 duplicate warning/preview and clearer results (percent + "Your vote"); earlier
 desk work was the activity peek and hide-a-spam-run. Nothing below repeats them.
 

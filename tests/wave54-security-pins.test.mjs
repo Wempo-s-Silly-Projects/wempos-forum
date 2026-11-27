@@ -19,7 +19,7 @@
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
 
-// Wave 5.4 security review of v4.45.0..v5.3.0 (docs/drafts/security-review-5.4.md):
+// Wave 5.4 security review of v4.45.0..v5.3.0 (docs/archive/drafts/security-review-5.4.md):
 // regression pins for the honest-404 path (routeForPath runs on the worker
 // against attacker-chosen paths), the 74 locale bundles (strings render as
 // text, never markup) and the tab-title count.

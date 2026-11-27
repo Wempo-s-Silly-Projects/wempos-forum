@@ -18,7 +18,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// Wave 5.12 security review (docs/drafts/security-review-5.12.md): zero
+// Wave 5.12 security review (docs/archive/drafts/security-review-5.12.md): zero
 // confirmed defects in v5.8.0..v5.11.0, so these pin the riskiest surfaces
 // the review traced — the lobby @mention label parse in the bell filter,
 // the stored-role QOTD boundary, and publicChainSql at depth 2.
