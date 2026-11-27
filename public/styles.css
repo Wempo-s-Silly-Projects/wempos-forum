@@ -3602,11 +3602,6 @@ mark.search-hit {
   font-size: 0.9rem;
 }
 
-.thread-glance-fact + .thread-glance-fact::before {
-  content: "·";
-  margin-inline-end: 14px;
-}
-
 .post-card.post-spotlight {
   outline: 3px solid var(--yellow);
   outline-offset: 2px;
@@ -3623,9 +3618,36 @@ mark.search-hit {
   }
 }
 
-/* Thread outline (v5.46.0): the collapsible "Jump to" list on long threads. */
+/* Trim list #14: one toolbar above the replies (Jump to, Fold all, filter). */
+.thread-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 8px 0 12px;
+}
+
+/* Closed, the toolbar is one row; the open Jump to panel takes the full width. */
+.thread-tools > .thread-outline:has(> .thread-outline-toggle[aria-expanded="true"]) {
+  flex-basis: 100%;
+}
+
+/* Thread outline (v5.46.0): the collapsible "Jump to" list on long threads;
+   trim list #1 adds the quick jumps row above it. */
 .thread-outline {
-  margin: 8px 0;
+  margin: 0;
+}
+
+.thread-outline-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 6px 0 0;
+}
+
+.thread-outline-quick[hidden],
+.thread-outline-list[hidden] {
+  display: none;
 }
 
 .thread-outline-list {
@@ -3979,16 +4001,17 @@ mark.search-hit {
 .member-peek-body { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
 .hide-recent-form { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
 .hide-recent-form input { width: 5rem; }
-/* v4.14 jump to the latest reply. */
-.latest-reply-jump { margin: 0 0 0.5rem; }
-.fold-all-replies { margin: 0 0 0.5rem; }
+/* v4.14 jump to the latest reply; since the trim list the jumps sit in the
+   "Jump to" quick row and the toolbar spaces them. */
+.latest-reply-jump { margin: 0; }
+.fold-all-replies { margin: 0; }
 /* v4.17 fold a reply (page view only) and back to the first post. */
 .reply-fold { margin-inline-start: auto; font-size: 0.85em; }
 .post-card[data-folded] > :not(.post-header) { display: none; }
-.first-post-jump { margin: 0.5rem 0; }
-.my-reply-jump { margin: 0 0 0.5rem 0.5rem; }
+.first-post-jump { margin: 0; }
+.my-reply-jump { margin: 0; }
 /* v4.30 next reply from the thread author (page view only). */
-.author-reply-jump { margin: 0 0 0.5rem 0.5rem; }
+.author-reply-jump { margin: 0; }
 /* v4.19 community traditions: the QOTD chip, today's question on the home
    feed, and the showcase board's image-first gallery. Tokens only, so both
    themes follow. */
@@ -4155,8 +4178,18 @@ mark.search-hit {
 .caps-guard { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-block: 0.3rem; color: var(--muted); font-size: 0.85rem; }
 .caps-guard[hidden], .caps-guard [hidden] { display: none; }
 /* v5.5 filter replies (page view only). */
-.reply-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0 0 0.5rem; }
+.reply-filter { display: flex; flex: 1 1 16rem; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0; }
 .reply-filter-input { flex: 1 1 12rem; min-width: 0; max-width: 24rem; }
+/* Toolbar and list filters get the same field look as form inputs. */
+.reply-filter-input,
+.saved-search-input {
+  min-height: 2.6rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--field-line);
+  border-radius: 0.4rem 0.7rem 0.45rem 0.65rem;
+  color: var(--ink);
+  background: var(--field);
+}
 .reply-filter-status { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 0.85rem; }
 .reply-filter [hidden] { display: none; }
 .replies-list > [data-filtered-out] { display: none; }
@@ -4193,6 +4226,11 @@ mark.search-hit {
 /* v5.39.0: bookmark folder chips and per-card folder controls; the private
    Following list in settings. Theme tokens only. */
 .saved-folders .folder-create { margin-inline-start: auto; }
+/* Trim list #5: folders, New folder, then the boards, on one wrapping row. */
+.saved-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.8rem; margin: 0 0 0.75rem; }
+.saved-filters > .feed-views { margin: 0; }
+.saved-filters .folder-create { margin-inline-start: 0; }
+.saved-filters > .saved-boards { padding-inline-start: 0.8rem; border-inline-start: 2px solid var(--line); }
 .folder-manage { margin: 0.4rem 0 0.8rem; }
 .folder-add, .folder-remove { margin-top: 0.5rem; max-width: 100%; }
 .following-row { display: flex; flex-wrap: wrap; gap: 0.4rem 0.8rem; align-items: center; justify-content: space-between; padding: 0.35rem 0; }
@@ -4263,8 +4301,21 @@ mark.search-hit {
 .week-thread { min-width: 0; }
 .week-thread-link { display: block; overflow-wrap: anywhere; }
 .week-thread-meta { font-size: 0.85rem; }
-.home-highlights { margin: 0 0 0.8rem; }
-.week-home-link { margin: 0 0 0.5rem; }
+/* Trim list #11: the home "This week" card (link, today's question, newest
+   members) in one box above the feed. */
+.home-highlights {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  background: var(--paper);
+}
+.home-week-title { margin: 0; font-size: 1.1rem; }
+.home-week .qotd-banner { margin: 0; padding: 0.4rem 0.6rem; }
+.home-week .newest-members-title { font-size: 0.9rem; color: var(--muted); }
+.week-home-link { margin: 0; }
 .newest-members-title { margin: 0 0 0.4rem; font-size: 1rem; }
 .newest-members-list { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; margin: 0; padding: 0; list-style: none; }
 .newest-member-link { display: inline-flex; align-items: center; gap: 0.35rem; min-width: 0; overflow-wrap: anywhere; }

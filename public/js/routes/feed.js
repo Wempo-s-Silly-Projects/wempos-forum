@@ -130,10 +130,7 @@ function renderHomeContent(session, data, route) {
   }
   // Recent activity (v3.1): the homepage mixes every category, 10 posts at a
   // time (the server's no-board feed page size).
-  if (route.name === "home") {
-    renderTodaysQotd();
-    renderHomeHighlights();
-  }
+  if (route.name === "home") renderHomeWeekCard();
   addHeading(main, route.name === "search" ? t("feed.searchResults") : t("feed.recentActivity"), 2);
   if (route.name === "search") {
     addText(document, main, "p", t("feed.searchResultsFor", { query: route.query }), "muted");
@@ -180,40 +177,40 @@ function renderAccountSettings(session, createFunExtrasPanel = null) {
     try { window.localStorage.setItem("forum-corners", square ? "square" : "round"); } catch { /* storage blocked: the pref stays session-only */ }
     document.documentElement.dataset.corners = square ? "square" : "round";
   });
-  // Appearance panel (wave 2026-11-21-4): the corners checkbox and the
-  // reader text size, both stored only in this browser.
+  // Appearance panel (wave 2026-11-21-4; trim list #10): every display
+  // choice in one panel, stored only in this browser: corners, text size,
+  // then the reading-comfort controls (wave 5.27: line spacing, underlined
+  // links, easy reading, high contrast) and the strong-language filter.
   const appearance = createPanel(t("feed.appearanceTitle"), t("feed.appearanceNote"));
   let storage = null;
   try { storage = window.localStorage; } catch { /* storage blocked: storage stays null */ }
-  // Wave 5.3: plus the opt-in unread count in the browser tab title; wave
-  // 5.7 F3: then one button that puts the panel's choices back to defaults.
-  appearance.append(corners, createTextSizePicker(document, storage),
-    createTabUnreadToggle(document, storage, () => state.unreadNotifications));
+  appearance.append(corners, createTextSizePicker(document, storage));
+  appearance.append(createLineSpacingPicker(document, storage));
+  addText(document, appearance, "p", t("readingComfort.lineSpacingHelp"), "muted reading-comfort-help");
+  appearance.append(createLinkUnderlineToggle(document, storage));
+  addText(document, appearance, "p", t("readingComfort.underlineLinksHelp"), "muted reading-comfort-help");
+  appearance.append(createEasyReadingToggle(document, storage));
+  addText(document, appearance, "p", t("readingComfort.easyReadingHelp"), "muted reading-comfort-help");
+  appearance.append(createContrastPicker(document, storage, window));
+  addText(document, appearance, "p", t("readingComfort.contrastHelp"), "muted reading-comfort-help");
+  // A content filter, not a display choice: Reset appearance leaves it be.
+  const strongLanguage = createStrongLanguageToggle(document, storage);
+  strongLanguage.dataset.reset = "keep";
+  appearance.append(strongLanguage);
+  // Wave 5.7 F3: one button that puts every display choice back, last.
   appearance.append(createAppearanceReset(document, storage, appearance));
   account.append(appearance);
-  // Reading comfort (wave 5.27): line spacing, always-underline links and
-  // high contrast, this browser only. Its own panel so Reset appearance
-  // (which pins exactly corners, text size and the tab count) leaves it be.
-  const readingComfort = createPanel(t("readingComfort.title"), t("readingComfort.help"));
-  readingComfort.append(createLineSpacingPicker(document, storage));
-  addText(document, readingComfort, "p", t("readingComfort.lineSpacingHelp"), "muted reading-comfort-help");
-  readingComfort.append(createLinkUnderlineToggle(document, storage));
-  addText(document, readingComfort, "p", t("readingComfort.underlineLinksHelp"), "muted reading-comfort-help");
-  readingComfort.append(createEasyReadingToggle(document, storage));
-  addText(document, readingComfort, "p", t("readingComfort.easyReadingHelp"), "muted reading-comfort-help");
-  readingComfort.append(createStrongLanguageToggle(document, storage));
-  readingComfort.append(createContrastPicker(document, storage, window));
-  addText(document, readingComfort, "p", t("readingComfort.contrastHelp"), "muted reading-comfort-help");
-  account.append(readingComfort);
   // Fun extras (Batch M): opt-in effects, all off by default, this device only.
   // v5.84: fun/ is imported by the settings route (fun-gate.js), not at boot.
   if (createFunExtrasPanel) account.append(createFunExtrasPanel(document, storage, { win: window }));
   // Quiet hours (wave 5.25 F2): opt-in, this device only; a change re-checks
   // the tab title at once.
+  // Trim list #8: the opt-in unread count in the tab title (wave 5.3) moved
+  // here from Appearance, next to the other "what interrupts me" controls.
   const quietHours = createPanel(t("quietHours.title"), t("quietHours.help"));
   quietHours.append(createQuietHoursControls(document, storage, {
     onChange: () => applyTabUnread(document, state.unreadNotifications, storage),
-  }));
+  }), createTabUnreadToggle(document, storage, () => state.unreadNotifications));
   account.append(quietHours);
   // Notification preferences (v5.40.0): one checkbox per kind, saved on the
   // server (it skips muted kinds when notifications are created).
@@ -411,14 +408,14 @@ async function renderHomeRoute(route, context, version) {
 // conversation box" placement, not a top-bar item).
 function renderFeedTabs(active) {
   const tabs = element("div", "feed-tabs");
-  // Categories (v3.1, tab style): the tab pair above the composer is the
+  // Categories (v3.1, tab style): the tab row above the composer is the
   // category navigation — Recent activity (every category mixed, 10 at a
-  // time), My posts, then each category as its own route. `active` is the
-  // category slug on category pages ("all" home, "mine" on /mine); a slug
-  // match highlights that category's tab.
+  // time), then each category as its own route. `active` is the category
+  // slug on category pages ("all" home, "mine" on /mine, where no tab is
+  // lit); a slug match highlights that category's tab. Trim list #16: My
+  // posts left this row; the header and phone bar link /mine already.
   const spec = [
     ["/", t("feed.recentActivity"), active === "all"],
-    ["/mine", t("feed.myPosts"), active === "mine"],
     ...BOARDS.map((board) => ["/c/" + board.slug, board.label, active === board.slug]),
   ];
   for (const [href, label, isActive] of spec) {
@@ -504,47 +501,33 @@ async function renderCategoryRoute(route, context, version) {
   main.append(older);
 }
 
-// Community traditions (wave 2026-11-21-14). Both slots are appended
-// synchronously (so they keep their place above the list) and filled after
-// the fetch, re-checking renderVersion so a fast route switch never paints
-// into the next page. No QOTD today removes the slot; a failed gallery read
-// says so in place.
-async function renderTodaysQotd() {
-  const slot = element("div", "qotd-slot");
-  main.append(slot);
+// One "This week" card on home (trim list #11): the link to /week (v5.35),
+// today's question (wave 2026-11-21-14) and the newest members share one box
+// above the feed instead of three. The card is appended synchronously (so it
+// keeps its place above the list) and each part fills in after its read,
+// re-checking renderVersion so a fast route switch never paints into the next
+// page. No QOTD today, or a failed read, just leaves that part out.
+function renderHomeWeekCard() {
+  const card = element("section", "home-highlights home-week");
+  const title = addHeading(card, t("week.title"), 2);
+  title.className = "home-week-title";
+  title.id = "home-week-title";
+  card.setAttribute("aria-labelledby", title.id);
+  card.append(createWeekLink(document));
+  const qotdSlot = element("div", "qotd-slot");
+  card.append(qotdSlot);
+  main.append(card);
   const version = state.renderVersion;
-  let data;
-  try {
-    data = await api("/api/traditions/qotd");
-  } catch {
-    slot.remove();
-    return;
-  }
-  if (version !== state.renderVersion) return;
-  if (!data?.qotd) {
-    slot.remove();
-    return;
-  }
-  slot.append(createQotdBanner(document, data.qotd));
-}
-
-// v5.35: the link to /week and the "Newest members" list, home only. The
-// slot keeps its place above the list; a failed or empty member read just
-// leaves the link.
-async function renderHomeHighlights() {
-  const slot = element("div", "home-highlights");
-  slot.append(createWeekLink(document));
-  main.append(slot);
-  const version = state.renderVersion;
-  let data;
-  try {
-    data = await api("/api/members/newest");
-  } catch {
-    return;
-  }
-  if (version !== state.renderVersion) return;
-  const members = createNewestMembers(document, data?.members);
-  if (members) slot.append(members);
+  api("/api/traditions/qotd").then((data) => {
+    if (version !== state.renderVersion) return;
+    if (data?.qotd) qotdSlot.append(createQotdBanner(document, data.qotd));
+    else qotdSlot.remove();
+  }, () => qotdSlot.remove());
+  api("/api/members/newest").then((data) => {
+    if (version !== state.renderVersion) return;
+    const members = createNewestMembers(document, data?.members);
+    if (members) card.append(members);
+  }, () => {});
 }
 
 async function renderShowcaseGallery() {
@@ -586,13 +569,23 @@ function decorateSaved(folderId) {
     onAdd: folderAdder({ folders: savedFolders, setMessage }),
   });
 }
+// Trim list #5: folder and board chips share one filter row. "All saved" is
+// the one way back to the whole list, so the board chips drop their own
+// "All boards", and it is not lit while a board is chosen.
+function createSavedFilterRow(folders, folderId, board) {
+  const row = element("div", "saved-filters");
+  const folderNav = createFolderFilter(document, folders, folderId);
+  if (board) folderNav.querySelector('[aria-current="page"]')?.removeAttribute("aria-current");
+  row.append(folderNav, createSavedBoardFilter(document, board, { withAll: false }));
+  return row;
+}
 async function renderFolderRoute(route, version) {
   const [data, folders] = await Promise.all([api(folderItemsPath(route.folder)), loadSavedFolders()]);
   if (version !== state.renderVersion) return;
   savedFolders = folders;
   addHeading(main, data.folder.name, 2);
   addText(document, main, "p", t("feed.savedPrivate"), "muted");
-  main.append(createFolderFilter(document, folders, route.folder));
+  main.append(createSavedFilterRow(folders, route.folder, null));
   main.append(createFolderManage(document, data.folder));
   appendPostList(main, data.posts, document, state.currentUser, t("folders.empty"));
   decorateSaved(route.folder);
@@ -618,8 +611,7 @@ async function renderBookmarksRoute(route, context, version) {
   addHeading(main, t("feed.savedTitle"), 2);
   // Privacy note: this list belongs to the signed-in account.
   addText(document, main, "p", t("feed.savedPrivate"), "muted");
-  main.append(createFolderFilter(document, folders, null));
-  main.append(createSavedBoardFilter(document, board));
+  main.append(createSavedFilterRow(folders, null, board));
   if (board && data.bookmarks.length) main.append(createRemoveSavedBoard(document, board));
   // L2 wave: full-text search over the saved cards on the page (MiniSearch).
   if (data.bookmarks.length) main.append(createSavedSearch(document, main));

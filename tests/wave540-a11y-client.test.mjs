@@ -251,8 +251,8 @@ test("F3 CSS meets WCAG 1.4.12 minimums; no new font files", () => {
   assert.doesNotMatch(blocks, /font-family|@font-face|url\(/);
 });
 
-test("F3 wiring: the toggle sits in the Reading comfort panel with its help line", () => {
+test("F3 wiring: the toggle sits in the Appearance panel with its help line", () => {
   const feed = read("public/js/routes/feed.js");
-  assert.match(feed, /readingComfort\.append\(createEasyReadingToggle\(document, storage\)\);/);
+  assert.match(feed, /appearance\.append\(createEasyReadingToggle\(document, storage\)\);/);
   assert.match(feed, /t\("readingComfort\.easyReadingHelp"\)/);
 });

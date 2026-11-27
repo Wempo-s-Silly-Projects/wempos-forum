@@ -31,7 +31,7 @@ import { renderBodyBlocks } from "../render.js";
 import { t, currentLocale } from "../i18n.js";
 import { createWeekPage } from "../week.js";
 import { createLeaderboardTable } from "../leaderboard-table.js";
-import { createLoadMoreTag, createTagPage, createTagThreadRows, tagListingPath } from "../tags.js";
+import { createLoadMoreTag, createTagIndex, createTagPage, createTagThreadRows, tagListingPath } from "../tags.js";
 import { rememberSearch } from "../recent-searches.js";
 import { fullSearchPagePath, searchPagePath } from "../search-filters.js";
 import { siteModuleOn } from "../site-modules.js";
@@ -81,6 +81,15 @@ async function renderTagRoute(route, context, version) {
   if (version !== state.renderVersion) return;
   addHeading(main, t("tags.pageTitle", { label: String(data.tag?.label ?? "") }), 2);
   main.append(createTagPage(document, data));
+}
+
+// The tag index (/tags): every tag, from the same public list the tag picker
+// reads.
+async function renderTagsRoute(context, version) {
+  const data = await api("/api/tags");
+  if (version !== state.renderVersion) return;
+  addHeading(main, t("nav.tags"), 2);
+  main.append(createTagIndex(document, data.tags));
 }
 
 async function loadMoreTag(button) {
@@ -169,4 +178,4 @@ export const ACTIONS = {
     "load-more-tag": (button) => loadMoreTag(button),
 };
 
-export { renderRulesRoute, renderLeaderboardRoute, renderArchiveRoute, renderWeekRoute, renderTagRoute };
+export { renderRulesRoute, renderLeaderboardRoute, renderArchiveRoute, renderWeekRoute, renderTagsRoute, renderTagRoute };

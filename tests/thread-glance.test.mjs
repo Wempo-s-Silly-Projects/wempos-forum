@@ -18,12 +18,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-// Wave 2026-11-21 F4: thread at a glance — participants, read time, top reply.
+// Wave 2026-11-21 F4: thread at a glance — participants and top reply (read time dropped, trim list #2).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  TOP_REPLY_MIN_LIKES, WORDS_PER_MINUTE, summarizeThread,
+  TOP_REPLY_MIN_LIKES, summarizeThread,
 } from "../public/js/thread-glance.js";
 
 const post = (id, user, body, likeCount = 0) => ({ id, author: { username: user }, body, likeCount });
@@ -35,10 +35,10 @@ test("counts unique participants including the root author", () => {
   assert.equal(summary.replyCount, 3);
 });
 
-test("read time is words / WORDS_PER_MINUTE rounded up, at least one minute", () => {
-  assert.equal(summarizeThread(post(1, "a", "short"), []).readMinutes, 1);
-  const long = Array.from({ length: WORDS_PER_MINUTE * 2 + 1 }, () => "word").join(" ");
-  assert.equal(summarizeThread(post(1, "a", long), []).readMinutes, 3);
+test("no read-time estimate (trim list #2): the summary carries no readMinutes", () => {
+  assert.equal("readMinutes" in summarizeThread(post(1, "a", "short"), []), false);
+  const source = readFileSync(new URL("../public/js/thread-glance.js", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /readTime|WORDS_PER_MINUTE/);
 });
 
 test("top reply is the most-liked reply at or above the threshold; ties go to the earliest", () => {
@@ -51,7 +51,6 @@ test("top reply is the most-liked reply at or above the threshold; ties go to th
 test("missing authors and bodies never throw", () => {
   const summary = summarizeThread({ id: 1 }, [{ id: 2 }]);
   assert.equal(summary.participants, 0);
-  assert.equal(summary.readMinutes, 1);
 });
 
 test("post.js renders the glance strip; module stays DOM-safe", () => {

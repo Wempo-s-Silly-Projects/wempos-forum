@@ -55,9 +55,11 @@ This plan was written at v5.30. Up to v5.63.1:
   The full list is in [CHANGELOG.md](CHANGELOG.md).
 - Goals 5 and 6 have no change to report.
 
-Since 2026-11-22 I have paused new features. A list of features
-that overlap or are hard to find, with options for each will be ready soon: [docs/trim-list.md](docs/trim-list.md). Nothing on it has
-been decided.
+Since 2026-11-22 I have paused new features. The list of features that
+overlapped or were hard to find, [docs/trim-list.md](docs/trim-list.md), is
+now decided and applied: each row went its "lean" way (merge, rename, group
+or keep), nothing was removed that members relied on, and the tag index it
+listed as a gap now exists at `/tags`.
 
 ## Non-goals (what we will not do)
 

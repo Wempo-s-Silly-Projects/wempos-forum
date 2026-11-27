@@ -27,7 +27,10 @@
 // the renderer held back. Open/closed is remembered per account
 // (`forum-thread-outline:u<id>`, wiped on sign-out by wipeAccountLocalData);
 // guests and blocked storage get a page-view-only toggle, collapsed by
-// default. createElement/textContent only.
+// default. createElement/textContent only. The trim list (#1) folded the
+// latest / my reply / author / first-post jumps into this control: they ride
+// a quick row above the list (quickJumps), so a shorter thread still gets a
+// "Jump to" with just those.
 import { jumpToNode } from "./focus-utils.js";
 import { currentLocale, t } from "./i18n.js";
 import { formatRelative } from "./reltime.js";
@@ -36,6 +39,7 @@ export const OUTLINE_MIN_REPLIES = 8;
 export const OUTLINE_STORAGE_KEY = "forum-thread-outline";
 const OPEN_VALUE = "open";
 const LIST_ID = "thread-outline-list";
+const QUICK_ID = "thread-outline-quick";
 
 export const outlineKey = (accountId = null) => (accountId ? OUTLINE_STORAGE_KEY + ":u" + accountId : null);
 
@@ -115,10 +119,12 @@ function createEntry(document, entry, now) {
   return button;
 }
 
-function setOpen(toggle, list, open) {
+function setOpen(toggle, parts, open) {
   toggle.setAttribute("aria-expanded", String(open));
-  if (open) list.removeAttribute("hidden");
-  else list.setAttribute("hidden", "");
+  for (const part of parts) {
+    if (open) part.removeAttribute("hidden");
+    else part.setAttribute("hidden", "");
+  }
 }
 
 // Active entry (Batch J): the first reply, in page order, that is on screen.
@@ -156,13 +162,18 @@ function watchActiveReply(nav, replyList, entries, buttons, Observer) {
   }
 }
 
-// The outline, or null below the threshold. The target card is looked up at
-// click time, so a card removed from the page later is a quiet no-op.
+// The outline, or null when there is nothing to jump to: fewer than
+// OUTLINE_MIN_REPLIES rendered replies and no quick jumps. The target card is
+// looked up at click time, so a card removed from the page later is a quiet
+// no-op.
 export function createThreadOutline(document, replies, replyList, {
   accountId = null, storage = browserStorage(), now = Date.now(), Observer = globalThis.IntersectionObserver,
+  quickJumps = [],
 } = {}) {
   const entries = outlineEntries(replies, replyList);
-  if (entries.length < OUTLINE_MIN_REPLIES) return null;
+  const jumps = Array.isArray(quickJumps) ? quickJumps.filter(Boolean) : [];
+  const listed = entries.length >= OUTLINE_MIN_REPLIES;
+  if (!listed && !jumps.length) return null;
   const nav = document.createElement("nav");
   nav.className = "thread-outline";
   nav.setAttribute("aria-label", t("outline.label"));
@@ -170,32 +181,43 @@ export function createThreadOutline(document, replies, replyList, {
   toggle.type = "button";
   toggle.className = "button button-quiet thread-outline-toggle";
   toggle.textContent = t("outline.toggle");
-  toggle.setAttribute("aria-controls", LIST_ID);
-  const list = document.createElement("ol");
-  list.className = "thread-outline-list";
-  list.id = LIST_ID;
-  const buttons = [];
-  for (const entry of entries) {
-    const item = document.createElement("li");
-    const button = createEntry(document, entry, now);
-    button.addEventListener("click", () => {
-      const card = replyList?.querySelector?.('[data-post-id="' + entry.id + '"]');
-      if (!card) return;
-      for (const other of buttons) other.removeAttribute("aria-current");
-      button.setAttribute("aria-current", "true");
-      jumpToNode(card, { block: "start" });
-    });
-    buttons.push(button);
-    item.append(button);
-    list.append(item);
+  const parts = [];
+  if (jumps.length) {
+    const quick = document.createElement("div");
+    quick.className = "thread-outline-quick";
+    quick.id = QUICK_ID;
+    quick.append(...jumps);
+    parts.push(quick);
   }
-  setOpen(toggle, list, readOutlineOpen(storage, accountId));
+  const buttons = [];
+  if (listed) {
+    const list = document.createElement("ol");
+    list.className = "thread-outline-list";
+    list.id = LIST_ID;
+    for (const entry of entries) {
+      const item = document.createElement("li");
+      const button = createEntry(document, entry, now);
+      button.addEventListener("click", () => {
+        const card = replyList?.querySelector?.('[data-post-id="' + entry.id + '"]');
+        if (!card) return;
+        for (const other of buttons) other.removeAttribute("aria-current");
+        button.setAttribute("aria-current", "true");
+        jumpToNode(card, { block: "start" });
+      });
+      buttons.push(button);
+      item.append(button);
+      list.append(item);
+    }
+    parts.push(list);
+  }
+  toggle.setAttribute("aria-controls", parts.map((part) => part.id).join(" "));
+  setOpen(toggle, parts, readOutlineOpen(storage, accountId));
   toggle.addEventListener("click", () => {
     const open = toggle.getAttribute("aria-expanded") !== "true";
-    setOpen(toggle, list, open);
+    setOpen(toggle, parts, open);
     writeOutlineOpen(storage, accountId, open);
   });
-  nav.append(toggle, list);
-  watchActiveReply(nav, replyList, entries, buttons, Observer);
+  nav.append(toggle, ...parts);
+  if (listed) watchActiveReply(nav, replyList, entries, buttons, Observer);
   return nav;
 }

@@ -22,7 +22,7 @@ Legend:
 | Brand / home link | `index.html:88` | G M | 0 | |
 | Site search (+ submit) | `index.html:93-96` | G M | 0 | |
 | Theme toggle | `index.html:103` | G M | 0 | |
-| Browse menu (v5.58): Suggestions, Archive, Leaderboard, Rules, This week | `routes/account-nav.js` from `nav-items.js` | G M | 1 | v5.58: the four section links folded into one menu; This week added (was ORPHAN-ish) |
+| Browse menu (v5.58): Suggestions, Deleted posts, Leaderboard, Rules, This week, Tags | `routes/account-nav.js` from `nav-items.js` | G M | 1 | v5.58: the four section links folded into one menu; This week added (was ORPHAN-ish). Trim list: Archive renamed Deleted posts (#20); Tags (`/tags`) added |
 | Sign in | `account-nav.js` | G | 0 | v5.58: header and phone bar drawn from the same list (`nav-items.js`) |
 | Language picker | `account-nav.js:162,248` | G M | 0 (header) / 1 (phone More) | v5.60: the same picker also sits last in the phone bar's More menu (phones had none) |
 | Account menu (v5.58): Profile, Moderation desk (S), Keyboard shortcuts, Sign out | `account-nav.js` | M | 1 | v5.58: Profile, desk and Sign out moved in; the shortcuts sheet gained an entry here |
@@ -42,10 +42,9 @@ Legend:
 |---|---|---|---|---|
 | Introduction | `routes/feed.js:88` | G M | 0 | |
 | Newcomer cards | `feed.js:106` | M (new) | 0 | |
-| Feed tabs (Recent activity / My posts) | `feed.js:371` | M | 0 | |
+| Feed tabs (Recent activity, boards) | `feed.js` `renderFeedTabs` | M | 0 | Trim list #16: the My posts tab is gone (header, phone bar and `/mine` remain) |
 | Composer (category select, attach, gallery, poll) | `feed.js:117`, `routes/composer.js:122-162` | M | 0 | Poll and gallery open dialogs (depth 1) |
-| Today's QOTD | `feed.js:471` | G M | 0 | |
-| Highlights + "This week" link | `feed.js:493`, `week.js:82` | G M | 0 | Only entry point to `/week` |
+| "This week" card: link to `/week`, today's QOTD, newest members | `feed.js` `renderHomeWeekCard`, `week.js:82` | G M | 0 | Trim list #11: was three boxes (QOTD, highlights, newest members) |
 | Showcase gallery | `feed.js:509` | G M | 0 | |
 | Feed views (Active / Newest …) | `feed-views.js:37` | G M | 0 | |
 | Search filters + saved searches + recent searches | `feed.js:130-134` | G M | 0 (search only) | |
@@ -53,9 +52,8 @@ Legend:
 | Load older posts | `feed.js:144` | G M | 0 | |
 | **Account settings** (one `<details>` at the bottom of home) | `feed.js:151-263` | M | 1 + scroll | v5.56: moved to the hub `/?settings` (header Settings link); home keeps one link here. The panels below sit in four groups: Appearance & reading, Notifications, People & privacy, Account & data |
 | ↳ Settings filter + section jump links | `feed.js:262` | M | 1 | |
-| ↳ Appearance: corners, text size, tab unread, reset | `feed.js:176-183` | M | 1 | |
-| ↳ Reading comfort: line spacing, underline links, easy reading, contrast | `feed.js:188-196` | M | 1 | |
-| ↳ Quiet hours | `feed.js:200` | M | 1 | |
+| ↳ Appearance: corners, text size, line spacing, underline links, easy reading, contrast, strong-language filter, reset | `feed.js` `renderAccountSettings` | M | 1 | Trim list #10: Reading comfort merged in; the reset covers every display choice (not the strong-language filter) |
+| ↳ Quiet hours + tab-title unread count | `feed.js` `renderAccountSettings` | M | 1 | Trim list #8: the tab count moved here from Appearance |
 | ↳ Notification preferences | `feed.js:207` | M | 1 | |
 | ↳ Change password | `feed.js:209` | M | 1 | |
 | ↳ Two-factor + backup codes | `feed.js:230`, `routes/twofa.js:39` | M | 1 | |
@@ -73,10 +71,11 @@ Legend:
 |---|---|---|---|---|
 | Profile `/users/<name>` | Chat, Block, Follow, Report profile, private note, pinned thread, status form, avatar/banner/CSS editor, wall (post, pin), recent threads | `routes/profile.js:117-290`, `profile-editor.js`, `wall.js` | G M A | Own-profile editing panels stack under the header (many panels, depth 0) |
 | Notifications `/notifications` | Mark all read, open notification, open thread | `notifications.js:185-239` | M | |
-| Saved `/bookmarks` | Folder filter, create/remove folder, saved boards, load more | `routes/feed.js:548-640`, `bookmark-folders.js`, `saved-boards.js` | M | |
-| Tag `/tag/<slug>` | Thread rows, load more | `routes/pages.js:89`, `tags.js:126-160` | G M | Reached from tag chips only |
+| Saved `/bookmarks` | One filter row (All saved, folders, New folder, boards), remove folder, load more | `routes/feed.js` `createSavedFilterRow`, `bookmark-folders.js`, `saved-boards.js` | M | Trim list #5: folders and boards share one row |
+| Tag index `/tags` | One chip per tag | `routes/pages.js` `renderTagsRoute`, `tags.js` `createTagIndex` | G M | In Browse (trim list gap 1) |
+| Tag `/tag/<slug>` | Thread rows, load more | `routes/pages.js:89`, `tags.js:126-160` | G M | Reached from tag chips and the `/tags` index |
 | Week `/week` | Week summary, staff pick | `routes/pages.js:78`, `week.js` | G M | ORPHAN-ish: only the home highlights link |
-| Archive, Leaderboard, Rules | load more archive | `routes/pages.js:37-155` | G M | |
+| Deleted posts (`/archive`), Leaderboard, Rules | load more archive | `routes/pages.js:37-155` | G M | Trim list #20: the archive is titled Deleted posts |
 | Moderation desk `/admin/*` | Sections (reports, appeals, automod, media, chat log, members, staff tools, tags, staff picks, rules, CSS) | `routes/admin.js`, `desk/*.js` | S | |
 
 ## 4. Thread page `/posts/<id>` (v5.54 inventory)
@@ -150,6 +149,12 @@ form and the tag editor as separate blocks.
 
 ## 5. Overlaps found
 
+Trim list (after v5.97): rows 28, 30, 31, 32 and 35 of §4 are now one
+toolbar above the replies: a **Jump to** control (latest reply, my reply,
+the author's next reply, the first post, then the outline on 8+ replies),
+**Fold all** and the reply filter. The glance strip keeps only "N people
+talking" and the top-reply jump. "Save as text" is "Download as text".
+
 1. Copy link (card) and the Share menu's Copy link: two controls with the same
    accessible name on a thread page (`render.js:396`, `share.js:156`).
    (v5.58: one visible path, see §4 row 12.)
@@ -174,8 +179,7 @@ form and the tag editor as separate blocks.
 3. Keyboard shortcuts sheet: only on threads that have replies (`post.js:121`).
    (v5.58: also in the Account menu.)
 4. Tag pages: only reachable from tag chips (no tag index for members).
-   (v5.58: still open. There is no tag index page to put in Browse; adding
-   one is a new page, so it waits for the owner.)
+   (v5.58: still open. Trim list: fixed by the `/tags` index in Browse.)
 5. `/join?ref=`: only via someone's invite link (by design; no nav entry
    needed, v5.58).
 

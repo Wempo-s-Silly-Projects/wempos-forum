@@ -127,6 +127,22 @@ test("fold-all: appears once older replies bring a short first page past the thr
   assert.equal(collect(wrapper, "fold-all-replies").length, 1);
 });
 
+test("fold-all: paging adds it inside the thread toolbar, before the reply filter (trim list #14)", () => {
+  const wrapper = new FakeNode("main");
+  const toolbar = new FakeNode("div");
+  toolbar.className = "thread-tools";
+  const filter = new FakeNode("div");
+  filter.className = "reply-filter";
+  toolbar.append(filter);
+  const list = new FakeNode("div");
+  list.className = "post-list replies-list";
+  list.append(replyCard(), replyCard(), replyCard());
+  wrapper.append(toolbar, list);
+  const toggle = ensureFoldAllToggle(makeFakeDocument(), list);
+  assert.deepEqual([...toolbar.children], [toggle, filter]);
+  assert.equal(wrapper.children[1], list, "nothing loose lands above the list");
+});
+
 test("fold-all: the first render counts unloaded pages and paging re-checks the gate", () => {
   const post = read("public/js/routes/post.js");
   assert.match(post, /createFoldAllToggle\(document, replyList, knownReplyTotal\(post\)\)/);

@@ -56,6 +56,7 @@ export const ROUTE_OWNERS = Object.freeze({
   leaderboard: "pages",
   rules: "pages",
   week: "pages",
+  tags: "pages",
   tag: "pages",
   archive: "pages",
   post: "post",

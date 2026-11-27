@@ -85,13 +85,15 @@ test("reply filter treats regex metacharacters literally (no RegExp from user in
   assert.doesNotMatch(source, /new RegExp|innerHTML|insertAdjacentHTML/);
 });
 
-test("appearance reset writes only the three device-pref keys and survives blocked storage", () => {
-  assert.deepEqual([...APPEARANCE_KEYS].sort(), ["forum-corners", "forum-tab-unread", "forum-text-size"]);
+test("appearance reset writes only the six display device-pref keys and survives blocked storage", () => {
+  assert.deepEqual([...APPEARANCE_KEYS].sort(), [
+    "forum-contrast", "forum-corners", "forum-easy-reading", "forum-line-spacing", "forum-link-underline", "forum-text-size",
+  ]);
   for (const key of APPEARANCE_KEYS) assert.doesNotMatch(key, /:u\d|theme/);
   const written = [];
   const storage = { setItem: (key) => { written.push(key); throw new Error("blocked"); } };
   const doc = makeFakeDocument();
-  doc.documentElement = { dataset: {}, style: { setProperty() {}, removeProperty() {} } };
+  doc.documentElement = { dataset: {}, classList: { toggle() {} }, style: { setProperty() {}, removeProperty() {} } };
   doc.title = "(3) Forum";
   assert.doesNotThrow(() => resetAppearance(doc, storage));
   assert.deepEqual(written.sort(), [...APPEARANCE_KEYS].sort());

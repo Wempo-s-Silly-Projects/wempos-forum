@@ -34,7 +34,7 @@ export const SETTINGS_GROUPS = Object.freeze([
   Object.freeze({
     key: "appearance",
     titleKey: "settingsGroups.appearance",
-    panelTitleKeys: Object.freeze(["feed.appearanceTitle", "readingComfort.title", "fun.title"]),
+    panelTitleKeys: Object.freeze(["feed.appearanceTitle", "fun.title"]),
   }),
   Object.freeze({
     key: "notifications",

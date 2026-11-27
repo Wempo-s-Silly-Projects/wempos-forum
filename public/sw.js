@@ -69,7 +69,7 @@ async function cacheFirst(request) {
 async function networkFirstScript(request) {
   const cache = await caches.open(CACHE_NAME);
   try {
-    const response = await fetch(new Request(request, { cache: "no-cache" }));
+    const response = await fetch(request, { cache: "no-cache" });
     if (isStorable(response)) await cache.put(request, response.clone());
     return response;
   } catch (error) {

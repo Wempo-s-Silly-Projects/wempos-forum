@@ -162,6 +162,7 @@ function setRouteTitle(route) {
     leaderboard: t("app.pageLeaderboard"),
     rules: t("app.pageRules"),
     week: t("app.pageWeek"),
+    tags: t("app.pageTags"),
     tag: t("app.pageTag"),
     post: t("app.pagePost"),
     profile: t("app.pageProfile"),
@@ -230,7 +231,7 @@ function reportClientError(kind, error, routeName = null) {
   const route = routeName ?? state.activeRoute?.name;
   const safeRoute = typeof route === "string" && route !== "not-found" ? route : "home";
   const message = typeof error === "string" ? error :
-    typeof error?.message === "string" ? error.message : "Unknown client exception";
+    typeof error?.message === "string" ? error.message : "Unknown client exception"; // i18n-ignore -- error-report payload, never painted
   const payload = boundedClientErrorPayload({
     route: safeRoute,
     kind,
@@ -255,7 +256,7 @@ function installClientErrorReporting() {
   if (clientErrorReportingInstalled) return;
   clientErrorReportingInstalled = true;
   window.addEventListener("error", (event) => {
-    reportClientError("window-error", event.error || event.message || "Window error");
+    reportClientError("window-error", event.error || event.message || "Window error"); // i18n-ignore -- error-report payload
   });
   window.addEventListener("unhandledrejection", (event) => {
     reportClientError("unhandled-rejection", event.reason);
@@ -315,7 +316,7 @@ async function renderRoute(route) {
   // the render function its ROUTE_OWNERS entry names is called.
   const {
     renderSetupRoute, renderHomeRoute, renderSettingsRoute, renderMineRoute, renderLeaderboardRoute,
-    renderRulesRoute, renderWeekRoute, renderTagRoute, renderCategoryRoute, renderArchiveRoute, renderPostRoute,
+    renderRulesRoute, renderWeekRoute, renderTagsRoute, renderTagRoute, renderCategoryRoute, renderArchiveRoute, renderPostRoute,
     renderProfileRoute, renderAdminRoute, renderNotificationsRoute, renderBookmarksRoute,
     renderFullSearchRoute,
   } = view ?? {};
@@ -328,6 +329,7 @@ async function renderRoute(route) {
     leaderboard: () => renderLeaderboardRoute(context, version),
     rules: () => renderRulesRoute(context, version),
     week: () => renderWeekRoute(context, version),
+    tags: () => renderTagsRoute(context, version),
     tag: () => renderTagRoute(route, context, version),
     category: () => renderCategoryRoute(route, context, version),
     archive: () => renderArchiveRoute(context, version),
