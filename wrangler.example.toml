@@ -210,14 +210,9 @@ binding = "ACCOUNTS_WORKER"
 service = "accounts"  # CHANGE ME to your Wempo Accounts worker name
 
 
-# OPTIONAL: automatic maintenance mode. Create an R2 bucket first:
-#   pnpm exec wrangler r2 bucket create wempos-forum-health
-# Then uncomment the binding and Cron trigger. The monitor checks D1, the
-# HTML shell, the app entry module and /api/version once per minute.
-# [[r2_buckets]]
-# binding = "MAINTENANCE_STATE"
-# bucket_name = "wempos-forum-health"
-#
+# OPTIONAL: automatic maintenance mode. Its state is stored in the forum's
+# D1 database by migration 0077; no additional storage binding is required.
+# Uncomment to check application readiness once per minute.
 # [triggers]
 # crons = ["* * * * *"]
 #
