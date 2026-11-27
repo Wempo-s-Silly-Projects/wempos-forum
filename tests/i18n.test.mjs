@@ -176,8 +176,8 @@ for (const { code } of LOCALES.filter((locale) => locale.code !== DEFAULT_LOCALE
 // Exempt only the two exact diagnostic-payload occurrences. A later reuse
 // of either phrase in painted UI copy must still be caught by this sweep.
 const NOT_PAINTED = new Map([
-  ["app.js:232 \"Unknown client exception\"", "client error report payload (staff-only diagnostics)"],
-  ["app.js:257 \"Window error\"", "client error report payload (staff-only diagnostics)"],
+  ["app.js:233 \"Unknown client exception\"", "client error report payload (staff-only diagnostics)"],
+  ["app.js:258 \"Window error\"", "client error report payload (staff-only diagnostics)"],
 ]);
 
 test("no-copy sweep: no painted English literals left in public/js", () => {
