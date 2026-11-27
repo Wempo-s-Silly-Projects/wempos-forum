@@ -325,10 +325,10 @@ async function handleTotpRoutes(request, env, url, path, method) {
     if (!user) {
       throw new HttpError(401, "This verification request has expired. Sign in again.");
     }
+    await assertMaintenanceLoginAllowed(env, userId);
     if (!(await verifyCodeAnswer(db, userId, keyRow.totp_secret, code, keyRow.algorithm))) {
       throw new HttpError(401, "That code is not correct.");
     }
-    await assertMaintenanceLoginAllowed(env, userId);
     // Consume at the LAST step, gated on the delete's own changes count: a
     // concurrent retry on the same challenge can pass the earlier reads but
     // its delete matches zero rows, so exactly one request ever mints the
