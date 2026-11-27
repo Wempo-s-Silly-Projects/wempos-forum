@@ -12,18 +12,22 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 //
-// You should have received a copy of the
-// GNU Affero General Public License along with this program.  If not,
-// see <https://www.gnu.org/licenses/>.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2026 ItsWempo
 
-const STATE_KEY = "system/maintenance-state.json";
 const FAILURE_THRESHOLD = 3;
 const RECOVERY_THRESHOLD = 3;
 const CACHE_TTL_MS = 5_000;
+const READ_STATE_SQL = `
+  SELECT active, failure_streak, success_streak, last_checked_at, last_transition_at
+  FROM automatic_maintenance_state
+  WHERE id = 1
+  LIMIT 1
+`;
 
-let cachedBucket = null;
+let cachedDatabase = null;
 let cachedState = null;
 let cachedUntil = 0;
 
@@ -37,85 +41,113 @@ function emptyState() {
   };
 }
 
-function normaliseState(value) {
-  if (!value || typeof value !== "object") return emptyState();
+function normaliseState(row) {
+  if (!row) return emptyState();
   return {
-    active: value.active === true,
-    failureStreak: Number.isInteger(value.failureStreak) && value.failureStreak > 0 ? value.failureStreak : 0,
-    successStreak: Number.isInteger(value.successStreak) && value.successStreak > 0 ? value.successStreak : 0,
-    lastCheckedAt: typeof value.lastCheckedAt === "string" ? value.lastCheckedAt : null,
-    lastTransitionAt: typeof value.lastTransitionAt === "string" ? value.lastTransitionAt : null,
+    active: Number(row.active) === 1,
+    failureStreak: Number.isInteger(Number(row.failure_streak)) && Number(row.failure_streak) > 0
+      ? Number(row.failure_streak)
+      : 0,
+    successStreak: Number.isInteger(Number(row.success_streak)) && Number(row.success_streak) > 0
+      ? Number(row.success_streak)
+      : 0,
+    lastCheckedAt: typeof row.last_checked_at === "string" ? row.last_checked_at : null,
+    lastTransitionAt: typeof row.last_transition_at === "string" ? row.last_transition_at : null,
   };
 }
 
-async function readState(bucket) {
-  const object = await bucket.get(STATE_KEY);
-  return object ? normaliseState(await object.json()) : emptyState();
+async function readState(database) {
+  const row = await database.prepare(READ_STATE_SQL).first();
+  return normaliseState(row);
 }
 
 export async function isAutoMaintenanceActive(env) {
-  const bucket = env?.MAINTENANCE_STATE;
-  if (!bucket) return false;
+  const database = env?.FORUM_DB;
+  if (!database) return false;
 
   const now = Date.now();
-  if (cachedBucket === bucket && cachedState && now < cachedUntil) {
+  if (cachedDatabase === database && cachedState && now < cachedUntil) {
     return cachedState.active;
   }
 
   try {
-    const state = await readState(bucket);
-    cachedBucket = bucket;
+    const state = await readState(database);
+    cachedDatabase = database;
     cachedState = state;
     cachedUntil = now + CACHE_TTL_MS;
     return state.active;
   } catch {
-    // If the state store itself is unavailable, do not take the whole forum
-    // offline because of the monitor. The manual override remains available.
+    // The monitor's own D1 state must not take the forum offline. The manual
+    // override remains available if the monitor table cannot be read.
     return false;
   }
 }
 
 export async function recordMaintenanceHealth(env, healthy, now = Date.now()) {
-  const bucket = env?.MAINTENANCE_STATE;
-  if (!bucket) return null;
+  const database = env?.FORUM_DB;
+  if (!database) return null;
 
-  const current = await readState(bucket);
-  const next = {
-    ...current,
-    lastCheckedAt: new Date(now).toISOString(),
-  };
+  const checkedAt = new Date(now).toISOString();
+  const failed = healthy ? 0 : 1;
+  const succeeded = healthy ? 1 : 0;
 
-  if (healthy) {
-    next.failureStreak = 0;
-    if (current.active) {
-      next.successStreak = current.successStreak + 1;
-      if (next.successStreak >= RECOVERY_THRESHOLD) {
-        next.active = false;
-        next.successStreak = 0;
-        next.lastTransitionAt = next.lastCheckedAt;
-      }
-    } else {
-      next.successStreak = 0;
-    }
-  } else {
-    next.successStreak = 0;
-    if (!current.active) {
-      next.failureStreak = current.failureStreak + 1;
-      if (next.failureStreak >= FAILURE_THRESHOLD) {
-        next.active = true;
-        next.failureStreak = 0;
-        next.lastTransitionAt = next.lastCheckedAt;
-      }
-    } else {
-      next.failureStreak = 0;
-    }
-  }
+  // A single D1 UPSERT is an atomic read/modify/write. Concurrent scheduled
+  // invocations are serialised by SQLite, so every observation contributes
+  // exactly once and stale reads cannot overwrite a later transition.
+  await database.prepare(`
+    INSERT INTO automatic_maintenance_state (
+      id, active, failure_streak, success_streak, last_checked_at, last_transition_at
+    )
+    VALUES (1, 0, ?, ?, ?, NULL)
+    ON CONFLICT(id) DO UPDATE SET
+      last_transition_at = CASE
+        WHEN automatic_maintenance_state.active = 0
+          AND excluded.failure_streak = 1
+          AND automatic_maintenance_state.failure_streak + 1 >= ?
+          THEN excluded.last_checked_at
+        WHEN automatic_maintenance_state.active = 1
+          AND excluded.success_streak = 1
+          AND automatic_maintenance_state.success_streak + 1 >= ?
+          THEN excluded.last_checked_at
+        ELSE automatic_maintenance_state.last_transition_at
+      END,
+      active = CASE
+        WHEN automatic_maintenance_state.active = 0
+          AND excluded.failure_streak = 1
+          AND automatic_maintenance_state.failure_streak + 1 >= ? THEN 1
+        WHEN automatic_maintenance_state.active = 1
+          AND excluded.success_streak = 1
+          AND automatic_maintenance_state.success_streak + 1 >= ? THEN 0
+        ELSE automatic_maintenance_state.active
+      END,
+      failure_streak = CASE
+        WHEN automatic_maintenance_state.active = 0 AND excluded.failure_streak = 1
+          AND automatic_maintenance_state.failure_streak + 1 < ?
+          THEN automatic_maintenance_state.failure_streak + 1
+        ELSE 0
+      END,
+      success_streak = CASE
+        WHEN automatic_maintenance_state.active = 1 AND excluded.success_streak = 1
+          AND automatic_maintenance_state.success_streak + 1 < ?
+          THEN automatic_maintenance_state.success_streak + 1
+        ELSE 0
+      END,
+      last_checked_at = excluded.last_checked_at
+  `).bind(
+    failed,
+    succeeded,
+    checkedAt,
+    FAILURE_THRESHOLD,
+    RECOVERY_THRESHOLD,
+    FAILURE_THRESHOLD,
+    RECOVERY_THRESHOLD,
+    FAILURE_THRESHOLD,
+    RECOVERY_THRESHOLD,
+  ).run();
 
-  await bucket.put(STATE_KEY, JSON.stringify(next), {
-    httpMetadata: { contentType: "application/json" },
-  });
-  cachedBucket = bucket;
-  cachedState = next;
+  const state = await readState(database);
+  cachedDatabase = database;
+  cachedState = state;
   cachedUntil = now + CACHE_TTL_MS;
-  return next;
+  return state;
 }
