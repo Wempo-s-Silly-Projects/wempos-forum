@@ -415,11 +415,17 @@ async function maintenanceResponse(request, env) {
 }
 
 export default {
-  async scheduled(controller, env) {
+  async scheduled(_controller, env) {
     try {
       await pruneClientErrors(env);
     } catch (error) {
       console.error("Scheduled client-error retention cleanup failed:", error);
+    }
+    try {
+      const healthy = await applicationHealthCheck(env);
+      await recordMaintenanceHealth(env, healthy);
+    } catch (error) {
+      console.error("Automatic maintenance monitor could not update state:", error instanceof Error ? error.name : "unknown");
     }
   },
   async fetch(request, env, ctx) {
@@ -504,12 +510,5 @@ export default {
       return json({ error: "The requested page could not be loaded." }, 500);
     }
   },
-  async scheduled(_controller, env) {
-    try {
-      const healthy = await applicationHealthCheck(env);
-      await recordMaintenanceHealth(env, healthy);
-    } catch (error) {
-      console.error("Automatic maintenance monitor could not update state:", error instanceof Error ? error.name : "unknown");
-    }
-  },
+
 };
