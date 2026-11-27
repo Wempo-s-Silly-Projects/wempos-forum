@@ -210,13 +210,27 @@ function renderNotFoundRoute() {
 // Anonymous client exceptions are sent to the same-origin Worker. The
 // server fingerprints the payload and retains only daily aggregates.
 let clientErrorReportingInstalled = false;
+function boundedClientErrorPayload(fields) {
+  const encoder = new TextEncoder();
+  const stack = Array.from(fields.stack);
+  let low = 0;
+  let high = stack.length;
+  while (low < high) {
+    const middle = Math.ceil((low + high) / 2);
+    const candidate = JSON.stringify({ ...fields, stack: stack.slice(0, middle).join("") });
+    if (encoder.encode(candidate).byteLength <= 4000) low = middle;
+    else high = middle - 1;
+  }
+  return JSON.stringify({ ...fields, stack: stack.slice(0, low).join("") });
+}
+
 function reportClientError(kind, error) {
   if (navigator.globalPrivacyControl === true || navigator.doNotTrack === "1") return;
   const route = state.activeRoute?.name;
   const safeRoute = typeof route === "string" && route !== "not-found" ? route : "home";
   const message = typeof error === "string" ? error :
     typeof error?.message === "string" ? error.message : "Unknown client exception";
-  const payload = JSON.stringify({
+  const payload = boundedClientErrorPayload({
     route: safeRoute,
     kind,
     message: message.slice(0, 500),
