@@ -6,7 +6,7 @@ The forum is one Cloudflare Worker backed by one D1 database. A release has two 
 
 1. Know exactly which commit you're shipping, and make sure `pnpm test` passes on it.
 2. Make sure there's a recoverable backup of the production database (`wempo-forum-data`). D1 Time Travel covers this, but check you can restore before you change anything.
-3. Look at what's new in `migrations/` since the last release. If there's nothing new, skip to the deploy.
+3. Look at what's new in `migrations/` since the last release. If there's nothing new, skip to the deploy. Automatic maintenance requires migration `0077_automatic_maintenance_state.sql` before deploying code that reads its state; the monitor stores state in the existing D1 database and has no R2 bucket prerequisite.
 
 ## Applying migrations
 
